@@ -1,0 +1,45 @@
+
+In addition to ASCII characters as found on most keyboards,
+APL needs what could be called "APL characters".
+
+GNU APL uses Unicode for communication with the user.
+The "APL characters" are particular Unicode characters, see
+src/Avec.def for a list of all characters used by GNU APL.
+
+On systems using X (such as GNU/Linux), the keyboard layout can be easily
+changed to generate the characters wanted, in our case "APL characters"
+in addition to the existing ASCII characters.
+
+This is achieved by the program "xmodmap" and a keyboard mapping table
+like "apl.xmodmap" provided in the same directory as this file.
+Just enter:
+
+xmodmap apl.xmodmap
+
+and your keyboard will produce APL characters when the "Alt" key is
+held down.
+
+
+The keyboard layout defined in file "apl.xmodmap" is roughly this:
+
+
+╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗
+║ ~⍨ ║ !¡ ║ @€ ║ #£ ║ $⍧ ║ %  ║ ^  ║ &  ║ *⍂ ║ (⍱ ║ )⍲ ║ _≡ ║ +⌹ ║         ║
+║ `◊ ║ 1¨ ║ 2¯ ║ 3< ║ 4≤ ║ 5= ║ 6≥ ║ 7> ║ 8≠ ║ 9∨ ║ 0∧ ║ -× ║ =÷ ║ BACKSP  ║
+╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣
+║       ║ Q¿ ║ W⌽ ║ E⍷ ║ R  ║ T⍉ ║ Y¥ ║ U  ║ I⍸ ║ O⍥ ║ P⍟ ║ {  ║ }  ║  |⍀  ║
+║  TAB  ║ q? ║ w⍵ ║ e∈ ║ r⍴ ║ t∼ ║ y↑ ║ u↓ ║ i⍳ ║ o○ ║ p⋆ ║ [← ║ ]→ ║  \⍝  ║
+╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣
+║ (CAPS   ║ A⊖ ║ S  ║ D  ║ F⍫ ║ G⍒ ║ H⍋ ║ J⍤ ║ K⌺ ║ L⍞ ║ :  ║ "  ║         ║
+║  LOCK)  ║ a⍺ ║ s⌈ ║ d⌊ ║ f_ ║ g∇ ║ h∆ ║ j∘ ║ k' ║ l⎕ ║ ;⊢ ║ '⊣ ║ RETURN  ║
+╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣
+║             ║ Z  ║ X  ║ C⍝ ║ V  ║ B⍎ ║ N⍕ ║ M⌶ ║ <⍪ ║ >⍙ ║ ?⌿ ║          ║
+║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⌷ ║ .⍎ ║ /⍕ ║  SHIFT   ║
+╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝
+
+
+
+If you don't like this particular layout, then you can modify "apl.xmodmap"
+to fit your preferences.
+
+
