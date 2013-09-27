@@ -288,7 +288,7 @@ yBODY←0⍴'<please-set-yBODY>'
 ⍝ tag xB as IMAGE
 ⍝ <IMG xB>
 ⍝
-∇yZ←Img[xX] xB
+∇yZ←Img xB
  →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
  Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
  yZ←,⊂'IMG' T xB
@@ -448,7 +448,8 @@ xDESCRIPTION←'Welcome to GNU APL'
 ⍝
 xHTTP_GNU←"http://www.gnu.org/"
 xHTTP_JSA←"http://192.168.0.110/apl/"
-xFTP_GNU←"ftp.gnu.org"
+xFTP_GNU←"ftp://ftp.gnu.org"
+xFTP_APL←xFTP_GNU,"/gnu/apl"
 xMIRRORS←'http://www.gnu.org/prep/ftp.html'
 xGNU_PIC←_src xHTTP_GNU, "graphics/gnu-head-sm.jpg"
 
@@ -464,7 +465,7 @@ xSDEBFILE←xAPL_VERSION, '-1.debian.tar.gz'
 xAPL_TAR←xFTP_GNU, '/', xTARFILE
 xMAIL_GNU←'gnu@gnu.org'
 xMAIL_WEB←'webmasters@gnu.org'
-xMAIL_APL←'apl@gnu.org'
+xMAIL_APL←'bug-apl@gnu.org'
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ some features of GNU APL
@@ -507,7 +508,7 @@ yZ←⊃ Ol I1, I2, I3, I4
 <?apl H1[''] xTITLE ?>
 <TABLE>
   <TR>
-    <TD> <?apl Img[_h_w 122 129] xGNU_PIC ?>
+    <TD> <?apl Img xGNU_PIC, (_alt 'Astrid'), _h_w 122 129 ?>
     <TD width="20%">
     <TD><I> Rho, rho, rho of X<BR>
          Always equals 1<BR>
@@ -541,7 +542,10 @@ is the output of a CGI script written in APL.
 <DIV class="c3">
 
 <?apl H2[''] 'Downloading and Installing GNU APL' ?>
-GNU APL should be available on every GNU mirror in the directory <B>apl</B>.
+GNU APL should be available on every 
+<?apl  xMIRRORS A 'GNU mirror' ?>
+(in directory <B>apl</B>) and at
+<?apl  xFTP_APL A xFTP_GNU ?>.
 
 <?apl H4[''] 'Normal Installation of GNU APL' ?>
 The normal (and fully supported) way to install GNU APL is this:
