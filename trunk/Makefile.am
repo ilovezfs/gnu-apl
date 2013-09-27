@@ -73,12 +73,21 @@ DEB:	dist
 
 # a shortcut to configure for troubleshooting
 #
+.PHONY:	develop
 develop:
 	./configure \
 		VALUE_CHECK_WANTED=yes \
 		DYNAMIC_LOG_WANTED=yes \
 		ASSERT_LEVEL_WANTED=2  \
 		PRINT_SEMA_WANTED=yes
+
+# a shortcut to export changes to ../savannah-repo-apl (which is supposed to be
+# a checkout of the GNU APL repository ar Savannah
+#
+.PHONY:	SYNC
+SYNC:	dist
+	tar xvzf apl-1.0.tar.gz
+	cp -a apl-1.0/* ../savannah-repo-apl/trunk/
 
 am--refresh:
 	echo "making am--refresh"
