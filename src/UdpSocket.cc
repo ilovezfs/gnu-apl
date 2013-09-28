@@ -40,7 +40,6 @@
     are used to send signals from one process to another process.
  */
 
-
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
@@ -48,7 +47,6 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/prctl.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -56,6 +54,13 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+
+#include "../config.h"   // for HAVE_SYS_PRCTL_H
+#ifdef HAVE_SYS_PRCTL_H
+#include <sys/prctl.h>
+#else
+#define prctl(x, y)
+#endif
 
 #include "UdpSocket.hh"
 

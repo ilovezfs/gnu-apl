@@ -562,7 +562,7 @@ const long double initial_fract = modf(value, &value);
 long double fract;
    for (; value >= 1.0; ++d)
       {
-         fract = modfl(value / 10.0, &value);   // U.x -> .U
+         fract = modf(value / 10.0, &value);   // U.x -> .U
          *d = (int)((fract + .02) * 10.0);
          fract -= 0.1 * *d;
       }

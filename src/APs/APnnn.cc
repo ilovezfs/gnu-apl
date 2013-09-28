@@ -24,7 +24,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
