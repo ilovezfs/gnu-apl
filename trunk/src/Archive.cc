@@ -845,8 +845,8 @@ XML_Loading_Archive::XML_Loading_Archive(const char * filename, Workspace & ws)
    fd = open(filename, O_RDONLY);
    if (fd == -1)   return;
 
-struct stat64 st;
-   if (fstat64(fd, &st))
+struct stat st;
+   if (fstat(fd, &st))
       {
         CERR << "fstat() failed: " << strerror(errno) << endl;
         close(fd);

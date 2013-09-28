@@ -89,7 +89,7 @@ APL_time when = now();
 }
 
 static struct sigaction old_control_C_action;
-static struct sigaction new_control_C_action = { control_C, 0, 0, 0, 0 };
+static struct sigaction new_control_C_action = { control_C, 0, 0 };
 
 //-----------------------------------------------------------------------------
 static void
@@ -101,7 +101,7 @@ seg_fault(int)
 }
 
 static struct sigaction old_segfault_action;
-static struct sigaction new_segfault_action = { seg_fault, 0, 0, 0, 0 };
+static struct sigaction new_segfault_action = { seg_fault, 0, 0 };
 
 //-----------------------------------------------------------------------------
 static void
@@ -111,7 +111,7 @@ signal_USR1_handler(int)
 }
 
 static struct sigaction old_USR1_action;
-static struct sigaction new_USR1_action = { signal_USR1_handler, 0, 0, 0, 0 };
+static struct sigaction new_USR1_action = { signal_USR1_handler, 0, 0 };
 
 //-----------------------------------------------------------------------------
 static char APL_bin_path[PATH_MAX + 1] = "";

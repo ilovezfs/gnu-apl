@@ -887,16 +887,14 @@ Quad_UL::get_apl_value() const
 {
 int user_count = 0;
 
-utmp ubuf;
-utmp * ubufp;
-
    setutent();   // rewind utmp file
 
    for (;;)
        {
-         if (getutent_r(&ubuf, &ubufp))   break;
+         utmp * ubufp = getutent();
+         if (ubufp == 0)   break;
 
-         if (ubuf.ut_type == USER_PROCESS)   ++user_count;
+         if (ubufp->ut_type == USER_PROCESS)   ++user_count;
        }
 
    endutent();   // close utmp file

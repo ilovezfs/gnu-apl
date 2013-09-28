@@ -151,10 +151,10 @@ struct reduce_beam
       {
         /// initialize \b this _frame
         void init(Value_P _Z, const Shape3 & Z3,
-                  Value_P _B, ShapeItem _max_bm, int _A0_inc)
+                  Value_P _vB, ShapeItem _max_bm, int _A0_inc)
            {
              Z = _Z;
-             B = _B;
+             B = _vB;
              max_h = Z3.h();
              max_bm = _max_bm;
              max_zm = Z3.m();

@@ -7,7 +7,7 @@ localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 apl_SOURCES = \
-					buildtag.hh		\
+		buildtag		buildtag.hh		\
 					../config.h		\
 					APL_types.hh		\
 Archive.cc				Archive.hh		\
@@ -71,7 +71,7 @@ SkalarFunction.cc			SkalarFunction.hh	\
 StateIndicator.cc			StateIndicator.hh	\
 		    StaticValues.def				\
 Svar_DB.cc				Svar_DB.hh		\
-		    Svar_signals.def	Svar_signals.hh		\
+udp_signal.m4	    Svar_signals.def	Svar_signals.hh		\
 Symbol.cc				Symbol.hh		\
 SymbolTable.cc				SymbolTable.hh		\
 					SystemLimits.hh		\
