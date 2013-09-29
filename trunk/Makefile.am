@@ -88,6 +88,23 @@ develop:
 SYNC:	dist
 	tar xvzf apl-1.0.tar.gz
 	cp -a apl-1.0/* ../savannah-repo-apl/trunk/
+	rm -Rf apl-1.0
+
+# build all packages and SYNC
+#
+.PHONY:	EXPO
+EXPO:
+	svn -m "auto-commit by make EXPO" commit
+	svn update
+	cd src; source buildtag
+	svn -m "auto-commit by make EXPO" commit
+	make distclean
+	./configure
+	make
+	make dist
+	make DEB
+	make RPM
+	make SYNC
 
 am--refresh:
 	echo "making am--refresh"

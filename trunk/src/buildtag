@@ -1,29 +1,9 @@
 
 #
-# this script prints a build tag into file $3
+# this script writes a build tag into file buildtag.hh
 #
-
-# if the current process does not own buildtag, for example when
-# the file is owned by you but make install is called by root, then
-# do not refresh buildtag.hh.
-#
-BUILDTAG_HH_OWNER=`ls -ln buildtag | awk '{print $3;}'`
-if [ $UID != $BUILDTAG_HH_OWNER ]
-then
-    exit 0;
-fi
-
-
 PACKAGE_NAME=$1
 PACKAGE_VERSION=$2
-
-# we change buildtag.hh in every build, but we do not want changes of
-# buildtag.hh alone to show as 'M' in the SVN version.
-#
-# We therefore reverting buildtag.hh before running svnversion.
-# After that, buildtag.hh will be overridden anyway.
-#
-svn revert buildtag.hh
 
 SVNINFO=`svnversion`
 CONFIGURE_OPTS=`../config.status -V | grep "with options" | sed 's/[^"]*//'`
@@ -33,12 +13,4 @@ BUILD_TAG="\" / $SVNINFO\", \"$BUILD_DATE\", \"$BUILD_OS\", $CONFIGURE_OPTS"
 
 echo "#include \"../config.h\""                                   > buildtag.hh
 echo "#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION $BUILD_TAG" >> buildtag.hh
-
-# make sure that buildtag is RELIABLY newer than buildtag.hh, so that
-# buildtag.hh will be generated in every make. touch alone seems not to
-# be reliable, since both buildtag and buildtag.hh occasionally get the
-# same timestamp.
-#
-sleep 0.2
-touch buildtag
 
