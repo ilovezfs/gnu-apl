@@ -466,6 +466,7 @@ xAPL_TAR←xFTP_GNU, '/', xTARFILE
 xMAIL_GNU←'gnu@gnu.org'
 xMAIL_WEB←'webmasters@gnu.org'
 xMAIL_APL←'bug-apl@gnu.org'
+xSVN_APL←'https://savannah.gnu.org/svn/?group=apl'
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ some features of GNU APL
@@ -490,19 +491,22 @@ yZ←⊃ Ol I1, I2, I3, I4
 ∇
 
       ⍝ ⎕INP acts like a HERE document in bash. The monadic form ⎕INP B
-      ⍝ reads subsequenct lines from the input (i.e. the lines below ⎕INP
+      ⍝ reads subsequent lines from the input (i.e. the lines below ⎕INP
       ⍝ if ⎕INP is called in a script) until pattern B is seen. The lines
       ⍝ read are then returned as the result of ⎕INP.
       ⍝
       ⍝ The dyadic form A ⎕INP B acts like the monadic form ⎕INP B.
-      ⍝ A is either a single string or a nested value of strings.
+      ⍝ A is either a single string or a nested value of two strings.
       ⍝
       ⍝ Let A1←A2←A if A is a string or else A1←A[1] and A2←A[2] if A is
       ⍝ a nested 2-element vector containing two strings.
       ⍝
-      ⍝ Then every pattern A1 expression A2 is replaced by ⍎expression.
+      ⍝ Then every pattern A1 expression A2 is replaced by ⍎ expression.
       ⍝
-      yBODY← '<?apl' '?>' ⎕INP 'END-OF-⎕INP'
+      ⍝ We first give an example of ⎕INP in the style of PHP and another,
+      ⍝ more compact, example further down below.
+      ⍝
+      yBODY← '<?apl' '?>' ⎕INP 'END-OF-⎕INP'   ⍝ php style
 
 <DIV class="c1">
 <?apl H1[''] xTITLE ?>
@@ -551,6 +555,17 @@ GNU APL should be available on every
 The normal (and fully supported) way to install GNU APL is this:
 
 <?apl ⊃ INSTALL ?>
+
+<?apl H4[''] 'Subversion (SVN) repository for GNU APL' ?>
+You can also check out the latest verion of GNU APL from its subversion
+repository on Savannah:
+<BR>
+<BR>
+<B>svn co http://svn.savannah.gnu.org/svn/apl/trunk</B>.
+<BR>
+<BR>
+Here is <?apl x2y xSVN_APL A "<EM>more information</EM>" ?>
+about using Subversion with GNU APL.
 
 <?apl H4[''] 'RPMs for GNU APL' ?>
 
@@ -619,7 +634,7 @@ END-OF-⎕INP
       ⍝ preferred style, for example the more compact { ... } style
       ⍝ as shown in the following example:
       ⍝
-      yBODY←yBODY, (,¨'{}') ⎕INP 'END-OF-⎕INP'
+      yBODY←yBODY, (,¨'{}') ⎕INP 'END-OF-⎕INP'   ⍝ more compact style
 <DIV class="c6">
 <BR><HR>
 Return to {x2y "http://www.gnu.org/home.html" A "GNU's home page"}.

@@ -1369,8 +1369,18 @@ const unsigned int vid = find_int_attr("vid", false, 10);
 
    if (d != 0)   symbol.push();
 
-   symbol.assign(values[vid]);
-
+   // symbol.assign() can fail, for example if symbol is a system variable.
+   // inform the user, but continue.
+   try
+      {
+        symbol.assign(values[vid]);
+      }
+   catch (...)
+      {
+        CERR << "*** Could not assign value " << *values[vid]
+             << "    to variable " << symbol.get_name() << " ***" << endl;
+      }
+  
    // if assign() was unsuccessful, e.g. because symbol.is_readonly() then
    // the assigned flag is not set and erase() succeeeds. Otherwise erase()
    // does nothing.
