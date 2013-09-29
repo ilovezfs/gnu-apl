@@ -88,13 +88,17 @@ UTF8_string.cc				UTF8_string.hh		\
 Value.cc				Value.hh		\
 Workspace.cc				Workspace.hh
 
-.precious:	Svar_signals.hh
-Svar_signals.hh:	Svar_signals.def udp_signal.m4
-	m4 -D protocol=Svar_signals udp_signal.m4 > $@
 
-.precious:  buildtag.hh
-buildtag.hh:	buildtag
-	source buildtag
+# normally we would say:
+#
+# Svar_signals.hh: Svar_signals.def udp_signal.m4
+#
+# but what if m4 is missing? So we explicitly 'make update-svar_signals'
+# when Svar_signals.def or udp_signal.m4 have changed (ehich rarely happens)
+#
+.PHONY:	update-svar_signals
+update-svar_signals:
+	m4 -D protocol=Svar_signals udp_signal.m4 > Svar_signals.hh
 
 apl_CXXFLAGS = -rdynamic $(GPROF_WANTED)
 
