@@ -17,7 +17,8 @@ AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h inttypes.h sys/prctl.h stdint.h stdlib.h string.h strings.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h inttypes.h sys/prctl.h stdint.h stdlib.h \
+                  string.h strings.h unistd.h execinfo.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -38,6 +39,7 @@ AC_CHECK_FUNCS([floor memset munmap pow sqrt strchr strerror])
 
 # Checks for libraries.
 AC_CHECK_LIB([lapack], [dgelsy_])
+AC_CHECK_LIB([intl], [libintl_gettext])
 AC_CHECK_LIB([m], [acosh])
 AC_CHECK_LIB([readline], [readline])
 AC_CHECK_LIB([rt], [shm_open])

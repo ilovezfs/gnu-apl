@@ -19,8 +19,6 @@
 */
 
 #include <assert.h>
-#include <cxxabi.h>
-#include <execinfo.h>
 #include <fcntl.h>
 #include <iostream>
 #include <malloc.h>
@@ -30,9 +28,17 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "../config.h"   // for HAVE_EXECINFO_H
+#ifdef HAVE_EXECINFO_H
+# include <execinfo.h>
+# include <cxxabi.h>
+#define EXEC(x) x
+#else
+#define EXEC(x)
+#endif
+
 #include "Backtrace.hh"
 #include "Common.hh"
-//#include "Output.hh"
 
 using namespace std;
 
@@ -160,10 +166,11 @@ int64_t prev_pc = -1LL;
 void
 Backtrace::show_item(int idx, char * s)
 {
+#ifdef HAVE_EXECINFO_H
   //
   // s looks like this:
   //
-  // ./apl2(_ZN10APL_parser9nextTokenEv+0x1dc) [0x80778dc]
+  // ./apl(_ZN10APL_parser9nextTokenEv+0x1dc) [0x80778dc]
   //
 
    // split off address from s.
@@ -249,11 +256,21 @@ char obuf[200] = "@@@@";
 
    if (src_loc)   cerr << " at " << src_loc;
    cerr << endl;
+#endif
 }
 //-----------------------------------------------------------------------------
 void
 Backtrace::show(const char * file, int line)
 {
+   // CYGWIN, for example, has no execinfo.h and the functions declared there
+   //
+#ifndef HAVE_EXECINFO_H
+   CERR << "Cannot show function call stack since execinfo.h seems not"
+           " to exist on this OS (WINDOWs ?)." << endl;
+   return;
+#else
+
+
    open_lines_file();
 
 void * buffer[200];
@@ -281,6 +298,9 @@ char ** strings = backtrace_symbols(buffer, size);
 #if 0
    // crashes at times
    free(strings);   // but not strings[x] !
+#endif
+
+
 #endif
 }
 //-----------------------------------------------------------------------------
