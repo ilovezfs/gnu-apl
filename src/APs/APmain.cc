@@ -183,7 +183,7 @@ control_C(int)
 }
 
 static struct sigaction old_ctl_C_action;
-static struct sigaction new_ctl_C_action  = { control_C, 0, 0, 0, 0 };
+static struct sigaction new_ctl_C_action  = { control_C, 0, 0 };
 
 //-----------------------------------------------------------------------------
 int usage()
