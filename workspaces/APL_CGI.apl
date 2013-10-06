@@ -153,23 +153,18 @@ yBODY←0⍴'<please-set-yBODY>'
 0⍴⎕FX 'xZ←_h_w B'        'xZ←(_height ↑B), _width 1↓B
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ HTML tag xA with attributes xB
-⍝ <xA xB>
+⍝ HTML tag xA with attributes xX.
+⍝ B determines the tag variant:
 ⍝
-∇xZ←xA T xB
+⍝   B = 1: HTML start Tag        <xA xX>
+⍝   B = 2: HTML end Tag          </xA>
+⍝   B = 3: XML start/end Tag     <xA xX/>
+⍝
+∇xZ←xA T[xX] B
+ →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
  Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- xZ←'<',xA,xB,'>'
- Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ HTML end tag for start tag xB
-⍝ </xB>
-⍝
-∇xZ←E xB
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- xZ←'</',xB,'>'
+ Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
+ xZ←'<',((B=2)⍴'/'),xA,xX,((B=3)⍴'/'),'>'
  Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
 ∇
 
@@ -184,9 +179,9 @@ yBODY←0⍴'<please-set-yBODY>'
  Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
  Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
  Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- yZ←,⊂xA T xX
+ yZ←,⊂xA T[xX] 1
  yZ←yZ,indent yB
- yZ←yZ,⊂E xA
+ yZ←yZ,⊂xA T 2
  Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
 ∇
 
@@ -199,7 +194,7 @@ yBODY←0⍴'<please-set-yBODY>'
  Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
  Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
  Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- yZ←,⊂(xA T xX),xB,E xA
+ yZ←,⊂(xA T[xX] 1),xB,xA T 2
  Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
 ∇
 
@@ -212,7 +207,7 @@ yBODY←0⍴'<please-set-yBODY>'
  Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
  Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
  Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- yZ←,⊂(xA T xX),xB
+ yZ←,⊂(xA T[xX] 1),xB
  Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
 ∇
 
@@ -288,10 +283,10 @@ yBODY←0⍴'<please-set-yBODY>'
 ⍝ tag xB as IMAGE
 ⍝ <IMG xB>
 ⍝
-∇yZ←Img xB
+∇yZ←Img[xX] xB
  →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- yZ←,⊂'IMG' T xB
+ Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
+ yZ←,⊂'IMG' T[xX] 1
  Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
 ∇
 
@@ -299,9 +294,9 @@ yBODY←0⍴'<please-set-yBODY>'
 ⍝ tag xB as LINK
 ⍝ <LINK xB>                         ⍝
 ⍝
-∇yZ←Link xB
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- yZ←,⊂'LINK' T xB
+∇yZ←Link xX
+ Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
+ yZ←,⊂'LINK' T[xX] 1
  Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
 ∇
 
@@ -370,8 +365,8 @@ yBODY←0⍴'<please-set-yBODY>'
 ⍝
 ∇yZ←Head;yB
  yB←Title xTITLE
- yB←yB,,⊂'META' T (_http_eq 'Content-Type'), _content 'text/html; charset=UTF-8'
- yB←yB,,⊂'META' T (_name 'description'), _content xDESCRIPTION
+ yB←yB,,⊂'META' T[(_http_eq 'Content-Type'), _content 'text/html; charset=UTF-8'] 1
+ yB←yB,,⊂'META' T[(_name 'description'), _content xDESCRIPTION] 1
  yB←yB,Link (_rel  'stylesheet'),(_type 'text/css'), _href 'apl-home.css'
  yB←yB,Style[_type  'text/css'] ,⊂''
 
@@ -450,6 +445,7 @@ xHTTP_GNU←"http://www.gnu.org/"
 xHTTP_JSA←"http://192.168.0.110/apl/"
 xFTP_GNU←"ftp://ftp.gnu.org"
 xFTP_APL←xFTP_GNU,"/gnu/apl"
+xCYGWIN←"www.cygwin.org"
 xMIRRORS←'http://www.gnu.org/prep/ftp.html'
 xGNU_PIC←_src xHTTP_GNU, "graphics/gnu-head-sm.jpg"
 
@@ -529,17 +525,20 @@ yZ←⊃ Ol I1, I2, I3, I4
 <BR>
 <B>GNU APL</B> is a free interpreter for the programming language APL.
 <BR><BR>
-<B>GNU APL</B> is an (almost) complete implementation of
+The APL interpreter is an (almost) complete implementation of
 <I><B>ISO standard 13751</B></I> aka.
 <I><B>Programming Language APL, Extended.</B></I>
 <BR>
 <BR>
-<B>GNU APL</B> has implemented:
+The APL interpreter has implemented:
 <?apl ⊃ yFEATURES ?>
 
 In addition, <B>GNU APL</B> can be scripted. For example,
 <?apl x2y 'APL_demo.html' A "<B>this HTML page</B>" ?>
 is the output of a CGI script written in APL.
+<BR>
+<BR>
+GNU APL was written and is being maintained by Jürgen Sauermann.
 <BR>
 <BR>
 </DIV>
@@ -556,8 +555,17 @@ The normal (and fully supported) way to install GNU APL is this:
 
 <?apl ⊃ INSTALL ?>
 
+<?apl H4[''] 'GNU APL for WINDOWs' ?>
+
+GNU APL compiles under CYGWIN, (see
+<?apl  ('http://',xCYGWIN) A xCYGWIN ?>),
+provided that the necessary libraries are installed. A 32-bit <B>apl.exe</B>
+that may run under CYGWIN lives in the download area. Use at your own risk and
+see <B>README-5-WINDOWS</B> for further information.
+
 <?apl H4[''] 'Subversion (SVN) repository for GNU APL' ?>
-You can also check out the latest verion of GNU APL from its subversion
+
+You can also check out the latest version of GNU APL from its subversion
 repository on Savannah:
 <BR>
 <BR>
@@ -594,7 +602,7 @@ are, however, that it does NOT work, Please DO NOT report any problems if
 the binary does not run on your machine.
 <BR><BR>
 <B>Note:</B> The binary <B>APnnn</B> (a support program for shared variables)
-is not shipped with <B>apl</B>, so you should start apl with command line
+is not shipped with <B>apl</B>, so you should start the apl binary with command line
 option --noSV.
 <BR><BR>
 </DIV><DIV class="c4">
@@ -603,7 +611,7 @@ option --noSV.
 GNU APL is made up of about 50,000 lines of C++ code. In a code of that
 size, programming mistakes are inevitable. Even though mistakes are hardly
 avoidable, they can be <B>corrected</B> once they are found. In order to
-improve the quality of GNU APL, we would like to encorage you to report
+improve the quality of GNU APL, we would like to encourage you to report
 errors that you find in GNU APL to
 <?apl x2y ("mailto:", xMAIL_APL) A "<EM>", xMAIL_APL, "</EM>" ?>.
 <BR><BR>

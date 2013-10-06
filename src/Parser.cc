@@ -43,7 +43,7 @@ Parser::parse(const UCS_string & input, Token_string & tos)
    //
 Token_string tos1;
    {
-     Tokenizer tokenizer(pmode);
+     Tokenizer tokenizer(pmode, LOC);
      tokenizer.tokenize(input, tos1);
    }
 

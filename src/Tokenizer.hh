@@ -30,8 +30,9 @@ class Tokenizer
 {
 public:
    /// Constructor
-   Tokenizer(ParseMode pm)
-   : pmode(pm)
+   Tokenizer(ParseMode pm, const char * _loc)
+   : pmode(pm),
+     loc(_loc)
    {}
 
    /// Tokenize UTF-8 string \b input into token string \b tos.
@@ -62,6 +63,8 @@ protected:
 
    /// the parsing mode of this parser
    const ParseMode pmode;
+
+   const char * loc;
 };
 
 #endif // __TOKENIZER_HH_DEFINED__

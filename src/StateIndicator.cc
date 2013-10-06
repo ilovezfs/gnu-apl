@@ -414,7 +414,7 @@ const UserFunction * ufun = executable->get_ufun();
         const Function_PC2 error_range(current_stack.get_range_low(),
                                        current_stack.get_range_high());
         // current_stack.print_range(CERR);
-        CERR  << endl;
+        // CERR  << endl;
         executable->set_error_info(err, error_range);
       }
 
@@ -422,7 +422,7 @@ const UserFunction * ufun = executable->get_ufun();
    //
    if (!safe_execution)   err.print_em(COUT, LOC);
 
-   Workspace::the_workspace->update_error(err);
+   Workspace::the_workspace->update_EM_ET(err);   // update ⎕EM and ⎕ET
 
    error = err;
 }
