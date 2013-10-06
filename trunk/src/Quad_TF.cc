@@ -266,7 +266,7 @@ const size_t data_chars = len - idx;
         if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return 0;
 
         UCS_string data(ravel, idx, len - idx);
-        Tokenizer tokenizer(PM_EXECUTE);
+        Tokenizer tokenizer(PM_EXECUTE, LOC);
         Token_string tos;
         try           { tokenizer.tokenize(data, tos); }
         catch (...)   { return 0; }

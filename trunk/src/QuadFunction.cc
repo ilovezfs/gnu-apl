@@ -508,7 +508,7 @@ const UCS_string statement_B(B);
 StateIndicator * si = Workspace::the_workspace->SI_top();
    si->get_error() .set_error_line_2(ucs_2, left_caret, right_caret);
 
-   Workspace::the_workspace->update_error(si->get_error());
+   Workspace::the_workspace->update_EM_ET(si->get_error());  // ⎕EM and ⎕ET
 }
 //=============================================================================
 Token

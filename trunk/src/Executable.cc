@@ -384,45 +384,16 @@ ExecuteList::fix(const UCS_string & data, const char * loc)
       CERR << "fix pmode=execute list:" << endl << data
            <<  endl << "------------------- fix --" << endl;
 
-Workspace * ws = Workspace::the_workspace;
-   Assert(ws);
+   {
+     Workspace * ws = Workspace::the_workspace;
+     Assert(ws);
 
-Error * err = ws->get_error();
-   if (err)   err->parser_loc = 0;
+     Error * err = ws->get_error();
+     if (err)   err->parser_loc = 0;
+   }
 
 ExecuteList * fun = new ExecuteList(data, loc);
-
-Function_Line line_num = Function_Line_0;
-UCS_string ucs_line;
-
-vector<Token_string> token_lines;
-
-   loop(l, data.size())
-       {
-         const Unicode uni = data[l];
-         if (uni == UNI_ASCII_CR)   continue;   // ignore \r.
-
-         if (uni != UNI_ASCII_LF)   ucs_line += uni;
-
-         if (uni != UNI_ASCII_LF && l < (data.size() - 1))   continue;
-
-         // end of line or end of functon reached.
-         //
-         Token_string tos = fun->parse_body_line(line_num, ucs_line, loc);
-         token_lines.push_back(tos);
-
-
-         ucs_line.clear();
-         line_num++;
-       }
-
-   // allocate fun->body and copy all line vectors into fun->body.
-   //
-   loop(v, token_lines.size())
-      {
-        loop(t, token_lines[v].size())
-            fun->body += token_lines[v][t];
-      }
+   fun->body = fun->parse_body_line(Function_Line_0, data, loc);
 
    Log(LOG_UserFunction__fix)
       {
@@ -451,44 +422,16 @@ StatementList::fix(const UCS_string & data, const char * loc)
       CERR << "fix pmode=statement list:" << endl << data
            <<  endl << "------------------- fix --" << endl;
 
-Workspace * ws = Workspace::the_workspace;
-   Assert(ws);
+   {
+     Workspace * ws = Workspace::the_workspace;
+     Assert(ws);
 
-Error * err = ws->get_error();
-   if (err)   err->parser_loc = 0;
+     Error * err = ws->get_error();
+     if (err)   err->parser_loc = 0;
+   }
 
 StatementList * fun = new StatementList(data, loc);
-
-Function_Line line_num = Function_Line_0;
-UCS_string ucs_line;
-
-vector<Token_string> token_lines;
-
-   loop(l, data.size())
-       {
-         const Unicode uni = data[l];
-         if (uni == UNI_ASCII_CR)   continue;   // ignore \r.
-
-         if (uni != UNI_ASCII_LF)   ucs_line += uni;
-
-         if (uni != UNI_ASCII_LF && l < (data.size() - 1))   continue;
-
-         // end of line or end of functon reached.
-         //
-         Token_string tos = fun->parse_body_line(line_num, ucs_line, loc);
-         token_lines.push_back(tos);
-
-         ucs_line.clear();
-         line_num++;
-       }
-
-   // allocate fun->body and copy all line vectors into fun->body.
-   //
-   loop(v, token_lines.size())
-      {
-        loop(t, token_lines[v].size())
-            fun->body += token_lines[v][t];
-      }
+   fun->body = fun->parse_body_line(Function_Line_0, data, loc);
 
    Log(LOG_UserFunction__fix)
       {

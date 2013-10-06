@@ -152,7 +152,7 @@ public:
       { v_quad_EM.clear(loc);   v_quad_ET.clear(loc); }
 
    /// update ⎕EM and ⎕ET according to \b error
-   void update_error(const Error & error)
+   void update_EM_ET(const Error & error)
       { v_quad_EM.update(error);   v_quad_ET.update(error); }
 
    /// lookup an existing name (user defined or ⎕xx, var or function).

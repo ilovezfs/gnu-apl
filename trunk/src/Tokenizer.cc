@@ -70,7 +70,7 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
         switch(tok.get_Class())
             {
               case TC_END:   // chars without APL meaning
-                   throw_apl_error(E_NO_TOKEN, LOC);
+                   throw_parse_error(E_NO_TOKEN, LOC, loc);
                    break;
 
               case TC_RETURN:
@@ -82,7 +82,7 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
                         << " (" << tok << ")" << endl;
                    if (tok.get_tag() == TOK_CHARACTER)
                       CERR << "Unicode: " << UNI(tok.get_char_val()) << endl;
-                   throw_apl_error(E_NON_APL_CHAR, LOC);
+                   throw_parse_error(E_NON_APL_CHAR, LOC, loc);
                    break;
 
               case TC_SYMBOL:
@@ -146,7 +146,7 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
 
               case TC_DIAMOND:
                    if (pmode == PM_EXECUTE)
-                      throw_apl_error(E_BAD_EXECUTE_CHAR, LOC);
+                      throw_parse_error(E_BAD_EXECUTE_CHAR, LOC, loc);
 
                    ++src;
                    tos += tok;
@@ -154,7 +154,7 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
 
               case TC_COLON:
                    if (pmode != PM_FUNCTION)
-                      throw_apl_error(E_BAD_EXECUTE_CHAR, LOC);
+                      throw_parse_error(E_BAD_EXECUTE_CHAR, LOC, loc);
 
                    ++src;
                    tos += tok;
@@ -327,7 +327,8 @@ UCS_string string_value;
               ++src;      // skip the second '
             }
          else if (uni == UNI_ASCII_CR)   continue;
-         else if (uni == UNI_ASCII_LF)   throw_apl_error(E_NO_STRING_END, LOC);
+         else if (uni == UNI_ASCII_LF)   throw_parse_error(E_NO_STRING_END,
+                                                           LOC, loc);
          else                            string_value += uni;
        }
 
@@ -370,7 +371,8 @@ UCS_string string_value;
 
          if (uni == UNI_ASCII_DOUBLE_QUOTE)   break;
          else if (uni == UNI_ASCII_CR)        continue;
-         else if (uni == UNI_ASCII_LF)   throw_apl_error(E_NO_STRING_END, LOC);
+         else if (uni == UNI_ASCII_LF)   throw_parse_error(E_NO_STRING_END,
+                                                           LOC, loc);
          else                            string_value += uni;
        }
 
@@ -411,7 +413,7 @@ bool real_floating = real_flt != real_int;
 
    if (!real_valid)
       {
-        throw_apl_error(E_BAD_NUMBER, LOC);
+        throw_parse_error(E_BAD_NUMBER, LOC, loc);
       }
    else if (src.rest() && *src == UNI_ASCII_J)
       {
@@ -488,8 +490,8 @@ Tokenizer::tokenize_real(Source<Unicode> &src, APL_Float & flt_val,
 {
 const int32_t src_size = src.rest();
 bool dot_seen = false;
-bool E_seen = false;
-bool minus_seen = false;
+int E_pos = 0;   // position of 'e' in utf
+int minus_pos = 0;
 bool digit_seen = false;
 
    // copy chars from src to utf
@@ -516,37 +518,44 @@ UTF8_string utf;
                   break;
 
              case UNI_ASCII_FULLSTOP:
-                  if (dot_seen || E_seen)   goto bad;
+                  if (dot_seen || E_pos)   goto bad;
                   utf += '.';
                   dot_seen = true;
                   break;
 
              case UNI_ASCII_E:
              case UNI_ASCII_e:
-                  if (E_seen)   goto bad;
+                  if (E_pos)   goto bad;   // a second e or E
                   utf += 'e';
-                  E_seen = true;
+                  E_pos = utf.size();
                   break;
 
              case UNI_OVERBAR:
-                  if (!E_seen)   goto bad;
+                  if (!E_pos)      goto bad;
+                  if (minus_pos)   goto bad;   // a second - in exponent
 
                   utf += '-';
-                  minus_seen = true;
+                  minus_pos = utf.size();
                   break;
 
-             bad:
              default: --src;   goon = false;
            }
       }
 
-const int real_cnt = sscanf((const char *) utf.c_str(), "%lg", &flt_val);
-const int int_cnt  = sscanf((const char *) utf.c_str(), "%lld", &int_val);
+   // E or E¯ without exponent digits
+   //
+   if (utf.size() == E_pos)       goto bad;
+   if (utf.size() == minus_pos)   goto bad;
+   {
+     const int real_cnt = sscanf((const char *) utf.c_str(), "%lg", &flt_val);
+     const int int_cnt  = sscanf((const char *) utf.c_str(), "%lld", &int_val);
+     if (digit_seen && (real_cnt > 0))   return true;   // valid real number
+   }
 
-   if (digit_seen && (real_cnt > 0))   return true;   // valid real number
 
    // invalid number: restore src
    //
+bad:
    while (src.rest() < src_size)   --src;
    return false;
 }

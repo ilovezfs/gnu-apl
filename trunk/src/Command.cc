@@ -111,8 +111,7 @@ const Executable * statements = 0;
       }
    catch (Error err)
       {
-        Workspace * ws = Workspace::the_workspace;
-        Assert(ws);
+        COUT << _("SYNTAX ERROR") << endl;
 
         err.print(CERR);
         return;
@@ -991,7 +990,7 @@ Symbol * sym = 0;
 Token_string tos;
    {
      UCS_string data1(data, idx, data.size() - idx);
-     Tokenizer tokenizer(PM_EXECUTE);
+     Tokenizer tokenizer(PM_EXECUTE, LOC);
      try           { tokenizer.tokenize(data1, tos); }
      catch (...)   { return; }
    }

@@ -152,7 +152,6 @@ StateIndicator * si = Workspace::the_workspace->SI_top();
         CERR << endl
              << "throwing " << Error::error_name(code)
              << " at " << loc << endl;
-
       }
 
    Log(LOG_verbose_error)
@@ -186,8 +185,8 @@ throw_parse_error(ErrorCode code, const char * par_loc, const char *loc) throw(E
 Error error(code, loc);
    error.parser_loc = par_loc;
 
-StateIndicator * si = Workspace::the_workspace->SI_top();
-   if (si)   si->update_error_info(error);
+// StateIndicator * si = Workspace::the_workspace->SI_top();
+//   if (si)   si->update_error_info(error);
    throw error;
 }
 //-----------------------------------------------------------------------------
@@ -228,7 +227,7 @@ Error error(E_DEFN_ERROR, loc);
    error.error_message_2 += cmd;   // something like ∇FUN[⎕]∇
    error.left_caret = error.error_message_2.size() - 1;
    if (Workspace::the_workspace->SI_top())   Workspace::the_workspace->SI_top()->get_error() = error;
-   Workspace::the_workspace->update_error(error);
+   Workspace::the_workspace->update_EM_ET(error);   // update ⎕EM and ⎕ET
    throw error;
 }
 //-----------------------------------------------------------------------------

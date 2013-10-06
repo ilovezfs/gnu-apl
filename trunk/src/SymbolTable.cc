@@ -167,7 +167,7 @@ SymbolTable::list_symbol(ostream & out, const UCS_string & buf) const
 Token_string tos;
    try
       {
-        Tokenizer tokenizer(PM_STATEMENT_LIST);
+        Tokenizer tokenizer(PM_STATEMENT_LIST, LOC);
         tokenizer.tokenize(buf, tos);
       }
    catch(...)   // tokenize() failed
