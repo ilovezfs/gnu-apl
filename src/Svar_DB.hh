@@ -279,6 +279,13 @@ struct Svar_DB_memory
    /// return the registered processor \b proc
    Svar_partner_events get_registered(const AP_num3 & id) const;
 
+   /// return true if \b id is not used by any registered proc, parent, or grand
+   bool is_unused_id(AP_num id) const;
+
+   /// return an id >= AP_FIRST_USER that is not mentioned in any registered
+   /// processor (i,e, not proc, parent. or grand)
+   AP_num get_unused_id() const;
+
    /// return the UDP port number for processor \b proc with parent \b parent
    uint16_t get_udp_port(AP_num proc, AP_num parent) const;
 
@@ -418,6 +425,25 @@ public:
       {
         const Svar_partner_events svp = get_registered(id);
         return svp.partner.id.proc > AP_NULL;   // NO_AP or AP_NULL
+      }
+
+   /// return true if \b id is not used by any registered proc, parent, or grand
+   static bool is_unused_id(AP_num id)
+      {
+        bool unused;
+        SV_LOCKED(unused = the_Svar_DB.DB_memory->is_unused_id(id); ,
+                  unused = false; )
+        return unused;
+      }
+
+   /// return an id >= AP_FIRST_USER that is not mentioned in any registered
+   /// processor (i,e, not proc, parent. or grand)
+   static AP_num get_unused_id()
+      {
+        AP_num unused;
+        SV_LOCKED(unused = the_Svar_DB.DB_memory->get_unused_id(); ,
+           unused = NO_AP; )
+        return unused;
       }
 
    /// return the UDP port for communication with AP \b proc

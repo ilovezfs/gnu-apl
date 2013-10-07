@@ -55,13 +55,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../config.h"   // for HAVE_SYS_PRCTL_H
-#ifdef HAVE_SYS_PRCTL_H
-#include <sys/prctl.h>
-#else
-#define prctl(x, y)
-#endif
-
 #include "UdpSocket.hh"
 
 using namespace std;
@@ -208,72 +201,6 @@ int len = -1;
       }
 
    return len;
-}
-//----------------------------------------------------------------------------
-
-/**
- ** we use a convention that a server for "service" does prctl(PR_SET_NAME)
-    with argument "service:port" and provides the service on UDP port \b port
- **/
-int
-UdpSocket::find_server_port(const char * service)
-{
-DIR * dir = opendir("/proc");
-   if (dir == 0)
-      {
-        cerr << "Could not open /proc : " << strerror(errno) << endl;
-        return 0;
-      }
-
-   for (;;)
-       {
-         dirent * entry = readdir(dir);
-         if (entry == 0)   break;
-
-         int pid;
-         if (sscanf(entry->d_name, "%u", &pid) != 1)   continue;
-
-         char stat_filename[40];
-         snprintf(stat_filename, sizeof(stat_filename), "/proc/%d/stat", pid);
-         int stat_fd = open(stat_filename, O_RDONLY);
-         if (stat_fd == -1)   continue;
-
-         char stat_data[40];
-         ssize_t len = read(stat_fd, stat_data, sizeof(stat_data));
-         close(stat_fd);
-
-         if (len <= 0)    continue;
-
-         if (len >= sizeof(stat_data))   len = sizeof(stat_data) - 1;
-         stat_data[len] = 0;
-
-         char stat_wanted[40];
-         snprintf(stat_wanted, sizeof(stat_wanted),
-                  "%u (%s:%%u)", pid, service);
-
-         int port;
-         if (sscanf(stat_data, stat_wanted, &port) == 1)   // found
-            {
-              closedir(dir);
-              return port;
-            }
-       }
-
-   closedir(dir);
-   return 0;
-}
-//----------------------------------------------------------------------------
-int
-UdpServerSocket::register_server_port(const char * service)
-{
-   if (strlen(service) > 10)   return 1;
-
-char name[17];   // prctl allows max. 16 chars for the process name
-   snprintf(name, sizeof(name), "%s:%d", service, get_local_port());
-   name[16] = 0;
-   prctl(PR_SET_NAME, name);
-
-   return 0;   // OK
 }
 //----------------------------------------------------------------------------
 

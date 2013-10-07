@@ -92,10 +92,6 @@ public:
    int recv(void * buffer, int bufsize, uint16_t & from_port,
             uint32_t & from_ip, uint32_t timeout_ms);
 
-   /// find the server port for \b service (on the same machine if
-   /// service was registered with register_server_port()
-   static int find_server_port(const char * service);
-
    /// IP address of localhost
    enum { IP_LOCALHOST = 0x7F000001 };   /// 127.0.0.1
 
@@ -151,9 +147,6 @@ public:
    UdpServerSocket(uint16_t server_port, uint32_t server_ip = IP_LOCALHOST)
    : UdpSocket(server_port, 0, server_ip, 0, true)
    {}
-
-   /// register \b service as being provided on \b port
-   int register_server_port(const char * service);
 
    /// set the client's port number
    void set_remote_port(int port)   { remote_port = port; }

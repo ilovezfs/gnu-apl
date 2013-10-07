@@ -183,7 +183,7 @@ control_C(int)
 }
 
 static struct sigaction old_ctl_C_action;
-static struct sigaction new_ctl_C_action  = { control_C, 0, 0 };
+static struct sigaction new_ctl_C_action;
 
 //-----------------------------------------------------------------------------
 int usage()
@@ -269,8 +269,9 @@ bool auto_started = false;
    //
 UdpServerSocket sock(0);
    if (verbose)  sock.set_debug(CERR);
-   sock.register_server_port(AP_NAME);
 
+   memset(&new_ctl_C_action, 0, sizeof(struct sigaction));
+   new_ctl_C_action.sa_handler = &control_C;
    sigaction(SIGTERM, &new_ctl_C_action, &old_ctl_C_action);
 
 Svar_partner this_proc;

@@ -166,9 +166,6 @@ protected:
    /// read the network profile file from file \b file
    static int read_network_profile(const char * filename);
 
-   /// return true iff processor id \b id is used by another processor
-   static bool proc_is_used(AP_num ap);
-
    /// check that command line argument \b arg is valid, return true if not.
    static bool check_own_id(const char * arg);
 

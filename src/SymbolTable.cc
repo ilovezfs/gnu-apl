@@ -165,15 +165,13 @@ ostream &
 SymbolTable::list_symbol(ostream & out, const UCS_string & buf) const
 {
 Token_string tos;
-   try
       {
         Tokenizer tokenizer(PM_STATEMENT_LIST, LOC);
-        tokenizer.tokenize(buf, tos);
-      }
-   catch(...)   // tokenize() failed
-      {
-        CERR << "parse error 1 in )SYMBOL command." << endl;
-        return out;
+        if (tokenizer.tokenize(buf, tos) != E_NO_ERROR)
+           {
+             CERR << "parse error 1 in )SYMBOL command." << endl;
+             return out;
+           }
       }
 
    if (tos.size() == 0)   // empty argument
