@@ -79,10 +79,7 @@ ProcessorID::init(int argc, const char *argv[], bool do_sv)
       {
         // no --id option in argv: use first free user ID
         //
-        for (id.proc = AP_FIRST_USER; ; id.proc = AP_num(id.proc + 1))
-            {
-              if (!proc_is_used(id.proc))   break;
-            }
+        id.proc = Svar_DB::get_unused_id();
       }
 
    if (!do_sv)   return 0;
@@ -103,40 +100,30 @@ ProcessorID::init(int argc, const char *argv[], bool do_sv)
 }
 //-----------------------------------------------------------------------------
 bool
-ProcessorID::proc_is_used(AP_num id)
-{
-   if (id == 100)   return true;
-   if (id == 120)   return true;
-
-   // if a service aplNNN was registered then id is used...
-   //
-char service[40];
-   snprintf(service, sizeof(service), "apl%u", id);
-   return UdpSocket::find_server_port(service) != 0;
-}
-//-----------------------------------------------------------------------------
-bool
 ProcessorID::check_own_id(const char * arg)
 {
+   // arg is the value provided for command line option --id,
+   // check that is does nor conflict with an existing ID
+   //
    id.proc = NO_AP;
    id.parent = AP_NULL;
    id.grand = AP_NULL;
 
-   {
-     int own = NO_AP;
-     int par = AP_NULL;
-     int grand = AP_NULL;
-     const int count = sscanf(arg, "%u,%u,%u", &own, &par, &grand);
-     if (count < 1)   return true;
+int own = NO_AP;
+int par = AP_NULL;
+int grand = AP_NULL;
+const int count = sscanf(arg, "%u,%u,%u", &own, &par, &grand);
+   if (count < 1)   return true;
 
-     if (proc_is_used(AP_num(own)))   return true;
+   if (Svar_DB::is_unused_id(AP_num(own)))
+      {
+        id.proc   = AP_num(own);
+        id.parent = AP_num(par);
+        id.grand  = AP_num(grand);
+        return false;   // OK
+      }
 
-     id.proc   = AP_num(own);
-     id.parent = AP_num(par);
-     id.grand  = AP_num(grand);
-   }
-
-   return false;
+   return true;   // id is in use
 }
 //-----------------------------------------------------------------------------
 const char *

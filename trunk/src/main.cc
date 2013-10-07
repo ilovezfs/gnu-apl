@@ -89,7 +89,7 @@ APL_time when = now();
 }
 
 static struct sigaction old_control_C_action;
-static struct sigaction new_control_C_action = { control_C, 0, 0 };
+static struct sigaction new_control_C_action;
 
 //-----------------------------------------------------------------------------
 static void
@@ -101,7 +101,7 @@ seg_fault(int)
 }
 
 static struct sigaction old_segfault_action;
-static struct sigaction new_segfault_action = { seg_fault, 0, 0 };
+static struct sigaction new_segfault_action;
 
 //-----------------------------------------------------------------------------
 static void
@@ -111,7 +111,7 @@ signal_USR1_handler(int)
 }
 
 static struct sigaction old_USR1_action;
-static struct sigaction new_USR1_action = { signal_USR1_handler, 0, 0 };
+static struct sigaction new_USR1_action;
 
 //-----------------------------------------------------------------------------
 static char APL_bin_path[PATH_MAX + 1] = "";
@@ -641,6 +641,20 @@ int requested_id = 0;
    progname = argv[0];
    set_APL_bin_path(progname);
    set_APL_lib_root();
+
+   // struct sigaction differs between GNU/Linux and other systems, which
+   // causes direct bracket assignment to not compile on some machines.
+   //
+   // We therefore memset everything to 0 and then set the handler (which
+   // should be compatible on GNU/Linux and other systems.
+   //
+   memset(&new_control_C_action, 0, sizeof(struct sigaction));
+   memset(&new_USR1_action,      0, sizeof(struct sigaction));
+   memset(&new_segfault_action,  0, sizeof(struct sigaction));
+
+   new_control_C_action.sa_handler = &control_C;
+   new_USR1_action     .sa_handler = &signal_USR1_handler;
+   new_segfault_action .sa_handler = &seg_fault;
 
    sigaction(SIGINT,  &new_control_C_action, &old_control_C_action);
    sigaction(SIGUSR1, &new_USR1_action,      &old_USR1_action);

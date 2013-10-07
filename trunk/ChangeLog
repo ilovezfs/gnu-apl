@@ -6,3 +6,7 @@
  ----
  4213 GNU APL 1.0 Initial release
  4271 fixed missing Error display e.g. in tokenize_real()
+ 4276 proper error lines for tokenize() errors
+ 4277 improved sigaction portability
+ 4281 use Svar_DB instead of prctl() to improve portability
+

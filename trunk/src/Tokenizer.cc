@@ -43,14 +43,35 @@
 //-----------------------------------------------------------------------------
 /** convert \b UCS_string input into a Token_string tos.
 */
-void
+ErrorCode
 Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
+{
+   try
+      {
+        do_tokenize(input, tos);
+      }
+   catch (Error err)
+      {
+        const int caret_1 = input.size() - rest_1;
+        const int caret_2 = input.size() - rest_2;
+        err.set_error_line_2(input, caret_1, caret_2);
+        return err.error_code;
+      }
+
+   return E_NO_ERROR;
+}
+//-----------------------------------------------------------------------------
+/** convert \b UCS_string input into a Token_string tos.
+*/
+void
+Tokenizer::do_tokenize(const UCS_string & input, Token_string & tos)
 {
    Log(LOG_tokenize)
       CERR << "tokenize: input[" << input.size() << "] is: «"
            << input << "»" << endl;
 
-   for (Source<Unicode> src(input); src.rest();)
+Source<Unicode> src(input);
+   while (rest_1 = rest_2 = src.rest())
       {
         const Unicode uni = *src;
         if (uni == UNI_COMMENT)   break;
@@ -70,6 +91,7 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
         switch(tok.get_Class())
             {
               case TC_END:   // chars without APL meaning
+                   rest_2 = src.rest();
                    throw_parse_error(E_NO_TOKEN, LOC, loc);
                    break;
 
@@ -82,6 +104,7 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
                         << " (" << tok << ")" << endl;
                    if (tok.get_tag() == TOK_CHARACTER)
                       CERR << "Unicode: " << UNI(tok.get_char_val()) << endl;
+                   rest_2 = src.rest();
                    throw_parse_error(E_NON_APL_CHAR, LOC, loc);
                    break;
 
@@ -146,7 +169,10 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
 
               case TC_DIAMOND:
                    if (pmode == PM_EXECUTE)
-                      throw_parse_error(E_BAD_EXECUTE_CHAR, LOC, loc);
+                      {
+                        rest_2 = src.rest();
+                        throw_parse_error(E_BAD_EXECUTE_CHAR, LOC, loc);
+                      }
 
                    ++src;
                    tos += tok;
@@ -154,7 +180,10 @@ Tokenizer::tokenize(const UCS_string & input, Token_string & tos)
 
               case TC_COLON:
                    if (pmode != PM_FUNCTION)
-                      throw_parse_error(E_BAD_EXECUTE_CHAR, LOC, loc);
+                      {
+                        rest_2 = src.rest();
+                        throw_parse_error(E_BAD_EXECUTE_CHAR, LOC, loc);
+                      }
 
                    ++src;
                    tos += tok;
@@ -326,10 +355,19 @@ UCS_string string_value;
               string_value += UNI_SINGLE_QUOTE;
               ++src;      // skip the second '
             }
-         else if (uni == UNI_ASCII_CR)   continue;
-         else if (uni == UNI_ASCII_LF)   throw_parse_error(E_NO_STRING_END,
-                                                           LOC, loc);
-         else                            string_value += uni;
+         else if (uni == UNI_ASCII_CR)
+            {
+              continue;
+            }
+         else if (uni == UNI_ASCII_LF)
+            {
+              rest_2 = src.rest();
+              throw_parse_error(E_NO_STRING_END, LOC, loc);
+            }
+         else
+            {
+              string_value += uni;
+            }
        }
 
    if (string_value.size() == 1)   // skalar
@@ -369,11 +407,23 @@ UCS_string string_value;
        {
          const Unicode uni = src.get();
 
-         if (uni == UNI_ASCII_DOUBLE_QUOTE)   break;
-         else if (uni == UNI_ASCII_CR)        continue;
-         else if (uni == UNI_ASCII_LF)   throw_parse_error(E_NO_STRING_END,
-                                                           LOC, loc);
-         else                            string_value += uni;
+         if (uni == UNI_ASCII_DOUBLE_QUOTE)
+            {
+              break;
+            }
+         else if (uni == UNI_ASCII_CR)
+            {
+              continue;
+            }
+         else if (uni == UNI_ASCII_LF)
+            {
+              rest_2 = src.rest();
+              throw_parse_error(E_NO_STRING_END, LOC, loc);
+            }
+         else
+            {
+              string_value += uni;
+            }
        }
 
    if (string_value.size() == 1)   // skalar
@@ -413,6 +463,7 @@ bool real_floating = real_flt != real_int;
 
    if (!real_valid)
       {
+        rest_2 = src.rest();
         throw_parse_error(E_BAD_NUMBER, LOC, loc);
       }
    else if (src.rest() && *src == UNI_ASCII_J)
@@ -518,21 +569,21 @@ UTF8_string utf;
                   break;
 
              case UNI_ASCII_FULLSTOP:
-                  if (dot_seen || E_pos)   goto bad;
+                  if (dot_seen || E_pos)   return false;   // error
                   utf += '.';
                   dot_seen = true;
                   break;
 
              case UNI_ASCII_E:
              case UNI_ASCII_e:
-                  if (E_pos)   goto bad;   // a second e or E
+                  if (E_pos)   return false;   // a second e or E
                   utf += 'e';
                   E_pos = utf.size();
                   break;
 
              case UNI_OVERBAR:
-                  if (!E_pos)      goto bad;
-                  if (minus_pos)   goto bad;   // a second - in exponent
+                  if (!E_pos)      return false;   // ¯ without E
+                  if (minus_pos)   return false;   // a second ¯ in exponent
 
                   utf += '-';
                   minus_pos = utf.size();
@@ -544,8 +595,8 @@ UTF8_string utf;
 
    // E or E¯ without exponent digits
    //
-   if (utf.size() == E_pos)       goto bad;
-   if (utf.size() == minus_pos)   goto bad;
+   if (utf.size() == E_pos)       return false;
+   if (utf.size() == minus_pos)   return false;
    {
      const int real_cnt = sscanf((const char *) utf.c_str(), "%lg", &flt_val);
      const int int_cnt  = sscanf((const char *) utf.c_str(), "%lld", &int_val);
@@ -555,8 +606,6 @@ UTF8_string utf;
 
    // invalid number: restore src
    //
-bad:
-   while (src.rest() < src_size)   --src;
    return false;
 }
 //-----------------------------------------------------------------------------

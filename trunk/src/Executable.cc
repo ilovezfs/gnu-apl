@@ -73,14 +73,12 @@ Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
    Log(LOG_UserFunction__set_line)
       CERR << "[" << line << "]" << ucs_line << endl;
 
-Parser parser(get_parse_mode(), loc);
 Token_string in;
-   try { parser.parse(ucs_line, in); }
-   catch (Error err)
-      { err.parser_loc = err.throw_loc;
-        err.throw_loc = LOC;
-        throw;   // rethrow
-      } 
+Parser parser(get_parse_mode(), loc);
+   {
+     ErrorCode ec = parser.parse(ucs_line, in);
+     if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
+   } 
 
 Source<Token> src(in);
 

@@ -32,39 +32,46 @@ public:
    /// Constructor
    Tokenizer(ParseMode pm, const char * _loc)
    : pmode(pm),
-     loc(_loc)
+     loc(_loc),
+     rest_1(0),
+     rest_2(0)
    {}
 
-   /// Tokenize UTF-8 string \b input into token string \b tos.
-   void tokenize(const UCS_string & input, Token_string & tos);
+   /// tokenize UTF-8 string \b input into token string \b tos.
+   ErrorCode tokenize(const UCS_string & input, Token_string & tos);
 
 protected:
-   /// Tokenize a function
+   /// tokenize UTF-8 string \b input into token string \b tos.
+   void do_tokenize(const UCS_string & input, Token_string & tos);
+
+   /// tokenize a function
    void tokenize_function(Source<Unicode> & src, Token_string & tos);
 
-   /// Tokenize a QUAD function or variable
+   /// tokenize a QUAD function or variable
    void tokenize_quad(Source<Unicode> & src, Token_string & tos);
 
-   /// Tokenize a single quoted string
+   /// tokenize a single quoted string
    void tokenize_string1(Source<Unicode> & src, Token_string & tos);
 
-   /// Tokenize a double quoted string
+   /// tokenize a double quoted string
    void tokenize_string2(Source<Unicode> & src, Token_string & tos);
 
-   /// Tokenize a number (integer, floating point, or complex).
+   /// tokenize a number (integer, floating point, or complex).
    void tokenize_number(Source<Unicode> & src, Token_string & tos);
 
-   /// Tokenize a real number (integer or floating point).
+   /// tokenize a real number (integer or floating point).
    bool tokenize_real(Source<Unicode> &src, APL_Float & flt_val,
                       APL_Integer & int_val);
 
-   /// Tokenize a symbol
+   /// tokenize a symbol
    void tokenize_symbol(Source<Unicode> & src, Token_string & tos);
 
    /// the parsing mode of this parser
    const ParseMode pmode;
 
    const char * loc;
+   int rest_1;
+   int rest_2;
 };
 
 #endif // __TOKENIZER_HH_DEFINED__

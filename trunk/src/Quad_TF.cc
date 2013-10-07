@@ -268,9 +268,8 @@ const size_t data_chars = len - idx;
         UCS_string data(ravel, idx, len - idx);
         Tokenizer tokenizer(PM_EXECUTE, LOC);
         Token_string tos;
-        try           { tokenizer.tokenize(data, tos); }
-        catch (...)   { return 0; }
-        if (tos.size() != shape.element_count())   return 0;
+        if (tokenizer.tokenize(data, tos) != E_NO_ERROR)   return 0;
+        if (tos.size() != shape.element_count())           return 0;
 
         // check that all token are numeric...
         //

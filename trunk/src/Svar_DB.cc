@@ -507,6 +507,36 @@ Svar_partner_events svp;
    return svp;
 }
 //-----------------------------------------------------------------------------
+bool
+Svar_DB_memory::is_unused_id(AP_num id) const
+{
+   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+       {
+         const Svar_partner_events & slot = active_processors[a];
+         if (slot.partner.id.proc   == id)   return false;
+         if (slot.partner.id.parent == id)   return false;
+         if (slot.partner.id.grand  == id)   return false;
+       }
+
+   // not used
+   //
+   return true;
+}
+//-----------------------------------------------------------------------------
+AP_num
+Svar_DB_memory::get_unused_id() const
+{
+   for (AP_num proc = AP_FIRST_USER; ; proc = AP_num(proc + 1))
+       {
+         // for the almost impossible case that ap has wrapped
+         //
+         if (proc < AP_FIRST_USER)   proc = AP_FIRST_USER;
+         if (is_unused_id(proc))     return proc;
+       }
+
+   Assert(0 && "Not reached");
+}
+//-----------------------------------------------------------------------------
 uint16_t
 Svar_DB_memory::get_udp_port(AP_num proc, AP_num parent) const
 {

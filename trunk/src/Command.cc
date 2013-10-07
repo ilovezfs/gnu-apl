@@ -112,6 +112,11 @@ const Executable * statements = 0;
    catch (Error err)
       {
         COUT << _("SYNTAX ERROR") << endl;
+        if (err.get_error_line_2().size())
+           {
+             COUT << "      " << err.get_error_line_2() << endl
+                  << "      " << err.get_error_line_3() << endl;
+           }
 
         err.print(CERR);
         return;
@@ -991,8 +996,7 @@ Token_string tos;
    {
      UCS_string data1(data, idx, data.size() - idx);
      Tokenizer tokenizer(PM_EXECUTE, LOC);
-     try           { tokenizer.tokenize(data1, tos); }
-     catch (...)   { return; }
+     if (tokenizer.tokenize(data1, tos) != E_NO_ERROR)   return;
    }
  
    if (tos.size() != shape.element_count())   return;
