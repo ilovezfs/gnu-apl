@@ -9,4 +9,5 @@
  4276 proper error lines for tokenize() errors
  4277 improved sigaction portability
  4281 use Svar_DB instead of prctl() to improve portability
+ 4285 comments on apl.texi included
 

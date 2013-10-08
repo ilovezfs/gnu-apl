@@ -497,14 +497,16 @@ vector:
 <pre class="verbatim">    /bin/apl --id 1010
 </pre>
 
-   <p>The other feature is the monadic system function ⎕ENV B which returns all
-environment variables whose name starts with B. If ⍴B is 0, like:
+   <p>A feature particularly useful for CGI scripting (where some information is
+passed to the APL script via environment variables) is the monadic system
+function ⎕ENV B. ⎕ENV B returns all environment variables whose name
+starts with B. If ⍴B is 0, like:
 
 <pre class="verbatim">    ⎕ENV ''
 </pre>
 
    <p>then all environment variables are returned. 
-The result of ⎕ENV is a 2-by-N matrix. 
+The result of ⎕ENV is a N-by-2 matrix. 
 The first column is the name of the environment variable. 
 The second column is the value of the variable. 
 The number N of environment variables returned obviously depends on
@@ -512,7 +514,37 @@ the number of environment variables whose name begins with the prefix
 given in B. B is case sensitive, but by convention the names of environment
 are uppercase.
 
-   <p>These two features together allow you to write Web pages in APL!
+   <p>If you need to create a longer text, line the body of a web page, then you
+would normally construct it like this:
+
+   <p>BODY←⊂'First line'
+BODY←BODY←⊂'Second line'
+BODY←BODY←⊂'Third line'
+   ...
+
+   <p>That is not very handy for longer texts. Instead you can write the following
+in an APL script:
+
+   <p>BODY←⎕INP 'END-OF-⎕INP'
+First line
+Second line
+Third line
+   ... 
+END-OF-⎕INP
+
+   <p>This works like "Here documents" in bash. The right argument of ⎕INP is
+the end of text marker, ⎕INP also has a dyadic form where the left argument
+specifies an escape sequence from text to apl and back to the text, similar
+to PHP scripts:
+
+   <p>'&lt;?apl' '?&gt;' ⎕INP 'END-OF-⎕INP'
+First line
+Time is now: &lt;?apl ⍕⎕TS ?&gt;
+Third line
+... 
+END-OF-⎕INP
+
+   <p>These features together allow you to write Web pages in APL!
 
 <h4 class="subsection">2.1.3 Script Example</h4>
 
