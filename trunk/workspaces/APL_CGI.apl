@@ -7,10 +7,10 @@
 ⍝ Variable name conventions:
 ⍝
 ⍝ Variables starting with x, e.g. xB, are strings (simple vectors of
-⍝ characters), i.e. 1≡ ≡xB and 1≡''⍴⍴⍴1
+⍝ characters), i.e. 1≡ ≡xB and 1≡''⍴⍴⍴xB
 ⍝
 ⍝ Variables starting with y are vectors of character strings,
-⍝ i.e. 2≡ ≡xB and 1≡''⍴⍴⍴1
+⍝ i.e. 2≡ ≡yB and 1≡''⍴⍴⍴yB
 ⍝
 ⍝ Certain characters in function names have the following meaning:
 ⍝
@@ -111,7 +111,7 @@ yBODY←0⍴'<please-set-yBODY>'
 
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ emit a CGI header (
+⍝ emit a CGI header (if started from a web server)
 ∇xZ←HTTP_header
  xZ←'' ◊ →(0=⍴,⎕ENV "GATEWAY_INTERFACE")⍴0   ⍝ nothing if not run as CGI script
  ⍝
@@ -460,7 +460,7 @@ xDEBFILE←xAPL_VERSION,  '-1_i386.deb'
 xSDEBFILE←xAPL_VERSION, '-1.debian.tar.gz'
 xAPL_TAR←xFTP_GNU, '/', xTARFILE
 xMAIL_GNU←'gnu@gnu.org'
-xMAIL_WEB←'webmasters@gnu.org'
+xMAIL_WEB←'bug-apl@gnu.org'
 xMAIL_APL←'bug-apl@gnu.org'
 xSVN_APL←'https://savannah.gnu.org/svn/?group=apl'
 

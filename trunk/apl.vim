@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     APL
-" Maintainer:   Juergen Sauermann <xxx@vim.org>
+" Maintainer:   Jürgen Sauermann <bug-apl@gnu.org>
 " Last Change:  2012 Mar 3
 
 " standard APL comment

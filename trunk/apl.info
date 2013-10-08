@@ -416,21 +416,42 @@ to the interpreter. In the first example above this would be a nested
 
     /bin/apl --id 1010
 
-   The other feature is the monadic system function ⎕ENV B which
-returns all environment variables whose name starts with B. If ⍴B is 0,
-like:
+   A feature particularly useful for CGI scripting (where some
+information is passed to the APL script via environment variables) is
+the monadic system function ⎕ENV B. ⎕ENV B returns all environment
+variables whose name starts with B. If ⍴B is 0, like:
 
     ⎕ENV ''
 
    then all environment variables are returned.  The result of ⎕ENV is
-a 2-by-N matrix.  The first column is the name of the environment
+a N-by-2 matrix.  The first column is the name of the environment
 variable.  The second column is the value of the variable.  The number
 N of environment variables returned obviously depends on the number of
 environment variables whose name begins with the prefix given in B. B
 is case sensitive, but by convention the names of environment are
 uppercase.
 
-   These two features together allow you to write Web pages in APL!
+   If you need to create a longer text, line the body of a web page,
+then you would normally construct it like this:
+
+   BODY←⊂'First line' BODY←BODY←⊂'Second line' BODY←BODY←⊂'Third line'
+ ...
+
+   That is not very handy for longer texts. Instead you can write the
+following in an APL script:
+
+   BODY←⎕INP 'END-OF-⎕INP' First line Second line Third line    ...
+END-OF-⎕INP
+
+   This works like "Here documents" in bash. The right argument of ⎕INP
+is the end of text marker, ⎕INP also has a dyadic form where the left
+argument specifies an escape sequence from text to apl and back to the
+text, similar to PHP scripts:
+
+   '<?apl' '?>' ⎕INP 'END-OF-⎕INP' First line Time is now: <?apl ⍕⎕TS ?>
+Third line ...  END-OF-⎕INP
+
+   These features together allow you to write Web pages in APL!
 
 2.1.3 Script Example
 --------------------
@@ -1862,11 +1883,11 @@ Tag Table:
 Node: Top232
 Node: Chapter 11162
 Node: Chapter 211239
-Node: Chapter 319807
-Node: Chapter 421408
-Node: Chapter 522721
-Node: Section 5.123224
-Node: Section 5.248353
+Node: Chapter 320675
+Node: Chapter 422276
+Node: Chapter 523589
+Node: Section 5.124092
+Node: Section 5.249221
 
 End Tag Table
 
