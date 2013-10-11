@@ -178,6 +178,7 @@ CCDEPMODE = @CCDEPMODE@
 CERR_COLOR_WANTED = @CERR_COLOR_WANTED@
 CFLAGS = @CFLAGS@
 CIN_COLOR_WANTED = @CIN_COLOR_WANTED@
+CLEAR_EOL_WANTED = @CLEAR_EOL_WANTED@
 COUT_COLOR_WANTED = @COUT_COLOR_WANTED@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -230,6 +231,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 POSUB = @POSUB@
 PRINT_SEMA_WANTED = @PRINT_SEMA_WANTED@
 RANLIB = @RANLIB@
+RESET_COLORS_WANTED = @RESET_COLORS_WANTED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHORT_VALUE_LENGTH_WANTED = @SHORT_VALUE_LENGTH_WANTED@
@@ -294,7 +296,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = APs
 apl_SOURCES = \
-		buildtag		buildtag.hh		\
+		    buildtag		buildtag.hh		\
 					../config.h		\
 					APL_types.hh		\
 Archive.cc				Archive.hh		\
@@ -375,7 +377,7 @@ UTF8_string.cc				UTF8_string.hh		\
 Value.cc				Value.hh		\
 Workspace.cc				Workspace.hh
 
-apl_CXXFLAGS = -rdynamic $(GPROF_WANTED)
+apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
 apl_LDFLAGS = $(GPROF_WANTED) $(LIBS)
 AM_MAKEFLAGS = -j 2
 all: all-recursive

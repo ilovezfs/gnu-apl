@@ -29,8 +29,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-10-07 19:27+0200\n"
-"PO-Revision-Date: 2013-10-07 19:27+0200\n"
+"POT-Creation-Date: 2013-10-11 11:25+0200\n"
+"PO-Revision-Date: 2013-10-11 11:25+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -199,19 +199,19 @@ msgstr " *** bad sub-record of X"
 msgid "Unknown Error"
 msgstr "Unknown Error"
 
-#: src/main.cc:391
+#: src/main.cc:402
 msgid " (default)"
 msgstr " (default)"
 
-#: src/main.cc:402
+#: src/main.cc:413
 msgid "configurable options:"
 msgstr "configurable options:"
 
-#: src/main.cc:428
+#: src/main.cc:439
 msgid ", therefore:"
 msgstr ", therefore:"
 
-#: src/main.cc:463
+#: src/main.cc:474
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -230,23 +230,24 @@ msgstr ""
 "    --id proc            use processor ID proc (default: first unused > "
 "1000)\n"
 
-#: src/main.cc:473
+#: src/main.cc:484
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr "    -l num               turn log facility num (1-%d) ON\n"
 
-#: src/main.cc:479
+#: src/main.cc:490
 #, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --noColor            start with ]XTERM OFF on startup)\n"
 "    --noSV               do not start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
 "    --silent             do not show the welcome message\n"
-"    -s, --script         same as --silent --noCIN --noCONT -f -\n"
+"    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
 "    -v, --version        show version information and exit\n"
 "    -T testcases ...     run testcases\n"
 "    --TM mode            test mode (for -T files):\n"
@@ -262,11 +263,12 @@ msgstr ""
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --noColor            start with ]XTERM OFF on startup)\n"
 "    --noSV               do not start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
 "    --silent             do not show the welcome message\n"
-"    -s, --script         same as --silent --noCIN --noCONT -f -\n"
+"    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
 "    -v, --version        show version information and exit\n"
 "    -T testcases ...     run testcases\n"
 "    --TM mode            test mode (for -T files):\n"
@@ -278,52 +280,52 @@ msgstr ""
 "    --TS                 append to (rather than override) summary.log\n"
 "    --                   end of options for %s\n"
 
-#: src/main.cc:537
+#: src/main.cc:549
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr "Welcome to GNU APL version %s"
 
-#: src/main.cc:538
+#: src/main.cc:550
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr "for details run: %s --gpl."
 
-#: src/main.cc:547
+#: src/main.cc:559
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr "This program comes with ABSOLUTELY NO WARRANTY;"
 
-#: src/main.cc:550
+#: src/main.cc:562
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr "This program is free software, and you are welcome to redistribute it"
 
-#: src/main.cc:551
+#: src/main.cc:563
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "according to the GNU Public License (GPL) version 3 or later."
 
-#: src/main.cc:703
+#: src/main.cc:834
 msgid "-f without filename"
 msgstr "-f without filename"
 
-#: src/main.cc:732
+#: src/main.cc:863
 msgid "-l without log facility"
 msgstr "-l without log facility"
 
-#: src/main.cc:808
+#: src/main.cc:944
 msgid "--TM without test mode"
 msgstr "--TM without test mode"
 
-#: src/main.cc:827
+#: src/main.cc:963
 msgid "-w without milli(seconds)"
 msgstr "-w without milli(seconds)"
 
-#: src/main.cc:833
+#: src/main.cc:969
 msgid "unknown option '"
 msgstr "unknown option '"
 
-#: src/main.cc:856
+#: src/main.cc:992
 msgid "*** Another APL interpreter with --id "
 msgstr "*** Another APL interpreter with --id "
 
-#: src/main.cc:857
+#: src/main.cc:993
 msgid " is already running"
 msgstr " is already running"

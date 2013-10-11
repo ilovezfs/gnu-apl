@@ -30,8 +30,8 @@ struct Token;
 enum CHT_Index
 {
    Invalid_CHT = -1,
-#define char_def(n, u, t, f, p) AV_ ## n,
-#define char_df1(n, u, t, f, p)
+#define char_def( n, _u, _t, _f, _p) AV_ ## n,
+#define char_df1(_n, _u, _t, _f, _p)
 #include "Avec.def"
    MAX_AV,
 };

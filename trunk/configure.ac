@@ -134,6 +134,10 @@ AC_ARG_VAR(CIN_COLOR_WANTED,
          [ CIN  color (see README-2-configure) default: CSI 0;30;47m ])
 AC_ARG_VAR(COUT_COLOR_WANTED,
          [ COUT color (see README-2-configure) default: CSI 0;30;48m ])
+AC_ARG_VAR(RESET_COLORS_WANTED,
+         [ reset colors (see README-2-configure) default: CSI 0;38;48m ])
+AC_ARG_VAR(CLEAR_EOL_WANTED,
+         [ clear to end-of-line (see README-2-configure) default: CSI K ])
 
 if test "x$CERR_COLOR_WANTED" = "x";
    then CERR_COLOR_WANTED="27, 91, '0', ';', '3', '5', ';', '4', '8', 'm'" ; fi
@@ -141,9 +145,15 @@ if test "x$CIN_COLOR_WANTED" = "x";
    then  CIN_COLOR_WANTED="27, 91, '0', ';', '3', '0', ';', '4', '7', 'm'" ; fi
 if test "x$COUT_COLOR_WANTED" = "x";
    then COUT_COLOR_WANTED="27, 91, '0', ';', '3', '0', ';', '4', '8', 'm'" ; fi
+if test "x$RESET_COLORS_WANTED" = "x";
+   then RESET_COLORS_WANTED="27, 91, '0', ';', '3', '8', ';', '4', '8', 'm'"; fi
+if test "x$CLEAR_EOL_WANTED" = "x";
+   then CLEAR_EOL_WANTED="27, 91, 'K'" ; fi
 
 AC_DEFINE_UNQUOTED([CERR_COLOR_WANTED], [$CERR_COLOR_WANTED], [CERR color])
 AC_DEFINE_UNQUOTED([CIN_COLOR_WANTED],  [$CIN_COLOR_WANTED],  [CIN color])
 AC_DEFINE_UNQUOTED([COUT_COLOR_WANTED], [$COUT_COLOR_WANTED], [COUT color])
+AC_DEFINE_UNQUOTED([RESET_COLORS_WANTED],[$RESET_COLORS_WANTED],[default color])
+AC_DEFINE_UNQUOTED([CLEAR_EOL_WANTED], [$CLEAR_EOL_WANTED], [clear to EOL])
 
 AC_OUTPUT

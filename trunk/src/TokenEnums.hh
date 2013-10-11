@@ -230,6 +230,7 @@ TD(TOK_QUAD_TZ       , TC_SYMBOL    , TV_SYM  , ID_QUAD_TZ      )
 TD(TOK_QUAD_UL       , TC_SYMBOL    , TV_SYM  , ID_QUAD_UL      )
 TD(TOK_QUAD_WA       , TC_SYMBOL    , TV_SYM  , ID_QUAD_WA      )
 
+TD(TOK_F0_ZILDE      , TC_FUN0      , TV_FUN  , ID_F0_ZILDE     )
 TD(TOK_F1_EXECUTE    , TC_FUN1      , TV_FUN  , ID_F1_EXECUTE   )
 TD(TOK_QUAD_AF       , TC_FUN1      , TV_FUN  , ID_QUAD_AF      )
 TD(TOK_QUAD_CR       , TC_FUN2      , TV_FUN  , ID_QUAD_CR      )

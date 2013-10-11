@@ -599,6 +599,8 @@ ac_header_list=
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+CLEAR_EOL_WANTED
+RESET_COLORS_WANTED
 COUT_COLOR_WANTED
 CIN_COLOR_WANTED
 CERR_COLOR_WANTED
@@ -755,7 +757,9 @@ ASSERT_LEVEL_WANTED
 SHORT_VALUE_LENGTH_WANTED
 CERR_COLOR_WANTED
 CIN_COLOR_WANTED
-COUT_COLOR_WANTED'
+COUT_COLOR_WANTED
+RESET_COLORS_WANTED
+CLEAR_EOL_WANTED'
 
 
 # Initialize some variables set by options.
@@ -1423,6 +1427,10 @@ Some influential environment variables:
               CIN color (see README-2-configure) default: CSI 0;30;47m
   COUT_COLOR_WANTED
               COUT color (see README-2-configure) default: CSI 0;30;48m
+  RESET_COLORS_WANTED
+              reset colors (see README-2-configure) default: CSI 0;38;48m
+  CLEAR_EOL_WANTED
+              clear to end-of-line (see README-2-configure) default: CSI K
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -7663,12 +7671,18 @@ _ACEOF
 
 
 
+
+
 if test "x$CERR_COLOR_WANTED" = "x";
    then CERR_COLOR_WANTED="27, 91, '0', ';', '3', '5', ';', '4', '8', 'm'" ; fi
 if test "x$CIN_COLOR_WANTED" = "x";
    then  CIN_COLOR_WANTED="27, 91, '0', ';', '3', '0', ';', '4', '7', 'm'" ; fi
 if test "x$COUT_COLOR_WANTED" = "x";
    then COUT_COLOR_WANTED="27, 91, '0', ';', '3', '0', ';', '4', '8', 'm'" ; fi
+if test "x$RESET_COLORS_WANTED" = "x";
+   then RESET_COLORS_WANTED="27, 91, '0', ';', '3', '8', ';', '4', '8', 'm'"; fi
+if test "x$CLEAR_EOL_WANTED" = "x";
+   then CLEAR_EOL_WANTED="27, 91, 'K'" ; fi
 
 
 cat >>confdefs.h <<_ACEOF
@@ -7683,6 +7697,16 @@ _ACEOF
 
 cat >>confdefs.h <<_ACEOF
 #define COUT_COLOR_WANTED $COUT_COLOR_WANTED
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define RESET_COLORS_WANTED $RESET_COLORS_WANTED
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define CLEAR_EOL_WANTED $CLEAR_EOL_WANTED
 _ACEOF
 
 

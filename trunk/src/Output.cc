@@ -27,7 +27,7 @@
 #include "Svar_DB.hh"
 #include "TestFiles.hh"
 
-bool Output::colors_enabled = true;
+bool Output::colors_enabled = false;
 bool Output::print_sema_held = false;
 
 /// a filebuf for stdin echo
@@ -85,6 +85,12 @@ const char color_cout[]  = { COUT_COLOR_WANTED, 0 };   // from config.h
 
 /// VT100 escape sequence to turn cerr color on
 const char color_cerr[] = { CERR_COLOR_WANTED, 0 };   // from config.h
+
+/// VT100 escape sequence to reset colors to their default
+const char reset_colors[] = { RESET_COLORS_WANTED, 0 };   // from config.h
+
+/// VT100 escape sequence to clear to end of line
+const char clear_eol[] = { CLEAR_EOL_WANTED, 0 };   // from config.h
 
 //-----------------------------------------------------------------------------
 int
@@ -144,8 +150,8 @@ Output::reset_colors()
 {
    if (!colors_enabled)   return;
 
-   cout << "\x1b" "[0;38;48m" "\x1b" "[K";
-   cerr << "\x1b" "[0;38;48m" "\x1b" "[K";
+   cout << reset_colors << clear_eol;
+   cerr << reset_colors << clear_eol;
 }
 //-----------------------------------------------------------------------------
 void
@@ -157,15 +163,15 @@ Output::set_color_mode(Output::ColorMode mode)
       {
         switch(color_mode = mode)
            {
-             case COLM_INPUT:  cout << color_cin  << "\x1b" "[K";   break;
-             case COLM_OUTPUT: cout << color_cout << "\x1b" "[K";   break;
-             case COLM_ERROR:  cerr << color_cerr << "\x1b" "[K";   break;
+             case COLM_INPUT:  cout << color_cin  << clear_eol;   break;
+             case COLM_OUTPUT: cout << color_cout << clear_eol;   break;
+             case COLM_ERROR:  cerr << color_cerr << clear_eol;   break;
            }
       }
 }
 //-----------------------------------------------------------------------------
 void 
-Output::toggle_color(ostream & out, const UCS_string & arg)
+Output::toggle_color(const UCS_string & arg)
 {
 int a = 0;
    while (a < arg.size() && arg[a] < UNI_ASCII_SPACE)   ++a;

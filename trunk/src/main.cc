@@ -19,10 +19,13 @@
 */
 
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
+#include <signal.h>
 #include <string.h>
 #include <sys/resource.h>
-#include <signal.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "../config.h"   // for _WANTED macros
 #include "buildtag.hh"
@@ -44,7 +47,6 @@
    //
 bool silent = false;
 bool do_not_echo = false;
-
 
 //-----------------------------------------------------------------------------
 /// initialize subsystems
@@ -325,7 +327,7 @@ vector<const char *>argvec;
    //
    // "-other-options..." "-f" "script-name"
    //
-   // We fix this common mistake here. The downsize is, or course, that option
+   // We fix this common mistake here. The downside is, or course, that option
    // names cannnot be script names. We ignore options -h and --help since
    // they exit immediately.
    //
@@ -333,14 +335,23 @@ vector<const char *>argvec;
        {
          const char * opt = argvec[a];
          const char * next = argvec[a + 1];
-         if (!strcmp(opt, "-f") && ( !strcmp(next, "-d")     ||
-                                     !strcmp(next, "--id")   ||
-                                     !strcmp(next, "-l")     ||
-                                     !strcmp(next, "--noSV") ||
-                                     !strcmp(next, "-w")     ||
-                                     !strcmp(next, "-T")     ||
-                                     !strcmp(next, "--TM")))
+         if (!strcmp(opt, "-f") && ( !strcmp(next, "-d")        ||
+                                     !strcmp(next, "--id")      ||
+                                     !strcmp(next, "-l")        ||
+                                     !strcmp(next, "--noCIN")   ||
+                                     !strcmp(next, "--noCONT")  ||
+                                     !strcmp(next, "--noColor") ||
+                                     !strcmp(next, "--noSV")    ||
+                                     !strcmp(next, "--par")     ||
+                                     !strcmp(next, "-s")        ||
+                                     !strcmp(next, "--script")  ||
+                                     !strcmp(next, "--silent")  ||
+                                     !strcmp(next, "-T")        ||
+                                     !strcmp(next, "--TM")      ||
+                                     !strcmp(next, "-w")))
             {
+              // there is another known option after -f
+              //
               for (int aa = a; aa < (argc - 2); ++aa)
                  argvec[aa] = argvec[aa + 1];
               argvec[argc - 2] = opt;   // put the -f before last
@@ -480,11 +491,12 @@ _("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --noColor            start with ]XTERM OFF on startup)\n"
 "    --noSV               do not start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
 "    --silent             do not show the welcome message\n"
-"    -s, --script         same as --silent --noCIN --noCONT -f -\n"
+"    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
 "    -v, --version        show version information and exit\n"
 "    -T testcases ...     run testcases\n"
 "    --TM mode            test mode (for -T files):\n"
@@ -628,17 +640,141 @@ const char * dom = textdomain(PACKAGE);
 }
 #endif
 //-----------------------------------------------------------------------------
+
+/// a structure that contains user preferences from different sources
+/// (command line arguments, config files, environment variables ...)
+struct user_preferences
+{
+   user_preferences()
+   : do_CONT(true),
+     do_Color(true),
+     requested_id(0),
+     do_sv(true),
+     daemon(false),
+     append_summary(false),
+     wait_ms(0)
+   {}
+
+   /// load workspace CONTINUE on start-up
+   bool do_CONT;
+
+   /// output coloring enabled
+   bool do_Color;
+
+   /// desired --id (⎕AI[1] and shared variable functions)
+   int requested_id;
+
+   /// enable shared variables
+   bool do_sv;
+
+   /// run as deamon
+   bool daemon;
+
+   /// append test results to summary.log rather than overriding it
+   bool append_summary;
+
+   /// wait at start-up
+   int wait_ms;
+};
+//-----------------------------------------------------------------------------
+// read user preference file(s) if present
+void
+read_config_file(bool sys, user_preferences & up)
+{
+char filename[PATH_MAX + 1] = "/etc/gnu-apl/preferences";   // fallback filename
+
+
+   if (sys)   // try /etc/gnu-apl/preferences
+      {
+#ifdef SYSCONFDIR
+        if (strlen(SYSCONFDIR))
+           snprintf(filename, PATH_MAX, "%s/gnu-apl/preferences", SYSCONFDIR);
+#endif
+      }
+   else       // try $HOME/.gnu_apl
+      {
+        const char * HOME = getenv("HOME");
+        if (HOME == 0)
+           {
+             Log(LOG_startup)
+                CERR << "environment variable 'HOME' is not defined!" << endl;
+             return;
+           }
+        snprintf(filename, PATH_MAX, "%s/.gnu-apl/preferences", HOME);
+      }
+
+   filename[PATH_MAX] = 0;
+
+FILE * f = fopen(filename, "r");
+   if (f == 0)
+      {
+         Log(LOG_startup)
+            CERR << "config file " << filename
+                 << " is not present/readable" << endl;
+         return;
+      }
+
+   Log(LOG_startup)
+      CERR << "Reading config file " << filename << "..." << endl;
+
+int line = 0;
+   for (;;)
+       {
+         enum { BUFSIZE = 200 };
+         char buffer[BUFSIZE + 1];
+         const char * s = fgets(buffer, BUFSIZE, f);
+         if (s == 0)   break;   // end of file
+
+         buffer[BUFSIZE] = 0;
+         ++line;
+
+         // skip leading spaces
+         //
+         while (*s && *s <= ' ')   ++s;
+         if (*s == 0)     continue;   // empty line
+         if (*s == '#')   continue;   // comment line
+         char opt[BUFSIZE] = { 0 };
+         char arg[BUFSIZE] = { 0 };
+         const int count = sscanf(s, "%s %s", opt, arg);
+         if (count != 2)
+            {
+              CERR << "bad tag or value at line " << line
+                   << " of config file " << filename << " (ignored)" << endl;
+              continue;
+            }
+         const bool yes = !strcasecmp(arg, "YES"     )
+                       || !strcasecmp(arg, "ENABLED" )
+                       || !strcasecmp(arg, "ON"      );
+
+         const bool no  = !strcasecmp(arg, "NO"      )
+                       || !strcasecmp(arg, "DISABLED")
+                       || !strcasecmp(arg, "OFF"     ) ;
+
+         const bool yes_no  = yes || no;
+         const int num  = atoi(arg);
+
+         if (yes_no && !strcasecmp(opt, "Color"))
+            {
+              up.do_Color = yes;
+            }
+       }
+
+   fclose(f);
+}
+//-----------------------------------------------------------------------------
 int
 main(int argc, const char * _argv[])
 {
 const char ** argv = expand_argv(argc, _argv);
-bool do_CONT = true;   // load workspace CONTINUE on start-up
-int requested_id = 0;
+   Quad_ARG::argc = argc;   // remember argc for ⎕ARG
+   Quad_ARG::argv = argv;   // remember argv for ⎕ARG
 
-   Quad_ARG::argc = argc;
-   Quad_ARG::argv = argv;
+user_preferences up;
+   read_config_file(true,  up);   // /etc/gnu-apl/preferences
+   read_config_file(false, up);   // $HOME/.gnu_apl
 
    progname = argv[0];
+
    set_APL_bin_path(progname);
    set_APL_lib_root();
 
@@ -663,11 +799,6 @@ int requested_id = 0;
    init();
 
 Workspace w;
-bool do_sv = true;
-bool daemon = false;
-bool append_summary = false;
-int wait_ms = 0;
-int option_errors = 0;
 
    // init NLS so that usage() will be translated
    //
@@ -692,7 +823,7 @@ int option_errors = 0;
             }
          else if (!strcmp(opt, "-d"))
             {
-              daemon = true;
+              up.daemon = true;
             }
          else if (!strcmp(opt, "-f"))
             {
@@ -718,7 +849,7 @@ int option_errors = 0;
             {
               // skip this option (handled by ProcessorID::init() below)
               //
-              requested_id = val ? atoi(val) : 0;
+              up.requested_id = val ? atoi(val) : 0;
               ++a;
               continue;
             }
@@ -740,11 +871,15 @@ int option_errors = 0;
             }
          else if (!strcmp(opt, "--noCONT"))
             {
-              do_CONT = false;
+              up.do_CONT = false;
+            }
+         else if (!strcmp(opt, "--noColor"))
+            {
+              up.do_Color = false;
             }
          else if (!strcmp(opt, "--noSV"))
             {
-              do_sv = false;
+              up.do_sv = false;
             }
          else if (!strcmp(opt, "--par"))
             {
@@ -755,7 +890,8 @@ int option_errors = 0;
             }
          else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
             {
-              do_CONT = false;                // --noCONT
+              up.do_CONT = false;             // --noCONT
+              up.do_Color = false;            // --noColor
               do_not_echo = true;             // -noCIN
               silent = true;                  // --silent
               Input::input_file_name = "-";   // -f -
@@ -766,7 +902,7 @@ int option_errors = 0;
             }
          else if (!strcmp(opt, "-T"))
             {
-              do_CONT = false;
+              up.do_CONT = false;
 
               // TestFiles::open_next_testfile() will exit if it sees "-"
               //
@@ -787,7 +923,7 @@ int option_errors = 0;
                  {
                    // truncate summary.log, unless append_summary is desired
                    //
-                   if (!append_summary)
+                   if (!up.append_summary)
                       {
                         ofstream summary("testcases/summary.log",
                                          ios_base::trunc);
@@ -811,7 +947,7 @@ int option_errors = 0;
             }
          else if (!strcmp(opt, "--TS"))
             {
-              append_summary = true;
+              up.append_summary = true;
             }
          else if (!strcmp(opt, "-v") || !strcmp(opt, "--version"))
             {
@@ -821,7 +957,7 @@ int option_errors = 0;
          else if (!strcmp(opt, "-w"))
             {
               ++a;
-              if (val)   wait_ms = atoi(val);
+              if (val)   up.wait_ms = atoi(val);
               else
                  {
                    CERR << _("-w without milli(seconds)") << endl;
@@ -836,13 +972,13 @@ int option_errors = 0;
             }
        }
 
-   if (daemon)
+   if (up.daemon)
       {
         if (fork())   return 0;   // parent returns
         Log(LOG_startup)   CERR << "process forked" << endl;
       }
 
-   if (wait_ms)   usleep(1000*wait_ms);
+   if (up.wait_ms)   usleep(1000*up.wait_ms);
 
    if (!silent)   show_welcome(cout);
 
@@ -851,14 +987,16 @@ int option_errors = 0;
 
    TestFiles::testcase_count = TestFiles::test_file_names.size();
 
-   if (ProcessorID::init(argc, argv, do_sv))
+   if (ProcessorID::init(argc, argv, up.do_sv))
       {
         COUT << _("*** Another APL interpreter with --id ")
-             << requested_id <<  _(" is already running") << endl;
+             << up.requested_id <<  _(" is already running") << endl;
         return 4;
       }
 
-   if (do_CONT)
+   if (up.do_Color)   Output::toggle_color("ON");
+
+   if (up.do_CONT)
       {
          UCS_string cont("CONTINUE.xml");
          vector<UCS_string> lib_file;
