@@ -79,6 +79,26 @@ public:
    {}
 };
 //-----------------------------------------------------------------------------
+/** System function zilde (⍬)
+ */
+class Bif_F0_ZILDE : public NonskalarFunction
+{
+public:
+   /// Constructor
+   Bif_F0_ZILDE()
+   : NonskalarFunction(TOK_F0_ZILDE)
+   {}
+
+   static Bif_F0_ZILDE fun;   ///< Built-in function.
+
+   /// overladed Function::eval_()
+   virtual Token eval_();
+
+protected:
+   /// overladed Function::may_push_SI()
+   virtual bool may_push_SI() const   { return false; }
+};
+//-----------------------------------------------------------------------------
 /** System function execute
  */
 class Bif_F1_EXECUTE : public NonskalarFunction
@@ -94,7 +114,7 @@ public:
    /// execute string
    static Token execute_statement(const UCS_string & statement);
 
-   /// overladed Function::Function()
+   /// overladed Function::eval_B()
    virtual Token eval_B(Value_P B);
 
 protected:

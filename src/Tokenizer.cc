@@ -236,6 +236,7 @@ Token tok = Avec::uni_to_token(uni);
 
    switch(tok.get_tag())
       {
+        sys(F0_ZILDE,      F0_ZILDE)
         sys(F1_EXECUTE,    F1_EXECUTE)
 
         sys(F2_AND,        F2_AND)

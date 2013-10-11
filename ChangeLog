@@ -10,4 +10,8 @@
  4277 improved sigaction portability
  4281 use Svar_DB instead of prctl() to improve portability
  4285 comments on apl.texi included
+ 4291 replaced ⍧ with ⍬ in ⎕AV and ]KEYB
+ 4293 ⍬ implemented as niladic function
+ 4300 support for config file started
+
 

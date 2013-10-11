@@ -7,7 +7,7 @@ localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 apl_SOURCES = \
-		buildtag		buildtag.hh		\
+		    buildtag		buildtag.hh		\
 					../config.h		\
 					APL_types.hh		\
 Archive.cc				Archive.hh		\
@@ -100,7 +100,7 @@ Workspace.cc				Workspace.hh
 update-svar_signals:
 	m4 -D protocol=Svar_signals udp_signal.m4 > Svar_signals.hh
 
-apl_CXXFLAGS = -rdynamic $(GPROF_WANTED)
+apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
 
 apl_LDFLAGS  = $(GPROF_WANTED) $(LIBS)
 

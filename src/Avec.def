@@ -19,7 +19,7 @@
 */
 
 /** The Unicode characters used in the interpreter.
-    Characters defined with char_def( ,  xx) are contained in ⎕AV
+    Characters defined with char_def( , xxx) are contained in ⎕AV
     Characters defined with char_def( , 0xx) are in ⎕AV without APL relevance
     Characters defined with char_df1() are known in the source code but are 
     not contained in ⎕AV.
@@ -199,12 +199,12 @@ char_def(NABLA              , 0x2207 , END          , NO_SPACE ,  B7) /* ∇ */
 char_def(ELEMENT            , 0x2208 , F12_ELEMENT  , NO_SPACE ,  EE) /* ∈ */
 char_def(RING_OPERATOR      , 0x2218 , JOT          , NO_SPACE ,  F8) /* ∘ */
 char_def(DIVIDES            , 0x2223 , F12_STILE    , NO_SPACE ,  B2) /* ∣ */
-char_def(AND                , 0x2227 , F2_AND       , NO_SPACE , 083) /* ∧ */
+char_def(AND                , 0x2227 , F2_AND       , NO_SPACE ,  83) /* ∧ */
 char_def(OR                 , 0x2228 , F2_OR        , NO_SPACE ,  EB) /* ∨ */
 char_def(INTERSECTION       , 0x2229 , END          , NO_SPACE ,  EF) /* ∩ */
 char_def(UNION              , 0x222A , F1_UNIQUE    , NO_SPACE ,  AC) /* ∪ */
 char_def(DOTTED_DEL         , 0x2235 , END          , NO_SPACE ,  D2) /* ∵ */
-char_def(TILDE_OPERATOR     , 0x223C , F12_WITHOUT  , NO_SPACE , 084) /* ∼ */
+char_def(TILDE_OPERATOR     , 0x223C , F12_WITHOUT  , NO_SPACE ,  84) /* ∼ */
 char_def(NOT_EQUAL          , 0x2260 , F2_UNEQ      , NO_SPACE ,  F4) /* ≠ */
 char_def(EQUIVALENT         , 0x2261 , F12_EQUIV    , NO_SPACE ,  CF) /* ≡ */
 char_def(LESS_OR_EQUAL      , 0x2264 , F2_LEQ       , NO_SPACE ,  F3) /* ≤ */
@@ -217,8 +217,8 @@ char_def(RIGHT_TACK         , 0x22A2 , F2_RIGHT     , NO_SPACE ,  D6) /* ⊢ */
 char_def(LEFT_TACK          , 0x22A3 , F2_LEFT      , NO_SPACE ,  D7) /* ⊣ */
 char_def(DOWN_TACK          , 0x22A4 , F12_ENCODE   , NO_SPACE ,  98) /* ⊤ */
 char_def(UP_TACK            , 0x22A5 , F12_DECODE   , NO_SPACE ,  9D) /* ⊥ */
-char_def(STAR_OPERATOR      , 0x22C6 , F12_POWER    , NO_SPACE , 086) /* ⋆ */
-char_def(EPSILON_UBAR       , 0x22F8 , F2_FIND      , NO_SPACE , 087) /* ⋸ */
+char_def(STAR_OPERATOR      , 0x22C6 , F12_POWER    , NO_SPACE ,  86) /* ⋆ */
+char_def(EPSILON_UBAR       , 0x22F8 , F2_FIND      , NO_SPACE ,  87) /* ⋸ */
 char_def(LEFT_CEILING       , 0x2308 , F12_RND_UP   , NO_SPACE ,  A9) /* ⌈ */
 char_def(LEFT_FLOOR         , 0x230A , F12_RND_DN   , NO_SPACE ,  BE) /* ⌊ */
 char_def(I_BEAM             , 0x2336 , END          , NO_SPACE ,  9F) /* ⌶ */
@@ -270,12 +270,12 @@ char_df1(STAR_DIAERESIS     , 0x2363 , END          , NO_SPACE ,  --) /* ⍣ */
 char_def(JOT_DIARESIS       , 0x2364 , OPER1_RANK   , NO_SPACE ,  94) /* ⍤ */
 char_df1(CIRCLE_DIARESIS    , 0x2365 , END          , NO_SPACE ,  --) /* ⍥ */
 char_df1(DOWN_SHOE_STILE    , 0x2366 , END          , NO_SPACE ,  --) /* ⍦ */
-char_def(LEFT_SHOE_STILE    , 0x2367 , END          , NO_SPACE , 0B0) /* ⍧ */
+char_df1(LEFT_SHOE_STILE    , 0x2367 , END          , NO_SPACE ,  --) /* ⍧ */
 char_def(TILDE_DIAERESIS    , 0x2368 , OPER1_COMMUTE, NO_SPACE ,  AD) /* ⍨ */
 char_df1(GT_THAN_DIAERESIS  , 0x2369 , END          , NO_SPACE ,  --) /* ⍩ */
-char_def(COMMA_BAR          , 0x236A , F12_COMMA1   , NO_SPACE , 0B1) /* ⍪ */
+char_def(COMMA_BAR          , 0x236A , F12_COMMA1   , NO_SPACE ,  B1) /* ⍪ */
 char_def(DEL_TILDE          , 0x236B , END          , NO_SPACE ,  FA) /* ⍫ */
-char_df1(ZILDE              , 0x236C , END          , NO_SPACE ,  --) /* ⍬ */
+char_def(ZILDE              , 0x236C , F0_ZILDE     , NO_SPACE ,  B0) /* ⍬ */
 char_df1(STILE_TILDE        , 0x236D , END          , NO_SPACE ,  --) /* ⍭ */
 char_df1(SEMICOL_UNDERBAR   , 0x236E , END          , NO_SPACE ,  --) /* ⍮ */
 char_df1(QUAD_NOT_EQUAL     , 0x236F , END          , NO_SPACE ,  --) /* ⍯ */

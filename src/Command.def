@@ -61,6 +61,6 @@ cmd_def("]SIS"      , w.list_SI(out, SIM_SIS_dbg);          , )
 cmd_def("]SI"       , w.list_SI(out, SIM_SI_dbg);           , )
 cmd_def("]SVARS"    , Svar_DB::print(out);                  , )
 cmd_def("]SYMBOL"   , w.symbol_table.list_symbol(out, arg); , symbol)
-cmd_def("]XTERM"    , Output::toggle_color(out, arg);       , )
+cmd_def("]XTERM"    , Output::toggle_color(arg);            , )
 
 #undef cmd_def

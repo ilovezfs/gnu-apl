@@ -87,8 +87,8 @@ public:
    /// reset colors to black and white
    static void reset_colors();
 
-   /// toggle color mode (implementation of command ]XTERM)
-   static void toggle_color(ostream & out, const UCS_string & arg);
+   /// set or toggle color mode (implementation of command ]XTERM)
+   static void toggle_color(const UCS_string & arg);
 
    /// true if the print semaphore was acquired
    static bool print_sema_held;

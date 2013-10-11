@@ -42,6 +42,7 @@
 #include "Value.hh"
 #include "Workspace.hh"
                                             
+Bif_F0_ZILDE      Bif_F0_ZILDE::fun;         // ⍬
 Bif_F1_EXECUTE    Bif_F1_EXECUTE::fun;       // ⍎
 Bif_F2_INDEX      Bif_F2_INDEX::fun;         // ⌷
 Bif_F12_PARTITION Bif_F12_PARTITION::fun;    // ⊂
@@ -90,6 +91,12 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
    out << ind << "System Function ";
    print(out);
    out << endl;
+}
+//=============================================================================
+Token
+Bif_F0_ZILDE::eval_()
+{
+   return Token(TOK_APL_VALUE1, &Value::Idx0);
 }
 //=============================================================================
 Token
