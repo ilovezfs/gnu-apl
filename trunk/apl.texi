@@ -278,6 +278,35 @@ All command line options after @code{--} are ignored by the interpreter
 
 @end itemize
 
+@section Config File for GNU APL
+
+The default values for some of the command line options discussed in the
+previous section can be set in a configuration file for GNU APL. The name
+of the configuration file is 'preferences' and it should live in one of
+the following directories:
+
+@itemize
+
+@item
+in the sub-directory gnu-apl.d of the system configuration directory, or
+
+@item
+in the sub-directory .gnu-apl of the user's home directory (as per $HOME).
+
+@end itemize
+
+The system configuration directory is usually /etc or /usr/local/etc and is
+configurable via @option{./configure --sysconfdir}. An empty (i.e. all
+settings commented out) preferences file is being installed in the
+system configuration directory when GNU APL is installed. You can edit
+it or use it as a template to see which options can be controlled.
+
+If file 'preferences' exists in both directories, then the settings in
+$HOME/.gnu-apl/preferences override settings in, for example,
+/etc/gnu-apl.d/preferences.
+
+Command line options in turn override settings in 'preferences' files.
+
 @section File Names and Paths
 
 The GNU APL interpreter is a binary file named apl. It is usually

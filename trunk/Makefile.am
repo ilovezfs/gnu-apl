@@ -14,7 +14,9 @@ dist_doc_DATA = README				\
 		apl.1				\
 		apl.html			\
 		apl.xmodmap
+		
 
+nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 
 info_TEXINFOS = apl.texi
 
@@ -95,6 +97,7 @@ SYNC:	dist
 #
 .PHONY:	EXPO
 EXPO:
+	tools/check_src
 	svn -m "auto-commit by make EXPO" commit
 	svn update
 	cd src; source buildtag

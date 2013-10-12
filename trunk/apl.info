@@ -232,7 +232,35 @@ APL understands the following command line options:
      (except making them available in ⎕ARG).
 
 
-1.4 File Names and Paths
+1.4 Config File for GNU APL
+===========================
+
+The default values for some of the command line options discussed in the
+previous section can be set in a configuration file for GNU APL. The
+name of the configuration file is 'preferences' and it should live in
+one of the following directories:
+
+   * in the sub-directory gnu-apl.d of the system configuration
+     directory, or
+
+   * in the sub-directory .gnu-apl of the user's home directory (as per
+     $HOME).
+
+
+   The system configuration directory is usually /etc or /usr/local/etc
+and is configurable via `./configure --sysconfdir'. An empty (i.e. all
+settings commented out) preferences file is being installed in the
+system configuration directory when GNU APL is installed. You can edit
+it or use it as a template to see which options can be controlled.
+
+   If file 'preferences' exists in both directories, then the settings
+in $HOME/.gnu-apl/preferences override settings in, for example,
+/etc/gnu-apl.d/preferences.
+
+   Command line options in turn override settings in 'preferences'
+files.
+
+1.5 File Names and Paths
 ========================
 
 The GNU APL interpreter is a binary file named apl. It is usually
@@ -1882,12 +1910,12 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top232
 Node: Chapter 11162
-Node: Chapter 211239
-Node: Chapter 320675
-Node: Chapter 422276
-Node: Chapter 523589
-Node: Section 5.124092
-Node: Section 5.249221
+Node: Chapter 212303
+Node: Chapter 321739
+Node: Chapter 423340
+Node: Chapter 524653
+Node: Section 5.125156
+Node: Section 5.250285
 
 End Tag Table
 

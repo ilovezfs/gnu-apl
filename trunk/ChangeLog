@@ -12,6 +12,5 @@
  4285 comments on apl.texi included
  4291 replaced ⍧ with ⍬ in ⎕AV and ]KEYB
  4293 ⍬ implemented as niladic function
- 4300 support for config file started
-
+ 4319 support for config file 'preferences' added
 

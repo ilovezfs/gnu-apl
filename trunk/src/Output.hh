@@ -93,6 +93,21 @@ public:
    /// true if the print semaphore was acquired
    static bool print_sema_held;
 
+   /// escape sequences for CIN colors
+   static char color_CIN[21];
+
+   /// escape sequences for COUT colors
+   static char color_COUT[21];
+
+   /// escape sequences for CERR colors
+   static char color_CERR[21];
+
+   /// escape sequences for resetting colors
+   static char color_RESET[21];
+
+   /// escape sequences for clear to end of line
+   static char clear_EOL[21];
+
 protected:
    /// the current color mode
    static ColorMode color_mode;
