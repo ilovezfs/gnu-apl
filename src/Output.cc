@@ -78,19 +78,19 @@ ostream & get_CERR()
 Output::ColorMode Output::color_mode = COLM_UNDEF;
 
 /// VT100 escape sequence to turn cin color on
-const char color_cin[]  = { CIN_COLOR_WANTED, 0 };   // from config.h
+char Output::color_CIN[21]  = { CIN_COLOR_WANTED, 0 };   // from config.h
 
 /// VT100 escape sequence to turn cout color on
-const char color_cout[]  = { COUT_COLOR_WANTED, 0 };   // from config.h
+char Output::color_COUT[21]  = { COUT_COLOR_WANTED, 0 };   // from config.h
 
 /// VT100 escape sequence to turn cerr color on
-const char color_cerr[] = { CERR_COLOR_WANTED, 0 };   // from config.h
+char Output::color_CERR[21] = { CERR_COLOR_WANTED, 0 };   // from config.h
 
 /// VT100 escape sequence to reset colors to their default
-const char reset_colors[] = { RESET_COLORS_WANTED, 0 };   // from config.h
+char Output::color_RESET[21] = { RESET_COLORS_WANTED, 0 };   // from config.h
 
 /// VT100 escape sequence to clear to end of line
-const char clear_eol[] = { CLEAR_EOL_WANTED, 0 };   // from config.h
+char Output::clear_EOL[21] = { CLEAR_EOL_WANTED, 0 };   // from config.h
 
 //-----------------------------------------------------------------------------
 int
@@ -150,8 +150,8 @@ Output::reset_colors()
 {
    if (!colors_enabled)   return;
 
-   cout << reset_colors << clear_eol;
-   cerr << reset_colors << clear_eol;
+   cout << color_RESET << clear_EOL;
+   cerr << color_RESET << clear_EOL;
 }
 //-----------------------------------------------------------------------------
 void
@@ -163,9 +163,9 @@ Output::set_color_mode(Output::ColorMode mode)
       {
         switch(color_mode = mode)
            {
-             case COLM_INPUT:  cout << color_cin  << clear_eol;   break;
-             case COLM_OUTPUT: cout << color_cout << clear_eol;   break;
-             case COLM_ERROR:  cerr << color_cerr << clear_eol;   break;
+             case COLM_INPUT:  cout << color_CIN  << clear_EOL;   break;
+             case COLM_OUTPUT: cout << color_COUT << clear_EOL;   break;
+             case COLM_ERROR:  cerr << color_CERR << clear_EOL;   break;
            }
       }
 }

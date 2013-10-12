@@ -35,7 +35,8 @@ Copyright (C) 2013 Free Software Foundation, Inc.-->
 <li><a href="#Chapter-1">1.1 Installing APL</a>
 <li><a href="#Chapter-1">1.2 Starting APL</a>
 <li><a href="#Chapter-1">1.3 Command Line Options</a>
-<li><a href="#Chapter-1">1.4 File Names and Paths</a>
+<li><a href="#Chapter-1">1.4 Config File for GNU APL</a>
+<li><a href="#Chapter-1">1.5 File Names and Paths</a>
 </li></ul>
 <li><a name="toc_Chapter-2" href="#Chapter-2">2 Non-standard Features</a>
 <ul>
@@ -309,7 +310,33 @@ options understood by APL applications.
 
    </ul>
 
-<h3 class="section">1.4 File Names and Paths</h3>
+<h3 class="section">1.4 Config File for GNU APL</h3>
+
+<p>The default values for some of the command line options discussed in the
+previous section can be set in a configuration file for GNU APL. The name
+of the configuration file is 'preferences' and it should live in one of
+the following directories:
+
+     <ul>
+<li>in the sub-directory gnu-apl.d of the system configuration directory, or
+
+     <li>in the sub-directory .gnu-apl of the user's home directory (as per $HOME).
+
+   </ul>
+
+   <p>The system configuration directory is usually /etc or /usr/local/etc and is
+configurable via <samp><span class="option">./configure --sysconfdir</span></samp>. An empty (i.e. all
+settings commented out) preferences file is being installed in the
+system configuration directory when GNU APL is installed. You can edit
+it or use it as a template to see which options can be controlled.
+
+   <p>If file 'preferences' exists in both directories, then the settings in
+$HOME/.gnu-apl/preferences override settings in, for example,
+/etc/gnu-apl.d/preferences.
+
+   <p>Command line options in turn override settings in 'preferences' files.
+
+<h3 class="section">1.5 File Names and Paths</h3>
 
 <p>The GNU APL interpreter is a binary file named apl. It is usually
 installed in directory /usr/bin/ or in /usr/local/bin/. The location

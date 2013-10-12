@@ -38,92 +38,47 @@ UdpSocket ProcessorID::APnnn_socket(true);
 bool ProcessorID::doing_SV = true;
 
 //-----------------------------------------------------------------------------
-int
-ProcessorID::init(int argc, const char *argv[], bool do_sv)
+bool
+ProcessorID::init(bool do_sv, int proc_id, int par_id)
 {
    doing_SV = do_sv;
+   id.proc = (AP_num)proc_id;
+   id.parent = par_id ? (AP_num)par_id : AP_NULL;
+   id.grand = AP_NULL;
 
-   for (int a = 1; a < argc; )
-       {
-         const char * opt = argv[a++];
-         const char * val = (a < argc) ? argv[a] : 0;
-
-         if (!strcmp(opt, "--id"))
-            {
-              ++a;
-              if (!val)
-                 {
-                   CERR << "--id without processor number" << endl;
-                   return 1;
-                 }
-
-             if (check_own_id(val))   // sets own_id if successful
-                {
-                  CERR << "--id with bad or used processor number" << endl;
-                  return 2;
-                }
-            }
-         else if (!strcmp(opt, "--par"))
-            {
-              ++a;
-              if (!val)
-                 {
-                   CERR << "--par without processor number" << endl;
-                   return 3;
-                 }
-              id.parent = AP_num(atoi(val));
-            }
-       }
-
-   if (id.proc == NO_AP)
+   if (proc_id == 0)
       {
         // no --id option in argv: use first free user ID
         //
         id.proc = Svar_DB::get_unused_id();
       }
+   else
+      {
+        // --id option provided in argv: check that it is not in use
+        //
+        if (!Svar_DB::is_unused_id(AP_num(proc_id)))
+           {
+             CERR << _("*** Another APL interpreter with --id ")
+                  << proc_id <<  _(" is already running") << endl;
+ 
+             return true;
+           }
+      }
 
-   if (!do_sv)   return 0;
+   if (!do_sv)   return false;
 
    Quad_SVx::start_AP(id.proc, true);
    APnnn_port = Svar_DB::get_udp_port(id.proc, id.parent);
    if (APnnn_port == 0)
       {
         CERR << "*** Failed to start APnnn: processor " << id.proc
-             << " will not accept incoming shared variable offers."
-             << endl;
-        return 4;
+             << " will not accept incoming shared variable offers." << endl;
+        return true;
       }
 
    new (&APnnn_socket) UdpClientSocket(APnnn_port, 0);
 
-   return 0;
-}
-//-----------------------------------------------------------------------------
-bool
-ProcessorID::check_own_id(const char * arg)
-{
-   // arg is the value provided for command line option --id,
-   // check that is does nor conflict with an existing ID
-   //
-   id.proc = NO_AP;
-   id.parent = AP_NULL;
-   id.grand = AP_NULL;
-
-int own = NO_AP;
-int par = AP_NULL;
-int grand = AP_NULL;
-const int count = sscanf(arg, "%u,%u,%u", &own, &par, &grand);
-   if (count < 1)   return true;
-
-   if (Svar_DB::is_unused_id(AP_num(own)))
-      {
-        id.proc   = AP_num(own);
-        id.parent = AP_num(par);
-        id.grand  = AP_num(grand);
-        return false;   // OK
-      }
-
-   return true;   // id is in use
+   return false;   // no error
 }
 //-----------------------------------------------------------------------------
 const char *

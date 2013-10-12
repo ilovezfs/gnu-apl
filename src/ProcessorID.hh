@@ -137,9 +137,10 @@ class ProcessorID
 {
 public:
    /// initialize our own process ID, return non-0 on error.
+   /// proc_id == 0 uses the next free ID > 1000; otherwise proc_id is used.
    /// \b do_sv defines if an APnnn process for incoming ⎕SVO offers
    /// shall be forked.
-   static int init(int argc, const char *argv[], bool do_sv);
+   static bool init(bool do_sv, int proc_id, int par_id);
 
    /// return the own id, parent, and grand-parent
    static const AP_num3 & get_id()        { return id; }
@@ -165,9 +166,6 @@ public:
 protected:
    /// read the network profile file from file \b file
    static int read_network_profile(const char * filename);
-
-   /// check that command line argument \b arg is valid, return true if not.
-   static bool check_own_id(const char * arg);
 
    /// read one SvoPid entry from \b file
    static const char * read_svopid(FILE * file, SvoPid & svopid, int & line);

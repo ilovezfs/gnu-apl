@@ -43,6 +43,7 @@ const char * Log_info(LogId lid);
 
 #else   // static logging
 
+#define Log_control(x, y)
 #define log_def(val, item, txt) enum { LOG_ ## item = val };
 #include "Logging.def"
 

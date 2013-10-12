@@ -340,7 +340,9 @@ vector<const char *>argvec;
                                      !strcmp(next, "-l")        ||
                                      !strcmp(next, "--noCIN")   ||
                                      !strcmp(next, "--noCONT")  ||
+                                     !strcmp(next, "--Color")   ||
                                      !strcmp(next, "--noColor") ||
+                                     !strcmp(next, "--SV")      ||
                                      !strcmp(next, "--noSV")    ||
                                      !strcmp(next, "--par")     ||
                                      !strcmp(next, "-s")        ||
@@ -491,8 +493,8 @@ _("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
-"    --noColor            start with ]XTERM OFF on startup)\n"
-"    --noSV               do not start APnnn (a shared variable server)\n"
+"    --[no]Color          start with ]XTERM ON [OFF])\n"
+"    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
 "    --silent             do not show the welcome message\n"
@@ -649,6 +651,7 @@ struct user_preferences
    : do_CONT(true),
      do_Color(true),
      requested_id(0),
+     requested_par(0),
      do_sv(true),
      daemon(false),
      append_summary(false),
@@ -663,6 +666,9 @@ struct user_preferences
 
    /// desired --id (⎕AI[1] and shared variable functions)
    int requested_id;
+
+   /// desired --par (⎕AI[1] and shared variable functions)
+   int requested_par;
 
    /// enable shared variables
    bool do_sv;
@@ -681,14 +687,14 @@ struct user_preferences
 void
 read_config_file(bool sys, user_preferences & up)
 {
-char filename[PATH_MAX + 1] = "/etc/gnu-apl/preferences";   // fallback filename
+char filename[PATH_MAX + 1] = "/etc/gnu-apl.d/preferences";   // fallback filename
 
 
    if (sys)   // try /etc/gnu-apl/preferences
       {
 #ifdef SYSCONFDIR
         if (strlen(SYSCONFDIR))
-           snprintf(filename, PATH_MAX, "%s/gnu-apl/preferences", SYSCONFDIR);
+           snprintf(filename, PATH_MAX, "%s/gnu-apl.d/preferences", SYSCONFDIR);
 #endif
       }
    else       // try $HOME/.gnu_apl
@@ -715,7 +721,7 @@ FILE * f = fopen(filename, "r");
       }
 
    Log(LOG_startup)
-      CERR << "Reading config file " << filename << "..." << endl;
+      CERR << "Reading config file " << filename << " ..." << endl;
 
 int line = 0;
    for (;;)
@@ -735,13 +741,22 @@ int line = 0;
          if (*s == '#')   continue;   // comment line
          char opt[BUFSIZE] = { 0 };
          char arg[BUFSIZE] = { 0 };
-         const int count = sscanf(s, "%s %s", opt, arg);
-         if (count != 2)
+         int d[20];
+         const int count = sscanf(s, "%s" " %s %X %X %X %X"
+                                          " %X %X %X %X %X"
+                                          " %X %X %X %X %X"
+                                          " %X %X %X %X %X",
+                                     opt, arg,  d+ 1, d+ 2, d+ 3, d+ 4,
+                                          d+ 5, d+ 6, d+ 7, d+ 8, d+ 9,
+                                          d+10, d+11, d+12, d+13, d+14,
+                                          d+15, d+16, d+17, d+18, d+19);
+         if (count < 2)
             {
               CERR << "bad tag or value at line " << line
                    << " of config file " << filename << " (ignored)" << endl;
               continue;
             }
+         d[0] = strtol(arg, 0, 16);
          const bool yes = !strcasecmp(arg, "YES"     )
                        || !strcasecmp(arg, "ENABLED" )
                        || !strcasecmp(arg, "ON"      );
@@ -751,11 +766,47 @@ int line = 0;
                        || !strcasecmp(arg, "OFF"     ) ;
 
          const bool yes_no  = yes || no;
-         const int num  = atoi(arg);
 
          if (yes_no && !strcasecmp(opt, "Color"))
             {
               up.do_Color = yes;
+            }
+         else if (yes_no && !strcasecmp(opt, "Welcome"))
+            {
+              silent = no;
+            }
+         else if (yes_no && !strcasecmp(opt, "SharedVars"))
+            {
+              up.do_sv = yes;
+            }
+         else if (!strcasecmp(opt, "Logging"))
+            {
+              Log_control(LogId(d[0]), true);
+            }
+         else if (!strcasecmp(opt, "CIN-SEQUENCE"))
+            {
+              loop(p, count - 1)   Output::color_CIN[p] = (char)(d[p] & 0xFF);
+              Output::color_CIN[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "COUT-SEQUENCE"))
+            {
+              loop(p, count - 1)   Output::color_COUT[p] = (char)(d[p] & 0xFF);
+              Output::color_COUT[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "CERR-SEQUENCE"))
+            {
+              loop(p, count - 1)   Output::color_CERR[p] = (char)(d[p] & 0xFF);
+              Output::color_CERR[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "RESET-SEQUENCE"))
+            {
+              loop(p, count - 1)   Output::color_RESET[p] = (char)(d[p] & 0xFF);
+              Output::color_RESET[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "CLEAR-EOL-SEQUENCE"))
+            {
+              loop(p, count - 1)   Output::clear_EOL[p] = (char)(d[p] & 0xFF);
+              Output::clear_EOL[count - 1] = 0;
             }
        }
 
@@ -770,7 +821,7 @@ const char ** argv = expand_argv(argc, _argv);
    Quad_ARG::argv = argv;   // remember argv for ⎕ARG
 
 user_preferences up;
-   read_config_file(true,  up);   // /etc/gnu-apl/preferences
+   read_config_file(true,  up);   // /etc/gnu-apl.d/preferences
    read_config_file(false, up);   // $HOME/.gnu_apl
 
    progname = argv[0];
@@ -821,6 +872,14 @@ Workspace w;
               show_configure_options();
               return 0;
             }
+         else if (!strcmp(opt, "--Color"))
+            {
+              up.do_Color = true;
+            }
+         else if (!strcmp(opt, "--noColor"))
+            {
+              up.do_Color = false;
+            }
          else if (!strcmp(opt, "-d"))
             {
               up.daemon = true;
@@ -847,10 +906,14 @@ Workspace w;
             }
          else if (!strcmp(opt, "--id"))
             {
-              // skip this option (handled by ProcessorID::init() below)
-              //
-              up.requested_id = val ? atoi(val) : 0;
               ++a;
+              if (!val)
+                 {
+                   CERR << "--id without processor number" << endl;
+                   return 2;
+                 }
+
+              up.requested_id = atoi(val);
               continue;
             }
 #ifdef DYNAMIC_LOG_WANTED
@@ -861,7 +924,7 @@ Workspace w;
               else
                  {
                    CERR << _("-l without log facility") << endl;
-                   return 1;
+                   return 3;
                  }
             }
 #endif // DYNAMIC_LOG_WANTED
@@ -873,9 +936,9 @@ Workspace w;
             {
               up.do_CONT = false;
             }
-         else if (!strcmp(opt, "--noColor"))
+         else if (!strcmp(opt, "--SV"))
             {
-              up.do_Color = false;
+              up.do_sv = true;
             }
          else if (!strcmp(opt, "--noSV"))
             {
@@ -883,9 +946,13 @@ Workspace w;
             }
          else if (!strcmp(opt, "--par"))
             {
-              // skip this option (handled by ProcessorID::init() below)
-              //
               ++a;
+              if (!val)
+                 {
+                   CERR << "--par without processor number" << endl;
+                   return 4;
+                 }
+              up.requested_par = atoi(val);
               continue;
             }
          else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
@@ -942,7 +1009,7 @@ Workspace w;
               else
                  {
                    CERR << _("--TM without test mode") << endl;
-                   return 1;
+                   return 5;
                  }
             }
          else if (!strcmp(opt, "--TS"))
@@ -961,14 +1028,14 @@ Workspace w;
               else
                  {
                    CERR << _("-w without milli(seconds)") << endl;
-                   return 1;
+                   return 6;
                  }
             }
          else
             {
               CERR << _("unknown option '") << opt << "'" << endl;
               usage(argv[0]);
-              return 1;
+              return 7;
             }
        }
 
@@ -987,11 +1054,10 @@ Workspace w;
 
    TestFiles::testcase_count = TestFiles::test_file_names.size();
 
-   if (ProcessorID::init(argc, argv, up.do_sv))
+   if (ProcessorID::init(up.do_sv, up.requested_id, up.requested_par))
       {
-        COUT << _("*** Another APL interpreter with --id ")
-             << up.requested_id <<  _(" is already running") << endl;
-        return 4;
+        // error message printed in ProcessorID::init()
+        return 8;
       }
 
    if (up.do_Color)   Output::toggle_color("ON");

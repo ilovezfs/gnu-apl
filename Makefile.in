@@ -53,10 +53,11 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/config.h.in $(top_srcdir)/configure ABOUT-NLS \
-	AUTHORS COPYING ChangeLog INSTALL NEWS config.guess \
-	config.rpath config.sub depcomp install-sh missing texinfo.tex
+	$(nobase_dist_sysconf_DATA) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
+	$(top_srcdir)/configure ABOUT-NLS AUTHORS COPYING ChangeLog \
+	INSTALL NEWS config.guess config.rpath config.sub depcomp \
+	install-sh missing texinfo.tex
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/lib-ld.m4 \
@@ -98,7 +99,7 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" \
-	"$(DESTDIR)$(docdir)"
+	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(sysconfdir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -129,7 +130,7 @@ am__uninstall_files_from_dir = { \
 man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man1_MANS)
-DATA = $(dist_doc_DATA)
+DATA = $(dist_doc_DATA) $(nobase_dist_sysconf_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -320,6 +321,7 @@ dist_doc_DATA = README				\
 		apl.html			\
 		apl.xmodmap
 
+nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 info_TEXINFOS = apl.texi
 man1_MANS = apl.1
 ACLOCAL_AMFLAGS = -I m4
@@ -581,6 +583,30 @@ uninstall-dist_docDATA:
 	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(docdir)'; $(am__uninstall_files_from_dir)
+install-nobase_dist_sysconfDATA: $(nobase_dist_sysconf_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(nobase_dist_sysconf_DATA)'; test -n "$(sysconfdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(sysconfdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(sysconfdir)" || exit 1; \
+	fi; \
+	$(am__nobase_list) | while read dir files; do \
+	  xfiles=; for file in $$files; do \
+	    if test -f "$$file"; then xfiles="$$xfiles $$file"; \
+	    else xfiles="$$xfiles $(srcdir)/$$file"; fi; done; \
+	  test -z "$$xfiles" || { \
+	    test "x$$dir" = x. || { \
+	      echo " $(MKDIR_P) '$(DESTDIR)$(sysconfdir)/$$dir'"; \
+	      $(MKDIR_P) "$(DESTDIR)$(sysconfdir)/$$dir"; }; \
+	    echo " $(INSTALL_DATA) $$xfiles '$(DESTDIR)$(sysconfdir)/$$dir'"; \
+	    $(INSTALL_DATA) $$xfiles "$(DESTDIR)$(sysconfdir)/$$dir" || exit $$?; }; \
+	done
+
+uninstall-nobase_dist_sysconfDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nobase_dist_sysconf_DATA)'; test -n "$(sysconfdir)" || list=; \
+	$(am__nobase_strip_setup); files=`$(am__nobase_strip)`; \
+	dir='$(DESTDIR)$(sysconfdir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -925,7 +951,7 @@ check: check-recursive
 all-am: Makefile $(INFO_DEPS) $(MANS) $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)"; do \
+	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(sysconfdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -998,7 +1024,7 @@ install-dvi-am: $(DVIS)
 	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(dvidir)'"; \
 	  $(INSTALL_DATA) $$files "$(DESTDIR)$(dvidir)" || exit $$?; \
 	done
-install-exec-am:
+install-exec-am: install-nobase_dist_sysconfDATA
 
 install-html: install-html-recursive
 
@@ -1119,7 +1145,8 @@ ps-am: $(PSS)
 
 uninstall-am: uninstall-dist_docDATA uninstall-dvi-am \
 	uninstall-html-am uninstall-info-am uninstall-man \
-	uninstall-pdf-am uninstall-ps-am
+	uninstall-nobase_dist_sysconfDATA uninstall-pdf-am \
+	uninstall-ps-am
 
 uninstall-man: uninstall-man1
 
@@ -1136,15 +1163,17 @@ uninstall-man: uninstall-man1
 	install install-am install-data install-data-am \
 	install-dist_docDATA install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-man1 install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-aminfo \
-	maintainer-clean-generic mostlyclean mostlyclean-aminfo \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am uninstall-dist_docDATA uninstall-dvi-am \
-	uninstall-html-am uninstall-info-am uninstall-man \
-	uninstall-man1 uninstall-pdf-am uninstall-ps-am
+	install-info-am install-man install-man1 \
+	install-nobase_dist_sysconfDATA install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-aminfo maintainer-clean-generic mostlyclean \
+	mostlyclean-aminfo mostlyclean-generic pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-dist_docDATA uninstall-dvi-am uninstall-html-am \
+	uninstall-info-am uninstall-man uninstall-man1 \
+	uninstall-nobase_dist_sysconfDATA uninstall-pdf-am \
+	uninstall-ps-am
 
 
 # show make targets
@@ -1221,6 +1250,7 @@ SYNC:	dist
 #
 .PHONY:	EXPO
 EXPO:
+	tools/check_src
 	svn -m "auto-commit by make EXPO" commit
 	svn update
 	cd src; source buildtag
