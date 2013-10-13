@@ -1,0 +1,26 @@
+
+GNU APL has been compiled successfully on non-GNU/Linux systems.
+Some of these systems may require additional settings.
+
+Below are notes from GNU APL users with non-GNU/Linux systems (in
+alphabetical irder)
+
+CYGWIN 5.1
+==========
+
+GNU APL compiles on CYGWIN, see README-5-WINDOWS for details
+
+
+Freebsd 8.4
+===========
+
+Many thanks to Sam Sirlin for providing this!
+
+for configure:
+--------------
+
+setenv CC gcc46
+setenv CXX g++46
+setenv LDFLAGS '-L/usr/local/lib -L/usr/local/lib/gcc46 -R/usr/local/lib -R/usr/local/lib/gcc46'
+setenv LIBS ' -llapack -lblas  -lgfortran -lexecinfo ' 
+

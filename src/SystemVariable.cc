@@ -19,9 +19,11 @@
 */
 
 #include <langinfo.h>
+#include <stdint.h>
 #include <stdlib.h>
-#include <utmp.h>           // for ⎕UL
+#include <utmpx.h>           // for ⎕UL
 #include <sys/resource.h>   // for ⎕WA
+#include <sys/time.h>
 
 #include "CDR.hh"
 #include "CharCell.hh"
@@ -833,8 +835,24 @@ Value_P Z = new Value(7, LOC);
 Quad_TZ::Quad_TZ()
    : SystemVariable(ID_QUAD_TZ)
 {
-   tzset();
-   offset_seconds = timezone;
+   // the GNU/Linux timezone variable conflicts with function timezone() on
+   // other systems. timezone.tz_minuteswest in gettimeofday() does not
+   // sound reliable either.
+   // 
+   // We compute localtime() and gmtime() and take the difference (hoping
+   // that localtime() and gmtime() are mor portable.
+   // 
+timeval now;
+   gettimeofday(&now, 0);
+
+tm * local = localtime(&now.tv_sec);
+const int local_minutes = local->tm_min + 60*local->tm_hour;
+
+tm * gmean = gmtime(&now.tv_sec);
+     const int gm_minutes = gmean->tm_min + 60*gmean->tm_hour;
+     
+const int diff_minutes = local_minutes - gm_minutes;
+   offset_seconds = 60*diff_minutes;
 
 Value_P tz = new Value(LOC);
    if (offset_seconds % 3600 == 0)   // full hour
@@ -887,17 +905,21 @@ Quad_UL::get_apl_value() const
 {
 int user_count = 0;
 
-   setutent();   // rewind utmp file
+#ifdef USER_PROCESS
+   setutxent();   // rewind utmp file
 
    for (;;)
        {
-         utmp * ubufp = getutent();
-         if (ubufp == 0)   break;
+         utmpx * entry = getutxent();
+         if (entry == 0)   break;   // end of  user accounting database
 
-         if (ubufp->ut_type == USER_PROCESS)   ++user_count;
+         if (entry->ut_type == USER_PROCESS)   ++user_count;
        }
 
-   endutent();   // close utmp file
+   endutxent();   // close utmp file
+#else
+   user_count = 1;
+#endif
 
 Value_P Z = new Value(LOC);
    new (&Z->get_ravel(0))   IntCell(user_count);

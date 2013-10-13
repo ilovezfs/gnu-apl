@@ -639,6 +639,7 @@ XML_Saving_Archive ar(outf, *this);
    {
      const int offset = v_quad_TZ.get_offset();
      const YMDhmsu time(now());
+const char * tz_sign = (offset < 0) ? "" : "+";
 
      COUT << setfill('0') << time.year  << "-"
           << setw(2)      << time.month << "-"
@@ -646,7 +647,7 @@ XML_Saving_Archive ar(outf, *this);
           << setw(2)      << time.hour  << ":"
           << setw(2)      << time.minute << ":"
           << setw(2)      << time.second << " (GMT"
-          << offset/3600 << ")"
+          << tz_sign      << offset/3600 << ")"
           << setfill(' ') << endl;
    }
 }

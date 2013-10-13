@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "CDR.hh"
 #include "CharCell.hh"
@@ -34,6 +35,12 @@
 #include "Svar_DB.hh"
 #include "Svar_signals.hh"
 #include "Workspace.hh"
+
+extern char **environ;
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 Quad_SVC Quad_SVC::fun;
 Quad_SVO Quad_SVO::fun;

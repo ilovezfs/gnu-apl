@@ -21,9 +21,6 @@
 #ifndef __CDR_STRING_HH_DEFINED__
 #define __CDR_STRING_HH_DEFINED__
 
-#include <endian.h>
-#include <iomanip>
-
 #include "Simple_string.hh"
 
 /// the CDR data types
@@ -134,9 +131,14 @@ public:
       }
 
 protected:
-   /// return 4 bytes of the header
+   /// return 4 bytes of the header (the header is always big endian)
    uint32_t get_4(unsigned int offset) const
-      { return htobe32(*(const uint32_t *)(items + offset)); }
+      { 
+        return 0xFF000000 & (uint32_t)(items[offset + 0]) << 24
+             | 0x00FF0000 & ((uint32_t)items[offset + 1]) << 16
+             | 0x0000FF00 & ((uint32_t)items[offset + 2]) << 8
+             | 0x000000FF & ((uint32_t)items[offset + 3]);
+      }
 };
 
 #endif // __CDR_STRING_HH_DEFINED__

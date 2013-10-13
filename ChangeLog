@@ -13,4 +13,5 @@
  4291 replaced ⍧ with ⍬ in ⎕AV and ]KEYB
  4293 ⍬ implemented as niladic function
  4319 support for config file 'preferences' added
+ 4333 some portability options fixed
 

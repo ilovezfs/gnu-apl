@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #include "APmain.hh"
 #include "CDR_string.hh"

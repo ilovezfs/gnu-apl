@@ -65,7 +65,7 @@ const uint32_t ptr = 0x00002020;
    result += Unicode(ptr >>  8 & 0xFF);
    result += Unicode(ptr       & 0xFF);
 
-   // nb (header + data + sub-values + padding 
+   // nb (header + data + sub-values + padding)
    //
    result += Unicode(len >> 24 & 0xFF);
    result += Unicode(len >> 16 & 0xFF);
@@ -237,9 +237,7 @@ const uint32_t nelm = val->element_count();
         //   | SUB-HEADER-nelm  | <-------------+
         //   | VALUE-nelm       |
         //   +------------------+
-
         //
-
       
         uint32_t offset = 16 + 4*val->get_rank() + 4*nelm;
         loop(e, nelm)

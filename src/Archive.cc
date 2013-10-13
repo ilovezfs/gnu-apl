@@ -613,13 +613,11 @@ XML_Saving_Archive::operator <<(const ValueStackItem & vsi)
 XML_Saving_Archive &
 XML_Saving_Archive::operator <<(const Workspace & ws)
 {
-tm t;
+tm * t;
    {
      timeval now;
      gettimeofday(&now, 0);
-     now.tv_sec -= workspace.v_quad_TZ.get_offset();
-
-     gmtime_r(&now.tv_sec, &t);
+     t = gmtime(&now.tv_sec);
    }
 
    out <<
@@ -720,14 +718,18 @@ tm t;
 "\n"
 "]>\n"
 "\n"
+"\n"
+"    <!-- hour/minute/second is )SAVE time in UTC (aka. GMT).\n"
+"         timezone is offset to UTC in seconds.\n"
+"         local time is UTC + offset -->\n"
 "<Workspace wsid=\""     << workspace.WS_name
-     << "\" year=\""     << (t.tm_year + 1900)
-     << "\" month=\""    << (t.tm_mon  + 1)
-     << "\" day=\""      <<  t.tm_mday << "\"" << endl <<
-"           hour=\""     <<  t.tm_hour
-     << "\" minute=\""   <<  t.tm_min
-     << "\" second=\""   <<  t.tm_sec
-     << "\" timezone=\"" << (ws.v_quad_TZ.get_offset()/3600)
+     << "\" year=\""     << (t->tm_year + 1900)
+     << "\" month=\""    << (t->tm_mon  + 1)
+     << "\" day=\""      <<  t->tm_mday << "\"" << endl <<
+"           hour=\""     <<  t->tm_hour
+     << "\" minute=\""   <<  t->tm_min
+     << "\" second=\""   <<  t->tm_sec
+     << "\" timezone=\"" << ws.v_quad_TZ.get_offset()
      << "\">\n" << endl;
 
    ++indent;
@@ -1072,7 +1074,7 @@ const int day      = find_int_attr("day",      false, 10);
 const int hour     = find_int_attr("hour",     false, 10);
 const int minute   = find_int_attr("minute",   false, 10);
 const int second   = find_int_attr("second",   false, 10);
-const int timezone = find_int_attr("timezone", false, 10);
+const int tzone    = find_int_attr("timezone", false, 10);
 
 const char * tag_order[] = { "Value",          "Ravel",
                              "SymbolTable",    "Symbol",
@@ -1104,10 +1106,10 @@ const char ** tag_pos = tag_order;
          else    /* complain */               expect_tag("UNEXPECTED", LOC);
        }
 
-const char * pm = timezone < 0 ? "" : "+";
+const char * tz_sign = (tzone < 0) ? "" : "+";
    COUT << "SAVED " << year << "-" << month << "-" << day
         << "  " << hour << ":" << minute << ":" << second
-        << " (GMT" << pm << timezone << ")" << endl;
+        << " (GMT" << tz_sign << tzone/3600 << ")" << endl;
 
 const UTF8 * end = wsid;
    while (*end != '"')   ++end;

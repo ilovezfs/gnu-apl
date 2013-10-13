@@ -314,6 +314,7 @@ dist_doc_DATA = README				\
 		README-3-keyboard		\
 		README-4-compliance		\
 		README-5-WINDOWS		\
+                README-6-porting		\
 		keyboard			\
 		keyboard1			\
 		apl.vim				\
