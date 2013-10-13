@@ -66,6 +66,8 @@ Avec::show_error_pos(int i, int line, bool cond, int def_line)
       }
 }
 //-----------------------------------------------------------------------------
+#if 0
+
 void
 Avec::check_file(const char * filename)
 {
@@ -97,6 +99,7 @@ UCS_string ucs(utf);
 
    close(fd);
 }
+#endif
 //-----------------------------------------------------------------------------
 void
 Avec::init()
@@ -164,9 +167,9 @@ Avec::check_av_table()
             }
       }
 
-   check_file("../APL_chars");
-   check_file("../keyboard");
-   check_file("../keyboard1");
+// check_file("../APL_chars");
+// check_file("../keyboard");
+// check_file("../keyboard1");
 }
 //-----------------------------------------------------------------------------
 Unicode

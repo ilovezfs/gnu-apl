@@ -94,7 +94,7 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
 
          if (a == r)   // same char
             {
-              if (a == 0)   return false;
+              if (a == 0)   return false;   // not different
               continue;
             }
 
@@ -102,7 +102,7 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
 
          if (r == UNI_PAD_U0)   // ⁰: match one or more digits
             {
-              if (!Avec::is_digit(a))   return true;
+              if (!Avec::is_digit(a))   return true;   // different
 
               // skip trailing digits
               while (Avec::is_digit(Unicode(*apl)))   ++apl;
@@ -111,7 +111,7 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
 
          if (r == UNI_PAD_U1)   // ¹: match zero or more spaces
             {
-              if (a != UNI_ASCII_SPACE)   return true;
+              if (a != UNI_ASCII_SPACE)   return true;   // different
 
               // skip trailing digits
               while (*apl == ' ')   ++apl;
@@ -122,9 +122,9 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
             {
               if (!Avec::is_digit(a) &&
                   a != UNI_OVERBAR   &&
-                  a != UNI_ASCII_E       &&
-                  a != UNI_ASCII_J       &&
-                  a != UNI_ASCII_FULLSTOP)   return true;
+                  a != UNI_ASCII_E   &&
+                  a != UNI_ASCII_J   &&
+                  a != UNI_ASCII_FULLSTOP)   return true;   // different
 
               // skip trailing digits
               //
@@ -150,7 +150,19 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
             }
 
          if (r == UNI_PAD_U3)   // ³: match anything
-            return false;
+            return false;   // not different
+
+         if (r == UNI_PAD_U4)   // ⁴: match optional ¯
+            {
+              if (a != UNI_OVERBAR)   apl -= len_apl;   // restore apl
+              continue;
+            }
+
+         if (r == UNI_PAD_U5)   // ⁵: match + or -
+            {
+              if (a != '+' && a != '-')   return true;   // different
+              continue;
+            }
 
          if (r == UNI_PAD_Un)   // ⁿ: optional unit multiplier
             {
@@ -167,9 +179,9 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
               continue;
             }
 
-         return true;
+         return true;   // different
        }
 
-   return false;
+   return false;   // not different
 }
 //-----------------------------------------------------------------------------

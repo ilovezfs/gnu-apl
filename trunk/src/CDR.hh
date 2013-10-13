@@ -21,7 +21,6 @@
 #ifndef __CDR_HH_DEFINED__
 #define __CDR_HH_DEFINED__
 
-#include <endian.h>
 #include "CDR_string.hh"
 
 class Value;
@@ -42,15 +41,27 @@ public:
 
    /// return 2 bytes starting at \b data in network byte order
    static uint32_t get_2_be(const uint8_t * data)
-      { return htobe16(*(const uint16_t *)data); }
+      {
+        return 0x0000FF00 & ((uint32_t)data[0]) << 8
+             | 0x000000FF & ((uint32_t)data[1]);
+      }
 
    /// return 4 bytes starting at \b data in network byte order
    static uint32_t get_4_be(const uint8_t * data)
-      { return htobe32(*(const uint32_t *)data); }
+      {
+        return 0xFF000000 & (uint32_t)(data[0]) << 24
+             | 0x00FF0000 & ((uint32_t)data[1]) << 16
+             | 0x0000FF00 & ((uint32_t)data[2]) << 8
+             | 0x000000FF & ((uint32_t)data[3]);
+      }
 
    /// return 8 bytes starting at \b data in network byte order
    static uint64_t get_8_be(const uint8_t * data)
-      { return htobe64(*(const uint64_t *)data); }
+      {
+        uint64_t ret = get_4_be(data);
+                 ret <<= 32;
+                 return ret | get_4_be(data + 4);
+      }
 
 protected:
    /// fill result with the bytes of the CDR of \b value

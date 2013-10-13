@@ -43,6 +43,10 @@
 #include "Value.hh"
 #include "Workspace.hh"
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
    // global flags
    //
 bool silent = false;

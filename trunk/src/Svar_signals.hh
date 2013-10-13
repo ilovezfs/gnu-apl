@@ -1203,7 +1203,7 @@ Signal_base * ret = 0;
 
         default: cerr << "UdpSocket::recv() failed: unknown id "
                       << id.get_value() << endl;
-                 errno = EBADRQC;
+                 errno = EINVAL;
                  return 0;
       }
 

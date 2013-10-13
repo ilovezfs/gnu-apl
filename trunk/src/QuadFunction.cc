@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <unistd.h>
+
 #include "ArrayIterator.hh"
 #include "Avec.hh"
 #include "CDR.hh"
@@ -35,6 +37,8 @@
 #include "UserFunction.hh"
 #include "Value.hh"
 #include "Workspace.hh"
+
+extern char **environ;
 
 Quad_AF  Quad_AF::fun;
 Quad_AT  Quad_AT::fun;
