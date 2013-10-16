@@ -145,7 +145,7 @@ seek_variable(FILE * file, int code, int rn)
               const int hlen = fread(&header, 1, sizeof(CDR_header), file);
               if (hlen != sizeof(header))   return -44;   // delimiter not found
 
-              const int nb = be32toh(header.be_nb);
+              const int nb = header.get_nb();
               const int rest = nb - sizeof(CDR_header);
               uint8_t buffer[nb];
               const int rlen = fread(buffer, 1, rest, file);
@@ -185,7 +185,7 @@ read_variable(FILE * file, int code, Coupled_var & var_D,
         const int hlen = fread(&header, 1, sizeof(header), file);
         if (hlen != sizeof(CDR_header))   return -44;   // delimiter not found
 
-        const int nb = be32toh(header.be_nb);
+        const int nb = header.get_nb();
         const int rest = nb - sizeof(CDR_header);
         uint8_t buffer[nb];
         memcpy(buffer, &header, sizeof(CDR_header));
@@ -227,7 +227,7 @@ const CDR_string & cdr = *var_D.data;
 
    if (code == 'A')        // APL2 format (CDR)
       {
-        const int len = cdr.get_nb();
+        const int len = cdr.header().get_nb();
         const uint8_t * data = cdr.get_items();
         const size_t written = fwrite(data, len, 1, file);
         if (written == len)   return -48;   // partial write
@@ -269,7 +269,7 @@ const CDR_string & cdr = *ctx.var_C.data;
         return;
       }
 
-const int nelm = cdr.get_nelm();
+const int nelm = cdr.header().get_nelm();
    if (nelm == 0)       // '' or ⍳0: close file
       {
         // close file

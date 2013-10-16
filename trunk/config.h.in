@@ -50,6 +50,12 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `blas' library (-lblas). */
+#undef HAVE_LIBBLAS
+
+/* Define to 1 if you have the `execinfo' library (-lexecinfo). */
+#undef HAVE_LIBEXECINFO
+
 /* Define to 1 if you have the `intl' library (-lintl). */
 #undef HAVE_LIBINTL
 

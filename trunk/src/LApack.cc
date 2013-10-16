@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../config.h"   // for HAVE_LIBLAPACK
 #include <iostream>
 
 #include "APL_types.hh"
@@ -28,7 +29,7 @@
 
 using namespace std;
 
-#define USE_LAPACK
+#if HAVE_LIBLAPACK   // liblapack is installed.found
 
 /**
 
@@ -51,8 +52,6 @@ Copyright (c) 2006-2011 The University of Colorado Denver.  All rights
    apt-get install liblapack-dev
 
 **/
-
-#ifdef USE_LAPACK
 
 /// An integer.
 typedef long integer;
@@ -231,7 +230,7 @@ Value_P Z = new Value(shape_Z, LOC);
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-#else
+#if 0   // divide_matrix() without liblapack
 
 /*
    this is an attempt to remove the dependency on liblapack in order to
@@ -400,5 +399,24 @@ Tmatrix<T>::divide(Tvector<T> & ZZ, const Tvector<T> & AA) const
 }
 //-----------------------------------------------------------------------------
 
-#endif
+#endif // divide_matrix() without liblapack
+
+#else    // not HAVE_LIBLAPACK
+
+#warning liblapack not found or not installed. ⌹ will not work.
+
+Value_P
+divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A, ShapeItem cols_B,
+              Value_P B, const Shape & shape_Z, APL_Float qct)
+{
+   CERR <<
+"function divide_matrix() aka. ⌹  returns DOMAIN ERROR because\n"
+"library liblapack was not found when GNU APL was compiled. To fix this\n" 
+"install liblapack from http://www.netlib.org/lapack/ and re-run\n"
+"./configure, make, and make install." << endl;
+
+   DOMAIN_ERROR;
+}
+
+#endif   // HAVE_LIBLAPACK
 

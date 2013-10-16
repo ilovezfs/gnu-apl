@@ -57,7 +57,7 @@ public:
    UdpSocket(bool _is_server);
 
    /// constructor: socket with given port numbers and IP addresses
-   UdpSocket(uint16_t _local_port, uint16_t _remote_port,
+   UdpSocket(uint16_t _local_port, int _remote_port,
              uint32_t _local_ip,   uint32_t _remote_ip, bool _is_server);
 
    /// destructor
@@ -104,7 +104,7 @@ protected:
    uint16_t local_port;
 
    /// the peer's port number
-   uint16_t remote_port;
+   int remote_port;
 
    /// the local IP address
    uint32_t local_ip;
