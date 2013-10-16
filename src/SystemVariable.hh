@@ -565,8 +565,6 @@ public:
 /**
    System variable Quad-TZ (Time Zone).
  */
-extern long timezone;
-
 class Quad_TZ : public SystemVariable
 {
 public:

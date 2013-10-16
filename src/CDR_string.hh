@@ -46,6 +46,21 @@ struct CDR_header
    uint8_t  rank;      ///< rank of the value
    uint8_t  fill[2];   ///< fill bytes
    uint32_t dim[0];    ///< shape of the value
+
+   // return the number of bytes in host endian
+   uint32_t get_nb() const     { return get_be32((const uint8_t *)&be_nb); }
+
+   // return the number of elements in host endian
+   uint32_t get_nelm() const   { return get_be32((const uint8_t *)&be_nelm); }
+
+   /// convert big endian 32 bit value to 32 bit host value (== ntohl())
+   static uint32_t get_be32(const uint8_t * be)
+      {
+        return 0xFF000000 & (uint32_t)(be[0]) << 24
+             | 0x00FF0000 & ((uint32_t)be[1]) << 16
+             | 0x0000FF00 & ((uint32_t)be[2]) << 8
+             | 0x000000FF & ((uint32_t)be[3]);
+      }
 };
 
 /// a string containing a CDR record
@@ -71,17 +86,7 @@ public:
       { return *(CDR_header *)get_items(); }
 
    /// return the tag of this CDR
-   int get_ptr() const
-      { return be32toh(header().be_ptr); }
-
-   /// return the size of this CDR (header, ravel, padding, and nested items)
-   int get_nb() const
-      { return be32toh(header().be_nb); }
-
-   /// return the number of elements in this CDR . Empty arrays have nelm == 0
-   /// but a non-empty ravel (containing the prototype)
-   int get_nelm() const
-      { return be32toh(header().be_nelm); }
+   int get_ptr() const   { return get_4(0); }
 
    /// return the CDR type of this CDR
    CDR_type get_type() const
@@ -103,7 +108,7 @@ public:
    bool is_character() const
       { return get_type() == CDR_CHAR8 || get_type() == CDR_CHAR32; }
 
-   /// return non-zero if this CDR is mal/formed
+   /// return non-zero if this CDR is malformed
    int check() const
       {
         uint32_t cnt = 1;
@@ -111,8 +116,8 @@ public:
         if (items == 0)                          return 1;
         if (size() < 32)                         return 2;
         if (get_ptr() != 0x00002020)             return 3;
-        if (get_nb() != size())                  return 4;
-        if (get_nelm() != cnt)                   return 5;
+        if (header().get_nb() != size())         return 4;
+        if (header().get_nelm() != cnt)          return 5;
         if (uint32_t(get_type()) > CDR_NEST32)   return 6;
         return 0;
       }
@@ -133,12 +138,7 @@ public:
 protected:
    /// return 4 bytes of the header (the header is always big endian)
    uint32_t get_4(unsigned int offset) const
-      { 
-        return 0xFF000000 & (uint32_t)(items[offset + 0]) << 24
-             | 0x00FF0000 & ((uint32_t)items[offset + 1]) << 16
-             | 0x0000FF00 & ((uint32_t)items[offset + 2]) << 8
-             | 0x000000FF & ((uint32_t)items[offset + 3]);
-      }
+      { return CDR_header::get_be32(items + offset); }
 };
 
 #endif // __CDR_STRING_HH_DEFINED__

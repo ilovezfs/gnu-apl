@@ -11,8 +11,11 @@ CYGWIN 5.1
 GNU APL compiles on CYGWIN, see README-5-WINDOWS for details
 
 
+Freebsd
+=======
+
 Freebsd 8.4
-===========
+-------------------------------------------------------------------------------
 
 Many thanks to Sam Sirlin for providing this!
 
@@ -23,4 +26,14 @@ setenv CC gcc46
 setenv CXX g++46
 setenv LDFLAGS '-L/usr/local/lib -L/usr/local/lib/gcc46 -R/usr/local/lib -R/usr/local/lib/gcc46'
 setenv LIBS ' -llapack -lblas  -lgfortran -lexecinfo ' 
+
+Freebsd 9
+-------------------------------------------------------------------------------
+
+setenv LDFLAGS '-L/usr/local/lib'
+./configure
+
+enable Utf-8 encoding in xterm VT menu (Ctrl + right mouse)
+
+With these settings you can run APL scripts, but keyboard input does not work.
 

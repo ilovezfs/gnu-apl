@@ -7394,6 +7394,97 @@ _ACEOF
 
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for dcopy_ in -lblas" >&5
+$as_echo_n "checking for dcopy_ in -lblas... " >&6; }
+if test "${ac_cv_lib_blas_dcopy_+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lblas  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char dcopy_ ();
+int
+main ()
+{
+return dcopy_ ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_blas_dcopy_=yes
+else
+  ac_cv_lib_blas_dcopy_=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_blas_dcopy_" >&5
+$as_echo "$ac_cv_lib_blas_dcopy_" >&6; }
+if test "x$ac_cv_lib_blas_dcopy_" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBBLAS 1
+_ACEOF
+
+  LIBS="-lblas $LIBS"
+
+fi
+
+#AC_CHECK_LIB([gfortran], [_gfortran_transpose])
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for backtrace in -lexecinfo" >&5
+$as_echo_n "checking for backtrace in -lexecinfo... " >&6; }
+if test "${ac_cv_lib_execinfo_backtrace+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lexecinfo  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char backtrace ();
+int
+main ()
+{
+return backtrace ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_execinfo_backtrace=yes
+else
+  ac_cv_lib_execinfo_backtrace=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_execinfo_backtrace" >&5
+$as_echo "$ac_cv_lib_execinfo_backtrace" >&6; }
+if test "x$ac_cv_lib_execinfo_backtrace" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBEXECINFO 1
+_ACEOF
+
+  LIBS="-lexecinfo $LIBS"
+
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libintl_gettext in -lintl" >&5
 $as_echo_n "checking for libintl_gettext in -lintl... " >&6; }
 if test "${ac_cv_lib_intl_libintl_gettext+set}" = set; then :

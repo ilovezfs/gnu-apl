@@ -134,8 +134,8 @@ RealCell::bif_power(Cell * Z, const Cell * A) const
            {
              APL_Complex z = pow(A->get_complex_value(), get_real_value());
 
-             if (Cell::is_near_zero(z.real(), 2e-15))   z.real(0.0);
-             if (Cell::is_near_zero(z.imag(), 2e-15))   z.imag(0.0);
+             if (Cell::is_near_zero(z.real(), 2e-15))   z.real() = 0.0;
+             if (Cell::is_near_zero(z.imag(), 2e-15))   z.imag() = 0.0;
              new (Z) ComplexCell(z);
            }
         else
@@ -147,8 +147,8 @@ RealCell::bif_power(Cell * Z, const Cell * A) const
       {
         APL_Complex z = pow(A->get_complex_value(), get_real_value());
 
-        if (Cell::is_near_zero(z.real(), 2e-15))   z.real(0.0);
-        if (Cell::is_near_zero(z.imag(), 2e-15))   z.imag(0.0);
+        if (Cell::is_near_zero(z.real(), 2e-15))   z.real() = 0.0;
+        if (Cell::is_near_zero(z.imag(), 2e-15))   z.imag() = 0.0;
         new (Z) ComplexCell(z);
       }
    else

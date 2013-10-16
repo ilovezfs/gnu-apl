@@ -71,7 +71,7 @@ UdpSocket::UdpSocket(bool _is_server)
 {
 }
 //----------------------------------------------------------------------------
-UdpSocket::UdpSocket(uint16_t _local_port, uint16_t _remote_port,
+UdpSocket::UdpSocket(uint16_t _local_port, int _remote_port,
              uint32_t _local_ip,   uint32_t _remote_ip, bool _is_server)
   : local_port(_local_port),
     remote_port(_remote_port),

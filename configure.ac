@@ -39,6 +39,9 @@ AC_CHECK_FUNCS([floor memset munmap pow sqrt strchr strerror])
 
 # Checks for libraries.
 AC_CHECK_LIB([lapack], [dgelsy_])
+AC_CHECK_LIB([blas], [dcopy_])
+#AC_CHECK_LIB([gfortran], [_gfortran_transpose])
+AC_CHECK_LIB([execinfo], [backtrace])
 AC_CHECK_LIB([intl], [libintl_gettext])
 AC_CHECK_LIB([m], [acosh])
 AC_CHECK_LIB([readline], [readline])
