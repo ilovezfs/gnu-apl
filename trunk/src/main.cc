@@ -1069,9 +1069,7 @@ Workspace w;
    if (up.do_CONT)
       {
          UCS_string cont("CONTINUE.xml");
-         vector<UCS_string> lib_file;
-         lib_file.push_back(cont);
-         UTF8_string path = Command::get_lib_file_path(lib_file);
+         UTF8_string path = Command::get_lib_file_path(0, cont);
          if (access((const char *)path.c_str(), F_OK) == 0)
             {
               UCS_string load_cmd(")LOAD CONTINUE");

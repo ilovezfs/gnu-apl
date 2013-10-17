@@ -76,7 +76,7 @@ Source<Unicode> src(input);
         const Unicode uni = *src;
         if (uni == UNI_COMMENT)   break;
 
-        const Token tok = Avec::uni_to_token(uni);
+        const Token tok = Avec::uni_to_token(uni, LOC);
 
         Log(LOG_tokenize)
            {
@@ -140,7 +140,7 @@ Source<Unicode> src(input);
                         // or an operator:            e.g. +.*
                         //
                         const Unicode uni_1 = src[1];
-                        const Token tok_1 = Avec::uni_to_token(uni_1);
+                        const Token tok_1 = Avec::uni_to_token(uni_1, LOC);
                         if ((tok_1.get_tag() & TC_MASK) == TC_NUMERIC)
                            tokenize_number(src, tos);
                         else
@@ -229,7 +229,7 @@ Tokenizer::tokenize_function(Source<Unicode> & src, Token_string & tos)
    Log(LOG_tokenize)   CERR << "tokenize_function(" << src << ")" << endl;
 
 const Unicode uni = src.get();
-Token tok = Avec::uni_to_token(uni);
+Token tok = Avec::uni_to_token(uni, LOC);
 
 #define sys(t, f) \
    case TOK_ ## t: tok = Token(tok.get_tag(), &Bif_ ## f::fun);   break;

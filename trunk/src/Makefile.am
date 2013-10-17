@@ -43,6 +43,7 @@ IndexIterator.cc			IndexIterator.hh	\
 Input.cc				Input.hh		\
 IntCell.cc				IntCell.hh		\
 LApack.cc							\
+LibPaths.cc				LibPaths.hh		\
 Logging.cc	    Logging.def		Logging.hh		\
 LvalCell.cc				LvalCell.hh		\
 main.cc					main.hh			\

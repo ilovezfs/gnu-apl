@@ -83,8 +83,8 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-DerivedFunction.$(OBJEXT) apl-Id.$(OBJEXT) \
 	apl-IndexExpr.$(OBJEXT) apl-IndexIterator.$(OBJEXT) \
 	apl-Input.$(OBJEXT) apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
-	apl-Logging.$(OBJEXT) apl-LvalCell.$(OBJEXT) \
-	apl-main.$(OBJEXT) apl-Nabla.$(OBJEXT) \
+	apl-LibPaths.$(OBJEXT) apl-Logging.$(OBJEXT) \
+	apl-LvalCell.$(OBJEXT) apl-main.$(OBJEXT) apl-Nabla.$(OBJEXT) \
 	apl-NamedObject.$(OBJEXT) apl-NumericCell.$(OBJEXT) \
 	apl-Output.$(OBJEXT) apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
 	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
@@ -332,6 +332,7 @@ IndexIterator.cc			IndexIterator.hh	\
 Input.cc				Input.hh		\
 IntCell.cc				IntCell.hh		\
 LApack.cc							\
+LibPaths.cc				LibPaths.hh		\
 Logging.cc	    Logging.def		Logging.hh		\
 LvalCell.cc				LvalCell.hh		\
 main.cc					main.hh			\
@@ -495,6 +496,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Input.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-IntCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LApack.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LibPaths.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Logging.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LvalCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Nabla.Po@am__quote@
@@ -979,6 +981,20 @@ apl-LApack.obj: LApack.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LApack.cc' object='apl-LApack.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LApack.obj `if test -f 'LApack.cc'; then $(CYGPATH_W) 'LApack.cc'; else $(CYGPATH_W) '$(srcdir)/LApack.cc'; fi`
+
+apl-LibPaths.o: LibPaths.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LibPaths.o -MD -MP -MF $(DEPDIR)/apl-LibPaths.Tpo -c -o apl-LibPaths.o `test -f 'LibPaths.cc' || echo '$(srcdir)/'`LibPaths.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LibPaths.Tpo $(DEPDIR)/apl-LibPaths.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LibPaths.cc' object='apl-LibPaths.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LibPaths.o `test -f 'LibPaths.cc' || echo '$(srcdir)/'`LibPaths.cc
+
+apl-LibPaths.obj: LibPaths.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LibPaths.obj -MD -MP -MF $(DEPDIR)/apl-LibPaths.Tpo -c -o apl-LibPaths.obj `if test -f 'LibPaths.cc'; then $(CYGPATH_W) 'LibPaths.cc'; else $(CYGPATH_W) '$(srcdir)/LibPaths.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LibPaths.Tpo $(DEPDIR)/apl-LibPaths.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LibPaths.cc' object='apl-LibPaths.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LibPaths.obj `if test -f 'LibPaths.cc'; then $(CYGPATH_W) 'LibPaths.cc'; else $(CYGPATH_W) '$(srcdir)/LibPaths.cc'; fi`
 
 apl-Logging.o: Logging.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Logging.o -MD -MP -MF $(DEPDIR)/apl-Logging.Tpo -c -o apl-Logging.o `test -f 'Logging.cc' || echo '$(srcdir)/'`Logging.cc
