@@ -383,66 +383,30 @@ Command::cmd_CHECK(ostream & out)
 }
 //-----------------------------------------------------------------------------
 UTF8_string
-Command::get_lib_file_path(const vector<UCS_string> & lib_file)
+Command::get_lib_file_path(int libref, const UCS_string & name)
 {
-   // if nothing nothing is provided: return library root
+   // if name is an absolute path then libnum is ignored
    //
-   if (lib_file.size() == 0)   return UTF8_string(get_APL_lib_root());
+   if (name[0] == '/')   return UTF8_string(name);   // absolute path
 
-   // if only a file name is provided: return file in library "",
-   // unless the path is absolute
-   //
-   if (lib_file.size() == 1)
-      {
-        const UCS_string & file = lib_file[0];
-        if (file[0] == '/')   return UTF8_string(file);
-        UCS_string path = get_library_path("");
-        path += Unicode('/');
-        path += file;
-        return UTF8_string(path);
-      }
-
-   // both lib and file provided
-   //
-const UCS_string & lib  = lib_file[0];
-const UCS_string & file = lib_file[1];
-UCS_string path = get_library_path(lib);
+UCS_string path = get_library_path(libref);
    path += Unicode('/');
-   path += file;
+   path += name;
    return UTF8_string(path);
 }
 //-----------------------------------------------------------------------------
 UTF8_string
-Command::get_library_path(const UCS_string & libref)
+Command::get_library_path(int libref)
 {
-UCS_string path;
-
-   if (libref.size() == 0)               // no argument: workspaces
+UCS_string path = get_APL_lib_root();
+   if (libref)   // path/wslibN
       {
-        path = get_APL_lib_root();
+        path.app((const UTF8 *)"/wslib");
+        path.append_number(libref);
+      }
+   else           // path/workspaces
+      {
         path.app((const UTF8 *)"/workspaces");
-      }
-   else if (Avec::is_digit(libref[0]))   // number: workspaces or wslibN
-      {
-        const int lib_num = libref.atoi();
-        path = get_APL_lib_root();
-        if (lib_num)   // path/wslibN
-           {
-             path.app((const UTF8 *)"/wslib");
-             path.append_number(lib_num);
-           }
-        else           // path/workspaces
-           {
-             path.app((const UTF8 *)"/workspaces");
-           }
-      }
-   else                                  // path argument
-      {
-        loop(l, libref.size())
-           {
-             if (libref[l] > ' ')   path += libref[l];
-             else                   break;
-           }
       }
 
    // canonicalize path
@@ -502,7 +466,8 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
         t4 = UCS_string(_("missing workspace name in command )DROP"));
         return;
       }
-   else if (lib_ws.size() > 2)   // too many arguments
+
+   if (lib_ws.size() > 2)   // too many arguments
       {
         out << _("BAD COMMAND") << endl;
         UCS_string & t4 = Workspace::the_workspace->more_error;
@@ -511,10 +476,12 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
         return;
       }
 
-   // at this point, lib_ws.size() is 1 or 2.
-
-UCS_string wname = lib_ws[lib_ws.size() - 1];
-UTF8_string filename = Command::get_lib_file_path(lib_ws);
+   // at this point, lib_ws.size() is 1 or 2. I f then the first
+   // is the lib number
+   //
+int libnum = 0;
+UCS_string wname = lib_ws.back();
+UTF8_string filename = Command::get_lib_file_path(libnum, wname);
 
    // append an .xml extension unless there is one already
    //
@@ -551,19 +518,13 @@ Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
         return;
       }
 
-UTF8_string path = get_library_path("");
-const int col_len = path.size();
-
    out << "Library root: " << get_APL_lib_root() << endl
        << "Library numbers:" << endl;
 
-const char * dirs[] = { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", 0 };
-   for (const char ** d = dirs; *d; ++d)
+   loop(d, 10)
        {
-          path = get_library_path(*d);
-          if (**d)   out << " " << *d << "    ";
-          else       out << "none  ";
-          out << left << setw(col_len) << (const char *)path.c_str();
+          UTF8_string path = get_library_path(d);
+          out << " " << d << "    " << path.c_str();
         DIR * dir = opendir((const char *)path.c_str());
         if (dir)   { out << " present" << endl;   closedir(dir); }
         else       { out << " " << strerror(errno) << endl;      }
@@ -573,7 +534,8 @@ const char * dirs[] = { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", 0 };
 void 
 Command::cmd_LIB(ostream & out, const UCS_string & arg)
 {
-UTF8_string path = get_library_path(arg);
+UTF8_string arg_utf(arg);
+UTF8_string path = get_library_path(atoi((const char *)arg_utf.c_str()));
 
 DIR * dir = opendir((const char *)path.c_str());
    if (dir == 0)
@@ -683,9 +645,7 @@ Command::cmd_IN(ostream & out, vector<UCS_string> & args, bool protection)
 UCS_string fname = args.front();
    args.erase(args.begin());
 
-vector<UCS_string> lib_ws;
-   lib_ws.push_back(fname);
-UTF8_string filename = get_lib_file_path(lib_ws);
+UTF8_string filename = get_lib_file_path(0, fname);
 
 FILE * in = fopen((const char *)(filename.c_str()), "r");
    if (in == 0)   // open failed: try filename.atf unless already .atf
@@ -771,9 +731,7 @@ Command::cmd_OUT(ostream & out, vector<UCS_string> & args)
 UCS_string fname = args.front();
    args.erase(args.begin());
 
-vector<UCS_string> lib_ws;
-   lib_ws.push_back(fname);
-UTF8_string filename = get_lib_file_path(lib_ws);
+UTF8_string filename = get_lib_file_path(0, fname);
    
    // append an .atf extension unless there is one already
    //
@@ -992,7 +950,7 @@ Symbol * sym = 0;
    Log(LOG_command_IN)
       {
         CERR << endl << var_name << " rank " << shape.get_rank() << " IS '";
-        for (int i = idx; idx < data.size(); ++i)   CERR << data[idx++];
+        loop(j, data.size() - idx)   CERR << data[idx + j];
         CERR << "'" << endl;
       }
 
@@ -1051,7 +1009,7 @@ Symbol * sym = 0;
    Log(LOG_command_IN)
       {
         CERR << endl << var_name << " rank " << shape.get_rank() << " IS '";
-        for (int i = idx; idx < data.size(); ++i)   CERR << data[idx++];
+        loop(j, data.size() - idx)   CERR << data[idx + j];
         CERR << "'" << endl;
       }
 
@@ -1150,7 +1108,7 @@ const int cp_to_uni_map[128] = // see lrm fig 68.
   0x25CA, 0x2518, 0x250C, 0x2588, 0x2584, 0x00A6, 0x00CC, 0x2580,
   0x237A, 0x2379, 0x2282, 0x2283, 0x235D, 0x2372, 0x2374, 0x2371,
   0x233D, 0x2296, 0x25CB, 0x2228, 0x2373, 0x2349, 0x2208, 0x2229,
-  0x233F, 0x9024, 0x2265, 0x2264, 0x2260, 0x00D7, 0x00F7, 0x2359,
+  0x233F, 0x2340, 0x2265, 0x2264, 0x2260, 0x00D7, 0x00F7, 0x2359,
   0x2218, 0x2375, 0x236B, 0x234B, 0x2352, 0x00AF, 0x00A8, 0x00A0
 };
 
@@ -1180,19 +1138,19 @@ const struct _uni_to_cp_map
   { 0x22A3, 215 }, { 0x22A4, 152 }, { 0x22A5, 157 }, { 0x22F8, 209 },
   { 0x2308, 169 }, { 0x230A, 190 }, { 0x2336, 159 }, { 0x2337, 211 },
   { 0x2339, 146 }, { 0x233B, 213 }, { 0x233D, 232 }, { 0x233F, 240 },
-  { 0x2342, 212 }, { 0x2349, 237 }, { 0x234B, 251 }, { 0x234E, 175 },
-  { 0x2352, 252 }, { 0x2355, 174 }, { 0x2359, 247 }, { 0x235D, 228 },
-  { 0x235E, 145 }, { 0x235F, 181 }, { 0x236B, 250 }, { 0x2371, 231 },
-  { 0x2372, 229 }, { 0x2373, 236 }, { 0x2374, 230 }, { 0x2375, 249 },
-  { 0x2376, 158 }, { 0x2378, 208 }, { 0x2379, 225 }, { 0x237A, 224 },
-  { 0x2395, 144 }, { 0x2500, 196 }, { 0x2502, 179 }, { 0x250C, 218 },
-  { 0x2510, 191 }, { 0x2514, 192 }, { 0x2518, 217 }, { 0x251C, 195 },
-  { 0x2524, 180 }, { 0x252C, 194 }, { 0x2534, 193 }, { 0x253C, 197 },
-  { 0x2550, 205 }, { 0x2551, 186 }, { 0x2554, 201 }, { 0x2557, 187 },
-  { 0x255A, 200 }, { 0x255D, 188 }, { 0x2560, 204 }, { 0x2563, 185 },
-  { 0x2566, 203 }, { 0x2569, 202 }, { 0x256C, 206 }, { 0x2580, 223 },
-  { 0x2584, 220 }, { 0x2588, 219 }, { 0x2591, 176 }, { 0x2592, 177 },
-  { 0x2593, 178 }, { 0x25CA, 216 }, { 0x25CB, 234 }, { 0x9024, 241 }
+  { 0x2340, 241 }, { 0x2342, 212 }, { 0x2349, 237 }, { 0x234B, 251 },
+  { 0x234E, 175 }, { 0x2352, 252 }, { 0x2355, 174 }, { 0x2359, 247 },
+  { 0x235D, 228 }, { 0x235E, 145 }, { 0x235F, 181 }, { 0x236B, 250 },
+  { 0x2371, 231 }, { 0x2372, 229 }, { 0x2373, 236 }, { 0x2374, 230 },
+  { 0x2375, 249 }, { 0x2376, 158 }, { 0x2378, 208 }, { 0x2379, 225 },
+  { 0x237A, 224 }, { 0x2395, 144 }, { 0x2500, 196 }, { 0x2502, 179 },
+  { 0x250C, 218 }, { 0x2510, 191 }, { 0x2514, 192 }, { 0x2518, 217 },
+  { 0x251C, 195 }, { 0x2524, 180 }, { 0x252C, 194 }, { 0x2534, 193 },
+  { 0x253C, 197 }, { 0x2550, 205 }, { 0x2551, 186 }, { 0x2554, 201 },
+  { 0x2557, 187 }, { 0x255A, 200 }, { 0x255D, 188 }, { 0x2560, 204 },
+  { 0x2563, 185 }, { 0x2566, 203 }, { 0x2569, 202 }, { 0x256C, 206 },
+  { 0x2580, 223 }, { 0x2584, 220 }, { 0x2588, 219 }, { 0x2591, 176 },
+  { 0x2592, 177 }, { 0x2593, 178 }, { 0x25CA, 216 }, { 0x25CB, 234 }
 };
 
 void

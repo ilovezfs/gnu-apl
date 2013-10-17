@@ -571,8 +571,8 @@ Workspace::save_WS(ostream & out, vector<UCS_string> & lib_ws)
 
    // at this point, lib_ws.size() is 1 or 2.
 
-UCS_string wname = lib_ws[lib_ws.size() - 1];
-UTF8_string filename = Command::get_lib_file_path(lib_ws);
+UCS_string wname = lib_ws.back();
+UTF8_string filename = Command::get_lib_file_path(0, wname);
 
    // append an .xml extension unless there is one already
    //
@@ -662,8 +662,8 @@ Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws)
         return UCS_string();
       }
 
-UCS_string wname = lib_ws[lib_ws.size() - 1];
-UTF8_string filename = Command::get_lib_file_path(lib_ws);
+UCS_string wname = lib_ws.back();
+UTF8_string filename = Command::get_lib_file_path(0, wname);
 
 XML_Loading_Archive in((const char *)filename.c_str(), *this);
 
@@ -724,8 +724,8 @@ const bool with_lib = Command::is_lib_ref(lib_ws_objects.front());
         lib_ws_objects.erase(lib_ws_objects.begin());
       }
 
-UCS_string wname = lib_ws[lib_ws.size() - 1];
-UTF8_string filename = Command::get_lib_file_path(lib_ws);
+UCS_string wname = lib_ws.back();
+UTF8_string filename = Command::get_lib_file_path(0, wname);
 
 XML_Loading_Archive in((const char *)filename.c_str(), *this);
 

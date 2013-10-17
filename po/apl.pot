@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-10-13 17:33+0200\n"
+"POT-Creation-Date: 2013-10-17 15:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Command.cc:87 src/Command.cc:499 src/Command.cc:507 src/Command.cc:677
-#: src/Command.cc:765
+#: src/Command.cc:87 src/Command.cc:463 src/Command.cc:472 src/Command.cc:639
+#: src/Command.cc:725
 msgid "BAD COMMAND"
 msgstr ""
 
@@ -79,94 +79,94 @@ msgstr ""
 msgid "OK      - no stale indices"
 msgstr ""
 
-#: src/Command.cc:480
+#: src/Command.cc:444
 msgid "NO MORE ERROR INFO"
 msgstr ""
 
-#: src/Command.cc:502
+#: src/Command.cc:466
 msgid "missing workspace name in command )DROP"
 msgstr ""
 
-#: src/Command.cc:510
+#: src/Command.cc:475
 msgid "too many parameters in command )DROP"
 msgstr ""
 
-#: src/Command.cc:535
+#: src/Command.cc:502
 msgid " NOT DROPPED: "
 msgstr ""
 
-#: src/Command.cc:538
+#: src/Command.cc:505
 msgid "could not unlink file "
 msgstr ""
 
-#: src/Command.cc:581
+#: src/Command.cc:543
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr ""
 
-#: src/Command.cc:586
+#: src/Command.cc:548
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr ""
 
-#: src/Command.cc:625
+#: src/Command.cc:587
 msgid "Goodbye."
 msgstr ""
 
-#: src/Command.cc:632
+#: src/Command.cc:594
 msgid "US Keyboard Layout:"
 msgstr ""
 
-#: src/Command.cc:657
+#: src/Command.cc:619
 msgid ")HOST command failed: "
 msgstr ""
 
-#: src/Command.cc:679
+#: src/Command.cc:641
 msgid "missing filename in command )IN"
 msgstr ""
 
-#: src/Command.cc:707 src/Command.cc:794
+#: src/Command.cc:667 src/Command.cc:752
 msgid " failed: "
 msgstr ""
 
-#: src/Command.cc:712
+#: src/Command.cc:672
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr ""
 
-#: src/Command.cc:753
+#: src/Command.cc:713
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr ""
 
-#: src/Command.cc:767
+#: src/Command.cc:727
 msgid "missing filename in command )OUT"
 msgstr ""
 
-#: src/Command.cc:797
+#: src/Command.cc:755
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr ""
 
-#: src/Command.cc:863
+#: src/Command.cc:821
 msgid " *** bad sub-record of *"
 msgstr ""
 
-#: src/Command.cc:866
+#: src/Command.cc:824
 msgid " comment"
 msgstr ""
 
-#: src/Command.cc:868
+#: src/Command.cc:826
 msgid " timestamp"
 msgstr ""
 
-#: src/Command.cc:880
+#: src/Command.cc:838
 msgid " imbed"
 msgstr ""
 
-#: src/Command.cc:883
+#: src/Command.cc:841
 msgid "record #"
 msgstr ""
 
-#: src/Command.cc:893
+#: src/Command.cc:851
 msgid " *** bad sub-record of X"
 msgstr ""
 

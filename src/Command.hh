@@ -51,7 +51,7 @@ public:
    static unsigned char unicode_to_cp(Unicode uni);
 
    /// return the absolute path for a library reference and file
-   static UTF8_string get_lib_file_path(const vector<UCS_string> & lib_file);
+   static UTF8_string get_lib_file_path(int libnum, const UCS_string & path);
 
    /// clean-up and exit from APL interpreter
    static void cmd_OFF(int exit_val);
@@ -79,7 +79,7 @@ protected:
    static void cmd_MORE(ostream & out);
 
    /// return the absolute path for a library reference
-   static UTF8_string get_library_path(const UCS_string & libref);
+   static UTF8_string get_library_path(int libref);
 
    /// show US keyboard layout
    static void cmd_KEYB();

@@ -189,7 +189,7 @@ Avec::get_av_pos(CHT_Index av)
 }
 //-----------------------------------------------------------------------------
 Token
-Avec::uni_to_token(Unicode uni)
+Avec::uni_to_token(Unicode uni, const char * loc)
 {
 CHT_Index idx = find_char(uni);
    if (idx != Invalid_CHT)   return Token(character_table[idx].token_tag, uni);
@@ -200,8 +200,8 @@ CHT_Index idx = find_char(uni);
    if (idx != Invalid_CHT)   return Token(character_table[idx].token_tag,
                                           character_table[idx].unicode);
 
-   CERR << endl << "Char " << UNI(uni) << " (" << uni
-        << ") not found in " << UNI_QUAD_QUAD << "AV" << endl;
+   CERR << endl << "Avec::uni_to_token() : Char " << UNI(uni) << " (" << uni
+        << ") not found in ⎕AV! (called from " << loc << ")" << endl;
 
    return Token();
 }

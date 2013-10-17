@@ -32,8 +32,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-10-13 17:33+0200\n"
-"PO-Revision-Date: 2013-10-13 17:33+0200\n"
+"POT-Creation-Date: 2013-10-17 15:28+0200\n"
+"PO-Revision-Date: 2013-10-17 15:28+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -41,8 +41,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Command.cc:87 src/Command.cc:499 src/Command.cc:507 src/Command.cc:677
-#: src/Command.cc:765
+#: src/Command.cc:87 src/Command.cc:463 src/Command.cc:472 src/Command.cc:639
+#: src/Command.cc:725
 msgid "BAD COMMAND"
 msgstr "BAD COMMAND"
 
@@ -107,94 +107,94 @@ msgstr "ERROR   - %d stale indices"
 msgid "OK      - no stale indices"
 msgstr "OK      - no stale indices"
 
-#: src/Command.cc:480
+#: src/Command.cc:444
 msgid "NO MORE ERROR INFO"
 msgstr "NO MORE ERROR INFO"
 
-#: src/Command.cc:502
+#: src/Command.cc:466
 msgid "missing workspace name in command )DROP"
 msgstr "missing workspace name in command )DROP"
 
-#: src/Command.cc:510
+#: src/Command.cc:475
 msgid "too many parameters in command )DROP"
 msgstr "too many parameters in command )DROP"
 
-#: src/Command.cc:535
+#: src/Command.cc:502
 msgid " NOT DROPPED: "
 msgstr " NOT DROPPED: "
 
-#: src/Command.cc:538
+#: src/Command.cc:505
 msgid "could not unlink file "
 msgstr "could not unlink file "
 
-#: src/Command.cc:581
+#: src/Command.cc:543
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr "IMPROPER LIBRARY REFERENCE"
 
-#: src/Command.cc:586
+#: src/Command.cc:548
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr "path %s: could not be openend as directory: %s"
 
-#: src/Command.cc:625
+#: src/Command.cc:587
 msgid "Goodbye."
 msgstr "Goodbye."
 
-#: src/Command.cc:632
+#: src/Command.cc:594
 msgid "US Keyboard Layout:"
 msgstr "US Keyboard Layout:"
 
-#: src/Command.cc:657
+#: src/Command.cc:619
 msgid ")HOST command failed: "
 msgstr ")HOST command failed: "
 
-#: src/Command.cc:679
+#: src/Command.cc:641
 msgid "missing filename in command )IN"
 msgstr "missing filename in command )IN"
 
-#: src/Command.cc:707 src/Command.cc:794
+#: src/Command.cc:667 src/Command.cc:752
 msgid " failed: "
 msgstr " failed: "
 
-#: src/Command.cc:712
+#: src/Command.cc:672
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr "command )IN: could not open file %s for reading: %s"
 
-#: src/Command.cc:753
+#: src/Command.cc:713
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr "BAD record charset (neither ASCII nor EBCDIC)"
 
-#: src/Command.cc:767
+#: src/Command.cc:727
 msgid "missing filename in command )OUT"
 msgstr "missing filename in command )OUT"
 
-#: src/Command.cc:797
+#: src/Command.cc:755
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr "command )OUT: could not open file %s for writing: %s"
 
-#: src/Command.cc:863
+#: src/Command.cc:821
 msgid " *** bad sub-record of *"
 msgstr " *** bad sub-record of *"
 
-#: src/Command.cc:866
+#: src/Command.cc:824
 msgid " comment"
 msgstr " comment"
 
-#: src/Command.cc:868
+#: src/Command.cc:826
 msgid " timestamp"
 msgstr " timestamp"
 
-#: src/Command.cc:880
+#: src/Command.cc:838
 msgid " imbed"
 msgstr " imbed"
 
-#: src/Command.cc:883
+#: src/Command.cc:841
 msgid "record #"
 msgstr "record #"
 
-#: src/Command.cc:893
+#: src/Command.cc:851
 msgid " *** bad sub-record of X"
 msgstr " *** bad sub-record of X"
 

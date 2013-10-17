@@ -66,7 +66,7 @@ public:
    static uint32_t get_av_pos(CHT_Index av);
 
    /// Return a token containing \b av
-   static Token uni_to_token(Unicode av);
+   static Token uni_to_token(Unicode av, const char * loc);
 
    /// Return \b true iff \b av is a valid char in a user defined symbol
    static bool is_symbol_char(Unicode av);
