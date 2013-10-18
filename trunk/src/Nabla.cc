@@ -209,13 +209,13 @@ Unicode cc = c.next();
    // [n]                                           (goto)
    // text                                          (override text)
 
-   if (cc == UNI_NABLA)       // ∇
+   if (cc == UNI_NABLA)       // initial ∇
       {
         do_close = true;
         return 0;
       }
 
-   if (cc == UNI_DEL_TILDE)   // ⍫
+   if (cc == UNI_DEL_TILDE)   // initial ⍫
       {
         locked = true;
         do_close = true;
@@ -230,7 +230,15 @@ Unicode cc = c.next();
         return 0;
       }
 
-skip:
+   // a loop over multiple commands, like
+   // [2⎕4] [∆5]
+   //
+   // only the last command is executed; the previous commands are discarded/
+   //
+command_loop:
+
+   // at this point, [ was seen and skipped
+
    ecmd = ECMD_NOP;
    edit_from.clear();
    edit_to.clear();
@@ -240,8 +248,12 @@ skip:
    //
    if (Avec::is_digit(c.get()))   edit_from = parse_lineno(c);
 
-   // operation
+   // operation, which is one of:
    //
+   // [⎕   show
+   // []   edit
+   // [∆   delete
+   // [→   abandon
    switch (c.get())
       {
         case UNI_QUAD_QUAD:     ecmd = ECMD_SHOW;     c.next();   break;
@@ -277,31 +289,40 @@ again:
 
    if (c.next() != UNI_ASCII_R_BRACK)   return LOC;
 
+   // at this point we have parsed an editor command, like:
+   //
+   // [from ⎕ to]
+   // [from ∆ to]
+   // [from]
+
    while (c.get() == UNI_ASCII_SPACE)   c.next();
 
    if (c.get() == UNI_ASCII_L_BRACK)   // another command: ignore previous
       {
          c.next();   // eat the [
-         goto skip;
+         goto command_loop;
       }
 
-   while ((cc = c.next()) != Invalid_Unicode)
-      {
-        if (cc == UNI_NABLA)
-           {
-             do_close = true;
-             break;
-           }
+   // copy the rest to current_text and set do_close if the first character
+   // is ∇ or ⍫
+   //
+   while ((cc = c.next()) != Invalid_Unicode)   current_text += cc;
 
-        if (cc == UNI_DEL_TILDE)
+   if (current_text.size())
+      {
+        if (current_text[0] == UNI_NABLA)
            {
+             current_text.clear();
+             do_close = true;
+           }
+        else if (current_text[0] == UNI_DEL_TILDE)
+           {
+             current_text.clear();
              locked = true;
              do_close = true;
-             break;
            }
-
-        current_text += cc;
       }
+
 
    return 0;
 }

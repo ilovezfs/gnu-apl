@@ -50,7 +50,6 @@ enum { MAX_RANK = MAX_RANK_WANTED };
 
 using namespace std;
 
-extern const char * progname;
 extern const char * scriptname;
 
 /// debug output

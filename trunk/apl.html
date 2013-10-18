@@ -347,7 +347,7 @@ where apl is installed can be changed via ./configure options
 
      <ol type=1 start=1>
 <li>APL workspaces that can be manipulated with the )LOAD, )SAVE,
- and )COPY commands. APL workspaces are XML files and must have a
+ )COPY, and )DROP commands. APL workspaces are XML files and must have a
  file extension of .xml in order to be accepted by GNU APL. APL workspaces
  can only be exchanged between machines that all run GNU APL.
 
@@ -381,7 +381,15 @@ where apl is installed can be changed via ./configure options
 
    <p>)SAVE [lib] [name[.xml]]
 
+   <p>)COPY [lib] [name[.xml]]
+
+   <p>)PCOPY [lib] [name[.xml]]
+
+   <p>)DROP [lib] [name[.xml]]
+
    <p>)IN   [lib] name[.atf]
+
+   <p>)PIN   [lib] name[.atf]
 
    <p>)OUT  [lib] name[.atf]
 
@@ -391,7 +399,7 @@ where apl is installed can be changed via ./configure options
 
    <p>)WSID       [name]
 
-   <p>The rules how file names are constructed from the arguments of an APL
+   <p>The rules how file names are constructed from the argument(s) of an APL
 command are:
 
      <ol type=1 start=1>
@@ -426,10 +434,10 @@ directories:
 
    <p>9: library-root/wslib9/
 
-   <p>The command )LIBS shows the mapping between library numbers and paths, or
-sets a new lib-root.
+   <p>The command )LIBS without arguments shows the mapping between library
+numbers and paths. The command )LIBS with an argument sets a new lib-root.
 
-   <p>The command )LIB [lib] shows the files in library (i,, directory) lib.
+   <p>The command )LIB [lib] shows the files in library (i.e. directory) lib.
 
    <p>The directory library-root is computed as follows when the interpreter starts:
 
@@ -442,13 +450,24 @@ are directories, but for the computation of library-root files suffice.
    <p>If such a directory is found, then it is used as library-root; otherwise the
 current directory (i.e. ".") is used and converted to an absolute path.
 
-   <p>For example, if library-root id "." then the command
+   <p>For example, if library-root is "." then the command
 
    <p>)LOAD 2 test
 
    <p>will try to load the workspace file
 
    <p>./wslib2/test.xml
+
+   <p>Using a library root implies that all 10 library directories are contained
+in the same directory. This is good enough for single-user environments
+is often not adequate for multi-user environments where some directories
+are not writable by users and different users have different home directories.
+
+   <p>For that reason the above library root scheme can be overridden by the
+GNU APL configuration files (preferences). In these files you can uncomment
+any of the LIBREF-0 to LIBREF-9 settings (which correspond to library
+numbers 0 to 9) and provide your own paths. The library numbers NOT overridden
+in a 'preferences' file still follow the library root scheme.
 
 <!--  -->
 <div class="node">

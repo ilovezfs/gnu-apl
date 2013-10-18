@@ -31,6 +31,7 @@
 #include "IndexExpr.hh"
 #include "IntCell.hh"
 #include "Input.hh"
+#include "LibPaths.hh"
 #include "main.hh"
 #include "Nabla.hh"
 #include "Output.hh"
@@ -382,50 +383,6 @@ Command::cmd_CHECK(ostream & out)
    }
 }
 //-----------------------------------------------------------------------------
-UTF8_string
-Command::get_lib_file_path(int libref, const UCS_string & name)
-{
-   // if name is an absolute path then libnum is ignored
-   //
-   if (name[0] == '/')   return UTF8_string(name);   // absolute path
-
-UCS_string path = get_library_path(libref);
-   path += Unicode('/');
-   path += name;
-   return UTF8_string(path);
-}
-//-----------------------------------------------------------------------------
-UTF8_string
-Command::get_library_path(int libref)
-{
-UCS_string path = get_APL_lib_root();
-   if (libref)   // path/wslibN
-      {
-        path.app((const UTF8 *)"/wslib");
-        path.append_number(libref);
-      }
-   else           // path/workspaces
-      {
-        path.app((const UTF8 *)"/workspaces");
-      }
-
-   // canonicalize path
-   //
-char resolved[PATH_MAX + 2] = "";
-   {
-     UTF8_string path_utf(path);
-
-     // realpath() seems to return NULL if resolved is non-null even if
-     // no error has occurred. At the same time it complains if the return
-     // value is not checked.
-     //
-     const void * unused = realpath((const char *)path_utf.c_str(), resolved);
-     resolved[PATH_MAX] = 0;
-   }
-
-   return UTF8_string(resolved);
-}
-//-----------------------------------------------------------------------------
 void 
 Command::cmd_CONTINUE(ostream & out)
 {
@@ -476,25 +433,13 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
         return;
       }
 
-   // at this point, lib_ws.size() is 1 or 2. I f then the first
+   // at this point, lib_ws.size() is 1 or 2. If 2 then the first
    // is the lib number
    //
-int libnum = 0;
+LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
-UTF8_string filename = Command::get_lib_file_path(libnum, wname);
-
-   // append an .xml extension unless there is one already
-   //
-   if (filename.size() < 5                  ||
-       filename[filename.size() - 4] != '.' ||
-       filename[filename.size() - 3] != 'x' ||
-       filename[filename.size() - 2] != 'm' ||
-       filename[filename.size() - 1] != 'l' )
-      {
-        // filename does not end with .xml, so we try filename.xml
-        //
-        filename += UTF8_string(".xml");
-      }
+   if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
 int result = unlink((const char *)filename.c_str());
    if (result)
@@ -510,32 +455,57 @@ int result = unlink((const char *)filename.c_str());
 void 
 Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
 {
+   // Command is:
+   //
+   // )LIB path           (set root to path)
+   // )LIB                (display root and path states)
+   //
    if (lib_ref.size() > 0)   // set path
       {
         UTF8_string utf(lib_ref[0]);
-        set_APL_lib_root((const char *)utf.c_str());
+        LibPaths::set_APL_lib_root((const char *)utf.c_str());
         out << "LIBRARY ROOT SET TO " << lib_ref[0] << endl;
         return;
       }
 
-   out << "Library root: " << get_APL_lib_root() << endl
-       << "Library numbers:" << endl;
+   out << "Library root: " << LibPaths::get_APL_lib_root() << 
+"\n"
+"\n"
+"Library reference number mapping:\n"
+"\n"
+"---------------------------------------------------------------------------\n"
+"Ref Conf  Path                                                State   Err\n"
+"---------------------------------------------------------------------------\n";
+         
 
    loop(d, 10)
        {
-          UTF8_string path = get_library_path(d);
-          out << " " << d << "    " << path.c_str();
+          UTF8_string path = LibPaths::get_lib_dir((LibRef)d);
+          out << " " << d << " ";
+          switch(LibPaths::get_cfg_src((LibRef)d))
+             {
+                case LibPaths::LibDir::CS_NONE:      out << "NONE" << endl;
+                                                     continue;
+                case LibPaths::LibDir::CS_ENV:       out << "ENV   ";   break;
+                case LibPaths::LibDir::CS_ARGV0:     out << "BIN   ";   break;
+                case LibPaths::LibDir::CS_PREF_SYS:  out << "PSYS  ";   break;
+                case LibPaths::LibDir::CS_PREF_HOME: out << "PUSER ";   break;
+             }
+
+        out << left << setw(52) << path.c_str();
         DIR * dir = opendir((const char *)path.c_str());
         if (dir)   { out << " present" << endl;   closedir(dir); }
-        else       { out << " " << strerror(errno) << endl;      }
+        else       { out << " missing (" << errno << ")" << endl; }
       }
+
+   out <<
+"===========================================================================\n" << endl;
 }
 //-----------------------------------------------------------------------------
 void 
 Command::cmd_LIB(ostream & out, const UCS_string & arg)
 {
-UTF8_string arg_utf(arg);
-UTF8_string path = get_library_path(atoi((const char *)arg_utf.c_str()));
+UTF8_string path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
 
 DIR * dir = opendir((const char *)path.c_str());
    if (dir == 0)
@@ -645,35 +615,19 @@ Command::cmd_IN(ostream & out, vector<UCS_string> & args, bool protection)
 UCS_string fname = args.front();
    args.erase(args.begin());
 
-UTF8_string filename = get_lib_file_path(0, fname);
+UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, true, "atf");
 
 FILE * in = fopen((const char *)(filename.c_str()), "r");
    if (in == 0)   // open failed: try filename.atf unless already .atf
       {
-        if (filename.size() < 5                  ||
-            filename[filename.size() - 4] != '.' ||
-            filename[filename.size() - 3] != 'a' ||
-            filename[filename.size() - 2] != 't' ||
-            filename[filename.size() - 1] != 'f' )
-           {
-             // filename does not end with .atf, so we try filename.atf
-             //
-             filename += UTF8_string(".atf");
-             in = fopen((const char *)(filename.c_str()), "r");
-           }
+        CERR << ")IN " << fname << _(" failed: ") << strerror(errno) << endl;
 
-        if (in == 0)   // open failed again: give up
-           {
-             CERR << ")IN " << fname << _(" failed: ")
-                  << strerror(errno) << endl;
-
-             char cc[200];
-             snprintf(cc, sizeof(cc),
-                      _("command )IN: could not open file %s for reading: %s"),
-                      fname.c_str(), strerror(errno));
-             Workspace::the_workspace->more_error = UCS_string(cc);
-             return;
-           }
+        char cc[200];
+        snprintf(cc, sizeof(cc),
+                 _("command )IN: could not open file %s for reading: %s"),
+                 fname.c_str(), strerror(errno));
+        Workspace::the_workspace->more_error = UCS_string(cc);
+        return;
       }
 
 UTF8 buffer[80];
@@ -731,21 +685,8 @@ Command::cmd_OUT(ostream & out, vector<UCS_string> & args)
 UCS_string fname = args.front();
    args.erase(args.begin());
 
-UTF8_string filename = get_lib_file_path(0, fname);
+UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, false,"atf");
    
-   // append an .atf extension unless there is one already
-   //
-   if (filename.size() < 5                  ||
-       filename[filename.size() - 4] != '.' ||
-       filename[filename.size() - 3] != 'a' ||
-       filename[filename.size() - 2] != 't' ||
-       filename[filename.size() - 1] != 'f' )
-      {
-        // filename does not end with .atf, so we append .atf
-        //
-        filename += UTF8_string(".atf");
-      }
-
 FILE * atf = fopen((const char *)(filename.c_str()), "w");
    if (atf == 0)
       {

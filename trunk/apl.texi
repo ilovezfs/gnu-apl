@@ -318,7 +318,7 @@ GNU APL understands 4 file types:
 
 @enumerate
 @item APL workspaces that can be manipulated with the )LOAD, )SAVE,
- and )COPY commands. APL workspaces are XML files and must have a
+ )COPY, and )DROP commands. APL workspaces are XML files and must have a
  file extension of .xml in order to be accepted by GNU APL. APL workspaces
  can only be exchanged between machines that all run GNU APL.
 
@@ -352,7 +352,15 @@ The following APL commands are related to file names:
 
 )SAVE [lib] [name[.xml]]
 
+)COPY [lib] [name[.xml]]
+
+)PCOPY [lib] [name[.xml]]
+
+)DROP [lib] [name[.xml]]
+
 )IN   [lib] name[.atf]
+
+)PIN   [lib] name[.atf]
 
 )OUT  [lib] name[.atf]
 
@@ -362,7 +370,7 @@ The following APL commands are related to file names:
 
 )WSID       [name]
 
-The rules how file names are constructed from the arguments of an APL
+The rules how file names are constructed from the argument(s) of an APL
 command are:
 
 @enumerate
@@ -397,10 +405,10 @@ directories:
 
     9: library-root/wslib9/
 
-The command )LIBS shows the mapping between library numbers and paths, or
-sets a new lib-root.
+The command )LIBS without arguments shows the mapping between library
+numbers and paths. The command )LIBS with an argument sets a new lib-root.
 
-The command )LIB [lib] shows the files in library (i,, directory) lib.
+The command )LIB [lib] shows the files in library (i.e. directory) lib.
 
 The directory library-root is computed as follows when the interpreter starts:
 
@@ -413,13 +421,24 @@ are directories, but for the computation of library-root files suffice.
 If such a directory is found, then it is used as library-root; otherwise the
 current directory (i.e. ".") is used and converted to an absolute path.
 
-For example, if library-root id "." then the command
+For example, if library-root is "." then the command
 
 )LOAD 2 test
 
 will try to load the workspace file
 
 ./wslib2/test.xml
+
+Using a library root implies that all 10 library directories are contained
+in the same directory. This is good enough for single-user environments 
+is often not adequate for multi-user environments where some directories
+are not writable by users and different users have different home directories.
+
+For that reason the above library root scheme can be overridden by the
+GNU APL configuration files (preferences). In these files you can uncomment
+any of the LIBREF-0 to LIBREF-9 settings (which correspond to library
+numbers 0 to 9) and provide your own paths. The library numbers NOT overridden
+in a 'preferences' file still follow the library root scheme.
 
 @c ----------------------------------------------------------------------------
 @node Chapter 2

@@ -2,16 +2,21 @@
  for detailed change information see subversion repository:
  http://svn.savannah.gnu.org/viewvc/tags/?root=apl
 
+ The SVN numbers below can be found in file src/buildtag.hh
+
  SVN 
  ----
- 4213 GNU APL 1.0 Initial release
- 4271 fixed missing Error display e.g. in tokenize_real()
- 4276 proper error lines for tokenize() errors
- 4277 improved sigaction portability
- 4281 use Svar_DB instead of prctl() to improve portability
- 4285 comments on apl.texi included
- 4291 replaced ⍧ with ⍬ in ⎕AV and ]KEYB
- 4293 ⍬ implemented as niladic function
- 4319 support for config file 'preferences' added
- 4333 some portability options fixed
+ 4213  GNU APL 1.0 Initial release
+
+ 4271  fixed missing Error display e.g. in tokenize_real()
+ 4276  proper error lines for tokenize() errors
+ 4277  improved sigaction portability
+ 4281  use Svar_DB instead of prctl() to improve portability
+ 4285  comments on apl.texi included
+ 4291  replaced ⍧ with ⍬ in ⎕AV and ]KEYB
+ 4293  ⍬ implemented as niladic function
+ 4319  support for config file 'preferences' added
+ 4333  some portability options fixed
+ 4366  make library paths configurable in file(s) 'preferences'
+ 4366  fix problem with ∇ in strings in Nabbla editor
 

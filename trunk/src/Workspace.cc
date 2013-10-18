@@ -27,6 +27,7 @@ using namespace std;
 #include "Archive.hh"
 #include "Command.hh"
 #include "Input.hh"
+#include "LibPaths.hh"
 #include "Output.hh"
 #include "Quad_TF.hh"
 #include "UserFunction.hh"
@@ -571,8 +572,11 @@ Workspace::save_WS(ostream & out, vector<UCS_string> & lib_ws)
 
    // at this point, lib_ws.size() is 1 or 2.
 
+LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
-UTF8_string filename = Command::get_lib_file_path(0, wname);
+   if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
+
 
    // append an .xml extension unless there is one already
    //
@@ -662,8 +666,10 @@ Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws)
         return UCS_string();
       }
 
+LibRef libref = LIB_NONE;
+   if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
 UCS_string wname = lib_ws.back();
-UTF8_string filename = Command::get_lib_file_path(0, wname);
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
 XML_Loading_Archive in((const char *)filename.c_str(), *this);
 
@@ -724,8 +730,10 @@ const bool with_lib = Command::is_lib_ref(lib_ws_objects.front());
         lib_ws_objects.erase(lib_ws_objects.begin());
       }
 
+LibRef libref = LIB_NONE;
+   if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
 UCS_string wname = lib_ws.back();
-UTF8_string filename = Command::get_lib_file_path(0, wname);
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
 XML_Loading_Archive in((const char *)filename.c_str(), *this);
 
