@@ -18,18 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/// return the path to the APL binary (excluding the binary itself).
-/// used to find collocated programs like APs.
-extern const char * get_APL_bin_path();
-
-/// return the path to the APL libraries (excluding the libraries itself).
-/// used to resolve library numbers to paths
-extern const char * get_APL_lib_root();
-
-/// set the path to the APL libraries
-extern void set_APL_lib_root(const char * new_root);
-
 /// clean up
 extern void cleanup();
 

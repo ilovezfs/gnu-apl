@@ -270,11 +270,11 @@ INSTALL).
 
    GNU APL understands 4 file types:
 
-  1. APL workspaces that can be manipulated with the )LOAD, )SAVE,  and
-     )COPY commands. APL workspaces are XML files and must have a  file
-     extension of .xml in order to be accepted by GNU APL. APL
-     workspaces  can only be exchanged between machines that all run
-     GNU APL.
+  1. APL workspaces that can be manipulated with the )LOAD, )SAVE,
+     )COPY, and )DROP commands. APL workspaces are XML files and must
+     have a  file extension of .xml in order to be accepted by GNU APL.
+     APL workspaces  can only be exchanged between machines that all
+     run GNU APL.
 
   2. APL exchange files can be manipulated with the )IN and )OUT
      commands. APL exchange files are text files in ⎕TF format defined
@@ -305,7 +305,15 @@ INSTALL).
 
    )SAVE [lib] [name[.xml]]
 
+   )COPY [lib] [name[.xml]]
+
+   )PCOPY [lib] [name[.xml]]
+
+   )DROP [lib] [name[.xml]]
+
    )IN   [lib] name[.atf]
+
+   )PIN   [lib] name[.atf]
 
    )OUT  [lib] name[.atf]
 
@@ -315,8 +323,8 @@ INSTALL).
 
    )WSID       [name]
 
-   The rules how file names are constructed from the arguments of an APL
-command are:
+   The rules how file names are constructed from the argument(s) of an
+APL command are:
 
   1. command arguments shown in brackets are optional.
 
@@ -348,10 +356,11 @@ directories:
 
    9: library-root/wslib9/
 
-   The command )LIBS shows the mapping between library numbers and
-paths, or sets a new lib-root.
+   The command )LIBS without arguments shows the mapping between library
+numbers and paths. The command )LIBS with an argument sets a new
+lib-root.
 
-   The command )LIB [lib] shows the files in library (i,, directory)
+   The command )LIB [lib] shows the files in library (i.e. directory)
 lib.
 
    The directory library-root is computed as follows when the
@@ -368,13 +377,26 @@ library-root files suffice.
 otherwise the current directory (i.e. ".") is used and converted to an
 absolute path.
 
-   For example, if library-root id "." then the command
+   For example, if library-root is "." then the command
 
    )LOAD 2 test
 
    will try to load the workspace file
 
    ./wslib2/test.xml
+
+   Using a library root implies that all 10 library directories are
+contained in the same directory. This is good enough for single-user
+environments is often not adequate for multi-user environments where
+some directories are not writable by users and different users have
+different home directories.
+
+   For that reason the above library root scheme can be overridden by
+the GNU APL configuration files (preferences). In these files you can
+uncomment any of the LIBREF-0 to LIBREF-9 settings (which correspond to
+library numbers 0 to 9) and provide your own paths. The library numbers
+NOT overridden in a 'preferences' file still follow the library root
+scheme.
 
 
 File: apl.info,  Node: Chapter 2,  Next: Chapter 3,  Prev: Chapter 1,  Up: Top
@@ -1910,12 +1932,12 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top232
 Node: Chapter 11162
-Node: Chapter 212303
-Node: Chapter 321739
-Node: Chapter 423340
-Node: Chapter 524653
-Node: Section 5.125156
-Node: Section 5.250285
+Node: Chapter 213143
+Node: Chapter 322579
+Node: Chapter 424180
+Node: Chapter 525493
+Node: Section 5.125996
+Node: Section 5.251125
 
 End Tag Table
 

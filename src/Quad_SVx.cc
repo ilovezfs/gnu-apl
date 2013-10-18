@@ -29,7 +29,7 @@
 #include "Common.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"
-#include "main.hh"
+#include "LibPaths.hh"
 #include "ProcessorID.hh"
 #include "Quad_SVx.hh"
 #include "Svar_DB.hh"
@@ -92,13 +92,15 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
          Log(LOG_shared_variables)   verbose = " -v";
          if (startup)
             snprintf(filename, PATH_MAX,
-                      "%s%s/APnnn --id %u --par %u%s --ppid %u",
-                     get_APL_bin_path(), dirs[d], own_ID, par_ID, verbose,
+                     "%s%s/APnnn --id %u --par %u%s --ppid %u",
+                     LibPaths::get_APL_bin_path(), dirs[d],
+                     own_ID, par_ID, verbose,
                      getpid());
          else
             snprintf(filename, PATH_MAX,
                      "%s%s/AP%u --id %u --par %u --gra %u --auto%s --ppid %u",
-                     get_APL_bin_path(), dirs[d], proc, proc, own_ID, par_ID,
+                     LibPaths::get_APL_bin_path(), dirs[d],
+                     proc, proc, own_ID, par_ID,
                      verbose, getpid());
 
          if (!is_executable(filename))   continue;
@@ -122,7 +124,7 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
        }
 
    CERR << "No binary found for AP " << proc << " (interpreter path = "
-        << get_APL_bin_path() << ")" << endl;
+        << LibPaths::get_APL_bin_path() << ")" << endl;
 
    return;
 }
@@ -550,7 +552,8 @@ const char * dirs[] = { "", "/APs" };
    for (int d = 0; d < dircount; ++d)
        {
          char dirname[PATH_MAX + 1];
-         snprintf(dirname, PATH_MAX, "%s%s", get_APL_bin_path(), dirs[d]);
+         snprintf(dirname, PATH_MAX, "%s%s", LibPaths::get_APL_bin_path(),
+                  dirs[d]);
          dirname[PATH_MAX] = 0;
          DIR * dir = opendir(dirname);
          if (dir == 0)

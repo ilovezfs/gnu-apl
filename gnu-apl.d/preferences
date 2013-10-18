@@ -165,3 +165,27 @@
 # ...
 # Logging 37
 
+
+###############################################################################
+#
+# GNU APL uses library numbers from 0 to 0 in commands )LOAD, )SAVE, and )COPY,
+# for example:
+#
+# )LOAD 1 workspace
+#
+# Commands )IN and )OUT use library number 0 implicitly; )LOAD, )SAVE, and )COPY use
+# library number 0 implicitly when no library number is given.
+#
+# The directories corresponding to the library numbers can be configured below.
+#
+# LIBREF-0 /home/xyz/my-normal-lib
+# LIBREF-1 /home/xyz/my-extra-lib
+# LIBREF-2 /group/abc/my-normal-lib
+# LIBREF-3 /group/abc/my-extra-lib
+# LIBREF-4 /usr/lib/gnu-apl/lib-a
+# LIBREF-5 /usr/lib/gnu-apl/lib-b
+# LIBREF-6 /usr/lib/gnu-apl/lib-c
+# LIBREF-7 /usr/lib/gnu-apl/lib-d
+# LIBREF-8 /usr/lib/gnu-apl/lib-e
+# LIBREF-9 /usr/lib/gnu-apl/lib-f
+#

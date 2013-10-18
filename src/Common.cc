@@ -31,7 +31,6 @@
 uint64_t total_memory = 0;
 uint64_t used_memory = 0;
 
-const char * progname = 0;
 const char * scriptname = 0;
 
 //-----------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 #include <netdb.h>
 
 #include "Common.hh"
-#include "main.hh"
+#include "LibPaths.hh"
 #include "Output.hh"
 #include "ProcessorID.hh"
 #include "Quad_SVx.hh"
@@ -229,7 +229,7 @@ const char * filename = getenv("APL2SVPPRF");
       }
    else
       {
-        string fname = get_APL_bin_path();
+        string fname = LibPaths::get_APL_bin_path();
         fname += "/apl2svp.prf";
         return read_network_profile(fname.c_str());
       }
