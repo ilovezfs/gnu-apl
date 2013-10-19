@@ -119,7 +119,7 @@ FloatCell::get_near_bool(APL_Float qct)  const
 }
 //-----------------------------------------------------------------------------
 void
-FloatCell::demote(APL_Float qct)
+FloatCell::demote_float_to_int(APL_Float qct)
 {
    if (Cell::is_near_int(value.fval, qct))
       {

@@ -1305,7 +1305,7 @@ const ShapeItem ec = element_count();
 }
 //-----------------------------------------------------------------------------
 void
-Value::to_varnames(UCS_string * result, bool last) const
+Value::to_varnames(vector<UCS_string> & result, bool last) const
 {
 const ShapeItem var_count = get_rows();
 const ShapeItem name_len = get_cols();

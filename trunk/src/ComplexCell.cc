@@ -107,25 +107,44 @@ ComplexCell::is_near_int(APL_Float qct) const
 }
 //-----------------------------------------------------------------------------
 void
-ComplexCell::demote(APL_Float qct)
+ComplexCell::demote_complex_to_real(APL_Float qct)
 {
-   if (value.cpxp->imag() >  qct)   return;
-   if (value.cpxp->imag() < -qct)   return;
+const bool small_real = value.cpxp->real() <  qct &&
+                        value.cpxp->real() >  -qct;
 
-   // imag is close to zero, so we either demote this cell to a FloatCell,
-   // or to an IntCell
-   //
-const double val = value.cpxp->real();
-   delete value.cpxp;
+const bool small_imag = value.cpxp->imag() <  qct &&
+                        value.cpxp->imag() >  -qct;
 
-   if (Cell::is_near_int(val, qct))
+const APL_Float qct1 = 100000*qct;
+const bool large_real = value.cpxp->real() >  qct1 ||
+                        value.cpxp->real() <  -qct1;
+
+const bool large_imag = value.cpxp->imag() >  qct1 ||
+                        value.cpxp->imag() <  -qct1;
+
+   if (small_imag && large_real)
       {
-        if (val < 0)   new (this)   IntCell(APL_Integer(val - 0.3));
-        else           new (this)   IntCell(APL_Integer(val + 0.3));
+        // imag is close to zero, so we demote this cell either
+        // to a FloatCell, or to an IntCell
+        //
+        const double val = value.cpxp->real();
+        delete value.cpxp;
+
+        if (Cell::is_near_int(val, qct))
+           {
+             if (val < 0)   new (this)   IntCell(APL_Integer(val - 0.3));
+             else           new (this)   IntCell(APL_Integer(val + 0.3));
+           }
+        else
+           {
+             new (this) FloatCell(val);
+           }
       }
-   else
+   else if (small_real && large_imag)
       {
-        new (this) FloatCell(val);
+        // real is close to zero, so we round it down.
+        //
+        *value.cpxp = APL_Complex(0.0, value.cpxp->imag());
       }
 }
 //-----------------------------------------------------------------------------
@@ -300,7 +319,7 @@ void ComplexCell::bif_exponential(Cell * Z) const
 void ComplexCell::bif_nat_log(Cell * Z) const
 {
    new (Z) ComplexCell(log(*value.cpxp));
-   Z->demote(Workspace::get_CT());
+   Z->demote_complex_to_real(Workspace::get_CT());
 }
 //-----------------------------------------------------------------------------
 // dyadic build-in functions...
@@ -308,20 +327,16 @@ void ComplexCell::bif_nat_log(Cell * Z) const
 void ComplexCell::bif_add(Cell * Z, const Cell * A) const
 {
    new (Z) ComplexCell(A->get_complex_value() + get_complex_value());
-
-   Z->demote(Workspace::get_CT());
 }
 //-----------------------------------------------------------------------------
 void ComplexCell::bif_subtract(Cell * Z, const Cell * A) const
 {
    new (Z) ComplexCell(A->get_complex_value() - get_complex_value());
-   Z->demote(Workspace::get_CT());
 }
 //-----------------------------------------------------------------------------
 void ComplexCell::bif_multiply(Cell * Z, const Cell * A) const
 {
    new (Z) ComplexCell(A->get_complex_value() * get_complex_value());
-   Z->demote(Workspace::get_CT());
 }
 //-----------------------------------------------------------------------------
 void ComplexCell::bif_divide(Cell * Z, const Cell * A) const
@@ -335,7 +350,6 @@ const APL_Float qct = Workspace::get_CT();
       }
 
    new (Z) ComplexCell(A->get_complex_value() / get_complex_value());
-   Z->demote(qct);
 }
 //-----------------------------------------------------------------------------
 void ComplexCell::bif_residue(Cell * Z, const Cell * A) const
@@ -360,7 +374,6 @@ const APL_Float qct = Workspace::get_CT();
         A->bif_divide(Z, this);     // Z = B/A
         Z->bif_floor(Z);            // Z = A/B rounded down.
         new (Z) ComplexCell(b - a*Z->get_complex_value());
-        Z->demote(qct);
       }
    else
       {
@@ -391,10 +404,8 @@ void ComplexCell::bif_power(Cell * Z, const Cell * A) const
    if (A->is_complex_cell())
       {
         APL_Complex z = pow(A->get_complex_value(), get_complex_value());
-
-        if (Cell::is_near_zero(z.real(), 2e-15))   z.real() = 0.0;
-        if (Cell::is_near_zero(z.imag(), 2e-15))   z.imag() = 0.0;
         new (Z) ComplexCell(z);
+        Z->demote_complex_to_real(Workspace::get_CT());
       }
    else
       {

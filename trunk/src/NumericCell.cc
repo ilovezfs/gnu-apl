@@ -334,10 +334,8 @@ NumericCell::cpx_gcd(APL_Complex a, APL_Complex b, APL_Float qct)
 
    // make a and b true integers
    //
-   a.real() = round(a.real());
-   a.imag() = round(a.imag());
-   b.real() = round(b.real());
-   b.imag() = round(b.imag());
+   a = APL_Complex(round(a.real()), a.imag());
+   b = APL_Complex(round(b.real()), b.imag());
 
    for (;;)
        {
@@ -368,8 +366,7 @@ APL_Complex z;
 
    if (r_abs < i_abs)   // multiply by i in order to exchange real and imag
       {
-        z.real() = - a.imag();
-        z.imag() =   a.real();
+        z = APL_Complex(- a.imag(), a.real());
      }
    else
       {
@@ -378,8 +375,7 @@ APL_Complex z;
 
    if (z.real() < 0)   // multiply by -1 in order to make z.real positive
       {
-        z.real() = - z.real();
-        z.imag() = - z.imag();
+        z = APL_Complex(- z.real(), - z.imag());
       }
 
    return z;

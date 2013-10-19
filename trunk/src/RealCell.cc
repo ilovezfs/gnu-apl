@@ -31,18 +31,14 @@
 //-----------------------------------------------------------------------------
 void RealCell::bif_add(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-
    if (A->is_complex_cell())
       {
-        new (Z) ComplexCell(A->get_real_value() + get_real_value(),
-                            A->get_imag_value());
-        Z->demote(qct);
+        A->bif_add(Z, this);
       }
    else if (A->is_real_cell())
       {
         new (Z) FloatCell(A->get_real_value() + get_real_value());
-        Z->demote(qct);
+        Z->demote_float_to_int(Workspace::get_CT());
       }
    else
       {
@@ -59,12 +55,13 @@ const APL_Float qct = Workspace::get_CT();
       {
         new (Z) ComplexCell(A->get_real_value() - get_real_value(),
                             A->get_imag_value());
-        Z->demote(qct);
+        Z->demote_complex_to_real(qct);
+        Z->demote_float_to_int(qct);
       }
    else if (A->is_real_cell())
       {
         new (Z) FloatCell(A->get_real_value() - get_real_value());
-        Z->demote(qct);
+        Z->demote_float_to_int(qct);
       }
    else
       {
@@ -78,14 +75,12 @@ const APL_Float qct = Workspace::get_CT();
 
    if (A->is_complex_cell())
       {
-        new (Z) ComplexCell(A->get_real_value() * get_real_value(),
-                            A->get_imag_value());
-        Z->demote(qct);
+        A->bif_add(Z, this);
       }
    else if (A->is_real_cell())
       {
         new (Z) FloatCell(A->get_real_value() * get_real_value());
-        Z->demote(qct);
+        Z->demote_float_to_int(qct);
       }
    else
       {
@@ -132,11 +127,9 @@ RealCell::bif_power(Cell * Z, const Cell * A) const
       {
         if (A->get_real_value() < 0)
            {
-             APL_Complex z = pow(A->get_complex_value(), get_real_value());
-
-             if (Cell::is_near_zero(z.real(), 2e-15))   z.real() = 0.0;
-             if (Cell::is_near_zero(z.imag(), 2e-15))   z.imag() = 0.0;
+             const APL_Complex z = pow(A->get_complex_value(),get_real_value());
              new (Z) ComplexCell(z);
+             Z->demote_complex_to_real(Workspace::get_CT());
            }
         else
            {
@@ -147,9 +140,8 @@ RealCell::bif_power(Cell * Z, const Cell * A) const
       {
         APL_Complex z = pow(A->get_complex_value(), get_real_value());
 
-        if (Cell::is_near_zero(z.real(), 2e-15))   z.real() = 0.0;
-        if (Cell::is_near_zero(z.imag(), 2e-15))   z.imag() = 0.0;
         new (Z) ComplexCell(z);
+        Z->demote_complex_to_real(Workspace::get_CT());
       }
    else
       {

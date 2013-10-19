@@ -177,8 +177,8 @@ protected:
    /// Overloaded Cell::get_classname().
    virtual const char * get_classname() const   { return "ComplexCell"; }
 
-   /// Overloaded Cell::demote().
-   virtual void demote(APL_Float qct);
+   /// Overloaded Cell::demote_complex_to_real().
+   virtual void demote_complex_to_real(APL_Float qct);
 
    /// Overloaded Cell::CDR_size()
    virtual int CDR_size() const { return 16; }

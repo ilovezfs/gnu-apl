@@ -705,12 +705,16 @@ struct stat st;
       }
 
    // if shared memory is already initialized then it should be
-   // sizeof(Svar_DB_memory)
+   // sizeof(Svar_DB_memory), possibly rounded up to page_size
    //
 bool existing = false;
    if (st.st_size)   // already initialized
       {
-        if (st.st_size == sizeof(Svar_DB_memory))
+        const int page_size = ::getpagesize();
+        const int min_size = sizeof(Svar_DB_memory);
+        const int max_size = ((min_size + page_size - 1)/page_size)*page_size;
+
+        if (min_size <= st.st_size && st.st_size <= max_size)
            {
              existing = true;
              goto mapit;
