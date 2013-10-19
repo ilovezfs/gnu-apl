@@ -302,7 +302,9 @@ const APL_time end = start + 1000000 * B->get_ravel(0).get_real_value();
          const APL_time wait =  end - now();
          if (wait <= 0)   break;
 
-         timeval tv = { long(wait/1000000), long(wait%1000000) };
+         const long wait_sec  = wait/1000000;
+         const long wait_usec = wait%1000000;
+         timeval tv = { wait_sec, wait_usec };
          if (select(0, 0, 0, 0, &tv) == 0)   break;
        }
 
@@ -779,7 +781,7 @@ Quad_EX::eval_B(Value_P B)
    if (B->get_rank() > 2)   RANK_ERROR;
 
 const ShapeItem var_count = B->get_rows();
-UCS_string vars[var_count];
+vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z = var_count > 1 ? new Value(var_count, LOC) : new Value(LOC);
@@ -1164,7 +1166,7 @@ Quad_NC::eval_B(Value_P B)
    if (B->get_rank() > 2)   RANK_ERROR;
 
 const ShapeItem var_count = B->get_rows();
-UCS_string vars[var_count];
+vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z = var_count > 1 ? new Value(var_count, LOC) : new Value(LOC);

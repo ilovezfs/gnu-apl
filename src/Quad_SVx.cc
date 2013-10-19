@@ -138,7 +138,7 @@ Quad_SVC::eval_AB(Value_P A, Value_P B)
 const ShapeItem var_count = B->get_rows();
    if (A->get_rows() != var_count)               LENGTH_ERROR;
    if (A->get_rank() > 0 && A->get_cols() != 4)   LENGTH_ERROR;
-UCS_string vars[var_count];
+vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 const APL_Float qct = Workspace::get_CT();
@@ -196,7 +196,7 @@ Quad_SVC::eval_B(Value_P B)
    if (B->get_rank() > 2)   RANK_ERROR;
 
 const ShapeItem var_count = B->get_rows();
-UCS_string vars[var_count];
+vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 const Shape shZ(var_count, 4);
@@ -329,8 +329,11 @@ Quad_SVO::eval_AB(Value_P A, Value_P B)
    if (B->get_rank() > 2)   RANK_ERROR;
 
 const ShapeItem var_count = B->get_rows();
-UCS_string apl_vars[var_count];      B->to_varnames(apl_vars,   false);
-UCS_string surrogates[var_count];    B->to_varnames(surrogates, true);
+vector<UCS_string> apl_vars(var_count);
+   B->to_varnames(apl_vars,   false);
+
+vector<UCS_string> surrogates(var_count);
+   B->to_varnames(surrogates, true);
 
    if (A->get_rank() == 1 && A->element_count() != var_count)   LENGTH_ERROR;
 
@@ -477,7 +480,7 @@ Quad_SVO::eval_B(Value_P B)
    if (B->get_rank() > 2)   RANK_ERROR;
 
 const ShapeItem var_count = B->get_rows();
-UCS_string vars[var_count];
+vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z = var_count > 1 ? new Value(var_count, LOC) : new Value(LOC);
@@ -668,7 +671,7 @@ Quad_SVR::eval_B(Value_P B)
    if (B->get_rank() > 2)   RANK_ERROR;
 
 const ShapeItem var_count = B->get_rows();
-UCS_string vars[var_count];
+vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z = var_count > 1 ? new Value(var_count, LOC) : new Value(LOC);
@@ -692,7 +695,7 @@ Quad_SVS::eval_B(Value_P B)
    if (B->get_rank() > 2)   RANK_ERROR;
 
 const ShapeItem var_count = B->get_rows();
-UCS_string vars[var_count];
+vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 const Shape shZ(var_count, 4);

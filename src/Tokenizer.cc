@@ -471,7 +471,7 @@ bool real_floating = real_flt != real_int;
       {
         ++src;   // skip 'J'
 
-        APL_Float imag_flt;   // always valid
+        APL_Float   imag_flt;   // always valid
         APL_Integer imag_int;   // valid if real_floating is true
         const bool imag_valid =  tokenize_real(src, imag_flt, imag_int);
 
@@ -489,9 +489,9 @@ bool real_floating = real_flt != real_int;
       {
         ++src;   // skip 'D'
 
-        APL_Float angle;     // always valid
-        APL_Integer imag_int;   // valid if imag_floating is true
-        const bool imag_valid =  tokenize_real(src, angle, imag_int);
+        APL_Float   degrees_flt;  // always valid
+        APL_Integer degrees_int;  // valid if imag_floating is true
+        const bool imag_valid = tokenize_real(src, degrees_flt, degrees_int);
 
         if (!imag_valid)
            {
@@ -503,17 +503,17 @@ bool real_floating = real_flt != real_int;
 
         // real_flt is the magnitude and the angle is in degrees.
         //
-        APL_Float real = cos(M_PI*angle / 180);
-        APL_Float imag = sin(M_PI*angle / 180);
-        tos += Token(TOK_COMPLEX, real_flt*real, real_flt*real);
+        APL_Float real = cos(M_PI*degrees_flt / 180);
+        APL_Float imag = sin(M_PI*degrees_flt / 180);
+        tos += Token(TOK_COMPLEX, real_flt*real, real_flt*imag);
       }
    else if (src.rest() && *src == UNI_ASCII_R)
       {
         ++src;   // skip 'R'
 
-        APL_Float angle;     // always valid
-        APL_Integer imag_int;   // valid if imag_floating is true
-        const bool imag_valid =  tokenize_real(src, angle, imag_int);
+        APL_Float radian_flt;     // always valid
+        APL_Integer radian_int;   // valid if imag_floating is true
+        const bool imag_valid = tokenize_real(src, radian_flt, radian_int);
 
         if (!imag_valid)
            {
@@ -525,9 +525,9 @@ bool real_floating = real_flt != real_int;
 
         // real_flt is the magnitude and the angle is in radian.
         //
-        APL_Float real = cos(angle);
-        APL_Float imag = sin(angle);
-        tos += Token(TOK_COMPLEX, real_flt*real, real_flt*real);
+        APL_Float real = cos(radian_flt);
+        APL_Float imag = sin(radian_flt);
+        tos += Token(TOK_COMPLEX, real_flt*real, real_flt*imag);
       }
    else 
      {

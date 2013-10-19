@@ -776,7 +776,13 @@ Value_P Z = divide_matrix(rows_A, cols_A, A, cols_B, B, shape_Z, qct);
    //
    {
      ShapeItem ec_Z = shape_Z.element_count();
-     loop(z, ec_Z)   Z->get_ravel(z).demote(1.0e-15);
+     Cell * cZ = &Z->get_ravel(0);
+     loop(z, ec_Z)
+        {
+          if (cZ->is_complex_cell())   cZ->demote_complex_to_real(1.0e-15);
+          else                         cZ->demote_float_to_int(1.0e-15);
+          ++cZ;
+        }
    }
 
    return CHECK(Z, LOC);
@@ -1179,7 +1185,8 @@ APL_Complex value_C = cB.get_complex_value();   // C[] in the standard
              value_C /= cA->get_complex_value();
            }
 
-         cZ->demote(qct);
+         cZ->demote_complex_to_real(qct);
+         cZ->demote_float_to_int(qct);
        }
 }
 //-----------------------------------------------------------------------------

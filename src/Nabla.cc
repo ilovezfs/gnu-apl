@@ -280,7 +280,7 @@ again:
 
    if (c.get() == UNI_ASCII_MINUS)   // range
       {
-        if (got_minus)   return "error: second -  at "LOC;
+        if (got_minus)   return "error: second -  at " LOC;
         got_minus = true;
         edit_from = edit_to;
         c.next();   // eat the -

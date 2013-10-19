@@ -409,7 +409,7 @@ public:
 
    /// convert this character value (of rank <= 2) to an array of UCS_string,
    /// one for each line
-   void to_varnames(UCS_string * result, bool last) const;
+   void to_varnames(vector<UCS_string> & result, bool last) const;
 
    /// print address, shape, and flags of this value
    void print_structure(ostream & out, int indent, ShapeItem idx) const;

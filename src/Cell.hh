@@ -191,37 +191,40 @@ public:
         Cell         *lval;   ///< left value (for selective assignment)
       };
 
-   /// Return the type of \b this cell
+   /// return the type of \b this cell
    virtual CellType get_cell_type() const
       { return CT_BASE; }
 
-   /// The name of the class
+   /// return the name of the class
    virtual const char * get_classname()  const   { return "Cell"; }
 
-   /// Return the types of \b this cell and nested values
+   /// return the types of \b this cell and nested values
    virtual CellType compute_cell_types() const
       { return get_cell_type(); }
 
-   /// convert complex to real or real to integer when possible
-   virtual void demote(APL_Float qct) {}
+   /// convert near-real complex to real or integer
+   virtual void demote_complex_to_real(APL_Float qct) {}
 
-   /// Round the value of this Cell up and store the result in Z
+   /// convert near-int real to integer
+   virtual void demote_float_to_int(APL_Float qct) {}
+
+   /// round the value of this Cell up and store the result in Z
    virtual void bif_ceiling(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Conjugate the value of this Cell and store the result in Z
+   /// conjugate the value of this Cell and store the result in Z
    virtual void bif_conjugate(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the direction (sign) of this Cell in Z
+   /// store the direction (sign) of this Cell in Z
    virtual void bif_direction(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store e to the power of the value of this Cell in Z
+   /// store e to the power of the value of this Cell in Z
    virtual void bif_exponential(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the faculty (N!) of the value of this Cell in Z
+   /// store the faculty (N!) of the value of this Cell in Z
    virtual void bif_factorial(Cell * Z) const
       { DOMAIN_ERROR; }
 
@@ -229,126 +232,126 @@ public:
    virtual void bif_floor(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the absolute value of this Cell in Z
+   /// store the absolute value of this Cell in Z
    virtual void bif_magnitude(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the base e logarithm of the value of this Cell in Z
+   /// store the base e logarithm of the value of this Cell in Z
    virtual void bif_nat_log(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the negative of the value of this Cell in Z
+   /// store the negative of the value of this Cell in Z
    virtual void bif_negative(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the logical complement of the value of this Cell in Z
+   /// store the logical complement of the value of this Cell in Z
    virtual void bif_not(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store pi times the value of this Cell in Z
+   /// store pi times the value of this Cell in Z
    virtual void bif_pi_times(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the reciprocal of the value of this Cell in Z
+   /// store the reciprocal of the value of this Cell in Z
    virtual void bif_reciprocal(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store a random number between 1 and the value of this Cell in Z
+   /// store a random number between 1 and the value of this Cell in Z
    virtual void bif_roll(Cell * Z) const
       { DOMAIN_ERROR; }
 
-   /// Store the sum of A and \b this cell in Z
+   /// store the sum of A and \b this cell in Z
    virtual void bif_add(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the logical and of A and \b this cell in Z
+   /// store the logical and of A and \b this cell in Z
    virtual void bif_and(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the binomial (n over k) of A and \b this cell in Z
+   /// store the binomial (n over k) of A and \b this cell in Z
    virtual void bif_binomial(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the difference between A and \b this cell in Z
+   /// store the difference between A and \b this cell in Z
    virtual void bif_subtract(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the quotient between A and \b this cell in Z
+   /// store the quotient between A and \b this cell in Z
    virtual void bif_divide(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store 1 in Z if A == the value of \b this cell in Z, else 0
+   /// store 1 in Z if A == the value of \b this cell in Z, else 0
    virtual void bif_equal(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store 1 in Z if A >= the value of \b this cell in Z, else 0
+   /// store 1 in Z if A >= the value of \b this cell in Z, else 0
    virtual void bif_greater_than(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store 1 in Z if A < the value of \b this cell in Z, else 0
+   /// store 1 in Z if A < the value of \b this cell in Z, else 0
    virtual void bif_less_than(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store 1 in Z if A != the value of \b this cell in Z, else 0
+   /// store 1 in Z if A != the value of \b this cell in Z, else 0
    void bif_not_equal(Cell * Z, const Cell * A) const;
 
-   /// Store 1 in Z if A is >= the value of \b this cell in Z, else 0
+   /// store 1 in Z if A is >= the value of \b this cell in Z, else 0
    void bif_greater_eq(Cell * Z, const Cell * A) const;
 
-   /// Store 1 in Z if A <= the value of \b this cell in Z, else 0
+   /// store 1 in Z if A <= the value of \b this cell in Z, else 0
    void bif_less_eq(Cell * Z, const Cell * A) const;
 
-   /// Store the base A logarithm of \b this cell in Z
+   /// store the base A logarithm of \b this cell in Z
    virtual void bif_logarithm(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the larger of A and of \b this cell in Z
+   /// store the larger of A and of \b this cell in Z
    virtual void bif_maximum(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the smaller of A and of \b this cell in Z
+   /// store the smaller of A and of \b this cell in Z
    virtual void bif_minimum(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the product of A and \b this cell in Z
+   /// store the product of A and \b this cell in Z
    virtual void bif_multiply(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the logical nand of A and \b this cell in Z
+   /// store the logical nand of A and \b this cell in Z
    virtual void bif_nand(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the logical nor of A and \b this cell in Z
+   /// store the logical nor of A and \b this cell in Z
    virtual void bif_nor(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store the logical or of A and \b this cell in Z
+   /// store the logical or of A and \b this cell in Z
    virtual void bif_or(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store A to the power of \b this cell in Z
+   /// store A to the power of \b this cell in Z
    virtual void bif_power(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store A modulo \b this cell in Z
+   /// store A modulo \b this cell in Z
    virtual void bif_residue(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Store a circle function (according to A) of \b this cell in Z
+   /// store a circle function (according to A) of \b this cell in Z
    virtual void bif_circle_fun(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
-   /// Placement new
+   /// placement new
    void * operator new(std::size_t, void *);
 
-   /// Copy (deep) count Cells from src to dest)
+   /// copy (deep) count cells from src to dest)
    static void copy(Cell * & dst, const Cell * & src, ShapeItem count)
       { loop(c, count)   dst++->init(*src++); }
 
-   /// True iff value is close to an int (within +- qct)
+   /// true iff value is close to an int (within +- qct)
    static bool is_near_int(APL_Float value, APL_Float qct);
 
-   /// True iff value is close to 0 (within +- qct)
+   /// true iff value is close to 0 (within +- qct)
    static bool is_near_zero(APL_Float value, APL_Float qct)
       { return (value < qct) && (value > -qct); }
 
@@ -367,14 +370,14 @@ public:
                            const void * comp_arg);
 
 protected:
-   /// The value of \b this cell
+   /// the value of \b this cell
    SomeValue value;
 
-   /// Sort subtree starting at a[i] into a heap
+   /// sort subtree starting at a[i] into a heap
    static void make_heap(const Cell ** a, ShapeItem heapsize, int64_t i,
                          bool ascending, const void * comp_arg, greater_fun gf);
 
-   /// Sort a[] into a heap
+   /// sort a[] into a heap
    static void init_heap(const Cell ** a, ShapeItem heapsize, bool ascending,
                          const void * comp_arg, greater_fun gf);
 

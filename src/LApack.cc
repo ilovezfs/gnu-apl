@@ -54,7 +54,11 @@ Copyright (c) 2006-2011 The University of Colorado Denver.  All rights
 **/
 
 /// An integer.
+#ifdef __LP64__
+typedef int integer;
+#else
 typedef long integer;
+#endif
 
 /// A Floating point number.
 typedef double doublereal;
@@ -101,7 +105,7 @@ integer       info;
              &lwork, rwork, &info);
 
      if (info)
-        CERR << "info = " << (int)info << " in pass 1 of dgelsy_()" << endl;
+        CERR << "info = " << info << " in pass 1 of dgelsy_()" << endl;
 
      lwork = 10 + integer(work[0].r);
    }
@@ -113,7 +117,7 @@ integer       info;
              &lwork, rwork, &info);
 
      if (info)
-        CERR << "info = " << (int)info << " in pass 2 of dgelsy_()" << endl;
+        CERR << "info = " << info << " in pass 2 of dgelsy_()" << endl;
    }
 
    return info;
@@ -140,7 +144,7 @@ integer       info;
              &lwork, &info);
 
      if (info)
-        CERR << "info = " << (int)info << " in pass 1 of dgelsy_()" << endl;
+        CERR << "info = " << info << " in pass 1 of dgelsy_()" << endl;
      lwork = 10 + integer(work[0]);
    }
 
@@ -151,7 +155,7 @@ integer       info;
              &lwork, &info);
 
      if (info)
-        CERR << "info = " << (int)info << " in pass 2 of dgelsy_()" << endl;
+        CERR << "info = " << info << " in pass 2 of dgelsy_()" << endl;
    }
 
    return info;

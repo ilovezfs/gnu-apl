@@ -92,7 +92,7 @@ sockaddr_in local;
    local.sin_port = htons(local_port);
    local.sin_addr.s_addr = htonl(local_ip);
 
-   if (bind(udp_socket, (const sockaddr *)&local, sizeof(sockaddr_in)))
+   if (::bind(udp_socket, (const sockaddr *)&local, sizeof(sockaddr_in)))
       {
         cerr << "*** UdpSocket::UdpSocket() : bind("
              << local_port << ") failed:" << strerror(errno) << endl;
@@ -150,7 +150,9 @@ socklen_t remote_len = sizeof(remote);
               fd_set read_fds;
               FD_ZERO(&read_fds);
               FD_SET(udp_socket, &read_fds);
-              timeval tv = { timeout_ms/1000, 1000*(timeout_ms%1000) };
+              const long tv_sec  = timeout_ms/1000;
+              const long tv_usec = 1000*(timeout_ms%1000);
+              timeval tv = { tv_sec, tv_usec };
 
               errno = 0;
               const int cnt = select(udp_socket + 1, &read_fds, 0, 0, &tv);
