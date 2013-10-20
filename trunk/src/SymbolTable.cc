@@ -398,27 +398,41 @@ Symbol * symbol = lookup_existing_symbol(sym);
 
    if (symbol == 0)
       {
-        out << "Can't )ERASE: unknown symbol '" << sym << "'" << endl;
+        UCS_string & t4 = Workspace::the_workspace->more_error;
+        t4.clear();
+        t4.app("Can't )ERASE symbol '");
+        t4.append(sym);
+        t4.app("': unknown symbol ");
         return;
       }
 
    if (symbol->is_erased())
       {
-        out << "Can't )ERASE '" << sym << "': already erased" << endl;
+        UCS_string & t4 = Workspace::the_workspace->more_error;
+        t4.clear();
+        t4.app("Can't )ERASE symbol '");
+        t4.append(sym);
+        t4.app("': already erased");
         return;
       }
 
    if (symbol->value_stack.size() != 1)
       {
-        out << "Can't )ERASE '" << sym
-            << "': symbol is pushed (localized)" << endl;
+        UCS_string & t4 = Workspace::the_workspace->more_error;
+        t4.clear();
+        t4.app("Can't )ERASE symbol '");
+        t4.append(sym);
+        t4.app("': symbol is pushed (localized)");
         return;
       }
 
    if (Workspace::the_workspace->is_called(sym))
       {
-        out << "Can't )ERASE '" << sym
-            << "': symbol is called (is on SI)" << endl;
+        UCS_string & t4 = Workspace::the_workspace->more_error;
+        t4.clear();
+        t4.app("Can't )ERASE symbol '");
+        t4.append(sym);
+        t4.app("': symbol is called (is on SI)");
         return;
       }
 
@@ -452,8 +466,11 @@ ValueStackItem & tos = symbol->value_stack[0];
                     Assert(ufun);
                     if (Workspace::the_workspace->oldest_exec(ufun))
                        {
-                         out << "Can't )ERASE '" << sym
-                             << "': pushed on SI-stack" << endl;
+                         UCS_string & t4 = Workspace::the_workspace->more_error;
+                         t4.clear();
+                         t4.app("Can't )ERASE symbol '");
+                         t4.append(sym);
+                         t4.app("':  pushed on SI-stack");
                          return;
                        }
                   }

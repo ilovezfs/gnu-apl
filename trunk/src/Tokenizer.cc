@@ -82,8 +82,7 @@ Source<Unicode> src(input);
            {
              Source<Unicode> s1(src, 0, 24);
              CERR << "  tokenize(" <<  src.rest() << " chars) sees [tag "
-                  << HEX(tok.get_tag()) << " «"
-                  << uni << "»] " << s1;
+                  << tok.tag_name() << " «" << uni << "»] " << s1;
              if (src.rest() != s1.rest())   CERR << " ...";
              CERR << endl;
            }
@@ -381,12 +380,7 @@ UCS_string string_value;
       }
    else
       {
-        Value_P val = new Value(string_value.size(), LOC);
-
-        loop(l, string_value.size())
-      new (&val->get_ravel(l)) CharCell(string_value[l]);
-
-   tos += Token(TOK_APL_VALUE1, val);
+        tos += Token(TOK_APL_VALUE1, new Value(string_value, LOC));
       }
 }
 //-----------------------------------------------------------------------------
@@ -399,8 +393,11 @@ Tokenizer::tokenize_string2(Source<Unicode> & src, Token_string & tos)
 {
    Log(LOG_tokenize)   CERR << "tokenize_string2(" << src << ")" << endl;
 
-const Unicode uni = src.get();
-   Assert(uni == UNI_ASCII_DOUBLE_QUOTE);
+   // skip the leading "
+   {
+     const Unicode uni = src.get();
+     Assert1(uni == UNI_ASCII_DOUBLE_QUOTE);
+   }
 
 UCS_string string_value;
 
@@ -408,18 +405,38 @@ UCS_string string_value;
        {
          const Unicode uni = src.get();
 
-         if (uni == UNI_ASCII_DOUBLE_QUOTE)
+         if (uni == UNI_ASCII_DOUBLE_QUOTE)     // terminating "
             {
               break;
             }
-         else if (uni == UNI_ASCII_CR)
+         else if (uni == UNI_ASCII_CR)          // ignore CR
             {
               continue;
             }
-         else if (uni == UNI_ASCII_LF)
+         else if (uni == UNI_ASCII_LF)          // end of line before "
             {
               rest_2 = src.rest();
               throw_parse_error(E_NO_STRING_END, LOC, loc);
+            }
+         else if (uni == UNI_ASCII_BACKSLASH)   // backslash
+            {
+              const Unicode uni1 = src.get();
+              switch(uni1)
+                 {
+                   case '0':  string_value += UNI_ASCII_NUL;            break;
+                   case 'a':  string_value += UNI_ASCII_BEL;            break;
+                   case 'b':  string_value += UNI_ASCII_BS;             break;
+                   case 't':  string_value += UNI_ASCII_HT;             break;
+                   case 'n':  string_value += UNI_ASCII_LF;             break;
+                   case 'v':  string_value += UNI_ASCII_VT;             break;
+                   case 'f':  string_value += UNI_ASCII_FF;             break;
+                   case 'r':  string_value += UNI_ASCII_CR;             break;
+                   case '[':  string_value += UNI_ASCII_ESC;            break;
+                   case '"':  string_value += UNI_ASCII_DOUBLE_QUOTE;   break;
+                   case '\\': string_value += UNI_ASCII_BACKSLASH;      break;
+                   default:   string_value += uni;
+                              string_value += uni1;
+                 }
             }
          else
             {
@@ -427,22 +444,13 @@ UCS_string string_value;
             }
        }
 
-   if (string_value.size() == 1)   // skalar
-      {
-        tos += Token(TOK_CHARACTER, string_value[0]);
-      }
-   else if (string_value.size() == 0)
+   if (string_value.size() == 0)
       {
         tos += Token(TOK_APL_VALUE1, &Value::Str0);
       }
    else
       {
-        Value_P val = new Value(string_value.size(), LOC);
-
-        loop(l, string_value.size())
-           new (&val->get_ravel(l)) CharCell(string_value[l]);
-
-        tos += Token(TOK_APL_VALUE1, val);
+        tos += Token(TOK_APL_VALUE1, new Value(string_value, LOC));
       }
 }
 //-----------------------------------------------------------------------------

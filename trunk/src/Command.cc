@@ -306,44 +306,6 @@ const Executable * statements = 0;
 }
 //-----------------------------------------------------------------------------
 void 
-Command::cmd_HELP(ostream & out)
-{
-   out << _("Commands are:") << endl;
-#define cmd_def(cmd_str, _cod, arg) \
-   CERR << "       " cmd_str " " #arg << endl;
-#include "Command.def"
-   out << endl;
-}
-//-----------------------------------------------------------------------------
-void 
-Command::cmd_LOG(ostream & out, const UCS_string & arg)
-{
-#ifdef DYNAMIC_LOG_WANTED
-
-   log_control(arg);
-
-#else
-
-   out << "\n"
-<< _("Command ]LOG is not available, since dynamic logging was not\n"
-"configured for this APL interpreter. To enable dynamic logging (which\n"
-"will decrease performance), recompile the interpreter as follows:")
-
-<< "\n\n"
-"   ./configure DYNAMIC_LOG_WANTED=yes (... "
-<< _("other configure options")
-<< ")\n"
-"   make\n"
-"   make install (or try: src/apl)\n"
-"\n"
-
-<< _("above the src directory.")
-<< "\n";
-
-#endif
-}
-//-----------------------------------------------------------------------------
-void 
 Command::cmd_CHECK(ostream & out)
 {
    // erase stale functions from failed ⎕EX
@@ -394,19 +356,6 @@ vector<UCS_string> vcont;
 }
 //-----------------------------------------------------------------------------
 void 
-Command::cmd_MORE(ostream & out)
-{
-   if (Workspace::the_workspace->more_error.size() == 0)
-      {
-        out << _("NO MORE ERROR INFO") << endl;
-        return;
-      }
-
-   out << Workspace::the_workspace->more_error << endl;
-   return;
-}
-//-----------------------------------------------------------------------------
-void 
 Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
 {
    // )DROP wsname
@@ -450,6 +399,135 @@ int result = unlink((const char *)filename.c_str());
         t4.app(_("could not unlink file "));
         t4.app(filename.c_str());
       }
+}
+//-----------------------------------------------------------------------------
+void
+Command::cmd_ERASE(ostream & out, vector<UCS_string> & args)
+{
+   Workspace::the_workspace->erase_symbols(CERR, args);
+}
+//-----------------------------------------------------------------------------
+void 
+Command::cmd_KEYB()
+{
+   CERR << _("US Keyboard Layout:") <<      "\n"
+                                            "\n"
+"╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗\n"
+"║ ~⍨ ║ !¡ ║ @€ ║ #£ ║ $⍧ ║ %  ║ ^  ║ &  ║ *⍂ ║ (⍱ ║ )⍲ ║ _≡ ║ +⌹ ║         ║\n"
+"║ `◊ ║ 1¨ ║ 2¯ ║ 3< ║ 4≤ ║ 5= ║ 6≥ ║ 7> ║ 8≠ ║ 9∨ ║ 0∧ ║ -× ║ =÷ ║ BACKSP  ║\n"
+"╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣\n"
+"║       ║ Q¿ ║ W⌽ ║ E⍷ ║ R  ║ T⍉ ║ Y¥ ║ U  ║ I⍸ ║ O⍥ ║ P⍟ ║ {  ║ }⍬ ║  |⍀  ║\n"
+"║  TAB  ║ q? ║ w⍵ ║ e∈ ║ r⍴ ║ t∼ ║ y↑ ║ u↓ ║ i⍳ ║ o○ ║ p⋆ ║ [← ║ ]→ ║  \\⍝  ║\n"
+"╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣\n"
+"║ (CAPS   ║ A⊖ ║ S  ║ D  ║ F⍫ ║ G⍒ ║ H⍋ ║ J⍤ ║ K⌺ ║ L⍞ ║ :  ║ \"  ║         ║\n"
+"║  LOCK)  ║ a⍺ ║ s⌈ ║ d⌊ ║ f_ ║ g∇ ║ h∆ ║ j∘ ║ k' ║ l⎕ ║ ;⊢ ║ '⊣ ║ RETURN  ║\n"
+"╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣\n"
+"║             ║ Z  ║ X  ║ C⍝ ║ V  ║ B⍎ ║ N⍕ ║ M⌶ ║ <⍪ ║ >⍙ ║ ?⌿ ║          ║\n"
+"║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⌷ ║ .⍎ ║ /⍕ ║  SHIFT   ║\n"
+"╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝\n"
+   << endl;
+}
+//-----------------------------------------------------------------------------
+void 
+Command::cmd_HELP(ostream & out)
+{
+   out << _("Commands are:") << endl;
+#define cmd_def(cmd_str, _cod, arg) \
+   CERR << "       " cmd_str " " #arg << endl;
+#include "Command.def"
+   out << endl;
+}
+//-----------------------------------------------------------------------------
+void
+Command::cmd_HOST(ostream & out, const UCS_string & arg)
+{
+UTF8_string host_cmd(arg);
+FILE * pipe = popen((const char *)host_cmd.c_str(), "r");
+   if (pipe == 0)   // popen failed
+      {
+        out << _(")HOST command failed: ") << strerror(errno) << endl;
+        return;
+      }
+
+   for (;;)
+       {
+         const int cc = fgetc(pipe);
+         if (cc == EOF)   break;
+         out << (char)cc;
+       }
+
+int result = pclose(pipe);
+   out << endl << IntCell(result) << endl;
+}
+//-----------------------------------------------------------------------------
+void
+Command::cmd_IN(ostream & out, vector<UCS_string> & args, bool protection)
+{
+   if (args.size() == 0)
+      {
+        out << _("BAD COMMAND") << endl;
+        Workspace::the_workspace->more_error =
+                   UCS_string(_("missing filename in command )IN"));
+        return;
+      }
+
+UCS_string fname = args.front();
+   args.erase(args.begin());
+
+UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, true, "atf");
+
+FILE * in = fopen((const char *)(filename.c_str()), "r");
+   if (in == 0)   // open failed: try filename.atf unless already .atf
+      {
+        CERR << ")IN " << fname << _(" failed: ") << strerror(errno) << endl;
+
+        char cc[200];
+        snprintf(cc, sizeof(cc),
+                 _("command )IN: could not open file %s for reading: %s"),
+                 fname.c_str(), strerror(errno));
+        Workspace::the_workspace->more_error = UCS_string(cc);
+        return;
+      }
+
+UTF8 buffer[80];
+int idx = 0;
+
+transfer_context tctx(protection);
+
+bool new_record = true;
+
+   for (;;)
+      {
+        const int cc = fgetc(in);
+        if (cc == EOF)   break;
+        if (idx == 0 && cc == 0x0A)   // optional LF
+           {
+             // CERR << "CRLF" << endl;
+             continue;
+           }
+
+        if (idx < 80)
+           {
+              if (idx < 72)   buffer[idx++] = cc;
+              else            buffer[idx++] = 0;
+             continue;
+           }
+
+        if (cc == 0x0D || cc == 0x15)   // ASCII or EBCDIC
+           {
+             tctx.is_ebcdic = (cc == 0x15);
+             tctx.process_record(buffer, args);
+
+             idx = 0;
+             ++tctx.recnum;
+             continue;
+           }
+
+        CERR << _("BAD record charset (neither ASCII nor EBCDIC)") << endl;
+        break;
+      }
+
+   fclose(in);
 }
 //-----------------------------------------------------------------------------
 void 
@@ -550,125 +628,53 @@ DIR * dir = opendir((const char *)path.c_str());
 }
 //-----------------------------------------------------------------------------
 void 
+Command::cmd_LOG(ostream & out, const UCS_string & arg)
+{
+#ifdef DYNAMIC_LOG_WANTED
+
+   log_control(arg);
+
+#else
+
+   out << "\n"
+<< _("Command ]LOG is not available, since dynamic logging was not\n"
+"configured for this APL interpreter. To enable dynamic logging (which\n"
+"will decrease performance), recompile the interpreter as follows:")
+
+<< "\n\n"
+"   ./configure DYNAMIC_LOG_WANTED=yes (... "
+<< _("other configure options")
+<< ")\n"
+"   make\n"
+"   make install (or try: src/apl)\n"
+"\n"
+
+<< _("above the src directory.")
+<< "\n";
+
+#endif
+}
+//-----------------------------------------------------------------------------
+void 
+Command::cmd_MORE(ostream & out)
+{
+   if (Workspace::the_workspace->more_error.size() == 0)
+      {
+        out << _("NO MORE ERROR INFO") << endl;
+        return;
+      }
+
+   out << Workspace::the_workspace->more_error << endl;
+   return;
+}
+//-----------------------------------------------------------------------------
+void 
 Command::cmd_OFF(int exit_val)
 {
    cleanup();
    COUT << endl;
    if (!silent)   COUT << _("Goodbye.") << endl;;
    exit(exit_val);
-}
-//-----------------------------------------------------------------------------
-void 
-Command::cmd_KEYB()
-{
-   CERR << _("US Keyboard Layout:") <<      "\n"
-                                            "\n"
-"╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗\n"
-"║ ~⍨ ║ !¡ ║ @€ ║ #£ ║ $⍧ ║ %  ║ ^  ║ &  ║ *⍂ ║ (⍱ ║ )⍲ ║ _≡ ║ +⌹ ║         ║\n"
-"║ `◊ ║ 1¨ ║ 2¯ ║ 3< ║ 4≤ ║ 5= ║ 6≥ ║ 7> ║ 8≠ ║ 9∨ ║ 0∧ ║ -× ║ =÷ ║ BACKSP  ║\n"
-"╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣\n"
-"║       ║ Q¿ ║ W⌽ ║ E⍷ ║ R  ║ T⍉ ║ Y¥ ║ U  ║ I⍸ ║ O⍥ ║ P⍟ ║ {  ║ }⍬ ║  |⍀  ║\n"
-"║  TAB  ║ q? ║ w⍵ ║ e∈ ║ r⍴ ║ t∼ ║ y↑ ║ u↓ ║ i⍳ ║ o○ ║ p⋆ ║ [← ║ ]→ ║  \\⍝  ║\n"
-"╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣\n"
-"║ (CAPS   ║ A⊖ ║ S  ║ D  ║ F⍫ ║ G⍒ ║ H⍋ ║ J⍤ ║ K⌺ ║ L⍞ ║ :  ║ \"  ║         ║\n"
-"║  LOCK)  ║ a⍺ ║ s⌈ ║ d⌊ ║ f_ ║ g∇ ║ h∆ ║ j∘ ║ k' ║ l⎕ ║ ;⊢ ║ '⊣ ║ RETURN  ║\n"
-"╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣\n"
-"║             ║ Z  ║ X  ║ C⍝ ║ V  ║ B⍎ ║ N⍕ ║ M⌶ ║ <⍪ ║ >⍙ ║ ?⌿ ║          ║\n"
-"║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⌷ ║ .⍎ ║ /⍕ ║  SHIFT   ║\n"
-"╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝\n"
-   << endl;
-}
-//-----------------------------------------------------------------------------
-void
-Command::cmd_HOST(ostream & out, const UCS_string & arg)
-{
-UTF8_string host_cmd(arg);
-FILE * pipe = popen((const char *)host_cmd.c_str(), "r");
-   if (pipe == 0)   // popen failed
-      {
-        out << _(")HOST command failed: ") << strerror(errno) << endl;
-        return;
-      }
-
-   for (;;)
-       {
-         const int cc = fgetc(pipe);
-         if (cc == EOF)   break;
-         out << (char)cc;
-       }
-
-int result = pclose(pipe);
-   out << endl << IntCell(result) << endl;
-}
-//-----------------------------------------------------------------------------
-void
-Command::cmd_IN(ostream & out, vector<UCS_string> & args, bool protection)
-{
-   if (args.size() == 0)
-      {
-        out << _("BAD COMMAND") << endl;
-        Workspace::the_workspace->more_error =
-                   UCS_string(_("missing filename in command )IN"));
-        return;
-      }
-
-UCS_string fname = args.front();
-   args.erase(args.begin());
-
-UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, true, "atf");
-
-FILE * in = fopen((const char *)(filename.c_str()), "r");
-   if (in == 0)   // open failed: try filename.atf unless already .atf
-      {
-        CERR << ")IN " << fname << _(" failed: ") << strerror(errno) << endl;
-
-        char cc[200];
-        snprintf(cc, sizeof(cc),
-                 _("command )IN: could not open file %s for reading: %s"),
-                 fname.c_str(), strerror(errno));
-        Workspace::the_workspace->more_error = UCS_string(cc);
-        return;
-      }
-
-UTF8 buffer[80];
-int idx = 0;
-
-transfer_context tctx(protection);
-
-bool new_record = true;
-
-   for (;;)
-      {
-        const int cc = fgetc(in);
-        if (cc == EOF)   break;
-        if (idx == 0 && cc == 0x0A)   // optional LF
-           {
-             // CERR << "CRLF" << endl;
-             continue;
-           }
-
-        if (idx < 80)
-           {
-              if (idx < 72)   buffer[idx++] = cc;
-              else            buffer[idx++] = 0;
-             continue;
-           }
-
-        if (cc == 0x0D || cc == 0x15)   // ASCII or EBCDIC
-           {
-             tctx.is_ebcdic = (cc == 0x15);
-             tctx.process_record(buffer, args);
-
-             idx = 0;
-             ++tctx.recnum;
-             continue;
-           }
-
-        CERR << _("BAD record charset (neither ASCII nor EBCDIC)") << endl;
-        break;
-      }
-
-   fclose(in);
 }
 //-----------------------------------------------------------------------------
 void

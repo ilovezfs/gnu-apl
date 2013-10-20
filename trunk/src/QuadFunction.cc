@@ -1013,7 +1013,15 @@ Token tok(TOK_FIRST_TIME);
 bool
 Quad_INP::eoc_INP(Token & token, _EOC_arg & _arg)
 {
-   if (token.get_tag() == TOK_ERROR)   return false;   // stop it
+   if (token.get_tag() == TOK_ERROR)
+      {
+         CERR << "Error in ⎕INP" << endl;
+         UCS_string err("*** ");
+         err += Error::error_name((ErrorCode)(token.get_int_val()));
+         err.app(" in ⎕INP ***");
+         Value_P val = new Value(err, LOC);
+         token = Token(TOK_APL_VALUE1, val);
+      }
 
    // _arg may be pop_SI()ed below so we need a copy of it
    //

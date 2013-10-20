@@ -18,5 +18,6 @@
  4319  support for config file 'preferences' added
  4333  some portability options fixed
  4366  make library paths configurable in file(s) 'preferences'
- 4366  fix problem with ∇ in strings in Nabbla editor
+ 4366  fixed problem with ∇ in strings in Nabbla editor
+ 4388  fixed fault in Parser::remove_nongrouping_parantheses()
 

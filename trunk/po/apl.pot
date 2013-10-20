@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-10-18 17:50+0200\n"
+"POT-Creation-Date: 2013-10-20 19:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Command.cc:88 src/Command.cc:420 src/Command.cc:429 src/Command.cc:609
-#: src/Command.cc:679
+#: src/Command.cc:88 src/Command.cc:369 src/Command.cc:378 src/Command.cc:468
+#: src/Command.cc:685
 msgid "BAD COMMAND"
 msgstr ""
 
@@ -33,140 +33,140 @@ msgstr ""
 msgid "empty branch (→⍳0) without suspended function"
 msgstr ""
 
-#: src/Command.cc:311
+#: src/Command.cc:319
+#, c-format
+msgid "WARNING - %d stale functions (%serased)"
+msgstr ""
+
+#: src/Command.cc:323
+msgid "OK      - no stale functions"
+msgstr ""
+
+#: src/Command.cc:331
+#, c-format
+msgid "ERROR   - %d stale values"
+msgstr ""
+
+#: src/Command.cc:334
+msgid "OK      - no stale values"
+msgstr ""
+
+#: src/Command.cc:341
+#, c-format
+msgid "ERROR   - %d stale indices"
+msgstr ""
+
+#: src/Command.cc:344
+msgid "OK      - no stale indices"
+msgstr ""
+
+#: src/Command.cc:372
+msgid "missing workspace name in command )DROP"
+msgstr ""
+
+#: src/Command.cc:381
+msgid "too many parameters in command )DROP"
+msgstr ""
+
+#: src/Command.cc:396
+msgid " NOT DROPPED: "
+msgstr ""
+
+#: src/Command.cc:399
+msgid "could not unlink file "
+msgstr ""
+
+#: src/Command.cc:413
+msgid "US Keyboard Layout:"
+msgstr ""
+
+#: src/Command.cc:434
 msgid "Commands are:"
 msgstr ""
 
-#: src/Command.cc:328
+#: src/Command.cc:448
+msgid ")HOST command failed: "
+msgstr ""
+
+#: src/Command.cc:470
+msgid "missing filename in command )IN"
+msgstr ""
+
+#: src/Command.cc:482 src/Command.cc:699
+msgid " failed: "
+msgstr ""
+
+#: src/Command.cc:486
+#, c-format
+msgid "command )IN: could not open file %s for reading: %s"
+msgstr ""
+
+#: src/Command.cc:526
+msgid "BAD record charset (neither ASCII nor EBCDIC)"
+msgstr ""
+
+#: src/Command.cc:591
+msgid "IMPROPER LIBRARY REFERENCE"
+msgstr ""
+
+#: src/Command.cc:596
+#, c-format
+msgid "path %s: could not be openend as directory: %s"
+msgstr ""
+
+#: src/Command.cc:640
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
 "will decrease performance), recompile the interpreter as follows:"
 msgstr ""
 
-#: src/Command.cc:334
+#: src/Command.cc:646
 msgid "other configure options"
 msgstr ""
 
-#: src/Command.cc:340
+#: src/Command.cc:652
 msgid "above the src directory."
 msgstr ""
 
-#: src/Command.cc:357
-#, c-format
-msgid "WARNING - %d stale functions (%serased)"
-msgstr ""
-
-#: src/Command.cc:361
-msgid "OK      - no stale functions"
-msgstr ""
-
-#: src/Command.cc:369
-#, c-format
-msgid "ERROR   - %d stale values"
-msgstr ""
-
-#: src/Command.cc:372
-msgid "OK      - no stale values"
-msgstr ""
-
-#: src/Command.cc:379
-#, c-format
-msgid "ERROR   - %d stale indices"
-msgstr ""
-
-#: src/Command.cc:382
-msgid "OK      - no stale indices"
-msgstr ""
-
-#: src/Command.cc:401
+#: src/Command.cc:663
 msgid "NO MORE ERROR INFO"
 msgstr ""
 
-#: src/Command.cc:423
-msgid "missing workspace name in command )DROP"
-msgstr ""
-
-#: src/Command.cc:432
-msgid "too many parameters in command )DROP"
-msgstr ""
-
-#: src/Command.cc:447
-msgid " NOT DROPPED: "
-msgstr ""
-
-#: src/Command.cc:450
-msgid "could not unlink file "
-msgstr ""
-
-#: src/Command.cc:513
-msgid "IMPROPER LIBRARY REFERENCE"
-msgstr ""
-
-#: src/Command.cc:518
-#, c-format
-msgid "path %s: could not be openend as directory: %s"
-msgstr ""
-
-#: src/Command.cc:557
+#: src/Command.cc:676
 msgid "Goodbye."
 msgstr ""
 
-#: src/Command.cc:564
-msgid "US Keyboard Layout:"
-msgstr ""
-
-#: src/Command.cc:589
-msgid ")HOST command failed: "
-msgstr ""
-
-#: src/Command.cc:611
-msgid "missing filename in command )IN"
-msgstr ""
-
-#: src/Command.cc:623 src/Command.cc:693
-msgid " failed: "
-msgstr ""
-
-#: src/Command.cc:627
-#, c-format
-msgid "command )IN: could not open file %s for reading: %s"
-msgstr ""
-
-#: src/Command.cc:667
-msgid "BAD record charset (neither ASCII nor EBCDIC)"
-msgstr ""
-
-#: src/Command.cc:681
+#: src/Command.cc:687
 msgid "missing filename in command )OUT"
 msgstr ""
 
-#: src/Command.cc:696
+#: src/Command.cc:702
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr ""
 
-#: src/Command.cc:762
+#: src/Command.cc:768
 msgid " *** bad sub-record of *"
 msgstr ""
 
-#: src/Command.cc:765
+#: src/Command.cc:771
 msgid " comment"
 msgstr ""
 
-#: src/Command.cc:767
+#: src/Command.cc:773
 msgid " timestamp"
 msgstr ""
 
-#: src/Command.cc:779
+#: src/Command.cc:785
 msgid " imbed"
 msgstr ""
 
-#: src/Command.cc:782
+#: src/Command.cc:788
 msgid "record #"
 msgstr ""
 
-#: src/Command.cc:792
+#: src/Command.cc:798
 msgid " *** bad sub-record of X"
 msgstr ""
 

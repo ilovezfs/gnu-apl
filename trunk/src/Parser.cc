@@ -293,7 +293,7 @@ int others = 0;
 int32_t
 Parser::find_closing_parent(Token_string & tos, int32_t pos)
 {
-   Assert(tos[pos].get_Class() == TC_L_PARENT);
+   Assert1(tos[pos].get_Class() == TC_L_PARENT);
 
 int others = 0;
 
@@ -340,8 +340,8 @@ void
 Parser::remove_nongrouping_parantheses(Token_string & tos)
 {
    //
-   // replace (X)      by: X for a single token X,
-   // replace ((X...)) by: (X...)
+   // 1. replace ((X...)) by: (X...)
+   // 2. replace (X)      by: X for a single token X,
    //
    for (bool progress = true; progress; progress = false)
        {
@@ -351,37 +351,42 @@ Parser::remove_nongrouping_parantheses(Token_string & tos)
 
                const int closing = find_closing_parent(tos, t);
 
-               if (closing == (t + 2))
+               // check for case 1.
+               //
+               if (tos[t + 1].get_Class() == TC_L_PARENT)
                   {
-                     // (X) : "not grouping" if X is a skalar. 
-                     // If X is non-skalar, enclose it
-                     progress = true;
-                     tos[t] = Token();
-                     if (tos[t + 1].get_tag() == TOK_APL_VALUE ||
-                         tos[t + 1].get_tag() == TOK_APL_VALUE1)
-                        {
-                         Value_P v = tos[t + 1].get_apl_val();
-                         if (!v->is_skalar())   // non-skalar
-                            {
-                              Value_P v1 = new Value(LOC);
-                              new (&v1->get_ravel(0)) PointerCell(v);
-                              tos[t + 1].set_apl_val(v1);
-                            }
-//                        tos[t + 1].ChangeTag(TOK_APL_VALUE1);
+                    // tos[t] is (( ...
+                    //
+                    const int closing_1 = find_closing_parent(tos, t + 1);
+                    if (closing == (closing_1 + 1))
+                       {
+                         // tos[closing_1] is )) ...
+                         // We have case 1. but not for example ((...)(...))
+                         // remove redundant tos[t] and tos[closing] because
+                         // ((...)) are not "not separating"
+                         //
+                         progress = true;
+                         tos[t] = Token();
+                         tos[closing] = Token();
+                         continue;
+                       }
+                  }
 
-                        }
-                     tos[closing] = Token();
-                  }
-               else if ((t > 0) &&
-                        (tos[t - 1].get_Class() == TC_L_PARENT) &&
-                        (closing < (int(tos.size()) - 1)) &&
-                        (tos[closing + 1].get_Class() == TC_R_PARENT))
-                  {
-                    // ((...)) "not separating"
-                     progress = true;
-                     tos[t] = Token();
-                     tos[closing] = Token();
-                  }
+               // check for case 2.
+               //
+               if (closing != (t + 2))   continue;
+
+
+               // case 2. We have tos[t] = ( X ) ...
+               //
+               // (X) : "not grouping" if X is a skalar. 
+               // If X is non-skalar, enclose it
+               //
+               progress = true;
+               tos[t + 2] = tos[t + 1];
+               tos[t + 1] = Token();
+               tos[t]     = Token();
+               ++t;   // skip tos[t + 1]
              }
        }
 }

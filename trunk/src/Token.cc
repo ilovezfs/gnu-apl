@@ -384,7 +384,6 @@ Token::print_quad(ostream & out) const
 UCS_string
 Token::canonical(PrintStyle style) const
 {
-
 UCS_string ucs;
 
    switch(get_Class())
@@ -439,6 +438,21 @@ UCS_string ucs;
                  FIXME;
       }
 
+   return ucs;
+}
+//-----------------------------------------------------------------------------
+UCS_string
+Token::tag_name() const
+{
+   switch(get_tag())
+      {
+#define TD(tag, _tc, _tv, _id) case tag: return UCS_string( #tag );
+#include "Token.def"
+      }
+
+char cc[40];
+   snprintf(cc, sizeof(cc), "0x%X", get_tag());
+UCS_string ucs(cc);
    return ucs;
 }
 //-----------------------------------------------------------------------------

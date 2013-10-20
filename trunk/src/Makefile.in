@@ -367,7 +367,7 @@ SymbolTable.cc				SymbolTable.hh		\
 					SystemLimits.hh		\
 SystemVariable.cc   SystemVariable.def	SystemVariable.hh	\
 TestFiles.cc				TestFiles.hh		\
-Token.cc				Token.hh		\
+Token.cc	    Token.def		Token.hh		\
 					TokenEnums.hh		\
 Tokenizer.cc				Tokenizer.hh		\
 UCS_string.cc				UCS_string.hh		\
