@@ -54,29 +54,44 @@ public:
    static void cmd_OFF(int exit_val);
 
 protected:
-   /// show list of commands
-   static void cmd_HELP(ostream & out);
-
-   /// show list of commands
-   static void cmd_LOG(ostream & out, const UCS_string & arg);
-
    /// check workspace integrity (stale Value and IndexExpr objects, etc)
    static void cmd_CHECK(ostream & out);
-
-   /// list content of workspace and wslib directories
-   static void cmd_LIB(ostream & out, const UCS_string & args);
-
-   /// list paths of workspace and wslib directories
-   static void cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref);
 
    /// )SAVE active WS as CONTINUE and )OFF
    static void cmd_CONTINUE(ostream & out);
 
-   /// print more error info
-   static void cmd_MORE(ostream & out);
+   /// )DROP: delete a workspace file
+   static void cmd_DROP(ostream & out, const vector<UCS_string> & args);
+
+   /// )ERASE: erase symbols
+   static void cmd_ERASE(ostream & out, vector<UCS_string> & args);
+
+   /// show list of commands
+   static void cmd_HELP(ostream & out);
+
+   /// )HOST: execute OS command
+   static void cmd_HOST(ostream & out, const UCS_string & arg);
+
+   /// )IN: import a workspace file
+   static void cmd_IN(ostream & out, vector<UCS_string> & args, bool protect);
 
    /// show US keyboard layout
    static void cmd_KEYB();
+
+   /// list content of workspace and wslib directories
+   static void cmd_LIB(ostream & out, const UCS_string & args);
+
+   /// show list of commands
+   static void cmd_LOG(ostream & out, const UCS_string & arg);
+
+   /// list paths of workspace and wslib directories
+   static void cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref);
+
+   /// print more error info
+   static void cmd_MORE(ostream & out);
+
+   /// )OUT: export a workspace file
+   static void cmd_OUT(ostream & out, vector<UCS_string> & args);
 
    /// a helper struct for the )IN command
    struct transfer_context
@@ -132,18 +147,6 @@ protected:
         /// accumulator for data of different records
         UCS_string data;
       };
-
-   /// )DROP: delete a workspace file
-   static void cmd_DROP(ostream & out, const vector<UCS_string> & args);
-
-   /// )HOST: execute OS command
-   static void cmd_HOST(ostream & out, const UCS_string & arg);
-
-   /// )IN: import a workspace file
-   static void cmd_IN(ostream & out, vector<UCS_string> & args, bool protect);
-
-   /// )OUT: export a workspace file
-   static void cmd_OUT(ostream & out, vector<UCS_string> & args);
 
    /// parse the argument of the ]LOG command and set logging accordingly
    static void log_control(const UCS_string & args);

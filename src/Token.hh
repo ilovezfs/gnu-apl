@@ -200,6 +200,9 @@ public:
    /// the Quad_CR representation of the token.
    UCS_string canonical(PrintStyle style) const;
 
+   /// the tag in readable form (TOK_...)
+   UCS_string tag_name() const;
+
    /// print the token to \b out in the format used by print_error_info().
    /// return the number of characters printed.
    int error_info(UCS_string & out) const;

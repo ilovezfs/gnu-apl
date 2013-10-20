@@ -265,7 +265,7 @@ yBODY←0⍴'<please-set-yBODY>'
 ∇xZ←xHREF A xB
  Assert 1 ≡ ≡xB    ◊ Assert 1 ≡ ''⍴⍴⍴xB
  Assert 1 ≡ ≡xHREF ◊ Assert 1 ≡ ''⍴⍴⍴xHREF
- xZ←,⊃(,'A') TX_B_E_1[_href xHREF] xB
+ xZ←,⊃"A" TX_B_E_1[_href xHREF] xB
  Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
 ∇
 
