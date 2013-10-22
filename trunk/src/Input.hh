@@ -69,6 +69,9 @@ using namespace std;
 class Input
 {
 public:
+   /// return the readline version used, 0 if readline was disabled
+   static int readline_version();
+
    /// get one line with trailing blanks removed
    static UCS_string get_line();
 

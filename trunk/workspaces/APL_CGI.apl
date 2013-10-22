@@ -522,7 +522,6 @@ yZ←⊃ Ol I1, I2, I3, I4
 <BR><BR><BR>
 </DIV>
 <DIV class="c2">
-<BR>
 <B>GNU APL</B> is a free interpreter for the programming language APL.
 <BR><BR>
 The APL interpreter is an (almost) complete implementation of
@@ -539,8 +538,6 @@ is the output of a CGI script written in APL.
 <BR>
 <BR>
 GNU APL was written and is being maintained by Jürgen Sauermann.
-<BR>
-<BR>
 </DIV>
 <DIV class="c3">
 
@@ -596,16 +593,20 @@ distribution with a different package manager.
 
 If you just want to quickly give GNU APL a try, and if you are very lucky
 (which includes having shared libraries libreadline.so.5 and liblapack.so.3gf
-installed on your machine) then you could try out the GNU APL binary <B>apl</B>
-in the directory <B>apl</B>. This MAY work on a 32-bit i686 Ubuntu. Chances
-are, however, that it does NOT work, Please DO NOT report any problems if
-the binary does not run on your machine.
+installed on your machine) then you may be able to start the compiled
+GNU APL binary <B>apl</B> in the directory <B>apl</B> rather than 
+installing the entire packet . The binary MAY run on a 32-bit i686 Ubuntu.
+Chances are, however, that it does NOT work, Please DO NOT report any
+problems if the binary does not run on your machine. Instead use the standard
+installation method above.
 <BR><BR>
-<B>Note:</B> The binary <B>APnnn</B> (a support program for shared variables)
-is not shipped with <B>apl</B>, so you should start the apl binary with command line
-option --noSV.
-<BR><BR>
-</DIV><DIV class="c4">
+<B>Note:</B> The program <B>APnnn</B> (a support program for shared variables)
+is not provided in binary form, so you should start the <B>apl</B> binary with
+command line option --noSV. Note as well that the binary <B>apl</B> will not
+be updated with every GNU APL release. Therefore it will contain errors that
+have been corrected already.
+</DIV>
+<DIV class="c4">
 <?apl H2[''] 'Reporting Bugs' ?>
 
 GNU APL is made up of about 50,000 lines of C++ code. In a code of that
@@ -616,8 +617,6 @@ errors that you find in GNU APL to
 <?apl x2y ("mailto:", xMAIL_APL) A "<EM>", xMAIL_APL, "</EM>" ?>.
 <BR><BR>
 Your email should include a small example of how to reproduce the fault.
-<BR>
-<BR>
 </DIV><DIV class="c5">
 <?apl H2[''] 'Documentation' ?>
 We have an <?apl x2y 'apl.html' A "<B>info manual</B>" ?> for GNU APL.
@@ -629,7 +628,6 @@ for APL is planned but the work has not started yet.
 The C++ source files for GNU APL are Doxygen documented. You can generate
 this documentation by running <B>make DOXY</B> in the top level directory
 of the GNU APL package.
-<BR><BR>
 </DIV>
 END-OF-⎕INP
 
@@ -644,7 +642,6 @@ END-OF-⎕INP
       ⍝
       yBODY←yBODY, (,¨'{}') ⎕INP 'END-OF-⎕INP'   ⍝ more compact style
 <DIV class="c6">
-<BR><HR>
 Return to {x2y "http://www.gnu.org/home.html" A "GNU's home page"}.
 <P>
 
@@ -652,7 +649,7 @@ Please send FSF &amp; GNU inquiries &amp; questions to
 
 {x2y ("mailto:", xMAIL_GNU) A "<EM>", xMAIL_GNU, "</EM>"}.
 There are also
-{x2y "http://www.gnu.org/home.html#ContactInfo" A "other ways to contact}"
+{x2y "http://www.gnu.org/home.html#ContactInfo" A "other ways to contact"}
 the FSF.
 <P>
 Please send comments on these web pages to

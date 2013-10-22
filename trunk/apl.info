@@ -481,16 +481,22 @@ environment variables whose name begins with the prefix given in B. B
 is case sensitive, but by convention the names of environment are
 uppercase.
 
-   If you need to create a longer text, line the body of a web page,
+   If you need to create a longer text, like the body of a web page,
 then you would normally construct it like this:
 
-   BODY←⊂'First line' BODY←BODY←⊂'Second line' BODY←BODY←⊂'Third line'
- ...
+BODY ← ⊂ 'First line'
+BODY ← BODY , ⊂ 'Second line'
+BODY ← BODY , ⊂ 'Third line'
+   ...
 
    That is not very handy for longer texts. Instead you can write the
 following in an APL script:
 
-   BODY←⎕INP 'END-OF-⎕INP' First line Second line Third line    ...
+BODY←⎕INP 'END-OF-⎕INP'
+First line
+Second line
+Third line
+   ...
 END-OF-⎕INP
 
    This works like "Here documents" in bash. The right argument of ⎕INP
@@ -537,7 +543,6 @@ indented.
       #! /bin/apl --script --
 
       ⎕ARG      ⍝ show command line options
- /bin/apl --silent
       )OFF      ⍝ leave the interpreter
 
    If we run the same script directly:
@@ -1933,11 +1938,11 @@ Tag Table:
 Node: Top232
 Node: Chapter 11162
 Node: Chapter 213143
-Node: Chapter 322579
-Node: Chapter 424180
-Node: Chapter 525493
-Node: Section 5.125996
-Node: Section 5.251125
+Node: Chapter 322565
+Node: Chapter 424166
+Node: Chapter 525479
+Node: Section 5.125982
+Node: Section 5.251111
 
 End Tag Table
 
