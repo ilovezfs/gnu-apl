@@ -150,8 +150,8 @@ socklen_t remote_len = sizeof(remote);
               fd_set read_fds;
               FD_ZERO(&read_fds);
               FD_SET(udp_socket, &read_fds);
-              const long tv_sec  = timeout_ms/1000;
-              const long tv_usec = 1000*(timeout_ms%1000);
+              const int tv_sec  = timeout_ms/1000;
+              const int tv_usec = 1000*(timeout_ms%1000);
               timeval tv = { tv_sec, tv_usec };
 
               errno = 0;

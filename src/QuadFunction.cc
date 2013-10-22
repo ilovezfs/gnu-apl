@@ -302,8 +302,8 @@ const APL_time end = start + 1000000 * B->get_ravel(0).get_real_value();
          const APL_time wait =  end - now();
          if (wait <= 0)   break;
 
-         const long wait_sec  = wait/1000000;
-         const long wait_usec = wait%1000000;
+         const int wait_sec  = wait/1000000;
+         const int wait_usec = wait%1000000;
          timeval tv = { wait_sec, wait_usec };
          if (select(0, 0, 0, 0, &tv) == 0)   break;
        }

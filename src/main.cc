@@ -271,7 +271,10 @@ const char * build_tag[] = { BUILDTAG, 0 };
             }
          out << *bt << endl;
        }
-   out << endl;
+
+   out << "  Readline:       " << HEX4(Input::readline_version()) << endl
+       << endl;
+
    Output::set_color_mode(Output::COLM_OUTPUT);
 }
 //-----------------------------------------------------------------------------

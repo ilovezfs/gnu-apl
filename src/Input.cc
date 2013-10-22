@@ -47,8 +47,17 @@ bool Input::stdin_from_file = false;
 //-----------------------------------------------------------------------------
 Input::Input()
 {
+   readline_lib::rl_initialize();
    readline_lib::stifle_history(500);
    readline_lib::read_history(".apl.history");
+
+//   readline_lib::rl_function_dumper(1);
+}
+//-----------------------------------------------------------------------------
+int
+Input::readline_version()
+{
+   return readline_lib::rl_readline_version;
 }
 //-----------------------------------------------------------------------------
 UCS_string

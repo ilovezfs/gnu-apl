@@ -529,23 +529,27 @@ the number of environment variables whose name begins with the prefix
 given in B. B is case sensitive, but by convention the names of environment
 are uppercase.
 
-If you need to create a longer text, line the body of a web page, then you
+If you need to create a longer text, like the body of a web page, then you
 would normally construct it like this:
 
-BODY←⊂'First line'
-BODY←BODY←⊂'Second line'
-BODY←BODY←⊂'Third line'
+@verbatim
+BODY ← ⊂ 'First line'
+BODY ← BODY , ⊂ 'Second line'
+BODY ← BODY , ⊂ 'Third line'
    ...
+@end verbatim
 
 That is not very handy for longer texts. Instead you can write the following
 in an APL script:
 
+@verbatim
 BODY←⎕INP 'END-OF-⎕INP'
 First line
 Second line
 Third line
    ...
 END-OF-⎕INP
+@end verbatim
 
 This works like "Here documents" in bash. The right argument of ⎕INP is
 the end of text marker, ⎕INP also has a dyadic form where the left argument
@@ -597,7 +601,6 @@ is not indented.
       #! /bin/apl --script --
       
       ⎕ARG      ⍝ show command line options
- /bin/apl --silent 
       )OFF      ⍝ leave the interpreter
 
 
