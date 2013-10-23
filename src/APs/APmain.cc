@@ -210,7 +210,7 @@ got_event(uint32_t event, SV_key key)
 {
    if (event_port)   // event timer is running
       {
-        UdpClientSocket sock(event_port);
+        UdpClientSocket sock(LOC, event_port);
         GOT_EVENT_c signal(sock, key, event);
         event_port = 0;
       }
@@ -267,7 +267,7 @@ bool auto_started = false;
    // register as e.g. AP210-port. We do this BEFORE closing stdout so that
    // caller of our parent waits until we have closed stdout
    //
-UdpServerSocket sock(0);
+UdpServerSocket sock(LOC, 0);
    if (verbose)  sock.set_debug(CERR);
 
    memset(&new_ctl_C_action, 0, sizeof(struct sigaction));

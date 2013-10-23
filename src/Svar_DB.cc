@@ -145,7 +145,7 @@ offered_SVAR::remove_stale(int & count)
                   // the variable is fully coupled, therefore the accepting side
                   // is still alive and should be informed
                   //
-                  UdpClientSocket sock(accepting.port);
+                  UdpClientSocket sock(LOC, accepting.port);
                   RETRACT_OFFER_c signal(sock, key);
 
                   offering = accepting;
@@ -189,16 +189,15 @@ const uint16_t port2 = accepting.port;
 
    // inform partners
    //
-UdpServerSocket sock(0);
    if (port1)
       {
-        sock.set_remote_port(port1);
+        UdpClientSocket sock(LOC, port1);
         RETRACT_OFFER_c signal(sock, key);
       }
 
    if (port2)
       {
-        sock.set_remote_port(port2);
+        UdpClientSocket sock(LOC, port2);
         RETRACT_OFFER_c signal(sock, key);
       }
 
@@ -269,7 +268,7 @@ offered_SVAR::set_control(Svar_Control ctl)
         offering.set_control(ctl);
         if (get_coupling() == SV_COUPLED)   // fully coupled: inform peer
            {
-             UdpClientSocket sock(accepting.port);
+             UdpClientSocket sock(LOC, accepting.port);
              NEW_EVENT_c signal(sock, key, SVE_ACCESS_CONTROL);
            }
       }
@@ -277,7 +276,7 @@ offered_SVAR::set_control(Svar_Control ctl)
       {
         accepting.set_control(mirror(ctl));
         {
-          UdpClientSocket sock(offering.port);
+          UdpClientSocket sock(LOC, offering.port);
           NEW_EVENT_c signal(sock, key, SVE_ACCESS_CONTROL);
         }
       }
@@ -363,7 +362,7 @@ uint16_t peer_port = 0;
    //
    if (peer_port && event)
       {
-        UdpClientSocket sock(peer_port);
+        UdpClientSocket sock(LOC, peer_port);
         NEW_EVENT_c signal(sock, key, event);
       }
 }
@@ -395,7 +394,7 @@ const int restriction = control & state;
 
         if (accepting.port && (attempt == 0))   // maybe send event to peer
            {
-             UdpClientSocket sock(accepting.port);
+             UdpClientSocket sock(LOC, accepting.port);
              NEW_EVENT_c signal(sock, key, SVE_USE_BY_OFF_FAILED);
            }
         return false;
@@ -407,7 +406,7 @@ const int restriction = control & state;
 
         if (offering.port && (attempt == 0))   // maybe send event to peer
            {
-             UdpClientSocket sock(offering.port);
+             UdpClientSocket sock(LOC, offering.port);
              NEW_EVENT_c signal(sock, key, SVE_USE_BY_ACC_FAILED);
            }
         return false;
@@ -431,7 +430,7 @@ const int restriction = control & state;
 
         if (accepting.port && (attempt == 0))   // maybe send event to peer
            {
-             UdpClientSocket sock(accepting.port);
+             UdpClientSocket sock(LOC, accepting.port);
              NEW_EVENT_c signal(sock, key, SVE_SET_BY_OFF_FAILED);
            }
         return false;
@@ -443,7 +442,7 @@ const int restriction = control & state;
 
         if (offering.port && (attempt == 0))   // maybe send event to peer
            {
-             UdpClientSocket sock(offering.port);
+             UdpClientSocket sock(LOC, offering.port);
              NEW_EVENT_c signal(sock, key, SVE_SET_BY_ACC_FAILED);
            }
         return false;
@@ -579,7 +578,7 @@ Svar_DB_memory::unregister_processor(const Svar_partner & p)
                  CERR << "sending DISCONNECT to proc "
                       << int(slot.partner.id.proc)
                    << endl;
-              UdpClientSocket sock(slot.partner.port);
+              UdpClientSocket sock(LOC, slot.partner.port);
               DISCONNECT_c signal(sock);
             }
        }
@@ -1078,7 +1077,7 @@ Svar_DB_memory::add_event(Svar_event event, AP_num3 proc, SV_key key)
          if (slot.partner.id == proc)
             {
               slot.events = Svar_event(slot.events | event);
-              UdpClientSocket sock(slot.partner.port);
+              UdpClientSocket sock(LOC, slot.partner.port);
               NEW_EVENT_c signal(sock, key, event);
             }
        }
@@ -1229,11 +1228,14 @@ Svar_DB_memory::match_pending_offer(const uint32_t * UCS_varname,
 
          // inform both partners that the coupling is complete
          //
-         UdpServerSocket sock(0);
-         sock.set_remote_port(svar->offering.port);
-         { OFFER_MATCHED_c signal(sock, svar->key); }
-         sock.set_remote_port(svar->accepting.port);
-         { OFFER_MATCHED_c signal(sock, svar->key); }
+         {
+           UdpClientSocket sock(LOC, svar->offering.port);
+           OFFER_MATCHED_c signal(sock, svar->key);
+         }
+         {
+           UdpClientSocket sock(LOC, svar->accepting.port);
+           OFFER_MATCHED_c signal(sock, svar->key);
+         }
          return svar;            // match found
        }
 
@@ -1275,7 +1277,7 @@ const bool mismatch = to.proc > AP_NULL;
          // inform from that there is a new variable
          //
          {
-           UdpClientSocket sock(from.port);
+           UdpClientSocket sock(LOC, from.port);
            NEW_VARIABLE_c signal(sock, svar->key);
          }
 
@@ -1285,7 +1287,7 @@ const bool mismatch = to.proc > AP_NULL;
          if (peer.partner.id.proc > AP_NULL)
             {
               svar->offering.flags |= OSV_OFFER_SENT;
-              UdpClientSocket sock(peer.partner.port);
+              UdpClientSocket sock(LOC, peer.partner.port);
               MAKE_OFFER_c signal(sock, svar->key);
             }
 
