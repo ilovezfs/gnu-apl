@@ -20,4 +20,5 @@
  4366  make library paths configurable in file(s) 'preferences'
  4366  fixed problem with ∇ in strings in Nabbla editor
  4388  fixed fault in Parser::remove_nongrouping_parantheses()
+ 4397  improved error informstion for Svar sockets, changed to client port
 

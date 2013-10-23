@@ -54,11 +54,12 @@ class UdpSocket
 {
 public:
    /// constructor: client or server socket
-   UdpSocket(bool _is_server);
+   UdpSocket(bool _is_server, const char * _loc);
 
    /// constructor: socket with given port numbers and IP addresses
    UdpSocket(uint16_t _local_port, int _remote_port,
-             uint32_t _local_ip,   uint32_t _remote_ip, bool _is_server);
+             uint32_t _local_ip,   uint32_t _remote_ip,
+             bool _is_server, const char * _loc);
 
    /// destructor
    ~UdpSocket()   { udp_close(); }
@@ -95,13 +96,19 @@ public:
    /// IP address of localhost
    enum { IP_LOCALHOST = 0x7F000001 };   /// 127.0.0.1
 
+   /// print IPv4 address and port.
+   static void print_addr(std::ostream & out, uint32_t ip, int port);
+
 protected:
    /// copy from other
    UdpSocket & operator=(const UdpSocket & other)
       { memcpy(this, &other, sizeof(*this));   return *this; }
 
+   /// where the socket was created
+   const char * loc;
+
    /// the local port number
-   uint16_t local_port;
+   int local_port;
 
    /// the peer's port number
    int remote_port;
@@ -127,15 +134,15 @@ class UdpClientSocket : public UdpSocket
 {
 public:
    /// an invalid client socket
-   UdpClientSocket()
-   : UdpSocket(-1, -1, -1, -1, false)
+   UdpClientSocket(const char * loc)
+   : UdpSocket(-1, -1, -1, -1, false, loc)
    {}
 
    /// a client socket towards the remote \b server_port
-   UdpClientSocket(int server_port, int client_port = 0,
+   UdpClientSocket(const char * loc, int server_port, int client_port = 0,
                    uint32_t server_ip = IP_LOCALHOST,
                    uint32_t client_ip = IP_LOCALHOST)
-   : UdpSocket(client_port, server_port, client_ip, server_ip, false)
+   : UdpSocket(client_port, server_port, client_ip, server_ip, false, loc)
    {}
 };
 //----------------------------------------------------------------------------
@@ -144,8 +151,9 @@ class UdpServerSocket : public UdpSocket
 {
 public:
    /// a server socket receiving client signals on port \b server_port
-   UdpServerSocket(uint16_t server_port, uint32_t server_ip = IP_LOCALHOST)
-   : UdpSocket(server_port, 0, server_ip, 0, true)
+   UdpServerSocket(const char * loc, uint16_t server_port,
+                   uint32_t server_ip = IP_LOCALHOST)
+   : UdpSocket(server_port, 0, server_ip, 0, true, loc)
    {}
 
    /// set the client's port number

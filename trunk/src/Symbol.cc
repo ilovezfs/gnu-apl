@@ -181,7 +181,7 @@ ValueStackItem & vs = value_stack.back();
                // update shared var state (BEFORE sending request to peer)
                svar->set_state(false, LOC);
                {
-                 UdpClientSocket sock(svar->data_owner_port());
+                 UdpClientSocket sock(LOC, svar->data_owner_port());
                  ASSIGN_VALUE_c request(sock, get_SV_key(), data);
 
                  uint8_t buffer[Signal_base::get_class_size()];
@@ -652,7 +652,7 @@ Symbol::resolve(Token & tok, bool left_sym)
                      usleep(10000);   // wait 10 ms
                    }
 
-               UdpClientSocket sock(svar->data_owner_port());
+               UdpClientSocket sock(LOC, svar->data_owner_port());
 
                GET_VALUE_c request(sock, get_SV_key());
                uint8_t buffer[Signal_base::get_class_size()];

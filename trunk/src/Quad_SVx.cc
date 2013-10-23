@@ -52,7 +52,7 @@ APL_time Quad_SVE::timer_end = 0;
 
 //=============================================================================
 /**
-    return true iff \b filename is a regular file with permission 666 or more
+    return true iff \b filename is an executable file
  **/
 bool
 Quad_SVx::is_executable(const char * file_and_args)
@@ -61,15 +61,7 @@ string filename(file_and_args);
 const char * end = strchr(file_and_args, ' ');
    if (end)   filename.resize(end - file_and_args);
 
-/// file mode RX for all, group, and owner
-enum { perm_666 = S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH };
-
-struct stat st;
-  if (stat(filename.c_str(), &st))    return false;   // stat() failed
-
-  if (!S_ISREG(st.st_mode))   return false;   // not regular file
-
-  return ((st.st_mode & perm_666) == perm_666);
+   return access(filename.c_str(), X_OK) == 0;
 }
 //-----------------------------------------------------------------------------
 void
@@ -94,14 +86,12 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
             snprintf(filename, PATH_MAX,
                      "%s%s/APnnn --id %u --par %u%s --ppid %u",
                      LibPaths::get_APL_bin_path(), dirs[d],
-                     own_ID, par_ID, verbose,
-                     getpid());
+                     own_ID, par_ID, verbose, getpid());
          else
             snprintf(filename, PATH_MAX,
                      "%s%s/AP%u --id %u --par %u --gra %u --auto%s --ppid %u",
-                     LibPaths::get_APL_bin_path(), dirs[d],
-                     proc, proc, own_ID, par_ID,
-                     verbose, getpid());
+                     LibPaths::get_APL_bin_path(), dirs[d], proc, proc,
+                     own_ID, par_ID, verbose, getpid());
 
          if (!is_executable(filename))   continue;
 
@@ -270,7 +260,7 @@ const APL_time wait = timer_end - current_time;
    //
 bool got_event = false;
    {
-     UdpClientSocket event_sock(ProcessorID::get_APnnn_port());
+     UdpClientSocket event_sock(LOC, ProcessorID::get_APnnn_port());
      Log(LOG_shared_variables)   event_sock.set_debug(CERR);
 
      {

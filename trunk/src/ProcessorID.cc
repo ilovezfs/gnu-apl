@@ -34,7 +34,7 @@ AP_num3 ProcessorID::id(NO_AP, AP_NULL, AP_NULL);
 Network_Profile ProcessorID::network_profile;
 
 uint16_t ProcessorID::APnnn_port = 0;
-UdpSocket ProcessorID::APnnn_socket(true);
+UdpSocket ProcessorID::APnnn_socket(true, LOC);
 bool ProcessorID::doing_SV = true;
 
 //-----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ ProcessorID::init(bool do_sv, int proc_id, int par_id)
         return true;
       }
 
-   new (&APnnn_socket) UdpClientSocket(APnnn_port, 0);
+   new (&APnnn_socket) UdpClientSocket(LOC, APnnn_port, 0);
 
    return false;   // no error
 }
