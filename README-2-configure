@@ -3,6 +3,28 @@ The APL interpreter can be configured by means of ./configure options (see
 also file INSTALL in this folder). In addition to the standard options that
 are described in INSTALL, the following options are recognized:
 
+--without-readline
+    GNU APL uses libreadline for reading APL characters from the keyboard.
+    This only works when Unicode characters are supported by libreadline.
+    On most systems that is the case; on some systems, for example FreeBSD,
+    it is not. If Unicode is not supported, then you can either install a
+    different libreadline, or ./configure GNU APL with --without-readline.
+    Most likely you will then --disable-nls as well. Example:
+
+    ./configure --without-readline --disable-nls
+
+
+--disable-nls
+    Sometimes internationalization and localization support causes problems
+    with APL characters when the locale settings are wrong or locale support
+    in general is broken, and it can be cumbersome to fix such problems.
+
+    Given the very few languages supported by GNU APL (English and German),
+    it is much easier to disable native language support completely with
+    --disable-nls. Example:
+
+    ./configure --disable-nls
+
 
 ASSERT_LEVEL_WANTED=n
    There are numerous Assert() and Assert1 macros in the source code of the

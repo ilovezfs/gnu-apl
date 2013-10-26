@@ -39,7 +39,7 @@ struct LineLabel
    void print(ostream & out) const;
 
    /// print a prompt like [1.2] into buffer
-   void print_prompt(char * buf, size_t size) const;
+   UCS_string print_prompt() const;
 
    /// true iff two line numbers are equal
    bool operator ==(const LineLabel & other) const;

@@ -86,7 +86,7 @@ public:
 
    /// like get_user_line, but making the prompt editable
    /// (and part of the user input)
-   static const unsigned char * get_user_line_1(const char * prompt);
+   static const unsigned char * get_user_line_1(const UCS_string * prompt);
 
    /// the name of a file from the -f file command line option
    static const char * input_file_name;
@@ -96,7 +96,7 @@ public:
 
 protected:
    /// Read one line from the user.
-   static const unsigned char * get_user_line(const char *prompt);
+   static const unsigned char * get_user_line(const UCS_string * prompt);
 
 private:
    /// constructor that initializes the the readline library.

@@ -78,9 +78,8 @@ Nabla::edit()
    Log(LOG_nabla)   CERR << "Nabla(" << fun_name << ")..." << endl;
    while (!do_close)
        {
-         char prompt[40];
-         current_line.print_prompt(prompt, sizeof(prompt));
-         const char * line = (const char *)Input::get_user_line_1(prompt);
+         const UCS_string prompt = current_line.print_prompt();
+         const char * line = (const char *)Input::get_user_line_1(&prompt);
          const UTF8_string utf(line);
          const UCS_string ucs(utf);
          if (const char * loc = parse_oper(ucs, false))
@@ -597,20 +596,21 @@ LineLabel::print(ostream & out) const
    out << "]";
 }
 //-----------------------------------------------------------------------------
-void
-LineLabel::print_prompt(char * buf, size_t size) const
+UCS_string
+LineLabel::print_prompt() const
 {
-int idx = snprintf(buf, size - 4, "[%d", ln_major);
+UCS_string ret("[");
+   ret.append_number(ln_major);
 
    if (ln_minor.size())
       {
-        buf[idx++] = '.';
-        loop(s, ln_minor.size())   buf[idx++] = char(ln_minor[s]);
+        ret += Unicode('.');
+        loop(s, ln_minor.size())   ret += Unicode(char(ln_minor[s]));
       }
 
-   buf[idx++] = ']';
-   buf[idx++] = ' ';
-   buf[idx++] = 0;
+   ret += Unicode(']');
+   ret += Unicode(' ');
+   return ret;
 }
 //-----------------------------------------------------------------------------
 void

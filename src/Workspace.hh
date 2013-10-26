@@ -238,8 +238,8 @@ public:
    Quad_QUAD         v_quad_QUAD;         ///< System Variable.
    Quad_QUOTE        v_quad_QUOTE;        ///< System Variable.
 
-   /// the prompt
-   string prompt;
+   /// the APL prompt (6 blankls by default)
+   UCS_string prompt;
 
    /// The current workspace (for objects that need one but don't have one).
    static Workspace * the_workspace;

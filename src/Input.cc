@@ -31,11 +31,47 @@
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
+#include "../config.h"   // for HAVE_LIBREADLINE
+
+
 namespace readline_lib
 {
+#if HAVE_LIBREADLINE
+
 #include <readline/readline.h>
 #include <readline/history.h>
-};
+
+#else // ! HAVE_LIBREADLINE
+
+static void add_history(const char * line) {}
+static char * no_readline(const UCS_string * prompt);
+
+char *
+no_readline(const UCS_string * prompt)
+{
+   if (prompt)
+      {
+        CIN << '\r' << *prompt << flush;
+        UTF8_string prompt_utf(*prompt);
+        loop(p, prompt_utf.size())
+           {
+             const int cc = prompt_utf[prompt_utf.size() - p - 1];
+             ungetc(cc & 0xFF, stdin);
+           }
+      }
+
+static char buffer[2000];   // returned as result
+const char * s = fgets(buffer, sizeof(buffer) - 1, stdin);
+   if (s == 0)   return 0;
+
+int len = strlen(buffer);
+   if (len && buffer[len - 1] == '\n')   buffer[--len] = 0;
+   if (len && buffer[len - 1] == '\r')   buffer[--len] = 0;
+   return buffer;
+}
+
+#endif //  HAVE_LIBREADLINE
+};   // namespace readline_lib
 
 const char * Input::input_file_name = 0;
 FILE * Input::input_file_FILE = 0;
@@ -47,17 +83,23 @@ bool Input::stdin_from_file = false;
 //-----------------------------------------------------------------------------
 Input::Input()
 {
+#if HAVE_LIBREADLINE
    readline_lib::rl_initialize();
    readline_lib::stifle_history(500);
    readline_lib::read_history(".apl.history");
 
 //   readline_lib::rl_function_dumper(1);
+#endif
 }
 //-----------------------------------------------------------------------------
 int
 Input::readline_version()
 {
+#if HAVE_LIBREADLINE
    return readline_lib::rl_readline_version;
+#else
+   return 0;
+#endif
 }
 //-----------------------------------------------------------------------------
 UCS_string
@@ -113,7 +155,7 @@ const UTF8 * buf = TestFiles::get_testcase_line();
    if (buf == 0)   // all reads from files failed
       {
         input_type = "U";
-        buf = get_user_line(Workspace::the_workspace->prompt.c_str());
+        buf = get_user_line(&Workspace::the_workspace->prompt);
       }
 
    if (buf == 0)   // ^D or end of file
@@ -168,16 +210,31 @@ size_t len = strlen(buffer);
 void
 Input::exit_readline()
 {
+#if HAVE_LIBREADLINE
    readline_lib::write_history(".apl.history");
+#endif
 }
 //-----------------------------------------------------------------------------
 const unsigned char *
-Input::get_user_line(const char * prompt)
+Input::get_user_line(const UCS_string * prompt)
 {
    Output::set_color_mode(Output::COLM_INPUT);
 
 const APL_time from = now();
-char * line = readline_lib::readline(prompt);
+#if HAVE_LIBREADLINE
+char * line;
+   if (prompt)
+      {
+        UTF8_string prompt_utf(*prompt);
+        line = readline_lib::readline((const char*)prompt_utf.c_str());
+      }
+   else
+      {
+        line = readline_lib::readline(0);
+      }
+#else
+char * line = readline_lib::no_readline(prompt);
+#endif
 
 const APL_time to = now();
    Workspace::the_workspace->add_wait(to - from);
@@ -194,7 +251,7 @@ UTF8 * l = (UTF8 *)line;
 }
 //-----------------------------------------------------------------------------
 const unsigned char *
-Input::get_user_line_1(const char * prompt)
+Input::get_user_line_1(const UCS_string * prompt)
 {
 const UTF8 * line = TestFiles::get_testcase_line();
    if (line)   return line;
@@ -217,7 +274,6 @@ const UTF8 * line = TestFiles::get_testcase_line();
         stdin_from_file = !strcmp(input_file_name, "-");
         if (stdin_from_file)
            {
-Q(stdin)
              input_file_FILE = stdin;
            }
         else
@@ -239,9 +295,17 @@ Q(stdin)
 
    // all reads from files failed.
    //
-   while (*prompt)   readline_lib::rl_stuff_char(*prompt++ & 0x00FF);
-
+#if HAVE_LIBREADLINE
+   if (prompt)
+      {
+        UTF8_string prompt_utf(*prompt);
+        loop(p, prompt_utf.size())
+           readline_lib::rl_stuff_char(prompt_utf[p] & 0x00FF);
+      }
    line = (UTF8 *)readline_lib::readline(0);
+#else // ! HAVE_LIBREADLINE
+   line = (UTF8 *)readline_lib::no_readline(prompt);
+#endif // HAVE_LIBREADLINE
 
    while (*line && *line <= ' ')   ++line;
 
@@ -274,11 +338,17 @@ Input::get_quad_cr_line(UCS_string ucs_prompt)
       }
 
 UTF8_string utf_prompt(ucs_prompt);
+
+#if HAVE_LIBREADLINE
    loop(s, utf_prompt.size())
       readline_lib::rl_stuff_char(utf_prompt[s] & 0x00FF);
 
    cout << '\r';
 const char * line = readline_lib::readline(0);
+
+#else
+const char * line = readline_lib::no_readline(&ucs_prompt);
+#endif
 
 const UTF8_string uline(line);
    return UCS_string(uline);
