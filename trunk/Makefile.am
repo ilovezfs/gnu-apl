@@ -93,6 +93,7 @@ SYNC:	dist
 	tar xvzf apl-1.0.tar.gz
 	cp -a apl-1.0/* ../savannah-repo-apl/trunk/
 	rm -Rf apl-1.0
+	cd ../savannah-repo-apl ; svn add .
 
 # build all packages and SYNC
 #

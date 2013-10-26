@@ -313,6 +313,13 @@ show_configure_options()
 #endif
    << endl <<
 
+#ifdef HAVE_LIBREADLINE
+   "    libreadline is used (default)"
+#else
+   "    libreadline is not used (disabled or not present)"
+#endif
+   << endl <<
+
    "    MAX_RANK_WANTED="     << MAX_RANK_WANTED
         << is_default(MAX_RANK_WANTED == 8)
    << endl <<
@@ -337,6 +344,7 @@ show_configure_options()
 #else
    "    VF_TRACING_WANTED=no (default)"
 #endif
+   << endl
    << endl;
 
 

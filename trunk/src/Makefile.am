@@ -103,7 +103,7 @@ update-svar_signals:
 
 apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
 
-apl_LDFLAGS  = $(GPROF_WANTED) $(LIBS)
+apl_LDFLAGS  = $(GPROF_WANTED) $(LIBS) $(LIBREADLINE)
 
 apl.lines: apl
 	objdump -j .text -l -d $< > $@

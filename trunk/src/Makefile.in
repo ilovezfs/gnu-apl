@@ -209,6 +209,7 @@ LDFLAGS = @LDFLAGS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
+LIBREADLINE = @LIBREADLINE@
 LIBS = @LIBS@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
@@ -379,7 +380,7 @@ Value.cc				Value.hh		\
 Workspace.cc				Workspace.hh
 
 apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
-apl_LDFLAGS = $(GPROF_WANTED) $(LIBS)
+apl_LDFLAGS = $(GPROF_WANTED) $(LIBS) $(LIBREADLINE)
 AM_MAKEFLAGS = -j 2
 all: all-recursive
 

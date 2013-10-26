@@ -612,6 +612,7 @@ DYNAMIC_LOG_WANTED
 GPROF_WANTED
 VALUE_CHECK_WANTED
 MAX_RANK_WANTED
+LIBREADLINE
 LIBOBJS
 POSUB
 LTLIBINTL
@@ -734,6 +735,7 @@ with_gnu_ld
 enable_rpath
 with_libiconv_prefix
 with_libintl_prefix
+with_readline
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1392,6 +1394,7 @@ Optional Packages:
   --without-libiconv-prefix     don't search for libiconv in includedir and libdir
   --with-libintl-prefix[=DIR]  search for libintl in DIR/include and DIR/lib
   --without-libintl-prefix     don't search for libintl in includedir and libdir
+  --with-readline         support fancy command line editing [default=check]
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -7575,51 +7578,6 @@ _ACEOF
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for readline in -lreadline" >&5
-$as_echo_n "checking for readline in -lreadline... " >&6; }
-if test "${ac_cv_lib_readline_readline+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lreadline  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char readline ();
-int
-main ()
-{
-return readline ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_readline_readline=yes
-else
-  ac_cv_lib_readline_readline=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_readline_readline" >&5
-$as_echo "$ac_cv_lib_readline_readline" >&6; }
-if test "x$ac_cv_lib_readline_readline" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBREADLINE 1
-_ACEOF
-
-  LIBS="-lreadline $LIBS"
-
-fi
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for shm_open in -lrt" >&5
 $as_echo_n "checking for shm_open in -lrt... " >&6; }
 if test "${ac_cv_lib_rt_shm_open+set}" = set; then :
@@ -7665,6 +7623,76 @@ _ACEOF
 
 fi
 
+
+# enable readline support if libreadline is present and the user
+# has not disabled it.
+#
+
+# Check whether --with-readline was given.
+if test "${with_readline+set}" = set; then :
+  withval=$with_readline;
+else
+  with_readline=check
+fi
+
+
+LIBREADLINE=
+    if test "x$with_readline" != xno; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for readline in -lreadline" >&5
+$as_echo_n "checking for readline in -lreadline... " >&6; }
+if test "${ac_cv_lib_readline_readline+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lreadline -lncurses $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char readline ();
+int
+main ()
+{
+return readline ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_readline_readline=yes
+else
+  ac_cv_lib_readline_readline=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_readline_readline" >&5
+$as_echo "$ac_cv_lib_readline_readline" >&6; }
+if test "x$ac_cv_lib_readline_readline" = x""yes; then :
+  LIBREADLINE="-lreadline -lncurses"
+
+
+$as_echo "#define HAVE_LIBREADLINE 1" >>confdefs.h
+
+
+else
+   if test "x$with_readline" != xcheck; then
+		{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error "--with-readline was given, but test for readline failed
+See \`config.log' for more details." "$LINENO" 5; }
+	      fi
+
+fi
+
+
+fi
 
 ac_config_files="$ac_config_files Makefile po/Makefile.in po/Makefile debian/Makefile debian/source/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile workspaces/Makefile wslib1/Makefile wslib2/Makefile"
 
