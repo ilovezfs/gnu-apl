@@ -69,7 +69,7 @@ Nabla::edit()
    if (const char * loc = start())
       {
         CERR << "bad editor command '" << first_command
-             << "' : problem at " << loc << endl;
+             << "' : problem '" << loc << "'" << endl;
        NABLA_ERROR;
       }
 

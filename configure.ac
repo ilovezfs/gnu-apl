@@ -45,6 +45,7 @@ AC_CHECK_LIB([execinfo], [backtrace])
 AC_CHECK_LIB([intl], [libintl_gettext])
 AC_CHECK_LIB([m], [acosh])
 AC_CHECK_LIB([rt], [shm_open])
+AC_CHECK_LIB([pthread], [sem_init])
 
 # enable readline support if libreadline is present and the user
 # has not disabled it.
