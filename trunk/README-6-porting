@@ -3,18 +3,24 @@ GNU APL has been compiled successfully on non-GNU/Linux systems.
 Some of these systems may require additional settings.
 
 Below are notes from GNU APL users with non-GNU/Linux systems (in
-alphabetical irder)
+alphabetical order of the OSs)
 
-CYGWIN 5.1
-==========
+===============================================================================
+====									   ====
+====			    CYGWIN 5.1 (Windows)			   ====
+====									   ====
+===============================================================================
 
 GNU APL compiles on CYGWIN, see README-5-WINDOWS for details
 
 
-Freebsd
-=======
+===============================================================================
+====									   ====
+====			    FreeBSD					   ====
+====									   ====
+===============================================================================
 
-We have seen two problems building GNU APL in Freebsd.
+We have seen two problems building GNU APL in FreeBSD.
 Both can be solved by ./configure'ing GNU APL as shown below.
 
 1. Non-standard library locations. Some of the libraries used by GNU APL.
@@ -54,4 +60,12 @@ setenv LDFLAGS '-L/usr/local/lib'
 ./configure --without-readline --disable-nls
 
 
+===============================================================================
+====									   ====
+====			    OS-X					   ====
+====									   ====
+===============================================================================
+
+The latest version (SVN) of GNU APL was reported to compile and run on OS-X
+without special measures.
 
