@@ -57,8 +57,9 @@ DOXY:
 .PHONY:	RPM
 RPM:	dist
 	make -C rpm $@
-	cp rpm/SRPMS/$(PACKAGE)-$(PACKAGE_VERSION)-0.src.rpm       ftp-upload/
-	cp rpm/RPMS/i386/$(PACKAGE)-$(PACKAGE_VERSION)-0.i386.rpm  ftp-upload/
+	mkdir -p ftp-upload
+	cp rpm/SRPMS/$(PACKAGE)-$(PACKAGE_VERSION)-0.src.rpm  ftp-upload/
+	cp rpm/RPMS/*/$(PACKAGE)-$(PACKAGE_VERSION)-0.*.rpm   ftp-upload/
 
 # source and binary Debian packages
 #
@@ -71,7 +72,8 @@ DEB:	dist
 	cd debian_tmp ; tar xf $(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
 	cp apl.1 debian_tmp/$(distdir)/debian/manpage.1
 	cd debian_tmp/$(distdir) ; dpkg-buildpackage
-	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_i386.deb       ftp-upload/
+	mkdir -p ftp-upload
+	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_*.deb          ftp-upload/
 	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1.debian.tar.gz  ftp-upload/
 
 
