@@ -46,7 +46,7 @@ enum
 
    MAX_SYMBOL_COUNT       = 1 << LOG_MAX_SYMBOL_COUNT,   ///< dito
 
-   MAX_FUN_OPER           = 8,   ///< max. adjacent operators (as in +////X)
+   MAX_FUN_OPER           = 16,   ///< max. adjacent operators (as in +////X)
 };
 
 #define MAX_QUAD_CT     (1.0e-9)

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([GNU APL], [1.0], [bug-apl@gnu.org])
+AC_INIT([GNU APL], [1.1], [bug-apl@gnu.org])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])

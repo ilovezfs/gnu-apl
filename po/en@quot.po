@@ -27,10 +27,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: apl 1.0\n"
+"Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-10-26 14:02+0200\n"
-"PO-Revision-Date: 2013-10-26 14:02+0200\n"
+"POT-Creation-Date: 2013-11-05 12:19+0100\n"
+"PO-Revision-Date: 2013-11-05 12:19+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"

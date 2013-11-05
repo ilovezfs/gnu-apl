@@ -23,3 +23,7 @@
  4397  improved error information for Svar sockets, changed to client port
  4414  made use of readline configurable
  4428  check for libpthread added, Debian Build-Depends on libc6 relaxed
+ 4448  Increased MAX_FUN_OPER
+
+ 4458 GNU APL 1.1 release
+
