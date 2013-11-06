@@ -2431,13 +2431,10 @@ Bif_F12_FORMAT::split_example_into_columns(const UCS_string & format,
                                    vector<UCS_string> & col_formats)
 {
 bool fmt_seen = false;
-
-   col_formats.push_back(UCS_string());   // start a new field
-
-   for (size_t f = 0; f < format.size(); ++f)
+UCS_string fmt;
+   loop(f, format.size())
        {
          const Unicode cc = format[f];
-         UCS_string & fmt = col_formats.back();
          fmt += cc;
 
          const bool is_fmt_char = is_control_char(cc);
@@ -2445,7 +2442,8 @@ bool fmt_seen = false;
 
          if ((cc == UNI_ASCII_SPACE) && fmt_seen)   // end of field
             {
-              col_formats.push_back(UCS_string());   // start a new field;
+              col_formats.push_back(fmt);
+              fmt.clear();    // start a new field;
               fmt_seen = false;
               continue;   // next char
             }
@@ -2455,16 +2453,20 @@ bool fmt_seen = false;
               ++f;   // next char is right decorator (and end of field)
               if (f < format.size())   fmt += format[f];
 
-              col_formats.push_back(UCS_string());   // start a new field;
+              col_formats.push_back(fmt);
+              fmt.clear();    // start a new field;
               fmt_seen = false;
               continue;   // next char
             }
        }
 
-   if ((!fmt_seen) && (col_formats.size() > 1))
+   if ((!fmt_seen) && (col_formats.size() > 0))
       {
-        col_formats[col_formats.size() - 2] += col_formats.back();
-        col_formats.pop_back();
+        col_formats.back() += fmt;
+      }
+   else
+      {
+        col_formats.push_back(fmt);
       }
 }
 //-----------------------------------------------------------------------------
@@ -2628,8 +2630,16 @@ integral_part:
 
         if (cc == UNI_ASCII_FULLSTOP)   goto fractional_part;
         if (cc == UNI_ASCII_E)          goto exponent_part;
-        if (is_control_char(cc))        int_part.format += cc;
-        else                            { --f;   goto right_decorator; }
+        if (is_control_char(cc))
+           {
+             int_part.format += cc;
+             if (cc == UNI_ASCII_6)          goto right_decorator;
+           }
+        else
+           {
+             --f;
+            goto right_decorator;
+           }
       }
    goto fields_done;
 
@@ -2639,8 +2649,16 @@ fractional_part:
         const Unicode cc = format[f++];
         if (cc == UNI_ASCII_7)          exponent_pending = true;
 
-        if (is_control_char(cc))        fract_part.format += cc;
-        else                  { exponent_char = cc;   goto exponent_decorator; }
+        if (is_control_char(cc))
+           {
+             fract_part.format += cc;
+             if (cc == UNI_ASCII_6)          goto right_decorator;
+           }
+        else
+           {
+             exponent_char = cc;
+             goto exponent_decorator;
+           }
       }
    goto fields_done;
 
@@ -2651,8 +2669,15 @@ exponent_decorator:
       {
         const Unicode cc = format[f++];
 
-        if (!is_control_char(cc))       expo_deco.format += cc;
-        else                            { --f;   goto exponent_part; }
+        if (!is_control_char(cc))
+           {
+             expo_deco.format += cc;
+           }
+        else
+           {
+             --f;
+             goto exponent_part;
+           }
       }
 
 exponent_part:
@@ -2660,8 +2685,16 @@ exponent_part:
       {
         const Unicode cc = format[f++];
 
-        if (is_control_char(cc))        exponent.format += cc;
-        else                            { --f;   goto right_decorator; }
+        if (is_control_char(cc))
+           {
+             exponent.format += cc;
+             if (cc == UNI_ASCII_6)          goto right_decorator;
+           }
+        else
+           {
+             --f;
+             goto right_decorator;
+           }
       }
 
 right_decorator:   /// the right decorator
