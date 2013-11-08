@@ -452,7 +452,7 @@ xGNU_PIC←_src xHTTP_GNU, "graphics/gnu-head-sm.jpg"
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ some file names used in the BODY
 ⍝
-xAPL_VERSION←'apl-1.0'
+xAPL_VERSION←'apl-1.1'
 xTARFILE←xAPL_VERSION,  '.tar.gz'
 xRPMFILE←xAPL_VERSION,  '-0.i386.rpm'
 xSRPMFILE←xAPL_VERSION, '-0.src.rpm'
