@@ -302,26 +302,76 @@ again:
          goto command_loop;
       }
 
-   // copy the rest to current_text and set do_close if the first character
-   // is ∇ or ⍫
+   // copy the rest to current_text. Set do_close if ∇ or ⍫ is seen
+   // unless inside strings.
    //
-   while ((cc = c.next()) != Invalid_Unicode)   current_text += cc;
-
-   if (current_text.size())
+   for (;;)
       {
-        if (current_text[0] == UNI_NABLA)
+        switch(cc = c.next())
            {
-             current_text.clear();
-             do_close = true;
-           }
-        else if (current_text[0] == UNI_DEL_TILDE)
-           {
-             current_text.clear();
-             locked = true;
-             do_close = true;
+             case Invalid_Unicode:     // regular end of input
+                  return 0;
+
+             case UNI_NABLA:           // ∇
+                  do_close = true;
+                  return 0;
+
+             case UNI_DEL_TILDE:       // ⍫
+                  locked = true;
+                  do_close = true;
+                  return 0;
+
+             case UNI_ASCII_DOUBLE_QUOTE:  // "
+                  current_text += cc;
+                  for (;;)
+                      {
+                        cc = c.next();
+                        if (cc == Invalid_Unicode)   // premature end of input
+                           {
+                             current_text += UNI_ASCII_DOUBLE_QUOTE;
+                             return 0;
+                           }
+
+                        current_text += cc;
+                        if (cc == UNI_ASCII_DOUBLE_QUOTE)   break; // string end
+                        if (cc == UNI_ASCII_BACKSLASH)      // \x
+                           {
+                             cc = c.next();
+                             if (cc == Invalid_Unicode)   // premature input end
+                                {
+                                  current_text += UNI_ASCII_BACKSLASH;
+                                  current_text += UNI_ASCII_DOUBLE_QUOTE;
+                                  return 0;
+                                }
+                             current_text += cc;
+                           }
+                      }
+                  break;
+
+             case UNI_SINGLE_QUOTE:    // '
+                  current_text += cc;
+                  for (;;)
+                      {
+                        // no need to care for ''. Since we only copy, we can
+                        // handle ' ... '' ... ' like two adjacent strings
+                        // instead of a string containing a (doubled) quote.
+                        //
+                        cc = c.next();
+                        if (cc == Invalid_Unicode)   // premature end of input
+                           {
+                             current_text += UNI_SINGLE_QUOTE;
+                             return 0;
+                           }
+
+                        current_text += cc;
+                        if (cc == UNI_SINGLE_QUOTE)      break;   // string end
+                      }
+                  break;
+
+             default:
+                current_text += cc;
            }
       }
-
 
    return 0;
 }

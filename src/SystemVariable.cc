@@ -21,9 +21,13 @@
 #include <langinfo.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <utmpx.h>           // for ⎕UL
 #include <sys/resource.h>   // for ⎕WA
 #include <sys/time.h>
+
+// FreeBSD 8.x lacks utmpx.h
+#ifdef HAVE_UTMPX_H
+# include <utmpx.h>           // for ⎕UL
+#endif
 
 #include "CDR.hh"
 #include "CharCell.hh"

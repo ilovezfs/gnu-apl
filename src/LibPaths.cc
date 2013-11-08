@@ -25,6 +25,7 @@
 
 #include "Error.hh"
 #include "LibPaths.hh"
+#include "PrintOperator.hh"
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
@@ -215,6 +216,14 @@ UTF8_string
 LibPaths::get_lib_filename(LibRef lib, const UCS_string & name, 
                            bool existing, const char * extension)
 {
+   if (name[0] == UNI_ASCII_SLASH)   // absolute path
+      {
+         // absolute paths are fallbacks and never modified
+         // but taken as they are
+         //
+         return UTF8_string(name);
+      }
+
 UCS_string ret = get_lib_dir(lib);
    ret.app("/");
    ret.append(name);
