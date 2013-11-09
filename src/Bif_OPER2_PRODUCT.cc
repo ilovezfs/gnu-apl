@@ -63,8 +63,16 @@ OUTER_PROD arg;
 
    arg.value_A = new Value(LOC);   // helper value for non-pointer cA
    arg.value_A->set_eoc();
+   arg.A = A;
+   arg.unlock_A = !A->is_eoc();
+   arg.A->set_eoc();
+
    arg.RO = RO;
+
    arg.B = B;
+   arg.unlock_B = !B->is_eoc();
+   arg.B->set_eoc();
+
    arg.value_B = new Value(LOC);   // helper value for non-pointer cB
    arg.value_B->set_eoc();
    arg.cA = &A->get_ravel(0);
@@ -152,6 +160,12 @@ next_a_b:
    arg.value_B->erase(LOC);
 
    arg.Z->set_default(arg.B);
+
+   if (arg.unlock_A)   arg.A->clear_eoc();
+   if (arg.unlock_B)   arg.B->clear_eoc();
+   arg.A->erase(LOC);
+   if (arg.B != arg.A)   arg.B->erase(LOC);
+
    return CHECK(arg.Z, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -193,10 +207,10 @@ Function * RO = _RO.get_function();
    Assert1(RO);
 
 INNER_PROD arg;
+   arg.A = A;
    arg.LO = LO;
    arg.RO = RO;
    arg.B = B;
-
 
 Shape shape_A1(A->get_shape());
 ShapeItem len_A = 1;
@@ -228,6 +242,11 @@ ShapeItem len_B = 1;
         const Shape shape_Z = shape_A1 + shape_B1;
         return fill(shape_Z, A, RO, B, LOC);
       }
+
+   arg.unlock_A = !A->is_eoc();
+   arg.A->set_eoc();
+   arg.unlock_B = !B->is_eoc();
+   arg.B->set_eoc();
 
    arg.Z = new Value(shape_A1 + shape_B1, LOC);
    arg.cZ = &arg.Z->get_ravel(0);
@@ -310,8 +329,9 @@ loop_b:
            }
 
         arg.how = 1;
-        Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_inner_product);
-        Workspace::the_workspace->SI_top()->get_eoc_arg()._INNER_PROD() = arg;
+        StateIndicator & si = *Workspace::the_workspace->SI_top();
+        si.set_eoc_handler(eoc_inner_product);
+        si.get_eoc_arg()._INNER_PROD() = arg;
 
         return T1;   // continue in user defined function...
       }
@@ -374,8 +394,9 @@ loop_v:
                  }
 
               arg.how = 2;
-              Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_inner_product);
-              Workspace::the_workspace->SI_top()->get_eoc_arg()._INNER_PROD() = arg;
+              StateIndicator & si = *Workspace::the_workspace->SI_top();
+              si.set_eoc_handler(eoc_inner_product);
+              si.get_eoc_arg()._INNER_PROD() = arg;
 
               return T2;   // continue in user defined function...
             }
@@ -416,6 +437,12 @@ next_a_b:
    delete arg.args_B;
 
    arg.Z->set_default(arg.B);
+
+   if (arg.unlock_A)   arg.A->clear_eoc();
+   if (arg.unlock_B)   arg.B->clear_eoc();
+   arg.A->erase(LOC);
+   if (arg.A != arg.B)   arg.B->erase(LOC);
+
    return CHECK(arg.Z, LOC);
 }
 //-----------------------------------------------------------------------------
