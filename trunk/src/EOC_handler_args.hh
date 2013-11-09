@@ -57,13 +57,16 @@ struct quad_INP
 struct OUTER_PROD
 {
   Value_P Z;         ///< final operator result
+  Value_P A;         ///< operator left arg
+  bool unlock_A;     ///< true if A->clear_eoc() needed
+  Function * RO;     ///< user defined function
+  Value_P B;         ///< operator right arg
+  bool unlock_B;     ///< true if B->clear_eoc() needed
   Cell * cZ;         ///< current result
   Value_P value_A;   ///< current left arg
   Value_P RO_A;      ///< current left arg for RO
   ShapeItem a;       ///< current A index
   ShapeItem len_A;   ///< number of cells in left arg
-  Function * RO;     ///< user defined function
-  Value_P B;   ///< operator right arg
   Value_P value_B;   ///< current right arg
   Value_P RO_B;      ///< current right arg for RO
   ShapeItem b;       ///< current B index
@@ -76,22 +79,25 @@ struct OUTER_PROD
 /// arguments of the EOC handler for A g.f B
 struct INNER_PROD
 {
-   Value_P Z;           ///< final operator result
-   Cell * cZ;           ///< current result
-   Value_P * args_A;    ///< left args of RO
-   ShapeItem a;         ///< current A1 index
-   ShapeItem items_A;   ///< number of cells in A1
-   Function * LO;       ///< left user defined function
-   Function * RO;       ///< right user defined function
-   Value_P B;           ///< operator right arg
-   Value_P * args_B;    ///< right args of RO
-   ShapeItem b;         ///< current B1 index
-   ShapeItem items_B;   ///< number of cells in B1
-   ShapeItem v1;        ///< current LO index
-   Value_P V1;          ///< vector being LO-reduced
-   Value_P LO_B;        ///< current right arg of LO
-   int how;             ///< how to continue in finish_inner_product()
-   bool last_ufun;      ///< true for the last user defined function call
+  Value_P Z;           ///< final operator result
+  Value_P A;           ///< operator left arg
+  bool unlock_A;       ///< true if A->clear_eoc() needed
+  Value_P B;           ///< operator right arg
+  bool unlock_B;       ///< true if B->clear_eoc() needed
+  Cell * cZ;           ///< current result
+  Value_P * args_A;    ///< left args of RO
+  ShapeItem a;         ///< current A1 index
+  ShapeItem items_A;   ///< number of cells in A1
+  Function * LO;       ///< left user defined function
+  Function * RO;       ///< right user defined function
+  Value_P * args_B;    ///< right args of RO
+  ShapeItem b;         ///< current B1 index
+  ShapeItem items_B;   ///< number of cells in B1
+  ShapeItem v1;        ///< current LO index
+  Value_P V1;          ///< vector being LO-reduced
+  Value_P LO_B;        ///< current right arg of LO
+  int how;             ///< how to continue in finish_inner_product()
+  bool last_ufun;      ///< true for the last user defined function call
 };
 
 /// arguments of the EOC handler for one f/B result cell

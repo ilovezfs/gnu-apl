@@ -167,7 +167,6 @@ Avec::check_av_table()
             }
       }
 
-// check_file("../APL_chars");
 // check_file("../keyboard");
 // check_file("../keyboard1");
 }
