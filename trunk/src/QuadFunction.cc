@@ -313,7 +313,7 @@ const APL_time end = start + 1000000 * B->get_ravel(0).get_real_value();
 Value_P Z = new Value(LOC);
    new (&Z->get_ravel(0)) FloatCell(0.000001*(now() - start));
 
-   return Token(TOK_APL_VALUE1, Z);
+   return CHECK(Z, LOC);
 }
 //=============================================================================
 Token
@@ -1020,7 +1020,7 @@ Quad_INP::eoc_INP(Token & token, _EOC_arg & _arg)
          err += Error::error_name((ErrorCode)(token.get_int_val()));
          err.app(" in ⎕INP ***");
          Value_P val = new Value(err, LOC);
-         token = Token(TOK_APL_VALUE1, val);
+         token = CHECK(val, LOC);
       }
 
    // _arg may be pop_SI()ed below so we need a copy of it
@@ -1067,7 +1067,11 @@ quad_INP arg = _arg._quad_INP();
                   loop(r, matrix->get_cols())   row += cm++->get_char_value();
                   arg.lines = new UCS_string_list(row, arg.lines);
                 }
+
+             matrix->erase(LOC);
            }
+
+        result->erase(LOC);
 
         arg.lines->string += last->string;              // append last line
 
@@ -1155,6 +1159,7 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
         UCS_string_list * node = arg.lines;
         arg.lines = arg.lines->prev;
         Value * ZZ = new Value(node->string, LOC);
+        CHECK_VAL(ZZ, LOC);
         new (--cZ)   PointerCell(ZZ);
         delete node;
       }

@@ -366,7 +366,7 @@ struct Svar_DB_memory
    offered_SVAR offered_vars[MAX_SVARS_OFFERED];
 
    /// processors registered in this database
-   Svar_partner_events active_processors[MAX_ACTIVE_PROCESSORS];
+   Svar_partner_events active_processors[MAX_ACTIVE_PROCS];
 
    /// a semaphore to coordinate printouts of different processes
    sem_t print_sema;

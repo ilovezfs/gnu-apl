@@ -243,6 +243,7 @@ const size_t data_chars = len - idx;
         Value_P new_val = new Value(shape, LOC);
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
+        CHECK_VAL(new_val, LOC);
 
          Token t = Quad_FX::fun.eval_B(new_val);
          t.get_apl_val()->erase(LOC);
@@ -257,8 +258,12 @@ const size_t data_chars = len - idx;
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
 
-        if (symbol == 0)   symbol = Workspace::the_workspace->lookup_symbol(name);
-        symbol->assign(new_val);
+        CHECK_VAL(new_val, LOC);
+
+        if (symbol == 0)
+           symbol = Workspace::the_workspace->lookup_symbol(name);
+
+        symbol->assign(new_val, LOC);
         new_val->erase(LOC);   // if assign fails
       }
    else if (mode == UNI_ASCII_N)   // numeric array
@@ -295,13 +300,15 @@ const size_t data_chars = len - idx;
                 new (&new_val->get_ravel(t)) FloatCell(tos[t].get_flt_val());
              else if (tag == TOK_COMPLEX)
                 new (&new_val->get_ravel(t)) ComplexCell(tos[t].get_cpx_real(),
-                                                         tos[t].get_cpx_imag());
+                                                        tos[t].get_cpx_imag());
              else Assert(0);   // since checked above
            }
 
+        CHECK_VAL(new_val, LOC);
+
         if (!symbol)   symbol = Workspace::the_workspace->lookup_symbol(name);
 
-        symbol->assign(new_val);
+        symbol->assign(new_val, LOC);
         new_val->erase(LOC);   // if assign(0 failed
       }
    else Assert(0);   // since checked above
@@ -364,6 +371,7 @@ const bool error = tf2_ravel(0, ucs, value);
    value->erase(LOC);
 
    // return '' for invalid values.
+   //
    if (error)   return CHECK(&Value::Str0, LOC);
 
    return CHECK(new Value(ucs, LOC), LOC);
@@ -376,9 +384,9 @@ Token_string tos;
 Parser parser(PM_EXECUTE, LOC);
 
    try          { parser.parse(ucs, tos); }
-   catch(...)   { return; }
+   catch(...)   { goto out; }
 
-   if (tos.size() < 2)   return;   // too short for an inverse 2⎕TF
+   if (tos.size() < 2)   goto out;   // too short for an inverse 2⎕TF
 
    // we expect either VAR←VALUE ... or ⎕FX fun-text. Try VAR←VALUE.
    //
@@ -399,23 +407,39 @@ Parser parser(PM_EXECUTE, LOC);
 
         // at this point, we expect SYM←VALUE.
         //
-        if (tos.size() != 3)                  return;
-        if (tos[2].get_Class() != TC_VALUE)   return;
+        if (tos.size() != 3)                  goto out;
+        if (tos[2].get_Class() != TC_VALUE)   goto out;
 
-         tos[0].get_sym_ptr()->assign(tos[2].get_apl_val());
+         tos[0].get_sym_ptr()->assign(tos[2].get_apl_val(), LOC);
          new_var_or_fun = tos[0].get_sym_ptr()->get_name();   // valid 2⎕TF
-         return;
+         goto out;
       }
 
    // Try ⎕FX fun-text
-   if (tos.size() != 2)   return;
-   if (tos[0].get_tag() != TOK_QUAD_FX)   return;
-   if (tos[1].get_Class() != TC_VALUE)    return;
+   //
+   if (tos.size() != 2)                   goto out;
+   if (tos[0].get_tag() != TOK_QUAD_FX)   goto out;
+   if (tos[1].get_Class() != TC_VALUE)    goto out;
 
-const Token tok = Quad_FX::fun.eval_B(tos[1].get_apl_val());
+   {
+     Value * function_text =  tos[1].get_apl_val();
+     const Token tok = Quad_FX::fun.eval_B(function_text);
 
    if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
-      new_var_or_fun = UCS_string(tok.get_apl_val());
+      {
+        Value * val = tok.get_apl_val();
+        new_var_or_fun = UCS_string(val);
+        val->erase(LOC);
+      }
+   }
+
+   // release values allocated by tos
+   //
+out:
+   loop(t, tos.size())
+     {
+       if (tos[t].is_apl_val())   tos[t].get_apl_val()->erase(LOC);
+     }
 }
 //-----------------------------------------------------------------------------
 void

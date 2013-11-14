@@ -457,7 +457,7 @@ Svar_DB_memory::register_processor(const Svar_partner & p)
 {
    // if processor is already (i.e. still) registered, update it.
    //
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          Svar_partner_events & slot = active_processors[a];
 
@@ -474,7 +474,7 @@ Svar_DB_memory::register_processor(const Svar_partner & p)
 
    // new processor: find empty slot and insert
    //
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          Svar_partner_events & slot = active_processors[a];
          if (slot.partner.id.proc == AP_NULL)   // free slot
@@ -495,7 +495,7 @@ Svar_DB_memory::register_processor(const Svar_partner & p)
 Svar_partner_events
 Svar_DB_memory::get_registered(const AP_num3 & id) const
 {
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          const Svar_partner_events & slot = active_processors[a];
          if (slot.partner.id == id)   return slot;
@@ -509,7 +509,7 @@ Svar_partner_events svp;
 bool
 Svar_DB_memory::is_unused_id(AP_num id) const
 {
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          const Svar_partner_events & slot = active_processors[a];
          if (slot.partner.id.proc   == id)   return false;
@@ -539,7 +539,7 @@ Svar_DB_memory::get_unused_id() const
 uint16_t
 Svar_DB_memory::get_udp_port(AP_num proc, AP_num parent) const
 {
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          const Svar_partner_events & slot = active_processors[a];
          if (slot.partner.id.proc == proc &&
@@ -554,7 +554,7 @@ Svar_DB_memory::unregister_processor(const Svar_partner & p)
 {
    retract_all(p.id);
 
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          Svar_partner_events & slot = active_processors[a];
          if (slot.partner.id == p.id)   // found
@@ -568,7 +568,7 @@ Svar_DB_memory::unregister_processor(const Svar_partner & p)
 
    // send DISCONNECT to dependent processors
    //
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          const Svar_partner_events & slot = active_processors[a];
          if (slot.partner.id.parent == p.id.proc &&
@@ -590,7 +590,7 @@ Svar_DB_memory::remove_stale()
    // don't use CERR here since CERR may not yet have been initialized yet.
    //
 int stale_procs = 0;
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          Svar_partner_events & sp = active_processors[a];
          if (sp.partner.pid_alive())   continue;
@@ -798,7 +798,7 @@ Svar_DB::print(ostream & out)
    out << "┌───────────┬─────┬─────┬──┐" << endl
        << "│ Proc, par │ PID │ Port│Fl│" << endl
        << "╞═══════════╪═════╪═════╪══╡" << endl;
-   for (int p = 0; p < MAX_ACTIVE_PROCESSORS; ++p)
+   for (int p = 0; p < MAX_ACTIVE_PROCS; ++p)
        {
          const Svar_partner_events & sp =
                                     the_Svar_DB.DB_memory->active_processors[p];
@@ -961,7 +961,7 @@ const AP_num3 & caller_id = ProcessorID::get_id();
 
    // clear event bits of calling partner
    //
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          Svar_partner_events & slot = active_processors[a];
 
@@ -1029,7 +1029,7 @@ const AP_num3 & caller_id = ProcessorID::get_id();
 
    // no events remaining: clear global event bits.
    //
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          Svar_partner_events & slot = active_processors[a];
 
@@ -1040,7 +1040,7 @@ const AP_num3 & caller_id = ProcessorID::get_id();
 SV_key
 Svar_DB_memory::get_events(Svar_event & events, AP_num3 proc) const
 {
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          const Svar_partner_events & slot = active_processors[a];
 
@@ -1070,7 +1070,7 @@ Svar_DB_memory::add_event(Svar_event event, AP_num3 proc, SV_key key)
 {
    // set event bit for proc
    //
-   for (int a = 0; a < MAX_ACTIVE_PROCESSORS; ++a)
+   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
        {
          Svar_partner_events & slot = active_processors[a];
 

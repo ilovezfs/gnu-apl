@@ -1106,6 +1106,11 @@ const char ** tag_pos = tag_order;
          else    /* complain */               expect_tag("UNEXPECTED", LOC);
        }
 
+   // loaded workspace can contain stale variables, e.g. shared vars.
+   // remove them.
+   //
+   Value::erase_stale(LOC);
+
 const char * tz_sign = (tzone < 0) ? "" : "+";
    COUT << "SAVED " << year << "-" << month << "-" << day
         << "  " << hour << ":" << minute << ":" << second
@@ -1353,6 +1358,8 @@ Cell * end = C + count;
      const Unicode next = UTF8_string::toUni(cells, len);
      Assert(next == '"');
    }
+
+   CHECK_VAL(val, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -1375,12 +1382,15 @@ const unsigned int vid = find_int_attr("vid", false, 10);
    // inform the user, but continue.
    try
       {
-        symbol.assign(values[vid]);
+        symbol.assign(values[vid], LOC);
       }
    catch (...)
       {
-        CERR << "*** Could not assign value " << *values[vid]
-             << "    to variable " << symbol.get_name() << " ***" << endl;
+        if (symbol.get_name() != id_name(ID_QUAD_SYL))
+           {
+             CERR << "*** Could not assign value " << *values[vid]
+                  << "    to variable " << symbol.get_name() << " ***" << endl;
+           }
       }
   
    // if assign() was unsuccessful, e.g. because symbol.is_readonly() then

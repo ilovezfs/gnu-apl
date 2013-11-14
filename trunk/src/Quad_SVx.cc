@@ -213,11 +213,11 @@ Cell * cZ = &Z->get_ravel(0);
 Quad_SVE::Quad_SVE()
    : NL_SystemVariable(ID_QUAD_SVE)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_SVE::assign(Value_P value)
+Quad_SVE::assign(Value_P value, const char * loc)
 {
    // ⎕SVE←X merely remembers the timer expiration time. The timer is only
    // started if ⎕SVE is referenced (in Quad_SVE::get_apl_value())

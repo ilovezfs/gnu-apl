@@ -28,6 +28,7 @@ using namespace std;
 #include "Command.hh"
 #include "Input.hh"
 #include "LibPaths.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "Quad_TF.hh"
 #include "UserFunction.hh"
@@ -53,7 +54,19 @@ Workspace::~Workspace()
 void
 Workspace::push_SI(const Executable * fun, const char * loc)
 {
-   Assert(fun);
+   Assert1(fun);
+
+
+   if (Quad_SYL::si_depth_limit && top_SI &&
+       Quad_SYL::si_depth_limit <= top_SI->get_level())
+      {
+        Workspace::the_workspace->more_error = UCS_string(
+        "the system limit on SI depth (as set in ⎕SYL) was reached\n"
+        "(and to avoid lock-up, the limit in ⎕SYL was automatically cleared).");
+
+        Quad_SYL::si_depth_limit = 0;
+        attention_raised = interrupt_raised = true;
+      }
 
    top_SI = new StateIndicator(fun, top_SI);
 
@@ -302,6 +315,10 @@ const Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
                   if (av_2 == UNI_ASCII_Q)   f2 (SVQ, 3)
                   if (av_2 == UNI_ASCII_R)   f1 (SVR, 3)
                   if (av_2 == UNI_ASCII_S)   f1 (SVS, 3)
+                }
+             if (av_1 == UNI_ASCII_Y)
+                {
+                  if (av_2 == UNI_ASCII_L)   var(SYL, 3)
                 }
              break;
 

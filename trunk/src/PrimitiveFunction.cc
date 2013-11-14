@@ -224,7 +224,7 @@ Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
 
         Z->get_ravel(0).init(cell_A);
         Z->get_ravel(1).init(B->get_ravel(0));
-        return CHECK(Z, LOC).get_apl_val();
+        return CHECK_VAL(Z, LOC);
       }
 
    if (axis >= B->get_rank())   INDEX_ERROR;
@@ -248,7 +248,7 @@ const Cell * cB = &B->get_ravel(0);
          Cell::copy(cZ, cB, slice_b);
        }
 
-   return CHECK(Z, LOC).get_apl_val();
+   return CHECK_VAL(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -276,7 +276,7 @@ const Cell * cA = &A->get_ravel(0);
              cZ++->init(cell_B);
        }
 
-   return CHECK(Z, LOC).get_apl_val();
+   return CHECK_VAL(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -2322,7 +2322,7 @@ Cell * cZ = &Z->get_ravel(0);
         else               new (cZ++) CharCell(uni);
       }
 
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P

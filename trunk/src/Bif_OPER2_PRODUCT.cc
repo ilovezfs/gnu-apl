@@ -102,6 +102,7 @@ loop_a:
    else
       {
         arg.value_A->get_ravel(0).init(*arg.cA++);
+        arg.value_A->set_complete();
         arg.RO_A = arg.value_A;
       }
 
@@ -116,6 +117,7 @@ loop_b:
    else
       {
         arg.value_B->get_ravel(0).init(*arg.cB++);
+        arg.value_B->set_complete();
         arg.RO_B = arg.value_B;
       }
 
@@ -264,6 +266,7 @@ ShapeItem len_B = 1;
               v->get_ravel(a).init(A->get_ravel(src));
             }
          v->set_default(A);
+         CHECK_VAL(v, LOC);
          v->set_shared();
          arg.args_A[i] = v;
        }
@@ -279,7 +282,10 @@ ShapeItem len_B = 1;
               const ShapeItem src = (B->is_skalar()) ? 0 : b*arg.items_B + i;
               v->get_ravel(b).init(B->get_ravel(src));
             }
+
          v->set_default(B);
+         CHECK_VAL(v, LOC);
+
          v->set_shared();
          arg.args_B[i] = v;
        }

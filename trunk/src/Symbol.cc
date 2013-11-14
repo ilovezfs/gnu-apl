@@ -107,15 +107,25 @@ Symbol::print_verbose(ostream & out) const
 }
 //-----------------------------------------------------------------------------
 void
-Symbol::assign(Value_P new_value)
+Symbol::assign(Value_P new_value, const char * loc)
 {
    Assert(value_stack.size());
+
+#if 0 // TODO: make this work
+   if (!new_value->is_complete())
+      {
+        CERR << "Incomplete value at " LOC << endl;
+        new_value->print_properties(CERR, 0);
+        Assert(0);
+      }
+#endif
+
 ValueStackItem & vs = value_stack.back();
 
    switch(vs.name_class)
       {
         case NC_UNUSED_USER_NAME:
-             new_value = new_value->clone_if_owned(LOC);
+             new_value = new_value->clone_if_owned(loc);
              vs.name_class = NC_VARIABLE;
              vs.sym_val.value = new_value;
              new_value->set_assigned();
@@ -124,14 +134,14 @@ ValueStackItem & vs = value_stack.back();
         case NC_VARIABLE:
              if (vs.sym_val.value == new_value)   return;   // X←X
 
-             new_value = new_value->clone_if_owned(LOC);
+             new_value = new_value->clone_if_owned(loc);
 
              // un-assign and erase old value
              //
              vs.sym_val.value->clear_assigned();
              if (vs.sym_val.value->is_arg())   Workspace::the_workspace
                                     ->replace_arg(vs.sym_val.value, new_value);
-             vs.sym_val.value->erase(LOC);
+             vs.sym_val.value->erase(loc);
 
              vs.sym_val.value = new_value;
              new_value->set_assigned();
@@ -179,9 +189,9 @@ ValueStackItem & vs = value_stack.back();
                    }
 
                // update shared var state (BEFORE sending request to peer)
-               svar->set_state(false, LOC);
+               svar->set_state(false, loc);
                {
-                 UdpClientSocket sock(LOC, svar->data_owner_port());
+                 UdpClientSocket sock(loc, svar->data_owner_port());
                  ASSIGN_VALUE_c request(sock, get_SV_key(), data);
 
                  uint8_t buffer[Signal_base::get_class_size()];
@@ -208,7 +218,7 @@ ValueStackItem & vs = value_stack.back();
                                 << endl;
                          }
 
-                      throw_apl_error(ec, LOC);
+                      throw_apl_error(ec, loc);
                     }
                }
              }
@@ -373,7 +383,7 @@ Symbol::push_value(Value_P value)
 
 ValueStackItem vs;
    value_stack.push_back(vs);
-   assign(value);
+   assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 int
@@ -703,7 +713,7 @@ Symbol::resolve(Token & tok, bool left_sym)
 }
 //-----------------------------------------------------------------------------
 Token
-Symbol::resolve_lv()
+Symbol::resolve_lv(const char * loc)
 {
    Log(LOG_SYMBOL_resolve)
       CERR << "resolve_lv() symbol " << get_name() << endl; 
@@ -717,11 +727,11 @@ Symbol::resolve_lv()
              << "' has changed type from variable to name class "
              << value_stack.back().name_class << endl
              << " while executing an assignment" << endl;
-        throw_apl_error(E_LEFT_SYNTAX_ERROR, LOC);
+        throw_apl_error(E_LEFT_SYNTAX_ERROR, loc);
       }
 
 Value_P val = value_stack.back().sym_val.value;
-   return Token(TOK_APL_VALUE1, val->get_cellrefs(LOC));
+   return Token(TOK_APL_VALUE1, val->get_cellrefs(loc));
 }
 //-----------------------------------------------------------------------------
 TokenClass
@@ -833,7 +843,7 @@ ValueStackItem & vs = value_stack.back();
         set_SV_key(key);
 
         // assign old value to shared variable
-        assign(old_value);
+        assign(old_value, LOC);
         old_value->clear_assigned();
         old_value->erase(LOC);
 
@@ -1056,13 +1066,13 @@ const Cell * cV = &values->get_ravel(0);
         Symbol * sym = symbols[sym_count - s - 1];
         if (cV->is_pointer_cell())
            {
-             sym->assign(cV->get_pointer_value());
+             sym->assign(cV->get_pointer_value(), LOC);
            }
         else
            {
              Value_P val = new Value(LOC);
              val->get_ravel(0).init(*cV);
-             sym->assign(val);
+             sym->assign(val, LOC);
            }
 
         cV += incr;   // skalar extend values

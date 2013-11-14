@@ -44,6 +44,7 @@ rw_sv_def(PS )
 rw_sv_def(PW )
 rw_sv_def(R  )
 rw_sv_def(RL )
+rw_sv_def(SYL)
 rw_sv_def(TZ )
 
 #undef rw_sv_def

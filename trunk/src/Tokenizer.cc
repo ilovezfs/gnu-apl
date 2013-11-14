@@ -27,6 +27,7 @@
 #include "Bif_OPER1_REDUCE.hh"
 #include "Bif_OPER1_SCAN.hh"
 #include "CharCell.hh"
+#include "Common.hh"
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"
@@ -137,7 +138,11 @@ Source<Unicode> src(input);
                         //
                         // the start of a number:     e.g. +.3
                         // or an operator:            e.g. +.*
+                        // or a syntax error:         e.g. Done.
                         //
+                        if (src.rest() == 1)   // syntax error
+                           throw_parse_error(E_SYNTAX_ERROR, LOC, loc);
+
                         const Unicode uni_1 = src[1];
                         const Token tok_1 = Avec::uni_to_token(uni_1, LOC);
                         if ((tok_1.get_tag() & TC_MASK) == TC_NUMERIC)

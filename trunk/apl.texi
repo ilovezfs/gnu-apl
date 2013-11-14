@@ -643,6 +643,82 @@ then it shows up at the end of ⎕ARG:
 
 @end verbatim
 
+@section ⎕SYL - System limits
+
+System variable ⎕SYL shows a number of system limits when referenced:
+
+@verbatim
+      ⎕SYL
+ SI depth limit          (0 = no limit)                    0 
+ number of values limit  (0 = no limit)                    0 
+ total ravel bytes limit (0 = no limit)                    0 
+ current SI depth                                          1 
+ current number of values                                 54 
+ current total ravel bytes                              9072 
+ max. rank for APL values                                  8 
+ max. rank for APL values                                  8 
+ min. ⎕PW                                                 30 
+ max. ⎕PW                                               1000 
+ min. ⎕PP                                                  1 
+ max. ⎕PP                                                 16 
+ max. input line length                                 2000 
+ max. symbol count                                     65536 
+ max. shared variable name length                         64 
+ max. length of filenames (paths)                       4096 
+ max. number of shared variables                          64 
+ max. number of APs                                       16 
+ max. operators per statement                             16 
+ largest integer                         9223372036854775807 
+ smallest integer                       ¯9223372036854775808 
+ largest numeric exponent                                308 
+@end verbatim
+
+Most system limits are read-only; attempting to assign ⎕SYL will result
+in a SYNTAX ERROR. Indexed assignment to ⎕SYL will result in an
+INDEX ERROR unless the limit is writable.
+
+The first three limits are writable; their purpose is to stop execution
+if:
+
+@enumerate
+@item The SI stack of the interpreter reaches a limit, or
+@item The number of APL values created reaches a limit, or
+@item The memory size of APL values created reaches a limit.
+@end enumerate
+
+Whenever a writable limit is reached, a corresponding LIMIT ERROR
+is reported and the limit is reset to 0 (meaning no limit) in order
+to prevent that the interpreter gets locked up.
+
+The main use of ⎕SYL is to troubleshoot infinite recursion in user-defined
+function that would otherwise cause the machine to start swapping or to
+become non-responding.
+
+Example (stop execution if function call stack exceeds 20):
+
+@verbatim
+      ⎕SYL[1;2]←20
+@end verbatim
+
+Note that small APL values (up to a configurable number of ravel elements)
+count as values (in the number of values limit), but not in the total ravel
+bytes limit (the ravel does not allocate memory in addition to the
+space already in the number of values limit). It is therefore typical to
+set the number of values limits and the total ravel bytes limits together.
+
+An attempt to set a too small limit, for example one that is  close to the
+current value, is rejected with a DOMAIN ERROR.
+
+The system limits are displayed in the following order:
+
+@enumerate
+@item writable system limits
+@item the current values of 1.
+@item configurable system limits (can be changed with ./configure)
+@item source code system limits (can be changed in the source code)
+@item hard system limits (defined by the underlying machine)
+@end enumerate
+
 @section Debug Commands
 
 Besides the classical commands like )LOAD or )SAVE there are a number of

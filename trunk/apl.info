@@ -572,7 +572,83 @@ interpreter.  The additional command line argument
 
  /bin/apl --script -- ../workspaces/script.apl SCRIPTARG
 
-2.2 Debug Commands
+2.2 ⎕SYL - System limits
+==========================
+
+System variable ⎕SYL shows a number of system limits when referenced:
+
+      ⎕SYL
+ SI depth limit          (0 = no limit)                    0
+ number of values limit  (0 = no limit)                    0
+ total ravel bytes limit (0 = no limit)                    0
+ current SI depth                                          1
+ current number of values                                 54
+ current total ravel bytes                              9072
+ max. rank for APL values                                  8
+ max. rank for APL values                                  8
+ min. ⎕PW                                                 30
+ max. ⎕PW                                               1000
+ min. ⎕PP                                                  1
+ max. ⎕PP                                                 16
+ max. input line length                                 2000
+ max. symbol count                                     65536
+ max. shared variable name length                         64
+ max. length of filenames (paths)                       4096
+ max. number of shared variables                          64
+ max. number of APs                                       16
+ max. operators per statement                             16
+ largest integer                         9223372036854775807
+ smallest integer                       ¯9223372036854775808
+ largest numeric exponent                                308
+
+   Most system limits are read-only; attempting to assign ⎕SYL will
+result in a SYNTAX ERROR. Indexed assignment to ⎕SYL will result in an
+INDEX ERROR unless the limit is writable.
+
+   The first three limits are writable; their purpose is to stop
+execution if:
+
+  1. The SI stack of the interpreter reaches a limit, or
+
+  2. The number of APL values created reaches a limit, or
+
+  3. The memory size of APL values created reaches a limit.
+
+   Whenever a writable limit is reached, a corresponding LIMIT ERROR is
+reported and the limit is reset to 0 (meaning no limit) in order to
+prevent that the interpreter gets locked up.
+
+   The main use of ⎕SYL is to troubleshoot infinite recursion in
+user-defined function that would otherwise cause the machine to start
+swapping or to become non-responding.
+
+   Example (stop execution if function call stack exceeds 20):
+
+      ⎕SYL[1;2]←20
+
+   Note that small APL values (up to a configurable number of ravel
+elements) count as values (in the number of values limit), but not in
+the total ravel bytes limit (the ravel does not allocate memory in
+addition to the space already in the number of values limit). It is
+therefore typical to set the number of values limits and the total
+ravel bytes limits together.
+
+   An attempt to set a too small limit, for example one that is  close
+to the current value, is rejected with a DOMAIN ERROR.
+
+   The system limits are displayed in the following order:
+
+  1. writable system limits
+
+  2. the current values of 1.
+
+  3. configurable system limits (can be changed with ./configure)
+
+  4. source code system limits (can be changed in the source code)
+
+  5. hard system limits (defined by the underlying machine)
+
+2.3 Debug Commands
 ==================
 
 Besides the classical commands like )LOAD or )SAVE there are a number of
@@ -585,7 +661,7 @@ output, uses different colors for stdout and stdout.
    Type )HELP or ]HELP in the interpreter for a list of all commands
 available.
 
-2.3 Colored Output
+2.4 Colored Output
 ==================
 
 The APL interpreter gets its input from the standard input (stdin),
@@ -610,7 +686,7 @@ UTF-8 (Unicode) encoded character I/O.
    The colors (actually the escape sequences used to switch to a color)
 can be changed via ./configure, see README-2-configure).
 
-2.4 Logging Facilities
+2.5 Logging Facilities
 ======================
 
 The APL interpreter has over 30 logging facilities. Each logging
@@ -623,7 +699,7 @@ logging - then it cannot be changed later on. Otherwise - we call that
 dynamic logging - there is a debug command ]LOG that allows to turn
 logging facilities to be turned ON or OFF.
 
-2.4.1 Static Logging
+2.5.1 Static Logging
 --------------------
 
 By default the logging facilities that shall be turned ON are defined
@@ -639,7 +715,7 @@ compile time and not at run-time.
    If you benchmark the APL interpreter, then ./configure Static
 Logging by NOT setting DYNAMIC_LOG_WANTED=yes.
 
-2.4.2 Dynamic Logging
+2.5.2 Dynamic Logging
 ---------------------
 
 Dynamic Logging is intended for trouble-shooters of GNU APL, but also
@@ -661,7 +737,7 @@ current state. The command
 
    toggles the state of logging facility N from OFF to ON and back.
 
-2.5 Complex Numbers
+2.6 Complex Numbers
 ===================
 
 Complex numbers are fully supported.
@@ -1938,11 +2014,11 @@ Tag Table:
 Node: Top232
 Node: Chapter 11162
 Node: Chapter 213143
-Node: Chapter 322565
-Node: Chapter 424166
-Node: Chapter 525479
-Node: Section 5.125982
-Node: Section 5.251111
+Node: Chapter 325765
+Node: Chapter 427366
+Node: Chapter 528679
+Node: Section 5.129182
+Node: Section 5.254311
 
 End Tag Table
 

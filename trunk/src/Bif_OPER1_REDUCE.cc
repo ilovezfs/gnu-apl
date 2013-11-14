@@ -221,7 +221,7 @@ new_beam:
         const Cell * cB = arg.beam.next_B();
 
         // we need a token with a free (erasable) value. If the value were
-        // nested, then we Would get a double delete (from the original owner
+        // nested, then we would get a double delete (from the original owner
         // and from our result). We can't therefore call cB->to_value() for
         // nested values.
         //
@@ -239,7 +239,7 @@ Value_P BB = token.get_apl_val();
         Cell * dst = arg.frame.next_Z();
 
         // if beam has only one element, as for the first column in scan,
-        // then BB->clear_arg() below is never reched and we have to do
+        // then BB->clear_eoc() below is never reached and we have to do
         // it here.
         //
         BB->clear_arg();

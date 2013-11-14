@@ -927,7 +927,7 @@ const ShapeItem ec = val->element_count();
       }
 
    Assert(sym);
-   sym->assign(val);
+   sym->assign(val, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -967,7 +967,7 @@ const ShapeItem ec = val->element_count();
    loop(e, ec)   new (&val->get_ravel(e)) CharCell(data[idx + e]);
 
    Assert(sym);
-   sym->assign(val);
+   sym->assign(val, LOC);
 }
 //-----------------------------------------------------------------------------
 void
