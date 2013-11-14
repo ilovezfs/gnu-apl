@@ -63,6 +63,9 @@ public:
    /// constructor
    Prefix(StateIndicator & _si, const Token_string & _body);
 
+   /// destructor
+   void cleanup();
+
    /// max. number of lookahead token
    enum { MAX_CONTENT   = 3*MAX_REDUCTION_LEN,
           MAX_CONTENT_1 = MAX_CONTENT - 1 };
@@ -71,9 +74,7 @@ public:
    void print(ostream & out, int indent) const;
 
    /// throw an E_LEFT_SYNTAX_ERROR or an E_SYNTAX_ERROR
-   void syntax_error(const char * loc) const
-      { throw_apl_error(assign_pending
-                        ?  E_LEFT_SYNTAX_ERROR : E_SYNTAX_ERROR, loc); }
+   void syntax_error(const char * loc);
 
    /// prevent or allow erase() of values on vstacks
    void lock_values(bool lock);
@@ -83,9 +84,6 @@ public:
 
    /// print all owners of \b value
    int show_owners(const char * prefix, ostream & out, Value_P value) const;
-
-   /// ??? erase all elements on the stacl
-   void cleanup(const char * loc);
 
    /// highest PC in current statement
    Function_PC get_range_high() const;
@@ -186,7 +184,7 @@ public:
 
    /// reset statement to empty state (e.g. after →N)
    void reset(const char * loc)
-      { put = 0;   assign_pending = false;
+      { cleanup();   put = 0;   assign_pending = false;
         lookahead_high = Function_PC_invalid;
         saved_lookahead.tok = Token(TOK_VOID); }
 

@@ -42,7 +42,7 @@ public:
    virtual ostream & print(ostream & out) const;
 
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::assign_indexed().
    virtual void assign_indexed(Value_P X, Value_P value);
@@ -95,7 +95,7 @@ public:
 
 protected:
    /// overloaded Symbol::assign()
-   virtual void assign(Value_P value) {}
+   virtual void assign(Value_P value, const char * loc) {}
 
    /// overloaded Symbol::assign_indexed()
    virtual void assign_indexed(Value_P X, Value_P value) {}
@@ -188,7 +188,7 @@ protected:
    APL_Float current_ct;
 
    /// overloaded Symbol::assign()
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -255,7 +255,7 @@ public:
    /// Constructor.
    Quad_FC();
 
-   /// Return the current index origin.
+   /// return the current format control (used by Workspace::get_FC())
    const APL_Char * current() const
       { return current_fc; }
 
@@ -267,13 +267,16 @@ protected:
    APL_Char current_fc[6];
 
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::assign_indexed().
    virtual void assign_indexed(Value_P X, Value_P value);
 
    /// overloaded Symbol::assign_indexed().
    virtual void assign_indexed(const IndexExpr & IX, Value_P value);
+
+   /// overloaded Symbol::get_apl_value().
+   virtual Value_P get_apl_value() const;
 };
 //-----------------------------------------------------------------------------
 /**
@@ -295,7 +298,7 @@ protected:
    APL_Integer current_io;
 
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::expunge().
    virtual int expunge();
@@ -315,7 +318,7 @@ public:
 
 protected:
    /// overloaded Symbol::assign()
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::get_apl_value().
    virtual Value_P get_apl_value() const;
@@ -346,7 +349,7 @@ public:
 
 protected:
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::assign_indexed()
    virtual void assign_indexed(Value_P X, Value_P value) {}
@@ -361,10 +364,10 @@ class Quad_NLT : public NL_SystemVariable
 public:
    /// Constructor.
    Quad_NLT() : NL_SystemVariable(ID_QUAD_NLT)
-      { Symbol::assign(get_apl_value()); }
+      { Symbol::assign(get_apl_value(), LOC); }
 
    /// overloaded Symbol::assign()
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::assign_indexed()
    virtual void assign_indexed(Value_P X, Value_P value) {}
@@ -393,7 +396,7 @@ protected:
    APL_Float current_pt;
 
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -414,7 +417,7 @@ protected:
    UCS_string current_pr;
 
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -436,7 +439,7 @@ protected:
    PrintStyle current_ps;
 
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -470,7 +473,7 @@ protected:
    APL_Integer current_pw;
 
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -486,7 +489,7 @@ public:
    virtual void resolve(Token & token, bool left);
 
 protected:
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    // should never be called due to overloaded resolve()
    virtual Value_P get_apl_value() const { Assert(0); }
@@ -506,7 +509,7 @@ public:
 
 protected:
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::get_apl_value().
    virtual Value_P get_apl_value() const;
@@ -529,10 +532,51 @@ public:
 
 protected:
    /// overloaded Symbol::assign()
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::get_apl_value().
    virtual Value_P get_apl_value() const;
+};
+//-----------------------------------------------------------------------------
+/**
+   System variable Quad-SYL (System Limits).
+ */
+class Quad_SYL : public NL_SystemVariable
+{
+public:
+   /// Constructor.
+   Quad_SYL() : NL_SystemVariable(ID_QUAD_SYL)
+      { assign(0, LOC); }
+
+   /// overloaded Symbol::assign()
+   virtual void assign(Value_P value, const char * loc);
+
+   /// overloaded Symbol::assign_indexed()
+   virtual void assign_indexed(Value_P X, Value_P value);
+
+   /// overloaded Symbol::assign_indexed()
+   virtual void assign_indexed(const IndexExpr & IDX, Value_P value);
+
+   virtual Value_P get_apl_value() const;
+
+   /// maximum depth of SI stack
+   static ShapeItem si_depth_limit;
+
+   /// maximum number of values
+   static ShapeItem value_count_limit;
+
+   /// maximum number of ravel bytes
+   static ShapeItem ravel_count_limit;
+
+protected:
+   enum SYL_INDEX
+      {
+#define syl2(n, e, v) syl1(n, e, v)
+#define syl1(_n, e, _v) SYL_ ## e,
+#include "SystemLimits.def"
+
+        SYL_MAX
+      };
 };
 //-----------------------------------------------------------------------------
 /**
@@ -576,7 +620,7 @@ public:
 
 protected:
    /// overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// the offset from GMT of the current timezone (in seconds)
    int offset_seconds;

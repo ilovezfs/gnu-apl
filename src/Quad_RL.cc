@@ -31,12 +31,14 @@ Quad_RL::Quad_RL()
 Value_P value = new Value(LOC);
 
    new (&value->get_ravel(0)) IntCell(1);
+   CHECK(value, LOC);
+
    srandom(1);
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_RL::assign(Value_P value)
+Quad_RL::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar_or_len1_vector())
       {
@@ -48,7 +50,7 @@ const Cell & cell = value->get_ravel(0);
 const APL_Integer val = cell.get_int_value();
 
    srandom(val);
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 APL_Integer

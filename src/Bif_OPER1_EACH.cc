@@ -264,6 +264,7 @@ loop_z:
           LO_B->set_arg();
 
           LO_B->get_ravel(0).init(*arg.cB++);
+          LO_B->set_complete();
           cup_B = true;   // clean-up B
           arg.sub = false;
         }

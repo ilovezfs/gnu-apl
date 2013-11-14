@@ -44,14 +44,20 @@
 #include "Value.hh"
 #include "Workspace.hh"
 
+#include "../config.h"
+
 UCS_string Quad_QUOTE::prompt;
+
+ShapeItem Quad_SYL::si_depth_limit = 0;
+ShapeItem Quad_SYL::value_count_limit = 0;
+ShapeItem Quad_SYL::ravel_count_limit = 0;
 
 int Quad_ARG::argc = 0;
 const char ** Quad_ARG::argv = 0;
 
 //=============================================================================
 void
-SystemVariable::assign(Value_P value)
+SystemVariable::assign(Value_P value, const char * loc)
 {
    CERR << "SystemVariable::assign() not (yet) implemented for "
         << get_Id() << endl;
@@ -119,7 +125,7 @@ SystemVariable::get_attributes(int mode, Cell * dest) const
 Quad_AV::Quad_AV()
    : RO_SystemVariable(ID_QUAD_AV)
 {
-   Symbol::assign(&Value::AV);
+   Symbol::assign(&Value::AV, LOC);
 }
 //-----------------------------------------------------------------------------
 Unicode
@@ -134,7 +140,7 @@ Quad_AI::Quad_AI()
      session_start(now()),
      user_wait(0)
 {
-   Symbol::assign(get_apl_value());
+   Symbol::assign(get_apl_value(), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -149,7 +155,7 @@ Value_P ret = new Value(4, LOC);
    new (&ret->get_ravel(2))   IntCell(total_ms);
    new (&ret->get_ravel(3))   IntCell(user_ms);
 
-   return ret;
+   return CHECK_VAL(ret, LOC);
 }
 //=============================================================================
 Quad_ARG::Quad_ARG()
@@ -173,7 +179,7 @@ Cell * C = &Z->get_ravel(0);
         new (C++)   PointerCell(val);
       }
 
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Quad_CT::Quad_CT()
@@ -182,12 +188,13 @@ Quad_CT::Quad_CT()
 {
 Value_P value = new Value(LOC);
    new (&value->get_ravel(0)) FloatCell(current_ct);
+   CHECK(value, LOC);
 
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_CT::assign(Value_P value)
+Quad_CT::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar_or_len1_vector())
       {
@@ -211,7 +218,7 @@ APL_Float val = cell.get_real_value();
         value = &Value::Max_CT;
       }
 
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
    current_ct = value->get_ravel(0).get_real_value();
 }
 //=============================================================================
@@ -257,7 +264,7 @@ Value_P Z = new Value(sh, LOC);
          CharCell((l < len_3) ? msg_3[l] : UNI_ASCII_SPACE);
       }
 
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Value_P
@@ -267,7 +274,8 @@ Value_P Z = new Value(2, LOC);
 
    new (&Z->get_ravel(0)) IntCell(Error::error_major(error.error_code));
    new (&Z->get_ravel(1)) IntCell(Error::error_minor(error.error_code));
-   return Z;
+
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Quad_FC::Quad_FC() : SystemVariable(ID_QUAD_FC)
@@ -277,8 +285,9 @@ Quad_FC::Quad_FC() : SystemVariable(ID_QUAD_FC)
 Value_P value = new Value(6, LOC);
 
    loop(c, 6)   new (&value->get_ravel(c))  CharCell(current_fc[c]);
+   CHECK(value, LOC);
 
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -293,11 +302,11 @@ Quad_FC::set_default()
 }
 //-----------------------------------------------------------------------------
 void
-Quad_FC::assign(Value_P value)
+Quad_FC::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar_or_vector())   RANK_ERROR;
 
-uint32_t value_len = value->element_count();
+ShapeItem value_len = value->element_count();
    if (value_len > 6)   value_len = 6;
 
    loop(c, value_len)
@@ -316,16 +325,12 @@ uint32_t value_len = value->element_count();
    //
    if (Bif_F12_FORMAT::is_control_char(current_fc[4]))
       current_fc[4] = UNI_ASCII_SPACE;
-
-Value_P v1 = new Value(6, LOC);
-
-   loop(c, 6)   new (&v1->get_ravel(c))   CharCell(current_fc[c]);
-   Symbol::assign(v1);
 }
 //-----------------------------------------------------------------------------
 void
 Quad_FC::assign_indexed(const IndexExpr & IX, Value_P value)
 {
+Q(LOC)
    if (IX.value_count() != 1)   INDEX_ERROR;
 
    // at this point we have a one dimensional index. It it were non-empty,
@@ -333,7 +338,7 @@ Quad_FC::assign_indexed(const IndexExpr & IX, Value_P value)
    // IX must be an elided index (like in ⎕FC[] ← value)
    //
    Assert1(IX.values[0] == 0);
-   assign(value);   // ⎕FC[]←value
+   assign(value, LOC);   // ⎕FC[]←value
 }
 //-----------------------------------------------------------------------------
 void
@@ -362,11 +367,13 @@ const APL_Integer qio = Workspace::get_IO();
    //
    if (Bif_F12_FORMAT::is_control_char(current_fc[4]))
       current_fc[4] = UNI_ASCII_SPACE;
-
+}
+//-----------------------------------------------------------------------------
+Value_P Quad_FC::get_apl_value() const
+{
 Value_P v1 = new Value(6, LOC);
-
    loop(c, 6)   new (&v1->get_ravel(c))   CharCell(current_fc[c]);
-   Symbol::assign(v1);
+   return CHECK_VAL(v1, LOC);
 }
 //=============================================================================
 Quad_IO::Quad_IO()
@@ -376,11 +383,12 @@ Quad_IO::Quad_IO()
 Value_P value = new Value(LOC);
 
    new (&value->get_ravel(0)) IntCell(current_io);
-   Symbol::assign(value);
+   CHECK(value, LOC);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_IO::assign(Value_P value)
+Quad_IO::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar_or_len1_vector())
       {
@@ -390,7 +398,7 @@ Quad_IO::assign(Value_P value)
 
 const Cell & cell = value->get_ravel(0);
    current_io = value->get_ravel(0).get_near_bool(0.1);
-   Symbol::assign(current_io ? &Value::One : &Value::Zero);
+   Symbol::assign(current_io ? &Value::One : &Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 int
@@ -404,11 +412,11 @@ Quad_IO::expunge()
 Quad_L::Quad_L()
  : NL_SystemVariable(ID_QUAD_L)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_L::assign(Value_P value)
+Quad_L::assign(Value_P value, const char * loc)
 {
 StateIndicator * si = Workspace::the_workspace->SI_top_fun();
    if (si == 0)   return;
@@ -436,7 +444,7 @@ const StateIndicator * si = Workspace::the_workspace->SI_top_error();
 Quad_LC::Quad_LC()
    : RO_SystemVariable(ID_QUAD_LC)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -446,7 +454,8 @@ Quad_LC::get_apl_value() const
    // count how many function elements Quad-LC has...
    //
 int len = 0;
-   for (StateIndicator * si = Workspace::the_workspace->SI_top(); si; si = si->get_parent())
+   for (StateIndicator * si = Workspace::the_workspace->SI_top();
+        si; si = si->get_parent())
        {
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   ++len;
        }
@@ -454,32 +463,34 @@ int len = 0;
 Value_P Z = new Value(len, LOC);
 Cell * cZ = &Z->get_ravel(0);
 
-   for (StateIndicator * si = Workspace::the_workspace->SI_top(); si; si = si->get_parent())
+   for (StateIndicator * si = Workspace::the_workspace->SI_top();
+        si; si = si->get_parent())
        {
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)
             new (cZ++)   IntCell(si->get_line());
        }
 
-   return Z;
+   Z->set_default(&Value::Zero);
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Quad_LX::Quad_LX()
    : NL_SystemVariable(ID_QUAD_LX)
 {
-   Symbol::assign(&Value::Str0);
+   Symbol::assign(&Value::Str0, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_LX::assign(Value_P value)
+Quad_LX::assign(Value_P value, const char * loc)
 {
    if (value->get_rank() > 1)      RANK_ERROR;
    if (!value->is_char_string())   DOMAIN_ERROR;
 
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //=============================================================================
 void
-Quad_NLT::assign(Value_P value)
+Quad_NLT::assign(Value_P value, const char * loc)
 {
    if (value->get_rank() > 1)      RANK_ERROR;
    if (!value->is_char_string())   DOMAIN_ERROR;
@@ -507,7 +518,7 @@ const char * locale = setlocale(LC_ALL, new_locale);
    if (locale == 0)   DOMAIN_ERROR;
 
    // setlocale() has not complained, so we can set the ⎕NLT;
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -523,7 +534,7 @@ UCS_string ulocale(locale);
 Value * Z = new Value(ulocale, LOC);
    Z->set_default(&Value::Spc);
 
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Quad_PP::Quad_PP()
@@ -533,11 +544,12 @@ Quad_PP::Quad_PP()
 Value_P value = new Value(LOC);
 
    new (&value->get_ravel(0)) IntCell(current_pp);
-   Symbol::assign(value);
+   CHECK(value, LOC);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_PP::assign(Value_P value)
+Quad_PP::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar_or_len1_vector())
       {
@@ -559,7 +571,7 @@ const APL_Integer val = cell.get_near_int(0.1);
         current_pp = val;
       }
 
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //=============================================================================
 Quad_PR::Quad_PR()
@@ -567,12 +579,13 @@ Quad_PR::Quad_PR()
      current_pr(UNI_ASCII_SPACE)
 {
 Value_P value = new Value(current_pr, LOC);
+   CHECK(value, LOC);
 
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_PR::assign(Value_P value)
+Quad_PR::assign(Value_P value, const char * loc)
 {
 UCS_string ucs = value->get_UCS_ravel();
 
@@ -580,18 +593,18 @@ UCS_string ucs = value->get_UCS_ravel();
 
    current_pr = ucs;
 
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //=============================================================================
 Quad_PS::Quad_PS()
    : SystemVariable(ID_QUAD_PS),
      current_ps(PR_APL)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_PS::assign(Value_P value)
+Quad_PS::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar_or_len1_vector())
       {
@@ -608,13 +621,13 @@ const APL_Integer val = cell.get_near_int(0.1);
    else                 DOMAIN_ERROR;
 
    new (&value->get_ravel(0))  IntCell(val);
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //=============================================================================
 Quad_PT::Quad_PT()
    : RO_SystemVariable(ID_QUAD_PT)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -623,7 +636,7 @@ Quad_PT::get_apl_value() const
 Value_P Z = new Value(LOC);
    new (&Z->get_ravel(0))   FloatCell(Workspace::get_CT());
 
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Quad_PW::Quad_PW()
@@ -633,11 +646,13 @@ Quad_PW::Quad_PW()
 Value_P value = new Value(LOC);
 
    new (&value->get_ravel(0)) IntCell(current_pw);
-   Symbol::assign(value);
+   CHECK(value, LOC);
+
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_PW::assign(Value_P value)
+Quad_PW::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar_or_len1_vector())
       {
@@ -655,7 +670,7 @@ const APL_Integer val = cell.get_near_int(0.1);
    if (val > MAX_QUAD_PW)   return;
 
    current_pw = val;
-   Symbol::assign(value);
+   Symbol::assign(value, LOC);
 }
 //=============================================================================
 Quad_QUAD::Quad_QUAD()
@@ -664,7 +679,7 @@ Quad_QUAD::Quad_QUAD()
 }
 //-----------------------------------------------------------------------------
 void
-Quad_QUAD::assign(Value_P value)
+Quad_QUAD::assign(Value_P value, const char * loc)
 {
    // write pending LF from  ⍞ (if any)
    Quad_QUOTE::done(true, LOC);
@@ -693,7 +708,8 @@ Quad_QUOTE::Quad_QUOTE()
    // we assign a dummy value so that ⍞ is not undefined.
    //
 Value_P dummy = new Value(UCS_string(LOC), LOC);
-   Symbol::assign(dummy);
+   dummy->set_complete();
+   Symbol::assign(dummy, LOC);
    dummy->clear_assigned();
    dummy->set_forever();
 }
@@ -713,7 +729,7 @@ Quad_QUOTE::done(bool with_LF, const char * loc)
 }
 //-----------------------------------------------------------------------------
 void
-Quad_QUOTE::assign(Value_P value)
+Quad_QUOTE::assign(Value_P value, const char * loc)
 {
    Log(LOG_cork)
       CERR << "Quad_QUOTE::assign() called, buffer = ["
@@ -765,17 +781,17 @@ const UCS_string qpr = Workspace::get_PR();
            }
       }
 
-   return new Value(in, LOC);
+   return CHECK_VAL(new Value(in, LOC), LOC);
 }
 //=============================================================================
 Quad_R::Quad_R()
  : NL_SystemVariable(ID_QUAD_R)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_R::assign(Value_P value)
+Quad_R::assign(Value_P value, const char * loc)
 {
 StateIndicator * si = Workspace::the_workspace->SI_top_fun();
    if (si == 0)   return;
@@ -800,10 +816,110 @@ const StateIndicator * si = Workspace::the_workspace->SI_top_error();
    VALUE_ERROR;
 }
 //=============================================================================
+void
+Quad_SYL::assign(Value_P value, const char * loc)
+{
+   // Quad_SYL is mostly read-only, so we only allow assign_indexed() with
+   // certain values.
+   //
+   if (value != 0)   SYNTAX_ERROR;
+
+   // this assign is called from the constructor in order to trigger the
+   // creation of a symbol for Quad_SYL.
+   //
+   Symbol::assign(&Value::Zero, LOC);
+}
+//-----------------------------------------------------------------------------
+void
+Quad_SYL::assign_indexed(const IndexExpr & IDX, Value_P value)
+{
+   //  must be an array index of the form [2; something]
+   //
+   if (IDX.values.size() != 2)   INDEX_ERROR;
+
+   // IDX is in reverse order: ⎕SYL[X1;X2]
+Value * X2 = IDX.values[0];
+
+const APL_Float qct = Workspace::get_CT();
+const APL_Integer qio = Workspace::get_IO();
+
+   if (X2 == 0)                                         INDEX_ERROR;
+   if (X2->element_count() != 1)                        INDEX_ERROR;
+   if (!X2->get_ravel(0).is_near_int(qct))              INDEX_ERROR;
+   if (X2->get_ravel(0).get_near_int(qct) != qio + 1)   INDEX_ERROR;
+
+Value * X1 = IDX.values[1];
+   ((IndexExpr &)IDX).values[1] = 0;
+   delete &IDX;
+   X1->clear_index();
+
+   assign_indexed(X1, value);
+}
+//-----------------------------------------------------------------------------
+void
+Quad_SYL::assign_indexed(Value_P X, Value_P B)
+{
+const APL_Float qct = Workspace::get_CT();
+
+   if (!(X->is_int_skalar(qct) || X->is_int_vector(qct)))   INDEX_ERROR;
+   if (!(B->is_int_skalar(qct) || B->is_int_vector(qct)))   DOMAIN_ERROR;
+   if (X->element_count() != B->element_count())            LENGTH_ERROR;
+
+const ShapeItem ec = X->element_count();
+const APL_Integer qio = Workspace::get_IO();
+
+   loop(e, ec)
+      {
+        const APL_Integer x = X->get_ravel(e).get_near_int(qct) - qio;
+        const APL_Integer b = B->get_ravel(e).get_near_int(qct);
+
+        if (x == SYL_SI_DEPTH_LIMIT)   // SI depth limit
+           {
+             const int depth = Workspace::the_workspace->SI_entry_count();
+             if (b < (depth + 4))   DOMAIN_ERROR;    // limit too low
+             si_depth_limit = b;
+           }
+        else if (x == SYL_VALUE_COUNT_LIMIT)   // value count limit
+           {
+             if (b < (Value::value_count + 10))   DOMAIN_ERROR;    // too low
+             value_count_limit = b;
+           }
+        else if (x == SYL_RAVEL_BYTES_LIMIT)   // ravel bytes depth limit
+           {
+             const int cells = b / sizeof(Cell);
+             if (cells < (Value::total_ravel_count + 1000))   DOMAIN_ERROR;
+
+             ravel_count_limit = cells;
+           }
+        else
+           {
+             INDEX_ERROR;
+           }
+      }
+
+   X->erase(LOC);
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_SYL::get_apl_value() const
+{
+const Shape sh(SYL_MAX, 2);
+Value * Z = new Value(sh, LOC);
+Cell * cZ = &Z->get_ravel(0);
+
+#define syl2(n, e, v) syl1(n, e, v)
+#define syl1(n, _e, v) \
+  new (cZ++) PointerCell(new Value(UCS_string(UTF8_string(n)), LOC)); \
+  new (cZ++) IntCell(v);
+#include "SystemLimits.def"
+
+   return CHECK_VAL(Z, LOC);
+}
+//=============================================================================
 Quad_TC::Quad_TC()
    : RO_SystemVariable(ID_QUAD_TC)
 {
-   Symbol::assign(&Value::Quad_TC);
+   Symbol::assign(&Value::Quad_TC, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -815,7 +931,7 @@ Quad_TC::get_apl_value() const
 Quad_TS::Quad_TS()
    : RO_SystemVariable(ID_QUAD_TS)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -833,7 +949,7 @@ Value_P Z = new Value(7, LOC);
    new (&Z->get_ravel(5)) IntCell(time.second);
    new (&Z->get_ravel(6)) IntCell(time.micro / 1000);
 
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Quad_TZ::Quad_TZ()
@@ -863,12 +979,13 @@ Value_P tz = new Value(LOC);
       new (&tz->get_ravel(0))   IntCell(offset_seconds/3600);
    else
       new (&tz->get_ravel(0))   FloatCell(offset_seconds/3600.0);
+   CHECK(tz, LOC);
 
-   Symbol::assign(tz);
+   Symbol::assign(tz, LOC);
 }
 //-----------------------------------------------------------------------------
 void
-Quad_TZ::assign(Value_P value)
+Quad_TZ::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar())   RANK_ERROR;
 
@@ -881,7 +998,7 @@ Cell & cell = value->get_ravel(0);
         if (ival < -12)   return;
         if (ival > 12)    return;
         offset_seconds = ival*3600;
-        Symbol::assign(value);
+        Symbol::assign(value, LOC);
         return;
       }
 
@@ -891,7 +1008,7 @@ Cell & cell = value->get_ravel(0);
         if (fval < -12)   return;
         if (fval > 12)    return;
         offset_seconds = int(0.5 + fval*3600);
-        Symbol::assign(value);
+        Symbol::assign(value, LOC);
         return;
       }
 
@@ -901,7 +1018,7 @@ Cell & cell = value->get_ravel(0);
 Quad_UL::Quad_UL()
    : RO_SystemVariable(ID_QUAD_UL)
 {
-   Symbol::assign(get_apl_value());
+   Symbol::assign(get_apl_value(), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -927,13 +1044,13 @@ int user_count = 0;
 
 Value_P Z = new Value(LOC);
    new (&Z->get_ravel(0))   IntCell(user_count);
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================
 Quad_WA::Quad_WA()
    : RO_SystemVariable(ID_QUAD_WA)
 {
-   Symbol::assign(&Value::Zero);
+   Symbol::assign(&Value::Zero, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -976,7 +1093,8 @@ uint64_t proc_mem = 0;            // memory as reported proc/mem_info
            }
         else                          // process has rlimit
            {
-             total -= used_memory;
+             total -= Value::total_ravel_count * sizeof(Cell)
+                    + Value::value_count * sizeof(Value);
            }
       }
    else
@@ -987,13 +1105,14 @@ uint64_t proc_mem = 0;            // memory as reported proc/mem_info
            }
         else                          // process has rlimit
            {
-             total -= used_memory;
+             total -= Value::total_ravel_count * sizeof(Cell)
+                    + Value::value_count * sizeof(Value);
              if (total > proc_mem)   total = proc_mem;   // use minimum
            }
       }
 
    new (&Z->get_ravel(0))   IntCell(total);
 
-   return Z;
+   return CHECK_VAL(Z, LOC);
 }
 //=============================================================================

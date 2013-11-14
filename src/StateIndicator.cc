@@ -47,7 +47,10 @@ StateIndicator::StateIndicator(const Executable * exec, StateIndicator * _par)
 //-----------------------------------------------------------------------------
 StateIndicator::~StateIndicator()
 {
-   current_stack.cleanup(LOC);
+   // flush the FIFO. Do that before delete executable so that values
+   // copied directly from the body of the executable are not killed.
+   //
+   current_stack.cleanup();
 
    // some args could come from the body, so we erase them BEFORE the body.
    //
@@ -638,6 +641,23 @@ bool success = false;
 
    return success;
 }
+
+/// a macro for the common part of all StateIndicator::eval_XXX() calls
+/// catch exceptions and check for errors,
+#define FINISH_EVAL \
+   catch (Error e)                                           \
+      {                                                      \
+        Value::finish_incomplete(__LINE__);                  \
+        if (safe_execution)   Value::erase_stale(LOC);       \
+        return Token(TOK_ERROR, e.error_code);               \
+      }                                                      \
+   catch (...)                                               \
+      {                                                      \
+        FIXME;                                               \
+      }                                                      \
+                                                             \
+   return Token(TOK_ERROR, error.error_code);
+
 //-----------------------------------------------------------------------------
 Token
 StateIndicator::eval_(Token & fun)
@@ -654,9 +674,8 @@ StateIndicator::eval_(Token & fun)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -674,9 +693,8 @@ StateIndicator::eval_B(Token & fun, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -694,9 +712,8 @@ StateIndicator::eval_AB(Token & A, Token & fun, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -714,9 +731,8 @@ StateIndicator::eval_XB(Token & fun, Token & X, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -735,9 +751,8 @@ StateIndicator::eval_AXB(Token & A, Token & fun, Token & X, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -754,9 +769,8 @@ StateIndicator::eval_LB(Token & LO, Token & oper, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -773,9 +787,8 @@ StateIndicator::eval_ALB(Token & A, Token & LO, Token & oper, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -792,9 +805,8 @@ StateIndicator::eval_LXB(Token & LO, Token & oper, Token & X, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -811,9 +823,8 @@ StateIndicator::eval_LRB(Token & LO, Token & oper, Token & RO, Token & B)
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -832,9 +843,8 @@ StateIndicator::eval_ALXB(Token & A, Token & LO, Token & oper,
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -853,9 +863,8 @@ StateIndicator::eval_ALRB(Token & A, Token & LO, Token & oper,
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -874,9 +883,8 @@ StateIndicator::eval_LRXB(Token & LO, Token & oper,
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Token
@@ -896,9 +904,8 @@ StateIndicator::eval_ALRXB(Token & A, Token & LO, Token & oper,
              return result;
            }
       }
-   catch (...)   { if (safe_execution)   Value::erase_stale(LOC); }
 
-   return Token(TOK_ERROR, error.error_code);
+   FINISH_EVAL
 }
 //-----------------------------------------------------------------------------
 Function_Line

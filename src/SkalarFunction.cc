@@ -67,7 +67,7 @@ const ShapeItem count = B->element_count();
    loop(c, count)
        {
          const Cell * cell_B =  &B->get_ravel(c);
-         Cell * cell_Z =  &Z->get_ravel(c);
+         Cell * cell_Z = &Z->get_ravel(c);
          if (cell_B->is_pointer_cell())
             {
               Token token = eval_skalar_B(cell_B->get_pointer_value(), fun);

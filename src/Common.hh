@@ -116,18 +116,17 @@ inline bool is_pad(Unicode uni)
 
 #define Q(x) CERR << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
 
-/// A macro controlling the consistency checking of values.
+/// macros controlling the consistency checking of values.
 #ifdef VALUE_CHECK_WANTED
-# define CHECK(x, l) (x)->check_value(l)
+# define CHECK_VAL(x, l) ((x)->check_value(l))
 #else
-# define CHECK(x, l) Token(TOK_APL_VALUE1, (x))
+# define CHECK_VAL(x, l) ((x)->set_complete_flag())
 #endif
+
+#define CHECK(x, l) Token(TOK_APL_VALUE1, CHECK_VAL(x, l))
 
 /// The total memory that we have.
 extern uint64_t total_memory;
-
-/// The memory that we use.
-extern uint64_t used_memory;
 
 //-----------------------------------------------------------------------------
 

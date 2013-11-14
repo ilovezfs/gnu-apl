@@ -98,7 +98,7 @@ public:
    virtual void resolve(Token & token, bool left);
 
    /// resolve a variable name for an assignment
-   Token resolve_lv();
+   Token resolve_lv(const char * loc);
 
    /// return the token class of \b this \b Symbol WITHOUT calling resolve()
    TokenClass resolve_class(bool left);
@@ -131,7 +131,7 @@ public:
    virtual bool is_readonly() const   { return false; }
 
    /// Assign \b value to \b this \b Symbol.
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 
    /// Indexed (multi-dimensional) assign \b value to \b this \b Symbol.
    virtual void assign_indexed(const IndexExpr & index, Value_P value);

@@ -88,13 +88,35 @@ TestFiles::get_testcase_line()
 
              // check for stale values and indices
              //
-             if (0 && current_testreport.is_open())
+             if (current_testreport.is_open())
                 {
+                  if (Value::print_incomplete(current_testreport))
+                     {
+                       current_testreport
+                          << " (automatic check for incomplete values failed)"
+                          << endl;
+                       apl_error(LOC);
+                     }
+
                   if (Value::print_stale(current_testreport))
-                     apl_error(LOC);
+                     {
+                       current_testreport
+                          << " (automatic check for stale values failed,"
+                             " offending Value erased)." << endl;
+#if 0   // TODO: make this work
+                       apl_error(LOC);
+#endif
+                       Value::erase_stale(LOC);
+                     }
 
                   if (IndexExpr::print_stale(current_testreport))
-                     apl_error(LOC);
+                     {
+                       current_testreport
+                          << " (automatic check for stale indices failed,"
+                             " offending IndexExpr erased)." << endl;
+                       apl_error(LOC);
+                       IndexExpr::erase_stale(LOC);
+                     }
                 }
              
              fclose(current_testfile);

@@ -37,7 +37,7 @@ public:
 
 protected:
    /// Overloaded Symbol::assign().
-   virtual void assign(Value_P value);
+   virtual void assign(Value_P value, const char * loc);
 };
 //-----------------------------------------------------------------------------
 #endif //  __QUAD_RL_HH_DEFINED__

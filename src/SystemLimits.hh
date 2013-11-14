@@ -22,36 +22,21 @@
 #define __SYSTEM_LIMITS_HH_DEFINED__
 
 ///  System limits and default values defined for this interpreter.
+
 enum
 {
-   LOG_MAX_SYMBOL_COUNT   =   16,   ///< 64k symbols
-   MAX_FRACT_DIGITS       =   20,   ///< in format etc.
-   MIN_QUAD_PW            =   30,   ///< as per IBM manual
-   DEFAULT_QUAD_PW        =   80,   ///< dito.
-   MAX_QUAD_PW            = 1000,   ///< system specific
+#define syl1(_n, e, v) e = v,
+#define syl2(_n, e, v)
+#include "SystemLimits.def"
 
-   /// the default ⎕PP value
-   DEFAULT_QUAD_PP        =  10,
-
-   /// the max. ⎕PP value. Values > 16 cause rounding errors in the display
-   /// of floating point numbers.
-   MAX_QUAD_PP            =  16,
-
-   /// the min. ⎕PP value
-   MIN_QUAD_PP            =   1,
-
-   MAX_SVAR_NAMELEN       =  64,   ///< dito 
-   MAX_SVARS_OFFERED      =  64,   ///< dito 
-   MAX_ACTIVE_PROCESSORS  =  16,   ///< dito 
-
-   MAX_SYMBOL_COUNT       = 1 << LOG_MAX_SYMBOL_COUNT,   ///< dito
-
-   MAX_FUN_OPER           = 16,   ///< max. adjacent operators (as in +////X)
+   DEFAULT_QUAD_PP = 10,
+   DEFAULT_QUAD_PW = 80,
 };
 
 #define MAX_QUAD_CT     (1.0e-9)
 #define DEFAULT_QUAD_CT (1.0e-13)
-#define DEFAULT_QUAD_PT (1.0e-10)
 
 #define BIG_INT64_F 9223372036854775807.0
+#define BIG_FLOAT   1.79769313486231470e308
+
 #endif // __SYSTEM_LIMITS_HH_DEFINED__

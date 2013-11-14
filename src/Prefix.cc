@@ -43,6 +43,56 @@ Prefix::Prefix(StateIndicator & _si, const Token_string & _body)
 {
 }
 //-----------------------------------------------------------------------------
+void
+Prefix::cleanup()
+{
+
+   //
+   // there is still an unresolved issue with double deletion of values
+   // by this function and Prefix.cc:948 below (line->erase(LOC); in
+   // function reduce_END_GOTO_B_(). Until resolved we do not erase here!
+   //
+   return;
+
+   if (size() == 0)   return;
+
+CERR << "Warning: discarding non-empty stack["
+     << si.get_level() << "]" << " with " << size() << " items " << endl;
+
+   while (size())
+      {
+        Token_loc tl = pop();
+        if (tl.tok.get_Class() == TC_VALUE)
+           {
+             Value * val = tl.tok.get_apl_val();
+             if (val == 0)   continue;
+
+CERR << "    Value is " << (void *)val << " " << *val;
+// val->print_properties(CERR,  0);
+               val->erase(LOC);
+           }
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::syntax_error(const char * loc)
+{
+   // clear values in FIFO
+   //
+   loop (s, size())
+      {
+        Token & tok = at(s).tok;
+        if (tok.get_Class() == TC_VALUE)
+           {
+             Value * val = tok.get_apl_val();
+             if (val)   val->erase(LOC);
+          }
+      }
+
+   throw_apl_error(assign_pending
+                        ?  E_LEFT_SYNTAX_ERROR : E_SYNTAX_ERROR, loc);
+}
+//-----------------------------------------------------------------------------
 bool
 Prefix::is_value_bracket() const
 {
@@ -123,22 +173,6 @@ int count = 0;
       }
 
    return count;
-}
-//-----------------------------------------------------------------------------
-void
-Prefix::cleanup(const char * loc)
-{
-// Backtrace::show(__FILE__, __LINE__);
-   while (size())
-      {
-        Token_loc tl = pop();
-        if (tl.tok.get_Class() == TC_VALUE)
-           {
-// Q(tl.tok.get_apl_val())
-// Q(*tl.tok.get_apl_val())
-//             tl.tok.get_apl_val()->erase(LOC);
-           }
-      }
 }
 //-----------------------------------------------------------------------------
 Function_PC
@@ -633,6 +667,7 @@ void
 Prefix::reduce_A_C__()
 {
 Value_P value = at0().get_apl_val()->index(at1());
+   at0().get_apl_val()->erase(LOC);
 Token result = Token(TOK_APL_VALUE1, value);
    pop_args_push_result(result);
 
@@ -668,7 +703,7 @@ Prefix::reduce_F_V__()
    // turn V into a (left-) value
    //
 Symbol * V = at1().get_sym_ptr();
-   at1() = V->resolve_lv();
+   at1() = V->resolve_lv(LOC);
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -698,7 +733,7 @@ Prefix::reduce_V_ASS_B_()
 {
 Value_P value = at2().get_apl_val();
 Symbol * V = at0().get_sym_ptr();
-   V->assign(value);
+   V->assign(value, LOC);
 
 Token result = Token(TOK_APL_VALUE2, value);
    pop_args_push_result(result);
@@ -815,7 +850,7 @@ const int count = vector_ass_count();
         // selective specification. Convert variable V into a (left-) value
         //
         Symbol * V = at0().get_sym_ptr();
-        at0() = V->resolve_lv();
+        at0() = V->resolve_lv(LOC);
         action = RA_CONTINUE;
         return;
       }
@@ -829,13 +864,13 @@ Value_P B = at3().get_apl_val();
            B = B->get_ravel(0).get_pointer_value();
 
         Symbol * V = at0().get_sym_ptr();
-        V->assign(B);
+        V->assign(B, LOC);
         loop(c, count)
            {
              Token_loc tl = lookahead();
              Assert1(tl.tok.get_tag() == TOK_LSYMB2);   // by vector_ass_count()
              V = tl.tok.get_sym_ptr();
-             V->assign(B);
+             V->assign(B, LOC);
            }
       }
    else
@@ -849,7 +884,7 @@ Value_P B = at3().get_apl_val();
           Symbol * V = at0().get_sym_ptr();
           Cell & cell = B->get_ravel(count);
           Value_P B_last = new Value(cell, LOC);
-          V->assign(B_last);
+          V->assign(B_last, LOC);
         }
 
         // assign other elements of B to other variables...
@@ -861,7 +896,7 @@ Value_P B = at3().get_apl_val();
              Symbol * V = tl.tok.get_sym_ptr();
              Cell & cell = B->get_ravel(count - c - 1);
              Value_P B_cell = new Value(cell, LOC);
-             V->assign(B_cell);
+             V->assign(B_cell, LOC);
            }
       }
 
@@ -931,6 +966,8 @@ Prefix::reduce_END_GOTO_B_()
 
    if (size() != 3)   syntax_error(LOC);
 
+   // at0() is either TOK_END or TOK_ENDL.
+   //
 const bool end_of_line = at0().get_tag() == TOK_ENDL;
 Value_P line = at2().get_apl_val();
 

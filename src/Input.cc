@@ -60,7 +60,7 @@ no_readline(const UCS_string * prompt)
            }
       }
 
-static char buffer[2000];   // returned as result
+static char buffer[MAX_INPUT_LEN];   // returned as result
 const char * s = fgets(buffer, sizeof(buffer) - 1, stdin);
    if (s == 0)   return 0;
 
@@ -188,7 +188,7 @@ UTF8_string utf(buf1, len);
 UTF8 *
 Input::get_f_line(FILE * file)
 {
-static char buffer[2000];
+static char buffer[MAX_INPUT_LEN];
 
 const char * s = fgets(buffer, sizeof(buffer) - 1, file);
    if (s == 0)   // end of file

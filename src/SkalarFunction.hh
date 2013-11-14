@@ -565,11 +565,11 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Max); }
+      { return eval_skalar_identity_fun(B, axis, &Value::Min); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
-      { return eval_skalar_AXB(A, X, B, &Cell::bif_minimum); }
+      { return eval_skalar_AXB(A, X, B, &Cell::bif_maximum); }
 };
 //-----------------------------------------------------------------------------
 /** Skalar functions maximum and round down.
@@ -593,11 +593,11 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Min); }
+      { return eval_skalar_identity_fun(B, axis, &Value::Max); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
-      { return eval_skalar_AXB(A, X, B, &Cell::bif_maximum); }
+      { return eval_skalar_AXB(A, X, B, &Cell::bif_minimum); }
 };
 //-----------------------------------------------------------------------------
 /** Skalar functions residue and magnitude.

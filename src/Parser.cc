@@ -22,6 +22,7 @@
 
 #include "CharCell.hh"
 #include "ComplexCell.hh"
+#include "Common.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"
 #include "Output.hh"
@@ -436,33 +437,33 @@ Value_P skalar = 0;
             case TOK_CHARACTER:
                  skalar = new Value(LOC);
 
-                 new (&skalar->get_ravel(0))
-                     CharCell(output.get_char_val());
+                 new (&skalar->get_ravel(0))   CharCell(output.get_char_val());
+                 CHECK_VAL(skalar, LOC);
                  output = Token(TOK_APL_VALUE, skalar);
                  return;
 
             case TOK_INTEGER:
                  skalar = new Value(create_loc);
 
-                 new (&skalar->get_ravel(0))
-                     IntCell(output.get_int_val());
+                 new (&skalar->get_ravel(0))   IntCell(output.get_int_val());
+                 CHECK_VAL(skalar, LOC);
                  output = Token(TOK_APL_VALUE, skalar);
                  return;
 
             case TOK_REAL:
                  skalar = new Value(LOC);
 
-                 new (&skalar->get_ravel(0))
-                     FloatCell(output.get_flt_val());
+                 new (&skalar->get_ravel(0))   FloatCell(output.get_flt_val());
+                 CHECK_VAL(skalar, LOC);
                  output = Token(TOK_APL_VALUE, skalar);
                  return;
 
             case TOK_COMPLEX:
                  skalar = new Value(LOC);
 
-                 new (&skalar->get_ravel(0))
-                     ComplexCell(output.get_cpx_real(),
-                                 output.get_cpx_imag());
+                 new (&skalar->get_ravel(0))  ComplexCell(output.get_cpx_real(),
+                                                         output.get_cpx_imag());
+                 CHECK_VAL(skalar, LOC);
                  output = Token(TOK_APL_VALUE, skalar);
                  return;
 
@@ -516,6 +517,7 @@ Value_P vector = new Value(count, LOC);
             }
        }
 
+   CHECK_VAL(vector, LOC);
    tos[pos] = Token(TOK_APL_VALUE, vector);
 
    Log(LOG_create_value)

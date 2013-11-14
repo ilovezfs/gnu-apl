@@ -27,9 +27,11 @@
 #include "IndexIterator.hh"
 #include "IntCell.hh"
 #include "LvalCell.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
+#include "SystemVariable.hh"
 #include "UCS_string.hh"
 #include "Value.hh"
 #include "Workspace.hh"
@@ -37,14 +39,75 @@
 #define stv_def(x) Value Value:: x(LOC, Value::Value_how_ ## x);
 #include "StaticValues.def"
 
+ShapeItem Value::value_count = 0;
+ShapeItem Value::total_ravel_count = 0;
+
+//-----------------------------------------------------------------------------
+void
+Value::init_ravel()
+{
+   ++value_count;
+   if (Quad_SYL::value_count_limit &&
+       Quad_SYL::value_count_limit < value_count)
+      {
+        --value_count;
+
+        // make sure that the value is properly initialized
+        //
+        ravel = short_value;
+        new (&shape) Shape();
+        new (ravel)   IntCell(42);
+
+        Workspace::the_workspace->more_error = UCS_string(
+        "the system limit on the APL value count (as set in ⎕SYL) was reached\n"
+        "(and to avoid lock-up, the limit in ⎕SYL was automatically cleared).");
+
+        // reset the limit so that we don't get stuck here.
+        //
+        Quad_SYL::value_count_limit = 0;
+        attention_raised = interrupt_raised = true;
+      }
+
+const ShapeItem length = shape.element_count();
+
+   if (length > SHORT_VALUE_LENGTH_WANTED)
+      {
+        total_ravel_count += length;
+        if (Quad_SYL::ravel_count_limit &&
+            Quad_SYL::ravel_count_limit < total_ravel_count)
+           {
+             total_ravel_count -= length;
+
+             // make sure that the value is properly initialized
+             //
+             ravel = short_value;
+             new (&shape) Shape();
+             new (ravel)   IntCell(42);
+
+             Workspace::the_workspace->more_error = UCS_string(
+             "the system limit on the total ravel size (as set in ⎕SYL) "
+             "was reached\n(and to avoid lock-up, the limit in ⎕SYL "
+             "was automatically cleared).");
+
+             // reset the limit so that we don't get stuck here.
+             //
+             Quad_SYL::ravel_count_limit = 0;
+             attention_raised = interrupt_raised = true;
+           }
+
+        ravel = new Cell[length];
+      }
+   else
+      {
+        ravel = short_value;
+      }
+}
 //-----------------------------------------------------------------------------
 Value::Value(const char * loc)
    : DynamicObject(loc, &all_values),
      flags(VF_NONE)
 {
    init_ravel();
-
-   used_memory += sizeof(*this);
 }
 //-----------------------------------------------------------------------------
 Value::Value(const char * loc, Value_how how)
@@ -56,23 +119,27 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_Zero ... Value_how_Nine:
              init_ravel();
              new (&get_ravel(0)) IntCell(how);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Spc:
              init_ravel();
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Idx0:
              init_ravel();
              new (&shape) Shape(0);
              new (&get_ravel(0)) IntCell(0);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Str0:
              init_ravel();
              new (&shape) Shape(0);
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_zStr0:
@@ -81,29 +148,35 @@ Value::Value(const char * loc, Value_how how)
                Value * z = new Value(loc, Value_how_Str0);   // ''
                new (&get_ravel(0)) PointerCell(z);           // ⊂''
              }
+             CHECK_VAL(this, LOC);
+             return;
 
         case Value_how_Str0_0:
              init_ravel();
              new (&shape) Shape(ShapeItem(0), ShapeItem(0));
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Str3_0:
              init_ravel();
              new (&shape) Shape(ShapeItem(3), ShapeItem(0));
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Max:
              init_ravel();
              new (&shape) Shape(1);
-             new (&get_ravel(0)) FloatCell(72370055773322621e75);
+             new (&get_ravel(0)) FloatCell(BIG_FLOAT);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Min:
              init_ravel();
              new (&shape) Shape(1);
-             new (&get_ravel(0)) FloatCell(-72370055773322621e75);
+             new (&get_ravel(0)) FloatCell(-BIG_FLOAT);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_AV:
@@ -116,18 +189,21 @@ Value::Value(const char * loc, Value_how how)
 
                    new (&get_ravel(pos))  CharCell(uni);
                  }
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Max_CT:
              init_ravel();
              new (&shape) Shape(1);
              new (&get_ravel(0)) FloatCell(MAX_QUAD_CT);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Max_PP:
              init_ravel();
              new (&shape) Shape(1);
              new (&get_ravel(0)) IntCell(MAX_QUAD_PP);
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Quad_NLT:
@@ -138,6 +214,7 @@ Value::Value(const char * loc, Value_how how)
                 init_ravel();
                 loop(l, len)   new (&get_ravel(l)) CharCell(Unicode(cp[l]));
              }
+             CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Quad_TC:
@@ -146,6 +223,7 @@ Value::Value(const char * loc, Value_how how)
              new (&get_ravel(0)) CharCell(UNI_ASCII_BS);
              new (&get_ravel(1)) CharCell(UNI_ASCII_CR);
              new (&get_ravel(2)) CharCell(UNI_ASCII_LF);
+             CHECK_VAL(this, LOC);
              return;
       }
 
@@ -158,9 +236,7 @@ Value::Value(ShapeItem sh, const char * loc)
      shape(sh),
      flags(VF_NONE)
 {
-const ShapeItem length = init_ravel();
-
-   used_memory += sizeof(*this) + length * sizeof(Cell);
+   init_ravel();
 }
 //-----------------------------------------------------------------------------
 Value::Value(const UCS_string & ucs, const char * loc)
@@ -168,19 +244,18 @@ Value::Value(const UCS_string & ucs, const char * loc)
      shape(ucs.size()),
      flags(VF_NONE)
 {
-const ShapeItem length = init_ravel();
+   init_ravel();
 
-   if (length)
+   if (ucs.size())
       {
-        loop(l, length)   new (&get_ravel(l)) CharCell(ucs[l]);
-        used_memory += sizeof(*this) + length * sizeof(Cell);
+        loop(l, ucs.size())   new (&get_ravel(l)) CharCell(ucs[l]);
       }
    else   // empty string: set prototype
       {
         new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-        used_memory += sizeof(*this) + sizeof(Cell);
       }
 
+   CHECK_VAL(this, LOC);
 }
 //-----------------------------------------------------------------------------
 Value::Value(const CDR_string & ui8, const char * loc)
@@ -188,18 +263,18 @@ Value::Value(const CDR_string & ui8, const char * loc)
      shape(ui8.size()),
      flags(VF_NONE)
 {
-const ShapeItem length = init_ravel();
+   init_ravel();
 
-   if (length)
+   if (ui8.size())
       {
-        loop(l, length)   new (&get_ravel(l)) CharCell(Unicode(ui8[l]));
+        loop(l, ui8.size())   new (&get_ravel(l)) CharCell(Unicode(ui8[l]));
       }
    else   // empty string: set prototype
       {
         new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
       }
 
-   used_memory += sizeof(*this) + sizeof(Cell);
+   CHECK_VAL(this, LOC);
 }
 //-----------------------------------------------------------------------------
 Value::Value(const char * string, const char * loc)
@@ -207,11 +282,12 @@ Value::Value(const char * string, const char * loc)
      shape(strlen(string)),
      flags(VF_NONE)
 {
-const ShapeItem length = init_ravel();
+   init_ravel();
 
+const ShapeItem length = strlen(string);
    loop(e, length)  new (&get_ravel(e)) CharCell(Unicode(string[e]));
 
-   used_memory += sizeof(*this) + length * sizeof(Cell);
+   CHECK_VAL(this, LOC);
 }
 //-----------------------------------------------------------------------------
 Value::Value(const Shape & sh, const char * loc)
@@ -219,9 +295,7 @@ Value::Value(const Shape & sh, const char * loc)
      shape(sh),
      flags(VF_NONE)
 {
-const ShapeItem length = init_ravel();
-
-   used_memory += sizeof(*this) + length * sizeof(Cell);
+   init_ravel();
 }
 //-----------------------------------------------------------------------------
 Value::Value(const Cell & cell, const char * loc)
@@ -231,18 +305,22 @@ Value::Value(const Cell & cell, const char * loc)
    init_ravel();
 
    get_ravel(0).init(cell);
-   used_memory += sizeof(*this) + sizeof(Cell);
+   CHECK_VAL(this, LOC);
 }
 //-----------------------------------------------------------------------------
 Value::~Value()
 {
 const ShapeItem length = nz_element_count();
+   --value_count;
 
 Cell * cZ = &get_ravel(0);
    loop(c, length)   cZ++->release(LOC);
 
-   used_memory -= sizeof(*this) + length * sizeof(Cell);
-   if (ravel != short_value)  delete ravel;
+   if (ravel != short_value)
+      {
+        total_ravel_count -= length;
+        delete ravel;
+      }
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -259,7 +337,7 @@ const ShapeItem ec = nz_element_count();
         new (&ret->get_ravel(e))   LvalCell(&cell);
       }
 
-   return ret;
+   return CHECK_VAL(ret, loc);
 }
 //-----------------------------------------------------------------------------
 void
@@ -274,7 +352,7 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
 
    if (is_skalar())
       {
-        Assert(C->is_lval_cell());
+        if (!C->is_lval_cell())   LEFT_SYNTAX_ERROR;
         Cell * dest = C->get_lval_value();   // can be 0!
         if (dest && dest->is_pointer_cell())
            {
@@ -302,7 +380,7 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
 
    loop(d, dest_count)
       {
-        Assert(C->is_lval_cell());
+        if (!C->is_lval_cell())   LEFT_SYNTAX_ERROR;
 
         Cell * dest = C++->get_lval_value();   // can be 0!
         if (dest && dest->is_pointer_cell())
@@ -415,11 +493,23 @@ Value::erase(const char * loc) const
         return;
       }
 
+#if 0   // TODO: make this work
+   if (!is_complete())
+      {
+        static int count = 0;
+        if (count < 10)
+           {
+             CERR << "Incomplete value at " LOC << endl;
+             print_properties(CERR, 0);
+           }
+
+        ++count;
+      }
+#endif
+
    if (flags & VF_DONT_DELETE)   return;
 
    ((Value *)this)->unlink();
-
-   set_deleted();
 
    Log(LOG_delete)
       {
@@ -432,6 +522,30 @@ Value::erase(const char * loc) const
              << " alloc(" << where_allocated() 
              << ") caller(" << loc << ")" << endl;
       }
+
+   set_deleted();
+
+   ((Value *)this)->alloc_loc = loc;
+   delete this;
+}
+//-----------------------------------------------------------------------------
+void
+Value::rollback(ShapeItem items, const char * loc)
+{
+   ((Value *)this)->unlink();
+
+   loop(i, items)
+      {
+        Cell & cell = get_ravel(i);
+        if (cell.is_pointer_cell())
+           {
+             Value * sub = cell.get_pointer_value();
+             sub->clear_nested();
+             sub->erase(loc);
+           }
+      }
+
+   set_deleted();
 
    ((Value *)this)->alloc_loc = loc;
    delete this;
@@ -459,41 +573,95 @@ int count = 0;
    Log(LOG_Value__erase_stale)
       CERR << endl << endl << "erase_stale() called from " << loc << endl;
 
-   for (DynamicObject * vb = all_values.get_next();
-        vb != &all_values; vb = vb->get_next())
+   for (DynamicObject * obj = all_values.get_next();
+        obj != &all_values; obj = obj->get_next())
        {
-         if (vb == vb->get_next())   // a loop
+         if (obj == obj->get_next())   // a loop
             {
-              CERR << "A loop in DynamicObject::all_values (detected at "
-                   << (const void *)vb << "): " << endl;
+              CERR << "A loop in DynamicObject::all_values (detected in "
+                      "function erase_stale() at object "
+                   << (const void *)obj << "): " << endl;
               all_values.print_chain(CERR);
               CERR << endl;
 
-              CERR << " DynamicObject: " << vb << endl;
-              CERR << " Value:         " << (Value *)vb << endl;
-              CERR << *(Value *)vb << endl;
+              CERR << " DynamicObject: " << obj << endl;
+              CERR << " Value:         " << (Value *)obj << endl;
+              CERR << *(Value *)obj << endl;
             }
 
-         Assert(vb != vb->get_next());
-         Value * v = (Value *)vb;
+         Assert(obj != obj->get_next());
+         Value * v = (Value *)obj;
          if (v->flags & VF_DONT_DELETE)   continue;
 
          Log(LOG_Value__erase_stale)
             {
-              CERR << "Erasing stale Value " << (const void *)vb << ":" << endl
+              CERR << "Erasing stale Value " << (const void *)obj << ":" << endl
                    << "  Allocated by " << v->where_allocated() << endl
                    << "  ";
               v->list_one(CERR, false);
             }
 
-         vb->unlink();
+         obj->unlink();
          v->erase(loc);
          ++count;
 
          // v->erase(loc) could mess up the chain, so we start over
          // rather than continuing
          //
-         vb = &all_values;
+         obj = &all_values;
+       }
+
+   return count;
+}
+//-----------------------------------------------------------------------------
+int
+Value::finish_incomplete(int line)
+{
+int count = 0;
+
+   Log(LOG_Value__erase_stale)
+      CERR << endl
+           << endl
+           << "finish_incomplete() called from StateIndicator::" << line
+           << endl;
+
+   for (DynamicObject * obj = all_values.get_next();
+        obj != &all_values; obj = obj->get_next())
+       {
+         if (obj == obj->get_next())   // a loop
+            {
+              CERR << "A loop in DynamicObject::all_values (detected in "
+                      "function Value::finish_incomplete() at object "
+                   << (const void *)obj << "): " << endl;
+              all_values.print_chain(CERR);
+              CERR << endl;
+
+              CERR << " DynamicObject: " << obj << endl;
+              CERR << " Value:         " << (Value *)obj << endl;
+              CERR << *(Value *)obj << endl;
+            }
+
+         Assert(obj != obj->get_next());
+         Value * v = (Value *)obj;
+         if (v->flags & VF_complete)   continue;
+
+         Log(LOG_Value__erase_stale)
+            {
+              CERR << "Erasing incomplete Value " << (const void *)obj << ":"
+                   << endl
+                   << "  Allocated by " << v->where_allocated() << endl
+                   << "  ";
+              v->list_one(CERR, false);
+            }
+
+         obj->unlink();
+         v->erase(LOC);
+
+         // v->erase(loc) could mess up the chain, so we start over
+         // rather than continuing
+         //
+         obj = &all_values;
+         ++count;
        }
 
    return count;
@@ -515,6 +683,7 @@ Value::list_one(ostream & out, bool show_owners)
         if (is_arg())        { out << sep << "ARG";        sep = '+'; }
         if (is_eoc())        { out << sep << "EOC";        sep = '+'; }
         if (is_left())       { out << sep << "LEFT";       sep = '+'; }
+        if (is_complete())   { out << sep << "COMPLETE";   sep = '+'; }
         if (is_marked())     { out << sep << "MARKED";     sep = '+'; }
         out << ",";
       }
@@ -837,7 +1006,7 @@ const ShapeItem ec_z = Z->element_count();
    Assert(mult.done());
 
    Z->set_default(this);
-   CHECK(Z, LOC);
+   CHECK_VAL(Z, LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -850,7 +1019,7 @@ Value::index(Value_P X)
 
 const Shape shape_Z(X->get_shape());
 Value_P Z = new Value(shape_Z, LOC);
-const ShapeItem ec = shape_Z.nz_element_count();
+const ShapeItem ec = shape_Z.element_count();
 const ShapeItem max_idx = element_count();
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();
@@ -861,14 +1030,18 @@ const Cell * cI = &X->get_ravel(0);
    loop(z, ec)
       {
          const ShapeItem idx = cI++->get_near_int(qct) - qio;
-         if (idx < 0)          INDEX_ERROR;
-         if (idx >= max_idx)   INDEX_ERROR;
+         if (idx < 0 || idx >= max_idx)
+            {
+              Z->rollback(z, LOC);
+              INDEX_ERROR;
+            }
          cZ++->init(get_ravel(idx));
       }
 
    X->erase(LOC);
+   Z->set_default(this);
 
-   CHECK(Z, LOC);
+   CHECK_VAL(Z, LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -993,6 +1166,7 @@ Value_P Z = 0;
       }
 
    Z->set_default(A);
+   CHECK_VAL(Z, LOC);
 
    Log(LOG_glue)
       {
@@ -1017,7 +1191,7 @@ Value_P Z = 0;
    return Z;
 }
 //-----------------------------------------------------------------------------
-Token
+Value_P
 Value::check_value(const char * loc)
 {
 uint32_t error_count = 0;
@@ -1076,7 +1250,8 @@ const CellType ctype = get_ravel(0).get_cell_type();
         Assert(0 && "corrupt ravel");
       }
 
-   return Token(TOK_APL_VALUE1, this);
+   set_complete();
+   return this;
 }
 //-----------------------------------------------------------------------------
 int
@@ -1256,16 +1431,17 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
        << ind << "Rank:    " << get_rank()  << endl
        << ind << "Shape:   " << get_shape() << endl
        << ind << "Flags:   " << get_flags();
-   if (is_shared())    out << " VF_shared";
-   if (is_assigned())  out << " VF_assigned";
-   if (is_nested())    out << " VF_nested";
-   if (is_index())     out << " VF_index";
-   if (is_forever())   out << " VF_forever";
-   if (is_arg())       out << " VF_arg";
-   if (is_eoc())       out << " VF_eoc";
-   if (is_left())      out << " VF_left";
-   if (is_marked())    out << " VF_marked";
-   if (is_deleted())   out << " VF_deleted";
+   if (is_shared())     out << " VF_shared";
+   if (is_assigned())   out << " VF_assigned";
+   if (is_nested())     out << " VF_nested";
+   if (is_index())      out << " VF_index";
+   if (is_forever())    out << " VF_forever";
+   if (is_arg())        out << " VF_arg";
+   if (is_eoc())        out << " VF_eoc";
+   if (is_left())       out << " VF_left";
+   if (is_complete())   out << " VF_complete";
+   if (is_marked())     out << " VF_marked";
+   if (is_deleted())    out << " VF_deleted";
    out << endl
        << ind << "First:   " << get_ravel(0)  << endl
        << ind << "Dynamic: ";
@@ -1355,6 +1531,7 @@ Value::print_structure(ostream & out, int indent, ShapeItem idx) const
        << " ⍴" << get_shape()
        << " flags: " << get_flags() << "   "
        << ((is_marked())   ?  "M" : "-")
+       << ((is_complete()) ?  "C" : "-")
        << ((is_left())     ?  "&" : "-")
        << ((is_arg())      ?  "A" : "-")
        << ((is_eoc())      ?  "E" : "-")
@@ -1415,7 +1592,7 @@ Cell * dst = &ret->get_ravel(0);
 
    Cell::copy(dst, src, nz_element_count());
 
-   return ret;
+   return CHECK_VAL(ret, LOC);
 }
 //-----------------------------------------------------------------------------
 /// lrp p.138: S←⍴⍴A + NOTCHAR (per column)
@@ -1459,20 +1636,63 @@ const ShapeItem rows = ec/cols;
 }
 //-----------------------------------------------------------------------------
 int
+Value::print_incomplete(ostream & out)
+{
+vector<Value_P> incomplete;
+bool goon = true;
+
+   for (const DynamicObject * dob = all_values.get_prev();
+        goon && (dob != &all_values); dob = dob->get_prev())
+       {
+         Value * val = (Value *)dob;
+         goon = (dob != dob->get_prev());
+
+         if (val->is_complete())   continue;
+
+         out << "incomplete value at " << (const void *)val << endl;
+         incomplete.push_back(val);
+
+         if (!goon)
+            {
+              out << "Value::print_incomplete() : endless loop in "
+                     "Value::all_values; stopping display." << endl;
+            }
+       }
+
+   // then print more info...
+   //
+   loop(s, incomplete.size())
+      {
+        incomplete[s]->print_stale_info(out, (const DynamicObject *)incomplete[s]);
+       }
+
+   return incomplete.size();
+}
+//-----------------------------------------------------------------------------
+int
 Value::print_stale(ostream & out)
 {
 vector<Value_P> stale;
+bool goon = true;
 
    // first print addresses and remember stale values
    //
    for (const DynamicObject * dob = all_values.get_prev();
-        dob != &all_values; dob = dob->get_prev())
+        goon && (dob != &all_values); dob = dob->get_prev())
        {
          Value * val = (Value *)dob;
+         goon = (dob == dob->get_prev());
+
          if (val->flags & VF_DONT_DELETE)   continue;
 
          out << "stale value at " << (const void *)val << endl;
          stale.push_back(val);
+
+         if (!goon)
+            {
+              out << "Value::print_stale() : endless loop in "
+                     "Value::all_values; stopping display." << endl;
+            }
        }
 
    // then print more info...

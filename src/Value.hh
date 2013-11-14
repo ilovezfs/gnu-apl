@@ -272,7 +272,8 @@ public:
         VF_arg      = 0x040,   ///< value is an argument:    don't delete
         VF_eoc      = 0x080,   ///< value is an eoc arg:     don't delete
         VF_left     = 0x100,   ///< left value (←):          OK to delete
-        VF_marked   = 0x200,   ///< marked to detect stale:  OK to delete
+        VF_complete = 0x200,   ///< CHECK called:            OK to delete
+        VF_marked   = 0x400,   ///< marked to detect stale:  OK to delete
         VF_DONT_DELETE = VF_shared     // a constant in a user defined function
                        | VF_assigned   // assigned to a variable
                        | VF_forever    // static value
@@ -322,6 +323,7 @@ public:
 # define set_arg()      SET_arg(_LOC)
 # define set_eoc()      SET_eoc(_LOC)
 # define set_left()     SET_left(_LOC)
+# define set_complete() SET_complete(_LOC)
 # define set_marked()   SET_marked(_LOC)
 
 # define clear_shared()   CLEAR_shared(_LOC)
@@ -333,6 +335,7 @@ public:
 # define clear_arg()      CLEAR_arg(_LOC)
 # define clear_eoc()      CLEAR_eoc(_LOC)
 # define clear_left()     CLEAR_left(_LOC)
+# define clear_complete() CLEAR_complete(_LOC)
 # define clear_marked()   CLEAR_marked(_LOC)
 
    VF_flag(shared)
@@ -344,6 +347,7 @@ public:
    VF_flag(arg)
    VF_flag(eoc)
    VF_flag(left)
+   VF_flag(complete)
    VF_flag(marked)
 
    /// mark all values, except static values
@@ -357,6 +361,9 @@ public:
 
    /// maybe delete this value.
    void erase(const char * loc) const;
+
+   /// rollback initialization of this value
+   void rollback(ShapeItem items, const char * loc);
 
    /// the prototype of this value
    Value_P prototype(const char * loc) const;
@@ -377,7 +384,7 @@ public:
    ostream & list_one(ostream & out, bool show_owners);
 
    /// check \b this value and return a token for it
-   Token check_value(const char * loc);
+   Value_P check_value(const char * loc);
 
    /// return the total CDR size (header + data + padding) for \b this value.
    int total_size_brutto(int CDR_type) const
@@ -396,6 +403,9 @@ public:
 
    /// erase stale values
    static int erase_stale(const char * loc);
+
+   /// re-initialize incomplete values
+   static int finish_incomplete(int line);
 
    /// erase all values (clean-up after )CLEAR)
    static void erase_all(ostream & out);
@@ -420,21 +430,27 @@ public:
    /// print info related to a stale value
    void print_stale_info(ostream & out, const DynamicObject * dob);
 
+   /// set complete flag and return \b this
+   inline Value * set_complete_flag()   { set_complete(); return this; }
+
+   /// print incomplete Values, and return the number of incomplete Values.
+   static int print_incomplete(ostream & out);
+
    /// print stale Values, and return the number of stale Values.
    static int print_stale(ostream & out);
 
 #define stv_def(x) /** x **/ static Value x;
 #include "StaticValues.def"
 
+   /// total nz_element_counts of all non-short values
+   static ShapeItem total_ravel_count;
+
+   /// the number of values created
+   static ShapeItem value_count;
+
 protected:
    /// init the ravel of an APL value, return the ravel length
-   ShapeItem init_ravel()
-      {
-        const ShapeItem length = shape.element_count();
-        if (length > SHORT_VALUE_LENGTH_WANTED)   ravel = new Cell[length];
-        else                                      ravel = short_value;
-        return length;
-      }
+   inline void init_ravel();
 
    /// the shape of \b this value (only the first \b rank values are valid.
    Shape shape;

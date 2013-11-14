@@ -75,7 +75,7 @@ Svar_DB.cc				Svar_DB.hh		\
 udp_signal.m4	    Svar_signals.def	Svar_signals.hh		\
 Symbol.cc				Symbol.hh		\
 SymbolTable.cc				SymbolTable.hh		\
-					SystemLimits.hh		\
+		    SystemLimits.def	SystemLimits.hh		\
 SystemVariable.cc   SystemVariable.def	SystemVariable.hh	\
 TestFiles.cc				TestFiles.hh		\
 Token.cc	    Token.def		Token.hh		\

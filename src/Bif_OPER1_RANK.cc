@@ -97,6 +97,7 @@ loop_h:
      Value_P BB = new Value(arg.get_sh_B_low(), LOC);
      Assert1(arg.ec_B_low == arg.get_sh_B_low().element_count());
      loop(l, arg.ec_B_low)   BB->get_ravel(l).init(*arg.cB++);
+     CHECK_VAL(BB, LOC);
 
      Token result = arg.LO->eval_B(BB);   // erases BB
      BB->erase(LOC);
@@ -306,6 +307,9 @@ loop_h:
 
      if (arg.repeat_A)   arg.cA = &arg.A->get_ravel(0);
      if (arg.repeat_B)   arg.cB = &arg.B->get_ravel(0);
+
+     CHECK_VAL(AA, LOC);
+     CHECK_VAL(BB, LOC);
 
      Token result = arg.LO->eval_AB(AA, BB);   // erases AA and BB
      AA->erase(LOC);
