@@ -64,7 +64,9 @@ Error::error_name(ErrorCode err)
    switch(err)
       {
    /// the cases
-#define err_def(c, txt, _maj, _min) case E_ ## c:   return UCS_string(_(txt));
+#define err_def(c, txt, _maj, _min) \
+   case E_ ## c:   return UCS_string(UTF8_string(_(txt)));
+
 #include "Error.def"
       }
 
@@ -145,6 +147,8 @@ Error::print_em(ostream & out, const char * loc)
 void
 throw_apl_error(ErrorCode code, const char * loc) throw(Error)
 {
+   ADD_EVENT(0, (VH_event)(VHE_ERROR | code), loc);
+
 StateIndicator * si = Workspace::the_workspace->SI_top();
 
    Log(LOG_error_throw)

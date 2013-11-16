@@ -67,12 +67,12 @@ err_def(LEFT_SYNTAX_ERROR,      "SYNTAX ERROR"                   , 2,      4 )
 
 err_def(VALUE_ERROR,            "VALUE ERROR"                    , 3,      1 )
 
-err_def(QUAD_PP_ERROR,          "\xe2" "\x8e" "\x95" "PP ERROR"  , 4,      1 )
-err_def(QUAD_IO_ERROR,          "\xe2" "\x8e" "\x95" "IO ERROR"  , 4,      2 )
-err_def(QUAD_CT_ERROR,          "\xe2" "\x8e" "\x95" "CT ERROR"  , 4,      3 )
-err_def(QUAD_FC_ERROR,          "\xe2" "\x8e" "\x95" "FC ERROR"  , 4,      4 )
-err_def(QUAD_RL_ERROR,          "\xe2" "\x8e" "\x95" "RL ERROR"  , 4,      5 )
-err_def(QUAD_PR_ERROR,          "\xe2" "\x8e" "\x95" "PR ERROR"  , 4,      7 )
+err_def(QUAD_PP_ERROR,         "⎕PP ERROR"  , 4,      1 )
+err_def(QUAD_IO_ERROR,         "⎕IO ERROR"  , 4,      2 )
+err_def(QUAD_CT_ERROR,         "⎕CT ERROR"  , 4,      3 )
+err_def(QUAD_FC_ERROR,         "⎕FC ERROR"  , 4,      4 )
+err_def(QUAD_RL_ERROR,         "⎕RL ERROR"  , 4,      5 )
+err_def(QUAD_PR_ERROR,         "⎕PR ERROR"  , 4,      7 )
 
 err_def(VALENCE_ERROR,          "VALENCE ERROR"                  , 5,      1 )
 err_def(RANK_ERROR,             "RANK ERROR"                     , 5,      2 )

@@ -34,6 +34,7 @@
 #include "SystemVariable.hh"
 #include "UCS_string.hh"
 #include "Value.hh"
+#include "ValueHistory.hh"
 #include "Workspace.hh"
 
 #define stv_def(x) Value Value:: x(LOC, Value::Value_how_ ## x);
@@ -107,6 +108,7 @@ Value::Value(const char * loc)
    : DynamicObject(loc, &all_values),
      flags(VF_NONE)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    init_ravel();
 }
 //-----------------------------------------------------------------------------
@@ -114,6 +116,7 @@ Value::Value(const char * loc, Value_how how)
    : DynamicObject(loc),
      flags(VF_forever)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    switch(how)
       {
         case Value_how_Zero ... Value_how_Nine:
@@ -236,6 +239,7 @@ Value::Value(ShapeItem sh, const char * loc)
      shape(sh),
      flags(VF_NONE)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    init_ravel();
 }
 //-----------------------------------------------------------------------------
@@ -244,6 +248,7 @@ Value::Value(const UCS_string & ucs, const char * loc)
      shape(ucs.size()),
      flags(VF_NONE)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    init_ravel();
 
    if (ucs.size())
@@ -263,6 +268,7 @@ Value::Value(const CDR_string & ui8, const char * loc)
      shape(ui8.size()),
      flags(VF_NONE)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    init_ravel();
 
    if (ui8.size())
@@ -282,6 +288,7 @@ Value::Value(const char * string, const char * loc)
      shape(strlen(string)),
      flags(VF_NONE)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    init_ravel();
 
 const ShapeItem length = strlen(string);
@@ -295,6 +302,7 @@ Value::Value(const Shape & sh, const char * loc)
      shape(sh),
      flags(VF_NONE)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    init_ravel();
 }
 //-----------------------------------------------------------------------------
@@ -302,6 +310,7 @@ Value::Value(const Cell & cell, const char * loc)
    : DynamicObject(loc, &all_values),
      flags(VF_NONE)
 {
+   ADD_EVENT(this, VHE_CREATE, loc);
    init_ravel();
 
    get_ravel(0).init(cell);
@@ -478,6 +487,8 @@ Value::set_on_stack()
 void
 Value::erase(const char * loc) const
 {
+   ADD_EVENT(this, VHE_ERASE, loc);
+
    if (is_deleted())
       {
         TestFiles::apl_error(LOC);
@@ -485,10 +496,11 @@ Value::erase(const char * loc) const
                                                                        << endl
              << "*** Value " << (const void *)this
              << " deleted twice! ***"                                  << endl
-             << "    flags " << get_flags()                            << endl
-             << "    This delete at: "  << loc                         << endl
-             << "    First delete at: " << where_allocated()           << endl
-                                                                       << endl;
+             << endl;
+
+        VH_entry::print_history(CERR, this);
+        print_structure(CERR, 0, 0);
+
         Backtrace::show(__FILE__, __LINE__);
         return;
       }
@@ -532,6 +544,8 @@ Value::erase(const char * loc) const
 void
 Value::rollback(ShapeItem items, const char * loc)
 {
+   ADD_EVENT(this, VHE_UNROLL, loc);
+
    ((Value *)this)->unlink();
 
    loop(i, items)
@@ -1529,18 +1543,8 @@ Value::print_structure(ostream & out, int indent, ShapeItem idx) const
    out << "addr=" << (const void *)this
        << " ≡" << compute_depth()
        << " ⍴" << get_shape()
-       << " flags: " << get_flags() << "   "
-       << ((is_marked())   ?  "M" : "-")
-       << ((is_complete()) ?  "C" : "-")
-       << ((is_left())     ?  "&" : "-")
-       << ((is_arg())      ?  "A" : "-")
-       << ((is_eoc())      ?  "E" : "-")
-       << ((is_deleted())  ?  "∆" : "-")
-       << ((is_index())    ?  "⌷" : "-")
-       << ((is_nested())   ?  "s" : "-")
-       << ((is_forever())  ?  "∞" : "-")
-       << ((is_assigned()) ?  "←" : "-")
-       << ((is_shared())   ?  "∇" : "-")
+       << " flags: " << HEX4(get_flags()) << "   "
+       << get_flags()
        << " " << where_allocated()
        << endl;
 
@@ -1752,6 +1756,8 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
       out << "test(" << dob->get_testcase_filename()
           << ":" << dob->get_testcase_lineno() << ")" << endl;
 #endif
+
+   VH_entry::print_history(out, (const Value *)dob);
 
    try 
       {

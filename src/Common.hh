@@ -128,6 +128,19 @@ inline bool is_pad(Unicode uni)
 /// The total memory that we have.
 extern uint64_t total_memory;
 
+#ifdef VALUE_CHECK_WANTED
+
+   enum { VALUEHISTORY_SIZE = 100000 };
+   extern void add_event(const Value * val, VH_event ev, const char * loc);
+#  define ADD_EVENT(val, ev, loc)   add_event(val, ev, loc);
+
+#else
+
+   enum { VALUEHISTORY_SIZE = 0 };
+#  define ADD_EVENT(val, ev, loc)
+
+#endif
+
 //-----------------------------------------------------------------------------
 
 /// Function_Line ++ (post increment)

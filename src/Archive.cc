@@ -38,6 +38,7 @@
 #include "LvalCell.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
+#include "PrintOperator.hh"
 #include "Symbol.hh"
 #include "Token.hh"
 #include "UCS_string.hh"

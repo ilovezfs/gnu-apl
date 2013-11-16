@@ -185,6 +185,7 @@ const Executable * statements = 0;
                                   ->get_executable()->execute_body();
 
 // Q(token)
+
          // start over if execution has pushed a new context
          //
          if (token.get_tag() == TOK_SI_PUSHED)   continue;

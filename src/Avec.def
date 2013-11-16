@@ -198,6 +198,7 @@ char_def(DELTA              , 0x2206 , SYMBOL       , SYMBOL   ,  B6) /* ∆ */
 char_def(NABLA              , 0x2207 , END          , NO_SPACE ,  B7) /* ∇ */
 char_def(ELEMENT            , 0x2208 , F12_ELEMENT  , NO_SPACE ,  EE) /* ∈ */
 char_def(RING_OPERATOR      , 0x2218 , JOT          , NO_SPACE ,  F8) /* ∘ */
+char_df1(INFINITY           , 0x221E , END          , NO_SPACE ,  --) /* ∞ */
 char_def(DIVIDES            , 0x2223 , F12_STILE    , NO_SPACE ,  B2) /* ∣ */
 char_def(AND                , 0x2227 , F2_AND       , NO_SPACE ,  83) /* ∧ */
 char_def(OR                 , 0x2228 , F2_OR        , NO_SPACE ,  EB) /* ∨ */

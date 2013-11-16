@@ -64,6 +64,7 @@ ostream & operator << (ostream &, const UCS_string &);
 ostream & operator << (ostream &,       Unicode);
 ostream & operator << (ostream &, const UTF8_string &);
 ostream & operator << (ostream &, const Value & value);
+ostream & operator << (ostream &,       ValueFlags flags);
 
 template<typename T>
 ostream & operator << (ostream & out, const Source<T> & src)

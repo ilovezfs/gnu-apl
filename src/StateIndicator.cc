@@ -287,7 +287,11 @@ void
 StateIndicator::clear(ostream & out)
 {
 const UserFunction * ufun = get_executable()->get_ufun();
-   if (ufun)   ufun->pop_local_vars();
+   if (ufun)
+      {
+         Value_P Z = ufun->pop_local_vars();   // erases all but Z
+         if (Z)   Z->erase(LOC);
+      }
 }
 //-----------------------------------------------------------------------------
 void

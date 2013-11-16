@@ -103,9 +103,8 @@ TestFiles::get_testcase_line()
                        current_testreport
                           << " (automatic check for stale values failed,"
                              " offending Value erased)." << endl;
-#if 0   // TODO: make this work
+
                        apl_error(LOC);
-#endif
                        Value::erase_stale(LOC);
                      }
 
