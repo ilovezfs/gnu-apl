@@ -105,6 +105,53 @@ enum ListCategory
   LIST_ALL     = 0xFFFFFFFF   ///< list everything
 };
 //-----------------------------------------------------------------------------
+/// possible properties of a Value.
+enum ValueFlags
+{
+  VF_NONE     = 0x000,   ///< no flags.
+  VF_shared   = 0x001,   ///< value is shared:         don't delete
+  VF_assigned = 0x002,   ///< value is assigned:       don't delete
+  VF_forever  = 0x004,   ///< value is fixed forever:  don't delete
+  VF_nested   = 0x008,   ///< value is nested:         don't delete
+  VF_index    = 0x010,   ///< value belongs to index:  don't delete
+  VF_deleted  = 0x020,   ///< value is deleted:        don't delete again
+  VF_arg      = 0x040,   ///< value is an argument:    don't delete
+  VF_eoc      = 0x080,   ///< value is an eoc arg:     don't delete
+  VF_left     = 0x100,   ///< left value (←):          OK to delete
+  VF_complete = 0x200,   ///< CHECK called:            OK to delete
+  VF_marked   = 0x400,   ///< marked to detect stale:  OK to delete
+  VF_DONT_DELETE = VF_shared     // a constant in a user defined function
+                 | VF_assigned   // assigned to a variable
+                 | VF_forever    // static value
+                 | VF_nested     // sub-value of a nested value
+                 | VF_index      // owned by an IndexExpr
+                 | VF_deleted
+                 | VF_arg        // in use by SI::eval_XXX()
+                 | VF_eoc,       // in use by an EOC handler
+  VF_need_clone  = VF_shared      // need cloning on assign and friends
+                 | VF_assigned
+                 | VF_forever
+                 | VF_nested
+                 | VF_index
+                 | VF_arg
+                 | VF_eoc,
+};
+//-----------------------------------------------------------------------------
+/// events for APL values
+enum VH_event
+{
+  VHE_NONE      = 0,
+  VHE_CREATE    = 0x10000000,
+  VHE_UNROLL    = 0x20000000,
+  VHE_TESTFILE  = 0x30000000,
+  VHE_CHECK     = 0x40000000,
+  VHE_SETFLAG   = 0x50000000,
+  VHE_CLEARFLAG = 0x60000000,
+  VHE_ERASE     = 0x70000000,
+  VHE_ERROR     = 0x80000000,
+  VHE_MASK      = 0xF0000000,
+};
+//-----------------------------------------------------------------------------
 /// The bits in an int
 enum Bitmask
 {

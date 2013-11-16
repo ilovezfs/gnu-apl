@@ -259,38 +259,6 @@ public:
         return true;
       }
 
-   /// possible properties of a Value.
-   enum ValueFlags
-      {
-        VF_NONE     = 0x000,   ///< no flags.
-        VF_shared   = 0x001,   ///< value is shared:         don't delete
-        VF_assigned = 0x002,   ///< value is assigned:       don't delete
-        VF_forever  = 0x004,   ///< value is fixed forever:  don't delete
-        VF_nested   = 0x008,   ///< value is nested:         don't delete
-        VF_index    = 0x010,   ///< value belongs to index:  don't delete
-        VF_deleted  = 0x020,   ///< value is deleted:        don't delete again
-        VF_arg      = 0x040,   ///< value is an argument:    don't delete
-        VF_eoc      = 0x080,   ///< value is an eoc arg:     don't delete
-        VF_left     = 0x100,   ///< left value (←):          OK to delete
-        VF_complete = 0x200,   ///< CHECK called:            OK to delete
-        VF_marked   = 0x400,   ///< marked to detect stale:  OK to delete
-        VF_DONT_DELETE = VF_shared     // a constant in a user defined function
-                       | VF_assigned   // assigned to a variable
-                       | VF_forever    // static value
-                       | VF_nested     // sub-value of a nested value
-                       | VF_index      // owned by an IndexExpr
-                       | VF_deleted
-                       | VF_arg        // in use by SI::eval_XXX()
-                       | VF_eoc,       // in use by an EOC handler
-        VF_need_clone  = VF_shared      // need cloning on assign and friends
-                       | VF_assigned
-                       | VF_forever
-                       | VF_nested
-                       | VF_index
-                       | VF_arg
-                       | VF_eoc,
-      };
-
    /// print debug info about setting or clearing of flags to CERR
    void flag_info(const char * loc, ValueFlags flag, const char * flag_name,
                   bool set) const;
@@ -298,20 +266,38 @@ public:
    /// initialize value related variables and print some statistics.
    static void init();
 
-#ifdef VF_TRACING_WANTED   // deep flag checking → enable LOC for set/clear
+/// maybe enable LOC for set/clear
+#if defined(VF_TRACING_WANTED) || defined(VALUE_CHECK_WANTED)   // enable LOC
 # define _LOC LOC
-#else                      // no deep flag checkin
+#else                                                           // disable LOC
 # define _LOC
 #endif
 
+#ifdef VF_TRACING_WANTED
+ # define FLAG_INFO(l, f, n, b) flag_info(l, f, n, b);
+#else
+ # define FLAG_INFO(_l, _f, _n, _b)
+#endif
+
    /// a macro defining set_x(), clear_x(), and is_x() for flag x
-#define VF_flag(flag)                          \
-   void SET_ ## flag(const char * loc) const   \
-      { flag_info(loc, VF_ ## flag, #flag, true);   flags |=  VF_ ## flag; }       \
-   void CLEAR_ ## flag(const char * loc) const \
-      { flag_info(loc, VF_ ## flag, #flag, false); flags &=  ~VF_ ## flag; }       \
-   void SET_ ## flag() const     { flags |=  VF_ ## flag;             } \
-   void CLEAR_ ## flag() const   { flags &=  ~VF_ ## flag;            } \
+#define VF_flag(flag)                                                         \
+                                                                              \
+   void SET_ ## flag(const char * loc) const                                  \
+      { FLAG_INFO(loc, VF_ ## flag, #flag, true)                              \
+        flags |=  VF_ ## flag;                                                \
+        ADD_EVENT(this, (VH_event)(VHE_SETFLAG | VF_ ## flag), loc); }        \
+                                                                              \
+   void CLEAR_ ## flag(const char * loc) const                                \
+      { FLAG_INFO(loc, VF_ ## flag, #flag, false)                             \
+        flags &=  ~VF_ ## flag;                                               \
+        ADD_EVENT(this, (VH_event)(VHE_CLEARFLAG | VF_ ## flag), loc); }      \
+                                                                              \
+   void SET_ ## flag() const     { flags |=  VF_ ## flag;                     \
+        ADD_EVENT(this, (VH_event)(VHE_SETFLAG | VF_ ## flag), LOC); }        \
+                                                                              \
+   void CLEAR_ ## flag() const   { flags &=  ~VF_ ## flag;                    \
+        ADD_EVENT(this, (VH_event)(VHE_CLEARFLAG | VF_ ## flag), LOC); }      \
+                                                                              \
    bool is_ ## flag() const      { return (flags & VF_ ## flag) != 0; }
 
 # define set_shared()   SET_shared(_LOC)
@@ -479,7 +465,7 @@ protected:
 
 /// print flags in hex
 inline ostream &
-operator << (ostream & out, Value::ValueFlags flg)
+operator << (ostream & out, ValueFlags flg)
 {
   return out << HEX(flg);
 }

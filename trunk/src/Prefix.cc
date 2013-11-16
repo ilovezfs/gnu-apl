@@ -77,6 +77,18 @@ CERR << "    Value is " << (void *)val << " " << *val;
 void
 Prefix::syntax_error(const char * loc)
 {
+   // move the PC back to the beginning of the failed statement
+   //
+   while (PC > 0)
+      {
+        --PC;
+        if (body[PC].get_Class() == TC_END)
+           {
+             ++PC;
+             break;
+           }
+      }
+
    // clear values in FIFO
    //
    loop (s, size())
@@ -89,8 +101,7 @@ Prefix::syntax_error(const char * loc)
           }
       }
 
-   throw_apl_error(assign_pending
-                        ?  E_LEFT_SYNTAX_ERROR : E_SYNTAX_ERROR, loc);
+   throw_apl_error(assign_pending ? E_LEFT_SYNTAX_ERROR : E_SYNTAX_ERROR, loc);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -302,7 +313,7 @@ grow:
         }
      else if (tcl == TC_ASSIGN)   // resolve symbol if neccessary
         {
-          if (assign_pending)   throw_apl_error(E_LEFT_SYNTAX_ERROR, LOC);
+          if (assign_pending)   syntax_error(LOC);
           assign_pending = true;
         }
 

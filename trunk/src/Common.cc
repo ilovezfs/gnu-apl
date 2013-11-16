@@ -93,8 +93,25 @@ APL_time ret =  mktime(&t);
    return ret;
 }
 //-----------------------------------------------------------------------------
-ostream & operator << (ostream & out, const Function_PC2 & ft)
+ostream &
+operator << (ostream & out, const Function_PC2 & ft)
 {
    return out << ft.low << ":" << ft.high;
+}
+//-----------------------------------------------------------------------------
+ostream &
+operator << (ostream & out, ValueFlags flags)
+{
+   return out << ((flags & VF_marked)   ?  "M" : "-")
+              << ((flags & VF_complete) ?  "C" : "-")
+              << ((flags & VF_left)     ?  "&" : "-")
+              << ((flags & VF_arg)      ?  "A" : "-")
+              << ((flags & VF_eoc)      ?  "E" : "-")
+              << ((flags & VF_deleted)  ?  "∆" : "-")
+              << ((flags & VF_index)    ?  "⌷" : "-")
+              << ((flags & VF_nested)   ?  "s" : "-")
+              << ((flags & VF_forever)  ?  "∞" : "-")
+              << ((flags & VF_assigned) ?  "←" : "-")
+              << ((flags & VF_shared)   ?  "∇" : "-");
 }
 //-----------------------------------------------------------------------------

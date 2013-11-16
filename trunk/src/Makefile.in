@@ -100,7 +100,7 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-Tokenizer.$(OBJEXT) apl-UCS_string.$(OBJEXT) \
 	apl-UdpSocket.$(OBJEXT) apl-UserFunction.$(OBJEXT) \
 	apl-UTF8_string.$(OBJEXT) apl-Value.$(OBJEXT) \
-	apl-Workspace.$(OBJEXT)
+	apl-ValueHistory.$(OBJEXT) apl-Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 apl_LDADD = $(LDADD)
 apl_LINK = $(CXXLD) $(apl_CXXFLAGS) $(CXXFLAGS) $(apl_LDFLAGS) \
@@ -377,6 +377,7 @@ UdpSocket.cc				UdpSocket.hh		\
 UserFunction.cc				UserFunction.hh		\
 UTF8_string.cc				UTF8_string.hh		\
 Value.cc				Value.hh		\
+ValueHistory.cc				ValueHistory.hh		\
 Workspace.cc				Workspace.hh
 
 apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
@@ -532,6 +533,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UdpSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Value.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ValueHistory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Workspace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-main.Po@am__quote@
 
@@ -1486,6 +1488,20 @@ apl-Value.obj: Value.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Value.cc' object='apl-Value.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Value.obj `if test -f 'Value.cc'; then $(CYGPATH_W) 'Value.cc'; else $(CYGPATH_W) '$(srcdir)/Value.cc'; fi`
+
+apl-ValueHistory.o: ValueHistory.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ValueHistory.o -MD -MP -MF $(DEPDIR)/apl-ValueHistory.Tpo -c -o apl-ValueHistory.o `test -f 'ValueHistory.cc' || echo '$(srcdir)/'`ValueHistory.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ValueHistory.Tpo $(DEPDIR)/apl-ValueHistory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ValueHistory.cc' object='apl-ValueHistory.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ValueHistory.o `test -f 'ValueHistory.cc' || echo '$(srcdir)/'`ValueHistory.cc
+
+apl-ValueHistory.obj: ValueHistory.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ValueHistory.obj -MD -MP -MF $(DEPDIR)/apl-ValueHistory.Tpo -c -o apl-ValueHistory.obj `if test -f 'ValueHistory.cc'; then $(CYGPATH_W) 'ValueHistory.cc'; else $(CYGPATH_W) '$(srcdir)/ValueHistory.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ValueHistory.Tpo $(DEPDIR)/apl-ValueHistory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ValueHistory.cc' object='apl-ValueHistory.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ValueHistory.obj `if test -f 'ValueHistory.cc'; then $(CYGPATH_W) 'ValueHistory.cc'; else $(CYGPATH_W) '$(srcdir)/ValueHistory.cc'; fi`
 
 apl-Workspace.o: Workspace.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Workspace.o -MD -MP -MF $(DEPDIR)/apl-Workspace.Tpo -c -o apl-Workspace.o `test -f 'Workspace.cc' || echo '$(srcdir)/'`Workspace.cc

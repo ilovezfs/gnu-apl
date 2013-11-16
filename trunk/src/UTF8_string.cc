@@ -33,7 +33,6 @@
 
 /* from RFC 3629 / STD 63:
 
-
    Char. number range  |        UTF-8 octet sequence
       (hexadecimal)    |              (binary)
    --------------------+---------------------------------------------
@@ -41,6 +40,18 @@
    0000 0080-0000 07FF | 110xxxxx 10xxxxxx
    0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
    0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+   RFC 2279, the predecessor of RFC 3629, also allowed these:
+
+   0000 0000-0000 007F   0xxxxxxx
+   0000 0080-0000 07FF   110xxxxx 10xxxxxx
+   0000 0800-0000 FFFF   1110xxxx 10xxxxxx 10xxxxxx
+   0001 0000-001F FFFF   11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+   0020 0000-03FF FFFF   111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+   0400 0000-7FFF FFFF   1111110x 10xxxxxx ... 10xxxxxx
+
+   In order to be more general, we follow RFC 2279 and allow 5-byte and 6-byte
+   encodings
 */
 
 //-----------------------------------------------------------------------------
@@ -53,17 +64,17 @@ UTF8_string::UTF8_string(const UCS_string & ucs)
    loop(i, ucs.size())
       {
         uint32_t uni = ucs[i];
-        if (uni < 0x80)
+        if (uni < 0x80)            // 1-byte unicode (ASCII)
            {
              *this += uni;
            }
-        else if (uni < 0x800)
+        else if (uni < 0x800)      // 2-byte unicode
            {
              const uint8_t b1 = uni & 0x3F;   uni >>= 6; 
              *this += uni | 0xC0;
              *this += b1  | 0x80;
            }
-        else if (uni < 0x10000)
+        else if (uni < 0x10000)    // 3-byte unicode
            {
              const uint8_t b2 = uni & 0x3F;   uni >>= 6; 
              const uint8_t b1 = uni & 0x3F;   uni >>= 6; 
@@ -71,7 +82,7 @@ UTF8_string::UTF8_string(const UCS_string & ucs)
              *this += b1  | 0x80;
              *this += b2  | 0x80;
            }
-        else if (uni < 0x110000)
+        else if (uni < 0x200000)   // 4-byte unicode
            {
              const uint8_t b3 = uni & 0x3F;   uni >>= 6; 
              const uint8_t b2 = uni & 0x3F;   uni >>= 6; 
@@ -80,6 +91,32 @@ UTF8_string::UTF8_string(const UCS_string & ucs)
              *this += b1  | 0x80;
              *this += b2  | 0x80;
              *this += b3  | 0x80;
+           }
+        else if (uni < 0x4000000)   // 5-byte unicode
+           {
+             const uint8_t b4 = uni & 0x3F;   uni >>= 6; 
+             const uint8_t b3 = uni & 0x3F;   uni >>= 6; 
+             const uint8_t b2 = uni & 0x3F;   uni >>= 6; 
+             const uint8_t b1 = uni & 0x3F;   uni >>= 6; 
+             *this += uni | 0xF8;
+             *this += b1  | 0x80;
+             *this += b2  | 0x80;
+             *this += b3  | 0x80;
+             *this += b4  | 0x80;
+           }
+        else if (uni < 0x80000000)   // 6-byte unicode
+           {
+             const uint8_t b5 = uni & 0x3F;   uni >>= 6; 
+             const uint8_t b4 = uni & 0x3F;   uni >>= 6; 
+             const uint8_t b3 = uni & 0x3F;   uni >>= 6; 
+             const uint8_t b2 = uni & 0x3F;   uni >>= 6; 
+             const uint8_t b1 = uni & 0x3F;   uni >>= 6; 
+             *this += uni | 0xFC;
+             *this += b1  | 0x80;
+             *this += b2  | 0x80;
+             *this += b3  | 0x80;
+             *this += b4  | 0x80;
+             *this += b5  | 0x80;
            }
         else
            {
@@ -103,9 +140,20 @@ uint32_t bx = b0;   // the "significant" bits in b0
    if ((b0 & 0xE0) == 0xC0)        { len = 2;   bx &= 0x1F; }
    else if ((b0 & 0xF0) == 0xE0)   { len = 3;   bx &= 0x0F; }
    else if ((b0 & 0xF8) == 0xF0)   { len = 4;   bx &= 0x0E; }
+   else if ((b0 & 0xFC) == 0xF8)   { len = 5;   bx &= 0x0E; }
+   else if ((b0 & 0xFE) == 0xFC)   { len = 6;   bx &= 0x0E; }
    else
       {
-        CERR << "Bad UTF8 sequence: " << HEX(b0) << "... at " LOC << endl;
+        CERR << "Bad UTF8 sequence: " << HEX(b0);
+        loop(j, 6)
+           {
+             const uint32_t bx = string[j];
+             if (bx & 0x80)   CERR << " " << HEX(bx);
+             else              break;
+           }
+
+        CERR <<  " at " LOC << endl;
+
         Backtrace::show(__FILE__, __LINE__);
         Assert(0 && "Internal error in UTF8_string::toUni()");
       }

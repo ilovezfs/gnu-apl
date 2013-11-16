@@ -1886,12 +1886,10 @@ Bif_F12_TAKE::eval_AXB(Value_P A, Value_P X, Value_P B)
 
    // A↑[X]B ←→ ⊃[X](⊂A)↑¨⊂[X]B
    //
-Value_P cA = Bif_F12_PARTITION::fun.eval_B(A).get_apl_val();         // ⊂A
-Value_P cB = Bif_F12_PARTITION::fun.eval_XB(X, B).get_apl_val();   // ⊂[X]B
+Value_P cA = Bif_F12_PARTITION::fun.eval_B(A).get_apl_val();           // ⊂A
+Value_P cB = Bif_F12_PARTITION::fun.eval_XB(X, B).get_apl_val();       // ⊂[X]B
 Token take(TOK_FUN2, &Bif_F12_TAKE::fun);
-Value_P cT = Bif_OPER1_EACH::fun.eval_ALB(cA, take, cB).get_apl_val();           // cA↑¨cB
-   cA->erase(LOC);
-   cB->erase(LOC);
+Value_P cT = Bif_OPER1_EACH::fun.eval_ALB(cA, take, cB).get_apl_val(); // cA↑¨cB
 
 Token result = Bif_F12_PICK::fun.eval_XB(X, cT);
    cT->erase(LOC);

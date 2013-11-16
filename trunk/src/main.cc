@@ -42,6 +42,7 @@
 #include "TestFiles.hh"
 #include "UserFunction.hh"
 #include "Value.hh"
+#include "ValueHistory.hh"
 #include "Workspace.hh"
 
 #ifndef PATH_MAX
@@ -65,6 +66,7 @@ rlimit rl;
    Avec::init();
    LibPaths::init(argv0);
    Value::init();
+   VH_entry::init();
 //   PrefixNode::print_all(cerr);
 }
 //-----------------------------------------------------------------------------

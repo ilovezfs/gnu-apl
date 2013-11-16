@@ -56,9 +56,20 @@ UCS_string::UCS_string(const UTF8_string & utf)
         else if ((b0 & 0xE0) == 0xC0)   { more = 1; bx &= 0x1F; }
         else if ((b0 & 0xF0) == 0xE0)   { more = 2; bx &= 0x0F; }
         else if ((b0 & 0xF8) == 0xF0)   { more = 3; bx &= 0x0E; }
+        else if ((b0 & 0xFC) == 0xF8)   { more = 4; bx &= 0x07; }
+        else if ((b0 & 0xFE) == 0xFC)   { more = 5; bx &= 0x03; }
         else
            {
-             CERR << "Bad UTF8 sequence: " << HEX(b0) << "..." << endl;
+             CERR << "Bad UTF8 sequence: " << HEX(b0);
+             loop(j, 6)
+                {
+                  if ((i + j) >= utf.size())   break;
+                  const uint32_t bx = utf[i + j];
+                  if (bx & 0x80)   CERR << " " << HEX(bx);
+                  else             break;
+
+                }
+             CERR << endl;
              Backtrace::show(__FILE__, __LINE__);
              Assert(0 && "Internal error in UCS_string::UCS_string()");
              break;
@@ -516,7 +527,8 @@ operator << (ostream & os, Unicode uni)
 ostream &
 operator << (ostream & os, const UCS_string & ucs)
 {
-   loop(c, ucs.size())   os << ucs[c];
+UTF8_string utf(ucs);
+   os << (const char *)(utf.c_str());
    return os;
 }
 //-----------------------------------------------------------------------------

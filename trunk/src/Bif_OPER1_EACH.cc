@@ -168,12 +168,15 @@ how_1:
 next_z:
    if (++arg.z < arg.count)   goto loop_z;
 
+   arg.Z->set_default(arg.B);
+
    arg.A->clear_eoc();
    arg.B->clear_eoc();
 
-   if (arg.Z == 0)   return Token(TOK_VOID);   // LO without result
+   arg.A->erase(LOC);
+   if (arg.A != arg.B)   arg.B->erase(LOC);
 
-   arg.Z->set_default(arg.B);
+   if (arg.Z == 0)   return Token(TOK_VOID);   // LO without result
 
    return CHECK(arg.Z, LOC);
 }
