@@ -60,42 +60,42 @@ CDR::fill(CDR_string & result, int type, int len, Value_P val)
    // ptr
    //
 const uint32_t ptr = 0x00002020;
-   result += Unicode(ptr >> 24 & 0xFF);
-   result += Unicode(ptr >> 16 & 0xFF);
-   result += Unicode(ptr >>  8 & 0xFF);
-   result += Unicode(ptr       & 0xFF);
+   result.append(Unicode(ptr >> 24 & 0xFF));
+   result.append(Unicode(ptr >> 16 & 0xFF));
+   result.append(Unicode(ptr >>  8 & 0xFF));
+   result.append(Unicode(ptr       & 0xFF));
 
    // nb (header + data + sub-values + padding)
    //
-   result += Unicode(len >> 24 & 0xFF);
-   result += Unicode(len >> 16 & 0xFF);
-   result += Unicode(len >>  8 & 0xFF);
-   result += Unicode(len       & 0xFF);
+   result.append(Unicode(len >> 24 & 0xFF));
+   result.append(Unicode(len >> 16 & 0xFF));
+   result.append(Unicode(len >>  8 & 0xFF));
+   result.append(Unicode(len       & 0xFF));
 
    // nelm
    //
 const uint32_t nelm = val->element_count();
-   result += Unicode(nelm >> 24 & 0xFF);
-   result += Unicode(nelm >> 16 & 0xFF);
-   result += Unicode(nelm >>  8 & 0xFF);
-   result += Unicode(nelm       & 0xFF);
+   result.append(Unicode(nelm >> 24 & 0xFF));
+   result.append(Unicode(nelm >> 16 & 0xFF));
+   result.append(Unicode(nelm >>  8 & 0xFF));
+   result.append(Unicode(nelm       & 0xFF));
 
    // type, rank, 0, 0
    //
-   result += Unicode(type);
-   result += Unicode(val->get_rank());
-   result += Unicode_0;
-   result += Unicode_0;
+   result.append(Unicode(type));
+   result.append(Unicode(val->get_rank()));
+   result.append(Unicode_0);
+   result.append(Unicode_0);
 
    // shape
    //
    loop(r, val->get_rank())
       {
         const uint32_t sh = val->get_shape_item(r);
-        result += Unicode(sh >> 24 & 0xFF);
-        result += Unicode(sh >> 16 & 0xFF);
-        result += Unicode(sh >>  8 & 0xFF);
-        result += Unicode(sh       & 0xFF);
+        result.append(Unicode(sh >> 24 & 0xFF));
+        result.append(Unicode(sh >> 16 & 0xFF));
+        result.append(Unicode(sh >>  8 & 0xFF));
+        result.append(Unicode(sh       & 0xFF));
       }
 
    // body
@@ -115,7 +115,7 @@ const uint32_t nelm = val->element_count();
              ++bits;
              if (bits == 8)
                 {
-                  result += Unicode(accu & 0xFF);
+                  result.append(Unicode(accu & 0xFF));
 
                   accu = 0;
                   bits = 0;
@@ -129,7 +129,7 @@ const uint32_t nelm = val->element_count();
                       ++bits;
                     }
 
-                  result += Unicode(accu & 0xFF);
+                  result.append(Unicode(accu & 0xFF));
                 }
 
            }
@@ -139,10 +139,10 @@ const uint32_t nelm = val->element_count();
         loop(e, nelm)
            {
              uint64_t i = val->get_ravel(e).get_int_value();
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
              Assert(i == 0 || i == 0xFFFFFFFF);
            }
       }
@@ -152,14 +152,14 @@ const uint32_t nelm = val->element_count();
            {
              const double v = val->get_ravel(e).get_real_value();
              uint64_t i = *(uint64_t *)&v;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
            }
       }
    else if (type == 3)   // 16 byte complex vector
@@ -168,25 +168,25 @@ const uint32_t nelm = val->element_count();
            {
              double v = val->get_ravel(e).get_real_value();
              uint64_t i = *(uint64_t *)&v;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
 
              v = val->get_ravel(e).get_imag_value();
              i = *(uint64_t *)&v;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
            }
       }
    else if (type == 4)   // 1 byte char vector
@@ -196,7 +196,7 @@ const uint32_t nelm = val->element_count();
              const Unicode uni = val->get_ravel(e).get_char_value();
              Assert(uni >= 0);
              Assert(uni < 256);
-             result += uni;
+             result.append(uni);
            }
       }
    else if (type == 5)   // 4 byte UNICODE vector
@@ -204,10 +204,10 @@ const uint32_t nelm = val->element_count();
         loop(e, nelm)
            {
              uint32_t i = val->get_ravel(e).get_char_value();
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
-             result += Unicode(i & 0xFF);   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
+             result.append(Unicode(i & 0xFF));   i >>= 8;
            }
       }
    else if (type == 7)   // packed vector with 4 bytes offsets.
@@ -242,10 +242,10 @@ const uint32_t nelm = val->element_count();
         uint32_t offset = 16 + 4*val->get_rank() + 4*nelm;
         loop(e, nelm)
            {
-             result += Unicode(offset & 0xFF);   offset >>= 8;
-             result += Unicode(offset & 0xFF);   offset >>= 8;
-             result += Unicode(offset & 0xFF);   offset >>= 8;
-             result += Unicode(offset & 0xFF);   offset >>= 8;
+             result.append(Unicode(offset & 0xFF));   offset >>= 8;
+             result.append(Unicode(offset & 0xFF));   offset >>= 8;
+             result.append(Unicode(offset & 0xFF));   offset >>= 8;
+             result.append(Unicode(offset & 0xFF));   offset >>= 8;
 
              const Cell & cell = val->get_ravel(e);
              if (cell.is_character_cell() || cell.is_numeric())
@@ -270,7 +270,7 @@ const uint32_t nelm = val->element_count();
         //
         while (result.size() & 0x0F)
            {
-             result += Unicode_0;
+             result.append(Unicode_0);
            }
 
         // append sub-values.
@@ -280,7 +280,7 @@ const uint32_t nelm = val->element_count();
              const Cell & cell = val->get_ravel(e);
              if (cell.is_character_cell() || cell.is_numeric())
                 {
-                  Value_P sub_val = new Value(LOC);
+                  Value_P sub_val(new Value(LOC), LOC);
                   sub_val->get_ravel(0).init(cell);
 
                   const int sub_type = sub_val->get_CDR_type();
@@ -307,7 +307,7 @@ const uint32_t nelm = val->element_count();
 
    // final padding
    //
-   while (result.size() & 15)   result += Unicode_0;
+   while (result.size() & 15)   result.append(Unicode_0);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -336,7 +336,7 @@ const Rank rank = data[13];
 Shape shape;
    loop(r, rank)   shape.add_shape_item(CDR::get_4_be(data + 16 + 4*r));
 
-Value_P ret = new Value(shape, loc);
+Value_P ret(new Value(shape, loc), LOC);
 
 const uint8_t * ravel = data + 16 + 4*rank;
 
@@ -468,7 +468,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
                    loop(r, sub_rank)
                       sh.add_shape_item(get_4_be(sub_data + 16));
 
-                   Value_P sub_val = new Value(sh, LOC);
+                   Value_P sub_val(new Value(sh, LOC), LOC);
                    const APL_Integer qio = Workspace::the_workspace->get_IO();
                    loop(v, sh.element_count())
                        {

@@ -84,7 +84,8 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-IndexExpr.$(OBJEXT) apl-IndexIterator.$(OBJEXT) \
 	apl-Input.$(OBJEXT) apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
 	apl-LibPaths.$(OBJEXT) apl-Logging.$(OBJEXT) \
-	apl-LvalCell.$(OBJEXT) apl-main.$(OBJEXT) apl-Nabla.$(OBJEXT) \
+	apl-LvalCell.$(OBJEXT) apl-main.$(OBJEXT) \
+	apl-Malloc_hooks.$(OBJEXT) apl-Nabla.$(OBJEXT) \
 	apl-NamedObject.$(OBJEXT) apl-NumericCell.$(OBJEXT) \
 	apl-Output.$(OBJEXT) apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
 	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
@@ -337,6 +338,7 @@ LibPaths.cc				LibPaths.hh		\
 Logging.cc	    Logging.def		Logging.hh		\
 LvalCell.cc				LvalCell.hh		\
 main.cc					main.hh			\
+Malloc_hooks.cc							\
 Nabla.cc				Nabla.hh		\
 NamedObject.cc				NamedObject.hh		\
 NumericCell.cc				NumericCell.hh		\
@@ -501,6 +503,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LibPaths.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Logging.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LvalCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Malloc_hooks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Nabla.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NamedObject.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NumericCell.Po@am__quote@
@@ -1040,6 +1043,20 @@ apl-main.obj: main.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='main.cc' object='apl-main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-main.obj `if test -f 'main.cc'; then $(CYGPATH_W) 'main.cc'; else $(CYGPATH_W) '$(srcdir)/main.cc'; fi`
+
+apl-Malloc_hooks.o: Malloc_hooks.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Malloc_hooks.o -MD -MP -MF $(DEPDIR)/apl-Malloc_hooks.Tpo -c -o apl-Malloc_hooks.o `test -f 'Malloc_hooks.cc' || echo '$(srcdir)/'`Malloc_hooks.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Malloc_hooks.Tpo $(DEPDIR)/apl-Malloc_hooks.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Malloc_hooks.cc' object='apl-Malloc_hooks.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Malloc_hooks.o `test -f 'Malloc_hooks.cc' || echo '$(srcdir)/'`Malloc_hooks.cc
+
+apl-Malloc_hooks.obj: Malloc_hooks.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Malloc_hooks.obj -MD -MP -MF $(DEPDIR)/apl-Malloc_hooks.Tpo -c -o apl-Malloc_hooks.obj `if test -f 'Malloc_hooks.cc'; then $(CYGPATH_W) 'Malloc_hooks.cc'; else $(CYGPATH_W) '$(srcdir)/Malloc_hooks.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Malloc_hooks.Tpo $(DEPDIR)/apl-Malloc_hooks.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Malloc_hooks.cc' object='apl-Malloc_hooks.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Malloc_hooks.obj `if test -f 'Malloc_hooks.cc'; then $(CYGPATH_W) 'Malloc_hooks.cc'; else $(CYGPATH_W) '$(srcdir)/Malloc_hooks.cc'; fi`
 
 apl-Nabla.o: Nabla.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Nabla.o -MD -MP -MF $(DEPDIR)/apl-Nabla.Tpo -c -o apl-Nabla.o `test -f 'Nabla.cc' || echo '$(srcdir)/'`Nabla.cc

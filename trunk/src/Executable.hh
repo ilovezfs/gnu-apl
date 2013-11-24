@@ -116,8 +116,8 @@ protected:
    const char * alloc_loc;
 
    /// parse the body line number \b line of \b this function
-   Token_string parse_body_line(Function_Line line, const UCS_string & ucs,
-                              const char * loc);
+   void parse_body_line(Function_Line line, const UCS_string & ucs,
+                        const char * loc);
 
    /// the program text from which \b body was created
    vector<UCS_string> text;

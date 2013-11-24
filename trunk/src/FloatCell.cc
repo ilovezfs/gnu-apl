@@ -480,7 +480,7 @@ UCS_string ucs;
 
    if (value < 0)
       {
-        ucs += UNI_OVERBAR;
+        ucs.append(UNI_OVERBAR);
         value = -value;
       }
 
@@ -574,7 +574,7 @@ round_up:
           }
 
         *--end = 0;   // discard last digit
-        ucs += UNI_ASCII_1;   // prepend 1
+        ucs.append(UNI_ASCII_1);   // prepend 1
       }
    
 found_end:
@@ -591,8 +591,8 @@ found_end:
 
    for (char * p = cc; *p; ++p)
        {
-         if (*p == '-')        ucs += UNI_OVERBAR;
-         else                  ucs += Unicode(*p);
+         if (*p == '-')        ucs.append(UNI_OVERBAR);
+         else                  ucs.append(Unicode(*p));
        }
 
    // apply ⎕FC chars
@@ -651,9 +651,9 @@ UCS_string ucs;
    // replace '-' by OVERBAR and remove + in exponent
    for (const char * c = cc; *c; ++c)
        {
-         if (*c == '-')        ucs += UNI_OVERBAR;
+         if (*c == '-')        ucs.append(UNI_OVERBAR);
          else if (*c == '+')   ;
-         else                  ucs += Unicode(*c);
+         else                  ucs.append(Unicode(*c));
        }
 
    // apply ⎕FC chars

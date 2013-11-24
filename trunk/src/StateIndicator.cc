@@ -37,10 +37,10 @@ StateIndicator::StateIndicator(const Executable * exec, StateIndicator * _par)
      level(_par ? 1 + _par->get_level() : 0),
      error(E_NO_ERROR, LOC),
      current_stack(*this, exec->get_body()),
-     eval_arg_A(0),
+     eval_arg_A(0, LOC),
      eval_arg_F(0),
-     eval_arg_X(0),
-     eval_arg_B(0),
+     eval_arg_X(0, LOC),
+     eval_arg_B(0, LOC),
      parent(_par)
 {
 }
@@ -71,29 +71,29 @@ StateIndicator::clear_args(const char * loc)
 {
    // dont erase twice
    //
-   if (eval_arg_B == eval_arg_A)   eval_arg_A = 0;
-   if (eval_arg_B == eval_arg_X)   eval_arg_X = 0;
-   if (eval_arg_A == eval_arg_X)   eval_arg_X = 0;
+   if (eval_arg_B == eval_arg_A)   eval_arg_A.clear(loc);
+   if (eval_arg_B == eval_arg_X)   eval_arg_X.clear(loc);
+   if (eval_arg_A == eval_arg_X)   eval_arg_X.clear(loc);
 
-   if (eval_arg_A)
+   if (!!eval_arg_A)
       {
         eval_arg_A->clear_arg();
         eval_arg_A->erase(loc);
-        eval_arg_A = 0;
+        eval_arg_A.clear(loc);
       }
 
-   if (eval_arg_B)
+   if (!!eval_arg_B)
       {
         eval_arg_B->clear_arg();
         eval_arg_B->erase(loc);
-        eval_arg_B = 0;
+        eval_arg_B.clear(loc);
       }
 
-   if (eval_arg_X)
+   if (!!eval_arg_X)
       {
         eval_arg_X->clear_arg();
         eval_arg_X->erase(loc);
-        eval_arg_X = 0;
+        eval_arg_X.clear(loc);
       }
 
    eval_arg_F = 0;
@@ -109,7 +109,7 @@ StateIndicator::set_args(Token * A, Token & F, Token * X, Token * B)
       }
    else
       {
-        eval_arg_A = 0;
+        eval_arg_A.clear(LOC);
       }
 
    if (X)
@@ -119,7 +119,7 @@ StateIndicator::set_args(Token * A, Token & F, Token * X, Token * B)
       }
    else
       {
-        eval_arg_X = 0;
+        eval_arg_X.clear(LOC);
       }
 
    if (B)
@@ -129,7 +129,7 @@ StateIndicator::set_args(Token * A, Token & F, Token * X, Token * B)
       }
    else
       {
-        eval_arg_B = 0;
+        eval_arg_B.clear(LOC);
       }
 
    eval_arg_F = F.get_function();
@@ -161,7 +161,7 @@ StateIndicator::retry(const char * loc)
         return;
       }
 
-   if (eval_arg_B == 0)
+   if (!eval_arg_B)
       {
         CERR << endl << "Can't RETRY: no right argument" << endl << endl;
         return;
@@ -171,20 +171,20 @@ Token Z;
 Token B(TOK_APL_VALUE1, eval_arg_B);
 int phrase_len = 1;
 
-   if (eval_arg_A)   // dyadic
+   if (!!eval_arg_A)   // dyadic
       {
         Token A(TOK_APL_VALUE1, eval_arg_A);
         Token F2(TOK_FUN2, eval_arg_F);
 
-        if (eval_arg_X)   // dyadic with axis
+        if (!!eval_arg_X)   // dyadic with axis
            {
              Token X(TOK_APL_VALUE1, eval_arg_X);
-             Z = eval_AXB(A, F2, X, B);
+             move_2(Z, eval_AXB(A, F2, X, B), LOC);
              phrase_len = 4;
            }
         else              // dyadic without axis
            {
-             Z = eval_AB(A, F2, B);
+             move_2(Z, eval_AB(A, F2, B), LOC);
              phrase_len = 3;
            }
       }
@@ -192,15 +192,15 @@ int phrase_len = 1;
       {
         Token F1(TOK_FUN1, eval_arg_F);
 
-        if (eval_arg_X)   // monadic with axis
+        if (!!eval_arg_X)   // monadic with axis
            {
              Token X(TOK_APL_VALUE1, eval_arg_X);
-             Z = eval_XB(F1, X, B);
+             move_2(Z, eval_XB(F1, X, B), LOC);
              phrase_len = 3;
            }
         else              // monadic without axis
            {
-             Z = eval_B(F1, B);
+             move_2(Z, eval_B(F1, B), LOC);
              phrase_len = 2;
            }
       }
@@ -226,14 +226,14 @@ StateIndicator::function_name() const
         case PM_STATEMENT_LIST:
              {
                UCS_string ret;
-               ret += UNI_DIAMOND;
+               ret.append(UNI_DIAMOND);
                return ret;
              }
 
         case PM_EXECUTE:
              {
                UCS_string ret;
-               ret += UNI_EXECUTE;
+               ret.append(UNI_EXECUTE);
                return ret;
              }
       }
@@ -290,7 +290,7 @@ const UserFunction * ufun = get_executable()->get_ufun();
    if (ufun)
       {
          Value_P Z = ufun->pop_local_vars();   // erases all but Z
-         if (Z)   Z->erase(LOC);
+         if (!!Z)   Z->erase(LOC);
       }
 }
 //-----------------------------------------------------------------------------
@@ -398,8 +398,8 @@ const UserFunction * ufun = executable->get_ufun();
         else
            {
              err.error_message_2 = ufun->get_name_and_line(get_PC());
-             err.error_message_2 += UNI_ASCII_SPACE;
-             err.error_message_2 += UNI_ASCII_SPACE;
+             err.error_message_2.append(UNI_ASCII_SPACE);
+             err.error_message_2.append(UNI_ASCII_SPACE);
            }
       }
    else
@@ -494,7 +494,7 @@ const UserFunction * ufun = get_executable()->get_ufun();
    if (ufun)
       {
         Value_P Z = ufun->pop_local_vars();
-        if (Z)   Z->erase(LOC);
+        if (!!Z)   Z->erase(LOC);
       }
 }
 //-----------------------------------------------------------------------------
@@ -512,9 +512,9 @@ Token result = current_stack.reduce_statements();
 void
 StateIndicator::unmark_all_values() const
 {
-   if (eval_arg_A)   eval_arg_A->clear_marked();
-   if (eval_arg_X)   eval_arg_X->clear_marked();
-   if (eval_arg_B)   eval_arg_B->clear_marked();
+   if (!!eval_arg_A)   eval_arg_A->clear_marked();
+   if (!!eval_arg_X)   eval_arg_X->clear_marked();
+   if (!!eval_arg_B)   eval_arg_B->clear_marked();
 
    Assert(executable);
    executable->unmark_all_values();
@@ -559,8 +559,8 @@ StateIndicator::info(ostream & out, const char * loc) const
 Value_P
 StateIndicator::get_L() const
 {
-   if (eval_arg_F == 0)                 return 0;   // no function
-   if (eval_arg_F->is_user_defined())   return 0;   // user defined function
+   if (eval_arg_F == 0)                 return Value_P();   // no function
+   if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
    return eval_arg_A;
 }
 //-----------------------------------------------------------------------------
@@ -578,8 +578,8 @@ Value_P old_value = eval_arg_A;
 Value_P
 StateIndicator::get_X() const
 {
-   if (eval_arg_F == 0)                 return 0;   // no function
-   if (eval_arg_F->is_user_defined())   return 0;   // user defined function
+   if (eval_arg_F == 0)                 return Value_P();   // no function
+   if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
    return eval_arg_X;
 }
 //-----------------------------------------------------------------------------
@@ -597,8 +597,8 @@ Value_P old_value = eval_arg_X;
 Value_P
 StateIndicator::get_R() const
 {
-   if (eval_arg_F == 0)                 return 0;   // no function
-   if (eval_arg_F->is_user_defined())   return 0;   // user defined function
+   if (eval_arg_F == 0)                 return Value_P();   // no function
+   if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
    return eval_arg_B;
 }
 //-----------------------------------------------------------------------------

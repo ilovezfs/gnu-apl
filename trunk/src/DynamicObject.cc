@@ -65,12 +65,6 @@ DynamicObject::print(ostream & out) const
        << "    prev:      " << (void *)prev         << endl
        << "    next:      " << (void *)next         << endl
        << "    allocated: " << where_allocated()    << endl;
-
-#ifdef REMEMBER_TESTFILE
-   if (testcase_filename)
-      out << "    testcase:   " << testcase_filename
-          << ":" << testcase_lineno     << endl;
-#endif
 }
 //-----------------------------------------------------------------------------
 

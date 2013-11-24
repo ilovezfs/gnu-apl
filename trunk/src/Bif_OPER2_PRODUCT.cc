@@ -56,12 +56,12 @@ Function * RO = _RO.get_function();
 
 OUTER_PROD arg;
 
-   arg.Z = new Value(A->get_shape() + B->get_shape(), LOC);
+   arg.Z = Value_P(new Value(A->get_shape() + B->get_shape(), LOC), LOC);
    arg.cZ = &arg.Z->get_ravel(0);
    arg.len_A = A->element_count();
    arg.len_B = B->element_count();
 
-   arg.value_A = new Value(LOC);   // helper value for non-pointer cA
+   arg.value_A = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cA
    arg.value_A->set_eoc();
    arg.A = A;
    arg.unlock_A = !A->is_eoc();
@@ -73,7 +73,7 @@ OUTER_PROD arg;
    arg.unlock_B = !B->is_eoc();
    arg.B->set_eoc();
 
-   arg.value_B = new Value(LOC);   // helper value for non-pointer cB
+   arg.value_B = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cB
    arg.value_B->set_eoc();
    arg.cA = &A->get_ravel(0);
    arg.cB = &B->get_ravel(0);
@@ -193,7 +193,7 @@ OUTER_PROD arg = _arg._OUTER_PROD();
       const bool more = arg.a < (arg.len_A - 1) || arg.b < (arg.len_B - 1);
       if (more)   Workspace::the_workspace->pop_SI(LOC);
    }
-   token = finish_outer_product(arg);
+   copy_1(token, finish_outer_product(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    return false;   // stop it
@@ -250,15 +250,15 @@ ShapeItem len_B = 1;
    arg.unlock_B = !B->is_eoc();
    arg.B->set_eoc();
 
-   arg.Z = new Value(shape_A1 + shape_B1, LOC);
+   arg.Z = Value_P(new Value(shape_A1 + shape_B1, LOC), LOC);
    arg.cZ = &arg.Z->get_ravel(0);
 
    // create a vector with the rows of A
    //
-   arg.args_A = new Value_P[arg.items_A];
+   arg.args_A = new Value*[arg.items_A];
    loop(i, arg.items_A)
        {
-         Value_P v = new Value(len_A, LOC);
+         Value * v = new Value(len_A, LOC);
          v->get_ravel(0).init(A->get_ravel(0 + i*len_A));
          loop(a, len_A)
             {
@@ -273,10 +273,10 @@ ShapeItem len_B = 1;
 
    // create a vector with the columns of B
    //
-   arg.args_B = new Value_P[arg.items_B];
+   arg.args_B = new Value *[arg.items_B];
    loop(i, arg.items_B)
        {
-         Value_P v = new Value(len_B, LOC);
+         Value * v = new Value(len_B, LOC);
          loop(b, len_B)
             {
               const ShapeItem src = (B->is_skalar()) ? 0 : b*arg.items_B + i;
@@ -315,7 +315,8 @@ loop_a:
 loop_b:
 
    {
-     const Token T1 = arg.RO->eval_AB(arg.args_A[arg.a], arg.args_B[arg.b]);
+     const Token T1 = arg.RO->eval_AB(Value_P(arg.args_A[arg.a], LOC),
+                                      Value_P(arg.args_B[arg.b], LOC));
 
    if (T1.get_tag() == TOK_ERROR)   return T1;
 
@@ -469,7 +470,7 @@ INNER_PROD arg = _arg._INNER_PROD();
        else                     FIXME;
       }
 
-   token = finish_inner_product(arg);
+   copy_1(token, finish_inner_product(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    return false;

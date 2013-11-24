@@ -94,7 +94,7 @@ public:
    /// Return the current QUAD-LX
    static UCS_string get_LX()
       { Assert(the_workspace);
-        return UCS_string(the_workspace->v_quad_LX.get_apl_value()); }
+        return UCS_string(*the_workspace->v_quad_LX.get_apl_value()); }
 
    /// Return the current QUAD-PP
    static APL_Integer get_PP()
@@ -214,7 +214,7 @@ public:
    void unmark_all_values() const;
 
    /// print all owners of \b value
-   int show_owners(ostream & out, Value_P value) const;
+   int show_owners(ostream & out, const Value_P value) const;
 
    /// maybe remove functions for which ⎕EX has failed
    int cleanup_expunged(ostream & out, bool & erased);

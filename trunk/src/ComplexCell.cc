@@ -631,10 +631,10 @@ int int_fract = ucs.size();;
 
    if (!is_near_real(Workspace::get_CT()))
       {
-        ucs += UNI_ASCII_J;
-        ucs += pctx.get_scaled()
+        ucs.append(UNI_ASCII_J);
+        ucs.append(pctx.get_scaled()
             ? FloatCell::format_float_scaled(value.cpxp->imag(), pctx)
-            : FloatCell::format_float_fract (value.cpxp->imag(), pctx);
+            : FloatCell::format_float_fract (value.cpxp->imag(), pctx));
 
         info.imag_len = ucs.size() - info.real_len;
         if (pctx.get_scaled())   info.flags |= imag_has_E;

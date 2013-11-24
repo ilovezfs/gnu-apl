@@ -40,7 +40,7 @@ struct ValueStackItem
 {
    /// constructor: ValueStackItem for an unused symbol
    ValueStackItem() : name_class(NC_UNUSED_USER_NAME)
-      { sym_val.value = 0; }
+      { memset(&sym_val, 0, sizeof(sym_val)); }
 
    /// constructor: ValueStackItem for a label (function line)
    ValueStackItem(Function_Line lab) : name_class(NC_LABEL)
@@ -48,7 +48,7 @@ struct ValueStackItem
 
    /// constructor: ValueStackItem for a variable
    ValueStackItem(Value_P val) : name_class(NC_VARIABLE)
-      { sym_val.value = val; }
+      { sym_val._value() = val; }
 
    /// constructor: ValueStackItem for a shared variable
    ValueStackItem(SV_key key) : name_class(NC_SHARED_VAR)
@@ -57,14 +57,14 @@ struct ValueStackItem
    /// reset \b this ValueStackItem to being unused
    void clear()
       {
-        sym_val.value = 0;
+        memset(&sym_val, 0, sizeof(sym_val));
         name_class = NC_UNUSED_USER_NAME;
       }
 
    /// the possible values of a symbol
    union _sym_val
       {
-        Value    *    value;      ///< if \b Symbol is a variable.
+        VALUE_P(      value)      ///< if \b Symbol is a variable.
         Function *    function;   ///< if \b Symbol is a function.
         Function_Line label;      ///< if \b Symbol is a label.
         SV_key        sv_key;     ///< if \b Symbol is a shared variable

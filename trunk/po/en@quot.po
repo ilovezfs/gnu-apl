@@ -29,8 +29,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-11-16 17:54+0100\n"
-"PO-Revision-Date: 2013-11-16 17:54+0100\n"
+"POT-Creation-Date: 2013-11-24 16:34+0100\n"
+"PO-Revision-Date: 2013-11-24 16:34+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -199,19 +199,19 @@ msgstr " *** bad sub-record of X"
 msgid "Unknown Error"
 msgstr "Unknown Error"
 
-#: src/main.cc:287
+#: src/main.cc:294
 msgid " (default)"
 msgstr " (default)"
 
-#: src/main.cc:298
+#: src/main.cc:305
 msgid "configurable options:"
 msgstr "configurable options:"
 
-#: src/main.cc:331
+#: src/main.cc:338
 msgid ", therefore:"
 msgstr ", therefore:"
 
-#: src/main.cc:367
+#: src/main.cc:374
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -230,12 +230,12 @@ msgstr ""
 "    --id proc            use processor ID proc (default: first unused > "
 "1000)\n"
 
-#: src/main.cc:377
+#: src/main.cc:384
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr "    -l num               turn log facility num (1-%d) ON\n"
 
-#: src/main.cc:383
+#: src/main.cc:390
 #, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
@@ -280,44 +280,44 @@ msgstr ""
 "    --TS                 append to (rather than override) summary.log\n"
 "    --                   end of options for %s\n"
 
-#: src/main.cc:442
+#: src/main.cc:449
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr "Welcome to GNU APL version %s"
 
-#: src/main.cc:443
+#: src/main.cc:450
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr "for details run: %s --gpl."
 
-#: src/main.cc:452
+#: src/main.cc:459
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr "This program comes with ABSOLUTELY NO WARRANTY;"
 
-#: src/main.cc:455
+#: src/main.cc:462
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr "This program is free software, and you are welcome to redistribute it"
 
-#: src/main.cc:456
+#: src/main.cc:463
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "according to the GNU Public License (GPL) version 3 or later."
 
-#: src/main.cc:794
+#: src/main.cc:801
 msgid "-f without filename"
 msgstr "-f without filename"
 
-#: src/main.cc:827
+#: src/main.cc:834
 msgid "-l without log facility"
 msgstr "-l without log facility"
 
-#: src/main.cc:912
+#: src/main.cc:919
 msgid "--TM without test mode"
 msgstr "--TM without test mode"
 
-#: src/main.cc:931
+#: src/main.cc:938
 msgid "-w without milli(seconds)"
 msgstr "-w without milli(seconds)"
 
-#: src/main.cc:937
+#: src/main.cc:944
 msgid "unknown option '"
 msgstr "unknown option '"

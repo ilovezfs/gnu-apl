@@ -97,11 +97,19 @@ public:
    /// Construct a token for an APL value.
    Token(TokenTag tg, Value_P vp)
    : tag(tg)
-   { Assert(get_ValueType() == TV_VAL);  Assert(vp);   value.apl_val = vp; }
+   { Assert(get_ValueType() == TV_VAL);
+     Assert(!!vp);   value._apl_val() = vp; }
 
    /// Construct a token for an index
    Token(TokenTag tg, IndexExpr * ix)
    : tag(tg)   { Assert(ix);   value.index_val = ix; }
+
+   static void warn(ostream & out);
+
+   ~Token()
+     { if (is_apl_val() && value._apl_val().get_pointer()) warn(CERR);  }
+
+   void clear(const char * loc);
 
    /// return the TokenValueType of this token.
    TokenValueType get_ValueType() const
@@ -161,16 +169,24 @@ public:
    /// return the Value_P value of this token. The token could be TOK_NO_VALUE;
    /// in that case VALUE_ERROR is thrown.
    Value_P get_apl_val() const
-      { if (is_apl_val())   return value.apl_val;   VALUE_ERROR; }
+      { if (is_apl_val())   return value._apl_val();   VALUE_ERROR; }
+
+   /// return the Value * of this token, or 0 for non-value token
+   Value * get_apl_val_pointer() const
+      { return is_apl_val() ? value._apl_val().get_pointer() : 0; }
+
+   /// clear the Value_P value (if any) this token, return the old pointer
+   Value * extract_apl_val(const char * loc) const
+      { return is_apl_val() ? value._apl_val().clear(loc) : 0; }
 
    /// return the axis specification of this token
    Value_P get_axes() const
-      { Assert1(value.apl_val && (get_tag() == TOK_AXES));
-        return value.apl_val; }
+      { Assert1(!!value._apl_val() && (get_tag() == TOK_AXES));
+        return value._apl_val(); }
 
    /// set the Value_P value of this token
    void set_apl_val(Value_P val)
-      { Assert(get_ValueType() == TV_VAL);   value.apl_val = val; }
+      { Assert(get_ValueType() == TV_VAL);   value._apl_val() = val; }
 
    /// return the Value_P value of this token
    IndexExpr & get_index_val() const
@@ -207,6 +223,9 @@ public:
    /// return the number of characters printed.
    int error_info(UCS_string & out) const;
 
+   static void copy_1(Token & dst, const Token & src, const char * loc)
+      { dst = src; }
+
    /// return a brief token class name for debugging purposes
    static const char * short_class_name(TokenClass cls);
 
@@ -223,15 +242,15 @@ public:
               APL_Float imag;   ///< the imaginary part
            };
 
-        Unicode         char_val;       ///< the Unicode for CTV_CHARTV_
-        int64_t         int_val;        ///< the integer for TV_INT
-        APL_Float       flt_val;        ///< the double for TV_FLT
-        cdouble         complex_val;    ///< complex number for TV_CPX
-        Symbol        * sym_ptr;        ///< the symbol for TV_SYM
-        Function_Line   fun_line;       ///< the function line for TV_LIN
-        Value         * apl_val;        ///< the value for TV_VAL
-        IndexExpr     * index_val;      ///< the index for TV_INDEX
-        Function      * function;       ///< the function for TV_FUN
+        Unicode                char_val;      ///< the Unicode for CTV_CHARTV_
+        int64_t                int_val;       ///< the integer for TV_INT
+        APL_Float              flt_val;       ///< the double for TV_FLT
+        cdouble                complex_val;   ///< complex number for TV_CPX
+        Symbol               * sym_ptr;        ///< the symbol for TV_SYM
+        Function_Line          fun_line;      ///< the function line for TV_LIN
+        IndexExpr            * index_val;     ///< the index for TV_INDEX
+        Function             * function;      ///< the function for TV_FUN
+        VALUE_P(               apl_val)       ///< the value for TV_VAL
       };
 
    /// the name of \b tc
@@ -246,6 +265,14 @@ protected:
 
    /// helper function to print Quad-function (system function or variable).
    ostream & print_quad(ostream & out) const;
+
+#if 1
+private:
+   friend  void copy_2(Token & dst, const Token & src);
+
+   // prevent accidental copying
+   Token & operator =(const Token & other);
+#endif
 };
 //-----------------------------------------------------------------------------
 /// A string of Token
@@ -254,7 +281,7 @@ class Token_string : public  Simple_string<Token>
 public:
    /// construct an empty string
    Token_string() 
-   : Simple_string<Token>((Token *)0, 0)
+   : Simple_string<Token>()
    {}
 
    /// construct a string of \b len Token, starting at \b data.
@@ -266,6 +293,10 @@ public:
    Token_string(const Token_string & other, uint32_t pos, uint32_t len)
    : Simple_string<Token>(other, pos, len)
    {}
+
+private:
+   // prevent accidental copying
+   Token_string & operator =(const Token_string & other);
 };
 //-----------------------------------------------------------------------------
 /// a token with its location information. For token copied from a function
@@ -289,6 +320,12 @@ struct Token_loc
    : tok(t),
      pc(_pc)
    {}
+
+   Token_loc & operator=(const Token_loc & other)
+      {
+        pc = other.pc;
+        copy_1(tok, other.tok, LOC);
+      }
 
    /// the token
    Token tok;

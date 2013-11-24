@@ -72,7 +72,7 @@ vector<ShapeItem> rep_counts;
 Shape shape_Z(shape_B);
    shape_Z.set_shape_item(axis, len_Z);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
 const Shape3 shape_B3(shape_B, axis);
@@ -137,7 +137,7 @@ Shape shape_Z(B->get_shape());
 
 const Shape3 B3(B->get_shape(), axis);
 const Shape3 Z3(B3.h(), 1, B3.l());
-   return do_reduce(shape_Z, Z3, B3.m(), LO, B, B->get_shape_item(axis));
+   return do_reduce(shape_Z, Z3, B3.m(), LO, axis, B, B->get_shape_item(axis));
 }
 //-----------------------------------------------------------------------------
 Token
@@ -151,24 +151,24 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
 
    if (B->is_skalar())
       {
-        if (n_wise > 1)              LENGTH_ERROR;
+        if (n_wise > 1)                               DOMAIN_ERROR;
       }
    else
       {
-        if (n_wise > (1 + B->get_last_shape_item()))   LENGTH_ERROR;
+        if (n_wise > (1 + B->get_shape_item(axis)))   DOMAIN_ERROR;
       }
 
-   Assert(LO);
+   Assert1(LO);
 
    if (B->get_rank() == 0)      return Token(TOK_APL_VALUE1, B->clone(LOC));
 
-   if (axis >= B->get_rank())   INDEX_ERROR;
+   if (axis >= B->get_rank())   AXIS_ERROR;
 
    if (n_wise == 0)   // apply the identity function
       {
         Shape shape_B1 = B->get_shape().insert_axis(axis, 0);
         shape_B1.increment_shape_item(axis + 1);
-        Value_P val = new Value(shape_B1, LOC);
+        Value_P val(new Value(shape_B1, LOC), LOC);
         val->set_arg();
         val->get_ravel(0).init(B->get_ravel(0));   // prototype
 
@@ -178,28 +178,37 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         return result;
       }
 
+   if (n_wise == (1 + B->get_shape_item(axis)))   // empty result
+      {
+        // the examples in ISO/IEC 13751 (2000) p. 116, as well as lrm,
+        // suggest an empty result, while the algorithm on pp. 115/116 seems
+        // not to work for n_wise == (1 + B->get_shape_item(axis)).
+        // We follow the examples and lrm.
+        //
+        Shape shape_Z = B->get_shape();
+        shape_Z.set_shape_item(axis, 0);
+        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Z->get_ravel(0).init(B->get_ravel(0));
+        return CHECK(Z, LOC);
+      }
+
 Shape shape_Z(B->get_shape());
    shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) - n_wise + 1);
 
    if (n_wise == 1)   return Bif_F12_RHO::fun.do_reshape(shape_Z, B);
 
 const Shape3 Z3(shape_Z, axis);
-   return do_reduce(shape_Z, Z3, A0, LO, B, B->get_shape_item(axis));
+   return do_reduce(shape_Z, Z3, A0, LO, axis, B, B->get_shape_item(axis));
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
-                      Function * LO, Value_P B, ShapeItem bm)
+                      Function * LO, Axis axis, Value_P B, ShapeItem bm)
 {
-   if (shape_Z.is_empty())
-      {
-        Value_P Z = new Value(shape_Z, LOC);
-        Z->set_default(B);
-        return CHECK(Z, LOC);
-      }
+   if (shape_Z.is_empty())   return LO->eval_identity_fun(B, axis);
 
 _EOC_arg arg;
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
    arg._reduce_beam().init(Z, Z3, LO, B, bm, a, 0);
 
 Token tok(TOK_FIRST_TIME);
@@ -226,9 +235,11 @@ new_beam:
         // nested values.
         //
         if (cB->is_pointer_cell())
-           token = Token(TOK_APL_VALUE1, cB->get_pointer_value()->clone(LOC));
+           copy_1(token, Token(TOK_APL_VALUE1,
+                                cB->get_pointer_value()->clone(LOC)), LOC);
         else
-           token = Token(TOK_APL_VALUE1, cB->to_value(LOC));   // does set_arg()
+           copy_1(token, Token(TOK_APL_VALUE1,
+                               cB->to_value(LOC)), LOC);   // does set_arg()
       }
 
 again:
@@ -250,7 +261,7 @@ Value_P BB = token.get_apl_val();
              arg.frame.B->clear_eoc();   // release B
              arg.frame.B->erase(LOC);
 
-             token = CHECK(arg.frame.Z, LOC);
+             copy_1(token, CHECK(arg.frame.Z, LOC), LOC);
              return false;   // stop it
            }
 
@@ -268,7 +279,7 @@ const Cell * cA = arg.beam.next_B();
 Value_P AA = cA->to_value(LOC);   // does set_arg()
    AA->set_eoc();
    BB->set_eoc();
-   token = arg.beam.LO->eval_AB(AA, BB);
+   copy_1(token, arg.beam.LO->eval_AB(AA, BB), LOC);
    AA->clear_arg();
    AA->clear_eoc();
    AA->erase(LOC);

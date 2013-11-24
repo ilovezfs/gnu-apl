@@ -74,8 +74,7 @@ Function * old_function = sym_FUN->get_function();
         line_starts.push_back(Function_PC(body.size()));
 
         const UCS_string & text = get_text(l);
-        const Token_string tos = parse_body_line(Function_Line(l), text, loc);
-        loop(t, tos.size())   body += tos[t];
+        parse_body_line(Function_Line(l), text, loc);
       }
 
    Log(LOG_UserFunction__fix)
@@ -87,8 +86,8 @@ Function * old_function = sym_FUN->get_function();
    // let [0] be the end of the function.
    line_starts[0] = Function_PC(body.size());
 
-   if (sym_Z)     body += Token(TOK_RETURN_SYMBOL, sym_Z);
-   else           body += Token(TOK_RETURN_VOID);
+   if (sym_Z)     body.append(Token(TOK_RETURN_SYMBOL, sym_Z));
+   else           body.append(Token(TOK_RETURN_VOID));
 
    check_duplicate_symbols();
 
@@ -146,7 +145,7 @@ UserFunction::eval_B(Value_P B)
    Log(LOG_UserFunction__enter_leave)
       {
         CERR << "Function " << get_name() << " calls eval_B("
-             << B << ")" << endl;
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
    Workspace::the_workspace->push_SI(this, LOC);
@@ -168,7 +167,7 @@ UserFunction::eval_XB(Value_P X, Value_P B)
    Log(LOG_UserFunction__enter_leave)
       {
         CERR << "Function " << get_name() << " calls eval_B("
-             << B << ")" << endl;
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
    Workspace::the_workspace->push_SI(this, LOC);
@@ -190,7 +189,8 @@ UserFunction::eval_AB(Value_P A, Value_P B)
    Log(LOG_UserFunction__enter_leave)
       {
         CERR << "Function " << get_name() << " calls eval_AB("
-             << A << ", " << B << ")" << endl;
+             << Token(TOK_APL_VALUE1, A) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
    Workspace::the_workspace->push_SI(this, LOC);
@@ -212,7 +212,8 @@ UserFunction::eval_AXB(Value_P A, Value_P X, Value_P B)
    Log(LOG_UserFunction__enter_leave)
       {
         CERR << "Function " << get_name() << " calls eval_AB("
-             << A << ", " << B << ")" << endl;
+             << Token(TOK_APL_VALUE1, A) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
    Workspace::the_workspace->push_SI(this, LOC);
@@ -490,7 +491,7 @@ UserFunction::pop_local_vars() const
    if (sym_RO)   sym_RO->pop(true);
 
    if (sym_Z)   return sym_Z->pop(false);
-   return 0;
+   return Value_P();
 }
 //-----------------------------------------------------------------------------
 void
@@ -501,27 +502,27 @@ UCS_string & message_2 = error.error_message_2;
    if (sym_A)
       {
         Value_P val_A = sym_A->get_value();
-        if (val_A)
+        if (!!val_A)
            {
              PrintContext pctx(PR_APL_FUN);
              PrintBuffer pb(*val_A, pctx);
-             message_2 += UCS_string(pb, 1);
-             message_2 += UNI_ASCII_SPACE;
+             message_2.append(UCS_string(pb, 1));
+             message_2.append(UNI_ASCII_SPACE);
            }
       }
 
    Assert(sym_FUN);
-   message_2 += sym_FUN->get_name();
+   message_2.append(sym_FUN->get_name());
 
    if (sym_B)
       {
         Value_P val_B = sym_B->get_value();
-        if (val_B)
+        if (!!val_B)
            {
-             message_2 += UNI_ASCII_SPACE;
+             message_2.append(UNI_ASCII_SPACE);
              PrintContext pctx(PR_APL_FUN);
              PrintBuffer pb(*val_B, pctx);
-             message_2 += UCS_string(pb, 1);
+             message_2.append(UCS_string(pb, 1));
            }
       }
 
@@ -797,7 +798,7 @@ UserFunction::parse_header_line(UCS_string header_line)
    // add a semicolon as a guaranteed end marker.
    // This to avoids checks of the header token count
    // 
-   header_line += Unicode(';');
+   header_line.append(Unicode(';'));
 
 Token_string tos;
    {
@@ -960,7 +961,7 @@ UCS_string
 UserFunction::get_name_and_line(Function_PC pc) const
 {
 UCS_string ret = sym_FUN->get_name();
-   ret += UNI_ASCII_L_BRACK;
+   ret.append(UNI_ASCII_L_BRACK);
 
    // pc may point to the next token already. If that is the case then
    // we go back one token.
@@ -969,7 +970,7 @@ UCS_string ret = sym_FUN->get_name();
 
 const Function_Line line = get_line(pc);
    ret.append_number(line);
-   ret += UNI_ASCII_R_BRACK;
+   ret.append(UNI_ASCII_R_BRACK);
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -991,9 +992,9 @@ UserFunction::canonical(bool with_lines) const
 UCS_string ucs;
    loop(t, text.size())
       {
-        if (with_lines)   ucs += line_prefix(Function_Line(t));
-        ucs += text[t];
-        ucs += UNI_ASCII_LF;
+        if (with_lines)   ucs.append(line_prefix(Function_Line(t)));
+        ucs.append(text[t]);
+        ucs.append(UNI_ASCII_LF);
       }
 
    return ucs;
@@ -1014,15 +1015,15 @@ UCS_string
 UserFunction::line_prefix(Function_Line l)
 {
 UCS_string ucs;
-   ucs += UNI_ASCII_L_BRACK;
-   if (l < 10)   ucs += UNI_ASCII_SPACE;
+   ucs.append(UNI_ASCII_L_BRACK);
+   if (l < 10)   ucs.append(UNI_ASCII_SPACE);
 
 char cc[40];
    snprintf(cc, sizeof(cc), "%d", l);
-   for (const char * s = cc; *s; ++s)   ucs += Unicode(*s);
+   for (const char * s = cc; *s; ++s)   ucs.append(Unicode(*s));
 
-   ucs += UNI_ASCII_R_BRACK;
-   ucs += UNI_ASCII_SPACE;
+   ucs.append(UNI_ASCII_R_BRACK);
+   ucs.append(UNI_ASCII_SPACE);
    return ucs;
 }
 //-----------------------------------------------------------------------------

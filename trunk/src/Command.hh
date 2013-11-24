@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Value.hh"
 #include "Common.hh"
 #include "UTF8_string.hh"
-#include "Value.hh"
 
 class Workspace;
 

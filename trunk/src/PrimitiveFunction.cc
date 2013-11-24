@@ -96,17 +96,17 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 Token
 Bif_F0_ZILDE::eval_()
 {
-   return Token(TOK_APL_VALUE1, &Value::Idx0);
+   return Token(TOK_APL_VALUE1, Value::Idx0_P);
 }
 //=============================================================================
 Token
 Bif_F12_RHO::eval_B(Value_P B)
 {
-Value_P Z = new Value(B->get_rank(), LOC);
+Value_P Z(new Value(B->get_rank(), LOC), LOC);
 
    loop(r, B->get_rank())   new (&Z->get_ravel(r)) IntCell(B->get_shape_item(r));
 
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ const Shape shape_Z(A, Workspace::get_CT(), 0);
 Token
 Bif_F12_RHO::do_reshape(const Shape & shape_Z, Value_P B)
 {
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 const ShapeItem len_B = B->element_count();
 const ShapeItem len_Z = Z->element_count();
@@ -156,11 +156,11 @@ const APL_Integer qio = Workspace::get_IO();
 const Cell * cell = &B->get_ravel(0);
 const APL_Integer len = cell->get_near_int(qct);
 
-Value_P Z = new Value(len, LOC);
+Value_P Z(new Value(len, LOC), LOC);
 
    loop(z, len)   new (&Z->get_ravel(z)) IntCell(qio + z);
 
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ const APL_Integer qio = Workspace::get_IO();
 const uint64_t len_A  = A->element_count();
 const uint64_t len_BZ = B->element_count();
 
-Value_P Z = new Value(B->get_shape(), LOC);
+Value_P Z(new Value(B->get_shape(), LOC), LOC);
 
    loop(bz, len_BZ)
        {
@@ -196,14 +196,14 @@ Value_P Z = new Value(B->get_shape(), LOC);
             new (&Z->get_ravel(bz)) IntCell(qio + len_A);
        }
 
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_COMMA::ravel(const Shape & new_shape, Value_P B)
 {
-Value_P Z = new Value(new_shape, LOC);
+Value_P Z(new Value(new_shape, LOC), LOC);
 
 const ShapeItem count = B->element_count();
    Assert(count == Z->element_count());
@@ -219,7 +219,7 @@ Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
 {
    if (B->is_skalar())
       {
-        Value_P Z = new Value(2, LOC);
+        Value_P Z(new Value(2, LOC), LOC);
 
 
         Z->get_ravel(0).init(cell_A);
@@ -232,7 +232,7 @@ Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
 Shape shape_Z(B->get_shape());
    shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) + 1);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 const Shape3 shape_B3(B->get_shape(), axis);
    const uint32_t slice_a = shape_B3.l();
@@ -259,7 +259,7 @@ Bif_COMMA::append_skalar(Value_P A, Axis axis, const Cell & cell_B)
 Shape shape_Z(A->get_shape());
    shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) + 1);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 const Shape3 shape_A3(A->get_shape(), axis);
 const uint32_t slice_a = shape_A3.l() * A->get_shape_item(axis);
@@ -321,7 +321,7 @@ Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
              }
         }
 
-        Value_P Z = new Value(shape_Z, LOC);
+        Value_P Z(new Value(shape_Z, LOC), LOC);
 
         Z->set_default(B);
 
@@ -370,7 +370,7 @@ Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
              }
         }
 
-        Value_P Z = new Value(shape_Z, LOC);
+        Value_P Z(new Value(shape_Z, LOC), LOC);
 
         Z->set_default(B);
 
@@ -416,7 +416,7 @@ Shape shape_Z;
             }
        }
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
    Z->set_default(B);
 
@@ -449,7 +449,7 @@ Bif_COMMA::laminate(Value_P A, Axis axis, Value_P B)
 const Shape shape_Z = A->is_skalar() ? B->get_shape().insert_axis(axis, 2)
                                     : A->get_shape().insert_axis(axis, 2);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 const Shape3 shape_Z3(shape_Z, axis);
    Assert(shape_Z3.m() == 2);
@@ -651,7 +651,7 @@ Bif_F12_DOMINO::eval_B(Value_P B)
 {
    if (B->is_skalar())
       {
-        Value_P Z = new Value(LOC);
+        Value_P Z(new Value(LOC), LOC);
 
         B->get_ravel(0).bif_reciprocal(&Z->get_ravel(0));
         return CHECK(Z, LOC);
@@ -672,7 +672,7 @@ Bif_F12_DOMINO::eval_B(Value_P B)
             r2.imag() < qct && r2.imag() > -qct)
             DOMAIN_ERROR;
             
-        Value_P Z = new Value(len, LOC);
+        Value_P Z(new Value(len, LOC), LOC);
 
         if (r2.imag() < qct && r2.imag() > -qct)   // real result
            {
@@ -704,7 +704,7 @@ const ShapeItem cols = B->get_shape_item(1);
    // create an identity matrix I and call eval_AB(I, B).
    //
 const Shape shape_I(rows, rows);
-Value_P I = new Value(shape_I, LOC);
+Value_P I(new Value(shape_I, LOC), LOC);
 
 Cell * i = &I->get_ravel(0);
    loop(r, rows)
@@ -801,7 +801,7 @@ Shape shape_Z;
    loop(r, A->get_rank() - 1)  shape_Z.add_shape_item(A->get_shape_item(r + 1));
    loop(r, B->get_rank() - 1)   shape_Z.add_shape_item(B->get_shape_item(r + 1));
 
-Value_P Z = Bif_F12_RHO::fun.do_reshape(shape_Z, &Value::Zero)
+Value_P Z = Bif_F12_RHO::fun.do_reshape(shape_Z, Value::Zero_P)
                             .get_apl_val();
    return CHECK(Z, LOC);
 }
@@ -817,7 +817,7 @@ Bif_ROTATE::reverse(Value_P B, Axis axis)
 
 const Shape3 shape_B3(B->get_shape(), axis);
 
-Value_P Z = new Value(B->get_shape(), LOC);
+Value_P Z(new Value(B->get_shape(), LOC), LOC);
 
    loop(h, shape_B3.h())
    loop(l, shape_B3.l())
@@ -859,7 +859,7 @@ const Shape shape_A2(shape_B3.h(), shape_B3.l());
       }
 
 
-Value_P Z = new Value(B->get_shape(), LOC);
+Value_P Z(new Value(B->get_shape(), LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
 const Cell * cA = &A->get_ravel(0);
@@ -962,7 +962,7 @@ Value_P
 Bif_F12_TRANSPOSE::transpose(const Shape & A, Value_P B)
 {
 const Shape shape_Z = B->get_shape().permute(A.inverse_permutation());
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
 const Cell * cB = &B->get_ravel(0);
@@ -1019,7 +1019,7 @@ Shape shape_Z;
          }
    }
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
 const Cell * cB = &B->get_ravel(0);
@@ -1055,7 +1055,7 @@ const ShapeItem l_len_B = shape_B1.element_count();
    if (l_len_A == 0 || h_len_B == 0)   // empty result
       {
         const Shape shape_Z(shape_A1 + shape_B1);
-        Value_P Z = new Value(shape_Z, LOC);
+        Value_P Z(new Value(shape_Z, LOC), LOC);
         new (&Z->get_ravel(0))  IntCell(0);   // prototype
         return CHECK(Z, LOC);
       }
@@ -1066,7 +1066,7 @@ const APL_Float qct = Workspace::get_CT();
 
 const Shape shape_Z = shape_A1 + shape_B1;
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 Cell * cZ = &Z->get_ravel(0);
 const Cell * cA = &A->get_ravel(0);
@@ -1122,7 +1122,7 @@ const ShapeItem ec_B = B->element_count();
    if (ec_A == 0 || ec_B == 0)   // empty A or B
       {
         const Shape shape_Z(A->get_shape() + B->get_shape());
-        Value_P Z = new Value(shape_Z, LOC);
+        Value_P Z(new Value(shape_Z, LOC), LOC);
         new (&Z->get_ravel(0))  IntCell(0);   // prototype
         return CHECK(Z, LOC);
       }
@@ -1135,7 +1135,7 @@ const APL_Float qct = Workspace::get_CT();
 const Shape shape_Z = A->get_shape() + B->get_shape();
 const ShapeItem dZ = shape_Z.element_count()/shape_Z.get_shape_item(0);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 Cell * cZ = &Z->get_ravel(0);
 
@@ -1195,7 +1195,7 @@ Bif_F12_ELEMENT::eval_B(Value_P B)
 {
    // enlist
 const ShapeItem len_Z = B->get_enlist_count();
-Value_P Z = new Value(len_Z, LOC);
+Value_P Z(new Value(len_Z, LOC), LOC);
 
 Cell * z = &Z->get_ravel(0);
    B->enlist(z, B->is_lval());
@@ -1212,7 +1212,7 @@ Bif_F12_ELEMENT::eval_AB(Value_P A, Value_P B)
 const APL_Float qct = Workspace::get_CT();
 const ShapeItem len_Z = A->element_count();
 const ShapeItem len_B = B->element_count();
-Value_P Z = new Value(A->get_shape(), LOC);
+Value_P Z(new Value(A->get_shape(), LOC), LOC);
 
    loop(z, len_Z)
        {
@@ -1227,7 +1227,7 @@ Value_P Z = new Value(A->get_shape(), LOC);
          new (&Z->get_ravel(z))   IntCell(same);
        }
    
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -1246,7 +1246,7 @@ Bif_F12_PARTITION::eval_B(Value_P B)
         return result;
       }
 
-Value_P Z = new Value(LOC);
+Value_P Z(new Value(LOC), LOC);
 
    new (&Z->get_ravel(0)) PointerCell(B->clone(LOC));   // calls B->set_nested
 
@@ -1298,14 +1298,14 @@ const Shape weight_B = B->get_shape().reverse_scan();
         return Bif_OPER1_EACH::fun.eval_LB(part, B);
       }
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    for (ArrayIterator it_Z(shape_Z); !it_Z.done(); ++it_Z)
       {
         const ShapeItem off_Z = it_Z.multiply(weight_Z);   // offset in B
 
-        Value_P vZ = new Value(it_shape, LOC);
+        Value_P vZ(new Value(it_shape, LOC), LOC);
         new (cZ++) PointerCell(vZ);
 
         Cell * dst_it = &vZ->get_ravel(0);
@@ -1333,7 +1333,7 @@ const APL_Float qct = Workspace::get_CT();
         APL_Integer val = A->get_ravel(0).get_int_value();
         if (val == 0)
            {
-             return Token(TOK_APL_VALUE1, &Value::Idx0);
+             return Token(TOK_APL_VALUE1, Value::Idx0_P);
            }
 
         return eval_B(B);
@@ -1358,7 +1358,7 @@ ShapeItem len_Z = 0;
 Shape shape_Z(B->get_shape());
    shape_Z.set_shape_item(axis, len_Z);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 
    if (Z->is_empty())
@@ -1428,7 +1428,7 @@ Bif_F12_PARTITION::copy_segment(Cell * dest, ShapeItem h, ShapeItem m_from,
    Assert(m_to <= m_len);
    Assert(l < l_len);
 
-Value_P V = new Value(m_to - m_from, LOC);
+Value_P V(new Value(m_to - m_from, LOC), LOC);
 
 Cell * vv = &V->get_ravel(0);
    for (ShapeItem m = m_from; m < m_to; ++m)
@@ -1447,7 +1447,7 @@ const ShapeItem len_B = B->element_count();
 const Shape it_shape = item_shape(B);;
 const Shape shape_Z = B->get_shape() + it_shape;
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 const ShapeItem llen = it_shape.element_count();
    loop(h, len_B)
@@ -1528,7 +1528,7 @@ Shape shape_Z;
         }
    }
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
    // loop over sources and place them in the result.
    //
@@ -1637,7 +1637,7 @@ const ShapeItem ec_A = A->element_count();
       {
         const ShapeItem ec_B = B->nz_element_count();
 
-        Value_P Z = new Value(B->get_shape(), LOC);
+        Value_P Z(new Value(B->get_shape(), LOC), LOC);
         loop(b, ec_B)   Z->get_ravel(b).init(B->get_ravel(b));
         return CHECK(Z, LOC);
       }
@@ -1707,7 +1707,7 @@ const Cell * cB = &B->get_ravel(c);
 Value_P Z;
    if (lval)   // (A⊃B)←
       {
-        Z = new Value(LOC);
+        Z = Value_P(new Value(LOC), LOC);
         Cell * cell = &Z->get_ravel(0);
         if (cB->is_pointer_cell())
            {
@@ -1730,7 +1730,7 @@ Value_P Z;
            }
         else
            {
-             Z = new Value(LOC);
+             Z = Value_P(new Value(LOC), LOC);
              Z->get_ravel(0).init(*cB);
            }
       }
@@ -1748,7 +1748,7 @@ const ShapeItem ec_A = A->element_count();
 
    // index_expr is in reverse order!
    //
-IndexExpr * index_expr = new IndexExpr(LOC);
+IndexExpr * index_expr = new IndexExpr(false, LOC);
    loop(a, ec_A)
       {
          const Cell & cell = A->get_ravel(ec_A - a - 1);
@@ -1761,7 +1761,7 @@ IndexExpr * index_expr = new IndexExpr(LOC);
         else
             {
               const APL_Integer i = cell.get_int_value();
-              val = new Value(LOC);
+              val = Value_P(new Value(LOC), LOC);
               if (i < 0)   DOMAIN_ERROR;
 
               new (&val->get_ravel(0))   IntCell(i);
@@ -1776,7 +1776,7 @@ Value_P Z;
    if (index_expr->value_count() == 1)   // one-dimensional index
       {
         Value_P single_index = index_expr->values[0];
-        index_expr->values[0] = 0;
+        index_expr->values[0].clear(LOC);
 
         single_index->clear_index();
         Z = B->index(single_index);
@@ -1804,8 +1804,8 @@ const ShapeItem ec_A = A->element_count();
    // index_expr is in reverse order!
    //
 const APL_Integer qio = Workspace::the_workspace->get_IO();
-IndexExpr * index_expr = new IndexExpr(LOC);
-   loop(rb, B->get_rank())   index_expr->add(0);
+IndexExpr * index_expr = new IndexExpr(false, LOC);
+   loop(rb, B->get_rank())   index_expr->add(Value_P());
    index_expr->quad_ct = Workspace::the_workspace->get_CT();
    index_expr->quad_io = qio;
 
@@ -1823,7 +1823,7 @@ IndexExpr * index_expr = new IndexExpr(LOC);
         else
             {
               const APL_Integer i = cell.get_int_value();
-              val = new Value(LOC);
+              val = Value_P(new Value(LOC), LOC);
               if (i < 0)   DOMAIN_ERROR;
 
               new (&val->get_ravel(0))   IntCell(i);
@@ -1852,22 +1852,22 @@ const Cell & first_B = B->get_ravel(0);
         Value_P v1 = first_B.get_pointer_value();
         if (v1->is_lval())
            {
-             Value_P B1 = new Value(LOC);
+             Value_P B1(new Value(LOC), LOC);
              new (&B1->get_ravel(0))   PointerCell(v1);
 
-             Z = new Value(LOC);
+             Z = Value_P(new Value(LOC), LOC);
              new (&Z->get_ravel(0))   LvalCell(&B1->get_ravel(0));
            }
         else
            {
              const ShapeItem ec = v1->element_count();
-             Z = new Value(v1->get_shape(), LOC);
+             Z = Value_P(new Value(v1->get_shape(), LOC), LOC);
              loop(e, ec)   Z->get_ravel(e).init(v1->get_ravel(e));
            }
       }
    else
       {
-        Z = new Value(LOC);
+        Z = Value_P(new Value(LOC), LOC);
 
         Z->get_ravel(0).init(first_B);
       }
@@ -1919,7 +1919,7 @@ Shape ravel_A1(ravel_A);
         Cell proto;
         proto.init_type(B->get_ravel(0));
         const Shape ravel_A1_abs = ravel_A1.abs();
-        Value_P Z = new Value(ravel_A1_abs, LOC);
+        Value_P Z(new Value(ravel_A1_abs, LOC), LOC);
         const ShapeItem ec_Z = Z->nz_element_count();   // incl. proto
         Cell * cZ = &Z->get_ravel(0);
 
@@ -1959,7 +1959,7 @@ Shape shape_Z(shape_Zi);
          if (a < 0)    shape_Z.set_shape_item(r, -a);
        }
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
    fill(shape_Zi, &Z->get_ravel(0), B);
 
@@ -2036,7 +2036,7 @@ Shape ravel_A(A, Workspace::get_CT(), 0);
         Shape shape_Z;
         loop(r, ravel_A.get_rank())   shape_Z.add_shape_item(len_Z);
 
-        Value_P Z = new Value(shape_Z, LOC);
+        Value_P Z(new Value(shape_Z, LOC), LOC);
 
         Z->get_ravel(0).init(B->get_ravel(0));
         return CHECK(Z, LOC);
@@ -2116,7 +2116,7 @@ Bif_SORT::sort(Value_P B, bool ascending)
 const ShapeItem len_BZ = B->get_shape_item(0);
    if (len_BZ == 0)
       {
-        Value_P Z = &Value::Idx0;
+        Value_P Z = Value::Idx0_P;
         return CHECK(Z, LOC);
       }
 
@@ -2132,13 +2132,13 @@ const Cell * array[len_BZ];
 
    Cell::heapsort(array, len_BZ, ascending, &comp_len, &Cell::greater_vec);
 
-Value_P Z = new Value(len_BZ, LOC);
+Value_P Z(new Value(len_BZ, LOC), LOC);
 
 const Cell * base = &B->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
 
    return CHECK(Z, LOC);
 }
@@ -2151,15 +2151,15 @@ Bif_SORT::sort_collating(Value_P A, Value_P B, bool ascending)
 
 const APL_Integer qio = Workspace::get_IO();
    if (B->NOTCHAR())     DOMAIN_ERROR;
-   if (B->is_skalar())   return qio ? CHECK(&Value::One, LOC)
-                                   : CHECK(&Value::Zero, LOC);
+   if (B->is_skalar())   return qio ? CHECK(Value::One_P, LOC)
+                                   : CHECK(Value::Zero_P, LOC);
 
 const ShapeItem len_BZ = B->get_shape_item(0);
-   if (len_BZ == 0)   return CHECK(&Value::Idx0, LOC);
-   if (len_BZ == 1)   return qio ? CHECK(&Value::One, LOC)
-                                 : CHECK(&Value::Zero, LOC);
+   if (len_BZ == 0)   return CHECK(Value::Idx0_P, LOC);
+   if (len_BZ == 1)   return qio ? CHECK(Value::One_P, LOC)
+                                 : CHECK(Value::Zero_P, LOC);
 
-Value_P B1 = new Value(B->get_shape(), LOC);
+Value_P B1(new Value(B->get_shape(), LOC), LOC);
 const ShapeItem ec_B = B->element_count();
 const ShapeItem comp_len = ec_B/len_BZ;
 CollatingCache cc_cache(A->get_rank(), comp_len);
@@ -2176,13 +2176,13 @@ const Cell * array[len_BZ];
    Cell::heapsort(array, len_BZ, ascending, &cc_cache,
                   &CollatingCache::greater_vec);
 
-Value_P Z = new Value(len_BZ, LOC);
+Value_P Z(new Value(len_BZ, LOC), LOC);
 
 const Cell * base = &B1->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
 
    B1->erase(LOC);
    return CHECK(Z, LOC);
@@ -2228,7 +2228,7 @@ Bif_F12_EQUIV::eval_B(Value_P B)
 {
 const Depth depth = B->compute_depth();
 
-Value_P Z = new Value(LOC);
+Value_P Z(new Value(LOC), LOC);
 
    new (&Z->get_ravel(0)) IntCell(depth);
 
@@ -2259,7 +2259,7 @@ bool different = false;
           }
 done:
 
-Value_P Z = different ? &Value::Zero : &Value::One;
+Value_P Z = different ? Value::Zero_P : Value::One_P;
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -2267,7 +2267,7 @@ Token
 Bif_F12_FORMAT::eval_B(Value_P B)
 {
 Value_P Z = monadic_format(B);
-   Z->set_default(&Value::Spc);
+   Z->set_default(Value::Spc_P);
 
    return CHECK(Z, LOC);
 }
@@ -2292,7 +2292,7 @@ Value_P Z;
         DOMAIN_ERROR;
       }
 
-   Z->set_default(&Value::Spc);
+   Z->set_default(Value::Spc_P);
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -2307,8 +2307,8 @@ const uint32_t width  = pb.get_width(0);
 const uint32_t height = pb.get_height();
 
 Value_P Z;
-   if (height == 1)   Z = new Value(width, LOC);
-   else               Z = new Value(Shape(height, width), LOC);
+   if (height == 1)   Z = Value_P(new Value(width, LOC), LOC);
+   else               Z = Value_P(new Value(Shape(height, width), LOC), LOC);
 
 Cell * cZ = &Z->get_ravel(0);
 
@@ -2346,7 +2346,7 @@ vector<UCS_string> col_formats;
         UCS_string f = format;
         loop(c, cols - 1)
            {
-             format += f;
+             format.append(f);
              col_formats.push_back(col_formats.front());
            }
       }
@@ -2383,7 +2383,7 @@ Shape shape_Z(B->get_shape());
    if (B->is_skalar())   shape_Z.add_shape_item(1);
    shape_Z.set_last_shape_item(format.size());
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
    try
       {
@@ -2399,7 +2399,7 @@ Value_P Z = new Value(shape_Z, LOC);
 
                   const UCS_string item = col_items[c].format_example(value);
                   Log(LOG_Bif_F12_FORMAT)   Q(item)
-                  row += item;
+                  row.append(item);
                 }
 
              Log(LOG_Bif_F12_FORMAT)
@@ -2418,7 +2418,7 @@ Value_P Z = new Value(shape_Z, LOC);
    catch (...)
       {
         Z->erase(LOC);
-        Z = 0;
+        Z.clear(LOC);
       }
 
    return Z;
@@ -2433,7 +2433,7 @@ UCS_string fmt;
    loop(f, format.size())
        {
          const Unicode cc = format[f];
-         fmt += cc;
+         fmt.append(cc);
 
          const bool is_fmt_char = is_control_char(cc);
          if (is_fmt_char)   fmt_seen = true;
@@ -2449,7 +2449,7 @@ UCS_string fmt;
          if (cc == UNI_ASCII_6)   // end of field after next char
             {
               ++f;   // next char is right decorator (and end of field)
-              if (f < format.size())   fmt += format[f];
+              if (f < format.size())   fmt.append(format[f]);
 
               col_formats.push_back(fmt);
               fmt.clear();    // start a new field;
@@ -2460,7 +2460,7 @@ UCS_string fmt;
 
    if ((!fmt_seen) && (col_formats.size() > 0))
       {
-        col_formats.back() += fmt;
+        col_formats.back().append(fmt);
       }
    else
       {
@@ -2513,21 +2513,21 @@ const UCS_string pad(int_part.size() - data.size(), pad_char);
 UCS_string ucs;
    if (int_part.no_float())                 // floating disabled.
       {
-        ucs += left_deco.format;
-        ucs += pad;
+        ucs.append(left_deco.format);
+        ucs.append(pad);
       }
    else if (int_part.do_float(negative))   // floating enabled, deco shown
       {
-        ucs += pad;
-        ucs += left_deco.format;
+        ucs.append(pad);
+        ucs.append(left_deco.format);
       }
    else                                     // floating enabled, deco hidden
       {
-        ucs += pad;
-        ucs += UCS_string(left_deco.size(), UNI_ASCII_SPACE);
+        ucs.append(pad);
+        ucs.append(UCS_string(left_deco.size(), UNI_ASCII_SPACE));
       }
 
-   ucs += data;
+   ucs.append(data);
    return ucs;
 }
 //-----------------------------------------------------------------------------
@@ -2549,8 +2549,8 @@ UCS_string ucs;
 
         // print nothing instead of .
         if (data.size() == 0)   ++pad_count;
-        else                    ucs += Workspace::get_FC(0);     
-        ucs += data;
+        else                    ucs.append(Workspace::get_FC(0)); 
+        ucs.append(data);
       }
 
    if (exponent.size())
@@ -2561,22 +2561,22 @@ UCS_string ucs;
 
         if (exponent.no_float())              // floating disabled.
            {
-             data += expo_deco.format;
-             data += data_expo;
+             data.append(expo_deco.format);
+             data.append(data_expo);
            }
         else if (exponent.do_float(expo_negative))   // floating, deco shown
            {
-             data += expo_deco.format;
-             data += data_expo;
+             data.append(expo_deco.format);
+             data.append(data_expo);
            }
         else                                 // floating enabled and deco hidden
            {
-             data += UCS_string(expo_deco.format.size(), pad_char);
-             data += data_expo;
+             data.append(UCS_string(expo_deco.format.size(), pad_char));
+             data.append(data_expo);
            }
 
         pad_count += expo_deco.out_len + exponent.out_len - data.size();
-        ucs += data;
+        ucs.append(data);
       }
 
    // now do the right side padding.
@@ -2586,18 +2586,18 @@ UCS_string ucs;
 
      if (fract_part.no_float())                // floating disabled.
         {
-          ucs += right_deco.format;
-          ucs += pad;
+          ucs.append(right_deco.format);
+          ucs.append(pad);
         }
      else if (fract_part.do_float(negative))  // floating, deco shown
         {
-          ucs += pad;
-          ucs += right_deco.format;
+          ucs.append(pad);
+          ucs.append(right_deco.format);
         }
      else                                      // floating, deco hidden
         {
-          ucs += pad;
-          ucs += UCS_string(right_deco.size(), pad_char);
+          ucs.append(pad);
+          ucs.append(UCS_string(right_deco.size(), pad_char));
         }
    }
 
@@ -2617,7 +2617,7 @@ left_decorator:
    while (f < format.size())
       {
         if (is_control_char(format[f]))   goto integral_part;
-        else                              left_deco.format += format[f++];
+        else                              left_deco.format.append(format[f++]);
       }
    goto fields_done;
 
@@ -2630,7 +2630,7 @@ integral_part:
         if (cc == UNI_ASCII_E)          goto exponent_part;
         if (is_control_char(cc))
            {
-             int_part.format += cc;
+             int_part.format.append(cc);
              if (cc == UNI_ASCII_6)          goto right_decorator;
            }
         else
@@ -2649,7 +2649,7 @@ fractional_part:
 
         if (is_control_char(cc))
            {
-             fract_part.format += cc;
+             fract_part.format.append(cc);
              if (cc == UNI_ASCII_6)          goto right_decorator;
            }
         else
@@ -2669,7 +2669,7 @@ exponent_decorator:
 
         if (!is_control_char(cc))
            {
-             expo_deco.format += cc;
+             expo_deco.format.append(cc);
            }
         else
            {
@@ -2685,7 +2685,7 @@ exponent_part:
 
         if (is_control_char(cc))
            {
-             exponent.format += cc;
+             exponent.format.append(cc);
              if (cc == UNI_ASCII_6)          goto right_decorator;
            }
         else
@@ -2697,7 +2697,7 @@ exponent_part:
 
 right_decorator:   /// the right decorator
    while (f < format.size())
-      right_deco.format += format[f++];
+      right_deco.format.append(format[f++]);
 
 fields_done:
 
@@ -2810,9 +2810,9 @@ char * fract_end = 0;
 
         // insert leading zeros until we have at least min_len digits.
         //
-        for (; elen < exponent.min_len; ++elen)   data_expo += UNI_ASCII_0;
+        for (; elen < exponent.min_len; ++elen)   data_expo.append(UNI_ASCII_0);
 
-        data_expo += UCS_string(UTF8_string(ep));
+        data_expo.append(UCS_string(UTF8_string(ep)));
       }
    else   // no exponent in format string.
       {
@@ -2842,7 +2842,7 @@ char * int_end = strchr(data_buf, '.');
         while (fract_digits[flen - 1] == '0' && flen > fract_part.min_len)
                fract_digits[--flen] = 0;
 
-        loop(f, flen)   data_fract += Unicode(fract_digits[f]);
+        loop(f, flen)   data_fract.append(Unicode(fract_digits[f]));
       }
 
 const int ilen = int_end - data_buf;
@@ -2850,9 +2850,9 @@ const int ilen = int_end - data_buf;
    // insert leading zeros so that we will have at least min_len digits
    // after appending the integer data.
    //
-   loop(d, int_part.min_len - ilen)   data_int += UNI_ASCII_0;
+   loop(d, int_part.min_len - ilen)   data_int.append(UNI_ASCII_0);
 
-   loop(i, ilen)   data_int += Unicode(data_buf[i]);
+   loop(i, ilen)   data_int.append(Unicode(data_buf[i]));
 
    // convert 0.xxx to .xxx
    //
@@ -2912,12 +2912,12 @@ size_t d = data.size();
         const Unicode fc = format[f];
          if (fc == UNI_ASCII_COMMA)
             {
-              ucs += quad_fc[1];   //  == ⎕FC[2] when ⎕IO is 1
+              ucs.append(quad_fc[1]);   //  == ⎕FC[2] when ⎕IO is 1
             }
          else if (Avec::is_digit(fc))
             {
-              if (d)                    ucs += data[--d];
-              else if (f >= fill_pos)   ucs += fill_char;
+              if (d)                    ucs.append(data[--d]);
+              else if (f >= fill_pos)   ucs.append(fill_char);
               else                      break;
             }
          else
@@ -2951,11 +2951,11 @@ size_t d = 0;
         const Unicode fc = format[f];
          if (fc == UNI_ASCII_COMMA)
             {
-              ucs += comma_char;
+              ucs.append(comma_char);
             }
          else if (Avec::is_digit(fc))
             {
-              if (d < data.size())   ucs += data[d++];
+              if (d < data.size())   ucs.append(data[d++]);
               else                   break;
             }
          else
@@ -3008,7 +3008,7 @@ const APL_Float qct = Workspace::get_CT();
         shape_Z.add_shape_item(W);
         const ShapeItem ec_Z = shape_Z.nz_element_count();
 
-        Value_P Z = new Value(shape_Z, LOC);
+        Value_P Z(new Value(shape_Z, LOC), LOC);
         Cell * cZ = &Z->get_ravel(0);
         loop(z, ec_Z)   new (cZ++) CharCell(UNI_ASCII_SPACE);
 
@@ -3054,7 +3054,7 @@ const ShapeItem pb_h = pb.get_height();
 Shape shape_Z(shape_B);
    shape_Z.set_last_shape_item(pb_w);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 Cell * cZ = &Z->get_ravel(0);
    loop(h, pb_h)
@@ -3140,7 +3140,7 @@ Bif_F12_FORMAT::add_row(PrintBuffer & ret, int row, bool has_char,
 {
    if (row == 0)         // first row: don't  align
       {
-        ret.append_string(data);
+        ret.append_ucs(data);
       }
    else if (!has_char)   // only numbers: align at '.' or 'E'
       {
@@ -3150,15 +3150,15 @@ Bif_F12_FORMAT::add_row(PrintBuffer & ret, int row, bool has_char,
       {
         const int d = ret.get_width(0) - data.size();
         if      (d < 0)   ret.pad_r(UCS_string(-d, UNI_ASCII_SPACE));
-        else if (d > 0)   data += UCS_string(d, UNI_ASCII_SPACE);
-        ret.append_string(data);
+        else if (d > 0)   data.append(UCS_string(d, UNI_ASCII_SPACE));
+        ret.append_ucs(data);
       }
    else                 // chars and numbers: align right
       {
         const int d = ret.get_width(0) - data.size();
         if      (d < 0)   ret.pad_l(UCS_string(-d, UNI_ASCII_SPACE));
         else if (d > 0)   data = UCS_string(d, UNI_ASCII_SPACE) + data;
-        ret.append_string(data);
+        ret.append_ucs(data);
       }
 }
 //-----------------------------------------------------------------------------
@@ -3214,7 +3214,7 @@ Bif_F1_EXECUTE::eval_B(Value_P B)
 {
    if (B->get_rank() > 1)   RANK_ERROR;
 
-const UCS_string statement(B);
+const UCS_string statement(B.get_ref());
 
    if (statement.size() == 0)   return Token(TOK_NO_VALUE);
 
@@ -3273,7 +3273,7 @@ const Cell * last = &B->get_ravel(B1->get_ravel(0).get_int_value() - qio);
            }
       }
 
-Value_P Z1 = new Value(ec_Z, LOC);
+Value_P Z1(new Value(ec_Z, LOC), LOC);
 // Z1->set_assigned();
 Cell * cZ1 = &Z1->get_ravel(0);
    loop(j, ec_B)

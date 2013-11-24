@@ -116,8 +116,8 @@ Source<Unicode> src(input);
                    else if (uni == UNI_QUOTE_QUAD)
                       {
                         ++src;
-                        tos += Token(TOK_QUAD_QUOTE,
-                                     &Workspace::the_workspace->v_quad_QUOTE);
+                        tos.append(Token(TOK_QUAD_QUOTE,
+                                     &Workspace::the_workspace->v_quad_QUOTE));
                       }
                    else
                       {
@@ -158,8 +158,8 @@ Source<Unicode> src(input);
 
               case TC_R_ARROW:
                    ++src;
-                   if (src.rest())   tos += tok;
-                   else              tos += Token(TOK_ESCAPE);
+                   if (src.rest())   tos.append(tok);
+                   else              tos.append(Token(TOK_ESCAPE));
                    break;
 
               case TC_ASSIGN:
@@ -168,7 +168,7 @@ Source<Unicode> src(input);
               case TC_L_BRACK:
               case TC_R_BRACK:
                    ++src;
-                   tos += tok;
+                   tos.append(tok);
                    break;
 
               case TC_DIAMOND:
@@ -179,7 +179,7 @@ Source<Unicode> src(input);
                       }
 
                    ++src;
-                   tos += tok;
+                   tos.append(tok);
                    break;
 
               case TC_COLON:
@@ -190,7 +190,7 @@ Source<Unicode> src(input);
                       }
 
                    ++src;
-                   tos += tok;
+                   tos.append(tok);
                    break;
 
               case TC_NUMERIC:
@@ -236,7 +236,7 @@ const Unicode uni = src.get();
 Token tok = Avec::uni_to_token(uni, LOC);
 
 #define sys(t, f) \
-   case TOK_ ## t: tok = Token(tok.get_tag(), &Bif_ ## f::fun);   break;
+   case TOK_ ## t: new (&tok) Token(tok.get_tag(), &Bif_ ## f::fun);   break;
 
    switch(tok.get_tag())
       {
@@ -309,7 +309,7 @@ Token tok = Avec::uni_to_token(uni, LOC);
       }
 
 #undef sys
-   tos += Token(tok);
+   tos.append(Token(tok));
 }
 //-----------------------------------------------------------------------------
 void
@@ -319,17 +319,17 @@ Tokenizer::tokenize_quad(Source<Unicode> & src, Token_string & tos)
       CERR << "tokenize_quad(" << src.rest() << " chars)"<< endl;
 
 UCS_string ucs;
-   ucs += src.get();
+   ucs.append(src.get());
    Assert(ucs[0] == UNI_QUAD_QUAD);
 
-   ucs += (src.rest() > 0) ? src[0] : Invalid_Unicode;
-   ucs += (src.rest() > 1) ? src[1] : Invalid_Unicode;
-   ucs += (src.rest() > 2) ? src[2] : Invalid_Unicode;
+   ucs.append((src.rest() > 0) ? src[0] : Invalid_Unicode);
+   ucs.append((src.rest() > 1) ? src[1] : Invalid_Unicode);
+   ucs.append((src.rest() > 2) ? src[2] : Invalid_Unicode);
 
 int len = 0;
 const Token t = Workspace::the_workspace->get_quad(ucs, len);
    src.skip(len - 1);
-   tos += t;
+   tos.append(t);
 }
 //-----------------------------------------------------------------------------
 /** tokenize a single quoted string.
@@ -357,7 +357,7 @@ UCS_string string_value;
             {
               if ((src.rest() == 0) || (*src != UNI_SINGLE_QUOTE))   break;
 
-              string_value += UNI_SINGLE_QUOTE;
+              string_value.append(UNI_SINGLE_QUOTE);
               ++src;      // skip the second '
             }
          else if (uni == UNI_ASCII_CR)
@@ -371,21 +371,22 @@ UCS_string string_value;
             }
          else
             {
-              string_value += uni;
+              string_value.append(uni);
             }
        }
 
    if (string_value.size() == 1)   // skalar
       {
-        tos += Token(TOK_CHARACTER, string_value[0]);
+        tos.append(Token(TOK_CHARACTER, string_value[0]));
       }
    else if (string_value.size() == 0)
       {
-        tos += Token(TOK_APL_VALUE1, &Value::Str0);
+        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P));
       }
    else
       {
-        tos += Token(TOK_APL_VALUE1, new Value(string_value, LOC));
+        tos.append(Token(TOK_APL_VALUE1,
+                         Value_P(new Value(string_value, LOC), LOC)));
       }
 }
 //-----------------------------------------------------------------------------
@@ -428,34 +429,35 @@ UCS_string string_value;
               const Unicode uni1 = src.get();
               switch(uni1)
                  {
-                   case '0':  string_value += UNI_ASCII_NUL;            break;
-                   case 'a':  string_value += UNI_ASCII_BEL;            break;
-                   case 'b':  string_value += UNI_ASCII_BS;             break;
-                   case 't':  string_value += UNI_ASCII_HT;             break;
-                   case 'n':  string_value += UNI_ASCII_LF;             break;
-                   case 'v':  string_value += UNI_ASCII_VT;             break;
-                   case 'f':  string_value += UNI_ASCII_FF;             break;
-                   case 'r':  string_value += UNI_ASCII_CR;             break;
-                   case '[':  string_value += UNI_ASCII_ESC;            break;
-                   case '"':  string_value += UNI_ASCII_DOUBLE_QUOTE;   break;
-                   case '\\': string_value += UNI_ASCII_BACKSLASH;      break;
-                   default:   string_value += uni;
-                              string_value += uni1;
+                   case '0':  string_value.append(UNI_ASCII_NUL);         break;
+                   case 'a':  string_value.append(UNI_ASCII_BEL);         break;
+                   case 'b':  string_value.append(UNI_ASCII_BS);          break;
+                   case 't':  string_value.append(UNI_ASCII_HT);          break;
+                   case 'n':  string_value.append(UNI_ASCII_LF);          break;
+                   case 'v':  string_value.append(UNI_ASCII_VT);          break;
+                   case 'f':  string_value.append(UNI_ASCII_FF);          break;
+                   case 'r':  string_value.append(UNI_ASCII_CR);          break;
+                   case '[':  string_value.append(UNI_ASCII_ESC);         break;
+                   case '"':  string_value.append(UNI_ASCII_DOUBLE_QUOTE);break;
+                   case '\\': string_value.append(UNI_ASCII_BACKSLASH);   break;
+                   default:   string_value.append(uni);
+                              string_value.append(uni1);
                  }
             }
          else
             {
-              string_value += uni;
+              string_value.append(uni);
             }
        }
 
    if (string_value.size() == 0)
       {
-        tos += Token(TOK_APL_VALUE1, &Value::Str0);
+        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P));
       }
    else
       {
-        tos += Token(TOK_APL_VALUE1, new Value(string_value, LOC));
+        tos.append(Token(TOK_APL_VALUE1,
+                         Value_P(new Value(string_value, LOC), LOC)));
       }
 }
 //-----------------------------------------------------------------------------
@@ -491,12 +493,12 @@ bool real_floating = real_flt != real_int;
         if (!imag_valid)
            {
              --src;
-             if (real_floating)   tos += Token(TOK_REAL,    real_flt);
-             else                 tos += Token(TOK_INTEGER, real_int);
+             if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
+             else                 tos.append(Token(TOK_INTEGER, real_int));
              return;
            }
 
-        tos += Token(TOK_COMPLEX, real_flt, imag_flt);
+        tos.append(Token(TOK_COMPLEX, real_flt, imag_flt));
       }
    else if (src.rest() && *src == UNI_ASCII_D)
       {
@@ -509,8 +511,8 @@ bool real_floating = real_flt != real_int;
         if (!imag_valid)
            {
              --src;
-             if (real_floating)   tos += Token(TOK_REAL,    real_flt);
-             else                 tos += Token(TOK_INTEGER, real_int);
+             if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
+             else                 tos.append(Token(TOK_INTEGER, real_int));
              return;
            }
 
@@ -518,7 +520,7 @@ bool real_floating = real_flt != real_int;
         //
         APL_Float real = cos(M_PI*degrees_flt / 180);
         APL_Float imag = sin(M_PI*degrees_flt / 180);
-        tos += Token(TOK_COMPLEX, real_flt*real, real_flt*imag);
+        tos.append(Token(TOK_COMPLEX, real_flt*real, real_flt*imag));
       }
    else if (src.rest() && *src == UNI_ASCII_R)
       {
@@ -531,8 +533,8 @@ bool real_floating = real_flt != real_int;
         if (!imag_valid)
            {
              --src;
-             if (real_floating)   tos += Token(TOK_REAL,    real_flt);
-             else                 tos += Token(TOK_INTEGER, real_int);
+             if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
+             else                 tos.append(Token(TOK_INTEGER, real_int));
              return;
            }
 
@@ -540,12 +542,12 @@ bool real_floating = real_flt != real_int;
         //
         APL_Float real = cos(radian_flt);
         APL_Float imag = sin(radian_flt);
-        tos += Token(TOK_COMPLEX, real_flt*real, real_flt*imag);
+        tos.append(Token(TOK_COMPLEX, real_flt*real, real_flt*imag));
       }
    else 
      {
-         if (real_floating)   tos += Token(TOK_REAL,    real_flt);
-         else                 tos += Token(TOK_INTEGER, real_int);
+         if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
+         else                 tos.append(Token(TOK_INTEGER, real_int));
       }
 }
 //-----------------------------------------------------------------------------
@@ -568,7 +570,7 @@ UTF8_string utf;
    //
    if (*src == UNI_OVERBAR)
       {
-        utf += '-';
+        utf.append('-');
         ++src;
       }
 
@@ -578,20 +580,20 @@ UTF8_string utf;
         switch(cc)
            {
              case UNI_ASCII_0 ... UNI_ASCII_9:
-                  utf += cc;
+                  utf.append(cc);
                   digit_seen = true;
                   break;
 
              case UNI_ASCII_FULLSTOP:
                   if (dot_seen || E_pos)   return false;   // error
-                  utf += '.';
+                  utf.append('.');
                   dot_seen = true;
                   break;
 
              case UNI_ASCII_E:
              case UNI_ASCII_e:
                   if (E_pos)   return false;   // a second e or E
-                  utf += 'e';
+                  utf.append('e');
                   E_pos = utf.size();
                   break;
 
@@ -599,7 +601,7 @@ UTF8_string utf;
                   if (!E_pos)      return false;   // ¯ without E
                   if (minus_pos)   return false;   // a second ¯ in exponent
 
-                  utf += '-';
+                  utf.append('-');
                   minus_pos = utf.size();
                   break;
 
@@ -629,18 +631,18 @@ Tokenizer::tokenize_symbol(Source<Unicode> & src, Token_string & tos)
    Log(LOG_tokenize)   CERR << "tokenize_symbol() : " << src.rest() << endl;
 
 UCS_string symbol;
-   symbol += src.get();
+   symbol.append(src.get());
 
    while (src.rest())
        {
          const Unicode uni = *src;
          if (!Avec::is_symbol_char(uni))   break;
-         symbol += uni;
+         symbol.append(uni);
          ++src;
        }
 
 Symbol * sym = Workspace::the_workspace->symbol_table.lookup_symbol(symbol);
-   tos += Token(TOK_SYMBOL, sym);
+   tos.append(Token(TOK_SYMBOL, sym));
 }
 //-----------------------------------------------------------------------------
 

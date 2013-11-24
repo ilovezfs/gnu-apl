@@ -59,7 +59,7 @@ vector<ShapeItem> rep_counts;
 
 Shape shape_Z(shape_B);
    shape_Z.set_shape_item(axis, ec_A);
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
    if (ec_A == 0)   // (⍳0)/B : 
       {
@@ -141,7 +141,7 @@ const ShapeItem m_len = B->get_shape_item(axis);
 
 const Shape3 Z3(B->get_shape(), axis);
 _EOC_arg arg;
-Value_P Z = new Value(B->get_shape(), LOC);
+Value_P Z(new Value(B->get_shape(), LOC), LOC);
    arg._reduce_beam().init(Z, Z3, LO, B, m_len, 1, 1);
 
 Token tok(TOK_FIRST_TIME);

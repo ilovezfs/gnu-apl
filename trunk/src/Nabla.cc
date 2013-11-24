@@ -98,8 +98,8 @@ Nabla::edit()
 UCS_string fun_text;
    loop(l, lines.size())
       {
-        fun_text += lines[l].text;
-        fun_text += UNI_ASCII_LF;
+        fun_text.append(lines[l].text);
+        fun_text.append(UNI_ASCII_LF);
       }
 
 int error_line = 0;
@@ -134,7 +134,7 @@ UCS_string::iterator c(first_command.begin());
 
    // function name or header.
    //
-   while (c.more() && c.get() != UNI_ASCII_L_BRACK)   fun_name += c.next();
+   while (c.more() && c.get() != UNI_ASCII_L_BRACK)   fun_name.append(c.next());
 
    // at this point there could be an axis specification [X] that
    // could be confused with an operation like [⎕]. We take the first char
@@ -147,9 +147,9 @@ UCS_string::iterator c(first_command.begin());
               if (c.get(off) <= UNI_ASCII_SPACE)   continue; 
               if (Avec::is_first_symbol_char(c.get(off)))   // axis
                  {
-                   fun_name += c.next();   //  copy the [
+                   fun_name.append(c.next());   //  copy the [
                    while (c.more() && c.get() != UNI_ASCII_L_BRACK)
-                         fun_name += c.next();
+                         fun_name.append(c.next());
                  }
               break;
             }
@@ -163,7 +163,7 @@ UCS_string::iterator c(first_command.begin());
       {
         UCS_string oper;
         Unicode cc;
-        do oper += cc = c.next(); while (cc != UNI_ASCII_R_BRACK);
+        do oper.append(cc = c.next());   while (cc != UNI_ASCII_R_BRACK);
         if (const char * loc = parse_oper(oper, true))   return loc;   // error
       }
 
@@ -225,7 +225,7 @@ Unicode cc = c.next();
       {
         ecmd = ECMD_EDIT;
         edit_from = current_line;
-        for (; cc != Invalid_Unicode; cc = c.next())   current_text += cc;
+        for (; cc != Invalid_Unicode; cc = c.next())   current_text.append(cc);
         return 0;
       }
 
@@ -322,34 +322,34 @@ again:
                   return 0;
 
              case UNI_ASCII_DOUBLE_QUOTE:  // "
-                  current_text += cc;
+                  current_text.append(cc);
                   for (;;)
                       {
                         cc = c.next();
                         if (cc == Invalid_Unicode)   // premature end of input
                            {
-                             current_text += UNI_ASCII_DOUBLE_QUOTE;
+                             current_text.append(UNI_ASCII_DOUBLE_QUOTE);
                              return 0;
                            }
 
-                        current_text += cc;
+                        current_text.append(cc);
                         if (cc == UNI_ASCII_DOUBLE_QUOTE)   break; // string end
                         if (cc == UNI_ASCII_BACKSLASH)      // \x
                            {
                              cc = c.next();
                              if (cc == Invalid_Unicode)   // premature input end
                                 {
-                                  current_text += UNI_ASCII_BACKSLASH;
-                                  current_text += UNI_ASCII_DOUBLE_QUOTE;
+                                  current_text.append(UNI_ASCII_BACKSLASH);
+                                  current_text.append(UNI_ASCII_DOUBLE_QUOTE);
                                   return 0;
                                 }
-                             current_text += cc;
+                             current_text.append(cc);
                            }
                       }
                   break;
 
              case UNI_SINGLE_QUOTE:    // '
-                  current_text += cc;
+                  current_text.append(cc);
                   for (;;)
                       {
                         // no need to care for ''. Since we only copy, we can
@@ -359,17 +359,17 @@ again:
                         cc = c.next();
                         if (cc == Invalid_Unicode)   // premature end of input
                            {
-                             current_text += UNI_SINGLE_QUOTE;
+                             current_text.append(UNI_SINGLE_QUOTE);
                              return 0;
                            }
 
-                        current_text += cc;
+                        current_text.append(cc);
                         if (cc == UNI_SINGLE_QUOTE)      break;   // string end
                       }
                   break;
 
              default:
-                current_text += cc;
+                current_text.append(cc);
            }
       }
 
@@ -390,7 +390,7 @@ LineLabel ret(0);
    if (c.get() == UNI_ASCII_FULLSTOP)
       {
         c.next();   // eat the .
-        while (Avec::is_digit(c.get()))   ret.ln_minor += c.next();
+        while (Avec::is_digit(c.get()))   ret.ln_minor.append(c.next());
       }
 
    return ret;
@@ -434,8 +434,10 @@ Symbol * fsym = Workspace::the_workspace->symbol_table
       {
         UCS_string & t4 = Workspace::the_workspace->more_error;
         t4.clear();
-        t4.app("function ");   t4 += fun_name;
-        t4.app(" could not be edited, since it is used on the )SI stack.");
+        t4.append_utf8("function ");
+        t4.append(fun_name);
+        t4.append_utf8(" could not be edited, since "
+                       "it is used on the )SI stack.");
         return LOC;
       }
 
@@ -654,12 +656,12 @@ UCS_string ret("[");
 
    if (ln_minor.size())
       {
-        ret += Unicode('.');
-        loop(s, ln_minor.size())   ret += Unicode(char(ln_minor[s]));
+        ret.append(Unicode('.'));
+        loop(s, ln_minor.size())   ret.append(Unicode(char(ln_minor[s])));
       }
 
-   ret += Unicode(']');
-   ret += Unicode(' ');
+   ret.append(Unicode(']'));
+   ret.append(Unicode(' '));
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -676,7 +678,7 @@ LineLabel::next()
    //
 const Unicode cc = ln_minor[ln_minor.size() - 1];
    if (cc != UNI_ASCII_9)   ln_minor[ln_minor.size() - 1] = Unicode(cc + 1);
-   else                     ln_minor += UNI_ASCII_1;
+   else                     ln_minor.append(UNI_ASCII_1);
 }
 //-----------------------------------------------------------------------------
 bool

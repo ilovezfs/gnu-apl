@@ -135,7 +135,7 @@ const APL_Float qct = Workspace::get_CT();
 const Cell * cA = &A->get_ravel(0);
 
 const Shape shZ(var_count, 4);
-Value_P Z = var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC);
+Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -190,7 +190,7 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 const Shape shZ(var_count, 4);
-Value_P Z = var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC);
+Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -213,7 +213,7 @@ Cell * cZ = &Z->get_ravel(0);
 Quad_SVE::Quad_SVE()
    : NL_SystemVariable(ID_QUAD_SVE)
 {
-   Symbol::assign(&Value::Zero, LOC);
+   Symbol::assign(Value::Zero_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -252,7 +252,7 @@ const APL_time wait = timer_end - current_time;
    if (wait <= 0)
       {
         Svar_DB::clear_all_events();
-        return &Value::Zero;
+        return Value::Zero_P;
       }
 
    // At this point the timer is still running.
@@ -296,15 +296,15 @@ bool got_event = false;
 
    // if no event has occurred (timeout) then return 0
    //
-  if (!got_event)   return &Value::Zero;
+  if (!got_event)   return Value::Zero_P;
 
    // we have got an event; return remaining time.
    //
 const APL_Float remaining = timer_end - now();
 
-   if (remaining < 0)   return &Value::Zero;
+   if (remaining < 0)   return Value::Zero_P;
 
-Value_P Z = new Value(LOC);
+Value_P Z(new Value(LOC), LOC);
    new (&Z->get_ravel(0))   FloatCell(0.000001 * remaining);
    return Z;
 }
@@ -327,7 +327,7 @@ vector<UCS_string> surrogates(var_count);
 
    if (A->get_rank() == 1 && A->element_count() != var_count)   LENGTH_ERROR;
 
-Value_P Z = var_count > 1 ? new Value(var_count, LOC) : new Value(LOC);
+Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -473,7 +473,7 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z = var_count > 1 ? new Value(var_count, LOC) : new Value(LOC);
+Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -617,7 +617,7 @@ vector<int32_t> sorted;
             }
       }
 
-Value_P Z = new Value(sorted.size(), LOC);
+Value_P Z(new Value(sorted.size(), LOC), LOC);
    loop(z, sorted.size())   new (&Z->get_ravel(z)) IntCell(sorted[z]);
    return Z;
 }
@@ -641,7 +641,7 @@ ShapeItem max_len = 0;
       }
 
 const Shape shZ(count, max_len);
-Value_P Z = new Value(shZ, LOC);
+Value_P Z(new Value(shZ, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, count)
@@ -651,7 +651,7 @@ Cell * cZ = &Z->get_ravel(0);
         else                 new (cZ++) CharCell(UNI_ASCII_SPACE);
       }
 
-   Z->set_default(&Value::Spc);   // prototype: character
+   Z->set_default(Value::Spc_P);   // prototype: character
    return Z;
 }
 //=============================================================================
@@ -664,7 +664,7 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z = var_count > 1 ? new Value(var_count, LOC) : new Value(LOC);
+Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -689,7 +689,7 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 const Shape shZ(var_count, 4);
-Value_P Z = var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC);
+Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)

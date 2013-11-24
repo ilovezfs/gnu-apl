@@ -21,7 +21,7 @@
 #ifndef __PRINT_CONTEXT_HH_DEFINED__
 #define __PRINT_CONTEXT_HH_DEFINED__
 
-#include "APL_types.hh"
+#include "Common.hh"
 #include "SystemLimits.hh"
 
 class Workspace;

@@ -26,10 +26,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "APL_types.hh"
 #include "Archive.hh"
-#include "ComplexCell.hh"
+#include "Common.hh"
 #include "CharCell.hh"
+#include "ComplexCell.hh"
 #include "Executable.hh"
 #include "IntCell.hh"
 #include "FloatCell.hh"
@@ -160,7 +160,7 @@ bool char_mode = false;
 }
 //-----------------------------------------------------------------------------
 XML_Saving_Archive &
-XML_Saving_Archive::operator <<(Value_P v)
+XML_Saving_Archive::save_shape(Value_P v)
 {
 char cc[80];
 
@@ -174,7 +174,8 @@ char cc[80];
         const unsigned int sub_vid = find_vid(v);
         Assert(sub_vid < values.size());
         unsigned int parent_vid = -1;
-        if (values[sub_vid]._par)   parent_vid = find_vid(values[sub_vid]._par);
+        if (!!values[sub_vid]._par)
+           parent_vid = find_vid(values[sub_vid]._par);
         snprintf(cc, sizeof(cc), " parent=\"%d\"", parent_vid);
         out << cc;
       }
@@ -192,7 +193,7 @@ char cc[80];
 }
 //-----------------------------------------------------------------------------
 XML_Saving_Archive &
-XML_Saving_Archive::operator <<(Value & v)
+XML_Saving_Archive::save_ravel(Value_P v)
 {
 int space = do_indent();
 bool char_mode = false;
@@ -202,8 +203,8 @@ char cc[80];
    out << decr(space, cc);
 
    ++indent;
-const ShapeItem len = v.nz_element_count();
-const Cell * C = &v.get_ravel(0);
+const ShapeItem len = v->nz_element_count();
+const Cell * C = &v->get_ravel(0);
    loop(l, len)
       {
         if (char_mode && C->get_cell_type() != CT_CHAR)
@@ -378,7 +379,7 @@ XML_Saving_Archive::operator <<(const StateIndicator & si)
 
    if (si.eval_arg_F)   // function pending
       {
-        if (si.eval_arg_A)   // function has a left arg
+        if (!!si.eval_arg_A)   // function has a left arg
            {
              const unsigned int vid_A = find_vid(si.eval_arg_A);
              out << " vid_arg_A=\"" << vid_A << "\"";
@@ -390,7 +391,7 @@ XML_Saving_Archive::operator <<(const StateIndicator & si)
           out << cc;
         }
 
-        if (si.eval_arg_B)   // function has a right arg
+        if (!!si.eval_arg_B)   // function has a right arg
            {
              const int vid_B = find_vid(si.eval_arg_B);
              out << " vid_arg_B=\"" << vid_B << "\"";
@@ -538,7 +539,7 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                              {
                                if (i)   out << ",";
                                Value_P val = idx.values[i];
-                               if (val)   out << "vid_" << find_vid(val);
+                               if (!!val)   out << "vid_" << find_vid(val);
                                else       out << "-";
                                 out << "\"/>";
                              }
@@ -591,7 +592,7 @@ XML_Saving_Archive::operator <<(const ValueStackItem & vsi)
 
         case NC_VARIABLE:
              do_indent();
-             out << "<Variable vid=\"" << find_vid(vsi.sym_val.value)
+             out << "<Variable vid=\"" << find_vid(vsi.sym_val._value())
                  << "\"/>" << endl;
              break;
 
@@ -744,7 +745,7 @@ tm * t;
    for (const DynamicObject * obj = DynamicObject::get_all_values()->get_next();
         obj != DynamicObject::get_all_values(); obj = obj->get_next())
        {
-         Value * val = (Value *)obj;
+         Value_P val((Value *)obj, LOC);
 
          if (val->is_forever())   continue;   // e.g. ⍞
          if (val->is_marked())    continue;
@@ -768,7 +769,7 @@ tm * t;
                    Assert(sub);
                    unsigned int sub_idx = find_vid(sub);
                    Assert(sub_idx < values.size());
-                   Assert(values[sub_idx]._par == 0);
+                   Assert(!values[sub_idx]._par);
                    values[sub_idx]._par = parent;
                  }
               else if (cP->is_lval_cell())
@@ -781,11 +782,11 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save all values (without their ravel)
    //
-   for (vid = 0; vid < values.size(); ++vid)   *this << values[vid]._val;
+   for (vid = 0; vid < values.size(); ++vid)   save_shape(values[vid]._val);
 
    // save ravels of all values
    //
-   for (vid = 0; vid < values.size(); ++vid)   *this << *values[vid]._val;
+   for (vid = 0; vid < values.size(); ++vid)   save_ravel(values[vid]._val);
 
    // save user defined symbols
    //
@@ -1178,13 +1179,13 @@ bool no_copy = false;   // assume the value is needed
 
    if (no_copy)
       {
-        values.push_back(0);
+        values.push_back(Value_P(0, LOC));
       }
    else
       {
         Assert(vid == values.size());
 
-        Value_P val = new Value(sh_value, LOC);
+        Value_P val(new Value(sh_value, LOC), LOC);
         values.push_back(val);
       }
 }
@@ -1288,7 +1289,7 @@ XML_Loading_Archive::read_chars(UCS_string & ucs, const UTF8 * & utf)
 
           if (char_mode && *utf < 0x80)
              {
-               ucs += Unicode(*utf++);
+               ucs.append(Unicode(*utf++));
                continue;
              }
 
@@ -1308,7 +1309,7 @@ XML_Loading_Archive::read_chars(UCS_string & ucs, const UTF8 * & utf)
               char_mode = false;
               char * end = 0;
               const int hex = strtol((const char *)utf, &end, 16);
-              ucs += Unicode(hex);
+              ucs.append(Unicode(hex));
               utf = (const UTF8 *)end;
               continue;
             }
@@ -1337,7 +1338,7 @@ const UTF8 * cells = find_attr("cells", false);
    Assert(vid < values.size());
 Value_P val = values[vid];
 
-   if (val == 0)   // )COPY with vids_COPY or static value
+   if (!val)   // )COPY with vids_COPY or static value
       {
         return;
       }
@@ -1747,13 +1748,13 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
              {
                const unsigned int rank = find_int_attr("rank", false, 10);
                char * vids = (char *)find_attr("index", false);
-               IndexExpr * idx = new IndexExpr(LOC);
+               IndexExpr * idx = new IndexExpr(false, LOC);
                while (*vids != '"')
                   {
                     if (*vids == ',')   ++vids;
                     if (*vids == '-')   // elided index
                        {
-                         idx->add(0);
+                         idx->add(Value_P());
                        }
                     else                // value
                        {

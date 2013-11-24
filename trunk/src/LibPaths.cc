@@ -201,11 +201,11 @@ LibPaths::get_lib_dir(LibRef libref)
 UCS_string ret(APL_lib_root);
    if (libref == LIB0)
       {
-        ret.app("/workspaces");
+        ret.append_utf8("/workspaces");
       }
    else
       {
-        ret.app("/wslib");
+        ret.append_utf8("/wslib");
         ret.append_number(libref);
       }
 
@@ -225,7 +225,7 @@ LibPaths::get_lib_filename(LibRef lib, const UCS_string & name,
       }
 
 UCS_string ret = get_lib_dir(lib);
-   ret.app("/");
+   ret.append_utf8("/");
    ret.append(name);
 
 bool has_extension = false;
@@ -258,8 +258,8 @@ bool has_extension = false;
 
    if (!has_extension)
       {
-        ret.app(".");
-        ret.app(extension);
+        ret.append_utf8(".");
+        ret.append_utf8(extension);
       }
 
    return UTF8_string(ret);

@@ -146,7 +146,7 @@ public:
    void append_col(const PrintBuffer & pb1);
 
    /// append UCS_string \b ucs to \b this PrintBuffer
-   void append_string(const UCS_string & ucs);
+   void append_ucs(const UCS_string & ucs);
 
    /// append ucs, aligne at char \b align.
    void append_aligned(const UCS_string & ucs, Unicode align);

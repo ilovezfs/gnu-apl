@@ -403,8 +403,8 @@ UCS_string ucs;
 
    loop(l, len)
        {
-         if (cc[l] == '-')   ucs += UNI_OVERBAR;
-         else                ucs += Unicode(cc[l]);
+         if (cc[l] == '-')   ucs.append(UNI_OVERBAR);
+         else                ucs.append(Unicode(cc[l]));
        }
 
 ColInfo info;

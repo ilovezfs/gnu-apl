@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "APL_types.hh"
+#include "Common.hh"
 #include "Function.hh"
 #include "Value.hh"
 #include "Id.hh"

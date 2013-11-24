@@ -21,7 +21,7 @@
 #ifndef __VALUEHISTORY_HH_DEFINED__
 #define __VALUEHISTORY_HH_DEFINED__
 
-#include "../config.h"
+#include "Common.hh"
 #include <ostream>
 
 using namespace std;
@@ -33,7 +33,7 @@ class VH_entry
 public:
    VH_entry() {}
 
-   VH_entry(const Value * val, VH_event ev, const char * loc);
+   VH_entry(const Value * val, VH_event ev, int ia, const char * loc);
 
    static void init();
    static void print_history(ostream & out, const Value * val);
@@ -46,6 +46,7 @@ protected:
 
    const Value * val;
    VH_event      event;
+   int           iarg;
    const char  * loc;
    const char  * testcase_file;
    int           testcase_line;

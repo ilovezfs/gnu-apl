@@ -73,8 +73,8 @@ const ShapeItem ec = value.element_count();
                    if (value.get_ravel(0).is_character_cell())   // ''
                       {
                         UCS_string ucs;
-                        ucs += UNI_SINGLE_QUOTE;
-                        ucs += UNI_SINGLE_QUOTE;
+                        ucs.append(UNI_SINGLE_QUOTE);
+                        ucs.append(UNI_SINGLE_QUOTE);
 
                         ColInfo ci;
                         *this = PrintBuffer(ucs, ci);
@@ -106,14 +106,14 @@ const ShapeItem rows = ec/cols;
 
         if (value.is_char_vector())
            {
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
              loop(e, ec)
                 {
                   const Unicode uni = value.get_ravel(e).get_char_value();
-                  ucs += uni;
-                  if (uni == UNI_SINGLE_QUOTE)   ucs += uni;   // ' -> ''
+                  ucs.append(uni);
+                  if (uni == UNI_SINGLE_QUOTE)   ucs.append(uni);   // ' -> ''
                 }
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
            }
         else
            {
@@ -121,8 +121,8 @@ const ShapeItem rows = ec/cols;
                 {
                   PrintBuffer pb = value.get_ravel(e)
                                         .character_representation(pctx);
-                  if (e)   ucs += UNI_ASCII_SPACE;
-                  ucs += UCS_string(pb, 0);
+                  if (e)   ucs.append(UNI_ASCII_SPACE);
+                  ucs.append(UCS_string(pb, 0));
                 }
            }
 
@@ -175,7 +175,7 @@ const ShapeItem rows = ec/cols;
 
               loop(c, sizeof(cc))
                  {
-                   if (cc[c])   ucs += Unicode(cc[c]);
+                   if (cc[c])   ucs.append(Unicode(cc[c]));
                    else         break;
                  }
            }
@@ -278,7 +278,7 @@ int break_width = 0;
                    {
                      prod *= value.get_shape_item(value.get_rank() - r - 2);
                      if (y % prod == 0)
-                        pcol.append_string(UCS_string(pcol.get_width(0),
+                        pcol.append_ucs(UCS_string(pcol.get_width(0),
                                                       UNI_PAD_L0));
                      else
                         break;
@@ -391,7 +391,7 @@ PrintBuffer::pad_l(const UCS_string & pad)
    loop(y, get_height())
       {
         UCS_string ucs = pad;
-        ucs += buffer[y];
+        ucs.append(buffer[y]);
         buffer[y] = ucs;
       }
 }
@@ -399,13 +399,13 @@ PrintBuffer::pad_l(const UCS_string & pad)
 void
 PrintBuffer::pad_r(Unicode pad)
 {
-   loop(y, get_height())   buffer[y] += pad;
+   loop(y, get_height())   buffer[y].append(pad);
 }
 //-----------------------------------------------------------------------------
 void
 PrintBuffer::pad_r(const UCS_string & pad)
 {
-   loop(y, get_height())   buffer[y] += pad;
+   loop(y, get_height())   buffer[y].append(pad);
 }
 //-----------------------------------------------------------------------------
 void
@@ -484,11 +484,13 @@ Unicode HORI, VERT, NW, NE, SE, SW;
    if (get_height() == 0)   // empty
       {
         UCS_string upper;
-        upper += NE;   upper += NW;
+        upper.append(NE);
+        upper.append(NW);
         buffer.push_back(upper);
 
         UCS_string lower;
-        lower += SE;   lower += SW;
+        lower.append(SE);
+        lower.append(SW);
         buffer.push_back(lower);
 
         Assert(is_rectangular());
@@ -500,7 +502,7 @@ Unicode HORI, VERT, NW, NE, SE, SW;
    loop(y, get_height())
       {
         buffer[y].insert(0, 1, VERT);
-        buffer[y] += VERT;
+        buffer[y].append(VERT);
       }
 
    // draw a bar on top and bottom.
@@ -553,11 +555,13 @@ Unicode HORI, VERT, NW, NE, SE, SW;
    if (get_height() == 0)   // empty
       {
         UCS_string upper;
-        upper += NE;   upper += NW;
+        upper.append(NE);
+        upper.append(NW);
         buffer.push_back(upper);
 
         UCS_string lower;
-        lower += SE;   lower += SW;
+        lower.append(SE);
+        lower.append(SW);
         buffer.push_back(lower);
 
         Assert(is_rectangular());
@@ -569,7 +573,7 @@ Unicode HORI, VERT, NW, NE, SE, SW;
    loop(y, get_height())
       {
         buffer[y].insert(0, 1, VERT);
-        buffer[y] += VERT;
+        buffer[y].append(VERT);
       }
 
    // draw a bar on top and bottom.
@@ -629,11 +633,11 @@ PrintBuffer::append_col(const PrintBuffer & pb1)
 {
    Assert(get_height() == pb1.get_height());
 
-   loop(h, get_height())   buffer[h] += pb1.buffer[h];
+   loop(h, get_height())   buffer[h].append(pb1.buffer[h]);
 }
 //-----------------------------------------------------------------------------
 void
-PrintBuffer::append_string(const UCS_string & ucs)
+PrintBuffer::append_ucs(const UCS_string & ucs)
 {
    if (buffer.size() == 0)   // empty
       {
@@ -643,13 +647,13 @@ PrintBuffer::append_string(const UCS_string & ucs)
       {
         UCS_string ucs1(ucs);
         UCS_string pad(get_width(0) - ucs.size(), UNI_PAD_L1);
-        ucs1 += pad;
+        ucs1.append(pad);
         buffer.push_back(ucs1);
       }
    else if (ucs.size() > get_width(0))
       {
         UCS_string pad(ucs.size() - get_width(0), UNI_PAD_L2);
-        loop(h, get_height())   buffer[h] += pad;
+        loop(h, get_height())   buffer[h].append(pad);
         buffer.push_back(ucs);
       }
    else
@@ -749,9 +753,9 @@ int this_r = 0;   // padding right of this
 
 UCS_string ucs1;
 
-   if (ucs_l > 0)   ucs1 += UCS_string(ucs_l, UNI_ASCII_SPACE);
-   ucs1 += ucs;
-   if (ucs_r > 0)   ucs1 += UCS_string(ucs_r, UNI_ASCII_SPACE);
+   if (ucs_l > 0)   ucs1.append(UCS_string(ucs_l, UNI_ASCII_SPACE));
+   ucs1.append(ucs);
+   if (ucs_r > 0)   ucs1.append(UCS_string(ucs_r, UNI_ASCII_SPACE));
 
    if (this_l > 0)   pad_l(UCS_string(this_l, UNI_ASCII_SPACE));
    if (this_r > 0)   pad_r(UCS_string(this_r, UNI_ASCII_SPACE));
@@ -775,10 +779,10 @@ PrintBuffer::add_column(Unicode pad, int32_t pad_count, const PrintBuffer & pb)
    if (pad_count)
       {
         UCS_string ucs(pad_count, pad);
-        loop(y, get_height())   buffer[y] += ucs;
+        loop(y, get_height())   buffer[y].append(ucs);
       }
 
-   loop(y, get_height())   buffer[y] += pb.buffer[y];
+   loop(y, get_height())   buffer[y].append(pb.buffer[y]);
 }
 //-----------------------------------------------------------------------------
 void PrintBuffer::add_row(const PrintBuffer & pb)
@@ -822,7 +826,7 @@ PrintBuffer::align_dot(ColInfo & COL_INFO)
            {
              const size_t diff = COL_INFO.int_len - col_info.int_len;
              UCS_string pad(diff, UNI_PAD_L3);
-             pad += buffer[0];
+             pad.append(buffer[0]);
              buffer[0] = pad;
              col_info.real_len += diff;
              col_info.int_len = COL_INFO.int_len;
@@ -839,15 +843,15 @@ PrintBuffer::align_dot(ColInfo & COL_INFO)
              if (col_info.have_expo())   // alrady have an expo field
                 {
                   UCS_string pad(diff, UNI_PAD_L4);
-                  buffer[0] += pad;
+                  buffer[0].append(pad);
                 }
              else                        // no expo yet: create one
                 {
                   Assert1(diff >= 2);
-                  buffer[0] += UNI_ASCII_E;
-                  buffer[0] += UNI_ASCII_0;
+                  buffer[0].append(UNI_ASCII_E);
+                  buffer[0].append(UNI_ASCII_0);
                   UCS_string pad(diff - 2, UNI_PAD_L4);
-                  buffer[0] += pad;
+                  buffer[0].append(pad);
                 }
              col_info.real_len = COL_INFO.real_len;
            }
@@ -861,7 +865,7 @@ PrintBuffer::align_dot(ColInfo & COL_INFO)
            {
              const size_t diff = LEN - len;
              UCS_string pad(diff, UNI_PAD_L5);
-             pad += buffer[0];
+             pad.append(buffer[0]);
              buffer[0] = pad;
              col_info.int_len   = COL_INFO.int_len;
              col_info.fract_len = COL_INFO.fract_len;
@@ -897,7 +901,7 @@ PrintBuffer::align_j(ColInfo & COL_INFO)
            {
              const size_t diff = COL_INFO.real_len - col_info.real_len;
              UCS_string pad(diff, UNI_PAD_L3);
-             pad += buffer[0];
+             pad.append(buffer[0]);
              buffer[0] = pad;
              col_info.real_len = COL_INFO.real_len;
            }
@@ -906,7 +910,7 @@ PrintBuffer::align_j(ColInfo & COL_INFO)
            {
              const size_t diff = COL_INFO.imag_len - col_info.imag_len;
              UCS_string pad(diff, UNI_PAD_L4);
-             buffer[0] += pad;
+             buffer[0].append(pad);
              col_info.imag_len = COL_INFO.imag_len;
            }
       }
@@ -919,7 +923,7 @@ PrintBuffer::align_j(ColInfo & COL_INFO)
            {
              const size_t diff = LEN - len;
              UCS_string pad(diff, UNI_PAD_L5);
-             pad += buffer[0];
+             pad.append(buffer[0]);
              buffer[0] = pad;
              col_info.real_len = COL_INFO.real_len;
              col_info.imag_len = COL_INFO.imag_len;
@@ -939,31 +943,31 @@ UCS_string new_buf;
 
       // copy integer part to new_buf
       //
-      loop(i, col_info.int_len)   new_buf +=  buffer[0][i];
+      loop(i, col_info.int_len)   new_buf.append( buffer[0][i]);
 
       // copy fractional part to new_buf. If the number has no exponent part,
       // then we fill with spaces. Otherwise fill with '0', possibly inserting
       // a decimal point.
       //
-      loop(f, col_info.fract_len)   new_buf += buffer[0][col_info.int_len + f];
+      loop(f, col_info.fract_len)   new_buf.append(buffer[0][col_info.int_len + f]);
       if (!want_expo)
          {
-           loop(d, diff)   new_buf += UNI_PAD_L4;
+           loop(d, diff)   new_buf.append(UNI_PAD_L4);
          }
       else if (col_info.fract_len == 0)   // no fractional part yet
          {
-           new_buf += UNI_ASCII_FULLSTOP;
-           loop(d, diff - 1)   new_buf += UNI_ASCII_0;
+           new_buf.append(UNI_ASCII_FULLSTOP);
+           loop(d, diff - 1)   new_buf.append(UNI_ASCII_0);
          }
       else
          {
-           loop(d, diff)   new_buf += UNI_ASCII_0;
+           loop(d, diff)   new_buf.append(UNI_ASCII_0);
          }
 
    // copy exponent part
    //
    for (int e = col_info.int_len + col_info.fract_len; e < buffer[0].size(); ++e)
-       new_buf += buffer[0][e];
+       new_buf.append(buffer[0][e]);
 
    col_info.fract_len = wanted_fract_len;
    col_info.real_len += diff;
@@ -993,7 +997,7 @@ UCS_string pad(diff, UNI_PAD_L3);
 
    if (buffer.size())
       {
-        loop(s, buffer.size())   buffer[s] += pad;
+        loop(s, buffer.size())   buffer[s].append(pad);
       }
    else
       {

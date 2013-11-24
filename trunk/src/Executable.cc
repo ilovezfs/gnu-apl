@@ -43,7 +43,7 @@ UCS_string line;
            {
              case UNI_ASCII_CR: break;;
              case UNI_ASCII_LF: text.push_back(line);   line.clear();   break;
-             default: line += uni;
+             default: line.append(uni);
           }
       }
 
@@ -57,16 +57,16 @@ Executable::~Executable()
 
    loop(b, body.size())
        {
-         if (body[b].get_ValueType() == TV_VAL)
+         Value * val = body[b].extract_apl_val(LOC);
+         if (val)
             {
-              Value * val = body[b].get_apl_val();
               val->clear_shared();
               val->erase(LOC);
             }
        }
 }
 //-----------------------------------------------------------------------------
-Token_string
+void
 Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
                             const char * loc)
 {
@@ -97,8 +97,7 @@ Source<Token> src(in);
         ufun->add_label(tok.get_sym_ptr(), line);
       }
 
-Token_string out;   // the tokenized src.rest()
-
+Token_string out;
    while (src.rest())
       {
         uint32_t stat_len = src.rest();   // assume statement == line
@@ -134,23 +133,23 @@ Token_string out;   // the tokenized src.rest()
                    SYNTAX_ERROR;
                  }
 
-               out += tok;
+               out.append(tok);
             }
 
 
         // add an appropriate end token.
         //
         if (get_parse_mode() == PM_EXECUTE)   ;
-        else if (out.size())                  out += Token(TOK_ENDL);
+        else if (out.size())                  out.append(Token(TOK_ENDL));
       }
 
    Log(LOG_UserFunction__set_line)
       {
         CERR << "[non-reverse " << line << "] ";
         parser.print_token_list(CERR, out, 0);
-      }
+      } 
 
-   return out;
+   loop(t, out.size())   body.append(out[t]);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -216,7 +215,7 @@ UCS_string ret;
    while (tidx < line_txt.size())
       {
         if (line_txt[tidx] == UNI_DIAMOND)    break;
-        ret += line_txt[tidx++];
+        ret.append(line_txt[tidx++]);
       }
 
    // skip trailing spaces
@@ -351,7 +350,7 @@ Executable::unmark_all_values() const
         if (tok.get_ValueType() != TV_VAL)      continue;
 
         Value_P value = tok.get_apl_val();
-        if (value)   value->clear_marked();
+        if (!!value)   value->clear_marked();
       }
 }
 //-----------------------------------------------------------------------------
@@ -391,7 +390,7 @@ ExecuteList::fix(const UCS_string & data, const char * loc)
    }
 
 ExecuteList * fun = new ExecuteList(data, loc);
-   fun->body = fun->parse_body_line(Function_Line_0, data, loc);
+   fun->parse_body_line(Function_Line_0, data, loc);
 
    Log(LOG_UserFunction__fix)
       {
@@ -399,7 +398,7 @@ ExecuteList * fun = new ExecuteList(data, loc);
       }
 
    // for ⍎ we don't append TOK_END, but only TOK_RETURN_EXEC.
-   fun->body += Token(TOK_RETURN_EXEC);
+   fun->body.append(Token(TOK_RETURN_EXEC));
 
    // fix program constants so that they don't get deleted.
    //
@@ -429,14 +428,14 @@ StatementList::fix(const UCS_string & data, const char * loc)
    }
 
 StatementList * fun = new StatementList(data, loc);
-   fun->body = fun->parse_body_line(Function_Line_0, data, loc);
+   fun->parse_body_line(Function_Line_0, data, loc);
 
    Log(LOG_UserFunction__fix)
       {
         CERR << "fun->body.size() is " << fun->body.size() << endl;
       }
 
-   fun->body += Token(TOK_RETURN_STATS);
+   fun->body.append(Token(TOK_RETURN_STATS));
 
    // fix program constants so that they don't get deleted.
    //

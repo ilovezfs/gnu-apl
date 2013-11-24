@@ -224,7 +224,7 @@ const Executable * statements = 0;
                          Workspace::the_workspace->SI_top()->get_prefix();
                 Assert(prefix.at0().get_tag() == TOK_SI_PUSHED);
 
-                prefix.tos().tok = token;
+                copy_1(prefix.tos().tok, token, LOC);
               }
               if (attention_raised)
                  {
@@ -397,8 +397,8 @@ int result = unlink((const char *)filename.c_str());
         out << wname << _(" NOT DROPPED: ") << strerror(errno) << endl;
         UCS_string & t4 = Workspace::the_workspace->more_error;
         t4.clear();
-        t4.app(_("could not unlink file "));
-        t4.app(filename.c_str());
+        t4.append_ascii(_("could not unlink file "));
+        t4.append_utf8(filename.c_str());
       }
 }
 //-----------------------------------------------------------------------------
@@ -842,7 +842,7 @@ int idx = 1;
    // data + 1 is: NAME RK SHAPE RAVEL...
    //
    while (idx < data.size() && data[idx] != UNI_ASCII_SPACE)
-         name += data[idx++];
+         name.append(data[idx++]);
    ++idx;   // skip space after the name
 
 int rank = 0;
@@ -911,7 +911,7 @@ Token_string tos;
  
    if (tos.size() != shape.element_count())   return;
 
-Value_P val = new Value(shape, LOC);
+Value_P val(new Value(shape, LOC), LOC);
    new (&val->get_ravel(0)) IntCell(0);   // prototype
 
 const ShapeItem ec = val->element_count();
@@ -961,7 +961,7 @@ Symbol * sym = 0;
         CERR << "'" << endl;
       }
 
-Value_P val = new Value(shape, LOC);
+Value_P val(new Value(shape, LOC), LOC);
    new (&val->get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
 
 const ShapeItem ec = val->element_count();
@@ -989,7 +989,7 @@ UCS_string var_or_fun;
            {
              const Unicode uni = data1[d];
              if (uni == UNI_LEFT_ARROW)   break;
-             var_name += uni;
+             var_name.append(uni);
            }
 
         if (!var_name.contained_in(objects))   return;
@@ -1009,14 +1009,14 @@ UCS_string fun_name;
 
    /// chars 1...' ' are the function name
    while ((idx < data.size()) && (data[idx] != UNI_ASCII_SPACE))
-        fun_name += data[idx++];
+        fun_name.append(data[idx++]);
    ++idx;
 
    if (objects.size() && !fun_name.contained_in(objects))   return;
 
 UCS_string statement;
-   while (idx < data.size())   statement += data[idx++];
-   statement += UNI_ASCII_LF;
+   while (idx < data.size())   statement.append(data[idx++]);
+   statement.append(UNI_ASCII_LF);
 
 UCS_string fun_name1;
    Quad_TF::tf2_parse(statement, fun_name1);
@@ -1124,13 +1124,13 @@ Command::transfer_context::add(const UTF8 * str, int len)
              case ('*' + 1) ... ('^' - 1):   // < '^'
              case ('^' + 1) ... ('~' - 1):   // < '~'
              case ('~' + 1):                 // i.e. ASCII except * ^ ~
-                  data += Unicode(utf);         break;
+                  data.append(Unicode(utf));         break;
 
-             case '^': data += UNI_AND;              break;   // ~ → ∼
-             case '*': data += UNI_STAR_OPERATOR;    break;   // * → ⋆
-             case '~': data += UNI_TILDE_OPERATOR;   break;   // ~ → ∼
+             case '^': data.append(UNI_AND);              break;   // ~ → ∼
+             case '*': data.append(UNI_STAR_OPERATOR);    break;   // * → ⋆
+             case '~': data.append(UNI_TILDE_OPERATOR);   break;   // ~ → ∼
              
-             default:  data += Unicode(cp_to_uni_map[utf - 128]);
+             default:  data.append(Unicode(cp_to_uni_map[utf - 128]));
            }
       }
 }
@@ -1179,14 +1179,15 @@ bool got_minus = false;
      while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
      if (s == user_arg.size())   return false;   // empty argument: OK
 
-     while (s < user_arg.size() && user_arg[s] > ' ' &&
-                                   user_arg[s] != '-')  from += user_arg[s++];
+     while (s < user_arg.size()   &&
+                user_arg[s] > ' ' &&
+                user_arg[s] != '-')  from.append(user_arg[s++]);
      while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
 
      if (s < user_arg.size() && user_arg[s] == '-') { ++s;   got_minus = true; }
 
      while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
-     while (s < user_arg.size() && user_arg[s] > ' ')  to += user_arg[s++];
+     while (s < user_arg.size() && user_arg[s] > ' ')  to.append(user_arg[s++]);
      while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
 
 const bool got_rest = (s < user_arg.size());

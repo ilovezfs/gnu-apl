@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "APL_types.hh"
 #include "CDR_string.hh"
 #include "CharCell.hh"
+#include "Common.hh"
 #include "Error.hh"
 #include "FloatCell.hh"
 #include "IndexExpr.hh"
@@ -32,12 +32,14 @@
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
 #include "SystemVariable.hh"
+#include "TestFiles.hh"
 #include "UCS_string.hh"
 #include "Value.hh"
 #include "ValueHistory.hh"
 #include "Workspace.hh"
 
-#define stv_def(x) Value Value:: x(LOC, Value::Value_how_ ## x);
+#define stv_def(x) Value Value:: x(LOC, Value::Value_how_ ## x); \
+                   Value_P Value:: x ## _P(&Value::x, LOC);
 #include "StaticValues.def"
 
 ShapeItem Value::value_count = 0;
@@ -47,6 +49,8 @@ ShapeItem Value::total_ravel_count = 0;
 void
 Value::init_ravel()
 {
+   owner_count = 0;
+
    ++value_count;
    if (Quad_SYL::value_count_limit &&
        Quad_SYL::value_count_limit < value_count)
@@ -108,7 +112,7 @@ Value::Value(const char * loc)
    : DynamicObject(loc, &all_values),
      flags(VF_NONE)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 }
 //-----------------------------------------------------------------------------
@@ -116,7 +120,9 @@ Value::Value(const char * loc, Value_how how)
    : DynamicObject(loc),
      flags(VF_forever)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   // default shape is skalar
+   //
+   ADD_EVENT(this, VHE_Create, 0, loc);
    switch(how)
       {
         case Value_how_Zero ... Value_how_Nine:
@@ -132,15 +138,15 @@ Value::Value(const char * loc, Value_how how)
              return;
 
         case Value_how_Idx0:
-             init_ravel();
              new (&shape) Shape(0);
+             init_ravel();
              new (&get_ravel(0)) IntCell(0);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Str0:
-             init_ravel();
              new (&shape) Shape(0);
+             init_ravel();
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
              CHECK_VAL(this, LOC);
              return;
@@ -148,36 +154,34 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_zStr0:
              init_ravel();
              {
-               Value * z = new Value(loc, Value_how_Str0);   // ''
-               new (&get_ravel(0)) PointerCell(z);           // ⊂''
+               Value_P z(new Value(loc, Value_how_Str0), LOC);   // ''
+               new (&get_ravel(0)) PointerCell(z);               // ⊂''
              }
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Str0_0:
-             init_ravel();
              new (&shape) Shape(ShapeItem(0), ShapeItem(0));
+             init_ravel();
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Str3_0:
-             init_ravel();
              new (&shape) Shape(ShapeItem(3), ShapeItem(0));
+             init_ravel();
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Max:
              init_ravel();
-             new (&shape) Shape(1);
              new (&get_ravel(0)) FloatCell(BIG_FLOAT);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Min:
              init_ravel();
-             new (&shape) Shape(1);
              new (&get_ravel(0)) FloatCell(-BIG_FLOAT);
              CHECK_VAL(this, LOC);
              return;
@@ -197,14 +201,12 @@ Value::Value(const char * loc, Value_how how)
 
         case Value_how_Max_CT:
              init_ravel();
-             new (&shape) Shape(1);
              new (&get_ravel(0)) FloatCell(MAX_QUAD_CT);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Max_PP:
              init_ravel();
-             new (&shape) Shape(1);
              new (&get_ravel(0)) IntCell(MAX_QUAD_PP);
              CHECK_VAL(this, LOC);
              return;
@@ -239,7 +241,7 @@ Value::Value(ShapeItem sh, const char * loc)
      shape(sh),
      flags(VF_NONE)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 }
 //-----------------------------------------------------------------------------
@@ -248,7 +250,7 @@ Value::Value(const UCS_string & ucs, const char * loc)
      shape(ucs.size()),
      flags(VF_NONE)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
    if (ucs.size())
@@ -268,7 +270,7 @@ Value::Value(const CDR_string & ui8, const char * loc)
      shape(ui8.size()),
      flags(VF_NONE)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
    if (ui8.size())
@@ -288,7 +290,7 @@ Value::Value(const char * string, const char * loc)
      shape(strlen(string)),
      flags(VF_NONE)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
 const ShapeItem length = strlen(string);
@@ -302,7 +304,7 @@ Value::Value(const Shape & sh, const char * loc)
      shape(sh),
      flags(VF_NONE)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 }
 //-----------------------------------------------------------------------------
@@ -310,7 +312,7 @@ Value::Value(const Cell & cell, const char * loc)
    : DynamicObject(loc, &all_values),
      flags(VF_NONE)
 {
-   ADD_EVENT(this, VHE_CREATE, loc);
+   ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
    get_ravel(0).init(cell);
@@ -335,7 +337,7 @@ Cell * cZ = &get_ravel(0);
 Value_P
 Value::get_cellrefs(const char * loc)
 {
-Value_P ret = new Value(get_shape(), loc);
+Value_P ret(new Value(get_shape(), loc), LOC);
    ret->set_left();
 
 const ShapeItem ec = nz_element_count();
@@ -487,7 +489,7 @@ Value::set_on_stack()
 void
 Value::erase(const char * loc) const
 {
-   ADD_EVENT(this, VHE_ERASE, loc);
+   ADD_EVENT(this, VHE_Erase, 0, loc);
 
    if (is_deleted())
       {
@@ -504,6 +506,25 @@ Value::erase(const char * loc) const
         Backtrace::show(__FILE__, __LINE__);
         return;
       }
+
+#if 0
+   if (owner_count)
+      {
+        CERR                                                           << endl
+                                                                       << endl
+             << "*** Value " << (const void *)this
+             << " has owner count " << owner_count << " ***"           << endl
+             << endl;
+
+#ifdef VALUE_CHECK_WANTED
+        VH_entry::print_history(CERR, this);
+#else
+        CERR << "No history (VALUE_CHECK_WANTED off)" << endl;
+#endif
+      }
+#endif
+
+
 
 #if 0   // TODO: make this work
    if (!is_complete())
@@ -544,7 +565,7 @@ Value::erase(const char * loc) const
 void
 Value::rollback(ShapeItem items, const char * loc)
 {
-   ADD_EVENT(this, VHE_UNROLL, loc);
+   ADD_EVENT(this, VHE_Unroll, 0, loc);
 
    ((Value *)this)->unlink();
 
@@ -553,7 +574,7 @@ Value::rollback(ShapeItem items, const char * loc)
         Cell & cell = get_ravel(i);
         if (cell.is_pointer_cell())
            {
-             Value * sub = cell.get_pointer_value();
+             Value_P sub = cell.get_pointer_value();
              sub->clear_nested();
              sub->erase(loc);
            }
@@ -723,7 +744,7 @@ Value::list_one(ostream & out, bool show_owners)
    if (this == & x)   out << "(static) Value::" #x << endl;
 #include "StaticValues.def"
 
-   Workspace::the_workspace->show_owners(out, this);
+   Workspace::the_workspace->show_owners(out, Value_P(this, LOC));
 
    out << "---------------------------" << endl << endl;
    return out;
@@ -994,7 +1015,7 @@ Shape shape_Z;
          const ShapeItem idx_r = get_rank() - this_r - 1;
 
          Value_P I = IX.values[idx_r];
-         if (I)
+         if (!!I)
             {
               loop(s, I->get_rank())
                 shape_Z.add_shape_item(I->get_shape_item(s));
@@ -1011,7 +1032,7 @@ MultiIndexIterator mult(get_shape(), IX);   // deletes IDX
    // We go from lower indices to higher indices in IX, which
    // means from higher indices to lower indices in this and Z
    
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
 const ShapeItem ec_z = Z->element_count();
 
@@ -1019,7 +1040,7 @@ const ShapeItem ec_z = Z->element_count();
 
    Assert(mult.done());
 
-   Z->set_default(this);
+   Z->set_default(Value_P(this, LOC));
    CHECK_VAL(Z, LOC);
    return Z;
 }
@@ -1029,10 +1050,10 @@ Value::index(Value_P X)
 {
    if (get_rank() != 1)   RANK_ERROR;
 
-   if (X == 0)   return clone(LOC);
+   if (!X)   return clone(LOC);
 
 const Shape shape_Z(X->get_shape());
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 const ShapeItem ec = shape_Z.element_count();
 const ShapeItem max_idx = element_count();
 const APL_Integer qio = Workspace::get_IO();
@@ -1053,7 +1074,7 @@ const Cell * cI = &X->get_ravel(0);
       }
 
    X->erase(LOC);
-   Z->set_default(this);
+   Z->set_default(Value_P(this, LOC));
 
    CHECK_VAL(Z, LOC);
    return Z;
@@ -1120,11 +1141,11 @@ Value_P B = token_B.get_apl_val();
 const ShapeItem ec_A = A->element_count();
 const ShapeItem ec_B = B->element_count();
 
-Value_P Z = 0;
+Value_P Z;
 
    Log(LOG_glue)
       {
-        CERR << "glueing " << A << " to " << B << endl;
+        CERR << "glueing " << *A << " to " << *B << endl;
         Q(token_A)   Q(token_A.get_tag())
         Q(token_B)   Q(token_B.get_tag())
       }
@@ -1135,7 +1156,7 @@ Value_P Z = 0;
             {
                // A and B are closed
                //
-               Z = new Value(2, LOC);
+               Z = Value_P(new Value(2, LOC), LOC);
                new (&Z->get_ravel(0))   PointerCell(A);
                new (&Z->get_ravel(1))   PointerCell(B);
             }
@@ -1144,7 +1165,7 @@ Value_P Z = 0;
                // A is closed, B is open
                //
                if (B->get_rank() > 1)   RANK_ERROR;
-               Z = new Value(1 + ec_B, LOC);
+               Z = Value_P(new Value(1 + ec_B, LOC), LOC);
                Cell * cZ = &Z->get_ravel(0);
                const Cell * cB = &B->get_ravel(0);
                new (cZ++)   PointerCell(A);
@@ -1158,7 +1179,7 @@ Value_P Z = 0;
                // A is open, B is closed
                //
                if (A->get_rank() > 1)   RANK_ERROR;
-               Z = new Value(ec_A + 1, LOC);
+               Z = Value_P(new Value(ec_A + 1, LOC), LOC);
                Cell * cZ = &Z->get_ravel(0);
                const Cell * cA = &A->get_ravel(0);
                loop(e, ec_A)   cZ++->init(*cA++);
@@ -1170,7 +1191,7 @@ Value_P Z = 0;
                //
                if (A->get_rank() > 1)   RANK_ERROR;
                if (B->get_rank() > 1)   RANK_ERROR;
-               Z = new Value(ec_A + ec_B, LOC);
+               Z = Value_P(new Value(ec_A + ec_B, LOC), LOC);
                Cell * cZ = &Z->get_ravel(0);
                const Cell * cA = &A->get_ravel(0);
                loop(e, ec_A)   cZ++->init(*cA++);
@@ -1189,8 +1210,10 @@ Value_P Z = 0;
         Q(*Z)   Q(Z->element_count())
         Q("----------------")
 
-        CERR << "erasing A at " << A << " flags " << A->get_flags() << endl
-             << "erasing B at " << B << " flags " << B->get_flags() << endl;
+        CERR << "erasing A at " << A.voidp()
+             << " flags " << A->get_flags() << endl
+             << "erasing B at " << B.voidp()
+             << " flags " << B->get_flags() << endl;
       }
 
    A->erase(LOC);
@@ -1201,7 +1224,7 @@ Value_P Z = 0;
    new (&token_A) Token;
    new (&token_B) Token;
 
-   token = Token(TOK_APL_VALUE, Z);
+   move_2(token, Token(TOK_APL_VALUE, Z), LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -1265,7 +1288,7 @@ const CellType ctype = get_ravel(0).get_cell_type();
       }
 
    set_complete();
-   return this;
+   return Value_P(this, LOC);
 }
 //-----------------------------------------------------------------------------
 int
@@ -1477,7 +1500,7 @@ Value::print_boxed(ostream & out, const char * info)
 {
    if (info)   out << info << endl;
 
-Value_P Z = Quad_CR::fun.do_CR(4, this);
+Value_P Z = Quad_CR::fun.do_CR(4, Value_P(this, LOC));
    out << *Z << endl;
    Z->erase(LOC);
    return out;
@@ -1489,7 +1512,7 @@ Value::get_UCS_ravel() const
 UCS_string ucs;
 
 const ShapeItem ec = element_count();
-   loop(e, ec)   ucs += get_ravel(e).get_char_value();
+   loop(e, ec)   ucs.append(get_ravel(e).get_char_value());
 
    return ucs;
 }
@@ -1510,11 +1533,11 @@ const ShapeItem name_len = get_cols();
 
              if (n == 0 && uni == UNI_QUAD_QUAD)   // leading ⎕
                 {
-                  name += uni;
+                  name.append(uni);
                 }
              else if (Avec::is_symbol_char(uni))   // valid symbol char
                 {
-                  name += uni;
+                  name.append(uni);
                 }
              else if (last)
                 {
@@ -1525,13 +1548,27 @@ const ShapeItem name_len = get_cols();
 
                   // another name following
                   name.clear();
-                  name += get_ravel(nidx++).get_char_value();
+                  name.append(get_ravel(nidx++).get_char_value());
                 }
              else  
                 {
                   break;
                 }
            }
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Value::to_proto()
+{
+const ShapeItem ec = nz_element_count();
+Cell * c = &get_ravel(0);
+
+   loop(e, ec)
+      {
+        if (c->is_pointer_cell())   c->get_pointer_value()->to_proto();
+        else                        new (c) IntCell(0);
+        ++c;
       }
 }
 //-----------------------------------------------------------------------------
@@ -1571,7 +1608,7 @@ const Cell & first = get_ravel(0);
    if (first.is_pointer_cell())
       {
         Value_P B0 = first.get_pointer_value();
-        Value_P Z = new Value(B0->get_shape(), loc);
+        Value_P Z(new Value(B0->get_shape(), loc), LOC);
         const ShapeItem ec_Z =  Z->nz_element_count();
 
         loop(z, ec_Z)   Z->get_ravel(z).init_type(B0->get_ravel(z));
@@ -1579,17 +1616,18 @@ const Cell & first = get_ravel(0);
       }
    else
       {
-        Value_P Z = new Value(loc);
+        Value_P Z(new Value(loc), LOC);
 
         Z->get_ravel(0).init_type(first);
         return Z;
       }
+
 }
 //-----------------------------------------------------------------------------
 Value_P
 Value::clone(const char * loc) const
 {
-Value_P ret = new Value(get_shape(), loc);
+Value_P ret(new Value(get_shape(), loc), LOC);
 
 const Cell * src = &get_ravel(0);
 Cell * dst = &ret->get_ravel(0);
@@ -1642,7 +1680,7 @@ const ShapeItem rows = ec/cols;
 int
 Value::print_incomplete(ostream & out)
 {
-vector<Value_P> incomplete;
+vector<Value *> incomplete;
 bool goon = true;
 
    for (const DynamicObject * dob = all_values.get_prev();
@@ -1667,7 +1705,9 @@ bool goon = true;
    //
    loop(s, incomplete.size())
       {
-        incomplete[s]->print_stale_info(out, (const DynamicObject *)incomplete[s]);
+        incomplete[s]->print_stale_info(out,
+               (const DynamicObject *)
+               incomplete[s]);
        }
 
    return incomplete.size();
@@ -1676,7 +1716,8 @@ bool goon = true;
 int
 Value::print_stale(ostream & out)
 {
-vector<Value_P> stale;
+vector<Value *> stale_vals;
+vector<const DynamicObject *> stale_dobs;
 bool goon = true;
 
    // first print addresses and remember stale values
@@ -1690,7 +1731,8 @@ bool goon = true;
          if (val->flags & VF_DONT_DELETE)   continue;
 
          out << "stale value at " << (const void *)val << endl;
-         stale.push_back(val);
+         stale_vals.push_back(val);
+         stale_dobs.push_back(dob);
 
          if (!goon)
             {
@@ -1701,12 +1743,14 @@ bool goon = true;
 
    // then print more info...
    //
-   loop(s, stale.size())
+   loop(s, stale_vals.size())
       {
-        stale[s]->print_stale_info(out, (const DynamicObject *)stale[s]);
+        const DynamicObject * dob = stale_dobs[s];
+        Value * val = stale_vals[s];
+        val->print_stale_info(out, dob);
        }
 
-int count = stale.size();
+int count = stale_vals.size();
 
    // mark all dynamic values, and then unmark those known in the workspace
    //
@@ -1724,9 +1768,9 @@ int count = stale.size();
          // don't print values found in the previous round.
          //
          bool known_stale = false;
-         loop(s,  stale.size())
+         loop(s, stale_vals.size())
             {
-              if (val == stale[s])
+              if (val == stale_vals[s])
                  {
                    known_stale = true;
                    break;
@@ -1751,18 +1795,12 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
    out << "alloc(" << dob->where_allocated()
        << ") flags(" << get_flags() << ")" << endl;
 
-#ifdef REMEMBER_TESTFILE
-   if (dob->get_testcase_filename())
-      out << "test(" << dob->get_testcase_filename()
-          << ":" << dob->get_testcase_lineno() << ")" << endl;
-#endif
-
    VH_entry::print_history(out, (const Value *)dob);
 
    try 
       {
         print_structure(out, 0, 0);
-        Value_P Z = Quad_CR::fun.do_CR(7, this);
+        Value_P Z = Quad_CR::fun.do_CR(7, Value_P(this, LOC));
         Z->print(out);
         out << endl;
         Z->erase(LOC);

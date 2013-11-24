@@ -319,7 +319,7 @@ public:
 
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B)
-      { return do_quad_NL(0, B); }
+      { return do_quad_NL(Value_P(), B); }
 
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)

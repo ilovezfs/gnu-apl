@@ -79,7 +79,7 @@ protected:
    virtual void push_value(Value_P value) {}
 
    /// overloaded Symbol::pop()
-   virtual Value_P pop() { return 0; }
+   virtual Value_P pop() { return Value_P(); }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -106,7 +106,7 @@ protected:
    /// overloaded Symbol::resolve(). Since push(), pop(), and assign()
    /// do nothing, we can call get_apl_value() directly.
    virtual void resolve(Token & token, bool left)
-      { if (!left)   token = Token(TOK_APL_VALUE1, get_apl_value()); }
+      { if (!left)   new (&token) Token(TOK_APL_VALUE1, get_apl_value()); }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -546,7 +546,7 @@ class Quad_SYL : public NL_SystemVariable
 public:
    /// Constructor.
    Quad_SYL() : NL_SystemVariable(ID_QUAD_SYL)
-      { assign(0, LOC); }
+      { assign(Value_P(), LOC); }
 
    /// overloaded Symbol::assign()
    virtual void assign(Value_P value, const char * loc);

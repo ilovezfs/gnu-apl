@@ -21,7 +21,7 @@
 #include <unistd.h>
 
 #include "Command.hh"
-#include "Common.hh"
+#include "Common.hh"   // for HAVE_LIBREADLINE etc.
 #include "Input.hh"
 #include "main.hh"
 #include "Output.hh"
@@ -30,9 +30,6 @@
 #include "TestFiles.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"
-
-#include "../config.h"   // for HAVE_LIBREADLINE
-
 
 namespace readline_lib
 {
@@ -330,7 +327,7 @@ Input::get_quad_cr_line(UCS_string ucs_prompt)
                 }
 
              UCS_string ret(ucs_prompt);
-             ret.app(line);
+             ret.append_utf8(line);
              return ret;
            }
 

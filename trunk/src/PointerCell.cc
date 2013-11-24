@@ -27,7 +27,7 @@
 //-----------------------------------------------------------------------------
 PointerCell::PointerCell(Value_P val)
 {
-   value.valp = val;
+   value._valp() = val;
    val->set_nested();
 }
 //-----------------------------------------------------------------------------
@@ -58,16 +58,16 @@ PointerCell::greater(const Cell * other, bool ascending) const
 void
 PointerCell::release(const char * loc)
 {
-   value.valp->clear_nested();
-   value.valp->erase(loc);
-   value.valp = 0;
+   value._valp()->clear_nested();
+   value._valp()->erase(loc);
+   value._valp().clear(LOC);
    new (this) Cell;
 }
 //-----------------------------------------------------------------------------
 Value_P
 PointerCell::get_pointer_value() const
 {
-   return value.valp;
+   return value._valp();
 }
 //-----------------------------------------------------------------------------
 CellType
@@ -89,27 +89,27 @@ Value_P val = get_pointer_value();
 
         if (val->is_char_vector())
            {
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
              loop(e, ec)
                 {
                   const Unicode uni = val->get_ravel(e).get_char_value();
-                  ucs += uni;
-                  if (uni == UNI_SINGLE_QUOTE)   ucs += uni;   // ' -> ''
+                  ucs.append(uni);
+                  if (uni == UNI_SINGLE_QUOTE)   ucs.append(uni);   // ' -> ''
                 }
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
            }
         else
            {
-             ucs += UNI_ASCII_L_PARENT;
+             ucs.append(UNI_ASCII_L_PARENT);
              loop(e, ec)
                 {
                   PrintBuffer pb = val->get_ravel(e).
                         character_representation(pctx);
-                  ucs += UCS_string(pb, 0);
+                  ucs.append(UCS_string(pb, 0));
 
-                  if (e < ec - 1)   ucs += UNI_ASCII_SPACE;
+                  if (e < ec - 1)   ucs.append(UNI_ASCII_SPACE);
                 }
-             ucs += UNI_ASCII_R_PARENT;
+             ucs.append(UNI_ASCII_R_PARENT);
            }
 
         ColInfo ci;

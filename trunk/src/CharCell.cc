@@ -105,25 +105,25 @@ ColInfo info;
         Unicode uni = get_char_value();
         if (uni == UNI_SINGLE_QUOTE)
            {
-             ucs += UNI_SINGLE_QUOTE;
-             ucs += uni;
-             ucs += uni;
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
+             ucs.append(uni);
+             ucs.append(uni);
+             ucs.append(UNI_SINGLE_QUOTE);
 
              info.int_len = 3;
            }
         else
            {
-             ucs += UNI_SINGLE_QUOTE;
-             ucs += uni;
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
+             ucs.append(uni);
+             ucs.append(UNI_SINGLE_QUOTE);
 
              info.int_len = 3;
            }
       }
    else
       {
-        ucs += get_char_value();
+        ucs.append(get_char_value());
 
         info.int_len = 1;
       }

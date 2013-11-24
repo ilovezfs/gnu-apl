@@ -21,7 +21,6 @@
 #ifndef __SHAPE_HH_DEFINED__
 #define __SHAPE_HH_DEFINED__
 
-#include "APL_types.hh"
 #include "Common.hh"
 #include "Error.hh"
 

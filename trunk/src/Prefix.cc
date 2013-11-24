@@ -64,10 +64,10 @@ CERR << "Warning: discarding non-empty stack["
         Token_loc tl = pop();
         if (tl.tok.get_Class() == TC_VALUE)
            {
-             Value * val = tl.tok.get_apl_val();
-             if (val == 0)   continue;
+             Value_P val = tl.tok.get_apl_val();
+             if (!val)   continue;
 
-CERR << "    Value is " << (void *)val << " " << *val;
+CERR << "    Value is " << val.voidp() << " " << *val;
 // val->print_properties(CERR,  0);
                val->erase(LOC);
            }
@@ -96,8 +96,8 @@ Prefix::syntax_error(const char * loc)
         Token & tok = at(s).tok;
         if (tok.get_Class() == TC_VALUE)
            {
-             Value * val = tok.get_apl_val();
-             if (val)   val->erase(LOC);
+             Value_P val = tok.get_apl_val();
+             if (!!val)   val->erase(LOC);
           }
       }
 
@@ -233,7 +233,7 @@ Prefix::unmark_all_values() const
         if (tok.get_ValueType() != TV_VAL)      continue;
 
         Value_P value = tok.get_apl_val();
-        if (value)   value->clear_marked();
+        if (!!value)   value->clear_marked();
       }
 }
 //-----------------------------------------------------------------------------
@@ -261,7 +261,7 @@ grow:
           // there is a MISC token from a MISC phrase. Use it.
           //
           push(saved_lookahead);
-          saved_lookahead.tok = Token(TOK_VOID);
+          saved_lookahead.tok.clear(LOC);
           goto again;   // success
         }
 
@@ -573,9 +573,9 @@ Prefix::reduce_N___()
 {
    Assert1(prefix_len == 1);
 
-const Token result = si.eval_(at0());
-   at0() = result;
-   set_action(result);
+Token result = si.eval_(at0());
+   move_1(at0(), result, LOC);
+   set_action(at0());
 }
 //-----------------------------------------------------------------------------
 void
@@ -583,9 +583,8 @@ Prefix::reduce_MISC_F_B_()
 {
    Assert1(prefix_len == 2);
 
-const Token result = si.eval_B(at0(), at1());
-   pop_args_push_result(result);
-   set_action(result);
+   pop_args_push_result(si.eval_B(at0(), at1()));
+   set_action(at0());
 }
 //-----------------------------------------------------------------------------
 void
@@ -593,9 +592,8 @@ Prefix::reduce_MISC_F_C_B()
 {
    Assert1(prefix_len == 3);
 
-const Token result = si.eval_XB(at0(), at1(), at2());
-   pop_args_push_result(result);
-   set_action(result);
+   pop_args_push_result(si.eval_XB(at0(), at1(), at2()));
+   set_action(at0());
 }
 //-----------------------------------------------------------------------------
 void
@@ -603,9 +601,8 @@ Prefix::reduce_A_F_B_()
 {
    Assert1(prefix_len == 3);
 
-const Token result = si.eval_AB(at0(), at1(), at2());
-   pop_args_push_result(result);
-   set_action(result);
+   pop_args_push_result(si.eval_AB(at0(), at1(), at2()));
+   set_action(at0());
 }
 //-----------------------------------------------------------------------------
 void
@@ -621,9 +618,8 @@ Prefix::reduce_A_F_C_B()
 {
    Assert1(prefix_len == 4);
 
-const Token result = si.eval_AXB(at0(), at1(), at2(), at3());
-   pop_args_push_result(result);
-   set_action(result);
+   pop_args_push_result(si.eval_AXB(at0(), at1(), at2(), at3()));
+   set_action(at0());
 }
 //-----------------------------------------------------------------------------
 void
@@ -639,8 +635,7 @@ DerivedFunction * derived =
    Workspace::the_workspace->SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(), LOC);
 
-Token result = Token(TOK_FUN2, derived);
-   pop_args_push_result(result);
+   pop_args_push_result(Token(TOK_FUN2, derived));
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -669,8 +664,7 @@ DerivedFunction * derived =
    Workspace::the_workspace->SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(), at2(), LOC);
 
-Token result = Token(TOK_FUN2, derived);
-   pop_args_push_result(result);
+   pop_args_push_result(Token(TOK_FUN2, derived));
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -714,7 +708,7 @@ Prefix::reduce_F_V__()
    // turn V into a (left-) value
    //
 Symbol * V = at1().get_sym_ptr();
-   at1() = V->resolve_lv(LOC);
+   copy_1(at1(), V->resolve_lv(LOC), LOC);
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -758,17 +752,20 @@ Prefix::reduce_RBRA___()
 {
    Assert1(prefix_len == 1);
 
-   // start partial index list
+   // start partial index list. Parse the index as right so that, for example,
+   // A[IDX}←B resolves IDX properly. assign_pending is resored when the
+   // index is complete.
    //
-   at0() = Token(TOK_PINDEX, new IndexExpr(LOC));
+   new (&at0()) Token(TOK_PINDEX, new IndexExpr(assign_pending, LOC));
+   assign_pending = false;
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
 void
 Prefix::reduce_LBRA_I__()
 {
-   // [ I or ; I
-
+   // [ I or ; I   (elided index)
+   //
    Assert1(prefix_len == 2);
 
 IndexExpr & idx = at1().get_index_val();
@@ -776,7 +773,8 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);
 
    if (idx.value_count() == 0 && last_index)   // special case: [ ]
       {
-        idx.add(0);
+        idx.add(Value_P());
+        assign_pending = idx.get_left();   // restore assign_pending
         Token result = Token(TOK_INDEX, &idx);
         pop_args_push_result(result);
         action = RA_CONTINUE;
@@ -786,12 +784,18 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);
    // add elided index to partial index list
    //
 Token result = at1();
-   result.get_index_val().add(0);
+   result.get_index_val().add(Value_P());
 
    if (last_index)
       {
-        if (idx.is_axis())   result = Token(TOK_AXES, idx.values[0]);
-        else                 result = Token(TOK_INDEX, &idx);
+        assign_pending = idx.get_left();   // restore assign_pending
+
+        if (idx.is_axis()) move_2(result, Token(TOK_AXES, idx.values[0]), LOC);
+        else               move_2(result, Token(TOK_INDEX, &idx), LOC);
+      }
+   else
+      {
+        assign_pending = false;
       }
 
    pop_args_push_result(result);
@@ -803,27 +807,33 @@ Prefix::reduce_LBRA_B_I_()
 {
    Assert1(prefix_len == 3);
 
-   // add value to partial index list
+   // [ B I or ; B I   (normal index)
    //
 Token result = at2();
    result.get_index_val().add(at1().get_apl_val());
 
-const bool last_index = (at0().get_tag() == TOK_L_BRACK);
+const bool last_index = (at0().get_tag() == TOK_L_BRACK);   // ; vs. [
    if (last_index)
       {
         IndexExpr & idx = result.get_index_val();
+        assign_pending = idx.get_left();   // restore assign_pending
+
         if (idx.is_axis())
            {
-             Value * iv = idx.values[0];
-             Assert1(iv);
-             idx.values[0] = 0;
+             Value_P iv = idx.values[0];
+             Assert1(!!iv);
+             idx.values[0].clear(LOC);
              iv->clear_index();
-             result = Token(TOK_AXES, iv);
+             move_2(result, Token(TOK_AXES, iv), LOC);
            }
         else
            {
-             result = Token(TOK_INDEX, &idx);
+             move_2(result, Token(TOK_INDEX, &idx), LOC);
            }
+      }
+   else
+      {
+        assign_pending = false;
       }
 
    pop_args_push_result(result);
@@ -861,7 +871,8 @@ const int count = vector_ass_count();
         // selective specification. Convert variable V into a (left-) value
         //
         Symbol * V = at0().get_sym_ptr();
-        at0() = V->resolve_lv(LOC);
+        Token result = V->resolve_lv(LOC);
+        move_1(at0(), result, LOC);
         action = RA_CONTINUE;
         return;
       }
@@ -894,7 +905,7 @@ Value_P B = at3().get_apl_val();
         {
           Symbol * V = at0().get_sym_ptr();
           Cell & cell = B->get_ravel(count);
-          Value_P B_last = new Value(cell, LOC);
+          Value_P B_last(new Value(cell, LOC), LOC);
           V->assign(B_last, LOC);
         }
 
@@ -906,7 +917,7 @@ Value_P B = at3().get_apl_val();
              Assert1(tl.tok.get_tag() == TOK_LSYMB2);   // by vector_ass_count()
              Symbol * V = tl.tok.get_sym_ptr();
              Cell & cell = B->get_ravel(count - c - 1);
-             Value_P B_cell = new Value(cell, LOC);
+             Value_P B_cell(new Value(cell, LOC), LOC);
              V->assign(B_cell, LOC);
            }
       }
@@ -932,8 +943,8 @@ Prefix::reduce_END_VOID__()
 
 const bool end_of_line = at0().get_tag() == TOK_ENDL;
 
-   pop();   // pop END
-   pop();   // pop VOID
+   pop_and_discard();   // pop END
+   pop_and_discard();   // pop VOID
 
 Token Void(TOK_VOID);
    si.statement_result(Void);
@@ -955,9 +966,8 @@ Prefix::reduce_END_B__()
 
 const bool end_of_line = at0().get_tag() == TOK_ENDL;
 
-Token B = at1();
-   pop();   // pop END
-   pop();   // pop B
+   pop_and_discard();   // pop END
+Token B = pop().tok;   // pop B
 
    B.clone_if_owned(LOC);
    si.statement_result(B);
@@ -1068,14 +1078,14 @@ Prefix::reduce_RETC___()
         case TOK_RETURN_EXEC:   // immediate execution context
              Log(LOG_prefix_parser)
                 CERR << "- end of ⍎ context (no result)" << endl;
-             at0() = Token(TOK_VOID);
+             at0().clear(LOC);
              action = RA_RETURN;
              return;
 
         case TOK_RETURN_STATS:   // immediate execution context
              Log(LOG_prefix_parser)
                 CERR << "- end of ◊ context" << endl;
-             at0() = Token(TOK_VOID);
+             at0().clear(LOC);
              action = RA_RETURN;
              return;
 
@@ -1087,7 +1097,7 @@ Prefix::reduce_RETC___()
                const UserFunction * ufun = si.get_executable()->get_ufun();
                Assert1(ufun);
                ufun->pop_local_vars();
-               at0() = Token(TOK_VOID);
+               at0().clear(LOC);
              }
              action = RA_RETURN;
              return;
@@ -1097,19 +1107,19 @@ Prefix::reduce_RETC___()
                const UserFunction * ufun = si.get_executable()->get_ufun();
                Assert1(ufun);
                Value_P Z = ufun->pop_local_vars();
-               if (Z)
+               if (!!Z)
                   {
                     Log(LOG_prefix_parser)
                        CERR << "- end of ∇ context (function result is: "
                             << *Z << ")" << endl;
-                    at0() = Token(TOK_APL_VALUE1, Z);
+                    new (&at0()) Token(TOK_APL_VALUE1, Z);
                   }
                else
                   {
                     Log(LOG_prefix_parser)
                        CERR << "- end of ∇ context (MISSING function result)."
                             << endl;
-                    at0() = Token(TOK_VOID);
+                    at0().clear(LOC);
                   }
              }
              action = RA_RETURN;

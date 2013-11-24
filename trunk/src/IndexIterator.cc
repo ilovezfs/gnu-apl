@@ -118,7 +118,7 @@ ShapeItem weight = 1;
          const ShapeItem  sh_r = shape.get_shape_item(val_r);
          Value_P I = IDX.values[idx_r];
 
-         IndexIterator * new_it = I
+         IndexIterator * new_it = !!I
            ? (IndexIterator *)(new TrueIndexIterator(weight, I, IDX.quad_io,
                                                     IDX.quad_ct, sh_r))
            : (IndexIterator *)(new ElidedIndexIterator(weight, sh_r));

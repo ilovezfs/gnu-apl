@@ -90,7 +90,7 @@ UCS_string::UCS_string(const UTF8_string & utf)
               uni |= subc & 0x3F;
             }
 
-         *this += Unicode(bx | uni);
+         append(Unicode(bx | uni));
       }
 
    Log(LOG_char_conversion)
@@ -126,15 +126,15 @@ bool skipping = false;   // skip leading 0s in exponent
            {
              e_seen = true;
              skipping = true;
-             *this += UNI_ASCII_E;
+             append(UNI_ASCII_E);
            }
         else if (cc == '-')
            {
-             *this += UNI_OVERBAR;
+             append(UNI_OVERBAR);
            }
         else if (!e_seen)   // copy mantissa as is
            {
-             *this += Unicode(cc);
+             append(Unicode(cc));
            }
         else if (cc == '+')
            {
@@ -145,7 +145,7 @@ bool skipping = false;   // skip leading 0s in exponent
         else
            {
              skipping = false;
-             *this += Unicode(cc);
+             append(Unicode(cc));
            }
       }
 }
@@ -167,24 +167,22 @@ int col = 0;
          const int brkp = pb.get_break_points()[b];
          add_chunk(pb, col, brkp - col);
          col = brkp;
-         loop(r, rank)   *this += UNI_ASCII_LF;
+         loop(r, rank)   append(UNI_ASCII_LF);
        }
 
    add_chunk(pb, col, pb.get_width(0) - col);
 }
 //-----------------------------------------------------------------------------
 /// constructor
-UCS_string::UCS_string(Value * value)
+UCS_string::UCS_string(const Value & value)
    : Simple_string<Unicode>(0, 0)
 {
-   Assert(value);
+   if (value.get_rank() > 1) RANK_ERROR;
 
-   if (value->get_rank() > 1) RANK_ERROR;
-
-const ShapeItem ec = value->element_count();
+const ShapeItem ec = value.element_count();
    reserve(ec);
 
-   loop(e, ec)   *this += value->get_ravel(e).get_char_value();
+   loop(e, ec)   append(value.get_ravel(e).get_char_value());
 }
 //-----------------------------------------------------------------------------
 UCS_string::UCS_string(istream & in)
@@ -195,7 +193,7 @@ UCS_string::UCS_string(istream & in)
         const Unicode uni = UTF8_string::getc(in);
         if (uni == Invalid_Unicode)   return;
         if (uni == UNI_ASCII_LF)      return;
-        *this += uni;
+        append(uni);
       }
 }
 //-----------------------------------------------------------------------------
@@ -204,11 +202,11 @@ UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
 {
    loop(y, pb.get_height())
        {
-         if (y)   *this += UNI_ASCII_LF;
+         if (y)   append(UNI_ASCII_LF);
 
          UCS_string ucs;
-         if (from)   ucs += UCS_string(UTF8_string("      "));
-         ucs += UCS_string (pb.get_line(y), from, width);
+         if (from)   ucs.append(UCS_string(UTF8_string("      ")));
+         ucs.append(UCS_string (pb.get_line(y), from, width));
 
          // remove trailing pad chars from align() and append_string(),
          // but leave other pad chars intact.
@@ -251,7 +249,7 @@ UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
             {
               Unicode uni = ucs[u];
               if (is_pad(uni))   uni = UNI_ASCII_SPACE;
-              *this += uni;
+              append(uni);
             }
        }
 }
@@ -260,7 +258,7 @@ void
 UCS_string::copy_black(UCS_string & dest, int & idx) const
 {
    while (idx < size() && operator[](idx) <= ' ')   ++idx;
-   while (idx < size() && operator[](idx) >  ' ')   dest += operator[](idx++);
+   while (idx < size() && operator[](idx) >  ' ')   dest.append(operator[](idx++));
    while (idx < size() && operator[](idx) <= ' ')   ++idx;
 }
 //-----------------------------------------------------------------------------
@@ -353,7 +351,7 @@ UCS_string ret;
       {
         Unicode uni = (*this)[s];
         if (is_pad(uni))   uni = UNI_ASCII_SPACE;
-        ret += uni;
+        ret.append(uni);
       }
 
    return ret;
@@ -366,7 +364,7 @@ UCS_string ret;
    loop(s, size())
       {
         Unicode uni = (*this)[s];
-        if (!is_pad(uni))   ret += uni;
+        if (!is_pad(uni))   ret.append(uni);
       }
 
    return ret;
@@ -397,12 +395,12 @@ UCS_string
 UCS_string::reverse() const
 {
 UCS_string ret;
-   for (int s = size(); s > 0;)   ret += (*this)[--s];
+   for (int s = size(); s > 0;)   ret.append((*this)[--s]);
    return ret;
 }
 //-----------------------------------------------------------------------------
 void
-UCS_string::app(const UTF8 * str)
+UCS_string::append_utf8(const UTF8 * str)
 {
 const size_t len = strlen((const char *)str);
 const UTF8_string utf(str, len);
@@ -412,9 +410,9 @@ const UCS_string ucs(utf);
 }
 //-----------------------------------------------------------------------------
 void
-UCS_string::append_string(const char * str)
+UCS_string::append_ascii(const char * str)
 {
-   while (*str)   *this += Unicode(*str++);
+   while (*str)   append(Unicode(*str++));
 }
 //-----------------------------------------------------------------------------
 void
@@ -424,7 +422,7 @@ char cc[40];
    snprintf(cc, sizeof(cc) - 1, "%lld", num);
    loop(c, sizeof(cc))
       {
-        if (cc[c])   *this += Unicode(cc[c]);
+        if (cc[c])   append(Unicode(cc[c]));
         else         break;
       }
 }
@@ -436,7 +434,7 @@ char cc[60];
    snprintf(cc, sizeof(cc) - 1, "%lf", num);
    loop(c, sizeof(cc))
       {
-        if (cc[c])   *this += Unicode(cc[c]);
+        if (cc[c])   append(Unicode(cc[c]));
         else         break;
       }
 }
@@ -464,7 +462,7 @@ size_t max_len = 0;
         else
            {
              if (uni != UNI_ASCII_CR)         // ignore \r.
-                result[result.size() - 1] += uni;
+                result[result.size() - 1].append(uni);
            }
       }
 
@@ -557,7 +555,7 @@ int * d = digits;
       }
 
 UCS_string ret;
-   while (d > digits)   ret += Unicode(UNI_ASCII_0 + *--d);
+   while (d > digits)   ret.append(Unicode(UNI_ASCII_0 + *--d));
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -582,9 +580,9 @@ long double fract;
    val = initial_fract;
 
 UCS_string ret;
-   if (d == digits)   ret += UNI_ASCII_0;   // 0.xxx
+   if (d == digits)   ret.append(UNI_ASCII_0);   // 0.xxx
 
-   while (d > digits)   ret += Unicode(UNI_ASCII_0 + *--d);
+   while (d > digits)   ret.append(Unicode(UNI_ASCII_0 + *--d));
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -595,18 +593,18 @@ UCS_string ret;
 
    if (v == 0.0)
       {
-        ret += UNI_ASCII_0;
+        ret.append(UNI_ASCII_0);
         if (fract_digits)   // unless integer only
            {
-             ret += UNI_ASCII_FULLSTOP;
-             loop(f, fract_digits)   ret += UNI_ASCII_0;
+             ret.append(UNI_ASCII_FULLSTOP);
+             loop(f, fract_digits)   ret.append(UNI_ASCII_0);
            }
-        ret += UNI_ASCII_E;
-        ret += UNI_ASCII_0;
+        ret.append(UNI_ASCII_E);
+        ret.append(UNI_ASCII_0);
         return ret;
       }
 
-   if (v < 0)   { ret += UNI_OVERBAR;   v = - v; }
+   if (v < 0)   { ret.append(UNI_OVERBAR);   v = - v; }
 
 int expo = 0;
    while (v >= 1.0E1)
@@ -682,9 +680,9 @@ int expo = 0;
 
    // print mantissa in fixed format
    //
-   ret += from_double_fixed_prec(v, fract_digits);
-   ret += UNI_ASCII_E;
-   ret += from_int(expo);
+   ret.append(from_double_fixed_prec(v, fract_digits));
+   ret.append(UNI_ASCII_E);
+   ret.append(from_int(expo));
 
    return ret;
 }
@@ -694,17 +692,17 @@ UCS_string::from_double_fixed_prec(double v, unsigned int fract_digits)
 {
 UCS_string ret;
 
-   if (v < 0)   { ret += UNI_OVERBAR;   v = - v; }
+   if (v < 0)   { ret.append(UNI_OVERBAR);   v = - v; }
 
-   ret += from_big(v);   // leaves fractional part of v in v
+   ret.append(from_big(v));   // leaves fractional part of v in v
 
-   ret += UNI_ASCII_FULLSTOP;
+   ret.append(UNI_ASCII_FULLSTOP);
 
    loop(f, fract_digits + 1)
       {
         v *= 10;
         const int vv = v;
-        ret += Unicode(UNI_ASCII_0 + vv);
+        ret.append(Unicode(UNI_ASCII_0 + vv));
         v -= vv;
       }
 

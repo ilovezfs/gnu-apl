@@ -34,9 +34,11 @@ VH_entry VH_entry::history[VALUEHISTORY_SIZE];
 int VH_entry::idx = 0;
 
 //----------------------------------------------------------------------------
-VH_entry::VH_entry(const Value * _val, VH_event _ev, const char * _loc)
+VH_entry::VH_entry(const Value * _val, VH_event _ev, int _iarg,
+                   const char * _loc)
   : event(_ev),
     val(_val),
+    iarg(_iarg),
     loc(_loc)
 {
    testcase_file = TestFiles::get_testfile_name();
@@ -50,12 +52,12 @@ VH_entry::init()
 }
 //----------------------------------------------------------------------------
 void
-add_event(const Value * val, VH_event ev, const char * loc)
+add_event(const Value * val, VH_event ev, int ia, const char * loc)
 {
 VH_entry * entry = VH_entry::history + VH_entry::idx++;
    if (VH_entry::idx >= VALUEHISTORY_SIZE)   VH_entry::idx = 0;
 
-   new(entry) VH_entry(val, ev, loc);
+   new(entry) VH_entry(val, ev, ia, loc);
 }
 //----------------------------------------------------------------------------
 void
@@ -73,9 +75,9 @@ int cidx = idx;
 
          const VH_entry * entry = history + cidx;
          
-         if (entry->event == VHE_NONE)     break;      // end of history
+         if (entry->event == VHE_None)     break;      // end of history
 
-         if ((entry->event & VHE_MASK) == VHE_ERROR)
+         if (entry->event == VHE_Error)
             { 
               // add error event to every value history
               //
@@ -87,7 +89,7 @@ int cidx = idx;
 
           var_events.push_back(entry);
 
-          if (entry->event == VHE_CREATE)   break;   // create event found
+          if (entry->event == VHE_Create)   break;   // create event found
        }
 
    out << endl << "value " << (const void *)val
@@ -105,19 +107,19 @@ flags_name(ValueFlags flags)
 {
 UCS_string ret;
 
-  if (flags & VF_marked)   ret += UNI_ASCII_M;
-  if (flags & VF_complete) ret += UNI_ASCII_C;
-  if (flags & VF_left)     ret += UNI_ASCII_AMPERSAND;
-  if (flags & VF_arg)      ret += UNI_ASCII_A;
-  if (flags & VF_eoc)      ret += UNI_ASCII_E;
-  if (flags & VF_deleted)  ret += UNI_DELTA;
-  if (flags & VF_index)    ret += UNI_SQUISH_QUAD;
-  if (flags & VF_nested)   ret += UNI_ASCII_s;
-  if (flags & VF_forever)  ret += UNI_INFINITY;
-  if (flags & VF_assigned) ret += UNI_LEFT_ARROW;
-  if (flags & VF_shared)   ret += UNI_NABLA;
+  if (flags & VF_marked)   ret.append(UNI_ASCII_M);
+  if (flags & VF_complete) ret.append(UNI_ASCII_C);
+  if (flags & VF_left)     ret.append(UNI_ASCII_AMPERSAND);
+  if (flags & VF_arg)      ret.append(UNI_ASCII_A);
+  if (flags & VF_eoc)      ret.append(UNI_ASCII_E);
+  if (flags & VF_deleted)  ret.append(UNI_DELTA);
+  if (flags & VF_index)    ret.append(UNI_SQUISH_QUAD);
+  if (flags & VF_nested)   ret.append(UNI_ASCII_s);
+  if (flags & VF_forever)  ret.append(UNI_INFINITY);
+  if (flags & VF_assigned) ret.append(UNI_LEFT_ARROW);
+  if (flags & VF_shared)   ret.append(UNI_NABLA);
 
-   while (ret.size() < 4)   ret += UNI_ASCII_SPACE;
+   while (ret.size() < 4)   ret.append(UNI_ASCII_SPACE);
    return ret;
 }
 //----------------------------------------------------------------------------
@@ -126,42 +128,42 @@ VH_entry::print(int & flags, ostream & out, const Value * val) const
 {
 const ValueFlags flags_before = (ValueFlags)flags;
 
-   switch(event & VHE_MASK)
+   switch(event)
       {
-        case VHE_CREATE:
-             out << "  Create     " << flags_before << " ";
+        case VHE_Create:
+             out << "  VHE_Create   " << flags_before << " ";
              out << "            ";
              break;
 
-        case VHE_UNROLL:
-             out << "  Rollback   " << flags_before << " ";
+        case VHE_Unroll:
+             out << "  VHE_Unroll   " << flags_before << " ";
              break;
 
-        case VHE_CHECK:
+        case VHE_Check:
              flags |= VF_complete;
-             out << "  Check      " << flags_before << " ";
+             out << "  VHE_Check   " << flags_before << " ";
              if (flags_before != flags)   out << (ValueFlags)flags << " ";
              else                         out << "            ";
              break;
 
-        case VHE_SETFLAG:
-             flags |= event & ~VHE_MASK;
-             out << "  Set " << flags_name((ValueFlags)event)
+        case VHE_SetFlag:
+             flags |= iarg;
+             out << "  Set " << flags_name((ValueFlags)iarg)
+                 << "     " << flags_before << " ";
+             if (flags_before != flags)   out << (ValueFlags)flags << " ";
+             else                         out << "            ";
+             break;
+
+        case VHE_ClearFlag:
+             flags &= ~iarg;
+             out << "  Clear " << flags_name((ValueFlags)iarg)
                  << "   " << flags_before << " ";
              if (flags_before != flags)   out << (ValueFlags)flags << " ";
              else                         out << "            ";
              break;
 
-        case VHE_CLEARFLAG:
-             flags &= ~(event & ~VHE_MASK);
-             out << "  Clear " << flags_name((ValueFlags)event)
-                 << " " << flags_before << " ";
-             if (flags_before != flags)   out << (ValueFlags)flags << " ";
-             else                         out << "            ";
-             break;
-
-        case VHE_ERASE:
-             out << "  Erase      " << flags_before << " ";
+        case VHE_Erase:
+             out << "  VHE_Erase    " << flags_before << " ";
              if (flags_before & VF_deleted)
                 {
                   out << "** TWICE ** ";
@@ -178,16 +180,49 @@ const ValueFlags flags_before = (ValueFlags)flags;
                 }
              break;
 
-        case VHE_ERROR:
-             out << "  " << setw(34)
-                 << Error::error_name((ErrorCode)(event & ~VHE_MASK)) << " ";
+        case VHE_Error:
+             out << "  " << setw(35)
+                 << Error::error_name((ErrorCode)(event)) << " ";
              break;
+
+        case VHE_PtrNew:
+             out << "  VHE_PtrNew   " << setw(24) << iarg;
+             break;
+
+        case VHE_PtrCopy1:
+             out << "  VHE_PtrCopy1 " << setw(24) << iarg;
+             break;
+
+        case VHE_PtrCopy2:
+             out << "  VHE_PtrCopy2 " << setw(24) << iarg;
+             break;
+
+        case VHE_PtrClr:
+             out << "  VHE_PtrDel   " << setw(24) << iarg;
+             break;
+
+        case VHE_PtrDel:
+             out << "  VHE_PtrDel   " << setw(24) << iarg;
+             break;
+
+        case VHE_TokCopy1:
+             out << "  VHE_TokCopy1 " << setw(24) << iarg;
+             break;
+
+        case VHE_TokMove1:
+             out << "  VHE_TokMove1 " << setw(24) << iarg;
+             break;
+
+        case VHE_TokMove2:
+             out << "  VHE_TokMove2 " << setw(24) << iarg;
+             break;
+
         default:
-             out << "Unknown event " << HEX(event) << endl;
+             out << "Unknown event  " << HEX(event) << endl;
              return;
       }
 
-   out << left << setw(30) << loc;
+   out << left << setw(30) << (loc ? loc : "<no-loc>");
 
    if (testcase_file)
       {
