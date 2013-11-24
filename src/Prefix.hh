@@ -160,23 +160,24 @@ public:
         Assert1(has_space());
 
         content[put++] = tl;
-        if (put == MAX_CONTENT)   put = 0;
       }
 
    /// pop \b prefix_len items and push \b result
    void pop_args_push_result(const Token & result)
         {
           Assert1(size() >= prefix_len);
-          content[put - prefix_len].tok = result;
+          copy_1(content[put - prefix_len].tok, result, LOC);
           content[put - prefix_len].pc = content[put - 1].pc;
           put -= prefix_len - 1;
         }
 
    /// remove the leftmost token (e,g, A in A←B) from the stack and return it
    Token_loc pop()
-      {  Assert1(size() > 0);
-         --put;   if (put < 0)   put = MAX_CONTENT_1;
-         return content[put]; }
+      {  Assert1(size() > 0);   return content[--put]; }
+
+   /// discard the leftmost token (e,g, A in A←B) from the stack and return it
+   void pop_and_discard()
+      {  Assert1(size() > 0);   --put; }
 
    /// the number of TOK_LSYMB2 tokens ahead (excluding the leftmost one
    /// already read into content)
@@ -186,7 +187,7 @@ public:
    void reset(const char * loc)
       { cleanup();   put = 0;   assign_pending = false;
         lookahead_high = Function_PC_invalid;
-        saved_lookahead.tok = Token(TOK_VOID); }
+        saved_lookahead.tok.clear(LOC); }
 
    /// print the current stack
    void print_stack(ostream & out, const char * loc) const;
@@ -270,7 +271,7 @@ protected:
    Function_PC PC;
 
    /// true if an assignment is pending in this statement. \b assign_pending is
-   /// set when a ← is stored in the current statement iand reset after the
+   /// set when a ← is stored in the current statement and reset after the
    /// assignment was made.
    bool assign_pending;
 

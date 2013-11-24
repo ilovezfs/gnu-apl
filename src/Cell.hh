@@ -185,10 +185,10 @@ public:
         APL_Integer   ival;    ///< An integer
         APL_Float     fval;    ///< A floating point number
         APL_Complex  *cpxp;   ///< Pointer to a complex number
-        Value        *valp;   ///< Pointer to a nested sub-array
         void         *vptr;   ///< A void pointer
         Cell         *next;   ///< pointer to the next (unused) cell
         Cell         *lval;   ///< left value (for selective assignment)
+        VALUE_P(      valp)   ///< Pointer to a nested sub-array
       };
 
    /// return the type of \b this cell

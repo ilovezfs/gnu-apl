@@ -50,6 +50,9 @@ public:
    /// Overloaded Function::eval_fill_AB()
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
+   /// Overloaded Function::eval_fill_B()
+   virtual Token eval_fill_B(Value_P B);
+
    /// Overloaded Function::has_result()
    virtual int has_result() const   { return 1; }
 
@@ -87,7 +90,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -111,7 +114,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Zero); }
+      { return eval_skalar_identity_fun(B, axis, Value::Zero_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -135,7 +138,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -159,7 +162,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Zero); }
+      { return eval_skalar_identity_fun(B, axis, Value::Zero_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -183,7 +186,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -207,7 +210,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Zero); }
+      { return eval_skalar_identity_fun(B, axis, Value::Zero_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -231,7 +234,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -255,7 +258,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -279,7 +282,7 @@ public:
 protected:
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Zero); }
+      { return eval_skalar_identity_fun(B, axis, Value::Zero_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -366,7 +369,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -394,7 +397,7 @@ public:
 protected:
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Zero); }
+      { return eval_skalar_identity_fun(B, axis, Value::Zero_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -422,7 +425,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Zero); }
+      { return eval_skalar_identity_fun(B, axis, Value::Zero_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -489,7 +492,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -517,7 +520,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::One); }
+      { return eval_skalar_identity_fun(B, axis, Value::One_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -565,7 +568,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Min); }
+      { return eval_skalar_identity_fun(B, axis, Value::Min_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -593,7 +596,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-      { return eval_skalar_identity_fun(B, axis, &Value::Max); }
+      { return eval_skalar_identity_fun(B, axis, Value::Max_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -621,7 +624,7 @@ protected:
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
-   { return eval_skalar_identity_fun(B, axis, &Value::Zero); }
+   { return eval_skalar_identity_fun(B, axis, Value::Zero_P); }
 
    /// Overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)

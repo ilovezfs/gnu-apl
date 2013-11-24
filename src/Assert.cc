@@ -36,8 +36,9 @@ do_Assert(const char * cond, const char * fun, const char * file, int line)
 {
 const int loc_len = strlen(file) + 40;
 char * loc = new char[loc_len + 1];
-   Log(LOG_delete)   CERR << "new    " << (const void *)loc
-                          << " at " LOC << endl;
+
+   Log(LOG_delete)
+      CERR << "new    " << (const void *)loc << " at " LOC << endl;
 
    snprintf(loc, loc_len, "%s:%d", file, line);
    loc[loc_len] = 0;

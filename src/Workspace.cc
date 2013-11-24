@@ -31,6 +31,7 @@ using namespace std;
 #include "main.hh"
 #include "Output.hh"
 #include "Quad_TF.hh"
+#include "TestFiles.hh"
 #include "UserFunction.hh"
 #include "Workspace.hh"
 
@@ -605,7 +606,7 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
       {
         // filename does not end with .xml, so we try filename.xml
         //
-        filename += UTF8_string(".xml");
+        filename.append(UTF8_string(".xml"));
       }
 
 
@@ -628,15 +629,17 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
                COUT << "NOT SAVED: THIS WS IS " << wname << endl;
                UCS_string & t4 = more_error;
                t4.clear();
-               t4.app("the workspace was not saved because:\n"
-                      "   the workspace name '"); t4 += WS_name;
-               t4.app("' of )WSID\n   does not match the name '");
-               t4  += wname;
-               t4.app("' used in the )SAVE command\n"
+               t4.append_utf8("the workspace was not saved because:\n"
+                      "   the workspace name '");
+               t4.append(WS_name);
+               t4.append_utf8("' of )WSID\n   does not match the name '");
+               t4.append(wname);
+               t4.append_utf8("' used in the )SAVE command\n"
                       "   and the workspace file\n   ");
-               t4.app(filename.c_str());
-               t4.app("\n   already exists. Use )WSID "); t4  += wname;
-               t4.app(" first."); 
+               t4.append_utf8(filename.c_str());
+               t4.append_utf8("\n   already exists. Use )WSID ");
+               t4.append(wname);
+               t4.append_utf8(" first."); 
                return;
              }
         }
@@ -700,7 +703,7 @@ XML_Loading_Archive in((const char *)filename.c_str(), *this);
            {
              // filename does not end with .xml, so we try filename.xml
              //
-             filename += UTF8_string(".xml");
+             filename.append(UTF8_string(".xml"));
              new (&in) XML_Loading_Archive((const char *)filename.c_str(),
                                                          *this);
            }
@@ -764,7 +767,7 @@ XML_Loading_Archive in((const char *)filename.c_str(), *this);
            {
              // filename does not end with .xml, so we try filename.xml
              //
-             filename += UTF8_string(".xml");
+             filename.append(UTF8_string(".xml"));
              new (&in) XML_Loading_Archive((const char *)filename.c_str(),
                                                          *this);
            }

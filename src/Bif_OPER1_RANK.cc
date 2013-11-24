@@ -46,7 +46,7 @@ const int axes_count = B->element_count() - 1;
    if (axes_count > 3)   AXIS_ERROR;
 
 Value_P arg  = B->get_ravel(axes_count).get_pointer_value();
-Value_P X = new Value(axes_count, LOC);
+Value_P X(new Value(axes_count, LOC), LOC);
    loop(a, axes_count)   
    new (&X->get_ravel(a))   IntCell(B->get_ravel(a).get_int_value());
 
@@ -77,7 +77,7 @@ RANK_LXB arg;
    arg.ec_B_low = arg.get_sh_B_low().element_count();
    arg.cB = &B->get_ravel(0);
    arg.LO = LO;
-   arg.ZZ = new Value_P[arg.ec_high];
+   arg.ZZ = new Value *[arg.ec_high];
    arg.how = 0;
 
    return finish_eval_LXB(arg);
@@ -94,7 +94,7 @@ how_0:
 
 loop_h:
    {
-     Value_P BB = new Value(arg.get_sh_B_low(), LOC);
+     Value_P BB(new Value(arg.get_sh_B_low(), LOC), LOC);
      Assert1(arg.ec_B_low == arg.get_sh_B_low().element_count());
      loop(l, arg.ec_B_low)   BB->get_ravel(l).init(*arg.cB++);
      CHECK_VAL(BB, LOC);
@@ -113,7 +113,7 @@ loop_h:
 
      if (result.get_Class() == TC_VALUE)
         {
-          arg.ZZ[arg.h] = result.get_apl_val();
+          arg.ZZ[arg.h] = result.get_apl_val().get_pointer();
 
           // adjust result rank to ZZ if needed
           //
@@ -133,7 +133,7 @@ next_h:
 
 const ShapeItem ec_Z_max_low = arg.get_sh_Z_max_low().element_count();
 Shape sh_Z = arg.get_sh_B_high() + arg.get_sh_Z_max_low();
-Value_P Z = new Value(sh_Z, LOC);
+Value_P Z(new Value(sh_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(hh, arg.ec_high)
@@ -144,9 +144,9 @@ Cell * cZ = &Z->get_ravel(0);
            {
              Assert(ec_Z_max_low >= arg.ZZ[hh]->element_count());
              Token zz = Bif_F12_TAKE::fun.do_take(arg.get_sh_Z_max_low(),
-                                                  arg.ZZ[hh]);
+                                                  Value_P(arg.ZZ[hh], LOC));
              arg.ZZ[hh]->erase(LOC);
-             arg.ZZ[hh] = zz.get_apl_val();
+             arg.ZZ[hh] = zz.get_apl_val().get_pointer();
            }
 
         // copy partial result into final result.
@@ -174,7 +174,7 @@ RANK_LXB arg = _arg._RANK_LXB();
    // the user defined function has returned a value. Store it.
    //
    {
-     arg.ZZ[arg.h] = token.get_apl_val();
+     arg.ZZ[arg.h] = token.get_apl_val().get_pointer();
      // adjust result rank to ZZ if needed
      //
      arg.get_sh_Z_max_low().expand(arg.ZZ[arg.h]->get_shape());
@@ -182,7 +182,7 @@ RANK_LXB arg = _arg._RANK_LXB();
 
    if (arg.h < (arg.ec_high - 1))   Workspace::the_workspace->pop_SI(LOC);
 
-   token = finish_eval_LXB(arg);
+   copy_1(token, finish_eval_LXB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    return false;   // stop it
@@ -209,7 +209,7 @@ const int axes_count = B->element_count() - 1;
    if (axes_count > 3)   AXIS_ERROR;
 
 Value_P arg  = B->get_ravel(axes_count).get_pointer_value();
-Value_P X = new Value(axes_count, LOC);
+Value_P X(new Value(axes_count, LOC), LOC);
    loop(a, axes_count)   
    new (&X->get_ravel(a))   IntCell(B->get_ravel(a).get_int_value());
 
@@ -277,7 +277,7 @@ Shape sh_A_high = A->get_shape().high_shape(A->get_rank() - rk_A_low);
    arg.ec_A_low = arg.get_sh_A_low().element_count();
    arg.ec_B_low = arg.get_sh_B_low().element_count();
 
-   arg.ZZ = new Value_P[arg.ec_high];
+   arg.ZZ = new Value *[arg.ec_high];
    arg.A = A;
    arg.cA = &A->get_ravel(0);
    arg.LO = LO;
@@ -299,8 +299,8 @@ how_0:
 
 loop_h:
    {
-     Value_P AA = new Value(arg.get_sh_A_low(), LOC);
-     Value_P BB = new Value(arg.get_sh_B_low(), LOC);
+     Value_P AA(new Value(arg.get_sh_A_low(), LOC), LOC);
+     Value_P BB(new Value(arg.get_sh_B_low(), LOC), LOC);
 
      loop(l, arg.ec_A_low)   AA->get_ravel(l).init(*arg.cA++);
      loop(l, arg.ec_B_low)   BB->get_ravel(l).init(*arg.cB++);
@@ -326,7 +326,7 @@ loop_h:
 
      if (result.get_Class() == TC_VALUE)
         {
-          arg.ZZ[arg.h] = result.get_apl_val();
+          arg.ZZ[arg.h] = result.get_apl_val().get_pointer();
 
           // adjust result rank to ZZ if needed
           //
@@ -346,7 +346,7 @@ next_h:
 
 const ShapeItem ec_Z_max_low = arg.get_sh_Z_max_low().element_count();
 Shape sh_Z = arg.get_sh_B_high() + arg.get_sh_Z_max_low();
-Value_P Z = new Value(sh_Z, LOC);
+Value_P Z(new Value(sh_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
    loop(hh, arg.ec_high)
@@ -357,9 +357,9 @@ Cell * cZ = &Z->get_ravel(0);
            {
              Assert(ec_Z_max_low >= arg.ZZ[hh]->element_count());
              Token zz = Bif_F12_TAKE::fun.do_take(arg.get_sh_Z_max_low(),
-                                                  arg.ZZ[hh]);
+                                                  Value_P(arg.ZZ[hh], LOC));
              arg.ZZ[hh]->erase(LOC);
-             arg.ZZ[hh] = zz.get_apl_val();
+             arg.ZZ[hh] = zz.get_apl_val().get_pointer();
            }
 
         // copy partial result into final result.
@@ -387,7 +387,7 @@ RANK_ALXB arg = _arg._RANK_ALXB();
    // the user defined function has returned a value. Store it.
    //
    {
-     arg.ZZ[arg.h] = token.get_apl_val();
+     arg.ZZ[arg.h] = token.get_apl_val().get_pointer();
 
      // adjust result rank to ZZ if needed
      //
@@ -396,7 +396,7 @@ RANK_ALXB arg = _arg._RANK_ALXB();
 
    if (arg.h < (arg.ec_high - 1))   Workspace::the_workspace->pop_SI(LOC);
 
-   token = finish_eval_ALXB(arg);
+   copy_1(token, finish_eval_ALXB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    return false;   // stop it
@@ -410,7 +410,7 @@ Bif_OPER1_RANK::compute_ranks(Value_P X,
 const Rank rk_A = rk_A_low;
 const Rank rk_B = rk_B_low;
 
-   if (X == 0)            AXIS_ERROR;
+   if (!X)            AXIS_ERROR;
    if (X->get_rank() > 1)   DOMAIN_ERROR;
 
 const APL_Float qct = Workspace::get_CT();

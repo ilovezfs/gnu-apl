@@ -23,7 +23,6 @@
 #include <string.h>
 
 #include "SystemLimits.hh"
-#include "Unicode.hh"
 #include "UCS_string.hh"
 #include "UTF8_string.hh"
 #include "Value.hh"
@@ -86,10 +85,10 @@ public:
    XML_Saving_Archive & operator <<(const UCS_string & str);
 
    /// write Value \b v except its ravel
-   XML_Saving_Archive & operator <<(Value_P v);
+   XML_Saving_Archive & save_shape(Value_P v);
 
    /// write ravel of Value \b v
-   XML_Saving_Archive & operator <<(Value & v);
+   XML_Saving_Archive & save_ravel(Value_P v);
 
    /// write Workspace \b ws
    XML_Saving_Archive & operator <<(const Workspace & ws);
@@ -131,9 +130,11 @@ protected:
    /// a value and its parent (if value is a sub-value of a nested parent)
    struct _val_par
       {
-         _val_par(Value_P v) : _val(v), _par(0) {}   ///< constructor
-         Value_P _val;                               ///< the value
-         Value_P _par;                               ///< the optional parent
+         _val_par(Value_P v)
+         : _val(v)
+         {}                       ///< constructor
+         Value_P _val;            ///< the value
+         Value_P _par;            ///< the optional parent
       };
 
    /// all values in the workspace

@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "Unicode.hh"
+#include "Common.hh"
 #include "Shape.hh"
 
 class Cell;

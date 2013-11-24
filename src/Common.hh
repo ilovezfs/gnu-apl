@@ -91,11 +91,6 @@ inline void   operator delete(void * p)   { common_delete(p); }
 
 using namespace std;
 
-/// #define REMEMBER_TESTFILE if value allocations shall be traced back
-/// to the testcase files that caused them. #define-ing REMEMBER_TESTFILE slows
-/// down memory allocation and should only be enabled for troubleshooting.
-#define REMEMBER_TESTFILE
-
 #define loop(v, e) for (ShapeItem v = 0; v < ShapeItem(e); ++v)
 
 //-----------------------------------------------------------------------------
@@ -115,12 +110,14 @@ inline bool is_pad(Unicode uni)
 #define Loc(f, l) f ":" STR(l)
 
 #define Q(x) CERR << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
+#define Q1(x) cerr << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
 
+//-----------------------------------------------------------------------------
 /// macros controlling the consistency checking of values.
 #ifdef VALUE_CHECK_WANTED
 # define CHECK_VAL(x, l) ((x)->check_value(l))
 #else
-# define CHECK_VAL(x, l) ((x)->set_complete_flag())
+# define CHECK_VAL(x, l) (Value_P((x)->set_complete_flag(), l))
 #endif
 
 #define CHECK(x, l) Token(TOK_APL_VALUE1, CHECK_VAL(x, l))
@@ -131,15 +128,130 @@ extern uint64_t total_memory;
 #ifdef VALUE_CHECK_WANTED
 
    enum { VALUEHISTORY_SIZE = 100000 };
-   extern void add_event(const Value * val, VH_event ev, const char * loc);
-#  define ADD_EVENT(val, ev, loc)   add_event(val, ev, loc);
+   extern void add_event(const Value * val, VH_event ev, int ia,
+                        const char * loc);
+#  define ADD_EVENT(val, ev, ia, loc)   add_event(val, ev, ia, loc);
 
 #else
 
    enum { VALUEHISTORY_SIZE = 0 };
-#  define ADD_EVENT(val, ev, loc)
+#  define ADD_EVENT(_val, _ev, _ia, _loc)
 
 #endif
+
+//-----------------------------------------------------------------------------
+// pointer to APL values
+
+class Value;
+int increment_owner_count(Value * v);
+int decrement_owner_count(Value * v);
+
+class Value_P
+{
+public:
+   /// Constructor: 0 pointer
+   Value_P()
+   : value_p(0)
+   {}
+
+   /// Constructor: from Value *
+   Value_P(Value * val, const char * loc)
+     : value_p(val)
+     {
+       if (value_p)
+          {
+            const int count = increment_owner_count(value_p);
+            ADD_EVENT(value_p, VHE_PtrNew, count, loc);
+          }
+     }
+
+   /// Constructor: from other Value_P
+   Value_P(const Value_P & other)
+   : value_p(other.value_p)
+   {
+     if (value_p)
+        {
+          const int count = increment_owner_count(value_p);
+          ADD_EVENT(value_p, VHE_PtrCopy1, count, 0);
+        }
+   }
+
+
+   /// Destructor for Value_P union members
+   void destruct()
+      {
+        if (value_p)
+           {
+             const int count = decrement_owner_count(value_p);
+             ADD_EVENT(value_p, VHE_PtrDel, count, 0);
+          }
+
+      }
+
+   /// Destructor for normal Value_P objects
+   ~Value_P()   { destruct(); }
+
+   const Value * operator->()  const
+      { return value_p; }
+
+   Value * operator->()
+      { return value_p; }
+
+   const Value & operator*()  const
+      { return *value_p; }
+
+   const Value & get_ref() const
+      { return *value_p; }
+
+   Value * get_pointer()
+      { return value_p; }
+
+   /// copy operator
+   Value_P & operator =(const Value_P & other)
+   {
+      value_p = other.value_p;
+      if (value_p)
+         {
+           const int count = increment_owner_count(value_p);
+           ADD_EVENT(value_p, VHE_PtrCopy2, count, 0);
+         }
+
+      return *this;
+   }
+
+   bool operator!() const
+      { return value_p == 0; }
+
+
+   bool operator ==(const Value_P other) const
+      { return value_p == other.value_p; }
+
+   bool operator !=(const Value_P other) const
+      { return value_p != other.value_p; }
+
+  const void * voidp() const
+      { return value_p; }
+
+   Value * clear(const char * loc)
+     {
+       if (!value_p)   return 0;
+
+       const int count = decrement_owner_count(value_p);
+       ADD_EVENT(value_p, VHE_PtrClr, count, loc);
+
+    Value * ret = value_p;
+       value_p = 0;
+
+       return ret;
+    }
+
+protected:
+   Value * value_p;
+};
+
+/// macro to facilitate Value_P in unions
+#define VALUE_P(x) char u_ ## x[sizeof(Value_P)]; \
+   Value_P & _ ## x() const { return *(Value_P *) & u_ ## x; }
 
 //-----------------------------------------------------------------------------
 
@@ -147,17 +259,29 @@ extern uint64_t total_memory;
 inline int operator ++(Function_Line & fl, int)   { return ((int &)fl)++; }
 
 /// Function_PC ++ (post increment)
-inline Function_PC operator ++(Function_PC & pc, int)
-   { const Function_PC ret = pc;  pc = Function_PC(pc + 1);   return ret; }
+inline Function_PC
+operator ++(Function_PC & pc, int)
+{
+const Function_PC ret = pc; 
+   pc = Function_PC(pc + 1);
+   return ret;
+}
 
 /// Function_PC ++ (pre increment)
-inline Function_PC & operator ++(Function_PC & pc)
-   { pc = Function_PC(pc + 1);   return pc; }
+inline Function_PC &
+operator ++(Function_PC & pc)
+{
+   pc = Function_PC(pc + 1);
+   return pc;
+}
 
 /// Function_PC -- (pre decrement)
-inline Function_PC & operator --(Function_PC & pc)
-   { pc = Function_PC(pc - 1);   return pc; }
-
+inline Function_PC &
+operator --(Function_PC & pc)
+{
+   pc = Function_PC(pc - 1);
+   return pc;
+}
 //-----------------------------------------------------------------------------
 
 #define uhex  std::hex << uppercase << setfill('0')

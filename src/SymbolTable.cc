@@ -370,8 +370,8 @@ ValueStackItem & tos = value_stack[0];
 
         case NC_VARIABLE:
              tos.name_class = NC_UNUSED_USER_NAME;
-             tos.sym_val.value->clear_assigned();
-             tos.sym_val.value->erase(LOC);
+             tos.sym_val._value()->clear_assigned();
+             tos.sym_val._value()->erase(LOC);
              break;
 
         case NC_UNUSED_USER_NAME:
@@ -400,9 +400,9 @@ Symbol * symbol = lookup_existing_symbol(sym);
       {
         UCS_string & t4 = Workspace::the_workspace->more_error;
         t4.clear();
-        t4.app("Can't )ERASE symbol '");
+        t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
-        t4.app("': unknown symbol ");
+        t4.append_utf8("': unknown symbol ");
         return;
       }
 
@@ -410,9 +410,9 @@ Symbol * symbol = lookup_existing_symbol(sym);
       {
         UCS_string & t4 = Workspace::the_workspace->more_error;
         t4.clear();
-        t4.app("Can't )ERASE symbol '");
+        t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
-        t4.app("': already erased");
+        t4.append_utf8("': already erased");
         return;
       }
 
@@ -420,9 +420,9 @@ Symbol * symbol = lookup_existing_symbol(sym);
       {
         UCS_string & t4 = Workspace::the_workspace->more_error;
         t4.clear();
-        t4.app("Can't )ERASE symbol '");
+        t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
-        t4.app("': symbol is pushed (localized)");
+        t4.append_utf8("': symbol is pushed (localized)");
         return;
       }
 
@@ -430,9 +430,9 @@ Symbol * symbol = lookup_existing_symbol(sym);
       {
         UCS_string & t4 = Workspace::the_workspace->more_error;
         t4.clear();
-        t4.app("Can't )ERASE symbol '");
+        t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
-        t4.app("': symbol is called (is on SI)");
+        t4.append_utf8("': symbol is called (is on SI)");
         return;
       }
 
@@ -446,9 +446,9 @@ ValueStackItem & tos = symbol->value_stack[0];
 
              case NC_VARIABLE:
                   tos.name_class = NC_UNUSED_USER_NAME;
-                  tos.sym_val.value->clear_assigned();
-                  tos.sym_val.value->erase(LOC);
-                  tos.sym_val.value = 0;
+                  tos.sym_val._value()->clear_assigned();
+                  tos.sym_val._value()->erase(LOC);
+                  tos.sym_val._value().clear(LOC);
                   symbol->set_erased(true);
                   out << ")ERASEed '" << sym << "' (variable)" << endl;
                   return;
@@ -468,9 +468,9 @@ ValueStackItem & tos = symbol->value_stack[0];
                        {
                          UCS_string & t4 = Workspace::the_workspace->more_error;
                          t4.clear();
-                         t4.app("Can't )ERASE symbol '");
+                         t4.append_utf8("Can't )ERASE symbol '");
                          t4.append(sym);
-                         t4.app("':  pushed on SI-stack");
+                         t4.append_utf8("':  pushed on SI-stack");
                          return;
                        }
                   }

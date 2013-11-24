@@ -47,6 +47,7 @@ LibPaths.cc				LibPaths.hh		\
 Logging.cc	    Logging.def		Logging.hh		\
 LvalCell.cc				LvalCell.hh		\
 main.cc					main.hh			\
+Malloc_hooks.cc							\
 Nabla.cc				Nabla.hh		\
 NamedObject.cc				NamedObject.hh		\
 NumericCell.cc				NumericCell.hh		\

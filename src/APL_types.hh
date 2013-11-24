@@ -21,10 +21,13 @@
 #ifndef __APL_TYPES_HH_DEFINED__
 #define __APL_TYPES_HH_DEFINED__
 
-#include <stdint.h>
+#ifndef __COMMON_HH_DEFINED__
+# error This file shall not be #included directly, but by #including Common.hh
+#endif
 
 #include <complex>
 #include <memory>
+#include <stdint.h>
 
 #include "Unicode.hh"
 
@@ -59,7 +62,6 @@ typedef double APL_Float;
 typedef int64_t APL_time;
 
 class Value;
-typedef Value * Value_P;
 
 //////////////////////////////////////////////////////////////
 // B enums             i                                    //
@@ -140,16 +142,22 @@ enum ValueFlags
 /// events for APL values
 enum VH_event
 {
-  VHE_NONE      = 0,
-  VHE_CREATE    = 0x10000000,
-  VHE_UNROLL    = 0x20000000,
-  VHE_TESTFILE  = 0x30000000,
-  VHE_CHECK     = 0x40000000,
-  VHE_SETFLAG   = 0x50000000,
-  VHE_CLEARFLAG = 0x60000000,
-  VHE_ERASE     = 0x70000000,
-  VHE_ERROR     = 0x80000000,
-  VHE_MASK      = 0xF0000000,
+  VHE_None =  0,
+  VHE_Create,
+  VHE_Unroll,
+  VHE_Check,
+  VHE_SetFlag,
+  VHE_ClearFlag,
+  VHE_Erase,
+  VHE_Error,
+  VHE_PtrNew,
+  VHE_PtrCopy1,
+  VHE_PtrCopy2,
+  VHE_PtrClr,
+  VHE_PtrDel,
+  VHE_TokCopy1,
+  VHE_TokMove1,
+  VHE_TokMove2,
 };
 //-----------------------------------------------------------------------------
 /// The bits in an int
@@ -205,7 +213,6 @@ enum ParseMode
    PM_STATEMENT_LIST = 1,   ///< immediate execution
    PM_EXECUTE        = 2,   ///< execute (⍎)
 };
-
 //-----------------------------------------------------------------------------
 /// Different ways of printing APL values.
 enum PrintStyle
@@ -365,6 +372,27 @@ struct Function_PC2
    Function_PC high;   ///< high PC (including)
 };
 //-----------------------------------------------------------------------------
+inline void
+copy_1(char & dst, char src, const char * loc)
+{
+   dst = src;
+
+}
+inline void
+copy_1(unsigned char & dst, unsigned char src, const char * loc)
+{
+   dst = src;
+}
+
+inline void
+copy_1(Unicode & dst, Unicode src, const char * loc)
+{
+  dst = src;
+}
+
+class Token;
+void copy_1(Token & dst, const Token & src, const char * loc);
+void move_1(Token & dst, Token & src, const char * loc);
+void move_2(Token & dst, const Token & src, const char * loc);
 
 #endif // __APL_TYPES_HH_DEFINED__
-

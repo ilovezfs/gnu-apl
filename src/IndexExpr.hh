@@ -35,7 +35,7 @@ class IndexExpr : public DynamicObject
 {
 public:
    /// constructor: empty (0-dimensional) IndexExpr
-   IndexExpr(const char * loc);
+   IndexExpr(bool _left, const char * loc);
 
    /// destructor
    ~IndexExpr();
@@ -46,24 +46,30 @@ public:
    /// The quad-io for this index.
    uint32_t quad_io;
 
-   /// The values (0 meaning all indices as in [] or [;].
-   vector<Value_P>values;
+   /// The values (0 = elided index as in [] or [;].
+   Value_P values[MAX_RANK];
 
    /// append a value.
    void add(Value_P val)
-      { if (val)   val->set_index();   values.push_back(val); }
+      { Assert(rank < MAX_RANK);
+        if (!!val)   val->set_index();
+        values[rank++] = val; }
 
    /// return the number of values (= number of semicolons + 1)
-   size_t value_count() const   { return values.size(); }
+   size_t value_count() const   { return rank; }
 
    /// return true iff the number of dimensions is 1 (i.e. no ; and non-empty)
-   bool is_axis() const   { return values.size() == 1; }
+   bool is_axis() const   { return rank == 1; }
 
    /// Return an axis (from an IndexExpr of rank 1.
    Rank get_axis(Rank max_axis) const;
 
    /// set axis \b axis to \b val
    void set_value(Axis axis, Value_P val);
+
+   /// return true iff this index is part of indexed assignment ( A[]← )
+   bool get_left() const
+      { return left; }
 
    /// Return a set of axes as shape. This is used to convert a number of
    /// axes (like in [2 3]) into a shape (like 2 3).
@@ -76,6 +82,11 @@ public:
    static void erase_stale(const char * loc);
 
 protected:
+   /// the number of dimensions
+   Rank rank;
+
+   /// true iff this index is part of indexed assignment ( A[]← )
+   const bool left;
 };
 //-----------------------------------------------------------------------------
 

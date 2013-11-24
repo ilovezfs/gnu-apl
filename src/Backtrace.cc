@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "../config.h"   // for HAVE_EXECINFO_H
+#include "Common.hh"   // for HAVE_EXECINFO_H
 #ifdef HAVE_EXECINFO_H
 # include <execinfo.h>
 # include <cxxabi.h>
@@ -38,7 +38,6 @@
 #endif
 
 #include "Backtrace.hh"
-#include "Common.hh"
 
 using namespace std;
 

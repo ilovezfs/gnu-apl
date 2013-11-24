@@ -27,7 +27,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "../config.h"   // for _WANTED macros
 #include "buildtag.hh"
 #include "Command.hh"
 #include "Common.hh"
@@ -41,9 +40,9 @@
 #include "Quad_SVx.hh"
 #include "TestFiles.hh"
 #include "UserFunction.hh"
-#include "Value.hh"
 #include "ValueHistory.hh"
 #include "Workspace.hh"
+#include "Value.hh"
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
@@ -105,8 +104,16 @@ static struct sigaction new_control_C_action;
 static void
 seg_fault(int)
 {
-   do_Assert(0, "SEGMENTATION FAULT ", 0, 0);
-   CERR << "\n\n====================================================\n";
+   CERR << "\n\n====================================================\n"
+           "SEGMENTATION FAULT" << endl;
+
+   Backtrace::show(__FILE__, __LINE__);
+
+   CERR << "====================================================\n";
+
+   // count errors
+   TestFiles::assert_error();
+
    Command::cmd_OFF(3);
 }
 
@@ -748,7 +755,7 @@ user_preferences up;
 
    sigaction(SIGINT,  &new_control_C_action, &old_control_C_action);
    sigaction(SIGUSR1, &new_USR1_action,      &old_USR1_action);
-// sigaction(SIGSEGV, &new_segfault_action,  &old_segfault_action);
+   sigaction(SIGSEGV, &new_segfault_action,  &old_segfault_action);
 
 Workspace w;
 

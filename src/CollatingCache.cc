@@ -22,6 +22,7 @@
 #include "CollatingCache.hh"
 #include "Assert.hh"
 #include "Cell.hh"
+#include "Value.hh"
 
 //-----------------------------------------------------------------------------
 bool

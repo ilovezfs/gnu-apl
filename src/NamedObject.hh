@@ -76,8 +76,8 @@ public:
    virtual const Function * get_function() const  { return 0; }
 
    /// return the variable value for this Id (if any) or 0 if this Id does
-   /// (currently) represent a variable.
-   virtual Value_P get_value()     { return 0; }
+   /// not (currently) represent a variable.
+   virtual Value_P get_value()     { return Value_P(0, LOC); }
 
    /// return the symbol for this user defined symbol (if any) or 0 if this Id
    /// refers to a system name

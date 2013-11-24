@@ -23,7 +23,6 @@
 
 #include <iostream>
 
-#include "APL_types.hh"
 #include "Common.hh"
 #include "Id.hh"
 #include "Source.hh"

@@ -117,13 +117,13 @@ Error::get_error_line_3() const
    if (left_caret < 0)   return UCS_string();
 
 UCS_string ret;
-   if (left_caret > 0)   ret += UCS_string(left_caret, UNI_ASCII_SPACE);
-   ret += UNI_ASCII_CIRCUMFLEX;
+   if (left_caret > 0)   ret.append(UCS_string(left_caret, UNI_ASCII_SPACE));
+   ret.append(UNI_ASCII_CIRCUMFLEX);
 
 const int diff = right_caret - left_caret;
    if (diff <= 0)   return ret;
-   if (diff > 1)   ret += UCS_string(diff - 1, UNI_ASCII_SPACE);
-   ret += UNI_ASCII_CIRCUMFLEX;
+   if (diff > 1)   ret.append(UCS_string(diff - 1, UNI_ASCII_SPACE));
+   ret.append(UNI_ASCII_CIRCUMFLEX);
 
    return ret;
 }
@@ -147,7 +147,7 @@ Error::print_em(ostream & out, const char * loc)
 void
 throw_apl_error(ErrorCode code, const char * loc) throw(Error)
 {
-   ADD_EVENT(0, (VH_event)(VHE_ERROR | code), loc);
+   ADD_EVENT(0, VHE_Error, code, loc);
 
 StateIndicator * si = Workspace::the_workspace->SI_top();
 
@@ -228,7 +228,7 @@ throw_define_error(const UCS_string & fun_name, const UCS_string & cmd,
 Error error(E_DEFN_ERROR, loc);
    error.symbol_name = fun_name;
    error.error_message_2 = UCS_string(6, UNI_ASCII_SPACE);
-   error.error_message_2 += cmd;   // something like ∇FUN[⎕]∇
+   error.error_message_2.append(cmd);   // something like ∇FUN[⎕]∇
    error.left_caret = error.error_message_2.size() - 1;
    if (Workspace::the_workspace->SI_top())   Workspace::the_workspace->SI_top()->get_error() = error;
    Workspace::the_workspace->update_EM_ET(error);   // update ⎕EM and ⎕ET

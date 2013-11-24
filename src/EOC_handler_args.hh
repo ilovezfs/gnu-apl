@@ -85,12 +85,12 @@ struct INNER_PROD
   Value_P B;           ///< operator right arg
   bool unlock_B;       ///< true if B->clear_eoc() needed
   Cell * cZ;           ///< current result
-  Value_P * args_A;    ///< left args of RO
+  Value * * args_A;    ///< left args of RO
   ShapeItem a;         ///< current A1 index
   ShapeItem items_A;   ///< number of cells in A1
   Function * LO;       ///< left user defined function
   Function * RO;       ///< right user defined function
-  Value_P * args_B;    ///< right args of RO
+  Value * * args_B;    ///< right args of RO
   ShapeItem b;         ///< current B1 index
   ShapeItem items_B;   ///< number of cells in B1
   ShapeItem v1;        ///< current LO index
@@ -248,7 +248,7 @@ struct RANK_LXB
   char _sh_B_high[ sizeof(Shape) ];      ///< high dimensions of B
   ShapeItem ec_B_low;                    ///< items in _sh_B_low
   const Cell * cB;                       ///< current B cell
-  Value_P* ZZ ;                          ///< current ZZ value
+  Value * * ZZ ;                         ///< current ZZ value
   char _sh_Z_max_low[ sizeof(Shape) ];   ///< max. low dimensions of Z
   ShapeItem ec_high;                     ///< max. high index
   int how;                               ///< how to finish_eval_LXB()
@@ -279,7 +279,7 @@ struct RANK_ALXB
   char _sh_B_high[ sizeof(Shape) ];      ///< high dimensions of B
   ShapeItem ec_B_low;                    ///< items in _sh_B_low
   const Cell * cB;                       ///< current B cell
-  Value_P* ZZ ;                          ///< current ZZ value
+  Value * * ZZ ;                         ///< current ZZ value
   char _sh_Z_max_low[ sizeof(Shape) ];   ///< max. low dimensions of Z
   ShapeItem ec_high;                     ///< max. high index
   int how;                               ///< how to finish_eval_LXB()

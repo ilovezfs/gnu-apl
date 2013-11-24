@@ -145,12 +145,13 @@ operator << (ostream & out, const Token & token)
              return out << "RETURN ???";
 
         case TC_VALUE:    return token.print_value(out);
+
         case TC_INDEX:
         case TC_PINDEX:
              if (token.get_tag() == TOK_INDEX)
                 return out << token.get_index_val();
              else if (token.get_tag() == TOK_AXES)
-                return out << token.get_axes();
+                return out << *token.get_axes();
              else
                 FIXME;
 
@@ -185,7 +186,7 @@ void
 Token::clone_if_owned(const char * loc)
 {
    if (get_ValueType() == TV_VAL)   
-      value.apl_val = value.apl_val->clone_if_owned(loc);
+      value._apl_val() = value._apl_val()->clone_if_owned(loc);
 }
 //-----------------------------------------------------------------------------
 void
@@ -317,7 +318,7 @@ Token::print_value(ostream & out) const
         case TOK_APL_VALUE:
         case TOK_APL_VALUE1:
              {
-               Value_P v = value.apl_val;
+               Value_P v = value._apl_val();
                if (v->get_rank() == 0)   out << "''";
                loop(r, v->get_rank())
                    {
@@ -388,27 +389,27 @@ UCS_string ucs;
 
    switch(get_Class())
       {
-        case TC_ASSIGN:   ucs += UNI_LEFT_ARROW;
+        case TC_ASSIGN:   ucs.append(UNI_LEFT_ARROW);
                           break;
 
-        case TC_R_ARROW:  ucs += UNI_RIGHT_ARROW;
+        case TC_R_ARROW:  ucs.append(UNI_RIGHT_ARROW);
                           break;
 
         case TC_L_BRACK:  if (get_tag() == TOK_L_BRACK)
-                             ucs += UNI_ASCII_L_BRACK;
+                             ucs.append(UNI_ASCII_L_BRACK);
                           else if (get_tag() == TOK_SEMICOL)
-                             ucs += UNI_ASCII_SEMICOLON;
+                             ucs.append(UNI_ASCII_SEMICOLON);
                           else Assert(0);
                          break;
 
-        case TC_R_BRACK:  ucs += UNI_ASCII_R_BRACK;
+        case TC_R_BRACK:  ucs.append(UNI_ASCII_R_BRACK);
                           break;
 
-        case TC_END:      ucs += UNI_DIAMOND;
+        case TC_END:      ucs.append(UNI_DIAMOND);
                           break;
 
         case TC_RETURN:                                                  break;
-        case TC_LINE:     ucs += UNI_ASCII_LF;
+        case TC_LINE:     ucs.append(UNI_ASCII_LF);
                           break;
 
         case TC_VALUE:    return PrintBuffer(*get_apl_val(),
@@ -468,9 +469,9 @@ const Unicode c2 = can.size() ? can[0] : Invalid_Unicode;
    //
 bool need_space = ! (Avec::no_space_after(c1) || Avec::no_space_before(c2));
 
-   if (need_space)   ucs += UNI_ASCII_SPACE;
+   if (need_space)   ucs.append(UNI_ASCII_SPACE);
 
-   ucs += can;
+   ucs.append(can);
    return need_space ? -can.size() : can.size();
 }
 //-----------------------------------------------------------------------------
@@ -556,5 +557,89 @@ Token::class_name(TokenClass tc)
       }
 
    return "*** Obscure token class ***";
+}
+//-----------------------------------------------------------------------------
+void
+Token::clear(const char * loc)
+{
+   new (this) Token();
+}
+//-----------------------------------------------------------------------------
+void
+Token::warn(ostream & out)
+{
+return;
+   out << "WARNING: non-empty Value_P: " << endl;
+   Backtrace::show(__FILE__, __LINE__);
+}
+//-----------------------------------------------------------------------------
+inline void 
+copy_2(Token & dst, const Token & src)
+{
+   dst.tag = src.tag;
+   switch(src.get_ValueType())
+      {
+        case TV_NONE:  dst.value.int_val    = 0;                          break;
+        case TV_CHAR:  dst.value.char_val   = src.value.char_val;         break;
+        case TV_INT:   dst.value.int_val    = src.value.int_val;          break;
+        case TV_FLT:   dst.value.flt_val    = src.value.flt_val;          break;
+        case TV_CPX:   dst.value.complex_val.real = src.value.complex_val.real;
+                       dst.value.complex_val.imag = src.value.complex_val.imag;
+                                                                          break;
+        case TV_SYM:   dst.value.sym_ptr    = src.value.sym_ptr;          break;
+        case TV_LIN:   dst.value.fun_line   = src.value.fun_line;         break;
+        case TV_VAL:   dst.value._apl_val() = src.value._apl_val();      break;
+        case TV_INDEX: dst.value.index_val  = src.value.index_val;        break;
+        case TV_FUN:   dst.value.function   = src.value.function;         break;
+        default:       FIXME;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+copy_1(Token & dst, const Token & src, const char * loc)
+{
+   if (src.is_apl_val())
+      {
+        Value * val = src.get_apl_val_pointer();
+        if (val)
+           {
+              ++val->owner_count;
+             ADD_EVENT(val, VHE_TokCopy1, val->owner_count, loc);
+           }
+        else
+           {
+             ADD_EVENT(val, VHE_TokCopy1, -1, loc);
+           }
+      }
+
+   copy_2(dst, src);
+}
+//-----------------------------------------------------------------------------
+void
+move_1(Token & dst, Token & src, const char * loc)
+{
+   if (src.is_apl_val())
+      {
+        Value * val = src.get_apl_val_pointer();
+        const int owner_count = val ? val->owner_count : -1;
+        ADD_EVENT(val, VHE_TokMove1, owner_count, loc);
+      }
+
+   copy_2(dst, src);
+
+     new (&src)   Token();
+}
+//-----------------------------------------------------------------------------
+void
+move_2(Token & dst, const Token & src, const char * loc)
+{
+   if (src.is_apl_val())
+      {
+        Value * val = src.get_apl_val_pointer();
+        const int owner_count = val ? val->owner_count : -1;
+        ADD_EVENT(val, VHE_TokMove2, owner_count, loc);
+      }
+
+   copy_2(dst, src);
 }
 //-----------------------------------------------------------------------------

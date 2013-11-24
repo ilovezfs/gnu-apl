@@ -43,7 +43,7 @@ DiffOut::overflow(int c)
 
    if (c != '\n')   // not end of line
       {
-        aplout += c;
+        aplout.append(c);
         return 0;
       }
 

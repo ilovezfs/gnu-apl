@@ -25,10 +25,12 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-IndexExpr::IndexExpr(const char * loc)
+IndexExpr::IndexExpr(bool _left, const char * loc)
    : DynamicObject(loc),
      quad_ct(Workspace::get_CT()),
-     quad_io(Workspace::get_IO())
+     quad_io(Workspace::get_IO()),
+     rank(0),
+     left(_left)
 {
 }
 //-----------------------------------------------------------------------------
@@ -37,7 +39,7 @@ IndexExpr::~IndexExpr()
    loop(r, value_count())
        {
          Value_P I = values[r];
-         if (I)
+         if (!!I)
             {
               I->clear_index();
               I->erase(LOC);
@@ -48,7 +50,7 @@ IndexExpr::~IndexExpr()
 Rank
 IndexExpr::get_axis(Rank max_axis) const
 {
-   if (values.size() != 1)   INDEX_ERROR;
+   if (rank != 1)   INDEX_ERROR;
 
 const APL_Float   qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
@@ -73,9 +75,9 @@ IndexExpr::set_value(Axis axis, Value_P val)
    // Note: we expect that all axes have been allocated with add(0)
    // Note also that IndexExpr is in parsing order, ie. 0 is the lowest axis.
    //
-   Assert(axis < values.size());
-   Assert(values[values.size() - axis - 1] == 0);
-   values[values.size() - axis - 1] = val;
+   Assert(axis < rank);
+   Assert(!values[rank - axis - 1]);
+   values[rank - axis - 1] = val;
 }
 //-----------------------------------------------------------------------------
 Shape
@@ -108,11 +110,6 @@ int count = 0;
          const IndexExpr * idx = (const IndexExpr *)dob;
 
          out << dob->where_allocated();
-#ifdef REMEMBER_TESTFILE
-         if (dob->get_testcase_filename())
-            out << " " << dob->get_testcase_filename()
-                << ":" << dob->get_testcase_lineno() << " stale IndexExpr ";
-#endif
 
          try           { out << *idx; }
          catch (...)   { out << " *** corrupt ***"; }
@@ -155,7 +152,7 @@ operator <<(ostream & out, const IndexExpr & idx)
    loop(i, idx.value_count())
       {
         if (i)   out << ";";
-        if (idx.values[i])
+        if (!!idx.values[i])
            {
              // value::print() may print a trailing LF that we dont want here.
              PrintContext pctx(*Workspace::the_workspace);

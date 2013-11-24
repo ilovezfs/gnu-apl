@@ -41,9 +41,9 @@ Quad_TF::eval_AB(Value_P A, Value_P B)
    if (A->element_count() != 1)   LENGTH_ERROR;
 
 const APL_Integer mode = A->get_ravel(0).get_int_value();
-const UCS_string symbol_name(B);
+const UCS_string symbol_name(B.get_ref());
 
-Value_P Z = 0;
+Value_P Z;
 
    if (mode == 1)        Z = tf1(symbol_name);
    else if (mode == 2)   return tf2(symbol_name);
@@ -57,7 +57,7 @@ Value_P
 Quad_TF::tf1(const UCS_string & name)
 {
 NamedObject * obj = Workspace::the_workspace->lookup_existing_name(name);
-   if (obj == 0)   return &Value::Str0;
+   if (obj == 0)   return Value::Str0_P;
 
 const Function * function = obj->get_function();
 
@@ -66,19 +66,19 @@ const Function * function = obj->get_function();
         if (obj->is_user_defined())   return tf1(name, *function);
 
         // quad function or primitive: return ''
-        return &Value::Str0;
+        return Value::Str0_P;
       }
 
 Symbol * symbol = obj->get_symbol();
    if (symbol)
       {
         Value_P value = symbol->get_apl_value();
-        if (value)   return tf1(name, value);
+        if (!!value)   return tf1(name, value);
 
         /* not a variable: fall through */
       }
 
-   return &Value::Str0;
+   return Value::Str0_P;
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -88,19 +88,19 @@ Quad_TF::tf1(const UCS_string & var_name, Value_P val)
    //
    {
      Value_P Z = tf1_inv(val);
-     if (Z)   return Z;
+     if (!!Z)   return Z;
    }
 
 const bool is_char_array = val->get_ravel(0).is_character_cell();
 UCS_string ucs(is_char_array ? UNI_ASCII_C : UNI_ASCII_N);
 
-   ucs += var_name;
-   ucs += UNI_ASCII_SPACE;
+   ucs.append(var_name);
+   ucs.append(UNI_ASCII_SPACE);
    ucs.append_number(val->get_rank());   // rank
 
    loop(r, val->get_rank())
       {
-        ucs += UNI_ASCII_SPACE;
+        ucs.append(UNI_ASCII_SPACE);
         ucs.append_number(val->get_shape_item(r));   // shape
       }
 
@@ -108,7 +108,7 @@ const ShapeItem ec = val->element_count();
 
    if (is_char_array)
       {
-        ucs += UNI_ASCII_SPACE;
+        ucs.append(UNI_ASCII_SPACE);
 
         loop(e, ec)
            {
@@ -116,10 +116,10 @@ const ShapeItem ec = val->element_count();
              if (!cell.is_character_cell())
                 {
                   val->erase(LOC);
-                  return  &Value::Str0;
+                  return  Value::Str0_P;
                 }
 
-             ucs += cell.get_char_value();
+             ucs.append(cell.get_char_value());
            }
       }
    else   // number
@@ -127,7 +127,7 @@ const ShapeItem ec = val->element_count();
         const APL_Float qct = Workspace::get_CT();
         loop(e, ec)
            {
-             ucs += UNI_ASCII_SPACE;
+             ucs.append(UNI_ASCII_SPACE);
 
              const Cell & cell = val->get_ravel(e);
              if (cell.is_integer_cell())
@@ -138,13 +138,13 @@ const ShapeItem ec = val->element_count();
                 {
                   PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
                   const APL_Float value = cell.get_real_value();
-                  ucs +=  FloatCell::format_float_scaled(value, pctx);
+                  ucs.append( FloatCell::format_float_scaled(value, pctx));
                 }
            }
       }
 
    val->erase(LOC);
-   return new Value(ucs, LOC);
+   return Value_P(new Value(ucs, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -155,57 +155,57 @@ vector<UCS_string> lines;
 const size_t max_len = text.to_vector(lines);
 
 UCS_string ucs;
-   ucs += UNI_ASCII_F;
-   ucs += fun_name;
-   ucs += UNI_ASCII_SPACE;
+   ucs.append(UNI_ASCII_F);
+   ucs.append(fun_name);
+   ucs.append(UNI_ASCII_SPACE);
    ucs.append_number(2);   // rank
-   ucs += UNI_ASCII_SPACE;
+   ucs.append(UNI_ASCII_SPACE);
    ucs.append_number(lines.size());   // rows
-   ucs += UNI_ASCII_SPACE;
+   ucs.append(UNI_ASCII_SPACE);
    ucs.append_number(max_len);        // cols
-   ucs += UNI_ASCII_SPACE;
+   ucs.append(UNI_ASCII_SPACE);
 
    loop(l, lines.size())
       {
-       ucs += lines[l];
-       loop(c, max_len - lines[l].size())   ucs += UNI_ASCII_SPACE;
+       ucs.append(lines[l]);
+       loop(c, max_len - lines[l].size())   ucs.append(UNI_ASCII_SPACE);
       }
 
-   return new Value(ucs, LOC);
+   return Value_P(new Value(ucs, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
 Quad_TF::tf1_inv(Value_P val)
 {
-   if (!val->is_char_vector())   return 0;
+   if (!val->is_char_vector())   return Value_P();
 
-UCS_string ravel(val);
+UCS_string ravel(val.get_ref());
 
 const size_t len = ravel.size();
-   if (len < 2)   return 0;
+   if (len < 2)   return Value_P();
 
    // mode should be 'F', 'N', or 'C'.
 const Unicode mode = ravel[0];
-   if (mode != 'C' && mode != 'F' && mode != 'N')   return 0;
+   if (mode != 'C' && mode != 'F' && mode != 'N')   return Value_P();
 
 UCS_string name(ravel[1]);
    if (name[0] != UNI_QUAD_QUAD && !Avec::is_first_symbol_char(name[0]))
-      return 0;
+      return Value_P();
 
 ShapeItem idx = 2;
-   while (idx < len && Avec::is_symbol_char(ravel[idx]))   name += ravel[idx++];
+   while (idx < len && Avec::is_symbol_char(ravel[idx]))   name.append(ravel[idx++]);
 
-   if (name[0] == UNI_QUAD_QUAD && name.size() == 1)   return 0;
-   if (ravel[idx++] != UNI_ASCII_SPACE)   return 0;
+   if (name[0] == UNI_QUAD_QUAD && name.size() == 1)   return Value_P();
+   if (ravel[idx++] != UNI_ASCII_SPACE)   return Value_P();
 
 ShapeItem idx0 = idx;
 Rank rank = 0;
    while (idx < len && Avec::is_digit(ravel[idx]))
       rank = 10 * rank + ravel[idx++] - UNI_ASCII_0;
 
-   if (rank == 0 && idx0 == idx)   return 0;   // no rank
-   if (ravel[idx++] != UNI_ASCII_SPACE)   return 0;
-   if (rank > MAX_RANK)    return 0;
+   if (rank == 0 && idx0 == idx)   return Value_P();   // no rank
+   if (ravel[idx++] != UNI_ASCII_SPACE)   return Value_P();
+   if (rank > MAX_RANK)    return Value_P();
 
 Shape shape;
    loop(r, rank)
@@ -214,8 +214,8 @@ Shape shape;
         ShapeItem sh = 0;
         while (idx < len && Avec::is_digit(ravel[idx]))
            sh = 10 * sh + ravel[idx++] - UNI_ASCII_0;
-        if (sh == 0 && idx0 == idx)   return 0;   // shape
-        if (ravel[idx++]!= UNI_ASCII_SPACE)  return 0;
+        if (sh == 0 && idx0 == idx)   return Value_P();   // shape
+        if (ravel[idx++]!= UNI_ASCII_SPACE)  return Value_P();
         shape.add_shape_item(sh);
       }
 
@@ -226,21 +226,21 @@ NamedObject * sym_or_fun = Workspace::the_workspace->lookup_existing_name(name);
       {
         symbol = sym_or_fun->get_symbol();
         nc = sym_or_fun->get_nc();
-        if (symbol && symbol->is_readonly())   return 0;
+        if (symbol && symbol->is_readonly())   return Value_P();
      }
 
 const size_t data_chars = len - idx;
 
    if (mode == UNI_ASCII_F)   // function
       {
-        if (rank != 2)   return 0;
+        if (rank != 2)   return Value_P();
 
         if (nc != NC_UNUSED_USER_NAME && nc != NC_FUNCTION && nc != NC_OPERATOR)
-           return 0;
+           return Value_P();
 
-        if (data_chars != shape.element_count())   return 0;
+        if (data_chars != shape.element_count())   return Value_P();
 
-        Value_P new_val = new Value(shape, LOC);
+        Value_P new_val(new Value(shape, LOC), LOC);
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
         CHECK_VAL(new_val, LOC);
@@ -251,10 +251,10 @@ const size_t data_chars = len - idx;
       }
    else if (mode == UNI_ASCII_C)   // char array
       {
-        if (data_chars != shape.element_count())   return 0;
-        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return 0;
+        if (data_chars != shape.element_count())   return Value_P();
+        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
 
-        Value_P new_val = new Value(shape, LOC);
+        Value_P new_val(new Value(shape, LOC), LOC);
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
 
@@ -268,13 +268,13 @@ const size_t data_chars = len - idx;
       }
    else if (mode == UNI_ASCII_N)   // numeric array
       {
-        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return 0;
+        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
 
         UCS_string data(ravel, idx, len - idx);
         Tokenizer tokenizer(PM_EXECUTE, LOC);
         Token_string tos;
-        if (tokenizer.tokenize(data, tos) != E_NO_ERROR)   return 0;
-        if (tos.size() != shape.element_count())           return 0;
+        if (tokenizer.tokenize(data, tos) != E_NO_ERROR)   return Value_P();
+        if (tos.size() != shape.element_count())           return Value_P();
 
         // check that all token are numeric...
         //
@@ -284,12 +284,12 @@ const size_t data_chars = len - idx;
              if (tag == TOK_INTEGER)   continue;
              if (tag == TOK_REAL)      continue;
              if (tag == TOK_COMPLEX)   continue;
-             return 0;
+             return Value_P();
            }
 
         // at this point, we have a valid inverse 1 ⎕TF.
         //
-        Value_P new_val = new Value(shape, LOC);
+        Value_P new_val(new Value(shape, LOC), LOC);
 
         loop(t, tos.size())
            {
@@ -313,14 +313,14 @@ const size_t data_chars = len - idx;
       }
    else Assert(0);   // since checked above
    
-   return new Value(name, LOC);
+   return Value_P(new Value(name, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Token
 Quad_TF::tf2(const UCS_string & name)
 {
 NamedObject * obj = Workspace::the_workspace->lookup_existing_name(name);
-   if (obj == 0)   return CHECK(&Value::Str0, LOC);
+   if (obj == 0)   return CHECK(Value::Str0_P, LOC);
 
 const Function * function = obj->get_function();
 
@@ -330,19 +330,19 @@ const Function * function = obj->get_function();
            return CHECK(tf2_fun(name, *function), LOC);
 
         // quad function or primitive: return ''
-        return CHECK(&Value::Str0, LOC);
+        return CHECK(Value::Str0_P, LOC);
       }
 
 Symbol * symbol = obj->get_symbol();
    if (symbol)
       {
         Value_P value = symbol->get_apl_value();
-        if (value)   return tf2_var(name, value);
+        if (!!value)   return tf2_var(name, value);
 
         /* not a variable: fall through */
       }
 
-   return CHECK(&Value::Str0, LOC);
+   return CHECK(Value::Str0_P, LOC);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -352,27 +352,27 @@ Quad_TF::tf2_var(const UCS_string & var_name, Value_P value)
    //
    if (value->is_apl_char_vector())
       {
-        UCS_string data(value);
+        UCS_string data(value.get_ref());
         UCS_string new_var_or_fun;
 
         tf2_parse(data, new_var_or_fun);
         if (new_var_or_fun.size())   // if data is an inverse TF2
            {
              value->erase(LOC);
-             Value_P vname = new Value(new_var_or_fun, LOC);
+             Value_P vname(new Value(new_var_or_fun, LOC), LOC);
              return CHECK(vname, LOC);
           }
       }
 
 UCS_string ucs(var_name);
-   ucs += UNI_LEFT_ARROW;
+   ucs.append(UNI_LEFT_ARROW);
 
 const bool error = tf2_ravel(0, ucs, value);
    value->erase(LOC);
 
    // return '' for invalid values.
    //
-   if (error)   return CHECK(&Value::Str0, LOC);
+   if (error)   return CHECK(Value::Str0_P, LOC);
 
    return CHECK(new Value(ucs, LOC), LOC);
 }
@@ -422,13 +422,13 @@ Parser parser(PM_EXECUTE, LOC);
    if (tos[1].get_Class() != TC_VALUE)    goto out;
 
    {
-     Value * function_text =  tos[1].get_apl_val();
+     Value_P function_text =  tos[1].get_apl_val();
      const Token tok = Quad_FX::fun.eval_B(function_text);
 
    if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
       {
-        Value * val = tok.get_apl_val();
-        new_var_or_fun = UCS_string(val);
+        Value_P val = tok.get_apl_val();
+        new_var_or_fun = UCS_string(val.get_ref());
         val->erase(LOC);
       }
    }
@@ -450,11 +450,11 @@ Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
 
    loop(r, shape.get_rank())
       {
-        if (r)   ucs += UNI_ASCII_SPACE;
+        if (r)   ucs.append(UNI_ASCII_SPACE);
         ucs.append_number(shape.get_shape_item(r));
       }
 
-   ucs += UNI_RHO;
+   ucs.append(UNI_RHO);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -468,30 +468,30 @@ const ShapeItem ec = value->element_count();
       {
         if (value->get_ravel(0).is_character_cell())   // ''
            {
-              ucs += UNI_SINGLE_QUOTE;
-              ucs += UNI_SINGLE_QUOTE;
+              ucs.append(UNI_SINGLE_QUOTE);
+              ucs.append(UNI_SINGLE_QUOTE);
               return  false;
            }
 
         if (value->get_ravel(0).is_numeric())          // ⍳0
            {
-              ucs += UNI_ASCII_L_PARENT;
-              ucs += UNI_ASCII_0;
-              ucs += UNI_RHO;
-              ucs += UNI_ASCII_0;
-              ucs += UNI_ASCII_R_PARENT;
+              ucs.append(UNI_ASCII_L_PARENT);
+              ucs.append(UNI_ASCII_0);
+              ucs.append(UNI_RHO);
+              ucs.append(UNI_ASCII_0);
+              ucs.append(UNI_ASCII_R_PARENT);
               return  false;
            }
 
         // other empty values: print ( shape ⍴ prototype )
-        ucs += UNI_ASCII_L_PARENT;
+        ucs.append(UNI_ASCII_L_PARENT);
 
         tf2_shape(ucs, value->get_shape());
 
         Value_P proto = value->prototype(LOC);
         tf2_ravel(level + 1, ucs, proto);
         proto->erase(LOC);
-        ucs += UNI_ASCII_R_PARENT;
+        ucs.append(UNI_ASCII_R_PARENT);
         return  false;
       }
 
@@ -515,35 +515,35 @@ const ShapeItem ec = value->element_count();
 
         if (use_UCS)
            {
-             if (level)   ucs += UNI_ASCII_L_PARENT;
-             ucs += UNI_QUAD_QUAD;
-             ucs += UNI_ASCII_U;
-             ucs += UNI_ASCII_C;
-             ucs += UNI_ASCII_S;
+             if (level)   ucs.append(UNI_ASCII_L_PARENT);
+             ucs.append(UNI_QUAD_QUAD);
+             ucs.append(UNI_ASCII_U);
+             ucs.append(UNI_ASCII_C);
+             ucs.append(UNI_ASCII_S);
              loop(e, ec)
                 {
-                  ucs += UNI_ASCII_SPACE;
+                  ucs.append(UNI_ASCII_SPACE);
                   const Unicode uni = value->get_ravel(e).get_char_value();
                   ucs.append_number(uni);
                 }
-             if (level)   ucs += UNI_ASCII_R_PARENT;
+             if (level)   ucs.append(UNI_ASCII_R_PARENT);
            }
         else
            {
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
              loop(e, ec)
                 {
                   const Unicode uni = value->get_ravel(e).get_char_value();
-                  ucs += uni;
-                  if (uni == UNI_SINGLE_QUOTE)   ucs += UNI_SINGLE_QUOTE;
+                  ucs.append(uni);
+                  if (uni == UNI_SINGLE_QUOTE)   ucs.append(UNI_SINGLE_QUOTE);
                 }
-             ucs += UNI_SINGLE_QUOTE;
+             ucs.append(UNI_SINGLE_QUOTE);
            }
         return  false;
       }
 
 const Depth depth = value->compute_depth();
-   if (depth && level)   ucs += UNI_ASCII_L_PARENT;
+   if (depth && level)   ucs.append(UNI_ASCII_L_PARENT);
 
    // maybe print shape followed by ⍴
    //
@@ -551,7 +551,7 @@ const Depth depth = value->compute_depth();
 
    loop(e, ec)
       {
-        if (e)   ucs += UNI_ASCII_SPACE;
+        if (e)   ucs.append(UNI_ASCII_SPACE);
         const Cell & cell = value->get_ravel(e);
 
         if (cell.is_pointer_cell())
@@ -566,14 +566,14 @@ const Depth depth = value->compute_depth();
         else if (cell.is_complex_cell())
            {
              PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
-             ucs += FloatCell::format_float_scaled(cell.get_real_value(), pctx);
-             ucs += UNI_ASCII_J;
-             ucs += FloatCell::format_float_scaled(cell.get_imag_value(), pctx);
+             ucs.append(FloatCell::format_float_scaled(cell.get_real_value(), pctx));
+             ucs.append(UNI_ASCII_J);
+             ucs.append(FloatCell::format_float_scaled(cell.get_imag_value(), pctx));
            }
         else if (cell.is_float_cell())
            {
              PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
-             ucs += FloatCell::format_float_scaled(cell.get_real_value(), pctx);
+             ucs.append(FloatCell::format_float_scaled(cell.get_real_value(), pctx));
            }
         else
            {
@@ -584,7 +584,7 @@ const Depth depth = value->compute_depth();
            }
       }
 
-   if (depth && level)   ucs += UNI_ASCII_R_PARENT;
+   if (depth && level)   ucs.append(UNI_ASCII_R_PARENT);
 
    return false;
 }
@@ -603,7 +603,7 @@ bool ucs_active = false;
               continue;
            }
 
-        if (d != s)   tos[d] = tos[s];   // dont copy to itself
+        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
 
         if (ucs_active)   // translate
            {
@@ -639,7 +639,7 @@ int d = 0;
              Shape sh(aval, 0, 0);
              if (sh.element_count() == bval->element_count())   // same shape
                 {
-                  tos[d] = Token(TOK_APL_VALUE1, bval);   // grouped value
+                  new (&tos[d]) Token(TOK_APL_VALUE1, bval);   // grouped value
                   bval->set_shape(sh);
                   aval->erase(LOC);
                   progress = true;
@@ -649,7 +649,7 @@ int d = 0;
                 }
              else
                 {
-                  tos[d] = Bif_F12_RHO::fun.do_reshape(sh, bval);
+                  move_2(tos[d], Bif_F12_RHO::fun.do_reshape(sh, bval), LOC);
                   aval->erase(LOC);
                   progress = true;
                   ++d;
@@ -658,7 +658,7 @@ int d = 0;
                 }
            }
 
-        if (d != s)   tos[d] = tos[s];   // dont copy to itself
+        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
         ++d;
       }
 
@@ -681,14 +681,14 @@ int d = 0;
             tos[s + 1].get_Class() == TC_VALUE     &&
             tos[s + 2].get_tag()   == TOK_R_PARENT)   // ( B )
            {
-             tos[d] = tos[s + 1];   // override A of A⍴B
+             move_1(tos[d], tos[s + 1], LOC);   // override A of A⍴B
              progress = true;
              ++d;
              s += 2;
              continue;
            }
 
-        if (d != s)   tos[d] = tos[s];   // dont copy to itself
+        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
         ++d;
       }
 
@@ -703,7 +703,7 @@ int d = 0;
 
    loop(s, tos.size())   // ⍴ must not be first or last
       {
-        if (d != s)   tos[d] = tos[s];   // dont copy to itself
+        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
 
         if (tos[d].get_Class() == TC_VALUE)
            {
@@ -728,7 +728,7 @@ Quad_TF::tf2_fun(const UCS_string & fun_name, const Function & fun)
 UCS_string ucs;
    tf2_fun_ucs(ucs, fun_name, fun);
 
-   return new Value(ucs, LOC);
+   return Value_P(new Value(ucs, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -739,22 +739,22 @@ const UCS_string text = fun.canonical(false);
 vector<UCS_string> lines;
    text.to_vector(lines);
 
-   ucs += UNI_QUAD_QUAD;
-   ucs += UNI_ASCII_F;
-   ucs += UNI_ASCII_X;
+   ucs.append(UNI_QUAD_QUAD);
+   ucs.append(UNI_ASCII_F);
+   ucs.append(UNI_ASCII_X);
 
    loop(l, lines.size())
       {
-        ucs += UNI_ASCII_SPACE;
-        ucs += UNI_SINGLE_QUOTE;
+        ucs.append(UNI_ASCII_SPACE);
+        ucs.append(UNI_SINGLE_QUOTE);
 
         loop(c, lines[l].size())
             {
               const Unicode uni = lines[l][c];
-              ucs += uni;
-              if (uni == UNI_SINGLE_QUOTE)   ucs += UNI_SINGLE_QUOTE;   // ''
+              ucs.append(uni);
+              if (uni == UNI_SINGLE_QUOTE)   ucs.append(UNI_SINGLE_QUOTE);
             }
-        ucs += UNI_SINGLE_QUOTE;
+        ucs.append(UNI_SINGLE_QUOTE);
       }
 
 }
@@ -763,30 +763,30 @@ Value_P
 Quad_TF::tf3(const UCS_string & name)
 {
 NamedObject * obj = Workspace::the_workspace->lookup_existing_name(name);
-   if (obj == 0)   return &Value::Str0;
+   if (obj == 0)   return Value::Str0_P;
 
    if (obj->get_function())
       {
         // 3⎕TF is not defined for functions.
         //
-        return &Value::Str0;
+        return Value::Str0_P;
       }
 
 Symbol * symbol = obj->get_symbol();
    if (symbol)
       {
         Value_P value = symbol->get_apl_value();
-        if (value)
+        if (!!value)
            {
              CDR_string cdr;
              CDR::to_CDR(cdr, value);
 
-             return new Value(cdr, LOC);
+             return Value_P(new Value(cdr, LOC), LOC);
            }
 
         /* not a variable: fall through */
       }
 
-   return &Value::Str0;
+   return Value::Str0_P;
 }
 //-----------------------------------------------------------------------------

@@ -21,10 +21,9 @@
 #ifndef __DYNAMIC_OBJECT_HH_DEFINED__
 #define __DYNAMIC_OBJECT_HH_DEFINED__
 
-#include "Common.hh"   // may define REMEMBER_TESTFILE
+#include "Common.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
-#include "TestFiles.hh"
 
 /*
  A base class for dynamically allocated objects. It remembers where an object
@@ -40,10 +39,6 @@ public:
    /// constructor: a DynamicObject allocated at source location \b loc
    DynamicObject(const char * loc, DynamicObject * anchor)
    : alloc_loc(loc)
-#ifdef REMEMBER_TESTFILE
-   ,testcase_filename(TestFiles::get_testfile_name())
-   ,testcase_lineno(TestFiles::get_current_lineno())
-#endif
    {
      Log(LOG_delete)   print_new(CERR, loc);
 
@@ -59,10 +54,6 @@ public:
    : alloc_loc(loc),
      next(this),
      prev(this)
-#ifdef REMEMBER_TESTFILE
-   ,testcase_filename(TestFiles::get_testfile_name())
-   ,testcase_lineno(TestFiles::get_current_lineno())
-#endif
    {}
 
    /// return the next DynamicObject in its list
@@ -104,14 +95,6 @@ public:
    const char * where_allocated() const
       { return alloc_loc; }
 
-#ifdef REMEMBER_TESTFILE
-   /// return the testcase filename where this object was allocated
-   const char * get_testcase_filename() const { return testcase_filename; }
-
-   /// return the testcase line number where this object was allocated
-   int          get_testcase_lineno() const   { return testcase_lineno; }
-#endif
-
    /// return a pointer to all allocated Values
    static const DynamicObject * get_all_values()
       { return &all_values; }
@@ -125,14 +108,6 @@ protected:
 
    /// the previous DynamicObject (of all objects) in \b this's list
    DynamicObject * prev;
-
-#ifdef REMEMBER_TESTFILE
-   /// the testcase filename where this object was allocated
-   const char * testcase_filename;
-
-   /// return the testcase line number where this object was allocated
-   int          testcase_lineno;
-#endif
 
    /// the anchor for all dynamic Value instances
    static DynamicObject all_values;

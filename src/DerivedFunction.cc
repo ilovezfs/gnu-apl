@@ -32,7 +32,7 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Token & rfun, co
      left_fun(lfun),
      oper(dyop),
      right_fun(rfun),
-     axis(0)
+     axis(Value_P())
 {
    Assert1(oper);
 
@@ -48,7 +48,7 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * monop, const char * lo
      left_fun(lfun),
      oper(monop),
      right_fun(TOK_VOID),
-     axis(0)
+     axis(Value_P())
 {
    Assert1(oper);
 
@@ -90,8 +90,8 @@ DerivedFunction::eval_B(Value_P B)
       }
    else                                   // monadic operator
       {
-        if (axis)   return oper->eval_LXB(left_fun, axis, B);
-        else        return oper->eval_LB(left_fun, B);
+        if (!!axis)   return oper->eval_LXB(left_fun, axis, B);
+        else          return oper->eval_LB(left_fun, B);
       }
 }
 //-----------------------------------------------------------------------------
@@ -129,8 +129,8 @@ DerivedFunction::eval_AB(Value_P A, Value_P B)
       }
    else                                   // monadic operator
       {
-        if (axis)     return oper->eval_ALXB(A, left_fun, axis, B);
-        else          return oper->eval_ALB(A, left_fun, B);
+        if (!!axis)     return oper->eval_ALXB(A, left_fun, axis, B);
+        else            return oper->eval_ALB(A, left_fun, B);
       }
 }
 //-----------------------------------------------------------------------------
@@ -162,7 +162,7 @@ DerivedFunction::print(ostream & out) const
    out << " ";
 
    oper->print(out);
-   if (axis)   out << "[]";
+   if (!!axis)   out << "[]";
 
    if (right_fun.get_tag() != TOK_VOID)   // dyadic operator
       {
@@ -184,7 +184,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
    else                          out << "VAL";
    out << endl << ind << "Operator:  ";
    oper->print(out);
-   if (axis)   out << "Axis: " << *axis << endl;
+   if (!!axis)   out << "Axis: " << *axis << endl;
 
    if (right_fun.get_tag() != TOK_VOID)   // dyadic operator
       {

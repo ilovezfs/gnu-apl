@@ -46,7 +46,7 @@ protected:
 
    /// common implementation of reduce() and reduce_n_wise.
    static Token do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
-                          Function * LO, Value_P B, ShapeItem bm);
+                          Function * LO, Axis axis, Value_P B, ShapeItem bm);
 };
 //-----------------------------------------------------------------------------
 /** Primitive operator reduce along last axis.

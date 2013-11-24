@@ -60,10 +60,10 @@ Bif_F12_WITHOUT   Bif_F12_WITHOUT::fun;
 Token
 SkalarFunction::eval_skalar_B(Value_P B, prim_f1 fun)
 {
-Value_P Z = new Value(B->get_shape(), LOC);
-
 const ShapeItem count = B->element_count();
+   if (count == 0)   return eval_fill_B(B);
 
+Value_P Z(new Value(B->get_shape(), LOC), LOC);
    loop(c, count)
        {
          const Cell * cell_B =  &B->get_ravel(c);
@@ -106,7 +106,7 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
              Value_P value_A = cell_A->get_pointer_value();
              Value value_B(*cell_B, LOC);   // a skalar containing B
              value_B.set_on_stack();
-             Token token = eval_skalar_AB(value_A, &value_B, fun);
+             Token token = eval_skalar_AB(value_A, Value_P(&value_B, LOC), fun);
              new (cell_Z) PointerCell(token.get_apl_val());
            }
    else
@@ -115,7 +115,7 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
            Value value_A(*cell_A, LOC);   // a skalar containing A
            value_A.set_on_stack();
            Value_P value_B = cell_B->get_pointer_value();
-           Token token = eval_skalar_AB(&value_A, value_B, fun);
+           Token token = eval_skalar_AB(Value_P(&value_A, LOC), value_B, fun);
            new (cell_Z) PointerCell(token.get_apl_val());
          }
    else                                // A and B are both plain
@@ -129,9 +129,11 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
 {
    if (A->is_skalar_or_len1_vector())
       {
-        const Cell * cell_A = &A->get_ravel(0);
         const ShapeItem count = B->element_count();
-        Value_P Z = new Value(B->get_shape(), LOC);
+        if (count == 0)   return eval_fill_AB(A, B);
+
+        const Cell * cell_A = &A->get_ravel(0);
+        Value_P Z(new Value(B->get_shape(), LOC), LOC);
 
         loop(c, count)
             {
@@ -146,9 +148,11 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
 
    if (B->is_skalar_or_len1_vector())
       {
-        const Cell * cell_B = &B->get_ravel(0);
         const ShapeItem count = A->element_count();
-        Value_P Z = new Value(A->get_shape(), LOC);
+        if (count == 0)   return eval_fill_AB(A, B);
+
+        const Cell * cell_B = &B->get_ravel(0);
+        Value_P Z(new Value(A->get_shape(), LOC), LOC);
 
         loop(c, count)
             {
@@ -164,11 +168,13 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
    if (!A->same_shape(B))
       {
         if (!A->same_rank(B))   RANK_ERROR;
-        else                   LENGTH_ERROR;
+        else                    LENGTH_ERROR;
       }
 
 const ShapeItem count = A->element_count();
-Value_P Z = new Value(A->get_shape(), LOC);
+   if (count == 0)   return eval_fill_AB(A, B);
+
+Value_P Z(new Value(A->get_shape(), LOC), LOC);
 
    loop(c, count)
        {
@@ -185,37 +191,87 @@ Value_P Z = new Value(A->get_shape(), LOC);
 Token
 SkalarFunction::eval_fill_AB(Value_P A, Value_P B)
 {
-   return Bif_F2_UNEQ::fun.eval_AB(A, B);
+   // eval_fill_AB() is called when A or B or both are empty
+   //
+   if (A->is_skalar())   // then B is empty
+      {
+        Value_P Z = B->clone(LOC);
+        Z->to_proto();
+        return CHECK(Z, LOC);
+      }
+
+   if (B->is_skalar())   // then A is empty
+      {
+        Value_P Z = A->clone(LOC);
+        Z->to_proto();
+        return CHECK(Z, LOC);
+      }
+
+   // both A and B are empty
+   //
+   Assert(A->same_shape(B));   // has been checked already
+Value_P Z = B->clone(LOC);
+   Z->to_proto();
+   return CHECK(Z, LOC);
+
+//   return Bif_F2_UNEQ::fun.eval_AB(A, B);
+}
+//-----------------------------------------------------------------------------
+Token
+SkalarFunction::eval_fill_B(Value_P B)
+{
+   // eval_fill_B() is called when a scalar function with empty B is called
+   //
+Value_P Z = B->clone(LOC);
+   Z->to_proto();
+   return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 Token
 SkalarFunction::eval_skalar_identity_fun(Value_P B, Axis axis, Value_P FI0)
 {
+   // for skalar functions the result of the identity function for skalar
+   // function F is defined as follows (lrm p. 210)
+   //
+   // Z←SRρB+F/ι0    with SR ↔ ⍴Z
+   //
+   // The term F/ι0 is passed as argument FI0, so that the above becomes
+   //
+   // Z←SRρB+FI0
+   //
+   // Since F is skalar, the ravel elements of B (if any) are 0 and
+   // therefore B+FI0 becomes (⍴B)⍴FI0.
+   //
+   if (!FI0->is_skalar())   Q(FI0->get_shape())
+
 Shape shape_Z(B->get_shape());
    shape_Z.remove_shape_item(axis);
 
-Value_P PROTO_B = Bif_F12_TAKE::fun.eval_B(B).get_apl_val();
-   PROTO_B->set_arg();
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
-Value_P SUM = Bif_F12_PLUS::fun.eval_AB(PROTO_B, FI0).get_apl_val();
-   SUM->set_arg();
+const Cell & proto_B = B->get_ravel(0);
+const Cell & cell_FI0 = FI0->get_ravel(0);
 
-Value_P ENCLOSED = new Value(LOC);
-   ENCLOSED->set_arg();
-   new (&ENCLOSED->get_ravel(0))  PointerCell(SUM);
+Cell * cZ = &Z->get_ravel(0);
+const ShapeItem len_Z = Z->nz_element_count();
 
-Value_P Z = Bif_F12_RHO::do_reshape(shape_Z, ENCLOSED).get_apl_val();
+   if (proto_B.is_pointer_cell())
+      {
+        // create a value like ↑B but with all ravel elements like FI0...
+        //
+        Value_P sub(
+                new Value(proto_B.get_pointer_value()->get_shape(), LOC), LOC);
+        const ShapeItem len_sub = sub->nz_element_count();
+        Cell * csub = &sub->get_ravel(0);
+        loop(s, len_sub)   csub++->init(cell_FI0);
 
-   Z->set_default(ENCLOSED);
-
-   PROTO_B->clear_arg();
-   PROTO_B->erase(LOC);
-
-   SUM->clear_arg();
-   SUM->erase(LOC);
-
-   ENCLOSED->clear_arg();
-   ENCLOSED->erase(LOC);
+        loop(z, len_Z)   new (cZ++) PointerCell(sub->clone(LOC));
+        sub->erase(LOC);
+      }
+   else
+      {
+        loop(z, len_Z)   cZ++->init(cell_FI0);
+      }
 
    return CHECK(Z, LOC);
 }
@@ -270,7 +326,7 @@ Shape weight = B->get_shape().reverse_scan();
          }
    }
 
-Value_P Z = new Value(B->get_shape(), LOC);
+Value_P Z(new Value(B->get_shape(), LOC), LOC);
 
 Cell * cZ = &Z->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
@@ -296,7 +352,7 @@ Token
 Bif_F2_FIND::eval_AB(Value_P A, Value_P B)
 {
 const APL_Float qct = Workspace::get_CT();
-Value_P Z = new Value(B->get_shape(), LOC);
+Value_P Z(new Value(B->get_shape(), LOC), LOC);
 
 const ShapeItem len_Z = Z->element_count();
 Shape shape_A;
@@ -335,7 +391,7 @@ Shape shape_A;
        }
 
 done:
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
 
    return CHECK(Z, LOC);
 }
@@ -383,7 +439,7 @@ APL_Integer set_size = B->get_ravel(0).get_near_int(qct);
    if (aa > set_size)   DOMAIN_ERROR;
    if (set_size <= 0)   DOMAIN_ERROR;
 
-Value_P Z = new Value(aa, LOC);
+Value_P Z(new Value(aa, LOC), LOC);
 
 uint32_t idx_B[set_size];
    loop(c, set_size)   idx_B[c] = c + qio;
@@ -396,7 +452,7 @@ uint32_t idx_B[set_size];
          --set_size;
        }
 
-   Z->set_default(&Value::Zero);
+   Z->set_default(Value::Zero_P);
 
    return CHECK(Z, LOC);
 }
@@ -428,7 +484,7 @@ Bif_F12_WITHOUT::eval_AB(Value_P A, Value_P B)
 const uint32_t len_A = A->element_count();
 const uint32_t len_B = B->element_count();
 const APL_Float qct = Workspace::get_CT();
-Value_P Z = new Value(len_A, LOC);
+Value_P Z(new Value(len_A, LOC), LOC);
 
 uint32_t len_Z = 0;
 

@@ -18,10 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../config.h"   // for HAVE_LIBLAPACK
 #include <iostream>
 
-#include "APL_types.hh"
+#include "Common.hh"
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "Output.hh"
@@ -167,7 +166,7 @@ divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A, ShapeItem cols_B,
 {
 const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
    loop(c, cols_A)
        {
@@ -361,7 +360,7 @@ divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A, ShapeItem cols_B,
 {
 const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
 
-Value_P Z = new Value(shape_Z, LOC);
+Value_P Z(new Value(shape_Z, LOC), LOC);
 
    if (need_complex)
       {

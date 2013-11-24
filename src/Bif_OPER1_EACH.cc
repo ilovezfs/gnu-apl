@@ -35,7 +35,7 @@ Function * LO = _LO.get_function();
    Assert1(LO);
 
 EACH_ALB arg;
-   arg.Z = 0;
+   arg.Z.clear(LOC);
    arg.cZ = 0;
    arg.dA = 1;
    arg.LO = LO;
@@ -59,7 +59,7 @@ EACH_ALB arg;
         Fill_A->erase(LOC);
         Fill_B->erase(LOC);
 
-        Value_P Z1 = new Value(shape_Z, LOC);
+        Value_P Z1(new Value(shape_Z, LOC), LOC);
         new (&Z1->get_ravel(0)) PointerCell(arg.Z);
 
         return CHECK(Z1, LOC);   // Z ??
@@ -72,18 +72,18 @@ EACH_ALB arg;
         arg.count = B->element_count();
 
         arg.dA = 0;
-        if (LO->has_result())   arg.Z = new Value(B->get_shape(), LOC);
+        if (LO->has_result())   arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
       }
    else if (B->nz_element_count() == 1)
       {
         arg.dB = 0;
         arg.count = A->element_count();
-        if (LO->has_result())   arg.Z = new Value(A->get_shape(), LOC);
+        if (LO->has_result())   arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
       }
    else if (A->same_shape(B))
       {
         arg.count = B->element_count();
-        if (LO->has_result())   arg.Z = new Value(A->get_shape(), LOC);
+        if (LO->has_result())   arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
       }
    else
       {
@@ -103,7 +103,7 @@ EACH_ALB arg;
    arg.B = B;
    arg.cB = &B->get_ravel(0);
 
-   if (arg.Z)   arg.cZ = &arg.Z->get_ravel(0);
+   if (!!arg.Z)   arg.cZ = &arg.Z->get_ravel(0);
 
    arg.how = 0;
    return finish_eval_ALB(arg);
@@ -176,7 +176,7 @@ next_z:
    arg.A->erase(LOC);
    if (arg.A != arg.B)   arg.B->erase(LOC);
 
-   if (arg.Z == 0)   return Token(TOK_VOID);   // LO without result
+   if (!arg.Z)   return Token(TOK_VOID);   // LO without result
 
    return CHECK(arg.Z, LOC);
 }
@@ -186,7 +186,7 @@ Bif_OPER1_EACH::eoc_ALB(Token & token, _EOC_arg & _arg)
 {
 EACH_ALB arg = _arg._EACH_ALB();
 
-   if (arg.Z)   // LO with result, maybe successful
+   if (!!arg.Z)   // LO with result, maybe successful
       {
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
@@ -201,7 +201,7 @@ EACH_ALB arg = _arg._EACH_ALB();
 
    if (arg.z < (arg.count - 1))   Workspace::the_workspace->pop_SI(LOC);
 
-   token = finish_eval_ALB(arg);
+   copy_1(token, finish_eval_ALB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    return false;   // stop it
@@ -227,12 +227,12 @@ EACH_LB arg;
    arg.cB = &B->get_ravel(0);
    if (LO->has_result())
       {
-        arg.Z = new Value(B->get_shape(), LOC);
+        arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
         arg.cZ = &arg.Z->get_ravel(0);
       }
    else
       {
-        arg.Z = 0;
+        arg.Z.clear(LOC);
         arg.cZ = 0;
       }
 
@@ -263,7 +263,7 @@ loop_z:
         }
      else
         {
-          LO_B = new Value(LOC);
+          LO_B = Value_P(new Value(LOC), LOC);
           LO_B->set_arg();
 
           LO_B->get_ravel(0).init(*arg.cB++);
@@ -317,7 +317,7 @@ next_z:
 
    arg.B->clear_eoc();
 
-   if (arg.Z == 0)   return Token(TOK_VOID);   // LO wothout result
+   if (!arg.Z)   return Token(TOK_VOID);   // LO wothout result
 
    arg.Z->set_default(arg.B);
 
@@ -329,7 +329,7 @@ Bif_OPER1_EACH::eoc_LB(Token & token, _EOC_arg & _arg)
 {
 EACH_LB arg = _arg._EACH_LB();
 
-   if (arg.Z)   // LO with result, maybe successful
+   if (!!arg.Z)   // LO with result, maybe successful
       {
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
@@ -343,7 +343,7 @@ EACH_LB arg = _arg._EACH_LB();
       }
 
    if (arg.z < (arg.count - 1))   Workspace::the_workspace->pop_SI(LOC);
-   token = finish_eval_LB(arg);
+   copy_1(token, finish_eval_LB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    return false;   // stop it

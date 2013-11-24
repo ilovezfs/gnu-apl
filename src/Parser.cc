@@ -43,6 +43,7 @@ Parser::parse(const UCS_string & input, Token_string & tos)
    // convert input characters into token
    //
 Token_string tos1;
+
    {
      Tokenizer tokenizer(pmode, LOC);
      ErrorCode ec = tokenizer.tokenize(input, tos1);
@@ -58,21 +59,21 @@ Token_string tos1;
 
    // split tos1 into statements.
    //
-vector<Token_string> statements;
+vector<Token_string *> statements;
    {
      Source<Token> src(tos1);
-     Token_string stat;
+     Token_string  * stat = new Token_string();
      while (src.rest())
         {
           const Token tok = src.get();
           if (tok.get_tag() == TOK_DIAMOND)
              {
                statements.push_back(stat);
-               stat = Token_string();
+               stat = new Token_string();
              }
           else
              {
-               stat += tok;
+               stat->append(tok);
              }
         }
      statements.push_back(stat);
@@ -80,13 +81,14 @@ vector<Token_string> statements;
 
    loop(s, statements.size())
       {
-        Token_string & stat = statements[s];
-        ErrorCode err = parse_statement(stat);
+        Token_string * stat = statements[s];
+        ErrorCode err = parse_statement(*stat);
         if (err)   return err;
 
-        if (s)   tos += Token(TOK_DIAMOND);
+        if (s)   tos.append(Token(TOK_DIAMOND));
 
-        loop(t, stat.size())   tos += stat[t];
+        loop(t, stat->size())   tos.append((*stat)[t]);
+        delete stat;
       }
 
    return E_NO_ERROR;
@@ -219,8 +221,8 @@ int opening = -1;
               case TOK_R_PARENT:
                    if (opening == -1)   continue;   // ')' without ')'
 
-                   tos[opening] = Token();   // invalidate '('
-                   tos[t] = Token();         // invalidate ')'
+                   tos[opening].clear(LOC);  // invalidate '('
+                   tos[t].clear(LOC);        // invalidate ')'
                    create_value(tos, opening + 1, t - opening - 1);
 
                    // we removed parantheses, so we close the value.
@@ -367,8 +369,8 @@ Parser::remove_nongrouping_parantheses(Token_string & tos)
                          // ((...)) are not "not separating"
                          //
                          progress = true;
-                         tos[t] = Token();
-                         tos[closing] = Token();
+                         tos[t].clear(LOC);
+                         tos[closing].clear(LOC);
                          continue;
                        }
                   }
@@ -384,9 +386,9 @@ Parser::remove_nongrouping_parantheses(Token_string & tos)
                // If X is non-skalar, enclose it
                //
                progress = true;
-               tos[t + 2] = tos[t + 1];
-               tos[t + 1] = Token();
-               tos[t]     = Token();
+               move_1(tos[t + 2], tos[t + 1], LOC);
+               tos[t + 1].clear(LOC);
+               tos[t].clear(LOC);
                ++t;   // skip tos[t + 1]
              }
        }
@@ -400,7 +402,7 @@ uint32_t dst = 0;
    loop(src, tos.size())
        {
          if (tos[src].get_tag() == TOK_VOID)   continue;
-         if (src != dst)   tos[dst] = tos[src];
+         if (src != dst)   move_1(tos[dst], tos[src], LOC);
          ++dst;
        }
 
@@ -431,40 +433,40 @@ Parser::create_value(Token_string & tos, uint32_t pos, uint32_t count)
 void
 Parser::create_skalar_value(Token & output)
 {
-Value_P skalar = 0;
+Value_P skalar;
    switch(output.get_tag())
           {
             case TOK_CHARACTER:
-                 skalar = new Value(LOC);
+                 skalar = Value_P(new Value(LOC), LOC);
 
                  new (&skalar->get_ravel(0))   CharCell(output.get_char_val());
                  CHECK_VAL(skalar, LOC);
-                 output = Token(TOK_APL_VALUE, skalar);
+                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
                  return;
 
             case TOK_INTEGER:
-                 skalar = new Value(create_loc);
+                 skalar = Value_P(new Value(create_loc), LOC);
 
                  new (&skalar->get_ravel(0))   IntCell(output.get_int_val());
                  CHECK_VAL(skalar, LOC);
-                 output = Token(TOK_APL_VALUE, skalar);
+                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
                  return;
 
             case TOK_REAL:
-                 skalar = new Value(LOC);
+                 skalar = Value_P(new Value(LOC), LOC);
 
                  new (&skalar->get_ravel(0))   FloatCell(output.get_flt_val());
                  CHECK_VAL(skalar, LOC);
-                 output = Token(TOK_APL_VALUE, skalar);
+                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
                  return;
 
             case TOK_COMPLEX:
-                 skalar = new Value(LOC);
+                 skalar = Value_P(new Value(LOC), LOC);
 
                  new (&skalar->get_ravel(0))  ComplexCell(output.get_cpx_real(),
                                                          output.get_cpx_imag());
                  CHECK_VAL(skalar, LOC);
-                 output = Token(TOK_APL_VALUE, skalar);
+                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
                  return;
 
             case TOK_APL_VALUE:
@@ -479,7 +481,7 @@ Value_P skalar = 0;
 void
 Parser::create_vector_value(Token_string & tos, uint32_t pos, uint32_t count)
 {
-Value_P vector = new Value(count, LOC);
+Value_P vector(new Value(count, LOC), LOC);
 
    loop(l, count)
        {
@@ -490,35 +492,35 @@ Value_P vector = new Value(count, LOC);
             {
               case TOK_CHARACTER:
                    new (addr) CharCell(tok.get_char_val());
-                   tok = Token();   // invalidate token
+                   tok.clear(LOC);   // invalidate token
                    break;
 
               case TOK_INTEGER:
                    new (addr) IntCell(tok.get_int_val());
-                   tok = Token();   // invalidate token
+                   tok.clear(LOC);   // invalidate token
                    break;
 
               case TOK_REAL:
                    new (addr) FloatCell(tok.get_flt_val());
-                   tok = Token();   // invalidate token
+                   tok.clear(LOC);   // invalidate token
                    break;
 
               case TOK_COMPLEX:
                    new (addr) ComplexCell(tok.get_cpx_real(),
                                           tok.get_cpx_imag());
-                   tok = Token();   // invalidate token
+                   tok.clear(LOC);   // invalidate token
                    break;
 
             case TOK_APL_VALUE:
             case TOK_APL_VALUE1:
                  new (addr) PointerCell(tok.get_apl_val());
-                 tok = Token();   // invalidate token
+                 tok.clear(LOC);   // invalidate token
                  break;
             }
        }
 
    CHECK_VAL(vector, LOC);
-   tos[pos] = Token(TOK_APL_VALUE, vector);
+   move_2(tos[pos], Token(TOK_APL_VALUE, vector), LOC);
 
    Log(LOG_create_value)
       {

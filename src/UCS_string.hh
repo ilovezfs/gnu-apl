@@ -80,10 +80,8 @@ public:
    /// constructor: read one line from UTF8-encoded file.
    UCS_string(istream & in);
 
-   /// constructor: UCS_string from simple character vector value. We use
-   /// Value * rather than Value_P to avoid auto-construction of function
-   /// arguments that are Value but should be UCS_string.
-   UCS_string(Value * value);
+   /// constructor: UCS_string from simple character vector value.
+   UCS_string(const Value & value);
 
    /// columns from ,, to (excluding) of \b pb.
    void add_chunk(const PrintBuffer & pb, int from, size_t width);
@@ -150,29 +148,33 @@ public:
    /// followed by digits.
    int atoi() const;
 
-   /// append 0-terminated str to \b this UCS_string. This is different from
-   /// append_string((const char *)str):
-   /// append_string() appends one char per byte (i.e. strlen(str)) chars,
-   /// while app() appends fewer chars if str contains non-ASCII chars.
-   void app(const UTF8 * str);
+   /// append 0-terminated ASCII string \b str to this string. str is NOT
+   /// interpreted as UTF8 string (use append_utf8() if such interpretation        /// is desired)
+   void append_ascii(const char * str);
+
+   /// append 0-terminated UTF8 string str to \b this UCS_string.
+   // This is different from append_ascii((const char *)str):
+   ///
+   /// append_ascii() appends one Unicode per byte (i.e. strlen(str) in total),
+   /// without checking for UTF8 sequences.
+   ///
+   /// append_utf8() appends one Unicode per UTF8 sequence (which is the same
+   /// if all characteras are ASCII, but less if not.
+   void append_utf8(const UTF8 * str);
 
    /// same as app(const UTF8 * str)
-   void app(const char * str)
-      { app((const UTF8 *)str); }
+   void append_utf8(const char * str)
+      { append_utf8((const UTF8 *)str); }
 
    /// return \b this string and \b other concatenated
    UCS_string operator +(const UCS_string & other) const
-      { UCS_string ret(*this);   ret += other;   return ret; }
+      { UCS_string ret(*this);   ret.append(other);   return ret; }
 
    /// append number (in ASCII encoding like %d) to this string
    void append_number(long long num);
 
    /// append number (in ASCII encoding like %lf) to this string
    void append_float(double num);
-
-   /// append 0-terminated C string to this string. str is NOT interpreted
-   /// as UTF8 string (use app() if such interpretation is desired)
-   void append_string(const char * str);
 
    /// split \b this multi-line string into individual lines,
    /// removing the CR and NL chars in \b this string.

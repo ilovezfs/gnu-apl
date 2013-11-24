@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Cell.hh"
+#include "Common.hh"
 #include "DynamicObject.hh"
 #include "Shape.hh"
 
@@ -254,7 +255,7 @@ public:
    /// return \b true iff \b this value has the same shape as \b other.
    bool same_shape(Value_P other) const
       { if (get_rank() != other->get_rank())   return false;
-        for (uint32_t r = 0; r < get_rank(); ++r)
+        for (Rank r = 0; r < get_rank(); ++r)
             if (get_shape_item(r) != other->get_shape_item(r))   return false;
         return true;
       }
@@ -285,18 +286,18 @@ public:
    void SET_ ## flag(const char * loc) const                                  \
       { FLAG_INFO(loc, VF_ ## flag, #flag, true)                              \
         flags |=  VF_ ## flag;                                                \
-        ADD_EVENT(this, (VH_event)(VHE_SETFLAG | VF_ ## flag), loc); }        \
+        ADD_EVENT(this, VHE_SetFlag, VF_ ## flag, loc); }        \
                                                                               \
    void CLEAR_ ## flag(const char * loc) const                                \
       { FLAG_INFO(loc, VF_ ## flag, #flag, false)                             \
         flags &=  ~VF_ ## flag;                                               \
-        ADD_EVENT(this, (VH_event)(VHE_CLEARFLAG | VF_ ## flag), loc); }      \
+        ADD_EVENT(this, VHE_ClearFlag, VF_ ## flag, loc); }      \
                                                                               \
    void SET_ ## flag() const     { flags |=  VF_ ## flag;                     \
-        ADD_EVENT(this, (VH_event)(VHE_SETFLAG | VF_ ## flag), LOC); }        \
+        ADD_EVENT(this, VHE_SetFlag, VF_ ## flag, LOC); }        \
                                                                               \
    void CLEAR_ ## flag() const   { flags &=  ~VF_ ## flag;                    \
-        ADD_EVENT(this, (VH_event)(VHE_CLEARFLAG | VF_ ## flag), LOC); }      \
+        ADD_EVENT(this, VHE_ClearFlag, VF_ ## flag, LOC); }      \
                                                                               \
    bool is_ ## flag() const      { return (flags & VF_ ## flag) != 0; }
 
@@ -359,7 +360,7 @@ public:
 
    /// clone this value if needed (according to its flags)
    Value_P clone_if_owned(const char * loc)
-      { return (flags & VF_need_clone) ? clone(loc) : this; }
+      { return (flags & VF_need_clone) ? clone(loc) : Value_P(this, loc); }
 
    /// get the min spacing for this column and set/clear if there
    /// is/isn't a numeric item in the column.
@@ -369,7 +370,7 @@ public:
    /// list a value
    ostream & list_one(ostream & out, bool show_owners);
 
-   /// check \b this value and return a token for it
+   /// check \b this value and return a Value_P to it
    Value_P check_value(const char * loc);
 
    /// return the total CDR size (header + data + padding) for \b this value.
@@ -407,6 +408,9 @@ public:
    /// one for each line
    void to_varnames(vector<UCS_string> & result, bool last) const;
 
+   // recursively replace all ravel elements with 0
+   void to_proto();
+
    /// print address, shape, and flags of this value
    void print_structure(ostream & out, int indent, ShapeItem idx) const;
 
@@ -419,13 +423,16 @@ public:
    /// set complete flag and return \b this
    inline Value * set_complete_flag()   { set_complete(); return this; }
 
+   /// number of Value_P objects pointing to this value
+   int owner_count;
+
    /// print incomplete Values, and return the number of incomplete Values.
    static int print_incomplete(ostream & out);
 
    /// print stale Values, and return the number of stale Values.
    static int print_stale(ostream & out);
 
-#define stv_def(x) /** x **/ static Value x;
+#define stv_def(x) /** x **/ static Value x; static Value_P x ## _P;
 #include "StaticValues.def"
 
    /// total nz_element_counts of all non-short values
@@ -470,11 +477,8 @@ operator << (ostream & out, ValueFlags flg)
   return out << HEX(flg);
 }
 // ----------------------------------------------------------------------------
-/**
-class Value_P : public shared_ptr<Value>
-{
-};
-**/
-// ----------------------------------------------------------------------------
+
+inline int increment_owner_count(Value * v) { return ++v->owner_count; }
+inline int decrement_owner_count(Value * v) { return --v->owner_count; }
 
 #endif // __VALUE_HH_DEFINED__
