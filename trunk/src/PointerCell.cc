@@ -135,11 +135,41 @@ PrintBuffer ret(*val, pctx);
                      }
                 }
 
+             // do A←(1⌈⍴A)⍴⊂↑A
              Value_P proto = val->prototype(LOC);
-             ret = PrintBuffer(*proto, pctx);
-             ret.add_frame(PrintStyle(style), proto->get_rank(),
-                           proto->compute_depth());
-             proto->erase(LOC);
+
+             // compute a shape like ⍴ val but 0 replaced with 1.
+             //
+             Shape sh(val->get_shape());
+             loop(r, sh.get_rank())
+                 {
+                   if (sh.get_shape_item(r) == 0)   sh.set_shape_item(r, 1);
+                 }
+
+             if (sh.element_count() == 1)   // one prototype
+                {
+                  ret = PrintBuffer(*proto, pctx);
+                  ret.add_frame(PrintStyle(style), proto->get_rank(),
+                                proto->compute_depth());
+                  proto->erase(LOC);
+                }
+             else                           // several prototypes
+                {
+                  Value_P proto_reshaped(new Value(sh, LOC), LOC);
+                  Cell * c = &proto_reshaped->get_ravel(0);
+                  const ShapeItem len = proto_reshaped->element_count();
+
+                  // store proto in the first ravel item, and copies of proto in
+                  // the subsequent ravel items
+                  //
+                  new (c++) PointerCell(proto);
+                  loop(rv, len - 1)   new (c++) PointerCell(proto->clone(LOC));
+
+                  ret = PrintBuffer(*proto_reshaped, pctx);
+                  ret.add_frame(PrintStyle(style), proto_reshaped->get_rank(),
+                                proto_reshaped->compute_depth());
+                  proto_reshaped->erase(LOC);
+                }
            }
        else
            {

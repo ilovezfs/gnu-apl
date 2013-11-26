@@ -31,5 +31,7 @@
  4545 ValueHistory added, remaining stale values fixed
  4581 fixed parser problem with A←[IDX]←B
  4590 fixed problem with enclosed ⍳0
+ 4606 fixed ∊ and ↓ character problems and segfault on ⎕EA
+ 4609 figlet banner added
 
 

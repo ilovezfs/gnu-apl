@@ -452,9 +452,19 @@ char c2[200];
 const char * lines[] =
 {
   "",
+  "   ______ _   __ __  __    ___     ____   __ ",
+  "  / ____// | / // / / /   /   |   / __ \\ / / ",
+  " / / __ /  |/ // / / /   / /| |  / /_/ // /  ",
+  "/ /_/ // /|  // /_/ /   / ___ | / ____// /___",
+  "\\____//_/ |_/ \\____/   /_/  |_|/_/    /_____/",
+
+
+
+  "",
   c1,
   "",
   "Copyright (C) 2008-2013  Dr. Jürgen Sauermann",
+  "Banner by FIGlet: www.figlet.org",
   "",
 _("This program comes with ABSOLUTELY NO WARRANTY;"),
   c2,

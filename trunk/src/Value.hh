@@ -310,6 +310,7 @@ public:
 # define set_arg()      SET_arg(_LOC)
 # define set_eoc()      SET_eoc(_LOC)
 # define set_left()     SET_left(_LOC)
+# define set_dirty()    SET_dirty(_LOC)
 # define set_complete() SET_complete(_LOC)
 # define set_marked()   SET_marked(_LOC)
 
@@ -322,7 +323,7 @@ public:
 # define clear_arg()      CLEAR_arg(_LOC)
 # define clear_eoc()      CLEAR_eoc(_LOC)
 # define clear_left()     CLEAR_left(_LOC)
-# define clear_complete() CLEAR_complete(_LOC)
+# define clear_dirty()    CLEAR_dirty(_LOC)
 # define clear_marked()   CLEAR_marked(_LOC)
 
    VF_flag(shared)
@@ -335,6 +336,7 @@ public:
    VF_flag(eoc)
    VF_flag(left)
    VF_flag(complete)
+   VF_flag(dirty)
    VF_flag(marked)
 
    /// mark all values, except static values
@@ -342,9 +344,6 @@ public:
 
    /// clear marked flag on this value and its nested sub-values
    void unmark() const;
-
-   /// set shared flag and unlink (for local values)
-   void set_on_stack();
 
    /// maybe delete this value.
    void erase(const char * loc) const;
@@ -392,7 +391,7 @@ public:
    static int erase_stale(const char * loc);
 
    /// re-initialize incomplete values
-   static int finish_incomplete(int line);
+   static int finish_incomplete(const char * loc);
 
    /// erase all values (clean-up after )CLEAR)
    static void erase_all(ostream & out);

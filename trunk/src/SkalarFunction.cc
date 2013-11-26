@@ -94,34 +94,38 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
                                 const Cell * cell_B, prim_f2 fun)
 {
    if (cell_A->is_pointer_cell())
-      if (cell_B->is_pointer_cell())   // A and B are both pointers
+      {
+        if (cell_B->is_pointer_cell())   // A and B are both pointers
            {
              Value_P value_A = cell_A->get_pointer_value();
              Value_P value_B = cell_B->get_pointer_value();
              Token token = eval_skalar_AB(value_A, value_B, fun);
              new (cell_Z) PointerCell(token.get_apl_val());
            }
-      else                             // A is pointer, B is plain
+        else                             // A is pointer, B is simple
            {
              Value_P value_A = cell_A->get_pointer_value();
-             Value value_B(*cell_B, LOC);   // a skalar containing B
-             value_B.set_on_stack();
-             Token token = eval_skalar_AB(value_A, Value_P(&value_B, LOC), fun);
+             Value_P skalar_B(new Value(*cell_B, LOC), LOC);
+             Token token = eval_skalar_AB(value_A, skalar_B, fun);
              new (cell_Z) PointerCell(token.get_apl_val());
+             skalar_B->erase(LOC);
            }
-   else
-      if (cell_B->is_pointer_cell())   // A is plain, B is pointer
-         {
-           Value value_A(*cell_A, LOC);   // a skalar containing A
-           value_A.set_on_stack();
-           Value_P value_B = cell_B->get_pointer_value();
-           Token token = eval_skalar_AB(Value_P(&value_A, LOC), value_B, fun);
-           new (cell_Z) PointerCell(token.get_apl_val());
-         }
+      }
+   else                                  // A is simple
+      {
+        if (cell_B->is_pointer_cell())   // A is simple, B is pointer
+           {
+             Value_P skalar_A(new Value(*cell_A, LOC), LOC);
+             Value_P value_B = cell_B->get_pointer_value();
+             Token token = eval_skalar_AB(skalar_A, value_B, fun);
+             new (cell_Z) PointerCell(token.get_apl_val());
+             skalar_A->erase(LOC);
+           }
    else                                // A and B are both plain
          {
            (cell_B->*fun)(cell_Z, cell_A);
          }
+      }
 }
 //-----------------------------------------------------------------------------
 Token

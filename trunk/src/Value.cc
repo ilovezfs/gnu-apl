@@ -480,13 +480,6 @@ const Cell * C = &get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 void
-Value::set_on_stack()
-{
-   set_shared();
-   unlink();
-}
-//-----------------------------------------------------------------------------
-void
 Value::erase(const char * loc) const
 {
    ADD_EVENT(this, VHE_Erase, 0, loc);
@@ -628,6 +621,8 @@ int count = 0;
          Value * v = (Value *)obj;
          if (v->flags & VF_DONT_DELETE)   continue;
 
+         ADD_EVENT(v, VHE_Stale, v->owner_count, loc);
+
          Log(LOG_Value__erase_stale)
             {
               CERR << "Erasing stale Value " << (const void *)obj << ":" << endl
@@ -636,9 +631,12 @@ int count = 0;
               v->list_one(CERR, false);
             }
 
+         // count it unless we know it is dirty
+         //
+         ++count;
+
          obj->unlink();
          v->erase(loc);
-         ++count;
 
          // v->erase(loc) could mess up the chain, so we start over
          // rather than continuing
@@ -650,14 +648,24 @@ int count = 0;
 }
 //-----------------------------------------------------------------------------
 int
-Value::finish_incomplete(int line)
+Value::finish_incomplete(const char * loc)
 {
+   // finish_incomplete() is called when a function, typically one of the
+   // StateIndicator::eval_XXX() functions, has thrown an error.
+   // The value has been constructed, its shape is correct, but some (or all)
+   // of the ravel cells are uninitialized. The VF_complete bit of such
+   // values is not set.
+   //
+   // We fix this by initializing the entire ravel to 42424242. The value
+   // probably remains stale, though. Deleting it here could cause double-
+   // delete problems, so we rather set the dirty bit.
+   //
 int count = 0;
 
    Log(LOG_Value__erase_stale)
       CERR << endl
            << endl
-           << "finish_incomplete() called from StateIndicator::" << line
+           << "finish_incomplete() called from " << loc
            << endl;
 
    for (DynamicObject * obj = all_values.get_next();
@@ -680,22 +688,23 @@ int count = 0;
          Value * v = (Value *)obj;
          if (v->flags & VF_complete)   continue;
 
+         ADD_EVENT(v, VHE_Completed, v->owner_count, LOC);
+
+         ShapeItem ravel_length = v->nz_element_count();
+         Cell * cv = &v->get_ravel(0);
+         loop(r, ravel_length)   new (cv++)   IntCell(42424242);
+         v->set_complete();
+         v->set_dirty();
+
          Log(LOG_Value__erase_stale)
             {
-              CERR << "Erasing incomplete Value " << (const void *)obj << ":"
+              CERR << "Fixed incomplete Value " << (const void *)obj << ":"
                    << endl
                    << "  Allocated by " << v->where_allocated() << endl
                    << "  ";
               v->list_one(CERR, false);
             }
 
-         obj->unlink();
-         v->erase(LOC);
-
-         // v->erase(loc) could mess up the chain, so we start over
-         // rather than continuing
-         //
-         obj = &all_values;
          ++count;
        }
 
@@ -718,10 +727,16 @@ Value::list_one(ostream & out, bool show_owners)
         if (is_arg())        { out << sep << "ARG";        sep = '+'; }
         if (is_eoc())        { out << sep << "EOC";        sep = '+'; }
         if (is_left())       { out << sep << "LEFT";       sep = '+'; }
+        if (is_dirty())      { out << sep << "DIRTY";      sep = '+'; }
         if (is_complete())   { out << sep << "COMPLETE";   sep = '+'; }
         if (is_marked())     { out << sep << "MARKED";     sep = '+'; }
         out << ",";
       }
+   else
+      {
+        out << "   Flags = NONE,";
+      }
+
    out << " Rank = " << get_rank();
    if (get_rank())
       {
@@ -1476,6 +1491,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
    if (is_arg())        out << " VF_arg";
    if (is_eoc())        out << " VF_eoc";
    if (is_left())       out << " VF_left";
+   if (is_dirty())      out << " VF_dirty";
    if (is_complete())   out << " VF_complete";
    if (is_marked())     out << " VF_marked";
    if (is_deleted())    out << " VF_deleted";
@@ -1719,6 +1735,7 @@ Value::print_stale(ostream & out)
 vector<Value *> stale_vals;
 vector<const DynamicObject *> stale_dobs;
 bool goon = true;
+int count = 0;
 
    // first print addresses and remember stale values
    //
@@ -1733,6 +1750,8 @@ bool goon = true;
          out << "stale value at " << (const void *)val << endl;
          stale_vals.push_back(val);
          stale_dobs.push_back(dob);
+
+         if (!val->is_dirty())   ++count;
 
          if (!goon)
             {
@@ -1749,8 +1768,6 @@ bool goon = true;
         Value * val = stale_vals[s];
         val->print_stale_info(out, dob);
        }
-
-int count = stale_vals.size();
 
    // mark all dynamic values, and then unmark those known in the workspace
    //
@@ -1781,7 +1798,7 @@ int count = stale_vals.size();
          if (val->is_marked())
             {
               val->print_stale_info(out, dob);
-              ++count;
+              if (!val->is_dirty())   ++count;
               val->unmark();
             }
        }

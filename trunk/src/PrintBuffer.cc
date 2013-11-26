@@ -530,12 +530,12 @@ UCS_string hori(get_width(0), HORI);
                set_char(1 + d, get_height() - 1, UNI_ELEMENT);
       }
 
-   if (style & PST_EMPTY_LAST)
+   if (style & PST_EMPTY_LAST)   // last (X-) dimension is empty
       {
         set_char(1, 0, UNI_CIRCLE_BAR);   // ⊖
       }
 
-   if (style & PST_EMPTY_NLAST)
+   if (style & PST_EMPTY_NLAST)   // a non-last (Y-) dimension is empty
       {
         set_char(0, 1, UNI_CIRCLE_STILE);   // ⌽
       }

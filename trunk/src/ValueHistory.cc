@@ -97,8 +97,13 @@ int cidx = idx;
        << " events in its history:" << endl;
 
 int flags = 0;
+const VH_entry * previous = 0;
    loop(e, var_events.size())
-       var_events[var_events.size() - e - 1]->print(flags, out, val);
+      {
+        const VH_entry * vev = var_events[var_events.size() - e - 1];
+        vev->print(flags, out, val, previous);
+        previous = vev;
+      }
    out << endl;
 }
 //----------------------------------------------------------------------------
@@ -124,9 +129,18 @@ UCS_string ret;
 }
 //----------------------------------------------------------------------------
 void
-VH_entry::print(int & flags, ostream & out, const Value * val) const
+VH_entry::print(int & flags, ostream & out, const Value * val,
+               const VH_entry * previous) const
 {
 const ValueFlags flags_before = (ValueFlags)flags;
+
+   if (previous == 0                            ||
+       previous->testcase_line != testcase_line ||
+       strcmp(previous->testcase_file, testcase_file))
+          {
+            if (testcase_file)   out << "  FILE:        " << testcase_file
+                                     << ":" << testcase_line << endl;
+          }
 
    switch(event)
       {
@@ -181,8 +195,8 @@ const ValueFlags flags_before = (ValueFlags)flags;
              break;
 
         case VHE_Error:
-             out << "  " << setw(35)
-                 << Error::error_name((ErrorCode)(event)) << " ";
+             out << "  " << setw(36)
+                 << Error::error_name((ErrorCode)iarg) << " ";
              break;
 
         case VHE_PtrNew:
@@ -217,20 +231,20 @@ const ValueFlags flags_before = (ValueFlags)flags;
              out << "  VHE_TokMove2 " << setw(24) << iarg;
              break;
 
+        case VHE_Completed:
+             out << "  VHE_Completed" << setw(24) << iarg;
+             break;
+
+        case VHE_Stale:
+             out << "  VHE_Stale    " << setw(24) << iarg;
+             break;
+
         default:
              out << "Unknown event  " << HEX(event) << endl;
              return;
       }
 
-   out << left << setw(30) << (loc ? loc : "<no-loc>");
-
-   if (testcase_file)
-      {
-        const char * filename = testcase_file;
-        if (strncmp(filename, "testcases/", 10) == 0)   filename += 10;
-        out << filename << ":" << testcase_line;
-      }
-   out << endl;
+   out << left << setw(30) << (loc ? loc : "<no-loc>") << endl;
 }
 //----------------------------------------------------------------------------
 
