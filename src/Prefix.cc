@@ -29,6 +29,7 @@
 #include "StateIndicator.hh"
 #include "Symbol.hh"
 #include "UserFunction.hh"
+#include "ValueHistory.hh"
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
@@ -67,7 +68,7 @@ CERR << "Warning: discarding non-empty stack["
              Value_P val = tl.tok.get_apl_val();
              if (!val)   continue;
 
-CERR << "    Value is " << val.voidp() << " " << *val;
+CERR << "    Value is " << val.voidp() << " " << *val << " at " LOC;
 // val->print_properties(CERR,  0);
                val->erase(LOC);
            }
@@ -160,8 +161,25 @@ const int si_depth = si.get_level();
    out << "fifo[si=" << si_depth << " len=" << size()
        << " PC=" << PC << "] is now :";
 
-   loop(s, size())   out << " " << Token::class_name(at(s).tok.get_Class());
+const Value * del = 0;   // warn for deleted Values
+   loop(s, size())
+      {
+        TokenClass tc = at(s).tok.get_Class();
+        out << " " << Token::class_name(tc);
+        if (tc == TC_VALUE)
+           {
+             const Value * vp = at(s).tok.get_apl_val_pointer();
+             if (vp && vp->is_deleted())   del = vp;
+           }
+      }
+
    out << "  at " << loc << endl;
+
+   if (del)
+      {
+        CERR << "*** DELETED VALUE: ***" << endl;
+        VH_entry::print_history(out, del);
+      }
 }
 //-----------------------------------------------------------------------------
 int

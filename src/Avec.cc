@@ -238,6 +238,7 @@ Avec::map_alternative_char(Unicode alt_av)
    switch(alt_av)
       {
         case 0x007E: return AV_TILDE_OPERATOR;   //  map ~ to ∼
+        case 0x220A:                             //  map ∊ to ∈
         case 0x03B5: return AV_ELEMENT;          //  map ε to ∈
         case 0x03B9: return AV_IOTA;             //  map ι to ⍳
         case 0x03C1: return AV_RHO;              //  map ρ to ⍴

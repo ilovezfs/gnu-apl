@@ -645,21 +645,26 @@ bool success = false;
 
    return success;
 }
-
+//-----------------------------------------------------------------------------
+void
+StateIndicator::recover_from_error(const char * loc)
+{
+   Value::finish_incomplete(loc);
+}
+//-----------------------------------------------------------------------------
 /// a macro for the common part of all StateIndicator::eval_XXX() calls
 /// catch exceptions and check for errors,
 #define FINISH_EVAL \
-   catch (Error e)                                           \
-      {                                                      \
-        Value::finish_incomplete(__LINE__);                  \
-        if (safe_execution)   Value::erase_stale(LOC);       \
-        return Token(TOK_ERROR, e.error_code);               \
-      }                                                      \
-   catch (...)                                               \
-      {                                                      \
-        FIXME;                                               \
-      }                                                      \
-                                                             \
+   catch (Error e)                              \
+      {                                         \
+       recover_from_error(LOC);                 \
+       return Token(TOK_ERROR, e.error_code);   \
+      }                                         \
+   catch (...)                                  \
+      {                                         \
+        FIXME;                                  \
+      }                                         \
+                                                \
    return Token(TOK_ERROR, error.error_code);
 
 //-----------------------------------------------------------------------------

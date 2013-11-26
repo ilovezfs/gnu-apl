@@ -119,9 +119,10 @@ enum ValueFlags
   VF_deleted  = 0x020,   ///< value is deleted:        don't delete again
   VF_arg      = 0x040,   ///< value is an argument:    don't delete
   VF_eoc      = 0x080,   ///< value is an eoc arg:     don't delete
-  VF_left     = 0x100,   ///< left value (←):          OK to delete
-  VF_complete = 0x200,   ///< CHECK called:            OK to delete
-  VF_marked   = 0x400,   ///< marked to detect stale:  OK to delete
+  VF_dirty    = 0x100,   ///< initialization failed    don't delete
+  VF_left     = 0x200,   ///< left value (←):          OK to delete
+  VF_complete = 0x400,   ///< CHECK called:            OK to delete
+  VF_marked   = 0x800,   ///< marked to detect stale:  OK to delete
   VF_DONT_DELETE = VF_shared     // a constant in a user defined function
                  | VF_assigned   // assigned to a variable
                  | VF_forever    // static value
@@ -130,7 +131,7 @@ enum ValueFlags
                  | VF_deleted
                  | VF_arg        // in use by SI::eval_XXX()
                  | VF_eoc,       // in use by an EOC handler
-  VF_need_clone  = VF_shared      // need cloning on assign and friends
+  VF_need_clone  = VF_shared     // need cloning on assign and friends
                  | VF_assigned
                  | VF_forever
                  | VF_nested
@@ -142,22 +143,24 @@ enum ValueFlags
 /// events for APL values
 enum VH_event
 {
-  VHE_None =  0,
-  VHE_Create,
-  VHE_Unroll,
-  VHE_Check,
-  VHE_SetFlag,
-  VHE_ClearFlag,
-  VHE_Erase,
-  VHE_Error,
-  VHE_PtrNew,
-  VHE_PtrCopy1,
-  VHE_PtrCopy2,
-  VHE_PtrClr,
-  VHE_PtrDel,
-  VHE_TokCopy1,
-  VHE_TokMove1,
-  VHE_TokMove2,
+  VHE_None =  0,   ///< no event
+  VHE_Create,      ///< value created (shape is complete, ravel is not)
+  VHE_Unroll,      ///< rollback creation
+  VHE_Check,       ///< check function called (if enabled)
+  VHE_SetFlag,     ///< set a value flag
+  VHE_ClearFlag,   ///< clear a value flag
+  VHE_Erase,       ///< erase the value
+  VHE_Error,       ///< some APL error has occurred
+  VHE_PtrNew,      ///< new Value_P created
+  VHE_PtrCopy1,    ///< Value_P copied
+  VHE_PtrCopy2,    ///< Value_P copied
+  VHE_PtrClr,      ///< Value_P cleared
+  VHE_PtrDel,      ///< Value_P deleted
+  VHE_TokCopy1,    ///< token with Value_P copied
+  VHE_TokMove1,    ///< token with Value_P moved
+  VHE_TokMove2,    ///< token with Value_P moved
+  VHE_Completed,   ///< incomplete ravel set to 42424242
+  VHE_Stale,       ///< stale value erased
 };
 //-----------------------------------------------------------------------------
 /// The bits in an int

@@ -149,6 +149,9 @@ public:
    /// replace all occurences of old_value int his SI by new_value
    bool replace_arg(Value_P old_value, Value_P new_value);
 
+   /// clean up after some eval_XXX() function has thrown an error
+   void recover_from_error(const char * loc);
+
    /// call eoc_handler(). Return false if there is none or else the result of
    /// the eoc_handler.
    bool call_eoc_handler(Token & token)

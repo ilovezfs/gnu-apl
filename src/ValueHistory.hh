@@ -42,7 +42,8 @@ public:
    static int idx;
 
 protected:
-   void print(int & flags, ostream & out, const Value * val) const;
+   void print(int & flags, ostream & out, const Value * val,
+               const VH_entry * previous) const;
 
    const Value * val;
    VH_event      event;
