@@ -165,16 +165,16 @@ Parser::collect_constants(Token_string & tos)
              case TOK_INTEGER:
              case TOK_REAL:
              case TOK_COMPLEX:
-             case TOK_APL_VALUE:
              case TOK_APL_VALUE1:
+             case TOK_APL_VALUE3:
                   for (to = t + 1; to < tos.size(); ++to)
                       {
                         if (tos[to].get_tag() == TOK_CHARACTER)    continue;
                         if (tos[to].get_tag() == TOK_INTEGER)      continue;
                         if (tos[to].get_tag() == TOK_REAL)         continue;
                         if (tos[to].get_tag() == TOK_COMPLEX)      continue;
-                        if (tos[to].get_tag() == TOK_APL_VALUE)    continue;
                         if (tos[to].get_tag() == TOK_APL_VALUE1)   continue;
+                        if (tos[to].get_tag() == TOK_APL_VALUE3)   continue;
                         break;
                       }
                   create_value(tos, t, to - t);
@@ -207,8 +207,8 @@ int opening = -1;
               case TOK_INTEGER:
               case TOK_REAL:
               case TOK_COMPLEX:
-              case TOK_APL_VALUE:
               case TOK_APL_VALUE1:
+              case TOK_APL_VALUE3:
                    continue;
 
               case TOK_L_PARENT:
@@ -227,7 +227,7 @@ int opening = -1;
 
                    // we removed parantheses, so we close the value.
                    //
-                   Assert(tos[opening + 1].get_tag() == TOK_APL_VALUE);
+                   Assert(tos[opening + 1].get_tag() == TOK_APL_VALUE3);
                    tos[opening + 1].ChangeTag(TOK_APL_VALUE1);
 
                    Log(LOG_collect_constants)
@@ -441,7 +441,7 @@ Value_P skalar;
 
                  new (&skalar->get_ravel(0))   CharCell(output.get_char_val());
                  CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
+                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
                  return;
 
             case TOK_INTEGER:
@@ -449,7 +449,7 @@ Value_P skalar;
 
                  new (&skalar->get_ravel(0))   IntCell(output.get_int_val());
                  CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
+                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
                  return;
 
             case TOK_REAL:
@@ -457,7 +457,7 @@ Value_P skalar;
 
                  new (&skalar->get_ravel(0))   FloatCell(output.get_flt_val());
                  CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
+                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
                  return;
 
             case TOK_COMPLEX:
@@ -466,11 +466,11 @@ Value_P skalar;
                  new (&skalar->get_ravel(0))  ComplexCell(output.get_cpx_real(),
                                                          output.get_cpx_imag());
                  CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE, skalar), LOC);
+                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
                  return;
 
-            case TOK_APL_VALUE:
             case TOK_APL_VALUE1:
+            case TOK_APL_VALUE3:
                  return;
           }
 
@@ -511,8 +511,8 @@ Value_P vector(new Value(count, LOC), LOC);
                    tok.clear(LOC);   // invalidate token
                    break;
 
-            case TOK_APL_VALUE:
             case TOK_APL_VALUE1:
+            case TOK_APL_VALUE3:
                  new (addr) PointerCell(tok.get_apl_val());
                  tok.clear(LOC);   // invalidate token
                  break;
@@ -520,7 +520,7 @@ Value_P vector(new Value(count, LOC), LOC);
        }
 
    CHECK_VAL(vector, LOC);
-   move_2(tos[pos], Token(TOK_APL_VALUE, vector), LOC);
+   move_2(tos[pos], Token(TOK_APL_VALUE3, vector), LOC);
 
    Log(LOG_create_value)
       {

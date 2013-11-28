@@ -1748,13 +1748,13 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
              {
                const unsigned int rank = find_int_attr("rank", false, 10);
                char * vids = (char *)find_attr("index", false);
-               IndexExpr * idx = new IndexExpr(false, LOC);
+               IndexExpr & idx = *new IndexExpr(false, LOC);
                while (*vids != '"')
                   {
                     if (*vids == ',')   ++vids;
                     if (*vids == '-')   // elided index
                        {
-                         idx->add(Value_P());
+                         idx.add(Value_P());
                        }
                     else                // value
                        {
@@ -1765,7 +1765,7 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                          char * end;
                          const unsigned int vid = strtol(vids, &vids, 10);
                          Assert(vid < values.size());
-                         idx->add(values[vid]);
+                         idx.add(values[vid]);
                        }
                   }
                new (&tloc.tok) Token(tag, idx);

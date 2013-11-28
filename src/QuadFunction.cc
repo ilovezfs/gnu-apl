@@ -244,10 +244,12 @@ PrintStyle style;
         case 1:  style = PR_APL_FUN;          break;
         case 2:  style = PR_BOXED_CHAR;       break;
         case 3:  style = PR_BOXED_GRAPHIC;    break;
-        case 4:  { // like 3, but enclose B so that the entire B is boxed
+        case 4:
+        case 8:
+               { // like 3/7, but enclose B so that the entire B is boxed
                    Value_P B1(new Value(LOC), LOC);
                    new (&B1->get_ravel(0))   PointerCell(B->clone(LOC));
-                   Value_P result = do_CR(3, B1);
+                   Value_P result = do_CR(a - 1, B1);
                    B1->erase(LOC);
                    return result;
                  }
@@ -255,7 +257,7 @@ PrintStyle style;
         case 5:  style = PR_HEX;              break;
         case 6:  style = PR_hex;              break;
         case 7:  style = PR_BOXED_GRAPHIC1;   break;
-        case 8:  style = PR_BOXED_GRAPHIC2;   break;
+        case 9:  style = PR_BOXED_GRAPHIC2;   break;
 
         default: DOMAIN_ERROR;
       }
@@ -582,8 +584,8 @@ int et1 = 0;
                             ErrorCode(result_B.get_int_val())), LOC), LOC);
              break;
 
-        case TOK_APL_VALUE:
         case TOK_APL_VALUE1:
+        case TOK_APL_VALUE3:
              result_type = 1;
              Z2 = result_B.get_apl_val();
              break;
