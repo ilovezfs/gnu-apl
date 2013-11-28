@@ -179,8 +179,24 @@ public:
    Shape to_shape() const;
 
    /// glue two values.
-   static Value_P glue(Token & token, Token & token_A, Token & token_B,
-                       const char * loc);
+   static void glue(Token & token, Token & token_A, Token & token_B,
+                    const char * loc);
+
+   /// glue strands A and B
+   static void glue_strand_strand(Token & result, Value_P A, Value_P B,
+                                  const char * loc);
+
+   /// glue strands A and strand B
+   static void glue_strand_closed(Token & result, Value_P A, Value_P B,
+                                  const char * loc);
+
+   /// glue closed A and closed B
+   static void glue_closed_strand(Token & result, Value_P A, Value_P B,
+                                  const char * loc);
+
+   /// glue closed A and closed B
+   static void glue_closed_closed(Token & result, Value_P A, Value_P B,
+                                  const char * loc);
 
    /// return \b true iff \b this value is a skalar.
    bool is_skalar() const
@@ -188,7 +204,7 @@ public:
 
    /// return \b true iff \b this value is a simple (i.e. depth 0) skalar.
    bool is_simple_skalar() const
-      { return is_skalar() && !get_ravel(0).is_pointer_cell(); }
+      { return is_skalar() && !(get_ravel(0).is_pointer_cell() || is_lval()); }
 
    /// return \b true iff this value is an lval (selective assignment)
    /// i.e. return true if at least one leaf value is an lval.
@@ -364,7 +380,7 @@ public:
    /// get the min spacing for this column and set/clear if there
    /// is/isn't a numeric item in the column.
    /// are/ain't numeric items in col.
-   int32_t get_col_spacing(ShapeItem col, bool & numeric) const;
+   int32_t get_col_spacing(bool & numeric, ShapeItem col, bool framed) const;
 
    /// list a value
    ostream & list_one(ostream & out, bool show_owners);

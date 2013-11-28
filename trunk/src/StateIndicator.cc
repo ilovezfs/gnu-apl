@@ -945,7 +945,7 @@ StateIndicator::statement_result(Token & result)
 
         // print TOK_APL_VALUE and TOK_APL_VALUE1, but not TOK_APL_VALUE2
         //
-        if (tag == TOK_APL_VALUE || tag == TOK_APL_VALUE1)
+        if (tag == TOK_APL_VALUE1 || tag == TOK_APL_VALUE3)
            {
              Quad_QUOTE::done(false, LOC);
              B->print(COUT);

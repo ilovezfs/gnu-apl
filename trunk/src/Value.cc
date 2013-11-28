@@ -416,7 +416,7 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
 bool
 Value::is_lval() const
 {
-const ShapeItem ec = element_count();
+const ShapeItem ec = nz_element_count();
 
    loop(e, ec)
       {
@@ -1099,7 +1099,7 @@ Value_P
 Value::index(Token & IX)
 {
    if (IX.get_tag() == TOK_AXES)     return index(IX.get_apl_val());
-   if (IX.get_tag() == TOK_INDEX)   return index(IX.get_index_val());
+   if (IX.get_tag() == TOK_INDEX)    return index(IX.get_index_val());
 
    // not supposed to happen
    //
@@ -1143,104 +1143,160 @@ Shape shape;
    return shape;
 }
 //-----------------------------------------------------------------------------
-/**
-   combine two APL values. If a value is closed, then enclose
-   it in a (open) skalar.
- **/
-Value_P
-Value::glue(Token & token, Token & token_A, Token & token_B, const char * loc)
+void
+Value::glue(Token & result, Token & token_A, Token & token_B, const char * loc)
 {
 Value_P A = token_A.get_apl_val();
 Value_P B = token_B.get_apl_val();
 
-const ShapeItem ec_A = A->element_count();
-const ShapeItem ec_B = B->element_count();
+const bool strand_A = token_A.get_tag() == TOK_APL_VALUE3;
+const bool strand_B = token_B.get_tag() == TOK_APL_VALUE3;
 
-Value_P Z;
-
-   Log(LOG_glue)
+   if (strand_A)
       {
-        CERR << "glueing " << *A << " to " << *B << endl;
-        Q(token_A)   Q(token_A.get_tag())
-        Q(token_B)   Q(token_B.get_tag())
+        if (strand_B)   glue_strand_strand(result, A, B, loc);
+        else            glue_strand_closed(result, A, B, loc);
       }
-
-   if (token_A.get_tag() == TOK_APL_VALUE1)         // A is closed.
+   else
       {
-         if (token_B.get_tag() == TOK_APL_VALUE1)   // B is closed.
-            {
-               // A and B are closed
-               //
-               Z = Value_P(new Value(2, LOC), LOC);
-               new (&Z->get_ravel(0))   PointerCell(A);
-               new (&Z->get_ravel(1))   PointerCell(B);
-            }
-         else                                       // B is open
-            {
-               // A is closed, B is open
-               //
-               if (B->get_rank() > 1)   RANK_ERROR;
-               Z = Value_P(new Value(1 + ec_B, LOC), LOC);
-               Cell * cZ = &Z->get_ravel(0);
-               const Cell * cB = &B->get_ravel(0);
-               new (cZ++)   PointerCell(A);
-               loop(e, ec_B)   cZ++->init(*cB++);
-            }
-      }
-   else                                             // A is open
-      {
-         if (token_B.get_tag() == TOK_APL_VALUE1)   // B is closed.
-            {
-               // A is open, B is closed
-               //
-               if (A->get_rank() > 1)   RANK_ERROR;
-               Z = Value_P(new Value(ec_A + 1, LOC), LOC);
-               Cell * cZ = &Z->get_ravel(0);
-               const Cell * cA = &A->get_ravel(0);
-               loop(e, ec_A)   cZ++->init(*cA++);
-               new (cZ++)   PointerCell(B);
-            }
-         else                                       // B is open
-            {
-               // A and B are open
-               //
-               if (A->get_rank() > 1)   RANK_ERROR;
-               if (B->get_rank() > 1)   RANK_ERROR;
-               Z = Value_P(new Value(ec_A + ec_B, LOC), LOC);
-               Cell * cZ = &Z->get_ravel(0);
-               const Cell * cA = &A->get_ravel(0);
-               loop(e, ec_A)   cZ++->init(*cA++);
-               const Cell * cB = &B->get_ravel(0);
-               loop(e, ec_B)   cZ++->init(*cB++);
-            }
-      }
-
-   Z->set_default(A);
-   CHECK_VAL(Z, LOC);
-
-   Log(LOG_glue)
-      {
-        Q(*A)   Q(A->element_count())
-        Q(*B)   Q(B->element_count())
-        Q(*Z)   Q(Z->element_count())
-        Q("----------------")
-
-        CERR << "erasing A at " << A.voidp()
-             << " flags " << A->get_flags() << endl
-             << "erasing B at " << B.voidp()
-             << " flags " << B->get_flags() << endl;
+        if (strand_B)   glue_closed_strand(result, A, B, loc);
+        else            glue_closed_closed(result, A, B, loc);
       }
 
    A->erase(LOC);
    B->erase(LOC);
-
-   // invalidate token_A and token_B
+}
+//-----------------------------------------------------------------------------
+void
+Value::glue_strand_strand(Token & result, Value_P A, Value_P B,
+                          const char * loc)
+{
+   // glue two strands A and B
    //
-   new (&token_A) Token;
-   new (&token_B) Token;
+const ShapeItem len_A = A->element_count();
+const ShapeItem len_B = B->element_count();
 
-   move_2(token, Token(TOK_APL_VALUE, Z), LOC);
-   return Z;
+   Log(LOG_glue)
+      {
+        CERR << "gluing strands " << endl << *A
+             << "with shape " << A->get_shape() << endl
+             << " and " << endl << *B << endl
+             << "with shape " << B->get_shape() << endl;
+      }
+
+   Assert(A->is_skalar_or_vector());
+   Assert(B->is_skalar_or_vector());
+
+Value_P Z(new Value(len_A + len_B, LOC), LOC);
+Cell * cZ = &Z->get_ravel(0);
+
+   loop(a, len_A)   cZ++->init(A->get_ravel(a));
+   loop(b, len_B)   cZ++->init(B->get_ravel(b));
+
+   CHECK_VAL(Z, LOC);
+   new (&result) Token(TOK_APL_VALUE3, Z);
+}
+//-----------------------------------------------------------------------------
+void
+Value::glue_strand_closed(Token & result, Value_P A, Value_P B,
+                          const char * loc)
+{
+   // glue a strand A to new item B
+   //
+   Log(LOG_glue)
+      {
+        CERR << "gluing strand " << endl << *A
+             << " to non-strand " << endl << *B << endl;
+      }
+
+   Assert(A->is_skalar_or_vector());
+
+const ShapeItem len_A = A->element_count();
+Value_P Z(new Value(len_A + 1, LOC), LOC);
+Cell * cZ = &Z->get_ravel(0);
+
+   loop(a, len_A)   cZ++->init(A->get_ravel(a));
+
+   if (B->is_simple_skalar())
+      {
+        cZ++->init(B->get_ravel(0));
+      }
+   else
+      {
+        new (cZ++) PointerCell(B);
+      }
+
+   CHECK_VAL(Z, LOC);
+   new (&result) Token(TOK_APL_VALUE3, Z);
+}
+//-----------------------------------------------------------------------------
+void
+Value::glue_closed_strand(Token & result, Value_P A, Value_P B,
+                          const char * loc)
+{
+   // glue a new item A to the strand B
+   //
+   Log(LOG_glue)
+      {
+        CERR << "gluing non-strand " << endl << *A
+             << " to strand " << endl << *B << endl;
+      }
+
+   Assert(B->is_skalar_or_vector());
+
+const ShapeItem len_B = B->element_count();
+Value_P Z(new Value(len_B + 1, LOC), LOC);
+Cell * cZ = &Z->get_ravel(0);
+
+   if (A->is_simple_skalar())
+      {
+        cZ++->init(A->get_ravel(0));
+      }
+   else
+      {
+        new (cZ++) PointerCell(A);
+      }
+
+   loop(b, len_B)   cZ++->init(B->get_ravel(b));
+
+   CHECK_VAL(Z, LOC);
+   new (&result) Token(TOK_APL_VALUE3, Z);
+}
+//-----------------------------------------------------------------------------
+void
+Value::glue_closed_closed(Token & result, Value_P A, Value_P B,
+                          const char * loc)
+{
+   // glue two non-strands together, starting a strand
+   //
+   Log(LOG_glue)
+      {
+        CERR << "gluing two non-strands " << endl << *A
+             << " and " << endl << *B << endl;
+      }
+
+Value_P Z(new Value(2, LOC), LOC);
+Cell * cZ = &Z->get_ravel(0);
+   if (A->is_simple_skalar())
+      {
+        cZ++->init(A->get_ravel(0));
+      }
+   else
+      {
+        new (cZ++) PointerCell(A);
+      }
+
+   if (B->is_simple_skalar())
+      {
+        cZ++->init(B->get_ravel(0));
+      }
+   else
+      {
+        new (cZ++) PointerCell(B);
+      }
+
+   CHECK_VAL(Z, LOC);
+   new (&result) Token(TOK_APL_VALUE3, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -1655,7 +1711,7 @@ Cell * dst = &ret->get_ravel(0);
 //-----------------------------------------------------------------------------
 /// lrp p.138: S←⍴⍴A + NOTCHAR (per column)
 int32_t
-Value::get_col_spacing(ShapeItem col, bool & not_char) const
+Value::get_col_spacing(bool & not_char, ShapeItem col, bool framed) const
 {
 int32_t max_spacing = 0;
    not_char = false;
@@ -1665,17 +1721,27 @@ const ShapeItem cols = get_last_shape_item();
 const ShapeItem rows = ec/cols;
    loop(row, rows)
       {
+        // compute spacing, which is the spacing required by this item.
+        //
         int32_t spacing = 1;   // assume simple numeric
         const Cell & cell = get_ravel(col + row*cols);
 
         if (cell.is_pointer_cell())   // nested 
            {
-             Value_P v =  cell.get_pointer_value();
-             spacing = v->get_rank();
-             if (v->NOTCHAR())
+             if (framed)
                 {
                   not_char = true;
-                  ++spacing;
+                  spacing = 1;
+                }
+             else
+                {
+                  Value_P v =  cell.get_pointer_value();
+                  spacing = v->get_rank();
+                  if (v->NOTCHAR())
+                     {
+                       not_char = true;
+                       ++spacing;
+                     }
                 }
            }
         else if (cell.is_character_cell())   // simple char

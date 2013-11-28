@@ -42,6 +42,7 @@ PrintBuffer::PrintBuffer(const UCS_string & ucs, const ColInfo & ci)
 PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx)
 {
 const PrintStyle outer_style = _pctx.get_style();
+const bool framed = outer_style & (PST_CS_MASK | PST_CS_OUTER);
 PrintContext pctx(_pctx);
    pctx.set_style(PrintStyle(outer_style &~ PST_CS_OUTER));
 
@@ -51,7 +52,9 @@ PrintContext pctx(_pctx);
         if (value.get_ravel(0).need_scaling(pctx))   pctx1.set_scaled();
 
         *this = value.get_ravel(0).character_representation(pctx1);
-        if (value.compute_depth() > 1)
+
+        // pad the value unless it is framed
+        if (value.compute_depth() > 1 && !framed)
            {
                 pad_l(UNI_PAD_U4);
                 pad_r(UNI_PAD_U5);
@@ -291,8 +294,8 @@ int break_width = 0;
              else     pcol = item;
          }
 
-        bool not_char = false;
-	const int32_t col_spacing = value.get_col_spacing(x, not_char);
+        bool not_char = false;   // determined by get_col_spacing()
+	const int32_t col_spacing = value.get_col_spacing(not_char, x, framed);
 
         const int32_t max_spacing = (col_spacing > last_spacing) 
                                   ?  col_spacing : last_spacing;
@@ -330,8 +333,9 @@ int break_width = 0;
                  }
               }
 
-              // append the column. we want a spacing of 'max_spacing'
-              // but we deducat the chars appended already('no_char_spacing').
+              // append the column. we want a total spacing of 'max_spacing'
+              // but we deduct the 'no_char_spacing' chars ² and ³
+              // that were appended already.
               //
               add_column(UNI_PAD_U7, max_spacing - no_char_spacing, pcol);
            }
@@ -340,10 +344,10 @@ int break_width = 0;
         last_notchar = not_char;
       }
 
-   if (value.compute_depth() > 1)
+   if (value.compute_depth() > 1 && !framed)
       {
-           pad_l(UNI_PAD_U8);
-           pad_r(UNI_PAD_U9);
+        pad_l(UNI_PAD_U8);
+        pad_r(UNI_PAD_U9);
       }
 
    add_outer_frame(outer_style);

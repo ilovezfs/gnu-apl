@@ -28,6 +28,45 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
+Token::Token(TokenTag tg, IndexExpr & idx)
+{
+   Assert(&idx);
+
+   if (tg == TOK_PINDEX)
+      {
+        // this token is a partial index in the prefix parser.
+        // use it as is.
+        //
+        tag = TOK_PINDEX;
+        value.index_val = &idx;
+      }
+   else
+      {
+        // this token is a complete index
+        //
+        Assert(tg == TOK_INDEX);
+        if (idx.value_count() < 2)   // [idx] or []
+           {
+             tag = TOK_AXES;
+             if (idx.value_count() == 0)   // []
+                {
+                  set_apl_val(Value_P());
+                }
+             else                          // [x]
+                {
+                  idx.values[0]->clear_index();
+                  set_apl_val(idx.values[0]);
+                  idx.values[0] = Value_P();
+                }
+           }
+        else                         // [idx; ...]
+           {
+             tag = TOK_INDEX;
+             value.index_val = &idx;
+           }
+      }
+}
+//-----------------------------------------------------------------------------
 ostream &
 operator << (ostream & out, TokenTag tag)
 {
@@ -85,13 +124,13 @@ operator << (ostream & out, const Token & token)
         return out;
       }
 
-   if (token.get_tag() == TOK_APL_VALUE  ||
-       token.get_tag() == TOK_APL_VALUE1 ||
-       token.get_tag() == TOK_APL_VALUE2)
+   if (token.get_tag() == TOK_APL_VALUE1 ||
+       token.get_tag() == TOK_APL_VALUE2 ||
+       token.get_tag() == TOK_APL_VALUE3)
       {
-        if (token.get_tag() == TOK_APL_VALUE)         out << "VALUE";
-        else if (token.get_tag() == TOK_APL_VALUE1)   out << "VALUE1";
+        if      (token.get_tag() == TOK_APL_VALUE1)   out << "VALUE1";
         else if (token.get_tag() == TOK_APL_VALUE2)   out << "VALUE2";
+        else if (token.get_tag() == TOK_APL_VALUE3)   out << "VALUE3";
         else                                          out << "VALUE???";
         Value_P value = token.get_apl_val();
         Assert(value);
@@ -315,8 +354,8 @@ Token::print_value(ostream & out) const
         case TOK_COMPLEX:   return out << value.complex_val.real << "J"
                                        << value.complex_val.imag;
 
-        case TOK_APL_VALUE:
         case TOK_APL_VALUE1:
+        case TOK_APL_VALUE3:
              {
                Value_P v = value._apl_val();
                if (v->get_rank() == 0)   out << "''";

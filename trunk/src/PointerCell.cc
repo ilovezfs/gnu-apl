@@ -120,7 +120,7 @@ PrintBuffer ret(*val, pctx);
    ret.get_info().flags &= ~CT_MASK;
    ret.get_info().flags |= CT_POINTER;
 
-   if ((pctx.get_style() & PST_CS_INNER) != PST_CS_NONE)
+   if (pctx.get_style() & PST_CS_INNER)
       {
         const ShapeItem ec = val->element_count();
         if (ec == 0)   // empty value

@@ -1240,7 +1240,7 @@ Bif_F12_PARTITION::eval_AXB(Value_P A, Value_P X, Value_P B)
 Token
 Bif_F12_PARTITION::eval_B(Value_P B)
 {
-   if (B->is_skalar())
+   if (B->is_simple_skalar())
       {
         Token result(TOK_APL_VALUE1, B->clone(LOC));
         return result;

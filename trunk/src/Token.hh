@@ -101,8 +101,7 @@ public:
      Assert(!!vp);   value._apl_val() = vp; }
 
    /// Construct a token for an index
-   Token(TokenTag tg, IndexExpr * ix)
-   : tag(tg)   { Assert(ix);   value.index_val = ix; }
+   Token(TokenTag tg, IndexExpr & idx);
 
    static void warn(ostream & out);
 
@@ -179,10 +178,14 @@ public:
    Value * extract_apl_val(const char * loc) const
       { return is_apl_val() ? value._apl_val().clear(loc) : 0; }
 
-   /// return the axis specification of this token
-   Value_P get_axes() const
+   /// return the axis specification of this token (expect non-zero axes)
+   Value_P get_nonzero_axes() const
       { Assert1(!!value._apl_val() && (get_tag() == TOK_AXES));
         return value._apl_val(); }
+
+   /// return the axis specification of this token
+   Value_P get_axes() const
+      { Assert1(get_tag() == TOK_AXES);  return value._apl_val(); }
 
    /// set the Value_P value of this token
    void set_apl_val(Value_P val)

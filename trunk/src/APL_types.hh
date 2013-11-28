@@ -220,6 +220,8 @@ enum ParseMode
 /// Different ways of printing APL values.
 enum PrintStyle
 {
+   PST_NONE        = 0,                  ///< nothing
+
    // character sets for inner and outer frames
    //
    PST_CS_NONE     = 0x00000000,         ///< ASCII chars (- | and +)
@@ -229,7 +231,6 @@ enum PrintStyle
    PST_CS_DOUBLE   = 0x00000004,         ///< double lines
    PST_CS_MASK     = 0x0000000F,         ///< mask for line style
 
-   PST_NONE        = 0,                  ///< nothing
    PST_CS_INNER    = PST_CS_MASK,        ///< mask for inner line style
    PST_CS_OUTER    = PST_CS_MASK << 4,   ///< mask for outer line style
 
@@ -258,12 +259,11 @@ enum PrintStyle
    PR_hex            = PST_HEXDUMP       ///< lower-case hexadecimal ravel dump
                      | PST_HEXlower,
    PR_BOXED_CHAR     = PST_MATRIX
-                     | PST_CS_ASCII,     ///< DISPLAY with graphic characters
+                     | PST_CS_ASCII,     ///< 2 ⎕CR (ASCII chars)
    PR_BOXED_GRAPHIC  = PST_MATRIX
-                     | PST_CS_THICK,     ///< DISPLAY with graphic characters
+                     | PST_CS_THICK,     ///< 3/4 ⎕CR (graphic characters)
    PR_BOXED_GRAPHIC1 = PST_MATRIX
-                     | PST_CS_THICK
-                     | PST_CS_THIN << 4, ///< DISPLAY graphic in thin box
+                     | PST_CS_THIN,      ///< 7/8 ⎕CR (graphic characters)
    PR_BOXED_GRAPHIC2 = PST_MATRIX
                      | PST_CS_THICK 
                      | PST_CS_DOUBLE << 4, ///< DISPLAY graphic in double box

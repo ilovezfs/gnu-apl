@@ -575,7 +575,7 @@ Prefix::reduce_LPAR_B_RPAR_()
    Assert1(prefix_len == 3);
 
 Token result = at1();   // B
-   if (result.get_tag() == TOK_APL_VALUE)   result.ChangeTag(TOK_APL_VALUE1);
+   if (result.get_tag() == TOK_APL_VALUE3)   result.ChangeTag(TOK_APL_VALUE1);
    pop_args_push_result(result);
    set_action(result);
 }
@@ -703,13 +703,13 @@ Prefix::reduce_V_C_ASS_B()
 Symbol * var = at0().get_sym_ptr();
 Value_P value = at3().get_apl_val();
 
-   if (at1().get_tag() == TOK_AXES)
+   if (at1().get_tag() == TOK_AXES)   // [] or [x]
       {
-        Value_P idx = at1().get_axes();
-        var->assign_indexed(idx, value);
-        idx->erase(LOC);
+        Value_P v_idx = at1().get_axes();
+        var->assign_indexed(v_idx, value);
+        if (!!v_idx)   v_idx->erase(LOC);
       }
-   else
+   else                               // [a;...]
       {
         var->assign_indexed(at1().get_index_val(), value);
       }
@@ -774,7 +774,7 @@ Prefix::reduce_RBRA___()
    // A[IDX}←B resolves IDX properly. assign_pending is resored when the
    // index is complete.
    //
-   new (&at0()) Token(TOK_PINDEX, new IndexExpr(assign_pending, LOC));
+   new (&at0()) Token(TOK_PINDEX, *new IndexExpr(assign_pending, LOC));
    assign_pending = false;
    action = RA_CONTINUE;
 }
@@ -791,9 +791,8 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);
 
    if (idx.value_count() == 0 && last_index)   // special case: [ ]
       {
-        idx.add(Value_P());
         assign_pending = idx.get_left();   // restore assign_pending
-        Token result = Token(TOK_INDEX, &idx);
+        Token result = Token(TOK_INDEX, idx);
         pop_args_push_result(result);
         action = RA_CONTINUE;
         return;
@@ -809,7 +808,7 @@ Token result = at1();
         assign_pending = idx.get_left();   // restore assign_pending
 
         if (idx.is_axis()) move_2(result, Token(TOK_AXES, idx.values[0]), LOC);
-        else               move_2(result, Token(TOK_INDEX, &idx), LOC);
+        else               move_2(result, Token(TOK_INDEX, idx), LOC);
       }
    else
       {
@@ -846,7 +845,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);   // ; vs. [
            }
         else
            {
-             move_2(result, Token(TOK_INDEX, &idx), LOC);
+             move_2(result, Token(TOK_INDEX, idx), LOC);
            }
       }
    else

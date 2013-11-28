@@ -233,11 +233,31 @@ void
 Symbol::assign_indexed(Value_P X, Value_P B)   // A[X] ← B
 {
 Value_P A = get_apl_value();
+const ShapeItem max_idx = A->element_count();
+
    if (A->get_rank() != 1)   INDEX_ERROR;
+
+   if (!X)   // X[] ← B
+      {
+        if (A->is_skalar())   RANK_ERROR;
+
+           const Cell & src = B->get_ravel(0);
+           loop(a, max_idx)
+              {
+                Cell & dest = A->get_ravel(a);
+                if (dest.is_pointer_cell())   // overriding a sub-value
+                   {
+                     Value_P old_val = dest.get_pointer_value();
+                     old_val->clear_nested();
+                     old_val->erase(LOC);
+                   }
+                 dest.init(src);
+              }
+        return;
+      }
 
 const ShapeItem ec_B = B->element_count();
 const ShapeItem ec_X = X->element_count();
-const ShapeItem max_idx = A->element_count();
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();
 const int incr_B = (ec_B == 1) ? 0 : 1;   // maybe skalar extend B
