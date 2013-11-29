@@ -53,6 +53,7 @@ cmd_def(")VARS"     , w.list_symbols(out, LIST_VARS, arg);  , [from-to])
 cmd_def(")WSID"     , w.wsid(out, arg);                     , [ws-name])
 
 cmd_def("]HELP"     , cmd_HELP(out);                        , )
+cmd_def("]COLOR"    , Output::toggle_color(arg);            , [ON or OFF])
 cmd_def("]EXPECT"   , TestFiles::expect_apl_errors(arg);    , errors)
 cmd_def("]KEYB"     , cmd_KEYB();                           , )
 cmd_def("]LOG"      , cmd_LOG(out, arg);                    , [facility])
@@ -61,6 +62,6 @@ cmd_def("]SIS"      , w.list_SI(out, SIM_SIS_dbg);          , )
 cmd_def("]SI"       , w.list_SI(out, SIM_SI_dbg);           , )
 cmd_def("]SVARS"    , Svar_DB::print(out);                  , )
 cmd_def("]SYMBOL"   , w.symbol_table.list_symbol(out, arg); , symbol)
-cmd_def("]XTERM"    , Output::toggle_color(arg);            , )
+cmd_def("]XTERM"    , Output::toggle_color(arg);            , [ON or OFF])
 
 #undef cmd_def

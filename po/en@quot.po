@@ -29,8 +29,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-11-26 14:32+0100\n"
-"PO-Revision-Date: 2013-11-26 14:32+0100\n"
+"POT-Creation-Date: 2013-11-29 19:26+0100\n"
+"PO-Revision-Date: 2013-11-29 19:26+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -302,22 +302,22 @@ msgstr "This program is free software, and you are welcome to redistribute it"
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "according to the GNU Public License (GPL) version 3 or later."
 
-#: src/main.cc:811
+#: src/main.cc:854
 msgid "-f without filename"
 msgstr "-f without filename"
 
-#: src/main.cc:844
+#: src/main.cc:887
 msgid "-l without log facility"
 msgstr "-l without log facility"
 
-#: src/main.cc:929
+#: src/main.cc:972
 msgid "--TM without test mode"
 msgstr "--TM without test mode"
 
-#: src/main.cc:948
+#: src/main.cc:991
 msgid "-w without milli(seconds)"
 msgstr "-w without milli(seconds)"
 
-#: src/main.cc:954
+#: src/main.cc:997
 msgid "unknown option '"
 msgstr "unknown option '"

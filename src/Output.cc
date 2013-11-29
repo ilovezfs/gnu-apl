@@ -18,6 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <curses.h>
+#include <term.h>
+
 #include "Command.hh"
 #include "Common.hh"
 #include "DiffOut.hh"
@@ -28,7 +31,20 @@
 #include "TestFiles.hh"
 
 bool Output::colors_enabled = false;
+bool Output::colors_changed = false;
 bool Output::print_sema_held = false;
+bool Output::use_curses = true;
+
+int Output::color_CIN_foreground = 0;
+int Output::color_CIN_background = 7;
+int Output::color_COUT_foreground = 0;
+int Output::color_COUT_background = 8;
+int Output::color_CERR_foreground = 5;
+int Output::color_CERR_background = 8;
+
+   /// background color for CERR
+   static int color_CERR_background;
+
 
 /// a filebuf for stdin echo
 class CinOut : public filebuf
@@ -77,20 +93,25 @@ ostream & get_CERR()
 
 Output::ColorMode Output::color_mode = COLM_UNDEF;
 
-/// VT100 escape sequence to turn cin color on
-char Output::color_CIN[21]  = { CIN_COLOR_WANTED, 0 };   // from config.h
+/// VT100 escape sequence to change to cin color
+char Output::color_CIN[21] =
+ { 27, 91, '0', ';', '3', '0', ';', '4', '7', 'm', 0 };
 
-/// VT100 escape sequence to turn cout color on
-char Output::color_COUT[21]  = { COUT_COLOR_WANTED, 0 };   // from config.h
+/// VT100 escape sequence to change to cout color
+char Output::color_COUT[21] =
+   { 27, 91, '0', ';', '3', '0', ';', '4', '8', 'm', 0 };
 
-/// VT100 escape sequence to turn cerr color on
-char Output::color_CERR[21] = { CERR_COLOR_WANTED, 0 };   // from config.h
+/// VT100 escape sequence to change to cerr color
+char Output::color_CERR[21] =
+   { 27, 91, '0', ';', '3', '5', ';', '4', '8', 'm', 0 };
 
 /// VT100 escape sequence to reset colors to their default
-char Output::color_RESET[21] = { RESET_COLORS_WANTED, 0 };   // from config.h
+char Output::color_RESET[21] =
+  { 27, 91, '0', ';', '3', '8', ';', '4', '8', 'm', 0 };
 
 /// VT100 escape sequence to clear to end of line
-char Output::clear_EOL[21] = { CLEAR_EOL_WANTED, 0 };   // from config.h
+char Output::clear_EOL[21] =
+   { 27, 91, 'K', 0 };
 
 //-----------------------------------------------------------------------------
 int
@@ -140,6 +161,28 @@ ErrOut::overflow(int c)
 }
 //-----------------------------------------------------------------------------
 void
+Output::init()
+{
+int ret = setupterm(NULL, fileno(stdout), NULL);
+   if (ret != OK)
+      {
+        use_curses = false;
+      }
+}
+//-----------------------------------------------------------------------------
+int
+Output::putc_stderr(int ch)
+{
+   cerr << (char)ch;
+}
+//-----------------------------------------------------------------------------
+int
+Output::putc_stdout(int ch)
+{
+   cout << (char)ch;
+}
+//-----------------------------------------------------------------------------
+void
 Output::reset_dout()
 {
    dout_filebuf.reset();
@@ -148,20 +191,67 @@ Output::reset_dout()
 void
 Output::reset_colors()
 {
-   if (!colors_enabled)   return;
+   if (!colors_changed)   return;
 
-   cout << color_RESET << clear_EOL;
-   cerr << color_RESET << clear_EOL;
+   if (use_curses)
+      {
+        tputs(exit_attribute_mode, 1, putc_stdout);
+        tputs(clr_eol, 1, putc_stdout);
+
+        tputs(exit_attribute_mode, 1, putc_stderr);
+        tputs(clr_eol, 1, putc_stderr);
+      }
+   else
+      {
+        cout << color_RESET << clear_EOL;
+        cerr << color_RESET << clear_EOL;
+      }
 }
 //-----------------------------------------------------------------------------
 void
 Output::set_color_mode(Output::ColorMode mode)
 {
-   if (!colors_enabled)   return;
+   if (!colors_enabled)      return;   // colors disabled
+   if (color_mode == mode)   return;   // no change in color mode
 
-   if (color_mode != mode)   // mode changed
+   // mode changed
+   //
+   color_mode = mode;
+   colors_changed = true;   // to reset them in reset_colors()
+
+   if (use_curses)
       {
-        switch(color_mode = mode)
+        switch(color_mode)
+           {
+             case COLM_INPUT:
+                  tputs(tparm(set_foreground, color_CIN_foreground),
+                              1, putc_stdout);
+                  tputs(tparm(set_background, color_CIN_background),
+                              1, putc_stdout);
+                  tputs(clr_eol, 1, putc_stdout);
+                  break;
+
+             case COLM_OUTPUT:
+                  tputs(tparm(set_foreground, color_COUT_foreground),
+                              1, putc_stdout);
+                  tputs(tparm(set_background, color_COUT_background),
+                              1, putc_stdout);
+                  tputs(clr_eol, 1, putc_stdout);
+                  break;
+
+             case COLM_ERROR:
+                  tputs(tparm(set_foreground, color_CERR_foreground),
+                              1, putc_stderr);
+                  tputs(tparm(set_background, color_CERR_background),
+                              1, putc_stderr);
+                  tputs(clr_eol, 1, putc_stderr);
+                  break;
+
+           }
+      }
+   else
+      {
+        switch(color_mode)
            {
              case COLM_INPUT:  cout << color_CIN  << clear_EOL;   break;
              case COLM_OUTPUT: cout << color_COUT << clear_EOL;   break;

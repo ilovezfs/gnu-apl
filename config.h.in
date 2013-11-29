@@ -3,18 +3,6 @@
 /* assert level */
 #undef ASSERT_LEVEL_WANTED
 
-/* CERR color */
-#undef CERR_COLOR_WANTED
-
-/* CIN color */
-#undef CIN_COLOR_WANTED
-
-/* clear to EOL */
-#undef CLEAR_EOL_WANTED
-
-/* COUT color */
-#undef COUT_COLOR_WANTED
-
 /* define to enable dynamic logging */
 #undef DYNAMIC_LOG_WANTED
 
@@ -161,9 +149,6 @@
 
 /* define to enable the print semaphore */
 #undef PRINT_SEMA_WANTED
-
-/* default color */
-#undef RESET_COLORS_WANTED
 
 /* short value cellcount */
 #undef SHORT_VALUE_LENGTH_WANTED

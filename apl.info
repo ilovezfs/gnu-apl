@@ -678,13 +678,14 @@ colored output while ]XTERM OFF disables it (for example to avoid
 annoying ANSI Escape sequences when forwarding stdout or stderr to a
 file).
 
-   Colored Output assumes a terminal (-emulation) that understands ANSI
-(or VT100) Escape sequences. The xterm that comes with most recent
-GNU/Linux distributions is a perfect choice supporting both colors and
-UTF-8 (Unicode) encoded character I/O.
+   By default colored output assumes a terminal (-emulation) that
+understands ANSI (or VT100) Escape sequences. The xterm that comes with
+most recent GNU/Linux distributions is a perfect choice supporting both
+colors and UTF-8 (Unicode) encoded character I/O.
 
-   The colors (actually the escape sequences used to switch to a color)
-can be changed in the 'preferences' file.
+   Non-ANSI terminals, as well as other colors than the default ones,
+can be configured in the 'preferences' file.  The 'preferences' file
+also contains a description of all possible color settings.
 
 2.5 Logging Facilities
 ======================
@@ -2014,11 +2015,11 @@ Tag Table:
 Node: Top232
 Node: Chapter 11162
 Node: Chapter 213143
-Node: Chapter 325750
-Node: Chapter 427351
-Node: Chapter 528664
-Node: Section 5.129167
-Node: Section 5.254296
+Node: Chapter 325846
+Node: Chapter 427447
+Node: Chapter 528760
+Node: Section 5.129263
+Node: Section 5.254392
 
 End Tag Table
 
