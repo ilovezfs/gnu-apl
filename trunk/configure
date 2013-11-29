@@ -7837,43 +7837,6 @@ _ACEOF
 
 
 
-if test "x$CERR_COLOR_WANTED" = "x";
-   then CERR_COLOR_WANTED="27, 91, '0', ';', '3', '5', ';', '4', '8', 'm'" ; fi
-if test "x$CIN_COLOR_WANTED" = "x";
-   then  CIN_COLOR_WANTED="27, 91, '0', ';', '3', '0', ';', '4', '7', 'm'" ; fi
-if test "x$COUT_COLOR_WANTED" = "x";
-   then COUT_COLOR_WANTED="27, 91, '0', ';', '3', '0', ';', '4', '8', 'm'" ; fi
-if test "x$RESET_COLORS_WANTED" = "x";
-   then RESET_COLORS_WANTED="27, 91, '0', ';', '3', '8', ';', '4', '8', 'm'"; fi
-if test "x$CLEAR_EOL_WANTED" = "x";
-   then CLEAR_EOL_WANTED="27, 91, 'K'" ; fi
-
-
-cat >>confdefs.h <<_ACEOF
-#define CERR_COLOR_WANTED $CERR_COLOR_WANTED
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define CIN_COLOR_WANTED $CIN_COLOR_WANTED
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define COUT_COLOR_WANTED $COUT_COLOR_WANTED
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define RESET_COLORS_WANTED $RESET_COLORS_WANTED
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define CLEAR_EOL_WANTED $CLEAR_EOL_WANTED
-_ACEOF
-
-
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure

@@ -62,11 +62,11 @@ rlimit rl;
    getrlimit(RLIMIT_AS, &rl);
    total_memory = rl.rlim_cur;
 
+   Output::init();
    Avec::init();
    LibPaths::init(argv0);
    Value::init();
    VH_entry::init();
-//   PrefixNode::print_all(cerr);
 }
 //-----------------------------------------------------------------------------
 /// the opposite of init()
@@ -673,9 +673,28 @@ int line = 0;
 
          const bool yes_no  = yes || no;
 
-         if (yes_no && !strcasecmp(opt, "Color"))
+         if (!strcasecmp(opt, "Color"))
             {
-              up.do_Color = yes;
+              if (yes_no)   // user said "Yes" or "No"
+                 {
+                   // if the user said "No" then use_curses is not touched.
+                   // if the user said "Yes" (which is an obsolete setting)
+                   // then use_curses is cleared because at the time when
+                   // "Yes" was valid, curses was not yet implemented.
+                   //
+                   up.do_Color = yes;
+                   if (yes)   Output::use_curses = false;
+                 }
+              if (!strcasecmp(arg, "ANSI"))
+                 {
+                   up.do_Color = true;
+                   Output::use_curses = false;
+                 }
+              if (!strcasecmp(arg, "CURSES"))
+                 {
+                   up.do_Color = true;
+                   Output::use_curses = true;
+                 }
             }
          else if (yes_no && !strcasecmp(opt, "Welcome"))
             {
@@ -713,6 +732,30 @@ int line = 0;
             {
               loop(p, count - 1)   Output::clear_EOL[p] = (char)(d[p] & 0xFF);
               Output::clear_EOL[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "CIN-FOREGROUND"))
+            {
+              Output::color_CIN_foreground = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "CIN-BACKGROUND"))
+            {
+              Output::color_CIN_background = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "COUT-FOREGROUND"))
+            {
+              Output::color_COUT_foreground = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "COUT-BACKGROUND"))
+            {
+              Output::color_COUT_background = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "CERR-FOREGROUND"))
+            {
+              Output::color_CERR_foreground = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "CERR-BACKGROUND"))
+            {
+              Output::color_CERR_background = atoi(arg);
             }
          else if (!strncasecmp(opt, "LIBREF-", 7))
             {

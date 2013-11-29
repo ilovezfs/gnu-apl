@@ -33,5 +33,5 @@
  4590 fixed problem with enclosed ⍳0
  4606 fixed ∊ and ↓ character problems and segfault on ⎕EA
  4609 figlet banner added
-
+ 4633 curses support from Elias Mårtenson added
 

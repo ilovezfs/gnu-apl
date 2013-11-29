@@ -4,18 +4,6 @@
 /* assert level */
 #define ASSERT_LEVEL_WANTED 1
 
-/* CERR color */
-#define CERR_COLOR_WANTED 27, 91, '0', ';', '3', '5', ';', '4', '8', 'm'
-
-/* CIN color */
-#define CIN_COLOR_WANTED 27, 91, '0', ';', '3', '0', ';', '4', '7', 'm'
-
-/* clear to EOL */
-#define CLEAR_EOL_WANTED 27, 91, 'K'
-
-/* COUT color */
-#define COUT_COLOR_WANTED 27, 91, '0', ';', '3', '0', ';', '4', '8', 'm'
-
 /* define to enable dynamic logging */
 /* #undef DYNAMIC_LOG_WANTED */
 
@@ -162,9 +150,6 @@
 
 /* define to enable the print semaphore */
 /* #undef PRINT_SEMA_WANTED */
-
-/* default color */
-#define RESET_COLORS_WANTED 27, 91, '0', ';', '3', '8', ';', '4', '8', 'm'
 
 /* short value cellcount */
 #define SHORT_VALUE_LENGTH_WANTED 12

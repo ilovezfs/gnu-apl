@@ -90,6 +90,9 @@ public:
    /// set or toggle color mode (implementation of command ]XTERM)
    static void toggle_color(const UCS_string & arg);
 
+   /// initialize curses library
+   static void  init();
+
    /// true if the print semaphore was acquired
    static bool print_sema_held;
 
@@ -105,10 +108,41 @@ public:
    /// escape sequences for resetting colors
    static char color_RESET[21];
 
+   /// foreground color for CIN
+   static int color_CIN_foreground;
+
+   /// background color for CIN
+   static int color_CIN_background;
+ 
+   /// foreground color for COUT
+   static int color_COUT_foreground;
+
+   /// background color for COUT
+   static int color_COUT_background;
+ 
+   /// foreground color for CERR
+   static int color_CERR_foreground;
+
+   /// background color for CERR
+   static int color_CERR_background;
+ 
    /// escape sequences for clear to end of line
    static char clear_EOL[21];
 
+   /// true if curses shall be used for output colors
+   static bool use_curses;
+
 protected:
+   /// true if colors were changed (and then reset_colors() shall reset
+   /// them when leaving the interpreter
+   static bool colors_changed;
+
+   /// print one byte on stdout
+   static int putc_stderr(int ch);
+
+   /// print one byte on stderr
+   static int putc_stdout(int ch);
+
    /// the current color mode
    static ColorMode color_mode;
 

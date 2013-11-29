@@ -51,17 +51,32 @@
 #
 # In cases (b), (c), and (d) you can uncomment the 'Color No' line below.
 # This only affects the initial state of output coloring; you can
-# re-enable colors later with APL command ]XTERM ON
+# re-enable colors later with APL command ]XTERM ON.
 #
 # The corresponding command line options are --Color and --noColor
 #
-  Color         Yes	(default)
+# If your terminal does not understand the ANSI escape sequences,
+# or if you don't like to provide escape sequences, then you can set Color
+# to "curses" and set color numbers instead of escape sequences below. This
+# requires that certain environment variables (e.g. TERM) are set properly
+# and that your terminfo database contains the terminal you use.
+#
+  Color         ANSI (default)
+# Color 	CURSES
 # Color 	No
+#
+# If you want to disable coloring initially, but switch to curses if the
+# command ]COLOR (or the equivalent but now obsolete command ]XTERM)
+# is given later on, then you can give the color command twice:
+#
+# Color 	CURSES
+# Color 	No
+#
 
 
 ###############################################################################
 #
-# OUTPUT COLOR ESCAPE SEQUENCES
+# OUTPUT COLOR ESCAPE SEQUENCES FOR ANSI TERMINALS
 #
 # Output coloring is implemented as follows:
 #
@@ -127,6 +142,52 @@
 # COUT-SEQUENCE          1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;40m
 # CERR-SEQUENCE          1b 5b 30 3b 33 31 3b 34 30 6d    // ESC [0;31;40m
 # RESET-SEQUENCE         1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;48m
+#
+#
+
+
+###############################################################################
+#
+# OUTPUT COLOR NUMBER FOR CURSES
+#
+# There is second way of specifying colors that uses the curses library.
+# Instead of specifying the escape sequences sent to the terminal you
+# only need to specify the colors wanted and curses will provide the escape
+# sequences needed.
+#
+# Numbers for colors seem to be (nota bene: the author is color-blind):
+#
+# 0: black
+# 1: blue
+# 2: green
+# 3: cyan
+# 4: red
+# 5: magenta
+# 6: yellow
+# 7: white
+#
+# The colors are specified as numbers like this:
+#
+# CIN-FOREGROUND  0
+# CIN-BACKGROUND  7
+# COUT-FOREGROUND 2
+# COUT-BACKGROUND 7
+# CERR-FOREGROUND 5
+# CERR-BACKGROUND 8
+#
+# or, for dark background:
+#
+# CIN-FOREGROUND  2
+# CIN-BACKGROUND  0
+# COUT-FOREGROUND 7
+# COUT-BACKGROUND 0
+# CERR-FOREGROUND 5
+# CERR-BACKGROUND 0
+#
+# Normally the two methods (escape sequences vs. color numbers) shall not
+# be mixed. If they are mixed then the last entry in this file determines
+# which method will be used. Also, the numbers for colors are different
+# in both methods.
 #
 
 
