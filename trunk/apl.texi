@@ -752,7 +752,7 @@ distributions is a perfect choice supporting both colors and UTF-8
 (Unicode) encoded character I/O.
 
 The colors (actually the escape sequences used to switch to a color) can
-be changed via ./configure, see README-2-configure).
+be changed in the 'preferences' file.
 
 @section Logging Facilities
 

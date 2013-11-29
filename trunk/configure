@@ -1425,15 +1425,15 @@ Some influential environment variables:
   SHORT_VALUE_LENGTH_WANTED
               Cellcount of short values (see README-2-configure) default: 12)
   CERR_COLOR_WANTED
-              CERR color (see README-2-configure) default: CSI 0;35;47m
+              obsolete option
   CIN_COLOR_WANTED
-              CIN color (see README-2-configure) default: CSI 0;30;47m
+              obsolete option
   COUT_COLOR_WANTED
-              COUT color (see README-2-configure) default: CSI 0;30;48m
+              obsolete option
   RESET_COLORS_WANTED
-              reset colors (see README-2-configure) default: CSI 0;38;48m
+              obsolete option
   CLEAR_EOL_WANTED
-              clear to end-of-line (see README-2-configure) default: CSI K
+              obsolete option
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.

@@ -684,7 +684,7 @@ GNU/Linux distributions is a perfect choice supporting both colors and
 UTF-8 (Unicode) encoded character I/O.
 
    The colors (actually the escape sequences used to switch to a color)
-can be changed via ./configure, see README-2-configure).
+can be changed in the 'preferences' file.
 
 2.5 Logging Facilities
 ======================
@@ -2014,11 +2014,11 @@ Tag Table:
 Node: Top232
 Node: Chapter 11162
 Node: Chapter 213143
-Node: Chapter 325765
-Node: Chapter 427366
-Node: Chapter 528679
-Node: Section 5.129182
-Node: Section 5.254311
+Node: Chapter 325750
+Node: Chapter 427351
+Node: Chapter 528664
+Node: Section 5.129167
+Node: Section 5.254296
 
 End Tag Table
 
