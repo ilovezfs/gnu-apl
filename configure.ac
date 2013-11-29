@@ -159,16 +159,11 @@ AC_DEFINE_UNQUOTED([SHORT_VALUE_LENGTH_WANTED], [$SHORT_VALUE_LENGTH_WANTED],
                    [short value cellcount])
 
 # APL: desired colors for CERR, CIN, and COUT ?
-AC_ARG_VAR(CERR_COLOR_WANTED,
-         [ CERR color (see README-2-configure) default: CSI 0;35;47m  ])
-AC_ARG_VAR(CIN_COLOR_WANTED,
-         [ CIN  color (see README-2-configure) default: CSI 0;30;47m ])
-AC_ARG_VAR(COUT_COLOR_WANTED,
-         [ COUT color (see README-2-configure) default: CSI 0;30;48m ])
-AC_ARG_VAR(RESET_COLORS_WANTED,
-         [ reset colors (see README-2-configure) default: CSI 0;38;48m ])
-AC_ARG_VAR(CLEAR_EOL_WANTED,
-         [ clear to end-of-line (see README-2-configure) default: CSI K ])
+AC_ARG_VAR(CERR_COLOR_WANTED,   [ obsolete option ])
+AC_ARG_VAR(CIN_COLOR_WANTED,    [ obsolete option ])
+AC_ARG_VAR(COUT_COLOR_WANTED,   [ obsolete option ])
+AC_ARG_VAR(RESET_COLORS_WANTED, [ obsolete option ])
+AC_ARG_VAR(CLEAR_EOL_WANTED,    [ obsolete option ])
 
 if test "x$CERR_COLOR_WANTED" = "x";
    then CERR_COLOR_WANTED="27, 91, '0', ';', '3', '5', ';', '4', '8', 'm'" ; fi

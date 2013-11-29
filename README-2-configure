@@ -45,35 +45,14 @@ ASSERT_LEVEL_WANTED=n
     ./configure ASSERT_LEVEL_WANTED=2
 
 
-   CIN_COLOR_WANTED=0
-  CERR_COLOR_WANTED=0
-  COUT_COLOR_WANTED=0
-RESET_COLORS_WANTED=0
-   CLEAR_EOL_WANTED=0
-   CLEAR_EOL_WANTED=27,4B
-   CIN_COLOR_WANTED=27,91,48,59,51,48,59,52,55,109
-  CERR_COLOR_WANTED=27,91,48,59,51,53,59,52,56,109
-  COUT_COLOR_WANTED=27,91,48,59,51,48,59,52,56,109
-RESET_COLORS_WANTED=27,91,48,59,51,56,59,52,56,109
-                                   ^^       ^^
-   The APL interpreter uses different colors for the cin (standard input),
-   cout (standard output) and cerr (standard error) channels. Setting all
-   colors to 0 disables color support. Setting some (but not all) colors to 0
-   is a bad idea. Setting all colors changes the colors being used to your
-   favorite colors. The above numbers are escape sequences for ANSI terminals
-   (CERR = red on white background, CIN = black on dark white background, and
-   COUT = black on white background on GNU/Linux xterms).
-
-   After every color seqence, an clear to end of line sequence is sent to
-   the terminal so that the entire line gets the desired color (otherwise
-   only the output itself would be coloured and the rest of the line would
-   remain in the background color). Set this to 0 if you disable colors.
-
-  When the interpreter is finished, then the reset colors sequence is sent,
-  followed by the clear to end of line sequence. Set this to 0 if you
-  disable colors. Example (disable colors):
-
-    ./configure CIN_COLOR_WANTED=0 CERR_COLOR_WANTED=0 COUT_COLOR_WANTED=0 RESET_COLORS_WANTED=0 CLEAR_EOL_WANTED=0
+   CIN_COLOR_WANTED
+  CERR_COLOR_WANTED
+  COUT_COLOR_WANTED
+RESET_COLORS_WANTED
+   CLEAR_EOL_WANTED
+   These options were used in GNU APL 1.0 to configure output coloring.
+   Output coloring can now specified in GNU APL's preference file. This
+   is more flexible than configuring the colors at compile time.
 
 
 DYNAMIC_LOG_WANTED=yes

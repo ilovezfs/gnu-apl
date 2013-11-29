@@ -227,8 +227,8 @@ int opening = -1;
 
                    // we removed parantheses, so we close the value.
                    //
-                   Assert(tos[opening + 1].get_tag() == TOK_APL_VALUE3);
-                   tos[opening + 1].ChangeTag(TOK_APL_VALUE1);
+                   if (tos[opening + 1].get_tag() == TOK_APL_VALUE3)
+                      tos[opening + 1].ChangeTag(TOK_APL_VALUE1);
 
                    Log(LOG_collect_constants)
                       {
