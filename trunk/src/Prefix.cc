@@ -706,12 +706,44 @@ Value_P value = at3().get_apl_val();
    if (at1().get_tag() == TOK_AXES)   // [] or [x]
       {
         Value_P v_idx = at1().get_axes();
-        var->assign_indexed(v_idx, value);
+
+        try
+           {
+             var->assign_indexed(v_idx, value);
+           }
+        catch (Error err)
+           {
+             Token result = Token(TOK_ERROR, err.error_code);
+             at1().clear(LOC);
+             at3().clear(LOC);
+             value->erase(LOC);
+             if (!!v_idx)   v_idx->erase(LOC);
+             pop_args_push_result(result);
+             set_assign_pending(false);
+             set_action(result);
+             return;
+           }
+
         if (!!v_idx)   v_idx->erase(LOC);
       }
    else                               // [a;...]
       {
-        var->assign_indexed(at1().get_index_val(), value);
+        try
+           {
+             var->assign_indexed(at1().get_index_val(), value);
+           }
+        catch (Error err)
+           {
+             Token result = Token(TOK_ERROR, err.error_code);
+             delete &at1().get_index_val();
+             at1().clear(LOC);
+             at3().clear(LOC);
+             value->erase(LOC);
+             pop_args_push_result(result);
+             set_assign_pending(false);
+             set_action(result);
+             return;
+           }
       }
 
 Token result = Token(TOK_APL_VALUE2, value);

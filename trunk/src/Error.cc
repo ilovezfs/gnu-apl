@@ -131,10 +131,12 @@ const int diff = right_caret - left_caret;
 void
 Error::print_em(ostream & out, const char * loc)
 {
-   if (print_loc)
+   if (print_loc) 
       {
         CERR << endl << "*** Error printed twice; first printed at "
              << print_loc << endl;
+
+        return;
       }
 
    print_loc = loc;

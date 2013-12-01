@@ -232,27 +232,28 @@ ValueStackItem & vs = value_stack.back();
 void
 Symbol::assign_indexed(Value_P X, Value_P B)   // A[X] ← B
 {
+   // this function is called for A[X}←B when X is one-dimensional, i.e.
+   // an index with no semicolons. If X contains semicolons, then
+   // assign_indexed(IndexExpr IX, ...) is called instead.
+   // 
 Value_P A = get_apl_value();
+   if (A->get_rank() != 1)   RANK_ERROR;
+
 const ShapeItem max_idx = A->element_count();
-
-   if (A->get_rank() != 1)   INDEX_ERROR;
-
    if (!X)   // X[] ← B
       {
-        if (A->is_skalar())   RANK_ERROR;
-
-           const Cell & src = B->get_ravel(0);
-           loop(a, max_idx)
-              {
-                Cell & dest = A->get_ravel(a);
-                if (dest.is_pointer_cell())   // overriding a sub-value
-                   {
+        const Cell & src = B->get_ravel(0);
+        loop(a, max_idx)
+            {
+              Cell & dest = A->get_ravel(a);
+              if (dest.is_pointer_cell())   // overriding a sub-value
+                 {
                      Value_P old_val = dest.get_pointer_value();
                      old_val->clear_nested();
                      old_val->erase(LOC);
-                   }
-                 dest.init(src);
-              }
+                 }
+              dest.init(src);
+            }
         return;
       }
 
@@ -297,6 +298,53 @@ Symbol::assign_indexed(const IndexExpr & IX, Value_P B)   // A[IX;...] ← B
 
 Value_P A = get_apl_value();
    if (A->get_rank() != IX.value_count())   INDEX_ERROR;
+
+   // B must either B a skalar (and is then skalar extended to the size
+   // of the updated area, or else have the shape of the concatenated index
+   // items for example:
+   //
+   //  X:   X1    ; X2    ; X3
+   //  ⍴B:  b1 b2   b3 b4   b5 b6
+   //
+   if (1 && !B->is_skalar())
+      {
+        // remove dimensions with len 1 from X's and B's shapes...
+        //
+        Shape B1;
+        loop(b, B->get_rank())
+           {
+             const ShapeItem sb = B->get_shape_item(b);
+             if (sb != 1)   B1.add_shape_item(sb);
+           }
+
+        Shape IX1;
+        loop(ix, IX.value_count())
+            {
+              const Value * ix_val = IX.values[ix].get_pointer();
+              if (ix_val)   // normal index
+                 {
+                   loop(xx, ix_val->get_rank())
+                      {
+                        const ShapeItem sxx = ix_val->get_shape_item(xx);
+                        if (sxx != 1)   IX1.add_shape_item(sxx);
+                      }
+                 }
+               else     // elided index: add corresponding B dimenssion
+                 {
+                   if (ix >= A->get_rank())   RANK_ERROR;
+                   const ShapeItem sbx =
+                         A->get_shape_item(A->get_rank() - ix - 1);
+                   if (sbx != 1)   IX1.add_shape_item(sbx);
+                 }
+            }
+
+        if (B1 != IX1)
+           {
+             B->erase(LOC);
+             if (B1.get_rank() != IX1.get_rank())   RANK_ERROR;
+             LENGTH_ERROR;
+           }
+      }
 
 MultiIndexIterator mult(A->get_shape(), IX);
 
@@ -441,7 +489,8 @@ const ValueStackItem & vs = value_stack.back();
 bool
 Symbol::can_be_defined() const
 {
-   if (value_stack.size() > 1)   return false;   // symbol was localized
+   if (value_stack.size() > 1)                      return false;   // localized
+   if (Workspace::the_workspace->is_called(symbol))   return false;  // on stack
 
    if (value_stack.back().name_class == NC_UNUSED_USER_NAME)   return true;
    if (value_stack.back().name_class == NC_FUNCTION)           return true;

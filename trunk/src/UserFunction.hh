@@ -36,7 +36,8 @@ class UserFunction : public Function, public Executable
 {
 public:
    /// Construct a user defined function
-   UserFunction(const UCS_string txt, int & error_line, const char * loc);
+   UserFunction(const UCS_string txt, int & error_line, bool keep_existing,
+                const char * loc);
 
    /// Destructor.
    ~UserFunction();
@@ -121,7 +122,7 @@ public:
    /// create a user defined function according to \b data of length \b len
    /// in workspace \b w.
    static UserFunction * fix(const UCS_string & data, int & error_line,
-                             const char * loc);
+                             bool keep_existing, const char * loc);
 
    /// return the pc of the first token in line l (valid line), or
    /// the pc of the last token in the function (invalid line)

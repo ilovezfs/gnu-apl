@@ -39,7 +39,7 @@
 
 //-----------------------------------------------------------------------------
 UserFunction::UserFunction(const UCS_string txt, int & error_line,
-                           const char * loc)
+                           bool keep_existing, const char * loc)
   : Executable(txt, loc),
     Function(ID_USER_SYMBOL, TOK_FUN2),
     sym_Z(0),
@@ -67,6 +67,7 @@ UserFunction::UserFunction(const UCS_string txt, int & error_line,
    if (!sym_FUN->can_be_defined())   DEFN_ERROR;
      
 Function * old_function = sym_FUN->get_function();
+   if (old_function && keep_existing)    DEFN_ERROR;
 
    for (int l = 1; l < get_text_size(); ++l)
       {
@@ -109,7 +110,7 @@ Function * old_function = sym_FUN->get_function();
         delete old_ufun;
       }
 
-   error_line = -1;   // no error
+   error_line = -1;   // assume no error
 }
 //-----------------------------------------------------------------------------
 UserFunction::~UserFunction()
@@ -648,7 +649,7 @@ UCS_string ucs(utf);
    close(in);
 
 int error_line = -1;
-   fun = fix(ucs, error_line, LOC);
+   fun = fix(ucs, error_line, false, LOC);
 }
 //-----------------------------------------------------------------------------
 Function_PC
@@ -660,11 +661,12 @@ UserFunction::pc_for_line(int l) const
 }
 //-----------------------------------------------------------------------------
 UserFunction *
-UserFunction::fix(const UCS_string & text, int & error_line, const char * loc)
+UserFunction::fix(const UCS_string & text, int & error_line,
+                  bool keep_existing,  const char * loc)
 {
    Log(LOG_UserFunction__fix)
-      CERR << "fix pmode=user function:" << endl << text
-           <<  endl << "------------------- fix --" << endl;
+      CERR << "fix pmode=user function:" << endl << text << endl
+           <<  "------------------- fix --" << endl;
 
    if (Workspace::the_workspace->SI_top())
       Workspace::the_workspace->SI_top()->set_safe_execution(true);
@@ -672,7 +674,7 @@ UserFunction::fix(const UCS_string & text, int & error_line, const char * loc)
 UserFunction * fun = 0;
    try
       {
-        fun = new UserFunction(text, error_line, loc);
+        fun = new UserFunction(text, error_line, keep_existing, loc);
       }
    catch (Error err)
       {
@@ -689,10 +691,24 @@ UserFunction * fun = 0;
         return 0;
       }
 
-   Log(LOG_UserFunction__fix)   fun->print(CERR);
+   Log(LOG_UserFunction__fix)
+      {
+        CERR << " addr " << (const void *)fun << endl;
+        fun->print(CERR);
+      }
 
    if (Workspace::the_workspace->SI_top())
       Workspace::the_workspace->SI_top()->set_safe_execution(false);
+
+   // UserFunction::UserFunction() sets error line to -1 if successful.
+   // We may have created a UserFunction but with an error. In this case
+   // we delete it here.
+   //
+   if (error_line != -1)
+      {
+        delete fun;
+        return 0;
+      }
 
    return fun;
 }

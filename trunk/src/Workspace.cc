@@ -141,15 +141,18 @@ Workspace::immediate_execution(bool exit_on_error)
            }
          catch (Error err)
             {
-              CERR << __FUNCTION__ << "() caught APL error "
-                   << HEX(err.error_code) << " ("
-                   << err.error_name(err.error_code) << ")" << endl;
+              if (!err.get_print_loc())
+                 {
+                   if (err.error_code != E_DEFN_ERROR)
+                      {
+                        err.print_em(CERR, LOC);
+                        CERR << __FUNCTION__ << "() caught APL error "
+                             << HEX(err.error_code) << " ("
+                             << err.error_name(err.error_code) << ")" << endl;
 
-              const Error * error = get_error();
-              if (error)   get_error()->print(CERR);
-
-              TestFiles::apl_error(LOC);
-              err.print_em(CERR, LOC);
+                        TestFiles::apl_error(LOC);
+                      }
+                 }
               if (exit_on_error)   return Token(TOK_OFF);
             }
          catch (...)

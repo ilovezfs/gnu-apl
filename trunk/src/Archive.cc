@@ -1423,7 +1423,7 @@ UCS_string text;
    while (*uni != '"')   read_chars(text, uni);
 
 int err = 0;
-UserFunction * ufun = new UserFunction(text, err, LOC);
+UserFunction * ufun = new UserFunction(text, err, false, LOC);
    Assert(err == -1);
 
    if (d == 0)   symbol.pop(false);
