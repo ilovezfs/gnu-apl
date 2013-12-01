@@ -919,7 +919,7 @@ Token
 Quad_FX::do_quad_FX(const int * exec_props, const UCS_string & text)
 {
 int error_line = 0;
-UserFunction * fun = UserFunction::fix(text, error_line, LOC);
+UserFunction * fun = UserFunction::fix(text, error_line, false, LOC);
    if (fun == 0)
       {
         Value_P Z(new Value(LOC), LOC);

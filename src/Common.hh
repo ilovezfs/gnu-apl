@@ -203,6 +203,9 @@ public:
    const Value & get_ref() const
       { return *value_p; }
 
+   const Value * get_pointer() const
+      { return value_p; }
+
    Value * get_pointer()
       { return value_p; }
 

@@ -52,8 +52,11 @@ UCS_string line;
 //-----------------------------------------------------------------------------
 Executable::~Executable()
 {
-// CERR << "deleting Executable " << (void *)this
-//      << " (body size=" <<  body.size() << ")" << endl;
+   Log(LOG_UserFunction__fix)
+      {
+   CERR << "deleting Executable " << (void *)this
+        << " (body size=" <<  body.size() << ")" << endl;
+      }
 
    loop(b, body.size())
        {
@@ -241,7 +244,8 @@ UCS_string & message_2 = error.error_message_2;
         Q(pc_from_to.high)
       }
 
-   if (body[pc_from_to.high].get_Class() == TC_RETURN)
+   if (body[pc_from_to.high].get_Class() == TC_RETURN &&
+       pc_from_to.high > pc_from_to.low)
        pc_from_to.high = Function_PC(pc_from_to.high - 1);;
 
 /*
@@ -377,9 +381,14 @@ int count = 0;
 ExecuteList *
 ExecuteList::fix(const UCS_string & data, const char * loc)
 {
+ExecuteList * fun = new ExecuteList(data, loc);
+
    Log(LOG_UserFunction__fix)
-      CERR << "fix pmode=execute list:" << endl << data
-           <<  endl << "------------------- fix --" << endl;
+      {
+        CERR << "fix pmode=execute list:" << endl << data
+             << " addr " << (const void *)fun << endl
+             << "------------------- fix --" << endl;
+      }
 
    {
      Workspace * ws = Workspace::the_workspace;
@@ -389,7 +398,6 @@ ExecuteList::fix(const UCS_string & data, const char * loc)
      if (err)   err->parser_loc = 0;
    }
 
-ExecuteList * fun = new ExecuteList(data, loc);
    fun->parse_body_line(Function_Line_0, data, loc);
 
    Log(LOG_UserFunction__fix)
@@ -415,9 +423,14 @@ ExecuteList * fun = new ExecuteList(data, loc);
 StatementList *
 StatementList::fix(const UCS_string & data, const char * loc)
 {
+StatementList * fun = new StatementList(data, loc);
+
    Log(LOG_UserFunction__fix)
-      CERR << "fix pmode=statement list:" << endl << data
-           <<  endl << "------------------- fix --" << endl;
+      {
+        CERR << "fix pmode=statement list:" << endl << data << endl
+             << " addr " << (const void *)fun << endl
+             << "------------------- fix --" << endl;
+      }
 
    {
      Workspace * ws = Workspace::the_workspace;
@@ -427,7 +440,6 @@ StatementList::fix(const UCS_string & data, const char * loc)
      if (err)   err->parser_loc = 0;
    }
 
-StatementList * fun = new StatementList(data, loc);
    fun->parse_body_line(Function_Line_0, data, loc);
 
    Log(LOG_UserFunction__fix)

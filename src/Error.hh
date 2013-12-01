@@ -114,6 +114,9 @@ struct Error
    /// the right caret position (-1 if none) for the error display
    int right_caret;
 
+   const char * get_print_loc() const
+      { return print_loc; }
+
 protected:
    const char * print_loc;
 

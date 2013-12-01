@@ -417,9 +417,10 @@ const UserFunction * ufun = executable->get_ufun();
         executable->get_ufun()->set_locked_error_info(err);
       }
    else
-      { 
-        const Function_PC2 error_range(current_stack.get_range_low(),
-                                       current_stack.get_range_high());
+      {
+        const Function_PC from = current_stack.get_range_low();
+        Function_PC to   = current_stack.get_range_high();
+        const Function_PC2 error_range(from, to);
         // current_stack.print_range(CERR);
         // CERR  << endl;
         executable->set_error_info(err, error_range);
