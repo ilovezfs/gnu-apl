@@ -100,7 +100,20 @@ const ShapeItem length = shape.element_count();
              attention_raised = interrupt_raised = true;
            }
 
-        ravel = new Cell[length];
+        try
+           {
+             ravel = new Cell[length];
+           }
+        catch (...)
+           {
+             // for some unknown reason, this object gets cleared after
+             // throwing the E_WS_FULL below (which destroys the prev and
+             // next pointers. We therefore unlink() the object here (where
+             // prev and next pointers are still intact).
+             //
+             unlink();
+             throw_apl_error(E_WS_FULL, alloc_loc);
+           }
       }
    else
       {
@@ -663,10 +676,10 @@ Value::finish_incomplete(const char * loc)
 int count = 0;
 
    Log(LOG_Value__erase_stale)
-      CERR << endl
-           << endl
-           << "finish_incomplete() called from " << loc
-           << endl;
+      {
+        CERR << endl << endl
+             << "finish_incomplete() called from " << loc << endl;
+      }
 
    for (DynamicObject * obj = all_values.get_next();
         obj != &all_values; obj = obj->get_next())
@@ -694,17 +707,17 @@ int count = 0;
          Cell * cv = &v->get_ravel(0);
          loop(r, ravel_length)   new (cv++)   IntCell(42424242);
          v->set_complete();
-         v->set_dirty();
 
          Log(LOG_Value__erase_stale)
             {
-              CERR << "Fixed incomplete Value " << (const void *)obj << ":"
-                   << endl
+              CERR << "Fixed incomplete Value "
+                   << (const void *)obj << ":" << endl
                    << "  Allocated by " << v->where_allocated() << endl
                    << "  ";
               v->list_one(CERR, false);
             }
 
+         v->set_dirty();
          ++count;
        }
 
