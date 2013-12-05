@@ -3043,7 +3043,7 @@ PrintBuffer pb;
          PrintBuffer pb_col(format_col_spec(col_width, precision,
                                          &B->get_ravel(col), cols_B, rows_B));
 
-         if (col_width == 0)   pb_col.pad_l(UNI_ASCII_SPACE);
+         if (col_width == 0)   pb_col.pad_l(UNI_ASCII_SPACE, 1);
 
          if (col)   pb.append_col(pb_col);
          else       pb = pb_col;
@@ -3129,7 +3129,7 @@ bool has_num = false;
       }
 
    if (width && ret.get_width(0) < width)
-      ret.pad_l(UCS_string(width - ret.get_width(0), UNI_ASCII_SPACE));
+      ret.pad_l(UNI_ASCII_SPACE, width - ret.get_width(0));
 
    return ret;
 }
@@ -3149,14 +3149,14 @@ Bif_F12_FORMAT::add_row(PrintBuffer & ret, int row, bool has_char,
    else if (!has_num)    // only chars: align left
       {
         const int d = ret.get_width(0) - data.size();
-        if      (d < 0)   ret.pad_r(UCS_string(-d, UNI_ASCII_SPACE));
+        if      (d < 0)   ret.pad_r(UNI_ASCII_SPACE, -d);
         else if (d > 0)   data.append(UCS_string(d, UNI_ASCII_SPACE));
         ret.append_ucs(data);
       }
    else                 // chars and numbers: align right
       {
         const int d = ret.get_width(0) - data.size();
-        if      (d < 0)   ret.pad_l(UCS_string(-d, UNI_ASCII_SPACE));
+        if      (d < 0)   ret.pad_l(UNI_ASCII_SPACE, -d);
         else if (d > 0)   data = UCS_string(d, UNI_ASCII_SPACE) + data;
         ret.append_ucs(data);
       }

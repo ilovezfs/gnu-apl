@@ -41,8 +41,8 @@ LvalCell::character_representation(const PrintContext & pctx) const
       }
 
 PrintBuffer pb = value.lval->character_representation(pctx);
-   pb.pad_l(Unicode('='));
-   pb.pad_r(Unicode('='));
+   pb.pad_l(Unicode('='), 1);
+   pb.pad_r(Unicode('='), 1);
    return pb;
 }
 //-----------------------------------------------------------------------------

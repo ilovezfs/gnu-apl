@@ -56,8 +56,8 @@ PrintContext pctx(_pctx);
         // pad the value unless it is framed
         if (value.compute_depth() > 1 && !framed)
            {
-                pad_l(UNI_PAD_U4);
-                pad_r(UNI_PAD_U5);
+                pad_l(UNI_PAD_U4, 1);
+                pad_r(UNI_PAD_U5, 1);
            }
 
         add_outer_frame(outer_style);
@@ -96,7 +96,7 @@ const ShapeItem ec = value.element_count();
              lines += s * (sh.get_shape_item(sh.get_rank() - s - 1));
 
          buffer.resize(lines);
-        add_outer_frame(outer_style);
+         add_outer_frame(outer_style);
          return;
       }
 
@@ -190,7 +190,7 @@ const ShapeItem rows = ec/cols;
       }
 
    // 1. create a vector with a bool per column that tells if the
-   // column needs scaling or not
+   // column needs scaling (i.e. exponential format) or not
    //
 vector<bool> scaling;
    {
@@ -210,7 +210,9 @@ vector<bool> scaling;
         }
    }
 
-   // 2. create a matrix of all items, padding all items to the same height.
+   // 2. create a matrix of items.
+   //    An item of the matrix is a top-level value (possibly nested),
+   //    therefore we have (⍴,value) items. Items are rectangular.
    //
 typedef vector<PrintBuffer> PB_row;
 vector<PB_row> item_matrix;
@@ -232,12 +234,16 @@ vector<PB_row> item_matrix;
               if (row_height < item.get_height())
                  row_height = item.get_height();
 
+              Assert(item.is_rectangular());
               item_row.push_back(item);
             }
 
         // pad all items to the same height
-        loop(x, cols)   item_row[x].pad_height(UNI_PAD_U6, row_height);
-
+        loop(x, cols)
+           {
+             item_row[x].pad_height(UNI_PAD_U6, row_height);
+             Assert(item_row[x].is_rectangular());
+           }
         item_matrix.push_back(item_row);
       }
 
@@ -247,19 +253,10 @@ vector<PB_row> item_matrix;
    loop(x, cols)
       {
         ColInfo col_info_x;
-        loop(y, rows)
-           {
-             PB_row & row = item_matrix[y];
-             PrintBuffer & item = row[x];
-             col_info_x.consider(item.get_info());
-           }
+        loop(y, rows)   col_info_x.consider(item_matrix[y][x].get_info());
 
-        loop(y, rows)
-           {
-             PB_row & row = item_matrix[y];
-             PrintBuffer & item = row[x];
-             item.align(col_info_x);
-           }
+        loop(y, rows)   item_matrix[y][x].align(col_info_x);
+
       }
 
    // 4. combine colums, then rows.
@@ -310,12 +307,12 @@ int break_width = 0;
            {
               if (last_notchar)
                  {
-                   pad_r(UNI_PAD_U2);
+                   pad_r(UNI_PAD_U2, 1);
                    ++no_char_spacing;
                  }
               else if (not_char)
                  {
-                   pcol.pad_l(UNI_PAD_U3);
+                   pcol.pad_l(UNI_PAD_U3, 1);
                    ++no_char_spacing;
                  }
 
@@ -346,10 +343,18 @@ int break_width = 0;
 
    if (value.compute_depth() > 1 && !framed)
       {
-        pad_l(UNI_PAD_U8);
-        pad_r(UNI_PAD_U9);
+        pad_l(UNI_PAD_U8, 1);
+        pad_r(UNI_PAD_U9, 1);
       }
 
+   if (!is_rectangular())
+      {
+        Q(get_height())
+        loop(h, get_height())   CERR << "w=" << get_width(h) << "*" << endl;
+        loop(h, get_height())   CERR << "*" << get_line(h) << "*" << endl;
+      }
+
+   Assert(is_rectangular());
    add_outer_frame(outer_style);
 
 // debug("PrintBuffer::PrintBuffer(Value_P, ...)");
@@ -384,32 +389,16 @@ PrintBuffer::set_char(uint32_t x, uint32_t y, Unicode uc)
 }
 //-----------------------------------------------------------------------------
 void
-PrintBuffer::pad_l(Unicode pad)
+PrintBuffer::pad_l(Unicode pad, ShapeItem count)
 {
-   loop(y, get_height())   buffer[y].insert(0, 1, pad);
+   loop(y, get_height())   buffer[y].insert(0, count, pad);
 }
 //-----------------------------------------------------------------------------
 void
-PrintBuffer::pad_l(const UCS_string & pad)
+PrintBuffer::pad_r(Unicode pad, ShapeItem count)
 {
-   loop(y, get_height())
-      {
-        UCS_string ucs = pad;
-        ucs.append(buffer[y]);
-        buffer[y] = ucs;
-      }
-}
-//-----------------------------------------------------------------------------
-void
-PrintBuffer::pad_r(Unicode pad)
-{
-   loop(y, get_height())   buffer[y].append(pad);
-}
-//-----------------------------------------------------------------------------
-void
-PrintBuffer::pad_r(const UCS_string & pad)
-{
-   loop(y, get_height())   buffer[y].append(pad);
+UCS_string ucs(count, pad);
+   loop(y, get_height())   buffer[y].append(ucs);
 }
 //-----------------------------------------------------------------------------
 void
@@ -761,8 +750,8 @@ UCS_string ucs1;
    ucs1.append(ucs);
    if (ucs_r > 0)   ucs1.append(UCS_string(ucs_r, UNI_ASCII_SPACE));
 
-   if (this_l > 0)   pad_l(UCS_string(this_l, UNI_ASCII_SPACE));
-   if (this_r > 0)   pad_r(UCS_string(this_r, UNI_ASCII_SPACE));
+   if (this_l > 0)   pad_l(UNI_ASCII_SPACE, this_l);
+   if (this_r > 0)   pad_r(UNI_ASCII_SPACE, this_r);
 
    buffer.push_back(ucs1);
 
@@ -798,9 +787,22 @@ void PrintBuffer::add_row(const PrintBuffer & pb)
 void
 PrintBuffer::align(ColInfo & cols)
 {
+   // this PrintBuffer is a (possibly nested) APL value.
+   // Align the buffer:
+   //
+   // to the J (in a column containing complex numbers), or
+   // to the decimal point (in a column containing non-complex numbers), or
+   // to the left (in a column containing text or nested values).
+   //
+   // make sure that the item is (and remains) rectangular).
+   //
+   Assert(is_rectangular());
+
    if      (cols.flags & has_j)          align_j(cols);
    else if ((cols.flags & CT_NUMERIC))   align_dot(cols);
    else                                  align_left(cols);
+
+   Assert(is_rectangular());
 }
 //-----------------------------------------------------------------------------
 void
@@ -829,9 +831,7 @@ PrintBuffer::align_dot(ColInfo & COL_INFO)
         if (COL_INFO.int_len > col_info.int_len)
            {
              const size_t diff = COL_INFO.int_len - col_info.int_len;
-             UCS_string pad(diff, UNI_PAD_L3);
-             pad.append(buffer[0]);
-             buffer[0] = pad;
+             pad_l(UNI_PAD_L3, diff);
              col_info.real_len += diff;
              col_info.int_len = COL_INFO.int_len;
            }
@@ -846,16 +846,14 @@ PrintBuffer::align_dot(ColInfo & COL_INFO)
              const size_t diff = COL_INFO.real_len - col_info.real_len;
              if (col_info.have_expo())   // alrady have an expo field
                 {
-                  UCS_string pad(diff, UNI_PAD_L4);
-                  buffer[0].append(pad);
+                  pad_r(UNI_PAD_L4, diff);
                 }
              else                        // no expo yet: create one
                 {
                   Assert1(diff >= 2);
-                  buffer[0].append(UNI_ASCII_E);
-                  buffer[0].append(UNI_ASCII_0);
-                  UCS_string pad(diff - 2, UNI_PAD_L4);
-                  buffer[0].append(pad);
+                  pad_r(UNI_ASCII_E, 1);
+                  pad_r(UNI_ASCII_0, 1);
+                  pad_r(UNI_PAD_L4, diff - 2);
                 }
              col_info.real_len = COL_INFO.real_len;
            }
@@ -868,9 +866,7 @@ PrintBuffer::align_dot(ColInfo & COL_INFO)
         if (LEN > len)
            {
              const size_t diff = LEN - len;
-             UCS_string pad(diff, UNI_PAD_L5);
-             pad.append(buffer[0]);
-             buffer[0] = pad;
+             pad_l(UNI_PAD_L5, diff);
              col_info.int_len   = COL_INFO.int_len;
              col_info.fract_len = COL_INFO.fract_len;
            }
@@ -904,17 +900,14 @@ PrintBuffer::align_j(ColInfo & COL_INFO)
         if (COL_INFO.real_len > col_info.real_len)
            {
              const size_t diff = COL_INFO.real_len - col_info.real_len;
-             UCS_string pad(diff, UNI_PAD_L3);
-             pad.append(buffer[0]);
-             buffer[0] = pad;
+             pad_l(UNI_PAD_L3, diff);
              col_info.real_len = COL_INFO.real_len;
            }
 
         if (COL_INFO.imag_len > col_info.imag_len)
            {
              const size_t diff = COL_INFO.imag_len - col_info.imag_len;
-             UCS_string pad(diff, UNI_PAD_L4);
-             buffer[0].append(pad);
+             pad_r(UNI_PAD_L4, diff);
              col_info.imag_len = COL_INFO.imag_len;
            }
       }
@@ -926,9 +919,7 @@ PrintBuffer::align_j(ColInfo & COL_INFO)
         if (LEN > len)
            {
              const size_t diff = LEN - len;
-             UCS_string pad(diff, UNI_PAD_L5);
-             pad.append(buffer[0]);
-             buffer[0] = pad;
+             pad_l(UNI_PAD_L5, diff);
              col_info.real_len = COL_INFO.real_len;
              col_info.imag_len = COL_INFO.imag_len;
            }
@@ -943,11 +934,9 @@ PrintBuffer::pad_fraction(int wanted_fract_len, bool want_expo)
 const int diff = wanted_fract_len - col_info.fract_len;
    Assert1(diff > 0);
 
-UCS_string new_buf;
-
-      // copy integer part to new_buf
+      // copy integer part of this PrintBuffer to to new_buf
       //
-      loop(i, col_info.int_len)   new_buf.append( buffer[0][i]);
+UCS_string new_buf(buffer[0], 0, col_info.int_len);
 
       // copy fractional part to new_buf. If the number has no exponent part,
       // then we fill with spaces. Otherwise fill with '0', possibly inserting
@@ -970,12 +959,26 @@ UCS_string new_buf;
 
    // copy exponent part
    //
-   for (int e = col_info.int_len + col_info.fract_len; e < buffer[0].size(); ++e)
-       new_buf.append(buffer[0][e]);
+   for (int ex = col_info.int_len + col_info.fract_len;
+        ex < buffer[0].size(); ++ex)
+       new_buf.append(buffer[0][ex]);
 
    col_info.fract_len = wanted_fract_len;
    col_info.real_len += diff;
+
    buffer[0] = new_buf;
+
+   // if buffer is multi-len then pad remaining line to new length
+   //
+   for (ShapeItem h = 1; h < get_height(); ++h)
+      {
+        const int diff = new_buf.size() - get_width(h);
+        if (diff > 0)
+           {
+             const UCS_string ucs(UNI_PAD_L4, diff);
+             buffer[h].append(ucs);
+           }
+      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -997,16 +1000,10 @@ PrintBuffer::align_left(ColInfo & COL_INFO)
    Assert(col_info.int_len < COL_INFO.int_len);
 
 const size_t diff = COL_INFO.int_len - col_info.int_len;
-UCS_string pad(diff, UNI_PAD_L3);
 
-   if (buffer.size())
-      {
-        loop(s, buffer.size())   buffer[s].append(pad);
-      }
-   else
-      {
-        buffer.push_back(pad);
-      }
+   if (buffer.size())   pad_r(UNI_PAD_L3, diff);
+   else                 buffer.push_back(UCS_string(diff, UNI_PAD_L3));
+
    col_info.int_len = COL_INFO.int_len;
 
    Log(LOG_printbuf_align)   debug(CERR, "after align_left()");
@@ -1015,13 +1012,13 @@ UCS_string pad(diff, UNI_PAD_L3);
 bool
 PrintBuffer::is_rectangular() const
 {
-   if (get_height() == 0)   return true;
-
-const int64_t w = get_width(0);
-
-   loop(h, get_height())
+   if (get_height())
       {
-        if (get_width(h) != w)    return false;
+        const ShapeItem w = get_width(0);
+        loop(h, get_height())
+           {
+             if (get_width(h) != w)    return false;
+           }
       }
 
    return true;

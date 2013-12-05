@@ -35,5 +35,6 @@
  4609 figlet banner added
  4633 curses support from Elias Mårtenson added
  4654 fixed ⍎'→3', ∇, and WS_FULL problems reported by Elias
+ 4671 fixed 4 ⎕CR bug reported by Elias
 
 

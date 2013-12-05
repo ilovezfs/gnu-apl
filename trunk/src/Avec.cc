@@ -235,15 +235,27 @@ int h = sizeof(character_table)/sizeof(*character_table) - 1;
 CHT_Index
 Avec::map_alternative_char(Unicode alt_av)
 {
+   // map characters that look similar to characters used in GNU APL
+   // to the GNU APL character.
+   //
    switch(alt_av)
       {
+        case 0x005E: return AV_AND;              //  map ^ to ∧
+        case 0x007C: return AV_DIVIDES;          //  map | to ∣
         case 0x007E: return AV_TILDE_OPERATOR;   //  map ~ to ∼
-        case 0x220A:                             //  map ∊ to ∈
+        case 0x03B1: return AV_ALPHA;            //  map α to ⍺
         case 0x03B5: return AV_ELEMENT;          //  map ε to ∈
         case 0x03B9: return AV_IOTA;             //  map ι to ⍳
         case 0x03C1: return AV_RHO;              //  map ρ to ⍴
+        case 0x03C9: return AV_OMEGA;            //  map ω to ⍵
         case 0x2018: return AV_SINGLE_QUOTE;     //  map ‘ to '
         case 0x2019: return AV_SINGLE_QUOTE;     //  map ’ to '
+        case 0x220A: return AV_ELEMENT;          //  map ∊ to ∈
+        case 0x2212: return AV_ASCII_MINUS;      //  map − to -
+        case 0x22BC: return AV_NAND;             //  map ⊽ to ⍲
+        case 0x22BD: return AV_NOR;              //  map ⊼ to ⍱
+        case 0x22C4: return AV_DIAMOND;          //  map ⋄ to ◊
+        case 0x25AF: return AV_QUAD_QUAD;        //  map ▯ to ⎕
       }
 
    return Invalid_CHT;
