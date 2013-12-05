@@ -113,17 +113,11 @@ public:
    /// Return the char in column x and row y.
    Unicode get_char(uint32_t x, uint32_t y) const;
 
-   /// prepend buffer with \b pad
-   void pad_l(Unicode pad);
+   /// prepend buffer with \b count characters \b pad
+   void pad_l(Unicode pad, ShapeItem count);
 
-   /// prepend buffer with \b pad
-   void pad_l(const UCS_string & pad);
-
-   /// append \b pad  to buffer
-   void pad_r(Unicode pad);
-
-   /// append \b pad  to buffer
-   void pad_r(const UCS_string & pad);
+   /// append count charactera \b pad  to buffer
+   void pad_r(Unicode pad, ShapeItem count);
 
    /// append lines to reach height
    void pad_height(Unicode pad, ShapeItem height);
