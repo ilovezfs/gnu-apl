@@ -165,7 +165,7 @@ Cell * cZ = &Z->get_ravel(0);
 
         // set control.
         //
-        Symbol * sym = Workspace::the_workspace->lookup_existing_symbol(vars[z]);
+        Symbol * sym = Workspace::lookup_existing_symbol(vars[z]);
         if (sym == 0)   throw_symbol_error(vars[z], LOC);
 
         const SV_key key = sym->get_SV_key();
@@ -195,7 +195,7 @@ Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
-        Symbol * sym = Workspace::the_workspace->lookup_existing_symbol(vars[z]);
+        Symbol * sym = Workspace::lookup_existing_symbol(vars[z]);
         if (sym == 0)   throw_symbol_error(vars[z], LOC);
 
         const SV_key key = sym->get_SV_key();
@@ -354,7 +354,7 @@ Cell * cZ = &Z->get_ravel(0);
 
         // make sure current name class allows ⎕SVO
         //
-        Symbol * sym = Workspace::the_workspace->lookup_symbol(apl_vars[z]);
+        Symbol * sym = Workspace::lookup_symbol(apl_vars[z]);
         assert(sym);
 
         const AP_num proc = AP_num(A->get_ravel(a).get_int_value());
@@ -478,7 +478,7 @@ Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
-        Symbol * sym = Workspace::the_workspace->lookup_existing_symbol(vars[z]);
+        Symbol * sym = Workspace::lookup_existing_symbol(vars[z]);
         if (sym == 0)   // variable does not exist
            {
              new (cZ++) IntCell(0);
@@ -669,7 +669,7 @@ Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
-        Symbol * sym = Workspace::the_workspace->lookup_existing_symbol(vars[z]);
+        Symbol * sym = Workspace::lookup_existing_symbol(vars[z]);
         if (sym == 0)   DOMAIN_ERROR;
 
         const SV_Coupling coupling = sym->unshare_var();
@@ -694,7 +694,7 @@ Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
-        Symbol * sym = Workspace::the_workspace->lookup_existing_symbol(vars[z]);
+        Symbol * sym = Workspace::lookup_existing_symbol(vars[z]);
         if (sym == 0)   throw_symbol_error(vars[z], LOC);
 
         const SV_key key = sym->get_SV_key();

@@ -155,8 +155,8 @@ loop_z:
           // LO was a user defined function
           //
           arg.how = 1;
-          Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_ALB);
-          Workspace::the_workspace->SI_top()->get_eoc_arg()._EACH_ALB() = arg;
+          Workspace::SI_top()->set_eoc_handler(eoc_ALB);
+          Workspace::SI_top()->get_eoc_arg()._EACH_ALB() = arg;
 
           return result;   // continue in user defined function...
         }
@@ -199,7 +199,7 @@ EACH_ALB arg = _arg._EACH_ALB();
         if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-   if (arg.z < (arg.count - 1))   Workspace::the_workspace->pop_SI(LOC);
+   if (arg.z < (arg.count - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_ALB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -285,8 +285,8 @@ loop_z:
           // LO was a user defined function or ⍎
           //
           arg.how = 1;
-          Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_LB);
-          Workspace::the_workspace->SI_top()->get_eoc_arg()._EACH_LB() = arg;
+          Workspace::SI_top()->set_eoc_handler(eoc_LB);
+          Workspace::SI_top()->get_eoc_arg()._EACH_LB() = arg;
           return result;   // continue in user defined function...
         }
 
@@ -342,7 +342,7 @@ EACH_LB arg = _arg._EACH_LB();
        if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-   if (arg.z < (arg.count - 1))   Workspace::the_workspace->pop_SI(LOC);
+   if (arg.z < (arg.count - 1))   Workspace::pop_SI(LOC);
    copy_1(token, finish_eval_LB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 

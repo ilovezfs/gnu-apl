@@ -417,7 +417,7 @@ Quad_L::Quad_L()
 void
 Quad_L::assign(Value_P value, const char * loc)
 {
-StateIndicator * si = Workspace::the_workspace->SI_top_fun();
+StateIndicator * si = Workspace::SI_top_fun();
    if (si == 0)   return;
 
    // ignore assignments if error was SYNTAX ERROR or VALUE ERROR
@@ -430,7 +430,7 @@ StateIndicator * si = Workspace::the_workspace->SI_top_fun();
 Value_P
 Quad_L::get_apl_value() const
 {
-const StateIndicator * si = Workspace::the_workspace->SI_top_error();
+const StateIndicator * si = Workspace::SI_top_error();
    if (si)
       {
         Value_P ret = si->get_L();
@@ -453,7 +453,7 @@ Quad_LC::get_apl_value() const
    // count how many function elements Quad-LC has...
    //
 int len = 0;
-   for (StateIndicator * si = Workspace::the_workspace->SI_top();
+   for (StateIndicator * si = Workspace::SI_top();
         si; si = si->get_parent())
        {
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   ++len;
@@ -462,7 +462,7 @@ int len = 0;
 Value_P Z(new Value(len, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
-   for (StateIndicator * si = Workspace::the_workspace->SI_top();
+   for (StateIndicator * si = Workspace::SI_top();
         si; si = si->get_parent())
        {
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)
@@ -792,7 +792,7 @@ Quad_R::Quad_R()
 void
 Quad_R::assign(Value_P value, const char * loc)
 {
-StateIndicator * si = Workspace::the_workspace->SI_top_fun();
+StateIndicator * si = Workspace::SI_top_fun();
    if (si == 0)   return;
 
    // ignore assignments if error was SYNTAX ERROR or VALUE ERROR
@@ -805,7 +805,7 @@ StateIndicator * si = Workspace::the_workspace->SI_top_fun();
 Value_P
 Quad_R::get_apl_value() const
 {
-const StateIndicator * si = Workspace::the_workspace->SI_top_error();
+const StateIndicator * si = Workspace::SI_top_error();
    if (si)
       {
         Value_P ret = si->get_R();
@@ -875,7 +875,7 @@ const APL_Integer qio = Workspace::get_IO();
 
         if (x == SYL_SI_DEPTH_LIMIT)   // SI depth limit
            {
-             const int depth = Workspace::the_workspace->SI_entry_count();
+             const int depth = Workspace::SI_entry_count();
              if (b < (depth + 4))   DOMAIN_ERROR;    // limit too low
              si_depth_limit = b;
            }
@@ -937,7 +937,7 @@ Quad_TS::Quad_TS()
 Value_P
 Quad_TS::get_apl_value() const
 {
-const int offset = Workspace::the_workspace->v_quad_TZ.get_offset();
+const int offset = Workspace::get_v_quad_TZ().get_offset();
 const YMDhmsu time(now() + offset);
 
 Value_P Z(new Value(7, LOC), LOC);

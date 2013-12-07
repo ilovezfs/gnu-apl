@@ -203,7 +203,7 @@ const APL_Integer qio = Workspace::get_IO();
 const APL_Integer set_size = get_checked_near_int();
    if (set_size <= 0)   DOMAIN_ERROR;
 
-const APL_Integer rnd = Workspace::the_workspace->get_RL();
+const APL_Integer rnd = Workspace::get_RL();
    new (Z) IntCell(qio + (rnd % set_size));
 }
 //-----------------------------------------------------------------------------
@@ -745,14 +745,13 @@ FloatCell::need_scaling(APL_Float val, int quad_pp)
 void
 FloatCell::map_FC(UCS_string & ucs)
 {
-const APL_Char * qfc = Workspace::get_FC();
    loop(u, ucs.size())
       {
         switch(ucs[u])
            {
-             case UNI_ASCII_FULLSTOP: ucs[u] = qfc[0];   break;
-             case UNI_ASCII_COMMA:    ucs[u] = qfc[1];   break;
-             case UNI_OVERBAR:        ucs[u] = qfc[5];   break;
+             case UNI_ASCII_FULLSTOP: ucs[u] = Workspace::get_FC(0);   break;
+             case UNI_ASCII_COMMA:    ucs[u] = Workspace::get_FC(1);   break;
+             case UNI_OVERBAR:        ucs[u] = Workspace::get_FC(5);   break;
            }
       }
 }

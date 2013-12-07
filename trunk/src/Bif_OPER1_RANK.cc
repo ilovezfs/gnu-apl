@@ -106,8 +106,8 @@ loop_h:
           // LO was a user defined function or ⍎
           //
           arg.how = 1;
-          Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_LXB);
-          Workspace::the_workspace->SI_top()->get_eoc_arg()._RANK_LXB() = arg;
+          Workspace::SI_top()->set_eoc_handler(eoc_LXB);
+          Workspace::SI_top()->get_eoc_arg()._RANK_LXB() = arg;
           return result;   // continue in user defined function...
         }
 
@@ -180,7 +180,7 @@ RANK_LXB arg = _arg._RANK_LXB();
      arg.get_sh_Z_max_low().expand(arg.ZZ[arg.h]->get_shape());
    }
 
-   if (arg.h < (arg.ec_high - 1))   Workspace::the_workspace->pop_SI(LOC);
+   if (arg.h < (arg.ec_high - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_LXB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -319,8 +319,8 @@ loop_h:
           // LO was a user defined function or ⍎
           //
           arg.how = 1;
-          Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_ALXB);
-          Workspace::the_workspace->SI_top()->get_eoc_arg()._RANK_ALXB() = arg;
+          Workspace::SI_top()->set_eoc_handler(eoc_ALXB);
+          Workspace::SI_top()->get_eoc_arg()._RANK_ALXB() = arg;
           return result;   // continue in user defined function...
         }
 
@@ -394,7 +394,7 @@ RANK_ALXB arg = _arg._RANK_ALXB();
      arg.get_sh_Z_max_low().expand(arg.ZZ[arg.h]->get_shape());
    }
 
-   if (arg.h < (arg.ec_high - 1))   Workspace::the_workspace->pop_SI(LOC);
+   if (arg.h < (arg.ec_high - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_ALXB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue

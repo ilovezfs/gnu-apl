@@ -690,12 +690,10 @@ struct Format_sub
 
    /// Fill buf at position x,y with data according to fmt.
    UCS_string insert_int_commas(const UCS_string & data,
-                                const APL_Char * quad_fc,
                                 bool & overflow) const;
 
    /// Fill buf at position x,y with data according to fmt.
-   UCS_string insert_fract_commas(const UCS_string & data,
-                                  Unicode comma_char) const;
+   UCS_string insert_fract_commas(const UCS_string & data) const;
 };
 //-----------------------------------------------------------------------------
 /** System function format.
@@ -735,13 +733,12 @@ public:
         /// format the left decorator and integer part (everything left of the
         /// decimal dot)
         UCS_string format_left_side(const UCS_string data_int, bool negative,
-                                    bool & overflow, const APL_Char * qFC);
+                                    bool & overflow);
 
         /// format the fract part, exponent, and right decorator (everything
         /// left of the decimal dot)
         UCS_string format_right_side(const UCS_string data_fract, bool negative,
-                                     const UCS_string data_expo,
-                                     const APL_Char * qFC);
+                                     const UCS_string data_expo);
 
         /// Print \b value into int, fract, and expo fields.
         void fill_data_fields(double value, UCS_string & data_int,

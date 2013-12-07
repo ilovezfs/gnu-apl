@@ -133,7 +133,7 @@ UserFunction::eval_()
 
    if (sym_B)   SYNTAX_ERROR;   // not defined niladic
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    eval_common();
 
@@ -149,7 +149,7 @@ UserFunction::eval_B(Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (sym_LO)    SYNTAX_ERROR;   // defined as operator
 
@@ -171,7 +171,7 @@ UserFunction::eval_XB(Value_P X, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (sym_LO)    SYNTAX_ERROR;   // defined as operator
 
@@ -194,7 +194,7 @@ UserFunction::eval_AB(Value_P A, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (sym_LO)    SYNTAX_ERROR;   // defined as operator
 
@@ -217,7 +217,7 @@ UserFunction::eval_AXB(Value_P A, Value_P X, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (sym_LO)    SYNTAX_ERROR;   // defined as operator
 
@@ -240,7 +240,7 @@ UserFunction::eval_LB(Token & LO, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (sym_RO)    SYNTAX_ERROR;   // dyadic operator called monadically
 
@@ -266,7 +266,7 @@ UserFunction::eval_LXB(Token & LO, Value_P X, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (sym_RO)    SYNTAX_ERROR;   // dyadic operator called monadically
 
@@ -292,7 +292,7 @@ UserFunction::eval_ALB(Value_P A, Token & LO, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (!sym_A)    SYNTAX_ERROR;   // monadic function called dyadically
    if (sym_X)   sym_X->push();
@@ -320,7 +320,7 @@ UserFunction::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (!sym_A)    SYNTAX_ERROR;   // monadic function called dyadically
    if (sym_RO)    SYNTAX_ERROR;   // defined as dyadic operator
@@ -348,7 +348,7 @@ UserFunction::eval_LRB(Token & LO, Token & RO, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (!sym_RO)    SYNTAX_ERROR;   // not defined as dyadic operator
 
@@ -378,7 +378,7 @@ UserFunction::eval_LRXB(Token & LO, Token & RO, Value_P X, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (!sym_RO)    SYNTAX_ERROR;   // not defined as dyadic operator
 
@@ -407,7 +407,7 @@ UserFunction::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (!sym_A)    SYNTAX_ERROR;    // defined monadic called dyadic
    if (sym_X)      sym_X->push();
@@ -439,7 +439,7 @@ UserFunction::eval_ALRXB(Value_P A, Token & LO, Token & RO,
              << Token(TOK_APL_VALUE1, B) << ")" << endl;
       }
 
-   Workspace::the_workspace->push_SI(this, LOC);
+   Workspace::push_SI(this, LOC);
 
    if (!sym_A)    SYNTAX_ERROR;    // defined monadic called dyadic
    if (!sym_RO)    SYNTAX_ERROR;   // defined monadic op called dyadic
@@ -668,8 +668,8 @@ UserFunction::fix(const UCS_string & text, int & error_line,
       CERR << "fix pmode=user function:" << endl << text << endl
            <<  "------------------- fix --" << endl;
 
-   if (Workspace::the_workspace->SI_top())
-      Workspace::the_workspace->SI_top()->set_safe_execution(true);
+   if (Workspace::SI_top())
+      Workspace::SI_top()->set_safe_execution(true);
 
 UserFunction * fun = 0;
    try
@@ -679,15 +679,15 @@ UserFunction * fun = 0;
    catch (Error err)
       {
         err.print(CERR);
-        if (Workspace::the_workspace->SI_top())
-           Workspace::the_workspace->SI_top()->set_safe_execution(false);
+        if (Workspace::SI_top())
+           Workspace::SI_top()->set_safe_execution(false);
         return 0;
       }
    catch (...)
       {
         CERR << __FUNCTION__ << "caught something unexpected at " LOC << endl;
-        if (Workspace::the_workspace->SI_top())
-           Workspace::the_workspace->SI_top()->set_safe_execution(false);
+        if (Workspace::SI_top())
+           Workspace::SI_top()->set_safe_execution(false);
         return 0;
       }
 
@@ -697,8 +697,8 @@ UserFunction * fun = 0;
         fun->print(CERR);
       }
 
-   if (Workspace::the_workspace->SI_top())
-      Workspace::the_workspace->SI_top()->set_safe_execution(false);
+   if (Workspace::SI_top())
+      Workspace::SI_top()->set_safe_execution(false);
 
    // UserFunction::UserFunction() sets error line to -1 if successful.
    // We may have created a UserFunction but with an error. In this case

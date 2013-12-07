@@ -155,7 +155,8 @@ operator <<(ostream & out, const IndexExpr & idx)
         if (!!idx.values[i])
            {
              // value::print() may print a trailing LF that we dont want here.
-             PrintContext pctx(*Workspace::the_workspace);
+             //
+             PrintContext pctx;
              pctx.set_style(PR_APL_MIN);
              PrintBuffer pb(*idx.values[i], pctx);
 

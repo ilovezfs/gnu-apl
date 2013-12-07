@@ -38,12 +38,10 @@
 #include "ValueHistory.hh"
 #include "Workspace.hh"
 
-#define stv_def(x) Value Value:: x(LOC, Value::Value_how_ ## x); \
-                   Value_P Value:: x ## _P(&Value::x, LOC);
-#include "StaticValues.def"
-
 ShapeItem Value::value_count = 0;
 ShapeItem Value::total_ravel_count = 0;
+
+// the static Value instances are defined in StaticObjects.cc
 
 //-----------------------------------------------------------------------------
 void
@@ -63,7 +61,7 @@ Value::init_ravel()
         new (&shape) Shape();
         new (ravel)   IntCell(42);
 
-        Workspace::the_workspace->more_error = UCS_string(
+        Workspace::more_error() = UCS_string(
         "the system limit on the APL value count (as set in ⎕SYL) was reached\n"
         "(and to avoid lock-up, the limit in ⎕SYL was automatically cleared).");
 
@@ -89,7 +87,7 @@ const ShapeItem length = shape.element_count();
              new (&shape) Shape();
              new (ravel)   IntCell(42);
 
-             Workspace::the_workspace->more_error = UCS_string(
+             Workspace::more_error() = UCS_string(
              "the system limit on the total ravel size (as set in ⎕SYL) "
              "was reached\n(and to avoid lock-up, the limit in ⎕SYL "
              "was automatically cleared).");
@@ -772,7 +770,7 @@ Value::list_one(ostream & out, bool show_owners)
    if (this == & x)   out << "(static) Value::" #x << endl;
 #include "StaticValues.def"
 
-   Workspace::the_workspace->show_owners(out, Value_P(this, LOC));
+   Workspace::show_owners(out, Value_P(this, LOC));
 
    out << "---------------------------" << endl << endl;
    return out;
@@ -1528,11 +1526,12 @@ PrintStyle style;
       }
    else                  // matrix or higher
       {
-        style = Workspace::the_workspace->get_PS();
+        style = Workspace::get_PS();
         style = PrintStyle(style | PST_NO_FRACT_0);
       }
 
-PrintContext pctx(style, *Workspace::the_workspace);
+PrintContext pctx(style, Workspace::get_PP(), 
+                         Workspace::get_CT(), Workspace::get_PW());
 PrintBuffer pb(*this, pctx);
 
 //   pb.debug(CERR, "Value::print()");
@@ -1575,7 +1574,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 void
 Value::debug(const char * info)
 {
-const PrintContext pctx(*Workspace::the_workspace);
+const PrintContext pctx;
 PrintBuffer pb(*this, pctx);
    pb.debug(CERR, info);
 }
@@ -1851,7 +1850,7 @@ int count = 0;
    // mark all dynamic values, and then unmark those known in the workspace
    //
    mark_all_dynamic_values();
-   Workspace::the_workspace->unmark_all_values();
+   Workspace::unmark_all_values();
 
    // print all values that are still marked
    //

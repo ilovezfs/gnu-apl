@@ -1769,8 +1769,8 @@ IndexExpr * index_expr = new IndexExpr(false, LOC);
         index_expr->add(val);
       }
 
-   index_expr->quad_ct = Workspace::the_workspace->get_CT();
-   index_expr->quad_io = Workspace::the_workspace->get_IO();
+   index_expr->quad_ct = Workspace::get_CT();
+   index_expr->quad_io = Workspace::get_IO();
 
 Value_P Z;
    if (index_expr->value_count() == 1)   // one-dimensional index
@@ -1803,10 +1803,10 @@ const ShapeItem ec_A = A->element_count();
 
    // index_expr is in reverse order!
    //
-const APL_Integer qio = Workspace::the_workspace->get_IO();
+const APL_Integer qio = Workspace::get_IO();
 IndexExpr * index_expr = new IndexExpr(false, LOC);
    loop(rb, B->get_rank())   index_expr->add(Value_P());
-   index_expr->quad_ct = Workspace::the_workspace->get_CT();
+   index_expr->quad_ct = Workspace::get_CT();
    index_expr->quad_io = qio;
 
    loop(a, ec_A)
@@ -2299,7 +2299,7 @@ Value_P Z;
 Value_P
 Bif_F12_FORMAT::monadic_format(Value_P B)
 {
-PrintContext pctx(*Workspace::the_workspace);
+PrintContext pctx;
    pctx.set_style(PrintStyle(pctx.get_style() | PST_NO_FRACT_0));
 const PrintBuffer pb(*B, pctx);
 
@@ -2475,7 +2475,6 @@ UCS_string data_int;
 UCS_string data_fract;
 UCS_string data_expo;
 const double val_1 = (value < 0) ? -value : value;
-const APL_Char * qFC = Workspace::get_FC();
 
    fill_data_fields(val_1, data_int, data_fract, data_expo);
    Log(LOG_Bif_F12_FORMAT)
@@ -2486,11 +2485,11 @@ const APL_Char * qFC = Workspace::get_FC();
       }
 
 bool overflow = false;
-const UCS_string left = format_left_side(data_int, value < 0, overflow, qFC);
-   if (overflow)   return UCS_string(out_size(), qFC[3]);
+const UCS_string left = format_left_side(data_int, value < 0, overflow);
+   if (overflow)   return UCS_string(out_size(), Workspace::get_FC(3));
    Assert(left.size() == (left_deco.out_len + int_part.out_len));
 
-const UCS_string right = format_right_side(data_fract, value<0, data_expo, qFC);
+const UCS_string right = format_right_side(data_fract, value<0, data_expo);
    Assert(right.size() == (fract_part.out_len + expo_deco.out_len +
                            exponent.out_len + right_deco.out_len));
 
@@ -2499,15 +2498,14 @@ const UCS_string right = format_right_side(data_fract, value<0, data_expo, qFC);
 //-----------------------------------------------------------------------------
 UCS_string
 Bif_F12_FORMAT::Format_LIFER::format_left_side(const UCS_string data_int,
-                                               bool negative, bool & overflow,
-                                               const APL_Char * qFC)
+                                               bool negative, bool & overflow)
 {
-const UCS_string data = int_part.insert_int_commas(data_int, qFC,overflow);
+const UCS_string data = int_part.insert_int_commas(data_int, overflow);
 
    if (overflow)   return UCS_string();
 
    Assert(int_part.size() >= data.size());
-const Unicode pad_char = int_part.pad_char(qFC[2]);
+const Unicode pad_char = int_part.pad_char(Workspace::get_FC(2));
 const UCS_string pad(int_part.size() - data.size(), pad_char);
 
 UCS_string ucs;
@@ -2534,16 +2532,14 @@ UCS_string ucs;
 UCS_string
 Bif_F12_FORMAT::Format_LIFER::format_right_side(const UCS_string data_fract,
                                                 bool negative,
-                                                const UCS_string data_expo, 
-                                                const APL_Char * qFC)
+                                                const UCS_string data_expo)
 {
 int pad_count = 0;
 UCS_string ucs;
 
    if (fract_part.out_len)
       {
-        const UCS_string data =
-                             fract_part.insert_fract_commas(data_fract, qFC[1]);
+        const UCS_string data = fract_part.insert_fract_commas(data_fract);
         Assert(fract_part.size() >= data.size());
         pad_count += fract_part.size() - data.size();
 
@@ -2557,7 +2553,7 @@ UCS_string ucs;
       {
         UCS_string data(1, exponent_char);
 
-        const Unicode pad_char = exponent.pad_char(qFC[2]);
+        const Unicode pad_char = exponent.pad_char(Workspace::get_FC(2));
 
         if (exponent.no_float())              // floating disabled.
            {
@@ -2581,7 +2577,7 @@ UCS_string ucs;
 
    // now do the right side padding.
    {
-     const Unicode pad_char = fract_part.pad_char(qFC[2]);
+     const Unicode pad_char = fract_part.pad_char(Workspace::get_FC(2));
      const UCS_string pad(pad_count, pad_char);
 
      if (fract_part.no_float())                // floating disabled.
@@ -2872,9 +2868,7 @@ const int ilen = int_end - data_buf;
 }
 //-----------------------------------------------------------------------------
 UCS_string
-Format_sub::insert_int_commas(const UCS_string & data,
-                              const APL_Char * quad_fc,
-                              bool & overflow) const
+Format_sub::insert_int_commas(const UCS_string & data, bool & overflow) const
 {
 size_t fill_pos = -1;
 Unicode fill_char = UNI_ASCII_SPACE;
@@ -2894,7 +2888,7 @@ Unicode fill_char = UNI_ASCII_SPACE;
               if (fc == UNI_ASCII_8)
                  {
                    fill_pos = f;
-                   fill_char = quad_fc[2];
+                   fill_char = Workspace::get_FC(2);
                    break;
                  }
            }
@@ -2912,7 +2906,7 @@ size_t d = data.size();
         const Unicode fc = format[f];
          if (fc == UNI_ASCII_COMMA)
             {
-              ucs.append(quad_fc[1]);   //  == ⎕FC[2] when ⎕IO is 1
+              ucs.append(Workspace::get_FC(1));   //  == ⎕FC[2] when ⎕IO is 1
             }
          else if (Avec::is_digit(fc))
             {
@@ -2930,7 +2924,7 @@ size_t d = data.size();
 
    if (d)   // format too short
       {
-         if (quad_fc[3] == UNI_ASCII_0)   DOMAIN_ERROR;
+         if (Workspace::get_FC(3) == UNI_ASCII_0)   DOMAIN_ERROR;
          else                             overflow = true;
       }
 
@@ -2940,8 +2934,7 @@ size_t d = data.size();
 }
 //-----------------------------------------------------------------------------
 UCS_string
-Format_sub::insert_fract_commas(const UCS_string & data,
-                                                 Unicode comma_char) const
+Format_sub::insert_fract_commas(const UCS_string & data) const
 {
 UCS_string ucs;
 size_t d = 0;
@@ -2951,7 +2944,7 @@ size_t d = 0;
         const Unicode fc = format[f];
          if (fc == UNI_ASCII_COMMA)
             {
-              ucs.append(comma_char);
+              ucs.append(Workspace::get_FC(1));
             }
          else if (Avec::is_digit(fc))
             {
@@ -3068,7 +3061,6 @@ Bif_F12_FORMAT::format_col_spec(int width, int precision, const Cell * cB,
                                 int cols, int rows)
 {
 PrintBuffer ret;
-const APL_Char * qFC = Workspace::get_FC();
 
 bool has_char = false;
 bool has_num = false;
@@ -3098,9 +3090,9 @@ bool has_num = false;
 
              if (width && data.size() > width)   // overflow
                 {
-                  if (qFC[3] == UNI_ASCII_0)   DOMAIN_ERROR;
+                  if (Workspace::get_FC(3) == UNI_ASCII_0)   DOMAIN_ERROR;
 
-                  data = UCS_string(width, qFC[3]);
+                  data = UCS_string(width, Workspace::get_FC(3));
                 }
 
              add_row(ret, r, has_char, has_num, UNI_ASCII_E, data);
@@ -3115,8 +3107,8 @@ bool has_num = false;
              UCS_string data = format_spec_float(value, precision);
              if (width && data.size() > width)   // overflow
                 {
-                  if (qFC[3] == UNI_ASCII_0)   DOMAIN_ERROR;
-                  data = UCS_string(width, qFC[3]);
+                  if (Workspace::get_FC(3) == UNI_ASCII_0)   DOMAIN_ERROR;
+                  data = UCS_string(width, Workspace::get_FC(3));
                 }
 
              add_row(ret, r, has_char, has_num, UNI_ASCII_E, data);
@@ -3228,11 +3220,11 @@ ExecuteList * fun = ExecuteList::fix(statement.no_pad(), LOC);
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
 
-   Workspace::the_workspace->push_SI(fun, LOC);
+   Workspace::push_SI(fun, LOC);
 
    Log(LOG_StateIndicator__push_pop)
       {
-        Workspace::the_workspace->SI_top()->info(CERR, LOC);
+        Workspace::SI_top()->info(CERR, LOC);
       }
 
    return Token(TOK_SI_PUSHED);

@@ -424,16 +424,14 @@ Nabla::open_function()
    // all chars are symbol chars.
    // They may or may not relate to an existing symbol.
    //
-Symbol * fsym = Workspace::the_workspace->symbol_table
-                                         .lookup_existing_symbol(fun_name);
-
+Symbol * fsym = Workspace::lookup_existing_symbol(fun_name);
    if (fsym == 0)   return open_new_function();
 
    // existing symbol: check that function is not on the SI stack.
    //
-   if (Workspace::the_workspace->is_called(fun_name))
+   if (Workspace::is_called(fun_name))
       {
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
         t4.clear();
         t4.append_utf8("function ");
         t4.append(fun_name);

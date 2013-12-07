@@ -58,7 +58,7 @@ PointerCell.cc				PointerCell.hh		\
 PrimitiveFunction.cc			PrimitiveFunction.hh	\
 PrimitiveOperator.cc			PrimitiveOperator.hh	\
 PrintBuffer.cc				PrintBuffer.hh		\
-PrintContext.cc				PrintContext.hh		\
+					PrintContext.hh		\
 					PrintOperator.hh	\
 QuadFunction.cc				QuadFunction.hh		\
 ProcessorID.cc				ProcessorID.hh		\
@@ -71,6 +71,7 @@ Shape.cc				Shape.hh		\
 SkalarFunction.cc			SkalarFunction.hh	\
 					Source.hh		\
 StateIndicator.cc			StateIndicator.hh	\
+StaticObjects.cc						\
 		    StaticValues.def				\
 Svar_DB.cc				Svar_DB.hh		\
 udp_signal.m4	    Svar_signals.def	Svar_signals.hh		\

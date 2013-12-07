@@ -142,8 +142,8 @@ loop_b:
         // RO was a user defined function
         //
         arg.how = 1;
-        Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_outer_product);
-        Workspace::the_workspace->SI_top()->get_eoc_arg()._OUTER_PROD() = arg;
+        Workspace::SI_top()->set_eoc_handler(eoc_outer_product);
+        Workspace::SI_top()->get_eoc_arg()._OUTER_PROD() = arg;
 
         return result;   // continue in user defined function...
       }
@@ -191,7 +191,7 @@ OUTER_PROD arg = _arg._OUTER_PROD();
    //
    {
       const bool more = arg.a < (arg.len_A - 1) || arg.b < (arg.len_B - 1);
-      if (more)   Workspace::the_workspace->pop_SI(LOC);
+      if (more)   Workspace::pop_SI(LOC);
    }
    copy_1(token, finish_outer_product(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -336,7 +336,7 @@ loop_b:
            }
 
         arg.how = 1;
-        StateIndicator & si = *Workspace::the_workspace->SI_top();
+        StateIndicator & si = *Workspace::SI_top();
         si.set_eoc_handler(eoc_inner_product);
         si.get_eoc_arg()._INNER_PROD() = arg;
 
@@ -401,7 +401,7 @@ loop_v:
                  }
 
               arg.how = 2;
-              StateIndicator & si = *Workspace::the_workspace->SI_top();
+              StateIndicator & si = *Workspace::SI_top();
               si.set_eoc_handler(eoc_inner_product);
               si.get_eoc_arg()._INNER_PROD() = arg;
 
@@ -459,7 +459,7 @@ Bif_OPER2_PRODUCT::eoc_inner_product(Token & token, _EOC_arg & _arg)
    // we copy _arg since pop_SI() will destroy it
    //
 INNER_PROD arg = _arg._INNER_PROD();
-   if (!arg.last_ufun)   Workspace::the_workspace->pop_SI(LOC);
+   if (!arg.last_ufun)   Workspace::pop_SI(LOC);
 
    if (token.get_Class() == TC_VALUE)
       {

@@ -72,7 +72,7 @@ char * loc = new char[loc_len + 1];
         Backtrace::show(file, line);
 
         CERR << endl << "SI stack:" << endl << endl;
-        Workspace::the_workspace->list_SI(CERR, SIM_SIS_dbg);
+        Workspace::list_SI(CERR, SIM_SIS_dbg);
       }
    CERR << "======================================="
            "=======================================" << endl;
@@ -80,10 +80,7 @@ char * loc = new char[loc_len + 1];
    // count errors
    TestFiles::assert_error();
 
-Workspace * ws = Workspace::the_workspace;
-   if (ws == 0)   return;
-
-Error * err = ws->get_error();
+Error * err = Workspace::get_error();
    if (err)   err->init(E_ASSERTION_FAILED, loc);
 
    asserting = false;

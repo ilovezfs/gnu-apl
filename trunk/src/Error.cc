@@ -151,7 +151,7 @@ throw_apl_error(ErrorCode code, const char * loc) throw(Error)
 {
    ADD_EVENT(0, VHE_Error, code, loc);
 
-StateIndicator * si = Workspace::the_workspace->SI_top();
+StateIndicator * si = Workspace::SI_top();
 
    Log(LOG_error_throw)
       {
@@ -191,7 +191,7 @@ throw_parse_error(ErrorCode code, const char * par_loc, const char *loc) throw(E
 Error error(code, loc);
    error.parser_loc = par_loc;
 
-// StateIndicator * si = Workspace::the_workspace->SI_top();
+// StateIndicator * si = Workspace::SI_top();
 //   if (si)   si->update_error_info(error);
    throw error;
 }
@@ -211,7 +211,7 @@ throw_symbol_error(const UCS_string & sym_name, const char * loc) throw(Error)
 
 Error error(E_VALUE_ERROR, loc);
    error.symbol_name = sym_name;
-   if (Workspace::the_workspace->SI_top())   Workspace::the_workspace->SI_top()->update_error_info(error);
+   if (Workspace::SI_top())   Workspace::SI_top()->update_error_info(error);
    throw error;
 }
 //-----------------------------------------------------------------------------
@@ -232,8 +232,8 @@ Error error(E_DEFN_ERROR, loc);
    error.error_message_2 = UCS_string(6, UNI_ASCII_SPACE);
    error.error_message_2.append(cmd);   // something like ∇FUN[⎕]∇
    error.left_caret = error.error_message_2.size() - 1;
-   if (Workspace::the_workspace->SI_top())   Workspace::the_workspace->SI_top()->get_error() = error;
-   Workspace::the_workspace->update_EM_ET(error);   // update ⎕EM and ⎕ET
+   if (Workspace::SI_top())   *Workspace::get_error() = error;
+   Workspace::update_EM_ET(error);   // update ⎕EM and ⎕ET
    throw error;
 }
 //-----------------------------------------------------------------------------
