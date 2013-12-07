@@ -140,8 +140,7 @@ ValueStackItem & vs = value_stack.back();
              //
              vs.sym_val._value()->clear_assigned();
              if (vs.sym_val._value()->is_arg())
-                Workspace::the_workspace->replace_arg(vs.sym_val._value(),
-                                                      new_value);
+                Workspace::replace_arg(vs.sym_val._value(), new_value);
              vs.sym_val._value()->erase(loc);
 
              vs.sym_val._value() = new_value;
@@ -489,8 +488,8 @@ const ValueStackItem & vs = value_stack.back();
 bool
 Symbol::can_be_defined() const
 {
-   if (value_stack.size() > 1)                      return false;   // localized
-   if (Workspace::the_workspace->is_called(symbol))   return false;  // on stack
+   if (value_stack.size() > 1)         return false;   // localized
+   if (Workspace::is_called(symbol))   return false;  // on stack
 
    if (value_stack.back().name_class == NC_UNUSED_USER_NAME)   return true;
    if (value_stack.back().name_class == NC_FUNCTION)           return true;
@@ -854,7 +853,7 @@ ValueStackItem & vs = value_stack.back();
         const UserFunction * ufun = vs.sym_val.function->get_ufun1();
         Assert(ufun);
         const Executable * exec = ufun;
-        StateIndicator * oexec = Workspace::the_workspace->oldest_exec(exec);
+        StateIndicator * oexec = Workspace::oldest_exec(exec);
         if (oexec)
            {
              // ufun is still used on the SI stack. We do not delete ufun,
@@ -862,7 +861,7 @@ ValueStackItem & vs = value_stack.back();
              //
              // CERR << "⎕EX function " << ufun->get_name()
              //      << " is on SI !" << endl;
-             Workspace::the_workspace->expunged_functions.push_back(ufun);
+             Workspace::add_expunged_function(ufun);
            }
         else
            {

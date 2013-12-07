@@ -30,42 +30,11 @@
 #include "UCS_string.hh"
 #include "Workspace.hh"
 
-// a number of fixed UCS strings, one for each Id.
-//
-#define av(x, u) const UCS_string id_ ## x (UNI_ ## u);
-#define pp(x, u) const UCS_string id_ ## x (UTF8_string(#x));
-#define qf(x, u) const UCS_string id_QUAD_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
-#define qv(x, u) const UCS_string id_QUAD_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
-#define st(x, u) const UCS_string id_ ## x (UTF8_string(u));
-
-#define id_def(_id, _uni, _val, _mac)   _mac(_id, _uni)
-#include "Id.def"
-
 //-----------------------------------------------------------------------------
 ostream &
 operator << (ostream & out, Id id)
 {
    return out << id_name(id);
-}
-//-----------------------------------------------------------------------------
-
-const UCS_string &
-id_name(Id id)
-{
-   switch(id)
-      {
-#define av(x) case ID_ ## x: return id_ ## x;
-#define pp(x) case ID_ ## x: return id_ ## x;
-#define qf(x) case ID_QUAD_ ## x: return id_QUAD_ ## x;
-#define qv(x) case ID_QUAD_ ## x: return id_QUAD_ ## x;
-#define st(x) case ID_ ## x: return id_ ## x;
-
-#define id_def(_id, _uni, _val, _mac) _mac(_id)
-#include "Id.def"
-      }
-
-   CERR << "Unknown Id " << HEX(id);
-   Assert(0 && "Bad Id");
 }
 //-----------------------------------------------------------------------------
 Function *
@@ -94,7 +63,7 @@ get_system_variable(Id id)
 #define av(x)
 #define pp(x)
 #define qf(x)
-#define qv(x) case ID_QUAD_ ## x:return &Workspace::the_workspace->v_quad_ ## x;
+#define qv(x) case ID_QUAD_ ## x:return &Workspace::get_v_quad_ ## x();
 #define st(x) 
 
 #define id_def(_id, _uni, _val, _mac) _mac(_id)

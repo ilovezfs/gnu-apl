@@ -69,7 +69,6 @@ Command::process_line(UCS_string & line)
          case UNI_ASCII_R_PARENT:      // regular command, e.g. )SI
          case UNI_ASCII_R_BRACK:       // debug command, e.g. ]LOG
               {
-                Workspace & w = *Workspace::the_workspace;
                 ostream & out = (line[0] == UNI_ASCII_R_PARENT) ? COUT : CERR;
 
                 // split line into command and arguments
@@ -156,14 +155,14 @@ const Executable * statements = 0;
           //
           for (bool goon = true; goon;)
               {
-                StateIndicator * si = Workspace::the_workspace->SI_top();
+                StateIndicator * si = Workspace::SI_top();
                 if (si == 0)   break;   // SI empty
 
                 const Executable * exec = si->get_executable();
                 Assert(exec);
                 goon = exec->get_parse_mode() != PM_STATEMENT_LIST;
                 si->escape();   // pop local vars of user defined functions
-                Workspace::the_workspace->pop_SI(LOC);
+                Workspace::pop_SI(LOC);
               }
           return;
         }
@@ -173,7 +172,7 @@ const Executable * statements = 0;
 
    // push a new context for the statements.
    //
-   Workspace::the_workspace->push_SI(statements, LOC);
+   Workspace::push_SI(statements, LOC);
 
    for (;;)
        {
@@ -181,7 +180,7 @@ const Executable * statements = 0;
          // NOTE that the entire SI may change while executing this loop.
          // We should therefore avoid references to SI entries.
          //
-         Token token = Workspace::the_workspace->SI_top()
+         Token token = Workspace::SI_top()
                                   ->get_executable()->execute_body();
 
 // Q(token)
@@ -192,7 +191,7 @@ const Executable * statements = 0;
 
          // maybe call EOC handler and repeat if true returned
          //
-         if (Workspace::the_workspace->SI_top()->call_eoc_handler(token))
+         if (Workspace::SI_top()->call_eoc_handler(token))
             continue;
 
          // the far most frequent cases are TC_VALUE and TOK_VOID
@@ -200,7 +199,7 @@ const Executable * statements = 0;
          //
          if (token.get_Class() == TC_VALUE || token.get_tag() == TOK_VOID )
             {
-              if (Workspace::the_workspace->SI_top()->get_executable()
+              if (Workspace::SI_top()->get_executable()
                              ->get_parse_mode() == PM_STATEMENT_LIST)
                  {
                    if (attention_raised)
@@ -213,7 +212,7 @@ const Executable * statements = 0;
                    break;   // will return to calling context
                  }
 
-              Workspace::the_workspace->pop_SI(LOC);
+              Workspace::pop_SI(LOC);
 
               // we are back in the calling SI. There should be a TOK_SI_PUSHED
               // token at the top of stack. Replace it with the result from
@@ -221,7 +220,7 @@ const Executable * statements = 0;
               //
               {
                 Prefix & prefix =
-                         Workspace::the_workspace->SI_top()->get_prefix();
+                         Workspace::SI_top()->get_prefix();
                 Assert(prefix.at0().get_tag() == TOK_SI_PUSHED);
 
                 copy_1(prefix.tos().tok, token, LOC);
@@ -238,19 +237,19 @@ const Executable * statements = 0;
 
          if (token.get_tag() == TOK_BRANCH)
             {
-              StateIndicator * si = Workspace::the_workspace->SI_top_fun();
+              StateIndicator * si = Workspace::SI_top_fun();
 
               if (si == 0)
                  {
-                    Workspace::the_workspace->more_error = UCS_string(
+                    Workspace::more_error() = UCS_string(
                           _("empty branch (→⍳0) without suspended function"));
                     SYNTAX_ERROR;   // →N without function,
                  }
 
               // pop contexts above defined function
               //
-              while (si != Workspace::the_workspace->SI_top())
-                    Workspace::the_workspace->pop_SI(LOC);
+              while (si != Workspace::SI_top())
+                    Workspace::pop_SI(LOC);
 
               const Function_Line line = Function_Line(token.get_int_val());
 
@@ -266,14 +265,14 @@ const Executable * statements = 0;
               //
               for (bool goon = true; goon;)
                   {
-                    StateIndicator * si = Workspace::the_workspace->SI_top();
+                    StateIndicator * si = Workspace::SI_top();
                     if (si == 0)   break;   // SI empty
 
                     const Executable * exec = si->get_executable();
                     Assert(exec);
                     goon = exec->get_parse_mode() != PM_STATEMENT_LIST;
                     si->escape();   // pop local vars of user defined functions
-                    Workspace::the_workspace->pop_SI(LOC);
+                    Workspace::pop_SI(LOC);
               }
               return;
 
@@ -287,8 +286,8 @@ const Executable * statements = 0;
               attention_raised = false;
               interrupt_raised = false;
 
-              Workspace::the_workspace->SI_top()->get_error().print(CERR);
-              if (Workspace::the_workspace->SI_top()->get_level() == 0)
+              Workspace::get_error()->print(CERR);
+              if (Workspace::SI_top()->get_level() == 0)
                  {
                    Value::erase_stale(LOC);
                    IndexExpr::erase_stale(LOC);
@@ -303,7 +302,7 @@ const Executable * statements = 0;
 
    // pop the context for the statements
    //
-   Workspace::the_workspace->pop_SI(LOC);
+   Workspace::pop_SI(LOC);
 }
 //-----------------------------------------------------------------------------
 void 
@@ -313,7 +312,7 @@ Command::cmd_CHECK(ostream & out)
    //
    {
      bool erased = false;
-     const int stale = Workspace::the_workspace->cleanup_expunged(CERR, erased);
+     const int stale = Workspace::cleanup_expunged(CERR, erased);
      if (stale)
         {
           char cc[200];
@@ -349,10 +348,10 @@ Command::cmd_CHECK(ostream & out)
 void 
 Command::cmd_CONTINUE(ostream & out)
 {
-   Workspace::the_workspace->wsid(out, UCS_string("CONTINUE"));
+   Workspace::wsid(out, UCS_string("CONTINUE"));
 
 vector<UCS_string> vcont;
-   Workspace::the_workspace->save_WS(out, vcont);
+   Workspace::save_WS(out, vcont);
    cmd_OFF(0);
 }
 //-----------------------------------------------------------------------------
@@ -369,7 +368,7 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
       {
         out << _("BAD COMMAND") << endl;
 
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
         t4 = UCS_string(_("missing workspace name in command )DROP"));
         return;
       }
@@ -377,7 +376,7 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
    if (lib_ws.size() > 2)   // too many arguments
       {
         out << _("BAD COMMAND") << endl;
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
 
         t4 = UCS_string(_("too many parameters in command )DROP"));
         return;
@@ -395,7 +394,7 @@ int result = unlink((const char *)filename.c_str());
    if (result)
       {
         out << wname << _(" NOT DROPPED: ") << strerror(errno) << endl;
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
         t4.clear();
         t4.append_ascii(_("could not unlink file "));
         t4.append_utf8(filename.c_str());
@@ -405,7 +404,7 @@ int result = unlink((const char *)filename.c_str());
 void
 Command::cmd_ERASE(ostream & out, vector<UCS_string> & args)
 {
-   Workspace::the_workspace->erase_symbols(CERR, args);
+   Workspace::erase_symbols(CERR, args);
 }
 //-----------------------------------------------------------------------------
 void 
@@ -467,7 +466,7 @@ Command::cmd_IN(ostream & out, vector<UCS_string> & args, bool protection)
    if (args.size() == 0)
       {
         out << _("BAD COMMAND") << endl;
-        Workspace::the_workspace->more_error =
+        Workspace::more_error() =
                    UCS_string(_("missing filename in command )IN"));
         return;
       }
@@ -486,7 +485,7 @@ FILE * in = fopen((const char *)(filename.c_str()), "r");
         snprintf(cc, sizeof(cc),
                  _("command )IN: could not open file %s for reading: %s"),
                  fname.c_str(), strerror(errno));
-        Workspace::the_workspace->more_error = UCS_string(cc);
+        Workspace::more_error() = UCS_string(cc);
         return;
       }
 
@@ -596,7 +595,7 @@ DIR * dir = opendir((const char *)path.c_str());
           snprintf(cc, sizeof(cc),
                    _("path %s: could not be openend as directory: %s"),
                    path.c_str(), strerror(errno));
-        Workspace::the_workspace->more_error = UCS_string(cc);
+        Workspace::more_error() = UCS_string(cc);
         return;
       }
 
@@ -659,13 +658,13 @@ Command::cmd_LOG(ostream & out, const UCS_string & arg)
 void 
 Command::cmd_MORE(ostream & out)
 {
-   if (Workspace::the_workspace->more_error.size() == 0)
+   if (Workspace::more_error().size() == 0)
       {
         out << _("NO MORE ERROR INFO") << endl;
         return;
       }
 
-   out << Workspace::the_workspace->more_error << endl;
+   out << Workspace::more_error() << endl;
    return;
 }
 //-----------------------------------------------------------------------------
@@ -684,7 +683,7 @@ Command::cmd_OUT(ostream & out, vector<UCS_string> & args)
    if (args.size() == 0)
       {
         out << _("BAD COMMAND") << endl;
-        Workspace::the_workspace->more_error =
+        Workspace::more_error() =
                    UCS_string(_("missing filename in command )OUT"));
         return;
       }
@@ -702,12 +701,12 @@ FILE * atf = fopen((const char *)(filename.c_str()), "w");
         snprintf(cc, sizeof(cc),
                  _("command )OUT: could not open file %s for writing: %s"),
                  fname.c_str(), strerror(errno));
-        Workspace::the_workspace->more_error = UCS_string(cc);
+        Workspace::more_error() = UCS_string(cc);
         return;
       }
 
 uint64_t seq = 1;   // sequence number for records written
-   Workspace::the_workspace->write_OUT(atf, seq, args);
+   Workspace::write_OUT(atf, seq, args);
 
    fclose(atf);
 }
@@ -885,13 +884,13 @@ Symbol * sym = 0;
    if (var_name[0] == UNI_QUAD_QUAD)   // system variable.
       {
         int len = 0;
-        const Token t = Workspace::the_workspace->get_quad(var_name, len);
+        const Token t = Workspace::get_quad(var_name, len);
         if (t.get_ValueType() == TV_SYM)   sym = t.get_sym_ptr();
         else                               Assert(0 && "Bad system variable");
       }
    else                            // user defined variable
       {
-        sym = Workspace::the_workspace-> symbol_table.lookup_symbol(var_name);
+        sym = Workspace::lookup_symbol(var_name);
         Assert(sym);
       }
    
@@ -944,13 +943,13 @@ Symbol * sym = 0;
    if (var_name[0] == UNI_QUAD_QUAD)   // system variable.
       {
         int len = 0;
-        const Token t = Workspace::the_workspace->get_quad(var_name, len);
+        const Token t = Workspace::get_quad(var_name, len);
         if (t.get_ValueType() == TV_SYM)   sym = t.get_sym_ptr();
         else                               Assert(0 && "Bad system variable");
       }
    else                            // user defined variable
       {
-        sym = Workspace::the_workspace-> symbol_table.lookup_symbol(var_name);
+        sym = Workspace::lookup_symbol(var_name);
         Assert(sym);
       }
    
@@ -1021,7 +1020,7 @@ UCS_string statement;
 UCS_string fun_name1;
    Quad_TF::tf2_parse(statement, fun_name1);
 
-Symbol * sym1 = Workspace::the_workspace->lookup_existing_symbol(fun_name1);
+Symbol * sym1 = Workspace::lookup_existing_symbol(fun_name1);
    Assert(sym1);
 Function * fun1 = sym1->get_function();
    Assert(fun1);

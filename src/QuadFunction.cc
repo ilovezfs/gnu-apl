@@ -124,7 +124,7 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
             symbol_name.append(uni);
            }
 
-        NamedObject * obj = Workspace::the_workspace->lookup_existing_name(symbol_name);
+        NamedObject * obj = Workspace::lookup_existing_name(symbol_name);
         if (obj == 0)   throw_symbol_error(symbol_name, LOC);
 
         const Function * function = obj->get_function();
@@ -147,7 +147,7 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
         if (symbol_name[0] == UNI_QUAD_QUAD)   // system function or variable
            {
              int l;
-             const Token t(Workspace::the_workspace->get_quad(symbol_name, l));
+             const Token t(Workspace::get_quad(symbol_name, l));
              if (t.get_Class() == TC_SYMBOL)   // system variable
                 {
                   Symbol * symbol = t.get_sym_ptr();
@@ -159,7 +159,7 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
            }
         else                                   // user defined
            {
-             Symbol * symbol = Workspace::the_workspace->lookup_existing_symbol(symbol_name);
+             Symbol * symbol = Workspace::lookup_existing_symbol(symbol_name);
              if (symbol == 0)   VALUE_ERROR;
 
              symbol->get_attributes(mode, &Z->get_ravel(r*mode_len));
@@ -184,7 +184,7 @@ UCS_string symbol_name(B.get_ref());
     *  3) symbol_name is a function,         or
     *  4) symbol_name is not displayable
     */
-NamedObject * obj = Workspace::the_workspace->lookup_existing_name(symbol_name);
+NamedObject * obj = Workspace::lookup_existing_name(symbol_name);
    if (obj == 0)   return CHECK((Value::Str0_0_P), LOC);
 
    if (!obj->is_user_defined())   return CHECK((Value::Str0_0_P), LOC);
@@ -262,7 +262,8 @@ PrintStyle style;
         default: DOMAIN_ERROR;
       }
 
-const PrintContext pctx(style, *Workspace::the_workspace);
+const PrintContext pctx(style, Workspace::get_PP(),
+                        Workspace::get_CT(), Workspace::get_PW());
 PrintBuffer pb(*B, pctx);
    Assert(pb.is_rectangular());
 
@@ -350,13 +351,13 @@ const UCS_string statement_B(B.get_ref());
 
         Log(LOG_UserFunction__execute)   fun->print(CERR);
 
-        Workspace::the_workspace->push_SI(fun, LOC);
-        Workspace::the_workspace->SI_top()->set_safe_execution(true);
+        Workspace::push_SI(fun, LOC);
+        Workspace::SI_top()->set_safe_execution(true);
 
         // install end of context handler. The handler will do nothing when
         // B succeeds, but will execute A if not.
         //
-        StateIndicator * si = Workspace::the_workspace->SI_top();
+        StateIndicator * si = Workspace::SI_top();
 
         si->set_eoc_handler(eoc_A_done);
         si->get_eoc_arg()._quad_EA().A = A;
@@ -369,13 +370,13 @@ const UCS_string statement_B(B.get_ref());
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
 
-   Workspace::the_workspace->push_SI(fun, LOC);
-   Workspace::the_workspace->SI_top()->set_safe_execution(true);
+   Workspace::push_SI(fun, LOC);
+   Workspace::SI_top()->set_safe_execution(true);
 
    // install end of context handler. The handler will do nothing when
    // B succeeds, but will execute A if not.
    //
-StateIndicator * si = Workspace::the_workspace->SI_top();
+StateIndicator * si = Workspace::SI_top();
    si->set_eoc_handler(eoc_B_done);
    si->get_eoc_arg()._quad_EA().A = A;
    si->get_eoc_arg()._quad_EA().B = B;
@@ -386,7 +387,7 @@ StateIndicator * si = Workspace::the_workspace->SI_top();
 bool
 Quad_EA::eoc_B_done(Token & token, _EOC_arg & arg)
 {
-StateIndicator * si = Workspace::the_workspace->SI_top();
+StateIndicator * si = Workspace::SI_top();
 
    // in A ⎕EA B, ⍎B was executed and may or may not have failed.
    //
@@ -428,14 +429,14 @@ ExecuteList * fun = 0;
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
 
-   Workspace::the_workspace->pop_SI(LOC);
-   Workspace::the_workspace->push_SI(fun, LOC);
-   Workspace::the_workspace->SI_top()->set_safe_execution(true);
+   Workspace::pop_SI(LOC);
+   Workspace::push_SI(fun, LOC);
+   Workspace::SI_top()->set_safe_execution(true);
 
    // install end of context handler for the result of ⍎A. 
    //
    {
-     StateIndicator * si1 = Workspace::the_workspace->SI_top();
+     StateIndicator * si1 = Workspace::SI_top();
      si1->set_eoc_handler(eoc_A_done);
      si1->get_eoc_arg()._quad_EA().A = A;
      si1->get_eoc_arg()._quad_EA().B = B;
@@ -450,7 +451,7 @@ Quad_EA::eoc_A_done(Token & token, _EOC_arg & arg)
    // in A ⎕EA B, ⍎B has failed, and ⍎A was executed and may or
    // may not have failed.
    //
-   Workspace::the_workspace->SI_top()->set_safe_execution(false);
+   Workspace::SI_top()->set_safe_execution(false);
 
    if (token.get_tag() != TOK_ERROR)   // ⍎B succeeded
       {
@@ -469,7 +470,7 @@ const UCS_string statement_A(A.get_ref());
    // display of errors was disabled since ⎕EM was incorrect.
    // now we have fixed ⎕EM and can display it.
    //
-StateIndicator * si = Workspace::the_workspace->SI_top();
+StateIndicator * si = Workspace::SI_top();
    COUT << si->get_error().get_error_line_1() << endl
         << si->get_error().get_error_line_2() << endl
         << si->get_error().get_error_line_3() << endl;
@@ -513,10 +514,10 @@ const UCS_string statement_B(B.get_ref());
    ucs_2.append(statement_B);
    ucs_2.append(UNI_SINGLE_QUOTE);
 
-StateIndicator * si = Workspace::the_workspace->SI_top();
+StateIndicator * si = Workspace::SI_top();
    si->get_error() .set_error_line_2(ucs_2, left_caret, right_caret);
 
-   Workspace::the_workspace->update_EM_ET(si->get_error());  // ⎕EM and ⎕ET
+   Workspace::update_EM_ET(si->get_error());  // ⎕EM and ⎕ET
 }
 //=============================================================================
 Token
@@ -551,13 +552,13 @@ ExecuteList * fun = 0;
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
 
-   Workspace::the_workspace->push_SI(fun, LOC);
-   Workspace::the_workspace->SI_top()->set_safe_execution(true);
+   Workspace::push_SI(fun, LOC);
+   Workspace::SI_top()->set_safe_execution(true);
 
    // install end of context handler.
    // The handler will create the result after executing B.
    //
-   Workspace::the_workspace->SI_top()->set_eoc_handler(eoc);
+   Workspace::SI_top()->set_eoc_handler(eoc);
    // no EOC handler arguments
 
    return Token(TOK_SI_PUSHED);
@@ -567,7 +568,7 @@ ExecuteList * fun = 0;
 bool
 Quad_EC::eoc(Token & result_B, _EOC_arg &)
 {
-   Workspace::the_workspace->SI_top()->set_safe_execution(false);
+   Workspace::SI_top()->set_safe_execution(false);
 
 Value_P Z(new Value(3, LOC), LOC);
 Value_P Z2;
@@ -731,7 +732,7 @@ const bool int_B = B->get_ravel(0).is_integer_cell();
 
    if (error.error_code == E_NO_ERROR)   // B = 0 0: reset ⎕ET and ⎕EM.
       {
-        Workspace::the_workspace->clear_error(LOC);
+        Workspace::clear_error(LOC);
         return CHECK(Value::Str0_0_P, LOC);
       }
 
@@ -750,8 +751,8 @@ const bool int_B = B->get_ravel(0).is_integer_cell();
 
    error.show_locked = true;
 
-   if (Workspace::the_workspace->SI_top())
-      Workspace::the_workspace->SI_top()->update_error_info(error);
+   if (Workspace::SI_top())
+      Workspace::SI_top()->update_error_info(error);
 
    return Token();
 }
@@ -801,7 +802,7 @@ Quad_EX::expunge(UCS_string name)
 {
    if (name.size() == 0)   return 0;
 
-Symbol * symbol = Workspace::the_workspace->lookup_existing_symbol(name);
+Symbol * symbol = Workspace::lookup_existing_symbol(name);
    if (symbol == 0)   return 0;
    return symbol->expunge();
 }
@@ -1135,14 +1136,14 @@ quad_INP arg = _arg._quad_INP();
                    // call to eoc_INP() then pop it.
                    //
                    if (token.get_tag() != TOK_FIRST_TIME)
-                      Workspace::the_workspace->pop_SI(LOC);
+                      Workspace::pop_SI(LOC);
 
                    arg.lines = new UCS_string_list(line, arg.lines);
 
                    move_2(token, Bif_F1_EXECUTE::execute_statement(exec), LOC);
                    Assert(token.get_tag() == TOK_SI_PUSHED);
 
-                   StateIndicator * si = Workspace::the_workspace->SI_top();
+                   StateIndicator * si = Workspace::SI_top();
                    si->set_eoc_handler(eoc_INP);
                    si->get_eoc_arg()._quad_INP() = arg;
                    return true;   // continue
@@ -1202,7 +1203,7 @@ Quad_NC::get_NC(const UCS_string ucs)
    if (ucs[0] == UNI_QUAD_QUAD)   // quad fun or var
       {
         int len = 0;
-        const Token t = Workspace::the_workspace->get_quad(ucs, len);
+        const Token t = Workspace::get_quad(ucs, len);
         if (len < 2)                      return -1;   // invalid quad
         if (t.get_Class() == TC_SYMBOL)   return  2;   // quad variable
         else                              return  3;   // quad function
@@ -1210,7 +1211,7 @@ Quad_NC::get_NC(const UCS_string ucs)
         // cases 0, 1, or 4 cannot happen for Quad symbols
       }
 
-Symbol * symbol = Workspace::the_workspace->lookup_existing_symbol(ucs);
+Symbol * symbol = Workspace::lookup_existing_symbol(ucs);
 
    if (!symbol)   return 0;   // not known
 
@@ -1227,9 +1228,9 @@ Quad_NL::do_quad_NL(Value_P A, Value_P B)
    if (!!A && !A->is_char_string())                        DOMAIN_ERROR;
    if (!B->is_int_vector(0.1) && !B->is_int_skalar(0.1))   DOMAIN_ERROR;
 
-uint32_t symbol_count = Workspace::the_workspace->symbols_allocated();
+uint32_t symbol_count = Workspace::symbols_allocated();
 Symbol * table[symbol_count];
-   Workspace::the_workspace->get_all_symbols(table, symbol_count);
+   Workspace::get_all_symbols(table, symbol_count);
 
    // remove symbols that are erased or not in A (if provided). We remove
    // by overriding the symbol pointer to be erased by the last pointer in
@@ -1327,13 +1328,13 @@ Quad_SI::eval_AB(Value_P A, Value_P B)
         else                     LENGTH_ERROR;
       }
 APL_Integer a = A->get_ravel(0).get_int_value();
-const ShapeItem len = Workspace::the_workspace->SI_entry_count();
+const ShapeItem len = Workspace::SI_entry_count();
    if (a >= len)   DOMAIN_ERROR;
    if (a < -len)   DOMAIN_ERROR;
    if (a < 0)   a += len;   // negative a counts backwards from end
 
 const StateIndicator * si = 0;
-   for (si = Workspace::the_workspace->SI_top(); si; si = si->get_parent())
+   for (si = Workspace::SI_top(); si; si = si->get_parent())
        {
          if (si->get_level() == a)   break;   // found
        }
@@ -1405,7 +1406,7 @@ Quad_SI::eval_B(Value_P B)
       }
 
 const APL_Integer b = B->get_ravel(0).get_int_value();
-const ShapeItem len = Workspace::the_workspace->SI_entry_count();
+const ShapeItem len = Workspace::SI_entry_count();
 
    if (b < 1)   DOMAIN_ERROR;
    if (b > 4)   DOMAIN_ERROR;
@@ -1415,7 +1416,7 @@ const ShapeItem len = Workspace::the_workspace->SI_entry_count();
 Value_P Z(new Value(len, LOC), LOC);
 
 ShapeItem z = 0;
-   for (const StateIndicator * si = Workspace::the_workspace->SI_top();
+   for (const StateIndicator * si = Workspace::SI_top();
         si; si = si->get_parent())
        {
          Cell * cZ = &Z->get_ravel(len - ++z);

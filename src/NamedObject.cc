@@ -42,7 +42,7 @@ NamedObject::get_nc() const
    Assert(idname[0] == UNI_QUAD_QUAD);
 
 int len;
-Token tok = Workspace::the_workspace->get_quad(idname, len);
+Token tok = Workspace::get_quad(idname, len);
    if (len == 1)   return NC_INVALID;
 
    if (tok.get_Class() == TC_SYMBOL)   return NC_VARIABLE;

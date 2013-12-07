@@ -158,7 +158,7 @@ Token_string out;
 Token
 Executable::execute_body() const
 {
-StateIndicator & si = *Workspace::the_workspace->SI_top();
+StateIndicator & si = *Workspace::SI_top();
 
    try                 { return si.run();                         }
    catch (Error err)   { return Token(TOK_ERROR, err.error_code); }
@@ -391,10 +391,7 @@ ExecuteList * fun = new ExecuteList(data, loc);
       }
 
    {
-     Workspace * ws = Workspace::the_workspace;
-     Assert(ws);
-
-     Error * err = ws->get_error();
+     Error * err = Workspace::get_error();
      if (err)   err->parser_loc = 0;
    }
 
@@ -433,10 +430,7 @@ StatementList * fun = new StatementList(data, loc);
       }
 
    {
-     Workspace * ws = Workspace::the_workspace;
-     Assert(ws);
-
-     Error * err = ws->get_error();
+     Error * err = Workspace::get_error();
      if (err)   err->parser_loc = 0;
    }
 

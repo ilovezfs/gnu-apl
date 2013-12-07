@@ -406,7 +406,7 @@ XML_Saving_Archive::operator <<(const StateIndicator & si)
       {
         case PM_FUNCTION:
              {
-               Symbol * sym = workspace.lookup_symbol(exec.get_name());
+               Symbol * sym = Workspace::lookup_symbol(exec.get_name());
                Assert(sym);
                const UserFunction * ufun = exec.get_ufun();
                Assert(ufun);
@@ -553,7 +553,7 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                          if (ufun)   // user defined function
                             {
                               const UCS_string & fname = ufun->get_name();
-                              Symbol * sym = workspace.lookup_symbol(fname);
+                              Symbol * sym = Workspace::lookup_symbol(fname);
                               Assert(sym);
                               const int sym_depth = sym->get_ufun_depth(ufun);
                               out << " ufun-name=\"" << fname
@@ -613,7 +613,7 @@ XML_Saving_Archive::operator <<(const ValueStackItem & vsi)
 }
 //-----------------------------------------------------------------------------
 XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const Workspace & ws)
+XML_Saving_Archive::save()
 {
 tm * t;
    {
@@ -724,14 +724,14 @@ tm * t;
 "    <!-- hour/minute/second is )SAVE time in UTC (aka. GMT).\n"
 "         timezone is offset to UTC in seconds.\n"
 "         local time is UTC + offset -->\n"
-"<Workspace wsid=\""     << workspace.WS_name
+"<Workspace wsid=\""     << Workspace::get_WS_name()
      << "\" year=\""     << (t->tm_year + 1900)
      << "\" month=\""    << (t->tm_mon  + 1)
      << "\" day=\""      <<  t->tm_mday << "\"" << endl <<
 "           hour=\""     <<  t->tm_hour
      << "\" minute=\""   <<  t->tm_min
      << "\" second=\""   <<  t->tm_sec
-     << "\" timezone=\"" << ws.v_quad_TZ.get_offset()
+     << "\" timezone=\"" << Workspace::get_v_quad_TZ().get_offset()
      << "\">\n" << endl;
 
    ++indent;
@@ -740,7 +740,7 @@ tm * t;
    // saving of stale values and unmark the used values
    //
    Value::mark_all_dynamic_values();
-   Workspace::the_workspace->unmark_all_values();
+   Workspace::unmark_all_values();
 
    for (const DynamicObject * obj = DynamicObject::get_all_values()->get_next();
         obj != DynamicObject::get_all_values(); obj = obj->get_next())
@@ -790,18 +790,19 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save user defined symbols
    //
-   *this << ws.symbol_table;
+   *this << Workspace::get_symbol_table();
 
    // save certain system variables
    //
-#define rw_sv_def(x) *this << ws.v_quad_ ## x;
-#define ro_sv_def(x) *this << ws.v_quad_ ## x;
+#define rw_sv_def(x) *this << Workspace::get_v_quad_ ## x(); \
+                      Q(Workspace::get_v_quad_ ## x().get_name())
+#define ro_sv_def(x) *this << Workspace::get_v_quad_ ## x();
 #include "SystemVariable.def"
 
    // save state indicator
    //
    {
-     const int levels = ws.SI_entry_count();
+     const int levels = Workspace::SI_entry_count();
      do_indent();
      out << "<StateIndicator levels=\"" << levels << "\">" << endl;
 
@@ -809,7 +810,7 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
      loop(l, levels)
         {
-          for (const StateIndicator * si = ws.SI_top();
+          for (const StateIndicator * si = Workspace::SI_top();
                si; si = si->get_parent())
               {
                 if (si->get_level() == l)
@@ -837,11 +838,10 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
        << char(0) << char(0) <<char(0) <<char(0) << endl;
 }
 //=============================================================================
-XML_Loading_Archive::XML_Loading_Archive(const char * filename, Workspace & ws)
+XML_Loading_Archive::XML_Loading_Archive(const char * filename)
    : line(1),
      data(0),
      end(0),
-     workspace(ws),
      copying(false),
      protection(false),
      reading_vids(false)
@@ -1121,7 +1121,7 @@ const char * tz_sign = (tzone < 0) ? "" : "+";
 const UTF8 * end = wsid;
    while (*end != '"')   ++end;
 
-   workspace.WS_name = UCS_string(UTF8_string(wsid, end - wsid));
+   Workspace::set_WS_name(UCS_string(UTF8_string(wsid, end - wsid)));
 }
 //-----------------------------------------------------------------------------
 void
@@ -1472,7 +1472,7 @@ const int depth = find_int_attr("stack-size", false, 10);
 
    // lookup symbol, trying ⎕xx first
    //
-Symbol * symbol = workspace.lookup_existing_symbol(name_ucs);
+Symbol * symbol = Workspace::lookup_existing_symbol(name_ucs);
 
    // we do NOT copy if:
    //
@@ -1515,7 +1515,7 @@ const bool no_copy = (symbol && protection) || ! is_allowed(name_ucs);
            }
       }
 
-   if (symbol == 0)   symbol = workspace.symbol_table.lookup_symbol(name_ucs);
+   if (symbol == 0)   symbol = Workspace::lookup_symbol(name_ucs);
    Assert(symbol);
 
    loop(d, depth)
@@ -1577,8 +1577,8 @@ const Executable * exec = 0;
    Assert(lev == level);
    Assert(exec);
 
-   workspace.push_SI(exec, LOC);
-StateIndicator * si = workspace.SI_top();
+   Workspace::push_SI(exec, LOC);
+StateIndicator * si = Workspace::SI_top();
    Assert(si);
    if (Id_arg_F != -1)
       {
@@ -1631,7 +1631,7 @@ const UTF8 * n  = name;
 UTF8_string name_utf(name, n - name);
 UCS_string name_ucs(name_utf);
 
-Symbol * symbol = workspace.symbol_table.lookup_symbol(name_ucs);
+Symbol * symbol = Workspace::lookup_symbol(name_ucs);
    Assert(symbol);
    Assert(level >= 0);
    Assert(level < symbol->value_stack_size());
@@ -1724,7 +1724,7 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                while (*end != '"')   ++end;
                UTF8_string name_utf(sym_name, end - sym_name);
                UCS_string name_ucs(name_utf);
-               Symbol * symbol = workspace.symbol_table.lookup_symbol(name_ucs);
+               Symbol * symbol = Workspace::lookup_symbol(name_ucs);
                new (&tloc.tok) Token(tag, symbol);
              }
              break;
@@ -1790,8 +1790,7 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                     while (*end != '"')   ++end;
                     UTF8_string name_utf(fun_name, end - fun_name);
                     UCS_string ucs(name_utf);
-                    const Symbol & symbol =
-                                   *workspace.symbol_table.lookup_symbol(ucs);
+                    const Symbol & symbol = *Workspace::lookup_symbol(ucs);
                     Assert(level >= 0);
                     Assert(level < symbol.value_stack_size());
                     const ValueStackItem & vsi = symbol[level];

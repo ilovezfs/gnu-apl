@@ -110,13 +110,13 @@ const UTF8 * buf = TestFiles::get_testcase_line();
    if (buf)   // we got a line from a test file.
       {
         input_type = "-T";
-        CIN << Workspace::the_workspace->prompt << buf << endl;
+        CIN << Workspace::get_prompt() << buf << endl;
       }
    else if (input_file_FILE)   // a -f file is open
       {
         input_type = "-f";
         buf = get_f_line(input_file_FILE);
-        if (buf)   CIN << Workspace::the_workspace->prompt << buf << endl;
+        if (buf)   CIN << Workspace::get_prompt() << buf << endl;
       }
    else if (input_file_name)   // -f present, but not opened yet
       {
@@ -152,7 +152,7 @@ const UTF8 * buf = TestFiles::get_testcase_line();
    if (buf == 0)   // all reads from files failed
       {
         input_type = "U";
-        buf = get_user_line(&Workspace::the_workspace->prompt);
+        buf = get_user_line(&Workspace::get_prompt());
       }
 
    if (buf == 0)   // ^D or end of file
@@ -234,7 +234,7 @@ char * line = readline_lib::no_readline(prompt);
 #endif
 
 const APL_time to = now();
-   Workspace::the_workspace->add_wait(to - from);
+   Workspace::add_wait(to - from);
 
 UTF8 * l = (UTF8 *)line;
    if (l)

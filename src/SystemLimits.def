@@ -4,7 +4,7 @@
 syl2("SI depth limit          (0 = no limit)" , SI_DEPTH_LIMIT    , si_depth_limit      )
 syl2("number of values limit  (0 = no limit)" , VALUE_COUNT_LIMIT , value_count_limit   )
 syl2("total ravel bytes limit (0 = no limit)" , RAVEL_BYTES_LIMIT , ravel_count_limit * sizeof(Cell))
-syl2("current SI depth"                       , __CURSI           , Workspace::the_workspace->SI_entry_count())
+syl2("current SI depth"                       , __CURSI           , Workspace::SI_entry_count())
 syl2("current number of values"               , __CURVC           , Value::value_count  )
 syl2("current total ravel bytes"              , __CURRC           , Value::total_ravel_count * sizeof(Cell))
 syl2("max. rank for APL values"               , __MAXRK           , MAX_RANK_WANTED     )

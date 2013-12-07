@@ -117,7 +117,7 @@ Source<Unicode> src(input);
                       {
                         ++src;
                         tos.append(Token(TOK_QUAD_QUOTE,
-                                     &Workspace::the_workspace->v_quad_QUOTE));
+                                   &Workspace::get_v_quad_QUOTE()));
                       }
                    else
                       {
@@ -327,7 +327,7 @@ UCS_string ucs;
    ucs.append((src.rest() > 2) ? src[2] : Invalid_Unicode);
 
 int len = 0;
-const Token t = Workspace::the_workspace->get_quad(ucs, len);
+const Token t = Workspace::get_quad(ucs, len);
    src.skip(len - 1);
    tos.append(t);
 }
@@ -641,7 +641,7 @@ UCS_string symbol;
          ++src;
        }
 
-Symbol * sym = Workspace::the_workspace->symbol_table.lookup_symbol(symbol);
+Symbol * sym = Workspace::lookup_symbol(symbol);
    tos.append(Token(TOK_SYMBOL, sym));
 }
 //-----------------------------------------------------------------------------

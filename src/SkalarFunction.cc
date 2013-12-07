@@ -450,7 +450,7 @@ uint32_t idx_B[set_size];
 
    loop(z, aa)
        {
-         const APL_Integer rnd = Workspace::the_workspace->get_RL() % set_size;
+         const APL_Integer rnd = Workspace::get_RL() % set_size;
          new (&Z->get_ravel(z)) IntCell(idx_B[rnd]);
          idx_B[rnd] = idx_B[set_size - 1];   // move last item in.
          --set_size;

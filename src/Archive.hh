@@ -38,7 +38,6 @@ class Token;
 class Token_loc;
 class Value;
 class ValueStackItem;
-class Workspace;
 
 using namespace std;
 
@@ -48,10 +47,9 @@ class XML_Saving_Archive
 {
 public:
    /// constructor: remember output stream and  workspace
-   XML_Saving_Archive(ofstream & of, Workspace & ws)
+   XML_Saving_Archive(ofstream & of)
    : indent(0),
-     out(of),
-     workspace(ws)
+     out(of)
    {}
 
    /// destructor
@@ -90,8 +88,8 @@ public:
    /// write ravel of Value \b v
    XML_Saving_Archive & save_ravel(Value_P v);
 
-   /// write Workspace \b ws
-   XML_Saving_Archive & operator <<(const Workspace & ws);
+   /// write entire workspace
+   XML_Saving_Archive & save();
 
 protected:
    /// width of one indentation level
@@ -142,9 +140,6 @@ protected:
 
    /// current value number
    int vid;
-
-   /// the workspace being save
-   Workspace & workspace;
 };
 //-----------------------------------------------------------------------------
 /// a helper class for loading an APL workspace
@@ -152,7 +147,7 @@ class XML_Loading_Archive
 {
 public:
    /// constructor: remember file name and workspace
-   XML_Loading_Archive(const char * filename, Workspace & ws);
+   XML_Loading_Archive(const char * filename);
 
    /// return true iff constructor could open the file
    bool is_open() const   { return fd != -1; }
@@ -302,9 +297,6 @@ protected:
 
    /// all values in the workspace
    vector<Value_P> values;
-
-   /// the workspace being loaded
-   Workspace & workspace;
 
    /// true for )COPY and )PCOPY, false for )LOAD
    bool copying;

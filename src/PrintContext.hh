@@ -31,18 +31,16 @@ class Workspace;
 class PrintContext
 {
 public:
-   /// default constructor.
+   /// default constructor from ⎕PS, ⎕PP, ⎕CT, and ⎕PW of workspace \b ws.
+   /// implementation is in Workspace.cc !!
+   PrintContext();
+
+   /// constructor from another style
    PrintContext(PrintStyle st)
    : style(st),
      precision(DEFAULT_QUAD_PP),
      width(DEFAULT_QUAD_PW)
    {}
-
-   /// constructor from ⎕PS, ⎕PP, ⎕CT, and ⎕PW of workspace \b ws.
-   PrintContext(const Workspace & ws);
-
-   /// constructor from ⎕PP, ⎕CT, and ⎕PW of workspace \b ws.
-   PrintContext(PrintStyle st, const Workspace & ws);
 
    /// constructor for given values
    PrintContext(PrintStyle st, int qpp, double pct, int w)

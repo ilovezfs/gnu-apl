@@ -90,11 +90,11 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-Output.$(OBJEXT) apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
 	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
 	apl-PrimitiveOperator.$(OBJEXT) apl-PrintBuffer.$(OBJEXT) \
-	apl-PrintContext.$(OBJEXT) apl-QuadFunction.$(OBJEXT) \
-	apl-ProcessorID.$(OBJEXT) apl-Quad_RL.$(OBJEXT) \
-	apl-Quad_SVx.$(OBJEXT) apl-Quad_TF.$(OBJEXT) \
-	apl-RealCell.$(OBJEXT) apl-Shape.$(OBJEXT) \
-	apl-SkalarFunction.$(OBJEXT) apl-StateIndicator.$(OBJEXT) \
+	apl-QuadFunction.$(OBJEXT) apl-ProcessorID.$(OBJEXT) \
+	apl-Quad_RL.$(OBJEXT) apl-Quad_SVx.$(OBJEXT) \
+	apl-Quad_TF.$(OBJEXT) apl-RealCell.$(OBJEXT) \
+	apl-Shape.$(OBJEXT) apl-SkalarFunction.$(OBJEXT) \
+	apl-StateIndicator.$(OBJEXT) apl-StaticObjects.$(OBJEXT) \
 	apl-Svar_DB.$(OBJEXT) apl-Symbol.$(OBJEXT) \
 	apl-SymbolTable.$(OBJEXT) apl-SystemVariable.$(OBJEXT) \
 	apl-TestFiles.$(OBJEXT) apl-Token.$(OBJEXT) \
@@ -349,7 +349,7 @@ PointerCell.cc				PointerCell.hh		\
 PrimitiveFunction.cc			PrimitiveFunction.hh	\
 PrimitiveOperator.cc			PrimitiveOperator.hh	\
 PrintBuffer.cc				PrintBuffer.hh		\
-PrintContext.cc				PrintContext.hh		\
+					PrintContext.hh		\
 					PrintOperator.hh	\
 QuadFunction.cc				QuadFunction.hh		\
 ProcessorID.cc				ProcessorID.hh		\
@@ -362,6 +362,7 @@ Shape.cc				Shape.hh		\
 SkalarFunction.cc			SkalarFunction.hh	\
 					Source.hh		\
 StateIndicator.cc			StateIndicator.hh	\
+StaticObjects.cc						\
 		    StaticValues.def				\
 Svar_DB.cc				Svar_DB.hh		\
 udp_signal.m4	    Svar_signals.def	Svar_signals.hh		\
@@ -514,7 +515,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrimitiveFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrimitiveOperator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrintBuffer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrintContext.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ProcessorID.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-QuadFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_RL.Po@am__quote@
@@ -524,6 +524,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Shape.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-SkalarFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-StateIndicator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-StaticObjects.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Svar_DB.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Symbol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-SymbolTable.Po@am__quote@
@@ -1198,20 +1199,6 @@ apl-PrintBuffer.obj: PrintBuffer.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrintBuffer.obj `if test -f 'PrintBuffer.cc'; then $(CYGPATH_W) 'PrintBuffer.cc'; else $(CYGPATH_W) '$(srcdir)/PrintBuffer.cc'; fi`
 
-apl-PrintContext.o: PrintContext.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrintContext.o -MD -MP -MF $(DEPDIR)/apl-PrintContext.Tpo -c -o apl-PrintContext.o `test -f 'PrintContext.cc' || echo '$(srcdir)/'`PrintContext.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrintContext.Tpo $(DEPDIR)/apl-PrintContext.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrintContext.cc' object='apl-PrintContext.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrintContext.o `test -f 'PrintContext.cc' || echo '$(srcdir)/'`PrintContext.cc
-
-apl-PrintContext.obj: PrintContext.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrintContext.obj -MD -MP -MF $(DEPDIR)/apl-PrintContext.Tpo -c -o apl-PrintContext.obj `if test -f 'PrintContext.cc'; then $(CYGPATH_W) 'PrintContext.cc'; else $(CYGPATH_W) '$(srcdir)/PrintContext.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrintContext.Tpo $(DEPDIR)/apl-PrintContext.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrintContext.cc' object='apl-PrintContext.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrintContext.obj `if test -f 'PrintContext.cc'; then $(CYGPATH_W) 'PrintContext.cc'; else $(CYGPATH_W) '$(srcdir)/PrintContext.cc'; fi`
-
 apl-QuadFunction.o: QuadFunction.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-QuadFunction.o -MD -MP -MF $(DEPDIR)/apl-QuadFunction.Tpo -c -o apl-QuadFunction.o `test -f 'QuadFunction.cc' || echo '$(srcdir)/'`QuadFunction.cc
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-QuadFunction.Tpo $(DEPDIR)/apl-QuadFunction.Po
@@ -1337,6 +1324,20 @@ apl-StateIndicator.obj: StateIndicator.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StateIndicator.cc' object='apl-StateIndicator.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-StateIndicator.obj `if test -f 'StateIndicator.cc'; then $(CYGPATH_W) 'StateIndicator.cc'; else $(CYGPATH_W) '$(srcdir)/StateIndicator.cc'; fi`
+
+apl-StaticObjects.o: StaticObjects.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-StaticObjects.o -MD -MP -MF $(DEPDIR)/apl-StaticObjects.Tpo -c -o apl-StaticObjects.o `test -f 'StaticObjects.cc' || echo '$(srcdir)/'`StaticObjects.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-StaticObjects.Tpo $(DEPDIR)/apl-StaticObjects.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StaticObjects.cc' object='apl-StaticObjects.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-StaticObjects.o `test -f 'StaticObjects.cc' || echo '$(srcdir)/'`StaticObjects.cc
+
+apl-StaticObjects.obj: StaticObjects.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-StaticObjects.obj -MD -MP -MF $(DEPDIR)/apl-StaticObjects.Tpo -c -o apl-StaticObjects.obj `if test -f 'StaticObjects.cc'; then $(CYGPATH_W) 'StaticObjects.cc'; else $(CYGPATH_W) '$(srcdir)/StaticObjects.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-StaticObjects.Tpo $(DEPDIR)/apl-StaticObjects.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StaticObjects.cc' object='apl-StaticObjects.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-StaticObjects.obj `if test -f 'StaticObjects.cc'; then $(CYGPATH_W) 'StaticObjects.cc'; else $(CYGPATH_W) '$(srcdir)/StaticObjects.cc'; fi`
 
 apl-Svar_DB.o: Svar_DB.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Svar_DB.o -MD -MP -MF $(DEPDIR)/apl-Svar_DB.Tpo -c -o apl-Svar_DB.o `test -f 'Svar_DB.cc' || echo '$(srcdir)/'`Svar_DB.cc

@@ -347,7 +347,7 @@ SymbolTable::clear(ostream & out)
               if (sym->is_erased())               continue;
               if (sym->value_stack.size() == 0)   continue;
 
-              Assert(!Workspace::the_workspace->is_called(sym->get_name()));
+              Assert(!Workspace::is_called(sym->get_name()));
               Assert(sym->value_stack.size() == 1);
 
               sym->clear_vs();
@@ -383,7 +383,7 @@ ValueStackItem & tos = value_stack[0];
                const UserFunction * ufun = tos.sym_val.function->get_ufun1();
                Assert(ufun);
                const Executable * exec = ufun;
-               Assert(!Workspace::the_workspace->oldest_exec(exec));
+               Assert(!Workspace::oldest_exec(exec));
              }
 
              delete tos.sym_val.function;
@@ -398,7 +398,7 @@ Symbol * symbol = lookup_existing_symbol(sym);
 
    if (symbol == 0)
       {
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
         t4.clear();
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
@@ -408,7 +408,7 @@ Symbol * symbol = lookup_existing_symbol(sym);
 
    if (symbol->is_erased())
       {
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
         t4.clear();
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
@@ -418,7 +418,7 @@ Symbol * symbol = lookup_existing_symbol(sym);
 
    if (symbol->value_stack.size() != 1)
       {
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
         t4.clear();
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
@@ -426,9 +426,9 @@ Symbol * symbol = lookup_existing_symbol(sym);
         return;
       }
 
-   if (Workspace::the_workspace->is_called(sym))
+   if (Workspace::is_called(sym))
       {
-        UCS_string & t4 = Workspace::the_workspace->more_error;
+        UCS_string & t4 = Workspace::more_error();
         t4.clear();
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
@@ -464,9 +464,9 @@ ValueStackItem & tos = symbol->value_stack[0];
                     const UserFunction * ufun =
                                          tos.sym_val.function->get_ufun1();
                     Assert(ufun);
-                    if (Workspace::the_workspace->oldest_exec(ufun))
+                    if (Workspace::oldest_exec(ufun))
                        {
-                         UCS_string & t4 = Workspace::the_workspace->more_error;
+                         UCS_string & t4 = Workspace::more_error();
                          t4.clear();
                          t4.append_utf8("Can't )ERASE symbol '");
                          t4.append(sym);

@@ -273,7 +273,7 @@ Value_P BB = token.get_apl_val();
 
    // pop context for previous eval_AB() call
    //
-   if (arg.need_pop)   Workspace::the_workspace->pop_SI(LOC);
+   if (arg.need_pop)   Workspace::pop_SI(LOC);
 
 const Cell * cA = arg.beam.next_B();
 Value_P AA = cA->to_value(LOC);   // does set_arg()
@@ -302,8 +302,8 @@ Value_P AA = cA->to_value(LOC);   // does set_arg()
    Assert(token.get_tag() == TOK_SI_PUSHED);
    arg.need_pop = true;
 
-   Workspace::the_workspace->SI_top()->set_eoc_handler(eoc_beam);
-   Workspace::the_workspace->SI_top()->get_eoc_arg()._reduce_beam() = arg;
+   Workspace::SI_top()->set_eoc_handler(eoc_beam);
+   Workspace::SI_top()->get_eoc_arg()._reduce_beam() = arg;
    return true;   // continue
 }
 //-----------------------------------------------------------------------------

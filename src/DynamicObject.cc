@@ -24,9 +24,6 @@
 #include "PrintOperator.hh"
 #include "Value.hh"   // so that casting to Value * works
 
-DynamicObject DynamicObject::all_values(LOC);
-DynamicObject DynamicObject::all_index_exprs(LOC);
-
 //-----------------------------------------------------------------------------
 ostream &
 operator << (ostream & out, const DynamicObject & dob)

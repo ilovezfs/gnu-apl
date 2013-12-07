@@ -810,8 +810,6 @@ user_preferences up;
    sigaction(SIGUSR1, &new_USR1_action,      &old_USR1_action);
    sigaction(SIGSEGV, &new_segfault_action,  &old_segfault_action);
 
-Workspace w;
-
    // init NLS so that usage() will be translated
    //
 #ifdef ENABLE_NLS
@@ -1038,8 +1036,8 @@ Workspace w;
 
    for (;;)
        {
-         Token t = w.immediate_execution(
-                   TestFiles::test_mode == TestFiles::TM_EXIT_AFTER_ERROR);
+         Token t = Workspace::immediate_execution(
+                       TestFiles::test_mode == TestFiles::TM_EXIT_AFTER_ERROR);
          if (t.get_tag() == TOK_OFF)   Command::cmd_OFF(0);
        }
 

@@ -67,11 +67,11 @@ TestFiles::get_testcase_line()
              // we expect )SI to be clear after a testcase has finished.
              // Complain if it is not.
              //
-             if (Workspace::the_workspace->SI_entry_count() > 1)
+             if (Workspace::SI_entry_count() > 1)
                 {
                   CERR << endl << ")SI not cleared at the end of "
                        << test_file_names[0] << ":" << endl;
-                  Workspace::the_workspace->list_SI(CERR, SIM_SIS);
+                  Workspace::list_SI(CERR, SIM_SIS);
                   CERR << endl;
 
                   if (current_testreport.is_open())
@@ -79,7 +79,7 @@ TestFiles::get_testcase_line()
                        current_testreport << endl
                                           << ")SI not cleared at the end of "
                                           << test_file_names[0] << ":" << endl;
-                       Workspace::the_workspace->list_SI(current_testreport,
+                       Workspace::list_SI(current_testreport,
                                                          SIM_SIS);
                        current_testreport << endl;
                      }

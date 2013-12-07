@@ -650,7 +650,7 @@ void
 Prefix::reduce_F_M__()
 {
 DerivedFunction * derived =
-   Workspace::the_workspace->SI_top()->fun_oper_cache.get(LOC);
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(), LOC);
 
    pop_args_push_result(Token(TOK_FUN2, derived));
@@ -679,7 +679,7 @@ void
 Prefix::reduce_F_D_G_()
 {
 DerivedFunction * derived =
-   Workspace::the_workspace->SI_top()->fun_oper_cache.get(LOC);
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(), at2(), LOC);
 
    pop_args_push_result(Token(TOK_FUN2, derived));

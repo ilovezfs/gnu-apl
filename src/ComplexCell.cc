@@ -272,7 +272,7 @@ const APL_Integer qio = Workspace::get_IO();
 const APL_Integer set_size = get_checked_near_int();
    if (set_size <= 0)   DOMAIN_ERROR;
 
-const APL_Integer rnd = Workspace::the_workspace->get_RL();
+const APL_Integer rnd = Workspace::get_RL();
    new (Z) IntCell(qio + (rnd % set_size));
 }
 //-----------------------------------------------------------------------------

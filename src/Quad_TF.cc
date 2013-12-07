@@ -56,7 +56,7 @@ Value_P Z;
 Value_P
 Quad_TF::tf1(const UCS_string & name)
 {
-NamedObject * obj = Workspace::the_workspace->lookup_existing_name(name);
+NamedObject * obj = Workspace::lookup_existing_name(name);
    if (obj == 0)   return Value::Str0_P;
 
 const Function * function = obj->get_function();
@@ -221,7 +221,7 @@ Shape shape;
 
 Symbol * symbol = 0;
 NameClass nc = NC_UNUSED_USER_NAME;
-NamedObject * sym_or_fun = Workspace::the_workspace->lookup_existing_name(name); 
+NamedObject * sym_or_fun = Workspace::lookup_existing_name(name); 
    if (sym_or_fun)   // existing name
       {
         symbol = sym_or_fun->get_symbol();
@@ -261,7 +261,7 @@ const size_t data_chars = len - idx;
         CHECK_VAL(new_val, LOC);
 
         if (symbol == 0)
-           symbol = Workspace::the_workspace->lookup_symbol(name);
+           symbol = Workspace::lookup_symbol(name);
 
         symbol->assign(new_val, LOC);
         new_val->erase(LOC);   // if assign fails
@@ -306,7 +306,7 @@ const size_t data_chars = len - idx;
 
         CHECK_VAL(new_val, LOC);
 
-        if (!symbol)   symbol = Workspace::the_workspace->lookup_symbol(name);
+        if (!symbol)   symbol = Workspace::lookup_symbol(name);
 
         symbol->assign(new_val, LOC);
         new_val->erase(LOC);   // if assign(0 failed
@@ -319,7 +319,7 @@ const size_t data_chars = len - idx;
 Token
 Quad_TF::tf2(const UCS_string & name)
 {
-NamedObject * obj = Workspace::the_workspace->lookup_existing_name(name);
+NamedObject * obj = Workspace::lookup_existing_name(name);
    if (obj == 0)   return CHECK(Value::Str0_P, LOC);
 
 const Function * function = obj->get_function();
@@ -762,7 +762,7 @@ vector<UCS_string> lines;
 Value_P
 Quad_TF::tf3(const UCS_string & name)
 {
-NamedObject * obj = Workspace::the_workspace->lookup_existing_name(name);
+NamedObject * obj = Workspace::lookup_existing_name(name);
    if (obj == 0)   return Value::Str0_P;
 
    if (obj->get_function())
