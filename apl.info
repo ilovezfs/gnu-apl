@@ -156,6 +156,10 @@ APL understands the following command line options:
 
      use processor parent ID pproc (default: no parent ID).
 
+   * `--rawCIN'
+
+     do not use the readline library (even if configured to use it).
+
    * `-s', `--script' this option is an abbreviation for:  `--silent'
      `--noCIN' `--noCONT' `-f -' which is a typical combination of
      options for APL scripts.
@@ -2014,12 +2018,12 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top232
 Node: Chapter 11162
-Node: Chapter 213143
-Node: Chapter 325846
-Node: Chapter 427447
-Node: Chapter 528760
-Node: Section 5.129263
-Node: Section 5.254392
+Node: Chapter 213230
+Node: Chapter 325933
+Node: Chapter 427534
+Node: Chapter 528847
+Node: Section 5.129350
+Node: Section 5.254479
 
 End Tag Table
 

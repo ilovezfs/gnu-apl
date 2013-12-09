@@ -48,10 +48,17 @@ bool Input::use_readline = false;
 namespace readline_lib
 {
 static void add_history(const char * line) {}
+static void rl_initialize() {}
+static void stifle_history(int) {}
+static void read_history(const char *) {}
+static void rl_stuff_char(char) {}
+static char * readline(const char *) {}
 };   // namespace readline_lib
 
 #endif //  HAVE_LIBREADLINE
 
+// a function to be used if readline_lib::readline() does not exist or
+// is not wanted
 static char *
 no_readline(const UCS_string * prompt)
 {

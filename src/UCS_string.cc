@@ -248,7 +248,7 @@ UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
          loop(u, ucs.size())
             {
               Unicode uni = ucs[u];
-              if (is_pad(uni))   uni = UNI_ASCII_SPACE;
+              if (is_pad_char(uni))   uni = UNI_ASCII_SPACE;
               append(uni);
             }
        }
@@ -350,7 +350,7 @@ UCS_string ret;
    loop(s, size())
       {
         Unicode uni = (*this)[s];
-        if (is_pad(uni))   uni = UNI_ASCII_SPACE;
+        if (is_pad_char(uni))   uni = UNI_ASCII_SPACE;
         ret.append(uni);
       }
 
@@ -364,7 +364,7 @@ UCS_string ret;
    loop(s, size())
       {
         Unicode uni = (*this)[s];
-        if (!is_pad(uni))   ret.append(uni);
+        if (!is_pad_char(uni))   ret.append(uni);
       }
 
    return ret;

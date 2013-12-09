@@ -196,6 +196,11 @@ shared variables.
 use processor parent ID pproc (default: no parent ID).
 
 @item
+@option{--rawCIN}
+
+do not use the readline library (even if configured to use it).
+
+@item
 @option{-s}, @option{--script}
 this option is an abbreviation for:
  @option{--silent} @option{--noCIN} @option{--noCONT} @option{-f -}
