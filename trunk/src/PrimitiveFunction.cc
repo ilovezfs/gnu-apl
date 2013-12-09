@@ -2316,8 +2316,8 @@ Cell * cZ = &Z->get_ravel(0);
    loop(w, width)
       {
         const Unicode uni = pb.get_char(w, h);
-        if (is_pad(uni))   new (cZ++) CharCell(UNI_ASCII_SPACE);
-        else               new (cZ++) CharCell(uni);
+        if (is_pad_char(uni))   new (cZ++) CharCell(UNI_ASCII_SPACE);
+        else                    new (cZ++) CharCell(uni);
       }
 
    return CHECK_VAL(Z, LOC);
