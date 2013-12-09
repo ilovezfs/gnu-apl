@@ -94,17 +94,17 @@ public:
    /// a FILE * for an opened \b input_file (0 if none)
    static FILE * input_file_FILE;
 
+   /// initialize readline library
+   static void init();
+
+   /// true if readline lib is present and shall be used
+   static bool use_readline;
+
 protected:
    /// Read one line from the user.
    static const unsigned char * get_user_line(const UCS_string * prompt);
 
 private:
-   /// constructor that initializes the the readline library.
-   Input();
-
-   /// a static instance that triggers initialization of the readline library
-   static Input the_input;
-
    /// true iff -f - was given
    static bool stdin_from_file;
 };

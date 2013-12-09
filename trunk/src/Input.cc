@@ -31,19 +31,28 @@
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
-namespace readline_lib
-{
 #if HAVE_LIBREADLINE
 
+bool Input::use_readline = true;
+
+namespace readline_lib
+{
 #include <readline/readline.h>
 #include <readline/history.h>
+};   // namespace readline_lib
 
 #else // ! HAVE_LIBREADLINE
 
-static void add_history(const char * line) {}
-static char * no_readline(const UCS_string * prompt);
+bool Input::use_readline = false;
 
-char *
+namespace readline_lib
+{
+static void add_history(const char * line) {}
+};   // namespace readline_lib
+
+#endif //  HAVE_LIBREADLINE
+
+static char *
 no_readline(const UCS_string * prompt)
 {
    if (prompt)
@@ -67,26 +76,24 @@ int len = strlen(buffer);
    return buffer;
 }
 
-#endif //  HAVE_LIBREADLINE
-};   // namespace readline_lib
 
 const char * Input::input_file_name = 0;
 FILE * Input::input_file_FILE = 0;
 
-Input Input::the_input;
-
 bool Input::stdin_from_file = false;
 
 //-----------------------------------------------------------------------------
-Input::Input()
+void
+Input::init()
 {
-#if HAVE_LIBREADLINE
-   readline_lib::rl_initialize();
-   readline_lib::stifle_history(500);
-   readline_lib::read_history(".apl.history");
+   if (use_readline)
+      {
+        readline_lib::rl_initialize();
+        readline_lib::stifle_history(500);
+        readline_lib::read_history(".apl.history");
 
-//   readline_lib::rl_function_dumper(1);
-#endif
+//      readline_lib::rl_function_dumper(1);
+      }
 }
 //-----------------------------------------------------------------------------
 int
@@ -218,9 +225,12 @@ Input::get_user_line(const UCS_string * prompt)
    Output::set_color_mode(Output::COLM_INPUT);
 
 const APL_time from = now();
-#if HAVE_LIBREADLINE
 char * line;
-   if (prompt)
+   if (!use_readline)
+      {
+        line = no_readline(prompt);
+      }
+   else if (prompt)
       {
         UTF8_string prompt_utf(*prompt);
         line = readline_lib::readline((const char*)prompt_utf.c_str());
@@ -229,9 +239,6 @@ char * line;
       {
         line = readline_lib::readline(0);
       }
-#else
-char * line = readline_lib::no_readline(prompt);
-#endif
 
 const APL_time to = now();
    Workspace::add_wait(to - from);
