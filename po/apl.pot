@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-12-07 18:08+0100\n"
+"POT-Creation-Date: 2013-12-09 14:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -209,6 +209,7 @@ msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
+"    --rawCIN             do not use the readline lib for input\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
@@ -228,25 +229,25 @@ msgid ""
 "    --                   end of options for %s\n"
 msgstr ""
 
-#: src/main.cc:449
+#: src/main.cc:450
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr ""
 
-#: src/main.cc:450
+#: src/main.cc:451
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr ""
 
-#: src/main.cc:469
+#: src/main.cc:470
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr ""
 
-#: src/main.cc:472
+#: src/main.cc:473
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 
-#: src/main.cc:473
+#: src/main.cc:474
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr ""
 
@@ -258,14 +259,14 @@ msgstr ""
 msgid "-l without log facility"
 msgstr ""
 
-#: src/main.cc:970
+#: src/main.cc:974
 msgid "--TM without test mode"
 msgstr ""
 
-#: src/main.cc:989
+#: src/main.cc:993
 msgid "-w without milli(seconds)"
 msgstr ""
 
-#: src/main.cc:995
+#: src/main.cc:999
 msgid "unknown option '"
 msgstr ""

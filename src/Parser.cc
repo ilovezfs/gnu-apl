@@ -156,6 +156,8 @@ Parser::collect_constants(Token_string & tos)
         print_token_list(CERR, tos, 0);
       }
 
+   // convert several items in vector notation into a single APL value
+   //
    loop (t, tos.size())
       {
         int32_t to;
@@ -167,19 +169,45 @@ Parser::collect_constants(Token_string & tos)
              case TOK_COMPLEX:
              case TOK_APL_VALUE1:
              case TOK_APL_VALUE3:
-                  for (to = t + 1; to < tos.size(); ++to)
-                      {
-                        if (tos[to].get_tag() == TOK_CHARACTER)    continue;
-                        if (tos[to].get_tag() == TOK_INTEGER)      continue;
-                        if (tos[to].get_tag() == TOK_REAL)         continue;
-                        if (tos[to].get_tag() == TOK_COMPLEX)      continue;
-                        if (tos[to].get_tag() == TOK_APL_VALUE1)   continue;
-                        if (tos[to].get_tag() == TOK_APL_VALUE3)   continue;
-                        break;
-                      }
-                  create_value(tos, t, to - t);
-                  break;
+                  break;          // continue below
+
+             default: continue;   // nex token
            }
+
+        // at this point, t is the first item. Collect subsequenct items.
+        //
+        for (to = t + 1; to < tos.size(); ++to)
+            {
+#if 1
+              // Note: ISO 13751 gives an example with 1 2 3[2] ↔ 2
+              // 
+              // In contrast, the binding rules stated in IBM's apl2lrm.pdf
+              // would give 3[2] ↔ RANK ERROR.
+              // 
+              // We follow apl2lrm; to enable IBM behavior write #if 0 above.
+              // 
+
+              // if tos[to + 1] is [ then [ binds stronger than
+              // vector notation and we stop collecting.
+              //
+              if ((to + 1) < tos.size() && tos[to + 1].get_tag() == TOK_L_BRACK)
+                 break;
+#endif
+              const TokenTag tag = tos[to].get_tag();
+
+              if (tag == TOK_CHARACTER)    continue;
+              if (tag == TOK_INTEGER)      continue;
+              if (tag == TOK_REAL)         continue;
+              if (tag == TOK_COMPLEX)      continue;
+              if (tag == TOK_APL_VALUE1)   continue;
+              if (tag == TOK_APL_VALUE3)   continue;
+
+              // no more values: stop collecting
+              //
+              break;
+            }
+
+        create_value(tos, t, to - t);
       }
 
    Log(LOG_collect_constants)

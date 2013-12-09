@@ -37,4 +37,6 @@
  4654 fixed ⍎'→3', ∇, and WS_FULL problems reported by Elias
  4671 fixed 4 ⎕CR bug reported by Elias
  4710 restructured class Workspace
+ 4715 fixed [] binding in Parser.cc"
+ 4716 --rawCIN command line option added
 

@@ -390,6 +390,7 @@ _("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
 "    --par proc           use processor parent ID proc (default: no parent)\n"
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
+"    --rawCIN             do not use the readline lib for input\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
@@ -791,7 +792,6 @@ user_preferences up;
    read_config_file(true,  up);   // /etc/gnu-apl.d/preferences
    read_config_file(false, up);   // $HOME/.gnu_apl
 
-
    // struct sigaction differs between GNU/Linux and other systems, which
    // causes direct bracket assignment to not compile on some machines.
    //
@@ -890,6 +890,10 @@ user_preferences up;
          else if (!strcmp(opt, "--noCIN"))
             {
               do_not_echo = true;
+            }
+         else if (!strcmp(opt, "--rawCIN"))
+            {
+              Input::use_readline = false;
             }
          else if (!strcmp(opt, "--noCONT"))
             {
@@ -997,6 +1001,11 @@ user_preferences up;
               return 7;
             }
        }
+
+   // init input after reading the command line options, so that the user
+   // has a chance to disable readline
+   //
+   Input::init();
 
    if (up.daemon)
       {
