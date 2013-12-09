@@ -299,17 +299,21 @@ const UTF8 * line = TestFiles::get_testcase_line();
 
    // all reads from files failed.
    //
-#if HAVE_LIBREADLINE
-   if (prompt)
+   if (!use_readline)
       {
-        UTF8_string prompt_utf(*prompt);
-        loop(p, prompt_utf.size())
-           readline_lib::rl_stuff_char(prompt_utf[p] & 0x00FF);
+        line = (UTF8 *)no_readline(prompt);
       }
-   line = (UTF8 *)readline_lib::readline(0);
-#else // ! HAVE_LIBREADLINE
-   line = (UTF8 *)readline_lib::no_readline(prompt);
-#endif // HAVE_LIBREADLINE
+   else
+     {
+       if (prompt)
+          {
+            UTF8_string prompt_utf(*prompt);
+            loop(p, prompt_utf.size())
+            readline_lib::rl_stuff_char(prompt_utf[p] & 0x00FF);
+          }
+
+       line = (UTF8 *)readline_lib::readline(0);
+     }
 
    while (*line && *line <= ' ')   ++line;
 
@@ -343,16 +347,19 @@ Input::get_quad_cr_line(UCS_string ucs_prompt)
 
 UTF8_string utf_prompt(ucs_prompt);
 
-#if HAVE_LIBREADLINE
-   loop(s, utf_prompt.size())
-      readline_lib::rl_stuff_char(utf_prompt[s] & 0x00FF);
+const char * line;
+   if (!use_readline)
+      {
+        line = no_readline(&ucs_prompt);
+      }
+   else
+      {
+        loop(s, utf_prompt.size())
+            readline_lib::rl_stuff_char(utf_prompt[s] & 0x00FF);
 
-   cout << '\r';
-const char * line = readline_lib::readline(0);
-
-#else
-const char * line = readline_lib::no_readline(&ucs_prompt);
-#endif
+        cout << '\r';
+        line = readline_lib::readline(0);
+      }
 
 const UTF8_string uline(line);
    return UCS_string(uline);
