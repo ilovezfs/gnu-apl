@@ -450,12 +450,10 @@ ValueStackItem & tos = symbol->value_stack[0];
                   tos.sym_val._value()->erase(LOC);
                   tos.sym_val._value().clear(LOC);
                   symbol->set_erased(true);
-                  out << ")ERASEed '" << sym << "' (variable)" << endl;
                   return;
 
              case NC_UNUSED_USER_NAME:
                   symbol->set_erased(true);
-                  out << ")ERASEed '" << sym << "' (unused)" << endl;
                   return;
 
              case NC_FUNCTION:
@@ -479,7 +477,6 @@ ValueStackItem & tos = symbol->value_stack[0];
                   tos.sym_val.function = 0;
                   tos.name_class = NC_UNUSED_USER_NAME;
                   symbol->set_erased(true);
-                  out << ")ERASEed '" << sym << "' (function)" << endl;
                   return;
       }
 

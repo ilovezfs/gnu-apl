@@ -253,7 +253,7 @@ Output::set_color_mode(Output::ColorMode mode)
       {
         switch(color_mode)
            {
-             case COLM_INPUT:  cout << color_CIN  << clear_EOL;   break;
+             case COLM_INPUT:  cerr << color_CIN  << clear_EOL;   break;
              case COLM_OUTPUT: cout << color_COUT << clear_EOL;   break;
              case COLM_ERROR:  cerr << color_CERR << clear_EOL;   break;
            }
