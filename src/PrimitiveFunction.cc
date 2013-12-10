@@ -737,11 +737,9 @@ ShapeItem rows_B = 1;
 ShapeItem cols_B = 1;
    switch(B->get_rank())
       {
-         case 0:  shape_Z.add_shape_item(1);
-                  break;
+         case 0:  break;
 
          case 1:  rows_B = B->get_shape_item(0);
-                  shape_Z.add_shape_item(1);
                   break;
 
          case 2:  cols_B = B->get_shape_item(1);
@@ -754,11 +752,9 @@ ShapeItem cols_B = 1;
 
    switch(A->get_rank())
       {
-         case 0:  shape_Z.add_shape_item(1);
-                  break;
+         case 0:  break;
 
          case 1:  rows_A = A->get_shape_item(0);
-                  shape_Z.add_shape_item(1);
                   break;
 
          case 2:  cols_A = A->get_shape_item(1);

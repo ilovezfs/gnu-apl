@@ -39,4 +39,5 @@
  4710 restructured class Workspace
  4715 fixed [] binding in Parser.cc"
  4716 --rawCIN command line option added
+ 4735 fixed ⌹ dimension problem, send CIN to cerr
 

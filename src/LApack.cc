@@ -195,7 +195,7 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
                    DOMAIN_ERROR;
                  }
 
-              loop(r, shape_Z.get_shape_item(0))
+              loop(r, shape_Z.get_cols())
                   new (&Z->get_ravel(r*cols_A + c)) ComplexCell(a[r].r, a[r].i);
             }
          else   // real
@@ -221,7 +221,7 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
                    DOMAIN_ERROR;
                  }
 
-              loop(r, shape_Z.get_shape_item(0))
+              loop(r, shape_Z.get_cols())
                   new (&Z->get_ravel(r*cols_A + c)) FloatCell(a[r]);
             }
        }
