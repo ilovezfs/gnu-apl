@@ -368,32 +368,42 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
 Value_P
 Symbol::pop(bool erase)
 {
-   Log(LOG_SYMBOL_push_pop)
-      {
-        CERR << "-pop " << symbol;
-        if (value_stack.size() == 1)   CERR << " (last)";
-        CERR << endl;
-      }
-
    Assert(value_stack.size());
 const ValueStackItem & vs = value_stack.back();
-
-Value_P ret;
+   value_stack.pop_back();
 
    if (vs.name_class == NC_VARIABLE)
       {
-        ret = vs.sym_val._value();
+        Value_P ret = vs.sym_val._value();
+        Log(LOG_SYMBOL_push_pop)
+           {
+             CERR << "-pop-value " << symbol;
+             if (erase)   CERR  << " (and erase) ";
+             CERR << " flags " << ret->get_flags() << " ";
+             if (value_stack.size() == 0)   CERR << " (last)";
+             CERR << " addr " << ret.voidp() << endl;
+           }
         ret->clear_assigned();
         if (erase)
            {
              ret->erase(LOC);
              ret.clear(LOC);
            }
+        return ret;
+      }
+   else
+      {
+        Log(LOG_SYMBOL_push_pop)
+           {
+             CERR << "-pop " << symbol
+                  << " name_class " << vs.name_class << " ";
+             if (value_stack.size() == 0)   CERR << " (last)";
+             CERR << endl;
+           }
+        return Value_P();
       }
 
-   value_stack.pop_back();
 
-   return ret;
 }
 //-----------------------------------------------------------------------------
 void
@@ -442,16 +452,17 @@ ValueStackItem vs;
 void
 Symbol::push_value(Value_P value)
 {
-   Log(LOG_SYMBOL_push_pop)
-      {
-        CERR << "+push_value " << symbol;
-        if (value_stack.size() == 0)   CERR << " (initial)";
-        CERR << endl;
-      }
-
 ValueStackItem vs;
    value_stack.push_back(vs);
    assign(value, LOC);
+
+   Log(LOG_SYMBOL_push_pop)
+      {
+        CERR << "+push-value " << symbol << " flags ";
+        print_flags(CERR, get_value()->get_flags()) << " ";
+        if (value_stack.size() == 0)   CERR << " (initial)";
+        CERR << " addr " << get_value().voidp() << endl;
+      }
 }
 //-----------------------------------------------------------------------------
 int

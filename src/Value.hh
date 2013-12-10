@@ -485,14 +485,6 @@ protected:
 };
 // ----------------------------------------------------------------------------
 
-/// print flags in hex
-inline ostream &
-operator << (ostream & out, ValueFlags flg)
-{
-  return out << HEX(flg);
-}
-// ----------------------------------------------------------------------------
-
 inline int increment_owner_count(Value * v) { return ++v->owner_count; }
 inline int decrement_owner_count(Value * v) { return --v->owner_count; }
 

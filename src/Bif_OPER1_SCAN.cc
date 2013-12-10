@@ -142,6 +142,7 @@ const ShapeItem m_len = B->get_shape_item(axis);
 const Shape3 Z3(B->get_shape(), axis);
 _EOC_arg arg;
 Value_P Z(new Value(B->get_shape(), LOC), LOC);
+   Z->set_eoc();   // keep Z
    arg._reduce_beam().init(Z, Z3, LO, B, m_len, 1, 1);
 
 Token tok(TOK_FIRST_TIME);
