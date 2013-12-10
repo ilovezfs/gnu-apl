@@ -123,22 +123,21 @@ enum ValueFlags
   VF_left     = 0x200,   ///< left value (←):          OK to delete
   VF_complete = 0x400,   ///< CHECK called:            OK to delete
   VF_marked   = 0x800,   ///< marked to detect stale:  OK to delete
-  VF_DONT_DELETE = VF_shared     // a constant in a user defined function
+
+  ///  value needs cloning on assign and friends
+  VF_need_clone  = VF_shared     // a constant in a user defined function
                  | VF_assigned   // assigned to a variable
                  | VF_forever    // static value
                  | VF_nested     // sub-value of a nested value
                  | VF_index      // owned by an IndexExpr
-                 | VF_deleted
                  | VF_arg        // in use by SI::eval_XXX()
                  | VF_eoc,       // in use by an EOC handler
-  VF_need_clone  = VF_shared     // need cloning on assign and friends
-                 | VF_assigned
-                 | VF_forever
-                 | VF_nested
-                 | VF_index
-                 | VF_arg
-                 | VF_eoc,
+  VF_DONT_DELETE = VF_need_clone
+                 | VF_deleted,
 };
+
+extern ostream & print_flags(ostream & out, ValueFlags flags);
+
 //-----------------------------------------------------------------------------
 /// events for APL values
 enum VH_event

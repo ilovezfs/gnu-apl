@@ -63,10 +63,12 @@ ostream & operator << (ostream &, const UCS_string &);
 ostream & operator << (ostream &,       Unicode);
 ostream & operator << (ostream &, const UTF8_string &);
 ostream & operator << (ostream &, const Value & value);
-ostream & operator << (ostream &,       ValueFlags flags);
+
+inline ostream & operator << (ostream & out,       ValueFlags flags)
+   { return print_flags(out, flags); }
 
 template<typename T>
 ostream & operator << (ostream & out, const Source<T> & src)
-{ loop(s, src.rest())   out << src[s];   return out; }
+   { loop(s, src.rest())   out << src[s];   return out; }
 
 #endif // __PRINTOPERATOR_HH_DEFINED
