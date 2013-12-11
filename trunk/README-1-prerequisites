@@ -18,3 +18,12 @@ apt-get install gettext
 readline and/or gettext are used by many other packages, so they may already
 be installed on your GNU/Linux system.
 
+On Linux Mint 16 (and possibly some other GNU/Linux distributions) you may
+need to install package ncurses-dev in order to uses curses functions,
+for example:
+
+apt-get install ncurses-dev
+
+On Linux Mint 14.1, GNU APL compiled out-of--the-box.
+
+
