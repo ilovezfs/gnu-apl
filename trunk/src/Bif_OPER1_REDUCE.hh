@@ -33,7 +33,7 @@ public:
    Bif_REDUCE(TokenTag tag) : PrimitiveOperator(tag) {}
 
    /// function called when a sub-SI for a user defined LO returns
-   static bool eoc_beam(Token & token, _EOC_arg & arg);
+   static bool eoc_beam(Token & token, EOC_arg & arg);
 protected:
    /// Replicate B according to A along axis.
    Token replicate(Value_P A, Value_P B, Axis axis);

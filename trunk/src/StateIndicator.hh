@@ -171,7 +171,7 @@ public:
       { eoc_handler = handler; }
 
    /// return the eoc handler argument
-   _EOC_arg & get_eoc_arg()
+   EOC_arg & get_eoc_arg()
       { return eoc_arg; }
 
    /// return safe_execution mode
@@ -247,7 +247,7 @@ protected:
    EOC_HANDLER eoc_handler;
 
    /// the left argument for eoc_handler()
-   _EOC_arg eoc_arg;
+   EOC_arg eoc_arg;
 
    /// The nesting level (of sub-executions)
    const int level;

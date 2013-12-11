@@ -48,21 +48,21 @@ public:
 
 protected:
    /// function called when a sub-SI for a dyadic user defined LO returns
-   static bool eoc_ALXB(Token & token, _EOC_arg & arg);
+   static bool eoc_ALXB(Token & token, EOC_arg & arg);
 
    /// function called when a sub-SI for a monadic user defined LO returns
-   static bool eoc_LXB(Token & token, _EOC_arg & arg);
+   static bool eoc_LXB(Token & token, EOC_arg & arg);
 
    /// compute \b rk_A and \b rk_B from \b X
    void compute_ranks(Value_P X, Rank & rk_A, Rank & rk_B);
 
    /// helper for eval_LXB. returns true if the final token was computed, and
    /// false if finish_eval_LXB shall be called again
-   static Token finish_eval_LXB(RANK_LXB & arg);
+   static Token finish_eval_LXB(EOC_arg & arg);
 
    /// helper for eval_ALXB. returns true if the final token was computed, and
    /// false if finish_eval_ALXB shall be called again
-   static Token finish_eval_ALXB(RANK_ALXB & arg);
+   static Token finish_eval_ALXB(EOC_arg & arg);
 };
 //-----------------------------------------------------------------------------
 

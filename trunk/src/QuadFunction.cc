@@ -360,8 +360,8 @@ const UCS_string statement_B(B.get_ref());
         StateIndicator * si = Workspace::SI_top();
 
         si->set_eoc_handler(eoc_A_done);
-        si->get_eoc_arg()._quad_EA().A = A;
-        si->get_eoc_arg()._quad_EA().B = B;
+        si->get_eoc_arg().A = A;
+        si->get_eoc_arg().B = B;
 
         return Token(TOK_SI_PUSHED);
       }
@@ -378,14 +378,14 @@ const UCS_string statement_B(B.get_ref());
    //
 StateIndicator * si = Workspace::SI_top();
    si->set_eoc_handler(eoc_B_done);
-   si->get_eoc_arg()._quad_EA().A = A;
-   si->get_eoc_arg()._quad_EA().B = B;
+   si->get_eoc_arg().A = A;
+   si->get_eoc_arg().B = B;
 
    return Token(TOK_SI_PUSHED);
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EA::eoc_B_done(Token & token, _EOC_arg & arg)
+Quad_EA::eoc_B_done(Token & token, EOC_arg & arg)
 {
 StateIndicator * si = Workspace::SI_top();
 
@@ -403,8 +403,8 @@ StateIndicator * si = Workspace::SI_top();
    //
    si->set_safe_execution(true);
 
-Value_P A = arg._quad_EA().A;
-Value_P B = arg._quad_EA().B;
+Value_P A = arg.A;
+Value_P B = arg.B;
 const UCS_string statement_A(A.get_ref());
 
    // ⍎A has failed. ⎕EM shows only B but should show A ⎕EA B instead.
@@ -438,15 +438,15 @@ ExecuteList * fun = 0;
    {
      StateIndicator * si1 = Workspace::SI_top();
      si1->set_eoc_handler(eoc_A_done);
-     si1->get_eoc_arg()._quad_EA().A = A;
-     si1->get_eoc_arg()._quad_EA().B = B;
+     si1->get_eoc_arg().A = A;
+     si1->get_eoc_arg().B = B;
    }
 
    return true;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EA::eoc_A_done(Token & token, _EOC_arg & arg)
+Quad_EA::eoc_A_done(Token & token, EOC_arg & arg)
 {
    // in A ⎕EA B, ⍎B has failed, and ⍎A was executed and may or
    // may not have failed.
@@ -458,8 +458,8 @@ Quad_EA::eoc_A_done(Token & token, _EOC_arg & arg)
         return false;   // ⍎B successful.
       }
 
-Value_P A = arg._quad_EA().A;
-Value_P B = arg._quad_EA().B;
+Value_P A = arg.A;
+Value_P B = arg.B;
 const UCS_string statement_A(A.get_ref());
 
    // here both ⍎B and ⍎A failed. ⎕EM shows only B, but should show
@@ -566,7 +566,7 @@ ExecuteList * fun = 0;
 
 //-----------------------------------------------------------------------------
 bool
-Quad_EC::eoc(Token & result_B, _EOC_arg &)
+Quad_EC::eoc(Token & result_B, EOC_arg &)
 {
    Workspace::SI_top()->set_safe_execution(false);
 
@@ -942,8 +942,8 @@ Value_P Z(new Value(fun_name, LOC), LOC);
 Token
 Quad_INP::eval_AB(Value_P A, Value_P B)
 {
-_EOC_arg _arg;
-quad_INP & arg = _arg._quad_INP();
+EOC_arg _arg;
+quad_INP & arg = _arg.u.u_quad_INP;
    arg.lines = 0;
 
    // B is the end of document marker for a 'HERE document', similar
@@ -994,8 +994,8 @@ Token tok(TOK_FIRST_TIME);
 Token
 Quad_INP::eval_B(Value_P B)
 {
-_EOC_arg _arg;
-quad_INP & arg = _arg._quad_INP();
+EOC_arg _arg;
+quad_INP & arg = _arg.u.u_quad_INP;
    arg.lines = 0;
 
    // B is the end of document marker for a 'HERE document', similar
@@ -1016,7 +1016,7 @@ Token tok(TOK_FIRST_TIME);
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_INP::eoc_INP(Token & token, _EOC_arg & _arg)
+Quad_INP::eoc_INP(Token & token, EOC_arg & _arg)
 {
    if (token.get_tag() == TOK_ERROR)
       {
@@ -1030,7 +1030,7 @@ Quad_INP::eoc_INP(Token & token, _EOC_arg & _arg)
 
    // _arg may be pop_SI()ed below so we need a copy of it
    //
-quad_INP arg = _arg._quad_INP();
+quad_INP arg = _arg.u.u_quad_INP;
 
    if (token.get_tag() != TOK_FIRST_TIME)
       {
@@ -1145,7 +1145,7 @@ quad_INP arg = _arg._quad_INP();
 
                    StateIndicator * si = Workspace::SI_top();
                    si->set_eoc_handler(eoc_INP);
-                   si->get_eoc_arg()._quad_INP() = arg;
+                   si->get_eoc_arg().u.u_quad_INP = arg;
                    return true;   // continue
                  }
             }

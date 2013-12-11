@@ -31,15 +31,16 @@ Bif_OPER1_EACH::eval_ALB(Value_P A, Token & _LO, Value_P B)
    // dyadic EACH
 
 Function * LO = _LO.get_function();
-
    Assert1(LO);
 
-EACH_ALB arg;
+EOC_arg arg;
+EACH_ALB & _arg = arg.u.u_EACH_ALB;
+
    arg.Z.clear(LOC);
-   arg.cZ = 0;
-   arg.dA = 1;
-   arg.LO = LO;
-   arg.dB = 1;
+   _arg.cZ = 0;
+   _arg.dA = 1;
+   _arg.LO = LO;
+   _arg.dB = 1;
 
    if (A->is_empty() || B->is_empty())
       {
@@ -69,20 +70,20 @@ EACH_ALB arg;
       {
         if (B->is_skalar_or_len1_vector())   return LO->eval_AB(A, B);
 
-        arg.count = B->element_count();
+        _arg.count = B->element_count();
 
-        arg.dA = 0;
+        _arg.dA = 0;
         if (LO->has_result())   arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
       }
    else if (B->nz_element_count() == 1)
       {
-        arg.dB = 0;
-        arg.count = A->element_count();
+        _arg.dB = 0;
+        _arg.count = A->element_count();
         if (LO->has_result())   arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
       }
    else if (A->same_shape(B))
       {
-        arg.count = B->element_count();
+        _arg.count = B->element_count();
         if (LO->has_result())   arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
       }
    else
@@ -99,35 +100,37 @@ EACH_ALB arg;
    B->set_eoc();
 
    arg.A = A;
-   arg.cA = &A->get_ravel(0);
+   _arg.cA = &A->get_ravel(0);
    arg.B = B;
-   arg.cB = &B->get_ravel(0);
+   _arg.cB = &B->get_ravel(0);
 
-   if (!!arg.Z)   arg.cZ = &arg.Z->get_ravel(0);
+   if (!!arg.Z)   _arg.cZ = &arg.Z->get_ravel(0);
 
-   arg.how = 0;
+   _arg.how = 0;
    return finish_eval_ALB(arg);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER1_EACH::finish_eval_ALB(EACH_ALB & arg)
+Bif_OPER1_EACH::finish_eval_ALB(EOC_arg & arg)
 {
-   if (arg.how == 1)   goto how_1;
+EACH_ALB & _arg = arg.u.u_EACH_ALB;
+
+   if (_arg.how == 1)   goto how_1;
 
 how_0:
-   Assert1(arg.how == 0);
-   arg.z = 0;
+   Assert1(_arg.how == 0);
+   _arg.z = 0;
 
 loop_z:
    {
-     Value_P LO_A = arg.cA->to_value(LOC);     // left argument of LO
-     Value_P LO_B = arg.cB->to_value(LOC);     // right argument of LO;
+     Value_P LO_A = _arg.cA->to_value(LOC);     // left argument of LO
+     Value_P LO_B = _arg.cB->to_value(LOC);     // right argument of LO;
 
-     arg.cA += arg.dA;
-     arg.cB += arg.dB;
-     arg.sub = !(LO_A->is_nested() || LO_B->is_nested());
+     _arg.cA += _arg.dA;
+     _arg.cB += _arg.dB;
+     _arg.sub = !(LO_A->is_nested() || LO_B->is_nested());
 
-     Token result = arg.LO->eval_AB(LO_A, LO_B);
+     Token result = _arg.LO->eval_AB(LO_A, LO_B);
 
      LO_A->clear_arg();
      LO_A->erase(LOC);
@@ -141,10 +144,10 @@ loop_z:
      if (result.get_Class() == TC_VALUE)
         {
           Value_P vZ = result.get_apl_val();
-          if (arg.sub)   new (arg.cZ)  PointerCell(vZ);
-          else           arg.cZ->init_from_value(vZ, LOC);
+          if (_arg.sub)   new (_arg.cZ)  PointerCell(vZ);
+          else           _arg.cZ->init_from_value(vZ, LOC);
 
-          ++arg.cZ;
+          ++_arg.cZ;
           goto next_z;   // next z
         }
 
@@ -154,9 +157,9 @@ loop_z:
         {
           // LO was a user defined function
           //
-          arg.how = 1;
+          _arg.how = 1;
           Workspace::SI_top()->set_eoc_handler(eoc_ALB);
-          Workspace::SI_top()->get_eoc_arg()._EACH_ALB() = arg;
+          Workspace::SI_top()->get_eoc_arg() = arg;
 
           return result;   // continue in user defined function...
         }
@@ -166,7 +169,7 @@ loop_z:
 
 how_1:
 next_z:
-   if (++arg.z < arg.count)   goto loop_z;
+   if (++_arg.z < _arg.count)   goto loop_z;
 
    arg.Z->set_default(arg.B);
 
@@ -182,24 +185,25 @@ next_z:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_EACH::eoc_ALB(Token & token, _EOC_arg & _arg)
+Bif_OPER1_EACH::eoc_ALB(Token & token, EOC_arg & si_arg)
 {
-EACH_ALB arg = _arg._EACH_ALB();
+EOC_arg arg = si_arg;
+EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    if (!!arg.Z)   // LO with result, maybe successful
       {
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
        Value_P vZ = token.get_apl_val();
-       if (arg.sub)   new (arg.cZ++)  PointerCell(vZ);
-       else           arg.cZ++->init_from_value(vZ, LOC);
+       if (_arg.sub)   new (_arg.cZ++)  PointerCell(vZ);
+       else           _arg.cZ++->init_from_value(vZ, LOC);
       }
    else        // LO without result, maybe successful
       {
         if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-   if (arg.z < (arg.count - 1))   Workspace::pop_SI(LOC);
+   if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_ALB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -221,58 +225,62 @@ Function * LO = _LO.get_function();
    //
    B->set_eoc();
 
-EACH_LB arg;
-   arg.LO = LO;
+EOC_arg arg;
+EACH_LB & _arg = arg.u.u_EACH_LB;
+
+   _arg.LO = LO;
    arg.B = B;
-   arg.cB = &B->get_ravel(0);
+   _arg.cB = &B->get_ravel(0);
    if (LO->has_result())
       {
         arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
-        arg.cZ = &arg.Z->get_ravel(0);
+        _arg.cZ = &arg.Z->get_ravel(0);
       }
    else
       {
         arg.Z.clear(LOC);
-        arg.cZ = 0;
+        _arg.cZ = 0;
       }
 
-   arg.count = B->element_count();
+   _arg.count = B->element_count();
 
-   arg.how = 0;
+   _arg.how = 0;
    return finish_eval_LB(arg);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER1_EACH::finish_eval_LB(EACH_LB & arg)
+Bif_OPER1_EACH::finish_eval_LB(EOC_arg & arg)
 {
-   if (arg.how == 1)   goto how_1;
+EACH_LB & _arg = arg.u.u_EACH_LB;
+
+   if (_arg.how == 1)   goto how_1;
 
 how_0:
-   Assert1(arg.how == 0);
-   arg.z = 0;
+   Assert1(_arg.how == 0);
+   _arg.z = 0;
 
 loop_z:
    {
      Value_P LO_B;         // right argument of LO;
      bool cup_B = false;   // clean-up B ?
 
-     if (arg.cB->is_pointer_cell())
+     if (_arg.cB->is_pointer_cell())
         {
-          LO_B = arg.cB++->get_pointer_value();
-          arg.sub = true;
+          LO_B = _arg.cB++->get_pointer_value();
+          _arg.sub = true;
         }
      else
         {
           LO_B = Value_P(new Value(LOC), LOC);
           LO_B->set_arg();
 
-          LO_B->get_ravel(0).init(*arg.cB++);
+          LO_B->get_ravel(0).init(*_arg.cB++);
           LO_B->set_complete();
           cup_B = true;   // clean-up B
-          arg.sub = false;
+          _arg.sub = false;
         }
 
-     Token result = arg.LO->eval_B(LO_B);
+     Token result = _arg.LO->eval_B(LO_B);
 
      if (cup_B)
         {
@@ -284,9 +292,9 @@ loop_z:
         {
           // LO was a user defined function or ⍎
           //
-          arg.how = 1;
+          _arg.how = 1;
           Workspace::SI_top()->set_eoc_handler(eoc_LB);
-          Workspace::SI_top()->get_eoc_arg()._EACH_LB() = arg;
+          Workspace::SI_top()->get_eoc_arg() = arg;
           return result;   // continue in user defined function...
         }
 
@@ -298,8 +306,8 @@ loop_z:
         {
           Value_P vZ = result.get_apl_val();
 
-          if (arg.sub)   new (arg.cZ++)   PointerCell(vZ);
-          else           arg.cZ++->init_from_value(vZ, LOC);
+          if (_arg.sub)   new (_arg.cZ++)   PointerCell(vZ);
+          else           _arg.cZ++->init_from_value(vZ, LOC);
 
           goto next_z;
         }
@@ -313,11 +321,11 @@ loop_z:
 
 how_1:
 next_z:
-   if (++arg.z < arg.count)   goto loop_z;
+   if (++_arg.z < _arg.count)   goto loop_z;
 
    arg.B->clear_eoc();
 
-   if (!arg.Z)   return Token(TOK_VOID);   // LO wothout result
+   if (!arg.Z)   return Token(TOK_VOID);   // LO without result
 
    arg.Z->set_default(arg.B);
 
@@ -325,24 +333,25 @@ next_z:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_EACH::eoc_LB(Token & token, _EOC_arg & _arg)
+Bif_OPER1_EACH::eoc_LB(Token & token, EOC_arg & si_arg)
 {
-EACH_LB arg = _arg._EACH_LB();
+EOC_arg arg = si_arg;
+EACH_LB & _arg = arg.u.u_EACH_LB;
 
    if (!!arg.Z)   // LO with result, maybe successful
       {
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
         Value_P vZ = token.get_apl_val();
-        if (arg.sub)   new (arg.cZ++)  PointerCell(vZ);
-        else           arg.cZ++->init_from_value(vZ, LOC);
+        if (_arg.sub)   new (_arg.cZ++)  PointerCell(vZ);
+        else           _arg.cZ++->init_from_value(vZ, LOC);
       }
    else        // LO without result, maybe successful
       {
        if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-   if (arg.z < (arg.count - 1))   Workspace::pop_SI(LOC);
+   if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
    copy_1(token, finish_eval_LB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 

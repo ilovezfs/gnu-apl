@@ -54,75 +54,77 @@ Bif_OPER2_PRODUCT::outer_product(Value_P A, Token & _RO, Value_P B)
 Function * RO = _RO.get_function();
    Assert(RO);
 
-OUTER_PROD arg;
+EOC_arg arg;
+OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
    arg.Z = Value_P(new Value(A->get_shape() + B->get_shape(), LOC), LOC);
-   arg.cZ = &arg.Z->get_ravel(0);
-   arg.len_A = A->element_count();
-   arg.len_B = B->element_count();
+   _arg.cZ = &arg.Z->get_ravel(0);
+   _arg.len_A = A->element_count();
+   _arg.len_B = B->element_count();
 
-   arg.value_A = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cA
-   arg.value_A->set_eoc();
+   arg.V1 = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cA
+   arg.V1->set_eoc();
    arg.A = A;
-   arg.unlock_A = !A->is_eoc();
+   _arg.unlock_A = !A->is_eoc();
    arg.A->set_eoc();
 
-   arg.RO = RO;
+   _arg.RO = RO;
 
    arg.B = B;
-   arg.unlock_B = !B->is_eoc();
+   _arg.unlock_B = !B->is_eoc();
    arg.B->set_eoc();
 
-   arg.value_B = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cB
-   arg.value_B->set_eoc();
-   arg.cA = &A->get_ravel(0);
-   arg.cB = &B->get_ravel(0);
+   arg.V2 = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cB
+   arg.V2->set_eoc();
+   _arg.cA = &A->get_ravel(0);
+   _arg.cB = &B->get_ravel(0);
 
-   arg.how = 0;
+   _arg.how = 0;
    return finish_outer_product(arg);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_PRODUCT::finish_outer_product(OUTER_PROD & arg)
+Bif_OPER2_PRODUCT::finish_outer_product(EOC_arg & arg)
 {
-   if (arg.how == 1)   goto how_1;
+OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
+   if (_arg.how == 1)   goto how_1;
 
 how_0:
-   Assert1(arg.how == 0);
+   Assert1(_arg.how == 0);
 
-   arg.a = 0;
+   _arg.a = 0;
 loop_a:
 
-   arg.cB = &arg.B->get_ravel(0);
+   _arg.cB = &arg.B->get_ravel(0);
 
-   if (arg.cA->is_pointer_cell())
+   if (_arg.cA->is_pointer_cell())
       {
-        arg.RO_A = arg.cA++->get_pointer_value();
+        arg.RO_A = _arg.cA++->get_pointer_value();
       }
    else
       {
-        arg.value_A->get_ravel(0).init(*arg.cA++);
-        arg.value_A->set_complete();
-        arg.RO_A = arg.value_A;
+        arg.V1->get_ravel(0).init(*_arg.cA++);
+        arg.V1->set_complete();
+        arg.RO_A = arg.V1;
       }
 
-   arg.b = 0;
-   arg.cB = &arg.B->get_ravel(0);
+   _arg.b = 0;
+   _arg.cB = &arg.B->get_ravel(0);
 loop_b:
 
-   if (arg.cB->is_pointer_cell())
+   if (_arg.cB->is_pointer_cell())
       {
-        arg.RO_B = arg.cB++->get_pointer_value();
+        arg.RO_B = _arg.cB++->get_pointer_value();
       }
    else
       {
-        arg.value_B->get_ravel(0).init(*arg.cB++);
-        arg.value_B->set_complete();
-        arg.RO_B = arg.value_B;
+        arg.V2->get_ravel(0).init(*_arg.cB++);
+        arg.V2->set_complete();
+        arg.RO_B = arg.V2;
       }
 
    {
-     Token result = arg.RO->eval_AB(arg.RO_A, arg.RO_B);
+     Token result = _arg.RO->eval_AB(arg.RO_A, arg.RO_B);
 
    // if RO was a primitive function, then result may be a value.
    // if RO was a user defined function then result may be
@@ -131,7 +133,7 @@ loop_b:
    if (result.get_Class() == TC_VALUE)
       {
         Value_P ZZ = result.get_apl_val();
-        arg.cZ++->init_from_value(ZZ, LOC);
+        _arg.cZ++->init_from_value(ZZ, LOC);
         goto next_a_b;
       }
 
@@ -141,9 +143,9 @@ loop_b:
       {
         // RO was a user defined function
         //
-        arg.how = 1;
+        _arg.how = 1;
         Workspace::SI_top()->set_eoc_handler(eoc_outer_product);
-        Workspace::SI_top()->get_eoc_arg()._OUTER_PROD() = arg;
+        Workspace::SI_top()->get_eoc_arg() = arg;
 
         return result;   // continue in user defined function...
       }
@@ -152,19 +154,19 @@ loop_b:
 how_1:
 next_a_b:
 
-   if (++arg.b < arg.len_B)   goto loop_b;
-   if (++arg.a < arg.len_A)   goto loop_a;
+   if (++_arg.b < _arg.len_B)   goto loop_b;
+   if (++_arg.a < _arg.len_A)   goto loop_a;
 
-   arg.value_A->clear_eoc();
-   arg.value_A->erase(LOC);
+   arg.V1->clear_eoc();
+   arg.V1->erase(LOC);
 
-   arg.value_B->clear_eoc();
-   arg.value_B->erase(LOC);
+   arg.V2->clear_eoc();
+   arg.V2->erase(LOC);
 
    arg.Z->set_default(arg.B);
 
-   if (arg.unlock_A)   arg.A->clear_eoc();
-   if (arg.unlock_B)   arg.B->clear_eoc();
+   if (_arg.unlock_A)   arg.A->clear_eoc();
+   if (_arg.unlock_B)   arg.B->clear_eoc();
    arg.A->erase(LOC);
    if (arg.B != arg.A)   arg.B->erase(LOC);
 
@@ -172,11 +174,12 @@ next_a_b:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_PRODUCT::eoc_outer_product(Token & token, _EOC_arg & _arg)
+Bif_OPER2_PRODUCT::eoc_outer_product(Token & token, EOC_arg & si_arg)
 {
    // we copy _arg since pop_SI() will destroy it
    //
-OUTER_PROD arg = _arg._OUTER_PROD();
+EOC_arg arg = si_arg;
+OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
@@ -184,13 +187,13 @@ OUTER_PROD arg = _arg._OUTER_PROD();
    //
    {
      Value_P ZZ = token.get_apl_val();
-     arg.cZ++->init_from_value(ZZ, LOC);   // erase()s token.get_apl_val()
+     _arg.cZ++->init_from_value(ZZ, LOC);   // erase()s token.get_apl_val()
    }
 
    // pop the SI unless this is the last cZ to be computed
    //
    {
-      const bool more = arg.a < (arg.len_A - 1) || arg.b < (arg.len_B - 1);
+      const bool more = _arg.a < (_arg.len_A - 1) || _arg.b < (_arg.len_B - 1);
       if (more)   Workspace::pop_SI(LOC);
    }
    copy_1(token, finish_outer_product(arg), LOC);
@@ -208,10 +211,11 @@ Function * RO = _RO.get_function();
    Assert1(LO);
    Assert1(RO);
 
-INNER_PROD arg;
+EOC_arg arg;
+INNER_PROD & _arg = arg.u.u_INNER_PROD;
    arg.A = A;
-   arg.LO = LO;
-   arg.RO = RO;
+   _arg.LO = LO;
+   _arg.RO = RO;
    arg.B = B;
 
 Shape shape_A1(A->get_shape());
@@ -233,10 +237,10 @@ ShapeItem len_B = 1;
 
    // we do not check len_A == len_B since LO may accept different lengths
 
-   arg.items_A = shape_A1.element_count();
-   arg.items_B = shape_B1.element_count();
+   _arg.items_A = shape_A1.element_count();
+   _arg.items_B = shape_B1.element_count();
 
-   if (arg.items_A == 0 || arg.items_B == 0)   // empty result
+   if (_arg.items_A == 0 || _arg.items_B == 0)   // empty result
       {
         // the outer product portion of LO.RO is empty.
         // Apply the fill function of RO
@@ -245,18 +249,18 @@ ShapeItem len_B = 1;
         return fill(shape_Z, A, RO, B, LOC);
       }
 
-   arg.unlock_A = !A->is_eoc();
+   _arg.unlock_A = !A->is_eoc();
    arg.A->set_eoc();
-   arg.unlock_B = !B->is_eoc();
+   _arg.unlock_B = !B->is_eoc();
    arg.B->set_eoc();
 
    arg.Z = Value_P(new Value(shape_A1 + shape_B1, LOC), LOC);
-   arg.cZ = &arg.Z->get_ravel(0);
+   _arg.cZ = &arg.Z->get_ravel(0);
 
    // create a vector with the rows of A
    //
-   arg.args_A = new Value*[arg.items_A];
-   loop(i, arg.items_A)
+   _arg.args_A = new Value*[_arg.items_A];
+   loop(i, _arg.items_A)
        {
          Value * v = new Value(len_A, LOC);
          v->get_ravel(0).init(A->get_ravel(0 + i*len_A));
@@ -268,18 +272,18 @@ ShapeItem len_B = 1;
          v->set_default(A);
          CHECK_VAL(v, LOC);
          v->set_shared();
-         arg.args_A[i] = v;
+         _arg.args_A[i] = v;
        }
 
    // create a vector with the columns of B
    //
-   arg.args_B = new Value *[arg.items_B];
-   loop(i, arg.items_B)
+   _arg.args_B = new Value *[_arg.items_B];
+   loop(i, _arg.items_B)
        {
          Value * v = new Value(len_B, LOC);
          loop(b, len_B)
             {
-              const ShapeItem src = (B->is_skalar()) ? 0 : b*arg.items_B + i;
+              const ShapeItem src = (B->is_skalar()) ? 0 : b*_arg.items_B + i;
               v->get_ravel(b).init(B->get_ravel(src));
             }
 
@@ -287,36 +291,38 @@ ShapeItem len_B = 1;
          CHECK_VAL(v, LOC);
 
          v->set_shared();
-         arg.args_B[i] = v;
+         _arg.args_B[i] = v;
        }
 
-   arg.how = 0;
+   _arg.how = 0;
    return finish_inner_product(arg);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_PRODUCT::finish_inner_product(INNER_PROD & arg)
+Bif_OPER2_PRODUCT::finish_inner_product(EOC_arg & arg)
 {
-   if (arg.how > 0)
+INNER_PROD & _arg = arg.u.u_INNER_PROD;
+
+   if (_arg.how > 0)
       {
-        if (arg.how == 1)   goto how_1;
-        if (arg.how == 2)   goto how_2;
+        if (_arg.how == 1)   goto how_1;
+        if (_arg.how == 2)   goto how_2;
         FIXME;
       }
 
 how_0:
-   Assert1(arg.how == 0);
-   arg.last_ufun = false;
+   Assert1(_arg.how == 0);
+   _arg.last_ufun = false;
 
-   arg.a = 0;
+   _arg.a = 0;
 loop_a:
 
-   arg.b = 0;
+   _arg.b = 0;
 loop_b:
 
    {
-     const Token T1 = arg.RO->eval_AB(Value_P(arg.args_A[arg.a], LOC),
-                                      Value_P(arg.args_B[arg.b], LOC));
+     const Token T1 = _arg.RO->eval_AB(Value_P(_arg.args_A[_arg.a], LOC),
+                                      Value_P(_arg.args_B[_arg.b], LOC));
 
    if (T1.get_tag() == TOK_ERROR)   return T1;
 
@@ -326,19 +332,19 @@ loop_b:
         // context pushed is not the last user defined function call for this
         // operator. Otherwise it may or may not be the last call.
         //
-        if (arg.a >= (arg.items_A - 1) && arg.b >= (arg.items_B - 1))
+        if (_arg.a >= (_arg.items_A - 1) && _arg.b >= (_arg.items_B - 1))
            {
              // at this point, the last cZ is being computed. If LO is not
              // user defined, then this call is the last user defined
              // function call. Otherwise the LO-call below will be the last.
              //
-             if (!arg.LO->may_push_SI())   arg.last_ufun = true;
+             if (!_arg.LO->may_push_SI())   _arg.last_ufun = true;
            }
 
-        arg.how = 1;
+        _arg.how = 1;
         StateIndicator & si = *Workspace::SI_top();
         si.set_eoc_handler(eoc_inner_product);
-        si.get_eoc_arg()._INNER_PROD() = arg;
+        si.get_eoc_arg() = arg;
 
         return T1;   // continue in user defined function...
       }
@@ -356,10 +362,10 @@ how_1:
           // but rather LO->eval_identity_fun() or reshape(B).
           // No need to handle TOK_SI_PUSHED for user-defined LO.
           //
-          Token LO(TOK_FUN1, arg.LO);
+          Token LO(TOK_FUN1, _arg.LO);
           const Token T2 = Bif_OPER1_REDUCE::fun.eval_LB(LO, arg.V1);
           if (T2.get_tag() == TOK_ERROR)   return T2;
-          arg.cZ++->init_from_value(T2.get_apl_val(), LOC);
+          _arg.cZ++->init_from_value(T2.get_apl_val(), LOC);
 
           arg.V1->clear_arg();
           arg.V1->erase(LOC);
@@ -369,24 +375,24 @@ how_1:
 
      arg.V1->set_arg();   // prevent erase() of V1
 
-     // use LO_B as accumulator for LO-reduction
+     // use V2 as accumulator for LO-reduction
      //
-     arg.LO_B = arg.V1->get_ravel(ec_V1 - 1).to_value(LOC);
-     arg.v1 = ec_V1 - 2;
+     arg.V2 = arg.V1->get_ravel(ec_V1 - 1).to_value(LOC);
+     _arg.v1 = ec_V1 - 2;
    }
 
 loop_v:
        {
-         Value_P LO_A = arg.V1->get_ravel(arg.v1).to_value(LOC);
+         Value_P LO_A = arg.V1->get_ravel(_arg.v1).to_value(LOC);
          LO_A->set_eoc();
-         arg.LO_B->set_eoc();
-         const Token T2 = arg.LO->eval_AB(LO_A, arg.LO_B);
+         arg.V2->set_eoc();
+         const Token T2 = _arg.LO->eval_AB(LO_A, arg.V2);
          LO_A->clear_arg();
          LO_A->clear_eoc();
          LO_A->erase(LOC);
-         arg.LO_B->clear_arg();
-         arg.LO_B->clear_eoc();
-         arg.LO_B->erase(LOC);
+         arg.V2->clear_arg();
+         arg.V2->clear_eoc();
+         arg.V2->erase(LOC);
 
          if (T2.get_tag() == TOK_ERROR)   return T2;
 
@@ -394,16 +400,16 @@ loop_v:
             {
               // LO was a user defined function. check if this was the last call
               //
-              if (arg.a >= (arg.items_A - 1) && arg.b >= (arg.items_B - 1))
+              if (_arg.a >= (_arg.items_A - 1) && _arg.b >= (_arg.items_B - 1))
                  {
-                   Assert1(arg.LO->may_push_SI());
-                   if (arg.v1 == 0)   arg.last_ufun = true;
+                   Assert1(_arg.LO->may_push_SI());
+                   if (_arg.v1 == 0)   _arg.last_ufun = true;
                  }
 
-              arg.how = 2;
+              _arg.how = 2;
               StateIndicator & si = *Workspace::SI_top();
               si.set_eoc_handler(eoc_inner_product);
-              si.get_eoc_arg()._INNER_PROD() = arg;
+              si.get_eoc_arg() = arg;
 
               return T2;   // continue in user defined function...
             }
@@ -414,39 +420,39 @@ loop_v:
               Q(T2)   FIXME;
             }
 
-         arg.LO_B = T2.get_apl_val();
+         arg.V2 = T2.get_apl_val();
        }
 
 how_2:
-   if (--arg.v1 >= 0)   goto loop_v;
+   if (--_arg.v1 >= 0)   goto loop_v;
 
-   arg.cZ++->init_from_value(arg.LO_B, LOC);
+   _arg.cZ++->init_from_value(arg.V2, LOC);
 
    arg.V1->clear_arg();
    arg.V1->erase(LOC);
 
 next_a_b:
-   if (++arg.b < arg.items_B)   goto loop_b;
-   if (++arg.a < arg.items_A)   goto loop_a;
+   if (++_arg.b < _arg.items_B)   goto loop_b;
+   if (++_arg.a < _arg.items_A)   goto loop_a;
 
-   loop(i, arg.items_A)
+   loop(i, _arg.items_A)
       {
-         arg.args_A[i]->clear_shared();
-         arg.args_A[i]->erase(LOC);
+         _arg.args_A[i]->clear_shared();
+         _arg.args_A[i]->erase(LOC);
       }
-   delete arg.args_A;
+   delete _arg.args_A;
 
-   loop(i, arg.items_B)
+   loop(i, _arg.items_B)
       {
-         arg.args_B[i]->clear_shared();
-         arg.args_B[i]->erase(LOC);
+         _arg.args_B[i]->clear_shared();
+         _arg.args_B[i]->erase(LOC);
       }
-   delete arg.args_B;
+   delete _arg.args_B;
 
    arg.Z->set_default(arg.B);
 
-   if (arg.unlock_A)   arg.A->clear_eoc();
-   if (arg.unlock_B)   arg.B->clear_eoc();
+   if (_arg.unlock_A)   arg.A->clear_eoc();
+   if (_arg.unlock_B)   arg.B->clear_eoc();
    arg.A->erase(LOC);
    if (arg.A != arg.B)   arg.B->erase(LOC);
 
@@ -454,20 +460,22 @@ next_a_b:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_PRODUCT::eoc_inner_product(Token & token, _EOC_arg & _arg)
+Bif_OPER2_PRODUCT::eoc_inner_product(Token & token, EOC_arg & si_arg)
 {
-   // we copy _arg since pop_SI() will destroy it
+   // copy si_arg since pop_SI() will destroy it
    //
-INNER_PROD arg = _arg._INNER_PROD();
-   if (!arg.last_ufun)   Workspace::pop_SI(LOC);
+EOC_arg arg = si_arg;
+INNER_PROD & _arg = arg.u.u_INNER_PROD;
+
+   if (!_arg.last_ufun)   Workspace::pop_SI(LOC);
 
    if (token.get_Class() == TC_VALUE)
       {
        // a user defined function has returned a value. Store it.
        //
-       if      (arg.how == 1)   arg.V1 = token.get_apl_val();
-       else if (arg.how == 2)   arg.LO_B = token.get_apl_val();
-       else                     FIXME;
+       if      (_arg.how == 1)   arg.V1 = token.get_apl_val();
+       else if (_arg.how == 2)   arg.V2 = token.get_apl_val();
+       else                      FIXME;
       }
 
    copy_1(token, finish_inner_product(arg), LOC);
