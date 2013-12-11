@@ -59,22 +59,21 @@ protected:
    Token outer_product(Value_P A, Token & RO, Value_P B);
 
    /// Compute the inner product of A and B with functions LO and RO.
-   Token inner_product(Value_P A, Token & LO, Token & RO,
-                       Value_P B);
+   Token inner_product(Value_P A, Token & LO, Token & RO, Value_P B);
 
    /// EOC handler for outer_product with user defined RO
-   static bool eoc_outer_product(Token & token, _EOC_arg & arg);
+   static bool eoc_outer_product(Token & token, EOC_arg & arg);
 
    /// EOC handler for inner_product with user defined RO
-   static bool eoc_inner_product(Token & token, _EOC_arg & arg);
+   static bool eoc_inner_product(Token & token, EOC_arg & arg);
 
    /// helper for RO. returns true if the final token was computed, and false
    /// if finish_outer_product shall be called again
-   static Token finish_outer_product(OUTER_PROD & arg);
+   static Token finish_outer_product(EOC_arg & arg);
 
    /// helper for RO. returns true if the final token was computed, and false
    /// if finish_inner_product shall be called again
-   static Token finish_inner_product(INNER_PROD & arg);
+   static Token finish_inner_product(EOC_arg & arg);
 };
 //-----------------------------------------------------------------------------
 

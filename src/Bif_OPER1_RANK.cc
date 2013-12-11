@@ -69,55 +69,59 @@ Rank rk_B_low = B->get_rank();
 
    // split shape of B into high and low shapes.
    //
-RANK_LXB arg;
-   arg.get_sh_B_low() = B->get_shape().low_shape(rk_B_low);
-   arg.get_sh_B_high() = B->get_shape().high_shape(B->get_rank() - rk_B_low);
-   new (&arg.get_sh_Z_max_low()) Shape;
-   arg.ec_high = arg.get_sh_B_high().element_count();
-   arg.ec_B_low = arg.get_sh_B_low().element_count();
-   arg.cB = &B->get_ravel(0);
-   arg.LO = LO;
-   arg.ZZ = new Value *[arg.ec_high];
-   arg.how = 0;
+EOC_arg arg;
+RANK_LXB & _arg = arg.u.u_RANK_LXB;
+
+   _arg.get_sh_B_low() = B->get_shape().low_shape(rk_B_low);
+   _arg.get_sh_B_high() = B->get_shape().high_shape(B->get_rank() - rk_B_low);
+   new (&_arg.get_sh_Z_max_low()) Shape;
+   _arg.ec_high = _arg.get_sh_B_high().element_count();
+   _arg.ec_B_low = _arg.get_sh_B_low().element_count();
+   _arg.cB = &B->get_ravel(0);
+   _arg.LO = LO;
+   _arg.ZZ = new Value *[_arg.ec_high];
+   _arg.how = 0;
 
    return finish_eval_LXB(arg);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER1_RANK::finish_eval_LXB(RANK_LXB & arg)
+Bif_OPER1_RANK::finish_eval_LXB(EOC_arg & arg)
 {
-   if (arg.how == 1)   goto how_1;
+RANK_LXB & _arg = arg.u.u_RANK_LXB;
+
+   if (_arg.how == 1)   goto how_1;
 
 how_0:
-   Assert1(arg.how == 0);
-   arg.h = 0;
+   Assert1(_arg.how == 0);
+   _arg.h = 0;
 
 loop_h:
    {
-     Value_P BB(new Value(arg.get_sh_B_low(), LOC), LOC);
-     Assert1(arg.ec_B_low == arg.get_sh_B_low().element_count());
-     loop(l, arg.ec_B_low)   BB->get_ravel(l).init(*arg.cB++);
+     Value_P BB(new Value(_arg.get_sh_B_low(), LOC), LOC);
+     Assert1(_arg.ec_B_low == _arg.get_sh_B_low().element_count());
+     loop(l, _arg.ec_B_low)   BB->get_ravel(l).init(*_arg.cB++);
      CHECK_VAL(BB, LOC);
 
-     Token result = arg.LO->eval_B(BB);   // erases BB
+     Token result = _arg.LO->eval_B(BB);   // erases BB
      BB->erase(LOC);
      if (result.get_tag() == TOK_SI_PUSHED)
         {
           // LO was a user defined function or ⍎
           //
-          arg.how = 1;
+          _arg.how = 1;
           Workspace::SI_top()->set_eoc_handler(eoc_LXB);
-          Workspace::SI_top()->get_eoc_arg()._RANK_LXB() = arg;
+          Workspace::SI_top()->get_eoc_arg() = arg;
           return result;   // continue in user defined function...
         }
 
      if (result.get_Class() == TC_VALUE)
         {
-          arg.ZZ[arg.h] = result.get_apl_val().get_pointer();
+          _arg.ZZ[_arg.h] = result.get_apl_val().get_pointer();
 
           // adjust result rank to ZZ if needed
           //
-          arg.get_sh_Z_max_low().expand(arg.ZZ[arg.h]->get_shape());
+          _arg.get_sh_Z_max_low().expand(_arg.ZZ[_arg.h]->get_shape());
 
           goto next_h;
        }
@@ -129,58 +133,59 @@ loop_h:
 
 how_1:
 next_h:
-   if (++arg.h < arg.ec_high)   goto loop_h;
+   if (++_arg.h < _arg.ec_high)   goto loop_h;
 
-const ShapeItem ec_Z_max_low = arg.get_sh_Z_max_low().element_count();
-Shape sh_Z = arg.get_sh_B_high() + arg.get_sh_Z_max_low();
+const ShapeItem ec_Z_max_low = _arg.get_sh_Z_max_low().element_count();
+Shape sh_Z = _arg.get_sh_B_high() + _arg.get_sh_Z_max_low();
 Value_P Z(new Value(sh_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
-   loop(hh, arg.ec_high)
+   loop(hh, _arg.ec_high)
       {
         // sh_Z_max_low ↑ ZZ  if neccessary
         //
-        if (arg.get_sh_Z_max_low() != arg.ZZ[hh]->get_shape())
+        if (_arg.get_sh_Z_max_low() != _arg.ZZ[hh]->get_shape())
            {
-             Assert(ec_Z_max_low >= arg.ZZ[hh]->element_count());
-             Token zz = Bif_F12_TAKE::fun.do_take(arg.get_sh_Z_max_low(),
-                                                  Value_P(arg.ZZ[hh], LOC));
-             arg.ZZ[hh]->erase(LOC);
-             arg.ZZ[hh] = zz.get_apl_val().get_pointer();
+             Assert(ec_Z_max_low >= _arg.ZZ[hh]->element_count());
+             Token zz = Bif_F12_TAKE::fun.do_take(_arg.get_sh_Z_max_low(),
+                                                  Value_P(_arg.ZZ[hh], LOC));
+             _arg.ZZ[hh]->erase(LOC);
+             _arg.ZZ[hh] = zz.get_apl_val().get_pointer();
            }
 
         // copy partial result into final result.
         //
-        Cell * cZZ = &arg.ZZ[hh]->get_ravel(0);
+        Cell * cZZ = &_arg.ZZ[hh]->get_ravel(0);
         loop(z, ec_Z_max_low)
            {
              cZ++->init(*cZZ);
              new (cZZ++) IntCell(0);
            }
-        arg.ZZ[hh]->erase(LOC);
+        _arg.ZZ[hh]->erase(LOC);
       }
 
-   delete arg.ZZ;
+   delete _arg.ZZ;
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_RANK::eoc_LXB(Token & token, _EOC_arg & _arg)
+Bif_OPER1_RANK::eoc_LXB(Token & token, EOC_arg & si_arg)
 {
-RANK_LXB arg = _arg._RANK_LXB();
+EOC_arg arg = si_arg;
+RANK_LXB & _arg = arg.u.u_RANK_LXB;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
    // the user defined function has returned a value. Store it.
    //
    {
-     arg.ZZ[arg.h] = token.get_apl_val().get_pointer();
+     _arg.ZZ[_arg.h] = token.get_apl_val().get_pointer();
      // adjust result rank to ZZ if needed
      //
-     arg.get_sh_Z_max_low().expand(arg.ZZ[arg.h]->get_shape());
+     _arg.get_sh_Z_max_low().expand(_arg.ZZ[_arg.h]->get_shape());
    }
 
-   if (arg.h < (arg.ec_high - 1))   Workspace::pop_SI(LOC);
+   if (_arg.h < (_arg.ec_high - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_LXB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -240,97 +245,101 @@ Rank rk_B_high = B->get_rank() - rk_B_low;   // rk_B_high is y9
    // have the same shape, rk_A_high and rk_B_high could be different, leading
    // to different split shapes for A1 and B1
    //
-RANK_ALXB arg;
-   arg.get_sh_A_low() = A->get_shape().low_shape(rk_A_low);
+EOC_arg arg;
+RANK_ALXB & _arg = arg.u.u_RANK_ALXB;
+
+   _arg.get_sh_A_low() = A->get_shape().low_shape(rk_A_low);
 Shape sh_A_high = A->get_shape().high_shape(A->get_rank() - rk_A_low);
-   arg.get_sh_B_low() = B->get_shape().low_shape(rk_B_low);
-   arg.get_sh_B_high() = B->get_shape().high_shape(B->get_rank() - rk_B_low);
-   new (&arg.get_sh_Z_max_low())   Shape;
+   _arg.get_sh_B_low() = B->get_shape().low_shape(rk_B_low);
+   _arg.get_sh_B_high() = B->get_shape().high_shape(B->get_rank() - rk_B_low);
+   new (&_arg.get_sh_Z_max_low())   Shape;
 
    // a trick to actually avoid conforming A to B or B to A. If A or B
    // needs to be conformed, then we set the corresponding repeat_A or 
    // repeat_B to true and copy the same A or B again and again
    //
-   arg.repeat_A = (rk_A_high == 0);
-   arg.repeat_B = (rk_B_high == 0);
+   _arg.repeat_A = (rk_A_high == 0);
+   _arg.repeat_B = (rk_B_high == 0);
 
-   if (arg.repeat_A)   // "conform" A to B
+   if (_arg.repeat_A)   // "conform" A to B
       {
          rk_A_high = rk_B_high;
-         sh_A_high = arg.get_sh_B_high();
+         sh_A_high = _arg.get_sh_B_high();
       }
-   else if (arg.repeat_B)   // "conform" B to A
+   else if (_arg.repeat_B)   // "conform" B to A
       {
          rk_B_high = rk_A_high;
-         arg.get_sh_B_high() = sh_A_high;
+         _arg.get_sh_B_high() = sh_A_high;
       }
    else                       // check lengths
       {
         if (rk_A_high != rk_B_high)             RANK_ERROR;
-        if (sh_A_high != arg.get_sh_B_high())   LENGTH_ERROR;
+        if (sh_A_high != _arg.get_sh_B_high())   LENGTH_ERROR;
       }
  
    // at this point sh_A_high == sh_B_high, so we can use either of them
    // to compute ec_A_low
    //
-   arg.ec_high = arg.get_sh_B_high().element_count();
-   arg.ec_A_low = arg.get_sh_A_low().element_count();
-   arg.ec_B_low = arg.get_sh_B_low().element_count();
+   _arg.ec_high = _arg.get_sh_B_high().element_count();
+   _arg.ec_A_low = _arg.get_sh_A_low().element_count();
+   _arg.ec_B_low = _arg.get_sh_B_low().element_count();
 
-   arg.ZZ = new Value *[arg.ec_high];
+   _arg.ZZ = new Value *[_arg.ec_high];
    arg.A = A;
-   arg.cA = &A->get_ravel(0);
-   arg.LO = LO;
+   _arg.cA = &A->get_ravel(0);
+   _arg.LO = LO;
    arg.B = B;
-   arg.cB = &B->get_ravel(0);
+   _arg.cB = &B->get_ravel(0);
 
-   arg.how = 0;
+   _arg.how = 0;
    return finish_eval_ALXB(arg);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER1_RANK::finish_eval_ALXB(RANK_ALXB & arg)
+Bif_OPER1_RANK::finish_eval_ALXB(EOC_arg & arg)
 {
-   if (arg.how == 1)   goto how_1;
+RANK_ALXB & _arg = arg.u.u_RANK_ALXB;
+
+   if (_arg.how == 1)   goto how_1;
 
 how_0:
-   Assert1(arg.how == 0);
-   arg.h = 0;
+   Assert1(_arg.how == 0);
+   _arg.h = 0;
 
 loop_h:
    {
-     Value_P AA(new Value(arg.get_sh_A_low(), LOC), LOC);
-     Value_P BB(new Value(arg.get_sh_B_low(), LOC), LOC);
+     Value_P AA(new Value(_arg.get_sh_A_low(), LOC), LOC);
+     Value_P BB(new Value(_arg.get_sh_B_low(), LOC), LOC);
 
-     loop(l, arg.ec_A_low)   AA->get_ravel(l).init(*arg.cA++);
-     loop(l, arg.ec_B_low)   BB->get_ravel(l).init(*arg.cB++);
+     loop(l, _arg.ec_A_low)   AA->get_ravel(l).init(*_arg.cA++);
+     loop(l, _arg.ec_B_low)   BB->get_ravel(l).init(*_arg.cB++);
 
-     if (arg.repeat_A)   arg.cA = &arg.A->get_ravel(0);
-     if (arg.repeat_B)   arg.cB = &arg.B->get_ravel(0);
+     if (_arg.repeat_A)   _arg.cA = &arg.A->get_ravel(0);
+     if (_arg.repeat_B)   _arg.cB = &arg.B->get_ravel(0);
 
      CHECK_VAL(AA, LOC);
      CHECK_VAL(BB, LOC);
 
-     Token result = arg.LO->eval_AB(AA, BB);   // erases AA and BB
+     Token result = _arg.LO->eval_AB(AA, BB);   // erases AA and BB
      AA->erase(LOC);
      BB->erase(LOC);
      if (result.get_tag() == TOK_SI_PUSHED)
         {
           // LO was a user defined function or ⍎
           //
-          arg.how = 1;
+          _arg.how = 1;
           Workspace::SI_top()->set_eoc_handler(eoc_ALXB);
-          Workspace::SI_top()->get_eoc_arg()._RANK_ALXB() = arg;
+          Workspace::SI_top()->get_eoc_arg() = arg;
           return result;   // continue in user defined function...
         }
 
      if (result.get_Class() == TC_VALUE)
         {
-          arg.ZZ[arg.h] = result.get_apl_val().get_pointer();
+          _arg.ZZ[_arg.h] = result.get_apl_val().get_pointer();
 
           // adjust result rank to ZZ if needed
           //
-          arg.get_sh_Z_max_low().expand(arg.ZZ[arg.h]->get_shape());
+          _arg.get_sh_Z_max_low().expand(_arg.ZZ[_arg.h]->get_shape());
 
           goto next_h;
        }
@@ -342,59 +351,60 @@ loop_h:
 
 how_1:
 next_h:
-   if (++arg.h < arg.ec_high)   goto loop_h;
+   if (++_arg.h < _arg.ec_high)   goto loop_h;
 
-const ShapeItem ec_Z_max_low = arg.get_sh_Z_max_low().element_count();
-Shape sh_Z = arg.get_sh_B_high() + arg.get_sh_Z_max_low();
+const ShapeItem ec_Z_max_low = _arg.get_sh_Z_max_low().element_count();
+Shape sh_Z = _arg.get_sh_B_high() + _arg.get_sh_Z_max_low();
 Value_P Z(new Value(sh_Z, LOC), LOC);
 Cell * cZ = &Z->get_ravel(0);
 
-   loop(hh, arg.ec_high)
+   loop(hh, _arg.ec_high)
       {
         // sh_Z_max_low ↑ ZZ  if neccessary
         //
-        if (arg.get_sh_Z_max_low() != arg.ZZ[hh]->get_shape())
+        if (_arg.get_sh_Z_max_low() != _arg.ZZ[hh]->get_shape())
            {
-             Assert(ec_Z_max_low >= arg.ZZ[hh]->element_count());
-             Token zz = Bif_F12_TAKE::fun.do_take(arg.get_sh_Z_max_low(),
-                                                  Value_P(arg.ZZ[hh], LOC));
-             arg.ZZ[hh]->erase(LOC);
-             arg.ZZ[hh] = zz.get_apl_val().get_pointer();
+             Assert(ec_Z_max_low >= _arg.ZZ[hh]->element_count());
+             Token zz = Bif_F12_TAKE::fun.do_take(_arg.get_sh_Z_max_low(),
+                                                  Value_P(_arg.ZZ[hh], LOC));
+             _arg.ZZ[hh]->erase(LOC);
+             _arg.ZZ[hh] = zz.get_apl_val().get_pointer();
            }
 
         // copy partial result into final result.
         //
-        Cell * cZZ = &arg.ZZ[hh]->get_ravel(0);
+        Cell * cZZ = &_arg.ZZ[hh]->get_ravel(0);
         loop(z, ec_Z_max_low)
            {
              cZ++->init(*cZZ);
              new (cZZ++) IntCell(0);
            }
-        arg.ZZ[hh]->erase(LOC);
+        _arg.ZZ[hh]->erase(LOC);
       }
 
-   delete arg.ZZ;
+   delete _arg.ZZ;
    return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_RANK::eoc_ALXB(Token & token, _EOC_arg & _arg)
+Bif_OPER1_RANK::eoc_ALXB(Token & token, EOC_arg & si_arg)
 {
-RANK_ALXB arg = _arg._RANK_ALXB();
+EOC_arg arg = si_arg;
+RANK_ALXB & _arg = arg.u.u_RANK_ALXB;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
    // the user defined function has returned a value. Store it.
    //
    {
-     arg.ZZ[arg.h] = token.get_apl_val().get_pointer();
+     _arg.ZZ[_arg.h] = token.get_apl_val().get_pointer();
 
      // adjust result rank to ZZ if needed
      //
-     arg.get_sh_Z_max_low().expand(arg.ZZ[arg.h]->get_shape());
+     _arg.get_sh_Z_max_low().expand(_arg.ZZ[_arg.h]->get_shape());
    }
 
-   if (arg.h < (arg.ec_high - 1))   Workspace::pop_SI(LOC);
+   if (_arg.h < (_arg.ec_high - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_ALXB(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
