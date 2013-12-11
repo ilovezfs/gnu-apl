@@ -300,11 +300,26 @@ struct RANK_ALXB
 /// the second argument for an EOC_HANDLER. The actual type depends on the
 /// handler. An _EOC_arg contains all information that is neccessary for
 /// the EOC handler to compute the result token.
-union _EOC_arg
+struct _EOC_arg
 {
-#define U_TIEM(x)                   \
-   /** space for one x **/  char ea_ ## x [ sizeof(x) ];    \
-   /** return an x **/      x & _ ## x()  { return *(x*) & ea_ ## x; }
+#define U_TIEM(x)   /** space for one x **/  char ea_ ## x [ sizeof(x) ];
+
+   union _EOC_arg_u
+      {
+        U_TIEM(quad_EA)
+        U_TIEM(quad_EC)
+        U_TIEM(quad_INP)
+        U_TIEM(OUTER_PROD)
+        U_TIEM(INNER_PROD)
+        U_TIEM(reduce_beam)
+        U_TIEM(EACH_ALB)
+        U_TIEM(EACH_LB)
+        U_TIEM(RANK_LXB)
+        U_TIEM(RANK_ALXB)
+      } u;
+
+#undef U_TIEM
+#define U_TIEM(x)   /** return an x **/      x & _ ## x()  { return *(x*) & u; }
 
    U_TIEM(quad_EA)
    U_TIEM(quad_EC)
