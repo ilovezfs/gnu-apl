@@ -108,8 +108,6 @@ public:
    ~Token()
      { if (is_apl_val() && value._apl_val().get_pointer()) warn(CERR);  }
 
-   void clear(const char * loc);
-
    /// return the TokenValueType of this token.
    TokenValueType get_ValueType() const
       { return TokenValueType(tag & TV_MASK); }
@@ -178,6 +176,12 @@ public:
    Value * extract_apl_val(const char * loc) const
       { return is_apl_val() ? value._apl_val().clear(loc) : 0; }
 
+   void clear(const char * loc)
+      {
+         if (is_apl_val())   value._apl_val().clear(loc);
+         new (this) Token();
+      }
+
    /// return the axis specification of this token (expect non-zero axes)
    Value_P get_nonzero_axes() const
       { Assert1(!!value._apl_val() && (get_tag() == TOK_AXES));
@@ -226,6 +230,9 @@ public:
    /// return the number of characters printed.
    int error_info(UCS_string & out) const;
 
+   /// copy src to \b this token
+   void copy_N(const Token & src);
+
    static void copy_1(Token & dst, const Token & src, const char * loc)
       { dst = src; }
 
@@ -263,7 +270,7 @@ protected:
    /// The tag indicating the type of \b this token
    TokenTag tag;
 
-   /// The value of \b this Value
+   /// The value of \b this token
    sval value;
 
    /// helper function to print Quad-function (system function or variable).
@@ -271,8 +278,6 @@ protected:
 
 #if 1
 private:
-   friend  void copy_2(Token & dst, const Token & src);
-
    // prevent accidental copying
    Token & operator =(const Token & other);
 #endif

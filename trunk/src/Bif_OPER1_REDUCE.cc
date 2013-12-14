@@ -210,14 +210,13 @@ Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
 EOC_arg arg;
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
-   Z->set_eoc();   // keep Z
+   new (& arg.Z)   Value_P(new Value(shape_Z, LOC), LOC);
    arg.B = B;
-   arg.Z = Z;
-   _arg.init(&Z->get_ravel(0), Z3, LO, &B->get_ravel(0), bm, a, 0);
+   _arg.init(&arg.Z->get_ravel(0), Z3, LO, &B->get_ravel(0), bm, a, 0);
+
+   arg.set_EOC();
 
 Token tok(TOK_FIRST_TIME);
-   B->set_eoc();   // keep B
    eoc_beam(tok, arg);
    return tok;
 }
@@ -265,11 +264,8 @@ Value_P BB = token.get_apl_val();
 
         if (_arg.frame.done())   // if last beam (final result complete)
            {
-             arg.B->clear_eoc();   // release B
-             arg.B->erase(LOC);
-
-             arg.Z->clear_eoc();   // release B
-             copy_1(token, CHECK(arg.Z, LOC), LOC);
+             Value_P Z(arg.clear_EOC(LOC), LOC);
+             copy_1(token, CHECK(Z, LOC), LOC);
              return false;   // stop it
            }
 

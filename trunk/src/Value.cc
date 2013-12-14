@@ -117,6 +117,8 @@ const ShapeItem length = shape.element_count();
       {
         ravel = short_value;
       }
+
+   check_ptr = this + 7;
 }
 //-----------------------------------------------------------------------------
 Value::Value(const char * loc)
@@ -138,12 +140,14 @@ Value::Value(const char * loc, Value_how how)
       {
         case Value_how_Zero ... Value_how_Nine:
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(how);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Spc:
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
              CHECK_VAL(this, LOC);
              return;
@@ -151,6 +155,7 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_Idx0:
              new (&shape) Shape(0);
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(0);
              CHECK_VAL(this, LOC);
              return;
@@ -158,12 +163,14 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_Str0:
              new (&shape) Shape(0);
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_zStr0:
              init_ravel();
+             owner_count = 1;   // static
              {
                Value_P z(new Value(loc, Value_how_Str0), LOC);   // ''
                new (&get_ravel(0)) PointerCell(z);               // ⊂''
@@ -174,6 +181,7 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_Str0_0:
              new (&shape) Shape(ShapeItem(0), ShapeItem(0));
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
              CHECK_VAL(this, LOC);
              return;
@@ -181,18 +189,21 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_Str3_0:
              new (&shape) Shape(ShapeItem(3), ShapeItem(0));
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Max:
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(BIG_FLOAT);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Min:
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(-BIG_FLOAT);
              CHECK_VAL(this, LOC);
              return;
@@ -200,6 +211,7 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_AV:
              new (&shape) Shape(MAX_AV);
              init_ravel();
+             owner_count = 1;   // static
              loop(cti, MAX_AV)
                  {
                    const int pos = Avec::get_av_pos(CHT_Index(cti));
@@ -212,12 +224,14 @@ Value::Value(const char * loc, Value_how how)
 
         case Value_how_Max_CT:
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(MAX_QUAD_CT);
              CHECK_VAL(this, LOC);
              return;
 
         case Value_how_Max_PP:
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(MAX_QUAD_PP);
              CHECK_VAL(this, LOC);
              return;
@@ -228,6 +242,7 @@ Value::Value(const char * loc, Value_how how)
                 const ShapeItem len = strlen(cp);
                 new (&shape) Shape(len);
                 init_ravel();
+                owner_count = 1;   // static
                 loop(l, len)   new (&get_ravel(l)) CharCell(Unicode(cp[l]));
              }
              CHECK_VAL(this, LOC);
@@ -236,6 +251,7 @@ Value::Value(const char * loc, Value_how how)
         case Value_how_Quad_TC:
              new (&shape) Shape(3);
              init_ravel();
+             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_BS);
              new (&get_ravel(1)) CharCell(UNI_ASCII_CR);
              new (&get_ravel(2)) CharCell(UNI_ASCII_LF);
@@ -332,17 +348,27 @@ Value::Value(const Cell & cell, const char * loc)
 //-----------------------------------------------------------------------------
 Value::~Value()
 {
+   unlink();
+
 const ShapeItem length = nz_element_count();
    --value_count;
-
-Cell * cZ = &get_ravel(0);
-   loop(c, length)   cZ++->release(LOC);
 
    if (ravel != short_value)
       {
         total_ravel_count -= length;
         delete ravel;
       }
+
+   Assert(check_ptr == this + 7);
+}
+//-----------------------------------------------------------------------------
+void
+Value::release_sub(const char * loc)
+{
+const ShapeItem length = nz_element_count();
+
+Cell * cZ = &get_ravel(0);
+   loop(c, length)   cZ++->release(loc);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -491,7 +517,7 @@ const Cell * C = &get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 void
-Value::erase(const char * loc) const
+Value::erase(const char * loc)
 {
    ADD_EVENT(this, VHE_Erase, 0, loc);
 
@@ -504,7 +530,7 @@ Value::erase(const char * loc) const
              << " deleted twice! ***"                                  << endl
              << endl;
 
-        VH_entry::print_history(CERR, this);
+        print_value_history(CERR, this);
         print_structure(CERR, 0, 0);
 
         Backtrace::show(__FILE__, __LINE__);
@@ -521,7 +547,7 @@ Value::erase(const char * loc) const
              << endl;
 
 #ifdef VALUE_CHECK_WANTED
-        VH_entry::print_history(CERR, this);
+        print_value_history(CERR, this);
 #else
         CERR << "No history (VALUE_CHECK_WANTED off)" << endl;
 #endif
@@ -546,7 +572,7 @@ Value::erase(const char * loc) const
 
    if (flags & VF_DONT_DELETE)   return;
 
-   ((Value *)this)->unlink();
+   release_sub(loc);
 
    Log(LOG_delete)
       {
@@ -571,7 +597,7 @@ Value::rollback(ShapeItem items, const char * loc)
 {
    ADD_EVENT(this, VHE_Unroll, 0, loc);
 
-   ((Value *)this)->unlink();
+   release_sub(loc);
 
    loop(i, items)
       {
@@ -1370,6 +1396,7 @@ const CellType ctype = get_ravel(0).get_cell_type();
       }
 
    set_complete();
+
    return Value_P(this, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -1887,10 +1914,10 @@ int count = 0;
 void
 Value::print_stale_info(ostream & out, const DynamicObject * dob)
 {
-   out << "alloc(" << dob->where_allocated()
+   out << "print_stale_info():   alloc(" << dob->where_allocated()
        << ") flags(" << get_flags() << ")" << endl;
 
-   VH_entry::print_history(out, (const Value *)dob);
+   print_value_history(out, (const Value *)dob);
 
    try 
       {

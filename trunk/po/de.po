@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU APL 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-12-09 14:06+0100\n"
+"POT-Creation-Date: 2013-12-14 19:29+0100\n"
 "PO-Revision-Date: 2013-09-15 14:04+0200\n"
 "Last-Translator: Juergen <eedjsa@localhost>\n"
 "Language-Team: German\n"
@@ -180,19 +180,19 @@ msgid "Unknown Error"
 msgstr "Unbekannter Fehler"
 
 # # main
-#: src/main.cc:294
+#: src/main.cc:295
 msgid " (default)"
 msgstr " (Standardeinstellung)"
 
-#: src/main.cc:305
+#: src/main.cc:306
 msgid "configurable options:"
 msgstr "konfigurierbare Optionen:"
 
-#: src/main.cc:338
+#: src/main.cc:339
 msgid ", therefore:"
 msgstr ", folglich:"
 
-#: src/main.cc:374
+#: src/main.cc:375
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -212,20 +212,21 @@ msgstr ""
 "    --id proc            Prozessor ID proc benutzen (Standard: erste "
 "unbenutzte ID > 1000)\n"
 
-#: src/main.cc:384
+#: src/main.cc:385
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr "    -l num               Logeinrichtung num (1-%d) AN\n"
 
-#: src/main.cc:390
+#: src/main.cc:391
 #, fuzzy, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --rawCIN             do not use the readline lib for input\n"
-"    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
+"    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --emacs              run in emacs mode\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
@@ -265,46 +266,46 @@ msgstr ""
 "überschreiben\n"
 "    --                   Ende der Optionen für %s\n"
 
-#: src/main.cc:450
+#: src/main.cc:452
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr "Willkommen bei GNU APL Version %s"
 
-#: src/main.cc:451
+#: src/main.cc:453
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr "für Einzelheiten führen Sie bitte %s --gpl aus."
 
-#: src/main.cc:470
+#: src/main.cc:472
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr "Für dieses Programm werden KEINERLEI GARANTIEN übernommen;"
 
-#: src/main.cc:473
+#: src/main.cc:475
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 "Dieses Programm ist freie Software und kann gerne gemäß den Bedingungen"
 
-#: src/main.cc:474
+#: src/main.cc:476
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "der GNU Public License (GPL) Version 3 or später verbreitet werden."
 
-#: src/main.cc:852
+#: src/main.cc:854
 msgid "-f without filename"
 msgstr "-f ohne Dateiname"
 
-#: src/main.cc:885
+#: src/main.cc:887
 msgid "-l without log facility"
 msgstr "-l ohne Logeinrichtung"
 
-#: src/main.cc:974
+#: src/main.cc:980
 msgid "--TM without test mode"
 msgstr "--TM ohne Testmode"
 
-#: src/main.cc:993
+#: src/main.cc:999
 msgid "-w without milli(seconds)"
 msgstr "-w ohne Millisekunden"
 
-#: src/main.cc:999
+#: src/main.cc:1005
 msgid "unknown option '"
 msgstr "Unbekannte Option '"
 

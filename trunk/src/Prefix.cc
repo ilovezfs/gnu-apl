@@ -178,7 +178,7 @@ const Value * del = 0;   // warn for deleted Values
    if (del)
       {
         CERR << "*** DELETED VALUE: ***" << endl;
-        VH_entry::print_history(out, del);
+        print_value_history(out, del);
       }
 }
 //-----------------------------------------------------------------------------

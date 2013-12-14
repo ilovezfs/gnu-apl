@@ -51,6 +51,7 @@
    // global flags
    //
 bool silent = false;
+bool emacs_mode = false;
 bool do_not_echo = false;
 
 //-----------------------------------------------------------------------------
@@ -391,8 +392,9 @@ _("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --rawCIN             do not use the readline lib for input\n"
-"    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
+"    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --emacs              run in emacs mode\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
@@ -899,6 +901,10 @@ user_preferences up;
             {
               up.do_CONT = false;
             }
+         else if (!strcmp(opt, "--emacs"))
+            {
+              emacs_mode = true;
+            }
          else if (!strcmp(opt, "--SV"))
             {
               up.do_sv = true;
@@ -1001,6 +1007,33 @@ user_preferences up;
               return 7;
             }
        }
+
+   if (emacs_mode)
+      {
+        // CIN = U+F00C0 = UTF8 F3 B0 83 80 ...
+        Output::color_CIN[0] = 0xF3;
+        Output::color_CIN[1] = 0xB0;
+        Output::color_CIN[2] = 0x83;
+        Output::color_CIN[3] = 0x80;
+        Output::color_CIN[4] = 0;
+
+        // COUT = U+F00C1 = UTF8 F3 B0 83 81 ...
+        Output::color_COUT[0] = 0xF3;
+        Output::color_COUT[1] = 0xB0;
+        Output::color_COUT[2] = 0x83;
+        Output::color_COUT[3] = 0x81;
+        Output::color_COUT[4] = 0;
+
+        // CERR = U+F00C2 = UTF8 F3 B0 83 82 ...
+        Output::color_CERR[0] = 0xF3;
+        Output::color_CERR[1] = 0xB0;
+        Output::color_CERR[2] = 0x83;
+        Output::color_CERR[3] = 0x82;
+        Output::color_CERR[4] = 0;
+
+        // no clear_EOL
+        Output::clear_EOL[0] = 0;
+      }
 
    // init input after reading the command line options, so that the user
    // has a chance to disable readline

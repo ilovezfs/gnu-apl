@@ -362,7 +362,7 @@ public:
    void unmark() const;
 
    /// maybe delete this value.
-   void erase(const char * loc) const;
+   void erase(const char * loc);
 
    /// rollback initialization of this value
    void rollback(ShapeItem items, const char * loc);
@@ -474,6 +474,9 @@ protected:
    /// special constructor for static values (Zero, One etc.)
    Value(const char * loc, Value_how how);
 
+   /// release sub-values of this value
+   void release_sub(const char * loc);
+
    /// valueFlags for this value.
    mutable uint16_t flags;
 
@@ -482,10 +485,50 @@ protected:
 
    /// the cells of a short (i.e. ⍴,value ≤ SHORT_VALUE_LENGTH_WANTED) value
    Cell short_value[SHORT_VALUE_LENGTH_WANTED];
+
+public:
+   /// a "checksum" to detect deleted values
+   const Value * check_ptr;
 };
 // ----------------------------------------------------------------------------
 
-inline int increment_owner_count(Value * v) { return ++v->owner_count; }
-inline int decrement_owner_count(Value * v) { return --v->owner_count; }
+extern void print_value_history(ostream & out, const Value * val);
+
+
+// #define VALUE_OWNER_COUNT
+
+inline int increment_owner_count(Value * v, const char * loc)
+{
+   Assert1(v);
+
+#ifdef VALUE_OWNER_COUNT
+   if (v->check_ptr != (v + 7))
+      {
+        cerr << "increment_owner_count(" << loc << "):" << endl;
+        print_value_history(cerr, v);
+        exit(0);
+      }
+
+   return ++v->owner_count
+#endif
+
+   return 0;
+}
+inline int decrement_owner_count(Value * v, const char * loc)
+{
+   Assert1(v);
+
+#ifdef VALUE_OWNER_COUNT
+   if (v->check_ptr != (v + 7))
+      {
+        cerr << "decrement_owner_count(" << loc << "):" << endl;
+        exit(0);
+      }
+
+   return --v->owner_count
+#endif
+
+   return 0;
+}
 
 #endif // __VALUE_HH_DEFINED__

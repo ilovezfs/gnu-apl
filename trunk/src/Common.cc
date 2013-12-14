@@ -99,7 +99,6 @@ operator << (ostream & out, const Function_PC2 & ft)
    return out << ft.low << ":" << ft.high;
 }
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 ostream &
 print_flags (ostream & out, ValueFlags flags)
 {

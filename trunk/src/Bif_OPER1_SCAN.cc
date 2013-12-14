@@ -69,7 +69,6 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
         return CHECK(Z, LOC);
       }
 
-
 const Shape3 shape_Z3(shape_Z, axis);
 
 Cell * cZ = &Z->get_ravel(0);
@@ -148,6 +147,7 @@ Value_P Z(new Value(B->get_shape(), LOC), LOC);
    arg.B = B;
    arg.Z = Z;
    _arg.init(&Z->get_ravel(0), Z3, LO, &B->get_ravel(0), m_len, 1, 1);
+   arg.set_EOC();
 
 Token tok(TOK_FIRST_TIME);
    B->set_eoc();   // keep B

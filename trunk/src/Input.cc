@@ -255,7 +255,7 @@ UTF8 * l = (UTF8 *)line;
       {
         while (*l && *l <= ' ')   ++l;   // skip leading whitespace
 
-        if (*l)   readline_lib::add_history(line);
+        if (use_readline && *l)   readline_lib::add_history(line);
       }
 
    return l;

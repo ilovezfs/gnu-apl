@@ -52,9 +52,7 @@ struct quad_INP
 /// arguments of the EOC handler for A ∘.f B
 struct OUTER_PROD
 {
-  bool unlock_A;     ///< true if A->clear_eoc() needed
   Function * RO;     ///< user defined function
-  bool unlock_B;     ///< true if B->clear_eoc() needed
   Cell * cZ;         ///< current result
   ShapeItem a;       ///< current A index
   ShapeItem len_A;   ///< number of cells in left arg
@@ -68,8 +66,6 @@ struct OUTER_PROD
 /// arguments of the EOC handler for A g.f B
 struct INNER_PROD
 {
-  bool unlock_A;       ///< true if A->clear_eoc() needed
-  bool unlock_B;       ///< true if B->clear_eoc() needed
   Cell * cZ;           ///< current result
   Value * * args_A;    ///< left args of RO
   ShapeItem a;         ///< current A1 index
@@ -278,6 +274,76 @@ struct RANK_ALXB
 /// the EOC handler to compute the result token.
 struct EOC_arg
 {
+   void set_EOC()
+      {
+        Value * v;
+        if (v = A   .get_pointer())   v->set_eoc();
+        if (v = B   .get_pointer())   v->set_eoc();
+        if (v = Z   .get_pointer())   v->set_eoc();
+        if (v = V1  .get_pointer())   v->set_eoc();
+        if (v = V2  .get_pointer())   v->set_eoc();
+        if (v = RO_A.get_pointer())   v->set_eoc();
+        if (v = RO_B.get_pointer())   v->set_eoc();
+      }
+
+   Value_P clear_EOC(const char * loc)
+      {
+        Value_P ret(Z, loc);
+        Value * vA    = A .clear(loc);
+        Value * vB    = B .clear(loc);
+        Value * vZ    = Z .clear(loc);
+        Value * vV1   = V1.clear(loc);
+        Value * vV2   = V2.clear(loc);
+        Value * vRO_A = RO_A.clear(loc);
+        Value * vRO_B = RO_B.clear(loc);
+
+        // erase all pointers, but only once! We start with the least
+        // frequently used ones to keep this short.
+        //
+        if (vRO_A)   { vRO_A ->clear_eoc();
+                       vRO_A ->erase(LOC);
+                       if (vRO_A == vA)      vA  = 0;
+                       if (vRO_A == vB)      vB  = 0;
+                       if (vRO_A == vV1)     vV1 = 0;
+                       if (vRO_A == vV2)     vV2 = 0;
+                       if (vRO_A == vRO_B)   vRO_B = 0;
+                     }
+
+        if (vRO_B)   { vRO_B ->clear_eoc();
+                       vRO_B ->erase(LOC);
+                       if (vRO_B == vA)      vA  = 0;
+                       if (vRO_B == vB)      vB  = 0;
+                       if (vRO_B == vV1)     vV1 = 0;
+                       if (vRO_B == vV2)     vV2 = 0;
+                     }
+
+        if (vV1)     { vV1 ->clear_eoc();
+                       vV1 ->erase(LOC);
+                       if (vV1 == vA)      vA  = 0;
+                       if (vV1 == vB)      vB  = 0;
+                       if (vV1 == vV2)     vV2 = 0;
+                     }
+
+        if (vV2)     { vV2 ->clear_eoc();
+                       vV2 ->erase(LOC);
+                       if (vV2 == vA)      vA  = 0;
+                       if (vV2 == vB)      vB  = 0;
+                     }
+
+        if (vA)      { vA ->clear_eoc();
+                       vA ->erase(LOC);
+                       if (vA == vB)       vB  = 0;
+                     }
+
+        if (vB)      { vB ->clear_eoc();
+                       vB ->erase(LOC);
+                     }
+
+        if (vZ)      vZ ->clear_eoc();
+
+        return ret;
+      }
+
    /// right argument
   Value_P A;
 

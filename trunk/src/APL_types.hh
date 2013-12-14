@@ -151,8 +151,9 @@ enum VH_event
   VHE_Erase,       ///< erase the value
   VHE_Error,       ///< some APL error has occurred
   VHE_PtrNew,      ///< new Value_P created
-  VHE_PtrCopy1,    ///< Value_P copied
-  VHE_PtrCopy2,    ///< Value_P copied
+  VHE_PtrCopy1,    ///< Value_P copied with constructor(Value_P)
+  VHE_PtrCopy2,    ///< Value_P copied with constructor(Value_P, loc)
+  VHE_PtrCopy3,    ///< Value_P copied with operator =()
   VHE_PtrClr,      ///< Value_P cleared
   VHE_PtrDel,      ///< Value_P deleted
   VHE_TokCopy1,    ///< token with Value_P copied
