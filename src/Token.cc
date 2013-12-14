@@ -599,12 +599,6 @@ Token::class_name(TokenClass tc)
 }
 //-----------------------------------------------------------------------------
 void
-Token::clear(const char * loc)
-{
-   new (this) Token();
-}
-//-----------------------------------------------------------------------------
-void
 Token::warn(ostream & out)
 {
 return;
@@ -613,23 +607,23 @@ return;
 }
 //-----------------------------------------------------------------------------
 inline void 
-copy_2(Token & dst, const Token & src)
+Token::copy_N(const Token & src)
 {
-   dst.tag = src.tag;
+   tag = src.tag;
    switch(src.get_ValueType())
       {
-        case TV_NONE:  dst.value.int_val    = 0;                          break;
-        case TV_CHAR:  dst.value.char_val   = src.value.char_val;         break;
-        case TV_INT:   dst.value.int_val    = src.value.int_val;          break;
-        case TV_FLT:   dst.value.flt_val    = src.value.flt_val;          break;
-        case TV_CPX:   dst.value.complex_val.real = src.value.complex_val.real;
-                       dst.value.complex_val.imag = src.value.complex_val.imag;
+        case TV_NONE:  value.int_val    = 0;                          break;
+        case TV_CHAR:  value.char_val   = src.value.char_val;         break;
+        case TV_INT:   value.int_val    = src.value.int_val;          break;
+        case TV_FLT:   value.flt_val    = src.value.flt_val;          break;
+        case TV_CPX:   value.complex_val.real = src.value.complex_val.real;
+                       value.complex_val.imag = src.value.complex_val.imag;
                                                                           break;
-        case TV_SYM:   dst.value.sym_ptr    = src.value.sym_ptr;          break;
-        case TV_LIN:   dst.value.fun_line   = src.value.fun_line;         break;
-        case TV_VAL:   dst.value._apl_val() = src.value._apl_val();      break;
-        case TV_INDEX: dst.value.index_val  = src.value.index_val;        break;
-        case TV_FUN:   dst.value.function   = src.value.function;         break;
+        case TV_SYM:   value.sym_ptr    = src.value.sym_ptr;          break;
+        case TV_LIN:   value.fun_line   = src.value.fun_line;         break;
+        case TV_VAL:   value._apl_val() = src.value._apl_val();      break;
+        case TV_INDEX: value.index_val  = src.value.index_val;        break;
+        case TV_FUN:   value.function   = src.value.function;         break;
         default:       FIXME;
       }
 }
@@ -637,6 +631,7 @@ copy_2(Token & dst, const Token & src)
 void
 copy_1(Token & dst, const Token & src, const char * loc)
 {
+   dst.clear(loc);
    if (src.is_apl_val())
       {
         Value * val = src.get_apl_val_pointer();
@@ -651,12 +646,13 @@ copy_1(Token & dst, const Token & src, const char * loc)
            }
       }
 
-   copy_2(dst, src);
+   dst.copy_N(src);
 }
 //-----------------------------------------------------------------------------
 void
 move_1(Token & dst, Token & src, const char * loc)
 {
+   dst.clear(loc);
    if (src.is_apl_val())
       {
         Value * val = src.get_apl_val_pointer();
@@ -664,7 +660,7 @@ move_1(Token & dst, Token & src, const char * loc)
         ADD_EVENT(val, VHE_TokMove1, owner_count, loc);
       }
 
-   copy_2(dst, src);
+   dst.copy_N(src);
 
      new (&src)   Token();
 }
@@ -672,6 +668,7 @@ move_1(Token & dst, Token & src, const char * loc)
 void
 move_2(Token & dst, const Token & src, const char * loc)
 {
+   dst.clear(loc);
    if (src.is_apl_val())
       {
         Value * val = src.get_apl_val_pointer();
@@ -679,6 +676,6 @@ move_2(Token & dst, const Token & src, const char * loc)
         ADD_EVENT(val, VHE_TokMove2, owner_count, loc);
       }
 
-   copy_2(dst, src);
+   dst.copy_N(src);
 }
 //-----------------------------------------------------------------------------

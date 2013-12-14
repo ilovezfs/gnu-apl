@@ -29,8 +29,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-12-09 14:06+0100\n"
-"PO-Revision-Date: 2013-12-09 14:06+0100\n"
+"POT-Creation-Date: 2013-12-14 19:29+0100\n"
+"PO-Revision-Date: 2013-12-14 19:29+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -199,19 +199,19 @@ msgstr " *** bad sub-record of X"
 msgid "Unknown Error"
 msgstr "Unknown Error"
 
-#: src/main.cc:294
+#: src/main.cc:295
 msgid " (default)"
 msgstr " (default)"
 
-#: src/main.cc:305
+#: src/main.cc:306
 msgid "configurable options:"
 msgstr "configurable options:"
 
-#: src/main.cc:338
+#: src/main.cc:339
 msgid ", therefore:"
 msgstr ", therefore:"
 
-#: src/main.cc:374
+#: src/main.cc:375
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -230,20 +230,21 @@ msgstr ""
 "    --id proc            use processor ID proc (default: first unused > "
 "1000)\n"
 
-#: src/main.cc:384
+#: src/main.cc:385
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr "    -l num               turn log facility num (1-%d) ON\n"
 
-#: src/main.cc:390
+#: src/main.cc:391
 #, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --rawCIN             do not use the readline lib for input\n"
-"    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
+"    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --emacs              run in emacs mode\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
@@ -264,8 +265,9 @@ msgstr ""
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --rawCIN             do not use the readline lib for input\n"
-"    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
+"    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --emacs              run in emacs mode\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
@@ -282,44 +284,44 @@ msgstr ""
 "    --TS                 append to (rather than override) summary.log\n"
 "    --                   end of options for %s\n"
 
-#: src/main.cc:450
+#: src/main.cc:452
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr "Welcome to GNU APL version %s"
 
-#: src/main.cc:451
+#: src/main.cc:453
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr "for details run: %s --gpl."
 
-#: src/main.cc:470
+#: src/main.cc:472
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr "This program comes with ABSOLUTELY NO WARRANTY;"
 
-#: src/main.cc:473
+#: src/main.cc:475
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr "This program is free software, and you are welcome to redistribute it"
 
-#: src/main.cc:474
+#: src/main.cc:476
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "according to the GNU Public License (GPL) version 3 or later."
 
-#: src/main.cc:852
+#: src/main.cc:854
 msgid "-f without filename"
 msgstr "-f without filename"
 
-#: src/main.cc:885
+#: src/main.cc:887
 msgid "-l without log facility"
 msgstr "-l without log facility"
 
-#: src/main.cc:974
+#: src/main.cc:980
 msgid "--TM without test mode"
 msgstr "--TM without test mode"
 
-#: src/main.cc:993
+#: src/main.cc:999
 msgid "-w without milli(seconds)"
 msgstr "-w without milli(seconds)"
 
-#: src/main.cc:999
+#: src/main.cc:1005
 msgid "unknown option '"
 msgstr "unknown option '"

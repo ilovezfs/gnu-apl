@@ -62,7 +62,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
         Value_P Z1(new Value(shape_Z, LOC), LOC);
         new (&Z1->get_ravel(0)) PointerCell(arg.Z);
-
         return CHECK(Z1, LOC);   // Z ??
       }
 
@@ -73,18 +72,21 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         _arg.count = B->element_count();
 
         _arg.dA = 0;
-        if (LO->has_result())   arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
+        if (LO->has_result())
+           arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
       }
    else if (B->nz_element_count() == 1)
       {
         _arg.dB = 0;
         _arg.count = A->element_count();
-        if (LO->has_result())   arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
+        if (LO->has_result())
+           arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
       }
    else if (A->same_shape(B))
       {
         _arg.count = B->element_count();
-        if (LO->has_result())   arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
+        if (LO->has_result())
+           arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
       }
    else
       {
@@ -92,18 +94,14 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         RANK_ERROR;
       }
 
-   // if LO is user-defined, then we return from eval_ALB() while still holding
-   // pointers (arg.cA and arg.cB) to its ravel. We therefore set_eoc() to
-   // prevent premature erasure of A and B.
-   //
-   A->set_eoc();
-   B->set_eoc();
-
    arg.A = A;
-   _arg.cA = &A->get_ravel(0);
    arg.B = B;
+   arg.set_EOC();
+
+   _arg.cA = &A->get_ravel(0);
    _arg.cB = &B->get_ravel(0);
 
+   // arg.Z can be 0 (if not x(LO->has_result())
    if (!!arg.Z)   _arg.cZ = &arg.Z->get_ravel(0);
 
    _arg.how = 0;
@@ -173,15 +171,9 @@ next_z:
 
    arg.Z->set_default(arg.B);
 
-   arg.A->clear_eoc();
-   arg.B->clear_eoc();
-
-   arg.A->erase(LOC);
-   if (arg.A != arg.B)   arg.B->erase(LOC);
-
-   if (!arg.Z)   return Token(TOK_VOID);   // LO without result
-
-   return CHECK(arg.Z, LOC);
+Value_P Z(arg.clear_EOC(LOC), LOC);
+   if (!Z)   return Token(TOK_VOID);   // LO without result
+   else      return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -219,12 +211,6 @@ Bif_OPER1_EACH::eval_LB(Token & _LO, Value_P B)
 Function * LO = _LO.get_function();
    Assert1(LO);
 
-   // if LO is user-defined, then we return from eval_LB() while still holding
-   // a pointer (arg.cB) to its ravel. We therefore set_eoc() to prevent
-   // premature erasure of B.
-   //
-   B->set_eoc();
-
 EOC_arg arg;
 EACH_LB & _arg = arg.u.u_EACH_LB;
 
@@ -242,6 +228,7 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
         _arg.cZ = 0;
       }
 
+   arg.set_EOC();
    _arg.count = B->element_count();
 
    _arg.how = 0;
@@ -323,13 +310,11 @@ how_1:
 next_z:
    if (++_arg.z < _arg.count)   goto loop_z;
 
-   arg.B->clear_eoc();
+Value_P Z(arg.clear_EOC(LOC), LOC);
+   if (!Z)   return Token(TOK_VOID);   // LO without result
 
-   if (!arg.Z)   return Token(TOK_VOID);   // LO without result
-
-   arg.Z->set_default(arg.B);
-
-   return CHECK(arg.Z, LOC);
+   Z->set_default(arg.B);
+   return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 bool

@@ -60,7 +60,7 @@ PointerCell::release(const char * loc)
 {
    value._valp()->clear_nested();
    value._valp()->erase(loc);
-   value._valp().clear(LOC);
+   value._valp().clear(loc);
    new (this) Cell;
 }
 //-----------------------------------------------------------------------------

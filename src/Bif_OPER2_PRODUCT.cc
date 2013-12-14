@@ -63,23 +63,22 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    _arg.len_B = B->element_count();
 
    arg.V1 = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cA
-   arg.V1->set_eoc();
+   if (A->is_eoc())   A = A->clone(LOC);
    arg.A = A;
-   _arg.unlock_A = !A->is_eoc();
-   arg.A->set_eoc();
 
    _arg.RO = RO;
 
+   if (B->is_eoc())   B = B->clone(LOC);
    arg.B = B;
-   _arg.unlock_B = !B->is_eoc();
-   arg.B->set_eoc();
 
    arg.V2 = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cB
    arg.V2->set_eoc();
    _arg.cA = &A->get_ravel(0);
    _arg.cB = &B->get_ravel(0);
 
+   arg.set_EOC();
    _arg.how = 0;
+
    return finish_outer_product(arg);
 }
 //-----------------------------------------------------------------------------
@@ -157,20 +156,10 @@ next_a_b:
    if (++_arg.b < _arg.len_B)   goto loop_b;
    if (++_arg.a < _arg.len_A)   goto loop_a;
 
-   arg.V1->clear_eoc();
-   arg.V1->erase(LOC);
-
-   arg.V2->clear_eoc();
-   arg.V2->erase(LOC);
-
    arg.Z->set_default(arg.B);
 
-   if (_arg.unlock_A)   arg.A->clear_eoc();
-   if (_arg.unlock_B)   arg.B->clear_eoc();
-   arg.A->erase(LOC);
-   if (arg.B != arg.A)   arg.B->erase(LOC);
-
-   return CHECK(arg.Z, LOC);
+Value_P Z(arg.clear_EOC(LOC), LOC);
+   return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -249,10 +238,8 @@ ShapeItem len_B = 1;
         return fill(shape_Z, A, RO, B, LOC);
       }
 
-   _arg.unlock_A = !A->is_eoc();
-   arg.A->set_eoc();
-   _arg.unlock_B = !B->is_eoc();
-   arg.B->set_eoc();
+   if (A->is_eoc())   A = A->clone(LOC);
+   if (B->is_eoc())   B = B->clone(LOC);
 
    arg.Z = Value_P(new Value(shape_A1 + shape_B1, LOC), LOC);
    _arg.cZ = &arg.Z->get_ravel(0);
@@ -294,6 +281,7 @@ ShapeItem len_B = 1;
          _arg.args_B[i] = v;
        }
 
+   arg.set_EOC();
    _arg.how = 0;
    return finish_inner_product(arg);
 }
@@ -350,6 +338,7 @@ loop_b:
       }
 
      arg.V1 = T1.get_apl_val();   // V1 is A[a] RO B1[b]
+     arg.V1->set_eoc();
    }
 
 how_1:
@@ -368,7 +357,9 @@ how_1:
           _arg.cZ++->init_from_value(T2.get_apl_val(), LOC);
 
           arg.V1->clear_arg();
+          arg.V1->clear_eoc();
           arg.V1->erase(LOC);
+          arg.V1.clear(LOC);
 
           goto next_a_b;
         }
@@ -385,7 +376,6 @@ loop_v:
        {
          Value_P LO_A = arg.V1->get_ravel(_arg.v1).to_value(LOC);
          LO_A->set_eoc();
-         arg.V2->set_eoc();
          const Token T2 = _arg.LO->eval_AB(LO_A, arg.V2);
          LO_A->clear_arg();
          LO_A->clear_eoc();
@@ -393,6 +383,7 @@ loop_v:
          arg.V2->clear_arg();
          arg.V2->clear_eoc();
          arg.V2->erase(LOC);
+         arg.V2.clear(LOC);
 
          if (T2.get_tag() == TOK_ERROR)   return T2;
 
@@ -421,6 +412,7 @@ loop_v:
             }
 
          arg.V2 = T2.get_apl_val();
+         arg.V2->set_eoc();
        }
 
 how_2:
@@ -429,7 +421,13 @@ how_2:
    _arg.cZ++->init_from_value(arg.V2, LOC);
 
    arg.V1->clear_arg();
+   arg.V1->clear_eoc();
    arg.V1->erase(LOC);
+   arg.V1.clear(LOC);
+
+   arg.V2->clear_eoc();
+   arg.V2->erase(LOC);
+   arg.V2.clear(LOC);
 
 next_a_b:
    if (++_arg.b < _arg.items_B)   goto loop_b;
@@ -450,13 +448,9 @@ next_a_b:
    delete _arg.args_B;
 
    arg.Z->set_default(arg.B);
-
-   if (_arg.unlock_A)   arg.A->clear_eoc();
-   if (_arg.unlock_B)   arg.B->clear_eoc();
-   arg.A->erase(LOC);
-   if (arg.A != arg.B)   arg.B->erase(LOC);
-
-   return CHECK(arg.Z, LOC);
+ 
+Value_P Z(arg.clear_EOC(LOC), LOC);
+   return CHECK(Z, LOC);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -473,8 +467,8 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
       {
        // a user defined function has returned a value. Store it.
        //
-       if      (_arg.how == 1)   arg.V1 = token.get_apl_val();
-       else if (_arg.how == 2)   arg.V2 = token.get_apl_val();
+       if      (_arg.how == 1)   (arg.V1 = token.get_apl_val())->set_eoc();
+       else if (_arg.how == 2)   (arg.V2 = token.get_apl_val())->set_eoc();
        else                      FIXME;
       }
 

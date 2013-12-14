@@ -45,7 +45,7 @@ public:
    : items_allocated(MIN_ALLOC),
      items_valid(0)
       {
-        items = (T*)(new char[items_allocated * sizeof(T)]);
+        items = new T[items_allocated];
       }
 
    /// constructor: the first \b len items of \b data
@@ -55,7 +55,7 @@ public:
       {
         Assert1(items_valid >= 0);
         if (items_allocated < MIN_ALLOC)   items_allocated = MIN_ALLOC;
-        items = (T*)(new char[items_allocated * sizeof(T)]);
+        items = new T[items_allocated];
         _copy(items, data, len);
       }
 
@@ -66,7 +66,7 @@ public:
       {
         Assert(items_valid >= 0);
         if (items_allocated < MIN_ALLOC)   items_allocated = MIN_ALLOC;
-        items = (T*)(new char[items_allocated * sizeof(T)]);
+        items = new T[items_allocated];
         for (unsigned int l = 0; l < len; ++l)   items[l] = data;
       }
 
@@ -76,7 +76,7 @@ public:
      items_valid(other.items_valid)
       {
         Assert(items_valid >= 0);
-        items = (T*)(new char[items_allocated * sizeof(T)]);
+        items = new T[items_allocated];
         _copy(items, other.items, items_valid);
       }
 
@@ -89,20 +89,20 @@ public:
         items_valid = len;
         items_allocated = items_valid + ADD_ALLOC;
         if (items_allocated < MIN_ALLOC)   items_allocated = MIN_ALLOC;
-        items = (T*)(new char[items_allocated * sizeof(T)]);
+        items = new T[items_allocated];
         _copy(items, other.items + pos, len);
       }
 
    /// destructor
    ~Simple_string()
       { 
-        delete (char *)items;
+        delete [] items;
       }
 
    /// copy \b other
    Simple_string & operator =(const Simple_string & other)
       {
-        delete (char *)items;
+        delete [] items;
         new (this) Simple_string(other);
         return *this;
       }
@@ -295,9 +295,9 @@ protected:
    void extend()
       {
         items_allocated += items_allocated;
-        T * new_items = (T*)(new char[items_allocated * sizeof(T)]);
+        T * new_items = new T[items_allocated];
         _copy(new_items, items, items_valid);
-        delete (char *)items;
+        delete [] items;
         items = new_items;
       }
 
@@ -307,9 +307,9 @@ protected:
         if (new_size <= items_allocated)   return;
 
         items_allocated = new_size + ADD_ALLOC;
-        T * new_items = (T*)(new char[items_allocated * sizeof(T)]);
+        T * new_items = new T[items_allocated];
         _copy(new_items, items, items_valid);
-        delete (char *)items;
+        delete [] items;
         items = new_items;
       }
 

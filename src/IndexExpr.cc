@@ -38,7 +38,7 @@ IndexExpr::~IndexExpr()
 {
    loop(r, value_count())
        {
-         Value_P I = values[r];
+         Value * I = values[r].clear(LOC);
          if (!!I)
             {
               I->clear_index();

@@ -143,8 +143,8 @@ extern uint64_t total_memory;
 // pointer to APL values
 
 class Value;
-int increment_owner_count(Value * v);
-int decrement_owner_count(Value * v);
+int increment_owner_count(Value * v, const char * loc);
+int decrement_owner_count(Value * v, const char * loc);
 
 class Value_P
 {
@@ -160,7 +160,7 @@ public:
      {
        if (value_p)
           {
-            const int count = increment_owner_count(value_p);
+            const int count = increment_owner_count(value_p, loc);
             ADD_EVENT(value_p, VHE_PtrNew, count, loc);
           }
      }
@@ -171,8 +171,19 @@ public:
    {
      if (value_p)
         {
-          const int count = increment_owner_count(value_p);
-          ADD_EVENT(value_p, VHE_PtrCopy1, count, 0);
+          const int count = increment_owner_count(value_p, LOC);
+          ADD_EVENT(value_p, VHE_PtrCopy1, count, LOC);
+        }
+   }
+
+   /// Constructor: from other Value_P
+   Value_P(const Value_P & other, const char * loc)
+   : value_p(other.value_p)
+   {
+     if (value_p)
+        {
+          const int count = increment_owner_count(value_p, loc);
+          ADD_EVENT(value_p, VHE_PtrCopy2, count, loc);
         }
    }
 
@@ -182,8 +193,8 @@ public:
       {
         if (value_p)
            {
-             const int count = decrement_owner_count(value_p);
-             ADD_EVENT(value_p, VHE_PtrDel, count, 0);
+             const int count = decrement_owner_count(value_p, LOC);
+             ADD_EVENT(value_p, VHE_PtrDel, count, LOC);
           }
 
       }
@@ -215,8 +226,8 @@ public:
       value_p = other.value_p;
       if (value_p)
          {
-           const int count = increment_owner_count(value_p);
-           ADD_EVENT(value_p, VHE_PtrCopy2, count, 0);
+           const int count = increment_owner_count(value_p, LOC);
+           ADD_EVENT(value_p, VHE_PtrCopy3, count, LOC);
          }
 
       return *this;
@@ -239,7 +250,7 @@ public:
      {
        if (!value_p)   return 0;
 
-       const int count = decrement_owner_count(value_p);
+       const int count = decrement_owner_count(value_p, loc);
        ADD_EVENT(value_p, VHE_PtrClr, count, loc);
 
     Value * ret = value_p;

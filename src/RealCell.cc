@@ -75,7 +75,7 @@ const APL_Float qct = Workspace::get_CT();
 
    if (A->is_complex_cell())
       {
-        A->bif_add(Z, this);
+        A->bif_multiply(Z, this);
       }
    else if (A->is_real_cell())
       {
