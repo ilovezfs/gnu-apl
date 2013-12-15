@@ -381,6 +381,12 @@ int count = 0;
 ExecuteList *
 ExecuteList::fix(const UCS_string & data, const char * loc)
 {
+   // clear errors that may have occured before
+   {
+     Error * err = Workspace::get_error();
+     if (err) err->error_code = E_NO_ERROR;
+   }
+
 ExecuteList * fun = new ExecuteList(data, loc);
 
    Log(LOG_UserFunction__fix)
@@ -392,10 +398,31 @@ ExecuteList * fun = new ExecuteList(data, loc);
 
    {
      Error * err = Workspace::get_error();
-     if (err)   err->parser_loc = 0;
+     if (err && err->error_code)
+        {
+          Log(LOG_UserFunction__fix)
+             {
+                CERR << "fix pmode=execute list failed with error "
+                     << Error::error_name(err->error_code) << endl;
+             }
+
+          err->parser_loc = 0;
+          delete fun;
+          return 0;
+        }
    }
 
-   fun->parse_body_line(Function_Line_0, data, loc);
+   try
+      {
+        fun->parse_body_line(Function_Line_0, data, loc);
+      }
+   catch (Error err)
+      {
+        Error * werr = Workspace::get_error();
+        if (werr)   *werr = err;
+        delete fun;
+        return 0;
+      }
 
    Log(LOG_UserFunction__fix)
       {

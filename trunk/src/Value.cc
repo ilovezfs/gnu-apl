@@ -1642,7 +1642,7 @@ const ShapeItem name_len = get_cols();
            {
              const Unicode uni = get_ravel(nidx++).get_char_value();
 
-             if (n == 0 && uni == UNI_QUAD_QUAD)   // leading ⎕
+             if (n == 0 && Avec::is_quad(uni))   // leading ⎕
                 {
                   name.append(uni);
                 }

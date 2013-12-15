@@ -3217,6 +3217,7 @@ Token
 Bif_F1_EXECUTE::execute_statement(const UCS_string & statement)
 {
 ExecuteList * fun = ExecuteList::fix(statement.no_pad(), LOC);
+   if (fun == 0)   SYNTAX_ERROR;
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
 

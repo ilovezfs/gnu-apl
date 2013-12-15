@@ -72,19 +72,26 @@ public:
    static bool is_symbol_char(Unicode av);
 
    /// Return \b true iff \b av is a valid char in a user defined symbol
-   static bool is_first_symbol_char(Unicode av);
+   static bool is_first_symbol_char(Unicode uni);
 
    /// Return \b true iff \b av is a digit (.i.e. 0...9)
-   static bool is_digit(Unicode av);
+   static bool is_digit(Unicode uni);
 
    /// Return \b true iff \b av is a digit or a space
-   static bool is_digit_or_space(Unicode av);
+   static bool is_digit_or_space(Unicode uni);
 
    /// return \b true iff \b av is a number char (digit, .)
-   static bool is_number(Unicode av);
+   static bool is_number(Unicode uni);
+
+   /// return true if unicode \b is defined by a char_def() or char_df1() macro
+   static bool is_known_char(Unicode uni);
+
+   /// return true if unicode \b is a quad (⎕ or ▯)
+   static bool is_quad(Unicode uni)
+      { return uni == UNI_QUAD_QUAD || uni == UNI_QUAD_QUAD1; }
 
    /// return \b true iff a token printed after \b av never needs a space
-   static bool no_space_after(Unicode av);
+   static bool no_space_after(Unicode uni);
 
    /// return \b true iff a token printed before \b av never needs a space
    static bool no_space_before(Unicode av);
@@ -100,9 +107,6 @@ public:
 
    /// Find \b av in \b character_table. Return position or Invalid_CHT
    static CHT_Index find_char(Unicode av);
-
-   /// return true if unicode \b is defined by a char_def() or char_df1() macro
-   static bool is_known_char(Unicode av);
 
 protected:
    /// Find \b return position of \b alt_av, or Invalid_AV if not found

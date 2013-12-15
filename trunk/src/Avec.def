@@ -121,7 +121,7 @@ char_def(ASCII_Z            , 'Z'    , SYMBOL       , SYMBOL   ,  5A)
 char_def(ASCII_L_BRACK      , '['    , L_BRACK      , NO_SPACE ,  5B)
 char_def(ASCII_BACKSLASH    , '\\'   , OPER1_SCAN   , NO_SPACE ,  5C)
 char_def(ASCII_R_BRACK      , ']'    , R_BRACK      , NO_SPACE ,  5D)
-char_def(ASCII_CIRCUMFLEX   , '^'    , END          , NO_SPACE ,  5E)
+char_def(ASCII_CIRCUMFLEX   , '^'    , F2_AND       , NO_SPACE ,  5E)
 char_def(ASCII_UNDERSCORE   , '_'    , SYMBOL       , SYMBOL   ,  5F)
 char_def(ACCENT_GRAVE       , '`'    , END          , NO_SPACE ,  60)
 char_def(ASCII_a            , 'a'    , SYMBOL       , SYMBOL   ,  61)
@@ -324,6 +324,7 @@ char_def(UPPER_HALF_BLOCK   , 0x2580 , END          , NO_SPACE ,  DF) /* ▀ */
 char_def(LOWER_HALF_BLOCK   , 0x2584 , END          , NO_SPACE ,  DC) /* ▄ */
 char_def(FULL_BLOCK         , 0x2588 , END          , NO_SPACE ,  DB) /* █ */
 char_def(LEFT_HALF_BLOCK    , 0x258C , END          , NO_SPACE ,  DD) /* ▌ */
+char_df1(QUAD_QUAD1         , 0x25AF , END          , NO_SPACE ,  --) /* ▯ */
 char_def(RIGHT_HALF_BLOCK   , 0x2590 , END          , NO_SPACE ,  DE) /* ▐ */
 char_def(DIAMOND            , 0x25CA , DIAMOND      , NO_SPACE ,  D8) /* ◊ */
 char_def(CIRCLE             , 0x25CB , F12_CIRCLE   , NO_SPACE ,  EA) /* ○ */

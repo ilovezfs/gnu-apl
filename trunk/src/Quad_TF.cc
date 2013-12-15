@@ -189,13 +189,13 @@ const Unicode mode = ravel[0];
    if (mode != 'C' && mode != 'F' && mode != 'N')   return Value_P();
 
 UCS_string name(ravel[1]);
-   if (name[0] != UNI_QUAD_QUAD && !Avec::is_first_symbol_char(name[0]))
+   if (!Avec::is_quad(name[0]) && !Avec::is_first_symbol_char(name[0]))
       return Value_P();
 
 ShapeItem idx = 2;
    while (idx < len && Avec::is_symbol_char(ravel[idx]))   name.append(ravel[idx++]);
 
-   if (name[0] == UNI_QUAD_QUAD && name.size() == 1)   return Value_P();
+   if (Avec::is_quad(name[0]) && name.size() == 1)   return Value_P();
    if (ravel[idx++] != UNI_ASCII_SPACE)   return Value_P();
 
 ShapeItem idx0 = idx;

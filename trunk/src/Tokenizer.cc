@@ -109,7 +109,7 @@ Source<Unicode> src(input);
                    break;
 
               case TC_SYMBOL:
-                   if (uni == UNI_QUAD_QUAD)
+                   if (Avec::is_quad(uni))
                       {
                          tokenize_quad(src, tos);
                       }
@@ -172,12 +172,6 @@ Source<Unicode> src(input);
                    break;
 
               case TC_DIAMOND:
-                   if (pmode == PM_EXECUTE)
-                      {
-                        rest_2 = src.rest();
-                        throw_parse_error(E_BAD_EXECUTE_CHAR, LOC, loc);
-                      }
-
                    ++src;
                    tos.append(tok);
                    break;
@@ -320,7 +314,7 @@ Tokenizer::tokenize_quad(Source<Unicode> & src, Token_string & tos)
 
 UCS_string ucs;
    ucs.append(src.get());
-   Assert(ucs[0] == UNI_QUAD_QUAD);
+   Assert((ucs[0]));
 
    ucs.append((src.rest() > 0) ? src[0] : Invalid_Unicode);
    ucs.append((src.rest() > 1) ? src[1] : Invalid_Unicode);
