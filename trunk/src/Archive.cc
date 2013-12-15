@@ -794,8 +794,7 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save certain system variables
    //
-#define rw_sv_def(x) *this << Workspace::get_v_quad_ ## x(); \
-                      Q(Workspace::get_v_quad_ ## x().get_name())
+#define rw_sv_def(x) *this << Workspace::get_v_quad_ ## x();
 #define ro_sv_def(x) *this << Workspace::get_v_quad_ ## x();
 #include "SystemVariable.def"
 
