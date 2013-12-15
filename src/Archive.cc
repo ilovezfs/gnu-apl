@@ -398,7 +398,7 @@ XML_Saving_Archive::operator <<(const StateIndicator & si)
            }
       }
 
-   out <<"/>" << endl;
+   out <<">" << endl;
 
    ++indent;
    do_indent();
