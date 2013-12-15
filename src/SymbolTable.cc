@@ -45,7 +45,7 @@ SymbolTable::SymbolTable()
 NamedObject *
 SymbolTable::lookup_existing_name(const UCS_string & name)
 {
-   Assert(name[0] != UNI_QUAD_QUAD);   // should not be called for ⎕xx
+   Assert(!Avec::is_quad(name[0]));   // should not be called for ⎕xx
 
 Symbol * sym = lookup_existing_symbol(name);
    if (sym == 0)   return 0;
@@ -64,7 +64,7 @@ Symbol * sym = lookup_existing_symbol(name);
 Symbol *
 SymbolTable::lookup_existing_symbol(const UCS_string & sym_name)
 {
-   Assert(sym_name[0] != UNI_QUAD_QUAD);   // should not be called for ⎕xx
+   Assert(!Avec::is_quad(sym_name[0]));   // should not be called for ⎕xx
 
 uint32_t hash = FNV_Offset_32;
    loop(s, sym_name.size())   hash = hash*FNV_Prime_32 ^ sym_name[s];
@@ -81,7 +81,7 @@ uint32_t hash = FNV_Offset_32;
 Symbol *
 SymbolTable::lookup_symbol(const UCS_string & sym_name)
 {
-   Assert(sym_name[0] != UNI_QUAD_QUAD);   // should not be called for ⎕xx
+   Assert(!Avec::is_quad(sym_name[0]));   // should not be called for ⎕xx
 
    // compute hash for sym_name
    //

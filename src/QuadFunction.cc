@@ -144,7 +144,7 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
         // neither function nor variable (e.g. unused name)
         VALUE_ERROR;
 
-        if (symbol_name[0] == UNI_QUAD_QUAD)   // system function or variable
+        if (Avec::is_quad(symbol_name[0]))   // system function or variable
            {
              int l;
              const Token t(Workspace::get_quad(symbol_name, l));
@@ -331,6 +331,10 @@ const UCS_string statement_B(B.get_ref());
       }
    catch (...)
       {
+      }
+
+   if (fun == 0)   // ExecuteList::fix() failed
+      {
         // syntax error in B: try to fix A...
         //
         try
@@ -340,15 +344,14 @@ const UCS_string statement_B(B.get_ref());
            }
        catch (...)
            {
-             // syntax error in A and B: give up.
-             //
-             SYNTAX_ERROR;
            }
+
+        if (fun == 0)   // syntax error in A and B: give up.
+        //
+        SYNTAX_ERROR;
 
         // A could be fixed: execute it.
         //
-        Assert(fun);
-
         Log(LOG_UserFunction__execute)   fun->print(CERR);
 
         Workspace::push_SI(fun, LOC);
@@ -418,10 +421,11 @@ ExecuteList * fun = 0;
       }
    catch (...)
       {
-        // syntax error in A (and B has failed before): give up.
-        //
-        SYNTAX_ERROR;
       }
+        
+   // give up if if syntax error in A (and B has failed before)
+   //
+   if (fun == 0)   SYNTAX_ERROR;
 
    // A could be fixed: execute it.
    //
@@ -532,6 +536,10 @@ ExecuteList * fun = 0;
         fun = ExecuteList::fix(statement_B, LOC);
       }
    catch (...)
+      {
+      }
+
+   if (fun == 0)
       {
         // syntax error in B
         //
@@ -1200,7 +1208,7 @@ Quad_NC::get_NC(const UCS_string ucs)
 {
    if (ucs.size() == 0)   return -1;   // invalid name
 
-   if (ucs[0] == UNI_QUAD_QUAD)   // quad fun or var
+   if (Avec::is_quad(ucs[0]))   // quad fun or var
       {
         int len = 0;
         const Token t = Workspace::get_quad(ucs, len);

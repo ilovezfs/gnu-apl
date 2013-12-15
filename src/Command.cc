@@ -881,7 +881,7 @@ int idx = get_nrs(var_name, shape);
    if (objects.size() && !var_name.contained_in(objects))   return;
 
 Symbol * sym = 0;
-   if (var_name[0] == UNI_QUAD_QUAD)   // system variable.
+   if (Avec::is_quad(var_name[0]))   // system variable.
       {
         int len = 0;
         const Token t = Workspace::get_quad(var_name, len);
@@ -940,7 +940,7 @@ int idx = get_nrs(var_name, shape);
    if (objects.size() && !var_name.contained_in(objects))   return;
 
 Symbol * sym = 0;
-   if (var_name[0] == UNI_QUAD_QUAD)   // system variable.
+   if (Avec::is_quad(var_name[0]))   // system variable.
       {
         int len = 0;
         const Token t = Workspace::get_quad(var_name, len);
