@@ -52,8 +52,17 @@ using namespace std;
 
 extern const char * scriptname;
 
-/// debug output
+/// echo of APL input (to stdout)
+extern ostream CIN;
+
+/// normal APL output (to stdout)
+extern ostream COUT;
+
+/// debug output (to stderr)
 extern ostream CERR;
+
+/// debug output (to stderr)
+extern ostream UERR;
 
 class UCS_string;
 

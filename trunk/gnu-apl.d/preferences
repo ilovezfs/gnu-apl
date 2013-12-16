@@ -80,15 +80,16 @@
 #
 # Output coloring is implemented as follows:
 #
-# There are 3 output channels called CIN, COUT, and CERR.
+# There are 4 output channels called CIN, COUT, CERR, and UERR
 #
 # CIN  is the echo of the input typed by the user,
-# COUT is the normal output of the APL interpreter, and
+# COUT is the normal output of the APL interpreter,
 # CERR is additional error information, in particular logging.
+# UERR is output of the APL interpreter cotaining error messages,
 #
-# CIN and COUT appear on stdout while CERR appears on stderr. Normally
-# stdout and stderr are both displayed on the same terminal, but output
-# redirection in the shell can make a difference.
+# CIN, COUT, and UERR appear on stdout while CERR appears on stderr.
+# Normally stdout and stderr are both displayed on the same terminal,
+# but output redirection in the shell can make a difference.
 #
 # When the interpreter changes from one output channel to another, for
 # instance from CIN to COUT after the user has entered a line, then an
@@ -99,6 +100,7 @@
 # CIN:   CIN-SEQUENCE  CLEAR-EOL
 # COUT:  COUT-SEQUENCE CLEAR-EOL
 # CERR:  CERR-SEQUENCE CLEAR-EOL
+#UCERR:  UERR-SEQUENCE CLEAR-EOL
 #
 # In addition, when the interpreter exists, then a sequence
 #
@@ -132,6 +134,7 @@
 # CIN-SEQUENCE           1b 5b 30 3b 33 30 3b 34 37 6d    // ESC [0;30;47m
 # COUT-SEQUENCE          1b 5b 30 3b 33 30 3b 34 38 6d    // ESC [0;30;48m
 # CERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 38 6d    // ESC [0;35;48m
+# UERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 38 6d    // ESC [0;35;48m
 # RESET-SEQUENCE         1b 5b 30 3b 33 38 3b 34 38 6d    // ESC [0;38;48m
 # CLEAR-EOL-SEQUENCE     1b 5b 4B                         // ESC [K
 #
@@ -141,6 +144,7 @@
 # CIN-SEQUENCE           1b 5b 30 3b 33 32 3b 34 30 6d    // ESC [0;32;40m
 # COUT-SEQUENCE          1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;40m
 # CERR-SEQUENCE          1b 5b 30 3b 33 31 3b 34 30 6d    // ESC [0;31;40m
+# UERR-SEQUENCE          1b 5b 30 3b 33 31 3b 34 30 6d    // ESC [0;31;40m
 # RESET-SEQUENCE         1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;48m
 #
 #
@@ -174,6 +178,8 @@
 # COUT-BACKGROUND 7
 # CERR-FOREGROUND 5
 # CERR-BACKGROUND 8
+# UERR-FOREGROUND 5
+# UERR-BACKGROUND 8
 #
 # or, for dark background:
 #
@@ -183,6 +189,8 @@
 # COUT-BACKGROUND 0
 # CERR-FOREGROUND 5
 # CERR-BACKGROUND 0
+# UERR-FOREGROUND 5
+# UERR-BACKGROUND 0
 #
 # Normally the two methods (escape sequences vs. color numbers) shall not
 # be mixed. If they are mixed then the last entry in this file determines

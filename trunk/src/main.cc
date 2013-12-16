@@ -726,6 +726,11 @@ int line = 0;
               loop(p, count - 1)   Output::color_CERR[p] = (char)(d[p] & 0xFF);
               Output::color_CERR[count - 1] = 0;
             }
+         else if (!strcasecmp(opt, "UERR-SEQUENCE"))
+            {
+              loop(p, count - 1)   Output::color_UERR[p] = (char)(d[p] & 0xFF);
+              Output::color_UERR[count - 1] = 0;
+            }
          else if (!strcasecmp(opt, "RESET-SEQUENCE"))
             {
               loop(p, count - 1)   Output::color_RESET[p] = (char)(d[p] & 0xFF);
@@ -759,6 +764,14 @@ int line = 0;
          else if (!strcasecmp(opt, "CERR-BACKGROUND"))
             {
               Output::color_CERR_background = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "UERR-FOREGROUND"))
+            {
+              Output::color_UERR_foreground = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "UERR-BACKGROUND"))
+            {
+              Output::color_UERR_background = atoi(arg);
             }
          else if (!strncasecmp(opt, "LIBREF-", 7))
             {
@@ -1029,6 +1042,13 @@ user_preferences up;
         Output::color_CERR[1] = 0xB0;
         Output::color_CERR[2] = 0x83;
         Output::color_CERR[3] = 0x82;
+        Output::color_CERR[4] = 0;
+
+        // UERR = U+F00C3 = UTF8 F3 B0 83 83 ...
+        Output::color_CERR[0] = 0xF3;
+        Output::color_CERR[1] = 0xB0;
+        Output::color_CERR[2] = 0x83;
+        Output::color_CERR[3] = 0x83;
         Output::color_CERR[4] = 0;
 
         // no clear_EOL

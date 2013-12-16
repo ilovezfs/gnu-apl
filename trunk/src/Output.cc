@@ -41,10 +41,8 @@ int Output::color_COUT_foreground = 0;
 int Output::color_COUT_background = 8;
 int Output::color_CERR_foreground = 5;
 int Output::color_CERR_background = 8;
-
-   /// background color for CERR
-   static int color_CERR_background;
-
+int Output::color_UERR_foreground = 5;
+int Output::color_UERR_background = 8;
 
 /// a filebuf for stdin echo
 class CinOut : public filebuf
@@ -80,10 +78,12 @@ public:
 bool ErrOut::used = false;
 
 DiffOut dout_filebuf;
+DiffOut uerr_filebuf;
 
 ostream CIN(&cin_filebuf);
-ostream CERR(cerr_filebuf.use());
 ostream COUT(&dout_filebuf);
+ostream CERR(cerr_filebuf.use());
+ostream UERR(&uerr_filebuf);
 
 extern ostream & get_CERR();
 ostream & get_CERR()
@@ -103,6 +103,10 @@ char Output::color_COUT[21] =
 
 /// VT100 escape sequence to change to cerr color
 char Output::color_CERR[21] =
+   { 27, 91, '0', ';', '3', '5', ';', '4', '8', 'm', 0 };
+
+/// VT100 escape sequence to change to cerr color
+char Output::color_UERR[21] =
    { 27, 91, '0', ';', '3', '5', ';', '4', '8', 'm', 0 };
 
 /// VT100 escape sequence to reset colors to their default
@@ -247,6 +251,14 @@ Output::set_color_mode(Output::ColorMode mode)
                   tputs(clr_eol, 1, putc_stderr);
                   break;
 
+             case COLM_UERROR:
+                  tputs(tparm(set_foreground, color_UERR_foreground),
+                              1, putc_stderr);
+                  tputs(tparm(set_background, color_UERR_background),
+                              1, putc_stderr);
+                  tputs(clr_eol, 1, putc_stderr);
+                  break;
+
            }
       }
    else
@@ -256,6 +268,7 @@ Output::set_color_mode(Output::ColorMode mode)
              case COLM_INPUT:  cerr << color_CIN  << clear_EOL;   break;
              case COLM_OUTPUT: cout << color_COUT << clear_EOL;   break;
              case COLM_ERROR:  cerr << color_CERR << clear_EOL;   break;
+             case COLM_UERROR: cout << color_UERR << clear_EOL;   break;
            }
       }
 }

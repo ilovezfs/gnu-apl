@@ -132,7 +132,7 @@ Workspace::immediate_execution(bool exit_on_error)
                  {
                    if (err.error_code != E_DEFN_ERROR)
                       {
-                        err.print_em(CERR, LOC);
+                        err.print_em(UERR, LOC);
                         CERR << __FUNCTION__ << "() caught APL error "
                              << HEX(err.error_code) << " ("
                              << err.error_name(err.error_code) << ")" << endl;
