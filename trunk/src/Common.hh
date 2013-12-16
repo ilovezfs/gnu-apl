@@ -155,6 +155,8 @@ class Value;
 int increment_owner_count(Value * v, const char * loc);
 int decrement_owner_count(Value * v, const char * loc);
 
+// #define VALUE_OWNER_COUNT
+
 class Value_P
 {
 public:
@@ -195,15 +197,39 @@ public:
           ADD_EVENT(value_p, VHE_PtrCopy2, count, loc);
         }
    }
+   /// copy operator
+   Value_P & operator =(const Value_P & other)
+   {
+      if (value_p)   // override existing pointer
+         {
+           if (value_p == other.value_p)   return *this;   // same pointer
+
+           const int count = decrement_owner_count(value_p, LOC);
+           ADD_EVENT(value_p, VHE_PtrClr, count, LOC);
+           if (count == 0)   delete_value();
+         }
+          
+      value_p = other.value_p;
+      if (value_p)
+         {
+           const int count = increment_owner_count(value_p, LOC);
+           ADD_EVENT(value_p, VHE_PtrCopy3, count, LOC);
+         }
+
+      return *this;
+   }
 
 
    /// Destructor for Value_P union members
+   void delete_value();
+
    void destruct()
       {
         if (value_p)
            {
              const int count = decrement_owner_count(value_p, LOC);
              ADD_EVENT(value_p, VHE_PtrDel, count, LOC);
+             if (count == 0)   delete_value();
           }
 
       }
@@ -229,19 +255,6 @@ public:
    Value * get_pointer()
       { return value_p; }
 
-   /// copy operator
-   Value_P & operator =(const Value_P & other)
-   {
-      value_p = other.value_p;
-      if (value_p)
-         {
-           const int count = increment_owner_count(value_p, LOC);
-           ADD_EVENT(value_p, VHE_PtrCopy3, count, LOC);
-         }
-
-      return *this;
-   }
-
    bool operator!() const
       { return value_p == 0; }
 
@@ -264,6 +277,7 @@ public:
 
     Value * ret = value_p;
        value_p = 0;
+       if (count == 0)   delete_value();
 
        return ret;
     }

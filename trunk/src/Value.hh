@@ -488,47 +488,10 @@ protected:
 
 public:
    /// a "checksum" to detect deleted values
-   const Value * check_ptr;
+   const void * check_ptr;
 };
 // ----------------------------------------------------------------------------
 
 extern void print_value_history(ostream & out, const Value * val);
-
-
-// #define VALUE_OWNER_COUNT
-
-inline int increment_owner_count(Value * v, const char * loc)
-{
-   Assert1(v);
-
-#ifdef VALUE_OWNER_COUNT
-   if (v->check_ptr != (v + 7))
-      {
-        cerr << "increment_owner_count(" << loc << "):" << endl;
-        print_value_history(cerr, v);
-        exit(0);
-      }
-
-   return ++v->owner_count
-#endif
-
-   return 0;
-}
-inline int decrement_owner_count(Value * v, const char * loc)
-{
-   Assert1(v);
-
-#ifdef VALUE_OWNER_COUNT
-   if (v->check_ptr != (v + 7))
-      {
-        cerr << "decrement_owner_count(" << loc << "):" << endl;
-        exit(0);
-      }
-
-   return --v->owner_count
-#endif
-
-   return 0;
-}
 
 #endif // __VALUE_HH_DEFINED__

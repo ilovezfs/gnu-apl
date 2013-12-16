@@ -27,6 +27,7 @@
 
 #include "Common.hh"
 #include "Output.hh"
+#include "Value.hh"
 
 uint64_t total_memory = 0;
 
@@ -115,4 +116,52 @@ print_flags (ostream & out, ValueFlags flags)
               << ((flags & VF_assigned) ?  "←" : "-")
               << ((flags & VF_shared)   ?  "∇" : "-");
 }
+//-----------------------------------------------------------------------------
+int
+increment_owner_count(Value * v, const char * loc)
+{
+   Assert1(v);
+
+#ifdef VALUE_OWNER_COUNT
+   if (v->check_ptr != ((const char *)v + 7))
+      {
+        cerr << "*** increment_owner_count(" << loc << "):" << endl;
+        print_value_history(cerr, v);
+        exit(0);
+      }
+
+   return ++v->owner_count;
+#endif
+
+   return 0;
+}
+//-----------------------------------------------------------------------------
+int
+decrement_owner_count(Value * v, const char * loc)
+{  
+   Assert1(v);
+
+#ifdef VALUE_OWNER_COUNT
+   if (v->check_ptr != ((const char *)v + 7))
+      {
+        cerr << "decrement_owner_count(" << loc << "):" << endl;
+        print_value_history(cerr, v);
+        Backtrace::show(__FILE__, __LINE__);
+        exit(0);
+      } 
+      
+   return --v->owner_count;
+#endif
+
+   return 0;
+}
+//-----------------------------------------------------------------------------
+void Value_P::delete_value()
+{
+#ifdef VALUE_OWNER_COUNT
+   delete value_p;
+#endif
+}
+//-----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------

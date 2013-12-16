@@ -118,7 +118,7 @@ const ShapeItem length = shape.element_count();
         ravel = short_value;
       }
 
-   check_ptr = this + 7;
+   check_ptr = (const char *)this + 7;
 }
 //-----------------------------------------------------------------------------
 Value::Value(const char * loc)
@@ -289,7 +289,7 @@ Value::Value(const UCS_string & ucs, const char * loc)
         new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
       }
 
-   CHECK_VAL(this, LOC);
+   set_complete();
 }
 //-----------------------------------------------------------------------------
 Value::Value(const CDR_string & ui8, const char * loc)
@@ -309,7 +309,7 @@ Value::Value(const CDR_string & ui8, const char * loc)
         new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
       }
 
-   CHECK_VAL(this, LOC);
+   set_complete();
 }
 //-----------------------------------------------------------------------------
 Value::Value(const char * string, const char * loc)
@@ -323,7 +323,7 @@ Value::Value(const char * string, const char * loc)
 const ShapeItem length = strlen(string);
    loop(e, length)  new (&get_ravel(e)) CharCell(Unicode(string[e]));
 
-   CHECK_VAL(this, LOC);
+   set_complete();
 }
 //-----------------------------------------------------------------------------
 Value::Value(const Shape & sh, const char * loc)
@@ -359,7 +359,8 @@ const ShapeItem length = nz_element_count();
         delete ravel;
       }
 
-   Assert(check_ptr == this + 7);
+   Assert(check_ptr == (const char *)this + 7);
+   check_ptr = 0;
 }
 //-----------------------------------------------------------------------------
 void
@@ -589,7 +590,10 @@ Value::erase(const char * loc)
    set_deleted();
 
    ((Value *)this)->alloc_loc = loc;
+
+#ifndef VALUE_OWNER_COUNT
    delete this;
+#endif
 }
 //-----------------------------------------------------------------------------
 void
@@ -613,7 +617,10 @@ Value::rollback(ShapeItem items, const char * loc)
    set_deleted();
 
    ((Value *)this)->alloc_loc = loc;
+
+#ifndef VALUE_OWNER_COUNT
    delete this;
+#endif
 }
 //-----------------------------------------------------------------------------
 void
