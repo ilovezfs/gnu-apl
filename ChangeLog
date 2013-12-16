@@ -42,4 +42,5 @@
  4735 fixed ⌹ dimension problem, send CIN to cerr
  4800 added alternate APL characters from Bob Smith
  4802 fixed wrong closing flag for <SI-entry> in workspace XML file
+ 4810 UERR channel added
 

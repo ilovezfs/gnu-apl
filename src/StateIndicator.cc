@@ -428,7 +428,7 @@ const UserFunction * ufun = executable->get_ufun();
 
    // print error, unless we are in safe execution mode.
    //
-   if (!safe_execution)   err.print_em(COUT, LOC);
+   if (!safe_execution)   err.print_em(UERR, LOC);
 
    Workspace::update_EM_ET(err);   // update ⎕EM and ⎕ET
 

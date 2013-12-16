@@ -75,6 +75,7 @@ public:
          COLM_INPUT,    ///< color for (echo of) input characters (CIN)
          COLM_OUTPUT,   ///< color for normal APL output (COUT)
          COLM_ERROR,    ///< color for debug output (CERR)
+         COLM_UERROR,   ///< color for APL error output (UERR)
       };
 
    /// set the color mode (if colors_enabled). Outputs the escape sequence
@@ -96,16 +97,19 @@ public:
    /// true if the print semaphore was acquired
    static bool print_sema_held;
 
-   /// escape sequences for CIN colors
+   /// escape sequence for CIN colors
    static char color_CIN[21];
 
-   /// escape sequences for COUT colors
+   /// escape sequence for COUT colors
    static char color_COUT[21];
 
-   /// escape sequences for CERR colors
+   /// escape sequence for CERR colors
    static char color_CERR[21];
 
-   /// escape sequences for resetting colors
+   /// escape sequence for UERR colors
+   static char color_UERR[21];
+
+   /// escape sequence for resetting colors
    static char color_RESET[21];
 
    /// foreground color for CIN
@@ -125,6 +129,12 @@ public:
 
    /// background color for CERR
    static int color_CERR_background;
+ 
+   /// foreground color for UERR
+   static int color_UERR_foreground;
+
+   /// background color for UERR
+   static int color_UERR_background;
  
    /// escape sequences for clear to end of line
    static char clear_EOL[21];
@@ -149,11 +159,5 @@ protected:
    /// true if colors are currently enabled (by XTERM command)
    static bool colors_enabled;
 };
-
-/// normal APL output
-extern ostream COUT;
-
-/// echo of APL input
-extern ostream CIN;
 
 #endif // __OUTPUT_HH_DEFINED__

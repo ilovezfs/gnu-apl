@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-12-14 19:29+0100\n"
+"POT-Creation-Date: 2013-12-16 13:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -252,22 +252,22 @@ msgstr ""
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr ""
 
-#: src/main.cc:854
+#: src/main.cc:867
 msgid "-f without filename"
 msgstr ""
 
-#: src/main.cc:887
+#: src/main.cc:900
 msgid "-l without log facility"
 msgstr ""
 
-#: src/main.cc:980
+#: src/main.cc:993
 msgid "--TM without test mode"
 msgstr ""
 
-#: src/main.cc:999
+#: src/main.cc:1012
 msgid "-w without milli(seconds)"
 msgstr ""
 
-#: src/main.cc:1005
+#: src/main.cc:1018
 msgid "unknown option '"
 msgstr ""
