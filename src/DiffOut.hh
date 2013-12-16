@@ -35,8 +35,9 @@ class DiffOut : public filebuf
 {
 public:
    /// constructor
-   DiffOut()
-   : aplout(200, 0)   // reserve 200  bytes
+   DiffOut(bool _errout)
+   : aplout(200, 0),   // reserve 200  bytes
+     errout(_errout)
    { aplout.clear(); }
 
    /// discard all characters
@@ -52,6 +53,9 @@ protected:
 
    /// a buffer for one line of APL output
    Simple_string<char> aplout;
+
+   /// true for error messages, false for normal APL output
+   bool errout;
 };
 
 #endif // __DIFFOUT_HH_DEFINED__

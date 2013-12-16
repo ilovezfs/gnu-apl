@@ -77,8 +77,8 @@ public:
 
 bool ErrOut::used = false;
 
-DiffOut dout_filebuf;
-DiffOut uerr_filebuf;
+DiffOut dout_filebuf(false);
+DiffOut uerr_filebuf(true);
 
 ostream CIN(&cin_filebuf);
 ostream COUT(&dout_filebuf);
@@ -253,10 +253,10 @@ Output::set_color_mode(Output::ColorMode mode)
 
              case COLM_UERROR:
                   tputs(tparm(set_foreground, color_UERR_foreground),
-                              1, putc_stderr);
+                              1, putc_stdout);
                   tputs(tparm(set_background, color_UERR_background),
-                              1, putc_stderr);
-                  tputs(clr_eol, 1, putc_stderr);
+                              1, putc_stdout);
+                  tputs(clr_eol, 1, putc_stdout);
                   break;
 
            }
