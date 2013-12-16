@@ -92,9 +92,16 @@ int cidx = VH_entry::idx;
           if (entry->event == VHE_Create)   break;   // create event found
        }
 
-   out << endl << "value " << (const void *)val
-       << " has " << var_events.size()
-       << " events in its history:" << endl;
+   if (VALUEHISTORY_SIZE == 0)
+      {
+        out << "value history disabled" << endl;
+      }
+    else
+      {
+        out << endl << "value " << (const void *)val
+            << " has " << var_events.size()
+            << " events in its history:" << endl;
+      }
 
 int flags = 0;
 const VH_entry * previous = 0;
@@ -214,11 +221,11 @@ const ValueFlags flags_before = (ValueFlags)flags;
              break;
 
         case VHE_PtrCopy3:
-             out << "  VHE_PtrCopy2 " << setw(26) << iarg;
+             out << "  VHE_PtrCopy3 " << setw(26) << iarg;
              break;
 
         case VHE_PtrClr:
-             out << "  VHE_PtrDel   " << setw(26) << iarg;
+             out << "  VHE_PtrClr   " << setw(26) << iarg;
              break;
 
         case VHE_PtrDel:

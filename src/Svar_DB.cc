@@ -20,6 +20,7 @@
 
 #include <errno.h>
 #include <fcntl.h>           /* For O_* constants */
+#include <signal.h>
 #include <string.h>
 #include <stdio.h>
 #include <sys/mman.h>
@@ -69,11 +70,7 @@ Svar_partner::pid_alive(pid_t p)
 {
    if (p == 0)   return false;   // no pid
 
-char proc_file[40];
-   snprintf(proc_file, sizeof(proc_file), "/proc/%u", p);
-
-struct stat st;
-   return (stat(proc_file, &st) == 0);
+   return kill(p, 0) == 0;
 }
 //-----------------------------------------------------------------------------
 ostream &

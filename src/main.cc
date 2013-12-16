@@ -1045,11 +1045,11 @@ user_preferences up;
         Output::color_CERR[4] = 0;
 
         // UERR = U+F00C3 = UTF8 F3 B0 83 83 ...
-        Output::color_CERR[0] = 0xF3;
-        Output::color_CERR[1] = 0xB0;
-        Output::color_CERR[2] = 0x83;
-        Output::color_CERR[3] = 0x83;
-        Output::color_CERR[4] = 0;
+        Output::color_UERR[0] = 0xF3;
+        Output::color_UERR[1] = 0xB0;
+        Output::color_UERR[2] = 0x83;
+        Output::color_UERR[3] = 0x83;
+        Output::color_UERR[4] = 0;
 
         // no clear_EOL
         Output::clear_EOL[0] = 0;
