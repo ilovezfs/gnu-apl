@@ -38,7 +38,7 @@ DiffOut::overflow(int c)
         Output::print_sema_held = true;
       }
 
-   Output::set_color_mode(Output::COLM_OUTPUT);
+   Output::set_color_mode(errout ? Output::COLM_UERROR : Output::COLM_OUTPUT);
    cout << char(c);
 
    if (c != '\n')   // not end of line
