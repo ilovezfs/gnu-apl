@@ -613,14 +613,14 @@ public:
 
    static Bif_F12_STILE     fun;       ///< Built-in function.
 
+   /// Overloaded Function::eval_AB().
+   virtual Token eval_AB(Value_P A, Value_P B)
+      { return eval_skalar_AB(A, B, &Cell::bif_residue); }
+
 protected:
    /// Overloaded Function::eval_B().
    virtual Token eval_B(Value_P B)
       { return eval_skalar_B(B, &Cell::bif_magnitude); }
-
-   /// Overloaded Function::eval_AB().
-   virtual Token eval_AB(Value_P A, Value_P B)
-      { return eval_skalar_AB(A, B, &Cell::bif_residue); }
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)

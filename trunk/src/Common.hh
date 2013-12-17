@@ -157,6 +157,12 @@ int decrement_owner_count(Value * v, const char * loc);
 
 // #define VALUE_OWNER_COUNT
 
+#ifdef VALUE_OWNER_COUNT
+
+#include <tr1/memory>
+typedef std::tr1::shared_ptr<Value> Value_P;
+
+#else // not VALUE_OWNER_COUNT
 class Value_P
 {
 public:
@@ -285,6 +291,8 @@ public:
 protected:
    Value * value_p;
 };
+
+#endif // VALUE_OWNER_COUNT
 
 /// macro to facilitate Value_P in unions
 #define VALUE_P(x) char u_ ## x[sizeof(Value_P)]; \
