@@ -1117,6 +1117,8 @@ uint32_t len = len_A == 1 ? len_B : len_A;
 Token
 Bif_F12_ENCODE::eval_AB(Value_P A, Value_P B)
 {
+   if (A->is_skalar())   return Bif_F12_STILE::fun.eval_AB(A, B);
+
 const ShapeItem ec_A = A->element_count();
 const ShapeItem ec_B = B->element_count();
    if (ec_A == 0 || ec_B == 0)   // empty A or B
