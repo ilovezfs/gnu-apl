@@ -298,7 +298,7 @@ SymbolTable::unmark_all_values() const
 }
 //-----------------------------------------------------------------------------
 int
-SymbolTable::show_owners(ostream & out, Value_P value) const
+SymbolTable::show_owners(ostream & out, const Value & value) const
 {
 int count = 0;
    loop(s, MAX_SYMBOL_COUNT)
@@ -358,40 +358,6 @@ SymbolTable::clear(ostream & out)
 }
 //-----------------------------------------------------------------------------
 void
-Symbol::clear_vs()
-{
-ValueStackItem & tos = value_stack[0];
-
-   switch(tos.name_class)
-      {
-        case NC_LABEL:
-             Assert(0 && "should not happen since stack height == 1");
-             break;
-
-        case NC_VARIABLE:
-             tos.name_class = NC_UNUSED_USER_NAME;
-             tos.sym_val._value()->clear_assigned();
-             tos.sym_val._value()->erase(LOC);
-             break;
-
-        case NC_UNUSED_USER_NAME:
-             break;
-
-        case NC_FUNCTION:
-        case NC_OPERATOR:
-             {
-               const UserFunction * ufun = tos.sym_val.function->get_ufun1();
-               Assert(ufun);
-               const Executable * exec = ufun;
-               Assert(!Workspace::oldest_exec(exec));
-             }
-
-             delete tos.sym_val.function;
-             break;
-      }
-}
-//-----------------------------------------------------------------------------
-void
 SymbolTable::erase_one_symbol(ostream & out, const UCS_string & sym)
 {
 Symbol * symbol = lookup_existing_symbol(sym);
@@ -446,9 +412,9 @@ ValueStackItem & tos = symbol->value_stack[0];
 
              case NC_VARIABLE:
                   tos.name_class = NC_UNUSED_USER_NAME;
-                  tos.sym_val._value()->clear_assigned();
-                  tos.sym_val._value()->erase(LOC);
-                  tos.sym_val._value().clear(LOC);
+                  tos.apl_val->clear_assigned();
+                  tos.apl_val->erase(LOC);
+                  ptr_clear(tos.apl_val, LOC);
                   symbol->set_erased(true);
                   return;
 

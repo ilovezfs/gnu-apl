@@ -73,7 +73,7 @@ vector<Token_string *> statements;
              }
           else
              {
-               stat->append(tok);
+               stat->append(tok, LOC);
              }
         }
      statements.push_back(stat);
@@ -87,7 +87,11 @@ vector<Token_string *> statements;
 
         if (s)   tos.append(Token(TOK_DIAMOND));
 
-        loop(t, stat->size())   tos.append((*stat)[t]);
+        loop(t, stat->size())
+           {
+             tos.append(Token());
+             move_1(tos[tos.size() - 1], (*stat)[t], LOC);
+           }
         delete stat;
       }
 
@@ -461,46 +465,57 @@ Parser::create_value(Token_string & tos, uint32_t pos, uint32_t count)
 void
 Parser::create_skalar_value(Token & output)
 {
-Value_P skalar;
    switch(output.get_tag())
-          {
-            case TOK_CHARACTER:
-                 skalar = Value_P(new Value(LOC), LOC);
+      {
+        case TOK_CHARACTER:
+             {
+               Value_P skalar(new Value(LOC));
 
-                 new (&skalar->get_ravel(0))   CharCell(output.get_char_val());
-                 CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
-                 return;
+               new (&skalar->get_ravel(0))  CharCell(output.get_char_val());
+               skalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, skalar);
+               move_1(output, tok, LOC);
+             }
+             return;
 
-            case TOK_INTEGER:
-                 skalar = Value_P(new Value(create_loc), LOC);
+        case TOK_INTEGER:
+             {
+               Value_P skalar(new Value(LOC));
 
-                 new (&skalar->get_ravel(0))   IntCell(output.get_int_val());
-                 CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
-                 return;
+               new (&skalar->get_ravel(0))   IntCell(output.get_int_val());
+               skalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, skalar);
+               move_1(output, tok, LOC);
+             }
+             return;
 
-            case TOK_REAL:
-                 skalar = Value_P(new Value(LOC), LOC);
+        case TOK_REAL:
+             {
+               Value_P skalar(new Value(LOC));
 
-                 new (&skalar->get_ravel(0))   FloatCell(output.get_flt_val());
-                 CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
-                 return;
+               new (&skalar->get_ravel(0))  FloatCell(output.get_flt_val());
+               skalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, skalar);
+               move_1(output, tok, LOC);
+             }
+             return;
 
-            case TOK_COMPLEX:
-                 skalar = Value_P(new Value(LOC), LOC);
+        case TOK_COMPLEX:
+             {
+               Value_P skalar(new Value(LOC));
 
-                 new (&skalar->get_ravel(0))  ComplexCell(output.get_cpx_real(),
+               new (&skalar->get_ravel(0))   ComplexCell(output.get_cpx_real(),
                                                          output.get_cpx_imag());
-                 CHECK_VAL(skalar, LOC);
-                 move_2(output, Token(TOK_APL_VALUE3, skalar), LOC);
-                 return;
+               skalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, skalar);
+               move_1(output, tok, LOC);
+             }
+             return;
 
-            case TOK_APL_VALUE1:
-            case TOK_APL_VALUE3:
-                 return;
-          }
+        case TOK_APL_VALUE1:
+        case TOK_APL_VALUE3:
+             return;
+      }
 
    CERR << "Unexpected token " << output.get_tag() << ": " << output << endl;
    Assert(0 && "Unexpected token");
@@ -509,7 +524,7 @@ Value_P skalar;
 void
 Parser::create_vector_value(Token_string & tos, uint32_t pos, uint32_t count)
 {
-Value_P vector(new Value(count, LOC), LOC);
+Value_P vector(new Value(count, LOC));
 
    loop(l, count)
        {
@@ -547,8 +562,10 @@ Value_P vector(new Value(count, LOC), LOC);
             }
        }
 
-   CHECK_VAL(vector, LOC);
-   move_2(tos[pos], Token(TOK_APL_VALUE3, vector), LOC);
+   vector->check_value(LOC);
+Token tok(TOK_APL_VALUE3, vector);
+
+   move_1(tos[pos], tok, LOC);
 
    Log(LOG_create_value)
       {

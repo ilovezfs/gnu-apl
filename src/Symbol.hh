@@ -47,8 +47,10 @@ struct ValueStackItem
       { sym_val.label = lab; }
 
    /// constructor: ValueStackItem for a variable
-   ValueStackItem(Value_P val) : name_class(NC_VARIABLE)
-      { sym_val._value() = val; }
+   ValueStackItem(Value_P val)
+   : name_class(NC_VARIABLE),
+     apl_val(val)
+   {}
 
    /// constructor: ValueStackItem for a shared variable
    ValueStackItem(SV_key key) : name_class(NC_SHARED_VAR)
@@ -64,14 +66,16 @@ struct ValueStackItem
    /// the possible values of a symbol
    union _sym_val
       {
-        VALUE_P(      value)      ///< if \b Symbol is a variable.
         Function *    function;   ///< if \b Symbol is a function.
         Function_Line label;      ///< if \b Symbol is a label.
         SV_key        sv_key;     ///< if \b Symbol is a shared variable
       };
 
-   /// the (current) value of this symbol
+   /// the (current) value of this symbol (unless variable)
    _sym_val sym_val;
+
+   /// the (current) value of this symbol (if variable)
+   Value_P apl_val;
 
    /// the (current) name class (like ⎕NC, unless shared variable)
    NameClass    name_class;
@@ -236,7 +240,7 @@ public:
    void unmark_all_values() const;
 
    /// print variables owning value
-   int show_owners(ostream & out, Value_P value) const;
+   int show_owners(ostream & out, const Value & value) const;
 
    /// perform a vector assignment (like (A B C)←1 2 3) for variables in
    /// \b symbols with values \b values

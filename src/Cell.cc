@@ -104,9 +104,9 @@ Value_P ret;
       }
    else
       {
-        ret = Value_P(new Value(loc), LOC);
+        ret = Value_P(new Value(loc));
         ret->get_ravel(0).init(*this);
-        CHECK_VAL(ret, LOC);
+        ret->check_value(LOC);
       }
 
    ret->set_arg();
@@ -119,11 +119,11 @@ Cell::init_type(const Cell & other)
    if (other.is_pointer_cell())
       {
         Value_P B = other.get_pointer_value();
-        Value_P Z(new Value(B->get_shape(), LOC), LOC);
+        Value_P Z(new Value(B->get_shape(), LOC));
 
         const ShapeItem len = B->nz_element_count();
         loop(l, len)   Z->get_ravel(l).init_type(B->get_ravel(l));
-        CHECK_VAL(Z, LOC);
+        Z->check_value(LOC);
 
         new (this) PointerCell(Z);
       }

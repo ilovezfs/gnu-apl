@@ -358,6 +358,7 @@ Quad_SVx.cc				Quad_SVx.hh		\
 Quad_TF.cc				Quad_TF.hh		\
 RealCell.cc				RealCell.hh		\
 Shape.cc				Shape.hh		\
+					SharedValuePointer.hh	\
 					Simple_string.hh	\
 SkalarFunction.cc			SkalarFunction.hh	\
 					Source.hh		\

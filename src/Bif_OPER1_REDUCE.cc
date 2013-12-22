@@ -72,7 +72,7 @@ vector<ShapeItem> rep_counts;
 Shape shape_Z(shape_B);
    shape_Z.set_shape_item(axis, len_Z);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
 const Shape3 shape_B3(shape_B, axis);
@@ -106,8 +106,9 @@ const Shape3 shape_B3(shape_B, axis);
            }
       }
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -168,7 +169,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
       {
         Shape shape_B1 = B->get_shape().insert_axis(axis, 0);
         shape_B1.increment_shape_item(axis + 1);
-        Value_P val(new Value(shape_B1, LOC), LOC);
+        Value_P val(new Value(shape_B1, LOC));
         val->set_arg();
         val->get_ravel(0).init(B->get_ravel(0));   // prototype
 
@@ -187,9 +188,10 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         //
         Shape shape_Z = B->get_shape();
         shape_Z.set_shape_item(axis, 0);
-        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Value_P Z(new Value(shape_Z, LOC));
         Z->get_ravel(0).init(B->get_ravel(0));
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 Shape shape_Z(B->get_shape());
@@ -210,7 +212,7 @@ Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
 EOC_arg arg;
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-   new (& arg.Z)   Value_P(new Value(shape_Z, LOC), LOC);
+   new (& arg.Z)   Value_P(new Value(shape_Z, LOC));
    arg.B = B;
    _arg.init(&arg.Z->get_ravel(0), Z3, LO, &B->get_ravel(0), bm, a, 0);
 
@@ -264,8 +266,9 @@ Value_P BB = token.get_apl_val();
 
         if (_arg.frame.done())   // if last beam (final result complete)
            {
-             Value_P Z(arg.clear_EOC(LOC), LOC);
-             copy_1(token, CHECK(Z, LOC), LOC);
+             arg.clear_EOC(LOC);
+             arg.Z->check_value(LOC);
+             copy_1(token, Token(TOK_APL_VALUE1, arg.Z), LOC);
              return false;   // stop it
            }
 

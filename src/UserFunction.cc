@@ -87,8 +87,8 @@ Function * old_function = sym_FUN->get_function();
    // let [0] be the end of the function.
    line_starts[0] = Function_PC(body.size());
 
-   if (sym_Z)     body.append(Token(TOK_RETURN_SYMBOL, sym_Z));
-   else           body.append(Token(TOK_RETURN_VOID));
+   if (sym_Z)     body.append(Token(TOK_RETURN_SYMBOL, sym_Z), LOC);
+   else           body.append(Token(TOK_RETURN_VOID), LOC);
 
    check_duplicate_symbols();
 
@@ -491,8 +491,9 @@ UserFunction::pop_local_vars() const
    if (sym_LO)   sym_LO->pop(true);
    if (sym_RO)   sym_RO->pop(true);
 
-   if (sym_Z)   return sym_Z->pop(false);
-   return Value_P();
+   if (!sym_Z)   return Value_P();
+
+   return sym_Z->pop(false);
 }
 //-----------------------------------------------------------------------------
 void

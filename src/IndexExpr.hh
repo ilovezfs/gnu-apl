@@ -75,6 +75,9 @@ public:
    /// axes (like in [2 3]) into a shape (like 2 3).
    Shape to_shape() const;
 
+   /// return one axis value and clear it in \b this IndexExpr
+   Value_P extract_value(Rank rk);
+
    /// print stale IndexExprs, and return the number of stale IndexExprs.
    static int print_stale(ostream & out);
 

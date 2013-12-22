@@ -102,12 +102,13 @@ Bif_F0_ZILDE::eval_()
 Token
 Bif_F12_RHO::eval_B(Value_P B)
 {
-Value_P Z(new Value(B->get_rank(), LOC), LOC);
+Value_P Z(new Value(B->get_rank(), LOC));
 
    loop(r, B->get_rank())   new (&Z->get_ravel(r)) IntCell(B->get_shape_item(r));
 
-   Z->set_default(Value::Zero_P);
-   return CHECK(Z, LOC);
+   Z->set_default(Value::Zero);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -121,7 +122,7 @@ const Shape shape_Z(A, Workspace::get_CT(), 0);
 Token
 Bif_F12_RHO::do_reshape(const Shape & shape_Z, Value_P B)
 {
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 const ShapeItem len_B = B->element_count();
 const ShapeItem len_Z = Z->element_count();
@@ -135,8 +136,9 @@ const ShapeItem len_Z = Z->element_count();
         loop(z, len_Z)   Z->get_ravel(z).init(B->get_ravel(z % len_B));
       }
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -156,12 +158,13 @@ const APL_Integer qio = Workspace::get_IO();
 const Cell * cell = &B->get_ravel(0);
 const APL_Integer len = cell->get_near_int(qct);
 
-Value_P Z(new Value(len, LOC), LOC);
+Value_P Z(new Value(len, LOC));
 
    loop(z, len)   new (&Z->get_ravel(z)) IntCell(qio + z);
 
-   Z->set_default(Value::Zero_P);
-   return CHECK(Z, LOC);
+   Z->set_default(Value::Zero);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -177,7 +180,7 @@ const APL_Integer qio = Workspace::get_IO();
 const uint64_t len_A  = A->element_count();
 const uint64_t len_BZ = B->element_count();
 
-Value_P Z(new Value(B->get_shape(), LOC), LOC);
+Value_P Z(new Value(B->get_shape(), LOC));
 
    loop(bz, len_BZ)
        {
@@ -196,22 +199,24 @@ Value_P Z(new Value(B->get_shape(), LOC), LOC);
             new (&Z->get_ravel(bz)) IntCell(qio + len_A);
        }
 
-   Z->set_default(Value::Zero_P);
-   return CHECK(Z, LOC);
+   Z->set_default(Value::Zero);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_COMMA::ravel(const Shape & new_shape, Value_P B)
 {
-Value_P Z(new Value(new_shape, LOC), LOC);
+Value_P Z(new Value(new_shape, LOC));
 
 const ShapeItem count = B->element_count();
    Assert(count == Z->element_count());
 
    loop(c, count)   Z->get_ravel(c).init(B->get_ravel(c));
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -219,12 +224,13 @@ Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
 {
    if (B->is_skalar())
       {
-        Value_P Z(new Value(2, LOC), LOC);
+        Value_P Z(new Value(2, LOC));
 
 
         Z->get_ravel(0).init(cell_A);
         Z->get_ravel(1).init(B->get_ravel(0));
-        return CHECK_VAL(Z, LOC);
+        Z->check_value(LOC);
+        return Z;
       }
 
    if (axis >= B->get_rank())   INDEX_ERROR;
@@ -232,7 +238,7 @@ Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
 Shape shape_Z(B->get_shape());
    shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) + 1);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 const Shape3 shape_B3(B->get_shape(), axis);
    const uint32_t slice_a = shape_B3.l();
@@ -248,7 +254,8 @@ const Cell * cB = &B->get_ravel(0);
          Cell::copy(cZ, cB, slice_b);
        }
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -259,7 +266,7 @@ Bif_COMMA::append_skalar(Value_P A, Axis axis, const Cell & cell_B)
 Shape shape_Z(A->get_shape());
    shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) + 1);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 const Shape3 shape_A3(A->get_shape(), axis);
 const uint32_t slice_a = shape_A3.l() * A->get_shape_item(axis);
@@ -276,7 +283,8 @@ const Cell * cA = &A->get_ravel(0);
              cZ++->init(cell_B);
        }
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //-----------------------------------------------------------------------------
 Token
@@ -286,14 +294,16 @@ Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
       {
         const Cell & cell_A = A->get_ravel(0);
         Value_P Z = prepend_skalar(cell_A, axis, B);
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (B->is_skalar())
       {
         const Cell & cell_B = B->get_ravel(0);
         Value_P Z = append_skalar(A, axis, cell_B);
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if ((A->get_rank() + 1) == B->get_rank())
@@ -321,9 +331,9 @@ Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
              }
         }
 
-        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Value_P Z(new Value(shape_Z, LOC));
 
-        Z->set_default(B);
+        Z->set_default(*B.get());
 
         const Shape3 shape_B3(B->get_shape(), axis);
         const uint32_t slice_a = shape_B3.l();
@@ -339,7 +349,8 @@ Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
               Cell::copy(cZ, cB, slice_b);
             }
 
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (A->get_rank() == (B->get_rank() + 1))
@@ -370,9 +381,9 @@ Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
              }
         }
 
-        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Value_P Z(new Value(shape_Z, LOC));
 
-        Z->set_default(B);
+        Z->set_default(*B.get());
 
         const Shape3 shape_A3(A->get_shape(), axis);
         const uint32_t slice_a = shape_A3.l() * A->get_shape_item(axis);
@@ -388,9 +399,10 @@ Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
               Cell::copy(cZ, cB, slice_b);
             }
 
-        Z->set_default(B);
+        Z->set_default(*B.get());
 
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (A->get_rank() != B->get_rank())   RANK_ERROR;
@@ -416,9 +428,9 @@ Shape shape_Z;
             }
        }
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
 const Shape3 shape_A3(A->get_shape(), axis);
 
@@ -434,8 +446,9 @@ const uint32_t slice_b = shape_A3.l() * B->get_shape_item(axis);
          Cell::copy(cZ, cB, slice_b);
        }
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -449,7 +462,7 @@ Bif_COMMA::laminate(Value_P A, Axis axis, Value_P B)
 const Shape shape_Z = A->is_skalar() ? B->get_shape().insert_axis(axis, 2)
                                     : A->get_shape().insert_axis(axis, 2);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 const Shape3 shape_Z3(shape_Z, axis);
    Assert(shape_Z3.m() == 2);
@@ -494,9 +507,10 @@ const Cell * cB = &B->get_ravel(0);
            }
       }
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -651,10 +665,11 @@ Bif_F12_DOMINO::eval_B(Value_P B)
 {
    if (B->is_skalar())
       {
-        Value_P Z(new Value(LOC), LOC);
+        Value_P Z(new Value(LOC));
 
         B->get_ravel(0).bif_reciprocal(&Z->get_ravel(0));
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (B->get_rank() == 1)   // inversion at the unit sphere
@@ -672,7 +687,7 @@ Bif_F12_DOMINO::eval_B(Value_P B)
             r2.imag() < qct && r2.imag() > -qct)
             DOMAIN_ERROR;
             
-        Value_P Z(new Value(len, LOC), LOC);
+        Value_P Z(new Value(len, LOC));
 
         if (r2.imag() < qct && r2.imag() > -qct)   // real result
            {
@@ -691,8 +706,9 @@ Bif_F12_DOMINO::eval_B(Value_P B)
                  }
            }
 
-        Z->set_default(B);
-        return CHECK(Z, LOC);
+        Z->set_default(*B.get());
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (B->get_rank() > 2)   RANK_ERROR;
@@ -704,7 +720,7 @@ const ShapeItem cols = B->get_shape_item(1);
    // create an identity matrix I and call eval_AB(I, B).
    //
 const Shape shape_I(rows, rows);
-Value_P I(new Value(shape_I, LOC), LOC);
+Value_P I(new Value(shape_I, LOC));
 
 Cell * i = &I->get_ravel(0);
    loop(r, rows)
@@ -770,7 +786,7 @@ ShapeItem cols_B = 1;
 
 Value_P Z = divide_matrix(rows_A, cols_A, A, cols_B, B, shape_Z, qct);
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
    // round items close to integers
    //
@@ -785,7 +801,8 @@ Value_P Z = divide_matrix(rows_A, cols_A, A, cols_B, B, shape_Z, qct);
         }
    }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -803,7 +820,8 @@ Shape shape_Z;
 
 Value_P Z = Bif_F12_RHO::fun.do_reshape(shape_Z, Value::Zero_P)
                             .get_apl_val();
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -817,7 +835,7 @@ Bif_ROTATE::reverse(Value_P B, Axis axis)
 
 const Shape3 shape_B3(B->get_shape(), axis);
 
-Value_P Z(new Value(B->get_shape(), LOC), LOC);
+Value_P Z(new Value(B->get_shape(), LOC));
 
    loop(h, shape_B3.h())
    loop(l, shape_B3.l())
@@ -829,9 +847,10 @@ Value_P Z(new Value(B->get_shape(), LOC), LOC);
             cZ[m*shape_B3.l()].init(cB[(shape_B3.m() - m - 1)*shape_B3.l()]);
        }
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -859,7 +878,7 @@ const Shape shape_A2(shape_B3.h(), shape_B3.l());
       }
 
 
-Value_P Z(new Value(B->get_shape(), LOC), LOC);
+Value_P Z(new Value(B->get_shape(), LOC));
 Cell * cZ = &Z->get_ravel(0);
 
 const Cell * cA = &A->get_ravel(0);
@@ -876,9 +895,10 @@ const Cell * cA = &A->get_ravel(0);
          cZ++->init(B->get_ravel(shape_B3.hml(h, src, l)));
        }
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -921,8 +941,9 @@ Shape shape_A;
    loop(r, B->get_rank())   shape_A.add_shape_item(B->get_rank() - r - 1);
 
 Value_P Z = transpose(shape_A, B);
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -936,7 +957,8 @@ Bif_F12_TRANSPOSE::eval_AB(Value_P A, Value_P B)
       {
         if (A->element_count() != 0)   LENGTH_ERROR;
         Value_P Z = B->clone(LOC);
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 const Shape shape_A(A, Workspace::get_CT(), Workspace::get_IO());
@@ -953,16 +975,17 @@ Value_P Z = (shape_A.get_rank() == B->get_rank() && shape_A.is_permutation())
           ? transpose(shape_A, B)
           : transpose_diag(shape_A, B);
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
 Bif_F12_TRANSPOSE::transpose(const Shape & A, Value_P B)
 {
 const Shape shape_Z = B->get_shape().permute(A.inverse_permutation());
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
 const Cell * cB = &B->get_ravel(0);
@@ -1019,7 +1042,7 @@ Shape shape_Z;
          }
    }
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
 const Cell * cB = &B->get_ravel(0);
@@ -1055,9 +1078,10 @@ const ShapeItem l_len_B = shape_B1.element_count();
    if (l_len_A == 0 || h_len_B == 0)   // empty result
       {
         const Shape shape_Z(shape_A1 + shape_B1);
-        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Value_P Z(new Value(shape_Z, LOC));
         new (&Z->get_ravel(0))  IntCell(0);   // prototype
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if ((l_len_A != 1) && (h_len_B != 1) && (l_len_A != h_len_B))   LENGTH_ERROR;
@@ -1066,7 +1090,7 @@ const APL_Float qct = Workspace::get_CT();
 
 const Shape shape_Z = shape_A1 + shape_B1;
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 Cell * cZ = &Z->get_ravel(0);
 const Cell * cA = &A->get_ravel(0);
@@ -1081,8 +1105,9 @@ const Cell * cA = &A->get_ravel(0);
          cA += l_len_A;
        }
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 void
@@ -1124,9 +1149,10 @@ const ShapeItem ec_B = B->element_count();
    if (ec_A == 0 || ec_B == 0)   // empty A or B
       {
         const Shape shape_Z(A->get_shape() + B->get_shape());
-        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Value_P Z(new Value(shape_Z, LOC));
         new (&Z->get_ravel(0))  IntCell(0);   // prototype
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 const ShapeItem ah = A->get_shape_item(0);    // first dimension
@@ -1137,7 +1163,7 @@ const APL_Float qct = Workspace::get_CT();
 const Shape shape_Z = A->get_shape() + B->get_shape();
 const ShapeItem dZ = shape_Z.element_count()/shape_Z.get_shape_item(0);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 Cell * cZ = &Z->get_ravel(0);
 
@@ -1150,9 +1176,10 @@ Cell * cZ = &Z->get_ravel(0);
             }
        }
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 void
@@ -1197,13 +1224,14 @@ Bif_F12_ELEMENT::eval_B(Value_P B)
 {
    // enlist
 const ShapeItem len_Z = B->get_enlist_count();
-Value_P Z(new Value(len_Z, LOC), LOC);
+Value_P Z(new Value(len_Z, LOC));
 
 Cell * z = &Z->get_ravel(0);
    B->enlist(z, B->is_lval());
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1214,7 +1242,7 @@ Bif_F12_ELEMENT::eval_AB(Value_P A, Value_P B)
 const APL_Float qct = Workspace::get_CT();
 const ShapeItem len_Z = A->element_count();
 const ShapeItem len_B = B->element_count();
-Value_P Z(new Value(A->get_shape(), LOC), LOC);
+Value_P Z(new Value(A->get_shape(), LOC));
 
    loop(z, len_Z)
        {
@@ -1229,8 +1257,9 @@ Value_P Z(new Value(A->get_shape(), LOC), LOC);
          new (&Z->get_ravel(z))   IntCell(same);
        }
    
-   Z->set_default(Value::Zero_P);
-   return CHECK(Z, LOC);
+   Z->set_default(Value::Zero);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1248,17 +1277,19 @@ Bif_F12_PARTITION::eval_B(Value_P B)
         return result;
       }
 
-Value_P Z(new Value(LOC), LOC);
+Value_P Z(new Value(LOC));
 
    new (&Z->get_ravel(0)) PointerCell(B->clone(LOC));   // calls B->set_nested
 
    Assert(Z->compute_depth() == (B->compute_depth() + 1));
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_F12_PARTITION::eval_XB(Value_P X, Value_P B)
 {
+Q(LOC)
 Shape it_shape;
 Shape it_weight;
 Shape shape_Z;
@@ -1300,14 +1331,14 @@ const Shape weight_B = B->get_shape().reverse_scan();
         return Bif_OPER1_EACH::fun.eval_LB(part, B);
       }
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    for (ArrayIterator it_Z(shape_Z); !it_Z.done(); ++it_Z)
       {
         const ShapeItem off_Z = it_Z.multiply(weight_Z);   // offset in B
 
-        Value_P vZ(new Value(it_shape, LOC), LOC);
+        Value_P vZ(new Value(it_shape, LOC));
         new (cZ++) PointerCell(vZ);
 
         Cell * dst_it = &vZ->get_ravel(0);
@@ -1317,10 +1348,11 @@ Cell * cZ = &Z->get_ravel(0);
              dst_it++->init(B->get_ravel(off_Z + off_it));
            }
 
-        CHECK(vZ, LOC);
+        vZ->check_value(LOC);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1360,14 +1392,15 @@ ShapeItem len_Z = 0;
 Shape shape_Z(B->get_shape());
    shape_Z.set_shape_item(axis, len_Z);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 
    if (Z->is_empty())
       {
-        Z->set_default(B);
+        Z->set_default(*B.get());
 
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 const Shape3 shape_B3(B->get_shape(), axis);
@@ -1418,7 +1451,8 @@ Cell * cZ;
             }
        }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 void
@@ -1430,7 +1464,7 @@ Bif_F12_PARTITION::copy_segment(Cell * dest, ShapeItem h, ShapeItem m_from,
    Assert(m_to <= m_len);
    Assert(l < l_len);
 
-Value_P V(new Value(m_to - m_from, LOC), LOC);
+Value_P V(new Value(m_to - m_from, LOC));
 
 Cell * vv = &V->get_ravel(0);
    for (ShapeItem m = m_from; m < m_to; ++m)
@@ -1449,7 +1483,7 @@ const ShapeItem len_B = B->element_count();
 const Shape it_shape = item_shape(B);;
 const Shape shape_Z = B->get_shape() + it_shape;
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 const ShapeItem llen = it_shape.element_count();
    loop(h, len_B)
@@ -1474,8 +1508,9 @@ const ShapeItem llen = it_shape.element_count();
             }
        }
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1530,7 +1565,7 @@ Shape shape_Z;
         }
    }
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
    // loop over sources and place them in the result.
    //
@@ -1583,9 +1618,10 @@ PermutedArrayIterator it_Z(shape_Z, perm);
             }
       }
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Shape
@@ -1639,9 +1675,10 @@ const ShapeItem ec_A = A->element_count();
       {
         const ShapeItem ec_B = B->nz_element_count();
 
-        Value_P Z(new Value(B->get_shape(), LOC), LOC);
+        Value_P Z(new Value(B->get_shape(), LOC));
         loop(b, ec_B)   Z->get_ravel(b).init(B->get_ravel(b));
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 const APL_Float qct = Workspace::get_CT();
@@ -1649,7 +1686,8 @@ const APL_Integer qio = Workspace::get_IO();
 
 Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B->is_left());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -1709,7 +1747,7 @@ const Cell * cB = &B->get_ravel(c);
 Value_P Z;
    if (lval)   // (A⊃B)←
       {
-        Z = Value_P(new Value(LOC), LOC);
+        Z = Value_P(new Value(LOC));
         Cell * cell = &Z->get_ravel(0);
         if (cB->is_pointer_cell())
            {
@@ -1732,7 +1770,7 @@ Value_P Z;
            }
         else
            {
-             Z = Value_P(new Value(LOC), LOC);
+             Z = Value_P(new Value(LOC));
              Z->get_ravel(0).init(*cB);
            }
       }
@@ -1763,7 +1801,7 @@ IndexExpr * index_expr = new IndexExpr(false, LOC);
         else
             {
               const APL_Integer i = cell.get_int_value();
-              val = Value_P(new Value(LOC), LOC);
+              val = Value_P(new Value(LOC));
               if (i < 0)   DOMAIN_ERROR;
 
               new (&val->get_ravel(0))   IntCell(i);
@@ -1777,10 +1815,7 @@ IndexExpr * index_expr = new IndexExpr(false, LOC);
 Value_P Z;
    if (index_expr->value_count() == 1)   // one-dimensional index
       {
-        Value_P single_index = index_expr->values[0];
-        index_expr->values[0].clear(LOC);
-
-        single_index->clear_index();
+        Value_P single_index = index_expr->extract_value(0);
         Z = B->index(single_index);
       }
    else                                  // 0- or multi-dimensional index
@@ -1788,8 +1823,9 @@ Value_P Z;
         Z = B->index(*index_expr);
       }
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1825,7 +1861,7 @@ IndexExpr * index_expr = new IndexExpr(false, LOC);
         else
             {
               const APL_Integer i = cell.get_int_value();
-              val = Value_P(new Value(LOC), LOC);
+              val = Value_P(new Value(LOC));
               if (i < 0)   DOMAIN_ERROR;
 
               new (&val->get_ravel(0))   IntCell(i);
@@ -1836,7 +1872,8 @@ IndexExpr * index_expr = new IndexExpr(false, LOC);
 
 Value_P Z = B->index(*index_expr);
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1854,27 +1891,28 @@ const Cell & first_B = B->get_ravel(0);
         Value_P v1 = first_B.get_pointer_value();
         if (v1->is_lval())
            {
-             Value_P B1(new Value(LOC), LOC);
+             Value_P B1(new Value(LOC));
              new (&B1->get_ravel(0))   PointerCell(v1);
 
-             Z = Value_P(new Value(LOC), LOC);
+             Z = Value_P(new Value(LOC));
              new (&Z->get_ravel(0))   LvalCell(&B1->get_ravel(0));
            }
         else
            {
              const ShapeItem ec = v1->element_count();
-             Z = Value_P(new Value(v1->get_shape(), LOC), LOC);
+             Z = Value_P(new Value(v1->get_shape(), LOC));
              loop(e, ec)   Z->get_ravel(e).init(v1->get_ravel(e));
            }
       }
    else
       {
-        Z = Value_P(new Value(LOC), LOC);
+        Z = Value_P(new Value(LOC));
 
         Z->get_ravel(0).init(first_B);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1921,7 +1959,7 @@ Shape ravel_A1(ravel_A);
         Cell proto;
         proto.init_type(B->get_ravel(0));
         const Shape ravel_A1_abs = ravel_A1.abs();
-        Value_P Z(new Value(ravel_A1_abs, LOC), LOC);
+        Value_P Z(new Value(ravel_A1_abs, LOC));
         const ShapeItem ec_Z = Z->nz_element_count();   // incl. proto
         Cell * cZ = &Z->get_ravel(0);
 
@@ -1941,7 +1979,8 @@ Shape ravel_A1(ravel_A);
             }
         Z->get_ravel(pos).init(B->get_ravel(0));
 
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (ravel_A1.get_rank() != B->get_rank())   RANK_ERROR;
@@ -1961,12 +2000,13 @@ Shape shape_Z(shape_Zi);
          if (a < 0)    shape_Z.set_shape_item(r, -a);
        }
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
    fill(shape_Zi, &Z->get_ravel(0), B);
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 void
@@ -2038,10 +2078,11 @@ Shape ravel_A(A, Workspace::get_CT(), 0);
         Shape shape_Z;
         loop(r, ravel_A.get_rank())   shape_Z.add_shape_item(len_Z);
 
-        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Value_P Z(new Value(shape_Z, LOC));
 
         Z->get_ravel(0).init(B->get_ravel(0));
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (ravel_A.get_rank() == 0)   ravel_A.add_shape_item(1);   // A = ,A
@@ -2119,7 +2160,8 @@ const ShapeItem len_BZ = B->get_shape_item(0);
    if (len_BZ == 0)
       {
         Value_P Z = Value::Idx0_P;
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 const APL_Integer qio = Workspace::get_IO();
@@ -2134,15 +2176,16 @@ const Cell * array[len_BZ];
 
    Cell::heapsort(array, len_BZ, ascending, &comp_len, &Cell::greater_vec);
 
-Value_P Z(new Value(len_BZ, LOC), LOC);
+Value_P Z(new Value(len_BZ, LOC));
 
 const Cell * base = &B->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(Value::Zero_P);
+   Z->set_default(Value::Zero);
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -2153,15 +2196,15 @@ Bif_SORT::sort_collating(Value_P A, Value_P B, bool ascending)
 
 const APL_Integer qio = Workspace::get_IO();
    if (B->NOTCHAR())     DOMAIN_ERROR;
-   if (B->is_skalar())   return qio ? CHECK(Value::One_P, LOC)
-                                   : CHECK(Value::Zero_P, LOC);
+   if (B->is_skalar())   return Token(TOK_APL_VALUE1, qio ? Value::One_P
+                                                          : Value::Zero_P);
 
 const ShapeItem len_BZ = B->get_shape_item(0);
-   if (len_BZ == 0)   return CHECK(Value::Idx0_P, LOC);
-   if (len_BZ == 1)   return qio ? CHECK(Value::One_P, LOC)
-                                 : CHECK(Value::Zero_P, LOC);
+   if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Value::Idx0_P);
+   if (len_BZ == 1)   return Token(TOK_APL_VALUE1, qio ? Value::One_P
+                                                       : Value::Zero_P);
 
-Value_P B1(new Value(B->get_shape(), LOC), LOC);
+Value_P B1(new Value(B->get_shape(), LOC));
 const ShapeItem ec_B = B->element_count();
 const ShapeItem comp_len = ec_B/len_BZ;
 CollatingCache cc_cache(A->get_rank(), comp_len);
@@ -2178,16 +2221,17 @@ const Cell * array[len_BZ];
    Cell::heapsort(array, len_BZ, ascending, &cc_cache,
                   &CollatingCache::greater_vec);
 
-Value_P Z(new Value(len_BZ, LOC), LOC);
+Value_P Z(new Value(len_BZ, LOC));
 
 const Cell * base = &B1->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(Value::Zero_P);
+   Z->set_default(Value::Zero);
 
    B1->erase(LOC);
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 ShapeItem
@@ -2230,11 +2274,12 @@ Bif_F12_EQUIV::eval_B(Value_P B)
 {
 const Depth depth = B->compute_depth();
 
-Value_P Z(new Value(LOC), LOC);
+Value_P Z(new Value(LOC));
 
    new (&Z->get_ravel(0)) IntCell(depth);
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -2262,16 +2307,18 @@ bool different = false;
 done:
 
 Value_P Z = different ? Value::Zero_P : Value::One_P;
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_F12_FORMAT::eval_B(Value_P B)
 {
 Value_P Z = monadic_format(B);
-   Z->set_default(Value::Spc_P);
+   Z->set_default(Value::Spc);
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -2294,8 +2341,9 @@ Value_P Z;
         DOMAIN_ERROR;
       }
 
-   Z->set_default(Value::Spc_P);
-   return CHECK(Z, LOC);
+   Z->set_default(Value::Spc);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -2309,8 +2357,8 @@ const uint32_t width  = pb.get_width(0);
 const uint32_t height = pb.get_height();
 
 Value_P Z;
-   if (height == 1)   Z = Value_P(new Value(width, LOC), LOC);
-   else               Z = Value_P(new Value(Shape(height, width), LOC), LOC);
+   if (height == 1)   Z = Value_P(new Value(width, LOC));
+   else               Z = Value_P(new Value(Shape(height, width), LOC));
 
 Cell * cZ = &Z->get_ravel(0);
 
@@ -2322,7 +2370,8 @@ Cell * cZ = &Z->get_ravel(0);
         else                    new (cZ++) CharCell(uni);
       }
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -2385,7 +2434,7 @@ Shape shape_Z(B->get_shape());
    if (B->is_skalar())   shape_Z.add_shape_item(1);
    shape_Z.set_last_shape_item(format.size());
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
    try
       {
@@ -2420,7 +2469,6 @@ Value_P Z(new Value(shape_Z, LOC), LOC);
    catch (...)
       {
         Z->erase(LOC);
-        Z.clear(LOC);
       }
 
    return Z;
@@ -3003,7 +3051,7 @@ const APL_Float qct = Workspace::get_CT();
         shape_Z.add_shape_item(W);
         const ShapeItem ec_Z = shape_Z.nz_element_count();
 
-        Value_P Z(new Value(shape_Z, LOC), LOC);
+        Value_P Z(new Value(shape_Z, LOC));
         Cell * cZ = &Z->get_ravel(0);
         loop(z, ec_Z)   new (cZ++) CharCell(UNI_ASCII_SPACE);
 
@@ -3049,7 +3097,7 @@ const ShapeItem pb_h = pb.get_height();
 Shape shape_Z(shape_B);
    shape_Z.set_last_shape_item(pb_w);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 Cell * cZ = &Z->get_ravel(0);
    loop(h, pb_h)
@@ -3208,7 +3256,7 @@ Bif_F1_EXECUTE::eval_B(Value_P B)
 {
    if (B->get_rank() > 1)   RANK_ERROR;
 
-const UCS_string statement(B.get_ref());
+const UCS_string statement(*B.get());
 
    if (statement.size() == 0)   return Token(TOK_NO_VALUE);
 
@@ -3242,7 +3290,8 @@ const ShapeItem ec_B = B->element_count();
    if (ec_B <= 1)  // 0 or 1 element: return B
       {
         Value_P Z = B->clone(LOC);
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 Token B1_tok = Bif_F12_SORT_ASC::fun.eval_B(B);
@@ -3268,7 +3317,7 @@ const Cell * last = &B->get_ravel(B1->get_ravel(0).get_int_value() - qio);
            }
       }
 
-Value_P Z1(new Value(ec_Z, LOC), LOC);
+Value_P Z1(new Value(ec_Z, LOC));
 // Z1->set_assigned();
 Cell * cZ1 = &Z1->get_ravel(0);
    loop(j, ec_B)
@@ -3295,6 +3344,7 @@ Value_P Z4 = B->index(Z3);
 
    B1->erase(LOC);
    Z1->erase(LOC);
-   return CHECK(Z4, LOC);
+   Z4->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z4);
 }
 //-----------------------------------------------------------------------------

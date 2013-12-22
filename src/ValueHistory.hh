@@ -30,7 +30,8 @@ class Value;
 
 class VH_entry
 {
-   friend void print_value_history(ostream & out, const Value * val);
+   friend void print_history(ostream & out, const Value * val,
+                             const char * loc);
 
 public:
    VH_entry() {}
@@ -54,5 +55,6 @@ protected:
    int           testcase_line;
 };
 
-extern void print_value_history(ostream & out, const Value * val);
+extern void print_history(ostream & out, const Value * val,
+                                const char * loc);
 #endif // __VALUEHISTORY_HH_DEFINED__

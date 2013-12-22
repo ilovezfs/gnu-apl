@@ -51,6 +51,9 @@ public:
    Token()
    : tag(TOK_VOID) { value.int_val = 0; }
 
+   /// copy constructor
+   Token(const Token & other);
+
    /// Construct a token without a value
    Token(TokenTag tg)
    : tag(tg) { Assert(get_ValueType() == TV_NONE);   value.int_val = 0; }
@@ -97,16 +100,14 @@ public:
    /// Construct a token for an APL value.
    Token(TokenTag tg, Value_P vp)
    : tag(tg)
-   { Assert(get_ValueType() == TV_VAL);
-     Assert(!!vp);   value._apl_val() = vp; }
+   { Assert1(get_ValueType() == TV_VAL);
+     Assert(!!vp);   new (&value._apl_val()) Value_P(vp); }
 
    /// Construct a token for an index
    Token(TokenTag tg, IndexExpr & idx);
 
-   static void warn(ostream & out);
-
    ~Token()
-     { if (is_apl_val() && value._apl_val().get_pointer()) warn(CERR);  }
+     { extract_apl_val("~Token()");  }
 
    /// return the TokenValueType of this token.
    TokenValueType get_ValueType() const
@@ -170,15 +171,22 @@ public:
 
    /// return the Value * of this token, or 0 for non-value token
    Value * get_apl_val_pointer() const
-      { return is_apl_val() ? value._apl_val().get_pointer() : 0; }
+      { return is_apl_val() ? value._apl_val().get() : 0; }
+
+   /// return value usage counter
+   int value_use_count() const
+      { if (!is_apl_val())   return 0;
+        if (!value._apl_val())   return -98;
+        return value._apl_val().use_count();
+      }
 
    /// clear the Value_P value (if any) this token, return the old pointer
-   Value * extract_apl_val(const char * loc) const
-      { return is_apl_val() ? value._apl_val().clear(loc) : 0; }
+   void extract_apl_val(const char * loc) const
+      { if (is_apl_val())   ptr_clear(value._apl_val(), loc); }
 
    void clear(const char * loc)
       {
-         if (is_apl_val())   value._apl_val().clear(loc);
+         if (is_apl_val())   ptr_clear(value._apl_val(), loc);
          new (this) Token();
       }
 
@@ -195,7 +203,7 @@ public:
    void set_apl_val(Value_P val)
       { Assert(get_ValueType() == TV_VAL);   value._apl_val() = val; }
 
-   /// return the Value_P value of this token
+   /// return the IndexExpr value of this token
    IndexExpr & get_index_val() const
       { Assert(get_ValueType() == TV_INDEX);   return *value.index_val; }
 
@@ -206,10 +214,6 @@ public:
    /// return the Function * value of this token
    Function * get_function() const
       { if (is_function())   return value.function;   SYNTAX_ERROR; }
-
-   /// if this token is an APL value and the value is owned by somebody else
-   /// (executable) then clone the value.
-   void clone_if_owned(const char * loc);
 
    /// change the tag (within the same TokenValueType)
    void ChangeTag(TokenTag new_tag);
@@ -232,9 +236,6 @@ public:
 
    /// copy src to \b this token
    void copy_N(const Token & src);
-
-   static void copy_1(Token & dst, const Token & src, const char * loc)
-      { dst = src; }
 
    /// return a brief token class name for debugging purposes
    static const char * short_class_name(TokenClass cls);
@@ -276,11 +277,9 @@ protected:
    /// helper function to print Quad-function (system function or variable).
    ostream & print_quad(ostream & out) const;
 
-#if 1
 private:
    // prevent accidental copying
    Token & operator =(const Token & other);
-#endif
 };
 //-----------------------------------------------------------------------------
 /// A string of Token
@@ -329,10 +328,10 @@ struct Token_loc
      pc(_pc)
    {}
 
-   Token_loc & operator=(const Token_loc & other)
+   void copy(const Token_loc & other, const char * loc)
       {
         pc = other.pc;
-        copy_1(tok, other.tok, LOC);
+        copy_1(tok, other.tok, loc);
       }
 
    /// the token

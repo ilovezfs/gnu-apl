@@ -96,7 +96,7 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B);
 
    /// compute a ⎕CR B
-   Value_P do_CR(APL_Integer a, Value_P B);
+   Value_P do_CR(APL_Integer a, const Value & B);
 
    static Quad_CR           fun;          ///< Built-in function.
 

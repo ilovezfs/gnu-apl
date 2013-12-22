@@ -166,7 +166,7 @@ divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A, ShapeItem cols_B,
 {
 const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
    loop(c, cols_A)
        {
@@ -360,7 +360,7 @@ divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A, ShapeItem cols_B,
 {
 const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
    if (need_complex)
       {

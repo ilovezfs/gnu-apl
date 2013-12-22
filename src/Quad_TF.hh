@@ -87,7 +87,7 @@ protected:
    static int tf2_glue(Token_string & tos, bool & progress);
 
    /// return B in transfer format 2 (new APL format) for a function
-   static Value_P tf2_fun(const UCS_string & fun_name, const Function & fun);
+   static UCS_string tf2_fun(const UCS_string & fun_name, const Function & fun);
 };
 //-----------------------------------------------------------------------------
 #endif // __QUAD_TF_HH_DEFINED__

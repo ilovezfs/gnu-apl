@@ -38,13 +38,25 @@ IndexExpr::~IndexExpr()
 {
    loop(r, value_count())
        {
-         Value * I = values[r].clear(LOC);
-         if (!!I)
+         Value * I = values[r].get();
+         if (I)
             {
               I->clear_index();
               I->erase(LOC);
             }
        }
+}
+//-----------------------------------------------------------------------------
+Value_P
+IndexExpr::extract_value(Rank rk)
+{
+   Assert1(rk < rank);
+
+Value_P ret = values[rk];
+   ptr_clear(values[rk], LOC);
+
+   ret->clear_index();
+   return ret;
 }
 //-----------------------------------------------------------------------------
 Rank

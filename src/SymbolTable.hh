@@ -52,7 +52,7 @@ public:
    void unmark_all_values() const;
 
    /// print variables owning value
-   int show_owners(ostream & out, Value_P value) const;
+   int show_owners(ostream & out, const Value & value) const;
 
    /// clear this symbol table (remove all symbols)
    void clear(ostream & out);

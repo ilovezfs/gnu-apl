@@ -105,7 +105,7 @@ public:
    void unmark_all_values() const;
 
    /// print all owners of \b value
-   int show_owners(const char * prefix, ostream & out, Value_P value) const;
+   int show_owners(const char * prefix, ostream & out, const Value & value) const;
 
    /// say where this SI entry was allocated
    const char * get_loc() const
