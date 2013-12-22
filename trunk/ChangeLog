@@ -45,3 +45,4 @@
  4810 UERR channel added
  4818 use kill() rather than /proc to check if process is alive
  4822 fixed 2⊤1 problem
+ 4898 shared_ptr<Value> working (not yet enabled by default)

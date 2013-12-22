@@ -135,7 +135,7 @@ const APL_Float qct = Workspace::get_CT();
 const Cell * cA = &A->get_ravel(0);
 
 const Shape shZ(var_count, 4);
-Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC), LOC);
+Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -177,7 +177,8 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++)   IntCell(ctl & USE_BY_2 ? 1 : 0);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -190,7 +191,7 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 const Shape shZ(var_count, 4);
-Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC), LOC);
+Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -207,7 +208,8 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++)   IntCell(control & USE_BY_2 ? 1 : 0);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================
 Quad_SVE::Quad_SVE()
@@ -304,7 +306,7 @@ const APL_Float remaining = timer_end - now();
 
    if (remaining < 0)   return Value::Zero_P;
 
-Value_P Z(new Value(LOC), LOC);
+Value_P Z(new Value(LOC));
    new (&Z->get_ravel(0))   FloatCell(0.000001 * remaining);
    return Z;
 }
@@ -327,7 +329,7 @@ vector<UCS_string> surrogates(var_count);
 
    if (A->get_rank() == 1 && A->element_count() != var_count)   LENGTH_ERROR;
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC), LOC);
+Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -392,7 +394,8 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++) IntCell(coupling);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 SV_key
@@ -473,7 +476,7 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC), LOC);
+Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -498,7 +501,8 @@ Cell * cZ = &Z->get_ravel(0);
          new (cZ++) IntCell(coupling);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================
 Token
@@ -521,7 +525,8 @@ Value_P Z;
         Z = get_variables(proc);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -617,7 +622,7 @@ vector<int32_t> sorted;
             }
       }
 
-Value_P Z(new Value(sorted.size(), LOC), LOC);
+Value_P Z(new Value(sorted.size(), LOC));
    loop(z, sorted.size())   new (&Z->get_ravel(z)) IntCell(sorted[z]);
    return Z;
 }
@@ -641,7 +646,7 @@ ShapeItem max_len = 0;
       }
 
 const Shape shZ(count, max_len);
-Value_P Z(new Value(shZ, LOC), LOC);
+Value_P Z(new Value(shZ, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, count)
@@ -651,7 +656,7 @@ Cell * cZ = &Z->get_ravel(0);
         else                 new (cZ++) CharCell(UNI_ASCII_SPACE);
       }
 
-   Z->set_default(Value::Spc_P);   // prototype: character
+   Z->set_default(Value::Spc);   // prototype: character
    return Z;
 }
 //=============================================================================
@@ -664,7 +669,7 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC), LOC);
+Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -676,7 +681,8 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++) IntCell(coupling);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================
 Token
@@ -689,7 +695,7 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 const Shape shZ(var_count, 4);
-Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC), LOC);
+Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
@@ -706,6 +712,7 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++)   IntCell(state & USE_BY_2 ? 1 : 0);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================

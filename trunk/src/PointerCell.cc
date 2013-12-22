@@ -60,7 +60,7 @@ PointerCell::release(const char * loc)
 {
    value._valp()->clear_nested();
    value._valp()->erase(loc);
-   value._valp().clear(loc);
+   ptr_clear(value._valp(), loc);
    new (this) Cell;
 }
 //-----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ PrintBuffer ret(*val, pctx);
                 }
              else                           // several prototypes
                 {
-                  Value_P proto_reshaped(new Value(sh, LOC), LOC);
+                  Value_P proto_reshaped(new Value(sh, LOC));
                   Cell * c = &proto_reshaped->get_ravel(0);
                   const ShapeItem len = proto_reshaped->element_count();
 

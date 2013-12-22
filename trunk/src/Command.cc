@@ -910,7 +910,7 @@ Token_string tos;
  
    if (tos.size() != shape.element_count())   return;
 
-Value_P val(new Value(shape, LOC), LOC);
+Value_P val(new Value(shape, LOC));
    new (&val->get_ravel(0)) IntCell(0);   // prototype
 
 const ShapeItem ec = val->element_count();
@@ -960,7 +960,7 @@ Symbol * sym = 0;
         CERR << "'" << endl;
       }
 
-Value_P val(new Value(shape, LOC), LOC);
+Value_P val(new Value(shape, LOC));
    new (&val->get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
 
 const ShapeItem ec = val->element_count();

@@ -280,7 +280,7 @@ const uint32_t nelm = val->element_count();
              const Cell & cell = val->get_ravel(e);
              if (cell.is_character_cell() || cell.is_numeric())
                 {
-                  Value_P sub_val(new Value(LOC), LOC);
+                  Value_P sub_val(new Value(LOC));
                   sub_val->get_ravel(0).init(cell);
 
                   const int sub_type = sub_val->get_CDR_type();
@@ -336,7 +336,7 @@ const Rank rank = data[13];
 Shape shape;
    loop(r, rank)   shape.add_shape_item(CDR::get_4_be(data + 16 + 4*r));
 
-Value_P ret(new Value(shape, loc), LOC);
+Value_P ret(new Value(shape, loc));
 
 const uint8_t * ravel = data + 16 + 4*rank;
 
@@ -468,7 +468,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
                    loop(r, sub_rank)
                       sh.add_shape_item(get_4_be(sub_data + 16));
 
-                   Value_P sub_val(new Value(sh, LOC), LOC);
+                   Value_P sub_val(new Value(sh, LOC));
                    const APL_Integer qio = Workspace::get_IO();
                    loop(v, sh.element_count())
                        {

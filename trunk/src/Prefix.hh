@@ -83,7 +83,7 @@ public:
    void unmark_all_values() const;
 
    /// print all owners of \b value
-   int show_owners(const char * prefix, ostream & out, Value_P value) const;
+   int show_owners(const char * prefix, ostream & out, const Value & value) const;
 
    /// highest PC in current statement
    Function_PC get_range_high() const;
@@ -159,7 +159,7 @@ public:
       {
         Assert1(has_space());
 
-        content[put++] = tl;
+        content[put++].copy(tl, LOC);
       }
 
    /// pop \b prefix_len items and push \b result
@@ -172,7 +172,7 @@ public:
         }
 
    /// remove the leftmost token (e,g, A in A←B) from the stack and return it
-   Token_loc pop()
+   Token_loc & pop()
       {  Assert1(size() > 0);   return content[--put]; }
 
    /// discard the leftmost token (e,g, A in A←B) from the stack and return it

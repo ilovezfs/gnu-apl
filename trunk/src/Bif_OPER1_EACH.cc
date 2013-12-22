@@ -36,7 +36,6 @@ Function * LO = _LO.get_function();
 EOC_arg arg;
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   arg.Z.clear(LOC);
    _arg.cZ = 0;
    _arg.dA = 1;
    _arg.LO = LO;
@@ -60,9 +59,10 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         Fill_A->erase(LOC);
         Fill_B->erase(LOC);
 
-        Value_P Z1(new Value(shape_Z, LOC), LOC);
-        new (&Z1->get_ravel(0)) PointerCell(arg.Z);
-        return CHECK(Z1, LOC);   // Z ??
+        Value_P Z(new Value(shape_Z, LOC));
+        new (&Z->get_ravel(0)) PointerCell(arg.Z);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (A->nz_element_count() == 1)
@@ -73,20 +73,20 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
         _arg.dA = 0;
         if (LO->has_result())
-           arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
+           arg.Z = Value_P(new Value(B->get_shape(), LOC));
       }
    else if (B->nz_element_count() == 1)
       {
         _arg.dB = 0;
         _arg.count = A->element_count();
         if (LO->has_result())
-           arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
+           arg.Z = Value_P(new Value(A->get_shape(), LOC));
       }
    else if (A->same_shape(B))
       {
         _arg.count = B->element_count();
         if (LO->has_result())
-           arg.Z = Value_P(new Value(A->get_shape(), LOC), LOC);
+           arg.Z = Value_P(new Value(A->get_shape(), LOC));
       }
    else
       {
@@ -169,11 +169,16 @@ how_1:
 next_z:
    if (++_arg.z < _arg.count)   goto loop_z;
 
-   arg.Z->set_default(arg.B);
+   if (!!arg.Z)   // LO with result
+      {
+        arg.Z->set_default(*arg.B.get());
+        arg.Z->check_value(LOC);
+        arg.clear_EOC(LOC);
+        return Token(TOK_APL_VALUE1, arg.Z);
+      }
 
-Value_P Z(arg.clear_EOC(LOC), LOC);
-   if (!Z)   return Token(TOK_VOID);   // LO without result
-   else      return CHECK(Z, LOC);
+
+   return Token(TOK_VOID);   // LO without result
 }
 //-----------------------------------------------------------------------------
 bool
@@ -219,12 +224,11 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
    _arg.cB = &B->get_ravel(0);
    if (LO->has_result())
       {
-        arg.Z = Value_P(new Value(B->get_shape(), LOC), LOC);
+        arg.Z = Value_P(new Value(B->get_shape(), LOC));
         _arg.cZ = &arg.Z->get_ravel(0);
       }
    else
       {
-        arg.Z.clear(LOC);
         _arg.cZ = 0;
       }
 
@@ -258,7 +262,7 @@ loop_z:
         }
      else
         {
-          LO_B = Value_P(new Value(LOC), LOC);
+          LO_B = Value_P(new Value(LOC));
           LO_B->set_arg();
 
           LO_B->get_ravel(0).init(*_arg.cB++);
@@ -310,11 +314,15 @@ how_1:
 next_z:
    if (++_arg.z < _arg.count)   goto loop_z;
 
-Value_P Z(arg.clear_EOC(LOC), LOC);
-   if (!Z)   return Token(TOK_VOID);   // LO without result
+   if (!!arg.Z)   // LO with result
+      {
+        arg.Z->set_default(*arg.B.get());
+        arg.Z->check_value(LOC);
+        arg.clear_EOC(LOC);
+        return Token(TOK_APL_VALUE1, arg.Z);
+      }
 
-   Z->set_default(arg.B);
-   return CHECK(Z, LOC);
+   return Token(TOK_VOID);   // LO without result
 }
 //-----------------------------------------------------------------------------
 bool

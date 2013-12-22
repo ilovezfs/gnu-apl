@@ -63,7 +63,7 @@ SkalarFunction::eval_skalar_B(Value_P B, prim_f1 fun)
 const ShapeItem count = B->element_count();
    if (count == 0)   return eval_fill_B(B);
 
-Value_P Z(new Value(B->get_shape(), LOC), LOC);
+Value_P Z(new Value(B->get_shape(), LOC));
    loop(c, count)
        {
          const Cell * cell_B =  &B->get_ravel(c);
@@ -86,7 +86,8 @@ Value_P Z(new Value(B->get_shape(), LOC), LOC);
         else                        new (&Z->get_ravel(0)) IntCell(0);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 void
@@ -105,7 +106,7 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
         else                             // A is pointer, B is simple
            {
              Value_P value_A = cell_A->get_pointer_value();
-             Value_P skalar_B(new Value(*cell_B, LOC), LOC);
+             Value_P skalar_B(new Value(*cell_B, LOC));
              Token token = eval_skalar_AB(value_A, skalar_B, fun);
              new (cell_Z) PointerCell(token.get_apl_val());
              skalar_B->erase(LOC);
@@ -115,7 +116,7 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
       {
         if (cell_B->is_pointer_cell())   // A is simple, B is pointer
            {
-             Value_P skalar_A(new Value(*cell_A, LOC), LOC);
+             Value_P skalar_A(new Value(*cell_A, LOC));
              Value_P value_B = cell_B->get_pointer_value();
              Token token = eval_skalar_AB(skalar_A, value_B, fun);
              new (cell_Z) PointerCell(token.get_apl_val());
@@ -137,7 +138,7 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
         if (count == 0)   return eval_fill_AB(A, B);
 
         const Cell * cell_A = &A->get_ravel(0);
-        Value_P Z(new Value(B->get_shape(), LOC), LOC);
+        Value_P Z(new Value(B->get_shape(), LOC));
 
         loop(c, count)
             {
@@ -146,8 +147,9 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
               expand_pointers(cell_Z, cell_A, cell_B, fun);
             }
 
-        Z->set_default(B);
-        return CHECK(Z, LOC);
+        Z->set_default(*B.get());
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (B->is_skalar_or_len1_vector())
@@ -156,7 +158,7 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
         if (count == 0)   return eval_fill_AB(A, B);
 
         const Cell * cell_B = &B->get_ravel(0);
-        Value_P Z(new Value(A->get_shape(), LOC), LOC);
+        Value_P Z(new Value(A->get_shape(), LOC));
 
         loop(c, count)
             {
@@ -165,8 +167,9 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
               expand_pointers(cell_Z, cell_A, cell_B, fun);
             }
 
-        Z->set_default(B);
-        return CHECK(Z, LOC);
+        Z->set_default(*B.get());
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (!A->same_shape(B))
@@ -178,7 +181,7 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
 const ShapeItem count = A->element_count();
    if (count == 0)   return eval_fill_AB(A, B);
 
-Value_P Z(new Value(A->get_shape(), LOC), LOC);
+Value_P Z(new Value(A->get_shape(), LOC));
 
    loop(c, count)
        {
@@ -188,8 +191,9 @@ Value_P Z(new Value(A->get_shape(), LOC), LOC);
          expand_pointers(cell_Z, cell_A, cell_B, fun);
        }
 
-   Z->set_default(B);
-   return CHECK(Z, LOC);
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -201,14 +205,16 @@ SkalarFunction::eval_fill_AB(Value_P A, Value_P B)
       {
         Value_P Z = B->clone(LOC);
         Z->to_proto();
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    if (B->is_skalar())   // then A is empty
       {
         Value_P Z = A->clone(LOC);
         Z->to_proto();
-        return CHECK(Z, LOC);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
       }
 
    // both A and B are empty
@@ -216,7 +222,8 @@ SkalarFunction::eval_fill_AB(Value_P A, Value_P B)
    Assert(A->same_shape(B));   // has been checked already
 Value_P Z = B->clone(LOC);
    Z->to_proto();
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 
 //   return Bif_F2_UNEQ::fun.eval_AB(A, B);
 }
@@ -228,7 +235,8 @@ SkalarFunction::eval_fill_B(Value_P B)
    //
 Value_P Z = B->clone(LOC);
    Z->to_proto();
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -251,7 +259,7 @@ SkalarFunction::eval_skalar_identity_fun(Value_P B, Axis axis, Value_P FI0)
 Shape shape_Z(B->get_shape());
    shape_Z.remove_shape_item(axis);
 
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 const Cell & proto_B = B->get_ravel(0);
 const Cell & cell_FI0 = FI0->get_ravel(0);
@@ -263,8 +271,7 @@ const ShapeItem len_Z = Z->nz_element_count();
       {
         // create a value like ↑B but with all ravel elements like FI0...
         //
-        Value_P sub(
-                new Value(proto_B.get_pointer_value()->get_shape(), LOC), LOC);
+        Value_P sub(new Value(proto_B.get_pointer_value()->get_shape(), LOC));
         const ShapeItem len_sub = sub->nz_element_count();
         Cell * csub = &sub->get_ravel(0);
         loop(s, len_sub)   csub++->init(cell_FI0);
@@ -277,7 +284,8 @@ const ShapeItem len_Z = Z->nz_element_count();
         loop(z, len_Z)   cZ++->init(cell_FI0);
       }
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -330,7 +338,7 @@ Shape weight = B->get_shape().reverse_scan();
          }
    }
 
-Value_P Z(new Value(B->get_shape(), LOC), LOC);
+Value_P Z(new Value(B->get_shape(), LOC));
 
 Cell * cZ = &Z->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
@@ -347,16 +355,17 @@ const Cell * cB = &B->get_ravel(0);
          else            expand_pointers(cZ++, &A->get_ravel(a), cB++, fun);
        }
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================
 Token
 Bif_F2_FIND::eval_AB(Value_P A, Value_P B)
 {
 const APL_Float qct = Workspace::get_CT();
-Value_P Z(new Value(B->get_shape(), LOC), LOC);
+Value_P Z(new Value(B->get_shape(), LOC));
 
 const ShapeItem len_Z = Z->element_count();
 Shape shape_A;
@@ -395,9 +404,10 @@ Shape shape_A;
        }
 
 done:
-   Z->set_default(Value::Zero_P);
+   Z->set_default(Value::Zero);
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================
 bool
@@ -443,7 +453,7 @@ APL_Integer set_size = B->get_ravel(0).get_near_int(qct);
    if (aa > set_size)   DOMAIN_ERROR;
    if (set_size <= 0)   DOMAIN_ERROR;
 
-Value_P Z(new Value(aa, LOC), LOC);
+Value_P Z(new Value(aa, LOC));
 
 uint32_t idx_B[set_size];
    loop(c, set_size)   idx_B[c] = c + qio;
@@ -456,9 +466,10 @@ uint32_t idx_B[set_size];
          --set_size;
        }
 
-   Z->set_default(Value::Zero_P);
+   Z->set_default(Value::Zero);
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -488,7 +499,7 @@ Bif_F12_WITHOUT::eval_AB(Value_P A, Value_P B)
 const uint32_t len_A = A->element_count();
 const uint32_t len_B = B->element_count();
 const APL_Float qct = Workspace::get_CT();
-Value_P Z(new Value(len_A, LOC), LOC);
+Value_P Z(new Value(len_A, LOC));
 
 uint32_t len_Z = 0;
 
@@ -513,9 +524,10 @@ uint32_t len_Z = 0;
 
    Z->set_shape_item(0, len_Z);
 
-   Z->set_default(B);
+   Z->set_default(*B.get());
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================
 

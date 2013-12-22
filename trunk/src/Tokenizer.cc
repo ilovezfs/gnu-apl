@@ -117,7 +117,7 @@ Source<Unicode> src(input);
                       {
                         ++src;
                         tos.append(Token(TOK_QUAD_QUOTE,
-                                   &Workspace::get_v_quad_QUOTE()));
+                                   &Workspace::get_v_quad_QUOTE()), LOC);
                       }
                    else
                       {
@@ -159,7 +159,7 @@ Source<Unicode> src(input);
               case TC_R_ARROW:
                    ++src;
                    if (src.rest())   tos.append(tok);
-                   else              tos.append(Token(TOK_ESCAPE));
+                   else              tos.append(Token(TOK_ESCAPE), LOC);
                    break;
 
               case TC_ASSIGN:
@@ -168,12 +168,12 @@ Source<Unicode> src(input);
               case TC_L_BRACK:
               case TC_R_BRACK:
                    ++src;
-                   tos.append(tok);
+                   tos.append(tok, LOC);
                    break;
 
               case TC_DIAMOND:
                    ++src;
-                   tos.append(tok);
+                   tos.append(tok, LOC);
                    break;
 
               case TC_COLON:
@@ -184,7 +184,7 @@ Source<Unicode> src(input);
                       }
 
                    ++src;
-                   tos.append(tok);
+                   tos.append(tok, LOC);
                    break;
 
               case TC_NUMERIC:
@@ -303,7 +303,7 @@ Token tok = Avec::uni_to_token(uni, LOC);
       }
 
 #undef sys
-   tos.append(Token(tok));
+   tos.append(Token(tok), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -323,7 +323,7 @@ UCS_string ucs;
 int len = 0;
 const Token t = Workspace::get_quad(ucs, len);
    src.skip(len - 1);
-   tos.append(t);
+   tos.append(t, LOC);
 }
 //-----------------------------------------------------------------------------
 /** tokenize a single quoted string.
@@ -375,12 +375,12 @@ UCS_string string_value;
       }
    else if (string_value.size() == 0)
       {
-        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P));
+        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P), LOC);
       }
    else
       {
         tos.append(Token(TOK_APL_VALUE1,
-                         Value_P(new Value(string_value, LOC), LOC)));
+                         Value_P(new Value(string_value, LOC))), LOC);
       }
 }
 //-----------------------------------------------------------------------------
@@ -446,12 +446,12 @@ UCS_string string_value;
 
    if (string_value.size() == 0)
       {
-        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P));
+        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P), LOC);
       }
    else
       {
         tos.append(Token(TOK_APL_VALUE1,
-                         Value_P(new Value(string_value, LOC), LOC)));
+                         Value_P(new Value(string_value, LOC))), LOC);
       }
 }
 //-----------------------------------------------------------------------------

@@ -37,10 +37,6 @@ StateIndicator::StateIndicator(const Executable * exec, StateIndicator * _par)
      level(_par ? 1 + _par->get_level() : 0),
      error(E_NO_ERROR, LOC),
      current_stack(*this, exec->get_body()),
-     eval_arg_A(0, LOC),
-     eval_arg_F(0),
-     eval_arg_X(0, LOC),
-     eval_arg_B(0, LOC),
      parent(_par)
 {
 }
@@ -69,31 +65,31 @@ StateIndicator::~StateIndicator()
 void
 StateIndicator::clear_args(const char * loc)
 {
-   // dont erase twice
+   // discard duplicate args
    //
-   if (eval_arg_B == eval_arg_A)   eval_arg_A.clear(loc);
-   if (eval_arg_B == eval_arg_X)   eval_arg_X.clear(loc);
-   if (eval_arg_A == eval_arg_X)   eval_arg_X.clear(loc);
+   if (eval_arg_B == eval_arg_A)   ptr_clear(eval_arg_A, loc);
+   if (eval_arg_B == eval_arg_X)   ptr_clear(eval_arg_X, loc);
+   if (eval_arg_A == eval_arg_X)   ptr_clear(eval_arg_X, loc);
 
    if (!!eval_arg_A)
       {
         eval_arg_A->clear_arg();
         eval_arg_A->erase(loc);
-        eval_arg_A.clear(loc);
+        ptr_clear(eval_arg_A, loc);
       }
 
    if (!!eval_arg_B)
       {
         eval_arg_B->clear_arg();
         eval_arg_B->erase(loc);
-        eval_arg_B.clear(loc);
+        ptr_clear(eval_arg_B, loc);
       }
 
    if (!!eval_arg_X)
       {
         eval_arg_X->clear_arg();
         eval_arg_X->erase(loc);
-        eval_arg_X.clear(loc);
+        ptr_clear(eval_arg_X, loc);
       }
 
    eval_arg_F = 0;
@@ -107,29 +103,17 @@ StateIndicator::set_args(Token * A, Token & F, Token * X, Token * B)
         eval_arg_A = A->get_apl_val();
         if (!eval_arg_A->is_arg())   eval_arg_A->set_arg();
       }
-   else
-      {
-        eval_arg_A.clear(LOC);
-      }
 
    if (X)
       {
         eval_arg_X = X->get_axes();
         if (!eval_arg_X->is_arg())   eval_arg_X->set_arg();
       }
-   else
-      {
-        eval_arg_X.clear(LOC);
-      }
 
    if (B)
       {
         eval_arg_B = B->get_apl_val();
         if (!eval_arg_B->is_arg())   eval_arg_B->set_arg();
-      }
-   else
-      {
-        eval_arg_B.clear(LOC);
       }
 
    eval_arg_F = F.get_function();
@@ -524,17 +508,17 @@ StateIndicator::unmark_all_values() const
 }
 //-----------------------------------------------------------------------------
 int
-StateIndicator::show_owners(ostream & out, Value_P value) const
+StateIndicator::show_owners(ostream & out, const Value & value) const
 {
 int count = 0;
 
-   if (value == eval_arg_A)
+   if (&value == eval_arg_A.get())
       { out << "    SI[" << level << "] eval_arg_A" << endl;   ++count; }
 
-   if (value == eval_arg_X)
+   if (&value == eval_arg_X.get())
       { out << "    SI[" << level << "] eval_arg_X" << endl;   ++count; }
 
-   if (value == eval_arg_B)
+   if (&value == eval_arg_B.get())
       { out << "    SI[" << level << "] eval_arg_B" << endl;   ++count; }
 
    Assert(executable);
@@ -941,8 +925,8 @@ StateIndicator::statement_result(Token & result)
    if (result.get_ValueType() == TV_VAL)
       {
         const TokenTag tag = result.get_tag();
-        Value_P B = result.get_apl_val();
-        Assert(B);
+        Value_P B(result.get_apl_val());
+        Assert(!!B);
 
         // print TOK_APL_VALUE and TOK_APL_VALUE1, but not TOK_APL_VALUE2
         //

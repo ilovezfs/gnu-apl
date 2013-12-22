@@ -83,10 +83,10 @@ public:
    XML_Saving_Archive & operator <<(const UCS_string & str);
 
    /// write Value \b v except its ravel
-   XML_Saving_Archive & save_shape(Value_P v);
+   XML_Saving_Archive & save_shape(const Value & v);
 
    /// write ravel of Value \b v
-   XML_Saving_Archive & save_ravel(Value_P v);
+   XML_Saving_Archive & save_ravel(const Value & v);
 
    /// write entire workspace
    XML_Saving_Archive & save();
@@ -99,7 +99,7 @@ protected:
    int do_indent();
 
    /// return the index of \b val in values
-   int find_vid(Value_P val);
+   int find_vid(const Value & val);
 
    /// return the index of the value that has \b cell in its ravel in \b values
    int find_owner(const Cell * val);
@@ -128,11 +128,15 @@ protected:
    /// a value and its parent (if value is a sub-value of a nested parent)
    struct _val_par
       {
-         _val_par(Value_P v)
-         : _val(v)
+         _val_par(const Value & v, const Value * par = 0)
+         : _val(v),
+           _par(par)
          {}                       ///< constructor
-         Value_P _val;            ///< the value
-         Value_P _par;            ///< the optional parent
+         const Value & _val;      ///< the value
+         const Value * _par;      ///< the optional parent
+
+         void operator=(const _val_par & other)
+            { new (this) _val_par(other._val, other._par); }
       };
 
    /// all values in the workspace

@@ -41,7 +41,7 @@ Quad_TF::eval_AB(Value_P A, Value_P B)
    if (A->element_count() != 1)   LENGTH_ERROR;
 
 const APL_Integer mode = A->get_ravel(0).get_int_value();
-const UCS_string symbol_name(B.get_ref());
+const UCS_string symbol_name(*B.get());
 
 Value_P Z;
 
@@ -50,7 +50,8 @@ Value_P Z;
    else if (mode == 3)   Z = tf3(symbol_name);
    else                  DOMAIN_ERROR;
 
-   return CHECK(Z, LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -144,7 +145,7 @@ const ShapeItem ec = val->element_count();
       }
 
    val->erase(LOC);
-   return Value_P(new Value(ucs, LOC), LOC);
+   return Value_P(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -171,7 +172,7 @@ UCS_string ucs;
        loop(c, max_len - lines[l].size())   ucs.append(UNI_ASCII_SPACE);
       }
 
-   return Value_P(new Value(ucs, LOC), LOC);
+   return Value_P(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -179,7 +180,7 @@ Quad_TF::tf1_inv(Value_P val)
 {
    if (!val->is_char_vector())   return Value_P();
 
-UCS_string ravel(val.get_ref());
+UCS_string ravel(*val.get());
 
 const size_t len = ravel.size();
    if (len < 2)   return Value_P();
@@ -240,10 +241,10 @@ const size_t data_chars = len - idx;
 
         if (data_chars != shape.element_count())   return Value_P();
 
-        Value_P new_val(new Value(shape, LOC), LOC);
+        Value_P new_val(new Value(shape, LOC));
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
-        CHECK_VAL(new_val, LOC);
+        new_val->check_value(LOC);
 
          Token t = Quad_FX::fun.eval_B(new_val);
          t.get_apl_val()->erase(LOC);
@@ -254,11 +255,11 @@ const size_t data_chars = len - idx;
         if (data_chars != shape.element_count())   return Value_P();
         if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
 
-        Value_P new_val(new Value(shape, LOC), LOC);
+        Value_P new_val(new Value(shape, LOC));
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
 
-        CHECK_VAL(new_val, LOC);
+        new_val->check_value(LOC);
 
         if (symbol == 0)
            symbol = Workspace::lookup_symbol(name);
@@ -289,7 +290,7 @@ const size_t data_chars = len - idx;
 
         // at this point, we have a valid inverse 1 ⎕TF.
         //
-        Value_P new_val(new Value(shape, LOC), LOC);
+        Value_P new_val(new Value(shape, LOC));
 
         loop(t, tos.size())
            {
@@ -304,7 +305,7 @@ const size_t data_chars = len - idx;
              else Assert(0);   // since checked above
            }
 
-        CHECK_VAL(new_val, LOC);
+        new_val->check_value(LOC);
 
         if (!symbol)   symbol = Workspace::lookup_symbol(name);
 
@@ -313,24 +314,29 @@ const size_t data_chars = len - idx;
       }
    else Assert(0);   // since checked above
    
-   return Value_P(new Value(name, LOC), LOC);
+   return Value_P(new Value(name, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
 Quad_TF::tf2(const UCS_string & name)
 {
 NamedObject * obj = Workspace::lookup_existing_name(name);
-   if (obj == 0)   return CHECK(Value::Str0_P, LOC);
+   if (obj == 0)   return Token(TOK_APL_VALUE1, Value::Str0_P);
 
 const Function * function = obj->get_function();
 
    if (function)
       {
         if (obj->is_user_defined())
-           return CHECK(tf2_fun(name, *function), LOC);
+           {
+             UCS_string ucs = tf2_fun(name, *function);
+             Value_P Z(new Value(ucs, LOC));
+             Z->check_value(LOC);
+             return Token(TOK_APL_VALUE1, Z);
+           }
 
         // quad function or primitive: return ''
-        return CHECK(Value::Str0_P, LOC);
+        return Token(TOK_APL_VALUE1, Value::Str0_P);
       }
 
 Symbol * symbol = obj->get_symbol();
@@ -342,7 +348,7 @@ Symbol * symbol = obj->get_symbol();
         /* not a variable: fall through */
       }
 
-   return CHECK(Value::Str0_P, LOC);
+   return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -352,15 +358,16 @@ Quad_TF::tf2_var(const UCS_string & var_name, Value_P value)
    //
    if (value->is_apl_char_vector())
       {
-        UCS_string data(value.get_ref());
+        UCS_string data(*value.get());
         UCS_string new_var_or_fun;
 
         tf2_parse(data, new_var_or_fun);
         if (new_var_or_fun.size())   // if data is an inverse TF2
            {
              value->erase(LOC);
-             Value_P vname(new Value(new_var_or_fun, LOC), LOC);
-             return CHECK(vname, LOC);
+             Value_P Z(new Value(new_var_or_fun, LOC));
+             Z->check_value(LOC);
+             return Token(TOK_APL_VALUE1, Z);
           }
       }
 
@@ -372,9 +379,11 @@ const bool error = tf2_ravel(0, ucs, value);
 
    // return '' for invalid values.
    //
-   if (error)   return CHECK(Value::Str0_P, LOC);
+   if (error)   return Token(TOK_APL_VALUE1, Value::Str0_P);
 
-   return CHECK(new Value(ucs, LOC), LOC);
+Value_P Z(new Value(ucs, LOC));
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 void
@@ -428,7 +437,7 @@ Parser parser(PM_EXECUTE, LOC);
    if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
       {
         Value_P val = tok.get_apl_val();
-        new_var_or_fun = UCS_string(val.get_ref());
+        new_var_or_fun = UCS_string(*val.get());
         val->erase(LOC);
       }
    }
@@ -639,7 +648,8 @@ int d = 0;
              Shape sh(aval, 0, 0);
              if (sh.element_count() == bval->element_count())   // same shape
                 {
-                  new (&tos[d]) Token(TOK_APL_VALUE1, bval);   // grouped value
+                  Token t(TOK_APL_VALUE1, bval);   // grouped value
+                  move_1(tos[d], t, LOC);
                   bval->set_shape(sh);
                   aval->erase(LOC);
                   progress = true;
@@ -722,13 +732,13 @@ int d = 0;
    return 0;   // no error(s)
 }
 //-----------------------------------------------------------------------------
-Value_P
+UCS_string
 Quad_TF::tf2_fun(const UCS_string & fun_name, const Function & fun)
 {
 UCS_string ucs;
    tf2_fun_ucs(ucs, fun_name, fun);
 
-   return Value_P(new Value(ucs, LOC), LOC);
+   return ucs;
 }
 //-----------------------------------------------------------------------------
 void
@@ -781,7 +791,7 @@ Symbol * symbol = obj->get_symbol();
              CDR_string cdr;
              CDR::to_CDR(cdr, value);
 
-             return Value_P(new Value(cdr, LOC), LOC);
+             return Value_P(new Value(cdr, LOC));
            }
 
         /* not a variable: fall through */

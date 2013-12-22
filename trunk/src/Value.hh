@@ -135,8 +135,8 @@ public:
       { return &ravel[nz_element_count()]; }
 
    /// set the prototype (according to B) if this value is empty.
-   void set_default(Value_P B)
-      { if (is_empty())   ravel[0].init_type(B->get_ravel(0)); }
+   void set_default(const Value & B)
+      { if (is_empty())   ravel[0].init_type(B.get_ravel(0)); }
 
    /// Return the number of skalars in this value (enlist).
    ShapeItem get_enlist_count() const;
@@ -373,10 +373,6 @@ public:
    /// return a deep copy of \b this value
    Value_P clone(const char * loc) const;
 
-   /// clone this value if needed (according to its flags)
-   Value_P clone_if_owned(const char * loc)
-      { return (flags & VF_need_clone) ? clone(loc) : Value_P(this, loc); }
-
    /// get the min spacing for this column and set/clear if there
    /// is/isn't a numeric item in the column.
    /// are/ain't numeric items in col.
@@ -385,8 +381,8 @@ public:
    /// list a value
    ostream & list_one(ostream & out, bool show_owners);
 
-   /// check \b this value and return a Value_P to it
-   Value_P check_value(const char * loc);
+   /// check \b that this value is completely initialized, and set complete flag
+   void check_value(const char * loc);
 
    /// return the total CDR size (header + data + padding) for \b this value.
    int total_size_brutto(int CDR_type) const
@@ -492,6 +488,7 @@ public:
 };
 // ----------------------------------------------------------------------------
 
-extern void print_value_history(ostream & out, const Value * val);
+extern void print_history(ostream & out, const Value * val,
+                                const char * loc);
 
 #endif // __VALUE_HH_DEFINED__

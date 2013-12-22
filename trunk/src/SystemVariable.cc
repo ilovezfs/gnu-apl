@@ -148,13 +148,14 @@ Quad_AI::get_apl_value() const
 const int total_ms = (now() - session_start)/1000;
 const int user_ms  = user_wait/1000;
 
-Value_P ret(new Value(4, LOC), LOC);
+Value_P ret(new Value(4, LOC));
    new (&ret->get_ravel(0))   IntCell(ProcessorID::get_own_ID());
    new (&ret->get_ravel(1))   IntCell(total_ms - user_ms);
    new (&ret->get_ravel(2))   IntCell(total_ms);
    new (&ret->get_ravel(3))   IntCell(user_ms);
 
-   return CHECK_VAL(ret, LOC);
+   ret->check_value(LOC);
+   return ret;
 }
 //=============================================================================
 Quad_ARG::Quad_ARG()
@@ -165,29 +166,31 @@ Quad_ARG::Quad_ARG()
 Value_P
 Quad_ARG::get_apl_value() const
 {
-Value_P Z(new Value(argc, LOC), LOC);
+Value_P Z(new Value(argc, LOC));
 Cell * C = &Z->get_ravel(0);
 
    loop(a, Quad_ARG::argc)
       {
         const char * arg = Quad_ARG::argv[a];
         const int len = strlen(arg);
-        Value_P val(new Value(len, LOC), LOC);
+        Value_P val(new Value(len, LOC));
         loop(l, len)   new (&val->get_ravel(l))   CharCell(Unicode(arg[l]));
 
         new (C++)   PointerCell(val);
       }
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_CT::Quad_CT()
    : SystemVariable(ID_QUAD_CT),
      current_ct(DEFAULT_QUAD_CT)
 {
-Value_P value(new Value(LOC), LOC);
+Value_P value(new Value(LOC));
    new (&value->get_ravel(0)) FloatCell(current_ct);
-   CHECK(value, LOC);
+
+   value->check_value(LOC);
 
    Symbol::assign(value, LOC);
 }
@@ -246,7 +249,7 @@ ShapeItem max_len = len_1;
    if (max_len < len_3)   max_len = len_3;
 
 const Shape sh(3, max_len);
-Value_P Z(new Value(sh, LOC), LOC);
+Value_P Z(new Value(sh, LOC));
    loop(l, max_len)
       {
         new (&Z->get_ravel(l))
@@ -263,28 +266,31 @@ Value_P Z(new Value(sh, LOC), LOC);
          CharCell((l < len_3) ? msg_3[l] : UNI_ASCII_SPACE);
       }
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Value_P
 Quad_ET::get_apl_value() const
 {
-Value_P Z(new Value(2, LOC), LOC);
+Value_P Z(new Value(2, LOC));
 
    new (&Z->get_ravel(0)) IntCell(Error::error_major(error.error_code));
    new (&Z->get_ravel(1)) IntCell(Error::error_minor(error.error_code));
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_FC::Quad_FC() : SystemVariable(ID_QUAD_FC)
 {
    set_default();
 
-Value_P value(new Value(6, LOC), LOC);
+Value_P value(new Value(6, LOC));
 
    loop(c, 6)   new (&value->get_ravel(c))  CharCell(current_fc[c]);
-   CHECK(value, LOC);
+
+   value->check_value(LOC);
 
    Symbol::assign(value, LOC);
 }
@@ -370,19 +376,22 @@ const APL_Integer qio = Workspace::get_IO();
 //-----------------------------------------------------------------------------
 Value_P Quad_FC::get_apl_value() const
 {
-Value_P v1(new Value(6, LOC), LOC);
+Value_P v1(new Value(6, LOC));
    loop(c, 6)   new (&v1->get_ravel(c))   CharCell(current_fc[c]);
-   return CHECK_VAL(v1, LOC);
+   v1->check_value(LOC);
+   return v1;
 }
 //=============================================================================
 Quad_IO::Quad_IO()
    : SystemVariable(ID_QUAD_IO),
      current_io(1)
 {
-Value_P value(new Value(LOC), LOC);
+Value_P value(new Value(LOC));
 
    new (&value->get_ravel(0)) IntCell(current_io);
-   CHECK(value, LOC);
+
+   value->check_value(LOC);
+
    Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -459,7 +468,7 @@ int len = 0;
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   ++len;
        }
 
-Value_P Z(new Value(len, LOC), LOC);
+Value_P Z(new Value(len, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    for (StateIndicator * si = Workspace::SI_top();
@@ -469,8 +478,9 @@ Cell * cZ = &Z->get_ravel(0);
             new (cZ++)   IntCell(si->get_line());
        }
 
-   Z->set_default(Value::Zero_P);
-   return CHECK_VAL(Z, LOC);
+   Z->set_default(Value::Zero);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_LX::Quad_LX()
@@ -530,20 +540,22 @@ const char * locale = setlocale(LC_CTYPE, 0);   // e,g, "en_US.utf8"
 
 UCS_string ulocale(locale);
 
-Value_P Z(new Value(ulocale, LOC), LOC);
-   Z->set_default(Value::Spc_P);
+Value_P Z(new Value(ulocale, LOC));
+   Z->set_default(Value::Spc);
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_PP::Quad_PP()
    : SystemVariable(ID_QUAD_PP),
      current_pp(DEFAULT_QUAD_PP)
 {
-Value_P value(new Value(LOC), LOC);
+Value_P value(new Value(LOC));
 
    new (&value->get_ravel(0)) IntCell(current_pp);
-   CHECK(value, LOC);
+
+   value->check_value(LOC);
    Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -577,9 +589,9 @@ Quad_PR::Quad_PR()
    : SystemVariable(ID_QUAD_PR),
      current_pr(UNI_ASCII_SPACE)
 {
-Value_P value(new Value(current_pr, LOC), LOC);
-   CHECK(value, LOC);
+Value_P value(new Value(current_pr, LOC));
 
+   value->check_value(LOC);
    Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -632,21 +644,22 @@ Quad_PT::Quad_PT()
 Value_P
 Quad_PT::get_apl_value() const
 {
-Value_P Z(new Value(LOC), LOC);
+Value_P Z(new Value(LOC));
    new (&Z->get_ravel(0))   FloatCell(Workspace::get_CT());
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_PW::Quad_PW()
    : SystemVariable(ID_QUAD_PW),
      current_pw(80)
 {
-Value_P value(new Value(LOC), LOC);
+Value_P value(new Value(LOC));
 
    new (&value->get_ravel(0)) IntCell(current_pw);
-   CHECK(value, LOC);
 
+   value->check_value(LOC);
    Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -706,7 +719,7 @@ Quad_QUOTE::Quad_QUOTE()
 {
    // we assign a dummy value so that ⍞ is not undefined.
    //
-Value_P dummy(new Value(UCS_string(LOC), LOC), LOC);
+Value_P dummy(new Value(UCS_string(LOC), LOC));
    dummy->set_complete();
    Symbol::assign(dummy, LOC);
    dummy->clear_assigned();
@@ -780,7 +793,9 @@ const UCS_string qpr = Workspace::get_PR();
            }
       }
 
-   return CHECK_VAL(new Value(in, LOC), LOC);
+Value_P Z(new Value(in, LOC));
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_R::Quad_R()
@@ -849,7 +864,6 @@ const APL_Integer qio = Workspace::get_IO();
    if (X2->get_ravel(0).get_near_int(qct) != qio + 1)   INDEX_ERROR;
 
 Value_P X1 = IDX.values[1];
-   ((IndexExpr &)IDX).values[1].clear(LOC);
    delete &IDX;
    X1->clear_index();
 
@@ -904,16 +918,17 @@ Value_P
 Quad_SYL::get_apl_value() const
 {
 const Shape sh(SYL_MAX, 2);
-Value_P Z( new Value(sh, LOC), LOC);
+Value_P Z( new Value(sh, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
 #define syl2(n, e, v) syl1(n, e, v)
 #define syl1(n, _e, v) \
-  new (cZ++) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC), LOC)); \
+  new (cZ++) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC))); \
   new (cZ++) IntCell(v);
 #include "SystemLimits.def"
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_TC::Quad_TC()
@@ -940,7 +955,7 @@ Quad_TS::get_apl_value() const
 const int offset = Workspace::get_v_quad_TZ().get_offset();
 const YMDhmsu time(now() + offset);
 
-Value_P Z(new Value(7, LOC), LOC);
+Value_P Z(new Value(7, LOC));
    new (&Z->get_ravel(0)) IntCell(time.year);
    new (&Z->get_ravel(1)) IntCell(time.month);
    new (&Z->get_ravel(2)) IntCell(time.day);
@@ -949,7 +964,8 @@ Value_P Z(new Value(7, LOC), LOC);
    new (&Z->get_ravel(5)) IntCell(time.second);
    new (&Z->get_ravel(6)) IntCell(time.micro / 1000);
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_TZ::Quad_TZ()
@@ -974,14 +990,15 @@ tm * gmean = gmtime(&now.tv_sec);
 const int diff_minutes = local_minutes - gm_minutes;
    offset_seconds = 60*diff_minutes;
 
-Value_P tz(new Value(LOC), LOC);
+Value_P value(new Value(LOC));
    if (offset_seconds % 3600 == 0)   // full hour
-      new (&tz->get_ravel(0))   IntCell(offset_seconds/3600);
+      new (&value->get_ravel(0))   IntCell(offset_seconds/3600);
    else
-      new (&tz->get_ravel(0))   FloatCell(offset_seconds/3600.0);
-   CHECK(tz, LOC);
+      new (&value->get_ravel(0))   FloatCell(offset_seconds/3600.0);
 
-   Symbol::assign(tz, LOC);
+   value->check_value(LOC);
+
+   Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -1042,9 +1059,10 @@ int user_count = 0;
    user_count = 1;
 #endif
 
-Value_P Z(new Value(LOC), LOC);
+Value_P Z(new Value(LOC));
    new (&Z->get_ravel(0))   IntCell(user_count);
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================
 Quad_WA::Quad_WA()
@@ -1056,7 +1074,7 @@ Quad_WA::Quad_WA()
 Value_P
 Quad_WA::get_apl_value() const
 {
-Value_P Z(new Value(LOC), LOC);
+Value_P Z(new Value(LOC));
 
 uint64_t total = total_memory;   // max memory as reported by RLIM_INFINITY
 uint64_t proc_mem = 0;            // memory as reported proc/mem_info
@@ -1113,6 +1131,7 @@ uint64_t proc_mem = 0;            // memory as reported proc/mem_info
 
    new (&Z->get_ravel(0))   IntCell(total);
 
-   return CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
+   return Z;
 }
 //=============================================================================

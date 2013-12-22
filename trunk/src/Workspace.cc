@@ -444,7 +444,7 @@ Workspace::unmark_all_values()
 }
 //-----------------------------------------------------------------------------
 int
-Workspace::show_owners(ostream & out, Value_P value)
+Workspace::show_owners(ostream & out, const Value & value)
 {
 int count = 0;
 

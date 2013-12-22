@@ -28,6 +28,7 @@
 #include "PrintOperator.hh"
 #include "TestFiles.hh"
 #include "UCS_string.hh"
+#include "Value.hh"
 #include "ValueHistory.hh"
 
 VH_entry VH_entry::history[VALUEHISTORY_SIZE];
@@ -54,6 +55,12 @@ VH_entry::init()
 void
 add_event(const Value * val, VH_event ev, int ia, const char * loc)
 {
+   if (loc == 0)
+      {
+        if (val)   loc = val->where_allocated();
+        else       loc = LOC;
+      }
+
 VH_entry * entry = VH_entry::history + VH_entry::idx++;
    if (VH_entry::idx >= VALUEHISTORY_SIZE)   VH_entry::idx = 0;
 
@@ -61,7 +68,7 @@ VH_entry * entry = VH_entry::history + VH_entry::idx++;
 }
 //----------------------------------------------------------------------------
 void
-print_value_history(ostream & out, const Value * val)
+print_history(ostream & out, const Value * val, const char * loc)
 {
    // search backwards for events of val.
    //
@@ -100,7 +107,9 @@ int cidx = VH_entry::idx;
       {
         out << endl << "value " << (const void *)val
             << " has " << var_events.size()
-            << " events in its history:" << endl;
+            << " events in its history";
+        if (loc)   out << " (at " << loc << ")";
+        out << ":" << endl;
       }
 
 int flags = 0;
@@ -193,7 +202,7 @@ const ValueFlags flags_before = (ValueFlags)flags;
                 }
              else if (flags_before & VF_DONT_DELETE)
                 {
-                  out << "still owned ";
+                  out << "still owned  ";
                 }
              else
                 {
@@ -203,6 +212,10 @@ const ValueFlags flags_before = (ValueFlags)flags;
                 }
              break;
 
+        case VHE_Destruct:
+             out << "  VHE_Destruct " << setw(26) << iarg;
+             break;
+
         case VHE_Error:
              out << "  " << setw(36)
                  << Error::error_name((ErrorCode)iarg) << " ";
@@ -210,6 +223,10 @@ const ValueFlags flags_before = (ValueFlags)flags;
 
         case VHE_PtrNew:
              out << "  VHE_PtrNew   " << setw(26) << iarg;
+             break;
+
+        case VHE_PtrNew0:
+             out << "  VHE_PtrNew0  " << setw(26) << iarg;
              break;
 
         case VHE_PtrCopy1:
@@ -232,6 +249,10 @@ const ValueFlags flags_before = (ValueFlags)flags;
              out << "  VHE_PtrDel   " << setw(26) << iarg;
              break;
 
+        case VHE_PtrDel0:
+             out << "  VHE_PtrDel0  " << setw(26) << iarg;
+             break;
+
         case VHE_TokCopy1:
              out << "  VHE_TokCopy1 " << setw(26) << iarg;
              break;
@@ -250,6 +271,11 @@ const ValueFlags flags_before = (ValueFlags)flags;
 
         case VHE_Stale:
              out << "  VHE_Stale    " << setw(26) << iarg;
+             break;
+
+        case VHE_Visit:
+             out << "  VHE_Visit    " << iarg
+                 << "            " << flags_before << " ";
              break;
 
         default:

@@ -77,7 +77,7 @@ public:
 
    /// return the variable value for this Id (if any) or 0 if this Id does
    /// not (currently) represent a variable.
-   virtual Value_P get_value()     { return Value_P(0, LOC); }
+   virtual Value_P get_value()     { return Value_P(); }
 
    /// return the symbol for this user defined symbol (if any) or 0 if this Id
    /// refers to a system name

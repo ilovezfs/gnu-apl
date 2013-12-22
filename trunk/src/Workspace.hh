@@ -243,7 +243,7 @@ public:
    static void unmark_all_values();
 
    /// print all owners of \b value
-   static int show_owners(ostream & out, const Value_P value);
+   static int show_owners(ostream & out, const Value & value);
 
    /// maybe remove functions for which ⎕EX has failed
    static int cleanup_expunged(ostream & out, bool & erased);

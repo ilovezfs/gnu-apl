@@ -20,13 +20,14 @@
 
 #include <assert.h>
 #include <fcntl.h>
-#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include <iostream>
 
 #include "Common.hh"   // for HAVE_EXECINFO_H
 #ifdef HAVE_EXECINFO_H
@@ -163,19 +164,23 @@ int64_t prev_pc = -1LL;
 }
 //-----------------------------------------------------------------------------
 void
-Backtrace::show_item(int idx, char * s)
+Backtrace::parse_fun(char * s, char * obuf, int obuflen,
+                     int & offs, int64_t & pc)
 {
-#ifdef HAVE_EXECINFO_H
-  //
-  // s looks like this:
-  //
-  // ./apl(_ZN10APL_parser9nextTokenEv+0x1dc) [0x80778dc]
-  //
-
+   //
+   // demangle a string like this: 
+   //
+   // ./apl(_ZN10APL_parser9nextTokenEv+0x1dc) [0x80778dc]
+   //
+   //          function                offset   address
+   //
+   // store left of '+' into obuf and right of '+' into offs in
+   // human readble form.
+   //
    // split off address from s.
    //
 const char * addr = "????????";
-int64_t pc = -1LL;
+   pc = -1LL;
    {
      char * space = strchr(s, ' ');
      if (space)
@@ -187,8 +192,6 @@ int64_t pc = -1LL;
           pc = strtoll(addr, 0, 16);
         }
    }
-
-const char * src_loc = find_src(pc);
 
    // split off function from s.
    //
@@ -206,7 +209,7 @@ char * fun = 0;
 
    // split off offset from fun.
    //
-int offs = 0;
+   offs = 0;
    if (fun)
       {
        char * plus = strchr(fun, '+');
@@ -217,16 +220,15 @@ int offs = 0;
           }
       }
 
-char obuf[200] = "@@@@";
    if (fun)
       {
-        strncpy(obuf, fun, sizeof(obuf) - 1);
-        obuf[sizeof(obuf) - 1] = 0;
+        strncpy(obuf, fun, obuflen - 1);
+        obuf[obuflen - 1] = 0;   // just in case
 
-       size_t obuflen = sizeof(obuf) - 1;
+       size_t obl = obuflen - 1;
        int status = 0;
 //     cerr << "mangled fun is: " << fun << endl;
-       __cxxabiv1::__cxa_demangle(fun, obuf, &obuflen, &status);
+       __cxxabiv1::__cxa_demangle(fun, obuf, &obl, &status);
        switch(status)
           {
             case 0: // demangling succeeded
@@ -240,6 +242,18 @@ char obuf[200] = "@@@@";
                  break;
           }
       }
+}
+//-----------------------------------------------------------------------------
+void
+Backtrace::show_item(int idx, char * s)
+{
+#ifdef HAVE_EXECINFO_H
+
+   enum {OBUF_LEN = 200 };
+char obuf[OBUF_LEN] = "@@@@";
+int offset;
+int64_t pc;
+   parse_fun(s, obuf, OBUF_LEN, offset, pc);
 
 // cerr << setw(2) << idx << ": ";
 
@@ -253,8 +267,48 @@ char obuf[200] = "@@@@";
 
 // if (offs)   cerr << " +" << offs;
 
+const char * src_loc = find_src(pc);
    if (src_loc)   cerr << " at " << src_loc;
+
    cerr << endl;
+#endif
+}
+//-----------------------------------------------------------------------------
+const char *
+Backtrace::caller(int offs)
+{
+return "caller";
+#ifndef HAVE_EXECINFO_H
+   CERR << "Cannot show function call stack since execinfo.h seems not"
+           " to exist on this OS (WINDOWs ?)." << endl;
+   return "";
+#else
+
+   enum { MAX_STACK_DEPTH = 40 };   // max. number of stack entries
+
+
+void * buffer[MAX_STACK_DEPTH];
+const int size = backtrace(buffer, MAX_STACK_DEPTH);
+   if (offs >= (size - 1))   return "";
+
+// init_hook();
+char ** strings = backtrace_symbols(buffer, offs + 1);
+// unit_hook();
+   if (strings == 0)   return "(NULL)";
+
+char * si = strings[offs];
+   if (si == 0)   return "";
+
+   enum {OBUF_LEN = 200 };
+char obuf[OBUF_LEN] = "@@@@";
+int offset;
+int64_t pc;
+   parse_fun(si, obuf, OBUF_LEN, offset, pc);
+   obuf[OBUF_LEN - 1] = 0;
+char * o1 = strchr(obuf, '(');
+   if (o1)   { *++o1 = ')';   *++o1 = 0; }   // skip arguments
+   return strdup(obuf);
+
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -269,13 +323,14 @@ Backtrace::show(const char * file, int line)
    return;
 #else
 
-
    open_lines_file();
 
-void * buffer[200];
-const int size = backtrace(buffer, sizeof(buffer)/sizeof(*buffer));
+   enum { MAX_STACK_DEPTH = 40 };   // max. number of stack entries
 
-char ** strings = backtrace_symbols(buffer, size);
+void * buffer[MAX_STACK_DEPTH];
+const int size = backtrace(buffer, MAX_STACK_DEPTH);
+
+char ** strings = backtrace_symbols(buffer, MAX_STACK_DEPTH);
 
    cerr << endl
         << "----------------------------------------"  << endl
@@ -286,7 +341,7 @@ char ** strings = backtrace_symbols(buffer, size);
          // make a copy of strings[i] that can be
          // messed up in show_item().
          //
-         const char * si = strings[size - i - 1];
+         const char * si = strings[MAX_STACK_DEPTH - i - 1];
          char cc[strlen(si) + 1];
          strcpy(cc, si);
          cc[sizeof(cc) - 1] = 0;

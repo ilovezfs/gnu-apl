@@ -32,6 +32,8 @@
 # include "Common.hh"
 #endif
 
+#include "Backtrace.hh"
+
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -161,6 +163,13 @@ public:
       {
         if (items_valid >= items_allocated)   extend();
         copy_1(items[items_valid++], t, LOC);
+      }
+
+   /// append character \b t to \b this string
+   void append(const T & t, const char * loc)
+      {
+        if (items_valid >= items_allocated)   extend();
+        copy_1(items[items_valid++], t, loc);
       }
 
    /// append string \b other to \b this string

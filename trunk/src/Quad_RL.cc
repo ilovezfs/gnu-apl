@@ -28,10 +28,10 @@
 Quad_RL::Quad_RL()
    : SystemVariable(ID_QUAD_RL)
 {
-Value_P value(new Value(LOC), LOC);
+Value_P value(new Value(LOC));
 
    new (&value->get_ravel(0)) IntCell(1);
-   CHECK(value, LOC);
+   value->check_value(LOC);
 
    srandom(1);
    Symbol::assign(value, LOC);
@@ -61,7 +61,7 @@ const APL_Integer seed = random();
    Assert(value_stack.size());
    if (value_stack.back().name_class != NC_VARIABLE)   VALUE_ERROR;
 
-   new (&value_stack.back().sym_val._value()->get_ravel(0))   IntCell(seed);
+   new (&value_stack.back().apl_val->get_ravel(0))   IntCell(seed);
    return seed << 32 | r1;
 }
 //=============================================================================

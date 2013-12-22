@@ -142,14 +142,14 @@ Value::Value(const char * loc, Value_how how)
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(how);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Spc:
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Idx0:
@@ -157,7 +157,7 @@ Value::Value(const char * loc, Value_how how)
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(0);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Str0:
@@ -165,17 +165,17 @@ Value::Value(const char * loc, Value_how how)
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_zStr0:
              init_ravel();
              owner_count = 1;   // static
              {
-               Value_P z(new Value(loc, Value_how_Str0), LOC);   // ''
+               Value_P z(new Value(loc, Value_how_Str0));   // ''
                new (&get_ravel(0)) PointerCell(z);               // ⊂''
              }
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Str0_0:
@@ -183,7 +183,7 @@ Value::Value(const char * loc, Value_how how)
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Str3_0:
@@ -191,21 +191,21 @@ Value::Value(const char * loc, Value_how how)
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Max:
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(BIG_FLOAT);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Min:
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(-BIG_FLOAT);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_AV:
@@ -219,21 +219,21 @@ Value::Value(const char * loc, Value_how how)
 
                    new (&get_ravel(pos))  CharCell(uni);
                  }
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Max_CT:
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(MAX_QUAD_CT);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Max_PP:
              init_ravel();
              owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(MAX_QUAD_PP);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Quad_NLT:
@@ -245,7 +245,7 @@ Value::Value(const char * loc, Value_how how)
                 owner_count = 1;   // static
                 loop(l, len)   new (&get_ravel(l)) CharCell(Unicode(cp[l]));
              }
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
 
         case Value_how_Quad_TC:
@@ -255,7 +255,7 @@ Value::Value(const char * loc, Value_how how)
              new (&get_ravel(0)) CharCell(UNI_ASCII_BS);
              new (&get_ravel(1)) CharCell(UNI_ASCII_CR);
              new (&get_ravel(2)) CharCell(UNI_ASCII_LF);
-             CHECK_VAL(this, LOC);
+             check_value(LOC);
              return;
       }
 
@@ -343,11 +343,12 @@ Value::Value(const Cell & cell, const char * loc)
    init_ravel();
 
    get_ravel(0).init(cell);
-   CHECK_VAL(this, LOC);
+   check_value(LOC);
 }
 //-----------------------------------------------------------------------------
 Value::~Value()
 {
+   ADD_EVENT(this, VHE_Destruct, 0, LOC);
    unlink();
 
 const ShapeItem length = nz_element_count();
@@ -375,7 +376,7 @@ Cell * cZ = &get_ravel(0);
 Value_P
 Value::get_cellrefs(const char * loc)
 {
-Value_P ret(new Value(get_shape(), loc), LOC);
+Value_P ret(new Value(get_shape(), loc));
    ret->set_left();
 
 const ShapeItem ec = nz_element_count();
@@ -386,7 +387,8 @@ const ShapeItem ec = nz_element_count();
         new (&ret->get_ravel(e))   LvalCell(&cell);
       }
 
-   return CHECK_VAL(ret, loc);
+   ret->check_value(LOC);
+   return ret;
 }
 //-----------------------------------------------------------------------------
 void
@@ -403,15 +405,7 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
       {
         if (!C->is_lval_cell())   LEFT_SYNTAX_ERROR;
         Cell * dest = C->get_lval_value();   // can be 0!
-        if (dest && dest->is_pointer_cell())
-           {
-             // we override a pointer cell. erase its value before assigning
-             // a new cell
-             //
-             Value_P old = dest->get_pointer_value();
-             old->clear_nested();
-             old->erase(LOC);
-           }
+        if (dest)   dest->release(LOC);   // free sub-values etc (if any)
 
         if (new_value->is_skalar())
            {
@@ -432,15 +426,7 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
         if (!C->is_lval_cell())   LEFT_SYNTAX_ERROR;
 
         Cell * dest = C++->get_lval_value();   // can be 0!
-        if (dest && dest->is_pointer_cell())
-           {
-             // we override a pointer cell. erase its value before assigning
-             // a new cell
-             //
-             Value_P old = dest->get_pointer_value();
-             old->clear_nested();
-             old->erase(LOC);
-           }
+        if (dest)   dest->release(LOC);   // free sub-values etc (if any)
 
         // erase the pointee when overriding a pointer-cell.
         //
@@ -531,7 +517,7 @@ Value::erase(const char * loc)
              << " deleted twice! ***"                                  << endl
              << endl;
 
-        print_value_history(CERR, this);
+        print_history(CERR, this, loc);
         print_structure(CERR, 0, 0);
 
         Backtrace::show(__FILE__, __LINE__);
@@ -548,7 +534,7 @@ Value::erase(const char * loc)
              << endl;
 
 #ifdef VALUE_CHECK_WANTED
-        print_value_history(CERR, this);
+        print_history(CERR, this, loc);
 #else
         CERR << "No history (VALUE_CHECK_WANTED off)" << endl;
 #endif
@@ -591,7 +577,7 @@ Value::erase(const char * loc)
 
    ((Value *)this)->alloc_loc = loc;
 
-#ifndef VALUE_OWNER_COUNT
+#if SHARED_POINTER_METHOD == 1
    delete this;
 #endif
 }
@@ -606,19 +592,14 @@ Value::rollback(ShapeItem items, const char * loc)
    loop(i, items)
       {
         Cell & cell = get_ravel(i);
-        if (cell.is_pointer_cell())
-           {
-             Value_P sub = cell.get_pointer_value();
-             sub->clear_nested();
-             sub->erase(loc);
-           }
+        cell.release(LOC);
       }
 
    set_deleted();
 
    ((Value *)this)->alloc_loc = loc;
 
-#ifndef VALUE_OWNER_COUNT
+#if SHARED_POINTER_METHOD == 1
    delete this;
 #endif
 }
@@ -803,7 +784,7 @@ Value::list_one(ostream & out, bool show_owners)
    if (this == & x)   out << "(static) Value::" #x << endl;
 #include "StaticValues.def"
 
-   Workspace::show_owners(out, Value_P(this, LOC));
+   Workspace::show_owners(out, *this);
 
    out << "---------------------------" << endl << endl;
    return out;
@@ -1091,7 +1072,7 @@ MultiIndexIterator mult(get_shape(), IX);   // deletes IDX
    // We go from lower indices to higher indices in IX, which
    // means from higher indices to lower indices in this and Z
    
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 
 const ShapeItem ec_z = Z->element_count();
 
@@ -1099,8 +1080,8 @@ const ShapeItem ec_z = Z->element_count();
 
    Assert(mult.done());
 
-   Z->set_default(Value_P(this, LOC));
-   CHECK_VAL(Z, LOC);
+   Z->set_default(*this);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -1112,7 +1093,7 @@ Value::index(Value_P X)
    if (!X)   return clone(LOC);
 
 const Shape shape_Z(X->get_shape());
-Value_P Z(new Value(shape_Z, LOC), LOC);
+Value_P Z(new Value(shape_Z, LOC));
 const ShapeItem ec = shape_Z.element_count();
 const ShapeItem max_idx = element_count();
 const APL_Integer qio = Workspace::get_IO();
@@ -1133,9 +1114,9 @@ const Cell * cI = &X->get_ravel(0);
       }
 
    X->erase(LOC);
-   Z->set_default(Value_P(this, LOC));
+   Z->set_default(*this);
 
-   CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -1231,13 +1212,13 @@ const ShapeItem len_B = B->element_count();
    Assert(A->is_skalar_or_vector());
    Assert(B->is_skalar_or_vector());
 
-Value_P Z(new Value(len_A + len_B, LOC), LOC);
+Value_P Z(new Value(len_A + len_B, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(a, len_A)   cZ++->init(A->get_ravel(a));
    loop(b, len_B)   cZ++->init(B->get_ravel(b));
 
-   CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
 }
 //-----------------------------------------------------------------------------
@@ -1256,7 +1237,7 @@ Value::glue_strand_closed(Token & result, Value_P A, Value_P B,
    Assert(A->is_skalar_or_vector());
 
 const ShapeItem len_A = A->element_count();
-Value_P Z(new Value(len_A + 1, LOC), LOC);
+Value_P Z(new Value(len_A + 1, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    loop(a, len_A)   cZ++->init(A->get_ravel(a));
@@ -1270,7 +1251,7 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++) PointerCell(B);
       }
 
-   CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
 }
 //-----------------------------------------------------------------------------
@@ -1289,7 +1270,7 @@ Value::glue_closed_strand(Token & result, Value_P A, Value_P B,
    Assert(B->is_skalar_or_vector());
 
 const ShapeItem len_B = B->element_count();
-Value_P Z(new Value(len_B + 1, LOC), LOC);
+Value_P Z(new Value(len_B + 1, LOC));
 Cell * cZ = &Z->get_ravel(0);
 
    if (A->is_simple_skalar())
@@ -1303,7 +1284,7 @@ Cell * cZ = &Z->get_ravel(0);
 
    loop(b, len_B)   cZ++->init(B->get_ravel(b));
 
-   CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
 }
 //-----------------------------------------------------------------------------
@@ -1319,7 +1300,7 @@ Value::glue_closed_closed(Token & result, Value_P A, Value_P B,
              << " and " << endl << *B << endl;
       }
 
-Value_P Z(new Value(2, LOC), LOC);
+Value_P Z(new Value(2, LOC));
 Cell * cZ = &Z->get_ravel(0);
    if (A->is_simple_skalar())
       {
@@ -1339,13 +1320,15 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++) PointerCell(B);
       }
 
-   CHECK_VAL(Z, LOC);
+   Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
 }
 //-----------------------------------------------------------------------------
-Value_P
+void
 Value::check_value(const char * loc)
 {
+#ifdef VALUE_CHECK_WANTED
+
 uint32_t error_count = 0;
 const uint64_t count = element_count();
 
@@ -1360,32 +1343,33 @@ const CellType ctype = get_ravel(0).get_cell_type();
         case CT_COMPLEX:   break;   // OK
 
         default:
-        CERR << endl
-             << "*** check_value(" << loc << ") detects:" << endl
-             << "   bad ravel[0] (CellType " << ctype << ")" << endl;
-        ++error_count;
+                 CERR << endl
+                      << "*** check_value(" << loc << ") detects:" << endl
+                      << "   bad ravel[0] (CellType " << ctype << ")" << endl;
+                 ++error_count;
       }
 
-   loop(c, count)
+    loop(c, count)
        {
          const Cell * cell = &get_ravel(c);
          const CellType ctype = cell->get_cell_type();
-          switch(ctype)
-             {
-               case CT_CHAR:
-               case CT_POINTER:
-               case CT_CELLREF:
-               case CT_INT:
-               case CT_FLOAT:
-               case CT_COMPLEX:   break;   // OK
+         switch(ctype)
+            {
+              case CT_CHAR:
+              case CT_POINTER:
+              case CT_CELLREF:
+              case CT_INT:
+              case CT_FLOAT:
+              case CT_COMPLEX:   break;   // OK
 
-               default:
-               CERR << endl
-                    << "*** check_value(" << loc << ") detects:" << endl
-                    << "   bad ravel[" << c << "] (CellType "
-                    << ctype << ")" << endl;
-               ++error_count;
-             }
+              default:
+                 CERR << endl
+                      << "*** check_value(" << loc << ") detects:"
+                      << endl
+                      << "   bad ravel[" << c << "] (CellType "
+                      << ctype << ")" << endl;
+                 ++error_count;
+            }
 
          if (error_count >= 10)
             {
@@ -1398,13 +1382,13 @@ const CellType ctype = get_ravel(0).get_cell_type();
       {
         CERR << "Shape: " << get_shape() << endl;
         print(CERR) << endl
-             << "************************************************" << endl;
+           << "************************************************"
+           << endl;
         Assert(0 && "corrupt ravel");
       }
+#endif
 
    set_complete();
-
-   return Value_P(this, LOC);
 }
 //-----------------------------------------------------------------------------
 int
@@ -1618,7 +1602,7 @@ Value::print_boxed(ostream & out, const char * info)
 {
    if (info)   out << info << endl;
 
-Value_P Z = Quad_CR::fun.do_CR(4, Value_P(this, LOC));
+Value_P Z = Quad_CR::fun.do_CR(4, *this);
    out << *Z << endl;
    Z->erase(LOC);
    return out;
@@ -1726,7 +1710,7 @@ const Cell & first = get_ravel(0);
    if (first.is_pointer_cell())
       {
         Value_P B0 = first.get_pointer_value();
-        Value_P Z(new Value(B0->get_shape(), loc), LOC);
+        Value_P Z(new Value(B0->get_shape(), loc));
         const ShapeItem ec_Z =  Z->nz_element_count();
 
         loop(z, ec_Z)   Z->get_ravel(z).init_type(B0->get_ravel(z));
@@ -1734,7 +1718,7 @@ const Cell & first = get_ravel(0);
       }
    else
       {
-        Value_P Z(new Value(loc), LOC);
+        Value_P Z(new Value(loc));
 
         Z->get_ravel(0).init_type(first);
         return Z;
@@ -1745,14 +1729,15 @@ const Cell & first = get_ravel(0);
 Value_P
 Value::clone(const char * loc) const
 {
-Value_P ret(new Value(get_shape(), loc), LOC);
+Value_P ret(new Value(get_shape(), loc));
 
 const Cell * src = &get_ravel(0);
 Cell * dst = &ret->get_ravel(0);
 
    Cell::copy(dst, src, nz_element_count());
 
-   return CHECK_VAL(ret, LOC);
+   ret->check_value(LOC);
+   return ret;
 }
 //-----------------------------------------------------------------------------
 /// lrp p.138: S←⍴⍴A + NOTCHAR (per column)
@@ -1924,12 +1909,12 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
    out << "print_stale_info():   alloc(" << dob->where_allocated()
        << ") flags(" << get_flags() << ")" << endl;
 
-   print_value_history(out, (const Value *)dob);
+   print_history(out, (const Value *)dob, LOC);
 
    try 
       {
         print_structure(out, 0, 0);
-        Value_P Z = Quad_CR::fun.do_CR(7, Value_P(this, LOC));
+        Value_P Z = Quad_CR::fun.do_CR(7, *this);
         Z->print(out);
         out << endl;
         Z->erase(LOC);

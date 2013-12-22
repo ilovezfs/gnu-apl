@@ -28,6 +28,12 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
+Token::Token(const Token & other)
+   : tag(TOK_VOID)
+{
+   copy_1(*this, other, "Token::Token(other)");
+}
+//-----------------------------------------------------------------------------
 Token::Token(TokenTag tg, IndexExpr & idx)
 {
    Assert(&idx);
@@ -50,12 +56,12 @@ Token::Token(TokenTag tg, IndexExpr & idx)
              tag = TOK_AXES;
              if (idx.value_count() == 0)   // []
                 {
-                  set_apl_val(Value_P());
+                  new (&value._apl_val()) Value_P;
                 }
              else                          // [x]
                 {
                   idx.values[0]->clear_index();
-                  set_apl_val(idx.values[0]);
+                  new (&value._apl_val()) Value_P(idx.values[0]);
                   idx.values[0] = Value_P();
                 }
            }
@@ -219,13 +225,6 @@ operator << (ostream & out, const Token & token)
       }
 
    return out <<  "{-unknown Token " << token.get_tag() << "-}";
-}
-//-----------------------------------------------------------------------------
-void
-Token::clone_if_owned(const char * loc)
-{
-   if (get_ValueType() == TV_VAL)   
-      value._apl_val() = value._apl_val()->clone_if_owned(loc);
 }
 //-----------------------------------------------------------------------------
 void
@@ -598,32 +597,24 @@ Token::class_name(TokenClass tc)
    return "*** Obscure token class ***";
 }
 //-----------------------------------------------------------------------------
-void
-Token::warn(ostream & out)
-{
-return;
-   out << "WARNING: non-empty Value_P: " << endl;
-   Backtrace::show(__FILE__, __LINE__);
-}
-//-----------------------------------------------------------------------------
 inline void 
 Token::copy_N(const Token & src)
 {
    tag = src.tag;
    switch(src.get_ValueType())
       {
-        case TV_NONE:  value.int_val    = 0;                          break;
-        case TV_CHAR:  value.char_val   = src.value.char_val;         break;
-        case TV_INT:   value.int_val    = src.value.int_val;          break;
-        case TV_FLT:   value.flt_val    = src.value.flt_val;          break;
+        case TV_NONE:  value.int_val    = 0;                              break;
+        case TV_CHAR:  value.char_val   = src.value.char_val;             break;
+        case TV_INT:   value.int_val    = src.value.int_val;              break;
+        case TV_FLT:   value.flt_val    = src.value.flt_val;              break;
         case TV_CPX:   value.complex_val.real = src.value.complex_val.real;
                        value.complex_val.imag = src.value.complex_val.imag;
                                                                           break;
-        case TV_SYM:   value.sym_ptr    = src.value.sym_ptr;          break;
-        case TV_LIN:   value.fun_line   = src.value.fun_line;         break;
-        case TV_VAL:   value._apl_val() = src.value._apl_val();      break;
-        case TV_INDEX: value.index_val  = src.value.index_val;        break;
-        case TV_FUN:   value.function   = src.value.function;         break;
+        case TV_SYM:   value.sym_ptr    = src.value.sym_ptr;              break;
+        case TV_LIN:   value.fun_line   = src.value.fun_line;             break;
+        case TV_VAL:   value._apl_val() = src.value._apl_val();           break;
+        case TV_INDEX: value.index_val  = src.value.index_val;            break;
+        case TV_FUN:   value.function   = src.value.function;             break;
         default:       FIXME;
       }
 }
@@ -637,8 +628,7 @@ copy_1(Token & dst, const Token & src, const char * loc)
         Value * val = src.get_apl_val_pointer();
         if (val)
            {
-              ++val->owner_count;
-             ADD_EVENT(val, VHE_TokCopy1, val->owner_count, loc);
+             ADD_EVENT(val, VHE_TokCopy1, src.value_use_count(), loc);
            }
         else
            {
@@ -653,29 +643,27 @@ void
 move_1(Token & dst, Token & src, const char * loc)
 {
    dst.clear(loc);
+   dst.copy_N(src);
+
    if (src.is_apl_val())
       {
         Value * val = src.get_apl_val_pointer();
-        const int owner_count = val ? val->owner_count : -1;
-        ADD_EVENT(val, VHE_TokMove1, owner_count, loc);
+	ADD_EVENT(val, VHE_TokMove1, src.value_use_count() - 1, loc);
+        src.clear(loc);
       }
-
-   dst.copy_N(src);
-
-     new (&src)   Token();
 }
 //-----------------------------------------------------------------------------
 void
 move_2(Token & dst, const Token & src, const char * loc)
 {
    dst.clear(loc);
+   dst.copy_N(src);
+
    if (src.is_apl_val())
       {
         Value * val = src.get_apl_val_pointer();
-        const int owner_count = val ? val->owner_count : -1;
-        ADD_EVENT(val, VHE_TokMove2, owner_count, loc);
+        ADD_EVENT(val, VHE_TokMove2, src.value_use_count() - 1, loc);
+        ((Token &)src).clear(loc);
       }
-
-   dst.copy_N(src);
 }
 //-----------------------------------------------------------------------------

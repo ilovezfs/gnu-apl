@@ -68,7 +68,7 @@ CERR << "Warning: discarding non-empty stack["
              Value_P val = tl.tok.get_apl_val();
              if (!val)   continue;
 
-CERR << "    Value is " << val.voidp() << " " << *val << " at " LOC;
+CERR << "    Value is " << (const void *)val.get() << " " << *val << " at " LOC;
 // val->print_properties(CERR,  0);
                val->erase(LOC);
            }
@@ -178,13 +178,13 @@ const Value * del = 0;   // warn for deleted Values
    if (del)
       {
         CERR << "*** DELETED VALUE: ***" << endl;
-        print_value_history(out, del);
+        print_history(out, del, LOC);
       }
 }
 //-----------------------------------------------------------------------------
 int
 Prefix::show_owners(const char * prefix, ostream & out,
-                          Value_P value) const
+                          const Value & value) const
 {
 int count = 0;
 
@@ -193,7 +193,7 @@ int count = 0;
         const Token & tok = at(s).tok;
         if (tok.get_ValueType() != TV_VAL)      continue;
 
-        if (tok.get_apl_val() == value)
+        if (tok.get_apl_val().get() == &value)
            {
              out << prefix << " Fifo [" << s << "]" << endl;
              ++count;
@@ -470,7 +470,7 @@ found_prefix:
    if (best->misc)   // MISC phrase: save X and remove it
       {
         Assert(saved_lookahead.tok.get_tag() == TOK_VOID);
-        saved_lookahead = pop();
+        saved_lookahead.copy(pop(), LOC);
         --prefix_len;
       }
 
@@ -689,9 +689,11 @@ DerivedFunction * derived =
 void
 Prefix::reduce_A_C__()
 {
-Value_P value = at0().get_apl_val()->index(at1());
-   at0().get_apl_val()->erase(LOC);
-Token result = Token(TOK_APL_VALUE1, value);
+Value_P A = at0().get_apl_val();
+Value_P Z = A->index(at1());
+   A->erase(LOC);
+
+Token result = Token(TOK_APL_VALUE1, Z);
    pop_args_push_result(result);
 
    set_action(result);
@@ -700,8 +702,8 @@ Token result = Token(TOK_APL_VALUE1, value);
 void
 Prefix::reduce_V_C_ASS_B()
 {
-Symbol * var = at0().get_sym_ptr();
-Value_P value = at3().get_apl_val();
+Symbol * V = at0().get_sym_ptr();
+Value_P B = at3().get_apl_val();
 
    if (at1().get_tag() == TOK_AXES)   // [] or [x]
       {
@@ -709,14 +711,14 @@ Value_P value = at3().get_apl_val();
 
         try
            {
-             var->assign_indexed(v_idx, value);
+             V->assign_indexed(v_idx, B);
            }
         catch (Error err)
            {
              Token result = Token(TOK_ERROR, err.error_code);
              at1().clear(LOC);
              at3().clear(LOC);
-             value->erase(LOC);
+             B->erase(LOC);
              if (!!v_idx)   v_idx->erase(LOC);
              pop_args_push_result(result);
              set_assign_pending(false);
@@ -730,7 +732,7 @@ Value_P value = at3().get_apl_val();
       {
         try
            {
-             var->assign_indexed(at1().get_index_val(), value);
+             V->assign_indexed(at1().get_index_val(), B);
            }
         catch (Error err)
            {
@@ -738,7 +740,7 @@ Value_P value = at3().get_apl_val();
              delete &at1().get_index_val();
              at1().clear(LOC);
              at3().clear(LOC);
-             value->erase(LOC);
+             B->erase(LOC);
              pop_args_push_result(result);
              set_assign_pending(false);
              set_action(result);
@@ -746,7 +748,7 @@ Value_P value = at3().get_apl_val();
            }
       }
 
-Token result = Token(TOK_APL_VALUE2, value);
+Token result = Token(TOK_APL_VALUE2, B);
    pop_args_push_result(result);
    set_assign_pending(false);
    set_action(result);
@@ -786,11 +788,11 @@ Token result = Token(TOK_APL_VALUE2, B);
 void
 Prefix::reduce_V_ASS_B_()
 {
-Value_P value = at2().get_apl_val();
+Value_P B = at2().get_apl_val();
 Symbol * V = at0().get_sym_ptr();
-   V->assign(value, LOC);
+   V->assign(B, LOC);
 
-Token result = Token(TOK_APL_VALUE2, value);
+Token result = Token(TOK_APL_VALUE2, B);
    pop_args_push_result(result);
 
    set_assign_pending(false);
@@ -835,7 +837,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);
 Token result = at1();
    result.get_index_val().add(Value_P());
 
-   if (last_index)
+   if (last_index)   // [ seen
       {
         assign_pending = idx.get_left();   // restore assign_pending
 
@@ -858,26 +860,26 @@ Prefix::reduce_LBRA_B_I_()
 
    // [ B I or ; B I   (normal index)
    //
-Token result = at2();
-   result.get_index_val().add(at1().get_apl_val());
+Token I = at2();
+   I.get_index_val().add(at1().get_apl_val());
 
 const bool last_index = (at0().get_tag() == TOK_L_BRACK);   // ; vs. [
-   if (last_index)
+
+   if (last_index)   // [ seen
       {
-        IndexExpr & idx = result.get_index_val();
+        IndexExpr & idx = I.get_index_val();
         assign_pending = idx.get_left();   // restore assign_pending
 
         if (idx.is_axis())
            {
-             Value_P iv = idx.values[0];
-             Assert1(!!iv);
-             idx.values[0].clear(LOC);
-             iv->clear_index();
-             move_2(result, Token(TOK_AXES, iv), LOC);
+             Value_P X = idx.extract_value(0);
+             Assert1(!!X);
+             move_2(I, Token(TOK_AXES, X), LOC);
+             delete &idx;
            }
         else
            {
-             move_2(result, Token(TOK_INDEX, idx), LOC);
+             move_2(I, Token(TOK_INDEX, idx), LOC);
            }
       }
    else
@@ -885,7 +887,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);   // ; vs. [
         assign_pending = false;
       }
 
-   pop_args_push_result(result);
+   pop_args_push_result(I);
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -954,7 +956,7 @@ Value_P B = at3().get_apl_val();
         {
           Symbol * V = at0().get_sym_ptr();
           Cell & cell = B->get_ravel(count);
-          Value_P B_last(new Value(cell, LOC), LOC);
+          Value_P B_last(new Value(cell, LOC));
           V->assign(B_last, LOC);
         }
 
@@ -966,7 +968,7 @@ Value_P B = at3().get_apl_val();
              Assert1(tl.tok.get_tag() == TOK_LSYMB2);   // by vector_ass_count()
              Symbol * V = tl.tok.get_sym_ptr();
              Cell & cell = B->get_ravel(count - c - 1);
-             Value_P B_cell(new Value(cell, LOC), LOC);
+             Value_P B_cell(new Value(cell, LOC));
              V->assign(B_cell, LOC);
            }
       }
@@ -1016,10 +1018,22 @@ Prefix::reduce_END_B__()
 const bool end_of_line = at0().get_tag() == TOK_ENDL;
 
    pop_and_discard();   // pop END
-Token B = pop().tok;   // pop B
+Token B = pop().tok;    // pop B
 
-   B.clone_if_owned(LOC);
-   si.statement_result(B);
+   // can't get_apl_val() because it may throw a VALUE_ERROR.
+   // use get_apl_val_pointer() instead.
+   //
+   if (B.get_apl_val_pointer() && B.get_apl_val()->get_flags() & VF_need_clone)
+      {
+       Value_P V1(B.get_apl_val()->clone(LOC));
+       Token B1(B.get_tag(), V1);
+        si.statement_result(B1);
+      }
+   else
+      {
+        si.statement_result(B);
+      }
+
    action = RA_NEXT_STAT;
    if (attention_raised && end_of_line)
       {
@@ -1196,10 +1210,17 @@ Prefix::reduce_RETC_B__()
    Log(LOG_prefix_parser)
       CERR << "- end of ⍎ context.";
 
-Token result = at1();
-   result.clone_if_owned(LOC);
+Token B = at1();
+   if (B.get_apl_val_pointer() && B.get_apl_val()->get_flags() & VF_need_clone)
+      {
+        Token Z1(B.get_tag(), B.get_apl_val()->clone(LOC));
+        pop_args_push_result(Z1);
+      }
+   else
+      {
+        pop_args_push_result(B);
+      }
 
-   pop_args_push_result(result);
    action = RA_RETURN;
 }
 //-----------------------------------------------------------------------------

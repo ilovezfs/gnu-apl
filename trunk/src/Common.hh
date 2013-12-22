@@ -118,18 +118,11 @@ inline bool is_pad_char(Unicode uni)
 /// The location line l in file f.
 #define Loc(f, l) f ":" STR(l)
 
-#define Q(x) CERR << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
-#define Q1(x) cerr << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
+extern ostream & get_CERR();
+
+#define Q(x) get_CERR() << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
 
 //-----------------------------------------------------------------------------
-/// macros controlling the consistency checking of values.
-#ifdef VALUE_CHECK_WANTED
-# define CHECK_VAL(x, l) ((x)->check_value(l))
-#else
-# define CHECK_VAL(x, l) (Value_P((x)->set_complete_flag(), l))
-#endif
-
-#define CHECK(x, l) Token(TOK_APL_VALUE1, CHECK_VAL(x, l))
 
 /// The total memory that we have.
 extern uint64_t total_memory;
@@ -148,157 +141,7 @@ extern uint64_t total_memory;
 
 #endif
 
-//-----------------------------------------------------------------------------
-// pointer to APL values
-
-class Value;
-int increment_owner_count(Value * v, const char * loc);
-int decrement_owner_count(Value * v, const char * loc);
-
-// #define VALUE_OWNER_COUNT
-
-#ifdef VALUE_OWNER_COUNT
-
-#include <tr1/memory>
-typedef std::tr1::shared_ptr<Value> Value_P;
-
-#else // not VALUE_OWNER_COUNT
-class Value_P
-{
-public:
-   /// Constructor: 0 pointer
-   Value_P()
-   : value_p(0)
-   {}
-
-   /// Constructor: from Value *
-   Value_P(Value * val, const char * loc)
-     : value_p(val)
-     {
-       if (value_p)
-          {
-            const int count = increment_owner_count(value_p, loc);
-            ADD_EVENT(value_p, VHE_PtrNew, count, loc);
-          }
-     }
-
-   /// Constructor: from other Value_P
-   Value_P(const Value_P & other)
-   : value_p(other.value_p)
-   {
-     if (value_p)
-        {
-          const int count = increment_owner_count(value_p, LOC);
-          ADD_EVENT(value_p, VHE_PtrCopy1, count, LOC);
-        }
-   }
-
-   /// Constructor: from other Value_P
-   Value_P(const Value_P & other, const char * loc)
-   : value_p(other.value_p)
-   {
-     if (value_p)
-        {
-          const int count = increment_owner_count(value_p, loc);
-          ADD_EVENT(value_p, VHE_PtrCopy2, count, loc);
-        }
-   }
-   /// copy operator
-   Value_P & operator =(const Value_P & other)
-   {
-      if (value_p)   // override existing pointer
-         {
-           if (value_p == other.value_p)   return *this;   // same pointer
-
-           const int count = decrement_owner_count(value_p, LOC);
-           ADD_EVENT(value_p, VHE_PtrClr, count, LOC);
-           if (count == 0)   delete_value();
-         }
-          
-      value_p = other.value_p;
-      if (value_p)
-         {
-           const int count = increment_owner_count(value_p, LOC);
-           ADD_EVENT(value_p, VHE_PtrCopy3, count, LOC);
-         }
-
-      return *this;
-   }
-
-
-   /// Destructor for Value_P union members
-   void delete_value();
-
-   void destruct()
-      {
-        if (value_p)
-           {
-             const int count = decrement_owner_count(value_p, LOC);
-             ADD_EVENT(value_p, VHE_PtrDel, count, LOC);
-             if (count == 0)   delete_value();
-          }
-
-      }
-
-   /// Destructor for normal Value_P objects
-   ~Value_P()   { destruct(); }
-
-   const Value * operator->()  const
-      { return value_p; }
-
-   Value * operator->()
-      { return value_p; }
-
-   const Value & operator*()  const
-      { return *value_p; }
-
-   const Value & get_ref() const
-      { return *value_p; }
-
-   const Value * get_pointer() const
-      { return value_p; }
-
-   Value * get_pointer()
-      { return value_p; }
-
-   bool operator!() const
-      { return value_p == 0; }
-
-
-   bool operator ==(const Value_P other) const
-      { return value_p == other.value_p; }
-
-   bool operator !=(const Value_P other) const
-      { return value_p != other.value_p; }
-
-  const void * voidp() const
-      { return value_p; }
-
-   Value * clear(const char * loc)
-     {
-       if (!value_p)   return 0;
-
-       const int count = decrement_owner_count(value_p, loc);
-       ADD_EVENT(value_p, VHE_PtrClr, count, loc);
-
-    Value * ret = value_p;
-       value_p = 0;
-       if (count == 0)   delete_value();
-
-       return ret;
-    }
-
-protected:
-   Value * value_p;
-};
-
-#endif // VALUE_OWNER_COUNT
-
-/// macro to facilitate Value_P in unions
-#define VALUE_P(x) char u_ ## x[sizeof(Value_P)]; \
-   Value_P & _ ## x() const { return *(Value_P *) & u_ ## x; }
-
-//-----------------------------------------------------------------------------
+#include "SharedValuePointer.hh"
 
 /// Function_Line ++ (post increment)
 inline int operator ++(Function_Line & fl, int)   { return ((int &)fl)++; }

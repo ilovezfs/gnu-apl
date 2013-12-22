@@ -57,12 +57,12 @@ Function * RO = _RO.get_function();
 EOC_arg arg;
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
-   arg.Z = Value_P(new Value(A->get_shape() + B->get_shape(), LOC), LOC);
+   arg.Z = Value_P(new Value(A->get_shape() + B->get_shape(), LOC));
    _arg.cZ = &arg.Z->get_ravel(0);
    _arg.len_A = A->element_count();
    _arg.len_B = B->element_count();
 
-   arg.V1 = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cA
+   arg.V1 = Value_P(new Value(LOC));   // helper value for non-pointer cA
    if (A->is_eoc())   A = A->clone(LOC);
    arg.A = A;
 
@@ -71,7 +71,7 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    if (B->is_eoc())   B = B->clone(LOC);
    arg.B = B;
 
-   arg.V2 = Value_P(new Value(LOC), LOC);   // helper value for non-pointer cB
+   arg.V2 = Value_P(new Value(LOC));   // helper value for non-pointer cB
    arg.V2->set_eoc();
    _arg.cA = &A->get_ravel(0);
    _arg.cB = &B->get_ravel(0);
@@ -156,10 +156,11 @@ next_a_b:
    if (++_arg.b < _arg.len_B)   goto loop_b;
    if (++_arg.a < _arg.len_A)   goto loop_a;
 
-   arg.Z->set_default(arg.B);
+   arg.Z->set_default(*arg.B.get());
 
-Value_P Z(arg.clear_EOC(LOC), LOC);
-   return CHECK(Z, LOC);
+   arg.clear_EOC(LOC);
+   arg.Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, arg.Z);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -241,41 +242,41 @@ ShapeItem len_B = 1;
    if (A->is_eoc())   A = A->clone(LOC);
    if (B->is_eoc())   B = B->clone(LOC);
 
-   arg.Z = Value_P(new Value(shape_A1 + shape_B1, LOC), LOC);
+   arg.Z = Value_P(new Value(shape_A1 + shape_B1, LOC));
    _arg.cZ = &arg.Z->get_ravel(0);
 
    // create a vector with the rows of A
    //
-   _arg.args_A = new Value*[_arg.items_A];
+   _arg.args_A = new Value_P[_arg.items_A];
    loop(i, _arg.items_A)
        {
-         Value * v = new Value(len_A, LOC);
+         Value_P v(new Value(len_A, LOC));
          v->get_ravel(0).init(A->get_ravel(0 + i*len_A));
          loop(a, len_A)
             {
               const ShapeItem src = (A->is_skalar()) ? 0 : a + i*len_A;
               v->get_ravel(a).init(A->get_ravel(src));
             }
-         v->set_default(A);
-         CHECK_VAL(v, LOC);
+         v->set_default(*A.get());
+         v->check_value(LOC);
          v->set_shared();
          _arg.args_A[i] = v;
        }
 
    // create a vector with the columns of B
    //
-   _arg.args_B = new Value *[_arg.items_B];
+   _arg.args_B = new Value_P[_arg.items_B];
    loop(i, _arg.items_B)
        {
-         Value * v = new Value(len_B, LOC);
+         Value_P v(new Value(len_B, LOC));
          loop(b, len_B)
             {
               const ShapeItem src = (B->is_skalar()) ? 0 : b*_arg.items_B + i;
               v->get_ravel(b).init(B->get_ravel(src));
             }
 
-         v->set_default(B);
-         CHECK_VAL(v, LOC);
+         v->set_default(*B.get());
+         v->check_value(LOC);
 
          v->set_shared();
          _arg.args_B[i] = v;
@@ -309,8 +310,9 @@ loop_a:
 loop_b:
 
    {
-     const Token T1 = _arg.RO->eval_AB(Value_P(_arg.args_A[_arg.a], LOC),
-                                      Value_P(_arg.args_B[_arg.b], LOC));
+     Value_P pA = _arg.args_A[_arg.a];
+     Value_P pB = _arg.args_B[_arg.b];
+     const Token T1 = _arg.RO->eval_AB(pA, pB);
 
    if (T1.get_tag() == TOK_ERROR)   return T1;
 
@@ -359,7 +361,7 @@ how_1:
           arg.V1->clear_arg();
           arg.V1->clear_eoc();
           arg.V1->erase(LOC);
-          arg.V1.clear(LOC);
+          ptr_clear(arg.V1, LOC);
 
           goto next_a_b;
         }
@@ -383,7 +385,7 @@ loop_v:
          arg.V2->clear_arg();
          arg.V2->clear_eoc();
          arg.V2->erase(LOC);
-         arg.V2.clear(LOC);
+         ptr_clear(arg.V2, LOC);
 
          if (T2.get_tag() == TOK_ERROR)   return T2;
 
@@ -423,11 +425,11 @@ how_2:
    arg.V1->clear_arg();
    arg.V1->clear_eoc();
    arg.V1->erase(LOC);
-   arg.V1.clear(LOC);
+   ptr_clear(arg.V1, LOC);
 
    arg.V2->clear_eoc();
    arg.V2->erase(LOC);
-   arg.V2.clear(LOC);
+   ptr_clear(arg.V2, LOC);
 
 next_a_b:
    if (++_arg.b < _arg.items_B)   goto loop_b;
@@ -438,19 +440,20 @@ next_a_b:
          _arg.args_A[i]->clear_shared();
          _arg.args_A[i]->erase(LOC);
       }
-   delete _arg.args_A;
+   delete [] _arg.args_A;
 
    loop(i, _arg.items_B)
       {
          _arg.args_B[i]->clear_shared();
          _arg.args_B[i]->erase(LOC);
       }
-   delete _arg.args_B;
+   delete [] _arg.args_B;
 
-   arg.Z->set_default(arg.B);
+   arg.Z->set_default(*arg.B.get());
  
-Value_P Z(arg.clear_EOC(LOC), LOC);
-   return CHECK(Z, LOC);
+   arg.clear_EOC(LOC);
+   arg.Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, arg.Z);
 }
 //-----------------------------------------------------------------------------
 bool

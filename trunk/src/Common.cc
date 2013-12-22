@@ -117,51 +117,32 @@ print_flags (ostream & out, ValueFlags flags)
               << ((flags & VF_shared)   ?  "∇" : "-");
 }
 //-----------------------------------------------------------------------------
-int
+void
 increment_owner_count(Value * v, const char * loc)
 {
    Assert1(v);
 
-#ifdef VALUE_OWNER_COUNT
-   if (v->check_ptr != ((const char *)v + 7))
-      {
-        cerr << "*** increment_owner_count(" << loc << "):" << endl;
-        print_value_history(cerr, v);
-        exit(0);
-      }
-
-   return ++v->owner_count;
-#endif
-
-   return 0;
+   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
+   // the pointer owner is deleted. Do noting then.
+   //
+   if (v->check_ptr == ((const char *)v + 7))   ++v->owner_count;
 }
 //-----------------------------------------------------------------------------
 int
+get_owner_count(const Value * v)
+{
+   return  v ? v->owner_count : -99;
+}
+//-----------------------------------------------------------------------------
+void
 decrement_owner_count(Value * v, const char * loc)
 {  
    Assert1(v);
 
-#ifdef VALUE_OWNER_COUNT
-   if (v->check_ptr != ((const char *)v + 7))
-      {
-        cerr << "decrement_owner_count(" << loc << "):" << endl;
-        print_value_history(cerr, v);
-        Backtrace::show(__FILE__, __LINE__);
-        exit(0);
-      } 
-      
-   return --v->owner_count;
-#endif
-
-   return 0;
-}
-//-----------------------------------------------------------------------------
-void Value_P::delete_value()
-{
-#ifdef VALUE_OWNER_COUNT
-   delete value_p;
-#endif
+   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
+   // the pointer owner is deleted. Do noting then.
+   //
+   if (v->check_ptr == ((const char *)v + 7))   --v->owner_count;
 }
 //-----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------

@@ -149,18 +149,22 @@ enum VH_event
   VHE_SetFlag,     ///< set a value flag
   VHE_ClearFlag,   ///< clear a value flag
   VHE_Erase,       ///< erase the value
+  VHE_Destruct,    ///< destruct the value
   VHE_Error,       ///< some APL error has occurred
   VHE_PtrNew,      ///< new Value_P created
+  VHE_PtrNew0,     ///< new Value_P with 0-pointer created
   VHE_PtrCopy1,    ///< Value_P copied with constructor(Value_P)
   VHE_PtrCopy2,    ///< Value_P copied with constructor(Value_P, loc)
   VHE_PtrCopy3,    ///< Value_P copied with operator =()
   VHE_PtrClr,      ///< Value_P cleared
   VHE_PtrDel,      ///< Value_P deleted
+  VHE_PtrDel0,     ///< Value_P deleted (with 0 pointer)
   VHE_TokCopy1,    ///< token with Value_P copied
   VHE_TokMove1,    ///< token with Value_P moved
   VHE_TokMove2,    ///< token with Value_P moved
   VHE_Completed,   ///< incomplete ravel set to 42424242
   VHE_Stale,       ///< stale value erased
+  VHE_Visit,       ///< test point
 };
 //-----------------------------------------------------------------------------
 /// The bits in an int

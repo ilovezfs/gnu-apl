@@ -67,12 +67,12 @@ struct OUTER_PROD
 struct INNER_PROD
 {
   Cell * cZ;           ///< current result
-  Value * * args_A;    ///< left args of RO
+  Value_P * args_A;    ///< left args of RO
   ShapeItem a;         ///< current A1 index
   ShapeItem items_A;   ///< number of cells in A1
   Function * LO;       ///< left user defined function
   Function * RO;       ///< right user defined function
-  Value * * args_B;    ///< right args of RO
+  Value_P * args_B;    ///< right args of RO
   ShapeItem b;         ///< current B1 index
   ShapeItem items_B;   ///< number of cells in B1
   ShapeItem v1;        ///< current LO index
@@ -222,7 +222,7 @@ struct RANK_LXB
   char _sh_B_high[ sizeof(Shape) ];      ///< high dimensions of B
   ShapeItem ec_B_low;                    ///< items in _sh_B_low
   const Cell * cB;                       ///< current B cell
-  Value * * ZZ ;                         ///< current ZZ value
+  Value_P * ZZ ;                         ///< current ZZ value
   char _sh_Z_max_low[ sizeof(Shape) ];   ///< max. low dimensions of Z
   ShapeItem ec_high;                     ///< max. high index
   int how;                               ///< how to finish_eval_LXB()
@@ -251,8 +251,8 @@ struct RANK_ALXB
   char _sh_B_high[ sizeof(Shape) ];      ///< high dimensions of B
   ShapeItem ec_B_low;                    ///< items in _sh_B_low
   const Cell * cB;                       ///< current B cell
-  Value * * ZZ ;                         ///< current ZZ value
-  char _sh_Z_max_low[ sizeof(Shape) ];   ///< max. low dimensions of Z
+  Value_P * ZZ;                          ///< current ZZ value
+  char _sh_Z_max_low[sizeof(Shape)];     ///< max. low dimensions of Z
   ShapeItem ec_high;                     ///< max. high index
   int how;                               ///< how to finish_eval_LXB()
 
@@ -277,25 +277,24 @@ struct EOC_arg
    void set_EOC()
       {
         Value * v;
-        if (v = A   .get_pointer())   v->set_eoc();
-        if (v = B   .get_pointer())   v->set_eoc();
-        if (v = Z   .get_pointer())   v->set_eoc();
-        if (v = V1  .get_pointer())   v->set_eoc();
-        if (v = V2  .get_pointer())   v->set_eoc();
-        if (v = RO_A.get_pointer())   v->set_eoc();
-        if (v = RO_B.get_pointer())   v->set_eoc();
+        if (v = A   .get())   v->set_eoc();
+        if (v = B   .get())   v->set_eoc();
+        if (v = Z   .get())   v->set_eoc();
+        if (v = V1  .get())   v->set_eoc();
+        if (v = V2  .get())   v->set_eoc();
+        if (v = RO_A.get())   v->set_eoc();
+        if (v = RO_B.get())   v->set_eoc();
       }
 
-   Value_P clear_EOC(const char * loc)
+   void clear_EOC(const char * loc)
       {
-        Value_P ret(Z, loc);
-        Value * vA    = A .clear(loc);
-        Value * vB    = B .clear(loc);
-        Value * vZ    = Z .clear(loc);
-        Value * vV1   = V1.clear(loc);
-        Value * vV2   = V2.clear(loc);
-        Value * vRO_A = RO_A.clear(loc);
-        Value * vRO_B = RO_B.clear(loc);
+        Value * vA    = A   .get();
+        Value * vB    = B   .get();
+        Value * vZ    = Z   .get();
+        Value * vV1   = V1  .get();
+        Value * vV2   = V2  .get();
+        Value * vRO_A = RO_A.get();
+        Value * vRO_B = RO_B.get();
 
         // erase all pointers, but only once! We start with the least
         // frequently used ones to keep this short.
@@ -340,8 +339,6 @@ struct EOC_arg
                      }
 
         if (vZ)      vZ ->clear_eoc();
-
-        return ret;
       }
 
    /// right argument
