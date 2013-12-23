@@ -117,32 +117,4 @@ print_flags (ostream & out, ValueFlags flags)
               << ((flags & VF_shared)   ?  "∇" : "-");
 }
 //-----------------------------------------------------------------------------
-void
-increment_owner_count(Value * v, const char * loc)
-{
-   Assert1(v);
-
-   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
-   // the pointer owner is deleted. Do noting then.
-   //
-   if (v->check_ptr == ((const char *)v + 7))   ++v->owner_count;
-}
-//-----------------------------------------------------------------------------
-int
-get_owner_count(const Value * v)
-{
-   return  v ? v->owner_count : -99;
-}
-//-----------------------------------------------------------------------------
-void
-decrement_owner_count(Value * v, const char * loc)
-{  
-   Assert1(v);
-
-   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
-   // the pointer owner is deleted. Do noting then.
-   //
-   if (v->check_ptr == ((const char *)v + 7))   --v->owner_count;
-}
-//-----------------------------------------------------------------------------
 

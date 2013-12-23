@@ -698,7 +698,7 @@ Cell * cZ = &Z->get_ravel(0);
         new (cZ++) PointerCell(varval);
       }
 
-   Z->set_default(Value::Spc);
+   Z->set_default(*Value::Spc_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1191,7 +1191,7 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
    delete arg.esc1;
    if (arg.esc2 != arg.esc1)   delete arg.esc2;
 
-   Z->set_default(Value::zStr0);
+   Z->set_default(*Value::zStr0_P);
    Z->check_value(LOC);
    move_2(token, Token(TOK_APL_VALUE1, Z), LOC);
    return false;   // continue
@@ -1413,7 +1413,7 @@ const APL_Integer b = B->get_ravel(0).get_int_value();
         default: DOMAIN_ERROR;
       }
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1481,7 +1481,7 @@ ShapeItem z = 0;
 
        }
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }

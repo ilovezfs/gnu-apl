@@ -141,8 +141,6 @@ extern uint64_t total_memory;
 
 #endif
 
-#include "SharedValuePointer.hh"
-
 /// Function_Line ++ (post increment)
 inline int operator ++(Function_Line & fl, int)   { return ((int &)fl)++; }
 
@@ -200,4 +198,7 @@ _(const char * msgid)
 #endif
 }
 //-----------------------------------------------------------------------------
+
+#include "SharedValuePointer.hh"
+
 #endif // __COMMON_HH_DEFINED__

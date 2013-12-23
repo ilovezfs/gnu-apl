@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-12-16 13:21+0100\n"
+"POT-Creation-Date: 2013-12-23 15:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,48 +226,49 @@ msgid ""
 "                         2:   continue (don't exit) after last testcase\n"
 "                         3:   stop testcases after first error (don't exit)\n"
 "                         4:   exit after first error\n"
+"    --TR                 randomize order of testfiles\n"
 "    --TS                 append to (rather than override) summary.log\n"
 "    --                   end of options for %s\n"
 msgstr ""
 
-#: src/main.cc:452
+#: src/main.cc:453
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr ""
 
-#: src/main.cc:453
+#: src/main.cc:454
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr ""
 
-#: src/main.cc:472
+#: src/main.cc:473
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr ""
 
-#: src/main.cc:475
+#: src/main.cc:476
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 
-#: src/main.cc:476
+#: src/main.cc:477
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr ""
 
-#: src/main.cc:867
+#: src/main.cc:872
 msgid "-f without filename"
 msgstr ""
 
-#: src/main.cc:900
+#: src/main.cc:905
 msgid "-l without log facility"
 msgstr ""
 
-#: src/main.cc:993
+#: src/main.cc:998
 msgid "--TM without test mode"
 msgstr ""
 
-#: src/main.cc:1012
+#: src/main.cc:1021
 msgid "-w without milli(seconds)"
 msgstr ""
 
-#: src/main.cc:1018
+#: src/main.cc:1027
 msgid "unknown option '"
 msgstr ""

@@ -130,7 +130,7 @@ Quad_AV::Quad_AV()
 Unicode
 Quad_AV::indexed_at(uint32_t pos)
 {
-   if (pos < MAX_AV)   return Value::AV.get_ravel(pos).get_char_value();
+   if (pos < MAX_AV)   return Value::AV_P->get_ravel(pos).get_char_value();
    return UNI_AV_MAX;
 }
 //=============================================================================
@@ -214,7 +214,7 @@ APL_Float val = cell.get_real_value();
    // APL2 "discourages" the use of ⎕CT > 1E¯9.
    // We round down to MAX_QUAD_CT (= 1E¯9) instead.
    //
-   if (val > Value::Max_CT.get_ravel(0).get_real_value())
+   if (val > Value::Max_CT_P->get_ravel(0).get_real_value())
       {
         value->erase(LOC);
         value = Value::Max_CT_P;
@@ -478,7 +478,7 @@ Cell * cZ = &Z->get_ravel(0);
             new (cZ++)   IntCell(si->get_line());
        }
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
    Z->check_value(LOC);
    return Z;
 }
@@ -541,7 +541,7 @@ const char * locale = setlocale(LC_CTYPE, 0);   // e,g, "en_US.utf8"
 UCS_string ulocale(locale);
 
 Value_P Z(new Value(ulocale, LOC));
-   Z->set_default(Value::Spc);
+   Z->set_default(*Value::Spc_P);
 
    Z->check_value(LOC);
    return Z;

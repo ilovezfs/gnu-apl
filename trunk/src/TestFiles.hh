@@ -72,6 +72,9 @@ class TestFiles
    friend int main(int argc, const char *argv[]);
 
 public:
+   /// randomize the order of test_file_names
+   static void randomize_files();
+
    /// the files to be processed.
    static vector<const char *> test_file_names;
 

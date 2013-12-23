@@ -408,6 +408,7 @@ _("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
 "                         2:   continue (don't exit) after last testcase\n"
 "                         3:   stop testcases after first error (don't exit)\n"
 "                         4:   exit after first error\n"
+"    --TR                 randomize order of testfiles\n"
 "    --TS                 append to (rather than override) summary.log\n"
 "    --                   end of options for %s\n"), prog1);
    CERR << cc << endl;
@@ -566,7 +567,8 @@ struct user_preferences
      do_sv(true),
      daemon(false),
      append_summary(false),
-     wait_ms(0)
+     wait_ms(0),
+     randomize_testfiles(false)
    {}
 
    /// load workspace CONTINUE on start-up
@@ -592,6 +594,9 @@ struct user_preferences
 
    /// wait at start-up
    int wait_ms;
+
+   /// randomize the order of testfiles
+   bool randomize_testfiles;
 };
 //-----------------------------------------------------------------------------
 // read user preference file(s) if present
@@ -994,6 +999,10 @@ user_preferences up;
                    return 5;
                  }
             }
+         else if (!strcmp(opt, "--TR"))
+            {
+              up.randomize_testfiles = true;
+            }
          else if (!strcmp(opt, "--TS"))
             {
               up.append_summary = true;
@@ -1074,6 +1083,7 @@ user_preferences up;
    Log(LOG_argc_argv)   show_argv(argc, argv);
 
    TestFiles::testcase_count = TestFiles::test_file_names.size();
+   if (up.randomize_testfiles)   TestFiles::randomize_files();
 
    if (ProcessorID::init(up.do_sv, up.requested_id, up.requested_par))
       {

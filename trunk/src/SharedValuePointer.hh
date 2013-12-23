@@ -43,8 +43,8 @@
  !!  3. the third method uses our own shared pointer class that uses a
  !!     reference counter in the Value object itself.
  !!
- !!  Currently Method 3 is under construction, Methods 2 and 1 are working,
- !!  and Methods 1 is used by default (which can be changed below).
+ !!  Currently all methods are working and Methods 1 is used by default
+ !!  (which can be changed below). Methods 1 and 2 will disappear soon.
  **/
 
 #define SHARED_POINTER_METHOD 1
@@ -54,6 +54,130 @@ class Value;
 #if SHARED_POINTER_METHOD == 1 //////////////////////////////////////////////
 
 #define ptr_clear(p, l) p.clear(l)
+
+class Value_P
+{
+public:
+   /// Constructor: 0 pointer
+   Value_P()
+   : value_p(0)
+   {}
+
+   /// Constructor: from Value *
+   Value_P(Value * val)
+     : value_p(val)
+     {
+       if (value_p)
+          {
+            ADD_EVENT(value_p, VHE_PtrNew, use_count(), LOC);
+          }
+     }
+
+   /// Constructor: from Value * with deleter
+   Value_P(Value * val, void (*Deleter)(Value *))
+     : value_p(val)
+     {
+       if (value_p)
+          {
+            ADD_EVENT(value_p, VHE_PtrNew, use_count(), "static Value_P");
+          }
+     }
+
+   /// Constructor: from other Value_P
+   Value_P(const Value_P & other)
+   : value_p(other.value_p)
+   {
+     if (value_p)
+        {
+          ADD_EVENT(value_p, VHE_PtrCopy1, use_count(), LOC);
+        }
+   }
+
+   /// copy operator
+   Value_P & operator =(const Value_P & other)
+   {
+      if (value_p)   // override existing pointer
+         {
+           if (value_p == other.value_p)   return *this;   // same pointer
+
+           ADD_EVENT(value_p, VHE_PtrClr, other.use_count(), LOC);
+         }
+          
+      value_p = other.value_p;
+      if (value_p)
+         {
+           ADD_EVENT(value_p, VHE_PtrCopy3, use_count(), LOC);
+         }
+
+      return *this;
+   }
+
+   int use_count() const
+      { return 99; }
+
+   void destruct()
+      {
+        if (value_p)
+           {
+             const int count = use_count() - 1;
+             ADD_EVENT(value_p, VHE_PtrDel, count, LOC);
+          }
+      }
+
+   /// Destructor for normal Value_P objects
+   ~Value_P()   { destruct(); }
+
+   const Value * operator->()  const
+      { return value_p; }
+
+   Value * operator->()
+      { return value_p; }
+
+   const Value & operator*()  const
+      { return *value_p; }
+
+   const Value * get() const
+      { return value_p; }
+
+   Value * get()
+      { return value_p; }
+
+   bool operator!() const
+      { return value_p == 0; }
+
+
+   bool operator ==(const Value_P other) const
+      { return value_p == other.value_p; }
+
+   bool operator !=(const Value_P other) const
+      { return value_p != other.value_p; }
+
+   void clear(const char * loc)
+     {
+       if (!value_p)   return;
+
+       const int count = use_count() - 1;
+       ADD_EVENT(value_p, VHE_PtrClr, count, loc);
+
+       value_p = 0;
+    }
+
+protected:
+   Value * value_p;
+};
+
+#elif SHARED_POINTER_METHOD == 2 //////////////////////////////////////////////
+
+#define ptr_clear(p, l) p.reset()
+
+#include "Backtrace.hh"
+#include <tr1/memory>
+
+typedef std::tr1::shared_ptr<Value> Value_P;
+
+#elif SHARED_POINTER_METHOD == 3 //////////////////////////////////////////////
+
+#define ptr_clear(p, l) p.reset()
 
 int  get_owner_count(const Value * v);
 void increment_owner_count(Value * v, const char * loc);
@@ -137,6 +261,15 @@ public:
    /// Destructor for normal Value_P objects
    ~Value_P()   { destruct(); }
 
+   void reset()
+      {
+        if (value_p)
+           {
+             decrement_owner_count(value_p, LOC);
+             value_p = 0;
+           }
+      }
+
    const Value * operator->()  const
       { return value_p; }
 
@@ -152,69 +285,33 @@ public:
    Value * get()
       { return value_p; }
 
-   bool operator!() const
+ bool operator!() const
       { return value_p == 0; }
 
 
-   bool operator ==(const Value_P other) const
+   bool operator ==(const Value_P & other) const
       { return value_p == other.value_p; }
 
-   bool operator !=(const Value_P other) const
+   bool operator !=(const Value_P & other) const
       { return value_p != other.value_p; }
 
    void clear(const char * loc)
      {
-       if (!value_p)   return;
+       if (value_p)
+          {
+            const int count = use_count() - 1;
+            decrement_owner_count(value_p, LOC);
+            ADD_EVENT(value_p, VHE_PtrClr, count, loc);
 
-       const int count = use_count() - 1;
-       decrement_owner_count(value_p, loc);
-       ADD_EVENT(value_p, VHE_PtrClr, count, loc);
-
-       value_p = 0;
+            value_p = 0;
+          }
     }
 
 protected:
    Value * value_p;
 };
 
-#elif SHARED_POINTER_METHOD == 2 //////////////////////////////////////////////
-
-#define ptr_clear(p, l) p.reset()
-
-#include "Backtrace.hh"
-#include <tr1/memory>
-
-typedef std::tr1::shared_ptr<Value> Value_P;
-
-#elif SHARED_POINTER_METHOD == 3 //////////////////////////////////////////////
-
-# warning SHARED_POINTER_METHOD 3 not yet done
-
-#define ptr_clear(p, l) p.reset()
-
-#include "Backtrace.hh"
-#include <tr1/memory>
-class Value_P : public std::tr1::shared_ptr<Value>
-{
-public:
-   Value_P()
-   {}
-
-   Value_P(Value * vp)
-   : std::tr1::shared_ptr<Value>(vp)
-   {
-     ADD_EVENT(get(), VHE_PtrNew, use_count(), LOC);
-   }
-
-   Value_P operator=(const Value_P & other)
-      { std::tr1::shared_ptr<Value>::operator=(other);
-        ADD_EVENT(get(), VHE_PtrCopy1, use_count(), LOC);
-        return *this;
-      }
-};
-
-
-#else
+#else /////////////////////////////////////////////////////////////////////////
 
 # error SHARED_POINTER_METHOD must be 1, 2 or 3!
 

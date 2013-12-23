@@ -277,7 +277,12 @@ const char * src_loc = find_src(pc);
 const char *
 Backtrace::caller(int offs)
 {
-return "caller";
+   return "caller";
+
+   // the followomg may crash! Uncomment return "caller"; above only for
+   // troubleshooting!
+   //
+
 #ifndef HAVE_EXECINFO_H
    CERR << "Cannot show function call stack since execinfo.h seems not"
            " to exist on this OS (WINDOWs ?)." << endl;

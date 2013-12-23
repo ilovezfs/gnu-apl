@@ -656,7 +656,7 @@ Cell * cZ = &Z->get_ravel(0);
         else                 new (cZ++) CharCell(UNI_ASCII_SPACE);
       }
 
-   Z->set_default(Value::Spc);   // prototype: character
+   Z->set_default(*Value::Spc_P);   // prototype: character
    return Z;
 }
 //=============================================================================
