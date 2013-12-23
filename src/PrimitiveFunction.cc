@@ -106,7 +106,7 @@ Value_P Z(new Value(B->get_rank(), LOC));
 
    loop(r, B->get_rank())   new (&Z->get_ravel(r)) IntCell(B->get_shape_item(r));
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -162,7 +162,7 @@ Value_P Z(new Value(len, LOC));
 
    loop(z, len)   new (&Z->get_ravel(z)) IntCell(qio + z);
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -199,7 +199,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
             new (&Z->get_ravel(bz)) IntCell(qio + len_A);
        }
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1257,7 +1257,7 @@ Value_P Z(new Value(A->get_shape(), LOC));
          new (&Z->get_ravel(z))   IntCell(same);
        }
    
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -2182,7 +2182,7 @@ const Cell * base = &B->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -2227,7 +2227,7 @@ const Cell * base = &B1->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
 
    B1->erase(LOC);
    Z->check_value(LOC);
@@ -2315,7 +2315,7 @@ Token
 Bif_F12_FORMAT::eval_B(Value_P B)
 {
 Value_P Z = monadic_format(B);
-   Z->set_default(Value::Spc);
+   Z->set_default(*Value::Spc_P);
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -2341,7 +2341,7 @@ Value_P Z;
         DOMAIN_ERROR;
       }
 
-   Z->set_default(Value::Spc);
+   Z->set_default(*Value::Spc_P);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }

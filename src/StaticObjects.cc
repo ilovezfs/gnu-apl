@@ -42,8 +42,8 @@ static void Deleter(Value * p)
 {
 }
 
-#define stv_def(x) Value Value:: x(LOC, Value::Value_how_ ## x); \
-                   Value_P Value:: x ## _P(&Value::x, Deleter);
+#define stv_def(x) Value Value:: _ ## x(LOC, Value::Value_how_ ## x); \
+                   Value_P Value:: x ## _P(&Value::_## x, Deleter);
 #include "StaticValues.def"
 
 // 3. Id strings are used by function id_name() which is used by system

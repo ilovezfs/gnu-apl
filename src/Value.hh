@@ -443,7 +443,7 @@ public:
    /// print stale Values, and return the number of stale Values.
    static int print_stale(ostream & out);
 
-#define stv_def(x) /** x **/ static Value x; static Value_P x ## _P;
+#define stv_def(x) /** x **/ static Value _ ## x; static Value_P x ## _P;
 #include "StaticValues.def"
 
    /// total nz_element_counts of all non-short values
@@ -490,5 +490,55 @@ public:
 
 extern void print_history(ostream & out, const Value * val,
                                 const char * loc);
+
+// ----------------------------------------------------------------------------
+inline int
+get_owner_count(const Value * v)
+{
+   return  v ? v->owner_count : -99;
+}
+//-----------------------------------------------------------------------------
+inline void
+increment_owner_count(Value * v, const char * loc)
+{
+   Assert1(v);
+
+   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
+   // the pointer owner is deleted. Do noting then.
+   //
+   if (v->check_ptr == ((const char *)v + 7))   ++v->owner_count;
+}
+//-----------------------------------------------------------------------------
+inline void
+decrement_owner_count(Value * v, const char * loc)
+{
+   Assert1(v);
+
+   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
+   // the pointer owner is deleted. Do noting then.
+   //
+   if (v->check_ptr == ((const char *)v + 7))
+      {
+#if SHARED_POINTER_METHOD == 3
+        Assert1(v->owner_count > 0);
+        if (v->owner_count == 0)
+           {
+             static bool dumped = false;
+             if (dumped)   return;
+             dumped = true;
+             cerr << "decrement_owner_count() reached 0 for static value "
+                  << v->where_allocated() << endl;
+             Backtrace::show(__FILE__, __LINE__);
+             exit(0);
+             return;
+           }
+
+         --v->owner_count;
+
+        if (v->owner_count == 0)   delete v;
+#endif
+      }
+}
+//-----------------------------------------------------------------------------
 
 #endif // __VALUE_HH_DEFINED__

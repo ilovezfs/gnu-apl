@@ -140,78 +140,59 @@ Value::Value(const char * loc, Value_how how)
       {
         case Value_how_Zero ... Value_how_Nine:
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(how);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Spc:
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Idx0:
              new (&shape) Shape(0);
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(0);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Str0:
              new (&shape) Shape(0);
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_zStr0:
              init_ravel();
-             owner_count = 1;   // static
              {
                Value_P z(new Value(loc, Value_how_Str0));   // ''
                new (&get_ravel(0)) PointerCell(z);               // ⊂''
              }
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Str0_0:
              new (&shape) Shape(ShapeItem(0), ShapeItem(0));
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Str3_0:
              new (&shape) Shape(ShapeItem(3), ShapeItem(0));
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Max:
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(BIG_FLOAT);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Min:
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(-BIG_FLOAT);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_AV:
              new (&shape) Shape(MAX_AV);
              init_ravel();
-             owner_count = 1;   // static
              loop(cti, MAX_AV)
                  {
                    const int pos = Avec::get_av_pos(CHT_Index(cti));
@@ -219,22 +200,17 @@ Value::Value(const char * loc, Value_how how)
 
                    new (&get_ravel(pos))  CharCell(uni);
                  }
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Max_CT:
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) FloatCell(MAX_QUAD_CT);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Max_PP:
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) IntCell(MAX_QUAD_PP);
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Quad_NLT:
              {
@@ -242,25 +218,21 @@ Value::Value(const char * loc, Value_how how)
                 const ShapeItem len = strlen(cp);
                 new (&shape) Shape(len);
                 init_ravel();
-                owner_count = 1;   // static
                 loop(l, len)   new (&get_ravel(l)) CharCell(Unicode(cp[l]));
              }
-             check_value(LOC);
-             return;
+             break;
 
         case Value_how_Quad_TC:
              new (&shape) Shape(3);
              init_ravel();
-             owner_count = 1;   // static
              new (&get_ravel(0)) CharCell(UNI_ASCII_BS);
              new (&get_ravel(1)) CharCell(UNI_ASCII_CR);
              new (&get_ravel(2)) CharCell(UNI_ASCII_LF);
-             check_value(LOC);
-             return;
+             break;
       }
 
-   // not reached
-   FIXME;
+   check_value(LOC);
+   owner_count = 1;
 }
 //-----------------------------------------------------------------------------
 Value::Value(ShapeItem sh, const char * loc)
@@ -781,7 +753,7 @@ Value::list_one(ostream & out, bool show_owners)
    // static variables
    //
 #define stv_def(x) \
-   if (this == & x)   out << "(static) Value::" #x << endl;
+   if (this == x ## _P.get())   out << "(static) Value::_" #x << endl;
 #include "StaticValues.def"
 
    Workspace::show_owners(out, *this);
@@ -1924,7 +1896,8 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
    out << endl;
 }
 //-----------------------------------------------------------------------------
-ostream & operator<<(ostream & out, const Value & v)
+ostream &
+operator<<(ostream & out, const Value & v)
 {
    v.print(out);
    return out;

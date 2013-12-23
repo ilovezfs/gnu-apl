@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 
 #include "Common.hh"
 #include "Command.hh"
@@ -192,6 +193,44 @@ TestFiles::get_testcase_line()
       }
 
    return 0;
+}
+//-----------------------------------------------------------------------------
+void
+TestFiles::randomize_files()
+{
+   {
+     timeval now;
+     gettimeofday(&now, 0);
+     srandom(now.tv_sec + now.tv_usec);
+   }
+
+   for (int done = 0; done < 4*test_file_names.size();)
+       {
+         const int n1 = random() % test_file_names.size();
+         const int n2 = random() % test_file_names.size();
+         if (n1 == n2)   continue;
+
+         const char * f1 = test_file_names[n1];
+         const char * f2 = test_file_names[n2];
+
+         const char * ff1 = strrchr(f1, '/');
+         if (!ff1++)   ff1 = f1;
+         const char * ff2 = strrchr(f2, '/');
+         if (!ff2++)   ff2 = f2;
+
+         // the order of files named AAA... or ZZZ... shall not be changed
+         //
+         if (strncmp(ff1, "AAA", 3) == 0)   continue;
+         if (strncmp(ff1, "ZZZ", 3) == 0)   continue;
+         if (strncmp(ff2, "AAA", 3) == 0)   continue;
+         if (strncmp(ff2, "ZZZ", 3) == 0)   continue;
+
+         // at this point f1 and f2 shall be swapped.
+         //
+         test_file_names[n1] = f2;
+         test_file_names[n2] = f1;
+         ++done;
+       }
 }
 //-----------------------------------------------------------------------------
 void

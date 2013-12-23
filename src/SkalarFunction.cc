@@ -404,7 +404,7 @@ Shape shape_A;
        }
 
 done:
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -466,7 +466,7 @@ uint32_t idx_B[set_size];
          --set_size;
        }
 
-   Z->set_default(Value::Zero);
+   Z->set_default(*Value::Zero_P);
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
