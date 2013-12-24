@@ -43,8 +43,7 @@ Cell::init(const Cell & other)
    Assert(&other);
    switch(other.get_cell_type())
       {
-        case CT_NONE:
-        case CT_BASE:
+        default:
              Assert(0);
 
         case CT_CHAR:
@@ -74,7 +73,6 @@ Cell::init(const Cell & other)
         case CT_CELLREF:
              new (this) LvalCell(other.get_lval_value());
              return;
-
       }
 
    Assert(0 && "Bad cell type");
@@ -86,7 +84,6 @@ Cell::init_from_value(Value_P value, const char * loc)
    if (value->is_skalar())
       {
         init(value->get_ravel(0));
-        value->erase(loc);
       }
    else
       {
@@ -109,7 +106,6 @@ Value_P ret;
         ret->check_value(LOC);
       }
 
-   ret->set_arg();
    return ret;
 }
 //-----------------------------------------------------------------------------

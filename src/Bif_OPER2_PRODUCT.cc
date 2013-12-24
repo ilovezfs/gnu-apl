@@ -54,29 +54,21 @@ Bif_OPER2_PRODUCT::outer_product(Value_P A, Token & _RO, Value_P B)
 Function * RO = _RO.get_function();
    Assert(RO);
 
-EOC_arg arg;
+Value_P Z(new Value(A->get_shape() + B->get_shape(), LOC));
+EOC_arg arg(Z, B, A);
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
-   arg.Z = Value_P(new Value(A->get_shape() + B->get_shape(), LOC));
-   _arg.cZ = &arg.Z->get_ravel(0);
+   _arg.cZ = &Z->get_ravel(0);
    _arg.len_A = A->element_count();
    _arg.len_B = B->element_count();
 
    arg.V1 = Value_P(new Value(LOC));   // helper value for non-pointer cA
-   if (A->is_eoc())   A = A->clone(LOC);
-   arg.A = A;
-
    _arg.RO = RO;
 
-   if (B->is_eoc())   B = B->clone(LOC);
-   arg.B = B;
-
    arg.V2 = Value_P(new Value(LOC));   // helper value for non-pointer cB
-   arg.V2->set_eoc();
    _arg.cA = &A->get_ravel(0);
    _arg.cB = &B->get_ravel(0);
 
-   arg.set_EOC();
    _arg.how = 0;
 
    return finish_outer_product(arg);
@@ -158,7 +150,6 @@ next_a_b:
 
    arg.Z->set_default(*arg.B.get());
 
-   arg.clear_EOC(LOC);
    arg.Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, arg.Z);
 }
@@ -201,13 +192,6 @@ Function * RO = _RO.get_function();
    Assert1(LO);
    Assert1(RO);
 
-EOC_arg arg;
-INNER_PROD & _arg = arg.u.u_INNER_PROD;
-   arg.A = A;
-   _arg.LO = LO;
-   _arg.RO = RO;
-   arg.B = B;
-
 Shape shape_A1(A->get_shape());
 ShapeItem len_A = 1;
    if (!A->is_skalar())
@@ -224,13 +208,12 @@ ShapeItem len_B = 1;
         shape_B1.remove_shape_item(0);
       }
 
-
    // we do not check len_A == len_B since LO may accept different lengths
 
-   _arg.items_A = shape_A1.element_count();
-   _arg.items_B = shape_B1.element_count();
+const ShapeItem items_A = shape_A1.element_count();
+const ShapeItem items_B = shape_B1.element_count();
 
-   if (_arg.items_A == 0 || _arg.items_B == 0)   // empty result
+   if (items_A == 0 || items_B == 0)   // empty result
       {
         // the outer product portion of LO.RO is empty.
         // Apply the fill function of RO
@@ -239,10 +222,17 @@ ShapeItem len_B = 1;
         return fill(shape_Z, A, RO, B, LOC);
       }
 
-   if (A->is_eoc())   A = A->clone(LOC);
-   if (B->is_eoc())   B = B->clone(LOC);
+Value_P Z(new Value(shape_A1 + shape_B1, LOC));
+EOC_arg arg(Z, B, A);
+INNER_PROD & _arg = arg.u.u_INNER_PROD;
+   arg.A = A;
+   _arg.LO = LO;
+   _arg.RO = RO;
+   arg.B = B;
 
-   arg.Z = Value_P(new Value(shape_A1 + shape_B1, LOC));
+   _arg.items_A = items_A;
+   _arg.items_B = items_B;
+
    _arg.cZ = &arg.Z->get_ravel(0);
 
    // create a vector with the rows of A
@@ -259,7 +249,6 @@ ShapeItem len_B = 1;
             }
          v->set_default(*A.get());
          v->check_value(LOC);
-         v->set_shared();
          _arg.args_A[i] = v;
        }
 
@@ -278,11 +267,9 @@ ShapeItem len_B = 1;
          v->set_default(*B.get());
          v->check_value(LOC);
 
-         v->set_shared();
          _arg.args_B[i] = v;
        }
 
-   arg.set_EOC();
    _arg.how = 0;
    return finish_inner_product(arg);
 }
@@ -340,7 +327,6 @@ loop_b:
       }
 
      arg.V1 = T1.get_apl_val();   // V1 is A[a] RO B1[b]
-     arg.V1->set_eoc();
    }
 
 how_1:
@@ -358,15 +344,10 @@ how_1:
           if (T2.get_tag() == TOK_ERROR)   return T2;
           _arg.cZ++->init_from_value(T2.get_apl_val(), LOC);
 
-          arg.V1->clear_arg();
-          arg.V1->clear_eoc();
-          arg.V1->erase(LOC);
           ptr_clear(arg.V1, LOC);
 
           goto next_a_b;
         }
-
-     arg.V1->set_arg();   // prevent erase() of V1
 
      // use V2 as accumulator for LO-reduction
      //
@@ -377,14 +358,7 @@ how_1:
 loop_v:
        {
          Value_P LO_A = arg.V1->get_ravel(_arg.v1).to_value(LOC);
-         LO_A->set_eoc();
          const Token T2 = _arg.LO->eval_AB(LO_A, arg.V2);
-         LO_A->clear_arg();
-         LO_A->clear_eoc();
-         LO_A->erase(LOC);
-         arg.V2->clear_arg();
-         arg.V2->clear_eoc();
-         arg.V2->erase(LOC);
          ptr_clear(arg.V2, LOC);
 
          if (T2.get_tag() == TOK_ERROR)   return T2;
@@ -414,7 +388,6 @@ loop_v:
             }
 
          arg.V2 = T2.get_apl_val();
-         arg.V2->set_eoc();
        }
 
 how_2:
@@ -422,36 +395,19 @@ how_2:
 
    _arg.cZ++->init_from_value(arg.V2, LOC);
 
-   arg.V1->clear_arg();
-   arg.V1->clear_eoc();
-   arg.V1->erase(LOC);
    ptr_clear(arg.V1, LOC);
 
-   arg.V2->clear_eoc();
-   arg.V2->erase(LOC);
    ptr_clear(arg.V2, LOC);
 
 next_a_b:
    if (++_arg.b < _arg.items_B)   goto loop_b;
    if (++_arg.a < _arg.items_A)   goto loop_a;
 
-   loop(i, _arg.items_A)
-      {
-         _arg.args_A[i]->clear_shared();
-         _arg.args_A[i]->erase(LOC);
-      }
    delete [] _arg.args_A;
-
-   loop(i, _arg.items_B)
-      {
-         _arg.args_B[i]->clear_shared();
-         _arg.args_B[i]->erase(LOC);
-      }
    delete [] _arg.args_B;
 
    arg.Z->set_default(*arg.B.get());
  
-   arg.clear_EOC(LOC);
    arg.Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, arg.Z);
 }
@@ -470,8 +426,8 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
       {
        // a user defined function has returned a value. Store it.
        //
-       if      (_arg.how == 1)   (arg.V1 = token.get_apl_val())->set_eoc();
-       else if (_arg.how == 2)   (arg.V2 = token.get_apl_val())->set_eoc();
+       if      (_arg.how == 1)   arg.V1 = token.get_apl_val();
+       else if (_arg.how == 2)   arg.V2 = token.get_apl_val();
        else                      FIXME;
       }
 

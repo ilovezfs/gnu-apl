@@ -116,7 +116,6 @@ const ShapeItem ec = val->element_count();
              const Cell & cell = val->get_ravel(e);
              if (!cell.is_character_cell())
                 {
-                  val->erase(LOC);
                   return  Value::Str0_P;
                 }
 
@@ -144,7 +143,6 @@ const ShapeItem ec = val->element_count();
            }
       }
 
-   val->erase(LOC);
    return Value_P(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
@@ -247,8 +245,6 @@ const size_t data_chars = len - idx;
         new_val->check_value(LOC);
 
          Token t = Quad_FX::fun.eval_B(new_val);
-         t.get_apl_val()->erase(LOC);
-         new_val->erase(LOC);
       }
    else if (mode == UNI_ASCII_C)   // char array
       {
@@ -265,7 +261,6 @@ const size_t data_chars = len - idx;
            symbol = Workspace::lookup_symbol(name);
 
         symbol->assign(new_val, LOC);
-        new_val->erase(LOC);   // if assign fails
       }
    else if (mode == UNI_ASCII_N)   // numeric array
       {
@@ -310,7 +305,6 @@ const size_t data_chars = len - idx;
         if (!symbol)   symbol = Workspace::lookup_symbol(name);
 
         symbol->assign(new_val, LOC);
-        new_val->erase(LOC);   // if assign(0 failed
       }
    else Assert(0);   // since checked above
    
@@ -364,7 +358,6 @@ Quad_TF::tf2_var(const UCS_string & var_name, Value_P value)
         tf2_parse(data, new_var_or_fun);
         if (new_var_or_fun.size())   // if data is an inverse TF2
            {
-             value->erase(LOC);
              Value_P Z(new Value(new_var_or_fun, LOC));
              Z->check_value(LOC);
              return Token(TOK_APL_VALUE1, Z);
@@ -375,7 +368,6 @@ UCS_string ucs(var_name);
    ucs.append(UNI_LEFT_ARROW);
 
 const bool error = tf2_ravel(0, ucs, value);
-   value->erase(LOC);
 
    // return '' for invalid values.
    //
@@ -393,9 +385,9 @@ Token_string tos;
 Parser parser(PM_EXECUTE, LOC);
 
    try          { parser.parse(ucs, tos); }
-   catch(...)   { goto out; }
+   catch(...)   { return; }
 
-   if (tos.size() < 2)   goto out;   // too short for an inverse 2⎕TF
+   if (tos.size() < 2)   return;   // too short for an inverse 2⎕TF
 
    // we expect either VAR←VALUE ... or ⎕FX fun-text. Try VAR←VALUE.
    //
@@ -416,19 +408,19 @@ Parser parser(PM_EXECUTE, LOC);
 
         // at this point, we expect SYM←VALUE.
         //
-        if (tos.size() != 3)                  goto out;
-        if (tos[2].get_Class() != TC_VALUE)   goto out;
+        if (tos.size() != 3)                  return;
+        if (tos[2].get_Class() != TC_VALUE)   return;
 
          tos[0].get_sym_ptr()->assign(tos[2].get_apl_val(), LOC);
          new_var_or_fun = tos[0].get_sym_ptr()->get_name();   // valid 2⎕TF
-         goto out;
+         return;
       }
 
    // Try ⎕FX fun-text
    //
-   if (tos.size() != 2)                   goto out;
-   if (tos[0].get_tag() != TOK_QUAD_FX)   goto out;
-   if (tos[1].get_Class() != TC_VALUE)    goto out;
+   if (tos.size() != 2)                   return;
+   if (tos[0].get_tag() != TOK_QUAD_FX)   return;
+   if (tos[1].get_Class() != TC_VALUE)    return;
 
    {
      Value_P function_text =  tos[1].get_apl_val();
@@ -438,17 +430,8 @@ Parser parser(PM_EXECUTE, LOC);
       {
         Value_P val = tok.get_apl_val();
         new_var_or_fun = UCS_string(*val.get());
-        val->erase(LOC);
       }
    }
-
-   // release values allocated by tos
-   //
-out:
-   loop(t, tos.size())
-     {
-       if (tos[t].is_apl_val())   tos[t].get_apl_val()->erase(LOC);
-     }
 }
 //-----------------------------------------------------------------------------
 void
@@ -499,7 +482,6 @@ const ShapeItem ec = value->element_count();
 
         Value_P proto = value->prototype(LOC);
         tf2_ravel(level + 1, ucs, proto);
-        proto->erase(LOC);
         ucs.append(UNI_ASCII_R_PARENT);
         return  false;
       }
@@ -651,7 +633,6 @@ int d = 0;
                   Token t(TOK_APL_VALUE1, bval);   // grouped value
                   move_1(tos[d], t, LOC);
                   bval->set_shape(sh);
-                  aval->erase(LOC);
                   progress = true;
                   ++d;
                   s += 2;
@@ -660,7 +641,6 @@ int d = 0;
              else
                 {
                   move_2(tos[d], Bif_F12_RHO::fun.do_reshape(sh, bval), LOC);
-                  aval->erase(LOC);
                   progress = true;
                   ++d;
                   s += 2;

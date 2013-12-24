@@ -287,7 +287,6 @@ const uint32_t nelm = val->element_count();
                   const int sub_len = sub_val->total_size_brutto(sub_type);
                   fill(result, sub_type, sub_len, sub_val);
 
-                  sub_val->erase(LOC);
                 }
               else
                 {

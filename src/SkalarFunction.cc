@@ -109,7 +109,6 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
              Value_P skalar_B(new Value(*cell_B, LOC));
              Token token = eval_skalar_AB(value_A, skalar_B, fun);
              new (cell_Z) PointerCell(token.get_apl_val());
-             skalar_B->erase(LOC);
            }
       }
    else                                  // A is simple
@@ -120,7 +119,6 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
              Value_P value_B = cell_B->get_pointer_value();
              Token token = eval_skalar_AB(skalar_A, value_B, fun);
              new (cell_Z) PointerCell(token.get_apl_val());
-             skalar_A->erase(LOC);
            }
    else                                // A and B are both plain
          {
@@ -277,7 +275,6 @@ const ShapeItem len_Z = Z->nz_element_count();
         loop(s, len_sub)   csub++->init(cell_FI0);
 
         loop(z, len_Z)   new (cZ++) PointerCell(sub->clone(LOC));
-        sub->erase(LOC);
       }
    else
       {
@@ -376,7 +373,7 @@ Shape shape_A;
         goto done;
       }
 
-   // Reshape A to match rank B if neccessary...
+   // Reshape A to match rank B if necessary...
    //
    {
      const Rank rank_diff = B->get_rank() - A->get_rank();

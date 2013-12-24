@@ -141,18 +141,14 @@ const ShapeItem m_len = B->get_shape_item(axis);
       }
 
 const Shape3 Z3(B->get_shape(), axis);
-EOC_arg arg;
-REDUCTION & _arg = arg.u.u_REDUCTION;
 
 Value_P Z(new Value(B->get_shape(), LOC));
-   Z->set_eoc();   // keep Z
-   arg.B = B;
-   arg.Z = Z;
+EOC_arg arg(Z, B);
+REDUCTION & _arg = arg.u.u_REDUCTION;
+
    _arg.init(&Z->get_ravel(0), Z3, LO, &B->get_ravel(0), m_len, 1, 1);
-   arg.set_EOC();
 
 Token tok(TOK_FIRST_TIME);
-   B->set_eoc();   // keep B
    Bif_REDUCE::eoc_beam(tok, arg);
    return tok;
 }

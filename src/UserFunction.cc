@@ -95,14 +95,6 @@ Function * old_function = sym_FUN->get_function();
    if (sym_LO)   sym_FUN->set_nc(NC_OPERATOR, this);
    else               sym_FUN->set_nc(NC_FUNCTION, this);
 
-   // fix program constants so that they don't get deleted.
-   //
-   loop(b, body.size())
-       {
-         Token & t = body[b];
-         if (t.get_ValueType() == TV_VAL)   t.get_apl_val()->set_shared();
-       }
-
    if (old_function)
       {
         const UserFunction * old_ufun = old_function->get_ufun1();

@@ -131,14 +131,7 @@ UCS_string ret;
   if (flags & VF_marked)   ret.append(UNI_ASCII_M);
   if (flags & VF_complete) ret.append(UNI_ASCII_C);
   if (flags & VF_left)     ret.append(UNI_ASCII_AMPERSAND);
-  if (flags & VF_arg)      ret.append(UNI_ASCII_A);
-  if (flags & VF_eoc)      ret.append(UNI_ASCII_E);
-  if (flags & VF_deleted)  ret.append(UNI_DELTA);
-  if (flags & VF_index)    ret.append(UNI_SQUISH_QUAD);
-  if (flags & VF_nested)   ret.append(UNI_ASCII_s);
   if (flags & VF_forever)  ret.append(UNI_INFINITY);
-  if (flags & VF_assigned) ret.append(UNI_LEFT_ARROW);
-  if (flags & VF_shared)   ret.append(UNI_NABLA);
 
    while (ret.size() < 4)   ret.append(UNI_ASCII_SPACE);
    return ret;
@@ -195,21 +188,7 @@ const ValueFlags flags_before = (ValueFlags)flags;
              break;
 
         case VHE_Erase:
-             out << "  VHE_Erase    " << flags_before << " ";
-             if (flags_before & VF_deleted)
-                {
-                  out << "** TWICE ** ";
-                }
-             else if (flags_before & VF_DONT_DELETE)
-                {
-                  out << "still owned  ";
-                }
-             else
-                {
-                  flags |= VF_deleted;
-                  if (flags_before != flags)   out << (ValueFlags)flags << " ";
-                  else                         out << "            ";
-                }
+             out << "  VHE_Erase    " << flags_before << "             ";
              break;
 
         case VHE_Destruct:

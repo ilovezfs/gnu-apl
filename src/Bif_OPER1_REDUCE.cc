@@ -170,12 +170,9 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         Shape shape_B1 = B->get_shape().insert_axis(axis, 0);
         shape_B1.increment_shape_item(axis + 1);
         Value_P val(new Value(shape_B1, LOC));
-        val->set_arg();
         val->get_ravel(0).init(B->get_ravel(0));   // prototype
 
         Token result = LO->eval_identity_fun(val, axis);
-        val->clear_arg();
-        val->erase(LOC);
         return result;
       }
 
@@ -209,14 +206,11 @@ Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
 {
    if (shape_Z.is_empty())   return LO->eval_identity_fun(B, axis);
 
-EOC_arg arg;
+Value_P Z(new Value(shape_Z, LOC));
+EOC_arg arg(Z, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-   new (& arg.Z)   Value_P(new Value(shape_Z, LOC));
-   arg.B = B;
    _arg.init(&arg.Z->get_ravel(0), Z3, LO, &B->get_ravel(0), bm, a, 0);
-
-   arg.set_EOC();
 
 Token tok(TOK_FIRST_TIME);
    eoc_beam(tok, arg);
@@ -245,8 +239,7 @@ new_beam:
            copy_1(token, Token(TOK_APL_VALUE1,
                                 cB->get_pointer_value()->clone(LOC)), LOC);
         else
-           copy_1(token, Token(TOK_APL_VALUE1,
-                               cB->to_value(LOC)), LOC);   // does set_arg()
+           copy_1(token, Token(TOK_APL_VALUE1, cB->to_value(LOC)), LOC);
       }
 
 again:
@@ -261,12 +254,10 @@ Value_P BB = token.get_apl_val();
         // then BB->clear_eoc() below is never reached and we have to do
         // it here.
         //
-        BB->clear_arg();
         dst->init_from_value(BB, LOC);
 
         if (_arg.frame.done())   // if last beam (final result complete)
            {
-             arg.clear_EOC(LOC);
              arg.Z->check_value(LOC);
              copy_1(token, Token(TOK_APL_VALUE1, arg.Z), LOC);
              return false;   // stop it
@@ -283,16 +274,8 @@ Value_P BB = token.get_apl_val();
    if (_arg.need_pop)   Workspace::pop_SI(LOC);
 
 const Cell * cA = _arg.beam.next_B();
-Value_P AA = cA->to_value(LOC);   // does set_arg()
-   AA->set_eoc();
-   BB->set_eoc();
+Value_P AA = cA->to_value(LOC);
    copy_1(token, _arg.beam.LO->eval_AB(AA, BB), LOC);
-   AA->clear_arg();
-   AA->clear_eoc();
-   AA->erase(LOC);
-   BB->clear_arg();
-   BB->clear_eoc();
-   BB->erase(LOC);
 
    // if token is an APL value, then LO was a primitive function and the last
    // LO->eval_AB() succeeded. No SI entry was pushed, so we can loop locally.

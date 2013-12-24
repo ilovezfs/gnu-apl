@@ -34,19 +34,6 @@ IndexExpr::IndexExpr(bool _left, const char * loc)
 {
 }
 //-----------------------------------------------------------------------------
-IndexExpr::~IndexExpr()
-{
-   loop(r, value_count())
-       {
-         Value * I = values[r].get();
-         if (I)
-            {
-              I->clear_index();
-              I->erase(LOC);
-            }
-       }
-}
-//-----------------------------------------------------------------------------
 Value_P
 IndexExpr::extract_value(Rank rk)
 {
@@ -55,7 +42,6 @@ IndexExpr::extract_value(Rank rk)
 Value_P ret = values[rk];
    ptr_clear(values[rk], LOC);
 
-   ret->clear_index();
    return ret;
 }
 //-----------------------------------------------------------------------------

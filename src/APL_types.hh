@@ -110,30 +110,12 @@ enum ListCategory
 /// possible properties of a Value.
 enum ValueFlags
 {
-  VF_NONE     = 0x000,   ///< no flags.
-  VF_shared   = 0x001,   ///< value is shared:         don't delete
-  VF_assigned = 0x002,   ///< value is assigned:       don't delete
-  VF_forever  = 0x004,   ///< value is fixed forever:  don't delete
-  VF_nested   = 0x008,   ///< value is nested:         don't delete
-  VF_index    = 0x010,   ///< value belongs to index:  don't delete
-  VF_deleted  = 0x020,   ///< value is deleted:        don't delete again
-  VF_arg      = 0x040,   ///< value is an argument:    don't delete
-  VF_eoc      = 0x080,   ///< value is an eoc arg:     don't delete
-  VF_dirty    = 0x100,   ///< initialization failed    don't delete
-  VF_left     = 0x200,   ///< left value (←):          OK to delete
-  VF_complete = 0x400,   ///< CHECK called:            OK to delete
-  VF_marked   = 0x800,   ///< marked to detect stale:  OK to delete
-
-  ///  value needs cloning on assign and friends
-  VF_need_clone  = VF_shared     // a constant in a user defined function
-                 | VF_assigned   // assigned to a variable
-                 | VF_forever    // static value
-                 | VF_nested     // sub-value of a nested value
-                 | VF_index      // owned by an IndexExpr
-                 | VF_arg        // in use by SI::eval_XXX()
-                 | VF_eoc,       // in use by an EOC handler
-  VF_DONT_DELETE = VF_need_clone
-                 | VF_deleted,
+  VF_NONE     = 0x000,   ///< no flags
+  VF_forever  = 0x004,   ///< value is fixed forever
+  VF_dirty    = 0x100,   ///< initialization failed
+  VF_left     = 0x200,   ///< left value (←)
+  VF_complete = 0x400,   ///< CHECK called
+  VF_marked   = 0x800,   ///< marked to detect stale
 };
 
 extern ostream & print_flags(ostream & out, ValueFlags flags);

@@ -412,8 +412,6 @@ ValueStackItem & tos = symbol->value_stack[0];
 
              case NC_VARIABLE:
                   tos.name_class = NC_UNUSED_USER_NAME;
-                  tos.apl_val->clear_assigned();
-                  tos.apl_val->erase(LOC);
                   ptr_clear(tos.apl_val, LOC);
                   symbol->set_erased(true);
                   return;

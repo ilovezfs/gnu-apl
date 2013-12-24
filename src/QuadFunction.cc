@@ -253,7 +253,6 @@ PrintStyle style;
                    Value_P B1(new Value(LOC));
                    new (&B1->get_ravel(0))   PointerCell(B.clone(LOC));
                    Value_P result = do_CR(a - 1, *B1.get());
-                   B1->erase(LOC);
                    return result;
                  }
                  break;
@@ -711,12 +710,6 @@ Error error(E_NO_ERROR, LOC);
 const Token ret = event_simulate(&ucs, B, error);
    if (error.error_code == E_NO_ERROR)   return ret;
 
-   // we will throw an error which would then bypass clear_arg()
-   // in StateIndicator::eval_AB(). We do it here instead.
-   //
-   A->clear_arg();
-   B->clear_arg();
-
    throw error;
 }
 //-----------------------------------------------------------------------------
@@ -726,11 +719,6 @@ Quad_ES::eval_B(Value_P B)
 Error error(E_NO_ERROR, LOC);
 const Token ret = event_simulate(0, B, error);
    if (error.error_code == E_NO_ERROR)   return ret;
-
-   // we will throw an error which would then bypass clear_arg()
-   // in StateIndicator::eval_B(). We do it here instead.
-   //
-   B->clear_arg();
 
    throw error;
 }
@@ -960,9 +948,9 @@ Value_P Z(new Value(fun_name, LOC));
 Token
 Quad_INP::eval_AB(Value_P A, Value_P B)
 {
-EOC_arg _arg;
-quad_INP & arg = _arg.u.u_quad_INP;
-   arg.lines = 0;
+EOC_arg arg(B);
+quad_INP & _arg = arg.u.u_quad_INP;
+   _arg.lines = 0;
 
    // B is the end of document marker for a 'HERE document', similar
    // to ENDCAT in cat << ENDCAT.
@@ -972,7 +960,7 @@ quad_INP & arg = _arg.u.u_quad_INP;
    if (B->get_rank() > 1)         RANK_ERROR;
    if (B->element_count() == 0)   LENGTH_ERROR;
 
-   arg.end_marker = new UCS_string(B->get_UCS_ravel());
+   _arg.end_marker = new UCS_string(B->get_UCS_ravel());
 
    // A is either one string (esc1 == esc2) or two (nested) strings
    // for esc1 and esc2 respectively.
@@ -982,7 +970,7 @@ quad_INP & arg = _arg.u.u_quad_INP;
         if (A->get_rank() != 1)        RANK_ERROR;
         if (A->element_count() != 2)   LENGTH_ERROR;
 
-        UCS_string ** esc[2] = { &arg.esc1, &arg.esc2 };
+        UCS_string ** esc[2] = { &_arg.esc1, &_arg.esc2 };
         loop(e, 2)
            {
              const Cell & cell = A->get_ravel(e);
@@ -997,24 +985,24 @@ quad_INP & arg = _arg.u.u_quad_INP;
                 }
            }
 
-        if (arg.esc1->size() == 0)   LENGTH_ERROR;
+        if (_arg.esc1->size() == 0)   LENGTH_ERROR;
       }
    else                       // one string 
       {
-        arg.esc1 = arg.esc2 = new UCS_string(A->get_UCS_ravel());
+        _arg.esc1 = _arg.esc2 = new UCS_string(A->get_UCS_ravel());
       }
 
 Token tok(TOK_FIRST_TIME);
-   eoc_INP(tok, _arg);
+   eoc_INP(tok, arg);
    return tok;
 }
 //-----------------------------------------------------------------------------
 Token
 Quad_INP::eval_B(Value_P B)
 {
-EOC_arg _arg;
-quad_INP & arg = _arg.u.u_quad_INP;
-   arg.lines = 0;
+EOC_arg arg(B);
+quad_INP & _arg = arg.u.u_quad_INP;
+   _arg.lines = 0;
 
    // B is the end of document marker for a 'HERE document', similar
    // to ENDCAT in cat << ENDCAT.
@@ -1024,12 +1012,12 @@ quad_INP & arg = _arg.u.u_quad_INP;
    if (B->get_rank() > 1)   RANK_ERROR;
    if (B->element_count() == 0)   LENGTH_ERROR;
 
-   arg.end_marker = new UCS_string(B->get_UCS_ravel());
+   _arg.end_marker = new UCS_string(B->get_UCS_ravel());
 
-   arg.esc1 = arg.esc2 = 0;
+   _arg.esc1 = _arg.esc2 = 0;
 
 Token tok(TOK_FIRST_TIME);
-   eoc_INP(tok, _arg);
+   eoc_INP(tok, arg);
    return tok;
 }
 //-----------------------------------------------------------------------------
@@ -1090,11 +1078,7 @@ quad_INP arg = _arg.u.u_quad_INP;
                   loop(r, matrix->get_cols())   row.append(cm++->get_char_value());
                   arg.lines = new UCS_string_list(row, arg.lines);
                 }
-
-             matrix->erase(LOC);
            }
-
-        result->erase(LOC);
 
         arg.lines->string.append(last->string);              // append last line
 

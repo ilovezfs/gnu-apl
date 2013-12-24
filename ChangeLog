@@ -47,3 +47,5 @@
  4822 fixed 2⊤1 problem
  4898 shared_ptr<Value> working (not yet enabled by default)
  4905 LAST VERSION WITH OLD MEMORY MANAGEMENT
+ 4907 new memory management
+ 4937 removed old memory management flags

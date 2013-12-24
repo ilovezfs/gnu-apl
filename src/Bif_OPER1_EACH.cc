@@ -33,13 +33,6 @@ Bif_OPER1_EACH::eval_ALB(Value_P A, Token & _LO, Value_P B)
 Function * LO = _LO.get_function();
    Assert1(LO);
 
-EOC_arg arg;
-EACH_ALB & _arg = arg.u.u_EACH_ALB;
-
-   _arg.cZ = 0;
-   _arg.dA = 1;
-   _arg.LO = LO;
-   _arg.dB = 1;
 
    if (A->is_empty() || B->is_empty())
       {
@@ -55,15 +48,22 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         if (B->is_empty())          shape_Z = B->get_shape();
         else if (!B->is_skalar())   DOMAIN_ERROR;
 
-        arg.Z = LO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
-        Fill_A->erase(LOC);
-        Fill_B->erase(LOC);
+        Value_P Z1 = LO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
 
         Value_P Z(new Value(shape_Z, LOC));
-        new (&Z->get_ravel(0)) PointerCell(arg.Z);
+        new (&Z->get_ravel(0)) PointerCell(Z1);
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
+
+EOC_arg arg(B);   arg.A = A;
+EACH_ALB & _arg = arg.u.u_EACH_ALB;
+
+   _arg.cZ = 0;
+   _arg.dA = 1;
+   _arg.LO = LO;
+   _arg.dB = 1;
+
 
    if (A->nz_element_count() == 1)
       {
@@ -94,10 +94,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         RANK_ERROR;
       }
 
-   arg.A = A;
-   arg.B = B;
-   arg.set_EOC();
-
    _arg.cA = &A->get_ravel(0);
    _arg.cB = &B->get_ravel(0);
 
@@ -123,17 +119,12 @@ loop_z:
    {
      Value_P LO_A = _arg.cA->to_value(LOC);     // left argument of LO
      Value_P LO_B = _arg.cB->to_value(LOC);     // right argument of LO;
+     _arg.sub = !(_arg.cA->is_pointer_cell() || _arg.cB->is_pointer_cell());
 
      _arg.cA += _arg.dA;
      _arg.cB += _arg.dB;
-     _arg.sub = !(LO_A->is_nested() || LO_B->is_nested());
 
      Token result = _arg.LO->eval_AB(LO_A, LO_B);
-
-     LO_A->clear_arg();
-     LO_A->erase(LOC);
-     LO_B->clear_arg();
-     LO_B->erase(LOC);
 
      // if LO was a primitive function, then result may be a value.
      // if LO was a user defined function then result may be TOK_SI_PUSHED.
@@ -173,7 +164,6 @@ next_z:
       {
         arg.Z->set_default(*arg.B.get());
         arg.Z->check_value(LOC);
-        arg.clear_EOC(LOC);
         return Token(TOK_APL_VALUE1, arg.Z);
       }
 
@@ -216,11 +206,10 @@ Bif_OPER1_EACH::eval_LB(Token & _LO, Value_P B)
 Function * LO = _LO.get_function();
    Assert1(LO);
 
-EOC_arg arg;
+EOC_arg arg(B);
 EACH_LB & _arg = arg.u.u_EACH_LB;
 
    _arg.LO = LO;
-   arg.B = B;
    _arg.cB = &B->get_ravel(0);
    if (LO->has_result())
       {
@@ -232,7 +221,6 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
         _arg.cZ = 0;
       }
 
-   arg.set_EOC();
    _arg.count = B->element_count();
 
    _arg.how = 0;
@@ -263,7 +251,6 @@ loop_z:
      else
         {
           LO_B = Value_P(new Value(LOC));
-          LO_B->set_arg();
 
           LO_B->get_ravel(0).init(*_arg.cB++);
           LO_B->set_complete();
@@ -275,8 +262,6 @@ loop_z:
 
      if (cup_B)
         {
-          LO_B->clear_arg();
-          LO_B->erase(LOC);
         }
 
      if (result.get_tag() == TOK_SI_PUSHED)
@@ -318,7 +303,6 @@ next_z:
       {
         arg.Z->set_default(*arg.B.get());
         arg.Z->check_value(LOC);
-        arg.clear_EOC(LOC);
         return Token(TOK_APL_VALUE1, arg.Z);
       }
 

@@ -125,29 +125,22 @@ ValueStackItem & vs = value_stack.back();
    switch(vs.name_class)
       {
         case NC_UNUSED_USER_NAME:
-             if (new_value->get_flags() & VF_need_clone)
-                new_value = new_value->clone(loc);
+             new_value = new_value->clone(loc);
 
              vs.name_class = NC_VARIABLE;
              vs.apl_val = new_value;
-             new_value->set_assigned();
              return;
 
         case NC_VARIABLE:
              if (vs.apl_val == new_value)   return;   // X←X
 
-             if (new_value->get_flags() & VF_need_clone)
-                new_value = new_value->clone(loc);
+             new_value = new_value->clone(loc);
 
              // un-assign and erase old value
              //
-             vs.apl_val->clear_assigned();
-             if (vs.apl_val->is_arg())
-                Workspace::replace_arg(vs.apl_val, new_value);
-             vs.apl_val->erase(loc);
+             Workspace::replace_arg(vs.apl_val, new_value);
 
              vs.apl_val = new_value;
-             new_value->set_assigned();
              return;
 
         case NC_SHARED_VAR:
@@ -332,7 +325,6 @@ Value_P A = get_apl_value();
 
         if (B1 != IX1)
            {
-             B->erase(LOC);
              if (B1.get_rank() != IX1.get_rank())   RANK_ERROR;
              LENGTH_ERROR;
            }
@@ -370,12 +362,7 @@ const ValueStackItem & vs = value_stack.back();
              if (value_stack.size() == 0)   CERR << " (last)";
              CERR << " addr " << (const void *)ret.get() << endl;
            }
-        ret->clear_assigned();
-        if (erase)
-           {
-             ret->erase(LOC);
-             ptr_clear(ret, LOC);
-           }
+        if (erase)   ptr_clear(ret, LOC);
 
         value_stack.pop_back();
         return ret;
@@ -683,7 +670,7 @@ Symbol::resolve(Token & tok, bool left_sym)
 
              // if we resolve a variable. the value is considered grouped.
              {
-               Token t(TOK_APL_VALUE1, get_apl_value());
+               Token t(TOK_APL_VALUE1, get_apl_value()->clone(LOC));
                move_1(tok, t, LOC);
              }
              return;
@@ -849,8 +836,6 @@ ValueStackItem & vs = value_stack.back();
 
    if (vs.name_class == NC_VARIABLE)
       {
-        vs.apl_val->clear_assigned();
-        vs.apl_val->erase(LOC);
         ptr_clear(vs.apl_val, LOC);
       }
    else if (vs.name_class == NC_FUNCTION || vs.name_class == NC_OPERATOR)
@@ -909,7 +894,6 @@ ValueStackItem & vs = value_stack.back();
         // remember old value
         //
         Value_P old_value = get_apl_value();
-        Assert(old_value->is_assigned());
 
         // change name class and store AP number
         //
@@ -918,8 +902,6 @@ ValueStackItem & vs = value_stack.back();
 
         // assign old value to shared variable
         assign(old_value, LOC);
-        old_value->clear_assigned();
-        old_value->erase(LOC);
 
         return;
       }
@@ -1171,8 +1153,6 @@ ValueStackItem & tos = value_stack[0];
 
         case NC_VARIABLE:
              tos.name_class = NC_UNUSED_USER_NAME;
-             tos.apl_val->clear_assigned();
-             tos.apl_val->erase(LOC);
              ptr_clear(tos.apl_val, LOC);
              break;
 

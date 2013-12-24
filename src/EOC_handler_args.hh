@@ -270,85 +270,49 @@ struct RANK_ALXB
 };
 
 /// the second argument for an EOC_HANDLER. The actual type depends on the
-/// handler. An EOC_arg contains all information that is neccessary for
+/// handler. An EOC_arg contains all information that is necessary for
 /// the EOC handler to compute the result token.
-struct EOC_arg
+class EOC_arg
 {
-   void set_EOC()
-      {
-        Value * v;
-        if (v = A   .get())   v->set_eoc();
-        if (v = B   .get())   v->set_eoc();
-        if (v = Z   .get())   v->set_eoc();
-        if (v = V1  .get())   v->set_eoc();
-        if (v = V2  .get())   v->set_eoc();
-        if (v = RO_A.get())   v->set_eoc();
-        if (v = RO_B.get())   v->set_eoc();
-      }
+public:
+   /// constructor for dyadic derived function
+   EOC_arg(Value_P _Z, Value_P _B, Value_P _A)
+   : Z(_Z),
+     B(_B),
+     A(_A)
+   {}
 
-   void clear_EOC(const char * loc)
-      {
-        Value * vA    = A   .get();
-        Value * vB    = B   .get();
-        Value * vZ    = Z   .get();
-        Value * vV1   = V1  .get();
-        Value * vV2   = V2  .get();
-        Value * vRO_A = RO_A.get();
-        Value * vRO_B = RO_B.get();
+   /// constructor for monadic derived function without result (or
+   /// result created at return)
+   EOC_arg(Value_P _B)
+   : B(_B)
+   {}
 
-        // erase all pointers, but only once! We start with the least
-        // frequently used ones to keep this short.
-        //
-        if (vRO_A)   { vRO_A ->clear_eoc();
-                       vRO_A ->erase(LOC);
-                       if (vRO_A == vA)      vA  = 0;
-                       if (vRO_A == vB)      vB  = 0;
-                       if (vRO_A == vV1)     vV1 = 0;
-                       if (vRO_A == vV2)     vV2 = 0;
-                       if (vRO_A == vRO_B)   vRO_B = 0;
-                     }
+   /// constructor for monadic derived function with result
+   EOC_arg(Value_P _Z, Value_P _B)
+   : Z(_Z),
+     B(_B)
+   {}
 
-        if (vRO_B)   { vRO_B ->clear_eoc();
-                       vRO_B ->erase(LOC);
-                       if (vRO_B == vA)      vA  = 0;
-                       if (vRO_B == vB)      vB  = 0;
-                       if (vRO_B == vV1)     vV1 = 0;
-                       if (vRO_B == vV2)     vV2 = 0;
-                     }
-
-        if (vV1)     { vV1 ->clear_eoc();
-                       vV1 ->erase(LOC);
-                       if (vV1 == vA)      vA  = 0;
-                       if (vV1 == vB)      vB  = 0;
-                       if (vV1 == vV2)     vV2 = 0;
-                     }
-
-        if (vV2)     { vV2 ->clear_eoc();
-                       vV2 ->erase(LOC);
-                       if (vV2 == vA)      vA  = 0;
-                       if (vV2 == vB)      vB  = 0;
-                     }
-
-        if (vA)      { vA ->clear_eoc();
-                       vA ->erase(LOC);
-                       if (vA == vB)       vB  = 0;
-                     }
-
-        if (vB)      { vB ->clear_eoc();
-                       vB ->erase(LOC);
-                     }
-
-        if (vZ)      vZ ->clear_eoc();
-      }
-
-   /// right argument
-  Value_P A;
-
-   /// left argument
-  Value_P B;
+   /// copy constructor
+   EOC_arg(const EOC_arg & other)
+   : Z(other.Z),
+     B(other.B),
+     A(other.A),
+     V1(other.V1),
+     V2(other.V2),
+     RO_A(other.RO_A),
+     RO_B(other.RO_B)
+   { u = other.u; }
 
    /// result
-  Value_P Z;
+   Value_P Z;
+
+   /// left argument
+   Value_P B;
+
+   /// right argument
+   Value_P A;
 
   /// INNER_PROD: argument for LO-reduction
   /// OUTER_PROD: helper value for non-pointer left RO argument

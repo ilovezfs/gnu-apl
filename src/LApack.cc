@@ -191,7 +191,6 @@ Value_P Z(new Value(shape_Z, LOC));
               const int result = complex_matrix_divide(rows, cols_B, b, a);
               if (result)
                  {
-                   Z->erase(LOC);
                    DOMAIN_ERROR;
                  }
 
@@ -217,7 +216,6 @@ Value_P Z(new Value(shape_Z, LOC));
               const int result = real_matrix_divide(rows, cols_B, b, a);
               if (result)
                  {
-                   Z->erase(LOC);
                    DOMAIN_ERROR;
                  }
 

@@ -402,7 +402,7 @@ SV_key
 Quad_SVO::share_one_variable(AP_num to_ap, const uint32_t * vname,
                              SV_Coupling & coupling)
 {
-   // if to_ap is a (dependent) AP then start it if neccessary...
+   // if to_ap is a (dependent) AP then start it if necessary...
    //
 AP_num3 to_proc(to_ap, ProcessorID::get_own_ID(), ProcessorID::get_parent_ID());
 bool auto_started = false;

@@ -28,7 +28,6 @@
 PointerCell::PointerCell(Value_P val)
 {
    new (&value._valp()) Value_P(val);
-   val->set_nested();
 }
 //-----------------------------------------------------------------------------
 bool
@@ -58,8 +57,6 @@ PointerCell::greater(const Cell * other, bool ascending) const
 void
 PointerCell::release(const char * loc)
 {
-   value._valp()->clear_nested();
-   value._valp()->erase(loc);
    ptr_clear(value._valp(), loc);
    new (this) Cell;
 }
@@ -67,7 +64,8 @@ PointerCell::release(const char * loc)
 Value_P
 PointerCell::get_pointer_value() const
 {
-   return value._valp();
+Value_P ret = value._valp();
+   return ret;
 }
 //-----------------------------------------------------------------------------
 CellType
@@ -151,7 +149,6 @@ PrintBuffer ret(*val, pctx);
                   ret = PrintBuffer(*proto, pctx);
                   ret.add_frame(PrintStyle(style), proto->get_rank(),
                                 proto->compute_depth());
-                  proto->erase(LOC);
                 }
              else                           // several prototypes
                 {
@@ -168,7 +165,6 @@ PrintBuffer ret(*val, pctx);
                   ret = PrintBuffer(*proto_reshaped, pctx);
                   ret.add_frame(PrintStyle(style), proto_reshaped->get_rank(),
                                 proto_reshaped->compute_depth());
-                  proto_reshaped->erase(LOC);
                 }
            }
        else
