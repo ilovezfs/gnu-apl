@@ -520,7 +520,7 @@ UCS_string hori(get_width(0), HORI);
       {
         loop(d, depth - 1)
             if (d + 1 < get_width(0) - 1)
-               set_char(1 + d, get_height() - 1, UNI_ELEMENT);
+               set_char(1 + d, get_height() - 1, UNI_ELEMENT1);
       }
 
    if (style & PST_EMPTY_LAST)   // last (X-) dimension is empty
