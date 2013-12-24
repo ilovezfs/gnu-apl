@@ -103,7 +103,6 @@ XML_Saving_Archive::find_vid(const Value & val)
          if (&val == &values[v]._val)   return v;
       }
 
-   FIXME;
    return -1;
 }
 //-----------------------------------------------------------------------------
@@ -169,16 +168,14 @@ char cc[80];
                  v.get_flags(), vid);
    out << cc;
 
-   if (v.is_nested())
-      {
-        const unsigned int sub_vid = find_vid(v);
-        Assert(sub_vid < values.size());
-        unsigned int parent_vid = -1;
-        if (!!values[sub_vid]._par)
-           parent_vid = find_vid(*values[sub_vid]._par);
-        snprintf(cc, sizeof(cc), " parent=\"%d\"", parent_vid);
-        out << cc;
-      }
+const unsigned int sub_vid = find_vid(v);
+   Assert(sub_vid < values.size());
+unsigned int parent_vid = -1;
+
+   if (values[sub_vid]._par)   parent_vid = find_vid(*values[sub_vid]._par);
+
+   snprintf(cc, sizeof(cc), " parent=\"%d\"", parent_vid);
+   out << cc;
    snprintf(cc, sizeof(cc), " rk=\"%u\"", v.get_rank());
    out << cc;
 
@@ -1393,12 +1390,6 @@ const unsigned int vid = find_int_attr("vid", false, 10);
                   << "    to variable " << symbol.get_name() << " ***" << endl;
            }
       }
-  
-   // if assign() was unsuccessful, e.g. because symbol.is_readonly() then
-   // the assigned flag is not set and erase() succeeeds. Otherwise erase()
-   // does nothing.
-   //
-   values[vid]->erase(LOC);
 }
 //-----------------------------------------------------------------------------
 void

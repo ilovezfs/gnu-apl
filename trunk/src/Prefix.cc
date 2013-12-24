@@ -70,7 +70,6 @@ CERR << "Warning: discarding non-empty stack["
 
 CERR << "    Value is " << (const void *)val.get() << " " << *val << " at " LOC;
 // val->print_properties(CERR,  0);
-               val->erase(LOC);
            }
       }
 }
@@ -98,7 +97,6 @@ Prefix::syntax_error(const char * loc)
         if (tok.get_Class() == TC_VALUE)
            {
              Value_P val = tok.get_apl_val();
-             if (!!val)   val->erase(LOC);
           }
       }
 
@@ -161,25 +159,13 @@ const int si_depth = si.get_level();
    out << "fifo[si=" << si_depth << " len=" << size()
        << " PC=" << PC << "] is now :";
 
-const Value * del = 0;   // warn for deleted Values
    loop(s, size())
       {
-        TokenClass tc = at(s).tok.get_Class();
+        const TokenClass tc = at(s).tok.get_Class();
         out << " " << Token::class_name(tc);
-        if (tc == TC_VALUE)
-           {
-             const Value * vp = at(s).tok.get_apl_val_pointer();
-             if (vp && vp->is_deleted())   del = vp;
-           }
       }
 
    out << "  at " << loc << endl;
-
-   if (del)
-      {
-        CERR << "*** DELETED VALUE: ***" << endl;
-        print_history(out, del, LOC);
-      }
 }
 //-----------------------------------------------------------------------------
 int
@@ -302,7 +288,7 @@ grow:
      lookahead_high = tl.pc;
      TokenClass tcl = tl.tok.get_Class();
 
-     if (tcl == TC_SYMBOL)   // resolve symbol if neccessary
+     if (tcl == TC_SYMBOL)   // resolve symbol if necessary
         {
           Symbol * sym = tl.tok.get_sym_ptr();
           if (tl.tok.get_tag() == TOK_LSYMB2)
@@ -329,7 +315,7 @@ grow:
               return Token(TOK_SI_PUSHED);
             }
         }
-     else if (tcl == TC_ASSIGN)   // resolve symbol if neccessary
+     else if (tcl == TC_ASSIGN)   // resolve symbol if necessary
         {
           if (assign_pending)   syntax_error(LOC);
           assign_pending = true;
@@ -534,20 +520,6 @@ Prefix::replace_AB(Value_P old_value, Value_P new_value)
 }
 //-----------------------------------------------------------------------------
 void
-Prefix::lock_values(bool lock)
-{
-   loop(s, size())
-      {
-        Token & tok = at(s).tok;
-        if (tok.get_ValueType() == TV_VAL)
-           {
-             if (lock)   tok.get_apl_val()->set_arg();
-             else        tok.get_apl_val()->clear_arg();
-           }
-      }
-}
-//-----------------------------------------------------------------------------
-void
 Prefix::print(ostream & out, int indent) const
 {
    loop(i, indent)   out << "    ";
@@ -691,7 +663,6 @@ Prefix::reduce_A_C__()
 {
 Value_P A = at0().get_apl_val();
 Value_P Z = A->index(at1());
-   A->erase(LOC);
 
 Token result = Token(TOK_APL_VALUE1, Z);
    pop_args_push_result(result);
@@ -718,15 +689,12 @@ Value_P B = at3().get_apl_val();
              Token result = Token(TOK_ERROR, err.error_code);
              at1().clear(LOC);
              at3().clear(LOC);
-             B->erase(LOC);
-             if (!!v_idx)   v_idx->erase(LOC);
              pop_args_push_result(result);
              set_assign_pending(false);
              set_action(result);
              return;
            }
 
-        if (!!v_idx)   v_idx->erase(LOC);
       }
    else                               // [a;...]
       {
@@ -740,7 +708,6 @@ Value_P B = at3().get_apl_val();
              delete &at1().get_index_val();
              at1().clear(LOC);
              at3().clear(LOC);
-             B->erase(LOC);
              pop_args_push_result(result);
              set_assign_pending(false);
              set_action(result);
@@ -1020,19 +987,7 @@ const bool end_of_line = at0().get_tag() == TOK_ENDL;
    pop_and_discard();   // pop END
 Token B = pop().tok;    // pop B
 
-   // can't get_apl_val() because it may throw a VALUE_ERROR.
-   // use get_apl_val_pointer() instead.
-   //
-   if (B.get_apl_val_pointer() && B.get_apl_val()->get_flags() & VF_need_clone)
-      {
-       Value_P V1(B.get_apl_val()->clone(LOC));
-       Token B1(B.get_tag(), V1);
-        si.statement_result(B1);
-      }
-   else
-      {
-        si.statement_result(B);
-      }
+   si.statement_result(B);
 
    action = RA_NEXT_STAT;
    if (attention_raised && end_of_line)
@@ -1056,7 +1011,6 @@ const bool end_of_line = at0().get_tag() == TOK_ENDL;
 Value_P line = at2().get_apl_val();
 
 const Token result = si.jump(line);
-   line->erase(LOC);
 
    if (result.get_tag() == TOK_BRANCH)   // branch back into a function
       {
@@ -1211,15 +1165,7 @@ Prefix::reduce_RETC_B__()
       CERR << "- end of ⍎ context.";
 
 Token B = at1();
-   if (B.get_apl_val_pointer() && B.get_apl_val()->get_flags() & VF_need_clone)
-      {
-        Token Z1(B.get_tag(), B.get_apl_val()->clone(LOC));
-        pop_args_push_result(Z1);
-      }
-   else
-      {
-        pop_args_push_result(B);
-      }
+   pop_args_push_result(B);
 
    action = RA_RETURN;
 }

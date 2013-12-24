@@ -225,8 +225,6 @@ Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
    if (B->is_skalar())
       {
         Value_P Z(new Value(2, LOC));
-
-
         Z->get_ravel(0).init(cell_A);
         Z->get_ravel(1).init(B->get_ravel(0));
         Z->check_value(LOC);
@@ -728,7 +726,6 @@ Cell * i = &I->get_ravel(0);
        new (i++) FloatCell((c == r) ? 1.0 : 0.0);
 
 Token result = eval_AB(I, B);
-   I->erase(LOC);
    return result;
 }
 //-----------------------------------------------------------------------------
@@ -1932,7 +1929,6 @@ Token take(TOK_FUN2, &Bif_F12_TAKE::fun);
 Value_P cT = Bif_OPER1_EACH::fun.eval_ALB(cA, take, cB).get_apl_val(); // cA↑¨cB
 
 Token result = Bif_F12_PICK::fun.eval_XB(X, cT);
-   cT->erase(LOC);
    return result;
 }
 //-----------------------------------------------------------------------------
@@ -2229,7 +2225,6 @@ const Cell * base = &B1->get_ravel(0);
 
    Z->set_default(*Value::Zero_P);
 
-   B1->erase(LOC);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -2463,12 +2458,10 @@ Value_P Z(new Value(shape_Z, LOC));
       }
    catch (Error err)
       {
-        Z->erase(LOC);
         throw err;   // rethrow
       }
    catch (...)
       {
-        Z->erase(LOC);
       }
 
    return Z;
@@ -3342,8 +3335,6 @@ Value_P Z2 = Z2_tok.get_apl_val();
 Value_P Z3 = Z1->index(Z2);
 Value_P Z4 = B->index(Z3);
 
-   B1->erase(LOC);
-   Z1->erase(LOC);
    Z4->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z4);
 }

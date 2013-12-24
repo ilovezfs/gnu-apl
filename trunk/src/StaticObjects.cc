@@ -38,12 +38,8 @@ DynamicObject DynamicObject::all_index_exprs(LOC);
 // 2. static APL values must exist before system variables (in Workspace)
 //    because some system variable constructors use them.
 //
-static void Deleter(Value * p)
-{
-}
-
 #define stv_def(x) Value Value:: _ ## x(LOC, Value::Value_how_ ## x); \
-                   Value_P Value:: x ## _P(&Value::_## x, Deleter);
+                   Value_P Value:: x ## _P(&Value::_## x, LOC);
 #include "StaticValues.def"
 
 // 3. Id strings are used by function id_name() which is used by system

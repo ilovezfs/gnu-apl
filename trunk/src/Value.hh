@@ -317,39 +317,18 @@ public:
                                                                               \
    bool is_ ## flag() const      { return (flags & VF_ ## flag) != 0; }
 
-# define set_shared()   SET_shared(_LOC)
-# define set_assigned() SET_assigned(_LOC)
-# define set_nested()   SET_nested(_LOC)
-# define set_index()    SET_index(_LOC)
 # define set_forever()  SET_forever(_LOC)
-# define set_deleted()  SET_deleted(_LOC)
-# define set_arg()      SET_arg(_LOC)
-# define set_eoc()      SET_eoc(_LOC)
 # define set_left()     SET_left(_LOC)
 # define set_dirty()    SET_dirty(_LOC)
 # define set_complete() SET_complete(_LOC)
 # define set_marked()   SET_marked(_LOC)
 
-# define clear_shared()   CLEAR_shared(_LOC)
-# define clear_assigned() CLEAR_assigned(_LOC)
-# define clear_nested()   CLEAR_nested(_LOC)
-# define clear_index()    CLEAR_index(_LOC)
 # define clear_forever()  CLEAR_forever(_LOC)
-# define clear_deleted()  CLEAR_deleted(_LOC)
-# define clear_arg()      CLEAR_arg(_LOC)
-# define clear_eoc()      CLEAR_eoc(_LOC)
 # define clear_left()     CLEAR_left(_LOC)
 # define clear_dirty()    CLEAR_dirty(_LOC)
 # define clear_marked()   CLEAR_marked(_LOC)
 
-   VF_flag(shared)
-   VF_flag(assigned)
-   VF_flag(nested)
-   VF_flag(index)
    VF_flag(forever)
-   VF_flag(deleted)
-   VF_flag(arg)
-   VF_flag(eoc)
    VF_flag(left)
    VF_flag(complete)
    VF_flag(dirty)
@@ -360,9 +339,6 @@ public:
 
    /// clear marked flag on this value and its nested sub-values
    void unmark() const;
-
-   /// maybe delete this value.
-   void erase(const char * loc);
 
    /// rollback initialization of this value
    void rollback(ShapeItem items, const char * loc);
@@ -502,10 +478,6 @@ inline void
 increment_owner_count(Value * v, const char * loc)
 {
    Assert1(v);
-
-   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
-   // the pointer owner is deleted. Do noting then.
-   //
    if (v->check_ptr == ((const char *)v + 7))   ++v->owner_count;
 }
 //-----------------------------------------------------------------------------
@@ -514,12 +486,8 @@ decrement_owner_count(Value * v, const char * loc)
 {
    Assert1(v);
 
-   // if SHARED_POINTER_METHOD == 1 then erase() deletes the value before
-   // the pointer owner is deleted. Do noting then.
-   //
    if (v->check_ptr == ((const char *)v + 7))
       {
-#if SHARED_POINTER_METHOD == 3
         Assert1(v->owner_count > 0);
         if (v->owner_count == 0)
            {
@@ -536,7 +504,6 @@ decrement_owner_count(Value * v, const char * loc)
          --v->owner_count;
 
         if (v->owner_count == 0)   delete v;
-#endif
       }
 }
 //-----------------------------------------------------------------------------

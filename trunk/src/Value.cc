@@ -323,6 +323,8 @@ Value::~Value()
    ADD_EVENT(this, VHE_Destruct, 0, LOC);
    unlink();
 
+   release_sub(LOC);
+
 const ShapeItem length = nz_element_count();
    --value_count;
 
@@ -385,10 +387,8 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
            }
         else
            {
-             new_value->set_shared();
              new (dest)   PointerCell(new_value);
            }
-        this->erase(LOC);
         return;
       }
 
@@ -405,8 +405,6 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
         if (dest)   dest->init(*src);
         src += src_incr;
       }
-
-   this->erase(LOC);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -476,85 +474,6 @@ const Cell * C = &get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 void
-Value::erase(const char * loc)
-{
-   ADD_EVENT(this, VHE_Erase, 0, loc);
-
-   if (is_deleted())
-      {
-        TestFiles::apl_error(LOC);
-        CERR                                                           << endl
-                                                                       << endl
-             << "*** Value " << (const void *)this
-             << " deleted twice! ***"                                  << endl
-             << endl;
-
-        print_history(CERR, this, loc);
-        print_structure(CERR, 0, 0);
-
-        Backtrace::show(__FILE__, __LINE__);
-        return;
-      }
-
-#if 0
-   if (owner_count)
-      {
-        CERR                                                           << endl
-                                                                       << endl
-             << "*** Value " << (const void *)this
-             << " has owner count " << owner_count << " ***"           << endl
-             << endl;
-
-#ifdef VALUE_CHECK_WANTED
-        print_history(CERR, this, loc);
-#else
-        CERR << "No history (VALUE_CHECK_WANTED off)" << endl;
-#endif
-      }
-#endif
-
-
-
-#if 0   // TODO: make this work
-   if (!is_complete())
-      {
-        static int count = 0;
-        if (count < 10)
-           {
-             CERR << "Incomplete value at " LOC << endl;
-             print_properties(CERR, 0);
-           }
-
-        ++count;
-      }
-#endif
-
-   if (flags & VF_DONT_DELETE)   return;
-
-   release_sub(loc);
-
-   Log(LOG_delete)
-      {
-        const void * addr = this;
-        const void * ravel_0 = &get_ravel(0);
-        const void * ravel_N = get_ravel_end();
-        CERR << "delete " << addr
-             << " ravel " << ravel_0 << "-" << ravel_N 
-             << " flags " << get_flags()
-             << " alloc(" << where_allocated() 
-             << ") caller(" << loc << ")" << endl;
-      }
-
-   set_deleted();
-
-   ((Value *)this)->alloc_loc = loc;
-
-#if SHARED_POINTER_METHOD == 1
-   delete this;
-#endif
-}
-//-----------------------------------------------------------------------------
-void
 Value::rollback(ShapeItem items, const char * loc)
 {
    ADD_EVENT(this, VHE_Unroll, 0, loc);
@@ -567,13 +486,7 @@ Value::rollback(ShapeItem items, const char * loc)
         cell.release(LOC);
       }
 
-   set_deleted();
-
    ((Value *)this)->alloc_loc = loc;
-
-#if SHARED_POINTER_METHOD == 1
-   delete this;
-#endif
 }
 //-----------------------------------------------------------------------------
 void
@@ -616,7 +529,7 @@ int count = 0;
 
          Assert(obj != obj->get_next());
          Value * v = (Value *)obj;
-         if (v->flags & VF_DONT_DELETE)   continue;
+         if (v->owner_count)   continue;
 
          ADD_EVENT(v, VHE_Stale, v->owner_count, loc);
 
@@ -633,7 +546,6 @@ int count = 0;
          ++count;
 
          obj->unlink();
-         v->erase(loc);
 
          // v->erase(loc) could mess up the chain, so we start over
          // rather than continuing
@@ -715,14 +627,7 @@ Value::list_one(ostream & out, bool show_owners)
       {
         out << "   Flags =";
         char sep = ' ';
-        if (is_shared())     { out << sep << "SHARED";     sep = '+'; }
-        if (is_assigned())   { out << sep << "ASSIGNED";   sep = '+'; }
         if (is_forever())    { out << sep << "FOREVER";    sep = '+'; }
-        if (is_nested())     { out << sep << "NESTED";     sep = '+'; }
-        if (is_index())      { out << sep << "INDEX";      sep = '+'; }
-        if (is_deleted())    { out << sep << "DELETED";    sep = '+'; }
-        if (is_arg())        { out << sep << "ARG";        sep = '+'; }
-        if (is_eoc())        { out << sep << "EOC";        sep = '+'; }
         if (is_left())       { out << sep << "LEFT";       sep = '+'; }
         if (is_dirty())      { out << sep << "DIRTY";      sep = '+'; }
         if (is_complete())   { out << sep << "COMPLETE";   sep = '+'; }
@@ -1085,7 +990,6 @@ const Cell * cI = &X->get_ravel(0);
          cZ++->init(get_ravel(idx));
       }
 
-   X->erase(LOC);
    Z->set_default(*this);
 
    Z->check_value(LOC);
@@ -1159,9 +1063,6 @@ const bool strand_B = token_B.get_tag() == TOK_APL_VALUE3;
         if (strand_B)   glue_closed_strand(result, A, B, loc);
         else            glue_closed_closed(result, A, B, loc);
       }
-
-   A->erase(LOC);
-   B->erase(LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -1541,18 +1442,11 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
        << ind << "Rank:    " << get_rank()  << endl
        << ind << "Shape:   " << get_shape() << endl
        << ind << "Flags:   " << get_flags();
-   if (is_shared())     out << " VF_shared";
-   if (is_assigned())   out << " VF_assigned";
-   if (is_nested())     out << " VF_nested";
-   if (is_index())      out << " VF_index";
    if (is_forever())    out << " VF_forever";
-   if (is_arg())        out << " VF_arg";
-   if (is_eoc())        out << " VF_eoc";
    if (is_left())       out << " VF_left";
    if (is_dirty())      out << " VF_dirty";
    if (is_complete())   out << " VF_complete";
    if (is_marked())     out << " VF_marked";
-   if (is_deleted())    out << " VF_deleted";
    out << endl
        << ind << "First:   " << get_ravel(0)  << endl
        << ind << "Dynamic: ";
@@ -1576,7 +1470,6 @@ Value::print_boxed(ostream & out, const char * info)
 
 Value_P Z = Quad_CR::fun.do_CR(4, *this);
    out << *Z << endl;
-   Z->erase(LOC);
    return out;
 }
 //-----------------------------------------------------------------------------
@@ -1705,8 +1598,9 @@ Value_P ret(new Value(get_shape(), loc));
 
 const Cell * src = &get_ravel(0);
 Cell * dst = &ret->get_ravel(0);
+const ShapeItem count = nz_element_count();
 
-   Cell::copy(dst, src, nz_element_count());
+   loop(c, count)   dst++->init(*src++);
 
    ret->check_value(LOC);
    return ret;
@@ -1814,7 +1708,7 @@ int count = 0;
          Value * val = (Value *)dob;
          goon = (dob == dob->get_prev());
 
-         if (val->flags & VF_DONT_DELETE)   continue;
+         if (val->owner_count)   continue;
 
          out << "stale value at " << (const void *)val << endl;
          stale_vals.push_back(val);
@@ -1889,7 +1783,6 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
         Value_P Z = Quad_CR::fun.do_CR(7, *this);
         Z->print(out);
         out << endl;
-        Z->erase(LOC);
       }
    catch (...)   { out << " *** corrupt ***"; }
 

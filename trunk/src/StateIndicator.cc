@@ -34,6 +34,7 @@ StateIndicator::StateIndicator(const Executable * exec, StateIndicator * _par)
    : executable(exec),
      safe_execution(false),
      eoc_handler(0),
+     eoc_arg(Value_P()),
      level(_par ? 1 + _par->get_level() : 0),
      error(E_NO_ERROR, LOC),
      current_stack(*this, exec->get_body()),
@@ -73,22 +74,16 @@ StateIndicator::clear_args(const char * loc)
 
    if (!!eval_arg_A)
       {
-        eval_arg_A->clear_arg();
-        eval_arg_A->erase(loc);
         ptr_clear(eval_arg_A, loc);
       }
 
    if (!!eval_arg_B)
       {
-        eval_arg_B->clear_arg();
-        eval_arg_B->erase(loc);
         ptr_clear(eval_arg_B, loc);
       }
 
    if (!!eval_arg_X)
       {
-        eval_arg_X->clear_arg();
-        eval_arg_X->erase(loc);
         ptr_clear(eval_arg_X, loc);
       }
 
@@ -101,19 +96,16 @@ StateIndicator::set_args(Token * A, Token & F, Token * X, Token * B)
    if (A)
       {
         eval_arg_A = A->get_apl_val();
-        if (!eval_arg_A->is_arg())   eval_arg_A->set_arg();
       }
 
    if (X)
       {
         eval_arg_X = X->get_axes();
-        if (!eval_arg_X->is_arg())   eval_arg_X->set_arg();
       }
 
    if (B)
       {
         eval_arg_B = B->get_apl_val();
-        if (!eval_arg_B->is_arg())   eval_arg_B->set_arg();
       }
 
    eval_arg_F = F.get_function();
@@ -273,8 +265,7 @@ StateIndicator::clear(ostream & out)
 const UserFunction * ufun = get_executable()->get_ufun();
    if (ufun)
       {
-         Value_P Z = ufun->pop_local_vars();   // erases all but Z
-         if (!!Z)   Z->erase(LOC);
+         Value_P Z = ufun->pop_local_vars();
       }
 }
 //-----------------------------------------------------------------------------
@@ -479,7 +470,6 @@ const UserFunction * ufun = get_executable()->get_ufun();
    if (ufun)
       {
         Value_P Z = ufun->pop_local_vars();
-        if (!!Z)   Z->erase(LOC);
       }
 }
 //-----------------------------------------------------------------------------
@@ -553,11 +543,8 @@ void
 StateIndicator::set_L(Value_P new_value)
 {
 Value_P old_value = eval_arg_A;
-   old_value->clear_arg();
-   old_value->erase(LOC);
 
    eval_arg_A = new_value;
-   new_value->set_arg();
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -572,11 +559,8 @@ void
 StateIndicator::set_X(Value_P new_value)
 {
 Value_P old_value = eval_arg_X;
-   old_value->clear_arg();
-   old_value->erase(LOC);
 
    eval_arg_X = new_value;
-   new_value->set_arg();
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -591,11 +575,8 @@ void
 StateIndicator::set_R(Value_P new_value)
 {
 Value_P old_value = eval_arg_B;
-   old_value->clear_arg();
-   old_value->erase(LOC);
 
    eval_arg_B = new_value;
-   new_value->set_arg();
 }
 //-----------------------------------------------------------------------------
 bool
@@ -620,12 +601,6 @@ bool success = false;
       {
         eval_arg_X = new_value;
         success = true;
-      }
-
-   if (success)
-      {
-        old_value->clear_arg();
-        new_value->set_arg();
       }
 
    return success;
@@ -935,8 +910,6 @@ StateIndicator::statement_result(Token & result)
              Quad_QUOTE::done(false, LOC);
              B->print(COUT);
            }
-
-        B->erase(LOC);
       }
 }
 //-----------------------------------------------------------------------------

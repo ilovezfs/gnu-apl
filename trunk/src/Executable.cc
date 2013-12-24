@@ -58,16 +58,7 @@ Executable::~Executable()
              << " (body size=" <<  body.size() << ")" << endl;
       }
 
-   loop(b, body.size())
-       {
-         Value * val = body[b].get_apl_val_pointer();
-         if (val)
-            {
-              val->clear_shared();
-              val->erase(LOC);
-              body[b].extract_apl_val(LOC);
-            }
-       }
+   loop(b, body.size())   body[b].extract_apl_val(LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -434,14 +425,6 @@ ExecuteList * fun = new ExecuteList(data, loc);
    // for ⍎ we don't append TOK_END, but only TOK_RETURN_EXEC.
    fun->body.append(Token(TOK_RETURN_EXEC), LOC);
 
-   // fix program constants so that they don't get deleted.
-   //
-   loop(b, fun->body.size())
-       {
-         Token & t = fun->body[b];
-         if (t.get_ValueType() == TV_VAL)   t.get_apl_val()->set_shared();
-       }
-
    Log(LOG_UserFunction__fix)   fun->print(CERR);
    return fun;
 }
@@ -471,14 +454,6 @@ StatementList * fun = new StatementList(data, loc);
       }
 
    fun->body.append(Token(TOK_RETURN_STATS), LOC);
-
-   // fix program constants so that they don't get deleted.
-   //
-   loop(b, fun->body.size())
-       {
-         Token & t = fun->body[b];
-         if (t.get_ValueType() == TV_VAL)   t.get_apl_val()->set_shared();
-       }
 
    Log(LOG_UserFunction__fix)   fun->print(CERR);
    return fun;

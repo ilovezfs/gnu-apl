@@ -74,11 +74,11 @@ Shape::expand_rank(Rank rk)
 void
 Shape::expand(const Shape & B)
 {
-   // increase rank as neccessary
+   // increase rank as necessary
    //
    expand_rank(B.get_rank());
 
-   // increase axes as neccessary
+   // increase axes as necessary
    //
    loop(r, rho_rho)
       {

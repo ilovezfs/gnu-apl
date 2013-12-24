@@ -31,14 +31,7 @@ public:
    /// show the current function call stack.
    static void show(const char * file, int line);
 
-   /// retrun the offs'th caller of the current function
-   static const char * caller(int offs);
-
 protected:
-   // parse mangle function name returned by function backtrace()
-   static void parse_fun(char * s, char * obuf, int obuflen,
-                         int & offs, int64_t & pc);
-
    /// find the source for PC \b pc
    static const char * find_src(int64_t pc);
 

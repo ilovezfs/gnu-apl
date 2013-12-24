@@ -107,14 +107,7 @@ print_flags (ostream & out, ValueFlags flags)
               << ((flags & VF_complete) ?  "C" : "-")
               << ((flags & VF_left)     ?  "&" : "-")
               << ((flags & VF_dirty)    ?  "?" : "-")
-              << ((flags & VF_arg)      ?  "A" : "-")
-              << ((flags & VF_eoc)      ?  "E" : "-")
-              << ((flags & VF_deleted)  ?  "∆" : "-")
-              << ((flags & VF_index)    ?  "⌷" : "-")
-              << ((flags & VF_nested)   ?  "s" : "-")
-              << ((flags & VF_forever)  ?  "∞" : "-")
-              << ((flags & VF_assigned) ?  "←" : "-")
-              << ((flags & VF_shared)   ?  "∇" : "-");
+              << ((flags & VF_forever)  ?  "∞" : "-");
 }
 //-----------------------------------------------------------------------------
 

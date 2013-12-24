@@ -37,9 +37,6 @@ public:
    /// constructor: empty (0-dimensional) IndexExpr
    IndexExpr(bool _left, const char * loc);
 
-   /// destructor
-   ~IndexExpr();
-
    /// The quad-ct for this index.
    APL_Float quad_ct;
 
@@ -52,7 +49,6 @@ public:
    /// append a value.
    void add(Value_P val)
       { Assert(rank < MAX_RANK);
-        if (!!val)   val->set_index();
         values[rank++] = val; }
 
    /// return the number of values (= number of semicolons + 1)

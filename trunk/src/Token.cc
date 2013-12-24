@@ -60,9 +60,7 @@ Token::Token(TokenTag tg, IndexExpr & idx)
                 }
              else                          // [x]
                 {
-                  idx.values[0]->clear_index();
-                  new (&value._apl_val()) Value_P(idx.values[0]);
-                  idx.values[0] = Value_P();
+                  new (&value._apl_val())   Value_P(idx.extract_value(0));
                 }
            }
         else                         // [idx; ...]

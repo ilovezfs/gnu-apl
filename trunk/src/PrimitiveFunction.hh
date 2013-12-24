@@ -320,7 +320,7 @@ public:
    /// Take from B according to ravel_A.
    static Token do_take(const Shape shape_Zi, Value_P B);
 
-   /// Fill Z with B, pad as neccessary
+   /// Fill Z with B, pad as necessary
    static void fill(const Shape & shape_Zi, Cell * Z, Value_P B);
 
    static Bif_F12_TAKE      fun;   ///< Built-in function.

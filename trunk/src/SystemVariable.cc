@@ -216,7 +216,6 @@ APL_Float val = cell.get_real_value();
    //
    if (val > Value::Max_CT_P->get_ravel(0).get_real_value())
       {
-        value->erase(LOC);
         value = Value::Max_CT_P;
       }
 
@@ -722,7 +721,6 @@ Quad_QUOTE::Quad_QUOTE()
 Value_P dummy(new Value(UCS_string(LOC), LOC));
    dummy->set_complete();
    Symbol::assign(dummy, LOC);
-   dummy->clear_assigned();
    dummy->set_forever();
 }
 //-----------------------------------------------------------------------------
@@ -865,7 +863,6 @@ const APL_Integer qio = Workspace::get_IO();
 
 Value_P X1 = IDX.values[1];
    delete &IDX;
-   X1->clear_index();
 
    assign_indexed(X1, value);
 }
@@ -910,8 +907,6 @@ const APL_Integer qio = Workspace::get_IO();
              INDEX_ERROR;
            }
       }
-
-   X->erase(LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P

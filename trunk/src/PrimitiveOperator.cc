@@ -46,8 +46,6 @@ Value_P Fill_B;   // argument B of the fill function
    else                 Fill_B = Bif_F12_TAKE::fun.eval_B(B).get_apl_val();
 
 Token tok = fun->eval_fill_AB(Fill_A, Fill_B);
-   Fill_A->erase(LOC);
-   Fill_B->erase(LOC);
 
    if (tok.get_Class() != TC_VALUE)   return tok;
 

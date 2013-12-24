@@ -51,8 +51,6 @@ Value_P X(new Value(axes_count, LOC));
    new (&X->get_ravel(a))   IntCell(B->get_ravel(a).get_int_value());
 
 Token ret = eval_LXB(_LO, X, arg);
-   arg->erase(LOC);
-   X->erase(LOC);
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -69,7 +67,7 @@ Rank rk_B_low = B->get_rank();
 
    // split shape of B into high and low shapes.
    //
-EOC_arg arg;
+EOC_arg arg(B);
 RANK_LXB & _arg = arg.u.u_RANK_LXB;
 
    _arg.get_sh_B_low() = B->get_shape().low_shape(rk_B_low);
@@ -103,8 +101,7 @@ loop_h:
      loop(l, _arg.ec_B_low)   BB->get_ravel(l).init(*_arg.cB++);
      BB->check_value(LOC);
 
-     Token result = _arg.LO->eval_B(BB);   // erases BB
-     BB->erase(LOC);
+     Token result = _arg.LO->eval_B(BB);
      if (result.get_tag() == TOK_SI_PUSHED)
         {
           // LO was a user defined function or ⍎
@@ -142,14 +139,13 @@ Cell * cZ = &Z->get_ravel(0);
 
    loop(hh, _arg.ec_high)
       {
-        // sh_Z_max_low ↑ ZZ  if neccessary
+        // sh_Z_max_low ↑ ZZ  if necessary
         //
         if (_arg.get_sh_Z_max_low() != _arg.ZZ[hh]->get_shape())
            {
              Assert(ec_Z_max_low >= _arg.ZZ[hh]->element_count());
              Token zz = Bif_F12_TAKE::fun.do_take(_arg.get_sh_Z_max_low(),
-                                                  Value_P(_arg.ZZ[hh]));
-             _arg.ZZ[hh]->erase(LOC);
+                                                  _arg.ZZ[hh]);
              _arg.ZZ[hh] = zz.get_apl_val();
            }
 
@@ -161,7 +157,6 @@ Cell * cZ = &Z->get_ravel(0);
              cZ++->init(*cZZ);
              new (cZZ++) IntCell(0);
            }
-        _arg.ZZ[hh]->erase(LOC);
       }
 
    delete [] _arg.ZZ;
@@ -220,7 +215,6 @@ Value_P X(new Value(axes_count, LOC));
    new (&X->get_ravel(a))   IntCell(B->get_ravel(a).get_int_value());
 
 Token ret = eval_ALXB(A, _LO, X, arg);
-   X->erase(LOC);
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -246,7 +240,7 @@ Rank rk_B_high = B->get_rank() - rk_B_low;   // rk_B_high is y9
    // have the same shape, rk_A_high and rk_B_high could be different, leading
    // to different split shapes for A1 and B1
    //
-EOC_arg arg;
+EOC_arg arg(B);   arg.A = A;
 RANK_ALXB & _arg = arg.u.u_RANK_ALXB;
 
    _arg.get_sh_A_low() = A->get_shape().low_shape(rk_A_low);
@@ -255,7 +249,7 @@ Shape sh_A_high = A->get_shape().high_shape(A->get_rank() - rk_A_low);
    _arg.get_sh_B_high() = B->get_shape().high_shape(B->get_rank() - rk_B_low);
    new (&_arg.get_sh_Z_max_low())   Shape;
 
-   // a trick to actually avoid conforming A to B or B to A. If A or B
+   // a trick to avoid conforming A to B or B to A. If A or B
    // needs to be conformed, then we set the corresponding repeat_A or 
    // repeat_B to true and copy the same A or B again and again
    //
@@ -274,7 +268,7 @@ Shape sh_A_high = A->get_shape().high_shape(A->get_rank() - rk_A_low);
       }
    else                       // check lengths
       {
-        if (rk_A_high != rk_B_high)             RANK_ERROR;
+        if (rk_A_high != rk_B_high)              RANK_ERROR;
         if (sh_A_high != _arg.get_sh_B_high())   LENGTH_ERROR;
       }
  
@@ -321,9 +315,7 @@ loop_h:
      AA->check_value(LOC);
      BB->check_value(LOC);
 
-     Token result = _arg.LO->eval_AB(AA, BB);   // erases AA and BB
-     AA->erase(LOC);
-     BB->erase(LOC);
+     Token result = _arg.LO->eval_AB(AA, BB);
      if (result.get_tag() == TOK_SI_PUSHED)
         {
           // LO was a user defined function or ⍎
@@ -361,14 +353,13 @@ Cell * cZ = &Z->get_ravel(0);
 
    loop(hh, _arg.ec_high)
       {
-        // sh_Z_max_low ↑ ZZ  if neccessary
+        // sh_Z_max_low ↑ ZZ  if necessary
         //
         if (_arg.get_sh_Z_max_low() != _arg.ZZ[hh]->get_shape())
            {
              Assert(ec_Z_max_low >= _arg.ZZ[hh]->element_count());
              Token zz = Bif_F12_TAKE::fun.do_take(_arg.get_sh_Z_max_low(),
-                                                  Value_P(_arg.ZZ[hh]));
-             _arg.ZZ[hh]->erase(LOC);
+                                                  _arg.ZZ[hh]);
              _arg.ZZ[hh] = zz.get_apl_val();
            }
 
@@ -380,7 +371,6 @@ Cell * cZ = &Z->get_ravel(0);
              cZ++->init(*cZZ);
              new (cZZ++) IntCell(0);
            }
-        _arg.ZZ[hh]->erase(LOC);
       }
 
    delete [] _arg.ZZ;
