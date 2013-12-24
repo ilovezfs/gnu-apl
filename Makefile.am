@@ -113,6 +113,7 @@ EXPO:
 	make DEB
 	make RPM
 	make SYNC
+	make distclean
 
 am--refresh:
 	echo "making am--refresh"
