@@ -83,6 +83,7 @@ DEB:	dist
 develop:
 	./configure \
 		VALUE_CHECK_WANTED=yes \
+		VALUE_HISTORY_WANTED=yes \
 		DYNAMIC_LOG_WANTED=yes \
 		ASSERT_LEVEL_WANTED=2  \
 		PRINT_SEMA_WANTED=yes

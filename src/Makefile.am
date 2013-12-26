@@ -50,6 +50,8 @@ main.cc					main.hh			\
 Malloc_hooks.cc							\
 Nabla.cc				Nabla.hh		\
 NamedObject.cc				NamedObject.hh		\
+NativeFunction.cc			NativeFunction.hh	\
+					Native_interface.hh	\
 NumericCell.cc				NumericCell.hh		\
 Output.cc				Output.hh		\
 Parser.cc				Parser.hh		\
@@ -62,6 +64,7 @@ PrintBuffer.cc				PrintBuffer.hh		\
 					PrintOperator.hh	\
 QuadFunction.cc				QuadFunction.hh		\
 ProcessorID.cc				ProcessorID.hh		\
+Quad_FX.cc				Quad_FX.hh		\
 Quad_RL.cc				Quad_RL.hh		\
 Quad_SVx.cc				Quad_SVx.hh		\
 Quad_TF.cc				Quad_TF.hh		\

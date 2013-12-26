@@ -24,6 +24,7 @@
 #include "FloatCell.hh"
 #include "IntCell.hh"
 #include "PointerCell.hh"
+#include "Quad_FX.hh"
 #include "Quad_TF.hh"
 #include "Symbol.hh"
 #include "Tokenizer.hh"

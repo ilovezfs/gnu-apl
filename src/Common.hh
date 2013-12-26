@@ -127,7 +127,7 @@ extern ostream & get_CERR();
 /// The total memory that we have.
 extern uint64_t total_memory;
 
-#ifdef VALUE_CHECK_WANTED
+#ifdef VALUE_HISTORY_WANTED
 
    enum { VALUEHISTORY_SIZE = 100000 };
    extern void add_event(const Value * val, VH_event ev, int ia,

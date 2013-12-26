@@ -49,3 +49,4 @@
  4905 LAST VERSION WITH OLD MEMORY MANAGEMENT
  4907 new memory management
  4937 removed old memory management flags
+ 4971 added ⍷ (U+2377) as alternate char for ⋸

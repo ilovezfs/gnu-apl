@@ -611,7 +611,7 @@ Bif_F12_COMMA::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
    // catenate or laminate
    //
-   if (!X->is_skalar_or_len1_vector())   INDEX_ERROR;
+   if (!X->is_skalar_or_len1_vector())   AXIS_ERROR;
 
 const Cell & cX = X->get_ravel(0);
 
@@ -652,8 +652,7 @@ Bif_F12_COMMA1::eval_AB(Value_P A, Value_P B)
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F12_COMMA1::eval_AXB(Value_P A, Value_P X,
-                             Value_P B)
+Bif_F12_COMMA1::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
    return Bif_F12_COMMA::fun.eval_AXB(A, X, B);
 }

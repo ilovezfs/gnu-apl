@@ -3,14 +3,17 @@
 
 AC_PREREQ([2.65])
 AC_INIT([GNU APL], [1.1], [bug-apl@gnu.org])
+AC_USE_SYSTEM_EXTENSIONS
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
+
+LT_INIT([dlopen])
 
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_RANLIB
 
 AC_GNU_SOURCE
 AM_GNU_GETTEXT([external])
@@ -100,6 +103,15 @@ AC_ARG_VAR(VALUE_CHECK_WANTED,
    [ enable CHECK() macro (see README-2-configure) default: no ])
 if test "x$VALUE_CHECK_WANTED" = "xyes"; then
 AC_DEFINE_UNQUOTED([VALUE_CHECK_WANTED], [yes],
+                   [ define to enable CHECK macro ])
+fi
+
+
+# APL: ADD_EVENT() macro and friends desired ?
+AC_ARG_VAR(VALUE_HISTORY_WANTED,
+   [ enable CHECK() macro (see README-2-configure) default: no ])
+if test "x$VALUE_HISTORY_WANTED" = "xyes"; then
+AC_DEFINE_UNQUOTED([VALUE_HISTORY_WANTED], [yes],
                    [ define to enable CHECK macro ])
 fi
 

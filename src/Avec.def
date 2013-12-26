@@ -228,7 +228,7 @@ char_def(SQUISH_QUAD        , 0x2337 , F2_INDEX     , NO_SPACE ,  D3) /* ⌷ */
 char_def(QUAD_EQUAL         , 0x2338 , END          , NO_SPACE , 088) /* ⌸ */
 char_def(QUAD_DIVIDE        , 0x2339 , F12_DOMINO   , NO_SPACE ,  92) /* ⌹ */
 char_def(QUAD_DIAMOND       , 0x233A , END          , NO_SPACE , 089) /* ⌺ */
-char_def(QUAD_JOT           , 0x233B , END          , NO_SPACE ,  D5) /* ⌼ */
+char_def(QUAD_JOT           , 0x233B , END          , NO_SPACE ,  D5) /* ⌻ */
 char_def(QUAD_CIRCLE        , 0x233C , END          , NO_SPACE , 08A) /* ⌼ */
 char_def(CIRCLE_STILE       , 0x233D , F12_ROTATE   , NO_SPACE ,  E8) /* ⌽ */
 char_def(CIRCLE_JOT         , 0x233E , END          , NO_SPACE , 08B) /* ⌾ */
