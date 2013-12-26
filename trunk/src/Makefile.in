@@ -58,8 +58,11 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/lib-ld.m4 \
 	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/po.m4 \
-	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
+	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -86,39 +89,51 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-LibPaths.$(OBJEXT) apl-Logging.$(OBJEXT) \
 	apl-LvalCell.$(OBJEXT) apl-main.$(OBJEXT) \
 	apl-Malloc_hooks.$(OBJEXT) apl-Nabla.$(OBJEXT) \
-	apl-NamedObject.$(OBJEXT) apl-NumericCell.$(OBJEXT) \
-	apl-Output.$(OBJEXT) apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
+	apl-NamedObject.$(OBJEXT) apl-NativeFunction.$(OBJEXT) \
+	apl-NumericCell.$(OBJEXT) apl-Output.$(OBJEXT) \
+	apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
 	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
 	apl-PrimitiveOperator.$(OBJEXT) apl-PrintBuffer.$(OBJEXT) \
 	apl-QuadFunction.$(OBJEXT) apl-ProcessorID.$(OBJEXT) \
-	apl-Quad_RL.$(OBJEXT) apl-Quad_SVx.$(OBJEXT) \
-	apl-Quad_TF.$(OBJEXT) apl-RealCell.$(OBJEXT) \
-	apl-Shape.$(OBJEXT) apl-SkalarFunction.$(OBJEXT) \
-	apl-StateIndicator.$(OBJEXT) apl-StaticObjects.$(OBJEXT) \
-	apl-Svar_DB.$(OBJEXT) apl-Symbol.$(OBJEXT) \
-	apl-SymbolTable.$(OBJEXT) apl-SystemVariable.$(OBJEXT) \
-	apl-TestFiles.$(OBJEXT) apl-Token.$(OBJEXT) \
-	apl-Tokenizer.$(OBJEXT) apl-UCS_string.$(OBJEXT) \
-	apl-UdpSocket.$(OBJEXT) apl-UserFunction.$(OBJEXT) \
-	apl-UTF8_string.$(OBJEXT) apl-Value.$(OBJEXT) \
-	apl-ValueHistory.$(OBJEXT) apl-Workspace.$(OBJEXT)
+	apl-Quad_FX.$(OBJEXT) apl-Quad_RL.$(OBJEXT) \
+	apl-Quad_SVx.$(OBJEXT) apl-Quad_TF.$(OBJEXT) \
+	apl-RealCell.$(OBJEXT) apl-Shape.$(OBJEXT) \
+	apl-SkalarFunction.$(OBJEXT) apl-StateIndicator.$(OBJEXT) \
+	apl-StaticObjects.$(OBJEXT) apl-Svar_DB.$(OBJEXT) \
+	apl-Symbol.$(OBJEXT) apl-SymbolTable.$(OBJEXT) \
+	apl-SystemVariable.$(OBJEXT) apl-TestFiles.$(OBJEXT) \
+	apl-Token.$(OBJEXT) apl-Tokenizer.$(OBJEXT) \
+	apl-UCS_string.$(OBJEXT) apl-UdpSocket.$(OBJEXT) \
+	apl-UserFunction.$(OBJEXT) apl-UTF8_string.$(OBJEXT) \
+	apl-Value.$(OBJEXT) apl-ValueHistory.$(OBJEXT) \
+	apl-Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 apl_LDADD = $(LDADD)
-apl_LINK = $(CXXLD) $(apl_CXXFLAGS) $(CXXFLAGS) $(apl_LDFLAGS) \
-	$(LDFLAGS) -o $@
+apl_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(apl_CXXFLAGS) $(CXXFLAGS) \
+	$(apl_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
+CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 SOURCES = $(apl_SOURCES)
 DIST_SOURCES = $(apl_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -169,6 +184,7 @@ am__relativize = \
   reldir="$$dir2"
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
+AR = @AR@
 ASSERT_LEVEL_WANTED = @ASSERT_LEVEL_WANTED@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
@@ -184,17 +200,21 @@ COUT_COLOR_WANTED = @COUT_COLOR_WANTED@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
+CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 DEPDIR = @DEPDIR@
+DSYMUTIL = @DSYMUTIL@
+DUMPBIN = @DUMPBIN@
 DYNAMIC_LOG_WANTED = @DYNAMIC_LOG_WANTED@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+FGREP = @FGREP@
 GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
@@ -206,12 +226,16 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INTLLIBS = @INTLLIBS@
+LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBREADLINE = @LIBREADLINE@
 LIBS = @LIBS@
+LIBTOOL = @LIBTOOL@
+LIPO = @LIPO@
+LN_S = @LN_S@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
@@ -221,7 +245,12 @@ MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
 MSGFMT_015 = @MSGFMT_015@
 MSGMERGE = @MSGMERGE@
+NM = @NM@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OTOOL = @OTOOL@
+OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -234,12 +263,14 @@ POSUB = @POSUB@
 PRINT_SEMA_WANTED = @PRINT_SEMA_WANTED@
 RANLIB = @RANLIB@
 RESET_COLORS_WANTED = @RESET_COLORS_WANTED@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHORT_VALUE_LENGTH_WANTED = @SHORT_VALUE_LENGTH_WANTED@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VALUE_CHECK_WANTED = @VALUE_CHECK_WANTED@
+VALUE_HISTORY_WANTED = @VALUE_HISTORY_WANTED@
 VERSION = @VERSION@
 VF_TRACING_WANTED = @VF_TRACING_WANTED@
 XGETTEXT = @XGETTEXT@
@@ -251,6 +282,7 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
+ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -281,6 +313,7 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = $(datadir)/locale
 localstatedir = @localstatedir@
+lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -341,6 +374,8 @@ main.cc					main.hh			\
 Malloc_hooks.cc							\
 Nabla.cc				Nabla.hh		\
 NamedObject.cc				NamedObject.hh		\
+NativeFunction.cc			NativeFunction.hh	\
+					Native_interface.hh	\
 NumericCell.cc				NumericCell.hh		\
 Output.cc				Output.hh		\
 Parser.cc				Parser.hh		\
@@ -353,6 +388,7 @@ PrintBuffer.cc				PrintBuffer.hh		\
 					PrintOperator.hh	\
 QuadFunction.cc				QuadFunction.hh		\
 ProcessorID.cc				ProcessorID.hh		\
+Quad_FX.cc				Quad_FX.hh		\
 Quad_RL.cc				Quad_RL.hh		\
 Quad_SVx.cc				Quad_SVx.hh		\
 Quad_TF.cc				Quad_TF.hh		\
@@ -390,7 +426,7 @@ AM_MAKEFLAGS = -j 2
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .cc .o .obj
+.SUFFIXES: .cc .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -430,7 +466,7 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	fi; \
 	for p in $$list; do echo "$$p $$p"; done | \
 	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p; \
+	while read p p1; do if test -f $$p || test -f $$p1; \
 	  then echo "$$p"; echo "$$p"; else :; fi; \
 	done | \
 	sed -e 'p;s,.*/,,;n;h' -e 's|.*|.|' \
@@ -444,8 +480,8 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	while read type dir files; do \
 	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
 	    test -z "$$files" || { \
-	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
 	    } \
 	; done
 
@@ -460,7 +496,13 @@ uninstall-binPROGRAMS:
 	cd "$(DESTDIR)$(bindir)" && rm -f $$files
 
 clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
 apl$(EXEEXT): $(apl_OBJECTS) $(apl_DEPENDENCIES) $(EXTRA_apl_DEPENDENCIES) 
 	@rm -f apl$(EXEEXT)
 	$(apl_LINK) $(apl_OBJECTS) $(apl_LDADD) $(LIBS)
@@ -508,6 +550,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Malloc_hooks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Nabla.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NamedObject.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NativeFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NumericCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Output.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Parser.Po@am__quote@
@@ -518,6 +561,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrintBuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ProcessorID.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-QuadFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_FX.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_RL.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_SVx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_TF.Po@am__quote@
@@ -555,6 +599,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cc.lo:
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
 apl-Archive.o: Archive.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Archive.o -MD -MP -MF $(DEPDIR)/apl-Archive.Tpo -c -o apl-Archive.o `test -f 'Archive.cc' || echo '$(srcdir)/'`Archive.cc
@@ -1088,6 +1139,20 @@ apl-NamedObject.obj: NamedObject.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NamedObject.obj `if test -f 'NamedObject.cc'; then $(CYGPATH_W) 'NamedObject.cc'; else $(CYGPATH_W) '$(srcdir)/NamedObject.cc'; fi`
 
+apl-NativeFunction.o: NativeFunction.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NativeFunction.o -MD -MP -MF $(DEPDIR)/apl-NativeFunction.Tpo -c -o apl-NativeFunction.o `test -f 'NativeFunction.cc' || echo '$(srcdir)/'`NativeFunction.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NativeFunction.Tpo $(DEPDIR)/apl-NativeFunction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NativeFunction.cc' object='apl-NativeFunction.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NativeFunction.o `test -f 'NativeFunction.cc' || echo '$(srcdir)/'`NativeFunction.cc
+
+apl-NativeFunction.obj: NativeFunction.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NativeFunction.obj -MD -MP -MF $(DEPDIR)/apl-NativeFunction.Tpo -c -o apl-NativeFunction.obj `if test -f 'NativeFunction.cc'; then $(CYGPATH_W) 'NativeFunction.cc'; else $(CYGPATH_W) '$(srcdir)/NativeFunction.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NativeFunction.Tpo $(DEPDIR)/apl-NativeFunction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NativeFunction.cc' object='apl-NativeFunction.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NativeFunction.obj `if test -f 'NativeFunction.cc'; then $(CYGPATH_W) 'NativeFunction.cc'; else $(CYGPATH_W) '$(srcdir)/NativeFunction.cc'; fi`
+
 apl-NumericCell.o: NumericCell.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NumericCell.o -MD -MP -MF $(DEPDIR)/apl-NumericCell.Tpo -c -o apl-NumericCell.o `test -f 'NumericCell.cc' || echo '$(srcdir)/'`NumericCell.cc
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NumericCell.Tpo $(DEPDIR)/apl-NumericCell.Po
@@ -1227,6 +1292,20 @@ apl-ProcessorID.obj: ProcessorID.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ProcessorID.cc' object='apl-ProcessorID.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ProcessorID.obj `if test -f 'ProcessorID.cc'; then $(CYGPATH_W) 'ProcessorID.cc'; else $(CYGPATH_W) '$(srcdir)/ProcessorID.cc'; fi`
+
+apl-Quad_FX.o: Quad_FX.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_FX.o -MD -MP -MF $(DEPDIR)/apl-Quad_FX.Tpo -c -o apl-Quad_FX.o `test -f 'Quad_FX.cc' || echo '$(srcdir)/'`Quad_FX.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_FX.Tpo $(DEPDIR)/apl-Quad_FX.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_FX.cc' object='apl-Quad_FX.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_FX.o `test -f 'Quad_FX.cc' || echo '$(srcdir)/'`Quad_FX.cc
+
+apl-Quad_FX.obj: Quad_FX.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_FX.obj -MD -MP -MF $(DEPDIR)/apl-Quad_FX.Tpo -c -o apl-Quad_FX.obj `if test -f 'Quad_FX.cc'; then $(CYGPATH_W) 'Quad_FX.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_FX.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_FX.Tpo $(DEPDIR)/apl-Quad_FX.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_FX.cc' object='apl-Quad_FX.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_FX.obj `if test -f 'Quad_FX.cc'; then $(CYGPATH_W) 'Quad_FX.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_FX.cc'; fi`
 
 apl-Quad_RL.o: Quad_RL.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_RL.o -MD -MP -MF $(DEPDIR)/apl-Quad_RL.Tpo -c -o apl-Quad_RL.o `test -f 'Quad_RL.cc' || echo '$(srcdir)/'`Quad_RL.cc
@@ -1536,6 +1615,12 @@ apl-Workspace.obj: Workspace.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Workspace.obj `if test -f 'Workspace.cc'; then $(CYGPATH_W) 'Workspace.cc'; else $(CYGPATH_W) '$(srcdir)/Workspace.cc'; fi`
 
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
 # To change the values of `make' variables: instead of editing Makefiles,
@@ -1766,7 +1851,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -rf ./$(DEPDIR)
@@ -1821,7 +1906,8 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
 
 pdf: pdf-recursive
 
@@ -1838,17 +1924,18 @@ uninstall-am: uninstall-binPROGRAMS
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic ctags ctags-recursive distclean \
-	distclean-compile distclean-generic distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
-	ps ps-am tags tags-recursive uninstall uninstall-am \
+	clean-generic clean-libtool ctags ctags-recursive distclean \
+	distclean-compile distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
 	uninstall-binPROGRAMS
 
 

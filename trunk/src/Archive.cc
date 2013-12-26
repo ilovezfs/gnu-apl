@@ -172,7 +172,7 @@ const unsigned int sub_vid = find_vid(v);
    Assert(sub_vid < values.size());
 unsigned int parent_vid = -1;
 
-   if (values[sub_vid]._par)   parent_vid = find_vid(*values[sub_vid]._par);
+   if (&values[sub_vid]._par)   parent_vid = find_vid(values[sub_vid]._par);
 
    snprintf(cc, sizeof(cc), " parent=\"%d\"", parent_vid);
    out << cc;
@@ -535,8 +535,8 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                          loop(i, rank)
                              {
                                if (i)   out << ",";
-                               const Value * val = idx.values[i].get();
-                               if (val)   out << "vid_" << find_vid(*val);
+                               const Value & val = *idx.values[i].get();
+                               if (&val)   out << "vid_" << find_vid(val);
                                else       out << "-";
                                 out << "\"/>";
                              }
@@ -742,32 +742,32 @@ tm * t;
    for (const DynamicObject * obj = DynamicObject::get_all_values()->get_next();
         obj != DynamicObject::get_all_values(); obj = obj->get_next())
        {
-         const Value * val((const Value *)obj);
+         const Value & val(*(const Value *)obj);
 
-         if (val->is_forever())   continue;   // e.g. ⍞
-         if (val->is_marked())    continue;   // stale
+         if (val.is_forever())   continue;   // e.g. ⍞
+         if (val.is_marked())    continue;   // stale
 
-         val->clear_marked();
-         values.push_back(_val_par(*val));
+         val.clear_marked();
+         values.push_back(_val_par(val));
        }
 
    // set up parents of values
    //
    loop(p, values.size())
       {
-        const Value * parent = & values[p]._val;
-        const ShapeItem ec = parent->nz_element_count();
-        const Cell * cP = &parent->get_ravel(0);
+        const Value & parent = values[p]._val;
+        const ShapeItem ec = parent.nz_element_count();
+        const Cell * cP = &parent.get_ravel(0);
         loop(e, ec)
             {
               if (cP->is_pointer_cell())
                  {
-                   const Value * sub = cP->get_pointer_value().get();
-                   Assert(sub);
-                   unsigned int sub_idx = find_vid(*sub);
+                   const Value & sub = *cP->get_pointer_value().get();
+                   Assert1(&sub);
+                   unsigned int sub_idx = find_vid(sub);
                    Assert(sub_idx < values.size());
-                   Assert(!values[sub_idx]._par);
-                   values[sub_idx]._par = parent;
+                   Assert(!&values[sub_idx]._par);
+                   values[sub_idx] = _val_par(values[sub_idx]._val,  parent);
                  }
               else if (cP->is_lval_cell())
                  {

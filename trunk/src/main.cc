@@ -349,6 +349,13 @@ show_configure_options()
 #endif
    << endl <<
 
+#ifdef VALUE_HISTORY_WANTED
+   "    VALUE_HISTORY_WANTED=yes"
+#else
+   "    VALUE_HISTORY_WANTED=no (default)"
+#endif
+   << endl <<
+
 #ifdef VF_TRACING_WANTED
    "    VF_TRACING_WANTED=yes"
 #else

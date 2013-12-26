@@ -224,31 +224,6 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-FX (Fix)
- */
-class Quad_FX : public QuadFunction
-{
-public:
-   /// Constructor.
-   Quad_FX() : QuadFunction(TOK_QUAD_FX) {}
-
-   static Quad_FX           fun;          ///< Built-in function.
-
-   /// overloaded Function::eval_B().
-   virtual Token eval_B(Value_P B);
-
-   /// overloaded Function::eval_AB().
-   virtual Token eval_AB(Value_P A, Value_P B);
-
-   /// do ⎕FX with execution properties \b exec_props
-   Token do_quad_FX(const int * exec_props, const UCS_string & text);
-
-protected:
-   /// do ⎕FX with execution properties \b exec_props
-   Token do_quad_FX(const int * exec_props, Value_P B);
-};
-//-----------------------------------------------------------------------------
-/**
    The system function Quad-INP (input from script, aka. HERE document)
  */
 class Quad_INP : public QuadFunction

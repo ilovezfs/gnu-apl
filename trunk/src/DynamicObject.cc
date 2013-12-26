@@ -51,7 +51,8 @@ int pos = 0;
 void
 DynamicObject::print_new(ostream & out, const char * loc) const
 {
-   out << "new    " << (const void *)(Value *)this << " at " << loc << endl;
+   out << "new    " << (const void *)(const Value *)this
+       << " at " << loc << endl;
 }
 //-----------------------------------------------------------------------------
 void

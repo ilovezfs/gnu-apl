@@ -214,13 +214,17 @@ public:
    bool is_empty() const
       { return shape.is_empty(); }
 
-   /// return \b true iff \b this value is not a skalar.
-   bool is_non_skalar() const
-      { return  shape.get_rank() != 0; }
+   /// return \b true iff \b this value is a numeric skalar.
+   bool is_numeric_skalar() const
+      { return  is_skalar() && get_ravel(0).is_numeric(); }
 
-   /// return \b true iff \b this value is a skalar or vector.
+   /// return \b true iff \b this value is a character skalar
+   bool is_character_skalar() const
+      { return  is_skalar() && get_ravel(0).is_character_cell(); }
+
+   /// return \b true iff \b this value is a skalar or vector
    bool is_skalar_or_vector() const
-      { return  get_rank() <= 1; }
+      { return  get_rank() < 2; }
 
    /// return \b true iff \b this value is a vector.
    bool is_vector() const
@@ -406,9 +410,6 @@ public:
 
    /// print info related to a stale value
    void print_stale_info(ostream & out, const DynamicObject * dob);
-
-   /// set complete flag and return \b this
-   inline Value * set_complete_flag()   { set_complete(); return this; }
 
    /// number of Value_P objects pointing to this value
    int owner_count;

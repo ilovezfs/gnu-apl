@@ -100,11 +100,19 @@ PRINT_SEMA_WANTED=yes
 
 
 VALUE_CHECK_WANTED=yes
-    There is a macro called CHECK that checks every new APL value for
-    consistency. This check helps finding faults in the interpreter, but
+    There is a function called check_value() that checks every new APL value
+    for consistency. This check helps finding faults in the interpreter, but
     decreases the performance of the interpreter. Example:
 
     ./configure VALUE_CHECK_WANTED=yes
+
+
+VALUE_HISTORY_WANTED=yes
+    There is a macro called ADD_EVENT that records the history of APL values.
+    This history helps finding faults in the interpreter, but
+    decreases the performance of the interpreter. Example:
+
+    ./configure VALUE_HISTORY_WANTED=yes
 
 
 VF_TRACING_WANTED=yes

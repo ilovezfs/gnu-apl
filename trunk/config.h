@@ -18,6 +18,9 @@
    */
 #define HAVE_DCGETTEXT 1
 
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#define HAVE_DLFCN_H 1
+
 /* Define to 1 if you have the <execinfo.h> header file. */
 #define HAVE_EXECINFO_H 1
 
@@ -127,6 +130,10 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
 
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#define LT_OBJDIR ".libs/"
+
 /* max. rank of APL values */
 #define MAX_RANK_WANTED 8
 
@@ -184,6 +191,9 @@
 
 /* define to enable CHECK macro */
 /* #undef VALUE_CHECK_WANTED */
+
+/* define to enable CHECK macro */
+/* #undef VALUE_HISTORY_WANTED */
 
 /* Version number of package */
 #define VERSION "1.1"

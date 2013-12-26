@@ -121,8 +121,8 @@ public:
    /// Print \b this function.
    virtual ostream & print(ostream & out) const = 0;
 
-   /// return true if this function has a name with alpha chars, i.e. the
-   /// function is user defined or a quad function
+   /// return true if this function has a name with alphabetic chars,
+   /// i.e. the function is user defined or a quad function
    virtual bool has_alpha() const   { return false; }
 
    /// plain function, 0 arguments
@@ -144,8 +144,7 @@ public:
    virtual Token eval_LRB(Token & LO, Token & RO, Value_P B);
 
    /// dyadic operator, 2 arguments
-   virtual Token eval_ALRB(Value_P A, Token & LO, Token & RO,
-                           Value_P B);
+   virtual Token eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B);
 
    /// plain function, 1 arguments, with axis
    virtual Token eval_XB(Value_P X, Value_P B)

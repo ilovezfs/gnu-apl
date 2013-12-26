@@ -93,7 +93,7 @@ Function * old_function = sym_FUN->get_function();
    check_duplicate_symbols();
 
    if (sym_LO)   sym_FUN->set_nc(NC_OPERATOR, this);
-   else               sym_FUN->set_nc(NC_FUNCTION, this);
+   else          sym_FUN->set_nc(NC_FUNCTION, this);
 
    if (old_function)
       {

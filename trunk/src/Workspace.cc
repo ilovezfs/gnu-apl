@@ -30,6 +30,7 @@ using namespace std;
 #include "LibPaths.hh"
 #include "main.hh"
 #include "Output.hh"
+#include "Quad_FX.hh"
 #include "Quad_TF.hh"
 #include "TestFiles.hh"
 #include "UserFunction.hh"
