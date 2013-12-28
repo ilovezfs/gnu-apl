@@ -1038,11 +1038,9 @@ const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
 Shape shape;
-Q(*this)
      loop(x, xlen)
         shape.add_shape_item(get_ravel(x).get_near_int(qct) - qio);
 
-Q(shape)
    return shape;
 }
 //-----------------------------------------------------------------------------
