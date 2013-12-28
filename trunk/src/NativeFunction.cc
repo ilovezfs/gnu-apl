@@ -26,12 +26,27 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-NativeFunction::NativeFunction(void * so_handle, UCS_string apl_name)
+NativeFunction::NativeFunction(const UCS_string & so_name,
+                               const UCS_string & apl_name)
    : Function(ID_USER_SYMBOL, TOK_FUN2),
-     handle(so_handle),
+     handle(0),
      name(apl_name),
+     so_path(so_name),
      valid(false)
 {
+   // open .so file...
+   //
+   {
+     UTF8_string utf_so_name(so_path);
+     handle = dlopen((const char *)utf_so_name.c_str(), RTLD_NOW);
+
+     if (handle == 0)   // dlopen failed
+        {
+          Workspace::more_error() = UCS_string(dlerror());
+          return;
+        }
+   }
+
    // create an entry in the symbol table
    //
 Symbol * sym = Workspace::lookup_symbol(apl_name);
@@ -40,39 +55,51 @@ Symbol * sym = Workspace::lookup_symbol(apl_name);
 
    /// read function pointers...
    //
-#define fun(f, a, m) f_eval_ ## f = (Token (*) a )dlsym(handle, #m);
-   fun(            , ()                              , xxx);
-   fun(B           , (Vr B)                          , xxx)
-   fun(AB          , (Vr A, Vr B)                    , xxx)
-   fun(LB          , (Fr LO, Vr B)                   , xxx)
-   fun(ALB         , (Vr A, Fr LO, Vr B)             , xxx)
-   fun(LRB         , (Fr LO, Fr RO, Vr B)            , xxx)
-   fun(ALRB        , (Vr A, Fr LO, Fr RO, Vr B)      , xxx)
-   fun(XB          , (Vr X, Vr B)                    , _Z7eval_XBRK5ValueS1_)
-   fun(AXB         , (Vr A, Vr X, Vr B)              , _Z8eval_AXBRK5ValueS1_S1_)
-   fun(LXB         , (Fr LO, Vr X, Vr B)             , xxx)
-   fun(ALXB        , (Vr A, Fr LO, Vr X, Vr B)       , xxx)
-   fun(LRXB        , (Fr LO, Fr RO, Vr X, Vr B)      , xxx)
-   fun(ALRXB       , (Vr A, Fr LO, Fr RO, Vr X, Vr B), xxx)
-   fun(fill_B      , (Vr B)                          , xxx)
-   fun(fill_AB     , (Vr A, Vr B)                    , xxx)
-   fun(identity_fun, (Vr B, Axis axis)               , xxx)
-#undef fun
+#define ev(f, a, l, m) f_eval_ ## f = (Token (*) a ) \
+   dlsym(handle, "_Z" #l "eval_" #f #m);
+   ev(     , ()                              ,  5, v);
+   ev(B    , (Vr B)                          ,  6, RK5Value)
+   ev(AB   , (Vr A, Vr B)                    ,  7, RK5ValueS1_)
+   ev(LB   , (Fr LO, Vr B)                   ,  7, R8FunctionRK5Value)
+   ev(ALB  , (Vr A, Fr LO, Vr B)             ,  8, RK5ValueR8FunctionS1_)
+   ev(LRB  , (Fr LO, Fr RO, Vr B)            ,  8, R8FunctionS0_RK5Value)
+   ev(ALRB , (Vr A, Fr LO, Fr RO, Vr B)      ,  9, RK5ValueR8FunctionS3_S1_)
+   ev(XB   , (Vr X, Vr B)                    ,  7, RK5ValueS1_)
+   ev(AXB  , (Vr A, Vr X, Vr B)              ,  8, RK5ValueS1_S1_)
+   ev(LXB  , (Fr LO, Vr X, Vr B)             ,  8, R8FunctionRK5ValueS3_)
+   ev(ALXB , (Vr A, Fr LO, Vr X, Vr B)       ,  9, RK5ValueR8FunctionS1_S1_)
+   ev(LRXB , (Fr LO, Fr RO, Vr X, Vr B)      ,  9, R8FunctionS0_RK5ValueS3_)
+   ev(ALRXB, (Vr A, Fr LO, Fr RO, Vr X, Vr B), 10, RK5ValueR8FunctionS3_S1_S1_)
+#undef ev
+
+#define ev(f, a, m) f_eval_ ## f = (Token (*) a ) \
+   dlsym(handle, #m);
+   ev(fill_B  , (Vr B)                          , _Z11eval_fill_BR5Value)
+   ev(fill_AB , (Vr A, Vr B)                    , _Z12eval_fill_ABR5ValueS0_)
+   ev(ident_Bx, (Vr B, Axis x)                  , _Z13eval_ident_BxR5Valuei)
+#undef ev
 
    // check for mandatory properties in shared linrary...
    //
    {
-     void * fun = dlsym(handle, "_Z10has_resultv");
-     if (!fun)
+     void * get_sig = dlsym(handle, "_Z13get_signaturev");
+     if (!get_sig)
         {
           CERR << "shared library is lacking the mandatory "
-                  "function has_result() !"
+                  "function signature() !"
                << endl;
           return;
         }
 
-     b_has_result = ((bool (*)())fun)();
+     signature = ((Fun_signature (*)())get_sig)();
    }
+
+   // compute function tag based on the signature
+   //
+   if      (signature & SIG_RO)   tag = TOK_OPER2;
+   else if (signature & SIG_LO)   tag = TOK_OPER1;
+   else if (signature & SIG_B )   tag = TOK_FUN2;
+   else                           tag = TOK_FUN0;
 
    valid = true;
    if (is_operator())   sym->set_nc(NC_OPERATOR, this);
@@ -85,9 +112,10 @@ NativeFunction::~NativeFunction()
 }
 //-----------------------------------------------------------------------------
 NativeFunction *
-NativeFunction::fix(void * so_handle, const UCS_string function_name)
+NativeFunction::fix(const UCS_string & so_name,
+                    const UCS_string & function_name)
 {
-NativeFunction * new_function = new NativeFunction(so_handle, function_name);
+NativeFunction * new_function = new NativeFunction(so_name, function_name);
 
    if (!new_function->valid)   // something went wrong
       {
@@ -95,13 +123,13 @@ NativeFunction * new_function = new NativeFunction(so_handle, function_name);
         return 0;
       }
 
-   return new NativeFunction(so_handle, function_name);
+   return new_function;
 }
 //-----------------------------------------------------------------------------
 int
 NativeFunction::has_result() const
 {
-   return b_has_result;
+   return !!(signature & SIG_Z);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -125,6 +153,12 @@ NativeFunction::print_properties(ostream & out, int indent) const
 {
 UCS_string ind(indent, UNI_ASCII_SPACE);
    out << ind << "Native Function " << endl;
+}
+//-----------------------------------------------------------------------------
+UCS_string
+NativeFunction::canonical(bool with_lines) const
+{
+   return so_path;
 }
 //-----------------------------------------------------------------------------
 ostream &
@@ -274,7 +308,7 @@ NativeFunction::eval_fill_AB(Value_P A, Value_P B)
 Token
 NativeFunction::eval_identity_fun(Value_P B, Axis axis)
 {
-   if (f_eval_identity_fun)   return (*f_eval_identity_fun)(*B.get(), axis);
+   if (f_eval_ident_Bx)   return (*f_eval_ident_Bx)(*B.get(), axis);
 
    SYNTAX_ERROR;
 }

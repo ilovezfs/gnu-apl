@@ -1,4 +1,4 @@
-SUBDIRS = APs
+SUBDIRS = APs native
 
 bin_PROGRAMS = apl
 
@@ -110,7 +110,8 @@ update-svar_signals:
 
 apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
 
-apl_LDFLAGS  = $(GPROF_WANTED) $(LIBS) $(LIBREADLINE)
+apl_LDFLAGS = $(GPROF_WANTED)
+apl_LDADD = $(LIBS) $(LIBREADLINE)
 
 apl.lines: apl
 	objdump -j .text -l -d $< > $@

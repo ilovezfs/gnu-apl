@@ -45,6 +45,9 @@
 /* Define to 1 if you have the `blas' library (-lblas). */
 #define HAVE_LIBBLAS 1
 
+/* Define to 1 if you have the `dl' library (-ldl). */
+#define HAVE_LIBDL 1
+
 /* Define to 1 if you have the `execinfo' library (-lexecinfo). */
 /* #undef HAVE_LIBEXECINFO */
 

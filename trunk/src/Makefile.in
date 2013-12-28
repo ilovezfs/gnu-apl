@@ -108,7 +108,8 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-Value.$(OBJEXT) apl-ValueHistory.$(OBJEXT) \
 	apl-Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
-apl_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+apl_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 apl_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(apl_CXXFLAGS) $(CXXFLAGS) \
 	$(apl_LDFLAGS) $(LDFLAGS) -o $@
@@ -329,7 +330,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = APs
+SUBDIRS = APs native
 apl_SOURCES = \
 		    buildtag		buildtag.hh		\
 					../config.h		\
@@ -421,7 +422,8 @@ ValueHistory.cc				ValueHistory.hh		\
 Workspace.cc				Workspace.hh
 
 apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
-apl_LDFLAGS = $(GPROF_WANTED) $(LIBS) $(LIBREADLINE)
+apl_LDFLAGS = $(GPROF_WANTED)
+apl_LDADD = $(LIBS) $(LIBREADLINE)
 AM_MAKEFLAGS = -j 2
 all: all-recursive
 

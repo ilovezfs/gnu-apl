@@ -41,15 +41,16 @@ AC_FUNC_MMAP
 AC_CHECK_FUNCS([floor memset munmap pow sqrt strchr strerror])
 
 # Checks for libraries.
-AC_CHECK_LIB([lapack], [dgelsy_])
-AC_CHECK_LIB([blas], [dcopy_])
+AC_CHECK_LIB([lapack],    [dgelsy_])
+AC_CHECK_LIB([blas],      [dcopy_])
 #AC_CHECK_LIB([gfortran], [_gfortran_transpose])
-AC_CHECK_LIB([execinfo], [backtrace])
-AC_CHECK_LIB([intl], [libintl_gettext])
-AC_CHECK_LIB([m], [acosh])
-AC_CHECK_LIB([rt], [shm_open])
-AC_CHECK_LIB([pthread], [sem_init])
-AC_CHECK_LIB([ncurses], [setupterm])
+AC_CHECK_LIB([execinfo],  [backtrace])
+AC_CHECK_LIB([intl],      [libintl_gettext])
+AC_CHECK_LIB([m],         [acosh])
+AC_CHECK_LIB([rt],        [shm_open])
+AC_CHECK_LIB([pthread],   [sem_init])
+AC_CHECK_LIB([ncurses],   [setupterm])
+AC_CHECK_LIB([dl],        [dlopen])
 
 # enable readline support if libreadline is present and the user
 # has not disabled it.
@@ -86,6 +87,7 @@ AC_CONFIG_FILES([Makefile po/Makefile.in po/Makefile
 		 rpm/apl.spec
                  src/Makefile
                  src/APs/Makefile
+                 src/native/Makefile
                  workspaces/Makefile
                  wslib1/Makefile
                  wslib2/Makefile])

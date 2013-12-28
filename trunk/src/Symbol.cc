@@ -1048,6 +1048,7 @@ Symbol::unmark_all_values() const
 
               case NC_FUNCTION:
               case NC_OPERATOR:
+                   if (item.sym_val.function->is_native())   break;
                    {
                      const UserFunction * ufun =
                                           item.sym_val.function->get_ufun1();
@@ -1161,6 +1162,8 @@ ValueStackItem & tos = value_stack[0];
 
         case NC_FUNCTION:
         case NC_OPERATOR:
+             if (tos.sym_val.function->is_native())   break;
+
              {
                const UserFunction * ufun = tos.sym_val.function->get_ufun1();
                Assert(ufun);
