@@ -5,6 +5,12 @@ This is the manual for GNU APL, an implementation of ISO standard 13751
 
    Copyright (C) 2013 Free Software Foundation, Inc.
 
+INFO-DIR-SECTION GNU programming tools
+START-INFO-DIR-ENTRY
+* APL (apl). (Almost) fully implemented Programming Language APL, Extended.
+
+END-INFO-DIR-ENTRY
+
 
 File: apl.info,  Node: Top,  Next: Chapter 1,  Up: (dir)
 
@@ -2016,14 +2022,14 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
 
 Tag Table:
-Node: Top232
-Node: Chapter 11162
-Node: Chapter 213230
-Node: Chapter 325933
-Node: Chapter 427534
-Node: Chapter 528847
-Node: Section 5.129350
-Node: Section 5.254479
+Node: Top389
+Node: Chapter 11319
+Node: Chapter 213387
+Node: Chapter 326090
+Node: Chapter 427691
+Node: Chapter 529004
+Node: Section 5.129507
+Node: Section 5.254636
 
 End Tag Table
 

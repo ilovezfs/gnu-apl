@@ -14,6 +14,12 @@ This is the manual for GNU APL, an implementation of ISO standard 13751
 Copyright @copyright{} 2013 Free Software Foundation, Inc.
 @end copying
 
+@dircategory GNU programming tools
+@direntry
+
+* APL (apl). (Almost) fully implemented Programming Language APL, Extended.
+
+@end direntry
 
 @c ============================================================================
 @c ====== Part 3: Titlepage, Contents, Copyright ==============================
