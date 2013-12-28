@@ -288,7 +288,7 @@ char_def(IOTA               , 0x2373 , F12_INDEX_OF , NO_SPACE ,  EC) /* ⍳ */
 char_def(RHO                , 0x2374 , F12_RHO      , NO_SPACE ,  E6) /* ⍴ */
 char_def(OMEGA              , 0x2375 , END          , NO_SPACE ,  F9) /* ⍵ */
 char_def(ALPHA_UNDERBAR     , 0x2376 , END          , NO_SPACE ,  9E) /* ⍶ */
-char_def(EPSILON_UNDERBAR   , 0x2377 , END          , NO_SPACE ,  D1) /* ⍷ */
+char_def(EPSILON_UNDERBAR   , 0x2377 , F2_FIND      , NO_SPACE ,  D1) /* ⍷ */
 char_def(INDEX_UNDERBAR     , 0x2378 , END          , NO_SPACE ,  D0) /* ⍸ */
 char_def(OMEGA_UNDERBAR     , 0x2379 , END          , NO_SPACE ,  E1) /* ⍹ */
 char_def(ALPHA              , 0x237A , END          , NO_SPACE ,  E0) /* ⍺ */

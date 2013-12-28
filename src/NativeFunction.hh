@@ -35,14 +35,28 @@
 class NativeFunction : public Function
 {
 public:
-   static NativeFunction *  fix(void * so_handle, const UCS_string fun_name);
+   /// ⎕FX a native funtion from a shared library (dlopen) handle
+   static NativeFunction * fix(const UCS_string & so_name,
+                               const UCS_string & apl_name);
+
+   /// kind of native function
+   enum NativeCategory
+      {
+        NCAT_F0,   ///< niladic function
+        NCAT_F12,   ///< nomadic (monadic or dyadic) function
+        NCAT_OP1,   ///< monadic operator
+        NCAT_OP2,   ///< dyadic operator
+      };
 
 protected:
    /// constructor (only fix() may call it)
-   NativeFunction(void * so_handle, UCS_string apl_name);
+   NativeFunction(const UCS_string & so_name, const UCS_string & apl_name);
 
    /// destructor: close so_handle
    ~NativeFunction();
+
+   /// overloaded Function::is_native()
+   virtual bool is_native() const   { return true; }
 
    /// overloaded Function::has_result()
    virtual int has_result() const;
@@ -55,6 +69,9 @@ protected:
 
    /// Overloaded Function::print()
    virtual ostream & print(std::ostream&) const;
+
+   /// Overloaded Function::canonical()
+   virtual UCS_string canonical(bool with_lines) const;
 
    /// Overloaded Function::eval_()
    virtual Token eval_();
@@ -106,13 +123,16 @@ protected:
    virtual Token eval_identity_fun(Value_P B, Axis axis);
 
    /// dl_open() handle of shared library
-   void * const handle;
+   void * handle;
 
    /// APL name of the function
    UCS_string name;
 
+   /// library file path of the function
+   UCS_string so_path;
+
    bool valid;
-   bool b_has_result;
+   Fun_signature signature;
 
    typedef const Value & Vr;
    typedef Function & Fr;
@@ -132,7 +152,7 @@ protected:
    Token (*f_eval_ALRXB)(Vr A, Fr LO, Fr RO, Vr X, Vr B);
    Token (*f_eval_fill_B)(Vr B);
    Token (*f_eval_fill_AB)(Vr A, Vr B);
-   Token (*f_eval_identity_fun)(Vr B, Axis axis);
+   Token (*f_eval_ident_Bx)(Vr B, Axis x);
 };
 //-----------------------------------------------------------------------------
 

@@ -282,7 +282,7 @@ enum Fun_signature
 
    // operator variants
    //
-   SIG_FUN_X           = SIG_FUN | SIG_X,     ///< monadic operator with axis
+   SIG_FUN_X           = SIG_FUN | SIG_X,     ///< function with axis
    SIG_OP1             = SIG_LO  | SIG_FUN,   ///< monadic operator
    SIG_OP1_X           = SIG_OP1 | SIG_X,     ///< monadic operator with axis
    SIG_OP2             = SIG_OP1 | SIG_RO,    ///< dyadic operator

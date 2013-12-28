@@ -185,16 +185,7 @@ Quad_FX::do_native_FX(Value_P A, Axis axis, Value_P B)
 UCS_string so_name = A->get_UCS_ravel();
 UCS_string function_name = B->get_UCS_ravel();
 
-UTF8_string utf_so_name(so_name);
-void * handle = dlopen((const char *)utf_so_name.c_str(), RTLD_NOW);
-
-   if (handle == 0)   // dlopen failed
-      {
-        Workspace::more_error() = UCS_string(dlerror());
-        DOMAIN_ERROR;
-      }
-
-NativeFunction * fun = NativeFunction::fix(handle, function_name);
+NativeFunction * fun = NativeFunction::fix(so_name, function_name);
    if (fun == 0)
       {
         Value_P Z = Value::Zero_P;

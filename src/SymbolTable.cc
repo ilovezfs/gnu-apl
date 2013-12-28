@@ -422,6 +422,9 @@ ValueStackItem & tos = symbol->value_stack[0];
 
              case NC_FUNCTION:
              case NC_OPERATOR:
+                  Assert(tos.sym_val.function);
+                  if (tos.sym_val.function->is_native())   return;
+
                   {
                     const UserFunction * ufun =
                                          tos.sym_val.function->get_ufun1();

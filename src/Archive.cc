@@ -276,7 +276,9 @@ XML_Saving_Archive &
 XML_Saving_Archive::operator <<(const Function & fun)
 {
    do_indent();
-   out << "<Function>" << endl;
+   out << "<Function";
+   if (fun.is_native())   out << " native=\"1\"";
+   out << ">" << endl;
    ++indent;
 
    *this <<  fun.canonical(false);
@@ -1403,6 +1405,8 @@ const int value = find_int_attr("value", false, 10);
 void
 XML_Loading_Archive::read_Function(int d, Symbol & symbol)
 {
+const int native     = find_int_attr("native", true, 10);
+
    next_tag(LOC);
    expect_tag("UCS", LOC);
 const UTF8 * uni = find_attr("uni", false);
@@ -1413,11 +1417,18 @@ UCS_string text;
    while (*uni != '"')   read_chars(text, uni);
 
 int err = 0;
-UserFunction * ufun = new UserFunction(text, err, false, LOC);
-   Assert(err == -1);
+   if (native > 0)
+      {
+         TODO;
+      }
+   else
+      {
+        UserFunction * ufun = new UserFunction(text, err, false, LOC);
+           Assert(err == -1);
 
-   if (d == 0)   symbol.pop(false);
-   symbol.push_function(ufun);
+           if (d == 0)   symbol.pop(false);
+           symbol.push_function(ufun);
+      }
 }
 //-----------------------------------------------------------------------------
 void

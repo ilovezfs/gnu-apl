@@ -1517,14 +1517,15 @@ Bif_F12_PICK::eval_XB(Value_P X, Value_P B)
    // convert X into an axis permutation.
    //
 const Shape it_shape = item_shape(B);
+
 Shape perm;
 Shape shape_Z;
    {
-     // init shape_X with the axes in X
+     // init shape_X with the axes in the ravel of X
      //
-     Shape shape_X = X->to_shape();;
+Shape shape_X = X->to_shape();
 
-     ShapeItem B_idx = 0;
+ShapeItem B_idx = 0;
      //
      loop(z, B->get_rank() + it_shape.get_rank())
         {
