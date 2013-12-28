@@ -1514,32 +1514,42 @@ Bif_F12_PICK::eval_XB(Value_P X, Value_P B)
 {
    // disclose with axis
 
-   // convert X into an axis permutation.
+   // all items of B must have the same rank. it_shape is the smallest
+   // shape that can contain each item of B.
    //
 const Shape it_shape = item_shape(B);
 
+   // init axes_X with the axes in the ravel of X, normalized to ⎕IO = 0
+   //
+const Shape axes_X = X->to_shape();
+
+   // the number of items in X must be the number of axes in it_shape
+   if (it_shape.get_rank() != axes_X.get_rank())   AXIS_ERROR;
+
+   // distribute shape_B and it_shape into 2 shapes perm and shape_Z.
+   // if a dimension is mentioned in axes_X then it goes into shape_Z and
+   // otherwise into perm.
+   //
 Shape perm;
 Shape shape_Z;
    {
-     // init shape_X with the axes in the ravel of X
-     //
-Shape shape_X = X->to_shape();
-
-ShapeItem B_idx = 0;
+     ShapeItem B_idx = 0;
      //
      loop(z, B->get_rank() + it_shape.get_rank())
         {
+          // check if z is in X, remembering its position if so.
+          //
           bool z_in_X = false;
-          ShapeItem x_pos;
-          loop(x, shape_X.get_rank())
-             if (shape_X.get_shape_item(x) == z)
+          ShapeItem x_pos = -1;
+          loop(x, axes_X.get_rank())
+             if (axes_X.get_shape_item(x) == z)
                 {
                   z_in_X = true;
                   x_pos = x;
                   break;
                 }
 
-          if (z_in_X)   // z is an item dimension
+          if (z_in_X)   // z is an item dimension: put it in shape_Z
              {
                shape_Z.add_shape_item(it_shape.get_shape_item(x_pos));
              }
@@ -1552,13 +1562,13 @@ ShapeItem B_idx = 0;
         }
 
      // append X to perm with each X item reduced by the B items before it.
-     loop(x, shape_X.get_rank())
+     loop(x, axes_X.get_rank())
         {
           Rank before_x = 0;   // items before X that are not in X
           loop(x1, x - 1)
-             if (!shape_X.contains_axis(x1))   ++before_x;
+             if (!axes_X.contains_axis(x1))   ++before_x;
 
-          perm.add_shape_item(shape_X.get_shape_item(x) + before_x);
+          perm.add_shape_item(axes_X.get_shape_item(x) + before_x);
         }
    }
 
