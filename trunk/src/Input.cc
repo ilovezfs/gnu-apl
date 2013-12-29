@@ -240,7 +240,7 @@ char * line;
    else if (prompt)
       {
         UTF8_string prompt_utf(*prompt);
-        line = readline_lib::readline((const char*)prompt_utf.c_str());
+        line = readline_lib::readline(prompt_utf.c_str());
       }
    else
       {

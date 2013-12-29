@@ -36,7 +36,7 @@ class DiffOut : public filebuf
 public:
    /// constructor
    DiffOut(bool _errout)
-   : aplout(200, 0),   // reserve 200  bytes
+   : aplout(""),
      errout(_errout)
    { aplout.clear(); }
 
@@ -52,7 +52,7 @@ protected:
    bool different(const UTF8 * apl, const UTF8 * ref);
 
    /// a buffer for one line of APL output
-   Simple_string<char> aplout;
+   UTF8_string aplout;
 
    /// true for error messages, false for normal APL output
    bool errout;

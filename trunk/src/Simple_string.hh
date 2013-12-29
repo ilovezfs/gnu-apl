@@ -110,13 +110,6 @@ public:
       }
 
    /// 0-terminate the items and return a pointer to them
-   const T * c_str()
-      {
-        extend(items_valid + 1);
-        items[items_valid] = T(0);   // the termnating 0
-        return items;
-      }
-
    /// return the items of the string (not 0-terminated)
    const T * get_items() const
       {

@@ -1106,7 +1106,7 @@ user_preferences up;
          UTF8_string filename =
             LibPaths::get_lib_filename(LIB0, "CONTINUE", true, "xml");
 
-         if (access((const char *)filename.c_str(), F_OK) == 0)
+         if (access(filename.c_str(), F_OK) == 0)
             {
               UCS_string load_cmd(")LOAD CONTINUE");
               Command::process_line(load_cmd);

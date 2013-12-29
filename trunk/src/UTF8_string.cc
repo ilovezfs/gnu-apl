@@ -130,6 +130,12 @@ UTF8_string::UTF8_string(const UCS_string & ucs)
       CERR << "UTF8_string::UTF8_string(): utf = " << *this << endl;
 }
 //-----------------------------------------------------------------------------
+UTF8_string::UTF8_string(const Value & value)
+{
+UCS_string ucs(value);
+   new (this) UTF8_string(ucs);
+}
+//-----------------------------------------------------------------------------
 Unicode
 UTF8_string::toUni(const UTF8 * string, int & len)
 {

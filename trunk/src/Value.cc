@@ -143,6 +143,11 @@ Value::Value(const char * loc, Value_how how)
              new (&get_ravel(0)) IntCell(how);
              break;
 
+        case Value_how_Minus_One:
+             init_ravel();
+             new (&get_ravel(0)) IntCell(-1);
+             break;
+
         case Value_how_Spc:
              init_ravel();
              new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);

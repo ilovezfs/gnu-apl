@@ -29,8 +29,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-12-26 19:31+0100\n"
-"PO-Revision-Date: 2013-12-26 19:31+0100\n"
+"POT-Creation-Date: 2013-12-29 19:27+0100\n"
+"PO-Revision-Date: 2013-12-29 19:27+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -39,7 +39,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/Command.cc:87 src/Command.cc:369 src/Command.cc:378 src/Command.cc:468
-#: src/Command.cc:685
+#: src/Command.cc:687
 msgid "BAD COMMAND"
 msgstr "BAD COMMAND"
 
@@ -114,29 +114,29 @@ msgstr ")HOST command failed: "
 msgid "missing filename in command )IN"
 msgstr "missing filename in command )IN"
 
-#: src/Command.cc:482 src/Command.cc:699
+#: src/Command.cc:484 src/Command.cc:702
 msgid " failed: "
 msgstr " failed: "
 
-#: src/Command.cc:486
+#: src/Command.cc:488
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr "command )IN: could not open file %s for reading: %s"
 
-#: src/Command.cc:526
+#: src/Command.cc:528
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr "BAD record charset (neither ASCII nor EBCDIC)"
 
-#: src/Command.cc:591
+#: src/Command.cc:593
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr "IMPROPER LIBRARY REFERENCE"
 
-#: src/Command.cc:596
+#: src/Command.cc:598
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr "path %s: could not be openend as directory: %s"
 
-#: src/Command.cc:640
+#: src/Command.cc:642
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
@@ -146,52 +146,52 @@ msgstr ""
 "configured for this APL interpreter. To enable dynamic logging (which\n"
 "will decrease performance), recompile the interpreter as follows:"
 
-#: src/Command.cc:646
+#: src/Command.cc:648
 msgid "other configure options"
 msgstr "other configure options"
 
-#: src/Command.cc:652
+#: src/Command.cc:654
 msgid "above the src directory."
 msgstr "above the src directory."
 
-#: src/Command.cc:663
+#: src/Command.cc:665
 msgid "NO MORE ERROR INFO"
 msgstr "NO MORE ERROR INFO"
 
-#: src/Command.cc:676
+#: src/Command.cc:678
 msgid "Goodbye."
 msgstr "Goodbye."
 
-#: src/Command.cc:687
+#: src/Command.cc:689
 msgid "missing filename in command )OUT"
 msgstr "missing filename in command )OUT"
 
-#: src/Command.cc:702
+#: src/Command.cc:705
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr "command )OUT: could not open file %s for writing: %s"
 
-#: src/Command.cc:768
+#: src/Command.cc:771
 msgid " *** bad sub-record of *"
 msgstr " *** bad sub-record of *"
 
-#: src/Command.cc:771
+#: src/Command.cc:774
 msgid " comment"
 msgstr " comment"
 
-#: src/Command.cc:773
+#: src/Command.cc:776
 msgid " timestamp"
 msgstr " timestamp"
 
-#: src/Command.cc:785
+#: src/Command.cc:788
 msgid " imbed"
 msgstr " imbed"
 
-#: src/Command.cc:788
+#: src/Command.cc:791
 msgid "record #"
 msgstr "record #"
 
-#: src/Command.cc:798
+#: src/Command.cc:801
 msgid " *** bad sub-record of X"
 msgstr " *** bad sub-record of X"
 

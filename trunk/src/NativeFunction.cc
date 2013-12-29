@@ -18,12 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include <dlfcn.h>
 
 #include "Error.hh"
 #include "NativeFunction.hh"
 #include "Symbol.hh"
 #include "Workspace.hh"
+
+vector<NativeFunction *> NativeFunction::valid_functions;
 
 //-----------------------------------------------------------------------------
 NativeFunction::NativeFunction(const UCS_string & so_name,
@@ -38,7 +41,7 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
    //
    {
      UTF8_string utf_so_name(so_path);
-     handle = dlopen((const char *)utf_so_name.c_str(), RTLD_NOW);
+     handle = dlopen(utf_so_name.c_str(), RTLD_NOW);
 
      if (handle == 0)   // dlopen failed
         {
@@ -51,32 +54,39 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
    //
 Symbol * sym = Workspace::lookup_symbol(apl_name);
    Assert(sym);
-   if (!sym->can_be_defined())   return;
+   if (!sym->can_be_defined())
+      {
+        Workspace::more_error() = UCS_string("Symbol is locked");
+        return;
+      }
 
    /// read function pointers...
    //
 #define ev(f, a, l, m) f_eval_ ## f = (Token (*) a ) \
    dlsym(handle, "_Z" #l "eval_" #f #m);
    ev(     , ()                              ,  5, v);
-   ev(B    , (Vr B)                          ,  6, RK5Value)
-   ev(AB   , (Vr A, Vr B)                    ,  7, RK5ValueS1_)
-   ev(LB   , (Fr LO, Vr B)                   ,  7, R8FunctionRK5Value)
-   ev(ALB  , (Vr A, Fr LO, Vr B)             ,  8, RK5ValueR8FunctionS1_)
-   ev(LRB  , (Fr LO, Fr RO, Vr B)            ,  8, R8FunctionS0_RK5Value)
-   ev(ALRB , (Vr A, Fr LO, Fr RO, Vr B)      ,  9, RK5ValueR8FunctionS3_S1_)
-   ev(XB   , (Vr X, Vr B)                    ,  7, RK5ValueS1_)
-   ev(AXB  , (Vr A, Vr X, Vr B)              ,  8, RK5ValueS1_S1_)
-   ev(LXB  , (Fr LO, Vr X, Vr B)             ,  8, R8FunctionRK5ValueS3_)
-   ev(ALXB , (Vr A, Fr LO, Vr X, Vr B)       ,  9, RK5ValueR8FunctionS1_S1_)
-   ev(LRXB , (Fr LO, Fr RO, Vr X, Vr B)      ,  9, R8FunctionS0_RK5ValueS3_)
-   ev(ALRXB, (Vr A, Fr LO, Fr RO, Vr X, Vr B), 10, RK5ValueR8FunctionS3_S1_S1_)
+
+   ev(B    , (Vr B)                          ,  6, 7Value_P)
+   ev(AB   , (Vr A, Vr B)                    ,  7, 7Value_PS_)
+   ev(XB   , (Vr X, Vr B)                    ,  7, 7Value_PS_)
+   ev(AXB  , (Vr A, Vr X, Vr B)              ,  8, 7Value_PS_S_)
+
+   ev(LB   , (Fr LO, Vr B)                   ,  7, R8Function7Value_P)
+   ev(ALB  , (Vr A, Fr LO, Vr B)             ,  8, 7Value_PR8FunctionS_)
+   ev(LXB  , (Fr LO, Vr X, Vr B)             ,  8, R8Function7Value_PS1_)
+   ev(ALXB , (Vr A, Fr LO, Vr X, Vr B)       ,  9, 7Value_PR8FunctionS_S_)
+
+   ev(LRB  , (Fr LO, Fr RO, Vr B)            ,  8, R8FunctionS0_7Value_P)
+   ev(LRXB , (Fr LO, Fr RO, Vr X, Vr B)      ,  9, R8FunctionS0_7Value_PS1_)
+   ev(ALRB , (Vr A, Fr LO, Fr RO, Vr B)      ,  9, 7Value_PR8FunctionS1_S_)
+   ev(ALRXB, (Vr A, Fr LO, Fr RO, Vr X, Vr B), 10, 7Value_PR8FunctionS1_S_S_)
 #undef ev
 
 #define ev(f, a, m) f_eval_ ## f = (Token (*) a ) \
    dlsym(handle, #m);
-   ev(fill_B  , (Vr B)                          , _Z11eval_fill_BR5Value)
-   ev(fill_AB , (Vr A, Vr B)                    , _Z12eval_fill_ABR5ValueS0_)
-   ev(ident_Bx, (Vr B, Axis x)                  , _Z13eval_ident_BxR5Valuei)
+   ev(fill_B  , (Vr B)                          , _Z11eval_fill_B7Value_P)
+   ev(fill_AB , (Vr A, Vr B)                    , _Z12eval_fill_AB7Value_PS_)
+   ev(ident_Bx, (Vr B, Axis x)                  , _Z13eval_ident_Bx7Value_Pi)
 #undef ev
 
    // check for mandatory properties in shared linrary...
@@ -88,6 +98,7 @@ Symbol * sym = Workspace::lookup_symbol(apl_name);
           CERR << "shared library is lacking the mandatory "
                   "function signature() !"
                << endl;
+        Workspace::more_error() = UCS_string("invalid .so file");
           return;
         }
 
@@ -101,20 +112,37 @@ Symbol * sym = Workspace::lookup_symbol(apl_name);
    else if (signature & SIG_B )   tag = TOK_FUN2;
    else                           tag = TOK_FUN0;
 
-   valid = true;
    if (is_operator())   sym->set_nc(NC_OPERATOR, this);
    else                 sym->set_nc(NC_FUNCTION, this);
+
+   valid = true;
+   valid_functions.push_back(this);
 }
 //-----------------------------------------------------------------------------
 NativeFunction::~NativeFunction()
 {
    if (handle)   dlclose(handle);
+
+   loop(v, valid_functions.size())
+      {
+        if (valid_functions[v] == this)
+           {
+             valid_functions.erase(valid_functions.begin() + v);
+           }
+      }
 }
 //-----------------------------------------------------------------------------
 NativeFunction *
 NativeFunction::fix(const UCS_string & so_name,
                     const UCS_string & function_name)
 {
+   // if the function already exists then return it.
+   //
+   loop(v, valid_functions.size())
+      {
+        if (so_name == valid_functions[v]->so_path)   return valid_functions[v];
+      }
+
 NativeFunction * new_function = new NativeFunction(so_name, function_name);
 
    if (!new_function->valid)   // something went wrong
@@ -181,7 +209,7 @@ NativeFunction::eval_()
 Token
 NativeFunction::eval_B(Value_P B)
 {
-   if (f_eval_B)   return (*f_eval_B)(*B.get());
+   if (f_eval_B)   return (*f_eval_B)(B);
 
    SYNTAX_ERROR;
 }
@@ -189,7 +217,7 @@ NativeFunction::eval_B(Value_P B)
 Token
 NativeFunction::eval_AB(Value_P A, Value_P B)
 {
-   if (f_eval_AB)   return (*f_eval_AB)(*A.get(), *B.get());
+   if (f_eval_AB)   return (*f_eval_AB)(A, B);
 
    SYNTAX_ERROR;
 }
@@ -197,7 +225,7 @@ NativeFunction::eval_AB(Value_P A, Value_P B)
 Token
 NativeFunction::eval_LB(Token & LO, Value_P B)
 {
-   if (f_eval_LB)   return (*f_eval_LB)(*LO.get_function(), *B.get());
+   if (f_eval_LB)   return (*f_eval_LB)(*LO.get_function(), B);
 
    SYNTAX_ERROR;
 }
@@ -205,8 +233,7 @@ NativeFunction::eval_LB(Token & LO, Value_P B)
 Token
 NativeFunction::eval_ALB(Value_P A, Token & LO, Value_P B)
 {
-   if (f_eval_ALB)   return (*f_eval_ALB)(*A.get(), *LO.get_function(),
-                                          *B.get());
+   if (f_eval_ALB)   return (*f_eval_ALB)(A, *LO.get_function(), B);
 
    SYNTAX_ERROR;
 }
@@ -215,7 +242,7 @@ Token
 NativeFunction::eval_LRB(Token & LO, Token & RO, Value_P B)
 {
    if (f_eval_LRB)   return (*f_eval_LRB)(*LO.get_function(),
-                                          *RO.get_function(), *B.get());
+                                          *RO.get_function(), B);
 
    SYNTAX_ERROR;
 }
@@ -223,8 +250,8 @@ NativeFunction::eval_LRB(Token & LO, Token & RO, Value_P B)
 Token
 NativeFunction::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 {
-   if (f_eval_ALRB)   return (*f_eval_ALRB)(*A.get(), *LO.get_function(),
-                                            *RO.get_function(), *B.get());
+   if (f_eval_ALRB)   return (*f_eval_ALRB)(A, *LO.get_function(),
+                                               *RO.get_function(), B);
 
    SYNTAX_ERROR;
 }
@@ -234,7 +261,7 @@ NativeFunction::eval_XB(Value_P X, Value_P B)
 {
    // call axis variant if present, or else the non-axis variant.
    //
-   if (f_eval_XB)   return (*f_eval_XB)(*X.get(), *B.get());
+   if (f_eval_XB)   return (*f_eval_XB)(X, B);
    else             return eval_B(B);
 }
 //-----------------------------------------------------------------------------
@@ -243,7 +270,7 @@ NativeFunction::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
    // call axis variant if present, or else the non-axis variant.
    //
-   if (f_eval_AXB)   return (*f_eval_AXB)(*A.get(), *X.get(), *B.get());
+   if (f_eval_AXB)   return (*f_eval_AXB)(A, X, B);
    else              return eval_AB(A, B);
 }
 //-----------------------------------------------------------------------------
@@ -252,8 +279,7 @@ NativeFunction::eval_LXB(Token & LO, Value_P X, Value_P B)
 {
    // call axis variant if present, or else the non-axis variant.
    //
-   if (f_eval_LXB)   return (*f_eval_LXB)(*LO.get_function(),
-                                          *X.get(), *B.get());
+   if (f_eval_LXB)   return (*f_eval_LXB)(*LO.get_function(), X, B);
    else              return eval_LB(LO, B);
 }
 //-----------------------------------------------------------------------------
@@ -262,8 +288,7 @@ NativeFunction::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
 {
    // call axis variant if present, or else the non-axis variant.
    //
-   if (f_eval_ALXB)   return (*f_eval_ALXB)(*A.get(), *LO.get_function(),
-                                            *X.get(), *B.get());
+   if (f_eval_ALXB)   return (*f_eval_ALXB)(A, *LO.get_function(), X, B);
    else               return eval_ALB(A, LO, B);
 }
 //-----------------------------------------------------------------------------
@@ -273,8 +298,7 @@ NativeFunction::eval_LRXB(Token & LO, Token & RO, Value_P X, Value_P B)
    // call axis variant if present, or else the non-axis variant.
    //
    if (f_eval_LRXB)   return (*f_eval_LRXB)(*LO.get_function(),
-                                            *RO.get_function(),
-                                            *X.get(), *B.get());
+                                            *RO.get_function(), X, B);
    else                return eval_LRB(LO, RO, B);
 }
 //-----------------------------------------------------------------------------
@@ -283,16 +307,15 @@ NativeFunction::eval_ALRXB(Value_P A, Token & LO, Token & RO, Value_P X, Value_P
 {
    // call axis variant if present, or else the non-axis variant.
    //
-   if (f_eval_ALRXB)   return (*f_eval_ALRXB)(*A.get(), *LO.get_function(),
-                                                        *RO.get_function(),
-                                                        *X.get(), *B.get());
+   if (f_eval_ALRXB)   return (*f_eval_ALRXB)(A, *LO.get_function(),
+                                                 *RO.get_function(), X, B);
    else                return eval_ALRB(A, LO, RO, B);
 }
 //-----------------------------------------------------------------------------
 Token
 NativeFunction::eval_fill_B(Value_P B)
 {
-   if (f_eval_fill_B)   return (*f_eval_fill_B)(*B.get());
+   if (f_eval_fill_B)   return (*f_eval_fill_B)(B);
 
    SYNTAX_ERROR;
 }
@@ -300,7 +323,7 @@ NativeFunction::eval_fill_B(Value_P B)
 Token
 NativeFunction::eval_fill_AB(Value_P A, Value_P B)
 {
-   if (f_eval_fill_AB)   return (*f_eval_fill_AB)(*A.get(), *B.get());
+   if (f_eval_fill_AB)   return (*f_eval_fill_AB)(A, B);
 
    SYNTAX_ERROR;
 }
@@ -308,7 +331,7 @@ NativeFunction::eval_fill_AB(Value_P A, Value_P B)
 Token
 NativeFunction::eval_identity_fun(Value_P B, Axis axis)
 {
-   if (f_eval_ident_Bx)   return (*f_eval_ident_Bx)(*B.get(), axis);
+   if (f_eval_ident_Bx)   return (*f_eval_ident_Bx)(B, axis);
 
    SYNTAX_ERROR;
 }
