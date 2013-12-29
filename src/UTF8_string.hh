@@ -59,6 +59,17 @@ public:
    /// constructor: copy of UCS string. The UCS characters will be UTF8-encoded
    UTF8_string(const UCS_string & ucs);
 
+   /// constructor: UCS_string from (simple character vector) APL value.
+   /// Non-ASCII The UCS characters will be UTF8 encoded.
+   UTF8_string(const Value & value);
+
+   const char * c_str()
+      {
+        extend(items_valid + 1);
+        items[items_valid] = 0;   // the termnating 0
+        return (const char *)items;
+      }
+
    /// convert the first char in UTF8-encoded string to Unicode, set
    /// setting len to the number of bytes in the UTF8 encoding of the char
    static Unicode toUni(const UTF8 * string, int & len);

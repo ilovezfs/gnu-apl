@@ -390,7 +390,7 @@ UCS_string wname = lib_ws.back();
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
-int result = unlink((const char *)filename.c_str());
+int result = unlink(filename.c_str());
    if (result)
       {
         out << wname << _(" NOT DROPPED: ") << strerror(errno) << endl;
@@ -442,7 +442,7 @@ void
 Command::cmd_HOST(ostream & out, const UCS_string & arg)
 {
 UTF8_string host_cmd(arg);
-FILE * pipe = popen((const char *)host_cmd.c_str(), "r");
+FILE * pipe = popen(host_cmd.c_str(), "r");
    if (pipe == 0)   // popen failed
       {
         out << _(")HOST command failed: ") << strerror(errno) << endl;
@@ -476,15 +476,17 @@ UCS_string fname = args.front();
 
 UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, true, "atf");
 
-FILE * in = fopen((const char *)(filename.c_str()), "r");
+FILE * in = fopen(filename.c_str(), "r");
    if (in == 0)   // open failed: try filename.atf unless already .atf
       {
-        CERR << ")IN " << fname << _(" failed: ") << strerror(errno) << endl;
+        UTF8_string fname_utf8(fname);
+        CERR << ")IN " << fname_utf8.c_str()
+             << _(" failed: ") << strerror(errno) << endl;
 
         char cc[200];
         snprintf(cc, sizeof(cc),
                  _("command )IN: could not open file %s for reading: %s"),
-                 fname.c_str(), strerror(errno));
+                 fname_utf8.c_str(), strerror(errno));
         Workspace::more_error() = UCS_string(cc);
         return;
       }
@@ -541,7 +543,7 @@ Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
    if (lib_ref.size() > 0)   // set path
       {
         UTF8_string utf(lib_ref[0]);
-        LibPaths::set_APL_lib_root((const char *)utf.c_str());
+        LibPaths::set_APL_lib_root(utf.c_str());
         out << "LIBRARY ROOT SET TO " << lib_ref[0] << endl;
         return;
       }
@@ -571,7 +573,7 @@ Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
              }
 
         out << left << setw(52) << path.c_str();
-        DIR * dir = opendir((const char *)path.c_str());
+        DIR * dir = opendir(path.c_str());
         if (dir)   { out << " present" << endl;   closedir(dir); }
         else       { out << " missing (" << errno << ")" << endl; }
       }
@@ -585,7 +587,7 @@ Command::cmd_LIB(ostream & out, const UCS_string & arg)
 {
 UTF8_string path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
 
-DIR * dir = opendir((const char *)path.c_str());
+DIR * dir = opendir(path.c_str());
    if (dir == 0)
       {
         out << _("IMPROPER LIBRARY REFERENCE") << ": " << path << "/ : "
@@ -693,14 +695,15 @@ UCS_string fname = args.front();
 
 UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, false,"atf");
    
-FILE * atf = fopen((const char *)(filename.c_str()), "w");
+FILE * atf = fopen(filename.c_str(), "w");
    if (atf == 0)
       {
+        UTF8_string fname_utf8(fname);
         out << ")OUT " << fname << _(" failed: ") << strerror(errno) << endl;
         char cc[200];
         snprintf(cc, sizeof(cc),
                  _("command )OUT: could not open file %s for writing: %s"),
-                 fname.c_str(), strerror(errno));
+                 fname_utf8.c_str(), strerror(errno));
         Workspace::more_error() = UCS_string(cc);
         return;
       }

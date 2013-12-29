@@ -614,7 +614,7 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
    // dont save if workspace names differ and file exists
    //
    {
-     if (access((const char *)filename.c_str(), F_OK) == 0)   // file exists
+     if (access(filename.c_str(), F_OK) == 0)   // file exists
         {
           if (wname.compare(the_workspace.WS_name) != 0)   // names differ
              {
@@ -641,7 +641,7 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
    //
    the_workspace.WS_name = wname;
 
-ofstream outf((const char *)filename.c_str(), ofstream::out);
+ofstream outf(filename.c_str(), ofstream::out);
    if (!outf.is_open())   // open failed
       {
         CERR << "Unable to )SAVE workspace '"
@@ -684,7 +684,7 @@ LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
-XML_Loading_Archive in((const char *)filename.c_str());
+XML_Loading_Archive in(filename.c_str());
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
       {
@@ -697,7 +697,7 @@ XML_Loading_Archive in((const char *)filename.c_str());
              // filename does not end with .xml, so we try filename.xml
              //
              filename.append(UTF8_string(".xml"));
-             new (&in) XML_Loading_Archive((const char *)filename.c_str());
+             new (&in) XML_Loading_Archive(filename.c_str());
            }
 
         if (!in.is_open())   // open failed again: give up
@@ -747,7 +747,7 @@ LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
-XML_Loading_Archive in((const char *)filename.c_str());
+XML_Loading_Archive in(filename.c_str());
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
       {
@@ -760,7 +760,7 @@ XML_Loading_Archive in((const char *)filename.c_str());
              // filename does not end with .xml, so we try filename.xml
              //
              filename.append(UTF8_string(".xml"));
-             new (&in) XML_Loading_Archive((const char *)filename.c_str());
+             new (&in) XML_Loading_Archive(filename.c_str());
            }
 
         if (!in.is_open())   // open failed again: give up

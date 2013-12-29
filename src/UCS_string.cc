@@ -526,7 +526,7 @@ ostream &
 operator << (ostream & os, const UCS_string & ucs)
 {
 UTF8_string utf(ucs);
-   os << (const char *)(utf.c_str());
+   os << utf.c_str();
    return os;
 }
 //-----------------------------------------------------------------------------

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.1\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2013-12-26 19:31+0100\n"
+"POT-Creation-Date: 2013-12-29 19:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/Command.cc:87 src/Command.cc:369 src/Command.cc:378 src/Command.cc:468
-#: src/Command.cc:685
+#: src/Command.cc:687
 msgid "BAD COMMAND"
 msgstr ""
 
@@ -92,81 +92,81 @@ msgstr ""
 msgid "missing filename in command )IN"
 msgstr ""
 
-#: src/Command.cc:482 src/Command.cc:699
+#: src/Command.cc:484 src/Command.cc:702
 msgid " failed: "
 msgstr ""
 
-#: src/Command.cc:486
+#: src/Command.cc:488
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr ""
 
-#: src/Command.cc:526
+#: src/Command.cc:528
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr ""
 
-#: src/Command.cc:591
+#: src/Command.cc:593
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr ""
 
-#: src/Command.cc:596
+#: src/Command.cc:598
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr ""
 
-#: src/Command.cc:640
+#: src/Command.cc:642
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
 "will decrease performance), recompile the interpreter as follows:"
 msgstr ""
 
-#: src/Command.cc:646
+#: src/Command.cc:648
 msgid "other configure options"
 msgstr ""
 
-#: src/Command.cc:652
+#: src/Command.cc:654
 msgid "above the src directory."
 msgstr ""
 
-#: src/Command.cc:663
+#: src/Command.cc:665
 msgid "NO MORE ERROR INFO"
 msgstr ""
 
-#: src/Command.cc:676
+#: src/Command.cc:678
 msgid "Goodbye."
 msgstr ""
 
-#: src/Command.cc:687
+#: src/Command.cc:689
 msgid "missing filename in command )OUT"
 msgstr ""
 
-#: src/Command.cc:702
+#: src/Command.cc:705
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr ""
 
-#: src/Command.cc:768
+#: src/Command.cc:771
 msgid " *** bad sub-record of *"
 msgstr ""
 
-#: src/Command.cc:771
+#: src/Command.cc:774
 msgid " comment"
 msgstr ""
 
-#: src/Command.cc:773
+#: src/Command.cc:776
 msgid " timestamp"
 msgstr ""
 
-#: src/Command.cc:785
+#: src/Command.cc:788
 msgid " imbed"
 msgstr ""
 
-#: src/Command.cc:788
+#: src/Command.cc:791
 msgid "record #"
 msgstr ""
 
-#: src/Command.cc:798
+#: src/Command.cc:801
 msgid " *** bad sub-record of X"
 msgstr ""
 

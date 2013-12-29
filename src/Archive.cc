@@ -36,6 +36,7 @@
 #include "Function.hh"
 #include "IndexExpr.hh"
 #include "LvalCell.hh"
+#include "NativeFunction.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
@@ -1417,17 +1418,29 @@ UCS_string text;
    while (*uni != '"')   read_chars(text, uni);
 
 int err = 0;
-   if (native > 0)
+   if (native == 1)
       {
-         TODO;
+        NativeFunction * nfun = NativeFunction::fix(text, symbol.get_name());
+        if (nfun)   // fix succeeded
+           {
+             if (d == 0)   symbol.pop(false);
+             symbol.push_function(nfun);
+           }
+        else        // fix failed
+           {
+             CERR << "   *** loading of native function " << text
+                  << " failed" << endl << endl;;
+             if (d == 0)   symbol.pop(false);
+             symbol.push();
+           }
       }
    else
       {
         UserFunction * ufun = new UserFunction(text, err, false, LOC);
-           Assert(err == -1);
+        Assert(err == -1);
 
-           if (d == 0)   symbol.pop(false);
-           symbol.push_function(ufun);
+        if (d == 0)   symbol.pop(false);
+        symbol.push_function(ufun);
       }
 }
 //-----------------------------------------------------------------------------

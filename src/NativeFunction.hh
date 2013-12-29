@@ -122,6 +122,10 @@ protected:
    /// Overloaded Function::eval_identity_fun()
    virtual Token eval_identity_fun(Value_P B, Axis axis);
 
+   /// Overloaded Function::destroy()
+   virtual void destroy()
+      { delete this; }
+
    /// dl_open() handle of shared library
    void * handle;
 
@@ -131,28 +135,34 @@ protected:
    /// library file path of the function
    UCS_string so_path;
 
+   /// true if the shared lib was successfully opened
    bool valid;
+
+   /// type of function (niladic / nomadic / moadic operator / dyadic operator)
    Fun_signature signature;
 
-   typedef const Value & Vr;
+   static vector<NativeFunction *>valid_functions;
+
+   typedef Value_P Vr;
    typedef Function & Fr;
 
-   Token (*f_eval_)();
-   Token (*f_eval_B)(Vr B);
-   Token (*f_eval_AB)(Vr A, Vr B);
-   Token (*f_eval_LB)(Fr LO, Vr B);
-   Token (*f_eval_ALB)(Vr A, Fr LO, Vr B);
-   Token (*f_eval_LRB)(Fr LO, Fr RO, Vr B);
-   Token (*f_eval_ALRB)(Vr A, Fr LO, Fr RO, Vr B);
-   Token (*f_eval_XB)(Vr X, Vr B);
-   Token (*f_eval_AXB)(Vr A, Vr X, Vr B);
-   Token (*f_eval_LXB)(Fr LO, Vr X, Vr B);
-   Token (*f_eval_ALXB)(Vr A, Fr LO, Vr X, Vr B);
-   Token (*f_eval_LRXB)(Fr LO, Fr RO, Vr X, Vr B);
-   Token (*f_eval_ALRXB)(Vr A, Fr LO, Fr RO, Vr X, Vr B);
-   Token (*f_eval_fill_B)(Vr B);
-   Token (*f_eval_fill_AB)(Vr A, Vr B);
-   Token (*f_eval_ident_Bx)(Vr B, Axis x);
+   Token (*f_eval_)        (                              );
+   Token (*f_eval_B)       (                          Vr B);
+   Token (*f_eval_AB)      (Vr A,                     Vr B);
+   Token (*f_eval_LB)      (      Fr LO,              Vr B);
+   Token (*f_eval_ALB)     (Vr A, Fr LO,              Vr B);
+   Token (*f_eval_LRB)     (      Fr LO, Fr RO,       Vr B);
+   Token (*f_eval_ALRB)    (Vr A, Fr LO, Fr RO,       Vr B);
+   Token (*f_eval_XB)      (                    Vr X, Vr B);
+   Token (*f_eval_AXB)     (Vr A,               Vr X, Vr B);
+   Token (*f_eval_LXB)     (      Fr LO,        Vr X, Vr B);
+   Token (*f_eval_ALXB)    (Vr A, Fr LO,        Vr X, Vr B);
+   Token (*f_eval_LRXB)    (      Fr LO, Fr RO, Vr X, Vr B);
+   Token (*f_eval_ALRXB)   (Vr A, Fr LO, Fr RO, Vr X, Vr B);
+
+   Token (*f_eval_fill_B)  (                          Vr B);
+   Token (*f_eval_fill_AB) (Vr A,                     Vr B);
+   Token (*f_eval_ident_Bx)(Vr B,                   Axis x);
 };
 //-----------------------------------------------------------------------------
 

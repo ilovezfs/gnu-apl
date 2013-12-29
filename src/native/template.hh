@@ -89,7 +89,7 @@ Fun_signature get_signature() { return SIG_Z_A_F2_B; }
 
 //-----------------------------------------------------------------------------
 Token
-eval_B(const Value & B)
+eval_B(Value_P B)
 {
 UCS_string ucs("eval_B() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -98,7 +98,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_AB(const Value & A, const Value & B)
+eval_AB(Value_P A, Value_P B)
 {
 UCS_string ucs("eval_AB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -107,7 +107,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_XB(const Value & X, const Value & B)
+eval_XB(Value_P X, Value_P B)
 {
 UCS_string ucs("eval_XB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -116,7 +116,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_AXB(const Value & A, const Value & X, const Value & B)
+eval_AXB(Value_P A, Value_P X, Value_P B)
 {
 UCS_string ucs("eval_AXB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -131,7 +131,7 @@ Fun_signature get_signature() { return SIG_Z_A_LO_OP1_B; }
 
 //-----------------------------------------------------------------------------
 Token
-eval_LB(Function & LO, const Value & B)
+eval_LB(Function & LO, Value_P B)
 {
 UCS_string ucs("eval_LB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -140,7 +140,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALB(const Value & A, Function & LO, const Value & B)
+eval_ALB(Value_P A, Function & LO, Value_P B)
 {
 UCS_string ucs("eval_ALB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -149,7 +149,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_LXB(Function & LO, const Value & X, const Value & B)
+eval_LXB(Function & LO, Value_P X, Value_P B)
 {
 UCS_string ucs("eval_LXB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -158,7 +158,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALXB(const Value & A, Function & LO, const Value & X, const Value & B)
+eval_ALXB(Value_P A, Function & LO, Value_P X, Value_P B)
 {
 UCS_string ucs("eval_ALXB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -173,7 +173,7 @@ Fun_signature get_signature() { return SIG_Z_A_LO_OP2_RO_B; }
 
 //-----------------------------------------------------------------------------
 Token
-eval_LRB(Function & LO, Function & RO, const Value & B)
+eval_LRB(Function & LO, Function & RO, Value_P B)
 {
 UCS_string ucs("eval_LRB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -182,7 +182,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALRB(const Value & A, Function & LO, Function & RO, const Value & B)
+eval_ALRB(Value_P A, Function & LO, Function & RO, Value_P B)
 {
 UCS_string ucs("eval_ALRB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -192,7 +192,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 
 //-----------------------------------------------------------------------------
 Token
-eval_LRXB(Function & LO, Function & RO, const Value & X, const Value & B)
+eval_LRXB(Function & LO, Function & RO, Value_P X, Value_P B)
 {
 UCS_string ucs("eval_LRXB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -201,8 +201,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALRXB(const Value & A, Function & LO, Function & RO,
-           const Value & X, const Value & B)
+eval_ALRXB(Value_P A, Function & LO, Function & RO, Value_P X, Value_P B)
 {
 UCS_string ucs("eval_ALRXB() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -214,7 +213,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 #endif
 
 Token
-eval_fill_B(Value & B)
+eval_fill_B(Value_P B)
 {
 UCS_string ucs("eval_fill_B() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -223,7 +222,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_fill_AB(Value & A, Value & B)
+eval_fill_AB(Value_P A, Value_P B)
 {
 UCS_string ucs("eval_fill_B() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));
@@ -232,7 +231,7 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ident_Bx(Value & B, Axis x)
+eval_ident_Bx(Value_P B, Axis x)
 {
 UCS_string ucs("eval_ident_Bx() called");
 Value_P Z(Value_P(new Value(ucs, LOC)));

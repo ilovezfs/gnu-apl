@@ -236,7 +236,7 @@ bool has_extension = false;
         // If it does return filename otherwise filename.extension.
         //
         UTF8_string filename(ret);
-        has_extension = access((const char *)filename.c_str(), F_OK) == 0;
+        has_extension = access(filename.c_str(), F_OK) == 0;
       }
    else
       {

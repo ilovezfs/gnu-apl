@@ -21,26 +21,27 @@
 
 // definition of static APL Values
 
-stv_def(Zero    )   ///< 0
-stv_def(One     )   ///< 1
-stv_def(Two     )   ///< 2
-stv_def(Three   )   ///< 3
-stv_def(Four    )   ///< 4
-stv_def(Five    )   ///< 5
-stv_def(Six     )   ///< 6
-stv_def(Seven   )   ///< 7
-stv_def(Eight   )   ///< 8
-stv_def(Nine    )   ///< 9
-stv_def(Spc     )   ///< 10
-stv_def(Idx0    )   ///< ⍳0
-stv_def(Str0    )   ///< ''
-stv_def(zStr0   )   ///< ⊂''
-stv_def(Str0_0  )   ///< 0 0⍴''
-stv_def(Str3_0  )   ///< 3 0⍴''
-stv_def(Max     )   ///<  72370055773322621e75
-stv_def(Min     )   ///< -72370055773322621e75
-stv_def(AV      )   ///< ⎕AV
-stv_def(Max_CT  )   ///< max. ⎕CT
+stv_def(Zero     )   ///<  0
+stv_def(One      )   ///<  1
+stv_def(Two      )   ///<  2
+stv_def(Three    )   ///<  3
+stv_def(Four     )   ///<  4
+stv_def(Five     )   ///<  5
+stv_def(Six      )   ///<  6
+stv_def(Seven    )   ///<  7
+stv_def(Eight    )   ///<  8
+stv_def(Nine     )   ///<  9
+stv_def(Minus_One)   ///< ¯1
+stv_def(Spc      )   ///< 10
+stv_def(Idx0     )   ///< ⍳0
+stv_def(Str0     )   ///< ''
+stv_def(zStr0    )   ///< ⊂''
+stv_def(Str0_0   )   ///< 0 0⍴''
+stv_def(Str3_0   )   ///< 3 0⍴''
+stv_def(Max      )   ///<  72370055773322621e75
+stv_def(Min      )   ///< -72370055773322621e75
+stv_def(AV       )   ///< ⎕AV
+stv_def(Max_CT   )   ///< max. ⎕CT
 stv_def(Max_PP  )   ///< max. ⎕PP
 stv_def(Quad_NLT)   ///< 'En_US.nlt'
 stv_def(Quad_TC )   ///< ⎕UCS 8 13 10
