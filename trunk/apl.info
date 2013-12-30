@@ -7,7 +7,7 @@ This is the manual for GNU APL, an implementation of ISO standard 13751
 
 INFO-DIR-SECTION GNU programming tools
 START-INFO-DIR-ENTRY
-* APL (apl). (Almost) fully implemented Programming Language APL, Extended.
+* APL: (apl). (Almost) full implementation of the "Programming Language APL, Extended" (aka. ISO 13751).
 
 END-INFO-DIR-ENTRY
 
@@ -752,6 +752,38 @@ current state. The command
 ===================
 
 Complex numbers are fully supported.
+
+2.7 Native Functions
+====================
+
+A Native Function is a function that can be called n APL like a normal
+user defined APL function, but is implemented in C++.
+
+   A native function is created with A ⎕FX B. A is a string that is the
+path of a shared library and B is the name of the function in APL.
+
+   The GNU APL package contains a shared library file_io.so that
+contains the implementation of a native function for reading and
+writing files (fopen(), fclose(), ...), For example:
+
+      ⍝ fix native function in file_io.so as FILE_IO
+      ⍝
+      'file_io.so' ⎕FX 'FILE_IO'
+FILE_IO
+
+      ⍝ show overview of sub-functions in FILE_IO
+      ⍝
+      FILE_IO ''
+
+      ...
+
+   The GNU APL package also contains other shared libraries as templates
+for your own native functions. Copy one of the files
+src/native/template_F0.cc (for niladic native functions),
+src/native/template_F12.cc (for nomadic native functions),
+src/native/template_OP1.cc (for monadic native operators), or
+src/native/template_OP2/cc (for dyadic native operators) to your own
+.cc file and adjust src/native/Makefile.am accordingly.
 
 
 File: apl.info,  Node: Chapter 3,  Next: Chapter 4,  Prev: Chapter 2,  Up: Top
@@ -2022,14 +2054,14 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
 
 Tag Table:
-Node: Top389
-Node: Chapter 11319
-Node: Chapter 213387
-Node: Chapter 326090
-Node: Chapter 427691
-Node: Chapter 529004
-Node: Section 5.129507
-Node: Section 5.254636
+Node: Top418
+Node: Chapter 11348
+Node: Chapter 213416
+Node: Chapter 327245
+Node: Chapter 428846
+Node: Chapter 530159
+Node: Section 5.130662
+Node: Section 5.255791
 
 End Tag Table
 

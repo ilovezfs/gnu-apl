@@ -17,7 +17,7 @@ Copyright @copyright{} 2013 Free Software Foundation, Inc.
 @dircategory GNU programming tools
 @direntry
 
-* APL (apl). (Almost) fully implemented Programming Language APL, Extended.
+* APL: (apl). (Almost) full implementation of the "Programming Language APL, Extended" (aka. ISO 13751).
 
 @end direntry
 
@@ -817,6 +817,39 @@ toggles the state of logging facility N from OFF to ON and back.
 @section Complex Numbers
 
 Complex numbers are fully supported.
+
+@section Native Functions
+
+A Native Function is a function that can be called n APL like a normal user
+defined APL function, but is implemented in C++.
+
+A native function is created with A ⎕FX B. A is a string that is the
+path of a shared library and B is the name of the function in APL.
+
+The GNU APL package contains a shared library file_io.so that contains the
+implementation of a native function for reading and writing files (fopen(),
+fclose(), ...), For example:
+
+@verbatim
+      ⍝ fix native function in file_io.so as FILE_IO
+      ⍝
+      'file_io.so' ⎕FX 'FILE_IO'
+FILE_IO
+
+      ⍝ show overview of sub-functions in FILE_IO
+      ⍝
+      FILE_IO ''
+
+      ...
+@end verbatim
+
+The GNU APL package also contains other shared libraries as templates
+for your own native functions. Copy one of the files
+ src/native/template_F0.cc (for
+niladic native functions), src/native/template_F12.cc (for nomadic native
+functions), src/native/template_OP1.cc (for monadic native operators),
+or src/native/template_OP2/cc (for dyadic native operators) to your own
+.cc file and adjust src/native/Makefile.am accordingly.
 
 @c ----------------------------------------------------------------------------
 @node Chapter 3

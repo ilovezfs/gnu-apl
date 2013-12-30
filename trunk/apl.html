@@ -55,6 +55,7 @@ Copyright (C) 2013 Free Software Foundation, Inc.-->
 <li><a href="#Chapter-2">2.5.2 Dynamic Logging</a>
 </li></ul>
 <li><a href="#Chapter-2">2.6 Complex Numbers</a>
+<li><a href="#Chapter-2">2.7 Native Functions</a>
 </li></ul>
 <li><a name="toc_Chapter-3" href="#Chapter-3">3 Limitations and Missing Features</a>
 <ul>
@@ -831,6 +832,38 @@ state. The command
 <h3 class="section">2.6 Complex Numbers</h3>
 
 <p>Complex numbers are fully supported.
+
+<h3 class="section">2.7 Native Functions</h3>
+
+<p>A Native Function is a function that can be called n APL like a normal user
+defined APL function, but is implemented in C++.
+
+   <p>A native function is created with A ⎕FX B. A is a string that is the
+path of a shared library and B is the name of the function in APL.
+
+   <p>The GNU APL package contains a shared library file_io.so that contains the
+implementation of a native function for reading and writing files (fopen(),
+fclose(), ...), For example:
+
+<pre class="verbatim">      ⍝ fix native function in file_io.so as FILE_IO
+      ⍝
+      'file_io.so' ⎕FX 'FILE_IO'
+FILE_IO
+
+      ⍝ show overview of sub-functions in FILE_IO
+      ⍝
+      FILE_IO ''
+
+      ...
+</pre>
+
+   <p>The GNU APL package also contains other shared libraries as templates
+for your own native functions. Copy one of the files
+ src/native/template_F0.cc (for
+niladic native functions), src/native/template_F12.cc (for nomadic native
+functions), src/native/template_OP1.cc (for monadic native operators),
+or src/native/template_OP2/cc (for dyadic native operators) to your own
+.cc file and adjust src/native/Makefile.am accordingly.
 
 <!--  -->
 <div class="node">
