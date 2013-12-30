@@ -51,3 +51,4 @@
  4937 removed old memory management flags
  4971 added ⍷ (U+2377) as alternate char for ⋸
  5030 first step towards native C++ functions that can be called from APL
+ 5036 native function file_io completed
