@@ -50,6 +50,39 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
         }
    }
 
+   // get the function multiplexer
+   //
+void * fmux = dlsym(handle, "get_function_mux");
+     if (!fmux)
+        {
+          CERR << "shared library is lacking the mandatory "
+                  "function get_function_mux() !" << endl;
+          Workspace::more_error() = UCS_string(
+                                  "invalid .so file (no get_function_mux())");
+          return;
+        }
+
+void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
+
+   // get the mandatory function category
+   //
+   // check for mandatory properties in shared linrary...
+   //
+   {
+     void * get_sig = get_function_mux("get_signature");
+     if (!get_sig)
+        {
+          CERR << "shared library is lacking the mandatory "
+                  "function signature() !" << endl;
+        Workspace::more_error() = UCS_string(
+                                "invalid .so file (no get_signature())");
+          return;
+        }
+
+     signature = ((Fun_signature (*)())get_sig)();
+   }
+
+
    // create an entry in the symbol table
    //
 Symbol * sym = Workspace::lookup_symbol(apl_name);
@@ -62,48 +95,29 @@ Symbol * sym = Workspace::lookup_symbol(apl_name);
 
    /// read function pointers...
    //
-#define ev(f, a, l, m) f_eval_ ## f = (Token (*) a ) \
-   dlsym(handle, "_Z" #l "eval_" #f #m);
-   ev(     , ()                              ,  5, v);
+#define ev(fun, args) f_ ## fun = (Token (*) args ) get_function_mux(#fun)
 
-   ev(B    , (Vr B)                          ,  6, 7Value_P)
-   ev(AB   , (Vr A, Vr B)                    ,  7, 7Value_PS_)
-   ev(XB   , (Vr X, Vr B)                    ,  7, 7Value_PS_)
-   ev(AXB  , (Vr A, Vr X, Vr B)              ,  8, 7Value_PS_S_)
+   ev(eval_        , ()                              );
 
-   ev(LB   , (Fr LO, Vr B)                   ,  7, R8Function7Value_P)
-   ev(ALB  , (Vr A, Fr LO, Vr B)             ,  8, 7Value_PR8FunctionS_)
-   ev(LXB  , (Fr LO, Vr X, Vr B)             ,  8, R8Function7Value_PS1_)
-   ev(ALXB , (Vr A, Fr LO, Vr X, Vr B)       ,  9, 7Value_PR8FunctionS_S_)
+   ev(eval_B       , (Vr B)                          );
+   ev(eval_AB      , (Vr A, Vr B)                    );
+   ev(eval_XB      , (Vr X, Vr B)                    );
+   ev(eval_AXB     , (Vr A, Vr X, Vr B)              );
 
-   ev(LRB  , (Fr LO, Fr RO, Vr B)            ,  8, R8FunctionS0_7Value_P)
-   ev(LRXB , (Fr LO, Fr RO, Vr X, Vr B)      ,  9, R8FunctionS0_7Value_PS1_)
-   ev(ALRB , (Vr A, Fr LO, Fr RO, Vr B)      ,  9, 7Value_PR8FunctionS1_S_)
-   ev(ALRXB, (Vr A, Fr LO, Fr RO, Vr X, Vr B), 10, 7Value_PR8FunctionS1_S_S_)
+   ev(eval_LB      , (Fr LO, Vr B)                   );
+   ev(eval_ALB     , (Vr A, Fr LO, Vr B)             );
+   ev(eval_LXB     , (Fr LO, Vr X, Vr B)             );
+   ev(eval_ALXB    , (Vr A, Fr LO, Vr X, Vr B)       );
+
+   ev(eval_LRB     , (Fr LO, Fr RO, Vr B)            );
+   ev(eval_LRXB    , (Fr LO, Fr RO, Vr X, Vr B)      );
+   ev(eval_ALRB    , (Vr A, Fr LO, Fr RO, Vr B)      );
+   ev(eval_ALRXB   , (Vr A, Fr LO, Fr RO, Vr X, Vr B));
+
+   ev(eval_fill_B  , (Vr B)                          );
+   ev(eval_fill_AB , (Vr A, Vr B)                    );
+   ev(eval_ident_Bx, (Vr B, Axis x)                  );
 #undef ev
-
-#define ev(f, a, m) f_eval_ ## f = (Token (*) a ) \
-   dlsym(handle, #m);
-   ev(fill_B  , (Vr B)                          , _Z11eval_fill_B7Value_P)
-   ev(fill_AB , (Vr A, Vr B)                    , _Z12eval_fill_AB7Value_PS_)
-   ev(ident_Bx, (Vr B, Axis x)                  , _Z13eval_ident_Bx7Value_Pi)
-#undef ev
-
-   // check for mandatory properties in shared linrary...
-   //
-   {
-     void * get_sig = dlsym(handle, "_Z13get_signaturev");
-     if (!get_sig)
-        {
-          CERR << "shared library is lacking the mandatory "
-                  "function signature() !"
-               << endl;
-        Workspace::more_error() = UCS_string("invalid .so file");
-          return;
-        }
-
-     signature = ((Fun_signature (*)())get_sig)();
-   }
 
    // compute function tag based on the signature
    //

@@ -80,6 +80,24 @@ const APL_Integer handle = value.get_ravel(0).get_near_int(qct);
    DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
+extern "C" void * get_function_mux(const char * function_name);
+static Fun_signature get_signature();
+static Token eval_B(Value_P B);
+static Token eval_AB(Value_P A, Value_P B);
+static Token eval_XB(Value_P X, Value_P B);
+static Token eval_AXB(Value_P A, Value_P X, Value_P B);
+
+void *
+get_function_mux(const char * function_name)
+{
+   if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
+   if (!strcmp(function_name, "eval_B"))          return (void *)&eval_B;
+   if (!strcmp(function_name, "eval_AB"))         return (void *)&eval_AB;
+   if (!strcmp(function_name, "eval_XB"))         return (void *)&eval_XB;
+   if (!strcmp(function_name, "eval_AXB"))        return (void *)&eval_AXB;
+   return 0;
+}
+//-----------------------------------------------------------------------------
 /// a mandatory function that returns the signature of the eval_XXX()
 /// function(s) provided by this library.
 ///

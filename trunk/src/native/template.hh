@@ -69,9 +69,29 @@ No such process
 
 **/
 
+// mandatory functios
+extern "C" void * get_function_mux(const char * function_name);
+static Fun_signature get_signature();
+static Token eval_fill_B(Value_P B);
+static Token eval_fill_AB(Value_P A, Value_P B);
+static Token eval_ident_Bx(Value_P B, Axis x);
+
 #if defined TEMPLATE_F0
 
 Fun_signature get_signature() { return SIG_Z_F0; }
+
+static Token eval_();
+
+void *
+get_function_mux(const char * function_name)
+{
+   if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
+   if (!strcmp(function_name, "eval_"))           return (void *)&eval_;
+   if (!strcmp(function_name, "eval_fill_B"))     return (void *)&eval_fill_B;
+   if (!strcmp(function_name, "eval_fill_AB"))    return (void *)&eval_fill_AB;
+   if (!strcmp(function_name, "eval_ident_Bx"))   return (void *)&eval_ident_Bx;
+   return 0;
+}
 
 Token
 eval_()
@@ -87,6 +107,24 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 
 Fun_signature get_signature() { return SIG_Z_A_F2_B; }
 
+static Token eval_B(Value_P B);
+static Token eval_AB(Value_P A, Value_P B);
+static Token eval_XB(Value_P X, Value_P B);
+static Token eval_AXB(Value_P A, Value_P X, Value_P B);
+
+void *
+get_function_mux(const char * function_name)
+{
+   if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
+   if (!strcmp(function_name, "eval_B"))          return (void *)&eval_B;
+   if (!strcmp(function_name, "eval_AB"))         return (void *)&eval_AB;
+   if (!strcmp(function_name, "eval_XB"))         return (void *)&eval_XB;
+   if (!strcmp(function_name, "eval_AXB"))        return (void *)&eval_AXB;
+   if (!strcmp(function_name, "eval_fill_B"))     return (void *)&eval_fill_B;
+   if (!strcmp(function_name, "eval_fill_AB"))    return (void *)&eval_fill_AB;
+   if (!strcmp(function_name, "eval_ident_Bx"))   return (void *)&eval_ident_Bx;
+   return 0;
+}
 //-----------------------------------------------------------------------------
 Token
 eval_B(Value_P B)
@@ -129,6 +167,24 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 
 Fun_signature get_signature() { return SIG_Z_A_LO_OP1_B; }
 
+static Token eval_LB(Function & LO, Value_P B);
+static Token eval_ALB(Value_P A, Function & LO, Value_P B);
+static Token eval_LXB(Function & LO, Value_P X, Value_P B);
+static Token eval_ALXB(Value_P A, Function & LO, Value_P X, Value_P B);
+
+void *
+get_function_mux(const char * function_name)
+{
+   if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
+   if (!strcmp(function_name, "eval_LB"))         return (void *)&eval_LB;
+   if (!strcmp(function_name, "eval_ALB"))        return (void *)&eval_ALB;
+   if (!strcmp(function_name, "eval_LXB"))        return (void *)&eval_LXB;
+   if (!strcmp(function_name, "eval_ALXB"))       return (void *)&eval_ALXB;
+   if (!strcmp(function_name, "eval_fill_B"))     return (void *)&eval_fill_B;
+   if (!strcmp(function_name, "eval_fill_AB"))    return (void *)&eval_fill_AB;
+   if (!strcmp(function_name, "eval_ident_Bx"))   return (void *)&eval_ident_Bx;
+   return 0;
+}
 //-----------------------------------------------------------------------------
 Token
 eval_LB(Function & LO, Value_P B)
@@ -171,6 +227,24 @@ Value_P Z(Value_P(new Value(ucs, LOC)));
 
 Fun_signature get_signature() { return SIG_Z_A_LO_OP2_RO_B; }
 
+static Token eval_LRB(Function & LO, Function & RO, Value_P B);
+static Token eval_ALRB(Value_P A, Function & LO, Function & RO, Value_P B);
+static Token eval_LRXB(Function & LO, Function & RO, Value_P X, Value_P B);
+static Token eval_ALRXB(Value_P A, Function & LO, Function & RO, Value_P X, Value_P B);
+
+void *
+get_function_mux(const char * function_name)
+{
+   if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
+   if (!strcmp(function_name, "eval_LRB"))        return (void *)&eval_LRB;
+   if (!strcmp(function_name, "eval_ALRB"))       return (void *)&eval_ALRB;
+   if (!strcmp(function_name, "eval_LRXB"))       return (void *)&eval_LRXB;
+   if (!strcmp(function_name, "eval_ALRXB"))      return (void *)&eval_ALRXB;
+   if (!strcmp(function_name, "eval_fill_B"))     return (void *)&eval_fill_B;
+   if (!strcmp(function_name, "eval_fill_AB"))    return (void *)&eval_fill_AB;
+   if (!strcmp(function_name, "eval_ident_Bx"))   return (void *)&eval_ident_Bx;
+   return 0;
+}
 //-----------------------------------------------------------------------------
 Token
 eval_LRB(Function & LO, Function & RO, Value_P B)
