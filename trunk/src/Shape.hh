@@ -137,22 +137,16 @@ public:
    /// possibly expand rank and increase axes so that B fits into this shape
    void expand(const Shape & B);
 
-   /// remove dimension \b axis from shape
-   void remove_shape_item(Rank axis)
-      { Assert(rho_rho > 0);
-        loop(r, rho_rho - axis - 1)   rho[axis + r] = rho[axis + r + 1];
-        --rho_rho; }
-
-   /// remove last dimension \b axis from shape
-   void remove_last_shape_item()
-      { Assert(rho_rho > 0);   --rho_rho; }
-
    /// return a shape like \b this, but with a new dimension of length len
    /// inserted so that Shape[axis] == len in the returned shape.
    Shape insert_axis(Axis axis, ShapeItem len) const;
 
    /// return a shape like \b this, but with an axis removed
-   Shape remove_axis(Axis axis) const;
+   Shape without_axis(Axis axis) const
+      { Shape ret;
+        loop(r, rho_rho)   if (r != axis)  ret.add_shape_item(rho[r]);
+        return ret;
+      }
 
    /// return the number of elements (1 for skalars, else product of shapes)
    ShapeItem element_count() const

@@ -117,14 +117,6 @@ Shape ret;
 }
 //-----------------------------------------------------------------------------
 Shape
-Shape::remove_axis(Axis axis) const
-{
-Shape ret(*this);
-   ret.remove_shape_item(axis);
-   return ret;
-}
-//-----------------------------------------------------------------------------
-Shape
 Shape::inverse_permutation() const
 {
 Shape ret;

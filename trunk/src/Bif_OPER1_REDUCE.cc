@@ -126,8 +126,7 @@ Bif_REDUCE::reduce(Function * LO, Value_P B, Axis axis)
 const ShapeItem m_len = B->get_shape_item(axis);
 const APL_Float qct = Workspace::get_CT();
 
-Shape shape_Z(B->get_shape());
-   shape_Z.remove_shape_item(axis);
+const Shape shape_Z = B->get_shape().without_axis(axis);
 
    if (m_len == 0)   // apply the identity function
       {

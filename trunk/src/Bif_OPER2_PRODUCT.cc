@@ -192,20 +192,20 @@ Function * RO = _RO.get_function();
    Assert1(LO);
    Assert1(RO);
 
-Shape shape_A1(A->get_shape());
+Shape shape_A1;
 ShapeItem len_A = 1;
    if (!A->is_skalar())
       {
         len_A = A->get_last_shape_item();
-        shape_A1.remove_last_shape_item();
+        shape_A1 = A->get_shape().without_axis(A->get_rank() - 1);
       }
 
-Shape shape_B1(B->get_shape());   
+Shape shape_B1;
 ShapeItem len_B = 1;
    if (!B->is_skalar())
       {
         len_B = B->get_shape_item(0);
-        shape_B1.remove_shape_item(0);
+        shape_B1 = B->get_shape().without_axis(0);
       }
 
    // we do not check len_A == len_B since LO may accept different lengths

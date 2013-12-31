@@ -254,8 +254,7 @@ SkalarFunction::eval_skalar_identity_fun(Value_P B, Axis axis, Value_P FI0)
    //
    if (!FI0->is_skalar())   Q(FI0->get_shape())
 
-Shape shape_Z(B->get_shape());
-   shape_Z.remove_shape_item(axis);
+const Shape shape_Z = B->get_shape().without_axis(axis);
 
 Value_P Z(new Value(shape_Z, LOC));
 

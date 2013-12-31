@@ -1185,6 +1185,7 @@ Cell * cZ = &Z->get_ravel(0);
         table[smallest] = table[--symbol_count];
       }
 
+   Z->set_default(*Value::Str0_P.get());
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }

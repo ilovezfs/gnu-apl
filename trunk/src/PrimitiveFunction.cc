@@ -869,7 +869,7 @@ const Shape shape_A2(shape_B3.h(), shape_B3.l());
       }
    else   // otherwise shape A must be shape B with axis removed.
       {
-        A->get_shape().check_same(B->get_shape().remove_axis(axis),
+        A->get_shape().check_same(B->get_shape().without_axis(axis),
                                  E_RANK_ERROR, E_LENGTH_ERROR, LOC);
       }
 
@@ -1059,11 +1059,12 @@ Bif_F12_DECODE::eval_AB(Value_P A, Value_P B)
    // ρZ  is: (¯1↓ρA),1↓ρB
    // ρρZ is: (0⌈¯1+ρρA) + (0⌈¯1+ρρB)
    //
-Shape shape_A1(A->get_shape());
-   if (shape_A1.get_rank() > 0)   shape_A1.remove_last_shape_item();
+Shape shape_A1;
+   if (!A->is_skalar())
+      shape_A1 = A->get_shape().without_axis(A->get_rank() - 1);
 
 Shape shape_B1(B->get_shape());
-   if (shape_B1.get_rank() > 0)   shape_B1.remove_shape_item(0);
+   if (shape_B1.get_rank() > 0)   shape_B1 = B->get_shape().without_axis(0);
 
 const ShapeItem l_len_A = A->get_rank() ? A->get_last_shape_item() : 1;
 const ShapeItem h_len_B = B->get_rank() ? B->get_shape_item(0)     : 1;
@@ -3049,8 +3050,7 @@ const APL_Float qct = Workspace::get_CT();
              else              W += A->get_ravel(2*c).get_near_int(qct);
            }
 
-        Shape shape_Z(shape_B);
-        shape_Z.remove_last_shape_item();
+        Shape shape_Z = shape_B.without_axis(shape_B.get_rank() - 1);
         shape_Z.add_shape_item(W);
         const ShapeItem ec_Z = shape_Z.nz_element_count();
 
