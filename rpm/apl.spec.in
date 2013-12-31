@@ -68,7 +68,9 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/APnnn
 %{_bindir}/apl
 
-%{_libdir}/apl/lib_*
+%{_libdir}/apl/*.so
+%{_libdir}/apl/*.a
+%{_libdir}/apl/*.la
 
 %{_sysconfdir}/gnu-apl.d/preferences
 

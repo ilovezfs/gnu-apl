@@ -52,3 +52,4 @@
  4971 added ⍷ (U+2377) as alternate char for ⋸
  5030 first step towards native C++ functions that can be called from APL
  5036 native function file_io completed
+ 5048 more portable native function interface
