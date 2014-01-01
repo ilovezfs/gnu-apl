@@ -167,7 +167,7 @@ public:
    /// return the Value_P value of this token. The token could be TOK_NO_VALUE;
    /// in that case VALUE_ERROR is thrown.
    Value_P get_apl_val() const
-      { if (is_apl_val())   return value._apl_val();   VALUE_ERROR; }
+      { if (!is_apl_val())   VALUE_ERROR;   return value._apl_val(); }
 
    /// return the Value * of this token, or 0 for non-value token
    Value * get_apl_val_pointer() const
@@ -213,7 +213,7 @@ public:
 
    /// return the Function * value of this token
    Function * get_function() const
-      { if (is_function())   return value.function;   SYNTAX_ERROR; }
+      { if (!is_function())   SYNTAX_ERROR;   return value.function; }
 
    /// change the tag (within the same TokenValueType)
    void ChangeTag(TokenTag new_tag);

@@ -211,12 +211,11 @@ Shape shape_Z;
    shape_Z.add_shape_item(max_len);
    
 Value_P Z(new Value(shape_Z, LOC));
-Cell * cZ = &Z->get_ravel(0);
    loop(row, tlines.size())
       {
         const UCS_string & line = tlines[row];
-        loop(col, line.size())             new (cZ++) CharCell(line[col]);
-        loop(col, max_len - line.size())   new (cZ++) CharCell(UNI_ASCII_SPACE);
+        loop(col, line.size())             new (Z->next_ravel()) CharCell(line[col]);
+        loop(col, max_len - line.size())   new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
       }
 
    Z->check_value(LOC);
@@ -672,7 +671,6 @@ vector<const char *> evars;
 
 const Shape sh_Z(evars.size(), 2);
 Value_P Z(new Value(sh_Z, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(e, evars.size())
       {
@@ -692,8 +690,8 @@ Cell * cZ = &Z->get_ravel(0);
 
         Value_P varval(new Value(ucs, LOC));
 
-        new (cZ++) PointerCell(varname);
-        new (cZ++) PointerCell(varval);
+        new (Z->next_ravel()) PointerCell(varname);
+        new (Z->next_ravel()) PointerCell(varval);
       }
 
    Z->set_default(*Value::Spc_P);
@@ -792,9 +790,8 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
-Cell * cZ = &Z->get_ravel(0);
 
-   loop(z, var_count)   new (cZ++) IntCell(expunge(vars[z]));
+   loop(z, var_count)   new (Z->next_ravel()) IntCell(expunge(vars[z]));
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -1056,9 +1053,8 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
-Cell * cZ = &Z->get_ravel(0);
 
-   loop(v, var_count)   new (&Z->get_ravel(v))   IntCell(get_NC(vars[v]));
+   loop(v, var_count)   new (Z->next_ravel())   IntCell(get_NC(vars[v]));
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -1156,7 +1152,6 @@ int longest = 0;
 
 const Shape shZ(symbol_count, longest);
 Value_P Z(new Value(shZ, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    // the number of symbols is small and ⎕NL is (or should) not be a perfomance
    // critical function, so we do a linear sort (find smallest and remove)
@@ -1178,7 +1173,7 @@ Cell * cZ = &Z->get_ravel(0);
         loop(l, longest)
            {
              const UCS_string & ucs = table[smallest]->get_name();
-             new (cZ++)   CharCell(l < ucs.size() ? ucs[l] : UNI_ASCII_SPACE);
+             new (Z->next_ravel())   CharCell(l < ucs.size() ? ucs[l] : UNI_ASCII_SPACE);
            }
 
         // remove from table

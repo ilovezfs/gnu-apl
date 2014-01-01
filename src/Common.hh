@@ -106,8 +106,8 @@ using namespace std;
 
 /// return true iff \b uni is a padding character (used internally).
 inline bool is_pad_char(Unicode uni)
-   { return (uni >= UNI_PAD_U2) && (uni <= UNI_PAD_U1) ||
-            (uni >= UNI_PAD_U0) && (uni <= UNI_PAD_L9); }
+   { return ((uni >= UNI_PAD_U2) && (uni <= UNI_PAD_U1)) ||
+            ((uni >= UNI_PAD_U0) && (uni <= UNI_PAD_L9)); }
 
 //-----------------------------------------------------------------------------
 

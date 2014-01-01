@@ -71,7 +71,7 @@ Value::init_ravel()
         attention_raised = interrupt_raised = true;
       }
 
-const ShapeItem length = shape.element_count();
+const ShapeItem length = shape.get_volume();
 
    if (length > SHORT_VALUE_LENGTH_WANTED)
       {
@@ -123,7 +123,8 @@ const ShapeItem length = shape.element_count();
 //-----------------------------------------------------------------------------
 Value::Value(const char * loc)
    : DynamicObject(loc, &all_values),
-     flags(VF_NONE)
+     flags(VF_NONE),
+     valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
@@ -131,7 +132,8 @@ Value::Value(const char * loc)
 //-----------------------------------------------------------------------------
 Value::Value(const char * loc, Value_how how)
    : DynamicObject(loc),
-     flags(VF_forever)
+     flags(VF_forever),
+     valid_ravel_items(0)
 {
    // default shape is skalar
    //
@@ -243,7 +245,8 @@ Value::Value(const char * loc, Value_how how)
 Value::Value(ShapeItem sh, const char * loc)
    : DynamicObject(loc, &all_values),
      shape(sh),
-     flags(VF_NONE)
+     flags(VF_NONE),
+     valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
@@ -252,7 +255,8 @@ Value::Value(ShapeItem sh, const char * loc)
 Value::Value(const UCS_string & ucs, const char * loc)
    : DynamicObject(loc, &all_values),
      shape(ucs.size()),
-     flags(VF_NONE)
+     flags(VF_NONE),
+     valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
@@ -272,7 +276,8 @@ Value::Value(const UCS_string & ucs, const char * loc)
 Value::Value(const CDR_string & ui8, const char * loc)
    : DynamicObject(loc, &all_values),
      shape(ui8.size()),
-     flags(VF_NONE)
+     flags(VF_NONE),
+     valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
@@ -292,7 +297,8 @@ Value::Value(const CDR_string & ui8, const char * loc)
 Value::Value(const char * string, const char * loc)
    : DynamicObject(loc, &all_values),
      shape(strlen(string)),
-     flags(VF_NONE)
+     flags(VF_NONE),
+     valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
@@ -306,7 +312,8 @@ const ShapeItem length = strlen(string);
 Value::Value(const Shape & sh, const char * loc)
    : DynamicObject(loc, &all_values),
      shape(sh),
-     flags(VF_NONE)
+     flags(VF_NONE),
+     valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
@@ -314,7 +321,8 @@ Value::Value(const Shape & sh, const char * loc)
 //-----------------------------------------------------------------------------
 Value::Value(const Cell & cell, const char * loc)
    : DynamicObject(loc, &all_values),
-     flags(VF_NONE)
+     flags(VF_NONE),
+     valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
@@ -905,7 +913,7 @@ const int64_t count = element_count();
 }
 //-----------------------------------------------------------------------------
 Value_P
-Value::index(const IndexExpr & IX)
+Value::index(const IndexExpr & IX) const
 {
    Assert(IX.value_count() != 1);   // should have called index(Value_P X)
 
@@ -968,7 +976,7 @@ const ShapeItem ec_z = Z->element_count();
 }
 //-----------------------------------------------------------------------------
 Value_P
-Value::index(Value_P X)
+Value::index(Value_P X) const
 {
    if (get_rank() != 1)   RANK_ERROR;
 
@@ -976,23 +984,23 @@ Value::index(Value_P X)
 
 const Shape shape_Z(X->get_shape());
 Value_P Z(new Value(shape_Z, LOC));
-const ShapeItem ec = shape_Z.element_count();
+const ShapeItem ec = shape_Z.get_volume();
 const ShapeItem max_idx = element_count();
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();
 
-Cell * cZ = &Z->get_ravel(0);
 const Cell * cI = &X->get_ravel(0);
 
-   loop(z, ec)
+   while (Z->more())
       {
          const ShapeItem idx = cI++->get_near_int(qct) - qio;
          if (idx < 0 || idx >= max_idx)
             {
-              Z->rollback(z, LOC);
+              Z->rollback(Z->valid_ravel_items, LOC);
               INDEX_ERROR;
             }
-         cZ++->init(get_ravel(idx));
+
+         Z->next_ravel()->init(get_ravel(idx));
       }
 
    Z->set_default(*this);
@@ -1002,7 +1010,7 @@ const Cell * cI = &X->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 Value_P
-Value::index(Token & IX)
+Value::index(Token & IX) const
 {
    if (IX.get_tag() == TOK_AXES)     return index(IX.get_apl_val());
    if (IX.get_tag() == TOK_INDEX)    return index(IX.get_index_val());
@@ -1091,10 +1099,9 @@ const ShapeItem len_B = B->element_count();
    Assert(B->is_skalar_or_vector());
 
 Value_P Z(new Value(len_A + len_B, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
-   loop(a, len_A)   cZ++->init(A->get_ravel(a));
-   loop(b, len_B)   cZ++->init(B->get_ravel(b));
+   loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a));
+   loop(b, len_B)   Z->next_ravel()->init(B->get_ravel(b));
 
    Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
@@ -1116,17 +1123,16 @@ Value::glue_strand_closed(Token & result, Value_P A, Value_P B,
 
 const ShapeItem len_A = A->element_count();
 Value_P Z(new Value(len_A + 1, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
-   loop(a, len_A)   cZ++->init(A->get_ravel(a));
+   loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a));
 
    if (B->is_simple_skalar())
       {
-        cZ++->init(B->get_ravel(0));
+        Z->next_ravel()->init(B->get_ravel(0));
       }
    else
       {
-        new (cZ++) PointerCell(B);
+        new (Z->next_ravel()) PointerCell(B);
       }
 
    Z->check_value(LOC);
@@ -1149,18 +1155,17 @@ Value::glue_closed_strand(Token & result, Value_P A, Value_P B,
 
 const ShapeItem len_B = B->element_count();
 Value_P Z(new Value(len_B + 1, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    if (A->is_simple_skalar())
       {
-        cZ++->init(A->get_ravel(0));
+        Z->next_ravel()->init(A->get_ravel(0));
       }
    else
       {
-        new (cZ++) PointerCell(A);
+        new (Z->next_ravel()) PointerCell(A);
       }
 
-   loop(b, len_B)   cZ++->init(B->get_ravel(b));
+   loop(b, len_B)   Z->next_ravel()->init(B->get_ravel(b));
 
    Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
@@ -1179,23 +1184,22 @@ Value::glue_closed_closed(Token & result, Value_P A, Value_P B,
       }
 
 Value_P Z(new Value(2, LOC));
-Cell * cZ = &Z->get_ravel(0);
    if (A->is_simple_skalar())
       {
-        cZ++->init(A->get_ravel(0));
+        Z->next_ravel()->init(A->get_ravel(0));
       }
    else
       {
-        new (cZ++) PointerCell(A);
+        new (Z->next_ravel()) PointerCell(A);
       }
 
    if (B->is_simple_skalar())
       {
-        cZ++->init(B->get_ravel(0));
+        Z->next_ravel()->init(B->get_ravel(0));
       }
    else
       {
-        new (cZ++) PointerCell(B);
+        new (Z->next_ravel()) PointerCell(B);
       }
 
    Z->check_value(LOC);
@@ -1207,9 +1211,12 @@ Value::check_value(const char * loc)
 {
 #ifdef VALUE_CHECK_WANTED
 
-uint32_t error_count = 0;
-const uint64_t count = element_count();
+   // if value was initialized by means of the next_ravel() mechanism,
+   // then all cells are supposed to be OK.
+   //
+   if (valid_ravel_items && valid_ravel_items >= element_count())   return;
 
+uint32_t error_count = 0;
 const CellType ctype = get_ravel(0).get_cell_type();
    switch(ctype)
       {
@@ -1227,7 +1234,7 @@ const CellType ctype = get_ravel(0).get_cell_type();
                  ++error_count;
       }
 
-    loop(c, count)
+    loop(c, element_count())
        {
          const Cell * cell = &get_ravel(c);
          const CellType ctype = cell->get_cell_type();

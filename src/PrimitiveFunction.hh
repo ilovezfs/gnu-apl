@@ -36,9 +36,9 @@ class CollatingCache;
 //-----------------------------------------------------------------------------
 /**
     Base class for the APL system functions (QUAD functions and primitives
-    like +, -, ...) and operators.
+    like +, -, ...) and operators
 
-    The individual system functions are derived from this class.
+    The individual system functions are derived from this class
  */
 class PrimitiveFunction : public Function
 {
@@ -58,7 +58,7 @@ protected:
    /// Overloaded Function::eval_fill_AB()
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
-   /// Print the name of \b this PrimitiveFunction to \b out.
+   /// Print the name of \b this PrimitiveFunction to \b out
    virtual ostream & print(ostream & out) const;
 
    /// a cell containing ' '
@@ -68,12 +68,12 @@ protected:
    static const IntCell n_filler;
 };
 //-----------------------------------------------------------------------------
-/** The various non-skalar functions.
+/** The various non-skalar functions
  */
 class NonskalarFunction : public PrimitiveFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    NonskalarFunction(TokenTag tag)
    : PrimitiveFunction(tag)
    {}
@@ -89,7 +89,7 @@ public:
    : NonskalarFunction(TOK_F0_ZILDE)
    {}
 
-   static Bif_F0_ZILDE fun;   ///< Built-in function.
+   static Bif_F0_ZILDE fun;   ///< Built-in function
 
    /// overladed Function::eval_()
    virtual Token eval_();
@@ -109,7 +109,7 @@ public:
    : NonskalarFunction(TOK_F1_EXECUTE)
    {}
 
-   static Bif_F1_EXECUTE    fun;   ///< Built-in function.
+   static Bif_F1_EXECUTE    fun;   ///< Built-in function
 
    /// execute string
    static Token execute_statement(const UCS_string & statement);
@@ -127,69 +127,69 @@ protected:
 class Bif_F2_INDEX : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F2_INDEX()
    : NonskalarFunction(TOK_F2_INDEX)
    {}
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F2_INDEX      fun;   ///< Built-in function.
+   static Bif_F2_INDEX      fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** primitive functions partition and enclose.
+/** primitive functions partition and enclose
  */
 class Bif_F12_PARTITION : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_PARTITION()
    : NonskalarFunction(TOK_F12_PARTITION)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return partition(A, B, B->get_rank() - 1); }
 
-   /// Overloaded Function::eval_XB().
+   /// Overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_PARTITION fun;   ///< Built-in function.
+   static Bif_F12_PARTITION fun;   ///< Built-in function
 
 protected:
-   /// enclose B.
+   /// enclose B
    Token enclose(Value_P B);
 
-   /// enclose B.
+   /// enclose B
    Token enclose_with_axis(Value_P B, Value_P X);
 
-   /// Partition B according to A.
+   /// Partition B according to A
    Token partition(Value_P A, Value_P B, Axis axis);
 
-   /// Copy one partition to dest.
+   /// Copy one partition to dest
    static void copy_segment(Cell * dest, ShapeItem h,
                             ShapeItem from, ShapeItem to,
                             ShapeItem m_len, ShapeItem l, ShapeItem len_l,
                             Value_P B);
 };
 //-----------------------------------------------------------------------------
-/** primitive functions pick and disclose.
+/** primitive functions pick and disclose
  */
 class Bif_F12_PICK : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_PICK()
    : NonskalarFunction(TOK_F12_PICK)
    {}
@@ -200,16 +200,16 @@ public:
    /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_XB().
+   /// Overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   static Bif_F12_PICK fun;   ///< Built-in function.
+   static Bif_F12_PICK fun;   ///< Built-in function
 
 protected:
    /// the shape of the items being disclosed
    Shape item_shape(Value_P B);
 
-   /// Pick from B according to cA and len_A.
+   /// Pick from B according to cA and len_A
    static Value_P pick(const Cell * cA, ShapeItem len_A, Value_P B, 
                        APL_Float qct, APL_Integer qio, bool lval);
 };
@@ -219,7 +219,7 @@ protected:
 class Bif_COMMA : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_COMMA(TokenTag tag)
    : NonskalarFunction(tag)
    {}
@@ -227,46 +227,46 @@ public:
    /// ravel along axis, with axis being the first (⍪( or last (,) axis of B
    Token ravel_axis(Value_P X, Value_P B, Axis axis);
 
-   /// Return the ravel of B as APL value.
+   /// Return the ravel of B as APL value
    static Token ravel(const Shape & new_shape, Value_P B);
 
-   /// Catenate A and B.
+   /// Catenate A and B
    static Token catenate(Value_P A, Axis axis, Value_P B);
 
-   /// Laminate A and B.
+   /// Laminate A and B
    static Token laminate(Value_P A, Axis axis, Value_P B);
 
-   /// Prepend skalar cell_A to B along axis.
+   /// Prepend skalar cell_A to B along axis
    static Value_P prepend_skalar(const Cell & cell_A, Axis axis, Value_P B);
 
-   /// Prepend skalar cell_B to A along axis.
+   /// Prepend skalar cell_B to A along axis
    static Value_P append_skalar(Value_P A, Axis axis, const Cell & cell_B);
 };
 //-----------------------------------------------------------------------------
-/** primitive functions catenate, laminate, and ravel along last axis.
+/** primitive functions catenate, laminate, and ravel along last axis
  */
 class Bif_F12_COMMA : public Bif_COMMA
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_COMMA()
    : Bif_COMMA(TOK_F12_COMMA)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_XB().
+   /// Overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B)
       { return ravel_axis(X, B, B->get_rank()); }
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_COMMA fun;   ///< Built-in function.
+   static Bif_F12_COMMA fun;   ///< Built-in function
 
 protected:
 };
@@ -276,117 +276,117 @@ protected:
 class Bif_F12_COMMA1 : public Bif_COMMA
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_COMMA1()
    : Bif_COMMA(TOK_F12_COMMA1)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_XB().
+   /// Overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B)
       { return ravel_axis(X, B, 0); }
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_COMMA1    fun;   ///< Built-in function.
+   static Bif_F12_COMMA1    fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** primitive functions take and first.
+/** primitive functions take and first
  */
 class Bif_F12_TAKE : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_TAKE()
    : NonskalarFunction(TOK_F12_TAKE)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   /// Take from B according to ravel_A.
+   /// Take from B according to ravel_A
    static Token do_take(const Shape shape_Zi, Value_P B);
 
    /// Fill Z with B, pad as necessary
    static void fill(const Shape & shape_Zi, Cell * Z, Value_P B);
 
-   static Bif_F12_TAKE      fun;   ///< Built-in function.
+   static Bif_F12_TAKE      fun;   ///< Built-in function
 
 protected:
-   /// Take A from B.
+   /// Take A from B
    Token take(Value_P A, Value_P B);
 };
 //-----------------------------------------------------------------------------
-/** System function drop.
+/** System function drop
  */
 class Bif_F12_DROP : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_DROP()
    : NonskalarFunction(TOK_F12_DROP)
    {}
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_DROP      fun;   ///< Built-in function.
+   static Bif_F12_DROP      fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** primitive functions member and enlist.
+/** primitive functions member and enlist
  */
 class Bif_F12_ELEMENT : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_ELEMENT()
    : NonskalarFunction(TOK_F12_ELEMENT)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_ELEMENT   fun;   ///< Built-in function.
+   static Bif_F12_ELEMENT   fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** primitive functions match and depth.
+/** primitive functions match and depth
  */
 class Bif_F12_EQUIV : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_EQUIV()
    : NonskalarFunction(TOK_F12_EQUIV)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_EQUIV     fun;   ///< Built-in function.
+   static Bif_F12_EQUIV     fun;   ///< Built-in function
 
 protected:
    /// return the depth of B
@@ -396,63 +396,63 @@ protected:
    Token match(Value_P A, Value_P B);
 };
 //-----------------------------------------------------------------------------
-/** System function encode.
+/** System function encode
  */
 class Bif_F12_ENCODE : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_ENCODE()
    : NonskalarFunction(TOK_F12_ENCODE)
    {}
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_ENCODE fun;   ///< Built-in function.
+   static Bif_F12_ENCODE fun;   ///< Built-in function
 protected:
-   /// Encode B according to A.
+   /// Encode B according to A
    void encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
                const Cell * cA, const Cell & cB, double qct);
 };
 //-----------------------------------------------------------------------------
-/** System function decode.
+/** System function decode
  */
 class Bif_F12_DECODE : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_DECODE()
    : NonskalarFunction(TOK_F12_DECODE)
    {}
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_DECODE    fun;   ///< Built-in function.
+   static Bif_F12_DECODE    fun;   ///< Built-in function
 protected:
-   /// Decode B according to Len_A and cA.
+   /// Decode B according to Len_A and cA
    void decode(Cell * cZ, ShapeItem len_A, const Cell * cA, ShapeItem len_B,
                const Cell * cB, ShapeItem dB, double qct);
 };
 //-----------------------------------------------------------------------------
-/** primitive functions matrix divide and matrix invert.
+/** primitive functions matrix divide and matrix invert
  */
 class Bif_F12_DOMINO : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_DOMINO()
    : NonskalarFunction(TOK_F12_DOMINO)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_DOMINO    fun;   ///< Built-in function.
+   static Bif_F12_DOMINO    fun;   ///< Built-in function
 
    /// Overloaded Function::eval_fill_B()
    virtual Token eval_fill_B(Value_P B);
@@ -461,14 +461,14 @@ public:
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
 protected:
-   /// Invert matrix B.
+   /// Invert matrix B
    Token matrix_inverse(Value_P B);
 
-   /// Divide matrix A by matrix B.
+   /// Divide matrix A by matrix B
    Token matrix_divide(Value_P A, Value_P B);
 };
 //-----------------------------------------------------------------------------
-/** primitive functions rotate and reverse.
+/** primitive functions rotate and reverse
  */
 class Bif_ROTATE : public NonskalarFunction
 {
@@ -479,47 +479,47 @@ public:
    {}
 
 protected:
-   /// Rotate B according to A along axis.
+   /// Rotate B according to A along axis
    static Token rotate(Value_P A, Value_P B, Axis axis);
 
-   /// Reverse B along axis.
+   /// Reverse B along axis
    static Token reverse(Value_P B, Axis axis);
 };
 //-----------------------------------------------------------------------------
-/** primitive functions rotate and reverse along last axis.
+/** primitive functions rotate and reverse along last axis
  */
 class Bif_F12_ROTATE : public Bif_ROTATE
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_ROTATE()
    : Bif_ROTATE(TOK_F12_ROTATE)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return reverse(B, B->get_rank() - 1); }
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return rotate(A, B, B->get_rank() - 1); }
 
-   /// Overloaded Function::eval_XB().
+   /// Overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_ROTATE fun;   ///< Built-in function.
+   static Bif_F12_ROTATE fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** primitive functions rotate and reverse along first axis.
+/** primitive functions rotate and reverse along first axis
  */
 class Bif_F12_ROTATE1 : public Bif_ROTATE
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_ROTATE1()
    : Bif_ROTATE(TOK_F12_ROTATE1)
    {}
@@ -532,48 +532,58 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return rotate(A, B, 0); }
 
-   /// Overloaded Function::eval_XB().
+   /// Overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   /// Overloaded Function::eval_AXB().
+   /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_ROTATE1   fun;   ///< Built-in function.
+   static Bif_F12_ROTATE1   fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** System function transpose.
+/** System function transpose
  */
 class Bif_F12_TRANSPOSE : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_TRANSPOSE()
    : NonskalarFunction(TOK_F12_TRANSPOSE)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_TRANSPOSE fun;   ///< Built-in function.
+   static Bif_F12_TRANSPOSE fun;   ///< Built-in function
 
 protected:
-   /// Transpose B according to A (without diagonals).
+   /// Transpose B according to A (without diagonals)
    Value_P transpose(const Shape & A, Value_P B);
 
-   /// Transpose B according to A (with diagonals).
+   /// Transpose B according to A (with diagonals)
    Value_P transpose_diag(const Shape & A, Value_P B);
+
+   /// for \b sh being a permutation of 0, 1, ... rank - 1,
+   /// return the inverse permutation sh⁻¹
+   static Shape inverse_permutation(const Shape & sh);
+
+   /// return sh permuted according to permutation perm
+   static Shape permute(const Shape & sh, const Shape & perm);
+
+   /// return true iff sh is a permutation
+   static bool is_permutation(const Shape & sh);
 };
 //-----------------------------------------------------------------------------
-/** primitive functions grade up and grade down.
+/** primitive functions grade up and grade down
  */
 class Bif_SORT : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_SORT(TokenTag tag)
    : NonskalarFunction(tag)
    {}
@@ -597,53 +607,53 @@ protected:
                                     CollatingCache & cache);
 };
 //-----------------------------------------------------------------------------
-/** System function grade up.
+/** System function grade up
  */
 class Bif_F12_SORT_ASC : public Bif_SORT
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_SORT_ASC()
    : Bif_SORT(TOK_F12_SORT_ASC)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return sort(B, true); }
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return sort_collating(A, B, true); }
 
-   static Bif_F12_SORT_ASC  fun;   ///< Built-in function.
+   static Bif_F12_SORT_ASC  fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** System function grade down.
+/** System function grade down
  */
 class Bif_F12_SORT_DES : public Bif_SORT
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_SORT_DES()
    : Bif_SORT(TOK_F12_SORT_DES)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return sort(B, false); }
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return sort_collating(A, B, false); }
 
-   static Bif_F12_SORT_DES  fun;   ///< Built-in function.
+   static Bif_F12_SORT_DES  fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
 /** A helper struct for Bif_F12_FORMAT
  It represents a sub-field (int part, fract part, or exponent)
- of the format field.
+ of the format field
  */
 struct Format_sub
 {
@@ -656,17 +666,17 @@ struct Format_sub
    UCS_string      format;         ///< the format ('0'...'9' and comma)
    int             out_len;        ///< the length in the output
    uint32_t        flt_mask;       ///< decorator floating mode
-   int             min_len;        ///< the minimum length in the output.
+   int             min_len;        ///< the minimum length in the output
 
    /// return the number of characters in \b format
    size_t size() const
       { return format.size(); }
 
-   /// set flt_mask according to the digits in member \b format.
-   /// return the number of digits from '1' to '4' (including).
+   /// set flt_mask according to the digits in member \b format
+   /// return the number of digits from '1' to '4' (including)
    int map_field(int type);
 
-   /// a debug function for printing \b this Format_sub.
+   /// a debug function for printing \b this Format_sub
    ostream & print(ostream & out) const;
 
    /// return true iff format contains a '4' (i.e. counteract the effect of 
@@ -688,15 +698,15 @@ struct Format_sub
    Unicode pad_char(Unicode qfc) const
       { return flt_mask & BIT_8 ? qfc : UNI_ASCII_SPACE; }
 
-   /// Fill buf at position x,y with data according to fmt.
+   /// Fill buf at position x,y with data according to fmt
    UCS_string insert_int_commas(const UCS_string & data,
                                 bool & overflow) const;
 
-   /// Fill buf at position x,y with data according to fmt.
+   /// Fill buf at position x,y with data according to fmt
    UCS_string insert_fract_commas(const UCS_string & data) const;
 };
 //-----------------------------------------------------------------------------
-/** System function format.
+/** System function format
  */
 class Bif_F12_FORMAT : public NonskalarFunction
 {
@@ -706,9 +716,9 @@ public:
    : NonskalarFunction(TOK_F12_FORMAT)
    {}
 
-   static Bif_F12_FORMAT    fun;   ///< Built-in function.
+   static Bif_F12_FORMAT    fun;   ///< Built-in function
 
-   /// Return true iff uni is '0' .. '9', comma, or full-stop.
+   /// Return true iff uni is '0' .. '9', comma, or full-stop
    static bool is_control_char(Unicode uni);
 
    /// An entire format field (LIFER = Left-Int-Fract-Expo-Right
@@ -740,7 +750,7 @@ public:
         UCS_string format_right_side(const UCS_string data_fract, bool negative,
                                      const UCS_string data_expo);
 
-        /// Print \b value into int, fract, and expo fields.
+        /// Print \b value into int, fract, and expo fields
         void fill_data_fields(double value, UCS_string & data_int,
                               UCS_string & data_fract, UCS_string & data_expo);
 
@@ -758,24 +768,24 @@ public:
         bool expo_negative;
       };
 
-   /// A character array with the display of B.
+   /// A character array with the display of B
    static Value_P monadic_format(Value_P B);
 
 protected:
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// A character array with B formatted by example.
+   /// A character array with B formatted by example
    Value_P format_by_example(Value_P A, Value_P B);
 
-   /// split entire format string string into \b column format strings.
+   /// split entire format string string into \b column format strings
    void split_example_into_columns(const UCS_string & format,
                                    vector<UCS_string> & col_formats);
 
-   /// A character array with  a columns of B formatted by specification.
+   /// A character array with  a columns of B formatted by specification
    PrintBuffer format_col_spec(int width, int precision, const Cell * cB,
                                int cols, int rows);
 
@@ -783,7 +793,7 @@ protected:
    void add_row(PrintBuffer & ret, int row, bool has_char, bool has_num,
                 Unicode align_char, UCS_string & data);
 
-   /// A character array with B formatted by specification.
+   /// A character array with B formatted by specification
    Value_P format_by_specification(Value_P A, Value_P B);
 
    /// format value with \b precision mantissa digits (floating format)
@@ -798,59 +808,59 @@ protected:
 class Bif_F12_INDEX_OF : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_INDEX_OF()
    : NonskalarFunction(TOK_F12_INDEX_OF)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_INDEX_OF fun;   ///< Built-in function.
+   static Bif_F12_INDEX_OF fun;   ///< Built-in function
 
 protected:
 };
 //-----------------------------------------------------------------------------
-/** primitive functions reshape and shape.
+/** primitive functions reshape and shape
  */
 class Bif_F12_RHO : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F12_RHO()
    : NonskalarFunction(TOK_F12_RHO)
    {}
 
-   /// Overloaded Function::eval_B().
+   /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Reshape B according to rank and shape.
+   /// Reshape B according to rank and shape
    static Token do_reshape(const Shape & shape, Value_P B);
 
-   static Bif_F12_RHO fun;   ///< Built-in function.
+   static Bif_F12_RHO fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
-/** System function unique.
+/** System function unique
  */
 class Bif_F1_UNIQUE : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F1_UNIQUE()
    : NonskalarFunction(TOK_F1_UNIQUE)
    {}
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_B(Value_P B);
 
-   static Bif_F1_UNIQUE      fun;   ///< Built-in function.
+   static Bif_F1_UNIQUE      fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -859,16 +869,16 @@ protected:
 class Bif_F2_LEFT : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F2_LEFT()
    : NonskalarFunction(TOK_F2_LEFT)
    {}
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return Token(TOK_APL_VALUE1, A->clone(LOC)); }
 
-   static Bif_F2_LEFT fun;   ///< Built-in function.
+   static Bif_F2_LEFT fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -877,16 +887,16 @@ protected:
 class Bif_F2_RIGHT : public NonskalarFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Bif_F2_RIGHT()
    : NonskalarFunction(TOK_F2_RIGHT)
    {}
 
-   /// Overloaded Function::eval_AB().
+   /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return Token(TOK_APL_VALUE1, B->clone(LOC)); }
 
-   static Bif_F2_RIGHT fun;   ///< Built-in function.
+   static Bif_F2_RIGHT fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------

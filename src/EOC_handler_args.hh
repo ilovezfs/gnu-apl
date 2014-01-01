@@ -53,7 +53,6 @@ struct quad_INP
 struct OUTER_PROD
 {
   Function * RO;     ///< user defined function
-  Cell * cZ;         ///< current result
   ShapeItem a;       ///< current A index
   ShapeItem len_A;   ///< number of cells in left arg
   ShapeItem b;       ///< current B index
@@ -66,7 +65,6 @@ struct OUTER_PROD
 /// arguments of the EOC handler for A g.f B
 struct INNER_PROD
 {
-  Cell * cZ;           ///< current result
   Value_P * args_A;    ///< left args of RO
   ShapeItem a;         ///< current A1 index
   ShapeItem items_A;   ///< number of cells in A1
@@ -84,12 +82,12 @@ struct INNER_PROD
 struct REDUCTION
 {
    /// initialize \b this REDUCTION object
-   void init(Cell * cZ,  const Shape3 & Z3, Function * LO,
+   void init(const Shape3 & Z3, Function * LO,
              const Cell * cB, ShapeItem bm, ShapeItem A0, int A0_inc)
       {
         need_pop = false;
         
-        frame.frame_init(cZ, Z3, cB, bm, A0_inc);
+        frame.frame_init(Z3, cB, bm, A0_inc);
         beam.beam_init(LO, cB, Z3.l(), A0);
       }
 
@@ -137,11 +135,10 @@ struct REDUCTION
    struct _frame
       {
         /// initialize \b this _frame
-        void frame_init(Cell * _cZ, const Shape3 & Z3,
-                  const Cell *  _cB, ShapeItem _max_bm, int _A0_inc)
+        void frame_init(const Shape3 & Z3, const Cell *  _cB,
+                        ShapeItem _max_bm, int _A0_inc)
            {
              cB = _cB;
-             cZ = _cZ;
 
              max_h = Z3.h();
              max_bm = _max_bm;
@@ -179,7 +176,6 @@ struct REDUCTION
 
         // running variables
         const Cell * cB;           ///< first ravel item in B
-        Cell * cZ;                 ///< beam result
         ShapeItem    h;            ///< current h
         ShapeItem    m;            ///< current m
         ShapeItem    l;            ///< current l
@@ -194,7 +190,6 @@ struct EACH_ALB
   Function * LO;     ///< user defined function
   const Cell * cB;   ///< current left arg
   uint32_t dB;       ///< cB increment (0 or 1)
-  Cell * cZ;         ///< current result cell
   ShapeItem z;       ///< current result index
   ShapeItem count;   ///< number of iterations
   bool sub;          ///< create a PointerCell
@@ -206,7 +201,6 @@ struct EACH_LB
 {
   Function * LO;     ///< user defined function
   const Cell * cB;   ///< current left arg
-  Cell * cZ;         ///< current result cell
   ShapeItem z;       ///< current result index
   ShapeItem count;   ///< number of iterations
   bool sub;          ///< create a PointerCell

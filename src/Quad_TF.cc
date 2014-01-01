@@ -238,7 +238,7 @@ const size_t data_chars = len - idx;
         if (nc != NC_UNUSED_USER_NAME && nc != NC_FUNCTION && nc != NC_OPERATOR)
            return Value_P();
 
-        if (data_chars != shape.element_count())   return Value_P();
+        if (data_chars != shape.get_volume())   return Value_P();
 
         Value_P new_val(new Value(shape, LOC));
         loop(d, data_chars)
@@ -249,7 +249,7 @@ const size_t data_chars = len - idx;
       }
    else if (mode == UNI_ASCII_C)   // char array
       {
-        if (data_chars != shape.element_count())   return Value_P();
+        if (data_chars != shape.get_volume())   return Value_P();
         if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
 
         Value_P new_val(new Value(shape, LOC));
@@ -271,7 +271,7 @@ const size_t data_chars = len - idx;
         Tokenizer tokenizer(PM_EXECUTE, LOC);
         Token_string tos;
         if (tokenizer.tokenize(data, tos) != E_NO_ERROR)   return Value_P();
-        if (tos.size() != shape.element_count())           return Value_P();
+        if (tos.size() != shape.get_volume())           return Value_P();
 
         // check that all token are numeric...
         //
@@ -439,7 +439,7 @@ void
 Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
 {
    // dont print anything if shape is a skalar or non-empty vector
-   if (shape.element_count() != 0 && shape.get_rank() <=1)   return;
+   if (shape.get_volume() != 0 && shape.get_rank() <=1)   return;
 
    loop(r, shape.get_rank())
       {
@@ -629,7 +629,7 @@ int d = 0;
              Value_P aval = tos[s].get_apl_val();
              Value_P bval = tos[s + 2].get_apl_val();
              Shape sh(aval, 0, 0);
-             if (sh.element_count() == bval->element_count())   // same shape
+             if (sh.get_volume() == bval->element_count())   // same shape
                 {
                   Token t(TOK_APL_VALUE1, bval);   // grouped value
                   move_1(tos[d], t, LOC);

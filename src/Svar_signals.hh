@@ -314,69 +314,69 @@ public:
 /// ⎕SVO, ⎕SVR
    /// access functions for signal NEW_VARIABLE...
    virtual uint64_t get__NEW_VARIABLE__key() const   ///< dito
-      { bad_get("NEW_VARIABLE", "key"); }
+      { bad_get("NEW_VARIABLE", "key");   return 0; }
 
    /// access functions for signal MAKE_OFFER...
    virtual uint64_t get__MAKE_OFFER__key() const   ///< dito
-      { bad_get("MAKE_OFFER", "key"); }
+      { bad_get("MAKE_OFFER", "key");   return 0; }
 
    /// access functions for signal OFFER_MATCHED...
    virtual uint64_t get__OFFER_MATCHED__key() const   ///< dito
-      { bad_get("OFFER_MATCHED", "key"); }
+      { bad_get("OFFER_MATCHED", "key");   return 0; }
 
    /// access functions for signal RETRACT_OFFER...
    virtual uint64_t get__RETRACT_OFFER__key() const   ///< dito
-      { bad_get("RETRACT_OFFER", "key"); }
+      { bad_get("RETRACT_OFFER", "key");   return 0; }
 
 
 /// SVAR←X and X←SVAR
    /// access functions for signal GET_VALUE...
    virtual uint64_t get__GET_VALUE__key() const   ///< dito
-      { bad_get("GET_VALUE", "key"); }
+      { bad_get("GET_VALUE", "key");   return 0; }
 
    /// access functions for signal VALUE_IS...
    virtual uint64_t get__VALUE_IS__key() const   ///< dito
-      { bad_get("VALUE_IS", "key"); }
+      { bad_get("VALUE_IS", "key");   return 0; }
    virtual uint32_t get__VALUE_IS__error() const   ///< dito
-      { bad_get("VALUE_IS", "error"); }
+      { bad_get("VALUE_IS", "error");   return 0; }
    virtual string get__VALUE_IS__error_loc() const   ///< dito
-      { bad_get("VALUE_IS", "error_loc"); }
+      { bad_get("VALUE_IS", "error_loc");   return string(); }
    virtual string get__VALUE_IS__value() const   ///< dito
-      { bad_get("VALUE_IS", "value"); }
+      { bad_get("VALUE_IS", "value");   return string(); }
 
    /// access functions for signal ASSIGN_VALUE...
    virtual uint64_t get__ASSIGN_VALUE__key() const   ///< dito
-      { bad_get("ASSIGN_VALUE", "key"); }
+      { bad_get("ASSIGN_VALUE", "key");   return 0; }
    virtual string get__ASSIGN_VALUE__value() const   ///< dito
-      { bad_get("ASSIGN_VALUE", "value"); }
+      { bad_get("ASSIGN_VALUE", "value");  return string(); }
 
    /// access functions for signal ASSIGNED...
    virtual uint64_t get__ASSIGNED__key() const   ///< dito
-      { bad_get("ASSIGNED", "key"); }
+      { bad_get("ASSIGNED", "key");   return 0; }
    virtual uint32_t get__ASSIGNED__error() const   ///< dito
-      { bad_get("ASSIGNED", "error"); }
+      { bad_get("ASSIGNED", "error");   return 0; }
    virtual string get__ASSIGNED__error_loc() const   ///< dito
-      { bad_get("ASSIGNED", "error_loc"); }
+      { bad_get("ASSIGNED", "error_loc");   return string();; }
 
 
 /// ⎕SVE
    /// access functions for signal START_EVENT_REPORTING...
    virtual uint16_t get__START_EVENT_REPORTING__event_port() const   ///< dito
-      { bad_get("START_EVENT_REPORTING", "event_port"); }
+      { bad_get("START_EVENT_REPORTING", "event_port");   return 0; }
 
    /// access functions for signal STOP_EVENT_REPORTING...
 
    /// access functions for signal GOT_EVENT...
    virtual uint64_t get__GOT_EVENT__key() const   ///< dito
-      { bad_get("GOT_EVENT", "key"); }
+      { bad_get("GOT_EVENT", "key");   return 0; }
    virtual uint32_t get__GOT_EVENT__event() const   ///< dito
-      { bad_get("GOT_EVENT", "event"); }
+      { bad_get("GOT_EVENT", "event");   return 0; }
 
    /// access functions for signal NEW_EVENT...
    virtual uint64_t get__NEW_EVENT__key() const   ///< dito
-      { bad_get("NEW_EVENT", "key"); }
+      { bad_get("NEW_EVENT", "key");   return 0; }
    virtual uint32_t get__NEW_EVENT__event() const   ///< dito
-      { bad_get("NEW_EVENT", "event"); }
+      { bad_get("NEW_EVENT", "event");   return 0; }
 
 
 

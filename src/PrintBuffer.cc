@@ -68,7 +68,7 @@ const ShapeItem ec = value.element_count();
    if (ec == 0)   // empty value of any dimension
       {
          const Shape sh = value.get_shape().without_axis(sh.get_rank() - 1);
-         if (sh.element_count() <= 1)   // empty vector
+         if (sh.get_volume() <= 1)   // empty vector
             {
               if (pctx.get_style() == PR_APL_FUN)
                  {
@@ -90,7 +90,7 @@ const ShapeItem ec = value.element_count();
 
          // value has > 0 rows. Compute how many lines we need.
          //
-         ShapeItem lines = sh.element_count();
+         ShapeItem lines = sh.get_volume();
          loop(s, sh.get_rank())
              lines += s * (sh.get_shape_item(sh.get_rank() - s - 1));
 

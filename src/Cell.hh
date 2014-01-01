@@ -348,6 +348,9 @@ public:
    static void copy(Cell * & dst, const Cell * & src, ShapeItem count)
       { loop(c, count)   dst++->init(*src++); }
 
+   /// copy (deep) count cells from src to val (which is under construction))
+   static void copy(Value & val, const Cell * & src, ShapeItem count);
+
    /// true iff value is close to an int (within +- qct)
    static bool is_near_int(APL_Float value, APL_Float qct);
 

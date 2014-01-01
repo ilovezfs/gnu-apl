@@ -73,7 +73,6 @@ Shape shape_Z(shape_B);
    shape_Z.set_shape_item(axis, len_Z);
 
 Value_P Z(new Value(shape_Z, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
 const Shape3 shape_B3(shape_B, axis);
 
@@ -89,7 +88,7 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(r, rep)
                   loop(l, shape_B3.l())
                      {
-                       cZ++->init(B->get_ravel(shape_B3.hml(h, bm, l)));
+                       Z->next_ravel()->init(B->get_ravel(shape_B3.hml(h, bm, l)));
                      }
                   if (shape_B3.m() > 1)   ++bm;
                 }
@@ -98,7 +97,7 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(r, -rep)
                   loop(l, shape_B3.l())
                      {
-                       cZ++->init_type(B->get_ravel(shape_B3.hml(h, 0, l)));
+                       Z->next_ravel()->init_type(B->get_ravel(shape_B3.hml(h, 0, l)));
                      }
 
                   // cB is not incremented when fill item is used.
@@ -209,7 +208,7 @@ Value_P Z(new Value(shape_Z, LOC));
 EOC_arg arg(Z, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-   _arg.init(&arg.Z->get_ravel(0), Z3, LO, &B->get_ravel(0), bm, a, 0);
+   _arg.init(Z3, LO, &B->get_ravel(0), bm, a, 0);
 
 Token tok(TOK_FIRST_TIME);
    eoc_beam(tok, arg);
@@ -247,13 +246,12 @@ Value_P BB = token.get_apl_val();
    if (_arg.beam.done())   // last reduction in current beam
       {
         _arg.frame.next_hml();
-        Cell * dst = _arg.frame.cZ++;
 
         // if beam has only one element, as for the first column in scan,
         // then BB->clear_eoc() below is never reached and we have to do
         // it here.
         //
-        dst->init_from_value(BB, LOC);
+        arg.Z->next_ravel()->init_from_value(BB, LOC);
 
         if (_arg.frame.done())   // if last beam (final result complete)
            {

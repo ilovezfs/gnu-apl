@@ -88,6 +88,7 @@ AC_CONFIG_FILES([Makefile po/Makefile.in po/Makefile
                  src/Makefile
                  src/APs/Makefile
                  src/native/Makefile
+                 src/testcases/Makefile
                  workspaces/Makefile
                  wslib1/Makefile
                  wslib2/Makefile])

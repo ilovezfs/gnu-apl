@@ -136,7 +136,6 @@ const Cell * cA = &A->get_ravel(0);
 
 const Shape shZ(var_count, 4);
 Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
@@ -171,10 +170,10 @@ Cell * cZ = &Z->get_ravel(0);
         const SV_key key = sym->get_SV_key();
         ctl = Svar_DB::set_control(key, Svar_Control(ctl));
 
-        new (cZ++)   IntCell(ctl & SET_BY_1 ? 1 : 0);
-        new (cZ++)   IntCell(ctl & SET_BY_2 ? 1 : 0);
-        new (cZ++)   IntCell(ctl & USE_BY_1 ? 1 : 0);
-        new (cZ++)   IntCell(ctl & USE_BY_2 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(ctl & SET_BY_1 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(ctl & SET_BY_2 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(ctl & USE_BY_1 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(ctl & USE_BY_2 ? 1 : 0);
       }
 
    Z->check_value(LOC);
@@ -192,7 +191,6 @@ vector<UCS_string> vars(var_count);
 
 const Shape shZ(var_count, 4);
 Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
@@ -202,10 +200,10 @@ Cell * cZ = &Z->get_ravel(0);
         const SV_key key = sym->get_SV_key();
         const Svar_Control control = Svar_DB::get_control(key);
 
-        new (cZ++)   IntCell(control & SET_BY_1 ? 1 : 0);
-        new (cZ++)   IntCell(control & SET_BY_2 ? 1 : 0);
-        new (cZ++)   IntCell(control & USE_BY_1 ? 1 : 0);
-        new (cZ++)   IntCell(control & USE_BY_2 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(control & SET_BY_1 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(control & SET_BY_2 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(control & USE_BY_1 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(control & USE_BY_2 ? 1 : 0);
       }
 
    Z->check_value(LOC);
@@ -330,7 +328,6 @@ vector<UCS_string> surrogates(var_count);
    if (A->get_rank() == 1 && A->element_count() != var_count)   LENGTH_ERROR;
 
 Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
@@ -350,7 +347,7 @@ Cell * cZ = &Z->get_ravel(0);
 
         if (bad_name || vlen == 0)
            {
-             new (cZ++) IntCell(NO_COUPLING);
+             new (Z->next_ravel()) IntCell(NO_COUPLING);
              continue;
            }
 
@@ -376,7 +373,7 @@ Cell * cZ = &Z->get_ravel(0);
                     //      << " is already shared" << endl;
 
                     const SV_key key = sym->get_SV_key();
-                    new (cZ++) IntCell(Svar_DB::get_coupling(key));
+                    new (Z->next_ravel()) IntCell(Svar_DB::get_coupling(key));
                   }
                   continue;   // next z
 
@@ -391,7 +388,7 @@ Cell * cZ = &Z->get_ravel(0);
              sym->share_var(key);
            }
 
-        new (cZ++) IntCell(coupling);
+        new (Z->next_ravel()) IntCell(coupling);
       }
 
    Z->check_value(LOC);
@@ -477,14 +474,13 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
         Symbol * sym = Workspace::lookup_existing_symbol(vars[z]);
         if (sym == 0)   // variable does not exist
            {
-             new (cZ++) IntCell(0);
+             new (Z->next_ravel()) IntCell(0);
              continue;
            }
 
@@ -492,13 +488,13 @@ Cell * cZ = &Z->get_ravel(0);
         //
         if (sym->get_nc() != NC_SHARED_VAR)
            {
-             new (cZ++) IntCell(0);
+             new (Z->next_ravel()) IntCell(0);
              continue;
            }
 
         const SV_key key = sym->get_SV_key();
         const SV_Coupling coupling = Svar_DB::get_coupling(key);
-         new (cZ++) IntCell(coupling);
+         new (Z->next_ravel()) IntCell(coupling);
       }
 
    Z->check_value(LOC);
@@ -647,13 +643,12 @@ ShapeItem max_len = 0;
 
 const Shape shZ(count, max_len);
 Value_P Z(new Value(shZ, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(z, count)
    loop(c, max_len)
       {
-        if (c < varlen[z])   new (cZ++) CharCell(Unicode(vars[z][c]));
-        else                 new (cZ++) CharCell(UNI_ASCII_SPACE);
+        if (c < varlen[z])   new (Z->next_ravel()) CharCell(Unicode(vars[z][c]));
+        else                 new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
       }
 
    Z->set_default(*Value::Spc_P);   // prototype: character
@@ -670,7 +665,6 @@ vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
 Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
@@ -678,7 +672,7 @@ Cell * cZ = &Z->get_ravel(0);
         if (sym == 0)   DOMAIN_ERROR;
 
         const SV_Coupling coupling = sym->unshare_var();
-        new (cZ++) IntCell(coupling);
+        new (Z->next_ravel()) IntCell(coupling);
       }
 
    Z->check_value(LOC);
@@ -696,7 +690,6 @@ vector<UCS_string> vars(var_count);
 
 const Shape shZ(var_count, 4);
 Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(z, var_count)
       {
@@ -706,10 +699,10 @@ Cell * cZ = &Z->get_ravel(0);
         const SV_key key = sym->get_SV_key();
         const Svar_state state = Svar_DB::get_state(key);
 
-        new (cZ++)   IntCell(state & SET_BY_1 ? 1 : 0);
-        new (cZ++)   IntCell(state & SET_BY_2 ? 1 : 0);
-        new (cZ++)   IntCell(state & USE_BY_1 ? 1 : 0);
-        new (cZ++)   IntCell(state & USE_BY_2 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(state & SET_BY_1 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(state & SET_BY_2 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(state & USE_BY_1 ? 1 : 0);
+        new (Z->next_ravel())   IntCell(state & USE_BY_2 ? 1 : 0);
       }
 
    Z->check_value(LOC);

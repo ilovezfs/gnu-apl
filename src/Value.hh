@@ -74,11 +74,11 @@ public:
 
    /// return the number of elements (the product of the shapes).
    ShapeItem element_count() const
-      { return shape.element_count(); }
+      { return shape.get_volume(); }
 
    /// return the number of elements, but at least 1 (for the prototype).
    ShapeItem nz_element_count() const
-      { return shape.nz_element_count(); }
+      { return shape.get_volume() ? shape.get_volume() : 1; }
 
    /// return the rank of \b this value
    Rank get_rank() const
@@ -110,7 +110,7 @@ public:
 
    /// reshape this value in place. The element count must not increase
    void set_shape(const Shape & sh)
-      { Assert(sh.element_count() <= shape.element_count());   shape = sh; }
+      { Assert(sh.get_volume() <= shape.get_volume());   shape = sh; }
 
    /// return the position of cell in the ravel of \b this value.
    ShapeItem get_offset(const Cell * cell) const
@@ -163,13 +163,13 @@ public:
    ostream & print_boxed(ostream & out, const char * info = 0);
 
    /// return \b this indexed by (multi-dimensional) \b IDX.
-   Value_P index(const IndexExpr & IDX);
+   Value_P index(const IndexExpr & IDX) const;
 
    /// return \b this indexed by (one-dimensional) \b IDX.
-   Value_P index(Value_P IDX);
+   Value_P index(Value_P IDX) const;
 
    /// return \b this indexed by (one- or multi-dimensional) \b IDX.
-   Value_P index(Token & B);
+   Value_P index(Token & B) const;
 
    /// If this value is a single axis between ⎕IO and ⎕IO + max_axis then
    /// return that axis. Otherwise throw AXIS_ERROR.
@@ -244,6 +244,15 @@ public:
    /// return \b true iff \b this value is a simple character scalar or vector.
    bool is_char_string() const
       { return is_char_skalar() || is_char_vector(); }
+
+   /// return true iff more ravel items (as per shape) need to be initialized.
+   /// (the prototype of empty values may still be missing)
+   bool more()
+      { return valid_ravel_items < element_count(); }
+
+   /// return the next ravel cell to be initialized
+   Cell * next_ravel()
+      { return more() ? &ravel[valid_ravel_items++] : 0; }
 
    /// return \b true iff \b this value is a simple character skalar.
    bool is_char_skalar() const;
@@ -452,6 +461,9 @@ protected:
 
    /// valueFlags for this value.
    mutable uint16_t flags;
+
+   /// number of initialized cells in the ravel
+   ShapeItem valid_ravel_items;
 
    /// The ravel of \b this value.
    Cell * ravel;

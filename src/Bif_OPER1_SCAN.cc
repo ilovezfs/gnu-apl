@@ -72,7 +72,6 @@ Value_P Z(new Value(shape_Z, LOC));
 
 const Shape3 shape_Z3(shape_Z, axis);
 
-Cell * cZ = &Z->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
 const bool lval = cB->is_lval_cell();
 
@@ -94,18 +93,18 @@ ShapeItem inc_2 = 0;              // increment after result m*l items
            {
              if (rep_counts[m] == 1)   // copy items from B
                 {
-                  loop(l, shape_Z3.l())   cZ++->init(cB[l]);
+                  loop(l, shape_Z3.l())   Z->next_ravel()->init(cB[l]);
                   cB += inc_1;
                 }
              else                      // init items
                 {
                   if (lval)
                      {
-                       loop(l, shape_Z3.l())   new (cZ++) LvalCell(0);
+                       loop(l, shape_Z3.l())   new (Z->next_ravel()) LvalCell(0);
                      }
                   else
                      {
-                       loop(l, shape_Z3.l())   cZ++->init_type(fill[l]);
+                       loop(l, shape_Z3.l())   Z->next_ravel()->init_type(fill[l]);
                      }
                 }
            }
@@ -145,7 +144,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
 EOC_arg arg(Z, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-   _arg.init(&Z->get_ravel(0), Z3, LO, &B->get_ravel(0), m_len, 1, 1);
+   _arg.init(Z3, LO, &B->get_ravel(0), m_len, 1, 1);
 
 Token tok(TOK_FIRST_TIME);
    Bif_REDUCE::eoc_beam(tok, arg);

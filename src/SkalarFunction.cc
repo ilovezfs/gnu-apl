@@ -261,9 +261,6 @@ Value_P Z(new Value(shape_Z, LOC));
 const Cell & proto_B = B->get_ravel(0);
 const Cell & cell_FI0 = FI0->get_ravel(0);
 
-Cell * cZ = &Z->get_ravel(0);
-const ShapeItem len_Z = Z->nz_element_count();
-
    if (proto_B.is_pointer_cell())
       {
         // create a value like ↑B but with all ravel elements like FI0...
@@ -273,11 +270,11 @@ const ShapeItem len_Z = Z->nz_element_count();
         Cell * csub = &sub->get_ravel(0);
         loop(s, len_sub)   csub++->init(cell_FI0);
 
-        loop(z, len_Z)   new (cZ++) PointerCell(sub->clone(LOC));
+        while (Z->more())   new (Z->next_ravel()) PointerCell(sub->clone(LOC));
       }
    else
       {
-        loop(z, len_Z)   cZ++->init(cell_FI0);
+        while (Z->more())   Z->next_ravel()->init(cell_FI0);
       }
 
    Z->check_value(LOC);
@@ -336,7 +333,6 @@ Shape weight = B->get_shape().reverse_scan();
 
 Value_P Z(new Value(B->get_shape(), LOC));
 
-Cell * cZ = &Z->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
 
    for (ArrayIterator it(B->get_shape()); !it.done(); ++it)
@@ -347,8 +343,8 @@ const Cell * cB = &B->get_ravel(0);
 
          const Cell * cA = &A->get_ravel(a);
 
-         if (reversed)   expand_pointers(cZ++, cB++, &A->get_ravel(a), fun);
-         else            expand_pointers(cZ++, &A->get_ravel(a), cB++, fun);
+         if (reversed)   expand_pointers(Z->next_ravel(), cB++, &A->get_ravel(a), fun);
+         else            expand_pointers(Z->next_ravel(), &A->get_ravel(a), cB++, fun);
        }
 
    Z->set_default(*B.get());

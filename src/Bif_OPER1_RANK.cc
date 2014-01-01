@@ -73,8 +73,8 @@ RANK_LXB & _arg = arg.u.u_RANK_LXB;
    _arg.get_sh_B_low() = B->get_shape().low_shape(rk_B_low);
    _arg.get_sh_B_high() = B->get_shape().high_shape(B->get_rank() - rk_B_low);
    new (&_arg.get_sh_Z_max_low()) Shape;
-   _arg.ec_high = _arg.get_sh_B_high().element_count();
-   _arg.ec_B_low = _arg.get_sh_B_low().element_count();
+   _arg.ec_high = _arg.get_sh_B_high().get_volume();
+   _arg.ec_B_low = _arg.get_sh_B_low().get_volume();
    _arg.cB = &B->get_ravel(0);
    _arg.LO = LO;
    _arg.ZZ = new Value_P[_arg.ec_high];
@@ -97,7 +97,7 @@ how_0:
 loop_h:
    {
      Value_P BB(new Value(_arg.get_sh_B_low(), LOC));
-     Assert1(_arg.ec_B_low == _arg.get_sh_B_low().element_count());
+     Assert1(_arg.ec_B_low == _arg.get_sh_B_low().get_volume());
      loop(l, _arg.ec_B_low)   BB->get_ravel(l).init(*_arg.cB++);
      BB->check_value(LOC);
 
@@ -132,10 +132,9 @@ how_1:
 next_h:
    if (++_arg.h < _arg.ec_high)   goto loop_h;
 
-const ShapeItem ec_Z_max_low = _arg.get_sh_Z_max_low().element_count();
+const ShapeItem ec_Z_max_low = _arg.get_sh_Z_max_low().get_volume();
 Shape sh_Z = _arg.get_sh_B_high() + _arg.get_sh_Z_max_low();
 Value_P Z(new Value(sh_Z, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(hh, _arg.ec_high)
       {
@@ -154,7 +153,7 @@ Cell * cZ = &Z->get_ravel(0);
         Cell * cZZ = &_arg.ZZ[hh]->get_ravel(0);
         loop(z, ec_Z_max_low)
            {
-             cZ++->init(*cZZ);
+             Z->next_ravel()->init(*cZZ);
              new (cZZ++) IntCell(0);
            }
       }
@@ -275,9 +274,9 @@ Shape sh_A_high = A->get_shape().high_shape(A->get_rank() - rk_A_low);
    // at this point sh_A_high == sh_B_high, so we can use either of them
    // to compute ec_A_low
    //
-   _arg.ec_high = _arg.get_sh_B_high().element_count();
-   _arg.ec_A_low = _arg.get_sh_A_low().element_count();
-   _arg.ec_B_low = _arg.get_sh_B_low().element_count();
+   _arg.ec_high = _arg.get_sh_B_high().get_volume();
+   _arg.ec_A_low = _arg.get_sh_A_low().get_volume();
+   _arg.ec_B_low = _arg.get_sh_B_low().get_volume();
 
    _arg.ZZ = new Value_P[_arg.ec_high];
    arg.A = A;
@@ -346,10 +345,9 @@ how_1:
 next_h:
    if (++_arg.h < _arg.ec_high)   goto loop_h;
 
-const ShapeItem ec_Z_max_low = _arg.get_sh_Z_max_low().element_count();
+const ShapeItem ec_Z_max_low = _arg.get_sh_Z_max_low().get_volume();
 Shape sh_Z = _arg.get_sh_B_high() + _arg.get_sh_Z_max_low();
 Value_P Z(new Value(sh_Z, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    loop(hh, _arg.ec_high)
       {
@@ -368,7 +366,7 @@ Cell * cZ = &Z->get_ravel(0);
         Cell * cZZ = &_arg.ZZ[hh]->get_ravel(0);
         loop(z, ec_Z_max_low)
            {
-             cZ++->init(*cZZ);
+             Z->next_ravel()->init(*cZZ);
              new (cZZ++) IntCell(0);
            }
       }

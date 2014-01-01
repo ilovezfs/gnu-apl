@@ -133,6 +133,16 @@ Cell::init_type(const Cell & other)
       }
 }
 //-----------------------------------------------------------------------------
+void
+Cell::copy(Value & val, const Cell * & src, ShapeItem count)
+{
+   loop(c, count)
+      {
+        Assert1(val.more());
+        val.next_ravel()->init(*src++);
+      }
+}
+//-----------------------------------------------------------------------------
 bool
 Cell::greater(const Cell * other, bool ascending) const
 {
