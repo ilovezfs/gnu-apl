@@ -31,33 +31,39 @@ class Shape
 public:
    /// constructor: shape of a skalar.
    Shape()
-   : rho_rho(0)
+   : rho_rho(0),
+     volume(1)
    {}
 
    /// constructor: shape of a vector of length \b len
    Shape(ShapeItem len)
-   : rho_rho(1)
+   : rho_rho(1),
+     volume(len)
    { rho[0] = len; }
 
    /// constructor: shape of a matrix with \b rows rows and \b cols columns
    Shape(ShapeItem rows, ShapeItem cols)
-   : rho_rho(2)
+   : rho_rho(2),
+     volume(rows*cols)
    { rho[0] = rows;   rho[1] = cols; }
 
    /// constructor: shape of a cube
    Shape(ShapeItem height, ShapeItem rows, ShapeItem cols)
-   : rho_rho(3)
+   : rho_rho(3),
+     volume(height*rows*cols)
    { rho[0] = height;   rho[1] = rows;   rho[2] = cols; }
 
    /// constructor: any shape
    Shape(Rank rk, const ShapeItem * sh)
-   : rho_rho(rk)
-   { loop(r, rk)   rho[r] = sh[r]; }
+   : rho_rho(0),
+     volume(1)
+   { loop(r, rk)   add_shape_item(sh[r]); }
 
    /// constructor: shape of another shape
    Shape(const Shape & other)
-   : rho_rho(other.rho_rho)
-   { loop(r, rho_rho)   rho[r] = other.rho[r]; }
+   : rho_rho(0),
+     volume(1)
+   { loop(r, other.rho_rho)   add_shape_item(other.rho[r]); }
 
    /// constructor: shape defined by the ravel of an APL value \b val
    /// throw RANK or LENGTH error where needed. Negative values are allowed
@@ -79,15 +85,14 @@ public:
    /// catenate two shapes, \b this shape provides the higher dimensions while
    /// \b lower provides the lower dimensions of the shape returned
    Shape operator +(const Shape & lower) const
-   { if ((rho_rho + lower.rho_rho) >= MAX_RANK)   LIMIT_ERROR_RANK;
-     Shape ret(*this);
-     loop(r, lower.rho_rho)    ret.rho[ret.rho_rho++] = lower.rho[r];
+   { Shape ret(*this);
+     loop(r, lower.rho_rho)    ret.add_shape_item(lower.rho[r]);
      return ret; }
 
    /// return true iff \b this shape equals \b other
    bool operator ==(const Shape & other) const;
 
-   /// return true iff \b this shape is different than \b other
+   /// return true iff \b this shape is different from \b other
    bool operator !=(const Shape & other) const
       { return ! (*this == other); }
 
@@ -116,23 +121,30 @@ public:
 
    /// modify dimension \b r
    void set_shape_item(Rank r, ShapeItem sh)
-      { Assert(r < rho_rho);   rho[r] = sh; }
+      { Assert(r < rho_rho);
+        if (rho[r])   { volume /= rho[r];  rho[r] = sh;  volume *= rho[r]; }
+        else          { rho[r] = sh;   recompute_volume();                 } }
+
+   /// recompute volume (after changing a dimension of len 0)
+   void recompute_volume()
+      { volume = 1;   loop(r, rho_rho)  volume *= rho[r]; }
 
    /// increment length of axis \b r by 1
    void increment_shape_item(Rank r)
-      { Assert(r < rho_rho);   ++rho[r]; }
+      { set_shape_item(r, rho[r] + 1); }
 
    /// set last dimension to \b sh
    void set_last_shape_item(ShapeItem sh)
-      { Assert(rho_rho > 0);   rho[rho_rho - 1] = sh; }
+      { set_shape_item(rho_rho - 1, sh); }
 
    /// add a dimension of length \b sh at the end
    void add_shape_item(ShapeItem len)
       { if (rho_rho >= MAX_RANK)   LIMIT_ERROR_RANK;
-        rho[rho_rho++] = len; }
+        rho[rho_rho++] = len;   volume *= len; }
 
    /// possibly increase rank by prepending axes of length 1
-   void expand_rank(Rank rk);
+   void expand_rank(Rank rk)
+      { while (rho_rho < rk)   add_shape_item(1); };
 
    /// possibly expand rank and increase axes so that B fits into this shape
    void expand(const Shape & B);
@@ -149,12 +161,8 @@ public:
       }
 
    /// return the number of elements (1 for skalars, else product of shapes)
-   ShapeItem element_count() const
-      { ShapeItem count = 1;  loop(r, rho_rho) count *= rho[r];  return count; }
-
-   /// return the number of elements, but at least 1.
-   ShapeItem nz_element_count() const
-      { const ShapeItem cnt = element_count(); return cnt ? cnt : 1; }
+   ShapeItem get_volume() const
+      { return volume; }
 
    /// return true iff one of the shape elements is (axis) \b axis
    bool contains_axis(const Rank ax) const
@@ -166,12 +174,13 @@ public:
         loop(r, rho_rho)   if (value.rho[r] >= rho[r])   return false;
         return true; }
 
-   /// return scan of the shapes, beginning at the end.
+   /// return scan of the shapes, beginning at the end (!)
    Shape reverse_scan() const
       { Shape ret;   ret.rho_rho = rho_rho;
         ShapeItem prod = 1;
+        ret.volume = 1;
         for (Rank r = rho_rho - 1; r >= 0; --r)
-           { ret.rho[r] = prod;   prod *= rho[r]; }
+           { ret.rho[r] = prod;   ret.volume *= prod;   prod *= rho[r]; }
         return ret; }
 
    /// throw an APL error if this shapes differs from shape B
@@ -182,25 +191,17 @@ public:
    bool is_empty() const
       { loop(r, rho_rho)   if (rho[r] == 0)   return true;   return false; }
 
-   /// return \b true if the shape items of \b this Shape are 0, 1, ... rank-1
-   bool is_permutation() const;
-
-   /// for \b this being a permutation of 0, 1, ... rank - 1,
-   /// return the inverse permutation
-   Shape inverse_permutation() const;
-
-   /// returmn a shape like this, but with axes permuted according to \b perm
-   Shape permute(const Shape & perm) const;
-
    /// return the position of \b idx in the ravel.
    ShapeItem ravel_pos(const Shape & idx) const;
 
 protected:
    /// the rank (number of valid shape items)
-   Rank      rho_rho;
+   Rank rho_rho;
 
    /// the shape
    ShapeItem rho[MAX_RANK];
+
+   ShapeItem volume;
 };
 // ----------------------------------------------------------------------------
 /// a shape of rank 3

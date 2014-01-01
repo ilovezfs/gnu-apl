@@ -469,7 +469,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
 
                    Value_P sub_val(new Value(sh, LOC));
                    const APL_Integer qio = Workspace::get_IO();
-                   loop(v, sh.element_count())
+                   loop(v, sh.get_volume())
                        {
                          new (&sub_val->get_ravel(v))   IntCell(v + qio);
                        }

@@ -549,6 +549,7 @@ public:
    static Svar_event clear_all_events()
       {
         SV_LOCKED(return the_Svar_DB.DB_memory->clear_all_events(); , )
+        return SVE_NO_EVENTS;   // not reached; suppress -Wreturn-type warnings
       }
 
    /// clear the events of one variable

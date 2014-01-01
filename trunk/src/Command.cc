@@ -911,7 +911,7 @@ Token_string tos;
      if (tokenizer.tokenize(data1, tos) != E_NO_ERROR)   return;
    }
  
-   if (tos.size() != shape.element_count())   return;
+   if (tos.size() != shape.get_volume())   return;
 
 Value_P val(new Value(shape, LOC));
    new (&val->get_ravel(0)) IntCell(0);   // prototype

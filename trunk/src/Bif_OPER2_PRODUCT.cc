@@ -58,7 +58,6 @@ Value_P Z(new Value(A->get_shape() + B->get_shape(), LOC));
 EOC_arg arg(Z, B, A);
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
-   _arg.cZ = &Z->get_ravel(0);
    _arg.len_A = A->element_count();
    _arg.len_B = B->element_count();
 
@@ -124,7 +123,7 @@ loop_b:
    if (result.get_Class() == TC_VALUE)
       {
         Value_P ZZ = result.get_apl_val();
-        _arg.cZ++->init_from_value(ZZ, LOC);
+        arg.Z->next_ravel()->init_from_value(ZZ, LOC);
         goto next_a_b;
       }
 
@@ -168,10 +167,10 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    //
    {
      Value_P ZZ = token.get_apl_val();
-     _arg.cZ++->init_from_value(ZZ, LOC);   // erase()s token.get_apl_val()
+     arg.Z->next_ravel()->init_from_value(ZZ, LOC);   // erase()s token.get_apl_val()
    }
 
-   // pop the SI unless this is the last cZ to be computed
+   // pop the SI unless this is the last ravel element of Z to be computed
    //
    {
       const bool more = _arg.a < (_arg.len_A - 1) || _arg.b < (_arg.len_B - 1);
@@ -210,8 +209,8 @@ ShapeItem len_B = 1;
 
    // we do not check len_A == len_B since LO may accept different lengths
 
-const ShapeItem items_A = shape_A1.element_count();
-const ShapeItem items_B = shape_B1.element_count();
+const ShapeItem items_A = shape_A1.get_volume();
+const ShapeItem items_B = shape_B1.get_volume();
 
    if (items_A == 0 || items_B == 0)   // empty result
       {
@@ -232,8 +231,6 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
    _arg.items_A = items_A;
    _arg.items_B = items_B;
-
-   _arg.cZ = &arg.Z->get_ravel(0);
 
    // create a vector with the rows of A
    //
@@ -311,9 +308,10 @@ loop_b:
         //
         if (_arg.a >= (_arg.items_A - 1) && _arg.b >= (_arg.items_B - 1))
            {
-             // at this point, the last cZ is being computed. If LO is not
-             // user defined, then this call is the last user defined
-             // function call. Otherwise the LO-call below will be the last.
+             // at this point, the last ravel element of Z is being computed.
+             // If LO is not // user defined, then this call is the last user
+             // defined function call.
+             // Otherwise the LO-call below will be the last.
              //
              if (!_arg.LO->may_push_SI())   _arg.last_ufun = true;
            }
@@ -342,7 +340,7 @@ how_1:
           Token LO(TOK_FUN1, _arg.LO);
           const Token T2 = Bif_OPER1_REDUCE::fun.eval_LB(LO, arg.V1);
           if (T2.get_tag() == TOK_ERROR)   return T2;
-          _arg.cZ++->init_from_value(T2.get_apl_val(), LOC);
+          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(), LOC);
 
           ptr_clear(arg.V1, LOC);
 
@@ -393,7 +391,7 @@ loop_v:
 how_2:
    if (--_arg.v1 >= 0)   goto loop_v;
 
-   _arg.cZ++->init_from_value(arg.V2, LOC);
+   arg.Z->next_ravel()->init_from_value(arg.V2, LOC);
 
    ptr_clear(arg.V1, LOC);
 

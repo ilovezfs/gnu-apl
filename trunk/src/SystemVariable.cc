@@ -468,13 +468,12 @@ int len = 0;
        }
 
 Value_P Z(new Value(len, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
    for (StateIndicator * si = Workspace::SI_top();
         si; si = si->get_parent())
        {
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)
-            new (cZ++)   IntCell(si->get_line());
+            new (Z->next_ravel())   IntCell(si->get_line());
        }
 
    Z->set_default(*Value::Zero_P);
@@ -914,12 +913,11 @@ Quad_SYL::get_apl_value() const
 {
 const Shape sh(SYL_MAX, 2);
 Value_P Z( new Value(sh, LOC));
-Cell * cZ = &Z->get_ravel(0);
 
 #define syl2(n, e, v) syl1(n, e, v)
 #define syl1(n, _e, v) \
-  new (cZ++) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC))); \
-  new (cZ++) IntCell(v);
+  new (Z->next_ravel()) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC))); \
+  new (Z->next_ravel()) IntCell(v);
 #include "SystemLimits.def"
 
    Z->check_value(LOC);

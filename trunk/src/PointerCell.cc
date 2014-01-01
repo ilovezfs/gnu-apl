@@ -144,7 +144,7 @@ PrintBuffer ret(*val, pctx);
                    if (sh.get_shape_item(r) == 0)   sh.set_shape_item(r, 1);
                  }
 
-             if (sh.element_count() == 1)   // one prototype
+             if (sh.get_volume() == 1)   // one prototype
                 {
                   ret = PrintBuffer(*proto, pctx);
                   ret.add_frame(PrintStyle(style), proto->get_rank(),

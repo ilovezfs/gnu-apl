@@ -59,7 +59,6 @@ Function * LO = _LO.get_function();
 EOC_arg arg(B);   arg.A = A;
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   _arg.cZ = 0;
    _arg.dA = 1;
    _arg.LO = LO;
    _arg.dB = 1;
@@ -98,7 +97,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
    _arg.cB = &B->get_ravel(0);
 
    // arg.Z can be 0 (if not x(LO->has_result())
-   if (!!arg.Z)   _arg.cZ = &arg.Z->get_ravel(0);
 
    _arg.how = 0;
    return finish_eval_ALB(arg);
@@ -133,10 +131,9 @@ loop_z:
      if (result.get_Class() == TC_VALUE)
         {
           Value_P vZ = result.get_apl_val();
-          if (_arg.sub)   new (_arg.cZ)  PointerCell(vZ);
-          else           _arg.cZ->init_from_value(vZ, LOC);
+          if (_arg.sub)   new (arg.Z->next_ravel())  PointerCell(vZ);
+          else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
 
-          ++_arg.cZ;
           goto next_z;   // next z
         }
 
@@ -182,8 +179,8 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
        Value_P vZ = token.get_apl_val();
-       if (_arg.sub)   new (_arg.cZ++)  PointerCell(vZ);
-       else           _arg.cZ++->init_from_value(vZ, LOC);
+       if (_arg.sub)   new (arg.Z->next_ravel())  PointerCell(vZ);
+       else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
       }
    else        // LO without result, maybe successful
       {
@@ -211,15 +208,7 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 
    _arg.LO = LO;
    _arg.cB = &B->get_ravel(0);
-   if (LO->has_result())
-      {
-        arg.Z = Value_P(new Value(B->get_shape(), LOC));
-        _arg.cZ = &arg.Z->get_ravel(0);
-      }
-   else
-      {
-        _arg.cZ = 0;
-      }
+   if (LO->has_result())   arg.Z = Value_P(new Value(B->get_shape(), LOC));
 
    _arg.count = B->element_count();
 
@@ -282,8 +271,8 @@ loop_z:
         {
           Value_P vZ = result.get_apl_val();
 
-          if (_arg.sub)   new (_arg.cZ++)   PointerCell(vZ);
-          else           _arg.cZ++->init_from_value(vZ, LOC);
+          if (_arg.sub)   new (arg.Z->next_ravel())   PointerCell(vZ);
+          else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
 
           goto next_z;
         }
@@ -320,8 +309,8 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
         Value_P vZ = token.get_apl_val();
-        if (_arg.sub)   new (_arg.cZ++)  PointerCell(vZ);
-        else           _arg.cZ++->init_from_value(vZ, LOC);
+        if (_arg.sub)   new (arg.Z->next_ravel())  PointerCell(vZ);
+        else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
       }
    else        // LO without result, maybe successful
       {

@@ -23,26 +23,28 @@
 
 //-----------------------------------------------------------------------------
 Shape::Shape(Value_P A, APL_Float qct, int qio_A)
+   : rho_rho(0),
+     volume(1)
 {
    // check that A is a shape value, like the left argument of A⍴B
    //
-   if (A->get_rank() > 1)   RANK_ERROR;
+   if (A->get_rank() > 1)               RANK_ERROR;
+   if (A->element_count() > MAX_RANK)   LIMIT_ERROR_RANK;   // of A
 
-   rho_rho = A->element_count();
-
-   if (rho_rho > MAX_RANK)   LIMIT_ERROR_RANK;   // of A
-
-   loop(r, rho_rho)   rho[r] = A->get_ravel(r).get_near_int(qct) - qio_A;
+   loop(r, A->element_count())
+      {
+        add_shape_item(A->get_ravel(r).get_near_int(qct) - qio_A);
+      }
 }
 //-----------------------------------------------------------------------------
 Shape Shape::abs() const
 {
 Shape ret;
-   ret.rho_rho = rho_rho;
    loop(r, rho_rho)
       {
-        if (rho[r] < 0)   ret.rho[r] = - rho[r];
-        else              ret.rho[r] =   rho[r];
+        const ShapeItem len = rho[r];
+        if (len < 0)   ret.add_shape_item(- len);
+        else           ret.add_shape_item(  len);
       }
 
    return ret;
@@ -60,18 +62,6 @@ Shape::operator ==(const Shape & other) const
 }
 //-----------------------------------------------------------------------------
 void
-Shape::expand_rank(Rank rk)
-{
-   if (rho_rho < rk)   // expand rank by prepending axes of length 1
-      {
-        const Rank diff = rk - rho_rho;
-        loop(r, rho_rho)   rho[r + diff] = rho[r];
-        loop(r, diff)   rho[r] = 1;
-        rho_rho = rk;
-      }
-}
-//-----------------------------------------------------------------------------
-void
 Shape::expand(const Shape & B)
 {
    // increase rank as necessary
@@ -80,9 +70,11 @@ Shape::expand(const Shape & B)
 
    // increase axes as necessary
    //
+   volume = 1;
    loop(r, rho_rho)
       {
         if (rho[r] < B.rho[r])   rho[r] = B.rho[r];
+        volume *= rho[r];
       }
 }
 //-----------------------------------------------------------------------------
@@ -93,58 +85,22 @@ Shape::insert_axis(Axis axis, ShapeItem len) const
 
    if (axis <= 0)   // insert before first axis
       {
-        Shape ret(len);
-        loop(r, get_rank())   ret.add_shape_item(get_shape_item(r));
-        return ret;
+        const Shape ret(len);
+        return ret + *this;
       }
 
    if (axis >= get_rank())   // insert after last axis
       {
-        Shape ret(*this);
-        ret.add_shape_item(len);
-        return ret;
+        const Shape ret(len);
+        return *this + ret;
       }
 
    // insert after (including) axis
    //
 Shape ret;
-   loop(r, axis)   ret.add_shape_item(get_shape_item(r));
-   ret.add_shape_item(len);
-   for (Rank r = axis; r < get_rank(); ++r)
-       ret.add_shape_item(get_shape_item(r));
-
-   return ret;
-}
-//-----------------------------------------------------------------------------
-Shape
-Shape::inverse_permutation() const
-{
-Shape ret;
-
-   // first, set all items to -1.
-   loop(r, get_rank())   ret.add_shape_item(-1);
-
-   // then, set all items to the shape items of this shape
-   loop(r, get_rank())
-       {
-         const ShapeItem rx = get_shape_item(r);
-         if (rx < 0)                         DOMAIN_ERROR;
-         if (rx >= get_rank())               DOMAIN_ERROR;
-         if (ret.get_shape_item(rx) != -1)   DOMAIN_ERROR;
-          ret.set_shape_item(rx, r);
-       }
-
-   return ret;
-}
-//-----------------------------------------------------------------------------
-Shape
-Shape::permute(const Shape & perm) const
-{
-Shape ret;
-   loop(r, perm.get_rank())
-      {
-        ret.add_shape_item(get_shape_item(perm.get_shape_item(r)));
-      }
+   loop(r, axis)                ret.add_shape_item(get_shape_item(r));
+                                ret.add_shape_item(len);
+   loop(r, get_rank() - axis)   ret.add_shape_item(get_shape_item(r + axis));
 
    return ret;
 }
@@ -155,7 +111,7 @@ Shape::ravel_pos(const Shape & idx) const
 ShapeItem p = 0;
 ShapeItem w = 1;
 
-   for(Rank r = get_rank(); r-- > 0;)
+   for (Rank r = get_rank(); r-- > 0;)
       {
         p += w*idx.get_shape_item(r);
         w *= get_shape_item(r);
@@ -176,29 +132,6 @@ Shape::check_same(const Shape & B, ErrorCode rank_err, ErrorCode len_err,
         if (get_shape_item(r) != B.get_shape_item(r))
            throw_apl_error(len_err, loc);
       }
-}
-//-----------------------------------------------------------------------------
-bool
-Shape::is_permutation() const
-{
-ShapeItem sh[get_rank()];
-
-   // first, set all items to -1.
-   //
-   loop(r, get_rank())   sh[r] = -1;
-
-   // then, set all items to the shape items of this shape
-   //
-   loop(r, get_rank())
-       {
-         const ShapeItem rx = get_shape_item(r);
-         if (rx < 0)             return false;
-         if (rx >= get_rank())   return false;
-         if (sh[rx] != -1)       return false;
-          sh[rx] = r;
-       }
-
-   return true;
 }
 //-----------------------------------------------------------------------------
 ostream &
