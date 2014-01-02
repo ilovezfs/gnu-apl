@@ -80,6 +80,12 @@ const APL_Integer handle = value.get_ravel(0).get_near_int(qct);
    DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
+static Token
+do_printf(FILE * file, Value_P A)
+{
+   TODO;
+}
+//-----------------------------------------------------------------------------
 extern "C" void * get_function_mux(const char * function_name);
 static Fun_signature get_signature();
 static Token eval_B(Value_P B);
@@ -151,6 +157,9 @@ list_functions(ostream & out)
 "   Zi ←    FUN[20] Bh    mkdir(Bc, 0777)\n"
 "   Zi ← Ai FUN[20] Bh    mkdir(Bc, AI)\n"
 "   Zi ←    FUN[21] Bh    rmdir(Bc)\n"
+"   Zi ← A  FUN[22] 1     printf(         A1, A2...) format A1\n"
+"   Zi ← A  FUN[22] 2     fprintf(stderr, A1, A2...) format A1\n"
+"   Zi ← A  FUN[22] Bh    fprintf(Bh,     A1, A2...) format A1\n"
 "\n";
 
    return Token(TOK_APL_VALUE1, Value::Str0_P);
@@ -521,6 +530,13 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 mkdir(path.c_str(), mask);
               }
               goto out_errno;
+
+         case 22:   // fprintf(Bc, Ai)
+              {
+                errno = 0;
+                file_entry & fe = get_file(*B.get());
+                return do_printf(fe.fe_file, A);
+              }
       }
 
    CERR << "eval_AXB() function number: " << function_number << endl;
