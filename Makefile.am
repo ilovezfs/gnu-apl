@@ -1,20 +1,16 @@
 
-SUBDIRS      = src po rpm debian
+SUBDIRS      = src support-files po rpm debian
 DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2
 
-dist_doc_DATA = README				\
-		README-1-prerequisites		\
-		README-2-configure		\
-		README-3-keyboard		\
-		README-4-compliance		\
-		README-5-WINDOWS		\
-                README-6-porting		\
-		keyboard			\
-		keyboard1			\
-		apl.vim				\
-		apl.1				\
-		apl.html			\
-		apl.xmodmap
+dist_doc_DATA = README			\
+		README-1-prerequisites	\
+		README-2-configure	\
+		README-3-keyboard	\
+		README-4-compliance	\
+		README-5-WINDOWS	\
+                README-6-porting	\
+		apl.1			\
+		apl.html
 		
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
@@ -22,6 +18,12 @@ nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 info_TEXINFOS = apl.texi
 
 man1_MANS = apl.1
+
+# apl.info in HTML format
+#
+apl.html:   apl.texi
+	    makeinfo --html apl.texi -o $@ --no-split
+
 
 # show make targets
 #
@@ -41,11 +43,6 @@ help:
 	@echo "additional tools that may not be present on your machine."
 	@echo ""
 
-# apl.info in HTML format
-#
-apl.html:   apl.texi
-	makeinfo --html apl.texi -o $@ --no-split
-
 # doxygen documentation
 #
 .PHONY:	DOXY
@@ -56,6 +53,7 @@ DOXY:
 #
 .PHONY:	RPM
 RPM:	dist
+	rm -f rpm/rpm-tmp.*
 	make -C rpm $@
 	mkdir -p ftp-upload
 	cp rpm/SRPMS/$(PACKAGE)-$(PACKAGE_VERSION)-0.src.rpm  ftp-upload/
@@ -123,3 +121,4 @@ am--refresh:
 ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = config.rpath m4/ChangeLog
+

@@ -80,15 +80,17 @@ LIBREADLINE=
 	    -lncurses)
 	])
 
-AC_CONFIG_FILES([Makefile po/Makefile.in po/Makefile
+AC_CONFIG_FILES([Makefile
                  debian/Makefile
                  debian/source/Makefile
+		 po/Makefile.in po/Makefile
                  rpm/Makefile
 		 rpm/apl.spec
                  src/Makefile
                  src/APs/Makefile
                  src/native/Makefile
                  src/testcases/Makefile
+		 support-files/Makefile
                  workspaces/Makefile
                  wslib1/Makefile
                  wslib2/Makefile])
