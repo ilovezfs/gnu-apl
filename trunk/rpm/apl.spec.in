@@ -68,6 +68,7 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/APnnn
 %{_bindir}/apl
 
+%{_libdir}/apl/*.0
 %{_libdir}/apl/*.so
 %{_libdir}/apl/*.a
 %{_libdir}/apl/*.la
