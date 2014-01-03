@@ -657,8 +657,8 @@ Please send comments on these web pages to
 send other questions to
 {x2y ("mailto:", xMAIL_GNU) A "<EM>", xMAIL_GNU, "</EM>"}.
 <P>
-Copyright (C) 2013 Free Software Foundation, Inc.,
-59 Temple Place - Suite 330, Boston, MA  02111,  USA
+Copyright (C) 2014 Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA  02110,  USA
 <P>
 Verbatim copying and distribution of this entire article is
 permitted in any medium, provided this notice is preserved.<P>

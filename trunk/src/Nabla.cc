@@ -79,7 +79,7 @@ Nabla::edit()
    while (!do_close)
        {
          const UCS_string prompt = current_line.print_prompt();
-         const char * line = (const char *)Input::get_user_line_1(&prompt);
+         const char * line = Input::get_user_line_nabla(&prompt);
          const UTF8_string utf(line);
          const UCS_string ucs(utf);
          if (const char * loc = parse_oper(ucs, false))

@@ -41,7 +41,25 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
    //
    {
      UTF8_string utf_so_name(so_path);
-     handle = dlopen(utf_so_name.c_str(), RTLD_NOW);
+     handle = 0;
+
+     if ((strchr(utf_so_name.c_str(), '/') == 0) &&
+         (strchr(utf_so_name.c_str(), '\\') == 0))
+        {
+          // the utf_so_name contains no path prefix, so we assume that the
+          // .so file lives in PKGLIBDIR. If not, dlopen will search the usual
+          // library paths.
+          //
+          UTF8_string pkg_path = PKGLIBDIR;
+          pkg_path.append('/');
+          pkg_path.append(utf_so_name);
+          handle = dlopen(pkg_path.c_str(), RTLD_NOW);
+        }
+
+     if (handle == 0)   // dlopen of library in PKGLIBDIR failed.
+        {
+          handle = dlopen(utf_so_name.c_str(), RTLD_NOW);
+        }
 
      if (handle == 0)   // dlopen failed
         {

@@ -81,9 +81,160 @@ const APL_Integer handle = value.get_ravel(0).get_near_int(qct);
 }
 //-----------------------------------------------------------------------------
 static Token
-do_printf(FILE * file, Value_P A)
+do_printf(FILE * out, Value_P A)
 {
-   TODO;
+   // A is expected to be a nested APL value. The first element shall be a 
+   // format string, followed by the values for each % field. Result is the
+   // number of characters (not bytes!) printed.
+   //
+int out_len = 0;
+int a = 0;   // index into A
+Value_P format = A->get_ravel(a++).get_pointer_value();
+
+   for (int f = 0; f < format->element_count(); /* no f++ */ )
+       {
+         const Unicode uni = format->get_ravel(f++).get_char_value();
+         if (uni != UNI_ASCII_PERCENT)   // not %
+            {
+              UCS_string ucs(uni);
+              UTF8_string utf(ucs);
+              fwrite(utf.c_str(), 1, utf.size(), out);
+              out_len++;
+              continue;
+            }
+
+         // % seen. copy field to fmt and fprintf it with the next argument
+         //
+         char fmt[40];
+         int fm = 0;   // an index into fmt;
+         fmt[fm++] = '%';
+         for (; fm < (sizeof(fmt) - 1); ++fm)
+             {
+               if (f >= format->element_count())
+                  {
+                    // end of format reached without seeing the format char.
+                    // we print the string and are done.
+                    //
+                    fwrite(fmt, 1, fm, out);
+                    out_len += fm;
+                    break;
+                  }
+               else
+                  {
+                    const Unicode un1 = format->get_ravel(f++).get_char_value();
+                    switch(un1)
+                       {
+                         // flag chars and field width/precision
+                         //
+                         case '#':
+                         case '0' ... '9':
+                         case '-':
+                         case ' ':
+                         case '+':
+                         case '\'':   // SUSE
+                         case 'I':    // glibc
+                         case '.':
+
+                         // length modifiers
+                         //
+                         case 'h':
+                         case 'l':
+                         case 'L':
+                         case 'q':
+                         case 'j':
+                         case 'z':
+                         case 't': fmt[fm++] = un1;
+                                   continue;
+
+                         // conversion specifier
+                         //
+                         case 'd':   case 'i':   case 'o':
+                         case 'u':   case 'x':   case 'X':   case 'p':
+                              {
+                                const APL_Integer iv =
+                                            A->get_ravel(a++).get_int_value();
+                                fmt[fm++] = un1;
+                                fmt[fm] = 0;
+                                out_len += fprintf(out, fmt, iv);
+                              }
+                              goto field_done;
+
+                         case 'e':   case 'E':   case 'f':   case 'F':
+                         case 'g':   case 'G':   case 'a':   case 'A':
+                              {
+                                const APL_Float fv =
+                                            A->get_ravel(a++).get_real_value();
+                                fmt[fm++] = un1;
+                                fmt[fm] = 0;
+                                out_len += fprintf(out, fmt, fv);
+                              }
+                              goto field_done;
+
+                         case 's':   // string or char
+                              if (A->get_ravel(a).is_character_cell())
+                                 goto cval;
+                              {
+                                Value_P str =
+                                        A->get_ravel(a++).get_pointer_value();
+                                UCS_string ucs(*str.get());
+                                UTF8_string utf(ucs);
+                                fwrite(utf.c_str(), 1, utf.size(), out); 
+                                out_len += ucs.size();   // not utf.size() !
+                              }
+                              goto field_done;
+
+                         case 'c':   // single char
+                         cval:
+                              {
+                                const Unicode cv =
+                                            A->get_ravel(a++).get_char_value();
+                                UCS_string ucs(un1);
+                                UTF8_string utf(ucs);
+                                 fwrite(utf.c_str(), 1, utf.size(), out); 
+                                ++out_len;
+                              }
+                              goto field_done;
+
+                         case 'n':
+                              out_len += fprintf(out, "%d", out_len);
+                              goto field_done;
+
+                         case 'm':
+                              out_len += fprintf(out, "%s", strerror(errno));
+                              goto field_done;
+
+
+                         case '%':
+                              if (fm == 0)   // %% is %
+                                 {
+                                   fputc('%', out);
+                                   ++out_len;
+                                   goto field_done;
+                                 }
+                              /* no break */
+
+                         default:
+                             {
+                               UCS_string & t4 = Workspace::more_error();
+                               t4.clear();
+                               t4.append_utf8("invalid format character ");
+                               t4.append(un1, LOC);
+                               t4.append_utf8(" in function 22 (aka. printf())"
+                                              " in module file_io:: ");
+                               DOMAIN_ERROR;   // bad format char
+                             }
+                       }
+                  }
+             }
+         field_done: ;
+       }
+
+   
+
+Value_P Z(new Value(LOC));   // skalar result
+   new (Z->next_ravel())   IntCell(out_len);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 extern "C" void * get_function_mux(const char * function_name);
