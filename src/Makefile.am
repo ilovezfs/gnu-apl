@@ -4,7 +4,7 @@ bin_PROGRAMS = apl
 
 datadir = @datadir@
 localedir = $(datadir)/locale
-DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
+DEFS = -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @DEFS@
 
 apl_SOURCES = \
 		    buildtag		buildtag.hh		\

@@ -31,6 +31,15 @@
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
+/// an optional function called before printing a prompt and reading input
+extern void (*start_input)();
+
+/// an optional function called after having read a line of input
+extern void (*end_input)();
+
+void (*start_input)() = 0;
+void (*end_input)() = 0;
+
 #if HAVE_LIBREADLINE
 
 bool Input::use_readline = true;
@@ -166,7 +175,7 @@ const UTF8 * buf = TestFiles::get_testcase_line();
    if (buf == 0)   // all reads from files failed
       {
         input_type = "U";
-        buf = get_user_line(&Workspace::get_prompt());
+        buf = get_user_line(&Workspace::get_prompt(), false);
       }
 
    if (buf == 0)   // ^D or end of file
@@ -227,9 +236,11 @@ Input::exit_readline()
 }
 //-----------------------------------------------------------------------------
 const unsigned char *
-Input::get_user_line(const UCS_string * prompt)
+Input::get_user_line(const UCS_string * prompt, bool from_nabla)
 {
-   Output::set_color_mode(Output::COLM_INPUT);
+   if (start_input)   (*start_input)();
+
+   if (!from_nabla)   Output::set_color_mode(Output::COLM_INPUT);
 
 const APL_time from = now();
 char * line;
@@ -261,16 +272,16 @@ UTF8 * l = (UTF8 *)line;
    return l;
 }
 //-----------------------------------------------------------------------------
-const unsigned char *
-Input::get_user_line_1(const UCS_string * prompt)
+const char *
+Input::get_user_line_nabla(const UCS_string * prompt)
 {
 const UTF8 * line = TestFiles::get_testcase_line();
-   if (line)   return line;
+   if (line)   return (const char *)line;
 
    if (input_file_FILE)   // a -f file is open
       {
         line = get_f_line(input_file_FILE);
-        if (line)   return line;
+        if (line)   return (const char *)line;
       }
 
    if (input_file_name)   // -f present, but not opened yet
@@ -294,7 +305,7 @@ const UTF8 * line = TestFiles::get_testcase_line();
         if (input_file_FILE)
            {
              line = get_f_line(input_file_FILE);
-             if (line)   return line;
+             if (line)   return (const char *)line;
            }
         else
            {
@@ -306,6 +317,10 @@ const UTF8 * line = TestFiles::get_testcase_line();
 
    // all reads from files failed.
    //
+   return (const char *)get_user_line(prompt, true);
+
+
+const APL_time from = now();
    if (!use_readline)
       {
         line = (UTF8 *)no_readline(prompt);
@@ -324,7 +339,10 @@ const UTF8 * line = TestFiles::get_testcase_line();
 
    while (*line && *line <= ' ')   ++line;
 
-   return line;
+const APL_time to = now();
+   Workspace::add_wait(to - from);
+
+   return (const char *)line;
 }
 //-----------------------------------------------------------------------------
 UCS_string
