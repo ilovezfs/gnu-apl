@@ -766,15 +766,32 @@ path of a shared library and B is the name of the function in APL.
 contains the implementation of a native function for reading and
 writing files (fopen(), fclose(), ...), For example:
 
-      ⍝ fix native function in file_io.so as FILE_IO
+      ⍝ fix native function in lib_file_io.so as FILE_IO
       ⍝
-      'file_io.so' ⎕FX 'FILE_IO'
+      'lib_file_io.so' ⎕FX 'FILE_IO'
 FILE_IO
 
       ⍝ show overview of sub-functions in FILE_IO
       ⍝
       FILE_IO ''
+   Functions provided by this library.
+   Assumes 'lib_file_io.so'  ⎕FX  'FUN'
 
+   Legend: e - error code
+           i - integer
+           h - file handle (integer)
+           s - string
+           A1, A2, ...  nested vector with elements A1, A2, ...
+
+           FUN     ''    print this text on stderr
+        '' FUN     ''    print this text on stdout
+           FUN[ 0] ''    print this text on stderr
+        '' FUN[ 0] ''    print this text on stdout
+
+   Zi ←    FUN[ 1] ''    errno (of last call)
+   Zs ←    FUN[ 2] Be    strerror(Be)
+   Zh ← As FUN[ 3] Bs    fopen(Bs, As) filename Bs mode As
+   Zh ←    FUN[ 3] Bs    fopen(Bs, "r") filename Bs
       ...
 
    The GNU APL package also contains other shared libraries as templates
@@ -2057,11 +2074,11 @@ Tag Table:
 Node: Top418
 Node: Chapter 11348
 Node: Chapter 213416
-Node: Chapter 327245
-Node: Chapter 428846
-Node: Chapter 530159
-Node: Section 5.130662
-Node: Section 5.255791
+Node: Chapter 327915
+Node: Chapter 429516
+Node: Chapter 530829
+Node: Section 5.131332
+Node: Section 5.256461
 
 End Tag Table
 

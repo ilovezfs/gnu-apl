@@ -97,36 +97,21 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
-file_io_la_LIBADD =
-am_file_io_la_OBJECTS = file_io.lo
-file_io_la_OBJECTS = $(am_file_io_la_OBJECTS)
-file_io_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(file_io_la_LDFLAGS) $(LDFLAGS) -o $@
-template_F0_la_LIBADD =
-am_template_F0_la_OBJECTS = template_F0.lo
-template_F0_la_OBJECTS = $(am_template_F0_la_OBJECTS)
-template_F0_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(template_F0_la_LDFLAGS) $(LDFLAGS) -o $@
-template_F12_la_LIBADD =
-am_template_F12_la_OBJECTS = template_F12.lo
-template_F12_la_OBJECTS = $(am_template_F12_la_OBJECTS)
-template_F12_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(template_F12_la_LDFLAGS) $(LDFLAGS) -o $@
-template_OP1_la_LIBADD =
-am_template_OP1_la_OBJECTS = template_OP1.lo
-template_OP1_la_OBJECTS = $(am_template_OP1_la_OBJECTS)
-template_OP1_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(template_OP1_la_LDFLAGS) $(LDFLAGS) -o $@
-template_OP2_la_LIBADD =
-am_template_OP2_la_OBJECTS = template_OP2.lo
-template_OP2_la_OBJECTS = $(am_template_OP2_la_OBJECTS)
-template_OP2_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(template_OP2_la_LDFLAGS) $(LDFLAGS) -o $@
+lib_file_io_la_LIBADD =
+am_lib_file_io_la_OBJECTS = file_io.lo
+lib_file_io_la_OBJECTS = $(am_lib_file_io_la_OBJECTS)
+lib_template_F0_la_LIBADD =
+am_lib_template_F0_la_OBJECTS = template_F0.lo
+lib_template_F0_la_OBJECTS = $(am_lib_template_F0_la_OBJECTS)
+lib_template_F12_la_LIBADD =
+am_lib_template_F12_la_OBJECTS = template_F12.lo
+lib_template_F12_la_OBJECTS = $(am_lib_template_F12_la_OBJECTS)
+lib_template_OP1_la_LIBADD =
+am_lib_template_OP1_la_OBJECTS = template_OP1.lo
+lib_template_OP1_la_OBJECTS = $(am_lib_template_OP1_la_OBJECTS)
+lib_template_OP2_la_LIBADD =
+am_lib_template_OP2_la_OBJECTS = template_OP2.lo
+lib_template_OP2_la_OBJECTS = $(am_lib_template_OP2_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -149,12 +134,12 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(file_io_la_SOURCES) $(template_F0_la_SOURCES) \
-	$(template_F12_la_SOURCES) $(template_OP1_la_SOURCES) \
-	$(template_OP2_la_SOURCES)
-DIST_SOURCES = $(file_io_la_SOURCES) $(template_F0_la_SOURCES) \
-	$(template_F12_la_SOURCES) $(template_OP1_la_SOURCES) \
-	$(template_OP2_la_SOURCES)
+SOURCES = $(lib_file_io_la_SOURCES) $(lib_template_F0_la_SOURCES) \
+	$(lib_template_F12_la_SOURCES) $(lib_template_OP1_la_SOURCES) \
+	$(lib_template_OP2_la_SOURCES)
+DIST_SOURCES = $(lib_file_io_la_SOURCES) $(lib_template_F0_la_SOURCES) \
+	$(lib_template_F12_la_SOURCES) $(lib_template_OP1_la_SOURCES) \
+	$(lib_template_OP2_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -310,22 +295,22 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-pkglib_LTLIBRARIES = file_io.la		\
-                  template_F0.la	\
-                  template_F12.la	\
-                  template_OP1.la	\
-                  template_OP2.la	
+pkglib_LTLIBRARIES = lib_file_io.la		\
+			lib_template_F0.la	\
+			lib_template_F12.la	\
+			lib_template_OP1.la	\
+			lib_template_OP2.la	
 
-file_io_la_SOURCES = file_io.cc
-file_io_la_LDFLAGS = -no-undefined -module -avoid-version -export-dynamic
-template_F0_la_SOURCES = template_F0.cc template.hh
-template_F0_la_LDFLAGS = -no-undefined -module -avoid-version -export-dynamic
-template_F12_la_SOURCES = template_F12.cc template.hh
-template_F12_la_LDFLAGS = -no-undefined -module -avoid-version -export-dynamic
-template_OP1_la_SOURCES = template_OP1.cc template.hh
-template_OP1_la_LDFLAGS = -no-undefined -module -avoid-version -export-dynamic
-template_OP2_la_SOURCES = template_OP2.cc template.hh
-template_OP2_la_LDFLAGS = -no-undefined -module -avoid-version -export-dynamic
+lib_template_F0_la_SOURCES = template_F0.cc template.hh
+lib_template_F0_la_LD_FLAGS = -module -avoid-version
+lib_template_F12_la_SOURCES = template_F12.cc template.hh
+lib_template_F12_la_LD_FLAGS = -module -avoid-version
+lib_template_OP1_la_SOURCES = template_OP1.cc template.hh
+lib_template_OP1_la_LD_FLAGS = -module -avoid-version
+lib_template_OP2_la_SOURCES = template_OP2.cc template.hh
+lib_template_OP2_la_LD_FLAGS = -module -avoid-version
+lib_file_io_la_SOURCES = file_io.cc
+lib_file_io_la_LD_FLAGS = -module -avoid-version
 all: all-am
 
 .SUFFIXES:
@@ -392,16 +377,16 @@ clean-pkglibLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-file_io.la: $(file_io_la_OBJECTS) $(file_io_la_DEPENDENCIES) $(EXTRA_file_io_la_DEPENDENCIES) 
-	$(file_io_la_LINK) -rpath $(pkglibdir) $(file_io_la_OBJECTS) $(file_io_la_LIBADD) $(LIBS)
-template_F0.la: $(template_F0_la_OBJECTS) $(template_F0_la_DEPENDENCIES) $(EXTRA_template_F0_la_DEPENDENCIES) 
-	$(template_F0_la_LINK) -rpath $(pkglibdir) $(template_F0_la_OBJECTS) $(template_F0_la_LIBADD) $(LIBS)
-template_F12.la: $(template_F12_la_OBJECTS) $(template_F12_la_DEPENDENCIES) $(EXTRA_template_F12_la_DEPENDENCIES) 
-	$(template_F12_la_LINK) -rpath $(pkglibdir) $(template_F12_la_OBJECTS) $(template_F12_la_LIBADD) $(LIBS)
-template_OP1.la: $(template_OP1_la_OBJECTS) $(template_OP1_la_DEPENDENCIES) $(EXTRA_template_OP1_la_DEPENDENCIES) 
-	$(template_OP1_la_LINK) -rpath $(pkglibdir) $(template_OP1_la_OBJECTS) $(template_OP1_la_LIBADD) $(LIBS)
-template_OP2.la: $(template_OP2_la_OBJECTS) $(template_OP2_la_DEPENDENCIES) $(EXTRA_template_OP2_la_DEPENDENCIES) 
-	$(template_OP2_la_LINK) -rpath $(pkglibdir) $(template_OP2_la_OBJECTS) $(template_OP2_la_LIBADD) $(LIBS)
+lib_file_io.la: $(lib_file_io_la_OBJECTS) $(lib_file_io_la_DEPENDENCIES) $(EXTRA_lib_file_io_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(pkglibdir) $(lib_file_io_la_OBJECTS) $(lib_file_io_la_LIBADD) $(LIBS)
+lib_template_F0.la: $(lib_template_F0_la_OBJECTS) $(lib_template_F0_la_DEPENDENCIES) $(EXTRA_lib_template_F0_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(pkglibdir) $(lib_template_F0_la_OBJECTS) $(lib_template_F0_la_LIBADD) $(LIBS)
+lib_template_F12.la: $(lib_template_F12_la_OBJECTS) $(lib_template_F12_la_DEPENDENCIES) $(EXTRA_lib_template_F12_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(pkglibdir) $(lib_template_F12_la_OBJECTS) $(lib_template_F12_la_LIBADD) $(LIBS)
+lib_template_OP1.la: $(lib_template_OP1_la_OBJECTS) $(lib_template_OP1_la_DEPENDENCIES) $(EXTRA_lib_template_OP1_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(pkglibdir) $(lib_template_OP1_la_OBJECTS) $(lib_template_OP1_la_LIBADD) $(LIBS)
+lib_template_OP2.la: $(lib_template_OP2_la_OBJECTS) $(lib_template_OP2_la_DEPENDENCIES) $(EXTRA_lib_template_OP2_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(pkglibdir) $(lib_template_OP2_la_OBJECTS) $(lib_template_OP2_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
