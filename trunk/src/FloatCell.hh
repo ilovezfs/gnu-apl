@@ -179,6 +179,11 @@ protected:
 
    /// Overloaded Cell::CDR_size()
    virtual int CDR_size() const { return 8; }
+
+   /// Some locales cause snprintf() to use , (comma) as decimal dots.
+   /// We accept both in strings generated with snprintf.
+   static bool is_dot(char cc)
+      { return (cc == '.') || (cc == ','); }
 };
 //=============================================================================
 

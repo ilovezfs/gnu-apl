@@ -258,6 +258,8 @@ char * line;
         line = readline_lib::readline(0);
       }
 
+   if (end_input)   (*end_input)();
+
 const APL_time to = now();
    Workspace::add_wait(to - from);
 

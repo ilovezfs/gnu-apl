@@ -527,7 +527,7 @@ bool fract_seen = false;   // true if least one fraction digit was seen
                             if (carry)   goto round_up;
                             else         goto found_end;
                           }
-                       else if (*end == '.')   // integer part == ⎕PP
+                       else if (is_dot(*end))   // integer part == ⎕PP
                           {
                             carry = (end[1] >= '5');
                             *end = 0;
@@ -545,6 +545,7 @@ bool fract_seen = false;   // true if least one fraction digit was seen
                   break;
 
              case '.':
+             case ',':
                   dot_seen = true;
                   break;
 
@@ -558,9 +559,9 @@ bool fract_seen = false;   // true if least one fraction digit was seen
 round_up:
    for (char * p = end - 1; p >= cc; --p)
        {
-         if (*p == '9')        { *p = '0'; }
-         else if (*p == '.')   ;
-         else                  { ++*p;   carry = false;   break; }
+         if (*p == '9')         { *p = '0'; }
+         else if (is_dot(*p))   ;
+         else                   { ++*p;   carry = false;   break; }
        }
 
    if (carry)   // first digit rounded up, e.g. 99.9 -> 100.0
@@ -587,7 +588,7 @@ found_end:
 
    // remove trailing dot
    //
-   if (end > cc && end[-1] == '.')   *--end = 0;
+   if (end > cc && is_dot(end[-1]))   *--end = 0;
 
    for (char * p = cc; *p; ++p)
        {
@@ -626,7 +627,7 @@ char * end = cc + strlen(cc);
       {
         char * E = end;   do --E; while (*E != 'E');
         char * Z = E;     while (Z[-1] == '0') --Z;
-        if (Z[-1] == '.')   --Z;   // trailing dot.
+        if (is_dot(Z[-1]))   --Z;   // trailing dot.
    
         if (Z != E)   // there are trailing zeros
            {
