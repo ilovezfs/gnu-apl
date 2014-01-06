@@ -215,6 +215,16 @@ public:
         items_valid += count;
       }
 
+   /// forget last element
+   void pop()
+      { if (items_valid)   --items_valid; }
+
+   const T & last() const
+      { return items[items_valid - 1]; }
+
+   T & last()
+      { return items[items_valid - 1]; }
+
    /// shrink to size 0
    void clear()
       { items_valid = 0; }

@@ -974,7 +974,7 @@ UCS_string new_buf(buffer[0], 0, col_info.int_len);
         const int diff = new_buf.size() - get_width(h);
         if (diff > 0)
            {
-             const UCS_string ucs(UNI_PAD_L4, diff);
+             const UCS_string ucs(diff, UNI_PAD_L4);
              buffer[h].append(ucs);
            }
       }

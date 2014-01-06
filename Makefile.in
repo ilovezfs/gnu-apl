@@ -1291,14 +1291,12 @@ EXPO:
 	svn update
 	cd src; source buildtag
 	svn -m "auto-commit by make EXPO" commit
-	make distclean
 	./configure
 	make
 	make dist
 	make DEB
 	make RPM
 	make SYNC
-	make distclean
 
 am--refresh:
 	echo "making am--refresh"

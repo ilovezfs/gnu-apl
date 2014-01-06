@@ -183,4 +183,7 @@ AC_ARG_VAR(COUT_COLOR_WANTED,   [ obsolete option ])
 AC_ARG_VAR(RESET_COLORS_WANTED, [ obsolete option ])
 AC_ARG_VAR(CLEAR_EOL_WANTED,    [ obsolete option ])
 
+# check if we are on i686 (to fix a strange rpmbuild problem
+AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])
+
 AC_OUTPUT
