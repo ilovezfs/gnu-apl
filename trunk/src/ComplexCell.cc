@@ -601,13 +601,12 @@ const APL_Complex ret( (sqrt(2*M_PI) / z)
 PrintBuffer
 ComplexCell::character_representation(const PrintContext & pctx) const
 {
-UCS_string ucs = pctx.get_scaled()
-   ? FloatCell::format_float_scaled(value.cpxp->real(), pctx)
-   : FloatCell::format_float_fract (value.cpxp->real(), pctx);
+bool scaled_real = pctx.get_scaled();   // may be changed by print function
+UCS_string ucs(value.cpxp->real(), scaled_real, pctx);
 
 ColInfo info;
    info.flags |= CT_COMPLEX;
-   if (pctx.get_scaled())   info.flags |= real_has_E;
+   if (scaled_real)   info.flags |= real_has_E;
 int int_fract = ucs.size();;
    info.real_len = ucs.size();
    info.int_len = ucs.size();
@@ -616,7 +615,7 @@ int int_fract = ucs.size();;
        if (ucs[u] == UNI_ASCII_FULLSTOP)
            {
              info.int_len = u;
-             if (!pctx.get_scaled())   break;
+             if (!scaled_real)   break;
              continue;
            }
 
@@ -632,12 +631,13 @@ int int_fract = ucs.size();;
    if (!is_near_real(Workspace::get_CT()))
       {
         ucs.append(UNI_ASCII_J);
-        ucs.append(pctx.get_scaled()
-            ? FloatCell::format_float_scaled(value.cpxp->imag(), pctx)
-            : FloatCell::format_float_fract (value.cpxp->imag(), pctx));
+        bool scaled_imag = pctx.get_scaled();  // may be changed by UCS_string()
+        const UCS_string ucs_i(value.cpxp->imag(), scaled_imag, pctx);
+
+        ucs.append(ucs_i);
 
         info.imag_len = ucs.size() - info.real_len;
-        if (pctx.get_scaled())   info.flags |= imag_has_E;
+        if (scaled_imag)   info.flags |= imag_has_E;
       }
 
    return PrintBuffer(ucs, info);
@@ -646,7 +646,10 @@ int int_fract = ucs.size();;
 bool
 ComplexCell::need_scaling(const PrintContext &pctx) const
 {
+   // a complex number needs scaling if the real part needs it, ot
+   // the complex part is significant and needs it.
    return FloatCell::need_scaling(value.cpxp->real(), pctx.get_PP()) ||
-          FloatCell::need_scaling(value.cpxp->imag(), pctx.get_PP());
+          (!is_near_real(Workspace::get_CT()) && 
+          FloatCell::need_scaling(value.cpxp->imag(), pctx.get_PP()));
 }
 //-----------------------------------------------------------------------------

@@ -139,7 +139,9 @@ const ShapeItem ec = val->element_count();
                 {
                   PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
                   const APL_Float value = cell.get_real_value();
-                  ucs.append( FloatCell::format_float_scaled(value, pctx));
+                  bool scaled = true;
+                  UCS_string ucs1(value, scaled, pctx);
+                  ucs.append(ucs1);
                 }
            }
       }
@@ -558,14 +560,19 @@ const Depth depth = value->compute_depth();
         else if (cell.is_complex_cell())
            {
              PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
-             ucs.append(FloatCell::format_float_scaled(cell.get_real_value(), pctx));
+             bool scaled = true;
+             UCS_string ucs1(cell.get_real_value(), scaled, pctx);
+             UCS_string ucs2(cell.get_imag_value(), scaled, pctx);
+             ucs.append(ucs1);
              ucs.append(UNI_ASCII_J);
-             ucs.append(FloatCell::format_float_scaled(cell.get_imag_value(), pctx));
+             ucs.append(ucs1);
            }
         else if (cell.is_float_cell())
            {
              PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
-             ucs.append(FloatCell::format_float_scaled(cell.get_real_value(), pctx));
+             bool scaled = true;
+             UCS_string ucs1(cell.get_real_value(), scaled, pctx);
+             ucs.append(ucs1);
            }
         else
            {

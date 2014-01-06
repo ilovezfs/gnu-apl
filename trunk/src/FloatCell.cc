@@ -411,18 +411,8 @@ FloatCell::bif_equal(Cell * Z, const Cell * A) const
 PrintBuffer
 FloatCell::character_representation(const PrintContext & pctx) const
 {
-bool scaled =  pctx.get_scaled();
-UCS_string ucs = scaled ? format_float_scaled(value.fval, pctx)
-                        : format_float_fract (value.fval, pctx);
-
-   // format_float_fract() could fail (number does not fit into ⎕PP), and
-   // then it returns an empty string
-   //
-   if (ucs.size() == 0)
-      {
-        scaled = true;
-        ucs = format_float_scaled(value.fval, pctx);
-      }
+bool scaled = pctx.get_scaled();   // may be changed by print function
+UCS_string ucs = UCS_string(value.fval, scaled, pctx);
 
 ColInfo info;
    info.flags |= CT_FLOAT;
@@ -455,215 +445,6 @@ int int_fract = ucs.size();;
    return PrintBuffer(ucs, info);
 }
 //-----------------------------------------------------------------------------
-UCS_string
-FloatCell::format_float_fract(double value, const PrintContext &pctx)
-{
-   if (is_small(value, pctx.get_PP()))   return UCS_string(UNI_ASCII_0);
-
-UCS_string ucs;
-
-   // expected result (⎕PP←4)
-   //
-   // 10÷3      3.333
-   // 1÷3       0.3333
-   // 0.1÷3     0.03333
-   // 0.01÷3    0.003333
-   // 0.001÷3   0.0003333
-
-   if (!finite(value))
-      {
-        if (isinf(value) ==  1)   return UCS_string(UTF8_string("+infinity"));
-        if (isinf(value) == -1)   return UCS_string(UTF8_string("-infinity"));
-        if (isnan(value) ==  1)   return UCS_string(UTF8_string("+NaN"));
-        if (isnan(value) == -1)   return UCS_string(UTF8_string("-NaN"));
-      }
-
-   if (value < 0)
-      {
-        ucs.append(UNI_OVERBAR);
-        value = -value;
-      }
-
-char cc[80];
-   snprintf(cc, sizeof(cc), "%.16lf", value);
-
-   // set end to the first digit after ⎕PP significant digits.
-   //
-int significant = 0;   // significant digits (before  and after the decimal dot)
-char * end = cc;
-bool carry = false;        // true if we need to round up
-bool dot_seen = false;     // true if the end of the integer part was reached
-bool fract_seen = false;   // true if least one fraction digit was seen
-
-   for (;;)
-      {
-        switch(*end++)
-           {
-             case 0:
-                  // end of cc reached before ⎕PP significant digits were seen.
-                  // That is, ⎕PP is very big or value = 0
-                  //
-                  if (!significant)
-                     {
-                       ucs.clear();   // -0
-                       cc[0] = '0';
-                       cc[1] = 0;
-                     }
-                  goto found_end;
-
-             case '0':
-                  if (!significant)   continue;   // leading '0'
-                  /* no break */
-
-             case '1' ... '9':
-                  ++significant;
-                  if (significant == pctx.get_PP())   // got ⎕PP digits
-                     {
-                       if (dot_seen)            // integer part < ⎕PP
-                          {
-                            fract_seen = true;
-                            carry = (*end >= '5');
-                            *end = 0;
-                            if (carry)   goto round_up;
-                            else         goto found_end;
-                          }
-                       else if (is_dot(*end))   // integer part == ⎕PP
-                          {
-                            carry = (end[1] >= '5');
-                            *end = 0;
-                            if (carry)   goto round_up;
-                            else         goto found_end;
-                          }
-                       else            // integer part > ⎕PP
-                          {
-                            return UCS_string();
-                          }
-                     }
-                  break;
-
-             case '-':
-                  break;
-
-             case '.':
-             case ',':
-                  dot_seen = true;
-                  break;
-
-             default:
-                Q(cc)   Q(end[-1])   FIXME;
-           }
-      }
-
-   Assert(0 && "Not reached");
-
-round_up:
-   for (char * p = end - 1; p >= cc; --p)
-       {
-         if (*p == '9')         { *p = '0'; }
-         else if (is_dot(*p))   ;
-         else                   { ++*p;   carry = false;   break; }
-       }
-
-   if (carry)   // first digit rounded up, e.g. 99.9 -> 100.0
-      {
-       if (!fract_seen)
-          {
-            // the number fits into ⎕PP before rounding up,
-            // but does not fit after rounding up.
-            //
-            return UCS_string();
-          }
-
-        *--end = 0;   // discard last digit
-        ucs.append(UNI_ASCII_1);   // prepend 1
-      }
-   
-found_end:
-   // maybe remove trailing zeros
-   //
-   if (dot_seen)
-      {
-        while (end > cc && end[-1] == '0')    *--end = 0;
-      }
-
-   // remove trailing dot
-   //
-   if (end > cc && is_dot(end[-1]))   *--end = 0;
-
-   for (char * p = cc; *p; ++p)
-       {
-         if (*p == '-')        ucs.append(UNI_OVERBAR);
-         else                  ucs.append(Unicode(*p));
-       }
-
-   // apply ⎕FC chars
-   //
-   map_FC(ucs);
-
-   return ucs;
-}
-//-----------------------------------------------------------------------------
-UCS_string
-FloatCell::format_float_scaled(double value, const PrintContext &pctx)
-{
-char format[20];
-   snprintf(format, sizeof(format), "%%.%dE", pctx.get_PP() - 1);
-
-char cc[80];
-    snprintf(cc, sizeof(cc), format, value);
-
-char * end = cc + strlen(cc);
-   if (  end[-2] == '0' &&     // leading zero in exponent ?
-       ( end[-3] == '+' ||     // yes: +0x   
-         end[-3] == '-'))      // yes: -0x   
-      {
-        end[-2] = end[-1];
-        *--end = 0;
-      }
-
-   // maybe remove trailing 0 in the fractional part.
-   //
-   if (pctx.get_style() & PST_NO_FRACT_0)
-      {
-        char * E = end;   do --E; while (*E != 'E');
-        char * Z = E;     while (Z[-1] == '0') --Z;
-        if (is_dot(Z[-1]))   --Z;   // trailing dot.
-   
-        if (Z != E)   // there are trailing zeros
-           {
-             while (*E)   *Z++ = *E++;
-             end = Z;
-             *end = 0;
-           }
-      }
-
-   // maybe remove E0
-   if (pctx.get_style() & PST_NO_EXPO_0)
-      {
-        if (end[-1] == '0' && end[-2] == '+' && end[-3] == 'E')
-           {
-             end -= 3;
-             *end = 0;
-           }
-      }
-
-UCS_string ucs;
-
-   // replace '-' by OVERBAR and remove + in exponent
-   for (const char * c = cc; *c; ++c)
-       {
-         if (*c == '-')        ucs.append(UNI_OVERBAR);
-         else if (*c == '+')   ;
-         else                  ucs.append(Unicode(*c));
-       }
-
-   // apply ⎕FC chars
-   //
-   map_FC(ucs);
-
-   return ucs;
-}
-//-----------------------------------------------------------------------------
 bool
 FloatCell::is_big(APL_Float val, int quad_pp)
 {
@@ -692,39 +473,6 @@ static const double big[MAX_QUAD_PP + 1] =
 }
 //-----------------------------------------------------------------------------
 bool
-FloatCell::is_small(APL_Float val, int quad_pp)
-{
-   return val == 0.0;
-
-   if (quad_pp == MAX_QUAD_PP)   return val == 0.0;
-
-static const double zero[MAX_QUAD_PP + 1] =
-{
-  1, // not used since MIN_QUAD_PP == 1
-  0.1,
-  0.01,
-  0.001,
-  0.0001,
-  0.00001,
-  0.000001,
-  0.0000001,
-  0.00000001,
-  0.000000001,
-  0.0000000001,
-  0.00000000001,
-  0.000000000001,
-  0.0000000000001,
-  0.00000000000001,
-  0.000000000000001,
-  0.0000000000000001,
-};
-
-   if (val < 0)   return (- val) < zero[quad_pp];
-   else           return (  val) < zero[quad_pp];
-
-}
-//-----------------------------------------------------------------------------
-bool
 FloatCell::need_scaling(APL_Float val, int quad_pp)
 {
    // A number is printed in scaled format if (see lrm pp. 11-13) either:
@@ -737,8 +485,11 @@ FloatCell::need_scaling(APL_Float val, int quad_pp)
    //
    if (val < 0)   val = - val;   // simplify comparisons
 
-   if (is_big(val, quad_pp))  return true;                      // case 1.
-   if (val < 0.000001)        return !is_small(val, quad_pp);   // case 2
+   if (is_big(val, quad_pp))        return true;    // case 1.
+
+   if (val == 0.0)                  return false;   // not 2a.
+
+   if (val < 0.000001)              return true;    // case 2
 
    return false;
 }

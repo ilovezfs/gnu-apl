@@ -261,6 +261,7 @@ dist_testcase_DATA = \
 	AP100.tc				\
 	AP210.tc				\
 	APnnn_1011.sh APnnn_1011.tc2 APnnn.tc	\
+	File_IO.tc				\
 	NativeFunctions.tc			\
 	Quad_ARG.tc				\
 	Quad_CR.tc				\

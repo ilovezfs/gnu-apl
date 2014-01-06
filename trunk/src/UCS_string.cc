@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "Common.hh"
+#include "FloatCell.hh"
 #include "Output.hh"
 #include "PrintBuffer.hh"
 #include "PrintOperator.hh"
@@ -97,57 +98,175 @@ UCS_string::UCS_string(const UTF8_string & utf)
       CERR << "UCS_string::UCS_string(): ucs = " << *this << endl;
 }
 //-----------------------------------------------------------------------------
-UCS_string::UCS_string(APL_Float value, int mant_digs)
+UCS_string::UCS_string(APL_Float value, bool & scaled,
+                       const PrintContext & pctx)
    : Simple_string<Unicode>(0, 0)
 {
-int digs = mant_digs;
-   if (digs > 20)   digs = 20;
-   if (digs <  1)   digs = 1;
+int quad_pp = pctx.get_PP();
+   if (quad_pp > MAX_QUAD_PP)   quad_pp = MAX_QUAD_PP;
+   if (quad_pp < MIN_QUAD_PP)   quad_pp = MIN_QUAD_PP;
 
-char format[20];
-   snprintf(format, sizeof(format), "%%.%dE", digs - 1);
+const bool negative = (value < 0);
+   if (negative)   value = -value;
 
-char data[40];
-   snprintf(data, sizeof(data), format, value);
+int expo = 0;
 
-const char * d = data;
-
-   // skip leading 0s
-   //
-   while (*d == '0')   ++d;
-
-bool e_seen = false;
-bool skipping = false;   // skip leading 0s in exponent
-
-   while (*d)
+   if (value >= 10.0)   // large number, positive exponent
       {
-        const char cc = *d++;
-        if (cc == 'E')
+       while (value >= 1e16)
+             {
+               if (value > 1e307)
+                  { append(negative ? UNI_ASCII_MINUS : UNI_ASCII_PLUS);
+                    append(UNI_INFINITY);
+                    FloatCell::map_FC(*this);
+                    return;
+                  }
+               value *= 1e-16;   expo += 16;
+             }
+       while (value >= 1e4)    { value *= 1e-4;    expo +=  4; }
+       while (value >= 1e1)    { value *= 1e-1;    ++expo;     }
+      }
+   else if (value < 1.0)   // small number, negative exponent
+      {
+       while (value < 1e-16)
+             {
+               if (value < 1e-305)   // very small number: make it 0
+                  {
+                    append(UNI_ASCII_0);
+                    return;
+                  }
+               value *= 1e16;   expo -= 16;
+             }
+       while (value < 1e-4)    { value *= 1e4;    expo -=  4; }
+       while (value < 1.0)     { value *= 10.0;   --expo;     }
+      }
+
+   // In theory, at this point, 1.0 ≤ value < 10.0. In reality value can
+   // be outside, though, due to rounding errors.
+
+   // create a string with quad_pp + 1 significant digits.
+   // The last digit is used for rounding and then discarded.
+   //
+UCS_string digits;
+   loop(d, (quad_pp + 2))
+      {
+        if (value >= 10.0)
            {
-             e_seen = true;
-             skipping = true;
-             append(UNI_ASCII_E);
+             digits.append((Unicode)(10 + '0'));
+             value = 0.0;
            }
-        else if (cc == '-')
+        else if (value < 0.0)
            {
-             append(UNI_OVERBAR);
-           }
-        else if (!e_seen)   // copy mantissa as is
-           {
-             append(Unicode(cc));
-           }
-        else if (cc == '+')
-           {
-           }
-        else if (cc == '0' && skipping)
-           {
+             digits.append((Unicode)('0'));
+             value = 0.0;
            }
         else
            {
-             skipping = false;
-             append(Unicode(cc));
+             const int dig = (int)value;
+             value -= dig;
+             value *= 10;
+             digits.append((Unicode)(dig + '0'));
            }
       }
+
+   if (digits[0] != '0')   digits.pop();
+
+   // round last digit
+   //
+const Unicode last = digits.last();
+   digits.pop();
+
+   if (last >= '5')   digits.last() = (Unicode)(digits.last() + 1);
+ 
+   // adjust carries of 2nd to last digit
+   //
+   for (int d = digits.size() - 1; d > 0; --d)   // all but first
+       {
+        if (digits[d] > '9')
+           {
+             digits[d] =     (Unicode)(digits[d]     - 10);
+             digits[d - 1] = (Unicode)(digits[d - 1] +  1);
+           }
+       }
+
+   // adjust carry of 1st digit
+   //
+   if (digits[0] > '9')
+      {
+        digits[0] = (Unicode)(digits[0] - 10);
+        digits.insert_before(0, UNI_ASCII_1);
+        ++expo;
+        digits.pop();
+      }
+
+   // remove trailing zeros
+   //
+   while (digits.size() && digits.last() == UNI_ASCII_0)   digits.pop();
+
+   // force scaled format if:
+   //
+   // value < .00001     ( value has ≥ 5 leading zeroes)
+   // value > 10⋆quad_pp ( integer larger than ⎕PP)
+   //
+   if ((expo < -6) || (expo > quad_pp))   scaled = true;
+
+   if (negative)   append(UNI_OVERBAR);
+
+   if (scaled)
+      {
+        append(digits[0]);       // integer part
+        if (digits.size() > 1)   // fractional part
+           {
+             append(UNI_ASCII_FULLSTOP);
+             loop(d, (digits.size() - 1))   append(digits[d + 1]);
+           }
+        if (expo < 0)
+           {
+             append(UNI_ASCII_E);
+             append(UNI_OVERBAR);
+             append_number(-expo);
+           }
+        else if (expo > 0)
+           {
+             append(UNI_ASCII_E);
+             append_number(expo);
+           }
+        else if (!(pctx.get_style() & PST_NO_EXPO_0)) // expo == 0
+           {
+             append(UNI_ASCII_E);
+             append(UNI_ASCII_0);
+           }
+      }
+   else
+      {
+        if (expo < 0)   // 0.000...
+           {
+             append(UNI_ASCII_0);
+             append(UNI_ASCII_FULLSTOP);
+             loop(e, (-(expo + 1)))   append(UNI_ASCII_0);
+             append(digits);
+           }
+        else   // expo >= 0
+           {
+             loop(e, expo + 1)
+                {
+                  if (e < digits.size())   append(digits[e]);
+                  else                     append(UNI_ASCII_0);
+                }
+
+             if ((expo + 1) < digits.size())   // there are fractional digits
+                {
+                  append(UNI_ASCII_FULLSTOP);
+                  for (int e = expo + 1; e < digits.size(); ++e)
+                     {
+                       if (e < digits.size())   append(digits[e]);
+                       else                     break;
+                     }
+                }
+           }
+      }
+
+   FloatCell::map_FC(*this);
 }
 //-----------------------------------------------------------------------------
 UCS_string::UCS_string(const PrintBuffer & pb, Rank rank)

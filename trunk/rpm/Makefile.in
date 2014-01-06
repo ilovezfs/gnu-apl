@@ -225,6 +225,11 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 TAR_FILENAME = $(PACKAGE)-$(VERSION).tar.gz
 RPM_DIRS = BUILD BUILDROOT SOURCES RPMS SPECS SRPMS
+RPM_ARGS = -ba SPECS/apl.spec --buildroot $(abs_top_builddir)/rpm/BUILDROOT
+@ON_i686_FALSE@RPM_i686 = 
+
+# work around a problem that sets -march=i386 on my box
+@ON_i686_TRUE@RPM_i686 = --target i486
 all: all-am
 
 .SUFFIXES:
@@ -424,7 +429,7 @@ RPM:
 	mkdir  $(RPM_DIRS)
 	cp apl.spec SPECS/
 	cp ../$(TAR_FILENAME) SOURCES/
-	rpmbuild -ba SPECS/apl.spec --buildroot $(abs_top_builddir)/rpm/BUILDROOT
+	rpmbuild $(RPM_ARGS) $(RPM_i686)
 
 clean-local:
 	rm -Rf BUILD BUILDROOT SOURCES RPMS SPECS SRPMS

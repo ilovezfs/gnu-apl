@@ -32,6 +32,7 @@
 using namespace std;
 
 class PrintBuffer;
+class PrintContext;
 class Value;
 
 //=============================================================================
@@ -73,9 +74,9 @@ public:
    /// constructor: UCS_string from print buffer
    UCS_string(const PrintBuffer & pb, Rank rank);
 
-   /// constructor: UCS_string from a double with n mantissa digits.
-   /// (eg.g 3.33 has 3 digits), In standard APL format.
-   UCS_string(APL_Float value, int mant_digs);
+   /// constructor: UCS_string from a double with quad_pp valid digits.
+   /// (eg. 3.33 has 3 digits), In standard APL format.
+   UCS_string(APL_Float value, bool & scaled, const PrintContext & pctx);
 
    /// constructor: read one line from UTF8-encoded file.
    UCS_string(istream & in);

@@ -103,17 +103,8 @@ public:
    /// the Quad_CR representation of this cell.
    virtual PrintBuffer character_representation(const PrintContext &pctx) const;
 
-   /// format \b value according to \b quad_pp
-   static UCS_string format_float_scaled(double val, const PrintContext &pctx);
-
-   /// format \b value according to \b quad_pp
-   static UCS_string format_float_fract(double val, const PrintContext &pctx);
-
    /// return true if the integer part of val is longer than ⎕PP
    static bool is_big(APL_Float val, int quad_pp);
-
-   /// return true if abs(val) is smaller than ⎕PP
-   static bool is_small(APL_Float val, int quad_pp);
 
    /// return true iff this cell needs scaling (exponential format) in pctx.
    virtual bool need_scaling(const PrintContext &pctx) const
@@ -179,11 +170,6 @@ protected:
 
    /// Overloaded Cell::CDR_size()
    virtual int CDR_size() const { return 8; }
-
-   /// Some locales cause snprintf() to use , (comma) as decimal dots.
-   /// We accept both in strings generated with snprintf.
-   static bool is_dot(char cc)
-      { return (cc == '.') || (cc == ','); }
 };
 //=============================================================================
 
