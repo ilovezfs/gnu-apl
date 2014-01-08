@@ -16,4 +16,6 @@ README-1-prerequisites:   what else is needed to install GNU APL
 README-2-configure:       GNU APL specific ./configure options
 README-3-keyboard:        how to set up your keyboard for APL characters
 README-4-compliance:      compliance information
+README-5-WINDOWS:         notes for Windows users
+README-6-porting:         notes for various operating systems
 

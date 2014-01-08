@@ -48,8 +48,8 @@ struct ValueStackItem
 
    /// constructor: ValueStackItem for a variable
    ValueStackItem(Value_P val)
-   : name_class(NC_VARIABLE),
-     apl_val(val)
+   : apl_val(val),
+     name_class(NC_VARIABLE)
    {}
 
    /// constructor: ValueStackItem for a shared variable

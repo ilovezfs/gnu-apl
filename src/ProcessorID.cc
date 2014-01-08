@@ -72,8 +72,10 @@ ProcessorID::init(bool do_sv, int proc_id, int par_id)
    if (APnnn_port == 0)
       {
         CERR << "*** Failed to start APnnn: processor " << id.proc
-             << " will not accept incoming shared variable offers." << endl;
-        return true;
+             << " will not accept incoming shared"
+                " variable offers. Expect surprises." << endl;
+        doing_SV = false;
+        return false;   // no error in order to continue.
       }
 
    new (&APnnn_socket) UdpClientSocket(LOC, APnnn_port, 0);

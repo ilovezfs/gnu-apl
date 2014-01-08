@@ -18,8 +18,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../config.h"   // for HAVE_ macros from configure
+
+#if HAVE_CURSES_H && HAVE_CURSES_H
+
 #include <curses.h>
 #include <term.h>
+
+#else
+
+#define tputs(x, y, z)
+#define setupterm(x, y, z) -1
+
+#endif
 
 #include "Command.hh"
 #include "Common.hh"
@@ -168,7 +179,7 @@ void
 Output::init()
 {
 int ret = setupterm(NULL, fileno(stdout), NULL);
-   if (ret != OK)
+   if (ret != 0)
       {
         use_curses = false;
       }

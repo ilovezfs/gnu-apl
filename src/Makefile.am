@@ -1,4 +1,5 @@
-SUBDIRS = APs native testcases
+SUBDIRS = APs native
+DIST_SUBDIRS = $(SUBDIRS) testcases
 
 bin_PROGRAMS = apl
 

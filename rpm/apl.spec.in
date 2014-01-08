@@ -81,10 +81,17 @@ make DESTDIR=%{buildroot} install
 %doc README-2-configure
 %doc README-3-keyboard
 %doc README-4-compliance
+%doc README-5-WINDOWS
+%doc README-6-porting
+%doc README-7-more-info
+%doc support-files/apl.loadkeys
+%doc support-files/apl.vim
+%doc support-files/apl.xkb
+%doc support-files/apl.xkm
 %doc support-files/apl.xmodmap
 %doc support-files/apl.vim
-%doc support-files/keyboard
-%doc support-files/keyboard1
+%doc support-files/keyboard.txt
+%doc support-files/keyboard1.txt
 
 %{_docdir}/*
 %{_infodir}/*

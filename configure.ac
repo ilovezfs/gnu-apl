@@ -20,8 +20,17 @@ AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h inttypes.h stdint.h stdlib.h utmpx.h \
-                  string.h strings.h unistd.h execinfo.h])
+AC_CHECK_HEADERS([	    \
+	curses.h term.h	    \
+	execinfo.h	    \
+	fcntl.h		    \
+	inttypes.h	    \
+	stdint.h	    \
+	stdlib.h	    \
+        string.h	    \
+	strings.h	    \
+	unistd.h	    \
+	utmpx.h		    ])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -176,12 +185,14 @@ if test "x$SHORT_VALUE_LENGTH_WANTED" = "x"; then SHORT_VALUE_LENGTH_WANTED=12; 
 AC_DEFINE_UNQUOTED([SHORT_VALUE_LENGTH_WANTED], [$SHORT_VALUE_LENGTH_WANTED],
                    [short value cellcount])
 
+
 # APL: desired colors for CERR, CIN, and COUT ?
 AC_ARG_VAR(CERR_COLOR_WANTED,   [ obsolete option ])
 AC_ARG_VAR(CIN_COLOR_WANTED,    [ obsolete option ])
 AC_ARG_VAR(COUT_COLOR_WANTED,   [ obsolete option ])
 AC_ARG_VAR(RESET_COLORS_WANTED, [ obsolete option ])
 AC_ARG_VAR(CLEAR_EOL_WANTED,    [ obsolete option ])
+
 
 # check if we are on i686 (to fix a strange rpmbuild problem
 AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])

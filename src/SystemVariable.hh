@@ -492,7 +492,8 @@ protected:
    virtual void assign(Value_P value, const char * loc);
 
    // should never be called due to overloaded resolve()
-   virtual Value_P get_apl_value() const { Assert(0); }
+   virtual Value_P get_apl_value() const
+      { Assert(0);   /* not reached */ return Value_P(); }
 };
 //-----------------------------------------------------------------------------
 /**

@@ -69,8 +69,8 @@ protected:
 
    virtual bool may_push_SI() const
       { return   oper->may_push_SI()
-        || left_fun .is_function() && left_fun .get_function()->may_push_SI()
-        || right_fun.is_function() && right_fun.get_function()->may_push_SI(); }
+        || (left_fun .is_function() && left_fun .get_function()->may_push_SI())
+        || (right_fun.is_function() && right_fun.get_function()->may_push_SI()); }
 
    /// the function (to the left of the operator)
    Token left_fun;

@@ -1,6 +1,6 @@
 
-SUBDIRS      = src support-files po rpm debian
-DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2
+SUBDIRS      = src support-files po
+DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2 rpm debian
 
 dist_doc_DATA = README			\
 		README-1-prerequisites	\
@@ -9,9 +9,9 @@ dist_doc_DATA = README			\
 		README-4-compliance	\
 		README-5-WINDOWS	\
                 README-6-porting	\
+		README-7-more-info	\
 		apl.1			\
 		apl.html
-		
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 
