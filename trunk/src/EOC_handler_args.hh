@@ -270,22 +270,22 @@ class EOC_arg
 {
 public:
    /// constructor for dyadic derived function
-   EOC_arg(Value_P _Z, Value_P _B, Value_P _A)
-   : Z(_Z),
-     B(_B),
-     A(_A)
+   EOC_arg(Value_P vpZ, Value_P vpB, Value_P vpA)
+   : Z(vpZ),
+     B(vpB),
+     A(vpA)
    {}
 
    /// constructor for monadic derived function without result (or
    /// result created at return)
-   EOC_arg(Value_P _B)
-   : B(_B)
+   EOC_arg(Value_P vpB)
+   : B(vpB)
    {}
 
    /// constructor for monadic derived function with result
-   EOC_arg(Value_P _Z, Value_P _B)
-   : Z(_Z),
-     B(_B)
+   EOC_arg(Value_P vpZ, Value_P vpB)
+   : Z(vpZ),
+     B(vpB)
    {}
 
    /// copy constructor

@@ -328,8 +328,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src support-files po rpm debian
-DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2
+SUBDIRS = src support-files po
+DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2 rpm debian
 dist_doc_DATA = README			\
 		README-1-prerequisites	\
 		README-2-configure	\
@@ -337,6 +337,7 @@ dist_doc_DATA = README			\
 		README-4-compliance	\
 		README-5-WINDOWS	\
                 README-6-porting	\
+		README-7-more-info	\
 		apl.1			\
 		apl.html
 

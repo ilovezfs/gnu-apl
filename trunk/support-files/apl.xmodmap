@@ -1,3 +1,9 @@
+! This file puts APL characters on the Alt/ShiftAlt plane of your (US-)keyboard.
+!
+! Install with:
+!
+! xmodmap apl.xmodmap
+!
 keycode   8 =
 keycode   9 = Escape
 keycode  10 = 1            exclam      U00A8      U00A1

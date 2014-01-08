@@ -1,8 +1,9 @@
 
 # testcases that may be of interest
 
-testcasedir   = $(srcdir)/testcases
-dist_testcase_DATA =	\
+# put them into apl-x.x.tar.gz, but don't install them.
+#
+dist_noinst_DATA =				\
 	AAA0_Global_Settings.tc			\
 	AP100.tc				\
 	AP210.tc				\

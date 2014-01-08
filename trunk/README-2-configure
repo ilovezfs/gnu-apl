@@ -1,7 +1,9 @@
 
 The APL interpreter can be configured by means of ./configure options (see
-also file INSTALL in this folder). In addition to the standard options that
-are described in INSTALL, the following options are recognized:
+also file INSTALL in this directory). In addition to the standard options
+provided by ./configure (that are described in file INSTALL),
+the following GNU APL specific ./configure options are recognized:
+
 
 --without-readline
     GNU APL uses libreadline for reading APL characters from the keyboard.
@@ -94,14 +96,14 @@ PRINT_SEMA_WANTED=yes
    channels (cout and cerr) as the interpreter, and the garbled output can
    be difficult to read. With PRINT_SEMA_WANTED=yes, a semaphore makes sure
    that output lines from different sources are not mixed. The downside of
-   this is a lower performance on output. Example:
+   this is a slightly lower performance on output. Example:
 
     ./configure PRINT_SEMA_WANTED=yes
 
 
 VALUE_CHECK_WANTED=yes
     There is a function called check_value() that checks every new APL value
-    for consistency. This check helps finding faults in the interpreter, but
+    for completeness. This check helps finding faults in the interpreter, but
     decreases the performance of the interpreter. Example:
 
     ./configure VALUE_CHECK_WANTED=yes
@@ -121,8 +123,9 @@ VF_TRACING_WANTED=yes
 
     ./configure VF_TRACING_WANTED=yes
 
+
 SHORT_VALUE_LENGTH_WANTED=12
-   The interpreter distinguishes long values and short values. Short values
+   The interpreter distinguishes long values and short APL values. Short values
    are allocated with a single call to "new" that allocates the Shape of the
    value and its ravel. Long values allocate the value header with one call to
    "new" and then the ravel with another call to "new". Long values are
@@ -151,6 +154,7 @@ interpreter is to not use any options, i.e:
 The typical setting for software development of the APL interpreter is:
 
     ./configure VALUE_CHECK_WANTED=yes \
+                VALUE_HISTORY_WANTED=yes \
                 DYNAMIC_LOG_WANTED=yes \
                 ASSERT_LEVEL_WANTED=2  \
                 PRINT_SEMA_WANTED=yes
@@ -160,6 +164,6 @@ you can do:
 
     make develop
 
-which runs ./configure with the most typical development options.
+which runs ./configure with the typical development options above.
 
 

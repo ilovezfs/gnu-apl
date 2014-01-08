@@ -14,6 +14,9 @@
 /* define to enable gprof profiling */
 #define GPROF_WANTED -pg
 
+/* Define to 1 if you have the <curses.h> header file. */
+#define HAVE_CURSES_H 1
+
 /* Define if the GNU dcgettext() function is already present or preinstalled.
    */
 #define HAVE_DCGETTEXT 1
@@ -123,6 +126,9 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
+
+/* Define to 1 if you have the <term.h> header file. */
+#define HAVE_TERM_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1

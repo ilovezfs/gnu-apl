@@ -34,7 +34,7 @@ Both can be solved by ./configure'ing GNU APL as shown below.
    --without-readline (typically combined with --disable-nls, which also
    influences character input).
 
-After compiling GNI APL you may want to enable UTF-8 encoding for your
+After compiling GNU APL you may want to enable UTF-8 encoding for your
 terminal. For example, in xterm you need enable UTF-8 encoding and
 UTF-8 Fonts in xterm's VT menu (Ctrl + right mouse). It may be possible
 to set this permanently in your terminal's configuration file(s).

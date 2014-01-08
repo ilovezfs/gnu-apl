@@ -425,34 +425,47 @@ UCS_string ucs;
 
    switch(get_Class())
       {
-        case TC_ASSIGN:   ucs.append(UNI_LEFT_ARROW);
-                          break;
+        case TC_ASSIGN:
+             ucs.append(UNI_LEFT_ARROW);
+             break;
 
-        case TC_R_ARROW:  ucs.append(UNI_RIGHT_ARROW);
-                          break;
+        case TC_R_ARROW:
+             ucs.append(UNI_RIGHT_ARROW);
+             break;
 
-        case TC_L_BRACK:  if (get_tag() == TOK_L_BRACK)
-                             ucs.append(UNI_ASCII_L_BRACK);
-                          else if (get_tag() == TOK_SEMICOL)
-                             ucs.append(UNI_ASCII_SEMICOLON);
-                          else Assert(0);
-                         break;
+        case TC_L_BRACK:
+             if (get_tag() == TOK_L_BRACK)
+                ucs.append(UNI_ASCII_L_BRACK);
+             else if (get_tag() == TOK_SEMICOL)
+                ucs.append(UNI_ASCII_SEMICOLON);
+             else
+                Assert(0);
+                break;
 
-        case TC_R_BRACK:  ucs.append(UNI_ASCII_R_BRACK);
-                          break;
+        case TC_R_BRACK:
+             ucs.append(UNI_ASCII_R_BRACK);
+             break;
 
-        case TC_END:      ucs.append(UNI_DIAMOND);
-                          break;
+        case TC_END:
+             ucs.append(UNI_DIAMOND);
+             break;
 
         case TC_RETURN:                                                  break;
-        case TC_LINE:     ucs.append(UNI_ASCII_LF);
-                          break;
+        case TC_LINE:
+             ucs.append(UNI_ASCII_LF);
+             break;
 
-        case TC_VALUE:    return PrintBuffer(*get_apl_val(),
-                                     PrintContext(style, 16, 1.0E-18, 80)).l1();
+        case TC_VALUE:
+             {
+               PrintContext pctx(style, 16, 1.0E-18, 80);
+               PrintBuffer pbuf(*get_apl_val(), pctx);
+               if (pbuf.get_height() == 0)   return ucs;
+               return pbuf.l1();
+             }
 
-        case TC_SYMBOL:  ucs.append(get_sym_ptr()->get_name());
-                         break;
+        case TC_SYMBOL:
+             ucs.append(get_sym_ptr()->get_name());
+             break;
 
 
         case TC_FUN0:
@@ -460,19 +473,21 @@ UCS_string ucs;
         case TC_R_PARENT:
         case TC_L_PARENT:
         case TC_OPER1:
-        case TC_OPER2: if (get_Id() != ID_No_ID)       return id_name(get_Id());
+        case TC_OPER2:
+             if (get_Id() != ID_No_ID)       return id_name(get_Id());
 
-                        CERR << "Token: " << HEX4(tag) << " " << *this
-                             << " at " << LOC << endl;
-                        FIXME;
-                        break;
+             CERR << "Token: " << HEX4(tag) << " " << *this
+                  << " at " << LOC << endl;
+             FIXME;
+             break;
 
 
-        default: CERR << "Token: " << HEX4(tag) << " " << *this
-                      << " at " << LOC << endl;
-                 Q((void *)get_Class())
-                 Backtrace::show(__FILE__, __LINE__);
-                 FIXME;
+        default:
+             CERR << "Token: " << HEX4(tag) << " " << *this
+                  << " at " << LOC << endl;
+             Q((void *)get_Class())
+             Backtrace::show(__FILE__, __LINE__);
+             FIXME;
       }
 
    return ucs;
