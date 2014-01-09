@@ -294,6 +294,7 @@ Value_P A = get_apl_value();
    if (1 && !B->is_skalar())
       {
         // remove dimensions with len 1 from X's and B's shapes...
+        // if we see an empty Xn then we return.
         //
         Shape B1;
         loop(b, B->get_rank())
@@ -308,6 +309,7 @@ Value_P A = get_apl_value();
               const Value * ix_val = IX.values[ix].get();
               if (ix_val)   // normal index
                  {
+                   if (ix_val->element_count() == 0)   return;   // empty index
                    loop(xx, ix_val->get_rank())
                       {
                         const ShapeItem sxx = ix_val->get_shape_item(xx);
@@ -319,6 +321,7 @@ Value_P A = get_apl_value();
                    if (ix >= A->get_rank())   RANK_ERROR;
                    const ShapeItem sbx =
                          A->get_shape_item(A->get_rank() - ix - 1);
+                   if (sbx == 0)   return;   // empty index
                    if (sbx != 1)   IX1.add_shape_item(sbx);
                  }
             }
