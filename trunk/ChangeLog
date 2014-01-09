@@ -54,3 +54,4 @@
  5036 native function file_io completed
  5048 more portable native function interface
  5183 replaced snprintf() by locale-agnostic function
+ 5220 fixed (2 2⍴⍳4)[1;⍬] problem

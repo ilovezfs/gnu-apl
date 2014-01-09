@@ -958,19 +958,24 @@ Shape shape_Z;
 
 MultiIndexIterator mult(get_shape(), IX);   // deletes IDX
 
+Value_P Z(new Value(shape_Z, LOC));
+const ShapeItem ec_z = Z->element_count();
+
+   if (ec_z == 0)   // empty result
+      {
+        Z->set_default(*this);
+        Z->check_value(LOC);
+        return Z;
+      }
+
    // construct iterators.
    // We go from lower indices to higher indices in IX, which
    // means from higher indices to lower indices in this and Z
    
-Value_P Z(new Value(shape_Z, LOC));
-
-const ShapeItem ec_z = Z->element_count();
-
    loop(z, ec_z)   Z->get_ravel(z).init(get_ravel(mult.next()));
 
    Assert(mult.done());
 
-   Z->set_default(*this);
    Z->check_value(LOC);
    return Z;
 }

@@ -75,7 +75,7 @@ a mapping; the normal keys produce ASCII characters while the Alt
 mapping is enabled with the following command (we use "$ " to indicate the
 prompt of your shell):
 
-    $ xmodmap apl.xmodmap
+    $ xmodmap support-files/apl.xmodmap
 
 After that your keyboard will produce APL characters when the "Alt" key is
 held down. The keyboard layout defined in file "apl.xmodmap" is roughly this:
@@ -122,7 +122,7 @@ machine).
 
 The mapping is installed like:
 
-    $ xkbcomp apl.xkm :0
+    $ xkbcomp support-files/apl.xkm :0
 
 Unlike the xmodmap approach, the APL characters are now produced with
 the AltGr modifier key but not with the Alt modifier key. This was to
@@ -149,7 +149,7 @@ If you are not running X then the above methods will complain about
 set up the keyboard layout, and command "unicode_start" to set up an APL
 font.
 
-    $ loadkeys apl.loadkeys
+    $ loadkeys support-files/apl.loadkeys
     $ unicode_start Unifont-APL8x16.psf 
 
 The console font Unifont-APL8x16.psf will be contained in the next official
