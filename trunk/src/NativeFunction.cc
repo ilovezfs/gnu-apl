@@ -40,28 +40,60 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
    // open .so file...
    //
    {
-     UTF8_string utf_so_name(so_path);
+     UTF8_string lib_name(so_path);
      handle = 0;
 
-     if ((strchr(utf_so_name.c_str(), '/') == 0) &&
-         (strchr(utf_so_name.c_str(), '\\') == 0))
+     if ((strchr(lib_name.c_str(), '/') == 0) &&
+         (strchr(lib_name.c_str(), '\\') == 0))
         {
-          // the utf_so_name contains no path prefix, so we assume that the
-          // .so file lives in PKGLIBDIR. If not, dlopen will search the usual
-          // library paths.
+          // the lib_name contains no path prefix. Try:
+          //
+          // PKGLIBDIR/lib_name
+          // PKGLIBDIR/lib_name.so
+          // PKGLIBDIR/lib_name.dlsym
           //
           UTF8_string pkg_path = PKGLIBDIR;
           pkg_path.append('/');
-          pkg_path.append(utf_so_name);
+          pkg_path.append(lib_name);
           handle = dlopen(pkg_path.c_str(), RTLD_NOW);
+          if (handle == 0)   // no luck: try pkg_path.so
+             {
+               UTF8_string pkg_path__so(pkg_path);
+               pkg_path__so.append(UTF8_string(".so"));
+               handle = dlopen(pkg_path__so.c_str(), RTLD_NOW);
+             }
+          if (handle == 0)   // still o luck: try pkg_path.dlsym
+             {
+               UTF8_string pkg_path__dlsym(pkg_path);
+               pkg_path__dlsym.append(UTF8_string(".dlsym"));
+               handle = dlopen(pkg_path__dlsym.c_str(), RTLD_NOW);
+             }
         }
 
-     if (handle == 0)   // dlopen of library in PKGLIBDIR failed.
+     if (handle == 0)   // lib_name was not in PKGLIBDIR.
         {
-          handle = dlopen(utf_so_name.c_str(), RTLD_NOW);
+          // Try:
+          //
+          // lib_name
+          // lib_name.so
+          // lib_name.dlsym
+
+          handle = dlopen(lib_name.c_str(), RTLD_NOW);
+          if (handle == 0)   // no luck: try lib_name.so
+             {
+               UTF8_string lib_name__so(lib_name);
+               lib_name__so.append(UTF8_string(".so"));
+               handle = dlopen(lib_name__so.c_str(), RTLD_NOW);
+             }
+          if (handle == 0)   // still no luck: try lib_name.dlsym
+             {
+               UTF8_string lib_name__dlsym(lib_name);
+               lib_name__dlsym.append(UTF8_string(".dlsym"));
+               handle = dlopen(lib_name__dlsym.c_str(), RTLD_NOW);
+             }
         }
 
-     if (handle == 0)   // dlopen failed
+     if (handle == 0)   // all dlopen() failed
         {
           Workspace::more_error() = UCS_string(dlerror());
           return;

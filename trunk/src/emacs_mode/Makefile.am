@@ -15,4 +15,3 @@ libemacs_la_SOURCES =						\
 		util.cc			util.hh			\
 		VariablesCommand.cc    VariablesCommand.hh
 
-libemacs_la_CXXFLAGS = -I..

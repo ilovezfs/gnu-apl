@@ -52,7 +52,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = src/emacs_mode
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in AUTHORS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/lib-ld.m4 \
@@ -98,16 +98,10 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 libemacs_la_LIBADD =
-am_libemacs_la_OBJECTS = libemacs_la-DefCommand.lo \
-	libemacs_la-emacs.lo libemacs_la-FnCommand.lo \
-	libemacs_la-GetVarCommand.lo libemacs_la-network.lo \
-	libemacs_la-NetworkConnection.lo libemacs_la-RunCommand.lo \
-	libemacs_la-SicCommand.lo libemacs_la-SiCommand.lo \
-	libemacs_la-util.lo libemacs_la-VariablesCommand.lo
+am_libemacs_la_OBJECTS = DefCommand.lo emacs.lo FnCommand.lo \
+	GetVarCommand.lo network.lo NetworkConnection.lo RunCommand.lo \
+	SicCommand.lo SiCommand.lo util.lo VariablesCommand.lo
 libemacs_la_OBJECTS = $(am_libemacs_la_OBJECTS)
-libemacs_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libemacs_la_CXXFLAGS) \
-	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -302,7 +296,6 @@ libemacs_la_SOURCES = \
 		util.cc			util.hh			\
 		VariablesCommand.cc    VariablesCommand.hh
 
-libemacs_la_CXXFLAGS = -I..
 all: all-am
 
 .SUFFIXES:
@@ -370,7 +363,7 @@ clean-pkglibLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 libemacs.la: $(libemacs_la_OBJECTS) $(libemacs_la_DEPENDENCIES) $(EXTRA_libemacs_la_DEPENDENCIES) 
-	$(libemacs_la_LINK) -rpath $(pkglibdir) $(libemacs_la_OBJECTS) $(libemacs_la_LIBADD) $(LIBS)
+	$(CXXLINK) -rpath $(pkglibdir) $(libemacs_la_OBJECTS) $(libemacs_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -378,17 +371,17 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-DefCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-FnCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-GetVarCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-NetworkConnection.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-RunCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-SiCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-SicCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-VariablesCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-emacs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-network.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libemacs_la-util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DefCommand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FnCommand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GetVarCommand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetworkConnection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RunCommand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SiCommand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SicCommand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VariablesCommand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emacs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/network.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -410,83 +403,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-libemacs_la-DefCommand.lo: DefCommand.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-DefCommand.lo -MD -MP -MF $(DEPDIR)/libemacs_la-DefCommand.Tpo -c -o libemacs_la-DefCommand.lo `test -f 'DefCommand.cc' || echo '$(srcdir)/'`DefCommand.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-DefCommand.Tpo $(DEPDIR)/libemacs_la-DefCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DefCommand.cc' object='libemacs_la-DefCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-DefCommand.lo `test -f 'DefCommand.cc' || echo '$(srcdir)/'`DefCommand.cc
-
-libemacs_la-emacs.lo: emacs.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-emacs.lo -MD -MP -MF $(DEPDIR)/libemacs_la-emacs.Tpo -c -o libemacs_la-emacs.lo `test -f 'emacs.cc' || echo '$(srcdir)/'`emacs.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-emacs.Tpo $(DEPDIR)/libemacs_la-emacs.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='emacs.cc' object='libemacs_la-emacs.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-emacs.lo `test -f 'emacs.cc' || echo '$(srcdir)/'`emacs.cc
-
-libemacs_la-FnCommand.lo: FnCommand.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-FnCommand.lo -MD -MP -MF $(DEPDIR)/libemacs_la-FnCommand.Tpo -c -o libemacs_la-FnCommand.lo `test -f 'FnCommand.cc' || echo '$(srcdir)/'`FnCommand.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-FnCommand.Tpo $(DEPDIR)/libemacs_la-FnCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='FnCommand.cc' object='libemacs_la-FnCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-FnCommand.lo `test -f 'FnCommand.cc' || echo '$(srcdir)/'`FnCommand.cc
-
-libemacs_la-GetVarCommand.lo: GetVarCommand.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-GetVarCommand.lo -MD -MP -MF $(DEPDIR)/libemacs_la-GetVarCommand.Tpo -c -o libemacs_la-GetVarCommand.lo `test -f 'GetVarCommand.cc' || echo '$(srcdir)/'`GetVarCommand.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-GetVarCommand.Tpo $(DEPDIR)/libemacs_la-GetVarCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='GetVarCommand.cc' object='libemacs_la-GetVarCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-GetVarCommand.lo `test -f 'GetVarCommand.cc' || echo '$(srcdir)/'`GetVarCommand.cc
-
-libemacs_la-network.lo: network.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-network.lo -MD -MP -MF $(DEPDIR)/libemacs_la-network.Tpo -c -o libemacs_la-network.lo `test -f 'network.cc' || echo '$(srcdir)/'`network.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-network.Tpo $(DEPDIR)/libemacs_la-network.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='network.cc' object='libemacs_la-network.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-network.lo `test -f 'network.cc' || echo '$(srcdir)/'`network.cc
-
-libemacs_la-NetworkConnection.lo: NetworkConnection.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-NetworkConnection.lo -MD -MP -MF $(DEPDIR)/libemacs_la-NetworkConnection.Tpo -c -o libemacs_la-NetworkConnection.lo `test -f 'NetworkConnection.cc' || echo '$(srcdir)/'`NetworkConnection.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-NetworkConnection.Tpo $(DEPDIR)/libemacs_la-NetworkConnection.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NetworkConnection.cc' object='libemacs_la-NetworkConnection.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-NetworkConnection.lo `test -f 'NetworkConnection.cc' || echo '$(srcdir)/'`NetworkConnection.cc
-
-libemacs_la-RunCommand.lo: RunCommand.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-RunCommand.lo -MD -MP -MF $(DEPDIR)/libemacs_la-RunCommand.Tpo -c -o libemacs_la-RunCommand.lo `test -f 'RunCommand.cc' || echo '$(srcdir)/'`RunCommand.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-RunCommand.Tpo $(DEPDIR)/libemacs_la-RunCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='RunCommand.cc' object='libemacs_la-RunCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-RunCommand.lo `test -f 'RunCommand.cc' || echo '$(srcdir)/'`RunCommand.cc
-
-libemacs_la-SicCommand.lo: SicCommand.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-SicCommand.lo -MD -MP -MF $(DEPDIR)/libemacs_la-SicCommand.Tpo -c -o libemacs_la-SicCommand.lo `test -f 'SicCommand.cc' || echo '$(srcdir)/'`SicCommand.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-SicCommand.Tpo $(DEPDIR)/libemacs_la-SicCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SicCommand.cc' object='libemacs_la-SicCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-SicCommand.lo `test -f 'SicCommand.cc' || echo '$(srcdir)/'`SicCommand.cc
-
-libemacs_la-SiCommand.lo: SiCommand.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-SiCommand.lo -MD -MP -MF $(DEPDIR)/libemacs_la-SiCommand.Tpo -c -o libemacs_la-SiCommand.lo `test -f 'SiCommand.cc' || echo '$(srcdir)/'`SiCommand.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-SiCommand.Tpo $(DEPDIR)/libemacs_la-SiCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SiCommand.cc' object='libemacs_la-SiCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-SiCommand.lo `test -f 'SiCommand.cc' || echo '$(srcdir)/'`SiCommand.cc
-
-libemacs_la-util.lo: util.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-util.lo -MD -MP -MF $(DEPDIR)/libemacs_la-util.Tpo -c -o libemacs_la-util.lo `test -f 'util.cc' || echo '$(srcdir)/'`util.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-util.Tpo $(DEPDIR)/libemacs_la-util.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='util.cc' object='libemacs_la-util.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-util.lo `test -f 'util.cc' || echo '$(srcdir)/'`util.cc
-
-libemacs_la-VariablesCommand.lo: VariablesCommand.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -MT libemacs_la-VariablesCommand.lo -MD -MP -MF $(DEPDIR)/libemacs_la-VariablesCommand.Tpo -c -o libemacs_la-VariablesCommand.lo `test -f 'VariablesCommand.cc' || echo '$(srcdir)/'`VariablesCommand.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libemacs_la-VariablesCommand.Tpo $(DEPDIR)/libemacs_la-VariablesCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='VariablesCommand.cc' object='libemacs_la-VariablesCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libemacs_la_CXXFLAGS) $(CXXFLAGS) -c -o libemacs_la-VariablesCommand.lo `test -f 'VariablesCommand.cc' || echo '$(srcdir)/'`VariablesCommand.cc
 
 mostlyclean-libtool:
 	-rm -f *.lo
