@@ -50,7 +50,7 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
           //
           // PKGLIBDIR/lib_name
           // PKGLIBDIR/lib_name.so
-          // PKGLIBDIR/lib_name.dlsym
+          // PKGLIBDIR/lib_name.dylib
           //
           UTF8_string pkg_path = PKGLIBDIR;
           pkg_path.append('/');
@@ -62,11 +62,11 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
                pkg_path__so.append(UTF8_string(".so"));
                handle = dlopen(pkg_path__so.c_str(), RTLD_NOW);
              }
-          if (handle == 0)   // still o luck: try pkg_path.dlsym
+          if (handle == 0)   // still no luck: try pkg_path.dylib
              {
-               UTF8_string pkg_path__dlsym(pkg_path);
-               pkg_path__dlsym.append(UTF8_string(".dlsym"));
-               handle = dlopen(pkg_path__dlsym.c_str(), RTLD_NOW);
+               UTF8_string pkg_path__dylib(pkg_path);
+               pkg_path__dylib.append(UTF8_string(".dylib"));
+               handle = dlopen(pkg_path__dylib.c_str(), RTLD_NOW);
              }
         }
 
@@ -76,7 +76,7 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
           //
           // lib_name
           // lib_name.so
-          // lib_name.dlsym
+          // lib_name.dylib
 
           handle = dlopen(lib_name.c_str(), RTLD_NOW);
           if (handle == 0)   // no luck: try lib_name.so
@@ -85,11 +85,11 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
                lib_name__so.append(UTF8_string(".so"));
                handle = dlopen(lib_name__so.c_str(), RTLD_NOW);
              }
-          if (handle == 0)   // still no luck: try lib_name.dlsym
+          if (handle == 0)   // still no luck: try lib_name.dylib
              {
-               UTF8_string lib_name__dlsym(lib_name);
-               lib_name__dlsym.append(UTF8_string(".dlsym"));
-               handle = dlopen(lib_name__dlsym.c_str(), RTLD_NOW);
+               UTF8_string lib_name__dylib(lib_name);
+               lib_name__dylib.append(UTF8_string(".dylib"));
+               handle = dlopen(lib_name__dylib.c_str(), RTLD_NOW);
              }
         }
 
