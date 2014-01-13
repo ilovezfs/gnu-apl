@@ -53,7 +53,7 @@ protected:
    virtual const char * get_classname() const   { return "LvalCell"; }
 
   /// Overloaded Cell::CDR_size() should not be called for lval cells
-   virtual int CDR_size() const { Assert(0); }
+   virtual int CDR_size() const { NeverReach("CDR_size called on LvalCell base class"); }
 };
 //=============================================================================
 

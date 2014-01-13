@@ -304,7 +304,6 @@ usleep(50000);
 
    // the control vector as seen by the offering side
    //
-const Svar_state old_state = state;
 const int control = offering.get_control() | accepting.get_control();
 Svar_event event = SVE_NO_EVENTS;
 uint16_t peer_port = 0;
@@ -1247,7 +1246,6 @@ Svar_DB_memory::create_offer(const uint32_t * UCS_varname,
    // is non-general (i.e. 'to' is a specific processor) then to should
    // get an offer mismatch event.
    //
-const bool mismatch = to.proc > AP_NULL;
 
    // find free entry and insert the offer
    //

@@ -39,6 +39,8 @@ public:
      pos(0)
    {}
 
+    virtual ~IndexIterator() {}
+
    /// go the the next index
    void increment();
 

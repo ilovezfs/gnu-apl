@@ -83,10 +83,6 @@ assign_value(Coupled_var & var, const string & data)
    if (data.size() < sizeof(CDR_header))   // too short
       { error_loc = LOC;   return E_LENGTH_ERROR; }
 
-const CDR_header * header = (const CDR_header *)data.c_str();
-
-const int rank = header->rank;
-
    delete var.data;
    var.data = new CDR_string((const uint8_t *)data.c_str(), data.size());
    error_loc = "no_error";

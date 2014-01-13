@@ -52,15 +52,15 @@ public:
    /// constructor for most functions
    Function(TokenTag _tag)
    : NamedObject(Id(_tag >> 16)),
-     tag(_tag),
-     creation_time(0.0)
+     creation_time(0.0),
+     tag(_tag)
    {}
 
    /// constructor for functions whose Id does not match their tag
    Function(Id id, TokenTag _tag)
    : NamedObject(id),
-     tag(_tag),
-     creation_time(0.0)
+     creation_time(0.0),
+     tag(_tag)
    {}
 
    /// destructor
@@ -191,7 +191,7 @@ public:
 
    /// Quad_CR of this function.
    virtual UCS_string canonical(bool with_lines) const
-      { Assert(0 && "Function::canonical() called"); }
+      { NeverReach("Function::canonical() called"); }
 
    /// when this function was created (0.0 for system functions)
    APL_time creation_time;

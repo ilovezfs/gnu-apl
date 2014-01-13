@@ -39,7 +39,7 @@ Prefix::Prefix(StateIndicator & _si, const Token_string & _body)
      saved_lookahead(Token(TOK_VOID), Function_PC_invalid),
      body(_body),
      PC(Function_PC_0),
-     assign_pending(false),
+     assign_state(ASS_none),
      lookahead_high(Function_PC_invalid)
 {
 }
@@ -100,7 +100,8 @@ Prefix::syntax_error(const char * loc)
           }
       }
 
-   throw_apl_error(assign_pending ? E_LEFT_SYNTAX_ERROR : E_SYNTAX_ERROR, loc);
+   throw_apl_error(get_assign_state() == ASS_none ? E_SYNTAX_ERROR
+                                                  : E_LEFT_SYNTAX_ERROR, loc);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -127,7 +128,8 @@ int br_count = 1;   // the bracket at PC
                    if (tok1.get_Class() != TC_SYMBOL)   return false;
 
                    Symbol * sym = tok1.get_sym_ptr();
-                   return sym->resolve_class(assign_pending) == TC_VALUE;
+                   const bool left_sym = get_assign_state() == ASS_arrow_seen;
+                   return sym->resolve_class(left_sym) == TC_VALUE;
                  }
             }
        }
@@ -281,7 +283,10 @@ grow:
      Log(LOG_prefix_parser)
         {
           CERR << "    [si=" << si.get_level() << " PC=" << (PC - 1)
-               << "] Read token[" << size() << "] " << tl.tok << " "
+               << "] Read token[" << size();
+          if (get_assign_state() == ASS_arrow_seen)      CERR << " ← ";
+          else if (get_assign_state() == ASS_var_seen)   CERR << " V← ";
+          CERR << "] " << tl.tok << " "
                << Token::class_name(tl.tok.get_Class()) << endl;
         }
 
@@ -304,7 +309,9 @@ grow:
              }
           else
              {
-               sym->resolve(tl.tok, assign_pending);
+               const bool left_sym = get_assign_state() == ASS_arrow_seen;
+               sym->resolve(tl.tok, left_sym);
+               if (left_sym)   set_assign_state(ASS_var_seen);
              }
 
           if (tl.tok.get_tag() == TOK_SI_PUSHED)
@@ -317,8 +324,8 @@ grow:
         }
      else if (tcl == TC_ASSIGN)   // resolve symbol if necessary
         {
-          if (assign_pending)   syntax_error(LOC);
-          assign_pending = true;
+          if (get_assign_state() != ASS_none)   syntax_error(LOC);
+          set_assign_state(ASS_arrow_seen);
         }
 
      push(tl);
@@ -381,7 +388,8 @@ found_prefix:
           if (tok.get_Class() == TC_SYMBOL)
              {
                Symbol * sym = tok.get_sym_ptr();
-               next = sym->resolve_class(assign_pending);
+               const bool left_sym = get_assign_state() == ASS_arrow_seen;
+               next = sym->resolve_class(left_sym);
             }
         }
 
@@ -690,7 +698,7 @@ Value_P B = at3().get_apl_val();
              at1().clear(LOC);
              at3().clear(LOC);
              pop_args_push_result(result);
-             set_assign_pending(false);
+             set_assign_state(ASS_none);
              set_action(result);
              return;
            }
@@ -709,7 +717,7 @@ Value_P B = at3().get_apl_val();
              at1().clear(LOC);
              at3().clear(LOC);
              pop_args_push_result(result);
-             set_assign_pending(false);
+             set_assign_state(ASS_none);
              set_action(result);
              return;
            }
@@ -717,7 +725,7 @@ Value_P B = at3().get_apl_val();
 
 Token result = Token(TOK_APL_VALUE2, B);
    pop_args_push_result(result);
-   set_assign_pending(false);
+   set_assign_state(ASS_none);
    set_action(result);
 }
 //-----------------------------------------------------------------------------
@@ -728,6 +736,7 @@ Prefix::reduce_F_V__()
    //
 Symbol * V = at1().get_sym_ptr();
    copy_1(at1(), V->resolve_lv(LOC), LOC);
+   set_assign_state(ASS_var_seen);
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -748,7 +757,7 @@ Value_P B = at2().get_apl_val();
 Token result = Token(TOK_APL_VALUE2, B);
    pop_args_push_result(result);
 
-   set_assign_pending(false);
+   set_assign_state(ASS_none);
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -762,7 +771,7 @@ Symbol * V = at0().get_sym_ptr();
 Token result = Token(TOK_APL_VALUE2, B);
    pop_args_push_result(result);
 
-   set_assign_pending(false);
+   set_assign_state(ASS_none);
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -772,11 +781,12 @@ Prefix::reduce_RBRA___()
    Assert1(prefix_len == 1);
 
    // start partial index list. Parse the index as right so that, for example,
-   // A[IDX}←B resolves IDX properly. assign_pending is resored when the
+   // A[IDX}←B resolves IDX properly. assign_state is restored when the
    // index is complete.
    //
-   new (&at0()) Token(TOK_PINDEX, *new IndexExpr(assign_pending, LOC));
-   assign_pending = false;
+const int left = get_assign_state() == ASS_arrow_seen;
+   new (&at0()) Token(TOK_PINDEX, *new IndexExpr(left, LOC));
+   set_assign_state(ASS_none);
    action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
@@ -792,7 +802,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);
 
    if (idx.value_count() == 0 && last_index)   // special case: [ ]
       {
-        assign_pending = idx.get_left();   // restore assign_pending
+        assign_state = idx.get_left() ? ASS_arrow_seen : ASS_none;
         Token result = Token(TOK_INDEX, idx);
         pop_args_push_result(result);
         action = RA_CONTINUE;
@@ -806,14 +816,14 @@ Token result = at1();
 
    if (last_index)   // [ seen
       {
-        assign_pending = idx.get_left();   // restore assign_pending
+        assign_state = idx.get_left() ? ASS_arrow_seen : ASS_none;
 
         if (idx.is_axis()) move_2(result, Token(TOK_AXES, idx.values[0]), LOC);
         else               move_2(result, Token(TOK_INDEX, idx), LOC);
       }
    else
       {
-        assign_pending = false;
+        set_assign_state(ASS_none);
       }
 
    pop_args_push_result(result);
@@ -835,7 +845,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);   // ; vs. [
    if (last_index)   // [ seen
       {
         IndexExpr & idx = I.get_index_val();
-        assign_pending = idx.get_left();   // restore assign_pending
+        assign_state = idx.get_left() ? ASS_arrow_seen : ASS_none;
 
         if (idx.is_axis())
            {
@@ -851,7 +861,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);   // ; vs. [
       }
    else
       {
-        assign_pending = false;
+         set_assign_state(ASS_none);
       }
 
    pop_args_push_result(I);
@@ -890,6 +900,7 @@ const int count = vector_ass_count();
         //
         Symbol * V = at0().get_sym_ptr();
         Token result = V->resolve_lv(LOC);
+        set_assign_state(ASS_var_seen);
         move_1(at0(), result, LOC);
         action = RA_CONTINUE;
         return;
@@ -940,7 +951,7 @@ Value_P B = at3().get_apl_val();
            }
       }
 
-   set_assign_pending(false);
+    set_assign_state(ASS_none);
 
    // clean up stack
    //

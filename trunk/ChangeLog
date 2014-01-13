@@ -55,3 +55,5 @@
  5048 more portable native function interface
  5183 replaced snprintf() by locale-agnostic function
  5220 fixed (2 2⍴⍳4)[1;⍬] problem
+ 5267 finalized 10⎕CR and fixed some bugs
+

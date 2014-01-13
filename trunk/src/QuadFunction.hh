@@ -98,9 +98,16 @@ public:
    /// compute a ⎕CR B
    Value_P do_CR(APL_Integer a, const Value & B);
 
-   static Quad_CR           fun;          ///< Built-in function.
+   static Quad_CR fun;          ///< Built-in function.
 
 protected:
+   /// 10 ⎕CR symbol_name (variable ir function name)
+   void do_CR10(vector<UCS_string> & result, const Value & symbol_name);
+
+   /// portable variable encoding of value named name (varname or varname ⊂)
+   void do_CR10_var(vector<UCS_string> & result, const UCS_string & name,
+                    const UCS_string & pick, const Value & value);
+
 };
 //-----------------------------------------------------------------------------
 /**

@@ -31,9 +31,9 @@
 
 class Cell;
 class DynamicObject;
-class Format_sub;
+struct Format_sub;
 class Function;
-class Function_PC2;
+struct Function_PC2;
 class IndexExpr;
 class LineLabel;
 class PrintBuffer;

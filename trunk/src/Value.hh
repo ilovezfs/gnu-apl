@@ -31,7 +31,7 @@
 
 using namespace std;
 
-struct IndexExpr;
+class IndexExpr;
 class CDR_string;
 
 //=============================================================================
@@ -232,7 +232,7 @@ public:
 
    /// return \b true iff \b this value is a skalar or vector of length 1.
    bool is_skalar_or_len1_vector() const
-      { return is_skalar() || is_vector() && (get_shape_item(0) == 1); }
+      { return is_skalar() || (is_vector() && (get_shape_item(0) == 1)); }
 
    /// return \b true iff \b this value is a simple character vector.
    bool is_char_vector() const;

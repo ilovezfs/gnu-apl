@@ -19,6 +19,7 @@
 */
 
 #include "LvalCell.hh"
+#include "PrintOperator.hh"
 #include "UTF8_string.hh"
 
 //-----------------------------------------------------------------------------

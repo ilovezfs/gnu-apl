@@ -23,7 +23,7 @@
 
 #include "Common.hh"
 
-struct Token;
+class Token;
 
 
 /// The valid indices the Atomic Vector of the APL interpreter

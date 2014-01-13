@@ -1721,15 +1721,9 @@ Bif_F12_PICK::eval_AB(Value_P A, Value_P B)
 
 const ShapeItem ec_A = A->element_count();
 
-   if (ec_A == 0)   // if A is empty, return B->
-      {
-        const ShapeItem ec_B = B->nz_element_count();
-
-        Value_P Z(new Value(B->get_shape(), LOC));
-        loop(b, ec_B)   Z->get_ravel(b).init(B->get_ravel(b));
-        Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, Z);
-      }
+   // if A is empty, return B
+   //
+   if (ec_A == 0)   return Token(TOK_APL_VALUE1, B);
 
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
@@ -1762,9 +1756,9 @@ ShapeItem c = 0;
       }
    else   // A is a skalar, so B must be a vector.
       {
-        if (B->get_rank() != 1)   RANK_ERROR;
+        if (B->get_rank() != 1)         RANK_ERROR;
         const APL_Integer a = cA->get_near_int(qct) - qio;
-        if (a < 0)                     DOMAIN_ERROR;
+        if (a < 0)                      DOMAIN_ERROR;
         if (a > B->get_shape_item(0))   LENGTH_ERROR;
         c = a;
       }
@@ -1781,51 +1775,56 @@ const Cell * cB = &B->get_ravel(c);
 
         if (cB->is_lval_cell())
            {
-             Assert(left);
+             Assert(lval);
              Cell & cell = *cB->get_lval_value();
              if (!cell.is_pointer_cell())   DOMAIN_ERROR;
 
-             return pick(cA + 1, len_A - 1, cell.get_pointer_value(),
-                         qct, qio, lval);
+             Value_P subval = cell.get_pointer_value();
+             Value_P subrefs = subval->get_cellrefs(LOC);
+             return pick(cA + 1, len_A - 1, subrefs, qct, qio, lval);
            }
 
+        // at this point the depth implied by A is greater than the
+        // depth of B.
+        //
         DOMAIN_ERROR;
       }
 
    // at this point, cB is the cell in B pick'ed by A->
-
-Value_P Z;
-   if (lval)   // (A⊃B)←
+   //
+   if (cB->is_pointer_cell())
       {
-        Z = Value_P(new Value(LOC));
-        Cell * cell = &Z->get_ravel(0);
-        if (cB->is_pointer_cell())
+        Value_P Z = cB->get_pointer_value()->clone(LOC);
+        return Z;
+      }
+
+   if (cB->is_lval_cell())   // e.g. (A⊃B) ← C
+      {
+        Assert(lval);
+
+        Cell * cell = cB->get_lval_value();
+        if (cell->is_pointer_cell())
            {
-             new (cell) PointerCell(cB->get_pointer_value());
+             Value_P sub = cell->get_pointer_value();
+             return sub->get_cellrefs(LOC);
            }
-        else if (cB->is_lval_cell())
-           {
-             new (cell) LvalCell(cB->get_lval_value());
-           }
-        else 
-           {
-             new (cell) LvalCell((Cell *)cB);
-           }
+
+        Value_P Z(new Value(LOC));
+        new (Z->next_ravel())   LvalCell(cell);
+        return Z;
+      }
+   else if (lval)   // e.g. (A⊃C) ← B
+      {
+        Value_P Z(new Value(LOC));
+        new (Z->next_ravel()) LvalCell((Cell *)cB);
+        return Z;
       }
    else
       {
-        if (cB->is_pointer_cell())
-           {
-             Z = cB->get_pointer_value()->clone(LOC);
-           }
-        else
-           {
-             Z = Value_P(new Value(LOC));
-             Z->get_ravel(0).init(*cB);
-           }
+        Value_P Z(new Value(LOC));
+        Z->next_ravel()->init(*cB);
+        return Z;
       }
-
-   return Z;
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1949,7 +1948,7 @@ const Cell & first_B = B->get_ravel(0);
            }
         else
            {
-             const ShapeItem ec = v1->element_count();
+             const ShapeItem ec = v1->nz_element_count();
              Z = Value_P(new Value(v1->get_shape(), LOC));
              loop(e, ec)   Z->get_ravel(e).init(v1->get_ravel(e));
            }

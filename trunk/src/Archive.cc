@@ -295,7 +295,7 @@ XML_Saving_Archive &
 XML_Saving_Archive::operator <<(const Prefix & prefix)
 {
    do_indent();
-   out << "<Parser assign-pending=\"" << prefix.get_assign_pending()
+   out << "<Parser assign-pending=\"" << prefix.get_assign_state()
        << "\" lookahead-high=\""      << prefix.get_lookahead_high()
        << "\">" << endl;
 
@@ -1665,12 +1665,12 @@ XML_Loading_Archive::read_Parsers(StateIndicator & si)
    next_tag(LOC);
    expect_tag("Parser", LOC);
 
-const int ass_pending = find_int_attr("assign-pending", false, 10);
+const int ass_state = find_int_attr("assign-pending", false, 10);
 const int lah_high = find_int_attr("lookahead-high", false, 10);
 
 Prefix & parser = si.current_stack;
 
-   parser.assign_pending = ass_pending != 0;
+   parser.set_assign_state((Prefix::Assign_state)ass_state);
    parser.set_lookahead_high(Function_PC(lah_high));
 
    for (;;)

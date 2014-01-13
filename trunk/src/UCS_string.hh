@@ -172,7 +172,7 @@ public:
       { UCS_string ret(*this);   ret.append(other);   return ret; }
 
    /// append number (in ASCII encoding like %d) to this string
-   void append_number(long long num);
+   void append_number(ShapeItem num);
 
    /// append number (in ASCII encoding like %lf) to this string
    void append_float(double num);

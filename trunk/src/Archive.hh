@@ -35,7 +35,7 @@ class Symbol;
 class StateIndicator;
 class SymbolTable;
 class Token;
-class Token_loc;
+struct Token_loc;
 class Value;
 class ValueStackItem;
 

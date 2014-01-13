@@ -800,7 +800,7 @@ const char sub_type = record[1];
                 {
                   const char * stype = _(" *** bad sub-record of X");
 
-                          " -------------------------------------";
+//                          " -------------------------------------";
                   switch(sub_type)
                      {
                        case 'A': stype = " 2 ⎕TF array ";           break;

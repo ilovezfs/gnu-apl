@@ -45,10 +45,10 @@ struct SVAR_context
 {
    SVAR_context(FILE * f, int c, Coupled_var & vC, Coupled_var & vD, bool wr)
    : file(f),
-     code(c),
-     write(wr),
      var_C(vC),
      var_D(vD),
+     write(wr),
+     code(c),
      rec_num(0),
      rec_size(128),
      filepos(0),
@@ -128,6 +128,7 @@ write_fixed(FILE * file, int code, Coupled_var & var_D,
       }
    else assert(0 && "Bad code at" LOC);
 
+   return 0;
 }
 //-----------------------------------------------------------------------------
 int
@@ -548,7 +549,7 @@ bool quoted = false;
    return error;
 }
 //-----------------------------------------------------------------------------
-int
+void
 handle_cmd(const char * cmd, int len, Coupled_var & var_C, Coupled_var & var_D)
 {
    // cmd is a string containing 1, 2, or 3 arguments separated by commas.
@@ -558,9 +559,9 @@ char arg1[3];
 char arg2[FILENAME_MAX+2];
 char arg3[FILENAME_MAX+2];
 
-   if (parse_arg(cmd, arg1, sizeof(arg1) - 1, 2))   return set_ACK(var_C, 401);
-   if (parse_arg(cmd, arg2, sizeof(arg2) - 1, 1))   return set_ACK(var_C, 402);
-   if (parse_arg(cmd, arg3, sizeof(arg3) - 1, 0))   return set_ACK(var_C, 403);
+   if (parse_arg(cmd, arg1, sizeof(arg1) - 1, 2))   set_ACK(var_C, 401);
+   if (parse_arg(cmd, arg2, sizeof(arg2) - 1, 1))   set_ACK(var_C, 402);
+   if (parse_arg(cmd, arg3, sizeof(arg3) - 1, 0))   set_ACK(var_C, 403);
 
 const char c0 = arg1[0];
 const char c1 = arg1[1];
@@ -570,7 +571,7 @@ const char c1 = arg1[1];
    else if (c0 == 'P' && c1 == 'W')   write_pipe (arg2, *arg3, var_C, var_D);
    else if (c0 == 'D' && c1 == 'L')   delete_file(arg2,        var_C);
    else if (c0 == 'R' && c1 == 'N')   rename_file(arg2,  arg3, var_C);
-   else    return set_ACK(var_C, 1);   // 1 := INVALID COMMAND
+   else    set_ACK(var_C, 1);   // 1 := INVALID COMMAND
 }
 //-----------------------------------------------------------------------------
 bool

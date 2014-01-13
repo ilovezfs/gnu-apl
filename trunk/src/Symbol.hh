@@ -29,7 +29,7 @@
 #include "SystemLimits.hh"
 #include "Svar_DB.hh"
 
-struct IndexExpr;
+class IndexExpr;
 class UserFunction;
 
 //-----------------------------------------------------------------------------
