@@ -156,7 +156,7 @@
 #define PACKAGE_NAME "GNU APL"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "GNU APL 1.1"
+#define PACKAGE_STRING "GNU APL 1.2"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "apl"
@@ -165,7 +165,7 @@
 #define PACKAGE_URL "http://www.gnu.org/software/apl/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.1"
+#define PACKAGE_VERSION "1.2"
 
 /* define to enable the print semaphore */
 /* #undef PRINT_SEMA_WANTED */
@@ -205,7 +205,7 @@
 /* #undef VALUE_HISTORY_WANTED */
 
 /* Version number of package */
-#define VERSION "1.1"
+#define VERSION "1.2"
 
 /* define to enable tracing of value flags */
 /* #undef VF_TRACING_WANTED */
