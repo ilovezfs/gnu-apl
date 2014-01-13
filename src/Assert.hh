@@ -24,7 +24,11 @@
 #include "Common.hh"
 
 extern void do_Assert(const char * cond, const char * fun,
-                      const char * file, int line);
+                      const char * file, int line)
+#ifdef __GNUC__
+    __attribute__ ((noreturn))
+#endif
+;
 
 #ifndef ASSERT_LEVEL_WANTED
 
@@ -51,6 +55,7 @@ extern void do_Assert(const char * cond, const char * fun,
 
 #endif
 
+#define NeverReach(X) do_Assert(X, __FUNCTION__, __FILE__, __LINE__)
 
 /// trivial assertion
 

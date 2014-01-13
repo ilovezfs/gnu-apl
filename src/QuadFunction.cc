@@ -214,8 +214,11 @@ Value_P Z(new Value(shape_Z, LOC));
    loop(row, tlines.size())
       {
         const UCS_string & line = tlines[row];
-        loop(col, line.size())             new (Z->next_ravel()) CharCell(line[col]);
-        loop(col, max_len - line.size())   new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
+        loop(col, line.size())
+            new (Z->next_ravel()) CharCell(line[col]);
+
+        loop(col, max_len - line.size())
+            new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
       }
 
    Z->check_value(LOC);
@@ -241,23 +244,36 @@ PrintStyle style;
 
    switch(a)
       {
-        case 0:  style = PR_APL;              break;
-        case 1:  style = PR_APL_FUN;          break;
-        case 2:  style = PR_BOXED_CHAR;       break;
-        case 3:  style = PR_BOXED_GRAPHIC;    break;
-        case 4:
-        case 8:
-               { // like 3/7, but enclose B so that the entire B is boxed
+        case  0:  style = PR_APL;              break;
+        case  1:  style = PR_APL_FUN;          break;
+        case  2:  style = PR_BOXED_CHAR;       break;
+        case  3:  style = PR_BOXED_GRAPHIC;    break;
+        case  4:
+        case  8: { // like 3/7, but enclose B so that the entire B is boxed
                    Value_P B1(new Value(LOC));
                    new (&B1->get_ravel(0))   PointerCell(B.clone(LOC));
-                   Value_P result = do_CR(a - 1, *B1.get());
-                   return result;
+                   Value_P Z = do_CR(a - 1, *B1.get());
+                   return Z;
                  }
                  break;
-        case 5:  style = PR_HEX;              break;
-        case 6:  style = PR_hex;              break;
-        case 7:  style = PR_BOXED_GRAPHIC1;   break;
-        case 9:  style = PR_BOXED_GRAPHIC2;   break;
+        case  5: style = PR_HEX;              break;
+        case  6: style = PR_hex;              break;
+        case  7: style = PR_BOXED_GRAPHIC1;   break;
+        case  9: style = PR_BOXED_GRAPHIC2;   break;
+        case 10: {
+                   vector<UCS_string> ucs_vec;
+                   do_CR10(ucs_vec, B);
+
+                   Value_P Z(new Value(ucs_vec.size(), LOC));
+                   loop(line, ucs_vec.size())
+                      {
+                        Value_P Z_line(new Value(ucs_vec[line], LOC));
+                        new (Z->next_ravel())   PointerCell(Z_line);
+                      }
+                   Z->set_default(*Value::Str0_0_P);
+                   Z->check_value(LOC);
+                   return Z;
+                 }
 
         default: DOMAIN_ERROR;
       }
@@ -282,6 +298,228 @@ Value_P Z(new Value(sh, LOC));
          Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)));
 
    return Z;
+}
+//-----------------------------------------------------------------------------
+void
+Quad_CR::do_CR10(vector<UCS_string> & result, const Value & B)
+{
+const UCS_string obj_name(B);
+const NamedObject * named_obj = Workspace::lookup_existing_name(obj_name);
+   if (named_obj == 0)   DOMAIN_ERROR;
+
+   switch(named_obj->get_nc())
+      {
+        case NC_VARIABLE:
+             {
+               const  Symbol * symbol = named_obj->get_symbol();
+               Assert(symbol);
+               const Value & value = *symbol->get_apl_value().get();
+               const UCS_string pick;
+               do_CR10_var(result, obj_name, pick, value);
+               return;
+             }
+
+        case NC_FUNCTION:
+        case NC_OPERATOR:
+             TODO;
+
+        default: DOMAIN_ERROR;
+      }
+
+}
+//-----------------------------------------------------------------------------
+void
+Quad_CR::do_CR10_var(vector<UCS_string> & result, const UCS_string & var_name,
+                 const UCS_string & pick, const Value & value)
+{
+   // recursively encode name with value value
+
+UCS_string name(var_name);
+   if (pick.size())
+      {
+         name.clear();
+         name.append_utf8("((⎕IO+");
+         name.append(pick);
+         name.append_utf8(")⊃");
+         name.append(var_name);
+         name.append_utf8(")");
+      }
+
+   // step 1: ,value with 0s
+   //
+   {
+     UCS_string ucs;
+     ucs.append(name);
+     ucs.append_utf8("←");
+     if (pick.size())   ucs.append_utf8("⊂");
+     ucs.append_number(value.element_count());
+     ucs.append_utf8("⍴0   ⍝ set ,");
+     ucs.append(name);
+     ucs.append_utf8(" to 0");
+     result.push_back(ucs);
+   }
+
+   enum V_mode
+      {
+        Vm_NONE,
+        Vm_NUM,
+        Vm_QUOT,
+        Vm_UCS
+      };
+
+   // step 2: plain numbers and characters
+   //
+   {
+     ShapeItem pos = 0;
+     V_mode mode = Vm_NONE;
+     enum { max_len = 78 };
+     UCS_string line;
+     int count = 0;
+     int lpos = 0;
+     loop(p, value.element_count())
+        {
+          // compute next
+          //
+          UCS_string next;
+          V_mode next_mode;
+          const Cell & cell = value.get_ravel(p);
+          if (cell.is_character_cell())
+             {
+                next_mode = Vm_UCS;
+                next.append_number(cell.get_char_value());
+             }
+          else if (cell.is_integer_cell())
+             {
+               next_mode = Vm_NUM;
+               next.append_number(cell.get_int_value());
+             }
+          else if (cell.is_float_cell())
+             {
+               next_mode = Vm_NUM;
+               bool scaled = false;
+               PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
+               next = UCS_string(cell.get_real_value(), scaled, pctx);
+             }
+          else if (cell.is_complex_cell())
+             {
+               next_mode = Vm_NUM;
+               bool scaled = false;
+               PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
+               next = UCS_string(cell.get_real_value(), scaled, pctx);
+               next.append_utf8("J");
+               scaled = false;
+               next.append(UCS_string(cell.get_imag_value(), scaled, pctx));
+             }
+          else if (cell.is_pointer_cell())
+             {
+               // adapt to current mode
+               //
+               next_mode = mode;
+               if      (mode == Vm_NONE)   next.append_utf8("0");
+               else if (mode == Vm_NUM)    next.append_utf8("0");
+               else if (mode == Vm_QUOT)   next.append_utf8("!");
+               else if (mode == Vm_UCS)    next.append_utf8("33");
+             }
+          else DOMAIN_ERROR;
+
+           if (count && (line.size() + next.size()) > max_len)   // enough
+              {
+                 if (mode == Vm_QUOT)       line.append_utf8("'");
+                 else if (mode == Vm_UCS)   line.append_utf8(")");
+                 UCS_string pref = name;
+                 pref.append_utf8("[⎕IO+");
+                 pref.append_number(pos);
+                 pref.append_utf8("+⍳");
+                 pref.append_number(count);
+                 pref.append_utf8("]←");
+                 pref.append(line);
+                 pos += count;
+                 count = 0;
+
+                 result.push_back(pref);
+                 line.clear();
+                 mode = Vm_NONE;
+              }
+
+          const bool mode_changed = (mode != next_mode);
+          if (mode_changed)   // close old mode
+             {
+               if      (mode == Vm_QUOT)   line.append_utf8("'");
+               else if (mode == Vm_UCS)    line.append_utf8(")");
+             }
+
+          if (mode_changed)   // open new mode
+             {
+               if (mode != Vm_NONE)   line.append_utf8(",");
+
+               if      (next_mode == Vm_UCS)    line.append_utf8("(⎕UCS ");
+               else if (next_mode == Vm_QUOT)   line.append_utf8("'");
+               else if (next_mode == Vm_NUM)    line.append_utf8("");
+             }
+          else                // sepatator in same mode
+             {
+               if      (next_mode == Vm_QUOT)   ;
+               else if (next_mode == Vm_UCS)    line.append_utf8(",");
+               else if (next_mode == Vm_NUM)    line.append_utf8(",");
+             }
+
+          mode = next_mode;
+          line.append(next);
+          ++count;
+          next.clear();
+        }
+
+     // all items done
+     //
+     if (mode == Vm_QUOT)       line.append_utf8("'");
+     else if (mode == Vm_UCS)   line.append_utf8(")");
+     UCS_string pref = name;
+     pref.append_utf8("[");
+     pref.append_number(pos);
+     pref.append_utf8("+⍳");
+     pref.append_number(count);
+     pref.append_utf8("]←");
+     pref.append(line);
+
+     result.push_back(pref);
+   }
+
+   // step 3: nested items
+   //
+   {
+     loop(p, value.element_count())
+        {
+          const Cell & cell = value.get_ravel(p);
+          if (!cell.is_pointer_cell())   continue;
+
+          UCS_string sub_pick = pick;
+          if (pick.size())   sub_pick.append_utf8(" ");
+          sub_pick.append_number(p);
+
+          Value_P sub_value = cell.get_pointer_value();
+          do_CR10_var(result, var_name, sub_pick, *sub_value.get());
+        }
+   }
+
+   // step 4: reshape to final result
+   //
+   {
+      if (!value.is_skalar())
+         {
+           UCS_string ucs(name);
+           ucs.append_utf8("←");
+           loop(r, value.get_rank())
+               {
+                 if (r)   ucs.append_utf8(" ");
+                 ucs.append_number(value.get_shape_item(r));
+               }
+
+           ucs.append_utf8("⍴");
+           ucs.append(name);
+           ucs.append_utf8("   ⍝ reshape to final shape");
+           result.push_back(ucs);
+         }
+   }
 }
 //=============================================================================
 Token

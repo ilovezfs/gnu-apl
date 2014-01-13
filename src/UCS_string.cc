@@ -535,7 +535,7 @@ UCS_string::append_ascii(const char * str)
 }
 //-----------------------------------------------------------------------------
 void
-UCS_string::append_number(long long num)
+UCS_string::append_number(ShapeItem num)
 {
 char cc[40];
    snprintf(cc, sizeof(cc) - 1, "%lld", num);

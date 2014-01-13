@@ -29,6 +29,8 @@ DOMAIN ERROR
       FILE_IO[4]Handle
       ^         ^
 
+      →
+
       ⍝ create new file
       ⍝
       Filename← 'FILE_IO.test'

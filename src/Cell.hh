@@ -112,7 +112,7 @@ public:
 
    /// Return value if it is (known to be) close to int, or else Assert()
    virtual APL_Integer get_checked_near_int()  const
-      { Assert(0 && "Value is not an integer"); }
+      { NeverReach("Value is not an integer"); }
 
    /// return true iff value is numeric and close to 0
    virtual bool is_near_zero(APL_Float qct) const
@@ -137,7 +137,7 @@ public:
    /// return the minimum number of data bytes to store this cell in
    /// CDR format. The actual number of data bytes can be bigger if other
    /// cells need more bytes,
-   virtual int CDR_size() const { Assert(0); }
+   virtual int CDR_size() const { NeverReach("CDR_size called on Cell base class"); }
 
    /// Release content pointed to (complex, APL value)
    virtual void release(const char * loc) {}

@@ -41,7 +41,7 @@ public:
    Executable(const UCS_string & ucs, const char * loc);
 
    /// destructor: release values held by the body
-   ~Executable();
+   virtual ~Executable();
 
    /// the parse mode for \b this Executable
    virtual ParseMode get_parse_mode() const = 0;

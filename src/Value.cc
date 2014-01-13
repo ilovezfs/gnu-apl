@@ -371,7 +371,7 @@ const ShapeItem ec = nz_element_count();
    loop(e, ec)
       {
         Cell & cell = get_ravel(e);
-        new (&ret->get_ravel(e))   LvalCell(&cell);
+        new (ret->next_ravel())   LvalCell(&cell);
       }
 
    ret->check_value(LOC);
@@ -705,7 +705,7 @@ ShapeItem count = ec;
          const Cell & cell = get_ravel(c);
          if (cell.is_pointer_cell())
             {
-               count--;
+               count--;   // the pointer cell
                count += cell.get_pointer_value()->get_enlist_count();
             }
          else if (cell.is_lval_cell())
@@ -716,14 +716,14 @@ ShapeItem count = ec;
                    count--;
                    count += cp->get_pointer_value()->get_enlist_count();
                  }
-              else CERR << "non-pointer at " LOC << endl;
             }
        }
 
    return count;
 }
 //-----------------------------------------------------------------------------
-void Value::enlist(Cell * & dest, bool left) const
+void
+Value::enlist(Cell * & dest, bool left) const
 {
 ShapeItem ec = element_count();
 
@@ -737,9 +737,18 @@ ShapeItem ec = element_count();
          else if (left && cell.is_lval_cell())
             {
               const Cell * cp = cell.get_lval_value();
-              if (cp && cp->is_pointer_cell())
-                 cp->get_pointer_value()->enlist(dest, left);
-              else CERR << "non-pointer at " LOC << endl;
+              if (cp == 0)
+                 {
+                   CERR << "0-pointer at " LOC << endl;
+                 }
+              else if (cp->is_pointer_cell())
+                 {
+                   cp->get_pointer_value()->enlist(dest, left);
+                 }
+              else 
+                 {
+                   new (dest++) LvalCell(cell.get_lval_value());
+                 }
             }
          else if (left)
             {

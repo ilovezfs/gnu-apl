@@ -130,13 +130,20 @@ public:
    Token & at3()
       { Assert1(size() > 3);   return content[put - 4].tok; }
 
-   /// return true iff ← was seen but not yet reduced
-   bool get_assign_pending() const
-      { return assign_pending; }
+   enum Assign_state
+     {
+       ASS_none       = 0,   ///< no assignment (right of ←)
+       ASS_arrow_seen = 1,   ///< ← seen but no variable yet
+       ASS_var_seen   = 2,   ///< var and ← seen
+     };
 
-   /// set or clear the assign_pending flag
-   void set_assign_pending(bool on_off)
-      { assign_pending = on_off; }
+   /// return the current assignment state
+   Assign_state get_assign_state() const
+      { return assign_state; }
+
+   /// set the current assignment state
+   void set_assign_state(Assign_state new_state)
+      { assign_state = new_state; }
 
    /// return the highest PC seen in the current statement
    Function_PC get_lookahead_high() const
@@ -185,7 +192,7 @@ public:
 
    /// reset statement to empty state (e.g. after →N)
    void reset(const char * loc)
-      { cleanup();   put = 0;   assign_pending = false;
+      { cleanup();   put = 0;   assign_state = ASS_none;
         lookahead_high = Function_PC_invalid;
         saved_lookahead.tok.clear(LOC); }
 
@@ -270,10 +277,8 @@ protected:
    /// the current pc (+1)
    Function_PC PC;
 
-   /// true if an assignment is pending in this statement. \b assign_pending is
-   /// set when a ← is stored in the current statement and reset after the
-   /// assignment was made.
-   bool assign_pending;
+   /// assignment state
+   Assign_state assign_state;
 
    /// the highest PC seen in the current statement
    Function_PC lookahead_high;

@@ -103,9 +103,8 @@ public:
       {
         if (value_p)
            {
-             const int count = use_count() - 1;
              decrement_owner_count(value_p, LOC);
-             ADD_EVENT(value_p, VHE_PtrDel, count, LOC);
+             ADD_EVENT(value_p, VHE_PtrDel, use_count(), LOC);
           }
       }
 
@@ -147,9 +146,8 @@ public:
      {
        if (value_p)
           {
-            const int count = use_count() - 1;
             decrement_owner_count(value_p, LOC);
-            ADD_EVENT(value_p, VHE_PtrClr, count, loc);
+            ADD_EVENT(value_p, VHE_PtrClr, use_count(), loc);
 
             value_p = 0;
           }

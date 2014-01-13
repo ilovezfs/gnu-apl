@@ -188,9 +188,9 @@ Value_P format = A->get_ravel(a++).get_pointer_value();
                               {
                                 const Unicode cv =
                                             A->get_ravel(a++).get_char_value();
-                                UCS_string ucs(un1);
+                                UCS_string ucs(cv);
                                 UTF8_string utf(ucs);
-                                 fwrite(utf.c_str(), 1, utf.size(), out); 
+                                fwrite(utf.c_str(), 1, utf.size(), out); 
                                 ++out_len;
                               }
                               goto field_done;
@@ -402,7 +402,6 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 char buffer[SMALL_BUF];
 
                 size_t len = fread(buffer, 1, SMALL_BUF, fe.fe_file);
-                if (len < 0)   len = 0;
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
@@ -419,7 +418,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 char buffer[SMALL_BUF];
 
                 const char * s = fgets(buffer, SMALL_BUF, fe.fe_file);
-                const int len = strlen(buffer);
+                const int len = s ? strlen(s) : 0;
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
@@ -592,7 +591,6 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                    buffer = del = new char[bytes];
 
                 size_t len = fread(buffer, 1, bytes, fe.fe_file);
-                if (len < 0)   len = 0;
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
@@ -617,7 +615,6 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 delete del;
 
                 size_t len = fwrite(buffer, 1, bytes, fe.fe_file);
-                if (len < 0)   len = 0;
                 Value_P Z(new Value(LOC));
                 new (&Z->get_ravel(0)) IntCell(len); 
                 Z->check_value(LOC);

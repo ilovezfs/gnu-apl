@@ -189,12 +189,14 @@ int
 Output::putc_stderr(int ch)
 {
    cerr << (char)ch;
+   return ch;
 }
 //-----------------------------------------------------------------------------
 int
 Output::putc_stdout(int ch)
 {
    cout << (char)ch;
+   return ch;
 }
 //-----------------------------------------------------------------------------
 void

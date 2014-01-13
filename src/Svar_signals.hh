@@ -396,7 +396,7 @@ public:
 
 protected:
    /// send this signal on sock
-   int send(const UdpSocket & sock) const
+   void send(const UdpSocket & sock) const
        {
          string buffer;
          store(buffer);
