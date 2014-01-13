@@ -332,7 +332,20 @@ void
 Quad_CR::do_CR10_var(vector<UCS_string> & result, const UCS_string & var_name,
                  const UCS_string & pick, const Value & value)
 {
-   // recursively encode name with value value
+   // recursively encode var_name with value.
+   //
+   // we emit one of 2 formats:
+   //
+   // short format: var_name ← (⍴ value) ⍴ value             " shortlog "
+   //         
+   // long format:  var_name ← (⍴ value) ⍴ value             " prolog "
+   //               var_name[] ← partial value
+   //               var_name ← (⍴ var_name) ⍴ var_name       " epilog "
+   //         
+   // short format (the default) requires a short and not nested value
+   //
+bool short_format = true;   // if false then prolog has been mitted.
+bool nested = false;
 
 UCS_string name(var_name);
    if (pick.size())
@@ -345,18 +358,35 @@ UCS_string name(var_name);
          name.append_utf8(")");
       }
 
-   // step 1: ,value with 0s
+   // compute the prolog
    //
+UCS_string prolog(name);
    {
-     UCS_string ucs;
-     ucs.append(name);
-     ucs.append_utf8("←");
-     if (pick.size())   ucs.append_utf8("⊂");
-     ucs.append_number(value.element_count());
-     ucs.append_utf8("⍴0   ⍝ set ,");
-     ucs.append(name);
-     ucs.append_utf8(" to 0");
-     result.push_back(ucs);
+     prolog.append_utf8("←");
+     if (pick.size())   prolog.append_utf8("⊂");
+     prolog.append_number(value.element_count());
+     prolog.append_utf8("⍴0");
+   }
+
+UCS_string shape_rho;
+   {
+     if (!value.is_skalar())
+        {
+          loop(r, value.get_rank())
+              {
+                if (r)   shape_rho.append_utf8(" ");
+                shape_rho.append_number(value.get_shape_item(r));
+              }
+
+           shape_rho.append_utf8("⍴");
+         }
+   }
+
+UCS_string epilog(name);
+   {
+     epilog.append_utf8("←");
+     epilog.append(shape_rho);
+     epilog.append(name);
    }
 
    enum V_mode
@@ -367,7 +397,20 @@ UCS_string name(var_name);
         Vm_UCS
       };
 
-   // step 2: plain numbers and characters
+   if (value.element_count() == 0)   // empty value
+      {
+        Value_P proto = value.prototype(LOC);
+        do_CR10_var(result, var_name, pick, *proto);
+        UCS_string reshape(name);
+        reshape.append_utf8("←");
+        reshape.append(shape_rho);
+        reshape.append(name);
+
+        result.push_back(reshape);
+        return;
+      }
+
+   // step 1: plain numbers and characters
    //
    {
      ShapeItem pos = 0;
@@ -419,15 +462,29 @@ UCS_string name(var_name);
                else if (mode == Vm_NUM)    next.append_utf8("0");
                else if (mode == Vm_QUOT)   next.append_utf8("!");
                else if (mode == Vm_UCS)    next.append_utf8("33");
+
+               nested = true;
+               if (short_format)
+                  {
+                    result.push_back(prolog);
+                    short_format = false;
+                  }
              }
           else DOMAIN_ERROR;
 
-           if (count && (line.size() + next.size()) > max_len)   // enough
+           if (count && (line.size() + next.size()) > max_len)   // long value
               {
                  if (mode == Vm_QUOT)       line.append_utf8("'");
                  else if (mode == Vm_UCS)   line.append_utf8(")");
+
+                  if (short_format)
+                     {
+                       result.push_back(prolog);
+                       short_format = false;
+                     }
+
                  UCS_string pref = name;
-                 pref.append_utf8("[⎕IO+");
+                 pref.append_utf8("[");
                  pref.append_number(pos);
                  pref.append_utf8("+⍳");
                  pref.append_number(count);
@@ -473,53 +530,60 @@ UCS_string name(var_name);
      //
      if (mode == Vm_QUOT)       line.append_utf8("'");
      else if (mode == Vm_UCS)   line.append_utf8(")");
-     UCS_string pref = name;
-     pref.append_utf8("[");
-     pref.append_number(pos);
-     pref.append_utf8("+⍳");
-     pref.append_number(count);
-     pref.append_utf8("]←");
-     pref.append(line);
 
-     result.push_back(pref);
-   }
-
-   // step 3: nested items
-   //
-   {
-     loop(p, value.element_count())
+     if (short_format)
         {
-          const Cell & cell = value.get_ravel(p);
-          if (!cell.is_pointer_cell())   continue;
+          UCS_string pref = name;
+          pref.append_utf8("←");
+          pref.append(shape_rho);
+          pref.append(line);
 
-          UCS_string sub_pick = pick;
-          if (pick.size())   sub_pick.append_utf8(" ");
-          sub_pick.append_number(p);
+          result.push_back(pref);
+        }
+     else
+        {
+          UCS_string pref = name;
+          pref.append_utf8("[");
+          pref.append_number(pos);
+          pref.append_utf8("+⍳");
+          pref.append_number(count);
+          pref.append_utf8("]←");
+          pref.append(line);
 
-          Value_P sub_value = cell.get_pointer_value();
-          do_CR10_var(result, var_name, sub_pick, *sub_value.get());
+          result.push_back(pref);
         }
    }
 
-   // step 4: reshape to final result
+   // step 2: nested items
    //
-   {
-      if (!value.is_skalar())
-         {
-           UCS_string ucs(name);
-           ucs.append_utf8("←");
-           loop(r, value.get_rank())
-               {
-                 if (r)   ucs.append_utf8(" ");
-                 ucs.append_number(value.get_shape_item(r));
-               }
+   if (nested)
+      {
+        loop(p, value.element_count())
+           {
+             const Cell & cell = value.get_ravel(p);
+             if (!cell.is_pointer_cell())   continue;
 
-           ucs.append_utf8("⍴");
-           ucs.append(name);
-           ucs.append_utf8("   ⍝ reshape to final shape");
-           result.push_back(ucs);
-         }
-   }
+             UCS_string sub_pick = pick;
+             if (pick.size())   sub_pick.append_utf8(" ");
+             sub_pick.append_number(p);
+
+             Value_P sub_value = cell.get_pointer_value();
+             do_CR10_var(result, var_name, sub_pick, *sub_value.get());
+           }
+      }
+
+   // step 3: reshape to final result
+   //
+   if (!short_format)   // may need epilog
+      {
+        // if value is a skalar or a vector with != 1 elements then
+        // epilog is not needed.
+        //
+        if (value.get_rank() > 1 ||
+            (value.is_vector() && value.element_count() == 1))
+
+            result.push_back(epilog);
+      }
 }
 //=============================================================================
 Token
