@@ -624,17 +624,17 @@ operator << (ostream & os, Unicode uni)
 {       
    if (uni < 0x80)      return os << (char)uni;
         
-   if (uni < 0x800)     return os << (char)(0xC0 | uni >> 6)
-                                  << (char)(0x80 | uni & 0x3F);
+   if (uni < 0x800)     return os << (char)(0xC0 | (uni >> 6))
+                                  << (char)(0x80 | (uni & 0x3F));
         
-   if (uni < 0x10000)    return os << (char)(0xE0 | uni >> 12)
-                                   << (char)(0x80 | uni >>  6 & 0x3F)
-                                   << (char)(0x80 | uni       & 0x3F);
+   if (uni < 0x10000)    return os << (char)(0xE0 | (uni >> 12))
+                                   << (char)(0x80 | (uni >>  6 & 0x3F))
+                                   << (char)(0x80 | (uni       & 0x3F));
 
-   if (uni < 0x110000)   return os << (char)(0xE0 | uni >> 18)
-                                   << (char)(0x80 | uni >> 12 & 0x3F)
-                                   << (char)(0x80 | uni >>  6 & 0x3F)
-                                   << (char)(0x80 | uni       & 0x3F);
+   if (uni < 0x110000)   return os << (char)(0xE0 | (uni >> 18))
+                                   << (char)(0x80 | (uni >> 12 & 0x3F))
+                                   << (char)(0x80 | (uni >>  6 & 0x3F))
+                                   << (char)(0x80 | (uni       & 0x3F));
 
    // use ѡ to display invalid unicodes
    return os << (char)0xD1 << (char)0xA1;

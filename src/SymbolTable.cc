@@ -236,13 +236,13 @@ int symbol_count = 0;
                if (sym->is_erased() && !(which & LIST_ERASED))   continue;
 
                const NameClass nc = sym->value_stack.back().name_class;
-               if ((nc == NC_VARIABLE)         && (which & LIST_VARS)    ||
-                   (nc == NC_FUNCTION)         && (which & LIST_FUNS)    ||
-                   (nc == NC_OPERATOR)         && (which & LIST_OPERS)   ||
-                   (nc == NC_LABEL)            && (which & LIST_LABELS)  ||
-                   (nc == NC_LABEL)            && (which & LIST_VARS)    ||
-                   (nc == NC_INVALID)          && (which & LIST_INVALID) ||
-                   (nc == NC_UNUSED_USER_NAME) && (which & LIST_UNUSED))
+               if (((nc == NC_VARIABLE)         && (which & LIST_VARS))    ||
+                   ((nc == NC_FUNCTION)         && (which & LIST_FUNS))    ||
+                   ((nc == NC_OPERATOR)         && (which & LIST_OPERS))   ||
+                   ((nc == NC_LABEL)            && (which & LIST_LABELS))  ||
+                   ((nc == NC_LABEL)            && (which & LIST_VARS))    ||
+                   ((nc == NC_INVALID)          && (which & LIST_INVALID)) ||
+                   ((nc == NC_UNUSED_USER_NAME) && (which & LIST_UNUSED)))
                    {
                      list.push_back(sym);
                    }
@@ -308,6 +308,7 @@ int count = 0;
                count += sym->show_owners(out, value);
              }
        }
+   return count;
 }
 //-----------------------------------------------------------------------------
 void

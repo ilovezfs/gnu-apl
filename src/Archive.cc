@@ -835,6 +835,8 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
    //
    out << "</Workspace>" << endl
        << char(0) << char(0) <<char(0) <<char(0) << endl;
+
+   return *this;
 }
 //=============================================================================
 XML_Loading_Archive::XML_Loading_Archive(const char * filename)

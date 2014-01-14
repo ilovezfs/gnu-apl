@@ -1752,14 +1752,19 @@ ShapeItem c = 0;
         const Shape A_as_shape(A, qct, qio);
 
         loop(r, A->element_count())
-            c += weight.get_shape_item(r) * A_as_shape.get_shape_item(r);
+            {
+              const ShapeItem ar = A_as_shape.get_shape_item(r);
+              if (ar < 0)                       INDEX_ERROR;
+              if (ar >= B->get_shape_item(r))   INDEX_ERROR;
+              c += weight.get_shape_item(r) * ar;
+            }
       }
    else   // A is a skalar, so B must be a vector.
       {
         if (B->get_rank() != 1)         RANK_ERROR;
         const APL_Integer a = cA->get_near_int(qct) - qio;
-        if (a < 0)                      DOMAIN_ERROR;
-        if (a > B->get_shape_item(0))   LENGTH_ERROR;
+        if (a < 0)                       INDEX_ERROR;
+        if (a >= B->get_shape_item(0))   INDEX_ERROR;
         c = a;
       }
 
@@ -2881,8 +2886,8 @@ char * fract_end = 0;
       {
         // create a format like %.5E (if fract_part has 5 digits)
         //
-        const int flen = snprintf(format, sizeof(format), "%%.%dE",
-                                  fract_part.size());
+        const int flen = snprintf(format, sizeof(format), "%%.%luE",
+                                  (unsigned long)fract_part.size());
         Assert(flen < sizeof(format));   // format was big enough.
 
         const int dlen = snprintf(data_buf, sizeof(data_buf), format, value);
@@ -2904,8 +2909,8 @@ char * fract_end = 0;
       }
    else   // no exponent in format string.
       {
-        const int flen = snprintf(format, sizeof(format), "%%.%df",
-                                  fract_part.size());
+        const int flen = snprintf(format, sizeof(format), "%%.%luf",
+                                  (unsigned long)fract_part.size());
         Assert(flen < sizeof(format));   // assume no snprintf() overflow
 
         const int dlen = snprintf(data_buf, sizeof(data_buf), format, value);
@@ -3121,8 +3126,6 @@ PrintBuffer pb;
               col_width = A->get_ravel(2*col)    .get_near_int(qct);
               precision = A->get_ravel(2*col + 1).get_near_int(qct);
             }
-
-         if (col_width < 0)   DOMAIN_ERROR;
 
          PrintBuffer pb_col(format_col_spec(col_width, precision,
                                          &B->get_ravel(col), cols_B, rows_B));
