@@ -103,7 +103,8 @@ UCS_string fun_text;
       }
 
 int error_line = 0;
-UserFunction * ufun = UserFunction::fix(fun_text, error_line, false, LOC);
+UserFunction * ufun = UserFunction::fix(fun_text, error_line, false,
+                                        LOC, "∇ editor");
    if (ufun == 0)   NABLA_ERROR;
 
    if (locked)
@@ -486,7 +487,8 @@ Nabla::open_new_function()
       CERR << "creating new function '" << fun_name << "'" << endl;
 
 int error_line = 0;
-UserFunction * ufun = UserFunction::fix(fun_name, error_line, true, LOC);
+UserFunction * ufun = UserFunction::fix(fun_name, error_line, true, LOC,
+                                        "∇ editor");
 
    if (ufun == 0)   return "Bad function header at " LOC;
    fun_name = ufun->get_name();

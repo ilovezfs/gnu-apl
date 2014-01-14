@@ -39,7 +39,8 @@
 
 //-----------------------------------------------------------------------------
 UserFunction::UserFunction(const UCS_string txt, int & error_line,
-                           bool keep_existing, const char * loc)
+                           bool keep_existing, const char * loc,
+                           const UTF8_string & _creator)
   : Executable(txt, loc),
     Function(ID_USER_SYMBOL, TOK_FUN2),
     sym_Z(0),
@@ -48,7 +49,8 @@ UserFunction::UserFunction(const UCS_string txt, int & error_line,
     sym_FUN(0),
     sym_RO(0),
     sym_X(0),
-    sym_B(0)
+    sym_B(0),
+    creator(_creator)
 {
    set_creation_time(now());
 
@@ -642,7 +644,7 @@ UCS_string ucs(utf);
    close(in);
 
 int error_line = -1;
-   fun = fix(ucs, error_line, false, LOC);
+   fun = fix(ucs, error_line, false, LOC, filename);
 }
 //-----------------------------------------------------------------------------
 Function_PC
@@ -655,7 +657,8 @@ UserFunction::pc_for_line(int l) const
 //-----------------------------------------------------------------------------
 UserFunction *
 UserFunction::fix(const UCS_string & text, int & error_line,
-                  bool keep_existing,  const char * loc)
+                  bool keep_existing, const char * loc,
+                  const UTF8_string &  creator)
 {
    Log(LOG_UserFunction__fix)
       CERR << "fix pmode=user function:" << endl << text << endl
@@ -667,7 +670,7 @@ UserFunction::fix(const UCS_string & text, int & error_line,
 UserFunction * fun = 0;
    try
       {
-        fun = new UserFunction(text, error_line, keep_existing, loc);
+        fun = new UserFunction(text, error_line, keep_existing, loc, creator);
       }
    catch (Error err)
       {

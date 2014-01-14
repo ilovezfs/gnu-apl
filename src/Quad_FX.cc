@@ -35,7 +35,7 @@ Token
 Quad_FX::eval_B(Value_P B)
 {
 static const int eprops[] = { 0, 0, 0, 0 };
-   return do_quad_FX(eprops, B);
+   return do_quad_FX(eprops, B, UTF8_string("⎕FX"));
 }
 //-----------------------------------------------------------------------------
 Token
@@ -43,28 +43,59 @@ Quad_FX::eval_AB(Value_P A, Value_P B)
 {
    if (A->get_rank() > 1)         RANK_ERROR;
 
+   // dyadic ⎕FX supports the following formats:
+   //
+   // 1.   "libname.so" ⎕FX "APL-name"   (native function)
+   //
+   //                                             exec properties  creator
+   //                                             ------------------------
+   // 2a.  N            ⎕FX "APL-text"            N  N  N  N       "⎕FX"
+   // 2b.  N "creator"  ⎕FX "APL-text"            N  N  N  N       "creator"
+   // 2c.  N1 N2 N3 N4           ⎕FX "APL-text"   N1 N2 N3 N4      "⎕FX"
+   // 2d.  N1 N2 N3 N4 "creator" ⎕FX "APL-text"   N1 N2 N3 N4      "creator"
+   //
+
    if (A->is_char_string())   return do_native_FX(A, -1, B);
 
 int eprops[4];
-   if (A->element_count() == 1)
-      {
-        eprops[0] = A->get_ravel(0).get_int_value();
-        if (eprops[0] < 0)   DOMAIN_ERROR;
-        if (eprops[0] > 1)   DOMAIN_ERROR;
-        eprops[3] = eprops[2] = eprops[1] = eprops[0];
-      }
-   if (A->element_count() == 4)
-      {
-         loop(e, 4)
-            {
-              eprops[e] = A->get_ravel(e).get_int_value();
-              if (eprops[e] < 0)   DOMAIN_ERROR;
-              if (eprops[e] > 1)   DOMAIN_ERROR;
-            }
-      }
-   else    LENGTH_ERROR;
+UTF8_string creator("⎕FX");
 
-   return do_quad_FX(eprops, B);
+   switch(A->element_count())
+      {
+        case 2:   // format 2b.
+             {
+               const Value & C = *A->get_ravel(1).get_pointer_value().get();
+               UCS_string creator_ucs(C);
+               creator = UTF8_string(creator_ucs);
+             }
+             /* no break */
+        case 1:   // format 2a.
+             eprops[0] = A->get_ravel(0).get_int_value();
+             if (eprops[0] < 0)   DOMAIN_ERROR;
+             if (eprops[0] > 1)   DOMAIN_ERROR;
+             eprops[3] = eprops[2] = eprops[1] = eprops[0];
+             break;
+
+        case 5:   // format 2d.
+             {
+               const Value & C = *A->get_ravel(4).get_pointer_value().get();
+               UCS_string creator_ucs(C);
+               creator = UTF8_string(creator_ucs);
+             }
+             /* no break */
+        case 4:   // format 2c.
+             loop(e, 4)
+                {
+                  eprops[e] = A->get_ravel(e).get_int_value();
+                  if (eprops[e] < 0)   DOMAIN_ERROR;
+                  if (eprops[e] > 1)   DOMAIN_ERROR;
+                }
+             break;
+
+        default: LENGTH_ERROR;
+      }
+
+   return do_quad_FX(eprops, B, creator);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -80,7 +111,8 @@ const Axis axis = X->get_single_axis(10);
 }
 //-----------------------------------------------------------------------------
 Token
-Quad_FX::do_quad_FX(const int * exec_props, Value_P B)
+Quad_FX::do_quad_FX(const int * exec_props, Value_P B,
+                    const UTF8_string & creator)
 {
    if (B->get_rank() > 2)   RANK_ERROR;
    if (B->get_rank() < 1)   RANK_ERROR;
@@ -151,14 +183,15 @@ UCS_string text;
            }
       }
 
-   return do_quad_FX(exec_props, text);
+   return do_quad_FX(exec_props, text, creator);
 }
 //-----------------------------------------------------------------------------
 Token
-Quad_FX::do_quad_FX(const int * exec_props, const UCS_string & text)
+Quad_FX::do_quad_FX(const int * exec_props, const UCS_string & text,
+                    const UTF8_string & creator)
 {
 int error_line = 0;
-UserFunction * fun = UserFunction::fix(text, error_line, false, LOC);
+UserFunction * fun = UserFunction::fix(text, error_line, false, LOC, creator);
    if (fun == 0)
       {
         Value_P Z(new Value(LOC));

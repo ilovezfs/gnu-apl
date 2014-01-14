@@ -839,13 +839,14 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
    return *this;
 }
 //=============================================================================
-XML_Loading_Archive::XML_Loading_Archive(const char * filename)
+XML_Loading_Archive::XML_Loading_Archive(const char * _filename)
    : line(1),
      data(0),
      end(0),
      copying(false),
      protection(false),
-     reading_vids(false)
+     reading_vids(false),
+     filename(_filename)
 {
    fd = open(filename, O_RDONLY);
    if (fd == -1)   return;
@@ -1438,7 +1439,7 @@ int err = 0;
       }
    else
       {
-        UserFunction * ufun = new UserFunction(text, err, false, LOC);
+        UserFunction * ufun = new UserFunction(text, err, false, LOC, filename);
         Assert(err == -1);
 
         if (d == 0)   symbol.pop(false);

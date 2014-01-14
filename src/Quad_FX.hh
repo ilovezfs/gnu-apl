@@ -45,11 +45,13 @@ public:
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    /// do ⎕FX with execution properties \b exec_props
-   Token do_quad_FX(const int * exec_props, const UCS_string & text);
+   Token do_quad_FX(const int * exec_props, const UCS_string & text,
+                    const UTF8_string & creator);
 
 protected:
    /// do ⎕FX with execution properties \b exec_props
-   Token do_quad_FX(const int * exec_props, Value_P B);
+   Token do_quad_FX(const int * exec_props, Value_P B,
+                    const UTF8_string & creator);
 
    /// ⎕FX with native function and optional library reference
    Token do_native_FX(Value_P A, Axis axis, Value_P B);
