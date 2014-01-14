@@ -24,9 +24,10 @@
 #include <vector>
 #include <sys/types.h>
 
+#include "Error.hh"
 #include "Executable.hh"
 #include "Function.hh"
-#include "Error.hh"
+#include "UTF8_string.hh"
 
 //-----------------------------------------------------------------------------
 /**
@@ -37,7 +38,7 @@ class UserFunction : public Function, public Executable
 public:
    /// Construct a user defined function
    UserFunction(const UCS_string txt, int & error_line, bool keep_existing,
-                const char * loc);
+                const char * loc, const UTF8_string &  _creator);
 
    /// Destructor.
    ~UserFunction();
@@ -122,7 +123,8 @@ public:
    /// create a user defined function according to \b data of length \b len
    /// in workspace \b w.
    static UserFunction * fix(const UCS_string & data, int & error_line,
-                             bool keep_existing, const char * loc);
+                             bool keep_existing, const char * loc,
+                             const UTF8_string &  creator);
 
    /// return the pc of the first token in line l (valid line), or
    /// the pc of the last token in the function (invalid line)
@@ -161,6 +163,9 @@ public:
 
    /// pop all local vars, return Z
    Value_P pop_local_vars() const;
+
+   const UTF8_string get_creator() const
+      { return creator; }
 
 protected:
    /// overladed Function::may_push_SI()
@@ -269,6 +274,9 @@ protected:
 
    /// execution properties as per 3⎕AT
    int exec_properties[4];
+
+   /// the entity (∇ editor, ⎕FX, or filename) that has created this function
+   const UTF8_string creator;
 };
 //-----------------------------------------------------------------------------
 

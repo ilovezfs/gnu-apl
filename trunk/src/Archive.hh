@@ -151,7 +151,7 @@ class XML_Loading_Archive
 {
 public:
    /// constructor: remember file name and workspace
-   XML_Loading_Archive(const char * filename);
+   XML_Loading_Archive(const char * _filename);
 
    /// return true iff constructor could open the file
    bool is_open() const   { return fd != -1; }
@@ -326,6 +326,9 @@ protected:
 
    /// parents[vid] os the parent of vid, or -1 if vid is a top-level value
    vector<int> parents;
+
+   /// the file name from which this archive was read
+   const char * filename;
 };
 //-----------------------------------------------------------------------------
 
