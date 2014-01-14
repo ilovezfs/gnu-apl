@@ -426,12 +426,12 @@ found_prefix:
      switch (at0().get_Class())
         {
           case TC_VALUE:
-               more = (best->prio < BS_VAL_VAL) &&
+               more = ((best->prio < BS_VAL_VAL) &&
                         (  next == TC_VALUE            // A B
                         || next == TC_R_PARENT         // ) B
-                        ) ||
+                        )) ||
 
-                      best->prio < BS_OP_RO && next == TC_OPER2;
+                      (best->prio < BS_OP_RO && next == TC_OPER2);
 
                break;
 

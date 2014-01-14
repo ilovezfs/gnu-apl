@@ -305,7 +305,7 @@ Avec::is_digit(Unicode av)
 bool
 Avec::is_digit_or_space(Unicode av)
 {
-   return (av <= UNI_ASCII_SPACE || av <= UNI_ASCII_9 && av >= UNI_ASCII_0);
+   return (av <= UNI_ASCII_SPACE || (av <= UNI_ASCII_9 && av >= UNI_ASCII_0));
 }
 //-----------------------------------------------------------------------------
 bool

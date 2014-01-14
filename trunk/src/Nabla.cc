@@ -621,6 +621,7 @@ Nabla::execute_escape()
 {
    lines.clear();
    open_function();
+   return 0;
 }
 //-----------------------------------------------------------------------------
 int

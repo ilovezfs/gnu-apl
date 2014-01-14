@@ -517,7 +517,7 @@ char cc[100];
    count += executable->show_owners(cc, out, value);
 
    snprintf(cc, sizeof(cc), "    SI[%d] ", level);
-   current_stack.show_owners(cc, out, value);
+   count += current_stack.show_owners(cc, out, value);
 
    return count;
 }

@@ -67,7 +67,7 @@ PrintContext pctx(_pctx);
 const ShapeItem ec = value.element_count();
    if (ec == 0)   // empty value of any dimension
       {
-         const Shape sh = value.get_shape().without_axis(sh.get_rank() - 1);
+         const Shape sh = value.get_shape().without_axis(value.get_rank() - 1);
          if (sh.get_volume() <= 1)   // empty vector
             {
               if (pctx.get_style() == PR_APL_FUN)

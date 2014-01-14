@@ -1079,7 +1079,7 @@ Quad_ES::get_error_code(Value_P B)
 const APL_Integer major = B->get_ravel(0).get_int_value();
 const APL_Integer minor = B->get_ravel(1).get_int_value();
 
-   return ErrorCode(major << 16 | minor & 0xFFFF);
+   return ErrorCode(major << 16 | (minor & 0xFFFF));
 }
 //=============================================================================
 Token

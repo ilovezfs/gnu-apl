@@ -72,7 +72,7 @@ Tokenizer::do_tokenize(const UCS_string & input, Token_string & tos)
            << input << "»" << endl;
 
 Source<Unicode> src(input);
-   while (rest_1 = rest_2 = src.rest())
+   while ((rest_1 = rest_2 = src.rest()) != 0)
       {
         const Unicode uni = *src;
         if (uni == UNI_COMMENT)   break;
