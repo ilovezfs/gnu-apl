@@ -105,8 +105,6 @@ print_flags (ostream & out, ValueFlags flags)
 {
    return out << ((flags & VF_marked)   ?  "M" : "-")
               << ((flags & VF_complete) ?  "C" : "-")
-              << ((flags & VF_left)     ?  "&" : "-")
-              << ((flags & VF_dirty)    ?  "?" : "-")
               << ((flags & VF_forever)  ?  "∞" : "-");
 }
 //-----------------------------------------------------------------------------

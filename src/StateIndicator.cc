@@ -100,6 +100,14 @@ StateIndicator::set_args(Token * A, Token & F, Token * X, Token * B)
 
    if (X)
       {
+        // X can be a single value (which is OK) or an IndexExpr (which is not)
+        //
+        if (X->get_ValueType() != TV_VAL)
+           {
+             IndexExpr & idx = X->get_index_val();
+             idx.extract_all();   // clear all values in X
+             SYNTAX_ERROR;
+           }
         eval_arg_X = X->get_axes();
       }
 

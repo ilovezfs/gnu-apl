@@ -331,20 +331,14 @@ public:
    bool is_ ## flag() const      { return (flags & VF_ ## flag) != 0; }
 
 # define set_forever()  SET_forever(_LOC)
-# define set_left()     SET_left(_LOC)
-# define set_dirty()    SET_dirty(_LOC)
 # define set_complete() SET_complete(_LOC)
 # define set_marked()   SET_marked(_LOC)
 
 # define clear_forever()  CLEAR_forever(_LOC)
-# define clear_left()     CLEAR_left(_LOC)
-# define clear_dirty()    CLEAR_dirty(_LOC)
 # define clear_marked()   CLEAR_marked(_LOC)
 
    VF_flag(forever)
-   VF_flag(left)
    VF_flag(complete)
-   VF_flag(dirty)
    VF_flag(marked)
 
    /// mark all values, except static values

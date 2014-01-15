@@ -57,4 +57,5 @@
  5220 fixed (2 2⍴⍳4)[1;⍬] problem
  5267 finalized 10⎕CR and fixed some bugs
  5277 GNU APL 1.2 release
+ 5291 Support files for dyalog keyboards added
 

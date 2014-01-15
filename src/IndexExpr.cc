@@ -45,6 +45,15 @@ Value_P ret = values[rk];
    return ret;
 }
 //-----------------------------------------------------------------------------
+void
+IndexExpr::extract_all()
+{
+   loop(r, rank)
+      {
+        Value_P val = extract_value(r);
+      }
+}
+//-----------------------------------------------------------------------------
 Rank
 IndexExpr::get_axis(Rank max_axis) const
 {
