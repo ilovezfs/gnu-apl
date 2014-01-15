@@ -364,7 +364,6 @@ Value_P
 Value::get_cellrefs(const char * loc)
 {
 Value_P ret(new Value(get_shape(), loc));
-   ret->set_left();
 
 const ShapeItem ec = nz_element_count();
 
@@ -626,7 +625,6 @@ int count = 0;
               v->list_one(CERR, false);
             }
 
-         v->set_dirty();
          ++count;
        }
 
@@ -641,8 +639,6 @@ Value::list_one(ostream & out, bool show_owners)
         out << "   Flags =";
         char sep = ' ';
         if (is_forever())    { out << sep << "FOREVER";    sep = '+'; }
-        if (is_left())       { out << sep << "LEFT";       sep = '+'; }
-        if (is_dirty())      { out << sep << "DIRTY";      sep = '+'; }
         if (is_complete())   { out << sep << "COMPLETE";   sep = '+'; }
         if (is_marked())     { out << sep << "MARKED";     sep = '+'; }
         out << ",";
@@ -1469,8 +1465,6 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
        << ind << "Shape:   " << get_shape() << endl
        << ind << "Flags:   " << get_flags();
    if (is_forever())    out << " VF_forever";
-   if (is_left())       out << " VF_left";
-   if (is_dirty())      out << " VF_dirty";
    if (is_complete())   out << " VF_complete";
    if (is_marked())     out << " VF_marked";
    out << endl
@@ -1740,8 +1734,6 @@ int count = 0;
          stale_vals.push_back(val);
          stale_dobs.push_back(dob);
 
-         if (!val->is_dirty())   ++count;
-
          if (!goon)
             {
               out << "Value::print_stale() : endless loop in "
@@ -1787,7 +1779,6 @@ int count = 0;
          if (val->is_marked())
             {
               val->print_stale_info(out, dob);
-              if (!val->is_dirty())   ++count;
               val->unmark();
             }
        }

@@ -74,6 +74,9 @@ public:
    /// return one axis value and clear it in \b this IndexExpr
    Value_P extract_value(Rank rk);
 
+   /// clear all axis values
+   void extract_all();
+
    /// print stale IndexExprs, and return the number of stale IndexExprs.
    static int print_stale(ostream & out);
 

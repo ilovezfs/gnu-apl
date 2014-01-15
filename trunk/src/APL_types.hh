@@ -112,8 +112,6 @@ enum ValueFlags
 {
   VF_NONE     = 0x000,   ///< no flags
   VF_forever  = 0x004,   ///< value is fixed forever
-  VF_dirty    = 0x100,   ///< initialization failed
-  VF_left     = 0x200,   ///< left value (←)
   VF_complete = 0x400,   ///< CHECK called
   VF_marked   = 0x800,   ///< marked to detect stale
 };

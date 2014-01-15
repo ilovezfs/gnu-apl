@@ -1728,7 +1728,7 @@ const ShapeItem ec_A = A->element_count();
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
-Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B->is_left());
+Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B->is_lval());
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);

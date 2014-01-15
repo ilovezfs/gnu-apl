@@ -18,11 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+   // to maintain )SAVE / )LOAD compatibility, append new items at the end
+   // of their character!
+
 //      Id              Unicode             = Value    Macro
 //----------------------------------------------------------
 id_def( No_ID         , ---               , = 0      , pp )
 id_def( No_ID1        , ---               , = 1      , pp )
 id_def( No_ID2        , ---               , = 2      , pp )
+
 id_def( AF            , ---               , = 0x4101 , qf )
 id_def( AI            , ---               ,          , qv )
 id_def( ARG           , ---               ,          , qv )
@@ -31,11 +35,14 @@ id_def( APL_VALUE1    , ---               ,          , pp )
 id_def( APL_VALUE2    , ---               ,          , pp )
 id_def( APL_VALUE3    , ---               ,          , pp )
 id_def( ASSIGN        , LEFT_ARROW        ,          , av )
-id_def( F0_ZILDE      , ZILDE             ,          , av )
 id_def( AT            , ---               ,          , qf )
 id_def( AV            , ---               ,          , qv )
+id_def( ALPHA         , ALPHA             ,          , av )
+id_def( ALPHA_U       , ALPHA_UNDERBAR    ,          , av )
+
 id_def( F12_BINOM     , ASCII_EXCLAM      , = 0x4201 , av )
 id_def( BRANCH        , RIGHT_ARROW       ,          , av )
+
 id_def( CHARACTER     , ---               , = 0x4301 , pp )
 id_def( F12_CIRCLE    , CIRCLE            ,          , av )
 id_def( COLON         , ASCII_COLON       ,          , av )
@@ -45,12 +52,14 @@ id_def( OPER1_COMMUTE , TILDE_DIAERESIS   ,          , av )
 id_def( COMPLEX       , ---               ,          , pp )
 id_def( CR            , ---               ,          , qf )
 id_def( CT            , ---               ,          , qv )
+
 id_def( F12_DECODE    , UP_TACK           , = 0x4401 , av )
 id_def( DIAMOND       , DIAMOND           ,          , av )
 id_def( F12_DIVIDE    , DIVIDE            ,          , av )
 id_def( DL            , ---               ,          , qf )
 id_def( F12_DOMINO    , QUAD_DIVIDE       ,          , av )
 id_def( F12_DROP      , DOWN_ARROW        ,          , av )
+
 id_def( EA            , ---               , = 0x4501 , qf )
 id_def( OPER1_EACH    , DIAERESIS         ,          , av )
 id_def( EC            , ---               ,          , qf )
@@ -68,19 +77,24 @@ id_def( ESCAPE        , RIGHT_ARROW       ,          , av )
 id_def( ET            , ---               ,          , qv )
 id_def( EX            , ---               ,          , qf )
 id_def( F1_EXECUTE    , EXECUTE           ,          , av )
+
 id_def( FC            , ---               , = 0x4601 , qv )
 id_def( F2_FIND       , EPSILON_UBAR      ,          , av )
 id_def( FIRST_TIME    , ---               ,          , pp )
 id_def( F12_FORMAT    , FORMAT            ,          , av )
 id_def( FX            , ---               ,          , qf )
+
 id_def( F2_GREATER    , ASCII_GREATER     , = 0x4701 , av )
+
 id_def( F2_INDEX      , SQUISH_QUAD       , = 0x4901 , av )
 id_def( F12_INDEX_OF  , IOTA              ,          , av )
 id_def( INTEGER       , ---               ,          , pp )
 id_def( INVALID       , ---               ,          , pp )
 id_def( IO            , ---               ,          , qv )
 id_def( INP           , ---               ,          , qf )
+
 id_def( JOT           , RING_OPERATOR     , = 0x4A01 , av )
+
 id_def( L             , ---               , = 0x4C01 , qv )
 id_def( L_BRACK       , ASCII_L_BRACK     ,          , av )
 id_def( L_PARENT      , ASCII_L_PARENT    ,          , av )
@@ -91,8 +105,10 @@ id_def( F2_LESS       , ASCII_LESS        ,          , av )
 id_def( F12_LOGA      , LOGARITHM         ,          , av )
 id_def( LVAL          , ---               ,          , pp )
 id_def( LX            , ---               ,          , qv )
+
 id_def( F2_MEQ        , MORE_OR_EQUAL     , = 0x4D01 , av )
 id_def( F12_MINUS     , ASCII_MINUS       ,          , av )
+
 id_def( NA            , ---               , = 0x4E01 , qf )
 id_def( F2_NAND       , NAND              ,          , av )
 id_def( NC            , ---               ,          , qf )
@@ -100,8 +116,12 @@ id_def( NL            , ---               ,          , qf )
 id_def( NLT           , ---               ,          , qv )
 id_def( NO_VALUE      , ---               ,          , pp )
 id_def( F2_NOR        , NOR               ,          , av )
+
 id_def( OFF           , ---               , = 0x4F01 , pp )
 id_def( F2_OR         , OR                ,          , av )
+id_def( OMEGA         , OMEGA             ,          , av )
+id_def( OMEGA_U       , OMEGA_UNDERBAR    ,          , av )
+
 id_def( F12_PARTITION , SUBSET            , = 0x5001 , av )
 id_def( F12_PICK      , SUPERSET          ,          , av )
 id_def( F12_PLUS      , ASCII_PLUS        ,          , av )
@@ -112,10 +132,12 @@ id_def( PS            , ---               ,          , qv )
 id_def( PT            , ---               ,          , qv )
 id_def( OPER2_PRODUCT , ASCII_FULLSTOP    ,          , av )
 id_def( PW            , ---               ,          , qv )
+
 id_def( QUAD_QUAD     , QUAD_QUAD         , = 0x5101 , av )
 id_def( QUOTE1        , SINGLE_QUOTE      ,          , av )
 id_def( QUOTE2        , ASCII_DOUBLE_QUOTE,          , av )
 id_def( QUOTE_QUAD    , QUOTE_QUAD        ,          , av )
+
 id_def( R             , ---               , = 0x5201 , qv )
 id_def( R_ARROW       , RIGHT_ARROW       ,          , av )
 id_def( R_BRACK       , ASCII_R_BRACK     ,          , av )
@@ -136,6 +158,7 @@ id_def( F12_RND_UP    , LEFT_CEILING      ,          , av )
 id_def( F12_ROLL      , ASCII_QUESTION    ,          , av )
 id_def( F12_ROTATE    , CIRCLE_STILE      ,          , av )
 id_def( F12_ROTATE1   , CIRCLE_BAR        ,          , av )
+
 id_def( OPER1_SCAN    , ASCII_BACKSLASH   , = 0x5301 , av )
 id_def( OPER1_SCAN1   , BACKSLASH_BAR     ,          , av )
 id_def( SEMICOL       , ASCII_SEMICOLON   ,          , av )
@@ -154,6 +177,7 @@ id_def( SVR           , ---               ,          , qf )
 id_def( SVS           , ---               ,          , qf )
 id_def( SYL           , ---               ,          , qv )
 id_def( USER_SYMBOL   , ---               ,          , pp )
+
 id_def( F12_TAKE      , UP_ARROW          , = 0x5401 , av )
 id_def( TC            , ---               ,          , qv )
 id_def( TF            , ---               ,          , qf )
@@ -161,15 +185,21 @@ id_def( F12_TIMES     , MULTIPLY          ,          , av )
 id_def( F12_TRANSPOSE , TRANSPOSE         ,          , av )
 id_def( TS            , ---               ,          , qv )
 id_def( TZ            , ---               ,          , qv )
+
 id_def( UCS           , ---               , = 0x5501 , qf )
 id_def( UL            , ---               ,          , qv )
 id_def( F2_UNEQ       , NOT_EQUAL         ,          , av )
 id_def( F1_UNIQUE     , UNION             ,          , av )
 id_def( FUN_USER      , ---               ,          , pp )
+
 id_def( VARIABLE      , ---               , = 0x5601 , pp )
 id_def( VOID          , ---               ,          , pp )
+
 id_def( WA            , ---               , = 0x5701 , qv )
 id_def( F12_WITHOUT   , TILDE_OPERATOR    ,          , av )
+
+id_def( F0_ZILDE      , ZILDE             , = 0x5A01 , av )
+
 //-----------------------------------------------------------------------------
 
 #undef id_def
