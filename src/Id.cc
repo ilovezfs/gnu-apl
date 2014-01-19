@@ -64,7 +64,7 @@ get_system_variable(Id id)
 #define av(x)
 #define pp(x)
 #define qf(x)
-#define qv(x) case ID_QUAD_ ## x:return &Workspace::get_v_quad_ ## x();
+#define qv(x) case ID_QUAD_ ## x:return &Workspace::get_v_Quad_ ## x();
 #define st(x) 
 
 #define id_def(_id, _uni, _val, _mac) _mac(_id)

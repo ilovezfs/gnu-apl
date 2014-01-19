@@ -150,9 +150,9 @@ char_def(ASCII_w            , 'w'    , SYMBOL       , SYMBOL   ,  77)
 char_def(ASCII_x            , 'x'    , SYMBOL       , SYMBOL   ,  78)
 char_def(ASCII_y            , 'y'    , SYMBOL       , SYMBOL   ,  79)
 char_def(ASCII_z            , 'z'    , SYMBOL       , SYMBOL   ,  7A)
-char_def(ASCII_LEFT_CURLY   , '{'    , END          , NO_SPACE ,  7B)
+char_def(ASCII_L_CURLY      , '{'    , L_CURLY      , NO_SPACE ,  7B)
 char_def(ASCII_BAR          , '|'    , F12_STILE    , NO_SPACE ,  7C)
-char_def(ASCII_RIGHT_CURLY  , '}'    , END          , NO_SPACE ,  7D)
+char_def(ASCII_R_CURLY      , '}'    , R_CURLY      , NO_SPACE ,  7D)
 char_def(ASCII_TILDE        , '~'    , F12_WITHOUT  , NO_SPACE ,  7E)
 char_def(ASCII_DELETE       , 0x7F   , END          , NO_SPACE , 07F)
 char_def(NO_BREAK_SPACE     , 0x00A0 , END          , NO_SPACE ,  FF) /*   */
@@ -167,7 +167,9 @@ char_df1(PAD_U1             , 0x00B9 , END          , NO_SPACE ,  --) /* ¹ */
 char_df1(INVERTED_QUESTION  , 0x00BF , END          , NO_SPACE ,  A8) /* ¿ */
 char_def(MULTIPLY           , 0x00D7 , F12_TIMES    , NO_SPACE ,  F5) /* × */
 char_def(DIVIDE             , 0x00F7 , F12_DIVIDE   , NO_SPACE ,  F6) /* ÷ */
+char_def(LAMBDA             , 0x03BB , END          , NO_SPACE ,  99) /* λ */
 char_df1(mue                , 0x03BC , END          , NO_SPACE ,  --) /* μ */
+char_def(CHI                , 0x03C7 , SYMBOL       , SYMBOL   ,  A2) /* χ */
 char_df1(AV_MAX             , 0x0461 , END          , NO_SPACE ,  --) /* ѡ */
 char_df1(PAD_U0             , 0x2070 , END          , NO_SPACE ,  --) /* ⁰ */
 char_df1(PAD_U4             , 0x2074 , END          , NO_SPACE ,  --) /* ⁴ */
@@ -245,14 +247,12 @@ char_def(QUAD_RIGHT_ARROW   , 0x2348 , END          , NO_SPACE , 096) /* ⍈ */
 char_def(TRANSPOSE          , 0x2349 , F12_TRANSPOSE, NO_SPACE ,  ED) /* ⍉ */
 char_def(DTACK_UNDERBAR     , 0x234A , END          , NO_SPACE , 097) /* ⍊ */
 char_def(SORT_ASCENDING     , 0x234B , F12_SORT_ASC , NO_SPACE ,  FB) /* ⍋ */
-char_def(QUAD_DOWN_CARET    , 0x234C , END          , NO_SPACE , 099) /* ⍌ */
 char_def(QUAD_DELTA         , 0x234D , END          , NO_SPACE , 09A) /* ⍍ */
 char_def(EXECUTE            , 0x234E , F1_EXECUTE   , NO_SPACE ,  AF) /* ⍎ */
 char_def(UP_VANE            , 0x234F , END          , NO_SPACE , 09B) /* ⍏ */
 char_def(QUAD_UP_ARROW      , 0x2350 , END          , NO_SPACE , 0A0) /* ⍐ */
 char_def(UP_TACK_OVERBAR    , 0x2351 , END          , NO_SPACE , 0A1) /* ⍑ */
 char_def(SORT_DECENDING     , 0x2352 , F12_SORT_DES , NO_SPACE ,  FC) /* ⍒ */
-char_def(QUAD_UP_CARET      , 0x2353 , END          , NO_SPACE , 0A2) /* ⍓ */
 char_def(QUAD_DEL           , 0x2354 , END          , NO_SPACE , 0A3) /* ⍔ */
 char_def(FORMAT             , 0x2355 , F12_FORMAT   , NO_SPACE ,  AE) /* ⍕ */
 char_def(DOWN_VANE          , 0x2356 , END          , NO_SPACE , 0A4) /* ⍖ */
@@ -286,12 +286,12 @@ char_def(NOR                , 0x2371 , F2_NOR       , NO_SPACE ,  E7) /* ⍱ */
 char_def(NAND               , 0x2372 , F2_NAND      , NO_SPACE ,  E5) /* ⍲ */
 char_def(IOTA               , 0x2373 , F12_INDEX_OF , NO_SPACE ,  EC) /* ⍳ */
 char_def(RHO                , 0x2374 , F12_RHO      , NO_SPACE ,  E6) /* ⍴ */
-char_def(OMEGA              , 0x2375 , END          , NO_SPACE ,  F9) /* ⍵ */
-char_def(ALPHA_UNDERBAR     , 0x2376 , END          , NO_SPACE ,  9E) /* ⍶ */
+char_def(OMEGA              , 0x2375 , SYMBOL       , SYMBOL   ,  F9) /* ⍵ */
+char_def(ALPHA_UNDERBAR     , 0x2376 , SYMBOL       , SYMBOL   ,  9E) /* ⍶ */
 char_def(EPSILON_UNDERBAR   , 0x2377 , F2_FIND      , NO_SPACE ,  D1) /* ⍷ */
 char_def(INDEX_UNDERBAR     , 0x2378 , END          , NO_SPACE ,  D0) /* ⍸ */
-char_def(OMEGA_UNDERBAR     , 0x2379 , END          , NO_SPACE ,  E1) /* ⍹ */
-char_def(ALPHA              , 0x237A , END          , NO_SPACE ,  E0) /* ⍺ */
+char_def(OMEGA_UNDERBAR     , 0x2379 , SYMBOL       , SYMBOL   ,  E1) /* ⍹ */
+char_def(ALPHA              , 0x237A , SYMBOL       , SYMBOL   ,  E0) /* ⍺ */
 char_def(QUAD_QUAD          , 0x2395 , QUAD_QUAD    , NONE     ,  90) /* ⎕ */
 char_def(LINE_HORI          , 0x2500 , END          , NO_SPACE ,  C4) /* ─ */
 char_df1(LINE_HORI2         , 0x2501 , END          , NO_SPACE ,  --) /* ━ */

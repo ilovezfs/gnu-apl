@@ -67,43 +67,43 @@ public:
 
    /// return the current QUAD-CT
    static APL_Float get_CT()
-      { return the_workspace.v_quad_CT.current(); }
+      { return the_workspace.v_Quad_CT.current(); }
 
    /// set the current QUAD-CT
    static void set_CT(APL_Float new_CT)
-      { the_workspace.v_quad_FC.current(); }
+      { the_workspace.v_Quad_FC.current(); }
 
    /// Return element \b pos of the current QUAD-FC (pos should be 0..5)
    static APL_Char get_FC(int p)
-      { return the_workspace.v_quad_FC.current()[p]; }
+      { return the_workspace.v_Quad_FC.current()[p]; }
 
    /// Return the current QUAD-IO
    static APL_Integer get_IO()
-      { return the_workspace.v_quad_IO.current(); }
+      { return the_workspace.v_Quad_IO.current(); }
 
    /// Return the current QUAD-LX
    static UCS_string get_LX()
-      { return UCS_string(*the_workspace.v_quad_LX.get_apl_value()); }
+      { return UCS_string(*the_workspace.v_Quad_LX.get_apl_value()); }
 
    /// Return the current QUAD-PP
    static APL_Integer get_PP()
-      { return the_workspace.v_quad_PP.current(); }
+      { return the_workspace.v_Quad_PP.current(); }
 
    /// Return the current QUAD-PR
    static const UCS_string & get_PR()
-      { return the_workspace.v_quad_PR.current(); }
+      { return the_workspace.v_Quad_PR.current(); }
 
    /// Return the current QUAD-PS
    static PrintStyle get_PS()
-      { return the_workspace.v_quad_PS.current(); }
+      { return the_workspace.v_Quad_PS.current(); }
 
    /// Return the current QUAD-PW.
    static APL_Integer get_PW()
-      { return the_workspace.v_quad_PW.current(); }
+      { return the_workspace.v_Quad_PW.current(); }
 
    /// Return the QUAD-RL.
    static APL_Integer get_RL()
-      { return the_workspace.v_quad_RL.get_random(); }
+      { return the_workspace.v_Quad_RL.get_random(); }
 
    /// the number of SI entries
    static int SI_entry_count()
@@ -128,17 +128,17 @@ public:
 
    /// clear ⎕EM and ⎕ET
    static void clear_error(const char * loc)
-      { the_workspace.v_quad_EM.clear(loc);
-        the_workspace.v_quad_ET.clear(loc); }
+      { the_workspace.v_Quad_EM.clear(loc);
+        the_workspace.v_Quad_ET.clear(loc); }
 
    /// update ⎕EM and ⎕ET according to \b error
    static void update_EM_ET(const Error & error)
-      { the_workspace.v_quad_EM.update(error);
-        the_workspace.v_quad_ET.update(error); }
+      { the_workspace.v_Quad_EM.update(error);
+        the_workspace.v_Quad_ET.update(error); }
 
    /// increase the wait time for user input as reported in ⎕AI
    static void add_wait(APL_time diff)
-      { the_workspace.v_quad_AI.add_wait(diff); }
+      { the_workspace.v_Quad_AI.add_wait(diff); }
 
    /// return information in SI_top()
    static Error * get_error()
@@ -254,12 +254,12 @@ public:
 
    // access to system variables.
    //
-#define ro_sv_def(x) static Quad_ ## x & get_v_quad_ ## x() \
-   { return the_workspace.v_quad_ ## x; }
-#define rw_sv_def(x) static Quad_ ## x & get_v_quad_ ## x() \
-   { return the_workspace.v_quad_ ## x; }
-   rw_sv_def(QUAD)
-   rw_sv_def(QUOTE)
+#define ro_sv_def(x) static x & get_v_ ## x() \
+   { return the_workspace.v_ ## x; }
+#define rw_sv_def(x) static x & get_v_ ## x() \
+   { return the_workspace.v_ ## x; }
+   rw_sv_def(Quad_QUAD)
+   rw_sv_def(Quad_QUOTE)
 #include "SystemVariable.def"
 
 protected:
@@ -267,10 +267,10 @@ protected:
 
    // system variables.
    //
-#define ro_sv_def(x) Quad_ ## x v_quad_ ## x;
-#define rw_sv_def(x) Quad_ ## x v_quad_ ## x;
-   rw_sv_def(QUAD)
-   rw_sv_def(QUOTE)
+#define ro_sv_def(x) x v_ ## x;
+#define rw_sv_def(x) x v_ ## x;
+   rw_sv_def(Quad_QUAD)
+   rw_sv_def(Quad_QUOTE)
 #include "SystemVariable.def"
 
    /// the APL prompt (6 blanks by default)

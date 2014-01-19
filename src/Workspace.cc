@@ -209,7 +209,7 @@ const Unicode av_1 = (ucs.size() > 2) ? ucs[2] : Invalid_Unicode;
 const Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
 
 #define var(t, l) { len = l + 1; \
-   return Token(TOK_QUAD_ ## t, &the_workspace.v_quad_ ## t); }
+   return Token(TOK_QUAD_ ## t, &the_workspace.v_Quad_ ## t); }
 
 #define f0(t, l) { len = l + 1; \
    return Token(TOK_QUAD_ ## t, &Quad_ ## t::fun); }
@@ -373,13 +373,13 @@ Workspace::write_OUT(FILE * out, uint64_t & seq, const vector<UCS_string>
    //
    if (objects.size() == 0)   // all objects plus some system variables
       {
-        get_v_quad_CT().write_OUT(out, seq);
-        get_v_quad_FC().write_OUT(out, seq);
-        get_v_quad_IO().write_OUT(out, seq);
-        get_v_quad_LX().write_OUT(out, seq);
-        get_v_quad_PP().write_OUT(out, seq);
-        get_v_quad_PR().write_OUT(out, seq);
-        get_v_quad_RL().write_OUT(out, seq);
+        get_v_Quad_CT().write_OUT(out, seq);
+        get_v_Quad_FC().write_OUT(out, seq);
+        get_v_Quad_IO().write_OUT(out, seq);
+        get_v_Quad_LX().write_OUT(out, seq);
+        get_v_Quad_PP().write_OUT(out, seq);
+        get_v_Quad_PR().write_OUT(out, seq);
+        get_v_Quad_RL().write_OUT(out, seq);
 
         get_symbol_table().write_all_symbols(out, seq);
       }
@@ -427,11 +427,11 @@ Workspace::unmark_all_values()
 
    // unmark system variables
    //
-#define rw_sv_def(x) the_workspace.v_quad_ ## x.unmark_all_values();
-#define ro_sv_def(x) the_workspace.v_quad_ ## x.unmark_all_values();
+#define rw_sv_def(x) the_workspace.v_ ## x.unmark_all_values();
+#define ro_sv_def(x) the_workspace.v_ ## x.unmark_all_values();
 #include "SystemVariable.def"
-   the_workspace.v_quad_QUAD .unmark_all_values();
-   the_workspace.v_quad_QUOTE.unmark_all_values();
+   the_workspace.v_Quad_QUAD .unmark_all_values();
+   the_workspace.v_Quad_QUOTE.unmark_all_values();
 
    // unmark token reachable vi SI stack
    //
@@ -455,11 +455,11 @@ int count = 0;
 
    // system variabes
    //
-#define rw_sv_def(x) count += get_v_quad_ ## x().show_owners(out, value);
-#define ro_sv_def(x) count += get_v_quad_ ## x().show_owners(out, value);
+#define rw_sv_def(x) count += get_v_ ## x().show_owners(out, value);
+#define ro_sv_def(x) count += get_v_ ## x().show_owners(out, value);
 #include "SystemVariable.def"
-   count += the_workspace.v_quad_QUAD .show_owners(out, value);
-   count += the_workspace.v_quad_QUOTE.show_owners(out, value);
+   count += the_workspace.v_Quad_QUAD .show_owners(out, value);
+   count += the_workspace.v_Quad_QUOTE.show_owners(out, value);
 
    for (StateIndicator * si = SI_top(); si; si = si->get_parent())
        count += si->show_owners(out, value);
@@ -526,7 +526,7 @@ Workspace::clear_WS(ostream & out, bool silent)
 
    // clear the read/write system variables...
    //
-#define rw_sv_def(x) get_v_quad_ ## x().clear_vs();
+#define rw_sv_def(x) get_v_ ## x().clear_vs();
 #define ro_sv_def(x)
 #include "SystemVariable.def"
 
@@ -535,7 +535,7 @@ Workspace::clear_WS(ostream & out, bool silent)
    //
 // Value::erase_all(out);
 
-#define rw_sv_def(x) new  (&get_v_quad_ ##x())  Quad_ ##x;
+#define rw_sv_def(x) new  (&get_v_ ##x()) x;
 #define ro_sv_def(x)
 #include "SystemVariable.def"
 
@@ -654,7 +654,7 @@ XML_Saving_Archive ar(outf);
 
    // print time and date to COUT
    {
-     const int offset = get_v_quad_TZ().get_offset();
+     const int offset = get_v_Quad_TZ().get_offset();
      const YMDhmsu time(now());
 const char * tz_sign = (offset < 0) ? "" : "+";
 

@@ -974,8 +974,7 @@ const ShapeItem ec = val->element_count();
 }
 //-----------------------------------------------------------------------------
 void
-Command::transfer_context::array_2TF(const vector<UCS_string> &
-                                        objects) const
+Command::transfer_context::array_2TF(const vector<UCS_string> & objects) const
 {
    // an Array in 2 ⎕TF format
    //

@@ -108,10 +108,10 @@ public:
    /// Find \b av in \b character_table. Return position or Invalid_CHT
    static CHT_Index find_char(Unicode av);
 
-protected:
    /// Find \b return position of \b alt_av, or Invalid_AV if not found
    static CHT_Index map_alternative_char(Unicode alt_av);
 
+protected:
    /// print an error position on cerr, and then Assert(0);
    static void show_error_pos(int i, int line, bool cond, int def_line);
 

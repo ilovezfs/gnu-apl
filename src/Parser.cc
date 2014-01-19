@@ -38,7 +38,7 @@
 
 //-----------------------------------------------------------------------------
 ErrorCode
-Parser::parse(const UCS_string & input, Token_string & tos)
+Parser::parse(const UCS_string & input, Token_string & tos) const
 {
    // convert input characters into token
    //
@@ -99,7 +99,7 @@ vector<Token_string *> statements;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
-Parser::parse_statement(Token_string & tos)
+Parser::parse_statement(Token_string & tos) const
 {
    // 1. convert (X) into X and ((X...)) into (X...)
    //
@@ -152,7 +152,7 @@ Parser::parse_statement(Token_string & tos)
 }
 //-----------------------------------------------------------------------------
 void
-Parser::collect_constants(Token_string & tos)
+Parser::collect_constants(Token_string & tos) const
 {
    Log(LOG_collect_constants)
       {
@@ -222,7 +222,7 @@ Parser::collect_constants(Token_string & tos)
 }
 //-----------------------------------------------------------------------------
 bool
-Parser::collect_groups(Token_string & tos)
+Parser::collect_groups(Token_string & tos) const
 {
    Log(LOG_collect_constants)
       {
@@ -442,7 +442,7 @@ uint32_t dst = 0;
 }
 //-----------------------------------------------------------------------------
 void
-Parser::create_value(Token_string & tos, uint32_t pos, uint32_t count)
+Parser::create_value(Token_string & tos, uint32_t pos, uint32_t count) const
 {
    Log(LOG_create_value)
       {
@@ -463,7 +463,7 @@ Parser::create_value(Token_string & tos, uint32_t pos, uint32_t count)
 }
 //-----------------------------------------------------------------------------
 void
-Parser::create_skalar_value(Token & output)
+Parser::create_skalar_value(Token & output) const
 {
    switch(output.get_tag())
       {
@@ -522,7 +522,8 @@ Parser::create_skalar_value(Token & output)
 }
 //-----------------------------------------------------------------------------
 void
-Parser::create_vector_value(Token_string & tos, uint32_t pos, uint32_t count)
+Parser::create_vector_value(Token_string & tos,
+                            uint32_t pos, uint32_t count) const
 {
 Value_P vector(new Value(count, LOC));
 

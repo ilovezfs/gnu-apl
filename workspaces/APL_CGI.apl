@@ -286,7 +286,7 @@ yBODY←0⍴'<please-set-yBODY>'
 ∇yZ←Img[xX] xB
  →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
  Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- yZ←,⊂'IMG' T[xX] 1
+ yZ←,⊂'IMG' T[xX] xB
  Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
 ∇
 
@@ -508,7 +508,7 @@ yZ←⊃ Ol I1, I2, I3, I4
 <?apl H1[''] xTITLE ?>
 <TABLE>
   <TR>
-    <TD> <?apl Img xGNU_PIC, (_alt 'Astrid'), _h_w 122 129 ?>
+    <TD> <?apl Img[xGNU_PIC, (_alt 'Astrid'), _h_w 122 129] 1 ?>
     <TD width="20%">
     <TD><I> Rho, rho, rho of X<BR>
          Always equals 1<BR>
@@ -559,19 +559,6 @@ GNU APL compiles under CYGWIN, (see
 provided that the necessary libraries are installed. A 32-bit <B>apl.exe</B>
 that may run under CYGWIN lives in the download area. Use at your own risk and
 see <B>README-5-WINDOWS</B> for further information.
-<BR>
-<B>Update</B>: as of GNU APL 1.2 we use libtool. libtool creates two binary files
-called apl.exe: a small one (a wrapper) and a large one (the real apl.exe).
-The wrapper apl.exe is found in the top-level ftp directory for GNU APL
-and the real one in a subdir called "libs". The wrapper expects the real
-apl.exe in a subdir called ".libs" (note the difference between "libs"
-and ".libs"!).
-<BR>
-<BR>
-Because the number of binary files for GNU APL constantly increases, support
-for a single apl.exe will no longer be possible and will disappear soon.
-Please use the normal installation procedure described above 
-also for CYGWIN.
 
 <?apl H4[''] 'Subversion (SVN) repository for GNU APL' ?>
 

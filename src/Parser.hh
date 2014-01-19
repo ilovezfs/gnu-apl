@@ -36,15 +36,18 @@ public:
    {}
 
    /// Parse UTF-8 string \b input into token string \b tos.
-   ErrorCode parse(const UCS_string & input, Token_string & tos);
+   ErrorCode parse(const UCS_string & input, Token_string & tos) const;
 
    /// print the array \b token of \b Token into \b out.
    static void print_token_list(ostream & out, const Token_string & token,
                          uint32_t from = 0);
 
+   /// remove VOID token from \b token (compacting \b token)
+   static void remove_void_token(Token_string & token);
+
 protected:
    /// Parse token string \b tos (a statement without diamonds).
-   ErrorCode parse_statement(Token_string & tos);
+   ErrorCode parse_statement(Token_string & tos) const;
 
    /// find opening bracket; throw error if not found
    static int32_t find_opening_bracket(Token_string & string, int32_t pos);
@@ -59,28 +62,26 @@ protected:
    static int32_t find_closing_parent(Token_string & string, int32_t pos);
 
    /// Collect consecutive smaller APL values or value token into vectors
-   void collect_constants(Token_string & tok);
+   void collect_constants(Token_string & tok) const;
 
    /// mark next symbol left of ← on the same level as LSYMB
    static void mark_lsymb(Token_string & tok);
 
    /// Collect groups
-   bool collect_groups(Token_string & tok);
+   bool collect_groups(Token_string & tok) const;
 
    /// Replace (X) by X and ((..) by (..) in \b string. (X is a single token)
    static void remove_nongrouping_parantheses(Token_string & string);
 
-   /// remove VOID token from \b token (compacting \b token)
-   static void remove_void_token(Token_string & token);
-
    /// Create one APL value from \b len values.
-   void create_value(Token_string & token, uint32_t pos, uint32_t len);
+   void create_value(Token_string & token, uint32_t pos, uint32_t len) const;
 
    /// Create one skalar APL value from a token.
-   void create_skalar_value(Token & tok);
+   void create_skalar_value(Token & tok) const;
 
    /// Create one vector APL value from \b value_count single values.
-   void create_vector_value(Token_string & token, uint32_t pos, uint32_t len);
+   void create_vector_value(Token_string & token,
+                            uint32_t pos, uint32_t len) const;
 
    /// the parsing mode of this parser
    const ParseMode pmode;

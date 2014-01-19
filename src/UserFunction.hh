@@ -27,8 +27,129 @@
 #include "Error.hh"
 #include "Executable.hh"
 #include "Function.hh"
+#include "Symbol.hh"
 #include "UTF8_string.hh"
 
+//-----------------------------------------------------------------------------
+/**
+    The (symbols in the) header of a user-defined function.
+ */
+class UserFunction_header
+{
+public:
+   /// constructor: empty header
+   UserFunction_header(const UCS_string txt);
+
+   /// return the number of value arguments
+   int get_fun_valence() const
+      {
+        if (sym_A)    return 2;   // dyadic function
+        if (sym_B)    return 1;   // monadic function
+        return 0;                 // niladic function
+      }
+
+   /// return the number of operator arguments
+   int get_oper_valence() const
+      {
+        if (sym_RO)   return 2;   // dyadic operator
+        if (sym_LO)   return 1;   // monadic operator
+        return 0;                 // niladic function
+      }
+
+   /// return true iff the function returns a value
+   int has_result() const   { return sym_Z ? 1 : 0; }
+
+   bool is_operator() const   { return sym_LO != 0; }
+
+   /// return the Symbol for the function name
+   Symbol * FUN()   const   { return sym_FUN; }
+
+   /// return the Symbol for the function result
+   Symbol * Z()   const   { return sym_Z; }
+
+   /// return the Symbol for the left argument
+   Symbol * A()   const   { return sym_A; }
+
+   /// return the Symbol for the left function argument
+   Symbol * LO()   const   { return sym_LO; }
+
+   /// return the Symbol for the right argument
+   Symbol * X()   const   { return sym_X; }
+
+   /// return the Symbol for the right function argument
+   Symbol * RO()   const   { return sym_RO; }
+
+   /// return the Symbol for the right argument
+   Symbol * B()   const   { return sym_B; }
+
+   /// return true if header was parsed successfully
+   bool get_error() const   { return error; }
+
+   /// print local vars etc.
+   void print_properties(ostream & out, int indent) const;
+
+   /// pop all local vars, return Z
+   Value_P pop_local_vars() const;
+
+   /// print the local variables for command )SINL
+   void print_local_vars(ostream & out) const;
+
+   /// add a label
+   void add_label(Symbol * sym, Function_Line line)
+      {
+        labVal label = { sym, line };
+        label_values.push_back(label);
+      }
+
+   /// Check that all function params, local vars. and labels are unique.
+   void check_duplicate_symbols();
+
+   /// push Z (if defined), local variables, and labels.
+   void eval_common();
+
+protected:
+   /// Check that sym occurs at most once in \b Symbol array \b sym.
+   void check_duplicate_symbol(Symbol * sym);
+
+   /// true if header was parsed successfully
+   ErrorCode error;
+
+   ///< optional result
+   Symbol * sym_Z;
+
+   ///< optional left function arg
+   Symbol * sym_A;
+
+   ///< optional left operator function
+   Symbol * sym_LO;
+
+   ///< mandatory function arg (function name)
+   Symbol * sym_FUN;
+
+   ///< optional right operator function
+   Symbol * sym_RO;
+
+   ///< optional right operator function axis
+   Symbol * sym_X;
+
+   ///< optional right function arg
+   Symbol * sym_B;
+
+   /// The local variables of \b this function.
+   vector<Symbol *> local_vars;
+
+   /// A single label. A label is a local variable (sym) with an integer
+   /// function line (in which sym: was specified as the first tokens
+   /// in the line)
+   struct labVal
+   {
+      Symbol      * sym;    ///< The symbol for the label variable.
+      Function_Line line;   ///< The line number of the label.
+   };
+
+   /// The labels of \b this function.
+   vector<labVal> label_values;
+};
 //-----------------------------------------------------------------------------
 /**
     A user-defined function.
@@ -57,25 +178,31 @@ public:
 
    /// overloaded Function::get_fun_valence()
    virtual int get_fun_valence() const
-      {
-        if (sym_A)    return 2;   // dyadic function
-        if (sym_B)    return 1;   // monadic function
-        return 0;                 // niladic function
-      }
+      { return header.get_fun_valence(); }
 
    /// overloaded Function::get_oper_valence()
    virtual int get_oper_valence() const
-      {
-        if (sym_RO)   return 2;   // dyadic operator
-        if (sym_LO)   return 1;   // monadic operator
-        return 0;                 // niladic function
-      }
+      { return header.get_oper_valence(); }
 
    /// overloaded Function::has_result()
    virtual int has_result() const
-      { return sym_Z ? 1 : 0; }
+      { return header.has_result(); }
 
-   /// overloaded Function::get_exec_properties()
+   // pop all
+   Value_P pop_local_vars() const
+      { return header.pop_local_vars(); }
+
+   /// print the local variables for command )SINL
+   void print_local_vars(ostream & out) const
+      { return header.print_local_vars(out); }
+
+   /// Overloaded \b Function::is_operator.
+   virtual bool is_operator() const
+      { return header.is_operator(); }
+
+   void add_label(Symbol * sym, Function_Line line)
+      { header.add_label(sym, line); }
+
    virtual const int * get_exec_properties() const
       { return exec_properties; } 
 
@@ -95,9 +222,6 @@ public:
    /// Overloaded Function::print_properties()
    virtual void print_properties(ostream & out, int indent) const;
 
-   /// print the local variables for command )SINL
-   void print_local_vars(ostream & out) const;
-
    /// )SAVE this function in the workspace named \b workspace
    /// (in the file system).
    void save(const char * workspace, const char * function);
@@ -108,13 +232,6 @@ public:
 
    /// Overloaded Function::destroy()
    virtual void destroy();
-
-   /// add a label
-   void add_label(Symbol * sym, Function_Line line)
-      {
-        labVal label = { sym, line };
-        label_values.push_back(label);
-      }
 
    /// Load this function into the workspace named \b workspace.
    static void load(const char * workspace, const char * function,
@@ -130,20 +247,17 @@ public:
    /// the pc of the last token in the function (invalid line)
    Function_PC pc_for_line(int l) const;
    
-   /// Overloaded \b Function::is_operator.
-   virtual bool is_operator() const;
-
    /// Overloaded Function::has_alpha()
    virtual bool has_alpha() const   { return true; }
 
    /// overloaded Executable::get_sym_FUN()
-   virtual Symbol * get_sym_FUN()   const   { return sym_FUN; }
+   virtual Symbol * get_sym_FUN() const   { return header.FUN(); }
 
    /// overloaded Executable::get_sym_Z()
-   virtual Symbol * get_sym_Z()   const   { return sym_Z; }
+   virtual Symbol * get_sym_Z() const   { return header.Z(); }
 
    /// return the parse context for this function
-   virtual ParseMode get_parse_mode() const     { return PM_FUNCTION; }
+   virtual ParseMode get_parse_mode() const   { return PM_FUNCTION; }
 
    /// overloaded Executable::get_line()
    Function_Line get_line(Function_PC pc) const;
@@ -155,14 +269,8 @@ public:
    virtual Function_PC line_start(Function_Line line) const
       { return line_starts[line]; }
 
-   /// Parse the header line of \b this function (copy header_line)
-   void parse_header_line(UCS_string header_line);
-
    /// compute lines 2 and 3 in \b error
    void set_locked_error_info(Error & error) const;
-
-   /// pop all local vars, return Z
-   Value_P pop_local_vars() const;
 
    const UTF8_string get_creator() const
       { return creator; }
@@ -170,15 +278,6 @@ public:
 protected:
    /// overladed Function::may_push_SI()
    virtual bool may_push_SI() const   { return true; }
-
-   /// Check that all function params, local vars. and labels are unique.
-   void check_duplicate_symbols();
-
-   /// Check that sym occurs at most once in \b Symbol array \b sym.
-   void check_duplicate_symbol(Symbol * sym);
-
-   /// push Z (if defined), local variables, and labels.
-   void eval_common();
 
    /// Overloaded Function::eval_()
    virtual Token eval_();
@@ -220,22 +319,13 @@ protected:
    virtual Token eval_ALRXB(Value_P A, Token & LO, Token & RO,
                             Value_P X, Value_P B);
 
+   UserFunction_header header;
+
    /// helper function to print token with Function or Value content
    static ostream & print_val_or_fun(ostream & out, Token & tok);
 
    /// "[nn] " prefix
    static UCS_string line_prefix(Function_Line l);
-
-   Symbol * sym_Z;     ///< optional result
-   Symbol * sym_A;     ///< optional left function arg
-   Symbol * sym_LO;    ///< optional left operator function
-   Symbol * sym_FUN;   ///< mandatory function arg (function name)
-   Symbol * sym_RO;    ///< optional right operator function
-   Symbol * sym_X;    ///< optional right operator function axis
-   Symbol * sym_B;     ///< optional right function arg
-
-   /// The local variables of \b this function.
-   vector<Symbol *> local_vars;
 
    /** Offsets to the first token in every line (for jumps).
        lines[0] points to the last line, which is automatically
@@ -259,18 +349,6 @@ protected:
 
    **/
    vector<Function_PC> line_starts;
-
-   /// A single label. A label is a local variable (sym) with an integer
-   /// function line (in which sym: was specified as the first tokens
-   /// in the line)
-   struct labVal
-   {
-      Symbol      * sym;    ///< The symbol for the label variable.
-      Function_Line line;   ///< The line number of the label.
-   };
-
-   /// The labels of \b this function.
-   vector<labVal> label_values;
 
    /// execution properties as per 3⎕AT
    int exec_properties[4];

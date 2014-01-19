@@ -385,31 +385,42 @@ void
 Quad_TF::tf2_parse(const UCS_string & ucs, UCS_string & new_var_or_fun)
 {
 Token_string tos;
-Parser parser(PM_EXECUTE, LOC);
 
-   try          { parser.parse(ucs, tos); }
-   catch(...)   { return; }
+   try
+      {
+        const Parser parser(PM_EXECUTE, LOC);
+        parser.parse(ucs, tos);
+      }
+   catch(...)
+      {
+        return;
+      }
+
+   // simplify tos as much as possible. We replace A⍴B by reshaped B
+   // and glue values together.
+   //
+   tf2_simplify(tos);
 
    if (tos.size() < 2)   return;   // too short for an inverse 2⎕TF
 
-   // we expect either VAR←VALUE ... or ⎕FX fun-text. Try VAR←VALUE.
+   // it could happen that some system variable ⎕XX which is not known by
+   // GNU APL is read. This case is parsed as ⎕ XX ← ... 
+   // Issue a warning in that case
+   //
+   if (tos[0].get_tag() == TOK_QUAD_QUAD &&
+       tos[1].get_Class() == TC_SYMBOL)
+      {
+        new_var_or_fun = tos[1].get_sym_ptr()->get_name();
+        CERR << "*** Unknown system variable ⎕" << new_var_or_fun
+             << " in 2⎕TF / )IN (assignment ignored)" << endl;
+        return;
+      }
+
+   // we expect either VAR ← VALUE ... or ⎕FX fun-text. Try VAR ← VALUE.
    //
    if (tos[0].get_Class() == TC_SYMBOL && tos[1].get_tag() == TOK_ASSIGN)
       {
-        // simplify tos as much as possible. We replace A⍴B by reshaped B
-        // and glue values together.
-        //
-        tf2_remove_UCS(tos);
-
-        for (bool progress = true; progress;)
-            {
-              progress = false;
-              tf2_remove_RHO(tos, progress);
-              tf2_remove_parentheses(tos, progress);
-              tf2_glue(tos, progress);
-            }
-
-        // at this point, we expect SYM←VALUE.
+        // at this point, we expect SYM ← VALUE.
         //
         if (tos.size() != 3)                  return;
         if (tos[2].get_Class() != TC_VALUE)   return;
@@ -589,6 +600,23 @@ const Depth depth = value->compute_depth();
 }
 //-----------------------------------------------------------------------------
 int
+Quad_TF::tf2_simplify(Token_string & tos)
+{
+int errors = 0;
+
+   for (bool progress = true; progress && !errors;)
+       {
+         progress = false;
+         errors += tf2_remove_UCS(tos);
+         errors += tf2_remove_RHO(tos, progress);
+         errors += tf2_remove_parentheses(tos, progress);
+         errors += tf2_glue(tos, progress);
+       }
+
+   return errors;
+}
+//-----------------------------------------------------------------------------
+int
 Quad_TF::tf2_remove_UCS(Token_string & tos)
 {
 int d = 0;
@@ -748,7 +776,13 @@ vector<UCS_string> lines;
 
         loop(c, lines[l].size())
             {
-              const Unicode uni = lines[l][c];
+              Unicode uni = lines[l][c];
+              CHT_Index idx = Avec::map_alternative_char(uni);
+              if (idx != Invalid_CHT)
+                 {
+                   // uni is an alternative char. map it to the real one.
+                   uni = Avec::unicode(idx);
+                 }
               ucs.append(uni);
               if (uni == UNI_SINGLE_QUOTE)   ucs.append(UNI_SINGLE_QUOTE);
             }
