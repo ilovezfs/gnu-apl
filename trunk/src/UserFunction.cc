@@ -37,446 +37,202 @@
 #include "Value.hh"
 #include "Workspace.hh"
 
+//=============================================================================
+/// a user-define function signature and its properties
+const struct _header_pattern
+{
+   Fun_signature signature;      ///< a bitmap for header items
+   int           symbol_count;   ///< number of header items (excl local vars)
+   int           token_count;    ///< number of header token (excl local vars)
+   TokenTag      tags[11];       ///< tags of the header token (excl local vars)
+} header_patterns[] =            ///< all valid function headers
+{
+/// function result
+#define __Z  TOK_LSYMB, TOK_ASSIGN
+
+/// left function argument
+#define __A  TOK_SYMBOL
+
+/// a niladic function
+#define __F0 TOK_SYMBOL
+
+/// a monadic function
+#define __F1 TOK_SYMBOL
+
+/// a dyadic function
+#define __F2 TOK_SYMBOL
+
+/// a monadic operator
+#define __OP1 TOK_L_PARENT, TOK_SYMBOL, TOK_SYMBOL, TOK_R_PARENT
+
+/// a dyadic operator
+#define __OP2 TOK_L_PARENT, TOK_SYMBOL, TOK_SYMBOL, TOK_SYMBOL, TOK_R_PARENT
+
+/// an axis
+#define __X   TOK_L_BRACK,  TOK_SYMBOL, TOK_R_BRACK
+
+/// right function argument
+#define __B  TOK_SYMBOL
+
+   // niladic
+   //
+ { SIG_F0             , 1,  1, {           __F0,            } },
+
+ { SIG_Z_F0           , 2,  3, { __Z,      __F0,            } },
+
+   // monadic
+   //
+ { SIG_F1_B           , 2,  2, {           __F1,       __B, } },
+ { SIG_F1_X_B         , 3,  5, {           __F1,  __X, __B, } },
+ { SIG_LO_OP1_B       , 3,  5, {           __OP1,      __B, } },
+ { SIG_LO_OP1_X_B     , 4,  8, {           __OP1, __X, __B, } },
+ { SIG_LO_OP2_RO_B    , 4,  6, {           __OP2,      __B, } },
+
+ { SIG_Z_F1_B         , 3,  4, { __Z,      __F1,       __B, } },
+ { SIG_Z_F1_X_B       , 4,  7, { __Z,      __F1,  __X, __B, } },
+ { SIG_Z_LO_OP1_B     , 4,  7, { __Z,      __OP1,      __B, } },
+ { SIG_Z_LO_OP1_X_B   , 5, 10, { __Z,      __OP1, __X, __B, } },
+ { SIG_Z_LO_OP2_RO_B  , 5,  8, { __Z,      __OP2,      __B, } },
+
+   // dyadic
+   //
+ { SIG_A_F2_B         , 3,  3, {      __A, __F2,       __B } },
+ { SIG_A_F2_X_B       , 4,  6, {      __A, __F2,  __X, __B } },
+ { SIG_A_LO_OP1_B     , 4,  6, {      __A, __OP1,      __B } },
+ { SIG_A_LO_OP1_X_B   , 5,  9, {      __A, __OP1, __X, __B } },
+ { SIG_A_LO_OP2_RO_B  , 5,  7, {      __A, __OP2,      __B } },
+
+ { SIG_Z_A_F2_B       , 4,  5, { __Z, __A, __F2,       __B } },
+ { SIG_Z_A_F2_X_B     , 5,  8, { __Z, __A, __F2,  __X, __B } },
+ { SIG_Z_A_LO_OP1_B   , 5,  8, { __Z, __A, __OP1,      __B } },
+ { SIG_Z_A_LO_OP1_X_B , 6, 11, { __Z, __A, __OP1, __X, __B } },
+ { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __Z, __A, __OP2,      __B } },
+};
+
+/// the number of signatures
+enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
+
 //-----------------------------------------------------------------------------
-UserFunction::UserFunction(const UCS_string txt, int & error_line,
-                           bool keep_existing, const char * loc,
-                           const UTF8_string & _creator)
-  : Executable(txt, loc),
-    Function(ID_USER_SYMBOL, TOK_FUN2),
+UserFunction_header::UserFunction_header(const UCS_string text)
+  : error(E_SYNTAX_ERROR),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
     sym_FUN(0),
     sym_RO(0),
     sym_X(0),
-    sym_B(0),
-    creator(_creator)
+    sym_B(0)
 {
-   set_creation_time(now());
+UCS_string header_line;
 
-   exec_properties[0] = 0;
-   exec_properties[1] = 0;
-   exec_properties[2] = 0;
-   exec_properties[3] = 0;
+   loop(t, text.size())
+       {
+         const Unicode uni = text[t];
+         if (uni == UNI_ASCII_CR)        ;        // ignore CR
+         else if (uni == UNI_ASCII_LF)   break;   // stop at LF
+         else                            header_line.append(uni);
+       }
 
-   line_starts.push_back(Function_PC_0);   // will be set later.
+   if (header_line.size() == 0)   return;
 
-   error_line = 0;
-   parse_header_line(get_text(0));
+   Log(LOG_UserFunction__set_line)
+      {
+        CERR << "[0] " << header_line << endl;
+        // show_backtrace(__FILE__, __LINE__);
+      }
 
-   // check that the function can be defined.
+   // add a semicolon as a guaranteed end marker.
+   // This to avoids checks of the header token count
+   // 
+   header_line.append(Unicode(';'));
+
+Token_string tos;
+   {
+     const Parser parser(PM_FUNCTION, LOC);
+     const ErrorCode err = parser.parse(header_line, tos);
+
+     if (err != E_NO_ERROR)   { error = err;   return; }
+   }
+
+   // count symbols before first semicolon, allow one symbol too much.
    //
-   if (!sym_FUN->can_be_defined())   DEFN_ERROR;
-     
-Function * old_function = sym_FUN->get_function();
-   if (old_function && keep_existing)    DEFN_ERROR;
-
-   for (int l = 1; l < get_text_size(); ++l)
+int sym_count = 0;
+int tos_idx = 0;
+Symbol * symbols[12];
+   for (; tos_idx < 12; ++tos_idx)
       {
-        error_line = l;
-        line_starts.push_back(Function_PC(body.size()));
-
-        const UCS_string & text = get_text(l);
-        parse_body_line(Function_Line(l), text, loc);
+         if (tos[tos_idx].get_tag() == TOK_SEMICOL)   break;
+         if (tos[tos_idx].get_Class() == TC_SYMBOL)
+            symbols[sym_count++] = tos[tos_idx].get_sym_ptr();
       }
 
-   Log(LOG_UserFunction__fix)
-      {
-        CERR << "body.size() is " << body.size() << endl
-             << "line_starts.size() is " << line_starts.size() <<endl; 
-      }
-
-   // let [0] be the end of the function.
-   line_starts[0] = Function_PC(body.size());
-
-   if (sym_Z)     body.append(Token(TOK_RETURN_SYMBOL, sym_Z), LOC);
-   else           body.append(Token(TOK_RETURN_VOID), LOC);
-
-   check_duplicate_symbols();
-
-   if (sym_LO)   sym_FUN->set_nc(NC_OPERATOR, this);
-   else          sym_FUN->set_nc(NC_FUNCTION, this);
-
-   if (old_function)
-      {
-        const UserFunction * old_ufun = old_function->get_ufun1();
-        Assert(old_ufun);
-        delete old_ufun;
-      }
-
-   error_line = -1;   // assume no error
-}
-//-----------------------------------------------------------------------------
-UserFunction::~UserFunction()
-{
-   Log(LOG_UserFunction__enter_leave)
-      CERR << "Function " << get_name() << " deleted." << endl;
-}
-//-----------------------------------------------------------------------------
-bool
-UserFunction::is_operator() const
-{
-   return sym_LO != 0;
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_()
-{
-   Log(LOG_UserFunction__enter_leave)
-      CERR << "Function " << get_name() << " calls eval_()" << endl;
-
-   if (sym_B)   SYNTAX_ERROR;   // not defined niladic
-
-   Workspace::push_SI(this, LOC);
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_B(Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls eval_B("
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (sym_LO)    SYNTAX_ERROR;   // defined as operator
-
-   if (sym_B)   sym_B->push_value(B);
-   if (sym_X)   sym_X->push();
-   if (sym_A)   sym_A->push();
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_XB(Value_P X, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls eval_B("
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (sym_LO)    SYNTAX_ERROR;   // defined as operator
-
-   if (sym_B)   sym_B->push_value(B);
-   if (sym_X)   sym_X->push_value(X);
-   if (sym_A)   sym_A->push();
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_AB(Value_P A, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls eval_AB("
-             << Token(TOK_APL_VALUE1, A) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (sym_LO)    SYNTAX_ERROR;   // defined as operator
-
-   if (sym_B)   sym_B->push_value(B);
-   if (sym_X)   sym_X->push();
-   if (sym_A)   sym_A->push_value(A);
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_AXB(Value_P A, Value_P X, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls eval_AB("
-             << Token(TOK_APL_VALUE1, A) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (sym_LO)    SYNTAX_ERROR;   // defined as operator
-
-   if (sym_B)   sym_B->push_value(B);
-   if (sym_X)   sym_X->push_value(X);
-   if (sym_A)   sym_A->push_value(A);
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_LB(Token & LO, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
-        print_val_or_fun(CERR, LO) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (sym_RO)    SYNTAX_ERROR;   // dyadic operator called monadically
-
-                sym_B->push_value(B);
-   if (sym_X)   sym_X->push();
-   if (sym_A)   sym_A->push();
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_LXB(Token & LO, Value_P X, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
-        print_val_or_fun(CERR, LO) << ", "
-             << Token(TOK_APL_VALUE1, X) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (sym_RO)    SYNTAX_ERROR;   // dyadic operator called monadically
-
-                sym_B->push_value(B);
-   if (sym_X)   sym_X->push_value(X);
-   if (sym_A)   sym_A->push();
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_ALB(Value_P A, Token & LO, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
-             << Token(TOK_APL_VALUE1, A) << ", " << endl;
-        print_val_or_fun(CERR, LO) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (!sym_A)    SYNTAX_ERROR;   // monadic function called dyadically
-   if (sym_X)   sym_X->push();
-   if (sym_RO)    SYNTAX_ERROR;   // defined as dyadic operator
-
-   sym_B->push_value(B);
-   sym_A->push_value(A);
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
-             << Token(TOK_APL_VALUE1, A) << ", " << endl;
-        print_val_or_fun(CERR, LO) << ", "
-             << Token(TOK_APL_VALUE1, X) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (!sym_A)    SYNTAX_ERROR;   // monadic function called dyadically
-   if (sym_RO)    SYNTAX_ERROR;   // defined as dyadic operator
-
-   sym_B->push_value(B);
-   if (sym_X)   sym_X->push();
-   sym_A->push_value(A);
-   if (sym_X)   sym_X->push_value(X);
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_LRB(Token & LO, Token & RO, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
-        print_val_or_fun(CERR, LO) << ", ";
-        print_val_or_fun(CERR, RO) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (!sym_RO)    SYNTAX_ERROR;   // not defined as dyadic operator
-
-                 sym_B->push_value(B);
-   if (sym_X)    sym_X->push();
-   if (sym_A)    sym_A->push();
-
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-   if (RO.is_function())   sym_RO->push_function(RO.get_function());
-   else                    sym_RO->push_value(RO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_LRXB(Token & LO, Token & RO, Value_P X, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
-        print_val_or_fun(CERR, LO) << ", ";
-        print_val_or_fun(CERR, RO) << ", "
-             << Token(TOK_APL_VALUE1, X) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (!sym_RO)    SYNTAX_ERROR;   // not defined as dyadic operator
-
-                sym_B->push_value(B);
-   if (sym_X)   sym_X->push_value(X);
-   if (sym_A)   sym_A->push();
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-   if (RO.is_function())   sym_RO->push_function(RO.get_function());
-   else                    sym_RO->push_value(RO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
-             << Token(TOK_APL_VALUE1, A) << ", " << endl;
-        print_val_or_fun(CERR, LO) << ", ";
-        print_val_or_fun(CERR, RO) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (!sym_A)    SYNTAX_ERROR;    // defined monadic called dyadic
-   if (sym_X)      sym_X->push();
-   if (!sym_RO)    SYNTAX_ERROR;   // defined monadic op called dyadic
-
-                 sym_B->push_value(B);
-                 sym_A->push_value(A);
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-   if (RO.is_function())   sym_RO->push_function(RO.get_function());
-   else                    sym_RO->push_value(RO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-Token
-UserFunction::eval_ALRXB(Value_P A, Token & LO, Token & RO,
-                         Value_P X, Value_P B)
-{
-   Log(LOG_UserFunction__enter_leave)
-      {
-        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
-             << Token(TOK_APL_VALUE1, A) << ", " << endl;
-        print_val_or_fun(CERR, LO) << ", ";
-        print_val_or_fun(CERR, RO) << ", "
-             << Token(TOK_APL_VALUE1, X) << ", "
-             << Token(TOK_APL_VALUE1, B) << ")" << endl;
-      }
-
-   Workspace::push_SI(this, LOC);
-
-   if (!sym_A)    SYNTAX_ERROR;    // defined monadic called dyadic
-   if (!sym_RO)    SYNTAX_ERROR;   // defined monadic op called dyadic
-
-                 sym_B->push_value(B);
-   if (sym_X)    sym_X->push_value(X);
-                 sym_A->push_value(A);
-   if (LO.is_function())   sym_LO->push_function(LO.get_function());
-   else                    sym_LO->push_value(LO.get_apl_val());
-   if (RO.is_function())   sym_RO->push_function(RO.get_function());
-   else                    sym_RO->push_value(RO.get_apl_val());
-
-   eval_common();
-
-   return Token(TOK_SI_PUSHED);
-}
-//-----------------------------------------------------------------------------
-void
-UserFunction::eval_common()
-{
-   Log(LOG_UserFunction__enter_leave)   CERR << "eval_common()" << endl;
-
-   if (sym_Z)   sym_Z->push();
-
-   // push local variables...
+   // find matching signature. If sym_count or tos_idx were too high above,
+   // then we will not find them in header_patterns and signal syntax error.
    //
-   loop(l, local_vars.size())   local_vars[l]->push();
+Fun_signature signature = SIG_NONE;
+   loop(s, PATTERN_COUNT)
+      {
+        if (header_patterns[s].symbol_count != sym_count)   continue;
+        if (header_patterns[s].token_count != tos_idx)      continue;
+        bool match = true;
+        loop(t, tos_idx)
+           {
+             if (tos[t].get_tag() != header_patterns[s].tags[t])    // mismatch
+                {
+                   match = false;
+                   break;
+                }
+           }
 
-   // push labels...
-   //
-   loop(l, label_values.size())
-       label_values[l].sym->push_label(label_values[l].line);
+        if (match)
+           {
+             signature = header_patterns[s].signature;
+             break;   // found signature
+           }
+      }
+
+   if (signature == SIG_NONE)   return;
+
+   // note: constructor has set all symbol pointers to 0!
+   // store symbol pointers according to signature.
+   {
+     int sidx = 0;
+     if (signature & SIG_Z)    sym_Z   = symbols[sidx++];
+     if (signature & SIG_A)    sym_A   = symbols[sidx++];
+     if (signature & SIG_LO)   sym_LO  = symbols[sidx++];
+     if (signature & SIG_FUN)  sym_FUN = symbols[sidx++];
+     if (signature & SIG_RO)   sym_RO  = symbols[sidx++];
+     if (signature & SIG_X)    sym_X   = symbols[sidx++];
+     if (signature & SIG_B)    sym_B   = symbols[sidx++];
+
+     Assert1(sidx == sym_count);   // otherwise header_patterns is faulty
+     Assert1(sym_FUN);
+   }
+
+   for (;;)
+      {
+        if (tos[tos_idx++].get_tag() != TOK_SEMICOL)   return;
+        if  (tos_idx >= tos.size())   break;   // local vars done
+
+        const TokenTag tag = tos[tos_idx].get_tag();
+        if (tag != TOK_SYMBOL && tag != TOK_QUAD_IO
+                              && tag != TOK_QUAD_CT)
+           {
+             CERR << "Offending token at " LOC " is: " << tos[tos_idx] << endl;
+             return;
+           }
+
+        local_vars.push_back(tos[tos_idx++].get_sym_ptr());
+      }
+
+   error = E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 Value_P
-UserFunction::pop_local_vars() const
+UserFunction_header::pop_local_vars() const
 {
-   // pop labels
-   //
    loop(l, label_values.size())   label_values[l].sym->pop(true);
 
-   // pop local variables
-   //
    loop(l, local_vars.size())   local_vars[l]->pop(true);
 
    if (sym_B)    sym_B->pop(true);
@@ -491,42 +247,19 @@ UserFunction::pop_local_vars() const
 }
 //-----------------------------------------------------------------------------
 void
-UserFunction::set_locked_error_info(Error & error) const
+UserFunction_header::print_local_vars(ostream & out) const
 {
-UCS_string & message_2 = error.error_message_2;
+   if (sym_Z)     out << " " << *sym_Z;
+   if (sym_A)     out << " " << *sym_A;
+   if (sym_LO)    out << " " << *sym_LO;
+   if (sym_RO)    out << " " << *sym_RO;
+   if (sym_B)     out << " " << *sym_B;
 
-   if (sym_A)
-      {
-        Value_P val_A = sym_A->get_value();
-        if (!!val_A)
-           {
-             PrintContext pctx(PR_APL_FUN);
-             PrintBuffer pb(*val_A, pctx);
-             message_2.append(UCS_string(pb, 1));
-             message_2.append(UNI_ASCII_SPACE);
-           }
-      }
-
-   Assert(sym_FUN);
-   message_2.append(sym_FUN->get_name());
-
-   if (sym_B)
-      {
-        Value_P val_B = sym_B->get_value();
-        if (!!val_B)
-           {
-             message_2.append(UNI_ASCII_SPACE);
-             PrintContext pctx(PR_APL_FUN);
-             PrintBuffer pb(*val_B, pctx);
-             message_2.append(UCS_string(pb, 1));
-           }
-      }
-
-   error.right_caret = error.left_caret + message_2.size() - 7;
+   loop(l, local_vars.size())   out << " " << *local_vars[l];
 }
 //-----------------------------------------------------------------------------
 void
-UserFunction::check_duplicate_symbols()
+UserFunction_header::check_duplicate_symbols()
 {
    check_duplicate_symbol(sym_Z);
    check_duplicate_symbol(sym_A);
@@ -540,7 +273,8 @@ UserFunction::check_duplicate_symbols()
    loop(l, label_values.size())   check_duplicate_symbol(label_values[l].sym);
 }
 //-----------------------------------------------------------------------------
-void UserFunction::check_duplicate_symbol(Symbol * sym)
+void
+UserFunction_header::check_duplicate_symbol(Symbol * sym)
 {
    if (sym == 0)   return;   // unused symbol
 
@@ -563,6 +297,501 @@ int count = 0;
    CERR << "!!!" << endl;
 
    DEFN_ERROR;
+}
+//-----------------------------------------------------------------------------
+void
+UserFunction_header::print_properties(ostream & out, int indent) const
+{
+UCS_string ind(indent, UNI_ASCII_SPACE);
+   if (is_operator())   out << "Operator " << *sym_FUN << endl;
+   else                 out << "Function " << *sym_FUN << endl;
+
+   if (sym_Z)    out << ind << "Result:         " << *sym_Z  << endl;
+   if (sym_A)    out << ind << "Left Argument:  " << *sym_A  << endl;
+   if (sym_LO)   out << ind << "Left Op Arg:    " << *sym_LO << endl;
+   if (sym_RO)   out << ind << "Right Op Arg:   " << *sym_RO << endl;
+   if (sym_B)    out << ind << "Right Argument: " << *sym_B  << endl;
+
+   if (local_vars.size())
+      {
+        out << ind << "Local Variables:";
+        loop(l, local_vars.size())   out << " " << *local_vars[l];
+        out << endl;
+      }
+
+   if (label_values.size())
+      {
+        out << ind << "Labels:         ";
+        loop(l, label_values.size())
+                   out << " " << *label_values[l].sym
+                       << " = " << label_values[l].line;
+        out << endl;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+UserFunction_header::eval_common()
+{
+   Log(LOG_UserFunction__enter_leave)   CERR << "eval_common()" << endl;
+
+   if (Z())   Z()->push();
+
+   // push local variables...
+   //
+   loop(l, local_vars.size())   local_vars[l]->push();
+
+   // push labels...
+   //
+   loop(l, label_values.size())
+       label_values[l].sym->push_label(label_values[l].line);
+}
+//=============================================================================
+UserFunction::UserFunction(const UCS_string txt, int & error_line,
+                           bool keep_existing, const char * loc,
+                           const UTF8_string & _creator)
+  : Executable(txt, loc),
+    Function(ID_USER_SYMBOL, TOK_FUN2),
+    header(txt),
+    creator(_creator)
+{
+   set_creation_time(now());
+
+   exec_properties[0] = 0;
+   exec_properties[1] = 0;
+   exec_properties[2] = 0;
+   exec_properties[3] = 0;
+
+   line_starts.push_back(Function_PC_0);   // will be set later.
+
+   if (header.get_error() != E_NO_ERROR)   // bad header
+      {
+        error_line = 0;
+        DEFN_ERROR;
+      }
+
+   // set Function::tag
+   //
+   if      (header.RO())   tag = TOK_OPER2;
+   else if (header.LO())   tag = TOK_OPER1;
+   else if (header.A())    tag = TOK_FUN2;
+   else if (header.B())    tag = TOK_FUN1;
+   else                    tag = TOK_FUN0;
+
+
+   // check that the function can be defined.
+   //
+   if (!header.FUN()->can_be_defined())   DEFN_ERROR;
+     
+Function * old_function = header.FUN()->get_function();
+   if (old_function && keep_existing)    DEFN_ERROR;
+
+   for (int l = 1; l < get_text_size(); ++l)
+      {
+        error_line = l;
+        line_starts.push_back(Function_PC(body.size()));
+
+        const UCS_string & text = get_text(l);
+        parse_body_line(Function_Line(l), text, loc);
+      }
+
+   Log(LOG_UserFunction__fix)
+      {
+        CERR << "body.size() is " << body.size() << endl
+             << "line_starts.size() is " << line_starts.size() <<endl; 
+      }
+
+   // let [0] be the end of the function.
+   line_starts[0] = Function_PC(body.size());
+
+   if (header.Z())   body.append(Token(TOK_RETURN_SYMBOL, header.Z()), LOC);
+   else                body.append(Token(TOK_RETURN_VOID), LOC);
+
+   header.check_duplicate_symbols();
+
+   if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
+   else                 header.FUN()->set_nc(NC_FUNCTION, this);
+
+   if (old_function)
+      {
+        const UserFunction * old_ufun = old_function->get_ufun1();
+        Assert(old_ufun);
+        delete old_ufun;
+      }
+
+   error_line = -1;   // assume no error
+}
+//-----------------------------------------------------------------------------
+UserFunction::~UserFunction()
+{
+   Log(LOG_UserFunction__enter_leave)
+      CERR << "Function " << get_name() << " deleted." << endl;
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_()
+{
+   Log(LOG_UserFunction__enter_leave)
+      CERR << "Function " << get_name() << " calls eval_()" << endl;
+
+   if (header.B())   SYNTAX_ERROR;   // not defined niladic
+
+   Workspace::push_SI(this, LOC);
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_B(Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls eval_B("
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (header.LO())    SYNTAX_ERROR;   // defined as operator
+
+   if (header.B())   header.B()->push_value(B);
+   if (header.X())   header.X()->push();
+   if (header.A())   header.A()->push();
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_XB(Value_P X, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls eval_B("
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (header.LO())    SYNTAX_ERROR;   // defined as operator
+
+   if (header.B())   header.B()->push_value(B);
+   if (header.X())   header.X()->push_value(X);
+   if (header.A())   header.A()->push();
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_AB(Value_P A, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls eval_AB("
+             << Token(TOK_APL_VALUE1, A) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (header.LO())    SYNTAX_ERROR;   // defined as operator
+
+   if (header.B())   header.B()->push_value(B);
+   if (header.X())   header.X()->push();
+   if (header.A())   header.A()->push_value(A);
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_AXB(Value_P A, Value_P X, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls eval_AB("
+             << Token(TOK_APL_VALUE1, A) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (header.LO())    SYNTAX_ERROR;   // defined as operator
+
+   if (header.B())   header.B()->push_value(B);
+   if (header.X())   header.X()->push_value(X);
+   if (header.A())   header.A()->push_value(A);
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_LB(Token & LO, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
+        print_val_or_fun(CERR, LO) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (header.RO())    SYNTAX_ERROR;   // dyadic operator called monadically
+
+                header.B()->push_value(B);
+   if (header.X())   header.X()->push();
+   if (header.A())   header.A()->push();
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_LXB(Token & LO, Value_P X, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
+        print_val_or_fun(CERR, LO) << ", "
+             << Token(TOK_APL_VALUE1, X) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (header.RO())    SYNTAX_ERROR;   // dyadic operator called monadically
+
+                header.B()->push_value(B);
+   if (header.X())   header.X()->push_value(X);
+   if (header.A())   header.A()->push();
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_ALB(Value_P A, Token & LO, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
+             << Token(TOK_APL_VALUE1, A) << ", " << endl;
+        print_val_or_fun(CERR, LO) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (!header.A())    SYNTAX_ERROR;   // monadic function called dyadically
+   if (header.X())   header.X()->push();
+   if (header.RO())    SYNTAX_ERROR;   // defined as dyadic operator
+
+   header.B()->push_value(B);
+   header.A()->push_value(A);
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
+             << Token(TOK_APL_VALUE1, A) << ", " << endl;
+        print_val_or_fun(CERR, LO) << ", "
+             << Token(TOK_APL_VALUE1, X) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (!header.A())    SYNTAX_ERROR;   // monadic function called dyadically
+   if (header.RO())    SYNTAX_ERROR;   // defined as dyadic operator
+
+   header.B()->push_value(B);
+   if (header.X())   header.X()->push();
+   header.A()->push_value(A);
+   if (header.X())   header.X()->push_value(X);
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_LRB(Token & LO, Token & RO, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
+        print_val_or_fun(CERR, LO) << ", ";
+        print_val_or_fun(CERR, RO) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (!header.RO())    SYNTAX_ERROR;   // not defined as dyadic operator
+
+                 header.B()->push_value(B);
+   if (header.X())    header.X()->push();
+   if (header.A())    header.A()->push();
+
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+   if (RO.is_function())   header.RO()->push_function(RO.get_function());
+   else                    header.RO()->push_value(RO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_LRXB(Token & LO, Token & RO, Value_P X, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "(";
+        print_val_or_fun(CERR, LO) << ", ";
+        print_val_or_fun(CERR, RO) << ", "
+             << Token(TOK_APL_VALUE1, X) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (!header.RO())    SYNTAX_ERROR;   // not defined as dyadic operator
+
+                header.B()->push_value(B);
+   if (header.X())   header.X()->push_value(X);
+   if (header.A())   header.A()->push();
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+   if (RO.is_function())   header.RO()->push_function(RO.get_function());
+   else                    header.RO()->push_value(RO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
+             << Token(TOK_APL_VALUE1, A) << ", " << endl;
+        print_val_or_fun(CERR, LO) << ", ";
+        print_val_or_fun(CERR, RO) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (!header.A())    SYNTAX_ERROR;    // defined monadic called dyadic
+   if (header.X())      header.X()->push();
+   if (!header.RO())    SYNTAX_ERROR;   // defined monadic op called dyadic
+
+                 header.B()->push_value(B);
+                 header.A()->push_value(A);
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+   if (RO.is_function())   header.RO()->push_function(RO.get_function());
+   else                    header.RO()->push_value(RO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_ALRXB(Value_P A, Token & LO, Token & RO,
+                         Value_P X, Value_P B)
+{
+   Log(LOG_UserFunction__enter_leave)
+      {
+        CERR << "Function " << get_name() << " calls " << __FUNCTION__ << "("
+             << Token(TOK_APL_VALUE1, A) << ", " << endl;
+        print_val_or_fun(CERR, LO) << ", ";
+        print_val_or_fun(CERR, RO) << ", "
+             << Token(TOK_APL_VALUE1, X) << ", "
+             << Token(TOK_APL_VALUE1, B) << ")" << endl;
+      }
+
+   Workspace::push_SI(this, LOC);
+
+   if (!header.A())    SYNTAX_ERROR;    // defined monadic called dyadic
+   if (!header.RO())    SYNTAX_ERROR;   // defined monadic op called dyadic
+
+                 header.B()->push_value(B);
+   if (header.X())    header.X()->push_value(X);
+                 header.A()->push_value(A);
+   if (LO.is_function())   header.LO()->push_function(LO.get_function());
+   else                    header.LO()->push_value(LO.get_apl_val());
+   if (RO.is_function())   header.RO()->push_function(RO.get_function());
+   else                    header.RO()->push_value(RO.get_apl_val());
+
+   header.eval_common();
+
+   return Token(TOK_SI_PUSHED);
+}
+//-----------------------------------------------------------------------------
+void
+UserFunction::set_locked_error_info(Error & error) const
+{
+UCS_string & message_2 = error.error_message_2;
+
+   if (header.A())
+      {
+        Value_P val_A = header.A()->get_value();
+        if (!!val_A)
+           {
+             PrintContext pctx(PR_APL_FUN);
+             PrintBuffer pb(*val_A, pctx);
+             message_2.append(UCS_string(pb, 1));
+             message_2.append(UNI_ASCII_SPACE);
+           }
+      }
+
+   Assert(header.FUN());
+   message_2.append(header.FUN()->get_name());
+
+   if (header.B())
+      {
+        Value_P val_B = header.B()->get_value();
+        if (!!val_B)
+           {
+             message_2.append(UNI_ASCII_SPACE);
+             PrintContext pctx(PR_APL_FUN);
+             PrintBuffer pb(*val_B, pctx);
+             message_2.append(UCS_string(pb, 1));
+           }
+      }
+
+   error.right_caret = error.left_caret + message_2.size() - 7;
 }
 //-----------------------------------------------------------------------------
 UserFunction *
@@ -716,263 +945,40 @@ UserFunction::destroy()
    delete this;
 }
 //-----------------------------------------------------------------------------
-/// a user-define function signature and its properties
-const struct _header_pattern
-{
-   Fun_signature signature;      ///< a bitmap for header items
-   int           symbol_count;   ///< number of header items (excl local vars)
-   int           token_count;    ///< number of header token (excl local vars)
-   TokenTag      tags[11];       ///< tags of the header token (excl local vars)
-} header_patterns[] =            ///< all valid function headers
-{
-/// function result
-#define __Z  TOK_LSYMB, TOK_ASSIGN
-
-/// left function argument
-#define __A  TOK_SYMBOL
-
-/// a niladic function
-#define __F0 TOK_SYMBOL
-
-/// a monadic function
-#define __F1 TOK_SYMBOL
-
-/// a dyadic function
-#define __F2 TOK_SYMBOL
-
-/// a monadic operator
-#define __OP1 TOK_L_PARENT, TOK_SYMBOL, TOK_SYMBOL, TOK_R_PARENT
-
-/// a dyadic operator
-#define __OP2 TOK_L_PARENT, TOK_SYMBOL, TOK_SYMBOL, TOK_SYMBOL, TOK_R_PARENT
-
-/// an axis
-#define __X   TOK_L_BRACK,  TOK_SYMBOL, TOK_R_BRACK
-
-/// right function argument
-#define __B  TOK_SYMBOL
-
-   // niladic
-   //
- { SIG_F0             , 1,  1, {           __F0,            } },
-
- { SIG_Z_F0           , 2,  3, { __Z,      __F0,            } },
-
-   // monadic
-   //
- { SIG_F1_B           , 2,  2, {           __F1,       __B, } },
- { SIG_F1_X_B         , 3,  5, {           __F1,  __X, __B, } },
- { SIG_LO_OP1_B       , 3,  5, {           __OP1,      __B, } },
- { SIG_LO_OP1_X_B     , 4,  8, {           __OP1, __X, __B, } },
- { SIG_LO_OP2_RO_B    , 4,  6, {           __OP2,      __B, } },
-
- { SIG_Z_F1_B         , 3,  4, { __Z,      __F1,       __B, } },
- { SIG_Z_F1_X_B       , 4,  7, { __Z,      __F1,  __X, __B, } },
- { SIG_Z_LO_OP1_B     , 4,  7, { __Z,      __OP1,      __B, } },
- { SIG_Z_LO_OP1_X_B   , 5, 10, { __Z,      __OP1, __X, __B, } },
- { SIG_Z_LO_OP2_RO_B  , 5,  8, { __Z,      __OP2,      __B, } },
-
-   // dyadic
-   //
- { SIG_A_F2_B         , 3,  3, {      __A, __F2,       __B } },
- { SIG_A_F2_X_B       , 4,  6, {      __A, __F2,  __X, __B } },
- { SIG_A_LO_OP1_B     , 4,  6, {      __A, __OP1,      __B } },
- { SIG_A_LO_OP1_X_B   , 5,  9, {      __A, __OP1, __X, __B } },
- { SIG_A_LO_OP2_RO_B  , 5,  7, {      __A, __OP2,      __B } },
-
- { SIG_Z_A_F2_B       , 4,  5, { __Z, __A, __F2,       __B } },
- { SIG_Z_A_F2_X_B     , 5,  8, { __Z, __A, __F2,  __X, __B } },
- { SIG_Z_A_LO_OP1_B   , 5,  8, { __Z, __A, __OP1,      __B } },
- { SIG_Z_A_LO_OP1_X_B , 6, 11, { __Z, __A, __OP1, __X, __B } },
- { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __Z, __A, __OP2,      __B } },
-};
-
-/// the number of signatures
-enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
-
-void
-UserFunction::parse_header_line(UCS_string header_line)
-{
-   Assert(header_line.size() > 0);
-
-   if (header_line[header_line.size() - 1] == UNI_ASCII_CR)
-      {
-        header_line.shrink(header_line.size());
-        Assert(header_line.size() > 0);
-      }
-
-   Log(LOG_UserFunction__set_line)
-      {
-        CERR << "[0] " << header_line << endl;
-        // show_backtrace(__FILE__, __LINE__);
-      }
-
-   // add a semicolon as a guaranteed end marker.
-   // This to avoids checks of the header token count
-   // 
-   header_line.append(Unicode(';'));
-
-Token_string tos;
-   {
-     Parser parser(PM_FUNCTION, LOC);
-     ErrorCode error = parser.parse(header_line, tos);
-
-     if (error != E_NO_ERROR)   SYNTAX_ERROR;
-   }
-
-   // count symbols before first semicolon, allow one symbol too much.
-   //
-int sym_count = 0;
-int tos_idx = 0;
-Symbol * symbols[12];
-   for (; tos_idx < 12; ++tos_idx)
-      {
-         if (tos[tos_idx].get_tag() == TOK_SEMICOL)   break;
-         if (tos[tos_idx].get_Class() == TC_SYMBOL)
-            symbols[sym_count++] = tos[tos_idx].get_sym_ptr();
-      }
-
-   // find matching signature. If sym_count or tos_idx were too high above,
-   // then we will not find them in header_patterns and signal syntax error.
-   //
-Fun_signature signature = SIG_NONE;
-   loop(s, PATTERN_COUNT)
-      {
-        if (header_patterns[s].symbol_count != sym_count)   continue;
-        if (header_patterns[s].token_count != tos_idx)      continue;
-        bool match = true;
-        loop(t, tos_idx)
-           {
-             if (tos[t].get_tag() != header_patterns[s].tags[t])    // mismatch
-                {
-                   match = false;
-                   break;
-                }
-           }
-
-        if (match)
-           {
-             signature = header_patterns[s].signature;
-             break;   // found signature
-           }
-      }
-
-   if (signature == SIG_NONE)   SYNTAX_ERROR;
-
-   // note: constructor has set all symbol pointers to 0!
-   // store symbol pointers according to signature.
-   {
-     int sidx = 0;
-     if (signature & SIG_Z)    sym_Z   = symbols[sidx++];
-     if (signature & SIG_A)    sym_A   = symbols[sidx++];
-     if (signature & SIG_LO)   sym_LO  = symbols[sidx++];
-     if (signature & SIG_FUN)  sym_FUN = symbols[sidx++];
-     if (signature & SIG_RO)   sym_RO  = symbols[sidx++];
-     if (signature & SIG_X)    sym_X   = symbols[sidx++];
-     if (signature & SIG_B)    sym_B   = symbols[sidx++];
-
-     Assert1(sidx == sym_count);   // otherwise header_patterns is faulty
-     Assert1(sym_FUN);
-   }
-
-   // set Function::tag
-   //
-   if      (signature & SIG_RO)   tag = TOK_OPER2;
-   else if (signature & SIG_LO)   tag = TOK_OPER1;
-   else if (signature & SIG_A)    tag = TOK_FUN2;
-   else if (signature & SIG_B)    tag = TOK_FUN1;
-   else                           tag = TOK_FUN0;
-
-   for (;;)
-      {
-        if (tos[tos_idx++].get_tag() != TOK_SEMICOL)              SYNTAX_ERROR;
-        if  (tos_idx >= tos.size())   break;   // local vars done
-
-        const TokenTag tag = tos[tos_idx].get_tag();
-        if (tag != TOK_SYMBOL && tag != TOK_QUAD_IO
-                              && tag != TOK_QUAD_CT)
-           {
-             CERR << "Offending token at " LOC " is: " << tos[tos_idx] << endl;
-             SYNTAX_ERROR;
-           }
-
-        local_vars.push_back(tos[tos_idx++].get_sym_ptr());
-      }
-}
-//-----------------------------------------------------------------------------
 ostream &
 UserFunction::print(ostream & out) const
 {
-   return out << *sym_FUN;
+   return out << *header.FUN();
 /*
    out << "Function header:" << endl;
-   if (sym_Z)     out << "Result:         " << *sym_Z   << endl;
-   if (sym_A)     out << "Left Argument:  " << *sym_A   << endl;
-   if (sym_LO)    out << "Left Op Arg:    " << *sym_LO  << endl;
-   if (sym_FUN)   out << "Function:       " << *sym_FUN << endl;
-   if (sym_RO)    out << "Right Op Arg:   " << *sym_RO  << endl;
-   if (sym_B)     out << "Right Argument: " << *sym_B   << endl;
+   if (header.Z())     out << "Result:         " << *header.Z()   << endl;
+   if (header.A())     out << "Left Argument:  " << *header.A()   << endl;
+   if (header.LO())    out << "Left Op Arg:    " << *header.LO()  << endl;
+   if (header.FUN())   out << "Function:       " << *header.FUN() << endl;
+   if (header.RO())    out << "Right Op Arg:   " << *header.RO()  << endl;
+   if (header.B())     out << "Right Argument: " << *header.B()   << endl;
    return Executable::print(out);
 */
 }
 //-----------------------------------------------------------------------------
 void
-UserFunction::print_local_vars(ostream & out) const
-{
-   if (sym_Z)     out << " " << *sym_Z;
-   if (sym_A)     out << " " << *sym_A;
-   if (sym_LO)    out << " " << *sym_LO;
-   if (sym_RO)    out << " " << *sym_RO;
-   if (sym_B)     out << " " << *sym_B;
-
-   loop(l, local_vars.size())   out << " " << *local_vars[l];
-}
-//-----------------------------------------------------------------------------
-void
 UserFunction::print_properties(ostream & out, int indent) const
 {
+   header.print_properties(out, indent);
 UCS_string ind(indent, UNI_ASCII_SPACE);
-   if (is_operator())   out << "Operator " << *sym_FUN << endl;
-   else                 out << "Function " << *sym_FUN << endl;
-
-   if (get_parse_mode() == PM_FUNCTION)
-      {
-        if (sym_Z)    out << ind << "Result:         " << *sym_Z  << endl;
-        if (sym_A)    out << ind << "Left Argument:  " << *sym_A  << endl;
-        if (sym_LO)   out << ind << "Left Op Arg:    " << *sym_LO << endl;
-        if (sym_RO)   out << ind << "Right Op Arg:   " << *sym_RO << endl;
-        if (sym_B)    out << ind << "Right Argument: " << *sym_B  << endl;
-
-        if (local_vars.size())
-           {
-                out << ind << "Local Variables:";
-                loop(l, local_vars.size())
-                   out << " " << *local_vars[l];
-                out << endl;
-           }
-
-          out << ind << "Body Lines:     " << line_starts.size() << endl;
-        if (label_values.size())
-           {
-                out << ind << "Labels:         ";
-                loop(l, label_values.size())
-                   out << " " << *label_values[l].sym
-                       << " = " << label_values[l].line;
-                out << endl;
-           }
-      }
+   out << ind << "Body Lines:     " << line_starts.size() << endl;
 }
 //-----------------------------------------------------------------------------
 const UCS_string &
 UserFunction::get_name() const
 {
-   return sym_FUN->get_name();
+   return header.FUN()->get_name();
 }
 //-----------------------------------------------------------------------------
 UCS_string
 UserFunction::get_name_and_line(Function_PC pc) const
 {
-UCS_string ret = sym_FUN->get_name();
+UCS_string ret = header.FUN()->get_name();
    ret.append(UNI_ASCII_L_BRACK);
 
    // pc may point to the next token already. If that is the case then

@@ -117,7 +117,37 @@ Source<Unicode> src(input);
                       {
                         ++src;
                         tos.append(Token(TOK_QUAD_QUOTE,
-                                   &Workspace::get_v_quad_QUOTE()), LOC);
+                                   &Workspace::get_v_Quad_QUOTE()), LOC);
+                      }
+                   else if (uni == UNI_ALPHA)
+                      {
+                        ++src;
+                        tos.append(Token(TOK_ALPHA,
+                                   &Workspace::get_v_ALPHA()), LOC);
+                      }
+                   else if (uni == UNI_ALPHA_UNDERBAR)
+                      {
+                        ++src;
+                        tos.append(Token(TOK_ALPHA_U,
+                                   &Workspace::get_v_ALPHA_U()), LOC);
+                      }
+                   else if (uni == UNI_CHI)
+                      {
+                        ++src;
+                        tos.append(Token(TOK_CHI,
+                                   &Workspace::get_v_CHI()), LOC);
+                      }
+                   else if (uni == UNI_OMEGA)
+                      {
+                        ++src;
+                        tos.append(Token(TOK_OMEGA,
+                                   &Workspace::get_v_OMEGA()), LOC);
+                      }
+                   else if (uni == UNI_OMEGA_UNDERBAR)
+                      {
+                        ++src;
+                        tos.append(Token(TOK_OMEGA_U,
+                                   &Workspace::get_v_OMEGA_U()), LOC);
                       }
                    else
                       {
@@ -167,6 +197,8 @@ Source<Unicode> src(input);
               case TC_R_PARENT:
               case TC_L_BRACK:
               case TC_R_BRACK:
+              case TC_L_CURLY:
+              case TC_R_CURLY:
                    ++src;
                    tos.append(tok, LOC);
                    break;
@@ -312,13 +344,19 @@ Tokenizer::tokenize_quad(Source<Unicode> & src, Token_string & tos)
    Log(LOG_tokenize)
       CERR << "tokenize_quad(" << src.rest() << " chars)"<< endl;
 
-UCS_string ucs;
-   ucs.append(src.get());
-   Assert((ucs[0]));
+   src.get();               // discard (possibly alternative) ⎕
+UCS_string ucs(UNI_QUAD_QUAD);
+   Assert(ucs[0]);
 
    ucs.append((src.rest() > 0) ? src[0] : Invalid_Unicode);
    ucs.append((src.rest() > 1) ? src[1] : Invalid_Unicode);
    ucs.append((src.rest() > 2) ? src[2] : Invalid_Unicode);
+
+   // allow lowercase ⎕xx
+   //
+   if (ucs[1] >= 'a' && ucs[1] <= 'z')   ucs[1] = (Unicode)(ucs[1] - 32);
+   if (ucs[2] >= 'a' && ucs[2] <= 'z')   ucs[2] = (Unicode)(ucs[2] - 32);
+   if (ucs[3] >= 'a' && ucs[3] <= 'z')   ucs[3] = (Unicode)(ucs[3] - 32);
 
 int len = 0;
 const Token t = Workspace::get_quad(ucs, len);

@@ -58,4 +58,5 @@
  5267 finalized 10⎕CR and fixed some bugs
  5277 GNU APL 1.2 release
  5291 Support files for dyalog keyboards added
+ 5320 Made ⎕-names case insensitive, map alternate chars in )OUT
 

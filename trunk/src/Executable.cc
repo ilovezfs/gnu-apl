@@ -69,7 +69,7 @@ Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
       CERR << "[" << line << "]" << ucs_line << endl;
 
 Token_string in;
-Parser parser(get_parse_mode(), loc);
+const Parser parser(get_parse_mode(), loc);
    {
      ErrorCode ec = parser.parse(ucs_line, in);
      if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
@@ -115,10 +115,14 @@ Token_string out;
         //
         while (statement.rest())
             {
-              // check for invalid token.
+              // check for invalid token. The only token allowed are
+              // permanent token and { } for lambdas (which will be removed
+              // next)
               //
               const Token & tok = statement.get_last();
-              if ((tok.get_tag() & TC_MASK) >= TC_MAX_PERM)
+              if (tok.get_Class() >= TC_MAX_PERM &&
+                  tok.get_tag() != TOK_L_CURLY &&
+                  tok.get_tag() != TOK_R_CURLY)
                  {
                    CERR << "Line " << line << endl
                         << "Offending token: (tag > TC_MAX_PERM) "
@@ -370,6 +374,92 @@ int count = 0;
 
    return count;
 }
+//-----------------------------------------------------------------------------
+void
+Executable::setup_lambdas()
+{
+int tidx = 0;
+int tcol = 0;
+
+   loop(b, body.size())
+       {
+         // body is in reverse order, so } comes before { (and optional ← NAME)
+         //
+         if (body[b].get_tag() != TOK_R_CURLY)   continue;   // not {
+
+         body[b++].clear(LOC);   // invalidate }
+         Token_string lambda_body;
+         for (;;)
+             {
+               Assert(b < body.size());
+               Token t;
+               move_1(t, body[b], LOC);
+               body[b].clear(LOC);   // invalidate in main body
+               if (t.get_tag() == TOK_L_CURLY)   break;   // copy { ... } done
+               lambda_body.append(t, LOC);
+               ++b;
+             }
+         
+         // at this point {} was copied from body to lambda_body and
+         // b is at the (now invalidated) { token.
+         // check if lambda is named, i.e. Name ← { ... }
+         //
+         UCS_string lambda_name;
+         if ((b + 2) < body.size() &&
+             body[b + 1].get_tag() == TOK_ASSIGN
+             && body[b + 2].get_tag() == TOK_LSYMB)
+            {
+              // named lambda
+              //
+              Symbol * sym = body[b + 2].get_sym_ptr();
+              lambda_name = sym->get_name();
+
+               body[b + 1].clear(LOC);
+               body[b + 2].clear(LOC);
+            }
+         else
+            {
+              lambda_name.append(UNI_LAMBDA);
+              lambda_name.append_number(lambdas.size() + 1);
+            }
+
+         UCS_string lambda_text;
+         for (;;)
+             {
+               // search { in body text
+               //
+               Assert(tidx < text.size());
+               const UCS_string & line = text[tidx];
+
+               if (tcol >= line.size())   // end of line: wrap to next line
+                  {
+                    ++tidx;
+                    tcol = 0;
+                    continue;
+                  }
+
+               const Unicode l_curly = line[tcol++];
+               if (l_curly != UNI_ASCII_L_CURLY)   continue;   // not {
+
+                // found {
+                //
+                ++tcol;   // skip {
+                if (tcol >= line.size())   SYNTAX_ERROR;
+                for (;;)
+                    {
+                      const Unicode r_curly = line[tcol++];
+                      if (r_curly == UNI_ASCII_R_CURLY)   break;
+                      lambda_text.append(r_curly);
+                    }
+               break;
+             }
+//       Q(lambda_name)
+//       Q(lambda_body)
+//       Q(lambda_text)
+       }
+
+   Parser::remove_void_token(body);
+}
 //=============================================================================
 ExecuteList *
 ExecuteList::fix(const UCS_string & data, const char * loc)
@@ -447,6 +537,7 @@ StatementList * fun = new StatementList(data, loc);
    }
 
    fun->parse_body_line(Function_Line_0, data, loc);
+   fun->setup_lambdas();
 
    Log(LOG_UserFunction__fix)
       {

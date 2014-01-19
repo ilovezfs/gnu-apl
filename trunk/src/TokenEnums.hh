@@ -76,6 +76,8 @@ enum TokenClass
    TC_NEWLINE       = 0x18,   // LF
    TC_COLON         = 0x19,   // :
    TC_QUOTE         = 0x1A,   // ' or "
+   TC_L_CURLY       = 0x1B,   // {
+   TC_R_CURLY       = 0x1C,   // }
 
    TC_MASK          = 0xFF,
    TC_INVALID       = 0xFF,

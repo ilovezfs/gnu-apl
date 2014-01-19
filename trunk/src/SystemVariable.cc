@@ -945,7 +945,7 @@ Quad_TS::Quad_TS()
 Value_P
 Quad_TS::get_apl_value() const
 {
-const int offset = Workspace::get_v_quad_TZ().get_offset();
+const int offset = Workspace::get_v_Quad_TZ().get_offset();
 const YMDhmsu time(now() + offset);
 
 Value_P Z(new Value(7, LOC));

@@ -264,5 +264,45 @@ protected:
    vector<ValueStackItem> value_stack;
 };
 //-----------------------------------------------------------------------------
+class ALPHA : public Symbol
+{
+public:
+   ALPHA()
+   : Symbol(UCS_string(UNI_ALPHA), ID_ALPHA)
+   {}
+};
+//-----------------------------------------------------------------------------
+class ALPHA_U : public Symbol
+{
+public:
+   ALPHA_U()
+   : Symbol(UCS_string(UNI_ALPHA_UNDERBAR), ID_ALPHA_U)
+   {}
+};
+//-----------------------------------------------------------------------------
+class CHI : public Symbol
+{
+public:
+   CHI()
+   : Symbol(UCS_string(UNI_CHI), ID_CHI)
+   {}
+};
+//-----------------------------------------------------------------------------
+class OMEGA : public Symbol
+{
+public:
+   OMEGA()
+   : Symbol(UCS_string(UNI_OMEGA), ID_OMEGA)
+   {}
+};
+//-----------------------------------------------------------------------------
+class OMEGA_U : public Symbol
+{
+public:
+   OMEGA_U()
+   : Symbol(UCS_string(UNI_OMEGA_UNDERBAR), ID_OMEGA_U)
+   {}
+};
+//-----------------------------------------------------------------------------
 
 #endif // __SYMBOL_HH_DEFINED__

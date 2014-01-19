@@ -65,6 +65,8 @@ TD(TOK_SEMICOL       , TC_L_BRACK   , TV_NONE , ID_SEMICOL      )
 TD(TOK_R_BRACK       , TC_R_BRACK   , TV_NONE , ID_R_BRACK      )
 TD(TOK_L_PARENT      , TC_L_PARENT  , TV_NONE , ID_L_PARENT     )
 TD(TOK_R_PARENT      , TC_R_PARENT  , TV_NONE , ID_R_PARENT     )
+TD(TOK_L_CURLY       , TC_L_CURLY   , TV_NONE , ID_L_CURLY      )
+TD(TOK_R_CURLY       , TC_R_CURLY   , TV_NONE , ID_R_CURLY      )
 
    // token with value and with ID.
    //
@@ -99,6 +101,7 @@ TD(TOK_QUAD_UL       , TC_SYMBOL    , TV_SYM  , ID_QUAD_UL      )
 TD(TOK_QUAD_WA       , TC_SYMBOL    , TV_SYM  , ID_QUAD_WA      )
 TD(TOK_ALPHA         , TC_SYMBOL    , TV_SYM  , ID_ALPHA        )
 TD(TOK_ALPHA_U       , TC_SYMBOL    , TV_SYM  , ID_ALPHA_U      )
+TD(TOK_CHI           , TC_SYMBOL    , TV_SYM  , ID_CHI          )
 TD(TOK_OMEGA         , TC_SYMBOL    , TV_SYM  , ID_OMEGA        )
 TD(TOK_OMEGA_U       , TC_SYMBOL    , TV_SYM  , ID_OMEGA_U      )
 

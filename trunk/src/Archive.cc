@@ -731,7 +731,7 @@ tm * t;
 "           hour=\""     <<  t->tm_hour
      << "\" minute=\""   <<  t->tm_min
      << "\" second=\""   <<  t->tm_sec
-     << "\" timezone=\"" << Workspace::get_v_quad_TZ().get_offset()
+     << "\" timezone=\"" << Workspace::get_v_Quad_TZ().get_offset()
      << "\">\n" << endl;
 
    ++indent;
@@ -794,8 +794,8 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save certain system variables
    //
-#define rw_sv_def(x) *this << Workspace::get_v_quad_ ## x();
-#define ro_sv_def(x) *this << Workspace::get_v_quad_ ## x();
+#define rw_sv_def(x) *this << Workspace::get_v_ ## x();
+#define ro_sv_def(x) *this << Workspace::get_v_ ## x();
 #include "SystemVariable.def"
 
    // save state indicator

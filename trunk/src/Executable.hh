@@ -112,6 +112,9 @@ public:
       { return alloc_loc; }
 
 protected:
+   /// extract lambda expressions from body and store them in lambdas
+   void setup_lambdas();
+
    /// where this SI entry was allocated
    const char * alloc_loc;
 
@@ -126,6 +129,21 @@ protected:
    /// statement by statement, but the token within a statement reversed
    /// due to the right-to-left execution of APL.
    Token_string body;
+
+   /// a struct for lambdas
+   struct lambda
+      {
+        /// the name of the lambda
+        UCS_string name;
+
+        /// the program text for the lambda
+        UCS_string text;
+
+        /// the token for the lambda
+        Token_string body;
+      };
+
+   vector<lambda> lambdas;
 };
 //-----------------------------------------------------------------------------
 /**
