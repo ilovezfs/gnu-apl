@@ -107,7 +107,7 @@ Input::init()
 {
    if (use_readline)
       {
-        readline_lib::rl_readline_name = "GnuAPL:";
+        readline_lib::rl_readline_name = "GnuAPL";
         readline_lib::rl_initialize();
         readline_lib::stifle_history(readline_history_len);
         readline_lib::read_history(readline_history_path.c_str());
