@@ -43,7 +43,7 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B) { VALENCE_ERROR; }
 
    /// overloaded Function::has_result()
-   virtual int has_result() const   { return 1; }
+   virtual bool has_result() const   { return true; }
 };
 //-----------------------------------------------------------------------------
 /**

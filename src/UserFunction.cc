@@ -228,6 +228,25 @@ Fun_signature signature = SIG_NONE;
    error = E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
+UserFunction_header::UserFunction_header(Fun_signature sig)
+  : error(E_SYNTAX_ERROR),
+    sym_Z(0),
+    sym_A(0),
+    sym_LO(0),
+    sym_FUN(0),
+    sym_RO(0),
+    sym_X(0),
+    sym_B(0)
+{
+   if (sig & SIG_A)   sym_A = &Workspace::get_v_ALPHA();
+   if (sig & SIG_LO)   sym_X = &Workspace::get_v_ALPHA_U();
+   if (sig & SIG_RO)   sym_X = &Workspace::get_v_OMEGA_U();
+   if (sig & SIG_B)   sym_B = &Workspace::get_v_OMEGA();
+   if (sig & SIG_X)   sym_X = &Workspace::get_v_CHI();
+
+   error = E_NO_ERROR;
+}
+//-----------------------------------------------------------------------------
 Value_P
 UserFunction_header::pop_local_vars() const
 {
@@ -297,6 +316,39 @@ int count = 0;
    CERR << "!!!" << endl;
 
    DEFN_ERROR;
+}
+//-----------------------------------------------------------------------------
+UCS_string
+UserFunction_header::canonical() const
+{
+UCS_string fun("fooo");
+UCS_string u;
+
+   if (sym_Z)    { u.append(sym_Z->get_name());   u.append(UNI_LEFT_ARROW);  }
+
+   if (sym_A)    { u.append(sym_A->get_name());   u.append(UNI_ASCII_SPACE); }
+
+   if (sym_LO)   { 
+                   u.append(UNI_ASCII_L_PARENT);
+                   u.append(sym_LO->get_name());
+                   u.append(UNI_ASCII_SPACE);
+                   u.append(fun); 
+                   if (sym_RO)
+                      {
+                        u.append(UNI_ASCII_SPACE);
+                        u.append(sym_RO->get_name());
+                      }
+                   u.append(UNI_ASCII_R_PARENT);
+                 }
+
+   if (sym_X)    { u.append(UNI_ASCII_L_BRACK);
+                   u.append(sym_X->get_name());
+                   u.append(UNI_ASCII_R_BRACK);
+                 }
+
+   if (sym_B)    { u.append(UNI_ASCII_SPACE);   u.append(sym_A->get_name()); } 
+
+   return u;
 }
 //-----------------------------------------------------------------------------
 void

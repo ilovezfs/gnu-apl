@@ -54,6 +54,26 @@ IndexExpr::extract_all()
       }
 }
 //-----------------------------------------------------------------------------
+bool
+IndexExpr::check_range(const Shape & shape) const
+{
+   loop(r, rank)
+      {
+        Value_P ival = values[rank - r - 1];
+        if (!ival)   continue;   // elided index
+
+        const ShapeItem max_idx = shape.get_shape_item(r) + quad_io;
+        loop(i, ival->element_count())
+           {
+             const APL_Integer idx = ival->get_ravel(i).get_near_int(quad_ct);
+             if (idx < quad_io)    return true;
+             if (idx >= max_idx)   return true;
+           }
+      }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
 Rank
 IndexExpr::get_axis(Rank max_axis) const
 {

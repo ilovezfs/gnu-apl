@@ -31,6 +31,9 @@
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
+int Input::readline_history_len = 500;
+UTF8_string Input::readline_history_path(".apl.history");
+
 /// an optional function called before printing a prompt and reading input
 extern void (*start_input)();
 
@@ -105,8 +108,8 @@ Input::init()
    if (use_readline)
       {
         readline_lib::rl_initialize();
-        readline_lib::stifle_history(500);
-        readline_lib::read_history(".apl.history");
+        readline_lib::stifle_history(readline_history_len);
+        readline_lib::read_history(readline_history_path.c_str());
 
 //      readline_lib::rl_function_dumper(1);
       }

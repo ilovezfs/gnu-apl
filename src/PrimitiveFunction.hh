@@ -49,7 +49,7 @@ public:
    {}
 
    /// Overloaded Function::has_result()
-   virtual int has_result() const   { return 1; }
+   virtual bool has_result() const   { return true; }
 
 protected:
    /// Overloaded Function::print_properties()

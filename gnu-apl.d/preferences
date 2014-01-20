@@ -258,3 +258,15 @@
 # LIBREF-8 /usr/lib/gnu-apl/lib-e
 # LIBREF-9 /usr/lib/gnu-apl/lib-f
 #
+
+###############################################################################
+#
+# READLINE HISTORY PARAMETERS
+#
+# GNU APL normally uses GNU Readline for obtaining input from the user.
+# Below the number of history lines and the location of the history file 
+# can be configured.
+#
+READLINE_HISTORY_LEN  500
+READLINE_HISTORY_PATH .apl.history
+
