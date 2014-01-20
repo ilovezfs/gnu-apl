@@ -92,7 +92,11 @@ public:
 
    /// return 1 if the function returns a result, otherwise 0.
    /// For non-user defined functions, throw DOMAIN_ERROR.
-   virtual int has_result() const = 0;
+   virtual bool has_result() const = 0;
+
+   /// return true iff the function has and axis (system defined functions
+   /// always have an axis even thogh most of them ignore it).
+   virtual bool has_axis() const    { return true; }
 
    /// overloaded NamedObject::get_function()
    virtual const Function * get_function() const   { return this; }
@@ -115,18 +119,18 @@ public:
    /// store the attributes (as per ⎕AT) of symbol at dest, ...
    virtual void get_attributes(int mode, Cell * dest) const;
 
-   /// set \b tok to a \b Token for \b this function.
-   Token get_token()   { return Token(tag, this); }
-
    /// return a pointer to \b this UserFunction (if it is one)
    virtual const UserFunction * get_ufun1() const   { return 0; }
-
-   /// Print \b this function.
-   virtual ostream & print(ostream & out) const = 0;
 
    /// return true if this function has a name with alphabetic chars,
    /// i.e. the function is user defined or a quad function
    virtual bool has_alpha() const   { return false; }
+
+   /// Print \b this function.
+   virtual ostream & print(ostream & out) const = 0;
+
+   /// set \b tok to a \b Token for \b this function.
+   Token get_token()   { return Token(tag, this); }
 
    /// plain function, 0 arguments
    virtual Token eval_();
@@ -192,6 +196,10 @@ public:
    /// Quad_CR of this function.
    virtual UCS_string canonical(bool with_lines) const
       { NeverReach("Function::canonical() called"); }
+
+   /// return the signature of this function (currently only valid
+   /// for user-defined functions)
+   Fun_signature get_signature() const;
 
    /// when this function was created (0.0 for system functions)
    APL_time creation_time;

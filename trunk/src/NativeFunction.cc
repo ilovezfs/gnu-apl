@@ -218,7 +218,7 @@ NativeFunction * new_function = new NativeFunction(so_name, function_name);
    return new_function;
 }
 //-----------------------------------------------------------------------------
-int
+bool
 NativeFunction::has_result() const
 {
    return !!(signature & SIG_Z);

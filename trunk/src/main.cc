@@ -800,6 +800,14 @@ int line = 0;
                                     sys ? LibPaths::LibDir::CS_PREF_SYS
                                         : LibPaths::LibDir::CS_PREF_HOME);
             }
+         else if (!strcasecmp(opt, "READLINE_HISTORY_LEN"))
+            {
+              Input::readline_history_len = atoi(arg);
+            }
+         else if (!strcasecmp(opt, "READLINE_HISTORY_PATH"))
+            {
+              Input::readline_history_path = UTF8_string(arg);
+            }
        }
 
    fclose(f);

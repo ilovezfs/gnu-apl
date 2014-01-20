@@ -961,6 +961,10 @@ Shape shape_Z;
             }
        }
 
+   // check that all indices are valid
+   //
+   if (IX.check_range(get_shape()))   INDEX_ERROR;
+
 MultiIndexIterator mult(get_shape(), IX);   // deletes IDX
 
 Value_P Z(new Value(shape_Z, LOC));

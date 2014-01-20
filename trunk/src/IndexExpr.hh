@@ -77,6 +77,9 @@ public:
    /// clear all axis values
    void extract_all();
 
+   /// check that all indices are valid, return true if not.
+   bool check_range(const Shape & shape) const;
+
    /// print stale IndexExprs, and return the number of stale IndexExprs.
    static int print_stale(ostream & out);
 

@@ -556,7 +556,7 @@ Symbol::get_attributes(int mode, Cell * dest) const
 {
 const ValueStackItem & vs = value_stack.back();
 bool is_var = false;
-int has_result = 0;
+bool has_result = false;
 int fun_valence = 0;
 int oper_valence = 0;
 double created = 0.0;
@@ -568,7 +568,7 @@ const int * exec_properties = exec_prop;
         case NC_LABEL:
         case NC_VARIABLE:
              is_var = 1;
-             has_result = 1;
+             has_result = true;
              break;
 
         case NC_FUNCTION:
@@ -589,7 +589,7 @@ const int * exec_properties = exec_prop;
    switch(mode)
       {
         case 1: // valences
-                new (dest + 0) IntCell(has_result);
+                new (dest + 0) IntCell(has_result ? 1 : 0);
                 new (dest + 1) IntCell(fun_valence);
                 new (dest + 2) IntCell(oper_valence);
                 break;

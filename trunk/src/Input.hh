@@ -100,6 +100,11 @@ public:
    /// true if readline lib is present and shall be used
    static bool use_readline;
 
+   /// number of lines in the readline history
+   static int readline_history_len;
+
+   /// location of the readline history
+   static UTF8_string readline_history_path;
 protected:
    /// Read one line from the user.
    static const unsigned char * get_user_line(const UCS_string * prompt,

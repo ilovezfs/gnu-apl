@@ -181,8 +181,8 @@ ComplexCell::equal(const Cell & A, APL_Float qct) const
      const APL_Float maxAB = posA > posB ? posA : posB;
      const APL_Float maxCT = qct * maxAB;
 
-     if (valB < (valA - maxCT))   return false;
-     if (valB > (valA + maxCT))   return false;
+     if (posB < (posA - maxCT))   return false;
+     if (posB > (posA + maxCT))   return false;
    }
 
    {
@@ -193,8 +193,8 @@ ComplexCell::equal(const Cell & A, APL_Float qct) const
      const APL_Float maxAB = posA > posB ? posA : posB;
      const APL_Float maxCT = qct * maxAB;
 
-     if (valB < (valA - maxCT))   return false;
-     if (valB > (valA + maxCT))   return false;
+     if (posB < (posA - maxCT))   return false;
+     if (posB > (posA + maxCT))   return false;
    }
 
    return true;
@@ -381,17 +381,27 @@ const APL_Float qct = Workspace::get_CT();
       }
 }
 //-----------------------------------------------------------------------------
-void ComplexCell::bif_equal(Cell * Z, const Cell * A) const
+void
+ComplexCell::bif_equal(Cell * Z, const Cell * A) const
 {
+const APL_Float qct = Workspace::get_CT();
    if (A->is_complex_cell())
       {
-        const APL_Float qct = Workspace::get_CT();
-        const APL_Complex diff = A->get_complex_value() - *value.cpxp;
-        if      (diff.real() >  qct)   new (Z) IntCell(0);
-        else if (diff.real() < -qct)   new (Z) IntCell(0);
-        else if (diff.imag() >  qct)   new (Z) IntCell(0);
-        else if (diff.imag() > -qct)   new (Z) IntCell(0);
-        else                           new (Z) IntCell(1);
+        const APL_Complex diff = A->get_complex_value() - get_complex_value();
+        if      (diff.real()      >  qct)   new (Z) IntCell(0);
+        else if (diff.real()      < -qct)   new (Z) IntCell(0);
+        else if (diff.imag()      >  qct)   new (Z) IntCell(0);
+        else if (diff.imag()      < -qct)   new (Z) IntCell(0);
+        else                                new (Z) IntCell(1);
+      }
+   else if (A->is_numeric())
+      {
+        const APL_Float diff = A->get_real_value() - get_real_value();
+        if      (diff             >  qct)   new (Z) IntCell(0);
+        else if (diff             < -qct)   new (Z) IntCell(0);
+        else if (get_imag_value() >  qct)   new (Z) IntCell(0);
+        else if (get_imag_value() < -qct)   new (Z) IntCell(0);
+        else                                new (Z) IntCell(1);
       }
    else
       {
@@ -399,7 +409,8 @@ void ComplexCell::bif_equal(Cell * Z, const Cell * A) const
       }
 }
 //-----------------------------------------------------------------------------
-void ComplexCell::bif_power(Cell * Z, const Cell * A) const
+void
+ComplexCell::bif_power(Cell * Z, const Cell * A) const
 {
    if (A->is_complex_cell())
       {

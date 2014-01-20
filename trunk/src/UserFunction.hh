@@ -37,8 +37,11 @@
 class UserFunction_header
 {
 public:
-   /// constructor: empty header
+   /// constructor from first line in \b txt
    UserFunction_header(const UCS_string txt);
+
+   /// constructor from signature (for lambdas)
+   UserFunction_header(Fun_signature sig);
 
    /// return the number of value arguments
    int get_fun_valence() const
@@ -57,7 +60,10 @@ public:
       }
 
    /// return true iff the function returns a value
-   int has_result() const   { return sym_Z ? 1 : 0; }
+   bool has_result() const   { return sym_Z != 0; }
+
+   /// return true iff the function returns a value
+   int has_axis() const   { return sym_X != 0; }
 
    bool is_operator() const   { return sym_LO != 0; }
 
@@ -103,6 +109,9 @@ public:
 
    /// Check that all function params, local vars. and labels are unique.
    void check_duplicate_symbols();
+
+   /// the header (as per SYM_xxx and local_vars)
+   UCS_string canonical() const;
 
    /// push Z (if defined), local variables, and labels.
    void eval_common();
@@ -185,8 +194,12 @@ public:
       { return header.get_oper_valence(); }
 
    /// overloaded Function::has_result()
-   virtual int has_result() const
+   virtual bool has_result() const
       { return header.has_result(); }
+
+   /// overloaded Function::has_axis()
+   virtual bool has_axis() const
+      { return header.has_axis(); }
 
    // pop all
    Value_P pop_local_vars() const

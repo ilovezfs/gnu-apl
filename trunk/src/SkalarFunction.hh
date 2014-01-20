@@ -54,7 +54,7 @@ public:
    virtual Token eval_fill_B(Value_P B);
 
    /// Overloaded Function::has_result()
-   virtual int has_result() const   { return 1; }
+   virtual bool has_result() const   { return true; }
 
 protected:
    /// Apply a function to a nested sub array.

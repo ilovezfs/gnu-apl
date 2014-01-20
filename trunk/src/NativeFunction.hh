@@ -59,7 +59,7 @@ protected:
    virtual bool is_native() const   { return true; }
 
    /// overloaded Function::has_result()
-   virtual int has_result() const;
+   virtual bool has_result() const;
 
    /// overloaded Function::is_operator()
    virtual bool is_operator() const;

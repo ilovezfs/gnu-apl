@@ -48,7 +48,7 @@ public:
    virtual ostream & print(ostream & out) const;
 
    /// Overloaded Function::has_result()
-   virtual int has_result() const
+   virtual bool has_result() const
      { return left_fun.is_function() && left_fun.get_function()->has_result(); }
 
 protected:

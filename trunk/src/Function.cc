@@ -40,7 +40,7 @@ Function::get_attributes(int mode, Cell * dest) const
    switch(mode)
       {
         case 1: // valences
-                new (dest + 0) IntCell(has_result());
+                new (dest + 0) IntCell(has_result() ? 1 : 0);
                 new (dest + 1) IntCell(get_fun_valence());
                 new (dest + 2) IntCell(get_oper_valence());
                 return;
@@ -127,7 +127,24 @@ Function::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
    VALENCE_ERROR;
 }
 //-----------------------------------------------------------------------------
-ostream & operator << (ostream & out, const Function & fun)
+Fun_signature
+Function::get_signature() const
+{
+int sig = SIG_FUN;
+   if (has_result())   sig |= SIG_Z;
+   if (has_axis())     sig |= SIG_X;
+
+   if (get_oper_valence() == 2)   sig |= SIG_RO;
+   if (get_oper_valence() >= 1)   sig |= SIG_LO;
+
+   if (get_fun_valence() == 2)    sig |= SIG_A;
+   if (get_fun_valence() >= 1)    sig |= SIG_B;
+
+   return (Fun_signature)sig;
+}
+//-----------------------------------------------------------------------------
+ostream &
+operator << (ostream & out, const Function & fun)
 {
    fun.print(out);
    return out;
