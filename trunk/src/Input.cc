@@ -110,6 +110,7 @@ Input::init()
         readline_lib::rl_readline_name = "GnuAPL";
         readline_lib::rl_initialize();
         readline_lib::stifle_history(readline_history_len);
+Q(readline_history_path.c_str())
         readline_lib::read_history(readline_history_path.c_str());
 
 //      readline_lib::rl_function_dumper(1);
@@ -235,7 +236,7 @@ void
 Input::exit_readline()
 {
 #if HAVE_LIBREADLINE
-   readline_lib::write_history(".apl.history");
+   readline_lib::write_history(readline_history_path.c_str());
 #endif
 }
 //-----------------------------------------------------------------------------
