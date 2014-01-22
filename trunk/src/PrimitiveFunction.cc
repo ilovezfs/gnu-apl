@@ -448,7 +448,8 @@ Bif_COMMA::laminate(Value_P A, Axis axis, Value_P B)
    // shapes of A and B must be the same, unless one of them is a skalar.
    //
    if (!A->is_skalar() && !B->is_skalar())
-      A->get_shape().check_same(B->get_shape(), E_INDEX_ERROR, E_LENGTH_ERROR, LOC);
+      A->get_shape().check_same(B->get_shape(),
+                                E_INDEX_ERROR, E_LENGTH_ERROR, LOC);
 
 const Shape shape_Z = A->is_skalar() ? B->get_shape().insert_axis(axis, 2)
                                     : A->get_shape().insert_axis(axis, 2);
@@ -456,7 +457,7 @@ const Shape shape_Z = A->is_skalar() ? B->get_shape().insert_axis(axis, 2)
 Value_P Z(new Value(shape_Z, LOC));
 
 const Shape3 shape_Z3(shape_Z, axis);
-   Assert(shape_Z3.m() == 2);
+   if (shape_Z3.m() != 2)   AXIS_ERROR;
 
 const Cell * cA = &A->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
