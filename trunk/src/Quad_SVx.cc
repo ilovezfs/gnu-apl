@@ -378,7 +378,7 @@ Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
                   continue;   // next z
 
              default: // function etc.
-                  Q(sym->get_nc())   DOMAIN_ERROR;
+                  Q1(sym->get_nc())   DOMAIN_ERROR;
            }
 
         SV_Coupling coupling = NO_COUPLING;

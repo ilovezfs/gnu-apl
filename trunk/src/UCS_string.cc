@@ -116,8 +116,9 @@ int expo = 0;
        while (value >= 1e16)
              {
                if (value > 1e307)
-                  { append(negative ? UNI_ASCII_MINUS : UNI_ASCII_PLUS);
-                    append(UNI_INFINITY);
+                  {
+                    if (negative)   append_utf8("¯∞");
+                    else            append_utf8("∞");
                     FloatCell::map_FC(*this);
                     return;
                   }
@@ -332,7 +333,7 @@ UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
          // But only if the line has no frame (vert).
          //
          {
-           // If the line contains UNI_PAD_L0 (higher dimension separator)
+           // If the line contains UNI_iPAD_L0 (higher dimension separator)
            // then discard all chars.
            //
            bool has_L0 = false;
@@ -340,7 +341,7 @@ UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
                {
                  if (ucs[u] == UNI_LINE_VERT)    goto non_empty;
                  if (ucs[u] == UNI_LINE_VERT2)   goto non_empty;
-                 if (ucs[u] == UNI_PAD_L0)       { has_L0 = true;   break; }
+                 if (ucs[u] == UNI_iPAD_L0)      { has_L0 = true;   break; }
 
                }
 
@@ -352,12 +353,12 @@ UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
          while (ucs.size() > 0)
             {
               const Unicode last = ucs.back();
-              if (last == UNI_PAD_L0 ||
-                  last == UNI_PAD_L1 ||
-                  last == UNI_PAD_L2 ||
-                  last == UNI_PAD_L3 ||
-                  last == UNI_PAD_L4 ||
-                  last == UNI_PAD_U7)
+              if (last == UNI_iPAD_L0 ||
+                  last == UNI_iPAD_L1 ||
+                  last == UNI_iPAD_L2 ||
+                  last == UNI_iPAD_L3 ||
+                  last == UNI_iPAD_L4 ||
+                  last == UNI_iPAD_U7)
                  ucs.pop_back();
               else
                  break;
@@ -367,7 +368,7 @@ UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
          loop(u, ucs.size())
             {
               Unicode uni = ucs[u];
-              if (is_pad_char(uni))   uni = UNI_ASCII_SPACE;
+              if (is_iPAD_char(uni))   uni = UNI_ASCII_SPACE;
               append(uni);
             }
        }
@@ -469,7 +470,7 @@ UCS_string ret;
    loop(s, size())
       {
         Unicode uni = (*this)[s];
-        if (is_pad_char(uni))   uni = UNI_ASCII_SPACE;
+        if (is_iPAD_char(uni))   uni = UNI_ASCII_SPACE;
         ret.append(uni);
       }
 
@@ -483,7 +484,7 @@ UCS_string ret;
    loop(s, size())
       {
         Unicode uni = (*this)[s];
-        if (!is_pad_char(uni))   ret.append(uni);
+        if (!is_iPAD_char(uni))   ret.append(uni);
       }
 
    return ret;
@@ -645,7 +646,8 @@ ostream &
 operator << (ostream & os, const UCS_string & ucs)
 {
 UTF8_string utf(ucs);
-   os << utf.c_str();
+   // we can't use os << utf.c_str(); because of 0s in utf.
+   loop(c, utf.size())   os << (char)(utf[c]);
    return os;
 }
 //-----------------------------------------------------------------------------

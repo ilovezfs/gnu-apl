@@ -107,6 +107,7 @@ id_def( F2_LESS       , ASCII_LESS        ,          , av )
 id_def( F12_LOGA      , LOGARITHM         ,          , av )
 id_def( LVAL          , ---               ,          , pp )
 id_def( LX            , ---               ,          , qv )
+id_def( LAMBDA        , LAMBDA            ,          , av )
 
 id_def( F2_MEQ        , MORE_OR_EQUAL     , = 0x4D01 , av )
 id_def( F12_MINUS     , ASCII_MINUS       ,          , av )

@@ -50,6 +50,14 @@ UCS_string line;
    if (line.size())   text.push_back(line);
 }
 //-----------------------------------------------------------------------------
+Executable::Executable(Fun_signature sig, const UCS_string & fname,
+           const UCS_string & lambda_text, const char * loc)
+   : alloc_loc(loc)
+{
+   text.push_back(UserFunction_header::lambda_header(sig, fname));
+   text.push_back(lambda_text);
+}
+//-----------------------------------------------------------------------------
 Executable::~Executable()
 {
    Log(LOG_UserFunction__fix)
@@ -73,8 +81,15 @@ const Parser parser(get_parse_mode(), loc);
    {
      ErrorCode ec = parser.parse(ucs_line, in);
      if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
-   } 
+   }
 
+   parse_body_line(line, in, loc);
+} 
+//-----------------------------------------------------------------------------
+void
+Executable::parse_body_line(Function_Line line, const Token_string & in,
+                            const char * loc)
+{
 Source<Token> src(in);
 
    // handle labs (if any)
@@ -146,7 +161,7 @@ Token_string out;
    Log(LOG_UserFunction__set_line)
       {
         CERR << "[non-reverse " << line << "] ";
-        parser.print_token_list(CERR, out, 0);
+        Parser::print_token_list(CERR, out, 0);
       } 
 
    loop(t, out.size())   body.append(out[t], LOC);
@@ -237,8 +252,8 @@ UCS_string & message_2 = error.error_message_2;
 
    Log(LOG_prefix__location_info)
       {
-        Q(pc_from_to.low)
-        Q(pc_from_to.high)
+        Q1(pc_from_to.low)
+        Q1(pc_from_to.high)
       }
 
    if (body[pc_from_to.high].get_Class() == TC_RETURN &&
@@ -280,10 +295,10 @@ Function_PC end = start;
 
    Log(LOG_prefix__location_info)
       {
-        Q(start)
-        Q(pc_from_to.low)
-        Q(pc_from_to.high)
-        Q(end)
+        Q1(start)
+        Q1(pc_from_to.low)
+        Q1(pc_from_to.high)
+        Q1(end)
       }
 
    // Line 2: statement
@@ -389,30 +404,76 @@ int tcol = 0;
 
          body[b++].clear(LOC);   // invalidate }
          Token_string lambda_body;
-         for (;;)
+
+         int signature = SIG_NONE;
+
+         for (bool goon = true; goon;)
              {
                Assert(b < body.size());
                Token t;
                move_1(t, body[b], LOC);
                body[b].clear(LOC);   // invalidate in main body
-               if (t.get_tag() == TOK_L_CURLY)   break;   // copy { ... } done
+
+               switch(t.get_tag())
+                  {
+                    case TOK_L_CURLY:  goon = false;         continue;
+
+                    case TOK_ALPHA:    signature |= SIG_A;    /* no break */
+                    case TOK_OMEGA:    signature |= SIG_B;    break;
+                    case TOK_CHI:      signature |= SIG_X;    break;
+                    case TOK_OMEGA_U:  signature |= SIG_RO;   /* no break */
+                    case TOK_ALPHA_U:  signature |= SIG_LO;   break;
+
+                    case TOK_R_CURLY:  DEFN_ERROR;
+                    case TOK_DIAMOND:  DEFN_ERROR;
+                    case TOK_BRANCH:   DEFN_ERROR;
+                    case TOK_ESCAPE:   DEFN_ERROR;
+                  }
+
                lambda_body.append(t, LOC);
                ++b;
              }
-         
-         // at this point {} was copied from body to lambda_body and
+
+         if (lambda_body.size())   signature |= SIG_Z;
+
+         Token_string rev_lambda_body;
+         if (signature & SIG_Z)
+              {
+                Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
+                rev_lambda_body.append(ret_lambda, LOC);
+
+                rev_lambda_body.append(Token(TOK_ENDL));
+
+                Symbol * sym_Z = &Workspace::get_v_LAMBDA();
+                rev_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
+                rev_lambda_body.append(Token(TOK_ASSIGN), LOC);
+
+                loop(r, lambda_body.size())
+                    rev_lambda_body.append(
+                                    lambda_body[lambda_body.size() - r - 1]);
+              }
+           else
+              {
+                Token ret_void(TOK_RETURN_VOID);
+                rev_lambda_body.append(ret_void, LOC);
+              }
+
+
+         // at this point {} was copied from body to rev_lambda_body and
          // b is at the (now invalidated) { token.
          // check if lambda is named, i.e. Name ← { ... }
          //
          UCS_string lambda_name;
-         if ((b + 2) < body.size() &&
-             body[b + 1].get_tag() == TOK_ASSIGN
+         Symbol * lambda_sym = 0;
+         if (   (b + 2) < body.size()
+             && body[b + 1].get_tag() == TOK_ASSIGN
              && body[b + 2].get_tag() == TOK_LSYMB)
             {
               // named lambda
               //
-              Symbol * sym = body[b + 2].get_sym_ptr();
-              lambda_name = sym->get_name();
+              lambda_sym = body[b + 2].get_sym_ptr();
+              lambda_name = lambda_sym->get_name();
+              signature |= SIG_FUN;
 
                body[b + 1].clear(LOC);
                body[b + 2].clear(LOC);
@@ -420,10 +481,13 @@ int tcol = 0;
          else
             {
               lambda_name.append(UNI_LAMBDA);
-              lambda_name.append_number(lambdas.size() + 1);
+              lambda_name.append_number(unnamed_lambdas.size() + 1);
             }
 
          UCS_string lambda_text;
+         if (signature & SIG_Z)   lambda_text.append_utf8("λ←");
+
+         int lambda_skip = unnamed_lambdas.size() + named_lambdas.size();
          for (;;)
              {
                // search { in body text
@@ -441,9 +505,10 @@ int tcol = 0;
                const Unicode l_curly = line[tcol++];
                if (l_curly != UNI_ASCII_L_CURLY)   continue;   // not {
 
-                // found {
+                // found { (but maybe from a previous lambda)
                 //
-                ++tcol;   // skip {
+                if (lambda_skip)   { --lambda_skip;   continue; }
+
                 if (tcol >= line.size())   SYNTAX_ERROR;
                 for (;;)
                     {
@@ -453,9 +518,26 @@ int tcol = 0;
                     }
                break;
              }
-//       Q(lambda_name)
-//       Q(lambda_body)
-//       Q(lambda_text)
+
+         UserFunction * ufun = new UserFunction(Fun_signature(signature),
+                                                lambda_name, lambda_text,
+                                                rev_lambda_body);
+
+         if (signature & SIG_FUN)   // named lambda
+            {
+              named_lambdas.push_back(ufun);
+
+              // replace the lambda by its name, but as committed value
+              // so that it doesn't print (similar to ⎕FX).
+              //
+              Value_P val_name(new Value(lambda_name, LOC));
+              move_2(body[b], Token(TOK_APL_VALUE2, val_name), LOC);
+            }
+         else                       // unnamed lambda
+            {
+              unnamed_lambdas.push_back(ufun);
+              move_2(body[b], ufun->get_token(), LOC);
+            }
        }
 
    Parser::remove_void_token(body);

@@ -252,7 +252,7 @@ SkalarFunction::eval_skalar_identity_fun(Value_P B, Axis axis, Value_P FI0)
    // Since F is skalar, the ravel elements of B (if any) are 0 and
    // therefore B+FI0 becomes (⍴B)⍴FI0.
    //
-   if (!FI0->is_skalar())   Q(FI0->get_shape())
+   if (!FI0->is_skalar())   Q1(FI0->get_shape())
 
 const Shape shape_Z = B->get_shape().without_axis(axis);
 

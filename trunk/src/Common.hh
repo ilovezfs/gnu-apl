@@ -105,9 +105,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 
 /// return true iff \b uni is a padding character (used internally).
-inline bool is_pad_char(Unicode uni)
-   { return ((uni >= UNI_PAD_U2) && (uni <= UNI_PAD_U1)) ||
-            ((uni >= UNI_PAD_U0) && (uni <= UNI_PAD_L9)); }
+inline bool is_iPAD_char(Unicode uni)
+   { return ((uni >= UNI_iPAD_U2) && (uni <= UNI_iPAD_U1)) ||
+            ((uni >= UNI_iPAD_U0) && (uni <= UNI_iPAD_L9)); }
 
 //-----------------------------------------------------------------------------
 
@@ -120,7 +120,12 @@ inline bool is_pad_char(Unicode uni)
 
 extern ostream & get_CERR();
 
+/// print something and the source code location
 #define Q(x) get_CERR() << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
+
+/// same as Q1 (for printouts guarded by Log macros). Unlike Q() which should
+/// NOT remain in the code Q1 should remain in the code.
+#define Q1(x) get_CERR() << std::left << setw(20) << #x ":" << " '" << x << "' at " LOC << endl;
 
 //-----------------------------------------------------------------------------
 

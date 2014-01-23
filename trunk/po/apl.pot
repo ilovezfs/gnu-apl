@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.2\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-01-20 16:14+0100\n"
+"POT-Creation-Date: 2014-01-23 18:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -186,7 +186,7 @@ msgstr ""
 msgid ", therefore:"
 msgstr ""
 
-#: src/main.cc:382
+#: src/main.cc:390
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -198,12 +198,12 @@ msgid ""
 "1000)\n"
 msgstr ""
 
-#: src/main.cc:392
+#: src/main.cc:400
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr ""
 
-#: src/main.cc:398
+#: src/main.cc:406
 #, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
@@ -231,44 +231,44 @@ msgid ""
 "    --                   end of options for %s\n"
 msgstr ""
 
-#: src/main.cc:460
+#: src/main.cc:468
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr ""
 
-#: src/main.cc:461
+#: src/main.cc:469
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr ""
 
-#: src/main.cc:480
+#: src/main.cc:488
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr ""
 
-#: src/main.cc:483
+#: src/main.cc:491
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 
-#: src/main.cc:484
+#: src/main.cc:492
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr ""
 
-#: src/main.cc:887
+#: src/main.cc:895
 msgid "-f without filename"
 msgstr ""
 
-#: src/main.cc:920
+#: src/main.cc:928
 msgid "-l without log facility"
 msgstr ""
 
-#: src/main.cc:1013
+#: src/main.cc:1021
 msgid "--TM without test mode"
 msgstr ""
 
-#: src/main.cc:1036
+#: src/main.cc:1044
 msgid "-w without milli(seconds)"
 msgstr ""
 
-#: src/main.cc:1042
+#: src/main.cc:1050
 msgid "unknown option '"
 msgstr ""

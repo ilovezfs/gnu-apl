@@ -125,7 +125,7 @@ loop_h:
 
      if (result.get_tag() == TOK_ERROR)   return result;
 
-     Q(result);   FIXME;
+     Q1(result);   FIXME;
    }
 
 how_1:
@@ -338,7 +338,7 @@ loop_h:
 
      if (result.get_tag() == TOK_ERROR)   return result;
 
-     Q(result);   FIXME;
+     Q1(result);   FIXME;
    }
 
 how_1:

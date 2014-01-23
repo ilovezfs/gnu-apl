@@ -60,6 +60,8 @@ Nabla::throw_edit_error(const char * loc)
         << "      " << UCS_string(first_command.size() - 1, UNI_ASCII_SPACE)
         << "^" << endl;
 
+   Workspace::more_error() = UCS_string(loc);
+
    throw_define_error(fun_name, first_command, loc);
 }
 //-----------------------------------------------------------------------------
@@ -506,7 +508,7 @@ Nabla::execute_oper()
 const bool have_from = edit_from.ln_major != -1;
 const bool have_to = edit_to.ln_major != -1;
 
-   if (!have_from)   edit_from = lines[0].label;
+   if (!have_from && ecmd != ECMD_DELETE)   edit_from = lines[0].label;
    if (!have_to)     edit_to = lines[lines.size() - 1].label;
    if (edit_to.ln_major > lines.size() - 1)
       { edit_to.ln_major = lines.size() - 1;   edit_to.ln_minor.clear(); };

@@ -929,25 +929,21 @@ const SV_Coupling coupling = Svar_DB::retract_var(key);
    return coupling;
 }
 //-----------------------------------------------------------------------------
-void Symbol::set_nc(NameClass nc, Function * fun)
+void
+Symbol::set_nc(NameClass nc, Function * fun)
 {
 ValueStackItem & vs = value_stack.back();
 
-   if (vs.name_class == NC_UNUSED_USER_NAME)   // new function
-      {
-        vs.name_class = nc;
-        vs.sym_val.function = fun;
-        return;
-      }
+const bool can_set = (vs.name_class == NC_FUNCTION) ||
+                     (vs.name_class == NC_OPERATOR) ||
+                     (vs.name_class == NC_UNUSED_USER_NAME);
+             
+   Assert(nc == NC_FUNCTION || NC_OPERATOR || NC_UNUSED_USER_NAME);
 
-   if (vs.name_class == nc)   // existing function
-      {
-//      delete vs.sym_val.function;
-        vs.sym_val.function = fun;
-        return;
-      }
-
-   DEFN_ERROR;
+   if (!can_set)   DEFN_ERROR;
+   vs.sym_val.function = fun;
+   if (fun)   vs.name_class = nc;
+   else       vs.name_class = NC_UNUSED_USER_NAME;
 }
 //-----------------------------------------------------------------------------
 ostream &

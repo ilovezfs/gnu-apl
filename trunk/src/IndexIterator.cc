@@ -103,10 +103,10 @@ MultiIndexIterator::MultiIndexIterator(const Shape & shape,
       {
         Log(LOG_error_throw)
            {
-             Q(shape.get_rank())
-             Q(shape)
-             Q(IDX)
-             Q(IDX.value_count())
+             Q1(shape.get_rank())
+             Q1(shape)
+             Q1(IDX)
+             Q1(IDX.value_count())
            }
         INDEX_ERROR;
       }
