@@ -195,6 +195,13 @@ AC_ARG_VAR(RESET_COLORS_WANTED, [ obsolete option ])
 AC_ARG_VAR(CLEAR_EOL_WANTED,    [ obsolete option ])
 
 
+# APL: visible markers (debug only option) ?
+AC_ARG_VAR(VISIBLE_MARKERS_WANTED,
+   [ enable CHECK() macro (see README-2-configure) default: no ])
+if test "x$VISIBLE_MARKERS_WANTED" = "xyes"; then
+AC_DEFINE_UNQUOTED([VISIBLE_MARKERS_WANTED], [yes],
+                   [ define to have visible markers (DONT!)])
+fi
 # check if we are on i686 (to fix a strange rpmbuild problem
 AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])
 

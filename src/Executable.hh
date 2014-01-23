@@ -40,6 +40,9 @@ public:
    /// constructor
    Executable(const UCS_string & ucs, const char * loc);
 
+   Executable(Fun_signature sig, const UCS_string & fname,
+              const UCS_string & lambda_text, const char * loc);
+
    /// destructor: release values held by the body
    virtual ~Executable();
 
@@ -52,10 +55,6 @@ public:
    /// return the result symbol iff this is a user defined function or
    /// operator that returns a value
    virtual Symbol * get_sym_Z() const
-      { return 0; }
-
-   /// return the function name symbol iff this is a user defined function
-   virtual Symbol * get_sym_FUN() const
       { return 0; }
 
    /// return a UserFunction * (if \b this is one) or else 0.
@@ -122,6 +121,10 @@ protected:
    void parse_body_line(Function_Line line, const UCS_string & ucs,
                         const char * loc);
 
+   /// parse the body line number \b line of \b this function
+   void parse_body_line(Function_Line line, const Token_string & tos,
+                        const char * loc);
+
    /// the program text from which \b body was created
    vector<UCS_string> text;
 
@@ -130,20 +133,8 @@ protected:
    /// due to the right-to-left execution of APL.
    Token_string body;
 
-   /// a struct for lambdas
-   struct lambda
-      {
-        /// the name of the lambda
-        UCS_string name;
-
-        /// the program text for the lambda
-        UCS_string text;
-
-        /// the token for the lambda
-        Token_string body;
-      };
-
-   vector<lambda> lambdas;
+   vector<UserFunction *> named_lambdas;
+   vector<UserFunction *> unnamed_lambdas;
 };
 //-----------------------------------------------------------------------------
 /**

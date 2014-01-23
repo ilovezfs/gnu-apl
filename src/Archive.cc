@@ -1276,7 +1276,7 @@ const Unicode type = UTF8_string::toUni(first, len);
              }
              break;
 
-        default: Q(type) Q(line) DOMAIN_ERROR;
+        default: Q1(type) Q1(line) DOMAIN_ERROR;
       }
 }
 //-----------------------------------------------------------------------------

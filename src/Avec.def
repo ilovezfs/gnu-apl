@@ -167,7 +167,7 @@ char_df1(PAD_U1             , 0x00B9 , END          , NO_SPACE ,  --) /* ¹ */
 char_df1(INVERTED_QUESTION  , 0x00BF , END          , NO_SPACE ,  A8) /* ¿ */
 char_def(MULTIPLY           , 0x00D7 , F12_TIMES    , NO_SPACE ,  F5) /* × */
 char_def(DIVIDE             , 0x00F7 , F12_DIVIDE   , NO_SPACE ,  F6) /* ÷ */
-char_def(LAMBDA             , 0x03BB , END          , NO_SPACE ,  99) /* λ */
+char_def(LAMBDA             , 0x03BB , SYMBOL       , SYMBOL   ,  99) /* λ */
 char_df1(mue                , 0x03BC , END          , NO_SPACE ,  --) /* μ */
 char_def(CHI                , 0x03C7 , SYMBOL       , SYMBOL   ,  A2) /* χ */
 char_df1(AV_MAX             , 0x0461 , END          , NO_SPACE ,  --) /* ѡ */

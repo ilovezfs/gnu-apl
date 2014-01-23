@@ -80,11 +80,12 @@ DEB:	dist
 .PHONY:	develop
 develop:
 	./configure \
-		VALUE_CHECK_WANTED=yes \
-		VALUE_HISTORY_WANTED=yes \
-		DYNAMIC_LOG_WANTED=yes \
-		ASSERT_LEVEL_WANTED=2  \
-		PRINT_SEMA_WANTED=yes
+		VALUE_CHECK_WANTED=yes		\
+		VALUE_HISTORY_WANTED=yes	\
+		DYNAMIC_LOG_WANTED=yes		\
+		ASSERT_LEVEL_WANTED=2		\
+		PRINT_SEMA_WANTED=yes		\
+		VISIBLE_MARKERS_WANTED=yes
 
 # a shortcut to export changes to ../savannah-repo-apl (which is supposed to be
 # a checkout of the GNU APL repository ar Savannah

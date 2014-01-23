@@ -50,6 +50,7 @@ rw_sv_def(Quad_TZ )
 rw_sv_def(ALPHA   )
 rw_sv_def(ALPHA_U )
 rw_sv_def(CHI     )
+rw_sv_def(LAMBDA  )
 rw_sv_def(OMEGA   )
 rw_sv_def(OMEGA_U )
 

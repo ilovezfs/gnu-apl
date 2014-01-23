@@ -137,6 +137,12 @@ Source<Unicode> src(input);
                         tos.append(Token(TOK_CHI,
                                    &Workspace::get_v_CHI()), LOC);
                       }
+                   else if (uni == UNI_LAMBDA)
+                      {
+                        ++src;
+                        tos.append(Token(TOK_LAMBDA,
+                                   &Workspace::get_v_LAMBDA()), LOC);
+                      }
                    else if (uni == UNI_OMEGA)
                       {
                         ++src;

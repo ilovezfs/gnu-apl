@@ -264,6 +264,14 @@ protected:
    vector<ValueStackItem> value_stack;
 };
 //-----------------------------------------------------------------------------
+class LAMBDA : public Symbol
+{
+public:
+   LAMBDA()
+   : Symbol(UCS_string(UNI_LAMBDA), ID_LAMBDA)
+   {}
+};
+//-----------------------------------------------------------------------------
 class ALPHA : public Symbol
 {
 public:

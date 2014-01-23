@@ -612,9 +612,10 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                    buffer = del = new char[bytes];
 
                 loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
-                delete del;
 
                 size_t len = fwrite(buffer, 1, bytes, fe.fe_file);
+                delete del;
+
                 Value_P Z(new Value(LOC));
                 new (&Z->get_ravel(0)) IntCell(len); 
                 Z->check_value(LOC);

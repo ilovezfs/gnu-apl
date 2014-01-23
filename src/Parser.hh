@@ -35,8 +35,11 @@ public:
      create_loc(loc)
    {}
 
-   /// Parse UTF-8 string \b input into token string \b tos.
+   /// Parse UCS_string \b input into token string \b tos.
    ErrorCode parse(const UCS_string & input, Token_string & tos) const;
+
+   /// Parse token string \b input into token string \b tos.
+   ErrorCode parse(const Token_string & input, Token_string & tos) const;
 
    /// print the array \b token of \b Token into \b out.
    static void print_token_list(ostream & out, const Token_string & token,

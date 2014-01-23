@@ -297,7 +297,7 @@ const Executable * statements = 0;
 
          // we should not come here.
          //
-         Q(token)  Q(token.get_Class())  Q(token.get_tag())  FIXME;
+         Q1(token)  Q1(token.get_Class())  Q1(token.get_tag())  FIXME;
        }
 
    // pop the context for the statements

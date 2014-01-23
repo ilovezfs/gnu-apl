@@ -50,18 +50,24 @@ Token_string tos1;
      if (ec != E_NO_ERROR)   return ec;
    }
 
+   return parse(tos1, tos);
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+Parser::parse(const Token_string & input, Token_string & tos) const
+{
    Log(LOG_parse)
       {
-        CERR << "parse 1 [" << tos1.size() << "]: ";
-        print_token_list(CERR, tos1, 0);
+        CERR << "parse 1 [" << input.size() << "]: ";
+        print_token_list(CERR, input, 0);
         CERR << endl;
       }
 
-   // split tos1 into statements.
+   // split input into statements.
    //
 vector<Token_string *> statements;
    {
-     Source<Token> src(tos1);
+     Source<Token> src(input);
      Token_string  * stat = new Token_string();
      while (src.rest())
         {

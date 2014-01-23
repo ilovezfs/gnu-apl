@@ -207,6 +207,8 @@ Fun_signature signature = SIG_NONE;
 
      Assert1(sidx == sym_count);   // otherwise header_patterns is faulty
      Assert1(sym_FUN);
+
+     function_name = sym_FUN->get_name();
    }
 
    for (;;)
@@ -228,8 +230,10 @@ Fun_signature signature = SIG_NONE;
    error = E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-UserFunction_header::UserFunction_header(Fun_signature sig)
+UserFunction_header::UserFunction_header(Fun_signature sig,
+                                         const UCS_string fname)
   : error(E_SYNTAX_ERROR),
+    function_name(fname),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
@@ -238,11 +242,17 @@ UserFunction_header::UserFunction_header(Fun_signature sig)
     sym_X(0),
     sym_B(0)
 {
-   if (sig & SIG_A)   sym_A = &Workspace::get_v_ALPHA();
+                       sym_Z = &Workspace::get_v_LAMBDA();
+   if (sig & SIG_A)    sym_A = &Workspace::get_v_ALPHA();
    if (sig & SIG_LO)   sym_X = &Workspace::get_v_ALPHA_U();
    if (sig & SIG_RO)   sym_X = &Workspace::get_v_OMEGA_U();
-   if (sig & SIG_B)   sym_B = &Workspace::get_v_OMEGA();
-   if (sig & SIG_X)   sym_X = &Workspace::get_v_CHI();
+   if (sig & SIG_B)    sym_B = &Workspace::get_v_OMEGA();
+   if (sig & SIG_X)    sym_X = &Workspace::get_v_CHI();
+
+   if (sig & SIG_FUN)   // named lambda
+      {
+         sym_FUN = Workspace::lookup_symbol(fname);
+      }
 
    error = E_NO_ERROR;
 }
@@ -287,13 +297,15 @@ UserFunction_header::check_duplicate_symbols()
    check_duplicate_symbol(sym_RO);
    check_duplicate_symbol(sym_B);
 
-   loop(l, local_vars.size())   check_duplicate_symbol(local_vars[l]);
+   loop(l, local_vars.size())
+      check_duplicate_symbol(local_vars[l]);
 
-   loop(l, label_values.size())   check_duplicate_symbol(label_values[l].sym);
+   loop(l, label_values.size())
+      check_duplicate_symbol(label_values[l].sym);
 }
 //-----------------------------------------------------------------------------
 void
-UserFunction_header::check_duplicate_symbol(Symbol * sym)
+UserFunction_header::check_duplicate_symbol(const Symbol * sym)
 {
    if (sym == 0)   return;   // unused symbol
 
@@ -319,34 +331,23 @@ int count = 0;
 }
 //-----------------------------------------------------------------------------
 UCS_string
-UserFunction_header::canonical() const
+UserFunction_header::lambda_header(Fun_signature sig, const UCS_string & fname)
 {
-UCS_string fun("fooo");
 UCS_string u;
 
-   if (sym_Z)    { u.append(sym_Z->get_name());   u.append(UNI_LEFT_ARROW);  }
-
-   if (sym_A)    { u.append(sym_A->get_name());   u.append(UNI_ASCII_SPACE); }
-
-   if (sym_LO)   { 
-                   u.append(UNI_ASCII_L_PARENT);
-                   u.append(sym_LO->get_name());
-                   u.append(UNI_ASCII_SPACE);
-                   u.append(fun); 
-                   if (sym_RO)
-                      {
-                        u.append(UNI_ASCII_SPACE);
-                        u.append(sym_RO->get_name());
-                      }
-                   u.append(UNI_ASCII_R_PARENT);
-                 }
-
-   if (sym_X)    { u.append(UNI_ASCII_L_BRACK);
-                   u.append(sym_X->get_name());
-                   u.append(UNI_ASCII_R_BRACK);
-                 }
-
-   if (sym_B)    { u.append(UNI_ASCII_SPACE);   u.append(sym_A->get_name()); } 
+   if (sig & SIG_Z)      u.append_utf8("λ←");
+   if (sig & SIG_A)      u.append_utf8("⍺ ");
+   if (sig & SIG_LO)   { u.append_utf8("(⍶ ");
+                         u.append(fname); 
+                         if (sig & SIG_RO)  u.append_utf8(" ⍹ ");
+                         u.append_utf8(")");
+                       }
+                    else
+                       {
+                         u.append(fname); 
+                       }
+   if (sig & SIG_X)      u.append_utf8("[χ]");
+   if (sig & SIG_B)      u.append_utf8(" ⍵");
 
    return u;
 }
@@ -355,8 +356,8 @@ void
 UserFunction_header::print_properties(ostream & out, int indent) const
 {
 UCS_string ind(indent, UNI_ASCII_SPACE);
-   if (is_operator())   out << "Operator " << *sym_FUN << endl;
-   else                 out << "Function " << *sym_FUN << endl;
+   if (is_operator())   out << "Operator " << function_name << endl;
+   else                 out << "Function " << function_name << endl;
 
    if (sym_Z)    out << ind << "Result:         " << *sym_Z  << endl;
    if (sym_A)    out << ind << "Left Argument:  " << *sym_A  << endl;
@@ -444,7 +445,30 @@ Function * old_function = header.FUN()->get_function();
 
         const UCS_string & text = get_text(l);
         parse_body_line(Function_Line(l), text, loc);
+        setup_lambdas();
       }
+
+#if 0
+   // resolve named lambdas
+   //
+   loop(l, named_lambdas.size())
+      {
+        UserFunction * lambda = named_lambdas[l];
+        const UCS_string & lambda_name = lambda->get_name();
+        loop(b, body.size())
+           {
+             if (body[b].get_ValueType() != TV_SYM)   continue;
+
+             Symbol * sym = body[b].get_sym_ptr();
+             if (!sym)                                continue;
+
+             const UCS_string & sym_name = sym->get_name();
+             if (lambda_name != sym_name)             continue;
+
+             move_2(body[b], lambda->get_token(), LOC);
+           }
+      }
+#endif
 
    Log(LOG_UserFunction__fix)
       {
@@ -456,12 +480,12 @@ Function * old_function = header.FUN()->get_function();
    line_starts[0] = Function_PC(body.size());
 
    if (header.Z())   body.append(Token(TOK_RETURN_SYMBOL, header.Z()), LOC);
-   else                body.append(Token(TOK_RETURN_VOID), LOC);
+   else              body.append(Token(TOK_RETURN_VOID), LOC);
 
    header.check_duplicate_symbols();
 
    if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
-   else                 header.FUN()->set_nc(NC_FUNCTION, this);
+   else               header.FUN()->set_nc(NC_FUNCTION, this);
 
    if (old_function)
       {
@@ -471,6 +495,34 @@ Function * old_function = header.FUN()->get_function();
       }
 
    error_line = -1;   // assume no error
+}
+//-----------------------------------------------------------------------------
+UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
+                           const UCS_string & text, const Token_string & bdy)
+  : Executable(sig, fname, text, LOC),
+    Function(ID_USER_SYMBOL, TOK_FUN0),
+    header(sig, fname),
+    creator(UNI_LAMBDA)
+{
+   exec_properties[0] = 0;
+   exec_properties[1] = 0;
+   exec_properties[2] = 0;
+   exec_properties[3] = 0;
+
+   if      (header.RO())   tag = TOK_OPER2;
+   else if (header.LO())   tag = TOK_OPER1;
+   else if (header.A())    tag = TOK_FUN2;
+   else if (header.B())    tag = TOK_FUN1;
+   else                    tag = TOK_FUN0;
+
+   parse_body_line(Function_Line_0, bdy, LOC);
+   line_starts.push_back(Function_PC(bdy.size() - 1));
+
+   if (header.FUN())
+      {
+        if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
+   else                    header.FUN()->set_nc(NC_FUNCTION, this);
+      }
 }
 //-----------------------------------------------------------------------------
 UserFunction::~UserFunction()
@@ -828,8 +880,7 @@ UCS_string & message_2 = error.error_message_2;
            }
       }
 
-   Assert(header.FUN());
-   message_2.append(header.FUN()->get_name());
+   message_2.append(header.get_name());
 
    if (header.B())
       {
@@ -1000,13 +1051,13 @@ UserFunction::destroy()
 ostream &
 UserFunction::print(ostream & out) const
 {
-   return out << *header.FUN();
+   return out << header.get_name();
 /*
    out << "Function header:" << endl;
    if (header.Z())     out << "Result:         " << *header.Z()   << endl;
    if (header.A())     out << "Left Argument:  " << *header.A()   << endl;
    if (header.LO())    out << "Left Op Arg:    " << *header.LO()  << endl;
-   if (header.FUN())   out << "Function:       " << *header.FUN() << endl;
+                       out << "Function:       " << header.get_name() << endl;
    if (header.RO())    out << "Right Op Arg:   " << *header.RO()  << endl;
    if (header.B())     out << "Right Argument: " << *header.B()   << endl;
    return Executable::print(out);
@@ -1024,13 +1075,13 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 const UCS_string &
 UserFunction::get_name() const
 {
-   return header.FUN()->get_name();
+   return header.get_name();
 }
 //-----------------------------------------------------------------------------
 UCS_string
 UserFunction::get_name_and_line(Function_PC pc) const
 {
-UCS_string ret = header.FUN()->get_name();
+UCS_string ret = header.get_name();
    ret.append(UNI_ASCII_L_BRACK);
 
    // pc may point to the next token already. If that is the case then

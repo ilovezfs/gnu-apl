@@ -41,7 +41,7 @@ public:
    UserFunction_header(const UCS_string txt);
 
    /// constructor from signature (for lambdas)
-   UserFunction_header(Fun_signature sig);
+   UserFunction_header(Fun_signature sig, const UCS_string fname);
 
    /// return the number of value arguments
    int get_fun_valence() const
@@ -67,8 +67,8 @@ public:
 
    bool is_operator() const   { return sym_LO != 0; }
 
-   /// return the Symbol for the function name
-   Symbol * FUN()   const   { return sym_FUN; }
+   /// return the name of the function
+   const UCS_string & get_name() const   { return function_name; }
 
    /// return the Symbol for the function result
    Symbol * Z()   const   { return sym_Z; }
@@ -78,6 +78,9 @@ public:
 
    /// return the Symbol for the left function argument
    Symbol * LO()   const   { return sym_LO; }
+
+   /// return the Symbol for the left function argument
+   Symbol * FUN()   const   { return sym_FUN; }
 
    /// return the Symbol for the right argument
    Symbol * X()   const   { return sym_X; }
@@ -110,38 +113,41 @@ public:
    /// Check that all function params, local vars. and labels are unique.
    void check_duplicate_symbols();
 
-   /// the header (as per SYM_xxx and local_vars)
-   UCS_string canonical() const;
+   /// the header (as per SIG_xxx and local_vars)
+   static UCS_string lambda_header(Fun_signature sig, const UCS_string & fname);
 
    /// push Z (if defined), local variables, and labels.
    void eval_common();
 
 protected:
    /// Check that sym occurs at most once in \b Symbol array \b sym.
-   void check_duplicate_symbol(Symbol * sym);
+   void check_duplicate_symbol(const Symbol * sym);
 
    /// true if header was parsed successfully
    ErrorCode error;
 
-   ///< optional result
+   /// the name of this function
+   UCS_string function_name;
+
+   /// optional result
    Symbol * sym_Z;
 
-   ///< optional left function arg
+   /// optional left function arg
    Symbol * sym_A;
 
-   ///< optional left operator function
+   /// optional left operator function
    Symbol * sym_LO;
 
-   ///< mandatory function arg (function name)
+   /// optional symbol for function name (0 for lambdas)
    Symbol * sym_FUN;
 
-   ///< optional right operator function
+   /// optional right operator function
    Symbol * sym_RO;
 
    ///< optional right operator function axis
    Symbol * sym_X;
 
-   ///< optional right function arg
+   /// optional right function arg
    Symbol * sym_B;
 
    /// The local variables of \b this function.
@@ -170,6 +176,8 @@ public:
    UserFunction(const UCS_string txt, int & error_line, bool keep_existing,
                 const char * loc, const UTF8_string &  _creator);
 
+   UserFunction(Fun_signature sig, const UCS_string & fname,
+                const UCS_string & text, const Token_string & body);
    /// Destructor.
    ~UserFunction();
 
@@ -262,9 +270,6 @@ public:
    
    /// Overloaded Function::has_alpha()
    virtual bool has_alpha() const   { return true; }
-
-   /// overloaded Executable::get_sym_FUN()
-   virtual Symbol * get_sym_FUN() const   { return header.FUN(); }
 
    /// overloaded Executable::get_sym_Z()
    virtual Symbol * get_sym_Z() const   { return header.Z(); }

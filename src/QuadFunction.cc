@@ -1657,7 +1657,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
               continue;
             }
 
-         Q(cell_B.get_cell_type())
+         Q1(cell_B.get_cell_type())
          DOMAIN_ERROR;
        }
 

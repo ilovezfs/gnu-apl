@@ -468,24 +468,21 @@ UCS_string ucs;
              break;
 
 
-        case TC_FUN0:
-        case TC_FUN12:
         case TC_R_PARENT:
         case TC_L_PARENT:
+             return id_name(get_Id());
+
+        case TC_FUN0:
+        case TC_FUN12:
         case TC_OPER1:
         case TC_OPER2:
              if (get_Id() != ID_No_ID)       return id_name(get_Id());
-
-             CERR << "Token: " << HEX4(tag) << " " << *this
-                  << " at " << LOC << endl;
-             FIXME;
-             break;
-
+             return get_function()->get_name();
 
         default:
              CERR << "Token: " << HEX4(tag) << " " << *this
                   << " at " << LOC << endl;
-             Q((void *)get_Class())
+             Q1((void *)get_Class())
              Backtrace::show(__FILE__, __LINE__);
              FIXME;
       }

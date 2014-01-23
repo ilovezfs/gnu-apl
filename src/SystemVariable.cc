@@ -334,7 +334,6 @@ ShapeItem value_len = value->element_count();
 void
 Quad_FC::assign_indexed(const IndexExpr & IX, Value_P value)
 {
-Q(LOC)
    if (IX.value_count() != 1)   INDEX_ERROR;
 
    // at this point we have a one dimensional index. It it were non-empty,

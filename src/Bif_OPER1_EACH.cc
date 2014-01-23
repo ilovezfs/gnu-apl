@@ -150,7 +150,7 @@ loop_z:
           return result;   // continue in user defined function...
         }
 
-     Q(result);   FIXME;
+     Q1(result);   FIXME;
    }
 
 how_1:
@@ -228,61 +228,93 @@ how_0:
    _arg.z = 0;
 
 loop_z:
-   {
-     Value_P LO_B;         // right argument of LO;
-     bool cup_B = false;   // clean-up B ?
+   if (_arg.LO->get_fun_valence() == 0)
+      {
+        // we alloe niladic functions N so that one can loop over them with
+        // N ¨ 1 2 3 4
+        //
+        Token result = _arg.LO->eval_();
 
-     if (_arg.cB->is_pointer_cell())
-        {
-          LO_B = _arg.cB++->get_pointer_value();
-          _arg.sub = true;
-        }
-     else
-        {
-          LO_B = Value_P(new Value(LOC));
+        if (result.get_tag() == TOK_SI_PUSHED)
+           {
+             // LO was a user defined function or ⍎
+             //
+             _arg.how = 1;
+             Workspace::SI_top()->set_eoc_handler(eoc_LB);
+             Workspace::SI_top()->get_eoc_arg() = arg;
+             return result;   // continue in user defined function...
+           }
 
-          LO_B->get_ravel(0).init(*_arg.cB++);
-          LO_B->set_complete();
-          cup_B = true;   // clean-up B
-          _arg.sub = false;
-        }
+        // if LO was a primitive function, then result may be a value.
+        // if LO was a user defined function then result may be TOK_SI_PUSHED.
+        // in both cases result could be TOK_ERROR.
+        //
+        if (result.get_Class() == TC_VALUE)
+           {
+             Value_P vZ = result.get_apl_val();
 
-     Token result = _arg.LO->eval_B(LO_B);
+             if (_arg.sub)   new (arg.Z->next_ravel())   PointerCell(vZ);
+             else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
 
-     if (cup_B)
-        {
-        }
+             goto next_z;
+           }
 
-     if (result.get_tag() == TOK_SI_PUSHED)
-        {
-          // LO was a user defined function or ⍎
-          //
-          _arg.how = 1;
-          Workspace::SI_top()->set_eoc_handler(eoc_LB);
-          Workspace::SI_top()->get_eoc_arg() = arg;
-          return result;   // continue in user defined function...
-        }
+        if (result.get_tag() == TOK_VOID)   goto next_z;
 
-     // if LO was a primitive function, then result may be a value.
-     // if LO was a user defined function then result may be TOK_SI_PUSHED.
-     // in both cases result could be TOK_ERROR.
-     //
-     if (result.get_Class() == TC_VALUE)
-        {
-          Value_P vZ = result.get_apl_val();
+        if (result.get_tag() == TOK_ERROR)   return result;
 
-          if (_arg.sub)   new (arg.Z->next_ravel())   PointerCell(vZ);
-          else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
+        Q1(result);   FIXME;
+      }
+   else
+      {
+        Value_P LO_B;         // right argument of LO;
 
-          goto next_z;
-        }
+        if (_arg.cB->is_pointer_cell())
+           {
+             LO_B = _arg.cB++->get_pointer_value();
+             _arg.sub = true;
+           }
+        else
+           {
+             LO_B = Value_P(new Value(LOC));
+   
+             LO_B->get_ravel(0).init(*_arg.cB++);
+             LO_B->set_complete();
+             _arg.sub = false;
+           }
 
-     if (result.get_tag() == TOK_VOID)   goto next_z;
+        Token result = _arg.LO->eval_B(LO_B);
 
-     if (result.get_tag() == TOK_ERROR)   return result;
+        if (result.get_tag() == TOK_SI_PUSHED)
+           {
+             // LO was a user defined function or ⍎
+             //
+             _arg.how = 1;
+             Workspace::SI_top()->set_eoc_handler(eoc_LB);
+             Workspace::SI_top()->get_eoc_arg() = arg;
+             return result;   // continue in user defined function...
+           }
 
-     Q(result);   FIXME;
-   }
+        // if LO was a primitive function, then result may be a value.
+        // if LO was a user defined function then result may be TOK_SI_PUSHED.
+        // in both cases result could be TOK_ERROR.
+        //
+        if (result.get_Class() == TC_VALUE)
+           {
+             Value_P vZ = result.get_apl_val();
+
+             if (_arg.sub)   new (arg.Z->next_ravel())   PointerCell(vZ);
+             else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
+
+             goto next_z;
+           }
+
+        if (result.get_tag() == TOK_VOID)   goto next_z;
+
+        if (result.get_tag() == TOK_ERROR)   return result;
+
+        Q1(result);   FIXME;
+      }
 
 how_1:
 next_z:

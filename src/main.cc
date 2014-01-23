@@ -361,7 +361,15 @@ show_configure_options()
 #else
    "    VF_TRACING_WANTED=no (default)"
 #endif
+   << endl <<
+
+#ifdef VISIBLE_MARKERS_WANTED
+   "    VISIBLE_MARKERS_WANTED=yes"
+#else
+   "    VISIBLE_MARKERS_WANTED=no (default)"
+#endif
    << endl
+
    << endl;
 
 

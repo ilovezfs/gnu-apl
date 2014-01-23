@@ -2416,7 +2416,7 @@ Value_P Z;
    loop(w, width)
       {
         const Unicode uni = pb.get_char(w, h);
-        if (is_pad_char(uni))   new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
+        if (is_iPAD_char(uni))  new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
         else                    new (Z->next_ravel()) CharCell(uni);
       }
 
@@ -2462,21 +2462,21 @@ vector<Format_LIFER> col_items;
 
    Log(LOG_Bif_F12_FORMAT)
       {
-        Q(format)
-        Q(format.size())
-        Q(col_formats.size())
+        Q1(format)
+        Q1(format.size())
+        Q1(col_formats.size())
 
         loop(c, col_items.size())
             {
-              Q(col_formats[c])
+              Q1(col_formats[c])
 
-              Q(col_items[c].left_deco)
-              Q(col_items[c].int_part)
-              Q(col_items[c].fract_part)
-              Q(col_items[c].expo_deco)
-              Q(col_items[c].exponent)
-              Q(col_items[c].expo_negative)
-              Q(col_items[c].right_deco)
+              Q1(col_items[c].left_deco)
+              Q1(col_items[c].int_part)
+              Q1(col_items[c].fract_part)
+              Q1(col_items[c].expo_deco)
+              Q1(col_items[c].exponent)
+              Q1(col_items[c].expo_negative)
+              Q1(col_items[c].right_deco)
             }
       }
 
@@ -2499,12 +2499,11 @@ Value_P Z(new Value(shape_Z, LOC));
                   const APL_Float value = cB.get_real_value();
 
                   const UCS_string item = col_items[c].format_example(value);
-                  Log(LOG_Bif_F12_FORMAT)   Q(item)
+                  Log(LOG_Bif_F12_FORMAT)   Q1(item)
                   row.append(item);
                 }
 
-             Log(LOG_Bif_F12_FORMAT)
-                { Q(row) Q(format) }
+             Log(LOG_Bif_F12_FORMAT)   { Q1(row) Q1(format) }
 
              Assert(row.size() == format.size());
              loop(c, row.size())
@@ -2577,9 +2576,9 @@ const double val_1 = (value < 0) ? -value : value;
    fill_data_fields(val_1, data_int, data_fract, data_expo);
    Log(LOG_Bif_F12_FORMAT)
       {
-        Q(data_int)
-        Q(data_fract)
-        Q(data_expo)
+        Q1(data_int)
+        Q1(data_fract)
+        Q1(data_expo)
       }
 
 bool overflow = false;
@@ -2957,11 +2956,11 @@ const int ilen = int_end - data_buf;
 
    Log(LOG_Bif_F12_FORMAT)
       {
-        Q(format)
-        Q(value)
-        Q(data_int)
-        Q(data_fract)
-        Q(data_expo)
+        Q1(format)
+        Q1(value)
+        Q1(data_int)
+        Q1(data_fract)
+        Q1(data_expo)
       }
 }
 //-----------------------------------------------------------------------------

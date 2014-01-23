@@ -110,7 +110,6 @@ Input::init()
         readline_lib::rl_readline_name = "GnuAPL";
         readline_lib::rl_initialize();
         readline_lib::stifle_history(readline_history_len);
-Q(readline_history_path.c_str())
         readline_lib::read_history(readline_history_path.c_str());
 
 //      readline_lib::rl_function_dumper(1);

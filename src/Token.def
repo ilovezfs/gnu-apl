@@ -102,6 +102,7 @@ TD(TOK_QUAD_WA       , TC_SYMBOL    , TV_SYM  , ID_QUAD_WA      )
 TD(TOK_ALPHA         , TC_SYMBOL    , TV_SYM  , ID_ALPHA        )
 TD(TOK_ALPHA_U       , TC_SYMBOL    , TV_SYM  , ID_ALPHA_U      )
 TD(TOK_CHI           , TC_SYMBOL    , TV_SYM  , ID_CHI          )
+TD(TOK_LAMBDA        , TC_SYMBOL    , TV_SYM  , ID_LAMBDA       )
 TD(TOK_OMEGA         , TC_SYMBOL    , TV_SYM  , ID_OMEGA        )
 TD(TOK_OMEGA_U       , TC_SYMBOL    , TV_SYM  , ID_OMEGA_U      )
 

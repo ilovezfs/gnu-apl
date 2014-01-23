@@ -210,6 +210,9 @@
 /* define to enable tracing of value flags */
 /* #undef VF_TRACING_WANTED */
 
+/* define to have visible markers (DONT!) */
+/* #undef VISIBLE_MARKERS_WANTED */
+
 /* Define to 1 if on MINIX. */
 /* #undef _MINIX */
 

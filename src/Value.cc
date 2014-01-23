@@ -1031,7 +1031,7 @@ Value::index(Token & IX) const
 
    // not supposed to happen
    //
-   Q(IX.get_tag());  FIXME;
+   Q1(IX.get_tag());  FIXME;
 }
 //-----------------------------------------------------------------------------
 Rank

@@ -30,29 +30,35 @@
    phrase 24:  VAL  OP1  VAL            3
    phrase 25:  VAL  OP1  [X]  VAL       4
    phrase 26:  F   OP1                  2
-   phrase 27:  F   OP2  F               3
-   phrase 28:  F   OP2  VAL             3
+   phrase 27:  F0   OP1                 2
+   phrase 28:  VAL  OP2  VAL            3
    phrase 29:  VAL  OP2  F              3
-   phrase 30:  VAL  OP2  VAL            3
-   phrase 31:  VAL  [X]                 2
-   phrase 32:  SYM  [X]  ←    VAL       4
-   phrase 33:  F   SYM                  2
-   phrase 34:  OP1  SYM                 2
-   phrase 35:  VAL  ←    VAL            3
-   phrase 36:  SYM  ←    VAL            3
-   phrase 37:  ]                        1
-   phrase 38:  [ ;  PIDX                2
-   phrase 39:  [ ;  VAL  PIDX           3
-   phrase 40:  VAL  VAL                 2
-   phrase 41:  SYM  )    ←    VAL       4
-   phrase 42:  END  VOID                2
-   phrase 43:  END  VAL                 2
-   phrase 44:  END  →    VAL            3
-   phrase 45:  END  →                   2
-   phrase 46:  RET                      1
-   phrase 47:  RET  VAL                 2
-   phrase 48:  RET  →                   2
-   phrase 49:  RET  →    VAL            3
+   phrase 30:  VAL  OP2  F0             3
+   phrase 31:  F   OP2  VAL             3
+   phrase 32:  F   OP2  F               3
+   phrase 33:  F   OP2  F0              3
+   phrase 34:  F0   OP2  VAL            3
+   phrase 35:  F0   OP2  F              3
+   phrase 36:  F0   OP2  F0             3
+   phrase 37:  VAL  [X]                 2
+   phrase 38:  SYM  [X]  ←    VAL       4
+   phrase 39:  F   SYM                  2
+   phrase 40:  OP1  SYM                 2
+   phrase 41:  VAL  ←    VAL            3
+   phrase 42:  SYM  ←    VAL            3
+   phrase 43:  ]                        1
+   phrase 44:  [ ;  PIDX                2
+   phrase 45:  [ ;  VAL  PIDX           3
+   phrase 46:  VAL  VAL                 2
+   phrase 47:  SYM  )    ←    VAL       4
+   phrase 48:  END  VOID                2
+   phrase 49:  END  VAL                 2
+   phrase 50:  END  →    VAL            3
+   phrase 51:  END  →                   2
+   phrase 52:  RET                      1
+   phrase 53:  RET  VAL                 2
+   phrase 54:  RET  →                   2
+   phrase 55:  RET  →    VAL            3
    --------------------------------------
 
    *** phrase table ***/
@@ -71,10 +77,16 @@
    void reduce_A_M_B_();             ///< reduce phrase A M B 
    void reduce_A_M_C_B();            ///< reduce phrase A M C B
    void reduce_F_M__();              ///< reduce phrase F M  
-   void reduce_F_D_G_();             ///< reduce phrase F D G 
-   void reduce_F_D_B_();             ///< reduce phrase F D B 
-   void reduce_B_D_G_();             ///< reduce phrase B D G 
+   void reduce_N_M__();              ///< reduce phrase N M  
    void reduce_B_D_B_();             ///< reduce phrase B D B 
+   void reduce_B_D_G_();             ///< reduce phrase B D G 
+   void reduce_B_D_N_();             ///< reduce phrase B D N 
+   void reduce_F_D_B_();             ///< reduce phrase F D B 
+   void reduce_F_D_G_();             ///< reduce phrase F D G 
+   void reduce_F_D_N_();             ///< reduce phrase F D N 
+   void reduce_N_D_B_();             ///< reduce phrase N D B 
+   void reduce_N_D_G_();             ///< reduce phrase N D G 
+   void reduce_N_D_N_();             ///< reduce phrase N D N 
    void reduce_A_C__();              ///< reduce phrase A C  
    void reduce_V_C_ASS_B();          ///< reduce phrase V C ASS B
    void reduce_F_V__();              ///< reduce phrase F V  
@@ -95,7 +107,7 @@
    void reduce_RETC_GOTO__();        ///< reduce phrase RETC GOTO  
    void reduce_RETC_GOTO_B_();       ///< reduce phrase RETC GOTO B 
 
-   enum { PHRASE_COUNT   = 50,      ///< number of phrases
+   enum { PHRASE_COUNT   = 56,      ///< number of phrases
           PHRASE_MODU    = 283,     ///< hash table size
           MAX_PHRASE_LEN = 4 };     ///< max. number of token in a phrase
 
@@ -134,7 +146,7 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
+  PH( N M          ,    294,   42,   0,  2, N_M__        )
   PH( F M          ,    295,   42,   0,  2, F_M__        )
   PH( RETC         ,     13,    1,   0,  1, RETC___      )
   PH(              ,      0,    0,   0,  0, ___          )
@@ -244,7 +256,7 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
+  PH( N D B        ,  15686,   63,   0,  3, N_D_B_       )
   PH( F D B        ,  15687,   63,   0,  3, F_D_B_       )
   PH(              ,      0,    0,   0,  0, ___          )
   PH( V ASS B      ,  15406,   73,   0,  3, V_ASS_B_     )
@@ -259,7 +271,7 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
+  PH( N D G        ,   7494,   63,   0,  3, N_D_G_       )
   PH( F D G        ,   7495,   63,   0,  3, F_D_G_       )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
@@ -367,6 +379,8 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
+  PH( N D N        ,   6470,   63,   0,  3, N_D_N_       )
+  PH( F D N        ,   6471,   63,   0,  3, F_D_N_       )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
@@ -374,9 +388,7 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
+  PH( B D N        ,   6479,   63,   0,  3, B_D_N_       )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )

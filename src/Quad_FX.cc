@@ -202,10 +202,7 @@ UserFunction * fun = UserFunction::fix(text, error_line, false, LOC, creator);
 
    fun->set_exec_properties(exec_props);
 
-Symbol * sym_fun = fun->get_sym_FUN();
-   Assert(sym_fun);
-
-const UCS_string fun_name = sym_fun->get_name();
+const UCS_string fun_name = fun->get_name();
 Value_P Z(new Value(fun_name, LOC));
 
         Z->check_value(LOC);
