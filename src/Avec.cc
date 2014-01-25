@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 
 #include "Avec.hh"
+#include "Command.hh"
 #include "Output.hh"
 #include "Parser.hh"
 #include "PrintOperator.hh"
@@ -202,6 +203,7 @@ CHT_Index idx = find_char(uni);
    CERR << endl << "Avec::uni_to_token() : Char " << UNI(uni) << " (" << uni
         << ") not found in ⎕AV! (called from " << loc << ")" << endl;
 
+Backtrace::show(__FILE__, __LINE__);
    return Token();
 }
 //-----------------------------------------------------------------------------
@@ -280,6 +282,19 @@ Avec::is_known_char(Unicode av)
       }
 
    return false;   // not found
+}
+//-----------------------------------------------------------------------------
+bool
+Avec::need_UCS(Unicode uni)
+{
+   if (uni < UNI_ASCII_SPACE)    return true;   // ASCII control char
+   if (uni < UNI_ASCII_DELETE)   return false;   // printable ASCII char
+
+const CHT_Index idx = find_char(uni);
+   if (idx == Invalid_CHT)   return true;           // char not in GNU APL's ⎕AV
+   if (Command::unicode_to_cp(uni) == 0xB0)   return true;   // not in IBM's ⎕AV
+
+   return false;
 }
 //-----------------------------------------------------------------------------
 bool

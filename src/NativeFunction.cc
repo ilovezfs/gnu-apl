@@ -35,7 +35,8 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
      handle(0),
      name(apl_name),
      so_path(so_name),
-     valid(false)
+     valid(false),
+     close_fun(0)
 {
    // open .so file...
    //
@@ -114,9 +115,7 @@ void * fmux = dlsym(handle, "get_function_mux");
 
 void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
 
-   // get the mandatory function category
-   //
-   // check for mandatory properties in shared linrary...
+   // get the mandatory function get_signature() which returns the function signature
    //
    {
      void * get_sig = get_function_mux("get_signature");
@@ -132,6 +131,13 @@ void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
      signature = ((Fun_signature (*)())get_sig)();
    }
 
+   // get the optional function close_fun(), which is called before
+   // this function disappears
+   {
+     void * cfun = get_function_mux("close_fun");
+     if (cfun)   close_fun = (void (*)(Cause))cfun;
+     else        close_fun = 0;
+   }
 
    // create an entry in the symbol table
    //
@@ -194,6 +200,24 @@ NativeFunction::~NativeFunction()
              valid_functions.erase(valid_functions.begin() + v);
            }
       }
+}
+//-----------------------------------------------------------------------------
+void
+NativeFunction::cleanup()
+{
+   loop(v, valid_functions.size())
+      {
+        void (*close_fun)(Cause cause) = valid_functions[v]->close_fun;
+        if (close_fun)   (*close_fun)(CAUSE_SHUTDOWN);
+        delete valid_functions[v];
+      }
+}
+//-----------------------------------------------------------------------------
+void
+NativeFunction::destroy()
+{
+   if (close_fun)   (*close_fun)(CAUSE_ERASED);
+   delete this;
 }
 //-----------------------------------------------------------------------------
 NativeFunction *

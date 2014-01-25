@@ -86,9 +86,12 @@ public:
    /// return true if unicode \b is defined by a char_def() or char_df1() macro
    static bool is_known_char(Unicode uni);
 
-   /// return true if unicode \b is a quad (⎕ or ▯)
+   /// return true if unicode \b uni is a quad (⎕ or ▯)
    static bool is_quad(Unicode uni)
       { return uni == UNI_QUAD_QUAD || uni == UNI_QUAD_QUAD1; }
+
+   /// return true if unicode \b uni needs ⎕UCS in 2 ⎕TF or )OUT
+   static bool need_UCS(Unicode uni);
 
    /// return \b true iff a token printed after \b av never needs a space
    static bool no_space_after(Unicode uni);

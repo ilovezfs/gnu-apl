@@ -60,6 +60,14 @@ public:
    /// store B in transfer format 2 (new APL format) into \b ucs
    static void tf2_fun_ucs(UCS_string & ucs, const UCS_string & fun_name,
                            const Function & fun);
+
+   /// store simple character vector \b vec in \b ucs, either as
+   /// 'xxx' or as (UCS nn nnn ...)
+   static void tf2_char_vec(UCS_string & ucs, const UCS_string & vec);
+
+   /// undo ⎕UCS() created by tf2_char_vec
+   static UCS_string no_UCS(const UCS_string & ucs);
+
 protected:
    /// return B in transfer format 1 (old APL format) for a variable
    static Value_P tf1(const UCS_string & var_name, Value_P val);

@@ -388,8 +388,9 @@ Token_string tos;
 
    try
       {
+        UCS_string ucs1 = no_UCS(ucs);
         const Parser parser(PM_EXECUTE, LOC);
-        parser.parse(ucs, tos);
+        parser.parse(ucs1, tos);
       }
    catch(...)
       {
@@ -400,6 +401,7 @@ Token_string tos;
    // and glue values together.
    //
    tf2_simplify(tos);
+
 
    if (tos.size() < 2)   return;   // too short for an inverse 2⎕TF
 
@@ -506,16 +508,18 @@ const ShapeItem ec = value->element_count();
       {
         tf2_shape(ucs, value->get_shape());
 
-        // if all elements are in ⎕AV then print 'elements' otherwise use ⎕UCS.
+        // check if ⎕UCS is needed. 
+        //
+        // ⎕UCS is needed if the string contains a character that is:
+        //
+        // 1. not in our ⎕AV, or
+        // 2. not in IBM's ⎕AV
+        //
         bool use_UCS = false;
         loop(e, ec)
            {
              const Unicode uni = value->get_ravel(e).get_char_value();
-             if (Avec::find_char(uni) == Invalid_CHT)   // uni not in ⎕AV
-                {
-                  use_UCS = true;
-                  break;
-                }
+             if (Avec::need_UCS(uni))   { use_UCS = true;   break; }
            }
 
         if (use_UCS)
@@ -765,30 +769,84 @@ const UCS_string text = fun.canonical(false);
 vector<UCS_string> lines;
    text.to_vector(lines);
 
-   ucs.append(UNI_QUAD_QUAD);
-   ucs.append(UNI_ASCII_F);
-   ucs.append(UNI_ASCII_X);
+   ucs.append_utf8("⎕FX");
 
    loop(l, lines.size())
       {
         ucs.append(UNI_ASCII_SPACE);
-        ucs.append(UNI_SINGLE_QUOTE);
+        tf2_char_vec(ucs, lines[l]);
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Quad_TF::tf2_char_vec(UCS_string & ucs, const UCS_string & vec)
+{
+   if (vec.size() == 0)   return;
 
-        loop(c, lines[l].size())
+bool in_UCS = false;
+   ucs.append_utf8("'");
+
+   loop(v, vec.size())
+       {
+         const Unicode uni = vec[v];
+         const bool need_UCS = Avec::need_UCS(uni);
+         if (in_UCS != need_UCS)   // mode changed
             {
-              Unicode uni = lines[l][c];
-              CHT_Index idx = Avec::map_alternative_char(uni);
-              if (idx != Invalid_CHT)
-                 {
-                   // uni is an alternative char. map it to the real one.
-                   uni = Avec::unicode(idx);
-                 }
-              ucs.append(uni);
-              if (uni == UNI_SINGLE_QUOTE)   ucs.append(UNI_SINGLE_QUOTE);
+              if (in_UCS)   ucs.append_utf8("),'");      // UCS() → 'xxx'
+              else          ucs.append_utf8("',(⎕UCS");   // 'xxx' → UCS()
+              in_UCS = need_UCS;
             }
-        ucs.append(UNI_SINGLE_QUOTE);
+
+         if (in_UCS)
+            {
+              ucs.append_utf8(" ");
+              ucs.append_number(uni);
+            }
+         else
+            {
+              ucs.append(uni);
+              if (uni == UNI_SINGLE_QUOTE)   ucs.append(uni);
+            }
+       }
+
+   if (in_UCS)   ucs.append_utf8("),''");
+   else          ucs.append_utf8("'");
+}
+//-----------------------------------------------------------------------------
+UCS_string
+Quad_TF::no_UCS(const UCS_string & ucs)
+{
+UCS_string ret;
+
+   loop(u, ucs.size())
+      {
+        if ( u < ucs.size() - 6 &&
+             ucs[u]     == '\'' &&
+             ucs[u + 1] == ','  &&
+             ucs[u + 2] == '('  &&
+             ucs[u + 3] == UNI_QUAD_QUAD &&
+             ucs[u + 4] == 'U'  &&
+             ucs[u + 5] == 'C'  &&
+             ucs[u + 6] == 'S')
+           {
+             u += 7;   // skip '(⎕UCS
+
+             for (;;)
+                 {
+                  while (u < ucs.size() && ucs[u] == ' ')   ++u;
+                  if (ucs[u] == ')')   { u += 2;   break; }
+
+                  int num = 0;
+                  while (u < ucs.size() && ucs[u] >= '0' && ucs[u] <= '9')
+                     { num *= 10;   num += ucs[u++] - '0'; }
+
+                  ret.append((Unicode)num);
+                 }
+           }
+        else ret.append(ucs[u]);
       }
 
+   return ret;
 }
 //-----------------------------------------------------------------------------
 Value_P

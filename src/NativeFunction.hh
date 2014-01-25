@@ -39,6 +39,9 @@ public:
    static NativeFunction * fix(const UCS_string & so_name,
                                const UCS_string & apl_name);
 
+   /// close all shared libs
+   static void cleanup();
+
    /// kind of native function
    enum NativeCategory
       {
@@ -123,8 +126,7 @@ protected:
    virtual Token eval_identity_fun(Value_P B, Axis axis);
 
    /// Overloaded Function::destroy()
-   virtual void destroy()
-      { delete this; }
+   virtual void destroy();
 
    /// dl_open() handle of shared library
    void * handle;
@@ -163,6 +165,8 @@ protected:
    Token (*f_eval_fill_B)  (                          Vr B);
    Token (*f_eval_fill_AB) (Vr A,                     Vr B);
    Token (*f_eval_ident_Bx)(Vr B,                   Axis x);
+
+   void (*close_fun)(Cause cause);
 };
 //-----------------------------------------------------------------------------
 
