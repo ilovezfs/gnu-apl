@@ -35,6 +35,7 @@
 #include "Logging.hh"
 #include "main.hh"
 #include "Output.hh"
+#include "NativeFunction.hh"
 #include "Prefix.hh"
 #include "ProcessorID.hh"
 #include "Quad_SVx.hh"
@@ -76,6 +77,7 @@ cleanup()
 {
    ProcessorID::disconnect();
 
+   NativeFunction::cleanup();
    Input::exit_readline();   // write history
    Output::reset_colors();
 }
