@@ -283,10 +283,8 @@ grow:
      Log(LOG_prefix_parser)
         {
           CERR << "    [si=" << si.get_level() << " PC=" << (PC - 1)
-               << "] Read token[" << size();
-          if (get_assign_state() == ASS_arrow_seen)      CERR << " ← ";
-          else if (get_assign_state() == ASS_var_seen)   CERR << " V← ";
-          CERR << "] " << tl.tok << " "
+               << "] Read token[" << size()
+               << "] (←" << get_assign_state() << "←) " << tl.tok << " "
                << Token::class_name(tl.tok.get_Class()) << endl;
         }
 
@@ -301,10 +299,6 @@ grow:
                // this is the last token (C) of a vector assignment
                // (A B ... C)←. We return C and let the caller do the rest
                //
-               sym->resolve(tl.tok, true);
-             }
-          else if (tl.tok.get_tag() == TOK_LSYMB)
-             {
                sym->resolve(tl.tok, true);
              }
           else
@@ -820,8 +814,7 @@ Prefix::reduce_RBRA___()
    // A[IDX}←B resolves IDX properly. assign_state is restored when the
    // index is complete.
    //
-const int left = get_assign_state() == ASS_arrow_seen;
-   new (&at0()) Token(TOK_PINDEX, *new IndexExpr(left, LOC));
+   new (&at0()) Token(TOK_PINDEX, *new IndexExpr(get_assign_state(), LOC));
    set_assign_state(ASS_none);
    action = RA_CONTINUE;
 }
@@ -838,7 +831,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);
 
    if (idx.value_count() == 0 && last_index)   // special case: [ ]
       {
-        assign_state = idx.get_left() ? ASS_arrow_seen : ASS_none;
+        assign_state = idx.get_assign_state();
         Token result = Token(TOK_INDEX, idx);
         pop_args_push_result(result);
         action = RA_CONTINUE;
@@ -852,7 +845,7 @@ Token result = at1();
 
    if (last_index)   // [ seen
       {
-        assign_state = idx.get_left() ? ASS_arrow_seen : ASS_none;
+        assign_state = idx.get_assign_state();
 
         if (idx.is_axis()) move_2(result, Token(TOK_AXES, idx.values[0]), LOC);
         else               move_2(result, Token(TOK_INDEX, idx), LOC);
@@ -881,7 +874,7 @@ const bool last_index = (at0().get_tag() == TOK_L_BRACK);   // ; vs. [
    if (last_index)   // [ seen
       {
         IndexExpr & idx = I.get_index_val();
-        assign_state = idx.get_left() ? ASS_arrow_seen : ASS_none;
+        assign_state = idx.get_assign_state();
 
         if (idx.is_axis())
            {

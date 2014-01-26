@@ -35,7 +35,7 @@ class IndexExpr : public DynamicObject
 {
 public:
    /// constructor: empty (0-dimensional) IndexExpr
-   IndexExpr(bool _left, const char * loc);
+   IndexExpr(Assign_state ass_state, const char * loc);
 
    /// The quad-ct for this index.
    APL_Float quad_ct;
@@ -64,8 +64,8 @@ public:
    void set_value(Axis axis, Value_P val);
 
    /// return true iff this index is part of indexed assignment ( A[]← )
-   bool get_left() const
-      { return left; }
+   Assign_state get_assign_state() const
+      { return assign_state; }
 
    /// Return a set of axes as shape. This is used to convert a number of
    /// axes (like in [2 3]) into a shape (like 2 3).
@@ -91,7 +91,7 @@ protected:
    Rank rank;
 
    /// true iff this index is part of indexed assignment ( A[]← )
-   const bool left;
+   const Assign_state assign_state;
 };
 //-----------------------------------------------------------------------------
 

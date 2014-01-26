@@ -130,13 +130,6 @@ public:
    Token & at3()
       { Assert1(size() > 3);   return content[put - 4].tok; }
 
-   enum Assign_state
-     {
-       ASS_none       = 0,   ///< no assignment (right of ←)
-       ASS_arrow_seen = 1,   ///< ← seen but no variable yet
-       ASS_var_seen   = 2,   ///< var and ← seen
-     };
-
    /// return the current assignment state
    Assign_state get_assign_state() const
       { return assign_state; }
