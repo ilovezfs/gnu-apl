@@ -161,12 +161,15 @@ integer       info;
 }
 //-----------------------------------------------------------------------------
 Value_P
-divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A, ShapeItem cols_B,
-              Value_P B, const Shape & shape_Z, APL_Float qct)
+divide_matrix(ShapeItem rows, Value_P A, Value_P B,
+              const Shape & shape_Z, APL_Float qct)
 {
 const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
 
 Value_P Z(new Value(shape_Z, LOC));
+
+const ShapeItem cols_A = shape_Z.get_rows();
+const ShapeItem cols_B = shape_Z.get_cols();
 
    loop(c, cols_A)
        {
@@ -179,13 +182,14 @@ Value_P Z(new Value(shape_Z, LOC));
                     a[r].i = A->get_ravel(r*cols_A + c).get_imag_value();
                   }
 
-              doublecomplex b[rows*cols_B];
-              int bb = 0;
-              loop(rr, cols_B)
-              loop(cc, rows)
+              doublecomplex b[B->element_count()];
+              doublecomplex * bb = b;
+              loop(rr, B->get_cols())
+              loop(cc, B->get_rows())
                  {
-                   b[bb]  .r = B->get_ravel(rr + cc*cols_B).get_real_value();
-                   b[bb++].i = B->get_ravel(rr + cc*cols_B).get_imag_value();
+                   bb->r = B->get_ravel(rr + cc*B->get_cols()).get_real_value();
+                   bb->i = B->get_ravel(rr + cc*B->get_cols()).get_imag_value();
+                   ++bb;
                  }
 
               const int result = complex_matrix_divide(rows, cols_B, b, a);
@@ -194,7 +198,10 @@ Value_P Z(new Value(shape_Z, LOC));
                    DOMAIN_ERROR;
                  }
 
-              loop(r, shape_Z.get_cols())
+              // cols_A = rows_Z. We have computed the result for col c of A
+              // which is row c of Z.
+              //
+              loop(r, cols_B)
                   new (&Z->get_ravel(r*cols_A + c)) ComplexCell(a[r].r, a[r].i);
             }
          else   // real
@@ -205,12 +212,12 @@ Value_P Z(new Value(shape_Z, LOC));
                    a[r] = A->get_ravel(r*cols_A + c).get_real_value();
                  }
 
-              double b[rows*cols_B];
-              int bb = 0;
-              loop(rr, cols_B)
-              loop(cc, rows)
+              double b[B->element_count()];
+              double * bb = b;
+              loop(rr, B->get_cols())
+              loop(cc, B->get_rows())
                  {
-                   b[bb++] = B->get_ravel(rr + cc*cols_B).get_real_value();
+                   *bb++ = B->get_ravel(rr + cc*B->get_cols()).get_real_value();
                  }
 
               const int result = real_matrix_divide(rows, cols_B, b, a);
@@ -219,7 +226,11 @@ Value_P Z(new Value(shape_Z, LOC));
                    DOMAIN_ERROR;
                  }
 
-              loop(r, shape_Z.get_cols())
+              // cols_A = rows_Z. We have computed the result for col c of A
+              // which is row c of Z.
+              //
+
+              loop(r, cols_B)
                   new (&Z->get_ravel(r*cols_A + c)) FloatCell(a[r]);
             }
        }
@@ -407,8 +418,8 @@ Tmatrix<T>::divide(Tvector<T> & ZZ, const Tvector<T> & AA) const
 #warning liblapack not found or not installed. ⌹ will not work.
 
 Value_P
-divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A, ShapeItem cols_B,
-              Value_P B, const Shape & shape_Z, APL_Float qct)
+divide_matrix(ShapeItem rows, Value_P A, Value_P B,
+              const Shape & shape_Z, APL_Float qct)
 {
    CERR <<
 "function divide_matrix() aka. ⌹  returns DOMAIN ERROR because\n"

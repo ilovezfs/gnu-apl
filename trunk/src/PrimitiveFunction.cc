@@ -712,18 +712,16 @@ const ShapeItem cols = B->get_shape_item(1);
 const Shape shape_I(rows, rows);
 Value_P I(new Value(shape_I, LOC));
 
-Cell * i = &I->get_ravel(0);
    loop(r, rows)
    loop(c, rows)
-       new (i++) FloatCell((c == r) ? 1.0 : 0.0);
+       new (I->next_ravel()) FloatCell((c == r) ? 1.0 : 0.0);
 
 Token result = eval_AB(I, B);
    return result;
 }
 //-----------------------------------------------------------------------------
 struct doublecomplex { double r; double i; };
-extern Value_P divide_matrix(ShapeItem rows, ShapeItem cols_A, Value_P A,
-                             ShapeItem cols_B, Value_P B,
+extern Value_P divide_matrix(ShapeItem rows, Value_P A, Value_P B,
                              const Shape & shape_Z, APL_Float qct);
 
 Token
@@ -773,7 +771,7 @@ ShapeItem cols_B = 1;
    if (rows_B <  cols_B)   LENGTH_ERROR;
    if (rows_A != rows_B)   LENGTH_ERROR;
 
-Value_P Z = divide_matrix(rows_A, cols_A, A, cols_B, B, shape_Z, qct);
+Value_P Z = divide_matrix(rows_A, A, B, shape_Z, qct);
 
    Z->set_default(*B.get());
 
