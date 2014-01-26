@@ -25,12 +25,12 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-IndexExpr::IndexExpr(bool _left, const char * loc)
+IndexExpr::IndexExpr(Assign_state astate, const char * loc)
    : DynamicObject(loc),
      quad_ct(Workspace::get_CT()),
      quad_io(Workspace::get_IO()),
      rank(0),
-     left(_left)
+     assign_state(astate)
 {
 }
 //-----------------------------------------------------------------------------

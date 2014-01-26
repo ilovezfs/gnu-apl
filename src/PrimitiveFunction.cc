@@ -1843,7 +1843,7 @@ const ShapeItem ec_A = A->element_count();
 
    // index_expr is in reverse order!
    //
-IndexExpr * index_expr = new IndexExpr(false, LOC);
+IndexExpr * index_expr = new IndexExpr(ASS_none, LOC);
    loop(a, ec_A)
       {
          const Cell & cell = A->get_ravel(ec_A - a - 1);
@@ -1897,7 +1897,7 @@ const ShapeItem ec_A = A->element_count();
    // index_expr is in reverse order!
    //
 const APL_Integer qio = Workspace::get_IO();
-IndexExpr * index_expr = new IndexExpr(false, LOC);
+IndexExpr * index_expr = new IndexExpr(ASS_none, LOC);
    loop(rb, B->get_rank())   index_expr->add(Value_P());
    index_expr->quad_ct = Workspace::get_CT();
    index_expr->quad_io = qio;

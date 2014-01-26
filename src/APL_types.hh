@@ -343,6 +343,14 @@ enum SI_mode
 };
 
 //-----------------------------------------------------------------------------
+/// the state of an assignment
+enum Assign_state
+{
+   ASS_none       = 0,   ///< no assignment (right of ←)
+   ASS_arrow_seen = 1,   ///< ← seen but no variable yet
+   ASS_var_seen   = 2,   ///< var and ← seen
+};
+//-----------------------------------------------------------------------------
 /// the cause for something
 enum Cause
 {

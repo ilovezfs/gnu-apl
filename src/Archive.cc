@@ -1673,7 +1673,7 @@ const int lah_high = find_int_attr("lookahead-high", false, 10);
 
 Prefix & parser = si.current_stack;
 
-   parser.set_assign_state((Prefix::Assign_state)ass_state);
+   parser.set_assign_state((Assign_state)ass_state);
    parser.set_lookahead_high(Function_PC(lah_high));
 
    for (;;)
@@ -1765,7 +1765,7 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
              {
                const unsigned int rank = find_int_attr("rank", false, 10);
                char * vids = (char *)find_attr("index", false);
-               IndexExpr & idx = *new IndexExpr(false, LOC);
+               IndexExpr & idx = *new IndexExpr(ASS_none, LOC);
                while (*vids != '"')
                   {
                     if (*vids == ',')   ++vids;
