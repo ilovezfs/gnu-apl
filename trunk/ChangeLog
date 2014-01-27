@@ -61,3 +61,4 @@
  5320 Made ⎕-names case insensitive, map alternate chars in )OUT
  5420 fixed ⎕TS and ⎕TZ computation
  5424 locale patches from Robin
+ 5429 fixed spaces in wrapped output lines
