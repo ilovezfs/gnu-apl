@@ -418,7 +418,6 @@ UserFunction::UserFunction(const UCS_string txt, int & error_line,
 
    if (header.get_error() != E_NO_ERROR)   // bad header
       {
-Q(txt)
         error_line = 0;
         DEFN_ERROR;
       }

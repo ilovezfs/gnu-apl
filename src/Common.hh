@@ -72,17 +72,17 @@ class UCS_string;
 void * common_new(size_t size);
 void common_delete(void * p);
 
-/// current time as double (seconds since epoch)
-APL_time now();
+/// current time as microseconds since epoch
+APL_time_us now();
 
 /// Year, Month, Day, hour, minute, second, millisecond
 struct YMDhmsu
 {
    /// construct YMDhmsu from usec since Jan. 1. 1970 00:00:00
-   YMDhmsu(APL_time t);
+   YMDhmsu(APL_time_us t);
 
    /// return usec since Jan. 1. 1970 00:00:00
-   APL_time get() const;
+   APL_time_us get() const;
 
    int year;     ///< year, e.g. 2013
    int month;    ///< month 1-12

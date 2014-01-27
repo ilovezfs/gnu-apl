@@ -83,14 +83,14 @@ cleanup()
 }
 //-----------------------------------------------------------------------------
 
-APL_time interrupt_when = 0;
+APL_time_us interrupt_when = 0;
 bool interrupt_raised = false;
 bool attention_raised = false;
 
 static void
 control_C(int)
 {
-APL_time when = now();
+APL_time_us when = now();
    attention_raised = true;
    if ((when - interrupt_when) < 500000)   // second ^C within 500 ms
       {
@@ -542,6 +542,11 @@ const char * locale = setlocale(LC_ALL, "");
       }
 
    Log(LOG_startup)   CERR << "locale is: " << locale << "." << endl;
+
+   // ensure that numbers are scanned and printed in
+   // a defined APL-compatible manner, regardless of the locale
+   //
+   setlocale(LC_NUMERIC, "C");
 
 const char * dir = bindtextdomain(PACKAGE, LOCALEDIR);
 

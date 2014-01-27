@@ -139,7 +139,7 @@ protected:
         int item_type;
 
         /// the last timestamp (if any)
-        APL_time timestamp;
+        APL_time_us timestamp;
 
         /// true if )IN shall not iverride existing objects
         bool protection;   // protect existing objects

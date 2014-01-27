@@ -50,19 +50,19 @@ common_delete(void * p)
    free(p);
 }
 //-----------------------------------------------------------------------------
-APL_time
+APL_time_us
 now()
 {
 timeval tv_now;
    gettimeofday(&tv_now, 0);
 
-APL_time ret = tv_now.tv_sec;
+APL_time_us ret = tv_now.tv_sec;
    ret *= 1000000;
    ret += tv_now.tv_usec;
    return ret;
 }
 //-----------------------------------------------------------------------------
-YMDhmsu::YMDhmsu(APL_time at)
+YMDhmsu::YMDhmsu(APL_time_us at)
    : micro(at % 1000000)
 {
 const time_t secs = at/1000000;
@@ -77,7 +77,7 @@ tm t;
    second = t.tm_sec;
 }
 //-----------------------------------------------------------------------------
-APL_time
+APL_time_us
 YMDhmsu::get() const
 {
 tm t;
@@ -88,7 +88,7 @@ tm t;
    t.tm_min  = minute;
    t.tm_sec  = second;
 
-APL_time ret =  mktime(&t);
+APL_time_us ret =  mktime(&t);
    ret *= 1000000;
    ret += micro;
    return ret;

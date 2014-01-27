@@ -137,7 +137,7 @@ public:
         the_workspace.v_Quad_ET.update(error); }
 
    /// increase the wait time for user input as reported in ⎕AI
-   static void add_wait(APL_time diff)
+   static void add_wait(APL_time_us diff)
       { the_workspace.v_Quad_AI.add_wait(diff); }
 
    /// return information in SI_top()

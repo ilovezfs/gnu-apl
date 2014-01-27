@@ -102,11 +102,11 @@ public:
    virtual const Function * get_function() const   { return this; }
 
    /// when this function was created; { 0, 0 } for system functions
-   APL_time get_creation_time() const
+   APL_time_us get_creation_time() const
       {  return creation_time; }
 
    /// set the time when the function was created (0 for built-in functions)
-   void set_creation_time(APL_time t)
+   void set_creation_time(APL_time_us t)
       { creation_time = t; }
 
    /// return the execution properties (3 ⎕AT) for this function
@@ -202,7 +202,7 @@ public:
    Fun_signature get_signature() const;
 
    /// when this function was created (0.0 for system functions)
-   APL_time creation_time;
+   APL_time_us creation_time;
 
 protected:
    /// the tag for token pointing to \b this function

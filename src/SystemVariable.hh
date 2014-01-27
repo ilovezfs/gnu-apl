@@ -119,15 +119,15 @@ public:
    Quad_AI();
 
    /// increase the time waiting for user input
-   void add_wait(APL_time diff)
+   void add_wait(APL_time_us diff)
    { user_wait += diff; }
 
 protected:
    /// when the interpreter was started
-   const APL_time session_start;
+   const APL_time_us session_start;
 
    /// time waiting for user input.
-   APL_time user_wait;
+   APL_time_us user_wait;
 
    /// overloaded Symbol::get_apl_value().
    virtual Value_P get_apl_value() const;
@@ -616,8 +616,10 @@ public:
    /// Constructor.
    Quad_TZ();
 
-   /// return the offset from GMT of the current timezone (in seconds)
-   int get_offset() const   { return offset_seconds; }
+   /// return the offset from GMT of the current timezone (in seconds).
+   /// we make this int64_t rather than int so that conversion to usec
+   /// does not overflow
+   int64_t get_offset() const   { return offset_seconds; }
 
 protected:
    /// overloaded Symbol::assign().
