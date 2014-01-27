@@ -263,6 +263,9 @@ vector<PB_row> item_matrix;
 int32_t last_spacing = 0;
 bool last_notchar = false;
 int break_width = 0;
+int bp_x = 0;
+int bp_max = pctx.get_PW() - 1;
+
    loop(x, cols)
       {
         PrintBuffer pcol;
@@ -318,10 +321,12 @@ int break_width = 0;
               // compute ⎕PW breakpoints.
               {
               const int col_width = max_spacing + pcol.get_width(0);
-              if ((break_width + col_width) > pctx.get_PW())   // exceed ⎕PW
+              if ((break_width + col_width) > bp_max)   // exceed ⎕PW
                  {
-                   break_points.push_back(break_width + max_spacing);
+                   bp_x += break_width + max_spacing;
+                   break_points.push_back(bp_x);
                    break_width = pcol.get_width(0);
+                   bp_max = pctx.get_PW() - 7;   // subsequent chunk
                  }
               else
                  {
