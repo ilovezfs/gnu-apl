@@ -246,7 +246,7 @@ Input::get_user_line(const UCS_string * prompt, bool from_nabla)
 
    if (!from_nabla)   Output::set_color_mode(Output::COLM_INPUT);
 
-const APL_time from = now();
+const APL_time_us from = now();
 char * line;
    if (!use_readline)
       {
@@ -264,7 +264,7 @@ char * line;
 
    if (end_input)   (*end_input)();
 
-const APL_time to = now();
+const APL_time_us to = now();
    Workspace::add_wait(to - from);
 
 UTF8 * l = (UTF8 *)line;
@@ -326,7 +326,7 @@ const UTF8 * line = TestFiles::get_testcase_line();
    return (const char *)get_user_line(prompt, true);
 
 
-const APL_time from = now();
+const APL_time_us from = now();
    if (!use_readline)
       {
         line = (UTF8 *)no_readline(prompt);
@@ -345,7 +345,7 @@ const APL_time from = now();
 
    while (*line && *line <= ' ')   ++line;
 
-const APL_time to = now();
+const APL_time_us to = now();
    Workspace::add_wait(to - from);
 
    return (const char *)line;

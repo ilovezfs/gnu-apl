@@ -63,6 +63,10 @@ protected:
    bool tokenize_real(Source<Unicode> &src, APL_Float & flt_val,
                       APL_Integer & int_val);
 
+   /// a locale-independent sscanf()o
+   static int scan_real(const char * strg, double & result, 
+                        int E_pos, int minus_pos);
+
    /// tokenize a symbol
    void tokenize_symbol(Source<Unicode> & src, Token_string & tos);
 

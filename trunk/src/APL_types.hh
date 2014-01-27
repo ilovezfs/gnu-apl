@@ -58,8 +58,8 @@ typedef std::complex<double> APL_Complex;
 /// One (real) APL floating point value.
 typedef double APL_Float;
 
-/// microseconds since 1.1.1920 00:00:00 UTC
-typedef int64_t APL_time;
+/// microseconds since Jan. 1. 1970 00:00:00 UTC
+typedef int64_t APL_time_us;
 
 class Value;
 

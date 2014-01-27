@@ -944,8 +944,8 @@ Quad_TS::Quad_TS()
 Value_P
 Quad_TS::get_apl_value() const
 {
-const int offset = Workspace::get_v_Quad_TZ().get_offset();
-const YMDhmsu time(now() + offset);
+const APL_time_us offset_us = 1000000 * Workspace::get_v_Quad_TZ().get_offset();
+const YMDhmsu time(now() + offset_us);
 
 Value_P Z(new Value(7, LOC));
    new (&Z->get_ravel(0)) IntCell(time.year);
@@ -968,20 +968,28 @@ Quad_TZ::Quad_TZ()
    // sound reliable either.
    // 
    // We compute localtime() and gmtime() and take the difference (hoping
-   // that localtime() and gmtime() are mor portable.
+   // that localtime() and gmtime() are more portable.
    // 
-timeval now;
-   gettimeofday(&now, 0);
 
-tm * local = localtime(&now.tv_sec);
-const int local_minutes = local->tm_min + 60*local->tm_hour;
+   // choose a reference point in time that is the same month in all time zones.
+   // we use Monday Jan 2014 in the afternoon
+   //
+const time_t ref = 1390830000;   // Monday Jan 2014 in the afternoon
 
-tm * gmean = gmtime(&now.tv_sec);
-     const int gm_minutes = gmean->tm_min + 60*gmean->tm_hour;
-     
+tm * local = localtime(&ref);
+const int local_minutes =       local->tm_min
+                        +    60*local->tm_hour
+                        + 24*60*local->tm_mday;
+
+tm * gmean = gmtime(&ref);
+const int gm_minutes    =       gmean->tm_min
+                        +    60*gmean->tm_hour
+                        + 24*60*gmean->tm_mday;
 const int diff_minutes = local_minutes - gm_minutes;
    offset_seconds = 60*diff_minutes;
 
+   // ⎕TZ is the offset in hours between GMT and local time
+   //
 Value_P value(new Value(LOC));
    if (offset_seconds % 3600 == 0)   // full hour
       new (&value->get_ravel(0))   IntCell(offset_seconds/3600);

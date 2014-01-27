@@ -88,7 +88,7 @@ protected:
    virtual Value_P get_apl_value() const;
 
    /// when the current ⎕SVE timer expires (as float)
-   static APL_time timer_end;
+   static APL_time_us timer_end;
 };
 //-----------------------------------------------------------------------------
 /**

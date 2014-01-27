@@ -596,15 +596,15 @@ Tokenizer::tokenize_real(Source<Unicode> &src, APL_Float & flt_val,
 const int32_t src_size = src.rest();
 bool dot_seen = false;
 int E_pos = 0;   // position of 'e' in utf
-int minus_pos = 0;
+int minus_pos = 0;   // position of (exponent-) ¯ in utf
 bool digit_seen = false;
 
    // copy chars from src to utf
    //
 UTF8_string utf;
 
-   // a '-' can occur in the mantissa and in the exponent. To make a '-'
-   // unique, we handle a leading (i.e. mantissa) '-' beforehand.
+   // a '¯' can occur in the mantissa and in the exponent. To make a '¯'
+   // unique, we handle a leading (i.e. mantissa) '¯' beforehand.
    //
    if (*src == UNI_OVERBAR)
       {
@@ -647,7 +647,7 @@ UTF8_string utf;
            }
       }
 
-   // E or E¯ without exponent digits
+   // handle E or E¯ without exponent digits
    //
    if (utf.size() == E_pos)       return false;
    if (utf.size() == minus_pos)   return false;
@@ -661,6 +661,82 @@ UTF8_string utf;
    // invalid number: restore src
    //
    return false;
+}
+//-----------------------------------------------------------------------------
+int
+Tokenizer::scan_real(const char * strg, double & result,
+                     int E_pos, int minus_pos)
+{
+   // this function (which is currently not used) shall become a locale
+   // independent sscanf. Currently it gives slightly different results
+   // than sscanf (rounding errors?) and therefore breaks a few testcases.
+   // TODO!
+   //
+const bool negative = *strg == '-';
+int p = 0;
+int expo_f = 0;
+int expo_E = 0;
+
+   if (negative)   ++p;   // leading -
+
+   result = 0;
+
+   // the caller has filtered everything but 0-9 . - and e.
+   //
+
+   // integer part
+   //
+   for (;;)
+      {
+        const char cc = strg[p++];
+        if (cc == 0)     goto done;
+        if (cc == '.')   goto fract;
+        if (cc == 'e')   goto expo;
+        result *= 10;
+        result += cc - '0';
+      }
+
+fract:
+   for (;;)
+      {
+        const char cc = strg[p++];
+        if (cc == 0)     goto done;
+        if (cc == 'e')   goto expo;
+        result *= 10;
+        result += cc - '0';
+        --expo_f;
+      }
+
+expo:
+   {
+     if (minus_pos)   p = minus_pos;
+     else             p = E_pos;
+
+   for (;;)
+      {
+        const char cc = strg[p++];
+        if (cc == 0)     break;
+        expo_E *= 10;
+        expo_E += cc - '0';
+      }
+   }
+
+done:
+     if (minus_pos)   expo_E = -expo_E;
+     expo_E += expo_f;
+
+     if (expo_E)
+        {
+          if (expo_E <= -308)
+             {
+               result = 0;
+               return 1;
+             }
+          result *= exp10(expo_E);
+        }
+
+   if (negative)   result = -result;
+   return 1;
 }
 //-----------------------------------------------------------------------------
 void

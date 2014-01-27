@@ -589,14 +589,14 @@ UCS_string epilog(name);
 Token
 Quad_DL::eval_B(Value_P B)
 {
-const APL_time start = now();
+const APL_time_us start = now();
 
    // B should be an integer or real skalar
    //
    if (B->get_rank() > 0)                 RANK_ERROR;
    if (!B->get_ravel(0).is_real_cell())   DOMAIN_ERROR;
 
-const APL_time end = start + 1000000 * B->get_ravel(0).get_real_value();
+const APL_time_us end = start + 1000000 * B->get_ravel(0).get_real_value();
    if (end < start)                            DOMAIN_ERROR;
    if (end > start + 31*24*60*60*1000000ULL)   DOMAIN_ERROR;   // > 1 month
 
@@ -604,11 +604,11 @@ const APL_time end = start + 1000000 * B->get_ravel(0).get_real_value();
        {
          // compute time remaining.
          //
-         const APL_time wait =  end - now();
-         if (wait <= 0)   break;
+         const APL_time_us remaining_us =  end - now();
+         if (remaining_us <= 0)   break;
 
-         const int wait_sec  = wait/1000000;
-         const int wait_usec = wait%1000000;
+         const int wait_sec  = remaining_us/1000000;
+         const int wait_usec = remaining_us%1000000;
          timeval tv = { wait_sec, wait_usec };
          if (select(0, 0, 0, 0, &tv) == 0)   break;
        }

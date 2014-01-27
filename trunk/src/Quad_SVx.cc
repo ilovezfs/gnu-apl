@@ -48,7 +48,7 @@ Quad_SVQ Quad_SVQ::fun;
 Quad_SVR Quad_SVR::fun;
 Quad_SVS Quad_SVS::fun;
 
-APL_time Quad_SVE::timer_end = 0;
+APL_time_us Quad_SVE::timer_end = 0;
 
 //=============================================================================
 /**
@@ -224,7 +224,7 @@ Quad_SVE::assign(Value_P value, const char * loc)
    //
    if (!value->is_skalar())   RANK_ERROR;
 
-const APL_time duration = 1000000 * value->get_ravel(0).get_real_value();
+const APL_time_us duration = 1000000 * value->get_ravel(0).get_real_value();
    if (duration < 0)   DOMAIN_ERROR;
 
    if (duration == 0.0)
@@ -244,8 +244,8 @@ const APL_time duration = 1000000 * value->get_ravel(0).get_real_value();
 Value_P
 Quad_SVE::get_apl_value() const
 {
-const APL_time current_time = now();
-const APL_time wait = timer_end - current_time;
+const APL_time_us current_time = now();
+const APL_time_us wait = timer_end - current_time;
 
    // if timer has expired, return 0
    //

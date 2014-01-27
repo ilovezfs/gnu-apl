@@ -127,7 +127,7 @@ UCS_string text;
    // we convert each format into text, which is a UCS string with
    // lines separated by ASCII_LF.
    //
-   if (B->get_rank() == 1)   // case 1: vector of simple character vectors
+   if (B->compute_depth() >= 2)   // case 1: vector of simple character vectors
       {
         const ShapeItem ec = B->element_count();
         loop(e, ec)
@@ -170,7 +170,7 @@ UCS_string text;
              text.append(UNI_ASCII_LF);
            }
       }
-   else                      // simple character matrix
+   else                      // case 2: simple character matrix
       {
         const ShapeItem rows = B->get_rows();
         const ShapeItem cols = B->get_cols();
