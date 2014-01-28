@@ -17,6 +17,8 @@ The following features are planned:
 -----------------------------------
 
 * Lambdas (unnamed functions)
+* non-quadratic scan for commutative functions
+* vendor independent workspace exchange format
 
 
 The following extensions are provided:
