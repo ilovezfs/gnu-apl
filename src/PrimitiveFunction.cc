@@ -922,7 +922,8 @@ Bif_F12_TRANSPOSE::eval_B(Value_P B)
 {
 Shape shape_A;
 
-   // monadic transpose: A = ... 4 3 2 1 0
+   // monadic transpose is A⍉B with A = ... 4 3 2 1 0
+   //
    loop(r, B->get_rank())   shape_A.add_shape_item(B->get_rank() - r - 1);
 
 Value_P Z = transpose(shape_A, B);
@@ -970,6 +971,12 @@ Bif_F12_TRANSPOSE::transpose(const Shape & A, Value_P B)
 {
 const Shape shape_Z = permute(B->get_shape(), inverse_permutation(A));
 Value_P Z(new Value(shape_Z, LOC));
+
+   if (Z->is_empty())
+      {
+         Z->set_default(*B.get());
+         return Z;
+      }
 
 const Cell * cB = &B->get_ravel(0);
 
@@ -1026,6 +1033,11 @@ Shape shape_Z;
    }
 
 Value_P Z(new Value(shape_Z, LOC));
+   if (Z->is_empty())
+      {
+         Z->set_default(*B.get());
+        return Z;
+      }
 
 const Cell * cB = &B->get_ravel(0);
 
@@ -1371,6 +1383,11 @@ const Shape weight_B = B->get_shape().reverse_scan();
       }
 
 Value_P Z(new Value(shape_Z, LOC));
+   if (Z->is_empty())
+      {
+         Z->set_default(*B.get());
+         return Token(TOK_APL_VALUE1, Z);
+      }
 
    for (ArrayIterator it_Z(shape_Z); !it_Z.done(); ++it_Z)
       {
@@ -1615,6 +1632,11 @@ Shape shape_Z;
    }
 
 Value_P Z(new Value(shape_Z, LOC));
+   if (Z->is_empty())
+      {
+         Z->set_default(*B.get());
+         return Token(TOK_APL_VALUE1, Z);
+      }
 
    // loop over sources and place them in the result.
    //
@@ -2087,6 +2109,8 @@ Shape Q;
               Q.add_shape_item(B->get_shape_item(r) + Zi);
             }
        }
+
+   if (shape_Z.is_empty())   return;
 
 const Shape weight_B = B->get_shape().reverse_scan();
 

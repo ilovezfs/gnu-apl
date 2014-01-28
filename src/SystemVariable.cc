@@ -974,18 +974,20 @@ Quad_TZ::Quad_TZ()
    // choose a reference point in time that is the same month in all time zones.
    // we use Monday Jan 2014 in the afternoon
    //
-const time_t ref = 1390830000;   // Monday Jan 2014 in the afternoon
+const time_t ref = now()/1000000;
 
 tm * local = localtime(&ref);
-const int local_minutes =       local->tm_min
-                        +    60*local->tm_hour
-                        + 24*60*local->tm_mday;
+const int local_minutes = local->tm_min + 60*local->tm_hour;
+const int local_days = local->tm_mday + 31*local->tm_mon + 12*31*local->tm_year;
 
 tm * gmean = gmtime(&ref);
-const int gm_minutes    =       gmean->tm_min
-                        +    60*gmean->tm_hour
-                        + 24*60*gmean->tm_mday;
-const int diff_minutes = local_minutes - gm_minutes;
+const int gm_minutes    = gmean->tm_min + 60*gmean->tm_hour;
+const int gm_days = gmean->tm_mday + 31*gmean->tm_mon + 12*31*gmean->tm_year;
+int diff_minutes = local_minutes - gm_minutes;
+
+   if (local_days < gm_days)        diff_minutes -= 24*60;   // local < gmean
+   else if (local_days > gm_days)   diff_minutes += 24*60;   // local > gmean
+
    offset_seconds = 60*diff_minutes;
 
    // ⎕TZ is the offset in hours between GMT and local time
@@ -1006,14 +1008,14 @@ Quad_TZ::assign(Value_P value, const char * loc)
 {
    if (!value->is_skalar())   RANK_ERROR;
 
-   // ignore values outside [-12 ... 12], DOMAIN ERROR for bad types.
+   // ignore values outside [-12 ... 14], DOMAIN ERROR for bad types.
 
 Cell & cell = value->get_ravel(0);
    if (cell.is_integer_cell())
       {
         const APL_Integer ival = cell.get_int_value();
         if (ival < -12)   return;
-        if (ival > 12)    return;
+        if (ival > 14)    return;
         offset_seconds = ival*3600;
         Symbol::assign(value, LOC);
         return;
@@ -1022,8 +1024,8 @@ Cell & cell = value->get_ravel(0);
    if (cell.is_float_cell())
       {
         const APL_Float fval = cell.get_real_value();
-        if (fval < -12)   return;
-        if (fval > 12)    return;
+        if (fval < -12.1)   return;
+        if (fval > 14.1)    return;
         offset_seconds = int(0.5 + fval*3600);
         Symbol::assign(value, LOC);
         return;
