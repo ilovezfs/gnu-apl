@@ -489,7 +489,7 @@ increment_owner_count(Value * v, const char * loc)
 }
 //-----------------------------------------------------------------------------
 inline void
-decrement_owner_count(Value * v, const char * loc)
+decrement_owner_count(Value * & v, const char * loc)
 {
    Assert1(v);
 
@@ -510,7 +510,7 @@ decrement_owner_count(Value * v, const char * loc)
 
          --v->owner_count;
 
-        if (v->owner_count == 0)   delete v;
+        if (v->owner_count == 0)   { delete v;   v = 0; }
       }
 }
 //-----------------------------------------------------------------------------

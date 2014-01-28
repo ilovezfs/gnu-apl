@@ -31,7 +31,7 @@ class Value;
 
 int  get_owner_count(const Value * v);
 void increment_owner_count(Value * v, const char * loc);
-void decrement_owner_count(Value * v, const char * loc);
+void decrement_owner_count(Value * & v, const char * loc);
 
 class Value_P
 {

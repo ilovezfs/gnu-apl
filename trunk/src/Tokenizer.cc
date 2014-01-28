@@ -510,8 +510,8 @@ Tokenizer::tokenize_number(Source<Unicode> & src, Token_string & tos)
    // real 'D' real   // magnitude + angle in degrees
    // real 'R' real   // magnitude + angle in radian
 
-APL_Float real_flt;   // always valid
-APL_Integer real_int;   // valid if real_floating is true
+APL_Float real_flt   = 0.0;   // always valid
+APL_Integer real_int = 0.0;   // valid if real_floating is true
 const bool real_valid = tokenize_real(src, real_flt, real_int);
 bool real_floating = real_flt != real_int;
 

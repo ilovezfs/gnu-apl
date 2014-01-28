@@ -100,7 +100,8 @@ const ShapeItem length = shape.get_volume();
 
         try
            {
-             ravel = new Cell[length];
+             Cell * long_ravel =  new Cell[length];
+             ravel = long_ravel;
            }
         catch (...)
            {
@@ -344,7 +345,7 @@ const ShapeItem length = nz_element_count();
    if (ravel != short_value)
       {
         total_ravel_count -= length;
-        delete ravel;
+        delete (char *) ravel;
       }
 
    Assert(check_ptr == (const char *)this + 7);
