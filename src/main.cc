@@ -105,7 +105,7 @@ static struct sigaction new_control_C_action;
 
 //-----------------------------------------------------------------------------
 static void
-seg_fault(int)
+signal_SEGV_handler(int)
 {
    CERR << "\n\n====================================================\n"
            "SEGMENTATION FAULT" << endl;
@@ -120,8 +120,8 @@ seg_fault(int)
    Command::cmd_OFF(3);
 }
 
-static struct sigaction old_segfault_action;
-static struct sigaction new_segfault_action;
+static struct sigaction old_SEGV_action;
+static struct sigaction new_SEGV_action;
 
 //-----------------------------------------------------------------------------
 static void
@@ -132,6 +132,34 @@ signal_USR1_handler(int)
 
 static struct sigaction old_USR1_action;
 static struct sigaction new_USR1_action;
+
+//-----------------------------------------------------------------------------
+static struct sigaction old_TERM_action;
+static struct sigaction new_TERM_action;
+
+static void
+signal_TERM_handler(int)
+{
+    struct sigaction old;
+
+    cleanup();
+    sigaction(SIGTERM, &old_TERM_action, &old);
+    raise(SIGTERM);
+}
+
+//-----------------------------------------------------------------------------
+static struct sigaction old_HUP_action;
+static struct sigaction new_HUP_action;
+
+static void
+signal_HUP_handler(int)
+{
+    struct sigaction old;
+
+    cleanup();
+    sigaction(SIGHUP, &old_HUP_action, &old);
+    raise(SIGHUP);
+}
 
 //-----------------------------------------------------------------------------
 /**
@@ -850,15 +878,21 @@ user_preferences up;
    //
    memset(&new_control_C_action, 0, sizeof(struct sigaction));
    memset(&new_USR1_action,      0, sizeof(struct sigaction));
-   memset(&new_segfault_action,  0, sizeof(struct sigaction));
+   memset(&new_SEGV_action,      0, sizeof(struct sigaction));
+   memset(&new_TERM_action,      0, sizeof(struct sigaction));
+   memset(&new_HUP_action,       0, sizeof(struct sigaction));
 
    new_control_C_action.sa_handler = &control_C;
-   new_USR1_action     .sa_handler = &signal_USR1_handler;
-   new_segfault_action .sa_handler = &seg_fault;
+   new_USR1_action .sa_handler = &signal_USR1_handler;
+   new_SEGV_action .sa_handler = &signal_SEGV_handler;
+   new_TERM_action .sa_handler = &signal_TERM_handler;
+   new_HUP_action  .sa_handler = &signal_HUP_handler;
 
    sigaction(SIGINT,  &new_control_C_action, &old_control_C_action);
    sigaction(SIGUSR1, &new_USR1_action,      &old_USR1_action);
-   sigaction(SIGSEGV, &new_segfault_action,  &old_segfault_action);
+   sigaction(SIGSEGV, &new_SEGV_action,      &old_SEGV_action);
+   sigaction(SIGTERM, &new_TERM_action,      &old_TERM_action);
+   sigaction(SIGHUP,  &new_HUP_action,       &old_HUP_action);
 
    // init NLS so that usage() will be translated
    //
