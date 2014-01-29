@@ -46,13 +46,47 @@ const UCS_string symbol_name(*B.get());
 
 Value_P Z;
 
-   if (mode == 1)        Z = tf1(symbol_name);
-   else if (mode == 2)   return tf2(symbol_name);
-   else if (mode == 3)   Z = tf3(symbol_name);
-   else                  DOMAIN_ERROR;
+   if (mode == 1)
+      {
+        const bool inverse = is_inverse(symbol_name);
+        if (inverse)   Z = tf1_inv(symbol_name);
+        else           Z = tf1(symbol_name);
+      }
+   else if (mode == 2)
+      {
+        const bool inverse = is_inverse(symbol_name);
+        if (!inverse)   return tf2(symbol_name);
+        Z = Value_P(new Value(tf2_inv(symbol_name), LOC));
+      }
+   else if (mode == 3)
+      {
+        Z = tf3(symbol_name);
+      }
+   else
+      {
+        DOMAIN_ERROR;
+      }
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+bool
+Quad_TF::is_inverse(const UCS_string & maybe_name)
+{
+   // a forward ⎕TF contains only a function or variable name.
+   // an inverse ⎕TF contains at least one non-symbol character
+   //
+   loop(n, maybe_name.size())
+      {
+        if (n == 0 && Avec::is_quad(maybe_name[n]))   continue;
+        if (Avec::is_symbol_char(maybe_name[n]))      continue;
+
+        return true;   // inverse ⎕TF
+      }
+
+   // all chars in val were symbol characters. Therefore it is a forward ⎕TF
+   return false;
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -86,13 +120,6 @@ Symbol * symbol = obj->get_symbol();
 Value_P
 Quad_TF::tf1(const UCS_string & var_name, Value_P val)
 {
-   // check for inverse 1 ⎕TF and return it if applicable.
-   //
-   {
-     Value_P Z = tf1_inv(val);
-     if (!!Z)   return Z;
-   }
-
 const bool is_char_array = val->get_ravel(0).is_character_cell();
 UCS_string ucs(is_char_array ? UNI_ASCII_C : UNI_ASCII_N);
 
@@ -177,12 +204,8 @@ UCS_string ucs;
 }
 //-----------------------------------------------------------------------------
 Value_P
-Quad_TF::tf1_inv(Value_P val)
+Quad_TF::tf1_inv(const UCS_string & ravel)
 {
-   if (!val->is_char_vector())   return Value_P();
-
-UCS_string ravel(*val.get());
-
 const size_t len = ravel.size();
    if (len < 2)   return Value_P();
 
@@ -351,22 +374,6 @@ Symbol * symbol = obj->get_symbol();
 Token
 Quad_TF::tf2_var(const UCS_string & var_name, Value_P value)
 {
-   // try inverse 2 ⎕TF and return it if successful
-   //
-   if (value->is_apl_char_vector())
-      {
-        UCS_string data(*value.get());
-        UCS_string new_var_or_fun;
-
-        tf2_parse(data, new_var_or_fun);
-        if (new_var_or_fun.size())   // if data is an inverse TF2
-           {
-             Value_P Z(new Value(new_var_or_fun, LOC));
-             Z->check_value(LOC);
-             return Token(TOK_APL_VALUE1, Z);
-          }
-      }
-
 UCS_string ucs(var_name);
    ucs.append(UNI_LEFT_ARROW);
 
@@ -381,20 +388,21 @@ Value_P Z(new Value(ucs, LOC));
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
-void
-Quad_TF::tf2_parse(const UCS_string & ucs, UCS_string & new_var_or_fun)
+UCS_string
+Quad_TF::tf2_inv(const UCS_string & ravel)
 {
 Token_string tos;
 
+Q(ravel)
    try
       {
-        UCS_string ucs1 = no_UCS(ucs);
+        UCS_string ucs1 = no_UCS(ravel);
         const Parser parser(PM_EXECUTE, LOC);
         parser.parse(ucs1, tos);
       }
    catch(...)
       {
-        return;
+        return UCS_string();
       }
 
    // simplify tos as much as possible. We replace A⍴B by reshaped B
@@ -403,7 +411,7 @@ Token_string tos;
    tf2_simplify(tos);
 
 
-   if (tos.size() < 2)   return;   // too short for an inverse 2⎕TF
+   if (tos.size() < 2)   return UCS_string();   // too short for an inverse 2⎕TF
 
    // it could happen that some system variable ⎕XX which is not known by
    // GNU APL is read. This case is parsed as ⎕ XX ← ... 
@@ -412,10 +420,10 @@ Token_string tos;
    if (tos[0].get_tag() == TOK_QUAD_QUAD &&
        tos[1].get_Class() == TC_SYMBOL)
       {
-        new_var_or_fun = tos[1].get_sym_ptr()->get_name();
+        UCS_string new_var_or_fun = tos[1].get_sym_ptr()->get_name();
         CERR << "*** Unknown system variable ⎕" << new_var_or_fun
              << " in 2⎕TF / )IN (assignment ignored)" << endl;
-        return;
+        return new_var_or_fun;
       }
 
    // we expect either VAR ← VALUE ... or ⎕FX fun-text. Try VAR ← VALUE.
@@ -424,19 +432,18 @@ Token_string tos;
       {
         // at this point, we expect SYM ← VALUE.
         //
-        if (tos.size() != 3)                  return;
-        if (tos[2].get_Class() != TC_VALUE)   return;
+        if (tos.size() != 3)                  return UCS_string();
+        if (tos[2].get_Class() != TC_VALUE)   return UCS_string();
 
          tos[0].get_sym_ptr()->assign(tos[2].get_apl_val(), LOC);
-         new_var_or_fun = tos[0].get_sym_ptr()->get_name();   // valid 2⎕TF
-         return;
+         return tos[0].get_sym_ptr()->get_name();   // valid 2⎕TF
       }
 
    // Try ⎕FX fun-text
    //
-   if (tos.size() != 2)                   return;
-   if (tos[0].get_tag() != TOK_QUAD_FX)   return;
-   if (tos[1].get_Class() != TC_VALUE)    return;
+   if (tos.size() != 2)                   return UCS_string();
+   if (tos[0].get_tag() != TOK_QUAD_FX)   return UCS_string();
+   if (tos[1].get_Class() != TC_VALUE)    return UCS_string();
 
    {
      Value_P function_text =  tos[1].get_apl_val();
@@ -445,9 +452,11 @@ Token_string tos;
    if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
       {
         Value_P val = tok.get_apl_val();
-        new_var_or_fun = UCS_string(*val.get());
+        return UCS_string(*val.get());
       }
    }
+
+   return UCS_string();
 }
 //-----------------------------------------------------------------------------
 void
