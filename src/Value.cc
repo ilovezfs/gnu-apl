@@ -345,7 +345,7 @@ const ShapeItem length = nz_element_count();
    if (ravel != short_value)
       {
         total_ravel_count -= length;
-        delete (char *) ravel;
+        delete [] ravel;
       }
 
    Assert(check_ptr == (const char *)this + 7);
