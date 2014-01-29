@@ -38,6 +38,9 @@ public:
 
    static Quad_TF fun;          ///< Built-in function.
 
+   /// return true if val contains an 1⎕TF or 2⎕TF record
+   static bool is_inverse(const UCS_string & maybe_name);
+
    /// return B in transfer format 1 (old APL format)
    static Value_P tf1(const UCS_string & symbol_name);
 
@@ -54,8 +57,7 @@ public:
    static bool tf2_ravel(int level, UCS_string & ucs, Value_P value);
 
    /// try inverse ⎕TF2 of ucs, set \b new_var_or_fun if successful
-   static void tf2_parse(const UCS_string & ucs, UCS_string & new_var_or_fun);
-
+   static UCS_string tf2_inv(const UCS_string & ravel);
 
    /// store B in transfer format 2 (new APL format) into \b ucs
    static void tf2_fun_ucs(UCS_string & ucs, const UCS_string & fun_name,
@@ -76,7 +78,7 @@ protected:
    static Value_P tf1(const UCS_string & fun_name, const Function & fun);
 
    /// return inverse  transfer format 1 (old APL format) for a variable
-   static Value_P tf1_inv(Value_P val);
+   static Value_P tf1_inv(const UCS_string &  ravel);
 
    /// return B in transfer format 2 (new APL format) for a variable
    static Token tf2_var(const UCS_string & var_name, Value_P val);

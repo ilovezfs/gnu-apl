@@ -996,7 +996,7 @@ UCS_string var_or_fun;
         if (!var_name.contained_in(objects))   return;
       }
 
-   Quad_TF::tf2_parse(data1, var_or_fun);
+   var_or_fun = Quad_TF::tf2_inv(data1);
 
    Assert(var_or_fun.size());
 }
@@ -1019,8 +1019,7 @@ UCS_string statement;
    while (idx < data.size())   statement.append(data[idx++]);
    statement.append(UNI_ASCII_LF);
 
-UCS_string fun_name1;
-   Quad_TF::tf2_parse(statement, fun_name1);
+UCS_string fun_name1 = Quad_TF::tf2_inv(statement);
 
 Symbol * sym1 = Workspace::lookup_existing_symbol(fun_name1);
    Assert(sym1);
