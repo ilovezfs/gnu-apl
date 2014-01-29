@@ -264,7 +264,7 @@ int32_t last_spacing = 0;
 bool last_notchar = false;
 int break_width = 0;
 int bp_x = 0;
-int bp_max = pctx.get_PW() - 1;
+int bp_max = pctx.get_PW();
 
    loop(x, cols)
       {
@@ -326,7 +326,7 @@ int bp_max = pctx.get_PW() - 1;
                    bp_x += break_width + max_spacing;
                    break_points.push_back(bp_x);
                    break_width = pcol.get_width(0);
-                   bp_max = pctx.get_PW() - 7;   // subsequent chunk
+                   bp_max = pctx.get_PW() - 6;   // subsequent chunk
                  }
               else
                  {

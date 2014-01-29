@@ -30,7 +30,7 @@ enum
 #include "SystemLimits.def"
 
    DEFAULT_QUAD_PP = 10,
-   DEFAULT_QUAD_PW = 80,
+   DEFAULT_QUAD_PW = 79,
 };
 
 #define MAX_QUAD_CT     (1.0e-9)
