@@ -663,6 +663,7 @@ UTF8_string utf;
    return false;
 }
 //-----------------------------------------------------------------------------
+#if 0
 int
 Tokenizer::scan_real(const char * strg, double & result,
                      int E_pos, int minus_pos)
@@ -738,6 +739,7 @@ done:
    if (negative)   result = -result;
    return 1;
 }
+#endif
 //-----------------------------------------------------------------------------
 void
 Tokenizer::tokenize_symbol(Source<Unicode> & src, Token_string & tos)
