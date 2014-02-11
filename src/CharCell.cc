@@ -31,43 +31,17 @@
 bool
 CharCell::greater(const Cell * other, bool ascending) const
 {
-const uint64_t this_val  = get_char_value();
+   // make char cells smaller than all others
+   //
+   if (other->get_cell_type() != CT_CHAR)   return !ascending;
 
-   switch(other->get_cell_type())
-      {
-        case CT_NONE:
-        case CT_BASE:
-             Assert(0);
+const Unicode this_val  = get_char_value();
+const Unicode other_val = other->get_char_value();
 
-        case CT_CHAR:
-             {
-               const Unicode other_val = other->get_char_value();
-               if (this_val == other_val)
-                  return this > other ? ascending : !ascending;
-               return this_val > other_val ? ascending : !ascending;
-             }
+   // if both chars are the same, compare cell address
+   if (this_val == other_val)   return this > other ? ascending : !ascending;
 
-        case CT_INT:
-             {
-               const APL_Integer other_val = other->get_int_value();
-               if (this_val == other_val)   return ascending;
-               return this_val > other_val ? ascending : !ascending;
-             }
-
-        case CT_FLOAT:
-             {
-               const APL_Float other_val = other->get_real_value();
-               if (this_val == other_val)   return true;
-               return this_val > other_val ? ascending : !ascending;
-             }
-
-        case CT_COMPLEX:
-        case CT_POINTER:
-             DOMAIN_ERROR;
-
-        default:
-           Assert(0);
-      }
+   return this_val > other_val ? ascending : !ascending;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -77,12 +51,11 @@ CharCell::equal(const Cell & other, APL_Float qct) const
    return value.aval == other.get_char_value();
 }
 //-----------------------------------------------------------------------------
-void
-CharCell::bif_equal(Cell * Z, const Cell * A) const
+Comp_result
+CharCell::compare(const Cell & other) const
 {
-   if (!A->is_character_cell())                  new (Z) IntCell(0);
-   else if (A->get_char_value() == value.aval)   new (Z) IntCell(1);
-   else                                          new (Z) IntCell(0);
+   if (other.get_char_value() == value.aval)  return COMP_EQ;
+   return (value.aval < other.get_char_value()) ? COMP_LT : COMP_GT;
 }
 //-----------------------------------------------------------------------------
 bool

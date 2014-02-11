@@ -259,7 +259,8 @@ const APL_Float qct = Workspace::get_CT();
    return ca > cb;   // a and b are equal: sort by position
 }
 //-----------------------------------------------------------------------------
-ostream & operator <<(ostream & out, const Cell & cell)
+ostream & 
+operator <<(ostream & out, const Cell & cell)
 {
 PrintBuffer pb = cell.character_representation(PR_BOXED_GRAPHIC);
 UCS_string ucs(pb, 0);
@@ -267,23 +268,52 @@ UCS_string ucs(pb, 0);
 }
 //-----------------------------------------------------------------------------
 void
-Cell::bif_not_equal(Cell * Z, const Cell * A) const
+Cell::bif_equal(Cell * Z, const Cell * A) const
 {
-   bif_equal(Z, A);
-   Z->value.ival = 1 - Z->value.ival;
+int eq = 0;   // assume incompatible cell types ( == not equal)
+
+   if (is_character_cell() == A->is_character_cell())   // compatible cell types
+      {
+       eq = compare(*A) == COMP_EQ;
+      }
+
+   new (Z) IntCell(eq);
 }
 //-----------------------------------------------------------------------------
 void
-Cell::bif_greater_eq(Cell * Z, const Cell * A) const
+Cell::bif_not_equal(Cell * Z, const Cell * A) const
 {
-   bif_equal(Z, A);
-   if (!Z->value.ival)   bif_greater_than(Z, A);
+int neq = 1;   // assume incompatible cell types ( == not equal)
+
+   if (is_character_cell() == A->is_character_cell())   // compatible cell types
+      {
+       neq = compare(*A) != COMP_EQ;
+      }
+
+   new (Z) IntCell(neq);
+}
+//-----------------------------------------------------------------------------
+void
+Cell::bif_greater_than(Cell * Z, const Cell * A) const
+{
+   new (Z) IntCell((A->compare(*this) == COMP_GT) ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
 void
 Cell::bif_less_eq(Cell * Z, const Cell * A) const
 {
-   bif_equal(Z, A);
-   if (!Z->value.ival)   bif_less_than(Z, A);
+   new (Z) IntCell((A->compare(*this) != COMP_GT) ? 1 : 0);
+}
+//-----------------------------------------------------------------------------
+void
+Cell::bif_less_than(Cell * Z, const Cell * A) const
+{
+   new (Z) IntCell((A->compare(*this) == COMP_LT) ? 1 : 0);
+}
+//-----------------------------------------------------------------------------
+void
+Cell::bif_greater_eq(Cell * Z, const Cell * A) const
+{
+   new (Z) IntCell((A->compare(*this) != COMP_LT) ? 1 : 0);
 }
 //-----------------------------------------------------------------------------

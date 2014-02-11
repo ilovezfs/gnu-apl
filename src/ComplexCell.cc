@@ -203,7 +203,8 @@ ComplexCell::equal(const Cell & A, APL_Float qct) const
 bool
 ComplexCell::greater(const Cell * other, bool ascending) const
 {
-   DOMAIN_ERROR;
+   if (ascending)   return compare(*other) == COMP_GT;
+   else             return compare(*other) == COMP_LT;
 }
 //-----------------------------------------------------------------------------
 void
@@ -211,6 +212,48 @@ ComplexCell::release(const char * loc)
 {
    delete value.cpxp;
    new (this) Cell;
+}
+//-----------------------------------------------------------------------------
+Comp_result
+ComplexCell::compare(const Cell & other) const
+{
+   // comparison of complex numbers gives DOMAN ERROR if one of the cells
+   // is not near-real.
+   //
+const APL_Float qct = Workspace::get_CT();
+
+   if (get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
+   if (get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
+
+const APL_Float rval = get_real_value();
+   if (other.is_integer_cell())   // integer
+      {
+        if (equal(other, qct))   return COMP_EQ;
+        return (rval < other.get_int_value()) ? COMP_LT : COMP_GT;
+      }
+
+   if (other.is_float_cell())
+      {
+        if (equal(other, qct))   return COMP_EQ;
+        return (rval < other.get_real_value()) ? COMP_LT : COMP_GT;
+      }
+
+   if (other.is_complex_cell())   // complex
+      {
+        if (other.get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
+        if (other.get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
+
+        if (equal(other, qct))   return COMP_EQ;
+        return (rval < other.get_real_value()) ? COMP_LT : COMP_GT;
+        return COMP_EQ;
+      }
+
+   if (other.is_character_cell())
+      {
+        return COMP_GT;
+      }
+
+   DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 // monadic build-in functions...
@@ -378,6 +421,79 @@ const APL_Float qct = Workspace::get_CT();
    else
       {
         DOMAIN_ERROR;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+ComplexCell::bif_maximum(Cell * Z, const Cell * A) const
+{
+   // maximum of complex numbers gives DOMAN ERROR if one of the cells
+   // is not near-real.
+   //
+const APL_Float qct = Workspace::get_CT();
+
+   if (get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
+   if (get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
+
+const APL_Float rval = get_real_value();
+
+   if (A->is_integer_cell())
+      {
+         const APL_Integer a = A->get_int_value();
+         if (APL_Float(a) >= rval)   new (Z) IntCell(a);
+         else                        new (Z) FloatCell(rval);
+      }
+   else if (A->is_float_cell())
+      {
+         const APL_Float a = A->get_real_value();
+         if (a >= rval)   new (Z) FloatCell(a);
+         else             new (Z) FloatCell(rval);
+      }
+   else
+      {
+        if (A->get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
+        if (A->get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
+
+         const APL_Float a = A->get_real_value();
+         if (a >= rval)   new (Z) FloatCell(a);
+         else             new (Z) FloatCell(rval);
+      }
+
+}
+//-----------------------------------------------------------------------------
+void
+ComplexCell::bif_minimum(Cell * Z, const Cell * A) const
+{
+   // minimum of complex numbers gives DOMAN ERROR if one of the cells
+   // is not near real.
+   //
+const APL_Float qct = Workspace::get_CT();
+
+   if (get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
+   if (get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
+
+const APL_Float rval = get_real_value();
+
+   if (A->is_integer_cell())
+      {
+         const APL_Integer a = A->get_int_value();
+         if (APL_Float(a) <= rval)   new (Z) IntCell(a);
+         else                        new (Z) FloatCell(rval);
+      }
+   else if (A->is_float_cell())
+      {
+         const APL_Float a = A->get_real_value();
+         if (a <= rval)   new (Z) FloatCell(a);
+         else             new (Z) FloatCell(rval);
+      }
+   else
+      {
+        if (A->get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
+        if (A->get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
+
+         const APL_Float a = A->get_real_value();
+         if (a <= rval)   new (Z) FloatCell(a);
+         else             new (Z) FloatCell(rval);
       }
 }
 //-----------------------------------------------------------------------------

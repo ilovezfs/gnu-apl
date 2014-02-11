@@ -73,6 +73,9 @@ const uint64_t this_val  = get_int_value();
              }
 
         case CT_COMPLEX:
+             if (ascending)   return compare(*other) == COMP_GT;
+             else             return compare(*other) == COMP_LT;
+
         case CT_POINTER:
              DOMAIN_ERROR;
 
@@ -87,6 +90,23 @@ IntCell::equal(const Cell & other, APL_Float qct) const
    if (other.is_integer_cell())    return value.ival == other.get_int_value();
    if (!other.is_numeric())        return false;
    return other.equal(*this, qct);
+}
+//-----------------------------------------------------------------------------
+Comp_result
+IntCell::compare(const Cell & other) const
+{
+   if (other.is_integer_cell())
+      {
+       if (value.ival == other.get_int_value())   return COMP_EQ;
+       return (value.ival < other.get_int_value()) ? COMP_LT : COMP_GT;
+      }
+
+   if (other.is_numeric())   // float or complex
+      {
+        return (Comp_result)(-other.compare(*this));
+      }
+
+   DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 // monadic built-in functions...
@@ -292,7 +312,7 @@ const APL_Float qct = Workspace::get_CT();
         Z->bif_floor(Z);             // Z = A/B rounded down.
         new (Z) ComplexCell(b - a*Z->get_complex_value());
       }
-   else
+   else   // residue not defined for complex.
       {
         DOMAIN_ERROR;
       }
@@ -312,9 +332,9 @@ void IntCell::bif_maximum(Cell * Z, const Cell * A) const
          if (a >= APL_Float(value.ival))   new (Z) FloatCell(a);
          else                              new (Z) IntCell(value.ival);
       }
-   else   // maximum not defined for complex.
+   else
       {
-        DOMAIN_ERROR;
+        A->bif_maximum(Z, this);
       }
 }
 //-----------------------------------------------------------------------------
@@ -332,58 +352,9 @@ void IntCell::bif_minimum(Cell * Z, const Cell * A) const
          if (a <= APL_Float(value.ival))   new (Z) FloatCell(a);
          else                              new (Z) IntCell(value.ival);
       }
-   else   // minimum not defined for complex.
+   else
       {
-        DOMAIN_ERROR;
-      }
-}
-//-----------------------------------------------------------------------------
-void IntCell::bif_less_than(Cell * Z, const Cell * A) const
-{
-   if (A->is_integer_cell())
-      {
-        new (Z) IntCell(A->get_int_value() < value.ival ? 1 : 0);
-      }
-   else if (A->is_numeric())   // promote the request to float or complex
-      {
-        A->bif_greater_than(Z, this);
-      }
-   else   // char cell
-      {
-        DOMAIN_ERROR;
-      }
-}
-//-----------------------------------------------------------------------------
-void IntCell::bif_greater_than(Cell * Z, const Cell * A) const
-{
-   if (A->is_integer_cell())
-      {
-        new (Z) IntCell(A->get_int_value() > value.ival ? 1 : 0);
-      }
-   else if (A->is_numeric())   // promote the request to float or complex
-      {
-        A->bif_less_than(Z, this);
-      }
-   else   // char cell
-      {
-        DOMAIN_ERROR;
-      }
-}
-//-----------------------------------------------------------------------------
-void
-IntCell::bif_equal(Cell * Z, const Cell * A) const
-{
-   if (A->is_integer_cell())
-      {
-        new (Z) IntCell(A->get_int_value() == value.ival ? 1 : 0);
-      }
-   else if (A->is_numeric())   // promote the request to float or complex
-      {
-        A->bif_equal(Z, this);
-      }
-   else   // char cell
-      {
-        new (Z) IntCell(0);
+        A->bif_minimum(Z, this);
       }
 }
 //-----------------------------------------------------------------------------

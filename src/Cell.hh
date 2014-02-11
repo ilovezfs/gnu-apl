@@ -280,26 +280,27 @@ public:
    virtual void bif_divide(Cell * Z, const Cell * A) const
       { DOMAIN_ERROR; }
 
+   /// compare this with other, throw DOMAIN ERROR on illegal comparisons
+   virtual Comp_result compare(const Cell & other) const
+      { DOMAIN_ERROR; }
+
    /// store 1 in Z if A == the value of \b this cell in Z, else 0
-   virtual void bif_equal(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
-
-   /// store 1 in Z if A >= the value of \b this cell in Z, else 0
-   virtual void bif_greater_than(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
-
-   /// store 1 in Z if A < the value of \b this cell in Z, else 0
-   virtual void bif_less_than(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   void bif_equal(Cell * Z, const Cell * A) const;
 
    /// store 1 in Z if A != the value of \b this cell in Z, else 0
    void bif_not_equal(Cell * Z, const Cell * A) const;
 
-   /// store 1 in Z if A is >= the value of \b this cell in Z, else 0
-   void bif_greater_eq(Cell * Z, const Cell * A) const;
+   /// store 1 in Z if A > the value of \b this cell in Z, else 0
+   void bif_greater_than(Cell * Z, const Cell * A) const;
 
    /// store 1 in Z if A <= the value of \b this cell in Z, else 0
    void bif_less_eq(Cell * Z, const Cell * A) const;
+
+   /// store 1 in Z if A < the value of \b this cell in Z, else 0
+   void bif_less_than(Cell * Z, const Cell * A) const;
+
+   /// store 1 in Z if A is >= the value of \b this cell in Z, else 0
+   void bif_greater_eq(Cell * Z, const Cell * A) const;
 
    /// store the base A logarithm of \b this cell in Z
    virtual void bif_logarithm(Cell * Z, const Cell * A) const
