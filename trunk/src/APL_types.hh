@@ -341,7 +341,6 @@ enum SI_mode
    SIM_SI_dbg     = SIM_debug,
    SIM_SIS_dbg    = SIM_debug | SIM_statements,
 };
-
 //-----------------------------------------------------------------------------
 /// the state of an assignment
 enum Assign_state
@@ -359,6 +358,13 @@ enum Cause
    CAUSE_ERASED   = 2,
 };
 //-----------------------------------------------------------------------------
+/// the result of a comparison
+enum Comp_result
+{
+  COMP_LT = -1,   ///< less than
+  COMP_EQ =  0,   ///< equal
+  COMP_GT =  1,   ///< greter than
+};
 
 //////////////////////////////////////////////////////////////
 // C structs           i                                    //

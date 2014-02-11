@@ -86,14 +86,8 @@ public:
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_roll(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_equal(Cell * Z, const Cell * A) const;
-
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_greater_than(Cell * Z, const Cell * A) const;
-
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_less_than(Cell * Z, const Cell * A) const;
+   /// compare this with other, throw DOMAIN ERROR on illegal comparisons
+   virtual Comp_result compare(const Cell & other) const;
 
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_maximum(Cell * Z, const Cell * A) const;

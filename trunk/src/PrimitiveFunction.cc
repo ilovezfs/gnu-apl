@@ -2239,20 +2239,25 @@ const ShapeItem len_BZ = B->get_shape_item(0);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-const APL_Integer qio = Workspace::get_IO();
-const ShapeItem comp_len = B->element_count()/len_BZ;
+   // check that all cells are characters or near-real numbers
+   //
+const APL_Float qct = Workspace::get_CT();
    loop(b, len_BZ)
-       if (B->get_ravel(b).is_pointer_cell())
-          DOMAIN_ERROR;
+      {
+        if (B->get_ravel(b).is_character_cell())   continue;   // char: OK
+        if (B->get_ravel(b).is_near_real(qct))     continue;   // near-real: OK
+        DOMAIN_ERROR;
+      }
 
+const ShapeItem comp_len = B->element_count()/len_BZ;
 const Cell * array[len_BZ];
-
    loop(bz, len_BZ)   array[bz] = &B->get_ravel(bz*comp_len);
 
    Cell::heapsort(array, len_BZ, ascending, &comp_len, &Cell::greater_vec);
 
 Value_P Z(new Value(len_BZ, LOC));
 
+const APL_Integer qio = Workspace::get_IO();
 const Cell * base = &B->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);

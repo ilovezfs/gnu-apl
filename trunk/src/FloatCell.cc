@@ -136,6 +136,28 @@ FloatCell::demote_float_to_int(APL_Float qct)
       }
 }
 //-----------------------------------------------------------------------------
+Comp_result
+FloatCell::compare(const Cell & other) const
+{
+   if (other.is_integer_cell())   // integer
+      {
+        const APL_Float qct = Workspace::get_CT();
+        if (equal(other, qct))   return COMP_EQ;
+        return (value.fval <= other.get_int_value())  ? COMP_LT : COMP_GT;
+      }
+
+   if (other.is_float_cell())
+      {
+        const APL_Float qct = Workspace::get_CT();
+        if (equal(other, qct))   return COMP_EQ;
+        return (value.fval <= other.get_real_value()) ? COMP_LT : COMP_GT;
+      }
+
+   if (other.is_complex_cell())   return (Comp_result)(-other.compare(*this));
+
+   DOMAIN_ERROR;
+}
+//-----------------------------------------------------------------------------
 // monadic built-in functions...
 //-----------------------------------------------------------------------------
 void FloatCell::bif_factorial(Cell * Z) const
@@ -293,7 +315,8 @@ const APL_Float remainder = fmod(get_real_value(), A->get_real_value());
       }
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_maximum(Cell * Z, const Cell * A) const
+void
+FloatCell::bif_maximum(Cell * Z, const Cell * A) const
 {
    if (A->is_integer_cell())
       {
@@ -307,9 +330,9 @@ void FloatCell::bif_maximum(Cell * Z, const Cell * A) const
          if (a >= value.fval)   new (Z) FloatCell(a);
          else                   new (Z) FloatCell(value.fval);
       }
-   else   // maximum not defined for complex.
+   else
       {
-        DOMAIN_ERROR;
+        A->bif_maximum(Z, this);
       }
 }
 //-----------------------------------------------------------------------------
@@ -328,83 +351,9 @@ FloatCell::bif_minimum(Cell * Z, const Cell * A) const
          if (a <= value.fval)   new (Z) FloatCell(a);
          else                   new (Z) FloatCell(value.fval);
       }
-   else   // minimum not defined for complex.
-      {
-        DOMAIN_ERROR;
-      }
-}
-//-----------------------------------------------------------------------------
-void
-FloatCell::bif_less_than(Cell * Z, const Cell * A) const
-{
-const APL_Float qct = Workspace::get_CT();
-
-   if (A->is_complex_cell())
-      {
-        // complex has no < so we allow this only for near-real numbers
-        //
-        if (!A->is_near_real(qct))   DOMAIN_ERROR;
-           
-        FloatCell  AA(A->get_real_value());
-        if (equal(AA, qct))                          new (Z) IntCell(0);
-        else if (AA.get_real_value() > value.fval)   new (Z) IntCell(1);
-        else                                         new (Z) IntCell(0);
-      }
-   else if (A->is_numeric())
-      {
-        if (equal(*A, qct ))                         new (Z) IntCell(0);
-        else if (A->get_real_value() < value.fval)   new (Z) IntCell(1);
-        else                                         new (Z) IntCell(0);
-      }
-   else   // char cell
-      {
-        DOMAIN_ERROR;
-      }
-}
-//-----------------------------------------------------------------------------
-void
-FloatCell::bif_greater_than(Cell * Z, const Cell * A) const
-{
-const APL_Float qct = Workspace::get_CT();
-
-   if (A->is_complex_cell())
-      {
-        // complex has no > so we allow this only for near-real numbers
-        //
-        if (!A->is_near_real(qct))   DOMAIN_ERROR;
-           
-        FloatCell AA(A->get_real_value());
-        if (equal(AA, qct))                          new (Z) IntCell(0);
-        else if (AA.get_real_value() < value.fval)   new (Z) IntCell(1);
-        else                                         new (Z) IntCell(0);
-      }
-   else if (A->is_numeric())
-      {
-        if (equal(*A, Workspace::get_CT()))          new (Z) IntCell(0);
-        else if (A->get_real_value() > value.fval)   new (Z) IntCell(1);
-        else                                         new (Z) IntCell(0);
-      }
-   else   // char cell
-      {
-        DOMAIN_ERROR;
-      }
-}
-//-----------------------------------------------------------------------------
-void
-FloatCell::bif_equal(Cell * Z, const Cell * A) const
-{
-   if (A->is_complex_cell())   // promote the request to complex
-      {
-        A->bif_equal(Z, this);
-      }
-   else if (A->is_numeric())
-      {
-        if (equal(*A, Workspace::get_CT()))    new (Z) IntCell(1);
-        else                                   new (Z) IntCell(0);
-      }
    else
       {
-        new (Z) IntCell(0);
+        A->bif_minimum(Z, this);
       }
 }
 //-----------------------------------------------------------------------------

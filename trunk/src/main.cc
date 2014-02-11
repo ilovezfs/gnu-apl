@@ -87,6 +87,9 @@ APL_time_us interrupt_when = 0;
 bool interrupt_raised = false;
 bool attention_raised = false;
 
+static struct sigaction old_control_C_action;
+static struct sigaction new_control_C_action;
+
 static void
 control_C(int)
 {
@@ -100,10 +103,10 @@ APL_time_us when = now();
    interrupt_when = when;
 }
 
-static struct sigaction old_control_C_action;
-static struct sigaction new_control_C_action;
-
 //-----------------------------------------------------------------------------
+static struct sigaction old_SEGV_action;
+static struct sigaction new_SEGV_action;
+
 static void
 signal_SEGV_handler(int)
 {
@@ -119,9 +122,6 @@ signal_SEGV_handler(int)
 
    Command::cmd_OFF(3);
 }
-
-static struct sigaction old_SEGV_action;
-static struct sigaction new_SEGV_action;
 
 //-----------------------------------------------------------------------------
 static void
@@ -140,13 +140,10 @@ static struct sigaction new_TERM_action;
 static void
 signal_TERM_handler(int)
 {
-    struct sigaction old;
-
-    cleanup();
-    sigaction(SIGTERM, &old_TERM_action, &old);
-    raise(SIGTERM);
+   cleanup();
+   sigaction(SIGTERM, &old_TERM_action, 0);
+   raise(SIGTERM);
 }
-
 //-----------------------------------------------------------------------------
 static struct sigaction old_HUP_action;
 static struct sigaction new_HUP_action;
@@ -154,13 +151,10 @@ static struct sigaction new_HUP_action;
 static void
 signal_HUP_handler(int)
 {
-    struct sigaction old;
-
-    cleanup();
-    sigaction(SIGHUP, &old_HUP_action, &old);
-    raise(SIGHUP);
+   cleanup();
+   sigaction(SIGHUP, &old_HUP_action, 0);
+   raise(SIGHUP);
 }
-
 //-----------------------------------------------------------------------------
 /**
     When APL is started as a script. then several options might be grouped

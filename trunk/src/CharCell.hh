@@ -25,46 +25,46 @@
 
 //-----------------------------------------------------------------------------
 /*!
-    A cell containing a single APL character.
+    A cell containing a single APL character
  */
 class CharCell : public Cell
 {
 public:
-   /// Construct a character cell containing \b av.
+   /// Construct a character cell containing \b av
    CharCell(Unicode av)
       { value.aval = av; }
 
-   /// Overloaded Cell::is_character_cell().
+   /// overloaded Cell::is_character_cell()
    virtual bool is_character_cell() const
       { return true; }
 
-   /// Overloaded Cell::greater().
+   /// overloaded Cell::greater()
    virtual bool greater(const Cell * other, bool ascending) const;
 
-   /// Overloaded Cell::equal().
+   /// overloaded Cell::equal()
    virtual bool equal(const Cell & other, APL_Float qct) const;
 
-   /// Overloaded Cell::is_example_field().
+   /// overloaded Cell::is_example_field()
    virtual bool is_example_field() const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_equal(Cell * Z, const Cell * A) const;
+   /// overloaded Cell::compare()
+   virtual Comp_result compare(const Cell & other) const;
 
-   /// the Quad_CR representation of this cell.
+   /// the Quad_CR representation of this cell
    virtual PrintBuffer character_representation(const PrintContext &pctx) const;
 
 protected:
-   ///  Overloaded Cell::get_cell_type()
+   /// overloaded Cell::get_cell_type()
    virtual CellType get_cell_type() const
       { return CT_CHAR; }
 
-   /// Overloaded Cell::get_char_value()
+   /// overloaded Cell::get_char_value()
    virtual Unicode get_char_value() const   { return value.aval; }
 
-   /// Overloaded Cell::get_classname()
+   /// overloaded Cell::get_classname()
    virtual const char * get_classname()  const   { return "CharCell"; }
 
-   /// Overloaded Cell::CDR_size()
+   /// overloaded Cell::CDR_size()
    virtual int CDR_size() const;
 };
 //-----------------------------------------------------------------------------
