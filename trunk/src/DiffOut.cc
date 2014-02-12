@@ -152,6 +152,12 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
          if (r == UNI_PAD_U3)   // ³: match anything
             return false;   // not different
 
+         if (r == UNI_COMMENT)   // maybe ⍝³: optional line
+            {
+              const Unicode r1 = UTF8_string::toUni(ref + len_ref, len_ref);
+              return r1 == UNI_PAD_U3;
+            }
+
          if (r == UNI_PAD_U4)   // ⁴: match optional ¯
             {
               if (a != UNI_OVERBAR)   apl -= len_apl;   // restore apl

@@ -38,6 +38,7 @@ StateIndicator::StateIndicator(const Executable * exec, StateIndicator * _par)
      level(_par ? 1 + _par->get_level() : 0),
      error(E_NO_ERROR, LOC),
      current_stack(*this, exec->get_body()),
+     eval_arg_F(0),
      parent(_par)
 {
 }
