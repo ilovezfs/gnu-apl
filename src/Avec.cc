@@ -200,10 +200,14 @@ CHT_Index idx = find_char(uni);
    if (idx != Invalid_CHT)   return Token(character_table[idx].token_tag,
                                           character_table[idx].unicode);
 
-   CERR << endl << "Avec::uni_to_token() : Char " << UNI(uni) << " (" << uni
-        << ") not found in ⎕AV! (called from " << loc << ")" << endl;
+   Log(LOG_verbose_error)
+      {
+        CERR << endl << "Avec::uni_to_token() : Char " << UNI(uni)
+             << " (" << uni << ") not found in ⎕AV! (called from "
+             << loc << ")" << endl;
 
-Backtrace::show(__FILE__, __LINE__);
+         Backtrace::show(__FILE__, __LINE__);
+      }
    return Token();
 }
 //-----------------------------------------------------------------------------

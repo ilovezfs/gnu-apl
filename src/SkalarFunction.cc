@@ -199,7 +199,7 @@ SkalarFunction::eval_fill_AB(Value_P A, Value_P B)
 {
    // eval_fill_AB() is called when A or B or both are empty
    //
-   if (A->is_skalar())   // then B is empty
+   if (A->is_skalar_or_len1_vector())   // then B is empty
       {
         Value_P Z = B->clone(LOC);
         Z->to_proto();
@@ -207,7 +207,7 @@ SkalarFunction::eval_fill_AB(Value_P A, Value_P B)
         return Token(TOK_APL_VALUE1, Z);
       }
 
-   if (B->is_skalar())   // then A is empty
+   if (B->is_skalar_or_len1_vector())   // then A is empty
       {
         Value_P Z = A->clone(LOC);
         Z->to_proto();

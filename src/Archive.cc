@@ -370,10 +370,10 @@ Symbol * all_symbols[symbol_count];
 XML_Saving_Archive &
 XML_Saving_Archive::operator <<(const StateIndicator & si)
 {
-     const Executable & exec = *si.get_executable();
+const Executable & exec = *si.get_executable();
 
    do_indent();
-   out << "<SI-entry level=\"" << (si.get_level() - 1)
+   out << "<SI-entry level=\"" << si.get_level()
        << "\" pc=\"" << si.get_PC()
        << "\" line=\"" << exec.get_line(si.get_PC()) << "\"" << flush;
 
@@ -398,7 +398,7 @@ XML_Saving_Archive::operator <<(const StateIndicator & si)
            }
       }
 
-   out <<">" << endl;
+   out <<">" << endl << flush;
 
    ++indent;
    do_indent();
@@ -1565,7 +1565,7 @@ const int levels = find_int_attr("levels", false, 10);
         next_tag(LOC);
         expect_tag("SI-entry", LOC);
 
-        read_SI_entry(l + 1);   // levels count from 1 ... levels
+        read_SI_entry(l);
 
         // the parsers loop eats the terminating /SI-entry
       }
