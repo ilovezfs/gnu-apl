@@ -1454,7 +1454,7 @@ PrintBuffer pb(*this, pctx);
 
 //   pb.debug(CERR, "Value::print()");
 
-UCS_string ucs(pb, get_rank());
+UCS_string ucs(pb, get_rank(), pctx.get_PW());
 
    if (ucs.size() == 0)   return out;
 

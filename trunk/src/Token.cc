@@ -372,8 +372,8 @@ Token::print_value(ostream & out) const
 
                    const PrintContext pctx(PR_APL, 2, 0.02, 80);
                    out << UCS_string(v->get_ravel(e)
-                                       .character_representation(pctx), 0);
-                   out << " ";
+                                       .character_representation(pctx), 0, 80)
+                       << " ";
                  }
                return out;
              }

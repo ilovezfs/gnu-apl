@@ -187,7 +187,7 @@ operator <<(ostream & out, const IndexExpr & idx)
              pctx.set_style(PR_APL_MIN);
              PrintBuffer pb(*idx.values[i], pctx);
 
-             UCS_string ucs(pb, idx.values[i]->get_rank());
+             UCS_string ucs(pb, idx.values[i]->get_rank(), Workspace::get_PW());
              out << ucs;
            }
       }
