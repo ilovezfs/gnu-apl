@@ -270,27 +270,103 @@ const Unicode last = digits.last();
    FloatCell::map_FC(*this);
 }
 //-----------------------------------------------------------------------------
-UCS_string::UCS_string(const PrintBuffer & pb, Rank rank)
+UCS_string::UCS_string(const PrintBuffer & pb, Rank rank, int quad_PW)
    : Simple_string<Unicode>(0, 0)
 {
-   if (pb.get_height() == 0)   return;
+   if (pb.get_height() == 0)   return;      // empty PrintBuffer
 
-   if (pb.get_break_points().size() == 0)   // not chopped by ⎕PW
-      {
-        add_chunk(pb, 0, pb.get_width(0));
-        return;
-      }
+const int pb_width = pb.get_width(0);
+vector<int> breakpoints;
 
-int col = 0;
-   loop(b, pb.get_break_points().size())
+   // compute breakpoints
+   //
+   for (int col = 0; col < pb_width;)
        {
-         const int brkp = pb.get_break_points()[b];
-         add_chunk(pb, col, brkp - col);
-         col = brkp;
-         loop(r, rank)   append(UNI_ASCII_LF);
+         const int max_chunk_width = col ? quad_PW - 6 : quad_PW;
+
+         // find breakpoint
+         //
+         int chunk_len = max_chunk_width;
+         const int rest = pb_width - col;
+         if (chunk_len < rest)   // rest too large
+            {
+              // search backwards for break char
+              //
+              int pos = col + chunk_len;
+              if (pos > pb_width)   pos = pb_width;
+              while (--pos > col)
+                  {
+                    const Unicode uni = pb.get_line(0)[pos];
+                    if (uni == UNI_iPAD_U2 || uni == UNI_iPAD_U3)
+                       {
+                          chunk_len = pos - col + 1;
+                          break;
+                       }
+                  }
+            }
+
+         breakpoints.push_back(chunk_len);
+         col += chunk_len;
        }
 
-   add_chunk(pb, col, pb.get_width(0) - col);
+   // print rows, breaking at breakpoints
+   //
+   loop(row, pb.get_height())
+       {
+         if (row)   append(UNI_ASCII_LF);   // end previous row
+         int col = 0;
+         loop(b, breakpoints.size())
+            {
+              const int chunk_len = breakpoints[b];
+              if (col)   append_utf8("\n      ");
+              UCS_string trow(pb.get_line(row), col, chunk_len);
+              trow.remove_trailing_padchars();
+              append(trow);
+              col += chunk_len;
+            }
+       }
+
+   // replacing pad chars with blanks.
+   //
+   loop(u, size())   if (is_iPAD_char((*this)[u]))   (*this)[u] = UNI_ASCII_SPACE;
+}
+//-----------------------------------------------------------------------------
+void
+UCS_string::remove_trailing_padchars()
+{
+   // remove trailing pad chars from align() and append_string(),
+   // but leave other pad chars intact.
+   // But only if the line has no frame (vert).
+   //
+
+   // If the line contains UNI_iPAD_L0 (higher dimension separator)
+   // then discard all chars.
+   //
+   loop(u, size())
+       {
+         if ((*this)[u] == UNI_LINE_VERT)    break;
+         if ((*this)[u] == UNI_LINE_VERT2)   break;
+         if ((*this)[u] == UNI_iPAD_L0)
+            {
+              clear();
+              return;
+            }
+
+       }
+
+   while (size())
+      {
+        const Unicode last = back();
+        if (last == UNI_iPAD_L0 ||
+            last == UNI_iPAD_L1 ||
+            last == UNI_iPAD_L2 ||
+            last == UNI_iPAD_L3 ||
+            last == UNI_iPAD_L4 ||
+            last == UNI_iPAD_U7)
+            pop_back();
+        else
+            break;
+      }
 }
 //-----------------------------------------------------------------------------
 /// constructor
@@ -315,63 +391,6 @@ UCS_string::UCS_string(istream & in)
         if (uni == UNI_ASCII_LF)      return;
         append(uni);
       }
-}
-//-----------------------------------------------------------------------------
-void
-UCS_string::add_chunk(const PrintBuffer & pb, int from, size_t width)
-{
-   loop(y, pb.get_height())
-       {
-         if (y)   append(UNI_ASCII_LF);
-
-         UCS_string ucs;
-         if (from)   ucs.append(UCS_string(UTF8_string("      ")));
-         ucs.append(UCS_string (pb.get_line(y), from, width));
-
-         // remove trailing pad chars from align() and append_string(),
-         // but leave other pad chars intact.
-         // But only if the line has no frame (vert).
-         //
-         {
-           // If the line contains UNI_iPAD_L0 (higher dimension separator)
-           // then discard all chars.
-           //
-           bool has_L0 = false;
-           loop(u, ucs.size())
-               {
-                 if (ucs[u] == UNI_LINE_VERT)    goto non_empty;
-                 if (ucs[u] == UNI_LINE_VERT2)   goto non_empty;
-                 if (ucs[u] == UNI_iPAD_L0)      { has_L0 = true;   break; }
-
-               }
-
-           if (has_L0)   continue;   // next line
-         }
-
-         non_empty:
-
-         while (ucs.size() > 0)
-            {
-              const Unicode last = ucs.back();
-              if (last == UNI_iPAD_L0 ||
-                  last == UNI_iPAD_L1 ||
-                  last == UNI_iPAD_L2 ||
-                  last == UNI_iPAD_L3 ||
-                  last == UNI_iPAD_L4 ||
-                  last == UNI_iPAD_U7)
-                 ucs.pop_back();
-              else
-                 break;
-            }
-
-         // print the value, replacing pad chars with blanks.
-         loop(u, ucs.size())
-            {
-              Unicode uni = ucs[u];
-              if (is_iPAD_char(uni))   uni = UNI_ASCII_SPACE;
-              append(uni);
-            }
-       }
 }
 //-----------------------------------------------------------------------------
 void

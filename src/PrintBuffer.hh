@@ -160,10 +160,6 @@ public:
    /// return true iff all strings have the same size.
    bool is_rectangular() const;
 
-   /// return positions for line breaks in wide (i.e.  > ⎕PW) PrintBuffers
-   const vector<int> & get_break_points() const
-      { return break_points; }
-
 protected:
    /// align this PrintBuffer to col
    void align(ColInfo & col);
@@ -182,9 +178,6 @@ protected:
 
    /// the character buffer.
    vector<UCS_string> buffer;
-
-   /// points after which a line break (according to ⎕PW) should occur.
-   vector<int> break_points;
 
    /// column properties
    ColInfo col_info;

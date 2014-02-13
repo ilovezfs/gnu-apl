@@ -72,7 +72,7 @@ public:
    UCS_string(const char * cstring);
 
    /// constructor: UCS_string from print buffer
-   UCS_string(const PrintBuffer & pb, Rank rank);
+   UCS_string(const PrintBuffer & pb, Rank rank, int quad_PW);
 
    /// constructor: UCS_string from a double with quad_pp valid digits.
    /// (eg. 3.33 has 3 digits), In standard APL format.
@@ -84,8 +84,8 @@ public:
    /// constructor: UCS_string from simple character vector value.
    UCS_string(const Value & value);
 
-   /// columns from ,, to (excluding) of \b pb.
-   void add_chunk(const PrintBuffer & pb, int from, size_t width);
+   /// remove trailing pad characters
+   void remove_trailing_padchars();
 
    /// skip leading whitespaces starting at idx, append the following
    /// non-whitespaces (if any) to \b dest, and skip trailing whitespaces

@@ -103,7 +103,7 @@ Value_P val = get_pointer_value();
                 {
                   PrintBuffer pb = val->get_ravel(e).
                         character_representation(pctx);
-                  ucs.append(UCS_string(pb, 0));
+                  ucs.append(UCS_string(pb, 0, Workspace::get_PW()));
 
                   if (e < ec - 1)   ucs.append(UNI_ASCII_SPACE);
                 }

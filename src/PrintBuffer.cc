@@ -124,7 +124,7 @@ const ShapeItem rows = ec/cols;
                   PrintBuffer pb = value.get_ravel(e)
                                         .character_representation(pctx);
                   if (e)   ucs.append(UNI_ASCII_SPACE);
-                  ucs.append(UCS_string(pb, 0));
+                  ucs.append(UCS_string(pb, 0, pctx.get_PW()));
                 }
            }
 
@@ -262,9 +262,6 @@ vector<PB_row> item_matrix;
    //
 int32_t last_spacing = 0;
 bool last_notchar = false;
-int break_width = 0;
-int bp_x = 0;
-int bp_max = pctx.get_PW();
 
    loop(x, cols)
       {
@@ -303,7 +300,6 @@ int bp_max = pctx.get_PW();
         if (x == 0)
            {
               *this = pcol;
-              break_width = get_width(0);
            }
         else
            {
@@ -317,22 +313,6 @@ int bp_max = pctx.get_PW();
                    pcol.pad_l(UNI_iPAD_U3, 1);
                    ++no_char_spacing;
                  }
-
-              // compute ⎕PW breakpoints.
-              {
-              const int col_width = max_spacing + pcol.get_width(0);
-              if ((break_width + col_width) > bp_max)   // exceed ⎕PW
-                 {
-                   bp_x += break_width + max_spacing;
-                   break_points.push_back(bp_x);
-                   break_width = pcol.get_width(0);
-                   bp_max = pctx.get_PW() - 6;   // subsequent chunk
-                 }
-              else
-                 {
-                   break_width += col_width;
-                 }
-              }
 
               // append the column. we want a total spacing of 'max_spacing'
               // but we deduct the 'no_char_spacing' chars ² and ³
