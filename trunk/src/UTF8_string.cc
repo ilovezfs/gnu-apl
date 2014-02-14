@@ -120,7 +120,11 @@ UTF8_string::UTF8_string(const UCS_string & ucs)
            }
         else
            {
-             CERR << "Bad Unicode: " << UNI(uni) << endl;
+             CERR << "Bad Unicode: " << UNI(uni) << endl
+                  << "The offending ucs string is:";
+             loop(ii, ucs.size()) CERR << " " << HEX(ucs[ii]);
+             CERR << endl;
+
              Backtrace::show(__FILE__, __LINE__);
              Assert(0 && "Error in UTF8_string::UTF8_string(ucs)");
            }
