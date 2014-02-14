@@ -1153,9 +1153,9 @@ user_preferences up;
 
    if (up.do_CONT)
       {
-         UCS_string cont("CONTINUE.xml");
+         UCS_string cont("CONTINUE");
          UTF8_string filename =
-            LibPaths::get_lib_filename(LIB0, "CONTINUE", true, "xml");
+            LibPaths::get_lib_filename(LIB0, cont, true, "xml");
 
          if (access(filename.c_str(), F_OK) == 0)
             {
