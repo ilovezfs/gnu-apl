@@ -871,6 +871,23 @@ const ShapeItem ec = nz_element_count();
    return false;   // all cells numeric and not complex
 }
 //-----------------------------------------------------------------------------
+bool
+Value::is_simple() const
+{
+const ShapeItem count = element_count();
+const Cell * C = &get_ravel(0);
+
+
+   loop(c, count)
+       {
+         if (C->is_pointer_cell())   return false;
+         if (C->is_lval_cell())      return false;
+         ++C;
+       }
+
+   return true;
+}
+//-----------------------------------------------------------------------------
 Depth
 Value::compute_depth() const
 {
@@ -885,7 +902,7 @@ Value::compute_depth() const
         return 0;
       }
 
-ShapeItem count = nz_element_count();
+const ShapeItem count = nz_element_count();
 
 Depth sub_depth = 0;
    loop(c, count)

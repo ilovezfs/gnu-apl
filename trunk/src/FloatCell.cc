@@ -68,21 +68,10 @@ const APL_Float this_val  = get_real_value();
 
    switch(other->get_cell_type())
       {
-        case CT_NONE:
-        case CT_BASE:
-             Assert(0);
-
-        case CT_CHAR:
-             {
-               const Unicode other_val = other->get_char_value();
-               if (this_val == other_val)   return !ascending;
-               return this_val > other_val ? ascending : !ascending;
-             }
-
         case CT_INT:
              {
                const APL_Integer other_val = other->get_int_value();
-               if (this_val == other_val)   return !ascending;
+               if (this_val == other_val)   return this > other;
                return this_val > other_val ? ascending : !ascending;
              }
 
@@ -93,13 +82,17 @@ const APL_Float this_val  = get_real_value();
                return this_val > other_val ? ascending : !ascending;
              }
 
-        case CT_COMPLEX:
-        case CT_POINTER:
-             DOMAIN_ERROR;
-
-        default:
-           Assert(0);
+        case CT_CHAR:    return ascending;
+        case CT_COMPLEX: break;
+        case CT_POINTER: return !ascending;
+        case CT_CELLREF: DOMAIN_ERROR;
+        defaulkt:        Assert(0 && "Bad celltype");
       }
+
+const Comp_result comp = compare(*other);
+   if (comp == COMP_EQ)   return this > other;
+   if (comp == COMP_GT)   return ascending; 
+   else                   return !ascending;
 }
 //-----------------------------------------------------------------------------
 bool

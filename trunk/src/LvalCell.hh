@@ -49,6 +49,10 @@ protected:
    virtual CellType get_cell_type() const
       { return CT_CELLREF; }
 
+   /// Overloaded Cell::greater().
+   virtual bool greater(const Cell * other, bool ascending) const
+      { DOMAIN_ERROR; }
+
    /// Overloaded Cell::get_classname().
    virtual const char * get_classname() const   { return "LvalCell"; }
 

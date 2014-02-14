@@ -584,6 +584,9 @@ Prefix::reduce_MISC_F_C_B()
 {
    Assert1(prefix_len == 3);
 
+   if (at1().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
+   if (!at1().get_apl_val())              SYNTAX_ERROR;
+
    pop_args_push_result(si.eval_XB(at0(), at1(), at2()));
    set_action(at0());
 }
@@ -609,6 +612,9 @@ void
 Prefix::reduce_A_F_C_B()
 {
    Assert1(prefix_len == 4);
+
+   if (at2().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
+   if (!at2().get_apl_val())              SYNTAX_ERROR;
 
    pop_args_push_result(si.eval_AXB(at0(), at1(), at2(), at3()));
    set_action(at0());
