@@ -72,7 +72,7 @@ Nabla::edit()
       {
         CERR << "bad editor command '" << first_command
              << "' : problem '" << loc << "'" << endl;
-       NABLA_ERROR;
+        throw_edit_error(loc);
       }
 
    // editor loop

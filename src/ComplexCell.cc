@@ -173,6 +173,8 @@ ComplexCell::equal(const Cell & A, APL_Float qct) const
 {
    if (!A.is_numeric())   return false;
 
+   // real part
+   //
    {
      const APL_Float valA = A.get_real_value();
      const APL_Float valB =   get_real_value();
@@ -185,6 +187,8 @@ ComplexCell::equal(const Cell & A, APL_Float qct) const
      if (posB > (posA + maxCT))   return false;
    }
 
+   // imag part
+   //
    {
      const APL_Float valA = A.get_imag_value();
      const APL_Float valB =   get_imag_value();
@@ -203,8 +207,21 @@ ComplexCell::equal(const Cell & A, APL_Float qct) const
 bool
 ComplexCell::greater(const Cell * other, bool ascending) const
 {
-   if (ascending)   return compare(*other) == COMP_GT;
-   else             return compare(*other) == COMP_LT;
+   switch(other->get_cell_type())
+      {
+        case CT_CHAR:    return ascending;
+        case CT_INT:
+        case CT_FLOAT:
+        case CT_COMPLEX: break;
+        case CT_POINTER: return !ascending;
+        case CT_CELLREF: DOMAIN_ERROR;
+        defaulkt:        Assert(0 && "Bad celltype");
+      }
+
+const Comp_result comp = compare(*other);
+   if (comp == COMP_EQ)   return this > other;
+   if (comp == COMP_GT)   return ascending;
+   else                   return !ascending;
 }
 //-----------------------------------------------------------------------------
 void

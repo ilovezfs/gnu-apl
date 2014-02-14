@@ -40,10 +40,9 @@ Value_P B = other.get_pointer_value();
 
    if (!A->same_shape(B))                 return false;
 
-const uint64_t count = A->element_count();
+const ShapeItem count = A->element_count();
    loop(c, count)
-       if (!A->get_ravel(c).equal(B->get_ravel(c), qct))
-          return false;
+       if (!A->get_ravel(c).equal(B->get_ravel(c), qct))   return false;
 
    return true;
 }
@@ -51,7 +50,48 @@ const uint64_t count = A->element_count();
 bool
 PointerCell::greater(const Cell * other, bool ascending) const
 {
-   DOMAIN_ERROR;
+   switch(other->get_cell_type())
+      {
+        case CT_CHAR:
+        case CT_INT:
+        case CT_FLOAT:
+        case CT_COMPLEX: return ascending;
+        case CT_POINTER: break;   // continue below
+        case CT_CELLREF: DOMAIN_ERROR;
+        defaulkt:        Assert(0 && "Bad celltype");
+      }
+
+   // at this point both cells are pointer cells.
+   //
+Value_P v1 = get_pointer_value();
+Value_P v2 = other->get_pointer_value();
+
+   // compare ranks
+   //
+   if (v1->get_rank() > v2->get_rank())   return ascending;
+   if (v2->get_rank() > v1->get_rank())   return !ascending;
+
+   // same rank, compare shapes
+   //
+   loop(r, v1->get_rank())
+      {
+        if (v1->get_shape_item(r) > v2->get_shape_item(r))   return ascending;
+        if (v2->get_shape_item(r) > v1->get_shape_item(r))   return !ascending;
+      }
+
+   // same rank and shape, compare ravel
+   //
+const Cell * C1 = &v1->get_ravel(0);
+const Cell * C2 = &v2->get_ravel(0);
+   loop(e, v1->nz_element_count())
+      {
+        if (C1  ->greater(C2, ascending))     return true;
+        if (C2++->greater(C1++, ascending))   return false;
+      }
+
+   // everthing equal
+   //
+   return this > other;
 }
 //-----------------------------------------------------------------------------
 void

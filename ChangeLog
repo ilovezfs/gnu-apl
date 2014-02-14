@@ -63,3 +63,4 @@
  5424 locale patches from Robin
  5429 fixed spaces in wrapped output lines
  5501 new ⎕PW break algorithm
+ 5508 fixed unique for nested values

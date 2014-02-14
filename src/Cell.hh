@@ -67,7 +67,11 @@ public:
    /// init \b this cell to be the type of \b other
    void init_type(const Cell & other);
 
-   /// Return \b true if \b this cell is greater than \b other
+   /// Return \b true if \b this cell is greater than \b other, with:
+   /// 1. PointerCell > NumericCell > CharCell
+   /// 2a. NumericCells sorted by get_real_value().
+   /// 2b. CharCells sorted by get_char_value()
+   /// 2c. PointerCells sorted by rank, then shape, then ravel
    virtual bool greater(const Cell * other, bool ascending) const;
 
    /// Return \b true if \b this cell is equal to \b other

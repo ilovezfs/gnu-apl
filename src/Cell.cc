@@ -246,14 +246,18 @@ const APL_Float qct = Workspace::get_CT();
    //
    if (comp_len == 1)
       {
-        if (ca[0].equal(cb[0], qct))   return ca > cb;
-        return ca[0].greater(cb, ascending);
+        const bool equal = ca[0].equal(cb[0], qct);
+        if (equal)   return ca > cb;
+        const bool result = ca[0].greater(cb, ascending);
+        return result;
       }
 
    loop(c, comp_len)
       {
-         if (ca[c].equal(cb[c], qct))   continue;
-         return ca[c].greater(cb + c, ascending);
+        const bool equal = ca[c].equal(cb[c], qct);
+        if (equal)   continue;
+        const bool result = ca[c].greater(cb + c, ascending);
+        return result;
       }
 
    return ca > cb;   // a and b are equal: sort by position

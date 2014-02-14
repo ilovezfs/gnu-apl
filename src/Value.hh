@@ -141,6 +141,9 @@ public:
    /// Return the number of skalars in this value (enlist).
    ShapeItem get_enlist_count() const;
 
+   /// return \b true iff \b this value is simple (i.e. not nested).
+   bool is_simple() const;
+
    /// compute the depth of this value.
    Depth compute_depth() const;
 

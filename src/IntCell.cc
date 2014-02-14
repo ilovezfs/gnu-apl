@@ -43,21 +43,10 @@
 bool
 IntCell::greater(const Cell * other, bool ascending) const
 {
-const uint64_t this_val  = get_int_value();
+const APL_Integer this_val  = get_int_value();
 
    switch(other->get_cell_type())
       {
-        case CT_NONE:
-        case CT_BASE:
-             Assert(0);
-
-        case CT_CHAR:
-             {
-               const Unicode other_val = other->get_char_value();
-               if (this_val == other_val)   return !ascending;
-               return this_val > other_val ? ascending : !ascending;
-             }
-
         case CT_INT:
              {
                const APL_Integer other_val = other->get_int_value();
@@ -68,20 +57,21 @@ const uint64_t this_val  = get_int_value();
         case CT_FLOAT:
              {
                const APL_Float other_val = other->get_real_value();
-               if (this_val == other_val)   return true;
+               if (this_val == other_val)   return this > other;
                return this_val > other_val ? ascending : !ascending;
              }
 
-        case CT_COMPLEX:
-             if (ascending)   return compare(*other) == COMP_GT;
-             else             return compare(*other) == COMP_LT;
-
-        case CT_POINTER:
-             DOMAIN_ERROR;
-
-        default:
-           Assert(0);
+        case CT_COMPLEX: break;
+        case CT_CHAR:    return ascending;   // never greater
+        case CT_POINTER: return !ascending;
+        case CT_CELLREF: DOMAIN_ERROR;
+        defaulkt:        Assert(0 && "Bad celltype");
       }
+
+const Comp_result comp = compare(*other);
+   if (comp == COMP_EQ)   return this > other;
+   if (comp == COMP_GT)   return ascending;
+   else                   return !ascending;
 }
 //-----------------------------------------------------------------------------
 bool

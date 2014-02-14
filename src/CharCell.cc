@@ -31,7 +31,7 @@
 bool
 CharCell::greater(const Cell * other, bool ascending) const
 {
-   // make char cells smaller than all others
+   // char cells are smaller than all others
    //
    if (other->get_cell_type() != CT_CHAR)   return !ascending;
 
@@ -39,6 +39,7 @@ const Unicode this_val  = get_char_value();
 const Unicode other_val = other->get_char_value();
 
    // if both chars are the same, compare cell address
+   //
    if (this_val == other_val)   return this > other ? ascending : !ascending;
 
    return this_val > other_val ? ascending : !ascending;

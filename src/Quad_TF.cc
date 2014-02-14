@@ -393,7 +393,6 @@ Quad_TF::tf2_inv(const UCS_string & ravel)
 {
 Token_string tos;
 
-Q(ravel)
    try
       {
         UCS_string ucs1 = no_UCS(ravel);
