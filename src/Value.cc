@@ -642,6 +642,7 @@ Value::list_one(ostream & out, bool show_owners)
         if (is_forever())    { out << sep << "FOREVER";    sep = '+'; }
         if (is_complete())   { out << sep << "COMPLETE";   sep = '+'; }
         if (is_marked())     { out << sep << "MARKED";     sep = '+'; }
+        if (is_temp())       { out << sep << "TEMP";       sep = '+'; }
         out << ",";
       }
    else
@@ -1489,6 +1490,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
    if (is_forever())    out << " VF_forever";
    if (is_complete())   out << " VF_complete";
    if (is_marked())     out << " VF_marked";
+   if (is_temp())       out << " VF_temp";
    out << endl
        << ind << "First:   " << get_ravel(0)  << endl
        << ind << "Dynamic: ";

@@ -122,10 +122,28 @@ const Shape shape_Z(A, Workspace::get_CT(), 0);
 Token
 Bif_F12_RHO::do_reshape(const Shape & shape_Z, Value_P B)
 {
+const ShapeItem len_B = B->element_count();
+const ShapeItem len_Z = shape_Z.get_volume();
+
+   // optimize if Z is not larger than B.
+   //
+   if (len_Z <= len_B && B->is_temp())
+      {
+        Log(LOG_optimization) CERR << "optimizing A⍴B" << endl;
+
+        // release unused cells
+        //
+        ShapeItem rr = len_Z;
+        if (rr == 0)   rr = 1;
+        while (rr < len_B)
+            B->get_ravel(rr++).release(LOC);
+
+        B->set_shape(shape_Z);
+        return Token(TOK_APL_VALUE1, B);
+      }
+
 Value_P Z(new Value(shape_Z, LOC));
 
-const ShapeItem len_B = B->element_count();
-const ShapeItem len_Z = Z->element_count();
 
    if (len_B == 0)   // empty B: use prototype
       {
@@ -587,8 +605,16 @@ Shape shape_Z;
 Token
 Bif_F12_COMMA::eval_B(Value_P B)
 {
-const Shape sh(B->element_count());
-   return ravel(sh, B);
+const Shape shape_Z(B->element_count());
+   if (B->is_temp())
+      {
+        Log(LOG_optimization) CERR << "optimizing ,B" << endl;
+
+        B->set_shape(shape_Z);
+        return Token(TOK_APL_VALUE1, B);
+      }
+
+   return ravel(shape_Z, B);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -634,8 +660,15 @@ ShapeItem c2 = 1;   // assume B is skalar;
         for (Rank r = 1; r < B->get_rank(); ++r)   c2 *= B->get_shape_item(r);
       }
 
-Shape sh(c1, c2);
-   return ravel(sh, B);
+Shape shape_Z(c1, c2);
+   if (B->is_temp())
+      {
+        Log(LOG_optimization) CERR << "optimizing ,B" << endl;
+
+        B->set_shape(shape_Z);
+        return Token(TOK_APL_VALUE1, B);
+      }
+   return ravel(shape_Z, B);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -802,10 +835,10 @@ Bif_F12_DOMINO::eval_fill_AB(Value_P A, Value_P B)
 {
 Shape shape_Z;
    loop(r, A->get_rank() - 1)  shape_Z.add_shape_item(A->get_shape_item(r + 1));
-   loop(r, B->get_rank() - 1)   shape_Z.add_shape_item(B->get_shape_item(r + 1));
+   loop(r, B->get_rank() - 1)  shape_Z.add_shape_item(B->get_shape_item(r + 1));
 
-Value_P Z = Bif_F12_RHO::fun.do_reshape(shape_Z, Value::Zero_P)
-                            .get_apl_val();
+Value_P Z(new Value(shape_Z, LOC));
+   while (Z->more())   new (Z->next_ravel())   IntCell(0);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }

@@ -110,10 +110,11 @@ enum ListCategory
 /// possible properties of a Value.
 enum ValueFlags
 {
-  VF_NONE     = 0x000,   ///< no flags
-  VF_forever  = 0x004,   ///< value is fixed forever
-  VF_complete = 0x400,   ///< CHECK called
-  VF_marked   = 0x800,   ///< marked to detect stale
+  VF_NONE     = 0x0000,   ///< no flags
+  VF_forever  = 0x0004,   ///< value is fixed forever
+  VF_complete = 0x0400,   ///< CHECK called
+  VF_marked   = 0x0800,   ///< marked to detect stale
+  VF_temp     = 0x1000,   ///< computed value
 };
 
 extern ostream & print_flags(ostream & out, ValueFlags flags);

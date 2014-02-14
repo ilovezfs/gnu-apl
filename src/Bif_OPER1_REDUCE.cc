@@ -192,7 +192,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
 Shape shape_Z(B->get_shape());
    shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) - n_wise + 1);
 
-   if (n_wise == 1)   return Bif_F12_RHO::fun.do_reshape(shape_Z, B);
+   if (n_wise == 1)   return Bif_F12_RHO::do_reshape(shape_Z, B);
 
 const Shape3 Z3(shape_Z, axis);
    return do_reduce(shape_Z, Z3, A0, LO, axis, B, B->get_shape_item(axis));

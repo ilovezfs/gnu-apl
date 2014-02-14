@@ -64,3 +64,4 @@
  5429 fixed spaces in wrapped output lines
  5501 new ⎕PW break algorithm
  5508 fixed unique for nested values
+ 5520 optimization for A⍴B ,B and ⍪B added

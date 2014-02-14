@@ -312,7 +312,7 @@ public:
  # define FLAG_INFO(_l, _f, _n, _b)
 #endif
 
-   /// a macro defining set_x(), clear_x(), and is_x() for flag x
+   /// a macro defining SET_x(), CLEAR_x(), and IS_x() for flag x
 #define VF_flag(flag)                                                         \
                                                                               \
    void SET_ ## flag(const char * loc) const                                  \
@@ -335,6 +335,7 @@ public:
 
 # define set_forever()  SET_forever(_LOC)
 # define set_complete() SET_complete(_LOC)
+# define set_temp()     SET_temp(_LOC)
 # define set_marked()   SET_marked(_LOC)
 
 # define clear_forever()  CLEAR_forever(_LOC)
@@ -343,6 +344,7 @@ public:
    VF_flag(forever)
    VF_flag(complete)
    VF_flag(marked)
+   VF_flag(temp)
 
    /// mark all values, except static values
    static void mark_all_dynamic_values();
