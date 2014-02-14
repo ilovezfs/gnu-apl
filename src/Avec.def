@@ -160,7 +160,7 @@ char_def(INVERTED_EXCLAM    , 0x00A1 , END          , NO_SPACE ,  8D) /* ¡ */
 char_def(POUND              , 0x00A3 , END          , NO_SPACE ,  9C) /* £ */
 char_def(YEN                , 0x00A5 , END          , NO_SPACE , 080) /* ¥ */
 char_def(DIAERESIS          , 0x00A8 , OPER1_EACH   , NO_SPACE ,  FE) /* ¨ */
-char_def(OVERBAR            , 0x00AF , NUMERIC      , NO_SPACE ,  FD) /* ¯ */
+char_def(OVERBAR            , 0x00AF , NUMERIC      , SYMBOL   ,  FD) /* ¯ */
 char_df1(PAD_U2             , 0x00B2 , END          , NO_SPACE ,  --) /* ² */
 char_df1(PAD_U3             , 0x00B3 , END          , NO_SPACE ,  --) /* ³ */
 char_df1(PAD_U1             , 0x00B9 , END          , NO_SPACE ,  --) /* ¹ */
