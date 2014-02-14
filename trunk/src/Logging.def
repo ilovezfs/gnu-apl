@@ -56,6 +56,7 @@ log_def(0, FunOperX                    , "FunOper1 and FunOper2 functions     ")
 log_def(0, shared_variables            , "Shared Variable operations          ")
 log_def(0, argc_argv                   , "command line arguments (argc/argv)  ")
 log_def(0, startup                     , "interpreter start-up messages       ")
+log_def(0, optimization                , "optimization messages               ")
 
 #undef log_def
 

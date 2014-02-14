@@ -215,6 +215,9 @@ public:
    Function * get_function() const
       { if (!is_function())   SYNTAX_ERROR;   return value.function; }
 
+   /// set VF_temp flag if token is a value
+   void SET_temp();
+
    /// change the tag (within the same TokenValueType)
    void ChangeTag(TokenTag new_tag);
 

@@ -688,7 +688,7 @@ int d = 0;
                 }
              else
                 {
-                  move_2(tos[d], Bif_F12_RHO::fun.do_reshape(sh, bval), LOC);
+                  move_2(tos[d], Bif_F12_RHO::do_reshape(sh, bval), LOC);
                   progress = true;
                   ++d;
                   s += 2;
