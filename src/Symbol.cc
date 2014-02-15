@@ -45,7 +45,8 @@ Symbol::Symbol(const UCS_string & ucs, Id id)
    : NamedObject(id),
      next(0),
      symbol(ucs),
-     erased(false)
+     erased(false),
+     monitor_callback(0)
 {
    push();
 }
@@ -129,6 +130,7 @@ ValueStackItem & vs = value_stack.back();
 
              vs.name_class = NC_VARIABLE;
              vs.apl_val = new_value;
+             if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;
 
         case NC_VARIABLE:
@@ -141,6 +143,7 @@ ValueStackItem & vs = value_stack.back();
              Workspace::replace_arg(vs.apl_val, new_value);
 
              vs.apl_val = new_value;
+             if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;
 
         case NC_SHARED_VAR:
@@ -218,6 +221,7 @@ ValueStackItem & vs = value_stack.back();
                     }
                }
              }
+             if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;
       }
              
@@ -244,6 +248,7 @@ const ShapeItem max_idx = A->element_count();
               dest.release(LOC);   // free sub-values etc (if any)
               dest.init(src);
             }
+        if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
         return;
       }
 
@@ -268,6 +273,8 @@ const Cell * cB = &B->get_ravel(0);
 
          cB += incr_B;
       }
+
+   if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
 }
 //-----------------------------------------------------------------------------
 void
@@ -346,6 +353,8 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
         dest.init(*cB);
         cB += incr_B;
      }
+
+   if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -368,6 +377,7 @@ const ValueStackItem & vs = value_stack.back();
         if (erase)   ptr_clear(ret, LOC);
 
         value_stack.pop_back();
+        if (monitor_callback)   monitor_callback(*this, SEV_POPED);
         return ret;
       }
    else
@@ -380,6 +390,7 @@ const ValueStackItem & vs = value_stack.back();
              CERR << endl;
            }
         value_stack.pop_back();
+        if (monitor_callback)   monitor_callback(*this, SEV_POPED);
         return Value_P();
       }
 }
@@ -395,6 +406,7 @@ Symbol::push()
       }
 
    value_stack.push_back(ValueStackItem());
+   if (monitor_callback)   monitor_callback(*this, SEV_PUSHED);
 }
 //-----------------------------------------------------------------------------
 void
@@ -408,6 +420,7 @@ Symbol::push_label(Function_Line label)
       }
 
    value_stack.push_back(ValueStackItem(label));
+   if (monitor_callback)   monitor_callback(*this, SEV_PUSHED);
 }
 //-----------------------------------------------------------------------------
 void
@@ -425,6 +438,7 @@ ValueStackItem vs;
    else                           vs.name_class = NC_FUNCTION;
    vs.sym_val.function = function;
    value_stack.push_back(vs);
+   if (monitor_callback)   monitor_callback(*this, SEV_PUSHED);
 }
 //-----------------------------------------------------------------------------
 void
@@ -432,6 +446,7 @@ Symbol::push_value(Value_P value)
 {
 ValueStackItem vs;
    value_stack.push_back(vs);
+   if (monitor_callback)   monitor_callback(*this, SEV_PUSHED);
    assign(value, LOC);
 
    Log(LOG_SYMBOL_push_pop)
@@ -863,6 +878,7 @@ ValueStackItem & vs = value_stack.back();
       }
 
    vs.clear();
+   if (monitor_callback)   monitor_callback(*this, SEV_ERASED);
    return 1;
 }
 //-----------------------------------------------------------------------------

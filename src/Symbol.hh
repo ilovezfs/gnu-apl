@@ -236,6 +236,9 @@ public:
    ValueStackItem & operator [](int idx)
       { return value_stack[idx]; }
 
+   void set_monitor_callback(void (* callback)(const Symbol &, Symbol_Event ev))
+      { monitor_callback = callback; }
+
    /// clear the marked flag of all entries
    void unmark_all_values() const;
 
@@ -257,8 +260,10 @@ protected:
    /// The name of \b this \b Symbol.
    UCS_string symbol;
 
-   /// \b True if \b this \b Symbol is erased.
+   /// \b True if \b this \b Symbol is/was erased.
    bool erased;
+
+   void (*monitor_callback)(const Symbol &, Symbol_Event sev);
 
    /// The value stack of \b this \b Symbol.
    vector<ValueStackItem> value_stack;
