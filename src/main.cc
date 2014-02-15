@@ -55,6 +55,8 @@ bool silent = false;
 bool emacs_mode = false;
 bool do_not_echo = false;
 
+const char * build_tag[] = { BUILDTAG, 0 };
+
 //-----------------------------------------------------------------------------
 /// initialize subsystems
 void
@@ -289,7 +291,6 @@ show_argv(int argc, const char ** argv)
 static void
 show_version(ostream & out)
 {
-const char * build_tag[] = { BUILDTAG, 0 };
    out << "BUILDTAG:" << endl
        << "---------" << endl;
    for (const char ** bt = build_tag; *bt; ++bt)
@@ -489,7 +490,7 @@ show_welcome(ostream & out, const char * argv0)
 {
 char c1[200];
 char c2[200];
-   snprintf(c1, sizeof(c1), _("Welcome to GNU APL version %s"),PACKAGE_VERSION);
+   snprintf(c1, sizeof(c1), _("Welcome to GNU APL version %s"),build_tag[1]);
    snprintf(c2, sizeof(c2), _("for details run: %s --gpl."), argv0);
 
 const char * lines[] =

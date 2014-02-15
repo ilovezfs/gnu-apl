@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.2\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-02-11 19:37+0100\n"
+"POT-Creation-Date: 2014-02-15 17:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -174,19 +174,19 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
-#: src/main.cc:319
+#: src/main.cc:320
 msgid " (default)"
 msgstr ""
 
-#: src/main.cc:330
+#: src/main.cc:331
 msgid "configurable options:"
 msgstr ""
 
-#: src/main.cc:363
+#: src/main.cc:364
 msgid ", therefore:"
 msgstr ""
 
-#: src/main.cc:414
+#: src/main.cc:415
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -198,12 +198,12 @@ msgid ""
 "1000)\n"
 msgstr ""
 
-#: src/main.cc:424
+#: src/main.cc:425
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr ""
 
-#: src/main.cc:430
+#: src/main.cc:431
 #, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
@@ -231,44 +231,44 @@ msgid ""
 "    --                   end of options for %s\n"
 msgstr ""
 
-#: src/main.cc:492
+#: src/main.cc:493
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr ""
 
-#: src/main.cc:493
+#: src/main.cc:494
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr ""
 
-#: src/main.cc:512
+#: src/main.cc:513
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr ""
 
-#: src/main.cc:515
+#: src/main.cc:516
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 
-#: src/main.cc:516
+#: src/main.cc:517
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr ""
 
-#: src/main.cc:930
+#: src/main.cc:931
 msgid "-f without filename"
 msgstr ""
 
-#: src/main.cc:963
+#: src/main.cc:964
 msgid "-l without log facility"
 msgstr ""
 
-#: src/main.cc:1056
+#: src/main.cc:1057
 msgid "--TM without test mode"
 msgstr ""
 
-#: src/main.cc:1079
+#: src/main.cc:1080
 msgid "-w without milli(seconds)"
 msgstr ""
 
-#: src/main.cc:1085
+#: src/main.cc:1086
 msgid "unknown option '"
 msgstr ""

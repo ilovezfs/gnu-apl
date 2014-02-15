@@ -139,8 +139,8 @@ XML_Saving_Archive::emit_unicode(Unicode uni, int & space, bool & char_mode)
       }
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const UCS_string & ucs)
+void
+XML_Saving_Archive::save_UCS(const UCS_string & ucs)
 {
 int space = do_indent();
 char cc[40];
@@ -155,8 +155,6 @@ bool char_mode = false;
 
    NEED(3, false) << "\"/>" << endl;
    --indent;
-
-   return *this;
 }
 //-----------------------------------------------------------------------------
 XML_Saving_Archive &
@@ -273,8 +271,8 @@ char cc[80];
       }
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const Function & fun)
+void
+XML_Saving_Archive::save_function(const Function & fun)
 {
    do_indent();
    out << "<Function";
@@ -282,17 +280,15 @@ XML_Saving_Archive::operator <<(const Function & fun)
    out << ">" << endl;
    ++indent;
 
-   *this <<  fun.canonical(false);
+   save_UCS(fun.canonical(false));
 
    --indent;
    do_indent();
    out << "</Function>" << endl;
-
-   return *this;
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const Prefix & prefix)
+void
+XML_Saving_Archive::save_prefix(const Prefix & prefix)
 {
    do_indent();
    out << "<Parser assign-pending=\"" << prefix.get_assign_state()
@@ -305,17 +301,16 @@ XML_Saving_Archive::operator <<(const Prefix & prefix)
    loop(s, prefix.size())
       {
         const Token_loc & tloc = prefix.at(s);
-        *this << tloc;
+        save_token_loc(tloc);
       }
    --indent;
 
    do_indent();
    out << "</Parser>" << endl;
-   return *this;
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const SymbolTable & symtab)
+void
+XML_Saving_Archive::save_symtab(const SymbolTable & symtab)
 {
    // collect all symbols in this symbol table.
    //
@@ -354,7 +349,7 @@ Symbol * all_symbols[symbol_count];
             }
 
         const Symbol * sym = all_symbols[idx];
-        *this << *sym;
+        save_symbol(*sym);
 
         all_symbols[idx] = all_symbols[--symbol_count];
       }
@@ -363,12 +358,10 @@ Symbol * all_symbols[symbol_count];
 
    do_indent();
    out << "</SymbolTable>" << endl << endl;
-
-   return *this;
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const StateIndicator & si)
+void
+XML_Saving_Archive::save_SI_entry(const StateIndicator & si)
 {
 const Executable & exec = *si.get_executable();
 
@@ -420,7 +413,7 @@ const Executable & exec = *si.get_executable();
         case PM_STATEMENT_LIST:
              out << "<Statements>" << endl;
              ++indent;
-             *this << exec.get_text(0);
+             save_UCS(exec.get_text(0));
              --indent;
              do_indent();
              out << "</Statements>" << endl;
@@ -429,7 +422,7 @@ const Executable & exec = *si.get_executable();
         case PM_EXECUTE:
              out << "<Execute>" << endl;
              ++indent;
-             *this << exec.get_text(0);
+             save_UCS(exec.get_text(0));
              --indent;
              do_indent();
              out << "</Execute>" << endl;
@@ -440,49 +433,31 @@ const Executable & exec = *si.get_executable();
 
    // print the parser states...
    //
-   *this << si.current_stack;
+   save_prefix(si.current_stack);
 
    --indent;
 
    do_indent();
    out << "</SI-entry>" << endl << endl;
-
-   return *this;
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const Symbol & sym)
+void
+XML_Saving_Archive::save_symbol(const Symbol & sym)
 {
    do_indent();
    out << "<Symbol name=\"" << sym.get_name() << "\" stack-size=\""
        << sym.value_stack_size() << "\">" << endl;
 
    ++indent;
-   loop(v, sym.value_stack_size())  *this << sym[v];
+   loop(v, sym.value_stack_size())  save_vstack_item(sym[v]);
    --indent;
 
    do_indent();
    out << "</Symbol>" << endl << endl;
-
-   return *this;
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const Token & tok)
-{
-char cc[80];
-   snprintf(cc, sizeof(cc), "%X", tok.get_tag());
-
-   do_indent();
-   out << "<Token tag=\"" << cc << "\"";
-   emit_token_val(tok);
-
-   out << ">" << endl;
-   return *this;
-}
-//-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const Token_loc & tloc)
+void
+XML_Saving_Archive::save_token_loc(const Token_loc & tloc)
 {
 char cc[80];
    snprintf(cc, sizeof(cc), "%X", tloc.tok.get_tag());
@@ -493,7 +468,6 @@ char cc[80];
    emit_token_val(tloc.tok);
 
    out << ">" << endl;
-   return *this;
 }
 //-----------------------------------------------------------------------------
 void
@@ -575,8 +549,8 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
       }
 }
 //-----------------------------------------------------------------------------
-XML_Saving_Archive &
-XML_Saving_Archive::operator <<(const ValueStackItem & vsi)
+void
+XML_Saving_Archive::save_vstack_item(const ValueStackItem & vsi)
 {
    switch(vsi.name_class)
       {
@@ -598,7 +572,7 @@ XML_Saving_Archive::operator <<(const ValueStackItem & vsi)
 
         case NC_FUNCTION:
         case NC_OPERATOR:
-             *this << *vsi.sym_val.function;
+             save_function(*vsi.sym_val.function);
              break;
 
         case NC_SHARED_VAR:
@@ -608,8 +582,6 @@ XML_Saving_Archive::operator <<(const ValueStackItem & vsi)
              break;
 
       }
-
-   return *this;
 }
 //-----------------------------------------------------------------------------
 XML_Saving_Archive &
@@ -790,12 +762,12 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save user defined symbols
    //
-   *this << Workspace::get_symbol_table();
+   save_symtab(Workspace::get_symbol_table());
 
    // save certain system variables
    //
-#define rw_sv_def(x) *this << Workspace::get_v_ ## x();
-#define ro_sv_def(x) *this << Workspace::get_v_ ## x();
+#define rw_sv_def(x) save_symbol(Workspace::get_v_ ## x());
+#define ro_sv_def(x) save_symbol(Workspace::get_v_ ## x());
 #include "SystemVariable.def"
 
    // save state indicator
@@ -814,7 +786,7 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
               {
                 if (si->get_level() == l)
                    {
-                     *this << *si;
+                     save_SI_entry(*si);
                      break;
                    }
               }
