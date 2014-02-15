@@ -366,7 +366,16 @@ enum Comp_result
   COMP_EQ =  0,   ///< equal
   COMP_GT =  1,   ///< greter than
 };
-
+//-----------------------------------------------------------------------------
+/// events for a symbol
+enum Symbol_Event
+{
+   SEV_CREATED  = 1,
+   SEV_PUSHED   = 2,
+   SEV_POPED    = 3,
+   SEV_ASSIGNED = 4,
+   SEV_ERASED   = 5,
+};
 //////////////////////////////////////////////////////////////
 // C structs           i                                    //
 //////////////////////////////////////////////////////////////
