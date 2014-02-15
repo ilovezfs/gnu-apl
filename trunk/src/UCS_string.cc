@@ -61,29 +61,30 @@ UCS_string::UCS_string(const UTF8_string & utf)
         else if ((b0 & 0xFE) == 0xFC)   { more = 5; bx &= 0x03; }
         else
            {
-             CERR << "Bad UTF8 sequence: " << HEX(b0);
-             loop(j, 6)
-                {
-                  if ((i + j) >= utf.size())   break;
-                  const uint32_t bx = utf[i + j];
-                  if (bx & 0x80)   CERR << " " << HEX(bx);
-                  else             break;
-
-                }
-             CERR << endl;
+             utf.dump_hex(CERR << "Bad UTF8 string: ", 40)
+                               << " at " << LOC <<  endl;
              Backtrace::show(__FILE__, __LINE__);
-             Assert(0 && "Internal error in UCS_string::UCS_string()");
+             Assert(0 && "Error in UCS_string::UCS_string()");
              break;
            }
 
         uint32_t uni = 0;
         for (; more; --more)
             {
+              if (i >= utf.size())
+                 {
+                   utf.dump_hex(CERR << "Truncated UTF8 string: ", 40)
+                      << " at " << LOC <<  endl;
+                   return;
+                 }
+
               const UTF8 subc = utf[i++];
               if ((subc & 0xC0) != 0x80)
                  {
-                   CERR << "Bad UTF8 sequence: " << HEX(b0) << "..." << endl;
-                   Assert(0 && "Internal error in UCS_string::UCS_string()");
+                   utf.dump_hex(CERR << "Bad UTF8 string: ", 40)
+                      << " at " << LOC <<  endl;
+                   Backtrace::show(__FILE__, __LINE__);
+                   Assert(0 && "Error in UCS_string::UCS_string()");
                  }
 
               bx  <<= 6;
@@ -651,22 +652,29 @@ operator << (ostream & os, Unicode uni)
                                    << (char)(0x80 | (uni >>  6 & 0x3F))
                                    << (char)(0x80 | (uni       & 0x3F));
 
-   if (uni < 0x110000)   return os << (char)(0xE0 | (uni >> 18))
+   if (uni < 0x200000)   return os << (char)(0xF0 | (uni >> 18))
                                    << (char)(0x80 | (uni >> 12 & 0x3F))
                                    << (char)(0x80 | (uni >>  6 & 0x3F))
                                    << (char)(0x80 | (uni       & 0x3F));
 
-   // use ѡ to display invalid unicodes
-   return os << (char)0xD1 << (char)0xA1;
-//   return os << UNI(uni);
+   if (uni < 0x4000000)  return os << (char)(0xF8 | (uni >> 24))
+                                   << (char)(0x80 | (uni >> 18 & 0x3F))
+                                   << (char)(0x80 | (uni >> 12 & 0x3F))
+                                   << (char)(0x80 | (uni >>  6 & 0x3F))
+                                   << (char)(0x80 | (uni       & 0x3F));
+
+   return os << (char)(0xFC | (uni >> 30))
+             << (char)(0x80 | (uni >> 24 & 0x3F))
+             << (char)(0x80 | (uni >> 18 & 0x3F))
+             << (char)(0x80 | (uni >> 12 & 0x3F))
+             << (char)(0x80 | (uni >>  6 & 0x3F))
+             << (char)(0x80 | (uni       & 0x3F));
 }
 //-----------------------------------------------------------------------------
 ostream &
 operator << (ostream & os, const UCS_string & ucs)
 {
-UTF8_string utf(ucs);
-   // we can't use os << utf.c_str(); because of 0s in utf.
-   loop(c, utf.size())   os << (char)(utf[c]);
+   loop(u, ucs.size())   os << ucs[u];
    return os;
 }
 //-----------------------------------------------------------------------------

@@ -140,6 +140,20 @@ UCS_string ucs(value);
    new (this) UTF8_string(ucs);
 }
 //-----------------------------------------------------------------------------
+ostream &
+UTF8_string::dump_hex(ostream & out, int max_bytes) const
+{
+   loop(b, size())
+      {
+        if (b)   out << " ";
+        if (b >= max_bytes)   return out << "...";
+
+         out << HEX2((*this)[b]);
+      }
+
+   return out;
+}
+//-----------------------------------------------------------------------------
 Unicode
 UTF8_string::toUni(const UTF8 * string, int & len)
 {

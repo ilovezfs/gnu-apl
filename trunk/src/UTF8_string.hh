@@ -63,6 +63,9 @@ public:
    /// Non-ASCII The UCS characters will be UTF8 encoded.
    UTF8_string(const Value & value);
 
+   /// display bytes in this UTF string
+   ostream & dump_hex(ostream & out, int max_bytes) const;
+
    const char * c_str()
       {
         extend(items_valid + 1);

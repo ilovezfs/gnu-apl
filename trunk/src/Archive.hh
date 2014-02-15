@@ -56,31 +56,28 @@ public:
    ~XML_Saving_Archive()   { out.close(); }
 
    /// write user-defined function \b fun
-   XML_Saving_Archive & operator <<(const Function & fun);
+   void save_function(const Function & fun);
 
    /// write Prefix \b pfp
-   XML_Saving_Archive & operator <<(const Prefix & pfp);
+   void save_prefix(const Prefix & pfp);
 
    /// write Symbol \b sym
-   XML_Saving_Archive & operator <<(const Symbol & sym);
+   void save_symbol(const Symbol & sym);
 
    /// write SymbolTable \b symtab
-   XML_Saving_Archive & operator <<(const SymbolTable & symtab);
+   void save_symtab(const SymbolTable & symtab);
 
    /// write StateIndicator entry \b si
-   XML_Saving_Archive & operator <<(const StateIndicator & si);
-
-   /// write Token \b tok
-   XML_Saving_Archive & operator <<(const Token & tok);
+   void save_SI_entry(const StateIndicator & si);
 
    /// write Token_loc \b tloc
-   XML_Saving_Archive & operator <<(const Token_loc & tloc);
+   void save_token_loc(const Token_loc & tloc);
 
    /// write ValueStackItem \b vsi
-   XML_Saving_Archive & operator <<(const ValueStackItem & vsi);
+   void save_vstack_item(const ValueStackItem & vsi);
 
    /// write UCS_string \b str
-   XML_Saving_Archive & operator <<(const UCS_string & str);
+   void save_UCS(const UCS_string & str);
 
    /// write Value \b v except its ravel
    XML_Saving_Archive & save_shape(const Value & v);
