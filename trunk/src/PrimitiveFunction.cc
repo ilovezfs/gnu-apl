@@ -2283,10 +2283,9 @@ Value_P Z(new Value(len_BZ, LOC));
 const APL_Integer qio = Workspace::get_IO();
 const Cell * base = &B->get_ravel(0);
    loop(bz, len_BZ)
-       new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
+       new (Z->next_ravel())   IntCell(qio + (array[bz] - base)/comp_len);
 
    Z->set_default(*Value::Zero_P);
-
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }

@@ -248,7 +248,7 @@ const APL_Float qct = Workspace::get_CT();
       {
         const bool equal = ca[0].equal(cb[0], qct);
         if (equal)   return ca > cb;
-        const bool result = ca[0].greater(cb, ascending);
+        const bool result = ca[0].greater(&cb[0], ascending);
         return result;
       }
 

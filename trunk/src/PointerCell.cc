@@ -68,14 +68,14 @@ Value_P v2 = other->get_pointer_value();
 
    // compare ranks
    //
-   if (v1->get_rank() > v2->get_rank())   return ascending;
+   if (v1->get_rank() > v2->get_rank())   return  ascending;
    if (v2->get_rank() > v1->get_rank())   return !ascending;
 
    // same rank, compare shapes
    //
    loop(r, v1->get_rank())
       {
-        if (v1->get_shape_item(r) > v2->get_shape_item(r))   return ascending;
+        if (v1->get_shape_item(r) > v2->get_shape_item(r))   return  ascending;
         if (v2->get_shape_item(r) > v1->get_shape_item(r))   return !ascending;
       }
 
@@ -85,8 +85,9 @@ const Cell * C1 = &v1->get_ravel(0);
 const Cell * C2 = &v2->get_ravel(0);
    loop(e, v1->nz_element_count())
       {
-        if (C1  ->greater(C2, ascending))     return true;
-        if (C2++->greater(C1++, ascending))   return false;
+        const Comp_result comp = C1++->compare(*C2++);
+        if (comp == COMP_GT)   return   ascending;
+        if (comp == COMP_LT)   return  !ascending;
       }
 
    // everthing equal
