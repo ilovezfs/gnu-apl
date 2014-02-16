@@ -156,7 +156,15 @@ ValueStackItem & vs = value_stack.back();
                // wait for shared variable to be ready
                //
                offered_SVAR * svar =  Svar_DB::find_var(get_SV_key());
-               Assert(svar);
+               if (svar == 0)
+                  {
+                    Log(LOG_shared_variables)
+                       CERR << " Svar_DB::find_var() failed." << endl;
+
+                    Workspace::more_error() =
+                       UCS_string("Svar_DB corrupt or erased?");
+                    VALUE_ERROR;
+                  }
 
                for (int w = 0; ; ++w)
                    {
@@ -707,7 +715,16 @@ Symbol::resolve(Token & tok, bool left_sym)
                // wait for shared variable to be ready
                //
                offered_SVAR * svar =  Svar_DB::find_var(key);
-               Assert(svar);
+               if (svar == 0)
+                  {
+                    Log(LOG_shared_variables)
+                       CERR << " Svar_DB::find_var() failed." << endl;
+
+                    Workspace::more_error() =
+                       UCS_string("Svar_DB corrupt or erased?");
+                    VALUE_ERROR;
+                  }
+
 
                for (int w = 0; ; ++w)
                    {
@@ -776,7 +793,16 @@ Symbol::resolve(Token & tok, bool left_sym)
                // update shared var state (AFTER sending request to peer)
                {
                  offered_SVAR * svar =  Svar_DB::find_var(get_SV_key());
-                 Assert(svar);
+                 if (svar == 0)
+                    {
+                      Log(LOG_shared_variables)
+                         CERR << " Svar_DB::find_var() failed." << endl;
+
+                      Workspace::more_error() =
+                         UCS_string("Svar_DB corrupt or erased?");
+                      VALUE_ERROR;
+                    }
+
                  svar->set_state(true, LOC);
                }
                value->check_value(LOC);

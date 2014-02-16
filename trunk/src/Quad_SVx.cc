@@ -115,8 +115,6 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
 
    CERR << "No binary found for AP " << proc << " (interpreter path = "
         << LibPaths::get_APL_bin_path() << ")" << endl;
-
-   return;
 }
 //=============================================================================
 Token
@@ -404,7 +402,7 @@ Quad_SVO::share_one_variable(AP_num to_ap, const uint32_t * vname,
 AP_num3 to_proc(to_ap, ProcessorID::get_own_ID(), ProcessorID::get_parent_ID());
 bool auto_started = false;
 
-   if (to_ap < AP_FIRST_USER)   // to_proc is an AP
+   if (to_ap && to_ap < AP_FIRST_USER)   // to_proc is an AP
       {
         if (!Svar_DB::is_registered(to_proc))
            {
