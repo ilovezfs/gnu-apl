@@ -48,18 +48,12 @@ public:
 
    /// return 4 bytes starting at \b data in network byte order
    static uint32_t get_4_be(const uint8_t * data)
-      {
-        uint32_t ret =  *data++;   ret <<= 8;
-                 ret |= *data++;   ret <<= 8;
-                 ret |= *data++;   ret <<= 8;
-                 ret |= *data++;   return ret;
-      }
+      { return CDR_header::get_be32(data); }
 
    /// return 8 bytes starting at \b data in network byte order
    static uint64_t get_8_be(const uint8_t * data)
       {
-        uint64_t ret = get_4_be(data);
-                 ret <<= 32;
+        uint64_t ret = get_4_be(data);   ret <<= 32;
                  return ret | get_4_be(data + 4);
       }
 

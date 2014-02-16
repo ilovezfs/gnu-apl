@@ -216,36 +216,37 @@ const uint32_t nelm = val->element_count();
         // by the size of each sub-value. I.e.
         //
         //   +------------------+
-        //   | TOP-LEVEL-HEADER |
+        //   | TOP-LEVEL-HEADER |                        16 bytes + shape
         //   +------------------+
-        //   | OFFSET-1         | --------+
+        //   | OFFSET-1         | --------+               4 bytes
         //   +------------------+         |
-        //   | OFFSET-2         | --------|--+
+        //   | OFFSET-2         | --------|--+            4 bytes
         //   +------------------+         |  |
-        //   | ...              |         |  |
+        //   | ...              |         |  |              ...
         //   +------------------+         |  |
-        //   | OFFSET-nelm      | --------|--|--+
+        //   | OFFSET-nelm      | --------|--|--+         4 bytes
         //   +------------------+         |  |  |
-        //   | SUB-HEADER-1     | <-------+  |  |
+        //   | SUB-HEADER-1     | <-------+  |  |        16 bytes + shape
         //   | VALUE-1          |            |  |
         //   +------------------+            |  |
-        //   | SUB-HEADER-2     | <----------+  |
+        //   | SUB-HEADER-2     | <----------+  |        16 bytes + shape
         //   | VALUE-2          |               |
         //   +------------------+               |
-        //   | ...              |               |
+        //   | ...              |               |           ...
         //   +------------------+               |
-        //   | SUB-HEADER-nelm  | <-------------+
+        //   | SUB-HEADER-nelm  | <-------------+        16 bytes + shape
         //   | VALUE-nelm       |
         //   +------------------+
         //
       
         uint32_t offset = 16 + 4*val->get_rank() + 4*nelm;
+        while (offset & 0x0F)   ++offset;
         loop(e, nelm)
            {
-             result.append(Unicode(offset & 0xFF));   offset >>= 8;
-             result.append(Unicode(offset & 0xFF));   offset >>= 8;
-             result.append(Unicode(offset & 0xFF));   offset >>= 8;
-             result.append(Unicode(offset & 0xFF));   offset >>= 8;
+             result.append(Unicode(offset       & 0xFF));
+             result.append(Unicode(offset >>  8 & 0xFF));
+             result.append(Unicode(offset >> 16 & 0xFF));
+             result.append(Unicode(offset >> 24 & 0xFF));
 
              const Cell & cell = val->get_ravel(e);
              if (cell.is_character_cell() || cell.is_numeric())
@@ -268,10 +269,7 @@ const uint32_t nelm = val->element_count();
         // pad top level to 16 bytes. end is aligned to 16 byte so we
         // case use it as reference.
         //
-        while (result.size() & 0x0F)
-           {
-             result.append(Unicode_0);
-           }
+        while (result.size() & 0x0F)   result.append(Unicode_0);
 
         // append sub-values.
         //
@@ -286,7 +284,6 @@ const uint32_t nelm = val->element_count();
                   const int sub_type = sub_val->get_CDR_type();
                   const int sub_len = sub_val->total_size_brutto(sub_type);
                   fill(result, sub_type, sub_len, sub_val);
-
                 }
               else
                 {
@@ -412,28 +409,30 @@ const uint8_t * ravel = data + 16 + 4*rank;
                  {
                    if (sub_vtype == 0)        // bit
                       {
-                        new (&ret->get_ravel(n))   IntCell(*sub_ravel & 0x01);
+                        new (&ret->get_ravel(n))
+                            IntCell((*sub_ravel & 0x80) ? 1 : 0);
                         continue;   // next n
                       }
 
                    if (sub_vtype == 1)        // 4 byte int
                       {
-                        new (&ret->get_ravel(n))   IntCell(get_4_be(sub_ravel));
+                        new (&ret->get_ravel(n))
+                            IntCell(*(uint32_t *)(sub_ravel));
                         continue;   // next n
                       }
 
                    if (sub_vtype == 2)        // 8 byte real
                       {
                         new (&ret->get_ravel(n))
-                            FloatCell((APL_Float)(get_8_be(sub_ravel)));
+                            FloatCell(*(const double *)sub_ravel);
                         continue;   // next n
                       }
 
                    if (sub_vtype == 3)        // 16 byte complex
                       {
-                        new (&ret->get_ravel(n))   ComplexCell(
-                                         (APL_Float)(get_8_be(sub_ravel)),
-                                         (APL_Float)(get_8_be(sub_ravel + 8)));
+                        new (&ret->get_ravel(n))
+                            ComplexCell(*(const double *)sub_ravel,
+                                        *(const double *)(sub_ravel + 8));
                         continue;   // next n
                       }
 
@@ -482,9 +481,9 @@ const uint8_t * ravel = data + 16 + 4*rank;
                  }
 
               const uint32_t sub_cdr_len = get_4_be(sub_data + 4);
-              CDR_string sub_cdr(sub_ravel, sub_cdr_len);
+              CDR_string sub_cdr(sub_data, sub_cdr_len);
               Value_P sub_val = from_CDR(sub_cdr, LOC);
-              Assert(sub_val);
+              Assert(!!sub_val);
               new (&ret->get_ravel(n))   PointerCell(sub_val);
             }
       }
