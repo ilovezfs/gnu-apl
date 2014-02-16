@@ -54,12 +54,13 @@ struct CDR_header
    uint32_t get_nelm() const   { return get_be32((const uint8_t *)&be_nelm); }
 
    /// convert big endian 32 bit value to 32 bit host value (== ntohl())
-   static uint32_t get_be32(const uint8_t * be)
+   static uint32_t get_be32(const uint8_t * data)
       {
-        return (0xFF000000 & (uint32_t)(be[0]) << 24)
-             | (0x00FF0000 & ((uint32_t)be[1]) << 16)
-             | (0x0000FF00 & ((uint32_t)be[2]) <<  8)
-             | (0x000000FF & ((uint32_t)be[3]       ));
+        uint32_t ret  =  *data++;  ret <<= 8;
+                 ret |= *data++;   ret <<= 8;
+                 ret |= *data++;   ret <<= 8;
+                 ret |= *data++;   return ret;
+
       }
 };
 
