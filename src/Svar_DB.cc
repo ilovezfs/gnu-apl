@@ -66,11 +66,22 @@ event_name(Svar_event ev)
 }
 //-----------------------------------------------------------------------------
 bool
-Svar_partner::pid_alive(pid_t p)
+Svar_partner::pid_alive(pid_t pid)
 {
-   if (p == 0)   return false;   // no pid
+   if (pid == 0)   return false;   // no pid
 
-   return kill(p, 0) == 0;
+const int kill_result = kill(pid, 0);
+   if (kill_result == 0)   return true;   // kill worked, hence pif exists
+
+   // if kill failed due to lack of permission then we don't clean up
+   //
+   if (errno == EPERM)   return true;
+
+   // if kill failed due to an invalid pid then clean it up
+   //
+   if (errno == ESRCH)   return false;
+
+   return true;   // should not come here; remain on the safe side
 }
 //-----------------------------------------------------------------------------
 ostream &

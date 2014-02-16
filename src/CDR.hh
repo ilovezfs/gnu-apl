@@ -42,17 +42,17 @@ public:
    /// return 2 bytes starting at \b data in network byte order
    static uint32_t get_2_be(const uint8_t * data)
       {
-        return (0x0000FF00 & ((uint32_t)data[0])) << 8
-             | (0x000000FF & ((uint32_t)data[1]));
+        uint32_t ret =  *data++;   ret <<= 8;
+                 ret |= *data++;   return ret;
       }
 
    /// return 4 bytes starting at \b data in network byte order
    static uint32_t get_4_be(const uint8_t * data)
       {
-        return (0xFF000000 & (uint32_t)(data[0])) << 24
-             | (0x00FF0000 & ((uint32_t)data[1])) << 16
-             | (0x0000FF00 & ((uint32_t)data[2])) << 8
-             | (0x000000FF & ((uint32_t)data[3]));
+        uint32_t ret =  *data++;   ret <<= 8;
+                 ret |= *data++;   ret <<= 8;
+                 ret |= *data++;   ret <<= 8;
+                 ret |= *data++;   return ret;
       }
 
    /// return 8 bytes starting at \b data in network byte order

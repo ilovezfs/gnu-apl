@@ -20,6 +20,12 @@ The following features are planned:
 * non-quadratic scan for commutative functions
 * vendor independent workspace exchange format
 
+The following issues are known and planned to be fixed mid-term:
+----------------------------------------------------------------
+
+* readline issue after )LOAD workspace
+* shared variable improvements
+
 
 The following extensions are provided:
 --------------------------------------

@@ -317,23 +317,27 @@ CDR::from_CDR(const CDR_string & cdr, const char * loc)
 /*
 struct tf3_header
     {
-       uint32_t ptr;      // byte reversed
-       uint32_t nb;       // byte reversed
-       uint32_t nelm;     // byte reversed
-       uint8_t  type;
-       uint8_t  rank;
-       uint8_t  fill[2];
-       uint32_t dim[1];   // byte reversed
+       uint32_t ptr;      //  0: byte reversed
+       uint32_t nb;       //  4: byte reversed
+       uint32_t nelm;     //  8: byte reversed
+       uint8_t  type;     // 12:
+       uint8_t  rank;     // 13:
+       uint8_t  fill[2];  // 14:
+       uint32_t dim[1];   // 16: byte reversed
     }
 */
 
 const uint8_t * data = cdr.get_items();
 
-const uint32_t nelm = CDR::get_4_be(data + 8);
+const uint32_t nelm = get_4_be(data + 8);
 const uint32_t vtype = data[12];
 const Rank rank = data[13];
 Shape shape;
-   loop(r, rank)   shape.add_shape_item(CDR::get_4_be(data + 16 + 4*r));
+   loop(r, rank)
+      {
+        const ShapeItem sh = get_4_be(data + 16 + 4*r);
+        shape.add_shape_item(sh);
+      }
 
 Value_P ret(new Value(shape, loc));
 
