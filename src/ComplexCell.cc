@@ -551,6 +551,13 @@ ComplexCell::bif_power(Cell * Z, const Cell * A) const
         new (Z) ComplexCell(z);
         Z->demote_complex_to_real(Workspace::get_CT());
       }
+   else if (A->is_numeric())   // real to the power of complex
+      {
+        APL_Complex complex_A(A->get_real_value(), 0);
+        APL_Complex z = pow(complex_A, get_complex_value());
+        new (Z) ComplexCell(z);
+        Z->demote_complex_to_real(Workspace::get_CT());
+      }
    else
       {
         DOMAIN_ERROR;
