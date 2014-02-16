@@ -65,6 +65,8 @@ static void stifle_history(int) {}
 static void read_history(const char *) {}
 static void rl_stuff_char(char) {}
 static char * readline(const char *) {}
+const char *  rl_readline_name = "GnuAPL";
+
 };   // namespace readline_lib
 
 #endif //  HAVE_LIBREADLINE
