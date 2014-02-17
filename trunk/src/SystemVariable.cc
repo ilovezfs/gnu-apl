@@ -495,25 +495,65 @@ Quad_LX::assign(Value_P value, const char * loc)
    Symbol::assign(value, LOC);
 }
 //=============================================================================
-void
-Quad_NLT::assign(Value_P value, const char * loc)
+Quad_NLT::Quad_NLT()
+ : NL_SystemVariable(ID_QUAD_NLT)
 {
-   if (value->get_rank() > 1)      RANK_ERROR;
-   if (!value->is_char_string())   DOMAIN_ERROR;
+   // get current locale
+   //
+const char * locale = setlocale(LC_CTYPE, 0);   // e,g, "en_US.utf8"
+   if (locale == 0)
+      {
+        Symbol::assign(Value::Str0_P, LOC);
+          return;
+      }
+
+UCS_string ulocale(locale);
+
+Value_P Z(new Value(ulocale, LOC));
+   Z->set_default(*Value::Spc_P);
+   Z->check_value(LOC);
+   Symbol::assign(Z, LOC);
+}
+//-----------------------------------------------------------------------------
+void
+Quad_NLT::assign(Value_P new_value, const char * loc)
+{
+   if (new_value->get_rank() > 1)      RANK_ERROR;
+   if (!new_value->is_char_string())   DOMAIN_ERROR;
 
    // expect language [_territory] [.code‐set] [@modifier]
    // e.g. en_US.utf8
    //
    // we only check that it is 7-bit ASCII and leave it to setlocale()
-   // to check if value is OK.
+   // to check if new_value is OK.
    //
-const ShapeItem len = value->element_count();
+const ShapeItem len = new_value->element_count();
    if (len > 100)   LENGTH_ERROR;
+
+   // setlocale() can mess up readline, so we want to use it only if new_value
+   // is different from the current value
+   //
+Value_P old_value = get_apl_value();
+   if (len == old_value->element_count())
+      {
+        bool same = true;
+        loop(l, len)
+           {
+             if (new_value->get_ravel(l).get_char_value() !=
+                 old_value->get_ravel(l).get_char_value())
+                {
+                  same = false;
+                  break;
+                }
+           }
+
+        if (same)   return;
+      }
 
 char new_locale[len + 1];
    loop(l, len)
       {
-         new_locale[l] = value->get_ravel(l).get_char_value();
+         new_locale[l] = new_value->get_ravel(l).get_char_value();
          if (new_locale[l] < ' ')    DOMAIN_ERROR;
          if (new_locale[l] > 0x7E)   DOMAIN_ERROR;
       }
@@ -523,25 +563,13 @@ char new_locale[len + 1];
 const char * locale = setlocale(LC_ALL, new_locale);
    if (locale == 0)   DOMAIN_ERROR;
 
-   // setlocale() has not complained, so we can set the ⎕NLT;
-   Symbol::assign(value, LOC);
-}
-//-----------------------------------------------------------------------------
-Value_P
-Quad_NLT::get_apl_value() const
-{
-   // get current locale
+   // setlocale() seems to mess up readline, so we need to re-init it
    //
-const char * locale = setlocale(LC_CTYPE, 0);   // e,g, "en_US.utf8"
-   if (locale == 0)   return Value::Str0_P;
+   Input::init(false);
 
-UCS_string ulocale(locale);
-
-Value_P Z(new Value(ulocale, LOC));
-   Z->set_default(*Value::Spc_P);
-
-   Z->check_value(LOC);
-   return Z;
+   // setlocale() has not complained, so we can set the ⎕NLT;
+   //
+   Symbol::assign(new_value, LOC);
 }
 //=============================================================================
 Quad_PP::Quad_PP()

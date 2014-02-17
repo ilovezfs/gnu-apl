@@ -363,16 +363,13 @@ class Quad_NLT : public NL_SystemVariable
 {
 public:
    /// Constructor.
-   Quad_NLT() : NL_SystemVariable(ID_QUAD_NLT)
-      { Symbol::assign(get_apl_value(), LOC); }
+   Quad_NLT();
 
    /// overloaded Symbol::assign()
    virtual void assign(Value_P value, const char * loc);
 
    /// overloaded Symbol::assign_indexed()
-   virtual void assign_indexed(Value_P X, Value_P value) {}
-
-   virtual Value_P get_apl_value() const;
+   virtual void assign_indexed(Value_P X, Value_P value) { INDEX_ERROR; }
 };
 //-----------------------------------------------------------------------------
 /**

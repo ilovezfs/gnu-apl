@@ -105,14 +105,17 @@ bool Input::stdin_from_file = false;
 
 //-----------------------------------------------------------------------------
 void
-Input::init()
+Input::init(bool read_history)
 {
    if (use_readline)
       {
         readline_lib::rl_readline_name = "GnuAPL";
         readline_lib::rl_initialize();
-        readline_lib::stifle_history(readline_history_len);
-        readline_lib::read_history(readline_history_path.c_str());
+        if (read_history)
+           {
+             readline_lib::stifle_history(readline_history_len);
+             readline_lib::read_history(readline_history_path.c_str());
+           }
 
 //      readline_lib::rl_function_dumper(1);
       }

@@ -1,6 +1,6 @@
 
-The following features are not planned to be supported:
--------------------------------------------------------
+The following features are not planned to be supported (or buggy)
+-----------------------------------------------------------------
 
 * ⎕NLT
 
@@ -16,8 +16,7 @@ The following features may be added (if requested):
 The following features are planned:
 -----------------------------------
 
-* Lambdas (unnamed functions)
-* non-quadratic scan for commutative functions
+* non-quadratic scan for associative functions
 * vendor independent workspace exchange format
 
 The following issues are known and planned to be fixed mid-term:
