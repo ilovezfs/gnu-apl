@@ -1361,7 +1361,6 @@ const unsigned int vid = find_int_attr("vid", false, 10);
    if (symbol.get_name() == id_name(ID_QUAD_NLT))    return;
    if (symbol.get_name() == id_name(ID_QUAD_SYL))    return;
 
-Q(symbol.get_name())
    try
       {
         symbol.assign(values[vid], LOC);
