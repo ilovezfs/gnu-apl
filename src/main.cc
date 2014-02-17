@@ -1126,7 +1126,7 @@ user_preferences up;
    // init input after reading the command line options, so that the user
    // has a chance to disable readline
    //
-   Input::init();
+   Input::init(true);
 
    if (up.daemon)
       {

@@ -95,7 +95,7 @@ public:
    static FILE * input_file_FILE;
 
    /// initialize readline library
-   static void init();
+   static void init(bool read_history);
 
    /// true if readline lib is present and shall be used
    static bool use_readline;

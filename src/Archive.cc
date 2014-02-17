@@ -1354,19 +1354,22 @@ const unsigned int vid = find_int_attr("vid", false, 10);
 
    if (d != 0)   symbol.push();
 
-   // symbol.assign() can fail, for example if symbol is a system variable.
-   // inform the user, but continue.
+   // some system variables are  saved for troubleshooting purposes, but
+   // should not be loaded...
+   //
+   if (symbol.is_readonly())   return;
+   if (symbol.get_name() == id_name(ID_QUAD_NLT))    return;
+   if (symbol.get_name() == id_name(ID_QUAD_SYL))    return;
+
+Q(symbol.get_name())
    try
       {
         symbol.assign(values[vid], LOC);
       }
    catch (...)
       {
-        if (symbol.get_name() != id_name(ID_QUAD_SYL))
-           {
-             CERR << "*** Could not assign value " << *values[vid]
-                  << "    to variable " << symbol.get_name() << " ***" << endl;
-           }
+        CERR << "*** Could not assign value " << *values[vid]
+             << "    to variable " << symbol.get_name() << " ***" << endl;
       }
 }
 //-----------------------------------------------------------------------------
