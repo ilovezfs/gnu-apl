@@ -179,16 +179,16 @@ const void * unused = realpath(new_root, APL_lib_root);
 void
 LibPaths::set_lib_dir(LibRef libref, const char * path, LibDir::CfgSrc src)
 {
-   lib_dirs[libref].dir_path = UCS_string(path);
+   lib_dirs[libref].dir_path = UTF8_string(path);
    lib_dirs[libref].cfg_src = src;
 }
 //-----------------------------------------------------------------------------
-UCS_string
+UTF8_string
 LibPaths::get_lib_dir(LibRef libref)
 {
    switch(lib_dirs[libref].cfg_src)
       {
-        case LibDir::CS_NONE: return UCS_string();
+        case LibDir::CS_NONE: return UTF8_string();
 
         case LibDir::CS_ENV:
         case LibDir::CS_ARGV0:     break;   // continue below
@@ -198,22 +198,24 @@ LibPaths::get_lib_dir(LibRef libref)
 
       }
 
-UCS_string ret(APL_lib_root);
-   if (libref == LIB0)
+UTF8_string ret(APL_lib_root);
+   if (libref == LIB0)   // workspaces
       {
-        ret.append_utf8("/workspaces");
+        const UTF8_string subdir("/workspaces");
+        ret.append(subdir);
       }
-   else
+   else                  // wslibN
       {
-        ret.append_utf8("/wslib");
-        ret.append_number(libref);
+        const UTF8_string subdir("/wslib");
+        ret.append(subdir);
+        ret.append(Unicode(libref + '0'));
       }
 
    return ret;
 }
 //-----------------------------------------------------------------------------
 UTF8_string
-LibPaths::get_lib_filename(LibRef lib, const UCS_string & name, 
+LibPaths::get_lib_filename(LibRef lib, const UTF8_string & name, 
                            bool existing, const char * extension)
 {
    if (name[0] == UNI_ASCII_SLASH)   // absolute path
@@ -221,11 +223,11 @@ LibPaths::get_lib_filename(LibRef lib, const UCS_string & name,
          // absolute paths are fallbacks and never modified
          // but taken as they are
          //
-         return UTF8_string(name);
+         return name;
       }
 
-UCS_string ret = get_lib_dir(lib);
-   ret.append_utf8("/");
+UTF8_string ret = get_lib_dir(lib);
+   ret.append(UNI_ASCII_SLASH);
    ret.append(name);
 
 bool has_extension = false;
@@ -258,8 +260,9 @@ bool has_extension = false;
 
    if (!has_extension)
       {
-        ret.append_utf8(".");
-        ret.append_utf8(extension);
+        ret.append(UNI_ASCII_FULLSTOP);
+        const UTF8_string utf_extension(extension);
+        ret.append(utf_extension);
       }
 
    return UTF8_string(ret);

@@ -66,3 +66,4 @@
  5508 fixed unique for nested values
  5520 optimization for A⍴B ,B and ⍪B added
  5538 fixed CDR decoding bug
+ 5552 fixed problem with non-ASCII filenames

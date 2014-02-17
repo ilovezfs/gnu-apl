@@ -21,7 +21,7 @@
 #ifndef __LIBPATHS_HH_DEFINED__
 #define __LIBPATHS_HH_DEFINED__
 
-#include "UCS_string.hh"
+#include "UTF8_string.hh"
 
 //-----------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ public:
         {}
 
         /// the path (name) of the lib directory
-        UCS_string dir_path;
+        UTF8_string dir_path;
 
         /// how a dir_path was computed
         enum CfgSrc
@@ -87,14 +87,14 @@ public:
    static void set_lib_dir(LibRef lib, const char * path, LibDir::CfgSrc src);
 
    /// return library path (from config file or from libroot)
-   static UCS_string get_lib_dir(LibRef lib);
+   static UTF8_string get_lib_dir(LibRef lib);
 
    /// return source that configured \b this entry
    static LibDir::CfgSrc get_cfg_src(LibRef lib)
       { return lib_dirs[lib].cfg_src; }
 
    /// return full path for file \b name
-   static UTF8_string get_lib_filename(LibRef lib, const UCS_string & name,
+   static UTF8_string get_lib_filename(LibRef lib, const UTF8_string & name,
                                       bool existing, const char * extension);
 protected:
    /// compute the location of the apl binary
