@@ -43,7 +43,7 @@ public:
 
    /// print the array \b token of \b Token into \b out.
    static void print_token_list(ostream & out, const Token_string & token,
-                         uint32_t from = 0);
+                                int from = 0);
 
    /// remove VOID token from \b token (compacting \b token)
    static void remove_void_token(Token_string & token);
@@ -53,16 +53,16 @@ protected:
    ErrorCode parse_statement(Token_string & tos) const;
 
    /// find opening bracket; throw error if not found
-   static int32_t find_opening_bracket(Token_string & string, int32_t pos);
+   static int find_opening_bracket(const Token_string & string, int pos);
 
    /// find closing bracket; throw error if not found
-   static int32_t find_closing_bracket(Token_string & string, int32_t pos);
+   static int find_closing_bracket(const Token_string & string, int pos);
 
    /// find opening paranthesis; throw error if not found.
-   static int32_t find_opening_parent(Token_string & string, int32_t pos);
+   static int find_opening_parent(const Token_string & string, int pos);
 
    /// find closing paranthesis; throw error if not found.
-   static int32_t find_closing_parent(Token_string & string, int32_t pos);
+   static int find_closing_parent(const Token_string & string, int pos);
 
    /// Collect consecutive smaller APL values or value token into vectors
    void collect_constants(Token_string & tok) const;
@@ -76,15 +76,20 @@ protected:
    /// Replace (X) by X and ((..) by (..) in \b string. (X is a single token)
    static void remove_nongrouping_parantheses(Token_string & string);
 
+   /// degrade / ⌿ \ and ⍀ from OPER1 to FUN2
+   static void degrade_scan_reduce(Token_string & string);
+
+   /// check if tos[pos] is the end of a value or of a function
+   static bool check_if_value(const Token_string & tos, int pos);
+
    /// Create one APL value from \b len values.
-   void create_value(Token_string & token, uint32_t pos, uint32_t len) const;
+   void create_value(Token_string & token, int pos, int len) const;
 
    /// Create one skalar APL value from a token.
    void create_skalar_value(Token & tok) const;
 
    /// Create one vector APL value from \b value_count single values.
-   void create_vector_value(Token_string & token,
-                            uint32_t pos, uint32_t len) const;
+   void create_vector_value(Token_string & token, int pos, int len) const;
 
    /// the parsing mode of this parser
    const ParseMode pmode;

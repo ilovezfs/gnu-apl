@@ -26,6 +26,7 @@
 id_def( No_ID         , ---               , = 0      , pp )
 id_def( No_ID1        , ---               , = 1      , pp )
 id_def( No_ID2        , ---               , = 2      , pp )
+id_def( No_ID3        , ---               , = 3      , pp )
 
 id_def( AF            , ---               , = 0x4101 , qf )
 id_def( AI            , ---               ,          , qv )

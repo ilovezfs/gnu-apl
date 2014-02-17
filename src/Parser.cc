@@ -154,6 +154,15 @@ Parser::parse_statement(Token_string & tos) const
         print_token_list(CERR, tos, 0);
       }
 
+   // 5. resolve ambiguous / ⌿ \ and ⍀ operators/functions
+   //
+   degrade_scan_reduce(tos);
+   Log(LOG_parse)
+      {
+        CERR << "parse 6 [" << tos.size() << "]: ";
+        print_token_list(CERR, tos, 0);
+      }
+
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -170,7 +179,7 @@ Parser::collect_constants(Token_string & tos) const
    //
    loop (t, tos.size())
       {
-        int32_t to;
+        int to;
         switch(tos[t].get_tag())
            {
              case TOK_CHARACTER:
@@ -285,14 +294,14 @@ int opening = -1;
    return false;
 }
 //-----------------------------------------------------------------------------
-int32_t
-Parser::find_closing_bracket(Token_string & tos, int32_t pos)
+int
+Parser::find_closing_bracket(const Token_string & tos, int pos)
 {
    Assert(tos[pos].get_tag() == TOK_L_BRACK);
 
 int others = 0;
 
-   for (int32_t p = pos + 1; p < tos.size(); ++p)
+   for (int p = pos + 1; p < tos.size(); ++p)
        {
          Log(LOG_find_closing)
             CERR << "find_closing_bracket() sees " << tos[p] << endl;
@@ -308,14 +317,14 @@ int others = 0;
    SYNTAX_ERROR;
 }
 //-----------------------------------------------------------------------------
-int32_t
-Parser::find_opening_bracket(Token_string & tos, int32_t pos)
+int
+Parser::find_opening_bracket(const Token_string & tos, int pos)
 {
    Assert(tos[pos].get_tag() == TOK_R_BRACK);
 
 int others = 0;
 
-   for (int32_t p = pos - 1; p >= 0; --p)
+   for (int p = pos - 1; p >= 0; --p)
        {
          Log(LOG_find_closing)
             CERR << "find_opening_bracket() sees " << tos[p] << endl;
@@ -331,14 +340,14 @@ int others = 0;
    SYNTAX_ERROR;
 }
 //-----------------------------------------------------------------------------
-int32_t
-Parser::find_closing_parent(Token_string & tos, int32_t pos)
+int
+Parser::find_closing_parent(const Token_string & tos, int pos)
 {
    Assert1(tos[pos].get_Class() == TC_L_PARENT);
 
 int others = 0;
 
-   for (int32_t p = pos + 1; p < tos.size(); ++p)
+   for (int p = pos + 1; p < tos.size(); ++p)
        {
          Log(LOG_find_closing)
             CERR << "find_closing_bracket() sees " << tos[p] << endl;
@@ -354,14 +363,14 @@ int others = 0;
    SYNTAX_ERROR;
 }
 //-----------------------------------------------------------------------------
-int32_t
-Parser::find_opening_parent(Token_string & tos, int32_t pos)
+int
+Parser::find_opening_parent(const Token_string & tos, int pos)
 {
    Assert(tos[pos].get_Class() == TC_R_PARENT);
 
 int others = 0;
 
-   for (int32_t p = pos - 1; p >= 0; --p)
+   for (int p = pos - 1; p >= 0; --p)
        {
          Log(LOG_find_closing)
             CERR << "find_opening_bracket() sees " << tos[p] << endl;
@@ -425,6 +434,12 @@ Parser::remove_nongrouping_parantheses(Token_string & tos)
                //
                progress = true;
                move_1(tos[t + 2], tos[t + 1], LOC);
+
+               // we "remember" the nongrouping parantheses to disambiguate
+               // e,g, SYM/xxx from (SYM)/xxx
+               //
+               if (tos[t + 2].get_tag() == TOK_SYMBOL)
+                  tos[t + 2].ChangeTag(TOK_VSYMB);
                tos[t + 1].clear(LOC);
                tos[t].clear(LOC);
                ++t;   // skip tos[t + 1]
@@ -433,9 +448,70 @@ Parser::remove_nongrouping_parantheses(Token_string & tos)
 }
 //-----------------------------------------------------------------------------
 void
+Parser::degrade_scan_reduce(Token_string & tos)
+{
+   loop(src, tos.size())
+       {
+         if (tos[src].get_Id() == ID_OPER1_REDUCE  ||
+             tos[src].get_Id() == ID_OPER1_REDUCE1 ||
+             tos[src].get_Id() == ID_OPER1_SCAN    ||
+             tos[src].get_Id() == ID_OPER1_SCAN1)
+            {
+              const bool is_function = src == 0 ||
+                         check_if_value(tos, src - 1);
+              if (is_function)
+                 {
+                   // the (back-) slash is a function, not an operator.
+                   //
+                   const int funtag = tos[src].get_tag() & ~TC_MASK | TC_FUN12;
+                   tos[src].ChangeTag((TokenTag)funtag);
+                 }
+            }
+       }
+}
+//-----------------------------------------------------------------------------
+bool
+Parser::check_if_value(const Token_string & tos, int pos)
+{
+   // figure if token at pos is the end of a function (and then return false)
+   // or the end of a value (and then return true).
+   //
+   switch(tos[pos].get_Class())
+      {
+        case TC_ASSIGN:
+        case TC_R_ARROW:
+        case TC_L_BRACK:
+        case TC_END:
+        case TC_L_PARENT:
+        case TC_VALUE:
+        case TC_RETURN:
+             return true;
+
+        case TC_R_BRACK:
+             {
+               const int pos1 = find_opening_bracket(tos, pos);
+               if (pos1 == 0)   return true;   // this is a syntax error
+               return check_if_value(tos, pos1 - 1);
+             }
+
+        case TC_R_PARENT:
+             {
+               const int pos1 = find_opening_parent(tos, pos);
+               if (pos1 == 0)   return true;
+               return check_if_value(tos, pos1 - 1);
+             }
+
+        case TC_SYMBOL:
+             return (tos[pos].get_tag() == TOK_VSYMB);   // if value
+      }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
+void
 Parser::remove_void_token(Token_string & tos)
 {
-uint32_t dst = 0;
+int dst = 0;
 
    loop(src, tos.size())
        {
@@ -448,7 +524,7 @@ uint32_t dst = 0;
 }
 //-----------------------------------------------------------------------------
 void
-Parser::create_value(Token_string & tos, uint32_t pos, uint32_t count) const
+Parser::create_value(Token_string & tos, int pos, int count) const
 {
    Log(LOG_create_value)
       {
@@ -529,7 +605,7 @@ Parser::create_skalar_value(Token & output) const
 //-----------------------------------------------------------------------------
 void
 Parser::create_vector_value(Token_string & tos,
-                            uint32_t pos, uint32_t count) const
+                            int pos, int count) const
 {
 Value_P vector(new Value(count, LOC));
 
@@ -651,7 +727,7 @@ Parser::mark_lsymb(Token_string & tos)
 }
 //-----------------------------------------------------------------------------
 void
-Parser::print_token_list(ostream & out, const Token_string & tos, uint32_t from)
+Parser::print_token_list(ostream & out, const Token_string & tos, int from)
 {
    loop(t, tos.size() - from)   out << "`" << tos[from + t] << "  ";
 
