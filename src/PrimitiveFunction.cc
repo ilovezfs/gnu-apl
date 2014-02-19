@@ -630,7 +630,6 @@ Bif_F12_COMMA::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
    // catenate or laminate
    //
-Q(X->get_shape())
    if (!X->is_skalar_or_len1_vector())   AXIS_ERROR;
 
 const Cell & cX = X->get_ravel(0);
