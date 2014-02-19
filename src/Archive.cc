@@ -1383,7 +1383,7 @@ const int value = find_int_attr("value", false, 10);
 void
 XML_Loading_Archive::read_Function(int d, Symbol & symbol)
 {
-const int native     = find_int_attr("native", true, 10);
+const int native = find_int_attr("native", true, 10);
 
    next_tag(LOC);
    expect_tag("UCS", LOC);
@@ -1394,7 +1394,6 @@ const UTF8 * uni = find_attr("uni", false);
 UCS_string text;
    while (*uni != '"')   read_chars(text, uni);
 
-int err = 0;
    if (native == 1)
       {
         NativeFunction * nfun = NativeFunction::fix(text, symbol.get_name());
@@ -1413,11 +1412,20 @@ int err = 0;
       }
    else
       {
-        UserFunction * ufun = new UserFunction(text, err, false, LOC, filename);
-        Assert(err == -1);
+        int err = 0;
+        UserFunction * fun = UserFunction::fix(text, err, false, LOC, filename);
 
         if (d == 0)   symbol.pop(false);
-        symbol.push_function(ufun);
+        if (fun)
+           {
+             symbol.push_function(fun);
+           }
+        else
+           {
+             CERR << "fix(" << symbol.get_name() << ") failed at line "
+                  << err << " (" << Workspace::more_error() << ")" << endl;
+             symbol.push();
+           }
       }
 }
 //-----------------------------------------------------------------------------

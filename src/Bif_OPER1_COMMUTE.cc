@@ -30,8 +30,20 @@ Bif_OPER1_COMMUTE::eval_LB(Token & LO, Value_P B)
 }
 //-----------------------------------------------------------------------------
 Token
+Bif_OPER1_COMMUTE::eval_LXB(Token & LO, Value_P X, Value_P B)
+{
+   return LO.get_function()->eval_AXB(B, X, B);
+}
+//-----------------------------------------------------------------------------
+Token
 Bif_OPER1_COMMUTE::eval_ALB(Value_P A, Token & LO, Value_P B)
 {
    return LO.get_function()->eval_AB(B, A);
+}
+//-----------------------------------------------------------------------------
+Token
+Bif_OPER1_COMMUTE::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
+{
+   return LO.get_function()->eval_AXB(B, X, A);
 }
 //-----------------------------------------------------------------------------

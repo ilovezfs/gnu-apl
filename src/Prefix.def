@@ -30,35 +30,36 @@
    phrase 24:  VAL  OP1  VAL            3
    phrase 25:  VAL  OP1  [X]  VAL       4
    phrase 26:  F   OP1                  2
-   phrase 27:  F0   OP1                 2
-   phrase 28:  VAL  OP2  VAL            3
-   phrase 29:  VAL  OP2  F              3
-   phrase 30:  VAL  OP2  F0             3
-   phrase 31:  F   OP2  VAL             3
-   phrase 32:  F   OP2  F               3
-   phrase 33:  F   OP2  F0              3
-   phrase 34:  F0   OP2  VAL            3
-   phrase 35:  F0   OP2  F              3
-   phrase 36:  F0   OP2  F0             3
-   phrase 37:  VAL  [X]                 2
-   phrase 38:  SYM  [X]  ←    VAL       4
-   phrase 39:  F   SYM                  2
-   phrase 40:  OP1  SYM                 2
-   phrase 41:  VAL  ←    VAL            3
-   phrase 42:  SYM  ←    VAL            3
-   phrase 43:  ]                        1
-   phrase 44:  [ ;  PIDX                2
-   phrase 45:  [ ;  VAL  PIDX           3
-   phrase 46:  VAL  VAL                 2
-   phrase 47:  SYM  )    ←    VAL       4
-   phrase 48:  END  VOID                2
-   phrase 49:  END  VAL                 2
-   phrase 50:  END  →    VAL            3
-   phrase 51:  END  →                   2
-   phrase 52:  RET                      1
-   phrase 53:  RET  VAL                 2
-   phrase 54:  RET  →                   2
-   phrase 55:  RET  →    VAL            3
+   phrase 27:  F   [X]  OP1             3
+   phrase 28:  F0   OP1                 2
+   phrase 29:  VAL  OP2  VAL            3
+   phrase 30:  VAL  OP2  F              3
+   phrase 31:  VAL  OP2  F0             3
+   phrase 32:  F   OP2  VAL             3
+   phrase 33:  F   OP2  F               3
+   phrase 34:  F   OP2  F0              3
+   phrase 35:  F0   OP2  VAL            3
+   phrase 36:  F0   OP2  F              3
+   phrase 37:  F0   OP2  F0             3
+   phrase 38:  VAL  [X]                 2
+   phrase 39:  SYM  [X]  ←    VAL       4
+   phrase 40:  F   SYM                  2
+   phrase 41:  OP1  SYM                 2
+   phrase 42:  VAL  ←    VAL            3
+   phrase 43:  SYM  ←    VAL            3
+   phrase 44:  ]                        1
+   phrase 45:  [ ;  PIDX                2
+   phrase 46:  [ ;  VAL  PIDX           3
+   phrase 47:  VAL  VAL                 2
+   phrase 48:  SYM  )    ←    VAL       4
+   phrase 49:  END  VOID                2
+   phrase 50:  END  VAL                 2
+   phrase 51:  END  →    VAL            3
+   phrase 52:  END  →                   2
+   phrase 53:  RET                      1
+   phrase 54:  RET  VAL                 2
+   phrase 55:  RET  →                   2
+   phrase 56:  RET  →    VAL            3
    --------------------------------------
 
    *** phrase table ***/
@@ -77,6 +78,7 @@
    void reduce_A_M_B_();             ///< reduce phrase A M B 
    void reduce_A_M_C_B();            ///< reduce phrase A M C B
    void reduce_F_M__();              ///< reduce phrase F M  
+   void reduce_F_C_M_();             ///< reduce phrase F C M 
    void reduce_N_M__();              ///< reduce phrase N M  
    void reduce_B_D_B_();             ///< reduce phrase B D B 
    void reduce_B_D_G_();             ///< reduce phrase B D G 
@@ -107,7 +109,7 @@
    void reduce_RETC_GOTO__();        ///< reduce phrase RETC GOTO  
    void reduce_RETC_GOTO_B_();       ///< reduce phrase RETC GOTO B 
 
-   enum { PHRASE_COUNT   = 56,      ///< number of phrases
+   enum { PHRASE_COUNT   = 57,      ///< number of phrases
           PHRASE_MODU    = 283,     ///< hash table size
           MAX_PHRASE_LEN = 4 };     ///< max. number of token in a phrase
 
@@ -275,7 +277,7 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH( F D G        ,   7495,   63,   0,  3, F_D_G_       )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
+  PH( F C M        ,   9479,   43,   0,  3, F_C_M_       )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
