@@ -36,13 +36,13 @@ public:
    DerivedFunction() : Function(TOK_FUN0)   {}
 
    /// Constructor (dyadic operator)
-   DerivedFunction(Token & lfun, Function * dyop, Token & rfun, const char * loc);
+   DerivedFunction(Token & lf, Function * dyop, Token & rf, const char * loc);
 
    /// Constructor (monadic operator, no axis)
    DerivedFunction(Token & lfun, Function * monop, const char * loc);
 
    /// Constructor (monadic operator, with axis)
-   DerivedFunction(Token & lfun, Function * monop, Value_P X, const char * loc);
+   DerivedFunction(Token & lf, Function * monop, Value_P X, const char * loc);
 
    /// overloaded Function::print();
    virtual ostream & print(ostream & out) const;

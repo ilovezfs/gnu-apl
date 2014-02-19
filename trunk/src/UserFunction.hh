@@ -59,7 +59,9 @@ public:
         return 0;                 // niladic function
       }
 
-   /// return true iff the function returns a value
+   /// return sorce location where error was detected
+   const char * get_error_loc() const   { return error_loc; }
+
    bool has_result() const   { return sym_Z != 0; }
 
    /// return true iff the function returns a value
@@ -123,8 +125,11 @@ protected:
    /// Check that sym occurs at most once in \b Symbol array \b sym.
    void check_duplicate_symbol(const Symbol * sym);
 
-   /// true if header was parsed successfully
+   /// error if header was not parsed successfully
    ErrorCode error;
+
+   /// source location where error was detected
+   const char * error_loc;
 
    /// the name of this function
    UCS_string function_name;
@@ -173,11 +178,15 @@ class UserFunction : public Function, public Executable
 {
 public:
    /// Construct a user defined function
-   UserFunction(const UCS_string txt, int & error_line, bool keep_existing,
-                const char * loc, const UTF8_string &  _creator);
+   UserFunction(const UCS_string txt,
+                int & error_line, const char * & error_loc,
+                bool keep_existing, const char * loc,
+                const UTF8_string &  _creator);
 
+   /// Construct a lambda
    UserFunction(Fun_signature sig, const UCS_string & fname,
                 const UCS_string & text, const Token_string & body);
+
    /// Destructor.
    ~UserFunction();
 

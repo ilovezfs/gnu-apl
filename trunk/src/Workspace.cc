@@ -639,15 +639,16 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
 
    // at this point it is OK to rename and save the workspace
    //
-   the_workspace.WS_name = wname;
 
 ofstream outf(filename.c_str(), ofstream::out);
    if (!outf.is_open())   // open failed
       {
-        CERR << "Unable to )SAVE workspace '"
-             << the_workspace.WS_name << "'." << endl;
+        CERR << "Unable to )SAVE workspace '" << wname
+             << "'." << strerror(errno) << endl;
         return;
       }
+
+   the_workspace.WS_name = wname;
 
 XML_Saving_Archive ar(outf);
    ar.save();

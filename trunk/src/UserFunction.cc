@@ -50,8 +50,14 @@ const struct _header_pattern
 /// function result
 #define __Z  TOK_LSYMB, TOK_ASSIGN
 
+/// lambda result (λ)
+#define __z  TOK_LAMBDA, TOK_ASSIGN
+
 /// left function argument
 #define __A  TOK_SYMBOL
+
+/// left lambda argument
+#define __a  TOK_ALPHA
 
 /// a niladic function
 #define __F0 TOK_SYMBOL
@@ -69,10 +75,16 @@ const struct _header_pattern
 #define __OP2 TOK_L_PARENT, TOK_SYMBOL, TOK_SYMBOL, TOK_SYMBOL, TOK_R_PARENT
 
 /// an axis
+#define __x   TOK_L_BRACK,  TOK_CHI, TOK_R_BRACK
+
+/// an axis
 #define __X   TOK_L_BRACK,  TOK_SYMBOL, TOK_R_BRACK
 
 /// right function argument
 #define __B  TOK_SYMBOL
+
+/// right lambda argument
+#define __b  TOK_OMEGA
 
    // niladic
    //
@@ -94,6 +106,12 @@ const struct _header_pattern
  { SIG_Z_LO_OP1_X_B   , 5, 10, { __Z,      __OP1, __X, __B, } },
  { SIG_Z_LO_OP2_RO_B  , 5,  8, { __Z,      __OP2,      __B, } },
 
+ { SIG_Z_F1_B         , 3,  4, { __z,      __F1,       __b, } },
+ { SIG_Z_F1_X_B       , 4,  7, { __z,      __F1,  __x, __b, } },
+ { SIG_Z_LO_OP1_B     , 4,  7, { __z,      __OP1,      __b, } },
+ { SIG_Z_LO_OP1_X_B   , 5, 10, { __z,      __OP1, __x, __b, } },
+ { SIG_Z_LO_OP2_RO_B  , 5,  8, { __z,      __OP2,      __b, } },
+
    // dyadic
    //
  { SIG_A_F2_B         , 3,  3, {      __A, __F2,       __B } },
@@ -107,6 +125,12 @@ const struct _header_pattern
  { SIG_Z_A_LO_OP1_B   , 5,  8, { __Z, __A, __OP1,      __B } },
  { SIG_Z_A_LO_OP1_X_B , 6, 11, { __Z, __A, __OP1, __X, __B } },
  { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __Z, __A, __OP2,      __B } },
+
+ { SIG_Z_A_F2_B       , 4,  5, { __z, __a, __F2,       __b } },
+ { SIG_Z_A_F2_X_B     , 5,  8, { __z, __a, __F2,  __x, __b } },
+ { SIG_Z_A_LO_OP1_B   , 5,  8, { __z, __a, __OP1,      __b } },
+ { SIG_Z_A_LO_OP1_X_B , 6, 11, { __z, __a, __OP1, __x, __b } },
+ { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __z, __a, __OP2,      __b } },
 };
 
 /// the number of signatures
@@ -115,6 +139,7 @@ enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(const UCS_string text)
   : error(E_SYNTAX_ERROR),
+    error_loc(0),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
@@ -133,7 +158,7 @@ UCS_string header_line;
          else                            header_line.append(uni);
        }
 
-   if (header_line.size() == 0)   return;
+   if (header_line.size() == 0)   { error_loc = LOC;   return; }
 
    Log(LOG_UserFunction__set_line)
       {
@@ -151,7 +176,7 @@ Token_string tos;
      const Parser parser(PM_FUNCTION, LOC);
      const ErrorCode err = parser.parse(header_line, tos);
 
-     if (err != E_NO_ERROR)   { error = err;   return; }
+     if (err != E_NO_ERROR)   { error = err;   error_loc = LOC;  return; }
    }
 
    // count symbols before first semicolon, allow one symbol too much.
@@ -191,7 +216,7 @@ Fun_signature signature = SIG_NONE;
            }
       }
 
-   if (signature == SIG_NONE)   return;
+   if (signature == SIG_NONE)   { error_loc = LOC;   return; }
 
    // note: constructor has set all symbol pointers to 0!
    // store symbol pointers according to signature.
@@ -213,7 +238,12 @@ Fun_signature signature = SIG_NONE;
 
    for (;;)
       {
-        if (tos[tos_idx++].get_tag() != TOK_SEMICOL)   return;
+        if (tos[tos_idx++].get_tag() != TOK_SEMICOL)
+           {
+             error_loc = LOC;
+             return;
+           }
+
         if  (tos_idx >= tos.size())   break;   // local vars done
 
         const TokenTag tag = tos[tos_idx].get_tag();
@@ -399,7 +429,8 @@ UserFunction_header::eval_common()
        label_values[l].sym->push_label(label_values[l].line);
 }
 //=============================================================================
-UserFunction::UserFunction(const UCS_string txt, int & error_line,
+UserFunction::UserFunction(const UCS_string txt,
+                           int & error_line, const char * & error_loc,
                            bool keep_existing, const char * loc,
                            const UTF8_string & _creator)
   : Executable(txt, loc),
@@ -419,6 +450,7 @@ UserFunction::UserFunction(const UCS_string txt, int & error_line,
    if (header.get_error() != E_NO_ERROR)   // bad header
       {
         error_line = 0;
+        error_loc = header.get_error_loc();
         DEFN_ERROR;
       }
 
@@ -993,22 +1025,26 @@ UserFunction::fix(const UCS_string & text, int & error_line,
                   const UTF8_string &  creator)
 {
    Log(LOG_UserFunction__fix)
-      CERR << "fix pmode=user function:" << endl << text << endl
-           <<  "------------------- fix --" << endl;
+      {
+        CERR << "fix pmode=user function:" << endl << text << endl
+             <<  "------------------- fix --" << endl;
+      }
 
-   if (Workspace::SI_top())
-      Workspace::SI_top()->set_safe_execution(true);
+   if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(true);
 
 UserFunction * fun = 0;
+const char * error_loc = 0;
    try
       {
-        fun = new UserFunction(text, error_line, keep_existing, loc, creator);
+        fun = new UserFunction(text, error_line, error_loc,
+                               keep_existing, loc, creator);
       }
    catch (Error err)
       {
         err.print(CERR);
         if (Workspace::SI_top())
            Workspace::SI_top()->set_safe_execution(false);
+        if (error_loc) Workspace::more_error() = UCS_string(error_loc);
         return 0;
       }
    catch (...)

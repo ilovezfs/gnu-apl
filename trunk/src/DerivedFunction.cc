@@ -27,7 +27,8 @@
 #include "Workspace.hh"
 
 //=============================================================================
-DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Token & rfun, const char * loc)
+DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Token & rfun,
+                                 const char * loc)
    : Function(ID_USER_SYMBOL, TOK_FUN2),
      left_fun(lfun),
      oper(dyop),
@@ -43,7 +44,8 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Token & rfun, co
      }
 }
 //-----------------------------------------------------------------------------
-DerivedFunction::DerivedFunction(Token & lfun, Function * monop, const char * loc)
+DerivedFunction::DerivedFunction(Token & lfun, Function * monop,
+                                 const char * loc)
    : Function(ID_USER_SYMBOL, TOK_FUN2),
      left_fun(lfun),
      oper(monop),
@@ -59,7 +61,8 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * monop, const char * lo
      }
 }
 //-----------------------------------------------------------------------------
-DerivedFunction::DerivedFunction(Token & lfun, Function * monop, Value_P X, const char * loc)
+DerivedFunction::DerivedFunction(Token & lfun, Function * monop,
+                                 Value_P X, const char * loc)
    : Function(ID_USER_SYMBOL, TOK_FUN2),
      left_fun(lfun),
      oper(monop),

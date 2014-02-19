@@ -649,6 +649,18 @@ DerivedFunction * derived =
 }
 //-----------------------------------------------------------------------------
 void
+Prefix::reduce_F_C_M_()
+{
+DerivedFunction * derived =
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (derived) DerivedFunction(at0(), at2().get_function(),
+                                 at1().get_axes(), LOC);
+
+   pop_args_push_result(Token(TOK_FUN2, derived));
+   action = RA_CONTINUE;
+}
+//-----------------------------------------------------------------------------
+void
 Prefix::reduce_B_D_B_()
 {
    reduce_F_D_G_();   // same as F2
