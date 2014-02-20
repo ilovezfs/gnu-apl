@@ -102,37 +102,26 @@ const uint32_t nelm = val->element_count();
    //
    if (type == 0)        // packed bit vector
       {
-        uint8_t accu = 0;
-        int bits = 0;
+        int accu = 0;
 
         loop(e, nelm)
            {
+             const int bit = e%8;
              const APL_Integer i = val->get_ravel(e).get_int_value();
              Assert(i == 0 || i == 1);
-
-             accu += accu;
-             accu += i;
-             ++bits;
-             if (bits == 8)
+             if (i)   accu |= 0x80 >> bit;
+             if (bit == 7)
                 {
-                  result.append(Unicode(accu & 0xFF));
-
+                  result.append(Unicode(accu));
                   accu = 0;
-                  bits = 0;
                 }
-
-             if (bits)   // partly filled
-                {
-                  while (bits < 8)
-                    {
-                      accu += accu;
-                      ++bits;
-                    }
-
-                  result.append(Unicode(accu & 0xFF));
-                }
-
            }
+
+        if (nelm % 8)   // partly filled
+           {
+             result.append(Unicode(accu));
+           }
+
       }
    else if (type == 1)   // 4 byte ints vector
       {
@@ -344,7 +333,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
       {
         loop(n, nelm)
            {
-             const char bit = ravel[n >> 3] & (1 << (n & 7));
+             const int bit = ravel[n >> 3] & (0x80 >> (n & 7));
              if (bit)   new (&ret->get_ravel(n)) IntCell(1);
              else       new (&ret->get_ravel(n)) IntCell(0);
            }
