@@ -100,6 +100,7 @@ Error::init(ErrorCode ec, const char * loc)
    error_code = ec;
    throw_loc = loc;
    error_message_1 = error_name(error_code);
+   if (Workspace::more_error().size())   error_message_1.append(UNI_ASCII_PLUS);
    error_message_2.clear();
    symbol_name.clear();
    parser_loc = 0;
