@@ -63,6 +63,7 @@ UCS_string line = Input::get_line();   // get_line() removes leading whitespace
 void
 Command::process_line(UCS_string & line)
 {
+   Workspace::more_error().clear();
 
    switch(line[0])
       {

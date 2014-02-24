@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.2\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-02-15 17:30+0100\n"
+"POT-Creation-Date: 2014-02-24 16:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,157 +16,157 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Command.cc:87 src/Command.cc:369 src/Command.cc:378 src/Command.cc:468
-#: src/Command.cc:687
+#: src/Command.cc:88 src/Command.cc:370 src/Command.cc:379 src/Command.cc:469
+#: src/Command.cc:688
 msgid "BAD COMMAND"
 msgstr ""
 
-#: src/Command.cc:118
+#: src/Command.cc:119
 msgid "SYNTAX ERROR"
 msgstr ""
 
-#: src/Command.cc:137
+#: src/Command.cc:138
 msgid "main: Parse error."
 msgstr ""
 
-#: src/Command.cc:245
+#: src/Command.cc:246
 msgid "empty branch (→⍳0) without suspended function"
 msgstr ""
 
-#: src/Command.cc:319
+#: src/Command.cc:320
 #, c-format
 msgid "WARNING - %d stale functions (%serased)"
 msgstr ""
 
-#: src/Command.cc:323
+#: src/Command.cc:324
 msgid "OK      - no stale functions"
 msgstr ""
 
-#: src/Command.cc:331
+#: src/Command.cc:332
 #, c-format
 msgid "ERROR   - %d stale values"
 msgstr ""
 
-#: src/Command.cc:334
+#: src/Command.cc:335
 msgid "OK      - no stale values"
 msgstr ""
 
-#: src/Command.cc:341
+#: src/Command.cc:342
 #, c-format
 msgid "ERROR   - %d stale indices"
 msgstr ""
 
-#: src/Command.cc:344
+#: src/Command.cc:345
 msgid "OK      - no stale indices"
 msgstr ""
 
-#: src/Command.cc:372
+#: src/Command.cc:373
 msgid "missing workspace name in command )DROP"
 msgstr ""
 
-#: src/Command.cc:381
+#: src/Command.cc:382
 msgid "too many parameters in command )DROP"
 msgstr ""
 
-#: src/Command.cc:396
+#: src/Command.cc:397
 msgid " NOT DROPPED: "
 msgstr ""
 
-#: src/Command.cc:399
+#: src/Command.cc:400
 msgid "could not unlink file "
 msgstr ""
 
-#: src/Command.cc:413
+#: src/Command.cc:414
 msgid "US Keyboard Layout:"
 msgstr ""
 
-#: src/Command.cc:434
+#: src/Command.cc:435
 msgid "Commands are:"
 msgstr ""
 
-#: src/Command.cc:448
+#: src/Command.cc:449
 msgid ")HOST command failed: "
 msgstr ""
 
-#: src/Command.cc:470
+#: src/Command.cc:471
 msgid "missing filename in command )IN"
 msgstr ""
 
-#: src/Command.cc:484 src/Command.cc:702
+#: src/Command.cc:485 src/Command.cc:703
 msgid " failed: "
 msgstr ""
 
-#: src/Command.cc:488
+#: src/Command.cc:489
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr ""
 
-#: src/Command.cc:528
+#: src/Command.cc:529
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr ""
 
-#: src/Command.cc:593
+#: src/Command.cc:594
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr ""
 
-#: src/Command.cc:598
+#: src/Command.cc:599
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr ""
 
-#: src/Command.cc:642
+#: src/Command.cc:643
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
 "will decrease performance), recompile the interpreter as follows:"
 msgstr ""
 
-#: src/Command.cc:648
+#: src/Command.cc:649
 msgid "other configure options"
 msgstr ""
 
-#: src/Command.cc:654
+#: src/Command.cc:655
 msgid "above the src directory."
 msgstr ""
 
-#: src/Command.cc:665
+#: src/Command.cc:666
 msgid "NO MORE ERROR INFO"
 msgstr ""
 
-#: src/Command.cc:678
+#: src/Command.cc:679
 msgid "Goodbye."
 msgstr ""
 
-#: src/Command.cc:689
+#: src/Command.cc:690
 msgid "missing filename in command )OUT"
 msgstr ""
 
-#: src/Command.cc:705
+#: src/Command.cc:706
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr ""
 
-#: src/Command.cc:771
+#: src/Command.cc:772
 msgid " *** bad sub-record of *"
 msgstr ""
 
-#: src/Command.cc:774
+#: src/Command.cc:775
 msgid " comment"
 msgstr ""
 
-#: src/Command.cc:776
+#: src/Command.cc:777
 msgid " timestamp"
 msgstr ""
 
-#: src/Command.cc:788
+#: src/Command.cc:789
 msgid " imbed"
 msgstr ""
 
-#: src/Command.cc:791
+#: src/Command.cc:792
 msgid "record #"
 msgstr ""
 
-#: src/Command.cc:801
+#: src/Command.cc:802
 msgid " *** bad sub-record of X"
 msgstr ""
 

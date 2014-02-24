@@ -175,6 +175,7 @@ const APL_Integer qio = Workspace::get_IO();
 
 const Cell * cell = &B->get_ravel(0);
 const APL_Integer len = cell->get_near_int(qct);
+   if (len < 0)   DOMAIN_ERROR;
 
 Value_P Z(new Value(len, LOC));
 
