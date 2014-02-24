@@ -123,10 +123,11 @@ void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
         {
           CERR << "shared library is lacking the mandatory "
                   "function signature() !" << endl;
-        Workspace::more_error() = UCS_string(
+          Workspace::more_error() = UCS_string(
                                 "invalid .so file (no get_signature())");
           return;
         }
+
 
      signature = ((Fun_signature (*)())get_sig)();
    }

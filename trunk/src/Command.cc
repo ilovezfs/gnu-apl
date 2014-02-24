@@ -63,7 +63,6 @@ UCS_string line = Input::get_line();   // get_line() removes leading whitespace
 void
 Command::process_line(UCS_string & line)
 {
-   Workspace::more_error().clear();
 
    switch(line[0])
       {
@@ -81,6 +80,9 @@ Command::process_line(UCS_string & line)
                 vector<UCS_string> args;
                 arg.copy_black_list(args);
                 line.clear();
+                if (!cmd.starts_iwith("MORE")) 
+                   Workspace::more_error().clear();
+
 #define cmd_def(cmd_str, code, _arg) \
                 if (cmd.starts_iwith(cmd_str)) { code } else
 #include "Command.def"
@@ -109,6 +111,8 @@ Command::process_line(UCS_string & line)
 
    // at this point, line should be a statement list. Parse it...
    //
+   Workspace::more_error().clear();
+
 const Executable * statements = 0;
    try
       {
