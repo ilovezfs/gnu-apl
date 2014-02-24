@@ -496,9 +496,9 @@ Token result = current_stack.reduce_statements();
 void
 StateIndicator::unmark_all_values() const
 {
-   if (!!eval_arg_A)   eval_arg_A->clear_marked();
-   if (!!eval_arg_X)   eval_arg_X->clear_marked();
-   if (!!eval_arg_B)   eval_arg_B->clear_marked();
+   if (!!eval_arg_A)   eval_arg_A->unmark();
+   if (!!eval_arg_X)   eval_arg_X->unmark();
+   if (!!eval_arg_B)   eval_arg_B->unmark();
 
    Assert(executable);
    executable->unmark_all_values();

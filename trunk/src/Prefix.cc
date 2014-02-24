@@ -239,7 +239,7 @@ Prefix::unmark_all_values() const
         if (tok.get_ValueType() != TV_VAL)      continue;
 
         Value_P value = tok.get_apl_val();
-        if (!!value)   value->clear_marked();
+        if (!!value)   value->unmark();
       }
 }
 //-----------------------------------------------------------------------------
