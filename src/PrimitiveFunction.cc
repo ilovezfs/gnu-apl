@@ -125,6 +125,13 @@ Bif_F12_RHO::do_reshape(const Shape & shape_Z, Value_P B)
 const ShapeItem len_B = B->element_count();
 const ShapeItem len_Z = shape_Z.get_volume();
 
+   // check that shape_Z is positive
+   //
+   loop(z, shape_Z.get_rank())
+      {
+        if (shape_Z.get_shape_item(z) < 0)   DOMAIN_ERROR;
+      }
+
    // optimize if Z is not larger than B.
    //
    if (len_Z <= len_B && B->is_temp())
