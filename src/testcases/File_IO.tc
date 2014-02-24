@@ -124,6 +124,21 @@ No such file or directory
       FORMAT 42 (○1) 'Hello'  FILE_IO[22] 1
 44
 
+      ⍝ fwrite with UCS in UTF8 out
+      ⍝
+      Filename← 'FILE_IO.test1'
+      ⎕←Handle←'w' FILE_IO[3] Filename
+⁰
+      'HELLO ⍋ ⌽ ⍒ ⍴ ⍵' FILE_IO[23] Handle
+25
+
+      FILE_IO[4] Handle ⍝ close file
+0
+
+      )HOST cat FILE_IO.test1 
+HELLO ⍋ ⌽ ⍒ ⍴ ⍵
+0 
+
       )ERASE FORMAT
 
 ⍝ ==================================

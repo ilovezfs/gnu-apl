@@ -311,6 +311,7 @@ list_functions(ostream & out)
 "   Zi ← A  FUN[22] 1     printf(         A1, A2...) format A1\n"
 "   Zi ← A  FUN[22] 2     fprintf(stderr, A1, A2...) format A1\n"
 "   Zi ← A  FUN[22] Bh    fprintf(Bh,     A1, A2...) format A1\n"
+"   Zi ← Ac FUN[23] Bh    fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8\n"
 "\n";
 
    return Token(TOK_APL_VALUE1, Value::Str0_P);
@@ -594,7 +595,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
-                delete del;
+                delete [] del;
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
@@ -614,7 +615,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
 
                 size_t len = fwrite(buffer, 1, bytes, fe.fe_file);
-                delete del;
+                delete [] del;
 
                 Value_P Z(new Value(LOC));
                 new (&Z->get_ravel(0)) IntCell(len); 
@@ -640,7 +641,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
-                delete del;
+                delete [] del;
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
@@ -685,6 +686,19 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 errno = 0;
                 file_entry & fe = get_file(*B.get());
                 return do_printf(fe.fe_file, A);
+              }
+
+         case 23:   // fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8 \n"
+              {
+                errno = 0;
+                file_entry & fe = get_file(*B.get());
+                UCS_string text(*A.get());
+                UTF8_string utf(text);
+                const size_t l = fwrite(utf.c_str(), 1, utf.size(), fe.fe_file); 
+                Value_P Z(new Value(LOC));
+                new (&Z->get_ravel(0)) IntCell(l); 
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
               }
       }
 
