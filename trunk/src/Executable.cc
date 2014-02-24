@@ -434,6 +434,18 @@ int tcol = 0;
                ++b;
              }
 
+         // a named lambda has the form Q←{ ... }
+         //
+         // however, eg. Q←{ ... } / ... is not a named lambda by an unnamed
+         // lambda for / whose result is assigned to Q. We need to distinguish
+         // the two cases.
+         //
+         const bool maybe_named = (body[b+1].get_tag() == TOK_DIAMOND
+                                || body[b+1].get_tag() == TOK_ENDL);
+
+         // if the lambda is { } then we can't assign anything to λ
+         // and make the lambda result-less.
+         //
          if (lambda_body.size())   signature |= SIG_Z;
 
          Token_string rev_lambda_body;
@@ -465,7 +477,7 @@ int tcol = 0;
          //
          UCS_string lambda_name;
          Symbol * lambda_sym = 0;
-         if (   (b + 2) < body.size()
+         if (   maybe_named && (b + 2) < body.size()
              && body[b + 1].get_tag() == TOK_ASSIGN
              && body[b + 2].get_tag() == TOK_LSYMB)
             {
