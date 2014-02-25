@@ -901,7 +901,7 @@ StateIndicator::statement_result(Token & result)
 
    fun_oper_cache.reset();
 
-   if (get_executable()->get_parse_mode() == PM_EXECUTE)   return;
+// if (get_executable()->get_parse_mode() == PM_EXECUTE)   return;
 
    // if result is a value then print it, unless it is a committed value
    // (i.e. TOK_APL_VALUE2)

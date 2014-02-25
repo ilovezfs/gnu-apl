@@ -110,52 +110,73 @@ Source<Token> src(in);
 Token_string out;
    while (src.rest())
       {
-        uint32_t stat_len = src.rest();   // assume statement == line
-
-        // find next diamond. If there is one, adjust stat_len accordingly.
+        // find next diamond. If there is one, copy statement in reverse order,
+        // append TOK_ENDL, and continue.
         //
-        loop(t, src.rest())
-            {
+        {
+          uint32_t stat_len = 0;   // statement length, not counting ◊
+          bool got_diamond = false;
+          loop(t, src.rest())
+              {
               if (src[t].get_tag() == TOK_DIAMOND)
                  {
-                   stat_len = t;
+                   got_diamond = true;
                    break;
                  }
-            }
-
-        Source<Token> statement(src, 0, stat_len);
-        src.skip(stat_len + 1);
-
-        // copy in reverse order
-        //
-        while (statement.rest())
-            {
-              // check for invalid token. The only token allowed are
-              // permanent token and { } for lambdas (which will be removed
-              // next)
-              //
-              const Token & tok = statement.get_last();
-              if (tok.get_Class() >= TC_MAX_PERM &&
-                  tok.get_tag() != TOK_L_CURLY &&
-                  tok.get_tag() != TOK_R_CURLY)
+              else
                  {
-                   CERR << "Line " << line << endl
-                        << "Offending token: (tag > TC_MAX_PERM) "
-                        << tok.get_tag() << " " << tok << endl
-                        << "Statement: ";
-                   Token::print_token_list(CERR, statement);
-                   SYNTAX_ERROR;
+                   ++stat_len;
                  }
+              }
 
-               out.append(Token());
-               move_2(out[out.size() - 1], tok, LOC);
-            }
+          if (got_diamond)
+             {
+               loop(s, stat_len)
+                   {
+                     const Token & tok = src[stat_len - s - 1];
+                     if (tok.get_Class() >= TC_MAX_PERM &&
+                         tok.get_tag() != TOK_L_CURLY &&
+                         tok.get_tag() != TOK_R_CURLY)
+                        {
+                          CERR << "Line " << line << endl
+                               << "Offending token: (tag > TC_MAX_PERM) "
+                               << tok.get_tag() << " " << tok << endl
+                               << "Statement: ";
+                          Token::print_token_list(CERR, in);
+                          SYNTAX_ERROR;
+                        }
+                     out.append(tok);
+                   }
+               if (stat_len)   out.append(Token(TOK_ENDL), LOC);
+               src.skip(stat_len + 1);
+               continue;
+           }
+        }
 
-
-        // add an appropriate end token.
+        // at this point src contains only the last statement.
+        // copy it in reverse order.
         //
-        if (get_parse_mode() == PM_EXECUTE)   ;
-        else if (out.size())                  out.append(Token(TOK_ENDL), LOC);
+        loop(s, src.rest())
+           {
+             const Token & tok = src[src.rest() - s - 1];
+             if (tok.get_Class() >= TC_MAX_PERM &&
+                 tok.get_tag()   != TOK_L_CURLY &&
+                 tok.get_tag()   != TOK_R_CURLY)
+                {
+                  CERR << "Line " << line << endl
+                       << "Offending token: (tag > TC_MAX_PERM) "
+                       << tok.get_tag() << " " << tok << endl
+                       << "Statement: ";
+                  Token::print_token_list(CERR, in);
+                  SYNTAX_ERROR;
+                }
+             out.append(tok);
+           }
+        src.skip(src.rest());
+
+        // add an appropriate end token
+        //
+        if (get_parse_mode() != PM_EXECUTE)   out.append(Token(TOK_ENDL), LOC);
       }
 
    Log(LOG_UserFunction__set_line)
