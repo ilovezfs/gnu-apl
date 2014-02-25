@@ -423,6 +423,16 @@ int tcol = 0;
          //
          if (body[b].get_tag() != TOK_R_CURLY)   continue;   // not {
 
+         // a named lambda has the form Q←{ ... }
+         //
+         // however, eg. Q←{ ... } / ... is not a named lambda by an unnamed
+         // lambda for / whose result is assigned to Q. We need to distinguish
+         // the two cases and remember if the token after } is the end of
+         // the statement or not.
+         //
+         const bool maybe_named = b == 0 || (body[b-1].get_tag() == TOK_DIAMOND
+                                         || body[b-1].get_tag() == TOK_ENDL);
+
          body[b++].clear(LOC);   // invalidate }
          Token_string lambda_body;
 
@@ -454,15 +464,6 @@ int tcol = 0;
                lambda_body.append(t, LOC);
                ++b;
              }
-
-         // a named lambda has the form Q←{ ... }
-         //
-         // however, eg. Q←{ ... } / ... is not a named lambda by an unnamed
-         // lambda for / whose result is assigned to Q. We need to distinguish
-         // the two cases.
-         //
-         const bool maybe_named = (body[b+1].get_tag() == TOK_DIAMOND
-                                || body[b+1].get_tag() == TOK_ENDL);
 
          // if the lambda is { } then we can't assign anything to λ
          // and make the lambda result-less.
