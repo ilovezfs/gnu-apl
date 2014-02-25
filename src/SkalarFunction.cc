@@ -477,7 +477,7 @@ const APL_Float qct = Workspace::get_CT();
       {
         // throw error now !
         const APL_Integer val =  B->get_ravel(b).get_near_int(qct);
-        if (val <= 0)   DOMAIN_ERROR;
+        if (val < 0)   DOMAIN_ERROR;
       }
 
    return eval_skalar_B(B, &Cell::bif_roll);

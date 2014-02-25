@@ -188,22 +188,26 @@ void IntCell::bif_reciprocal(Cell * Z) const
       }
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_roll(Cell * Z) const
+void
+IntCell::bif_roll(Cell * Z) const
 {
 const APL_Integer qio = Workspace::get_IO();
 const APL_Integer set_size = value.ival;
-   if (set_size <= 0)   DOMAIN_ERROR;
+   if (set_size < 0)   DOMAIN_ERROR;
 
 const APL_Integer rnd = Workspace::get_RL();
-   new (Z) IntCell(qio + (rnd % set_size));
+   if (set_size == 0)   new (Z) FloatCell((1.0*rnd)/0x8000000000000000ULL);
+   else                 new (Z) IntCell(qio + (rnd % set_size));
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_pi_times(Cell * Z) const
+void
+IntCell::bif_pi_times(Cell * Z) const
 {
    new (Z) FloatCell(M_PI * value.ival);
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_ceiling(Cell * Z) const
+void
+IntCell::bif_ceiling(Cell * Z) const
 {
    new (Z) IntCell(value.ival);
 }
@@ -218,7 +222,8 @@ void IntCell::bif_exponential(Cell * Z) const
    new (Z) FloatCell(exp(value.ival));
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_nat_log(Cell * Z) const
+void
+IntCell::bif_nat_log(Cell * Z) const
 {
    if (value.ival > 0)
       {
