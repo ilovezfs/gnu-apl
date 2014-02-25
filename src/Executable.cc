@@ -430,7 +430,7 @@ int tcol = 0;
 
          for (bool goon = true; goon;)
              {
-               Assert(b < body.size());
+               if (b >= body.size())   SYNTAX_ERROR;
                Token t;
                move_1(t, body[b], LOC);
                body[b].clear(LOC);   // invalidate in main body
