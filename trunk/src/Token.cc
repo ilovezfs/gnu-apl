@@ -476,6 +476,8 @@ UCS_string ucs;
 
         case TC_R_PARENT:
         case TC_L_PARENT:
+        case TC_R_CURLY:
+        case TC_L_CURLY:
              return id_name(get_Id());
 
         case TC_FUN0:
