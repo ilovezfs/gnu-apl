@@ -740,14 +740,6 @@ tm * t;
                    const Value & sub = *cP->get_pointer_value().get();
                    Assert1(&sub);
                    unsigned int sub_idx = find_vid(sub);
-                   if (sub_idx >= values.size())  // sub not found
-                      {
-                        Q(parent)
-                        Q(sub)
-                        loop(v, values.size())   Q(values[v]._val);
-Q(sub_idx);
-Q(values.size());
-                      }
                    Assert(sub_idx < values.size());
                    Assert(!&values[sub_idx]._par);
                    values[sub_idx] = _val_par(values[sub_idx]._val,  parent);

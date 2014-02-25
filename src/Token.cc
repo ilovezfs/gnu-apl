@@ -574,6 +574,15 @@ const int len = src.rest();
    out << endl;
 }
 //-----------------------------------------------------------------------------
+ostream &
+operator << (ostream & out, const Token_string & tos)
+{
+   out << "[" << tos.size() << " token]: ";
+   Token::print_token_list(out, tos);
+   out << endl;
+   return out;
+}
+//-----------------------------------------------------------------------------
 const char *
 Token::class_name(TokenClass tc)
 {
