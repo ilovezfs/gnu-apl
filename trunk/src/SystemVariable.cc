@@ -784,7 +784,7 @@ PrintBuffer pb(*value, pctx);
       }
    else
       {
-        COUT << pb.l1();
+        COUT << pb.l1().no_pad();
         prompt.append(pb.l1());
       }
 
