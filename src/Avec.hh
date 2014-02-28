@@ -88,7 +88,7 @@ public:
 
    /// return true if unicode \b uni is a quad (⎕ or ▯)
    static bool is_quad(Unicode uni)
-      { return uni == UNI_QUAD_QUAD || uni == UNI_QUAD_QUAD1; }
+      { return uni == UNI_Quad_Quad || uni == UNI_Quad_Quad1; }
 
    /// return true if unicode \b uni needs ⎕UCS in 2 ⎕TF or )OUT
    static bool need_UCS(Unicode uni);

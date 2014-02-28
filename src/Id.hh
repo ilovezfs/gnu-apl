@@ -33,8 +33,8 @@ class UCS_string;
 
  1. from the name of an ⎕AV element, e.g.  ID_F2_AND or ID_ASSIGN
  2. from a name,                     e.g.  ID_APL_VALUE or ID_CHARACTER
- 3. from a distinguished var name,   e.g.  ID_QUAD_AI or ID_QUAD_AV
- 4. from a distinguished fun name,   e.g.  ID_QUAD_AT or ID_QUAD_EM
+ 3. from a distinguished var name,   e.g.  ID_Quad_AI or ID_Quad_AV
+ 4. from a distinguished fun name,   e.g.  ID_Quad_AT or ID_Quad_EM
  5. from a special token name              ID_L_PARENT1 or ID_R_PARENT1
 
   This is controlled by 5 corresponding macros: av() pp() qv() qf() resp. st()
@@ -44,8 +44,8 @@ enum Id
 {
 #define av(x, v) ID_      ## x v,
 #define pp(x, v) ID_      ## x v,
-#define qf(x, v) ID_QUAD_ ## x v,
-#define qv(x, v) ID_QUAD_ ## x v,
+#define qf(x, v) ID_Quad_ ## x v,
+#define qv(x, v) ID_Quad_ ## x v,
 #define st(x, v) ID_      ## x v,
 
 #define id_def(id, _uni, val, mac) mac(id, val)

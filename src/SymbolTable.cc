@@ -480,3 +480,52 @@ int idx = 0;
       }
 }
 //-----------------------------------------------------------------------------
+void
+SymbolTable::dump(ostream & out, int & fcount, int & vcount) const
+{
+vector<const Symbol *> symbols;
+   loop(hash, MAX_SYMBOL_COUNT)
+      {
+        for (const Symbol * sym = symbol_table[hash]; sym; sym = sym->next)
+            {
+              if (sym->is_erased())              continue;
+              if (sym->value_stack_size() < 1)   continue;
+              symbols.push_back(sym);
+            }
+      }
+
+   // sort symbols by name
+   //
+   loop(d, symbols.size())
+      {
+        for (ShapeItem j = d + 1; j < symbols.size(); ++j)
+            {
+              if (symbols[d]->get_name().compare(symbols[j]->get_name()) > 0)
+                 {
+                   const Symbol * ss = symbols[d];
+                   symbols[d] = symbols[j];
+                   symbols[j] = ss;
+                 }
+            }
+      }
+
+   // pass 1: functions
+   //
+   loop(s, symbols.size())
+      {
+        const Symbol & sym = *symbols[s];
+        const ValueStackItem & vs = sym[0];
+         if      (vs.name_class == NC_FUNCTION)   { ++fcount;   sym.dump(out); }
+         else if (vs.name_class == NC_OPERATOR)   { ++fcount;   sym.dump(out); }
+      }
+
+   // pass 2: variables
+   //
+   loop(s, symbols.size())
+      {
+        const Symbol & sym = *symbols[s];
+        const ValueStackItem & vs = sym[0];
+        if (vs.name_class == NC_VARIABLE)   { ++vcount;   sym.dump(out); }
+      }
+}
+//-----------------------------------------------------------------------------

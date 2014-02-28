@@ -31,7 +31,7 @@ class Value;
 
 //-----------------------------------------------------------------------------
 /**
-     The possible values returned by \b QUAD-NC.
+     The possible values returned by \b Quad-NC.
  */
 enum NameClass
 {

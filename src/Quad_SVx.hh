@@ -59,7 +59,7 @@ class Quad_SVC : public QuadFunction, Quad_SVx
 {
 public:
    /// Constructor.
-   Quad_SVC() : QuadFunction(TOK_QUAD_SVC) {}
+   Quad_SVC() : QuadFunction(TOK_Quad_SVC) {}
 
    static Quad_SVC fun;         ///< Built-in function.
 
@@ -98,7 +98,7 @@ class Quad_SVO : public QuadFunction, Quad_SVx
 {
 public:
    /// Constructor.
-   Quad_SVO() : QuadFunction(TOK_QUAD_SVO) {}
+   Quad_SVO() : QuadFunction(TOK_Quad_SVO) {}
 
    static Quad_SVO fun; ///< Built-in function.
 
@@ -121,7 +121,7 @@ class Quad_SVQ : public QuadFunction, Quad_SVx
 {
 public:
    /// Constructor.
-   Quad_SVQ() : QuadFunction(TOK_QUAD_SVQ) {}
+   Quad_SVQ() : QuadFunction(TOK_Quad_SVQ) {}
 
    static Quad_SVQ          fun;         ///< Built-in function.
 
@@ -143,7 +143,7 @@ class Quad_SVR : public QuadFunction, Quad_SVx
 {
 public:
    /// Constructor.
-   Quad_SVR() : QuadFunction(TOK_QUAD_SVR) {}
+   Quad_SVR() : QuadFunction(TOK_Quad_SVR) {}
 
    static Quad_SVR fun;         ///< Built-in function.
 
@@ -159,7 +159,7 @@ class Quad_SVS : public QuadFunction, Quad_SVx
 {
 public:
    /// Constructor.
-   Quad_SVS() : QuadFunction(TOK_QUAD_SVS) {}
+   Quad_SVS() : QuadFunction(TOK_Quad_SVS) {}
 
    static Quad_SVS          fun;         ///< Built-in function.
 

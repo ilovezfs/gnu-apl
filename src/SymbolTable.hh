@@ -72,6 +72,9 @@ public:
    /// return all symbols  (including erased symbols)
    void get_all_symbols(Symbol ** table, int table_size) const;
 
+   /// dump symbols to out
+   void dump(ostream & out, int & fcount, int & vcount) const;
+
 protected:
    /// Parameters for the FNV-1 hash.
    enum { FNV_Offset_32 = 0x811C9DC5, FNV_Prime_32 = 16777619 };

@@ -47,7 +47,7 @@ protected:
    /// tokenize a function
    void tokenize_function(Source<Unicode> & src, Token_string & tos);
 
-   /// tokenize a QUAD function or variable
+   /// tokenize a Quad function or variable
    void tokenize_quad(Source<Unicode> & src, Token_string & tos);
 
    /// tokenize a single quoted string

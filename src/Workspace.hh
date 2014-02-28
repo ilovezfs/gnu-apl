@@ -65,43 +65,43 @@ public:
    {}
 
 
-   /// return the current QUAD-CT
+   /// return the current Quad-CT
    static APL_Float get_CT()
       { return the_workspace.v_Quad_CT.current(); }
 
-   /// set the current QUAD-CT
+   /// set the current Quad-CT
    static void set_CT(APL_Float new_CT)
       { the_workspace.v_Quad_FC.current(); }
 
-   /// Return element \b pos of the current QUAD-FC (pos should be 0..5)
+   /// Return element \b pos of the current Quad-FC (pos should be 0..5)
    static APL_Char get_FC(int p)
       { return the_workspace.v_Quad_FC.current()[p]; }
 
-   /// Return the current QUAD-IO
+   /// Return the current Quad-IO
    static APL_Integer get_IO()
       { return the_workspace.v_Quad_IO.current(); }
 
-   /// Return the current QUAD-LX
+   /// Return the current Quad-LX
    static UCS_string get_LX()
       { return UCS_string(*the_workspace.v_Quad_LX.get_apl_value()); }
 
-   /// Return the current QUAD-PP
+   /// Return the current Quad-PP
    static APL_Integer get_PP()
       { return the_workspace.v_Quad_PP.current(); }
 
-   /// Return the current QUAD-PR
+   /// Return the current Quad-PR
    static const UCS_string & get_PR()
       { return the_workspace.v_Quad_PR.current(); }
 
-   /// Return the current QUAD-PS
+   /// Return the current Quad-PS
    static PrintStyle get_PS()
       { return the_workspace.v_Quad_PS.current(); }
 
-   /// Return the current QUAD-PW.
+   /// Return the current Quad-PW.
    static APL_Integer get_PW()
       { return the_workspace.v_Quad_PW.current(); }
 
-   /// Return the QUAD-RL.
+   /// Return the Quad-RL.
    static APL_Integer get_RL()
       { return the_workspace.v_Quad_RL.get_random(); }
 
@@ -216,6 +216,9 @@ public:
    /// save this workspace
    static void save_WS(ostream & out, vector<UCS_string> & lib_ws);
 
+   /// dump this workspace
+   static void dump_WS(ostream & out, vector<UCS_string> & lib_ws);
+
    /// set or inquire the workspace ID
    static void wsid(ostream & out, UCS_string arg);
 
@@ -258,7 +261,7 @@ public:
    { return the_workspace.v_ ## x; }
 #define rw_sv_def(x) static x & get_v_ ## x() \
    { return the_workspace.v_ ## x; }
-   rw_sv_def(Quad_QUAD)
+   rw_sv_def(Quad_Quad)
    rw_sv_def(Quad_QUOTE)
 #include "SystemVariable.def"
 
@@ -269,7 +272,7 @@ protected:
    //
 #define ro_sv_def(x) x v_ ## x;
 #define rw_sv_def(x) x v_ ## x;
-   rw_sv_def(Quad_QUAD)
+   rw_sv_def(Quad_Quad)
    rw_sv_def(Quad_QUOTE)
 #include "SystemVariable.def"
 

@@ -415,21 +415,85 @@ UCS_string epilog(name);
    {
      ShapeItem pos = 0;
      V_mode mode = Vm_NONE;
-     enum { max_len = 78 };
+     int max_len = 72 - pick.size();
+     if (max_len < 40)   max_len = 40;
      UCS_string line;
      int count = 0;
      int lpos = 0;
      loop(p, value.element_count())
         {
-          // compute next
+          UCS_string pref = name;
+          pref.append_utf8("[");
+          if (pos)
+             {
+               pref.append_number(pos);
+               pref.append_utf8("+");
+             }
+          pref.append_utf8("⍳");
+          pref.append_number(count);
+          pref.append_utf8("]←");
+
+          // compute next item
           //
           UCS_string next;
           V_mode next_mode;
           const Cell & cell = value.get_ravel(p);
           if (cell.is_character_cell())
              {
-                next_mode = Vm_UCS;
-                next.append_number(cell.get_char_value());
+               // see if we should use '' or ⎕UCS
+               //
+               bool may_quote = false;
+               {
+                int char_len = 0;
+                int ascii_len = 0;
+                for (ShapeItem pp = p; pp < value.element_count(); ++pp)
+                    {
+                      // if we are in '' mode then a single ASCII char
+                      // suffices to remain in that mode
+                      //
+                      if (ascii_len > 0 && mode == Vm_QUOT)
+                         {
+                           may_quote = true;
+                           break;
+                         }
+
+                      // if we are in a non-'' mode then 3 ASCII chars
+                      // suffice to enter '' mode
+                      //
+                      if (ascii_len >= 3)
+                         {
+                           may_quote = true;
+                           break;
+                         }
+
+                      if (value.get_ravel(pp).is_character_cell())
+                         {
+                           ++char_len;
+                           const Unicode uni =
+                                         value.get_ravel(pp).get_char_value();
+                           if (uni >= ' ' && uni <= 0x7E)   ++ascii_len;
+                           else                             break;
+                         }
+                      else                                  break;
+                    }
+
+                 // if all chars are ASCII then use '' mode
+                 //
+                 if (char_len == ascii_len)   may_quote = true;
+               }
+
+               if (may_quote)
+                   {
+                     next_mode = Vm_QUOT;
+                     const Unicode uni = cell.get_char_value();
+                     next.append(uni);
+                     if (uni == UNI_SINGLE_QUOTE)   next.append(uni);
+                   }
+                else
+                   {
+                     next_mode = Vm_UCS;
+                     next.append_number(cell.get_char_value());
+                   }
              }
           else if (cell.is_integer_cell())
              {
@@ -440,14 +504,14 @@ UCS_string epilog(name);
              {
                next_mode = Vm_NUM;
                bool scaled = false;
-               PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
+               PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, 0.0, MAX_Quad_PW);
                next = UCS_string(cell.get_real_value(), scaled, pctx);
              }
           else if (cell.is_complex_cell())
              {
                next_mode = Vm_NUM;
                bool scaled = false;
-               PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
+               PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, 0.0, MAX_Quad_PW);
                next = UCS_string(cell.get_real_value(), scaled, pctx);
                next.append_utf8("J");
                scaled = false;
@@ -455,13 +519,19 @@ UCS_string epilog(name);
              }
           else if (cell.is_pointer_cell())
              {
-               // adapt to current mode
+               // cell is a pointer cell which will be replaced later.
+               // for now we add an item in the current mode as
+               // placeholder
                //
+               if (mode == Vm_NONE)
+                  {
+                    mode = Vm_QUOT;
+                    next.append_utf8("'");
+                  }
                next_mode = mode;
-               if      (mode == Vm_NONE)   next.append_utf8("0");
-               else if (mode == Vm_NUM)    next.append_utf8("0");
-               else if (mode == Vm_QUOT)   next.append_utf8("!");
-               else if (mode == Vm_UCS)    next.append_utf8("33");
+               if      (mode == Vm_NUM)    next.append_utf8(" 0");
+               else if (mode == Vm_QUOT)   next.append_utf8("∘");
+               else if (mode == Vm_UCS)    next.append_utf8(" 33");
 
                nested = true;
                if (short_format)
@@ -472,8 +542,10 @@ UCS_string epilog(name);
              }
           else DOMAIN_ERROR;
 
-           if (count && (line.size() + next.size()) > max_len)   // long value
+           if (p && (pref.size() + line.size() + next.size()) > max_len)
               {
+                // next item does not fit in this line.
+                //
                  if (mode == Vm_QUOT)       line.append_utf8("'");
                  else if (mode == Vm_UCS)   line.append_utf8(")");
 
@@ -483,12 +555,6 @@ UCS_string epilog(name);
                        short_format = false;
                      }
 
-                 UCS_string pref = name;
-                 pref.append_utf8("[");
-                 pref.append_number(pos);
-                 pref.append_utf8("+⍳");
-                 pref.append_number(count);
-                 pref.append_utf8("]←");
                  pref.append(line);
                  pos += count;
                  count = 0;
@@ -509,14 +575,14 @@ UCS_string epilog(name);
              {
                if (mode != Vm_NONE)   line.append_utf8(",");
 
-               if      (next_mode == Vm_UCS)    line.append_utf8("(⎕UCS ");
+               if      (next_mode == Vm_UCS)    line.append_utf8("(,⎕UCS ");
                else if (next_mode == Vm_QUOT)   line.append_utf8("'");
                else if (next_mode == Vm_NUM)    line.append_utf8("");
              }
-          else                // sepatator in same mode
+          else                // separator in same mode
              {
                if      (next_mode == Vm_QUOT)   ;
-               else if (next_mode == Vm_UCS)    line.append_utf8(",");
+               else if (next_mode == Vm_UCS)    line.append_utf8(" ");
                else if (next_mode == Vm_NUM)    line.append_utf8(",");
              }
 
@@ -526,7 +592,7 @@ UCS_string epilog(name);
           next.clear();
         }
 
-     // all items done
+     // all items done: close mode
      //
      if (mode == Vm_QUOT)       line.append_utf8("'");
      else if (mode == Vm_UCS)   line.append_utf8(")");
@@ -811,7 +877,7 @@ const UCS_string statement_B(*B.get());
 
    ucs_2.append(UNI_ASCII_SPACE);
 
-   ucs_2.append(UNI_QUAD_QUAD);
+   ucs_2.append(UNI_Quad_Quad);
    ucs_2.append(UNI_ASCII_E);
    ucs_2.append(UNI_ASCII_A);
 

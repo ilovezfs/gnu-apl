@@ -28,7 +28,7 @@
 
 //-----------------------------------------------------------------------------
 /**
-    Base class for all system variables (QUAD variables).
+    Base class for all system variables (Quad variables).
  */
 class SystemVariable : public Symbol
 {
@@ -199,7 +199,7 @@ class Quad_EM : public RO_SystemVariable
 public:
    /// Constructor.
    Quad_EM()
-   : RO_SystemVariable(ID_QUAD_EM),
+   : RO_SystemVariable(ID_Quad_EM),
      error(E_NO_ERROR, LOC)
    {}
 
@@ -226,7 +226,7 @@ class Quad_ET : public RO_SystemVariable
 {
 public:
    /// Constructor.
-   Quad_ET() : RO_SystemVariable(ID_QUAD_ET),
+   Quad_ET() : RO_SystemVariable(ID_Quad_ET),
    error(E_NO_ERROR, LOC) 
    {}
 
@@ -290,7 +290,7 @@ public:
 
    /// Return the current index origin.
    APL_Integer current() const
-      { if (current_io == -1)   throw_apl_error(E_QUAD_IO_ERROR, LOC);
+      { if (current_io == -1)   throw_apl_error(E_Quad_IO_ERROR, LOC);
         return current_io; }
 
 protected:
@@ -476,11 +476,11 @@ protected:
 /**
    System variable Quad-Quad (Evaluated Input/Output).
  */
-class Quad_QUAD : public SystemVariable
+class Quad_Quad : public SystemVariable
 {
 public:
    /// Constructor.
-   Quad_QUAD();
+   Quad_Quad();
 
    /// overloaded Symbol::resolve().
    virtual void resolve(Token & token, bool left);
@@ -543,7 +543,7 @@ class Quad_SYL : public NL_SystemVariable
 {
 public:
    /// Constructor.
-   Quad_SYL() : NL_SystemVariable(ID_QUAD_SYL)
+   Quad_SYL() : NL_SystemVariable(ID_Quad_SYL)
       { assign(Value_P(), LOC); }
 
    /// overloaded Symbol::assign()

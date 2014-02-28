@@ -38,8 +38,8 @@ public:
    /// constructor from another style
    PrintContext(PrintStyle st)
    : style(st),
-     precision(DEFAULT_QUAD_PP),
-     width(DEFAULT_QUAD_PW)
+     precision(DEFAULT_Quad_PP),
+     width(DEFAULT_Quad_PW)
    {}
 
    /// constructor for given values

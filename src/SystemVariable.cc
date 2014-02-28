@@ -122,7 +122,7 @@ SystemVariable::get_attributes(int mode, Cell * dest) const
 }
 //=============================================================================
 Quad_AV::Quad_AV()
-   : RO_SystemVariable(ID_QUAD_AV)
+   : RO_SystemVariable(ID_Quad_AV)
 {
    Symbol::assign(Value::AV_P, LOC);
 }
@@ -135,7 +135,7 @@ Quad_AV::indexed_at(uint32_t pos)
 }
 //=============================================================================
 Quad_AI::Quad_AI()
-   : RO_SystemVariable(ID_QUAD_AI),
+   : RO_SystemVariable(ID_Quad_AI),
      session_start(now()),
      user_wait(0)
 {
@@ -159,7 +159,7 @@ Value_P ret(new Value(4, LOC));
 }
 //=============================================================================
 Quad_ARG::Quad_ARG()
-   : RO_SystemVariable(ID_QUAD_ARG)
+   : RO_SystemVariable(ID_Quad_ARG)
 {
 }
 //-----------------------------------------------------------------------------
@@ -184,8 +184,8 @@ Cell * C = &Z->get_ravel(0);
 }
 //=============================================================================
 Quad_CT::Quad_CT()
-   : SystemVariable(ID_QUAD_CT),
-     current_ct(DEFAULT_QUAD_CT)
+   : SystemVariable(ID_Quad_CT),
+     current_ct(DEFAULT_Quad_CT)
 {
 Value_P value(new Value(LOC));
    new (&value->get_ravel(0)) FloatCell(current_ct);
@@ -212,7 +212,7 @@ APL_Float val = cell.get_real_value();
    if (val < 0.0)     DOMAIN_ERROR;
 
    // APL2 "discourages" the use of ⎕CT > 1E¯9.
-   // We round down to MAX_QUAD_CT (= 1E¯9) instead.
+   // We round down to MAX_Quad_CT (= 1E¯9) instead.
    //
    if (val > Value::Max_CT_P->get_ravel(0).get_real_value())
       {
@@ -281,7 +281,7 @@ Value_P Z(new Value(2, LOC));
    return Z;
 }
 //=============================================================================
-Quad_FC::Quad_FC() : SystemVariable(ID_QUAD_FC)
+Quad_FC::Quad_FC() : SystemVariable(ID_Quad_FC)
 {
    set_default();
 
@@ -381,7 +381,7 @@ Value_P v1(new Value(6, LOC));
 }
 //=============================================================================
 Quad_IO::Quad_IO()
-   : SystemVariable(ID_QUAD_IO),
+   : SystemVariable(ID_Quad_IO),
      current_io(1)
 {
 Value_P value(new Value(LOC));
@@ -416,7 +416,7 @@ Quad_IO::expunge()
 }
 //=============================================================================
 Quad_L::Quad_L()
- : NL_SystemVariable(ID_QUAD_L)
+ : NL_SystemVariable(ID_Quad_L)
 {
    Symbol::assign(Value::Zero_P, LOC);
 }
@@ -448,7 +448,7 @@ const StateIndicator * si = Workspace::SI_top_error();
 }
 //=============================================================================
 Quad_LC::Quad_LC()
-   : RO_SystemVariable(ID_QUAD_LC)
+   : RO_SystemVariable(ID_Quad_LC)
 {
    Symbol::assign(Value::Zero_P, LOC);
 }
@@ -481,7 +481,7 @@ Value_P Z(new Value(len, LOC));
 }
 //=============================================================================
 Quad_LX::Quad_LX()
-   : NL_SystemVariable(ID_QUAD_LX)
+   : NL_SystemVariable(ID_Quad_LX)
 {
    Symbol::assign(Value::Str0_P, LOC);
 }
@@ -496,7 +496,7 @@ Quad_LX::assign(Value_P value, const char * loc)
 }
 //=============================================================================
 Quad_NLT::Quad_NLT()
- : NL_SystemVariable(ID_QUAD_NLT)
+ : NL_SystemVariable(ID_Quad_NLT)
 {
    // get current locale
    //
@@ -573,8 +573,8 @@ const char * locale = setlocale(LC_ALL, new_locale);
 }
 //=============================================================================
 Quad_PP::Quad_PP()
-   : SystemVariable(ID_QUAD_PP),
-     current_pp(DEFAULT_QUAD_PP)
+   : SystemVariable(ID_Quad_PP),
+     current_pp(DEFAULT_Quad_PP)
 {
 Value_P value(new Value(LOC));
 
@@ -595,11 +595,11 @@ Quad_PP::assign(Value_P value, const char * loc)
 
 const Cell & cell = value->get_ravel(0);
 const APL_Integer val = cell.get_near_int(0.1);
-   if (val < MIN_QUAD_PP)   DOMAIN_ERROR;
+   if (val < MIN_Quad_PP)   DOMAIN_ERROR;
 
-   if (val > MAX_QUAD_PP)
+   if (val > MAX_Quad_PP)
       {
-        current_pp = MAX_QUAD_PP;
+        current_pp = MAX_Quad_PP;
         value = Value::Max_PP_P;
       }
    else
@@ -611,7 +611,7 @@ const APL_Integer val = cell.get_near_int(0.1);
 }
 //=============================================================================
 Quad_PR::Quad_PR()
-   : SystemVariable(ID_QUAD_PR),
+   : SystemVariable(ID_Quad_PR),
      current_pr(UNI_ASCII_SPACE)
 {
 Value_P value(new Value(current_pr, LOC));
@@ -633,7 +633,7 @@ UCS_string ucs = value->get_UCS_ravel();
 }
 //=============================================================================
 Quad_PS::Quad_PS()
-   : SystemVariable(ID_QUAD_PS),
+   : SystemVariable(ID_Quad_PS),
      current_ps(PR_APL)
 {
    Symbol::assign(Value::Zero_P, LOC);
@@ -661,7 +661,7 @@ const APL_Integer val = cell.get_near_int(0.1);
 }
 //=============================================================================
 Quad_PT::Quad_PT()
-   : RO_SystemVariable(ID_QUAD_PT)
+   : RO_SystemVariable(ID_Quad_PT)
 {
    Symbol::assign(Value::Zero_P, LOC);
 }
@@ -677,7 +677,7 @@ Value_P Z(new Value(LOC));
 }
 //=============================================================================
 Quad_PW::Quad_PW()
-   : SystemVariable(ID_QUAD_PW),
+   : SystemVariable(ID_Quad_PW),
      current_pw(80)
 {
 Value_P value(new Value(LOC));
@@ -704,19 +704,19 @@ const APL_Integer val = cell.get_near_int(0.1);
    if (val < 30)   return;
 
    // max val is system specific. Ignore larger values.
-   if (val > MAX_QUAD_PW)   return;
+   if (val > MAX_Quad_PW)   return;
 
    current_pw = val;
    Symbol::assign(value, LOC);
 }
 //=============================================================================
-Quad_QUAD::Quad_QUAD()
- : SystemVariable(ID_QUAD_QUAD)
+Quad_Quad::Quad_Quad()
+ : SystemVariable(ID_Quad_Quad)
 {
 }
 //-----------------------------------------------------------------------------
 void
-Quad_QUAD::assign(Value_P value, const char * loc)
+Quad_Quad::assign(Value_P value, const char * loc)
 {
    // write pending LF from  ⍞ (if any)
    Quad_QUOTE::done(true, LOC);
@@ -725,14 +725,14 @@ Quad_QUAD::assign(Value_P value, const char * loc)
 }
 //-----------------------------------------------------------------------------
 void
-Quad_QUAD::resolve(Token & token, bool left)
+Quad_Quad::resolve(Token & token, bool left)
 {
    if (left)   return;   // ⎕←xxx
 
    // write pending LF from  ⍞ (if any)
    Quad_QUOTE::done(true, LOC);
 
-   COUT << UNI_QUAD_QUAD << ":" << endl;
+   COUT << UNI_Quad_Quad << ":" << endl;
 
 UCS_string in = Input::get_line();
 
@@ -740,7 +740,7 @@ UCS_string in = Input::get_line();
 }
 //=============================================================================
 Quad_QUOTE::Quad_QUOTE()
- : SystemVariable(ID_QUOTE_QUAD)
+ : SystemVariable(ID_QUOTE_Quad)
 {
    // we assign a dummy value so that ⍞ is not undefined.
    //
@@ -771,7 +771,7 @@ Quad_QUOTE::assign(Value_P value, const char * loc)
       CERR << "Quad_QUOTE::assign() called, buffer = ["
            << prompt << "]" << endl;
 
-PrintContext pctx(PR_QUOTE_QUAD);
+PrintContext pctx(PR_QUOTE_Quad);
 PrintBuffer pb(*value, pctx);
    if (pb.get_height() > 1)   // multi line output: flush and restart corking
       {
@@ -823,7 +823,7 @@ Value_P Z(new Value(in, LOC));
 }
 //=============================================================================
 Quad_R::Quad_R()
- : NL_SystemVariable(ID_QUAD_R)
+ : NL_SystemVariable(ID_Quad_R)
 {
    Symbol::assign(Value::Zero_P, LOC);
 }
@@ -952,7 +952,7 @@ Value_P Z( new Value(sh, LOC));
 }
 //=============================================================================
 Quad_TC::Quad_TC()
-   : RO_SystemVariable(ID_QUAD_TC)
+   : RO_SystemVariable(ID_Quad_TC)
 {
    Symbol::assign(Value::Quad_TC_P, LOC);
 }
@@ -964,7 +964,7 @@ Quad_TC::get_apl_value() const
 }
 //=============================================================================
 Quad_TS::Quad_TS()
-   : RO_SystemVariable(ID_QUAD_TS)
+   : RO_SystemVariable(ID_Quad_TS)
 {
    Symbol::assign(Value::Zero_P, LOC);
 }
@@ -989,7 +989,7 @@ Value_P Z(new Value(7, LOC));
 }
 //=============================================================================
 Quad_TZ::Quad_TZ()
-   : SystemVariable(ID_QUAD_TZ)
+   : SystemVariable(ID_Quad_TZ)
 {
    // the GNU/Linux timezone variable conflicts with function timezone() on
    // other systems. timezone.tz_minuteswest in gettimeofday() does not
@@ -1063,7 +1063,7 @@ Cell & cell = value->get_ravel(0);
 }
 //=============================================================================
 Quad_UL::Quad_UL()
-   : RO_SystemVariable(ID_QUAD_UL)
+   : RO_SystemVariable(ID_Quad_UL)
 {
    Symbol::assign(get_apl_value(), LOC);
 }
@@ -1096,7 +1096,7 @@ Value_P Z(new Value(LOC));
 }
 //=============================================================================
 Quad_WA::Quad_WA()
-   : RO_SystemVariable(ID_QUAD_WA)
+   : RO_SystemVariable(ID_Quad_WA)
 {
    Symbol::assign(Value::Zero_P, LOC);
 }

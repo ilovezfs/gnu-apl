@@ -31,7 +31,7 @@ class Quad_FX : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_FX() : QuadFunction(TOK_QUAD_FX) {}
+   Quad_FX() : QuadFunction(TOK_Quad_FX) {}
 
    static Quad_FX           fun;          ///< Built-in function.
 

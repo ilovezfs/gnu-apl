@@ -310,7 +310,7 @@ grow:
 
           if (tl.tok.get_tag() == TOK_SI_PUSHED)
             {
-              // Quad_QUAD::resolve() calls ⍎ which returns TOK_SI_PUSHED.
+              // Quad_Quad::resolve() calls ⍎ which returns TOK_SI_PUSHED.
               //
               push(tl);
               return Token(TOK_SI_PUSHED);

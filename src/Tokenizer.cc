@@ -113,10 +113,10 @@ Source<Unicode> src(input);
                       {
                          tokenize_quad(src, tos);
                       }
-                   else if (uni == UNI_QUOTE_QUAD)
+                   else if (uni == UNI_QUOTE_Quad)
                       {
                         ++src;
-                        tos.append(Token(TOK_QUAD_QUOTE,
+                        tos.append(Token(TOK_Quad_QUOTE,
                                    &Workspace::get_v_Quad_QUOTE()), LOC);
                       }
                    else if (uni == UNI_ALPHA)
@@ -351,7 +351,7 @@ Tokenizer::tokenize_quad(Source<Unicode> & src, Token_string & tos)
       CERR << "tokenize_quad(" << src.rest() << " chars)"<< endl;
 
    src.get();               // discard (possibly alternative) ⎕
-UCS_string ucs(UNI_QUAD_QUAD);
+UCS_string ucs(UNI_Quad_Quad);
    Assert(ucs[0]);
 
    ucs.append((src.rest() > 0) ? src[0] : Invalid_Unicode);

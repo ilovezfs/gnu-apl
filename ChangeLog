@@ -68,3 +68,4 @@
  5538 fixed CDR decoding bug
  5552 fixed problem with non-ASCII filenames
  5591 fixed problem with )SAVE with nested values
+ 5638 command )DUMP

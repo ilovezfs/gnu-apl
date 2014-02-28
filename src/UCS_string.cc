@@ -104,8 +104,8 @@ UCS_string::UCS_string(APL_Float value, bool & scaled,
    : Simple_string<Unicode>(0, 0)
 {
 int quad_pp = pctx.get_PP();
-   if (quad_pp > MAX_QUAD_PP)   quad_pp = MAX_QUAD_PP;
-   if (quad_pp < MIN_QUAD_PP)   quad_pp = MIN_QUAD_PP;
+   if (quad_pp > MAX_Quad_PP)   quad_pp = MAX_Quad_PP;
+   if (quad_pp < MIN_Quad_PP)   quad_pp = MIN_Quad_PP;
 
 const bool negative = (value < 0);
    if (negative)   value = -value;

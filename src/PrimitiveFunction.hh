@@ -35,7 +35,7 @@ class CollatingCache;
 
 //-----------------------------------------------------------------------------
 /**
-    Base class for the APL system functions (QUAD functions and primitives
+    Base class for the APL system functions (Quad functions and primitives
     like +, -, ...) and operators
 
     The individual system functions are derived from this class

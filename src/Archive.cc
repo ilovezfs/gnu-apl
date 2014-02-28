@@ -1358,8 +1358,8 @@ const unsigned int vid = find_int_attr("vid", false, 10);
    // should not be loaded...
    //
    if (symbol.is_readonly())   return;
-   if (symbol.get_name() == id_name(ID_QUAD_NLT))    return;
-   if (symbol.get_name() == id_name(ID_QUAD_SYL))    return;
+   if (symbol.get_name() == id_name(ID_Quad_NLT))    return;
+   if (symbol.get_name() == id_name(ID_Quad_SYL))    return;
 
    try
       {

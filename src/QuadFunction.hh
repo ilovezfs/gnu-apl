@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __QUAD_FUNCTION_HH_DEFINED__
-#define __QUAD_FUNCTION_HH_DEFINED__
+#ifndef __Quad_FUNCTION_HH_DEFINED__
+#define __Quad_FUNCTION_HH_DEFINED__
 
 #include "PrimitiveFunction.hh"
 #include "StateIndicator.hh"
@@ -53,7 +53,7 @@ class Quad_AF : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_AF() : QuadFunction(TOK_QUAD_AF) {}
+   Quad_AF() : QuadFunction(TOK_Quad_AF) {}
 
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
@@ -70,7 +70,7 @@ class Quad_AT : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_AT() : QuadFunction(TOK_QUAD_AT) {}
+   Quad_AT() : QuadFunction(TOK_Quad_AT) {}
 
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
@@ -87,7 +87,7 @@ class Quad_CR : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_CR() : QuadFunction(TOK_QUAD_CR) {}
+   Quad_CR() : QuadFunction(TOK_Quad_CR) {}
 
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
@@ -100,14 +100,14 @@ public:
 
    static Quad_CR fun;          ///< Built-in function.
 
-protected:
-   /// 10 ⎕CR symbol_name (variable ir function name)
-   void do_CR10(vector<UCS_string> & result, const Value & symbol_name);
-
    /// portable variable encoding of value named name (varname or varname ⊂)
-   void do_CR10_var(vector<UCS_string> & result, const UCS_string & name,
-                    const UCS_string & pick, const Value & value);
+   static void do_CR10_var(vector<UCS_string> & result,
+                           const UCS_string & name, const UCS_string & pick,
+                           const Value & value);
 
+protected:
+   /// 10 ⎕CR symbol_name (variable or function name)
+   static void do_CR10(vector<UCS_string> & result, const Value & symbol_name);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -117,7 +117,7 @@ class Quad_DL : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_DL() : QuadFunction(TOK_QUAD_DL) {}
+   Quad_DL() : QuadFunction(TOK_Quad_DL) {}
 
    static Quad_DL fun;          ///< Built-in function.
 
@@ -133,7 +133,7 @@ class Quad_EA : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_EA() : QuadFunction(TOK_QUAD_EA) {}
+   Quad_EA() : QuadFunction(TOK_Quad_EA) {}
 
    static Quad_EA fun;          ///< Built-in function.
 
@@ -158,7 +158,7 @@ class Quad_EC : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_EC() : QuadFunction(TOK_QUAD_EC) {}
+   Quad_EC() : QuadFunction(TOK_Quad_EC) {}
 
    static Quad_EC           fun;          ///< Built-in function.
 
@@ -177,7 +177,7 @@ class Quad_ENV : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_ENV() : QuadFunction(TOK_QUAD_ENV) {}
+   Quad_ENV() : QuadFunction(TOK_Quad_ENV) {}
 
    static Quad_ENV fun;          ///< Built-in function.
 
@@ -193,7 +193,7 @@ class Quad_ES : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_ES() : QuadFunction(TOK_QUAD_ES) {}
+   Quad_ES() : QuadFunction(TOK_Quad_ES) {}
 
    static Quad_ES           fun;          ///< Built-in function.
 
@@ -218,7 +218,7 @@ class Quad_EX : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_EX() : QuadFunction(TOK_QUAD_EX) {}
+   Quad_EX() : QuadFunction(TOK_Quad_EX) {}
 
    static Quad_EX fun;          ///< Built-in function.
 
@@ -237,7 +237,7 @@ class Quad_INP : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_INP() : QuadFunction(TOK_QUAD_INP) {}
+   Quad_INP() : QuadFunction(TOK_Quad_INP) {}
 
    static Quad_INP fun;          ///< Built-in function.
 
@@ -259,7 +259,7 @@ class Quad_NA : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_NA() : QuadFunction(TOK_QUAD_NA) {}
+   Quad_NA() : QuadFunction(TOK_Quad_NA) {}
 
    static Quad_NA fun;          ///< Built-in function.
 
@@ -278,7 +278,7 @@ class Quad_NC : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_NC() : QuadFunction(TOK_QUAD_NC) {}
+   Quad_NC() : QuadFunction(TOK_Quad_NC) {}
 
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
@@ -297,7 +297,7 @@ class Quad_NL : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_NL() : QuadFunction(TOK_QUAD_NL) {}
+   Quad_NL() : QuadFunction(TOK_Quad_NL) {}
 
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B)
@@ -321,7 +321,7 @@ class Quad_SI : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_SI() : QuadFunction(TOK_QUAD_SI) {}
+   Quad_SI() : QuadFunction(TOK_Quad_SI) {}
 
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
@@ -342,7 +342,7 @@ class Quad_UCS : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_UCS() : QuadFunction(TOK_QUAD_UCS) {}
+   Quad_UCS() : QuadFunction(TOK_Quad_UCS) {}
 
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
@@ -354,4 +354,4 @@ protected:
 };
 //-----------------------------------------------------------------------------
 
-#endif // __QUAD_FUNCTION_HH_DEFINED__
+#endif // __Quad_FUNCTION_HH_DEFINED__
