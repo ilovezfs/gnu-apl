@@ -209,16 +209,16 @@ const Unicode av_1 = (ucs.size() > 2) ? ucs[2] : Invalid_Unicode;
 const Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
 
 #define var(t, l) { len = l + 1; \
-   return Token(TOK_QUAD_ ## t, &the_workspace.v_Quad_ ## t); }
+   return Token(TOK_Quad_ ## t, &the_workspace.v_Quad_ ## t); }
 
 #define f0(t, l) { len = l + 1; \
-   return Token(TOK_QUAD_ ## t, &Quad_ ## t::fun); }
+   return Token(TOK_Quad_ ## t, &Quad_ ## t::fun); }
 
 #define f1(t, l) { len = l + 1; \
-   return Token(TOK_QUAD_ ## t, &Quad_ ## t::fun); }
+   return Token(TOK_Quad_ ## t, &Quad_ ## t::fun); }
 
 #define f2(t, l) { len = l + 1; \
-   return Token(TOK_QUAD_ ## t, &Quad_ ## t::fun); }
+   return Token(TOK_Quad_ ## t, &Quad_ ## t::fun); }
 
    switch(av_0)
       {
@@ -333,7 +333,7 @@ const Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
              break;
       }
 
-   var(QUAD, 0);
+   var(Quad, 0);
 
 #undef var
 #undef f0
@@ -430,7 +430,7 @@ Workspace::unmark_all_values()
 #define rw_sv_def(x) the_workspace.v_ ## x.unmark_all_values();
 #define ro_sv_def(x) the_workspace.v_ ## x.unmark_all_values();
 #include "SystemVariable.def"
-   the_workspace.v_Quad_QUAD .unmark_all_values();
+   the_workspace.v_Quad_Quad .unmark_all_values();
    the_workspace.v_Quad_QUOTE.unmark_all_values();
 
    // unmark token reachable vi SI stack
@@ -458,7 +458,7 @@ int count = 0;
 #define rw_sv_def(x) count += get_v_ ## x().show_owners(out, value);
 #define ro_sv_def(x) count += get_v_ ## x().show_owners(out, value);
 #include "SystemVariable.def"
-   count += the_workspace.v_Quad_QUAD .show_owners(out, value);
+   count += the_workspace.v_Quad_Quad .show_owners(out, value);
    count += the_workspace.v_Quad_QUOTE.show_owners(out, value);
 
    for (StateIndicator * si = SI_top(); si; si = si->get_parent())
@@ -587,21 +587,6 @@ UCS_string wname = lib_ws.back();
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
 
-
-   // append an .xml extension unless there is one already
-   //
-   if (filename.size() < 5                  ||
-       filename[filename.size() - 4] != '.' ||
-       filename[filename.size() - 3] != 'x' ||
-       filename[filename.size() - 2] != 'm' ||
-       filename[filename.size() - 1] != 'l' )
-      {
-        // filename does not end with .xml, so we try filename.xml
-        //
-        filename.append(UTF8_string(".xml"));
-      }
-
-
    if (wname.compare(UCS_string("CLEAR WS")) == 0)   // don't save CLEAR WS
       {
         COUT << "NOT SAVED: THIS WS IS " << wname << endl;
@@ -639,7 +624,6 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
 
    // at this point it is OK to rename and save the workspace
    //
-
 ofstream outf(filename.c_str(), ofstream::out);
    if (!outf.is_open())   // open failed
       {
@@ -670,13 +654,99 @@ const char * tz_sign = (offset < 0) ? "" : "+";
    }
 }
 //-----------------------------------------------------------------------------
-// return ⎕LX of loaded WS on success
+void
+Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws)
+{
+   // )DUMP
+   // )DUMP wsname
+   // )DUMP libnum wsname
+
+   if (lib_ws.size() == 0)   // no argument: use )WSID value
+      {
+         lib_ws.push_back(the_workspace.WS_name);
+      }
+   else if (lib_ws.size() > 2)   // too many arguments
+      {
+        out << "BAD COMMAND" << endl;
+        more_error() = UCS_string("too many parameters in command )DUMP");
+        return;
+      }
+
+   // at this point, lib_ws.size() is 1 or 2.
+
+LibRef libref = LIB_NONE;
+UCS_string wname = lib_ws.back();
+   if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "apl");
+
+   if (wname.compare(UCS_string("CLEAR WS")) == 0)   // don't save CLEAR WS
+      {
+        COUT << "NOT DUMPED: THIS WS IS " << wname << endl;
+        more_error() = UCS_string(
+        "the workspace was not dumped because 'CLEAR WS' is a special \n"
+        "workspace name that cannot be dumped. Use )WSID <name> first.");
+        return;
+      }
+
+ofstream outf(filename.c_str(), ofstream::out);
+   if (!outf.is_open())   // open failed
+      {
+        CERR << "Unable to )DUMP workspace '" << wname
+             << "'." << strerror(errno) << endl;
+        return;
+      }
+
+   // print header line, workspace name, time, and date to outf
+   //
+   {
+     const int offset = get_v_Quad_TZ().get_offset();
+     const YMDhmsu time(now());
+     const char * tz_sign = (offset < 0) ? "" : "+";
+
+     outf << "#!" << LibPaths::get_APL_bin_path()
+          << "/" << LibPaths::get_APL_bin_name()
+          << " --script --" << endl
+          << endl
+          << " ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝" << endl
+          << "⍝" << endl
+          << "⍝ " << wname << " "
+          << setfill('0') << time.year  << "-"
+          << setw(2)      << time.month << "-"
+          << setw(2)      << time.day   << " " 
+          << setw(2)      << time.hour  << ":"
+          << setw(2)      << time.minute << ":"
+          << setw(2)      << time.second << " (GMT"
+          << tz_sign      << offset/3600 << ")"
+          << setfill(' ') << endl
+          << "⍝" << endl
+          << " ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝" << endl
+          << endl;
+   }
+
+int function_count = 0;
+int variable_count = 0;
+   the_workspace.symbol_table.dump(outf, function_count, variable_count);
+
+   // system variables
+   //
+#define ro_sv_def(x)
+#define rw_sv_def(x) if (ID_ ## x != ID_Quad_SYL) { get_v_ ## x().dump(outf);   ++variable_count; }
+#include "SystemVariable.def"
+
+   COUT << "DUMPED WORKSPACE '" << wname << "'" << endl
+        << " TO FILE '" << filename << "'" << endl
+        << " (" << function_count << " FUNCTIONS, " << variable_count
+        << " VARIABLES)" << endl;
+}
+//-----------------------------------------------------------------------------
+// )LOAD WS, return ⎕LX of loaded WS on success
 UCS_string 
 Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws)
 {
    if (lib_ws.size() < 1 || lib_ws.size() > 2)   // no or too many argument(s)
       {
         out << "BAD COMMAND" << endl;
+        more_error() = UCS_string("too many parameters in command )LOAD");
         return UCS_string();
       }
 

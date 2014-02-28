@@ -74,8 +74,11 @@ public:
    /// initialize library paths based on the location of the APL binary
    static void init(const char * argv0);
 
-   /// return the path (directory and filename) of the APL interpreter binary
+   /// return the path (directory) of the APL interpreter binary
    static const char * get_APL_bin_path()   { return APL_bin_path; }
+
+   /// return the name (without directory) of the APL interpreter binary
+   static const char * get_APL_bin_name()   { return APL_bin_name; }
 
    /// return directory containing (file or directory) workspaces and wslib1
    static const char * get_APL_lib_root()   { return APL_lib_root; }
@@ -107,8 +110,11 @@ protected:
    /// workspaces and wslib1
    static bool is_lib_root(const char * dir);
 
-   /// path (directory and filename) of the APL interpreter binary
+   /// the path (directory) of the APL interpreter binary
    static char APL_bin_path[];
+
+   /// the name (without directory) of the APL interpreter binary
+   static const char * APL_bin_name;
 
    /// a directory containing sub-directories workspaces and wslib1
    static char APL_lib_root[];

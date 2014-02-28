@@ -78,7 +78,7 @@ struct ValueStackItem
    Value_P apl_val;
 
    /// the (current) name class (like ⎕NC, unless shared variable)
-   NameClass    name_class;
+   NameClass name_class;
 };
 //-----------------------------------------------------------------------------
 /**
@@ -248,6 +248,9 @@ public:
    /// perform a vector assignment (like (A B C)←1 2 3) for variables in
    /// \b symbols with values \b values
    static void vector_assignment(vector<Symbol *> & symbols, Value_P values);
+
+   /// dump this symbol to out.
+   void dump(ostream & out) const;
 
 protected:
    /// Compare the name of \b this \b Symbol with \b ucs

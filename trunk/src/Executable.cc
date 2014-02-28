@@ -414,9 +414,6 @@ int count = 0;
 void
 Executable::setup_lambdas()
 {
-int tidx = 0;
-int tcol = 0;
-
    loop(b, body.size())
        {
          // body is in reverse order, so } comes before { (and optional ← NAME)
@@ -522,9 +519,12 @@ int tcol = 0;
          if (signature & SIG_Z)   lambda_text.append_utf8("λ←");
 
          int lambda_skip = unnamed_lambdas.size() + named_lambdas.size();
+         int tidx = 0;
+         int tcol = 0;
+
          for (;;)
              {
-               // search { in body text
+               // search for the lambda_skip'th { in the body text
                //
                Assert(tidx < text.size());
                const UCS_string & line = text[tidx];

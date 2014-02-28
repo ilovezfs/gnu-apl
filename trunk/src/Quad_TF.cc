@@ -164,7 +164,7 @@ const ShapeItem ec = val->element_count();
                 }
              else // if (cell.is_near_real(qct))
                 {
-                  PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
+                  PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, 0.0, MAX_Quad_PW);
                   const APL_Float value = cell.get_real_value();
                   bool scaled = true;
                   UCS_string ucs1(value, scaled, pctx);
@@ -416,7 +416,7 @@ Token_string tos;
    // GNU APL is read. This case is parsed as ⎕ XX ← ... 
    // Issue a warning in that case
    //
-   if (tos[0].get_tag() == TOK_QUAD_QUAD &&
+   if (tos[0].get_tag() == TOK_Quad_Quad &&
        tos[1].get_Class() == TC_SYMBOL)
       {
         UCS_string new_var_or_fun = tos[1].get_sym_ptr()->get_name();
@@ -441,7 +441,7 @@ Token_string tos;
    // Try ⎕FX fun-text
    //
    if (tos.size() != 2)                   return UCS_string();
-   if (tos[0].get_tag() != TOK_QUAD_FX)   return UCS_string();
+   if (tos[0].get_tag() != TOK_Quad_FX)   return UCS_string();
    if (tos[1].get_Class() != TC_VALUE)    return UCS_string();
 
    {
@@ -533,7 +533,7 @@ const ShapeItem ec = value->element_count();
         if (use_UCS)
            {
              if (level)   ucs.append(UNI_ASCII_L_PARENT);
-             ucs.append(UNI_QUAD_QUAD);
+             ucs.append(UNI_Quad_Quad);
              ucs.append(UNI_ASCII_U);
              ucs.append(UNI_ASCII_C);
              ucs.append(UNI_ASCII_S);
@@ -582,7 +582,7 @@ const Depth depth = value->compute_depth();
            }
         else if (cell.is_complex_cell())
            {
-             PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
+             PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, 0.0, MAX_Quad_PW);
              bool scaled = true;
              UCS_string ucs1(cell.get_real_value(), scaled, pctx);
              UCS_string ucs2(cell.get_imag_value(), scaled, pctx);
@@ -592,7 +592,7 @@ const Depth depth = value->compute_depth();
            }
         else if (cell.is_float_cell())
            {
-             PrintContext pctx(PR_APL_MIN, MAX_QUAD_PP, 0.0, MAX_QUAD_PW);
+             PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, 0.0, MAX_Quad_PW);
              bool scaled = true;
              UCS_string ucs1(cell.get_real_value(), scaled, pctx);
              ucs.append(ucs1);
@@ -636,7 +636,7 @@ bool ucs_active = false;
 
    loop(s, tos.size())
       {
-        if (s < (tos.size() - 1) && tos[s].get_tag() == TOK_QUAD_UCS)
+        if (s < (tos.size() - 1) && tos[s].get_tag() == TOK_Quad_UCS)
            {
               ucs_active = true;
               continue;
@@ -832,7 +832,7 @@ UCS_string ret;
              ucs[u]     == '\'' &&
              ucs[u + 1] == ','  &&
              ucs[u + 2] == '('  &&
-             ucs[u + 3] == UNI_QUAD_QUAD &&
+             ucs[u + 3] == UNI_Quad_Quad &&
              ucs[u + 4] == 'U'  &&
              ucs[u + 5] == 'C'  &&
              ucs[u + 6] == 'S')

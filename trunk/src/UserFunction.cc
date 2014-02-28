@@ -247,8 +247,8 @@ Fun_signature signature = SIG_NONE;
         if  (tos_idx >= tos.size())   break;   // local vars done
 
         const TokenTag tag = tos[tos_idx].get_tag();
-        if (tag != TOK_SYMBOL && tag != TOK_QUAD_IO
-                              && tag != TOK_QUAD_CT)
+        if (tag != TOK_SYMBOL && tag != TOK_Quad_IO
+                              && tag != TOK_Quad_CT)
            {
              CERR << "Offending token at " LOC " is: " << tos[tos_idx] << endl;
              return;
@@ -907,7 +907,7 @@ UCS_string & message_2 = error.error_message_2;
            {
              PrintContext pctx(PR_APL_FUN);
              PrintBuffer pb(*val_A, pctx);
-             message_2.append(UCS_string(pb, 1, DEFAULT_QUAD_PW));
+             message_2.append(UCS_string(pb, 1, DEFAULT_Quad_PW));
              message_2.append(UNI_ASCII_SPACE);
            }
       }
@@ -922,7 +922,7 @@ UCS_string & message_2 = error.error_message_2;
              message_2.append(UNI_ASCII_SPACE);
              PrintContext pctx(PR_APL_FUN);
              PrintBuffer pb(*val_B, pctx);
-             message_2.append(UCS_string(pb, 1, DEFAULT_QUAD_PW));
+             message_2.append(UCS_string(pb, 1, DEFAULT_Quad_PW));
            }
       }
 

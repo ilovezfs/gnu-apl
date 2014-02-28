@@ -259,8 +259,8 @@ command_loop:
    // [→   abandon
    switch (c.get())
       {
-        case UNI_QUAD_QUAD:
-        case UNI_QUAD_QUAD1:    ecmd = ECMD_SHOW;     c.next();   break;
+        case UNI_Quad_Quad:
+        case UNI_Quad_Quad1:    ecmd = ECMD_SHOW;     c.next();   break;
         case UNI_ASCII_R_BRACK: ecmd = ECMD_EDIT;                 break;
         case UNI_DELTA:         ecmd = ECMD_DELETE;   c.next();   break;
         case UNI_RIGHT_ARROW:   ecmd = ECMD_ESCAPE;   c.next();   break;

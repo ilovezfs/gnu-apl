@@ -1178,6 +1178,53 @@ const Cell * cV = &values->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 void
+Symbol::dump(ostream & out) const
+{
+const ValueStackItem & vs = (*this)[0];
+   if (vs.name_class == NC_VARIABLE)
+      {
+        vector<UCS_string> CR10;
+        const UCS_string pick;
+        Quad_CR::do_CR10_var(CR10, get_name(), pick, *vs.apl_val.get());
+
+        loop(l, CR10.size())
+           {
+             if (l)   out << "  ";
+             out << CR10[l] << endl;
+           }
+        out << endl;
+      }
+   else if (vs.name_class == NC_FUNCTION ||
+            vs.name_class == NC_OPERATOR)
+      {
+        const Function * fun = vs.sym_val.function;
+        if (fun == 0)
+           {
+             out << "⍝ function " << get_name() << " has function pointer 0!"
+                 << endl << endl;
+             return;
+           }
+
+        const UserFunction * ufun = fun->get_ufun1();
+        if (ufun == 0)
+           {
+             out << "⍝ function " << get_name() << " has ufun1 pointer 0!"
+                 << endl << endl;
+             return;
+           }
+
+        out << "∇";
+        const UCS_string text = ufun->canonical(false);
+        loop(u, text.size())
+           {
+              out << text[u];
+              if (text[u] == '\n' && u < text.size() - 1)   out << " ";
+           }
+        out << "∇" << endl << endl;
+      }
+}
+//-----------------------------------------------------------------------------
+void
 Symbol::clear_vs()
 {
    while (value_stack.size() > 1)

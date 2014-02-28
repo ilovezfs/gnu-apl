@@ -35,6 +35,7 @@ bool LibPaths::root_from_env = false;
 bool LibPaths::root_from_pwd = false;
 
 char LibPaths::APL_bin_path[PATH_MAX + 1] = "";
+const char * LibPaths::APL_bin_name = LibPaths::APL_bin_path;
 char LibPaths::APL_lib_root[PATH_MAX + 10] = "";
 
 LibPaths::LibDir LibPaths::lib_dirs[LIB_MAX];
@@ -96,7 +97,8 @@ void LibPaths::compute_bin_path(const char * argv0)
 const void * unused = realpath(argv0, APL_bin_path);
    APL_bin_path[PATH_MAX] = 0;
 char * slash =   strrchr(APL_bin_path, '/');
-   if (slash)   *slash = 0;
+   if (slash)   { *slash = 0;   APL_bin_name = slash + 1; }
+   else         { APL_bin_name = APL_bin_path;            }
 
    // if we have a PWD and it is a prefix of APL_bin_path then replace PWD
    // by './'

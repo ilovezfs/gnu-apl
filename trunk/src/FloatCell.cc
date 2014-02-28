@@ -390,9 +390,9 @@ int int_fract = ucs.size();;
 bool
 FloatCell::is_big(APL_Float val, int quad_pp)
 {
-static const double big[MAX_QUAD_PP + 1] =
+static const double big[MAX_Quad_PP + 1] =
 {
-                  1ULL, // not used since MIN_QUAD_PP == 1
+                  1ULL, // not used since MIN_Quad_PP == 1
                  10ULL,
                 100ULL,
                1000ULL,

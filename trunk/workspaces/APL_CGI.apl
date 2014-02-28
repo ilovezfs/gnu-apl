@@ -671,4 +671,8 @@ END-OF-⎕INP
       )VARS
       )SI
       '-->'
-      )OFF
+⍝     )OFF
+      )WSID APL_CGI
+      ]log 25
+      ]log 26
+      )DUMP

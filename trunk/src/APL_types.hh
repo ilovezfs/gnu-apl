@@ -238,8 +238,8 @@ enum PrintStyle
                      | PST_NO_FRACT_0
                      | PST_NO_EXPO_0,
    PR_APL_FUN        = PST_INPUT,        ///< ⎕CR function
-   PR_QUAD           = PST_INPUT,        ///< ⎕ output
-   PR_QUOTE_QUAD     = PST_NONE,         ///< ⍞ output
+   PR_Quad           = PST_INPUT,        ///< ⎕ output
+   PR_QUOTE_Quad     = PST_NONE,         ///< ⍞ output
    PR_HEX            = PST_HEXDUMP,      ///< hexadecimal ravel dump
    PR_hex            = PST_HEXDUMP       ///< lower-case hexadecimal ravel dump
                      | PST_HEXlower,

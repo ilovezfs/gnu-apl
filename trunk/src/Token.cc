@@ -244,29 +244,29 @@ Token::print_function(ostream & out) const
 {
    switch(tag)
       {
-        case TOK_QUAD_TC:
-        case TOK_QUAD_TS:
-        case TOK_QUAD_UL:
-        case TOK_QUAD_WA:
-        case TOK_QUAD_AF:
-        case TOK_QUAD_CR:
-        case TOK_QUAD_DL:
-        case TOK_QUAD_EC:
-        case TOK_QUAD_EX:
-        case TOK_QUAD_SVQ:
-        case TOK_QUAD_SVR:
-        case TOK_QUAD_SVS:
-        case TOK_QUAD_UCS:
-        case TOK_QUAD_AT:
-        case TOK_QUAD_EA:
-        case TOK_QUAD_SVC:
-        case TOK_QUAD_TF:
-        case TOK_QUAD_ES:
-        case TOK_QUAD_FX:
-        case TOK_QUAD_NA:
-        case TOK_QUAD_NL:
-        case TOK_QUAD_SI:
-        case TOK_QUAD_SVO:      return print_quad(out);
+        case TOK_Quad_TC:
+        case TOK_Quad_TS:
+        case TOK_Quad_UL:
+        case TOK_Quad_WA:
+        case TOK_Quad_AF:
+        case TOK_Quad_CR:
+        case TOK_Quad_DL:
+        case TOK_Quad_EC:
+        case TOK_Quad_EX:
+        case TOK_Quad_SVQ:
+        case TOK_Quad_SVR:
+        case TOK_Quad_SVS:
+        case TOK_Quad_UCS:
+        case TOK_Quad_AT:
+        case TOK_Quad_EA:
+        case TOK_Quad_SVC:
+        case TOK_Quad_TF:
+        case TOK_Quad_ES:
+        case TOK_Quad_FX:
+        case TOK_Quad_NA:
+        case TOK_Quad_NL:
+        case TOK_Quad_SI:
+        case TOK_Quad_SVO:      return print_quad(out);
 
         case TOK_F1_EXECUTE:    return out << UNI_EXECUTE;
 
@@ -277,7 +277,7 @@ Token::print_function(ostream & out) const
         case TOK_ASSIGN:        return out << UNI_LEFT_ARROW;
         case TOK_F2_AND:        return out << UNI_AND;
         case TOK_F2_OR:         return out << UNI_OR;
-        case TOK_F2_INDEX:      return out << UNI_SQUISH_QUAD;
+        case TOK_F2_INDEX:      return out << UNI_SQUISH_Quad;
         case TOK_F2_LEQ:        return out << UNI_LESS_OR_EQUAL;
         case TOK_F2_MEQ:        return out << UNI_MORE_OR_EQUAL;
         case TOK_F2_UNEQ:       return out << UNI_NOT_EQUAL;
@@ -290,7 +290,7 @@ Token::print_function(ostream & out) const
         case TOK_F12_COMMA1:    return out << UNI_COMMA_BAR;
         case TOK_F12_DECODE:    return out << UNI_UP_TACK;
         case TOK_F12_DIVIDE:    return out << UNI_DIVIDE;
-        case TOK_F12_DOMINO:    return out << UNI_QUAD_DIVIDE;
+        case TOK_F12_DOMINO:    return out << UNI_Quad_DIVIDE;
         case TOK_F12_DROP:      return out << UNI_DOWN_ARROW;
         case TOK_F12_ELEMENT:   return out << UNI_ELEMENT;
         case TOK_F12_ENCODE:    return out << UNI_DOWN_TACK;
@@ -384,28 +384,28 @@ Token::print_value(ostream & out) const
                return out;
              }
 
-        case TOK_QUAD_QUAD: return out << UNI_QUAD_QUAD;
+        case TOK_Quad_Quad: return out << UNI_Quad_Quad;
 
-        case TOK_QUAD_AI:
-        case TOK_QUAD_AV:
-        case TOK_QUAD_CT:
-        case TOK_QUAD_EM:
-        case TOK_QUAD_ET:
-        case TOK_QUAD_FC:
-        case TOK_QUAD_IO:
-        case TOK_QUAD_LC:
-        case TOK_QUAD_LX:
-        case TOK_QUAD_L:
-        case TOK_QUAD_NLT:
-        case TOK_QUAD_PP:
-        case TOK_QUAD_PR:
-        case TOK_QUAD_PS:
-        case TOK_QUAD_PW:
-        case TOK_QUAD_R:
-        case TOK_QUAD_RL:
-        case TOK_QUAD_SVE:
-        case TOK_QUAD_TZ:
-        case TOK_QUAD_WA:   return print_quad(out);
+        case TOK_Quad_AI:
+        case TOK_Quad_AV:
+        case TOK_Quad_CT:
+        case TOK_Quad_EM:
+        case TOK_Quad_ET:
+        case TOK_Quad_FC:
+        case TOK_Quad_IO:
+        case TOK_Quad_LC:
+        case TOK_Quad_LX:
+        case TOK_Quad_L:
+        case TOK_Quad_NLT:
+        case TOK_Quad_PP:
+        case TOK_Quad_PR:
+        case TOK_Quad_PS:
+        case TOK_Quad_PW:
+        case TOK_Quad_R:
+        case TOK_Quad_RL:
+        case TOK_Quad_SVE:
+        case TOK_Quad_TZ:
+        case TOK_Quad_WA:   return print_quad(out);
       }
 
    out << "{ unknown value Token " << tag;
@@ -421,7 +421,7 @@ Token::print_value(ostream & out) const
 ostream &
 Token::print_quad(ostream & out) const
 {
-   return out << UNI_QUAD_QUAD << get_Id();
+   return out << UNI_Quad_Quad << get_Id();
 }
 //-----------------------------------------------------------------------------
 UCS_string

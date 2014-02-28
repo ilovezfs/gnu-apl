@@ -31,7 +31,7 @@ class Quad_TF : public QuadFunction
 {
 public:
    /// Constructor.
-   Quad_TF() : QuadFunction(TOK_QUAD_TF) {}
+   Quad_TF() : QuadFunction(TOK_Quad_TF) {}
 
    /// Overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);

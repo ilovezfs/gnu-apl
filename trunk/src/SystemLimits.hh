@@ -29,12 +29,12 @@ enum
 #define syl2(_n, e, v)
 #include "SystemLimits.def"
 
-   DEFAULT_QUAD_PP = 10,
-   DEFAULT_QUAD_PW = 79,
+   DEFAULT_Quad_PP = 10,
+   DEFAULT_Quad_PW = 79,
 };
 
-#define MAX_QUAD_CT     (1.0e-9)
-#define DEFAULT_QUAD_CT (1.0e-13)
+#define MAX_Quad_CT     (1.0e-9)
+#define DEFAULT_Quad_CT (1.0e-13)
 
 #define BIG_INT64_F 9223372036854775807.0
 #define BIG_FLOAT   1.79769313486231470e308

@@ -545,7 +545,6 @@ const int left_pad = (80 - len)/2;
 extern char * bindtextdomain (const char * domainname, const char * dirname);
 extern char * textdomain (const char * domainname);
 
-
 static void
 init_NLS()
 {

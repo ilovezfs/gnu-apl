@@ -212,12 +212,12 @@ Value::Value(const char * loc, Value_how how)
 
         case Value_how_Max_CT:
              init_ravel();
-             new (&get_ravel(0)) FloatCell(MAX_QUAD_CT);
+             new (&get_ravel(0)) FloatCell(MAX_Quad_CT);
              break;
 
         case Value_how_Max_PP:
              init_ravel();
-             new (&get_ravel(0)) IntCell(MAX_QUAD_PP);
+             new (&get_ravel(0)) IntCell(MAX_Quad_PP);
              break;
 
         case Value_how_Quad_NLT:

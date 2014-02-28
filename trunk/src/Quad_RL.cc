@@ -26,7 +26,7 @@
 
 //=============================================================================
 Quad_RL::Quad_RL()
-   : SystemVariable(ID_QUAD_RL)
+   : SystemVariable(ID_Quad_RL)
 {
 Value_P value(new Value(LOC));
 
