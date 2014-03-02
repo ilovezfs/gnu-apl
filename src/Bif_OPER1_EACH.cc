@@ -131,8 +131,11 @@ loop_z:
      if (result.get_Class() == TC_VALUE)
         {
           Value_P vZ = result.get_apl_val();
-          if (_arg.sub)   new (arg.Z->next_ravel())  PointerCell(vZ);
-          else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
+
+          if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+          else if (vZ->is_simple_skalar())
+                           arg.Z->next_ravel()->init(vZ->get_ravel(0));
+          else             new (arg.Z->next_ravel())   PointerCell(vZ);
 
           goto next_z;   // next z
         }
@@ -179,8 +182,11 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
        Value_P vZ = token.get_apl_val();
-       if (_arg.sub)   new (arg.Z->next_ravel())  PointerCell(vZ);
-       else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
+
+       if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+       else if (vZ->is_simple_skalar())
+                        arg.Z->next_ravel()->init(vZ->get_ravel(0));
+       else             new (arg.Z->next_ravel())   PointerCell(vZ);
       }
    else        // LO without result, maybe successful
       {
@@ -253,8 +259,10 @@ loop_z:
            {
              Value_P vZ = result.get_apl_val();
 
-             if (_arg.sub)   new (arg.Z->next_ravel())   PointerCell(vZ);
-             else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
+             if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+             else if (vZ->is_simple_skalar())
+                              arg.Z->next_ravel()->init(vZ->get_ravel(0));
+             else             new (arg.Z->next_ravel())   PointerCell(vZ);
 
              goto next_z;
            }
@@ -303,8 +311,10 @@ loop_z:
            {
              Value_P vZ = result.get_apl_val();
 
-             if (_arg.sub)   new (arg.Z->next_ravel())   PointerCell(vZ);
-             else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
+             if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+             else if (vZ->is_simple_skalar())
+                              arg.Z->next_ravel()->init(vZ->get_ravel(0));
+             else             new (arg.Z->next_ravel())   PointerCell(vZ);
 
              goto next_z;
            }
@@ -341,8 +351,11 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
         Value_P vZ = token.get_apl_val();
-        if (_arg.sub)   new (arg.Z->next_ravel())  PointerCell(vZ);
-        else           arg.Z->next_ravel()->init_from_value(vZ, LOC);
+
+        if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+        else if (vZ->is_simple_skalar())
+                         arg.Z->next_ravel()->init(vZ->get_ravel(0));
+        else             new (arg.Z->next_ravel())   PointerCell(vZ);
       }
    else        // LO without result, maybe successful
       {

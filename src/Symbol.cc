@@ -150,6 +150,7 @@ ValueStackItem & vs = value_stack.back();
              {
                CDR_string cdr;
                CDR::to_CDR(cdr, new_value);
+               if (cdr.size() > MAX_SVAR_SIZE)   LIMIT_ERROR_SVAR;
                string data((const char *)cdr.get_items(), cdr.size());
                const SV_key key = get_SV_key();
 

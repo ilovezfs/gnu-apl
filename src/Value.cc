@@ -1399,25 +1399,25 @@ const Cell & cell_0 = get_ravel(0);
 
    if (cell_0.is_character_cell())   // 8 or 32 bit characters.
       {
-        bool big = false;   // assume 8-bit char
+        bool has_big = false;   // assume 8-bit char
         loop(e, ec)
            {
              const Cell & cell = get_ravel(e);
              if (!cell.is_character_cell())   return 7;
              const Unicode uni = cell.get_char_value();
-             if (uni < 0)      big = true;
-             if (uni >= 256)   big = true;
+             if (uni < 0)      has_big = true;
+             if (uni >= 256)   has_big = true;
            }
 
-        return big ? 5 : 4;   // 8-bit or 32-bit char
+        return has_big ? 5 : 4;   // 8-bit or 32-bit char
       }
 
    if (cell_0.is_numeric())
       {
-        bool is_bool    = false;
-        bool is_int     = false;
-        bool is_float   = false;
-        bool is_complex = false;
+        bool has_bool    = false;
+        bool has_int     = false;
+        bool has_float   = false;
+        bool has_complex = false;
 
         loop(e, ec)
            {
@@ -1425,27 +1425,26 @@ const Cell & cell_0 = get_ravel(0);
              if (cell.is_integer_cell())
                 {
                   const APL_Integer i = cell.get_int_value();
-                  const uint32_t high = i >> 32;
-                  if (i == 0)                    is_bool  = true;
-                  else if (i == 1)               is_bool  = true;
-                  else if (high == 0x00000000)   is_int   = true;
-                  else if (high == 0xFFFFFFFF)   is_int   = true;
-                  else /* too big for int32 */   is_float = true;
+                  if (i == 0)                   has_bool  = true;
+                  else if (i == 1)              has_bool  = true;
+                  else if (i >  0x7FFFFFFFLL)   has_float = true;
+                  else if (i < -0x80000000LL)   has_float = true;
+                  else                          has_int   = true;
                 }
              else if (cell.is_float_cell())
                 {
-                  is_float  = true;
+                  has_float  = true;
                 }
              else if (cell.is_complex_cell())
                 {
-                  is_complex  = true;
+                  has_complex  = true;
                 }
              else return 7;   // mixed: return 7
            }
 
-        if (is_complex)   return 3;
-        if (is_float)     return 2;
-        if (is_int)       return 1;
+        if (has_complex)   return 3;
+        if (has_float)     return 2;
+        if (has_int)       return 1;
         return 0;
       }
 

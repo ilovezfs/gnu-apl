@@ -51,3 +51,25 @@ SYNC OK
       VAR444
 4 3 2 1
 
+      ⍝ Regression
+      ⍝
+      )ERASE X
+
+      0⎕SVO'X'
+1
+
+      ⍝ large value
+      X←500⍴2
+      X≡500⍴2
+1
+
+      ⍝ value > 2⋆31
+      X←2147483999
+      X
+2147483999
+
+      ⎕SVR 'X'
+1
+
+      )ERASE X
+
