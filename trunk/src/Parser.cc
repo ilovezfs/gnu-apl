@@ -439,7 +439,7 @@ Parser::remove_nongrouping_parantheses(Token_string & tos)
                // e,g, SYM/xxx from (SYM)/xxx
                //
                if (tos[t + 2].get_tag() == TOK_SYMBOL)
-                  tos[t + 2].ChangeTag(TOK_VSYMB);
+                  tos[t + 2].ChangeTag(TOK_P_SYMB);
                tos[t + 1].clear(LOC);
                tos[t].clear(LOC);
                ++t;   // skip tos[t + 1]
@@ -502,7 +502,7 @@ Parser::check_if_value(const Token_string & tos, int pos)
              }
 
         case TC_SYMBOL:
-             return (tos[pos].get_tag() == TOK_VSYMB);   // if value
+             return (tos[pos].get_tag() == TOK_P_SYMB);   // if value
       }
 
    return false;

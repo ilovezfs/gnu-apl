@@ -29,8 +29,8 @@
    phrase 23:  VAL  F   [X]  VAL        4
    phrase 24:  VAL  OP1  VAL            3
    phrase 25:  VAL  OP1  [X]  VAL       4
-   phrase 26:  F   OP1                  2
-   phrase 27:  F   [X]  OP1             3
+   phrase 26:  F   [X]  OP1             3
+   phrase 27:  F   OP1                  2
    phrase 28:  F0   OP1                 2
    phrase 29:  VAL  OP2  VAL            3
    phrase 30:  VAL  OP2  F              3
@@ -77,8 +77,8 @@
    void reduce_A_F_C_B();            ///< reduce phrase A F C B
    void reduce_A_M_B_();             ///< reduce phrase A M B 
    void reduce_A_M_C_B();            ///< reduce phrase A M C B
-   void reduce_F_M__();              ///< reduce phrase F M  
    void reduce_F_C_M_();             ///< reduce phrase F C M 
+   void reduce_F_M__();              ///< reduce phrase F M  
    void reduce_N_M__();              ///< reduce phrase N M  
    void reduce_B_D_B_();             ///< reduce phrase B D B 
    void reduce_B_D_G_();             ///< reduce phrase B D G 

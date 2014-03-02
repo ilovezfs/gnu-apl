@@ -23,6 +23,7 @@ syl1("max. operators per statement"           , MAX_FUN_OPER      , 16          
 syl2("largest integer"                        , __LINT            , 0x7FFFFFFFFFFFFFFFLL)
 syl2("smallest integer"                       , __SINT            , 0x8000000000000000LL)
 syl1("largest numeric exponent"               , LARGEST_EXPO      , 308                 )
+syl1("max. shared variable size (bytes)"      , MAX_SVAR_SIZE     , 65000               )
 
 #undef syl1
 #undef syl2

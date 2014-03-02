@@ -163,6 +163,7 @@ void throw_define_error(const UCS_string & fun, const UCS_string & cmd,
 #define INTERRUPT           throw_apl_error(E_INTERRUPT,            LOC)
 #define LENGTH_ERROR        throw_apl_error(E_LENGTH_ERROR,         LOC)
 #define LIMIT_ERROR_RANK    throw_apl_error(E_SYSTEM_LIMIT_RANK,    LOC)
+#define LIMIT_ERROR_SVAR    throw_apl_error(E_SYSTEM_LIMIT_SVAR,    LOC)
 #define LIMIT_ERROR_FUNOPER throw_apl_error(E_SYSTEM_LIMIT_FUNOPER, LOC)
 #define RANK_ERROR          throw_apl_error(E_RANK_ERROR,           LOC)
 #define SYNTAX_ERROR        throw_apl_error(E_SYNTAX_ERROR,         LOC)

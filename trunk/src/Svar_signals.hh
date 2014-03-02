@@ -1148,7 +1148,7 @@ Signal_base::recv(UdpSocket & sock, void * class_buffer,
                   uint16_t & from_port, uint32_t & from_ip,
                   uint32_t timeout_ms)
 {
-uint8_t buffer[2000];   // can be larger than *class_buffer due to strings!
+uint8_t buffer[0x10000];   // can be larger than *class_buffer due to strings!
 size_t len = sock.recv(buffer, sizeof(buffer), from_port, from_ip, timeout_ms);
    if (len <= 0)   return 0;
 
