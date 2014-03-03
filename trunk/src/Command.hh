@@ -53,7 +53,14 @@ public:
    /// clean-up and exit from APL interpreter
    static void cmd_OFF(int exit_val);
 
+   /// return the current boxing format
+   static int get_boxing_format()
+      { return boxing_format; }
+
 protected:
+   /// show list of commands
+   static void cmd_BOXING(ostream & out, const UCS_string & arg);
+
    /// check workspace integrity (stale Value and IndexExpr objects, etc)
    static void cmd_CHECK(ostream & out);
 
@@ -150,6 +157,9 @@ protected:
 
    /// parse the argument of the ]LOG command and set logging accordingly
    static void log_control(const UCS_string & args);
+
+   /// format for ]BOXING
+   static int boxing_format;
 };
 //-----------------------------------------------------------------------------
 

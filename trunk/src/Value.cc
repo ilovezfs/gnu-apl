@@ -1511,7 +1511,7 @@ Value::print_boxed(ostream & out, const char * info)
 {
    if (info)   out << info << endl;
 
-Value_P Z = Quad_CR::fun.do_CR(4, *this);
+Value_P Z = Quad_CR::do_CR(4, *this);
    out << *Z << endl;
    return out;
 }
@@ -1820,7 +1820,7 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
    try 
       {
         print_structure(out, 0, 0);
-        Value_P Z = Quad_CR::fun.do_CR(7, *this);
+        Value_P Z = Quad_CR::do_CR(7, *this);
         Z->print(out);
         out << endl;
       }
