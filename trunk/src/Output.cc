@@ -110,19 +110,19 @@ char Output::color_CIN[21] =
 
 /// VT100 escape sequence to change to cout color
 char Output::color_COUT[21] =
-   { 27, 91, '0', ';', '3', '0', ';', '4', '8', 'm', 0 };
+   { 27, 91, '0', ';', '3', '0', ';', '4', '7', 'm', 0 };
 
 /// VT100 escape sequence to change to cerr color
 char Output::color_CERR[21] =
-   { 27, 91, '0', ';', '3', '5', ';', '4', '8', 'm', 0 };
+   { 27, 91, '0', ';', '3', '5', ';', '4', '7', 'm', 0 };
 
 /// VT100 escape sequence to change to cerr color
 char Output::color_UERR[21] =
-   { 27, 91, '0', ';', '3', '5', ';', '4', '8', 'm', 0 };
+   { 27, 91, '0', ';', '3', '5', ';', '4', '7', 'm', 0 };
 
 /// VT100 escape sequence to reset colors to their default
 char Output::color_RESET[21] =
-  { 27, 91, '0', ';', '3', '8', ';', '4', '8', 'm', 0 };
+  { 27, 91, '0', ';', '3', '7', ';', '4', '0', 'm', 0 };
 
 /// VT100 escape sequence to clear to end of line
 char Output::clear_EOL[21] =

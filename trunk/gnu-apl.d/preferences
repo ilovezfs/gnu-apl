@@ -132,10 +132,10 @@
 #                                        V        V 
 # //                    ESC  [  0  ;  3 fg  ;  4 bg  m
 # CIN-SEQUENCE           1b 5b 30 3b 33 30 3b 34 37 6d    // ESC [0;30;47m
-# COUT-SEQUENCE          1b 5b 30 3b 33 30 3b 34 38 6d    // ESC [0;30;48m
-# CERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 38 6d    // ESC [0;35;48m
-# UERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 38 6d    // ESC [0;35;48m
-# RESET-SEQUENCE         1b 5b 30 3b 33 38 3b 34 38 6d    // ESC [0;38;48m
+# COUT-SEQUENCE          1b 5b 30 3b 33 30 3b 34 37 6d    // ESC [0;30;47m
+# CERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 37 6d    // ESC [0;35;47m
+# UERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 37 6d    // ESC [0;35;47m
+# RESET-SEQUENCE         1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;40m
 # CLEAR-EOL-SEQUENCE     1b 5b 4B                         // ESC [K
 #
 # On a black background (still assuming VT100 so that the CLEAR-EOL-SEQUENCE
@@ -145,7 +145,7 @@
 # COUT-SEQUENCE          1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;40m
 # CERR-SEQUENCE          1b 5b 30 3b 33 31 3b 34 30 6d    // ESC [0;31;40m
 # UERR-SEQUENCE          1b 5b 30 3b 33 31 3b 34 30 6d    // ESC [0;31;40m
-# RESET-SEQUENCE         1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;48m
+# RESET-SEQUENCE         1b 5b 30 3b 33 37 3b 34 30 6d    // ESC [0;37;40m
 #
 #
 
