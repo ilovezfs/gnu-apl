@@ -282,54 +282,62 @@ const Cell & cell_FI0 = FI0->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 Token
-SkalarFunction::eval_skalar_AXB(Value_P A, Value_P X,
-                                 Value_P B, prim_f2 fun)
+SkalarFunction::eval_skalar_AXB(Value_P A, Value_P X, Value_P B, prim_f2 fun)
 {
-   if (A->is_skalar_or_len1_vector() || B->is_skalar_or_len1_vector() || !&X)
+   if (A->is_skalar_or_len1_vector() || B->is_skalar_or_len1_vector() || !X)
       return eval_skalar_AB(A, B, fun);
 
-   if (X->get_rank() > 1)   INDEX_ERROR;
+   if (X->get_rank() > 1)   AXIS_ERROR;
 
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 const Rank rank_A = A->get_rank();
 const Rank rank_B = B->get_rank();
-bool axis_present[MAX_RANK];
-   loop(r, MAX_RANK)   axis_present[r] = false;
+bool axis_in_X[MAX_RANK];
+   loop(r, MAX_RANK)   axis_in_X[r] = false;
 
 const ShapeItem len_X = X->element_count();
-   loop(il, len_X)
+   loop(iX, len_X)
        {
-         APL_Integer i = A->get_ravel(il).get_near_int(qct) - qio;
-         if (i < 0)                        AXIS_ERROR;
-         if (i >= rank_A && i >= rank_B)   AXIS_ERROR;
-         if (axis_present[i])              AXIS_ERROR;
-         axis_present[i] = true;
+         APL_Integer i = X->get_ravel(iX).get_near_int(qct) - qio;
+         if (i < 0)                        AXIS_ERROR;   // too small
+         if (i >= rank_A && i >= rank_B)   AXIS_ERROR;   // too large
+         if (axis_in_X[i])                 AXIS_ERROR;   // twice
+         axis_in_X[i] = true;
        }
 
-   if (rank_A < rank_B)
-      return eval_skalar_AXB(A, axis_present, B, fun, false);
-   return eval_skalar_AXB(B, axis_present, A, fun, true);
+   if (rank_A < rank_B)   return eval_skalar_AXB(A, axis_in_X, B, fun, false);
+   else                   return eval_skalar_AXB(B, axis_in_X, A, fun, true);
 }
 //-----------------------------------------------------------------------------
 Token
-SkalarFunction::eval_skalar_AXB(Value_P A, bool * axis_present,
+SkalarFunction::eval_skalar_AXB(Value_P A, bool * axis_in_X,
                                  Value_P B, prim_f2 fun, bool reversed)
 {
-   // create a weight vector for A from B's weight vector with axes that
-   // are present in b axis_present removed.
+   // A is the value with the smaller rank.
+   // B the value with the larger rank.
    //
-Shape weight = B->get_shape().reverse_scan();
+   // If (reversed) then A and B have changed roles (in order to
+   /// make A is the value with the smaller rank).
 
+   // check that A and B agree on the axes in X
+   //
    {
-     Rank ra = 0;
-     loop(r, weight.get_rank())
+     Rank rA = 0;
+     loop(rB, B->get_rank())
          {
-            if (axis_present[r])                weight.set_shape_item(r, 0);
-            else if (B->get_shape_item(r) !=
-                     A->get_shape_item(ra++))   INDEX_ERROR;
+            if (axis_in_X[rB])
+               {
+                 // if the axis is in X then the corresponding shape items in
+                 // A and B must agree.
+                 //
+                 if (B->get_shape_item(rB) != A->get_shape_item(rA++))
+                    LENGTH_ERROR;
+               }
          }
    }
+
+Shape weight_A = A->get_shape().reverse_scan();
 
 Value_P Z(new Value(B->get_shape(), LOC));
 
@@ -338,13 +346,19 @@ const Cell * cB = &B->get_ravel(0);
    for (ArrayIterator it(B->get_shape()); !it.done(); ++it)
        {
          ShapeItem a = 0;
-         loop(r, B->get_rank())   a += weight.get_shape_item(r)
-                                     * it.get_value(r);
+         Rank rA = 0;
+         loop(rB, B->get_rank())
+             {
+               if (axis_in_X[rB])
+                  {
+                    a += weight_A.get_shape_item(rA++)
+                       * it.get_value(rB);
+                  }
+             }
 
          const Cell * cA = &A->get_ravel(a);
-
-         if (reversed)   expand_pointers(Z->next_ravel(), cB++, &A->get_ravel(a), fun);
-         else            expand_pointers(Z->next_ravel(), &A->get_ravel(a), cB++, fun);
+         if (reversed)   expand_pointers(Z->next_ravel(), cB++, cA, fun);
+         else            expand_pointers(Z->next_ravel(), cA, cB++, fun);
        }
 
    Z->set_default(*B.get());
