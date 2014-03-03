@@ -431,9 +431,10 @@ Executable::setup_lambdas()
                                          || body[b-1].get_tag() == TOK_ENDL);
 
          body[b++].clear(LOC);   // invalidate }
-         Token_string lambda_body;
+         Token_string rev_lambda_body;
 
          int signature = SIG_NONE;
+         int body_nesting = 1;   /// the TOK_R_CURLY above
 
          for (bool goon = true; goon;)
              {
@@ -444,7 +445,9 @@ Executable::setup_lambdas()
 
                switch(t.get_tag())
                   {
-                    case TOK_L_CURLY:  goon = false;         continue;
+                    case TOK_L_CURLY:
+                         if (body_nesting == 1)  { goon = false;   continue; }
+                         else               { --body_nesting;      break;    }
 
                     case TOK_ALPHA:    signature |= SIG_A;    /* no break */
                     case TOK_OMEGA:    signature |= SIG_B;    break;
@@ -452,45 +455,46 @@ Executable::setup_lambdas()
                     case TOK_OMEGA_U:  signature |= SIG_RO;   /* no break */
                     case TOK_ALPHA_U:  signature |= SIG_LO;   break;
 
-                    case TOK_R_CURLY:  DEFN_ERROR;
+                    case TOK_R_CURLY:  ++body_nesting;        break;
                     case TOK_DIAMOND:  DEFN_ERROR;
                     case TOK_BRANCH:   DEFN_ERROR;
                     case TOK_ESCAPE:   DEFN_ERROR;
                   }
 
-               lambda_body.append(t, LOC);
+               rev_lambda_body.append(t, LOC);
                ++b;
              }
 
          // if the lambda is { } then we can't assign anything to λ
          // and make the lambda result-less.
          //
-         if (lambda_body.size())   signature |= SIG_Z;
+         if (rev_lambda_body.size())   signature |= SIG_Z;
 
-         Token_string rev_lambda_body;
+         Token_string forw_lambda_body;
          if (signature & SIG_Z)
               {
                 Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
-                rev_lambda_body.append(ret_lambda, LOC);
+                forw_lambda_body.append(ret_lambda, LOC);
 
-                rev_lambda_body.append(Token(TOK_ENDL));
+                forw_lambda_body.append(Token(TOK_ENDL));
 
                 Symbol * sym_Z = &Workspace::get_v_LAMBDA();
-                rev_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
-                rev_lambda_body.append(Token(TOK_ASSIGN), LOC);
+                forw_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
+                forw_lambda_body.append(Token(TOK_ASSIGN), LOC);
 
-                loop(r, lambda_body.size())
-                    rev_lambda_body.append(
-                                    lambda_body[lambda_body.size() - r - 1]);
+                const ShapeItem body_len = rev_lambda_body.size();
+                loop(r, body_len)
+                    forw_lambda_body.append(
+                                    rev_lambda_body[body_len - r - 1]);
               }
            else
               {
                 Token ret_void(TOK_RETURN_VOID);
-                rev_lambda_body.append(ret_void, LOC);
+                forw_lambda_body.append(ret_void, LOC);
               }
 
 
-         // at this point {} was copied from body to rev_lambda_body and
+         // at this point {} was copied from body to forw_lambda_body and
          // b is at the (now invalidated) { token.
          // check if lambda is named, i.e. Name ← { ... }
          //
@@ -519,6 +523,8 @@ Executable::setup_lambdas()
          if (signature & SIG_Z)   lambda_text.append_utf8("λ←");
 
          int lambda_skip = unnamed_lambdas.size() + named_lambdas.size();
+         int opening_curly = 0;
+         int closing_curly = 0;
          int tidx = 0;
          int tcol = 0;
 
@@ -536,26 +542,42 @@ Executable::setup_lambdas()
                     continue;
                   }
 
-               const Unicode l_curly = line[tcol++];
-               if (l_curly != UNI_ASCII_L_CURLY)   continue;   // not {
+               {
+                 const Unicode uni = line[tcol++];
+                 if      (uni == UNI_ASCII_L_CURLY)   ++opening_curly;
+                 else if (uni == UNI_ASCII_R_CURLY)   ++closing_curly;
 
-                // found { (but maybe from a previous lambda)
-                //
-                if (lambda_skip)   { --lambda_skip;   continue; }
+                 if (uni != UNI_ASCII_L_CURLY)   continue;   // not {
+               }
 
-                if (tcol >= line.size())   SYNTAX_ERROR;
-                for (;;)
-                    {
-                      const Unicode r_curly = line[tcol++];
-                      if (r_curly == UNI_ASCII_R_CURLY)   break;
-                      lambda_text.append(r_curly);
-                    }
+               // found { (but maybe from a previous lambda
+               // or from a sub-lambds)
+               //
+               if (lambda_skip)   { --lambda_skip;   continue; }
+
+               if (tcol >= line.size())   SYNTAX_ERROR;
+               for (;;)
+                   {
+                     const Unicode uni = line[tcol++];
+                     if      (uni == UNI_ASCII_L_CURLY)   ++opening_curly;
+                     else if (uni == UNI_ASCII_R_CURLY)   ++closing_curly;
+
+                     // if uni was } then it could be:
+                     //
+                     // 1. a sub-{}      as in { {...} or
+                     // 2. a top-level-} as in { ,,, }
+                     // 
+                     // opening_curly == closing_curly distinguishes 1. and 2.
+                     //
+                     if (opening_curly == closing_curly)   break;
+                     lambda_text.append(uni);
+                   }
                break;
              }
 
          UserFunction * ufun = new UserFunction(Fun_signature(signature),
                                                 lambda_name, lambda_text,
-                                                rev_lambda_body);
+                                                forw_lambda_body);
 
          if (signature & SIG_FUN)   // named lambda
             {
