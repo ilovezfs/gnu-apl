@@ -548,6 +548,7 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
    else                    tag = TOK_FUN0;
 
    parse_body_line(Function_Line_0, bdy, LOC);
+   setup_lambdas();
    line_starts.push_back(Function_PC(bdy.size() - 1));
 
    if (header.FUN())
