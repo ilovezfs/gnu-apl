@@ -20,6 +20,7 @@
 
 #include <iomanip>
 
+#include "Command.hh"
 #include "Executable.hh"
 #include "IndexExpr.hh"
 #include "Input.hh"
@@ -906,18 +907,26 @@ StateIndicator::statement_result(Token & result)
    // if result is a value then print it, unless it is a committed value
    // (i.e. TOK_APL_VALUE2)
    //
-   if (result.get_ValueType() == TV_VAL)
-      {
-        const TokenTag tag = result.get_tag();
-        Value_P B(result.get_apl_val());
-        Assert(!!B);
+   if (result.get_ValueType() != TV_VAL)   return;
 
-        // print TOK_APL_VALUE and TOK_APL_VALUE1, but not TOK_APL_VALUE2
-        //
-        if (tag == TOK_APL_VALUE1 || tag == TOK_APL_VALUE3)
+const TokenTag tag = result.get_tag();
+Value_P B(result.get_apl_val());
+   Assert(!!B);
+
+   // print TOK_APL_VALUE and TOK_APL_VALUE1, but not TOK_APL_VALUE2
+   //
+   if (tag == TOK_APL_VALUE1 || tag == TOK_APL_VALUE3)
+      {
+        Quad_QUOTE::done(false, LOC);
+        const int boxing_format = Command::get_boxing_format();
+        if (boxing_format == -1)
            {
-             Quad_QUOTE::done(false, LOC);
              B->print(COUT);
+           }
+        else
+           {
+             Value_P B1 = Quad_CR::do_CR(boxing_format, *B.get());
+             B1->print(COUT);
            }
       }
 }

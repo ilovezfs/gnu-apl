@@ -51,6 +51,8 @@
 #define PATH_MAX 4096
 #endif
 
+int Command::boxing_format = -1;
+
 //-----------------------------------------------------------------------------
 void
 Command::process_line()
@@ -308,6 +310,30 @@ const Executable * statements = 0;
    // pop the context for the statements
    //
    Workspace::pop_SI(LOC);
+}
+//-----------------------------------------------------------------------------
+void 
+Command::cmd_BOXING(ostream & out, const UCS_string & arg)
+{
+int format = arg.atoi();
+
+   if (arg.starts_iwith("OFF"))   format = -1;
+
+   switch (format)
+      {
+        case -1:
+        case  2:
+        case  3:
+        case  4:
+        case  7:
+        case  8:
+        case  9: boxing_format = format;
+                 return;
+
+        default:   out << "Bad ]BOXING parameter " << arg
+                       << " (valid values are: OFF, 2, 3, 4, 7, 8, and 9)"
+                       << endl;
+      }
 }
 //-----------------------------------------------------------------------------
 void 
