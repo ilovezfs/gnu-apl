@@ -885,22 +885,24 @@ ValueStackItem & vs = value_stack.back();
       }
    else if (vs.name_class == NC_FUNCTION || vs.name_class == NC_OPERATOR)
       {
-        const UserFunction * ufun = vs.sym_val.function->get_ufun1();
-        Assert(ufun);
-        const Executable * exec = ufun;
-        StateIndicator * oexec = Workspace::oldest_exec(exec);
-        if (oexec)
+        if (!vs.sym_val.function->is_native())
            {
-             // ufun is still used on the SI stack. We do not delete ufun,
-             // but merely remember it for deletion later on.
-             //
-             // CERR << "⎕EX function " << ufun->get_name()
-             //      << " is on SI !" << endl;
-             Workspace::add_expunged_function(ufun);
-           }
-        else
-           {
-             delete ufun;
+             const UserFunction * ufun = vs.sym_val.function->get_ufun1();
+             const Executable * exec = ufun;
+             StateIndicator * oexec = Workspace::oldest_exec(exec);
+             if (oexec)
+                {
+                  // ufun is still used on the SI stack. We do not delete ufun,
+                  // but merely remember it for deletion later on.
+                  //
+                  // CERR << "⎕EX function " << ufun->get_name()
+                  //      << " is on SI !" << endl;
+                  Workspace::add_expunged_function(ufun);
+                }
+             else
+                {
+                  delete ufun;
+                }
            }
       }
 

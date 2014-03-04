@@ -191,8 +191,7 @@ Symbol * symbol = tos[0].get_sym_ptr();
 }
 //-----------------------------------------------------------------------------
 void
-SymbolTable::list_symbols(ostream & out, ListCategory which,
-                          UCS_string from_to) const
+SymbolTable::list(ostream & out, ListCategory which, UCS_string from_to) const
 {
 UCS_string from;
 UCS_string to;
@@ -412,8 +411,7 @@ ValueStackItem & tos = symbol->value_stack[0];
                   return;
 
              case NC_VARIABLE:
-                  tos.name_class = NC_UNUSED_USER_NAME;
-                  ptr_clear(tos.apl_val, LOC);
+                  symbol->expunge();
                   symbol->set_erased(true);
                   return;
 
@@ -424,7 +422,11 @@ ValueStackItem & tos = symbol->value_stack[0];
              case NC_FUNCTION:
              case NC_OPERATOR:
                   Assert(tos.sym_val.function);
-                  if (tos.sym_val.function->is_native())   return;
+                  if (tos.sym_val.function->is_native())
+                     {
+                       symbol->expunge();
+                       return;
+                     }
 
                   {
                     const UserFunction * ufun =

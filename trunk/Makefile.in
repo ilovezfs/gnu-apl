@@ -53,11 +53,12 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
-	$(nobase_dist_sysconf_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure ABOUT-NLS AUTHORS COPYING ChangeLog \
-	INSTALL NEWS config.guess config.rpath config.sub depcomp \
-	install-sh ltmain.sh missing texinfo.tex
+	$(dist_noinst_DATA) $(nobase_dist_sysconf_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure ABOUT-NLS \
+	AUTHORS COPYING ChangeLog INSTALL NEWS config.guess \
+	config.rpath config.sub depcomp install-sh ltmain.sh missing \
+	texinfo.tex
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/lib-ld.m4 \
@@ -133,7 +134,8 @@ am__uninstall_files_from_dir = { \
 man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man1_MANS)
-DATA = $(dist_doc_DATA) $(nobase_dist_sysconf_DATA)
+DATA = $(dist_doc_DATA) $(dist_noinst_DATA) \
+	$(nobase_dist_sysconf_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -343,6 +345,7 @@ dist_doc_DATA = README			\
 		apl.html
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
+dist_noinst_DATA = Doxyfile
 info_TEXINFOS = apl.texi
 man1_MANS = apl.1
 ACLOCAL_AMFLAGS = -I m4
