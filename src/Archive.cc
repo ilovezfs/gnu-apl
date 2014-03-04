@@ -1092,10 +1092,13 @@ const char * tz_sign = (tzone < 0) ? "" : "+";
         << "  " << hour << ":" << minute << ":" << second
         << " (GMT" << tz_sign << tzone/3600 << ")" << endl;
 
-const UTF8 * end = wsid;
-   while (*end != '"')   ++end;
+   if (!copying)
+      {
+        const UTF8 * end = wsid;
+        while (*end != '"')   ++end;
 
-   Workspace::set_WS_name(UCS_string(UTF8_string(wsid, end - wsid)));
+        Workspace::set_WS_name(UCS_string(UTF8_string(wsid, end - wsid)));
+      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -1519,6 +1522,14 @@ const bool no_copy = (symbol && protection) || ! is_allowed(name_ucs);
 
    loop(d, depth)
       {
+        // for )COPY skip d > 0
+        //
+        if (copying && (d > 0))
+           {
+             skip_to_tag("/Symbol");
+             return;
+           }
+
         next_tag(LOC);
         if      (is_tag("unused-name"))       read_unused_name(d, *symbol);
         else if (is_tag("Variable"))          read_Variable(d, *symbol);

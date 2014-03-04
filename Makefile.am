@@ -15,6 +15,8 @@ dist_doc_DATA = README			\
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 
+dist_noinst_DATA = Doxyfile
+
 info_TEXINFOS = apl.texi
 
 man1_MANS = apl.1

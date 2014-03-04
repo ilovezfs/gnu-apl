@@ -153,9 +153,8 @@ public:
       { the_workspace.symbol_table.erase_symbols(out, symbols); }
 
    /// list all symbols (of category \b which) with names in \b from_to
-   static void list_symbols(ostream & out, ListCategory which,
-                     UCS_string from_to)
-      { the_workspace.symbol_table.list_symbols(out, which, from_to); }
+   static void list(ostream & out, ListCategory which, UCS_string from_to)
+      { the_workspace.symbol_table.list(out, which, from_to); }
 
    /// list all symbols with names in \b buf
    static ostream & list_symbol(ostream & out, const UCS_string & buf)

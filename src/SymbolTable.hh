@@ -45,8 +45,7 @@ public:
    Symbol * lookup_existing_symbol(const UCS_string & ucs);
 
    /// List all symbols in \b this \b SymbolTable (for )VARS, )FNS etc.)
-   void list_symbols(ostream & out, ListCategory which,
-                     UCS_string from_to) const;
+   void list(ostream & out, ListCategory which, UCS_string from_to) const;
 
    /// clear the marked flag of all symbols
    void unmark_all_values() const;
