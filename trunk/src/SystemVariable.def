@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// read-only system variables
 ro_sv_def(Quad_AI )
 ro_sv_def(Quad_ARG)
 ro_sv_def(Quad_AV )
@@ -32,6 +33,7 @@ ro_sv_def(Quad_UL )
 ro_sv_def(Quad_WA )
 #undef ro_sv_def
 
+// read-write system variables
 rw_sv_def(Quad_CT )
 rw_sv_def(Quad_FC )
 rw_sv_def(Quad_IO )
@@ -53,6 +55,33 @@ rw_sv_def(CHI     )
 rw_sv_def(LAMBDA  )
 rw_sv_def(OMEGA   )
 rw_sv_def(OMEGA_U )
-
 #undef rw_sv_def
+
+// system functions
+#ifdef sf_def
+  sf_def(Quad_AF)
+  sf_def(Quad_AT)
+  sf_def(Quad_CR)
+  sf_def(Quad_DL)
+  sf_def(Quad_EA)
+  sf_def(Quad_EC)
+  sf_def(Quad_ENV)
+  sf_def(Quad_ES)
+  sf_def(Quad_FX)
+  sf_def(Quad_INP)
+  sf_def(Quad_NA)
+  sf_def(Quad_NC)
+  sf_def(Quad_NL)
+  sf_def(Quad_SI)
+  sf_def(Quad_SVC)
+  sf_def(Quad_SVO)
+  sf_def(Quad_SVQ)
+  sf_def(Quad_SVR)
+  sf_def(Quad_SVS)
+  sf_def(Quad_TF)
+  sf_def(Quad_UCS)
+# undef sf_def
+#endif
+
+
 
