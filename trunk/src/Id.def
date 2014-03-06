@@ -94,6 +94,7 @@ id_def( INTEGER       , ---               ,          , pp )
 id_def( INVALID       , ---               ,          , pp )
 id_def( IO            , ---               ,          , qv )
 id_def( INP           , ---               ,          , qf )
+id_def( F2_INTER      , INTERSECTION      ,          , av )
 
 id_def( JOT           , RING_OPERATOR     , = 0x4A01 , av )
 
@@ -194,7 +195,7 @@ id_def( TZ            , ---               ,          , qv )
 id_def( UCS           , ---               , = 0x5501 , qf )
 id_def( UL            , ---               ,          , qv )
 id_def( F2_UNEQ       , NOT_EQUAL         ,          , av )
-id_def( F1_UNIQUE     , UNION             ,          , av )
+id_def( F12_UNION     , UNION             ,          , av )
 id_def( FUN_USER      , ---               ,          , pp )
 
 id_def( VARIABLE      , ---               , = 0x5601 , pp )

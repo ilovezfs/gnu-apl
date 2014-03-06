@@ -205,8 +205,8 @@ char_df1(INFINITY           , 0x221E , END          , NO_SPACE ,  --) /* ∞ */
 char_def(DIVIDES            , 0x2223 , F12_STILE    , NO_SPACE ,  B2) /* ∣ */
 char_def(AND                , 0x2227 , F2_AND       , NO_SPACE ,  83) /* ∧ */
 char_def(OR                 , 0x2228 , F2_OR        , NO_SPACE ,  EB) /* ∨ */
-char_def(INTERSECTION       , 0x2229 , END          , NO_SPACE ,  EF) /* ∩ */
-char_def(UNION              , 0x222A , F1_UNIQUE    , NO_SPACE ,  AC) /* ∪ */
+char_def(INTERSECTION       , 0x2229 , F2_INTER     , NO_SPACE ,  EF) /* ∩ */
+char_def(UNION              , 0x222A , F12_UNION    , NO_SPACE ,  AC) /* ∪ */
 char_def(DOTTED_DEL         , 0x2235 , END          , NO_SPACE ,  D2) /* ∵ */
 char_def(TILDE_OPERATOR     , 0x223C , F12_WITHOUT  , NO_SPACE ,  84) /* ∼ */
 char_def(NOT_EQUAL          , 0x2260 , F2_UNEQ      , NO_SPACE ,  F4) /* ≠ */

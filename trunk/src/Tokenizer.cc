@@ -301,6 +301,7 @@ Token tok = Avec::uni_to_token(uni, LOC);
         sys(F12_EQUIV,     F12_EQUIV)
         sys(F12_FORMAT,    F12_FORMAT)
         sys(F12_INDEX_OF,  F12_INDEX_OF)
+        sys(F2_INTER,      F2_INTER)
         sys(F2_LEFT,       F2_LEFT)
         sys(F12_LOGA,      F12_LOGA)
         sys(F12_MINUS,     F12_MINUS)
@@ -321,7 +322,7 @@ Token tok = Avec::uni_to_token(uni, LOC);
         sys(F12_TAKE,      F12_TAKE)
         sys(F12_TRANSPOSE, F12_TRANSPOSE)
         sys(F12_TIMES,     F12_TIMES)
-        sys(F1_UNIQUE,     F1_UNIQUE)
+        sys(F12_UNION,     F12_UNION)
         sys(F12_WITHOUT,   F12_WITHOUT)
 
         sys(JOT,           JOT)

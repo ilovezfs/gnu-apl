@@ -17,14 +17,12 @@ The following features are planned:
 -----------------------------------
 
 * non-quadratic scan for associative functions
-* vendor independent workspace exchange format
 
-The following issues are known and planned to be fixed mid-term:
-----------------------------------------------------------------
+The following issues are known and maybe fixed mid-term:
+--------------------------------------------------------
 
-* readline issue after )LOAD workspace
 * shared variable improvements
-
+* improvements on ⍤ operator
 
 The following extensions are provided:
 --------------------------------------

@@ -138,7 +138,7 @@ public:
    /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F2_INDEX      fun;   ///< Built-in function
+   static Bif_F2_INDEX fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -849,18 +849,42 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function unique
  */
-class Bif_F1_UNIQUE : public NonskalarFunction
+class Bif_F12_UNION : public NonskalarFunction
 {
 public:
    /// Constructor
-   Bif_F1_UNIQUE()
-   : NonskalarFunction(TOK_F1_UNIQUE)
+   Bif_F12_UNION()
+   : NonskalarFunction(TOK_F12_UNION)
    {}
 
    /// Overloaded Function::eval_AB()
-   virtual Token eval_B(Value_P B);
+   virtual Token eval_AB(Value_P, Value_P B);
 
-   static Bif_F1_UNIQUE      fun;   ///< Built-in function
+   /// Overloaded Function::eval_B()
+   virtual Token eval_B(Value_P B)
+      { return Token(TOK_APL_VALUE1, do_unique(B, false)); }
+
+   // return unique elements in B (sorted or not)
+   static Value_P do_unique(Value_P B, bool sorted);
+
+   static Bif_F12_UNION      fun;   ///< Built-in function
+protected:
+};
+//-----------------------------------------------------------------------------
+/** System function intersection
+ */
+class Bif_F2_INTER : public NonskalarFunction
+{
+public:
+   /// Constructor
+   Bif_F2_INTER()
+   : NonskalarFunction(TOK_F2_INTER)
+   {}
+
+   /// Overloaded Function::eval_AB()
+   virtual Token eval_AB(Value_P A, Value_P B);
+
+   static Bif_F2_INTER fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------

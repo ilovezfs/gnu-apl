@@ -64,7 +64,8 @@ Bif_F12_SORT_DES  Bif_F12_SORT_DES::fun;     // ⍒
 Bif_F12_FORMAT    Bif_F12_FORMAT::fun;       // ⍕
 Bif_F12_INDEX_OF  Bif_F12_INDEX_OF::fun;     // ⍳
 Bif_F12_RHO       Bif_F12_RHO::fun;          // ⍴
-Bif_F1_UNIQUE     Bif_F1_UNIQUE::fun;        // ∪
+Bif_F2_INTER      Bif_F2_INTER::fun;         // ∩
+Bif_F12_UNION     Bif_F12_UNION::fun;        // ∪
 Bif_F2_LEFT       Bif_F2_LEFT::fun;          // ⊣
 Bif_F2_RIGHT      Bif_F2_RIGHT::fun;         // ⊢
 
@@ -3382,20 +3383,79 @@ ExecuteList * fun = ExecuteList::fix(statement.no_pad(), LOC);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F1_UNIQUE::eval_B(Value_P B)
+Bif_F12_UNION::eval_AB(Value_P A, Value_P B)
+{
+Value_P unique_A = do_unique(A, true);
+Value_P unique_B = do_unique(B, true);
+
+   // count equal elements
+   //
+ShapeItem eq_count = 0;
+const Cell * cA = &unique_A->get_ravel(0);
+const Cell * cB = &unique_B->get_ravel(0);
+const Cell * endA = cA + unique_A->element_count();
+const Cell * endB = cB + unique_B->element_count();
+
+   while (cA < endA && cB < endB)   // both have elements
+       {
+         const Comp_result comp = cA->compare(*cB);
+         if      (comp == COMP_LT)   ++cA;    // cA < cB
+         else if (comp == COMP_GT)   ++cB;    // cA > cB
+         else                                 // cA == cB
+            {
+              ++cA;
+              ++cB;
+              ++eq_count;
+            }
+       }
+
+Value_P Z(new Value(unique_A->nz_element_count()
+                  + unique_B->nz_element_count() - eq_count, LOC));
+   cA = &unique_A->get_ravel(0);
+   cB = &unique_B->get_ravel(0);
+   while (cA < endA && cB < endB)   // both have elements
+       {
+         const Comp_result comp = cA->compare(*cB);
+         if      (comp == COMP_LT)   Z->next_ravel()->init(*cA++);
+         else if (comp == COMP_GT)   Z->next_ravel()->init(*cB++);
+         else                             
+            {
+              Z->next_ravel()->init(*cA++);
+              ++cB;
+            }
+       }
+
+   // the remaining elements in the larger vsalue...
+   //
+   while (cA < endA)   Z->next_ravel()->init(*cA++);
+   while (cB < endB)   Z->next_ravel()->init(*cB++);
+
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+Value_P
+Bif_F12_UNION::do_unique(Value_P B, bool sorted)
 {
    if (B->get_rank() > 1)   RANK_ERROR;
 
 const ShapeItem ec_B = B->element_count();
    if (ec_B <= 1)  // 0 or 1 element: return B
       {
+        if (B->is_temp())
+           {
+              Log(LOG_optimization) CERR << "optimizing ∪B" << endl;
+              return B;
+           }
+
         Value_P Z = B->clone(LOC);
         Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, Z);
+        return Z;
       }
 
 Token B1_tok = Bif_F12_SORT_ASC::fun.eval_B(B);
-   if (B1_tok.get_Class() != TC_VALUE)   return B1_tok;
+   if (B1_tok.get_Class() != TC_VALUE)   return B1_tok.get_apl_val();
 
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();
@@ -3431,9 +3491,15 @@ Value_P Z1(new Value(ec_Z, LOC));
            }
       }
 
-   // at this point , B[Z1] is the set of unique elements, but unfortunately
-   // sorted. We sort Z1 in order to get the original order.
+   // at this point , B[Z1] is the set of unique elements, but sorted. 
+   // We may need to sort Z1 in order to get the original order.
    //
+   if (sorted)
+      {
+         Value_P Z4 = B->index(Z1);
+         return Z4;
+      }
+
 Token Z2_tok = Bif_F12_SORT_ASC::fun.eval_B(Z1);
    Assert(Z2_tok.get_Class() == TC_VALUE);
 Value_P Z2 = Z2_tok.get_apl_val();
@@ -3442,6 +3508,53 @@ Value_P Z3 = Z1->index(Z2);
 Value_P Z4 = B->index(Z3);
 
    Z4->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z4);
+   return Z4;
+}
+//-----------------------------------------------------------------------------
+Token
+Bif_F2_INTER::eval_AB(Value_P A, Value_P B)
+{
+Value_P unique_A = Bif_F12_UNION::do_unique(A, true);
+Value_P unique_B = Bif_F12_UNION::do_unique(B, true);
+
+   // count equal elements
+   //
+ShapeItem eq_count = 0;
+const Cell * cA = &unique_A->get_ravel(0);
+const Cell * cB = &unique_B->get_ravel(0);
+const Cell * endA = cA + unique_A->element_count();
+const Cell * endB = cB + unique_B->element_count();
+
+   while (cA < endA && cB < endB)   // both have elements
+       {
+         const Comp_result comp = cA->compare(*cB);
+         if      (comp == COMP_LT)   ++cA;    // cA < cB
+         else if (comp == COMP_GT)   ++cB;    // cA > cB
+         else                                 // cA == cB
+            {
+              ++cA;
+              ++cB;
+              ++eq_count;
+            }
+       }
+
+Value_P Z(new Value(eq_count, LOC));
+   cA = &unique_A->get_ravel(0);
+   cB = &unique_B->get_ravel(0);
+   while (cA < endA && cB < endB)   // both have elements
+       {
+         const Comp_result comp = cA->compare(*cB);
+         if      (comp == COMP_LT)   ++cA;
+         else if (comp == COMP_GT)   ++cB;
+         else                             
+            {
+              Z->next_ravel()->init(*cA++);
+              ++cB;
+            }
+       }
+
+   Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
