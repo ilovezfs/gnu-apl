@@ -146,7 +146,8 @@ UserFunction_header::UserFunction_header(const UCS_string text)
     sym_FUN(0),
     sym_RO(0),
     sym_X(0),
-    sym_B(0)
+    sym_B(0),
+    from_lambda(false)
 {
 UCS_string header_line;
 
@@ -270,7 +271,8 @@ UserFunction_header::UserFunction_header(Fun_signature sig,
     sym_FUN(0),
     sym_RO(0),
     sym_X(0),
-    sym_B(0)
+    sym_B(0),
+    from_lambda(true)
 {
                        sym_Z = &Workspace::get_v_LAMBDA();
    if (sig & SIG_A)    sym_A = &Workspace::get_v_ALPHA();

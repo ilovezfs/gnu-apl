@@ -121,6 +121,9 @@ public:
    /// push Z (if defined), local variables, and labels.
    void eval_common();
 
+   /// true if this user defined function was created from a lambda body
+   const bool from_lambda;
+
 protected:
    /// Check that sym occurs at most once in \b Symbol array \b sym.
    void check_duplicate_symbol(const Symbol * sym);
@@ -189,6 +192,9 @@ public:
 
    /// Destructor.
    ~UserFunction();
+
+   bool is_lambda() const
+      { return header.from_lambda; }
 
    /// overloaded Executable::get_ufun()
    virtual const UserFunction * get_ufun() const
