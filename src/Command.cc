@@ -82,8 +82,12 @@ Command::process_line(UCS_string & line)
                 vector<UCS_string> args;
                 arg.copy_black_list(args);
                 line.clear();
-                if (!cmd.starts_iwith("MORE")) 
-                   Workspace::more_error().clear();
+                if (!cmd.starts_iwith(")MORE")) 
+                   {
+                     // clear )MORE info unless command is )MORE
+                     //
+                     Workspace::more_error().clear();
+                   }
 
 #define cmd_def(cmd_str, code, _arg) \
                 if (cmd.starts_iwith(cmd_str)) { code } else
@@ -249,7 +253,7 @@ const Executable * statements = 0;
               if (si == 0)
                  {
                     Workspace::more_error() = UCS_string(
-                          _("empty branch (→⍳0) without suspended function"));
+                          _("branch back into function (→N) without suspended function"));
                     SYNTAX_ERROR;   // →N without function,
                  }
 
