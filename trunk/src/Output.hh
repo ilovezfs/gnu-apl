@@ -98,19 +98,19 @@ public:
    static bool print_sema_held;
 
    /// escape sequence for CIN colors
-   static char color_CIN[21];
+   static char color_CIN[100];
 
    /// escape sequence for COUT colors
-   static char color_COUT[21];
+   static char color_COUT[100];
 
    /// escape sequence for CERR colors
-   static char color_CERR[21];
+   static char color_CERR[100];
 
    /// escape sequence for UERR colors
-   static char color_UERR[21];
+   static char color_UERR[100];
 
    /// escape sequence for resetting colors
-   static char color_RESET[21];
+   static char color_RESET[100];
 
    /// foreground color for CIN
    static int color_CIN_foreground;
@@ -137,7 +137,7 @@ public:
    static int color_UERR_background;
  
    /// escape sequences for clear to end of line
-   static char clear_EOL[21];
+   static char clear_EOL[100];
 
    /// true if curses shall be used for output colors
    static bool use_curses;
