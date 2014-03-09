@@ -16,8 +16,6 @@ The following features may be added (if requested):
 The following features are planned:
 -----------------------------------
 
-* non-quadratic scan for associative functions
-
 The following issues are known and maybe fixed mid-term:
 --------------------------------------------------------
 
@@ -50,4 +48,6 @@ The following extensions are provided:
 
 * Native APL functions
     User defined APL functions written in C++
+
+* )DUMP command (save workspace in a format that can be read back with apl -f
 

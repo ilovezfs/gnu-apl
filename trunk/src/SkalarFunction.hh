@@ -184,6 +184,9 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_skalar_AB(A, B, &Cell::bif_and); }
 
+   /// return the associative cell function of this function
+   virtual assoc_f2 get_assoc() const { return &Cell::bif_and; }
+
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_skalar_identity_fun(B, axis, Value::One_P); }
@@ -207,6 +210,9 @@ protected:
    /// Overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_skalar_AB(A, B, &Cell::bif_or); }
+
+   /// return the associative cell function of this function
+   virtual assoc_f2 get_assoc() const { return &Cell::bif_or; }
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
@@ -392,6 +398,9 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_skalar_AB(A, B, &Cell::bif_add); }
 
+   /// return the associative cell function of this function
+   virtual assoc_f2 get_assoc() const { return &Cell::bif_add; }
+
    static Bif_F12_PLUS      fun;        ///< Built-in function.
 
 protected:
@@ -490,6 +499,9 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_skalar_AB(A, B, &Cell::bif_multiply); }
 
+   /// return the associative cell function of this function
+   virtual assoc_f2 get_assoc() const { return &Cell::bif_multiply; }
+
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_skalar_identity_fun(B, axis, Value::One_P); }
@@ -566,6 +578,9 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_skalar_AB(A, B, &Cell::bif_maximum); }
 
+   /// return the associative cell function of this function
+   virtual assoc_f2 get_assoc() const { return &Cell::bif_maximum; }
+
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_skalar_identity_fun(B, axis, Value::Min_P); }
@@ -593,6 +608,9 @@ protected:
    /// Overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_skalar_AB(A, B, &Cell::bif_minimum); }
+
+   /// return the associative cell function of this function
+   virtual assoc_f2 get_assoc() const { return &Cell::bif_minimum; }
 
    /// Overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)

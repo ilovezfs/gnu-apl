@@ -129,6 +129,13 @@ public:
    /// Print \b this function.
    virtual ostream & print(ostream & out) const = 0;
 
+   typedef void (Cell::*assoc_f2)(Cell *, const Cell *) const;
+
+   /// if this function is an associative skalar function then return
+   /// its associative cell function, otherwise 0.
+   virtual assoc_f2 get_assoc() const
+      { return 0; }
+
    /// set \b tok to a \b Token for \b this function.
    Token get_token()   { return Token(tag, this); }
 
