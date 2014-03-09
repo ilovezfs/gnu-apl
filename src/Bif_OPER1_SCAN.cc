@@ -138,13 +138,48 @@ const ShapeItem m_len = B->get_shape_item(axis);
         return Bif_F12_RHO::do_reshape(shape_Z, B);
       }
 
-const Shape3 Z3(B->get_shape(), axis);
+const Shape3 shape_Z3(B->get_shape(), axis);
 
 Value_P Z(new Value(B->get_shape(), LOC));
+void (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
+
+   if (assoc_f2)
+      {
+        // LO is an associative primitive skalar function.
+        //
+        const Cell * cB = &B->get_ravel(0);
+        loop(h, shape_Z3.h())
+        loop(m, shape_Z3.m())
+        loop(l, shape_Z3.l())
+            {
+              Cell * cZ = Z->next_ravel();
+              if (m == 0)
+                 {
+                   cZ->init(*cB++);
+                 }
+              else
+                 {
+
+                   Value_P AA(new Value(LOC));
+                   AA->next_ravel()->init(cZ[-shape_Z3.l()]);
+
+                   Value_P BB(new Value(LOC));
+                   BB->next_ravel()->init(*cB++);
+
+                   Token tok = LO->eval_AB(AA, BB);
+                   if (!tok.is_apl_val())   return tok;
+
+                   Value_P ZZ = tok.get_apl_val();
+                   cZ->init(ZZ->get_ravel(0));
+                 }
+            }
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
 EOC_arg arg(Z, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-   _arg.init(Z3, LO, &B->get_ravel(0), m_len, 1, 1);
+   _arg.init(shape_Z3, LO, &B->get_ravel(0), m_len, 1, 1);
 
 Token tok(TOK_FIRST_TIME);
    Bif_REDUCE::eoc_beam(tok, arg);

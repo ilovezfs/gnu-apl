@@ -70,3 +70,4 @@
  5591 fixed problem with )SAVE with nested values
  5638 command )DUMP
  5750 dyadic ∪ anc ∩
+ 5798 linear-time scan for associative functions
