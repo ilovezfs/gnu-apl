@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.2\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-03-08 16:35+0100\n"
+"POT-Creation-Date: 2014-03-10 13:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Command.cc:96 src/Command.cc:404 src/Command.cc:413 src/Command.cc:503
-#: src/Command.cc:722
+#: src/Command.cc:96 src/Command.cc:404 src/Command.cc:413 src/Command.cc:509
+#: src/Command.cc:728
 msgid "BAD COMMAND"
 msgstr ""
 
@@ -84,89 +84,93 @@ msgstr ""
 msgid "Commands are:"
 msgstr ""
 
-#: src/Command.cc:483
+#: src/Command.cc:481
+msgid ")HOST command not allowed in safe mode."
+msgstr ""
+
+#: src/Command.cc:489
 msgid ")HOST command failed: "
 msgstr ""
 
-#: src/Command.cc:505
+#: src/Command.cc:511
 msgid "missing filename in command )IN"
 msgstr ""
 
-#: src/Command.cc:519 src/Command.cc:737
+#: src/Command.cc:525 src/Command.cc:743
 msgid " failed: "
 msgstr ""
 
-#: src/Command.cc:523
+#: src/Command.cc:529
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr ""
 
-#: src/Command.cc:563
+#: src/Command.cc:569
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr ""
 
-#: src/Command.cc:628
+#: src/Command.cc:634
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr ""
 
-#: src/Command.cc:633
+#: src/Command.cc:639
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr ""
 
-#: src/Command.cc:677
+#: src/Command.cc:683
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
 "will decrease performance), recompile the interpreter as follows:"
 msgstr ""
 
-#: src/Command.cc:683
+#: src/Command.cc:689
 msgid "other configure options"
 msgstr ""
 
-#: src/Command.cc:689
+#: src/Command.cc:695
 msgid "above the src directory."
 msgstr ""
 
-#: src/Command.cc:700
+#: src/Command.cc:706
 msgid "NO MORE ERROR INFO"
 msgstr ""
 
-#: src/Command.cc:713
+#: src/Command.cc:719
 msgid "Goodbye."
 msgstr ""
 
-#: src/Command.cc:724
+#: src/Command.cc:730
 msgid "missing filename in command )OUT"
 msgstr ""
 
-#: src/Command.cc:740
+#: src/Command.cc:746
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr ""
 
-#: src/Command.cc:806
+#: src/Command.cc:812
 msgid " *** bad sub-record of *"
 msgstr ""
 
-#: src/Command.cc:809
+#: src/Command.cc:815
 msgid " comment"
 msgstr ""
 
-#: src/Command.cc:811
+#: src/Command.cc:817
 msgid " timestamp"
 msgstr ""
 
-#: src/Command.cc:823
+#: src/Command.cc:829
 msgid " imbed"
 msgstr ""
 
-#: src/Command.cc:826
+#: src/Command.cc:832
 msgid "record #"
 msgstr ""
 
-#: src/Command.cc:836
+#: src/Command.cc:842
 msgid " *** bad sub-record of X"
 msgstr ""
 
@@ -174,19 +178,19 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
-#: src/main.cc:320
+#: src/main.cc:321
 msgid " (default)"
 msgstr ""
 
-#: src/main.cc:331
+#: src/main.cc:332
 msgid "configurable options:"
 msgstr ""
 
-#: src/main.cc:364
+#: src/main.cc:365
 msgid ", therefore:"
 msgstr ""
 
-#: src/main.cc:415
+#: src/main.cc:416
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -198,12 +202,12 @@ msgid ""
 "1000)\n"
 msgstr ""
 
-#: src/main.cc:425
+#: src/main.cc:426
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr ""
 
-#: src/main.cc:431
+#: src/main.cc:432
 #, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
@@ -217,6 +221,7 @@ msgid ""
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
 "    --silent             do not show the welcome message\n"
+"    --safe               safe mode (no shared vars, no native functions)\n"
 "    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
 "    -v, --version        show version information and exit\n"
 "    -T testcases ...     run testcases\n"
@@ -231,44 +236,44 @@ msgid ""
 "    --                   end of options for %s\n"
 msgstr ""
 
-#: src/main.cc:493
+#: src/main.cc:495
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr ""
 
-#: src/main.cc:494
+#: src/main.cc:496
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr ""
 
-#: src/main.cc:513
+#: src/main.cc:515
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr ""
 
-#: src/main.cc:516
+#: src/main.cc:518
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 
-#: src/main.cc:517
+#: src/main.cc:519
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr ""
 
-#: src/main.cc:946
+#: src/main.cc:951
 msgid "-f without filename"
 msgstr ""
 
-#: src/main.cc:979
+#: src/main.cc:984
 msgid "-l without log facility"
 msgstr ""
 
-#: src/main.cc:1072
+#: src/main.cc:1082
 msgid "--TM without test mode"
 msgstr ""
 
-#: src/main.cc:1095
+#: src/main.cc:1105
 msgid "-w without milli(seconds)"
 msgstr ""
 
-#: src/main.cc:1101
+#: src/main.cc:1111
 msgid "unknown option '"
 msgstr ""

@@ -476,6 +476,12 @@ Command::cmd_HELP(ostream & out)
 void
 Command::cmd_HOST(ostream & out, const UCS_string & arg)
 {
+   if (safe_mode)
+      {
+        out << _(")HOST command not allowed in safe mode.") << endl;
+        return;
+      }
+
 UTF8_string host_cmd(arg);
 FILE * pipe = popen(host_cmd.c_str(), "r");
    if (pipe == 0)   // popen failed
