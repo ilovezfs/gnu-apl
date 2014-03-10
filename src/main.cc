@@ -54,6 +54,7 @@
 bool silent = false;
 bool emacs_mode = false;
 bool do_not_echo = false;
+bool safe_mode = false;
 
 const char * build_tag[] = { BUILDTAG, 0 };
 
@@ -439,6 +440,7 @@ _("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
 "    --silent             do not show the welcome message\n"
+"    --safe               safe mode (no shared vars, no native functions)\n"
 "    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
 "    -v, --version        show version information and exit\n"
 "    -T testcases ...     run testcases\n"
@@ -641,6 +643,9 @@ struct user_preferences
 
    /// randomize the order of testfiles
    bool randomize_testfiles;
+
+   /// safe mode
+   bool safe_mode;
 };
 //-----------------------------------------------------------------------------
 // read user preference file(s) if present
@@ -1027,6 +1032,11 @@ user_preferences up;
          else if (!strcmp(opt, "--silent"))
             {
               silent = true;
+            }
+         else if (!strcmp(opt, "--safe"))
+            {
+              safe_mode = true;
+              up.do_sv = false;
             }
          else if (!strcmp(opt, "-T"))
             {

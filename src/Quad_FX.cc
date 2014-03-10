@@ -22,6 +22,7 @@
 #include <dlfcn.h>
 
 #include "IntCell.hh"
+#include "main.hh"
 #include "NativeFunction.hh"
 #include "Quad_FX.hh"
 #include "Symbol.hh"
@@ -212,6 +213,8 @@ Value_P Z(new Value(fun_name, LOC));
 Token
 Quad_FX::do_native_FX(Value_P A, Axis axis, Value_P B)
 {
+   if (safe_mode)   DOMAIN_ERROR;
+
 UCS_string so_name = A->get_UCS_ravel();
 UCS_string function_name = B->get_UCS_ravel();
 

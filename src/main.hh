@@ -32,3 +32,6 @@ extern bool silent;
 
 /// true if no banner/Goodbye is wanted.
 extern bool do_not_echo;
+
+/// true if --safe command line option was given
+extern bool safe_mode;

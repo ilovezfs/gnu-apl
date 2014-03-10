@@ -266,7 +266,8 @@ int opening = -1;
                    continue;
 
               case TOK_R_PARENT:
-                   if (opening == -1)   continue;   // ')' without ')'
+                   if (opening == -1)      continue;       // ')' without '('
+                   if (opening == t - 1)   SYNTAX_ERROR;   // '(' ')'
 
                    tos[opening].clear(LOC);  // invalidate '('
                    tos[t].clear(LOC);        // invalidate ')'
