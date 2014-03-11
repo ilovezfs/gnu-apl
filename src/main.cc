@@ -1155,8 +1155,18 @@ user_preferences up;
 
    if (up.daemon)
       {
-        if (fork())   return 0;   // parent returns
-        Log(LOG_startup)   CERR << "process forked" << endl;
+        const pid_t pid = fork();
+        if (pid)   // parent
+           {
+             Log(LOG_startup)
+                CERR << "parent pid = " << getpid()
+                     << " child pid = " << pid << endl;
+
+             exit(0);   // parent returns
+           }
+
+        Log(LOG_startup)
+           CERR << "child forked (pid" << getpid() << ")" << endl;
       }
 
    if (up.wait_ms)   usleep(1000*up.wait_ms);

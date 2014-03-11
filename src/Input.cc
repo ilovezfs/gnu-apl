@@ -181,17 +181,35 @@ const UTF8 * buf = TestFiles::get_testcase_line();
            }
       }
 
-   if (buf == 0)   // all reads from files failed
+const APL_time_us from = now();
+int control_D_count = 0;
+   while (buf == 0)
       {
         input_type = "U";
         buf = get_user_line(&Workspace::get_prompt(), false);
-      }
 
-   if (buf == 0)   // ^D or end of file
-      {
-        CIN << endl;
-        COUT << "^D (use command )OFF to leave the APL interpreter!)" << endl;
-        return UCS_string();
+        if (buf == 0)   // ^D or end of file
+           {
+             ++control_D_count;
+             if (control_D_count < 5)
+                {
+                  CIN << endl;
+                  COUT << "      ^D or end-of-input detected ("
+                       << control_D_count << "). Use )OFF to leave APL!"
+                       << endl;
+                }
+
+             if (control_D_count > 10 && (now() - from)/control_D_count < 10000)
+                {
+                  // we got 10 or more times buf == 0 at a rate of 10 ms or
+                  // faster. That looks like end-of-input rather than ^D
+                  // typed by the user. Abort the interpreter.
+                  //
+                  CIN << endl;
+                  COUT << "      *** end of input" << endl;
+                  Command::cmd_OFF(2);
+                }
+           }
       }
 
 size_t len = strlen((const char *)buf);
