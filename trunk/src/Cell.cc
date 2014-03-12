@@ -28,6 +28,7 @@
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
 #include "Value.hh"
+#include "SystemLimits.hh"
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
@@ -160,8 +161,8 @@ Cell::equal(const Cell & other, APL_Float qct) const
 bool
 Cell::is_near_int(APL_Float value, APL_Float qct)
 {
-   if (value >  9223372036854775807LL)   return false;
-   if (value < -9223372036854775807LL)   return false;
+   if (value > LARGE_INT)   return false;
+   if (value < SMALL_INT)   return false;
 
 const double result = nearbyint(value);
 const double diff = value - result;
