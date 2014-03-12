@@ -912,18 +912,20 @@ const APL_Integer qio = Workspace::get_IO();
         if (x == SYL_SI_DEPTH_LIMIT)   // SI depth limit
            {
              const int depth = Workspace::SI_entry_count();
-             if (b < (depth + 4))   DOMAIN_ERROR;    // limit too low
+             if (b && (b < (depth + 4)))   DOMAIN_ERROR;    // limit too low
              si_depth_limit = b;
            }
         else if (x == SYL_VALUE_COUNT_LIMIT)   // value count limit
            {
-             if (b < (Value::value_count + 10))   DOMAIN_ERROR;    // too low
+             if (b && (b < (Value::value_count + 10)))    // too low
+                DOMAIN_ERROR;
              value_count_limit = b;
            }
-        else if (x == SYL_RAVEL_BYTES_LIMIT)   // ravel bytes depth limit
+        else if (x == SYL_RAVEL_BYTES_LIMIT)   // ravel bytes limit
            {
              const int cells = b / sizeof(Cell);
-             if (cells < (Value::total_ravel_count + 1000))   DOMAIN_ERROR;
+             if (cells && (cells < (Value::total_ravel_count + 1000)))
+                DOMAIN_ERROR;
 
              ravel_count_limit = cells;
            }
