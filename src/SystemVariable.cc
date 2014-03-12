@@ -871,7 +871,7 @@ Quad_SYL::assign(Value_P value, const char * loc)
 void
 Quad_SYL::assign_indexed(const IndexExpr & IDX, Value_P value)
 {
-   //  must be an array index of the form [2; something]
+   //  must be an array index of the form [something; 2]
    //
    if (IDX.value_count() != 2)   INDEX_ERROR;
 
@@ -888,7 +888,6 @@ const APL_Integer qio = Workspace::get_IO();
    if (X2->get_ravel(0).get_near_int(qct) != qio + 1)   INDEX_ERROR;
 
 Value_P X1 = IDX.values[1];
-   delete &IDX;
 
    assign_indexed(X1, value);
 }
