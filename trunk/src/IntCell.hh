@@ -50,6 +50,9 @@ public:
    /// Overloaded Cell::equal().
    virtual bool equal(const Cell & other, APL_Float qct) const;
 
+   /// Overloaded Cell::bif_add().
+   virtual void bif_add(Cell * Z, const Cell * A) const;
+
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_ceiling(Cell * Z) const;
 
@@ -58,6 +61,9 @@ public:
 
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_direction(Cell * Z) const;
+
+   /// Overloaded Cell::bif_divide().
+   virtual void bif_divide(Cell * Z, const Cell * A) const;
 
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_exponential(Cell * Z) const;
@@ -70,6 +76,12 @@ public:
 
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_magnitude(Cell * Z) const;
+
+   /// Overloaded Cell::bif_multiply().
+   virtual void bif_multiply(Cell * Z, const Cell * A) const;
+
+   /// Overloaded Cell::bif_power().
+   virtual void bif_power(Cell * Z, const Cell * A) const;
 
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_nat_log(Cell * Z) const;
@@ -85,6 +97,9 @@ public:
 
    /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual void bif_roll(Cell * Z) const;
+
+   /// Overloaded Cell::bif_subtract().
+   virtual void bif_subtract(Cell * Z, const Cell * A) const;
 
    /// compare this with other, throw DOMAIN ERROR on illegal comparisons
    virtual Comp_result compare(const Cell & other) const;

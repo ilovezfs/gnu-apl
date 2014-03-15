@@ -34,26 +34,11 @@ protected:
    /// Overloaded Cell::is_real_cell().
    virtual bool is_real_cell() const { return true; }
 
-   /// Overloaded Cell::bif_add().
-   virtual void bif_add(Cell * Z, const Cell * A) const;
-
    /// Overloaded Cell::bif_circle_fun().
    virtual void bif_circle_fun(Cell * Z, const Cell * A) const;
 
-   /// Overloaded Cell::bif_divide().
-   virtual void bif_divide(Cell * Z, const Cell * A) const;
-
    /// Overloaded Cell::bif_logarithm().
    virtual void bif_logarithm(Cell * Z, const Cell * A) const;
-
-   /// Overloaded Cell::bif_multiply().
-   virtual void bif_multiply(Cell * Z, const Cell * A) const;
-
-   /// Overloaded Cell::bif_power().
-   virtual void bif_power(Cell * Z, const Cell * A) const;
-
-   /// Overloaded Cell::bif_subtract().
-   virtual void bif_subtract(Cell * Z, const Cell * A) const;
 
    /// Overloaded Cell::get_classname().
    virtual const char * get_classname() const   { return "RealCell"; }
