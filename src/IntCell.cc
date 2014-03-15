@@ -173,8 +173,8 @@ void IntCell::bif_direction(Cell * Z) const
 //-----------------------------------------------------------------------------
 void IntCell::bif_magnitude(Cell * Z) const
 {
-   if (value.ival >= 0)   new (Z) IntCell( value.ival);
-   else                   new (Z) IntCell(-value.ival);
+   if (value.ival >= 0)   new (Z) IntCell(value.ival);
+   else                   bif_negative(Z);
 }
 //-----------------------------------------------------------------------------
 void IntCell::bif_reciprocal(Cell * Z) const
@@ -242,6 +242,135 @@ IntCell::bif_nat_log(Cell * Z) const
 }
 //-----------------------------------------------------------------------------
 // dyadic built-in functions...
+//-----------------------------------------------------------------------------
+void
+IntCell::bif_add(Cell * Z, const Cell * A) const
+{
+   if (!A->is_integer_cell())
+      {
+        A->bif_add(Z, this);
+        return;
+      }
+
+   // both cells are integers.
+   //
+const int64_t a = A->get_int_value();
+const int64_t b =    get_int_value();
+const double sum = a + (double)b;
+
+   if (sum > LARGE_INT || sum < SMALL_INT)   new (Z) FloatCell(sum);
+   else                                      new (Z) IntCell(a + b);
+}
+//-----------------------------------------------------------------------------
+void
+IntCell::bif_subtract(Cell * Z, const Cell * A) const
+{
+   if (!A->is_integer_cell())
+      {
+        this->bif_negative(Z);   // Z = -B
+        A->bif_add(Z, Z);        // Z = A + Z = A + -B
+        return;
+      }
+
+   // both cells are integers.
+   //
+const int64_t a = A->get_int_value();
+const int64_t b =    get_int_value();
+const double diff = a - (double)b;
+
+   if (diff > LARGE_INT || diff < SMALL_INT)   new (Z) FloatCell(diff);
+   else                                        new (Z) IntCell(a - b);
+}
+//-----------------------------------------------------------------------------
+void
+IntCell::bif_divide(Cell * Z, const Cell * A) const
+{
+   if (!A->is_integer_cell())
+      {
+        this->bif_reciprocal(Z);   // Z = ÷B
+        A->bif_multiply(Z, Z);     // Z = A × Z = A × ÷B
+        return;
+      }
+
+   // both cells are integers.
+   //
+const int64_t a = A->get_int_value();
+const int64_t b =    get_int_value();
+
+   if (b == 0)
+      {
+        if (a != 0)   DOMAIN_ERROR;
+        new (Z) IntCell(1);   // 0 ÷ 0 is defined as 1
+        return;
+      }
+
+const double i_quot = a / b;
+const double r_quot = a / (double)b;
+
+   if (r_quot > LARGE_INT || r_quot < SMALL_INT)   new (Z) FloatCell(r_quot);
+   else if (a != i_quot * b)                       new (Z) FloatCell(r_quot);
+   else                                            new (Z) IntCell(i_quot);
+}
+//-----------------------------------------------------------------------------
+void
+IntCell::bif_multiply(Cell * Z, const Cell * A) const
+{
+   if (!A->is_integer_cell())
+      {
+        A->bif_multiply(Z, this);
+        return;
+      }
+
+   // both cells are integers.
+   //
+const int64_t a = A->get_int_value();
+const int64_t b =    get_int_value();
+const double prod = a * (double)b;
+
+   if (prod > LARGE_INT || prod < SMALL_INT)   new (Z) FloatCell(prod);
+   else                                        new (Z) IntCell(a * b);
+}
+//-----------------------------------------------------------------------------
+void
+IntCell::bif_power(Cell * Z, const Cell * A) const
+{
+const int64_t b = get_int_value();
+   
+   if (!A->is_integer_cell())
+      {
+        FloatCell B(b);
+        B.bif_power(Z, A);
+        return;
+      }
+
+const int64_t a = A->get_int_value();
+
+   if (a == 0)   { new (Z) IntCell(0);   return; }   // 0^N = 0
+   if (a == 1)   { new (Z) IntCell(1);   return; }   // 1^N = 1
+   if (b == 0)   { new (Z) IntCell(1);   return; }   // N^0 = 1
+   if (b == 1)   { new (Z) IntCell(a);   return; }   // N^1 = N
+
+const double power = pow(a, b);
+   if (power > LARGE_INT || b < 0)
+      {
+        new (Z) FloatCell(power);
+        return;
+      }
+
+   // power is an int small enough for int_64
+   // a^b = a^(bn + bn-1 + ... + b0)         with   bj ∈ {0, 2^n}
+   //       a^(bn) × a^(bn-1) × ... × a^b0)  with a^bj ∈ {1, a(^2^n) = a^}
+
+int64_t a_2_n = a;  // a^(2^n) = a^(2^(n-1)) × a^(2^(n-1))
+int64_t ipow = 1;
+   for (int b1 = b; b1; b1 >>= 1)
+      {
+        if (b1 & 1)   ipow *= a_2_n;
+        a_2_n *= a_2_n;
+      }
+
+   new (Z) IntCell(ipow);
+}
 //-----------------------------------------------------------------------------
 void IntCell::bif_residue(Cell * Z, const Cell * A) const
 {
