@@ -1,0 +1,97 @@
+
+/*
+   phrase(a0, a1, ...) defines a sequence of token classes
+
+   ASS:      ←
+   GOTO:     →
+   ESC:      →
+   F, G:     TC_FUN12
+   N:    :   TC_FUN0
+   M:        TC_OP1
+   D:        TC_OP2
+   SEMI:     ;
+   LBRA:     [
+   END:      TC_END
+   LPAR:     (
+   RBRA:     ]
+   MISC:     ← → FUN ; [ END ( ]   (any of the above)
+   RPAR:     )
+   A, B:     TC_VALUE
+   C:        TC_INDEX
+   V:        TC_SYMBOL
+   I:        TC_PINDEX
+   RETC:     TC_RETURN
+
+   Normally the priority is the priority of the prefix plus the number of tems
+ */
+
+// remove parenthesis
+phrase(BS_ANY + 3,       LPAR , B    , RPAR ,    )
+phrase(BS_ANY + 3,       LPAR , F    , RPAR ,    )
+
+// niladic function
+phrase(BS_ANY +  1,      N    ,      ,      ,    )
+
+// function called monadically
+phrase_MISC (BS_F_B + 2,        F    , B    ,    )
+phrase_MISC (BS_F_B + 3,        F    , C    , B  )
+
+// function called dyadically
+phrase(BS_A_F + 3,       A    , F    , B    ,    )
+phrase(BS_A_F + 4,       A    , F    , C    , B  )
+phrase(BS_A_F + 3,       A    , M    , B    ,    )
+phrase(BS_A_F + 4,       A    , M    , C    , B  )
+
+// monadic operator
+phrase(BS_LO_OP + 3,     F    , C    , M    ,    )
+phrase(BS_LO_OP + 2,     F    , M    ,      ,    )
+phrase(BS_LO_OP + 2,     N    , M    ,      ,    )
+
+// dyadic operator
+phrase(BS_OP_RO + 3,     B    , D    , B    ,    )
+phrase(BS_OP_RO + 3,     B    , D    , G    ,    )
+phrase(BS_OP_RO + 3,     B    , D    , N    ,    )
+phrase(BS_OP_RO + 3,     F    , D    , B    ,    )
+phrase(BS_OP_RO + 3,     F    , D    , G    ,    )
+phrase(BS_OP_RO + 3,     F    , D    , N    ,    )
+phrase(BS_OP_RO + 3,     N    , D    , B    ,    )
+phrase(BS_OP_RO + 3,     N    , D    , G    ,    )
+phrase(BS_OP_RO + 3,     N    , D    , N    ,    )
+
+// indexed reference and assignment
+phrase(BS_ANY_BRA + 2,   A    , C    ,      ,    )
+phrase(BS_ANY_BRA + 4,   V    , C    , ASS  , B  )
+
+// selective specification
+phrase(BS_F_B + 2,       F    , V    ,     ,     )
+phrase(BS_F_B + 2,       M    , V    ,    ,      )
+
+// (reference) and assignment
+phrase(BS_V_ASS + 3,     A    , ASS  , B    ,    )   // selective spec.
+phrase(BS_V_ASS + 3,     V    , ASS  , B    ,    )   // variable spec.
+
+// build index list
+phrase(BS_ANY + 1,       RBRA ,      ,      ,    )
+phrase(BS_ANY + 2,       LBRA , I    ,      ,    )
+phrase(BS_ANY + 3,       LBRA , B    , I    ,    )
+
+// vector notation
+phrase(BS_VAL_VAL + 2,   A    , B    ,      ,    )
+
+// vector assignment (A B ... C) ← B
+phrase(BS_VAL_VAL + 2,   V    , RPAR , ASS  , B  )
+
+// end of statement
+phrase(BS_ANY + 2,       END  , VOID ,      ,    )
+phrase(BS_ANY + 2,       END  , B    ,      ,    )
+phrase(BS_ANY + 3,       END  , GOTO , B    ,    )
+phrase(BS_ANY + 2,       END  , GOTO ,      ,    )
+
+// end of user defined function, ⍎, or ◊ context
+phrase(BS_ANY + 1,       RETC ,      ,      ,    )
+phrase(BS_ANY + 2,       RETC , B    ,      ,    )
+phrase(BS_ANY + 2,       RETC , GOTO ,      ,    )
+phrase(BS_ANY + 3,       RETC , GOTO , B    ,    )
+
+#undef phrase
+

@@ -1,0 +1,45 @@
+/*
+ This file contains a mapping between UTF8 encoded APL characters
+ and byte(s) produced by a keyboard.
+
+ To use this file, #define macros km_asc(), km_apl(), km_shift(), and
+ key_seq_N() for N=1 ,,. max number of bytes per key.
+
+ for apl_keymap(km_asc(ascii),
+                km_apl(alt_apl),
+                key_seq_N(keyboard),
+                km_shift(shift)) :
+
+ ascii:    an ASCII string identifying the key (not part of the mapping,
+           but possibly usefule for tools).
+
+ alt_apl:  the APL character that shall be produced by, for example (but
+           not necessarily) by pressing ALT-key or ALT-SHIFT-KEY
+
+ keyboard: the byte(s) produced by the keyboard
+
+ shift:    whether shift is needed
+
+
+ The mapping below is the mapping produced by a Dyalog US-APL keyboard
+ and can be adapted to different keyboards before compiling the tools in
+ this directory.
+*/
+
+apl_keymap(km_asc("`"), km_apl("◊"), key_seq_2(0xC3, 0xA0), km_shift(false))
+apl_keymap(km_asc("1"), km_apl("¨"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("2"), km_apl("¯"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("3"), km_apl("<"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("4"), km_apl("≤"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("5"), km_apl("="), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("6"), km_apl("≥"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("7"), km_apl(">"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("8"), km_apl("≠"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("9"), km_apl("∨"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("0"), km_apl("∧"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("-"), km_apl("×"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("="), km_apl("÷"), key_seq_1(0x0D), km_shift(false))
+apl_keymap(km_asc("~"), km_apl("◊"), key_seq_2(0xC3, 0xBE), km_shift(true))
+apl_keymap(km_asc("!"), km_apl("⌶"), key_seq_1(0x0D), km_shift(true))
+apl_keymap(km_asc("@"), km_apl("⍫"), key_seq_1(0x0D), km_shift(true))
+apl_keymap(km_asc("#"), km_apl("⍒"), key_seq_1(0x0D), km_shift(true))

@@ -1,5 +1,5 @@
 
-SUBDIRS      = src support-files po
+SUBDIRS      = src support-files po tools
 DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2 rpm debian
 
 dist_doc_DATA = README			\

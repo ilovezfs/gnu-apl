@@ -18094,7 +18094,7 @@ fi
 
 fi
 
-ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile po/Makefile.in po/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile support-files/Makefile workspaces/Makefile wslib1/Makefile wslib2/Makefile"
+ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile po/Makefile.in po/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile support-files/Makefile tools/Makefile workspaces/Makefile wslib1/Makefile wslib2/Makefile"
 
 
 # APL: max. rank ?
@@ -19323,6 +19323,7 @@ do
     "src/native/Makefile") CONFIG_FILES="$CONFIG_FILES src/native/Makefile" ;;
     "src/testcases/Makefile") CONFIG_FILES="$CONFIG_FILES src/testcases/Makefile" ;;
     "support-files/Makefile") CONFIG_FILES="$CONFIG_FILES support-files/Makefile" ;;
+    "tools/Makefile") CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
     "workspaces/Makefile") CONFIG_FILES="$CONFIG_FILES workspaces/Makefile" ;;
     "wslib1/Makefile") CONFIG_FILES="$CONFIG_FILES wslib1/Makefile" ;;
     "wslib2/Makefile") CONFIG_FILES="$CONFIG_FILES wslib2/Makefile" ;;

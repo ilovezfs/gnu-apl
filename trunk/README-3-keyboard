@@ -188,7 +188,130 @@ emacs user:
     https://github.com/lokedhs/gnu-apl-mode 
 
 
-7. Remote Login
+7. Vim Plugins
+==============
+
+If your favorite editor is vim, then you will like the following plugin
+for vim, written by Thomas Baruchel:
+
+    http://www.vim.org/scripts/script.php?script_id=4887
+
+Another useful vim plugin, also written by Thomas Baruchel, which lets you
+pick APL characters from a menu inside vim is here:
+
+    http://apl-adventures.tumblr.com/post/76528148239/an-apl-character-picker-for-vim
+
+
+8. Keyboard Wrapper
+===================
+
+If the methods described above cannot be used for whatever reason then
+you can write your own program that reads keystrokes from the keyboard
+and produces UTF8 bytes sequences on its stdout. The program can then
+be 'piped' into GNU APL, We refer to such a program as a 'keyboard wrapper'.
+
+This technique is demonstrated by 3 programs called APL_keyboard_show,
+APL_keyboard_learn, and APL_keyboard, which are all located in the 'tools'
+subdirectory.
+
+
+8.1 APL_keyboard_show
+---------------------
+
+APL_keyboard_show is a simple program that displays the byte sequences
+produced by your keyboard. The following sequences are, as an example,
+sent by an Ubuntu system without having xmodmap or any other method applied.
+The characters typed were 'qwerty' and then 'qwerty' with ALT held down:
+
+$ ./APL_keyboard_show 
+
+hit keys, ESC to quit...
+
+key_seq_1(0x71))
+key_seq_1(0x77))
+key_seq_1(0x65))
+key_seq_1(0x72))
+key_seq_1(0x74))
+key_seq_1(0x79))
+key_seq_2(0xC3, 0xB1))
+key_seq_2(0xC3, 0xB7))
+key_seq_2(0xC3, 0xA5))
+key_seq_2(0xC3, 0xB2))
+key_seq_2(0xC3, 0xB4))
+key_seq_2(0xC3, 0xB9))
+
+After running xmodmap the following byte sequences are sent:
+
+hit keys, ESC to quit...
+
+key_seq_1(0x71))
+key_seq_1(0x77))
+key_seq_1(0x65))
+key_seq_1(0x72))
+key_seq_1(0x74))
+key_seq_1(0x79))
+key_seq_1(0x3F))
+key_seq_3(0xE2, 0x8D, 0xB5))
+key_seq_3(0xE2, 0x88, 0x88))
+key_seq_3(0xE2, 0x8D, 0xB4))
+key_seq_3(0xE2, 0x88, 0xBC))
+key_seq_3(0xE2, 0x86, 0x91))
+
+The alert reader will have noticed that in both cases UTF8 encoded characters
+were sent; they were just wrong for APL before running xmodmap.
+
+
+8.2 APL_keyboard_learn
+----------------------
+
+The next program is APL_keyboard_learn which is derived from APL_keyboard_show.
+
+APL_keyboard_learn asks you to hit the keys for all APL characters and writes
+them into file APL_keyboard.def. For example:
+
+./APL_keyboard_learn
+
+hit keys, ESC to quit...
+
+hit key (0 of 94) for APL character ◊ :  0xC3 0xA0 (2 bytes)
+hit key (1 of 94) for APL character ¨ :  0xC2 0xB1 (2 bytes)
+hit key (2 of 94) for APL character ¯ :  0xC2 0xB2 (2 bytes)
+hit key (3 of 94) for APL character < :  0xC2 0xB3 (2 bytes)
+hit key (4 of 94) for APL character ≤ :  0xC2 0xB4 (2 bytes)
+hit key (5 of 94) for APL character = :  0xC2 0xB5 (2 bytes)
+hit key (6 of 94) for APL character ≥ : 
+
+...
+
+If a key shall produce the same APL character regardless of the state of
+the SHIFT key, then you will be asked twice:
+
+hit key (0 of 94) for APL character ◊ :  0xC3 0xA0 (2 bytes)
+hit key (13 of 94) for APL character ◊ (shift):  0xC3 0xBE (2 bytes)
+
+APL_keyboard_learn writes a file APL_keyboard.def which is needed by the
+third program, APL_keyboard. The order of the keys that you are asked for
+is defined in file APL_keyboard.orig.def (which is identical to
+APL_keyboard.def when GNU APL is installed).
+
+After running APL_keyboard_learn, you shoud do 'make' in the tools directory,
+in order tincorporate the newly created APL_keyboard.def into the program
+APL_keyboard.
+
+
+8.3 APL_keyboard
+----------------
+
+The keyboard wrapper itself is APL_keyboard. The file APL_keyboard.def is
+#included by APL_keyboard.cc and defines the mapping from bytes sequences
+produced by you keyboard to UTF8 sequenced to be fed into GNU APL.
+
+Once APL_keyboard is made, you can start GNU APL like this:
+
+$ APL_keyboard | apl
+
+
+9. Remote Login
 ===============
 
 Suppose GNU APL runs on machine A and you connect to it by means of ssh or
@@ -208,8 +331,8 @@ or else output coloring of GNU APL may send incorrect ESC sequences for
 switching between colors (or use apl -noColor).
 
 
-8. Pitfalls and Troubleshooting
-===============================
+10. Pitfalls and Troubleshooting
+================================
 
 There are other pieces of software that may intercept the byte stream om its
 its way from the keyboard, via GNU APL, to the screen (or printer). A prime
@@ -242,8 +365,8 @@ If you need to troubleshoot APL characters, proceed as follows:
    the problem.
 
 
-8. APL Keyboards
-================
+11. APL Keyboards
+=================
 
 If you are new to APL or use it only infrequently, then you will have
 problems remembering the locations of all the APL characters on your
@@ -258,7 +381,7 @@ the normal ASCII characters. There are not many vendors around that sell APL
 keyboards (it took a while for the author to find one). Therefore it may be
 worthwhile to mention two:
 
-a. www.dyalog.com (send an email to sales@dyalog.com to get a quote.
+a. www.dyalog.com (send an email to sales@dyalog.com to get a quote).
 b. www.unicomp.com seems to have APL keyboards every now and then.
 
 An inquiry sent to a. was answered promptly; an inquiry sent to b. never.
