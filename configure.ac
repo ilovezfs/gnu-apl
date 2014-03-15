@@ -101,6 +101,7 @@ AC_CONFIG_FILES([Makefile
                  src/native/Makefile
                  src/testcases/Makefile
 		 support-files/Makefile
+                 tools/Makefile
                  workspaces/Makefile
                  wslib1/Makefile
                  wslib2/Makefile])

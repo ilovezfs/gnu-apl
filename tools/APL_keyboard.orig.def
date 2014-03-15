@@ -1,0 +1,123 @@
+/*
+ This file contains a mapping between UTF8 encoded APL characters
+ and byte(s) produced by a keyboard.
+
+ To use this file, #define macros km_asc(), km_apl(), km_shift(), and
+ key_seq_N() for N=1 ,,. max number of bytes per key.
+
+ for apl_keymap(km_asc(ascii),
+                km_apl(alt_apl),
+                key_seq_N(keyboard),
+                km_shift(shift)) :
+
+ ascii:    an ASCII string identifying the key (not part of the mapping,
+           but possibly usefule for tools).
+
+ alt_apl:  the APL character that shall be produced by, for example (but
+           not necessarily) by pressing ALT-key or ALT-SHIFT-KEY
+
+ keyboard: the byte(s) produced by the keyboard
+
+ shift:    whether shift is needed
+
+
+ The mapping below is the mapping produced by a Dyalog US-APL keyboard
+ and can be adapted to different keyboards before compiling the tools in
+ this directory.
+*/
+
+apl_keymap(km_asc("`"), km_apl("◊"), key_seq_2(0xC3, 0xA0), km_shift(false))
+apl_keymap(km_asc("1"), km_apl("¨"), key_seq_2(0xC2, 0xB1), km_shift(false))
+apl_keymap(km_asc("2"), km_apl("¯"), key_seq_2(0xC2, 0xB2), km_shift(false))
+apl_keymap(km_asc("3"), km_apl("<"), key_seq_2(0xC2, 0xB3), km_shift(false))
+apl_keymap(km_asc("4"), km_apl("≤"), key_seq_2(0xC2, 0xB4), km_shift(false))
+apl_keymap(km_asc("5"), km_apl("="), key_seq_2(0xC2, 0xB5), km_shift(false))
+apl_keymap(km_asc("6"), km_apl("≥"), key_seq_2(0xC2, 0xB6), km_shift(false))
+apl_keymap(km_asc("7"), km_apl(">"), key_seq_2(0xC2, 0xB7), km_shift(false))
+apl_keymap(km_asc("8"), km_apl("≠"), key_seq_2(0xC2, 0xB8), km_shift(false))
+apl_keymap(km_asc("9"), km_apl("∨"), key_seq_2(0xC2, 0xB9), km_shift(false))
+apl_keymap(km_asc("0"), km_apl("∧"), key_seq_2(0xC2, 0xB0), km_shift(false))
+apl_keymap(km_asc("-"), km_apl("×"), key_seq_2(0xC2, 0xAD), km_shift(false))
+apl_keymap(km_asc("="), km_apl("÷"), key_seq_2(0xC2, 0xBD), km_shift(false))
+apl_keymap(km_asc("~"), km_apl("◊"), key_seq_2(0xC3, 0xBE), km_shift(true))
+apl_keymap(km_asc("!"), km_apl("⌶"), key_seq_2(0xC2, 0xA1), km_shift(true))
+apl_keymap(km_asc("@"), km_apl("⍫"), key_seq_2(0xC3, 0x80), km_shift(true))
+apl_keymap(km_asc("#"), km_apl("⍒"), key_seq_2(0xC2, 0xA3), km_shift(true))
+apl_keymap(km_asc("$"), km_apl("⍋"), key_seq_2(0xC2, 0xA4), km_shift(true))
+apl_keymap(km_asc("%"), km_apl("⌽"), key_seq_2(0xC2, 0xA5), km_shift(true))
+apl_keymap(km_asc("^"), km_apl("⍉"), key_seq_2(0xC3, 0x9E), km_shift(true))
+apl_keymap(km_asc("&"), km_apl("⊖"), key_seq_2(0xC2, 0xA6), km_shift(true))
+apl_keymap(km_asc("*"), km_apl("⍟"), key_seq_2(0xC2, 0xAA), km_shift(true))
+apl_keymap(km_asc("("), km_apl("⍱"), key_seq_2(0xC2, 0xA8), km_shift(true))
+apl_keymap(km_asc(")"), km_apl("⍲"), key_seq_2(0xC2, 0xA9), km_shift(true))
+apl_keymap(km_asc("_"), km_apl("!"), key_seq_2(0xC3, 0x9F), km_shift(true))
+apl_keymap(km_asc("+"), km_apl("⌹"), key_seq_2(0xC2, 0xAB), km_shift(true))
+apl_keymap(km_asc("q"), km_apl("?"), key_seq_2(0xC3, 0xB1), km_shift(false))
+apl_keymap(km_asc("w"), km_apl("⍵"), key_seq_2(0xC3, 0xB7), km_shift(false))
+apl_keymap(km_asc("e"), km_apl("∈"), key_seq_2(0xC3, 0xA5), km_shift(false))
+apl_keymap(km_asc("r"), km_apl("⍴"), key_seq_2(0xC3, 0xB2), km_shift(false))
+apl_keymap(km_asc("t"), km_apl("∼"), key_seq_2(0xC3, 0xB4), km_shift(false))
+apl_keymap(km_asc("y"), km_apl("↑"), key_seq_2(0xC3, 0xB9), km_shift(false))
+apl_keymap(km_asc("u"), km_apl("↓"), key_seq_2(0xC3, 0xB5), km_shift(false))
+apl_keymap(km_asc("i"), km_apl("⍳"), key_seq_2(0xC3, 0xA9), km_shift(false))
+apl_keymap(km_asc("o"), km_apl("○"), key_seq_2(0xC3, 0xAF), km_shift(false))
+apl_keymap(km_asc("p"), km_apl("⋆"), key_seq_2(0xC3, 0xB0), km_shift(false))
+apl_keymap(km_asc("["), km_apl("←"), key_seq_2(0xC3, 0x9B), km_shift(false))
+apl_keymap(km_asc("]"), km_apl("→"), key_seq_2(0xC3, 0x9D), km_shift(false))
+apl_keymap(km_asc("\\"), km_apl("⊢"), key_seq_2(0xC3, 0x9C), km_shift(false))
+apl_keymap(km_asc("Q"), km_apl("?"), key_seq_2(0xC3, 0x91), km_shift(true))
+apl_keymap(km_asc("W"), km_apl("⍹"), key_seq_2(0xC3, 0x97), km_shift(true))
+apl_keymap(km_asc("E"), km_apl("⋸"), key_seq_2(0xC3, 0x85), km_shift(true))
+apl_keymap(km_asc("R"), km_apl("⍴"), key_seq_2(0xC3, 0x92), km_shift(true))
+apl_keymap(km_asc("T"), km_apl("∼"), key_seq_2(0xC3, 0x94), km_shift(true))
+apl_keymap(km_asc("Y"), km_apl("↑"), key_seq_2(0xC3, 0x99), km_shift(true))
+apl_keymap(km_asc("U"), km_apl("↓"), key_seq_2(0xC3, 0x95), km_shift(true))
+apl_keymap(km_asc("I"), km_apl("⍸"), key_seq_2(0xC3, 0x89), km_shift(true))
+apl_keymap(km_asc("O"), km_apl("⍥"), key_seq_2(0xC3, 0x8F), km_shift(true))
+apl_keymap(km_asc("P"), km_apl("⍣"), key_seq_2(0xC3, 0x90), km_shift(true))
+apl_keymap(km_asc("{"), km_apl("⍞"), key_seq_2(0xC3, 0xBB), km_shift(true))
+apl_keymap(km_asc("}"), km_apl("⍬"), key_seq_2(0xC3, 0xBD), km_shift(true))
+apl_keymap(km_asc("|"), km_apl("⊣"), key_seq_2(0xC3, 0xBC), km_shift(true))
+apl_keymap(km_asc("a"), km_apl("⍺"), key_seq_2(0xC3, 0xA1), km_shift(false))
+apl_keymap(km_asc("s"), km_apl("⌈"), key_seq_2(0xC3, 0xB3), km_shift(false))
+apl_keymap(km_asc("d"), km_apl("⌊"), key_seq_2(0xC3, 0xA4), km_shift(false))
+apl_keymap(km_asc("f"), km_apl("_"), key_seq_2(0xC3, 0xA6), km_shift(false))
+apl_keymap(km_asc("g"), km_apl("∇"), key_seq_2(0xC3, 0xA7), km_shift(false))
+apl_keymap(km_asc("h"), km_apl("∆"), key_seq_2(0xC3, 0xA8), km_shift(false))
+apl_keymap(km_asc("j"), km_apl("∘"), key_seq_2(0xC3, 0xAA), km_shift(false))
+apl_keymap(km_asc("k"), km_apl("'"), key_seq_2(0xC3, 0xAB), km_shift(false))
+apl_keymap(km_asc("l"), km_apl("⎕"), key_seq_2(0xC3, 0xAC), km_shift(false))
+apl_keymap(km_asc(";"), km_apl("⍎"), key_seq_2(0xC2, 0xBB), km_shift(false))
+apl_keymap(km_asc("'"), km_apl("⍕"), key_seq_2(0xC2, 0xA7), km_shift(false))
+apl_keymap(km_asc("A"), km_apl("⍶"), key_seq_2(0xC3, 0x81), km_shift(true))
+apl_keymap(km_asc("S"), km_apl("⌈"), key_seq_2(0xC3, 0x93), km_shift(true))
+apl_keymap(km_asc("D"), km_apl("⌊"), key_seq_2(0xC3, 0x84), km_shift(true))
+apl_keymap(km_asc("F"), km_apl("_"), key_seq_2(0xC3, 0x86), km_shift(true))
+apl_keymap(km_asc("G"), km_apl("∇"), key_seq_2(0xC3, 0x87), km_shift(true))
+apl_keymap(km_asc("H"), km_apl("∆"), key_seq_2(0xC3, 0x88), km_shift(true))
+apl_keymap(km_asc("J"), km_apl("⍤"), key_seq_2(0xC3, 0x8A), km_shift(true))
+apl_keymap(km_asc("K"), km_apl("'"), key_seq_2(0xC3, 0x8B), km_shift(true))
+apl_keymap(km_asc("L"), km_apl("⌷"), key_seq_2(0xC3, 0x8C), km_shift(true))
+apl_keymap(km_asc(":"), km_apl("≡"), key_seq_2(0xC2, 0xBA), km_shift(true))
+apl_keymap(km_asc("\""), km_apl("≢"), key_seq_2(0xC2, 0xA2), km_shift(true))
+apl_keymap(km_asc("z"), km_apl("⊂"), key_seq_2(0xC3, 0xBA), km_shift(false))
+apl_keymap(km_asc("x"), km_apl("⊃"), key_seq_2(0xC3, 0xB8), km_shift(false))
+apl_keymap(km_asc("c"), km_apl("∩"), key_seq_2(0xC3, 0xA3), km_shift(false))
+apl_keymap(km_asc("v"), km_apl("∪"), key_seq_2(0xC3, 0xB6), km_shift(false))
+apl_keymap(km_asc("b"), km_apl("⊥"), key_seq_2(0xC3, 0xA2), km_shift(false))
+apl_keymap(km_asc("n"), km_apl("⊤"), key_seq_2(0xC3, 0xAE), km_shift(false))
+apl_keymap(km_asc("m"), km_apl("∣"), key_seq_2(0xC3, 0xAD), km_shift(false))
+apl_keymap(km_asc(","), km_apl("⍝"), key_seq_2(0xC2, 0xAC), km_shift(false))
+apl_keymap(km_asc("."), km_apl("⍀"), key_seq_2(0xC2, 0xAE), km_shift(false))
+apl_keymap(km_asc("/"), km_apl("⌿"), key_seq_2(0xC2, 0xAF), km_shift(false))
+apl_keymap(km_asc("Z"), km_apl("⊂"), key_seq_2(0xC3, 0x9A), km_shift(true))
+apl_keymap(km_asc("X"), km_apl("⊃"), key_seq_2(0xC3, 0x98), km_shift(true))
+apl_keymap(km_asc("C"), km_apl("∩"), key_seq_2(0xC3, 0x83), km_shift(true))
+apl_keymap(km_asc("V"), km_apl("∪"), key_seq_2(0xC3, 0x96), km_shift(true))
+apl_keymap(km_asc("B"), km_apl("⊥"), key_seq_2(0xC3, 0x82), km_shift(true))
+apl_keymap(km_asc("N"), km_apl("⊤"), key_seq_2(0xC3, 0x8E), km_shift(true))
+apl_keymap(km_asc("M"), km_apl("∣"), key_seq_2(0xC3, 0x8D), km_shift(true))
+apl_keymap(km_asc("<"), km_apl("⍪"), key_seq_2(0xC2, 0xBC), km_shift(true))
+apl_keymap(km_asc(">"), km_apl("⍙"), key_seq_2(0xC2, 0xBE), km_shift(true))
+apl_keymap(km_asc("?"), km_apl("⍠"), key_seq_2(0xC2, 0xBF), km_shift(true))
+
