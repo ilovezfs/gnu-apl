@@ -1,4 +1,4 @@
-SUBDIRS = APs native emacs_mode
+SUBDIRS = APs native emacs_mode workspaces
 DIST_SUBDIRS = $(SUBDIRS) testcases
 
 bin_PROGRAMS = apl

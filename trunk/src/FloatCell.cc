@@ -232,20 +232,22 @@ FloatCell::bif_ceiling(Cell * Z) const
 {
    // we want values slightly above an int to be rounded down rather than up
    //
+const APL_Float qct = Workspace::get_CT();
 const double d_ret = ceil(value.fval - Workspace::get_CT());
 
-   if (d_ret > BIG_INT64_F || d_ret < BIG_INT64_F)   new (Z) FloatCell(d_ret);
-   else                                          new (Z) IntCell(llrint(d_ret));
+   if (Cell::is_near_int(d_ret, qct))   new (Z) IntCell(llrint(d_ret));
+   else                                 new (Z) FloatCell(d_ret);
 }
 //-----------------------------------------------------------------------------
 void FloatCell::bif_floor(Cell * Z) const
 {
    // we want values slightly below an int to be rounded up rather than down
    //
-const double d_ret = floor(value.fval + Workspace::get_CT());
+const APL_Float qct = Workspace::get_CT();
+const double d_ret = floor(value.fval + qct);
 
-   if (d_ret > 9.22E18 || d_ret < -9.22E18)   new (Z) FloatCell(d_ret);
-   else                                       new (Z) IntCell(llrint(d_ret));
+   if (Cell::is_near_int(d_ret, qct))   new (Z) IntCell(llrint(d_ret)); 
+   else                                 new (Z) FloatCell(d_ret);
 }
 //-----------------------------------------------------------------------------
 void FloatCell::bif_exponential(Cell * Z) const

@@ -332,7 +332,7 @@ ShapeItem value_len = value->element_count();
 }
 //-----------------------------------------------------------------------------
 void
-Quad_FC::assign_indexed(const IndexExpr & IX, Value_P value)
+Quad_FC::assign_indexed(IndexExpr & IX, Value_P value)
 {
    if (IX.value_count() != 1)   INDEX_ERROR;
 
@@ -869,7 +869,7 @@ Quad_SYL::assign(Value_P value, const char * loc)
 }
 //-----------------------------------------------------------------------------
 void
-Quad_SYL::assign_indexed(const IndexExpr & IDX, Value_P value)
+Quad_SYL::assign_indexed(IndexExpr & IDX, Value_P value)
 {
    //  must be an array index of the form [something; 2]
    //
@@ -877,7 +877,7 @@ Quad_SYL::assign_indexed(const IndexExpr & IDX, Value_P value)
 
    // IDX is in reverse order: ⎕SYL[X1;X2]
    //
-Value_P X2 = IDX.values[0];
+Value_P X2 = IDX.extract_value(0);
 
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
@@ -887,7 +887,7 @@ const APL_Integer qio = Workspace::get_IO();
    if (!X2->get_ravel(0).is_near_int(qct))              INDEX_ERROR;
    if (X2->get_ravel(0).get_near_int(qct) != qio + 1)   INDEX_ERROR;
 
-Value_P X1 = IDX.values[1];
+Value_P X1 = IDX.extract_value(1);
 
    assign_indexed(X1, value);
 }
