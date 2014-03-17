@@ -138,7 +138,7 @@ public:
    virtual void assign(Value_P value, const char * loc);
 
    /// Indexed (multi-dimensional) assign \b value to \b this \b Symbol.
-   virtual void assign_indexed(const IndexExpr & index, Value_P value);
+   virtual void assign_indexed(IndexExpr & index, Value_P value);
 
    /// Indexed (one-dimensional) assign \b value to \b this \b Symbol.
    virtual void assign_indexed(Value_P index, Value_P value);

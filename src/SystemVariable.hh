@@ -273,7 +273,7 @@ protected:
    virtual void assign_indexed(Value_P X, Value_P value);
 
    /// overloaded Symbol::assign_indexed().
-   virtual void assign_indexed(const IndexExpr & IX, Value_P value);
+   virtual void assign_indexed(IndexExpr & IX, Value_P value);
 
    /// overloaded Symbol::get_apl_value().
    virtual Value_P get_apl_value() const;
@@ -553,7 +553,7 @@ public:
    virtual void assign_indexed(Value_P X, Value_P value);
 
    /// overloaded Symbol::assign_indexed()
-   virtual void assign_indexed(const IndexExpr & IDX, Value_P value);
+   virtual void assign_indexed(IndexExpr & IDX, Value_P value);
 
    virtual Value_P get_apl_value() const;
 

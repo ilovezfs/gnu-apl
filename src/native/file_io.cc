@@ -108,7 +108,7 @@ Value_P format = A->get_ravel(a++).get_pointer_value();
          char fmt[40];
          int fm = 0;   // an index into fmt;
          fmt[fm++] = '%';
-         for (; fm < (sizeof(fmt) - 1); ++fm)
+         for (; fm < (sizeof(fmt) - 1); fm)
              {
                if (f >= format->element_count())
                   {
@@ -143,7 +143,7 @@ Value_P format = A->get_ravel(a++).get_pointer_value();
                          case 'q':
                          case 'j':
                          case 'z':
-                         case 't': fmt[fm++] = un1;
+                         case 't': fmt[fm++] = un1;   fmt[fm] = 0;
                                    continue;
 
                          // conversion specifier
@@ -151,10 +151,19 @@ Value_P format = A->get_ravel(a++).get_pointer_value();
                          case 'd':   case 'i':   case 'o':
                          case 'u':   case 'x':   case 'X':   case 'p':
                               {
-                                const APL_Integer iv =
-                                            A->get_ravel(a++).get_int_value();
-                                fmt[fm++] = un1;
-                                fmt[fm] = 0;
+                                const Cell & cell = A->get_ravel(a++);
+                                APL_Integer iv;
+                                if (cell.is_integer_cell())
+                                   {
+                                     iv = cell.get_int_value();
+                                   }
+                                else 
+                                   {
+                                     const APL_Float fv = cell.get_real_value();
+                                     if (fv < 0)   iv = -int(-fv);
+                                     else          iv = int(fv);
+                                   }
+                                fmt[fm++] = un1;   fmt[fm] = 0;
                                 out_len += fprintf(out, fmt, iv);
                               }
                               goto field_done;
@@ -164,8 +173,7 @@ Value_P format = A->get_ravel(a++).get_pointer_value();
                               {
                                 const APL_Float fv =
                                             A->get_ravel(a++).get_real_value();
-                                fmt[fm++] = un1;
-                                fmt[fm] = 0;
+                                fmt[fm++] = un1;   fmt[fm] = 0;
                                 out_len += fprintf(out, fmt, fv);
                               }
                               goto field_done;

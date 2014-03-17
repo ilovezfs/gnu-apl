@@ -100,6 +100,7 @@ AC_CONFIG_FILES([Makefile
                  src/emacs_mode/Makefile
                  src/native/Makefile
                  src/testcases/Makefile
+                 src/workspaces/Makefile
 		 support-files/Makefile
                  tools/Makefile
                  workspaces/Makefile

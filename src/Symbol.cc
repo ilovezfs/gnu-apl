@@ -287,7 +287,7 @@ const Cell * cB = &B->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 void
-Symbol::assign_indexed(const IndexExpr & IX, Value_P B)   // A[IX;...] ← B
+Symbol::assign_indexed(IndexExpr & IX, Value_P B)   // A[IX;...] ← B
 {
    if (IX.value_count() == 1 && !!IX.values[0])   // one-dimensional index
       {
