@@ -92,6 +92,7 @@ LIBREADLINE=
 AC_CONFIG_FILES([Makefile
                  debian/Makefile
                  debian/source/Makefile
+                 doc/Makefile
 		 po/Makefile.in po/Makefile
                  rpm/Makefile
 		 rpm/apl.spec
