@@ -1,5 +1,5 @@
 
-SUBDIRS      = src support-files po tools
+SUBDIRS      = doc po src support-files tools
 DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2 rpm debian
 
 dist_doc_DATA = README			\
@@ -9,23 +9,11 @@ dist_doc_DATA = README			\
 		README-4-compliance	\
 		README-5-WINDOWS	\
                 README-6-porting	\
-		README-7-more-info	\
-		apl.1			\
-		apl.html
+		README-7-more-info
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 
 dist_noinst_DATA = Doxyfile
-
-info_TEXINFOS = apl.texi
-
-man1_MANS = apl.1
-
-# apl.info in HTML format
-#
-apl.html:   apl.texi
-	    makeinfo --html apl.texi -o $@ --no-split
-
 
 # show make targets
 #
@@ -70,7 +58,7 @@ DEB:	dist
 	cp $(distdir).tar.gz \
            debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
 	cd debian_tmp ; tar xf $(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
-	cp apl.1 debian_tmp/$(distdir)/debian/manpage.1
+	cp doc/apl.1 debian_tmp/$(distdir)/debian/manpage.1
 	cd debian_tmp/$(distdir) ; dpkg-buildpackage
 	mkdir -p ftp-upload
 	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_*.deb          ftp-upload/

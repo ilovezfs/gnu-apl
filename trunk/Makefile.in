@@ -57,8 +57,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/config.h.in $(top_srcdir)/configure ABOUT-NLS \
 	AUTHORS COPYING ChangeLog INSTALL NEWS config.guess \
-	config.rpath config.sub depcomp install-sh ltmain.sh missing \
-	texinfo.tex
+	config.rpath config.sub depcomp install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/lib-ld.m4 \
@@ -78,18 +77,6 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
 DIST_SOURCES =
-INFO_DEPS = $(srcdir)/apl.info
-am__TEXINFO_TEX_DIR = $(srcdir)
-DVIS = apl.dvi
-PDFS = apl.pdf
-PSS = apl.ps
-HTMLS = apl.html
-TEXINFOS = apl.texi
-TEXI2DVI = texi2dvi
-TEXI2PDF = $(TEXI2DVI) --pdf --batch
-MAKEINFOHTML = $(MAKEINFO) --html
-AM_MAKEINFOHTMLFLAGS = $(AM_MAKEINFOFLAGS)
-DVIPS = dvips
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -102,8 +89,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" \
-	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(sysconfdir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -131,9 +116,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-man1dir = $(mandir)/man1
-NROFF = nroff
-MANS = $(man1_MANS)
+am__installdirs = "$(DESTDIR)$(docdir)" "$(DESTDIR)$(sysconfdir)"
 DATA = $(dist_doc_DATA) $(dist_noinst_DATA) \
 	$(nobase_dist_sysconf_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
@@ -331,7 +314,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src support-files po tools
+SUBDIRS = doc po src support-files tools
 DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2 rpm debian
 dist_doc_DATA = README			\
 		README-1-prerequisites	\
@@ -340,21 +323,16 @@ dist_doc_DATA = README			\
 		README-4-compliance	\
 		README-5-WINDOWS	\
                 README-6-porting	\
-		README-7-more-info	\
-		apl.1			\
-		apl.html
+		README-7-more-info
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 dist_noinst_DATA = Doxyfile
-info_TEXINFOS = apl.texi
-man1_MANS = apl.1
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = config.rpath m4/ChangeLog
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .dvi .html .info .pdf .ps .texi
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -411,190 +389,6 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
-
-.texi.info:
-	restore=: && backupdir="$(am__leading_dot)am$$$$" && \
-	am__cwd=`pwd` && $(am__cd) $(srcdir) && \
-	rm -rf $$backupdir && mkdir $$backupdir && \
-	if ($(MAKEINFO) --version) >/dev/null 2>&1; then \
-	  for f in $@ $@-[0-9] $@-[0-9][0-9] $(@:.info=).i[0-9] $(@:.info=).i[0-9][0-9]; do \
-	    if test -f $$f; then mv $$f $$backupdir; restore=mv; else :; fi; \
-	  done; \
-	else :; fi && \
-	cd "$$am__cwd"; \
-	if $(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -I $(srcdir) \
-	 -o $@ $<; \
-	then \
-	  rc=0; \
-	  $(am__cd) $(srcdir); \
-	else \
-	  rc=$$?; \
-	  $(am__cd) $(srcdir) && \
-	  $$restore $$backupdir/* `echo "./$@" | sed 's|[^/]*$$||'`; \
-	fi; \
-	rm -rf $$backupdir; exit $$rc
-
-.texi.dvi:
-	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
-	MAKEINFO='$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -I $(srcdir)' \
-	$(TEXI2DVI) $<
-
-.texi.pdf:
-	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
-	MAKEINFO='$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -I $(srcdir)' \
-	$(TEXI2PDF) $<
-
-.texi.html:
-	rm -rf $(@:.html=.htp)
-	if $(MAKEINFOHTML) $(AM_MAKEINFOHTMLFLAGS) $(MAKEINFOFLAGS) -I $(srcdir) \
-	 -o $(@:.html=.htp) $<; \
-	then \
-	  rm -rf $@; \
-	  if test ! -d $(@:.html=.htp) && test -d $(@:.html=); then \
-	    mv $(@:.html=) $@; else mv $(@:.html=.htp) $@; fi; \
-	else \
-	  if test ! -d $(@:.html=.htp) && test -d $(@:.html=); then \
-	    rm -rf $(@:.html=); else rm -Rf $(@:.html=.htp) $@; fi; \
-	  exit 1; \
-	fi
-$(srcdir)/apl.info: apl.texi 
-apl.dvi: apl.texi 
-apl.pdf: apl.texi 
-.dvi.ps:
-	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
-	$(DVIPS) -o $@ $<
-
-uninstall-dvi-am:
-	@$(NORMAL_UNINSTALL)
-	@list='$(DVIS)'; test -n "$(dvidir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(dvidir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(dvidir)/$$f"; \
-	done
-
-uninstall-html-am:
-	@$(NORMAL_UNINSTALL)
-	@list='$(HTMLS)'; test -n "$(htmldir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " rm -rf '$(DESTDIR)$(htmldir)/$$f'"; \
-	  rm -rf "$(DESTDIR)$(htmldir)/$$f"; \
-	done
-
-uninstall-info-am:
-	@$(PRE_UNINSTALL)
-	@if test -d '$(DESTDIR)$(infodir)' && $(am__can_run_installinfo); then \
-	  list='$(INFO_DEPS)'; \
-	  for file in $$list; do \
-	    relfile=`echo "$$file" | sed 's|^.*/||'`; \
-	    echo " install-info --info-dir='$(DESTDIR)$(infodir)' --remove '$(DESTDIR)$(infodir)/$$relfile'"; \
-	    if install-info --info-dir="$(DESTDIR)$(infodir)" --remove "$(DESTDIR)$(infodir)/$$relfile"; \
-	    then :; else test ! -f "$(DESTDIR)$(infodir)/$$relfile" || exit 1; fi; \
-	  done; \
-	else :; fi
-	@$(NORMAL_UNINSTALL)
-	@list='$(INFO_DEPS)'; \
-	for file in $$list; do \
-	  relfile=`echo "$$file" | sed 's|^.*/||'`; \
-	  relfile_i=`echo "$$relfile" | sed 's|\.info$$||;s|$$|.i|'`; \
-	  (if test -d "$(DESTDIR)$(infodir)" && cd "$(DESTDIR)$(infodir)"; then \
-	     echo " cd '$(DESTDIR)$(infodir)' && rm -f $$relfile $$relfile-[0-9] $$relfile-[0-9][0-9] $$relfile_i[0-9] $$relfile_i[0-9][0-9]"; \
-	     rm -f $$relfile $$relfile-[0-9] $$relfile-[0-9][0-9] $$relfile_i[0-9] $$relfile_i[0-9][0-9]; \
-	   else :; fi); \
-	done
-
-uninstall-pdf-am:
-	@$(NORMAL_UNINSTALL)
-	@list='$(PDFS)'; test -n "$(pdfdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(pdfdir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(pdfdir)/$$f"; \
-	done
-
-uninstall-ps-am:
-	@$(NORMAL_UNINSTALL)
-	@list='$(PSS)'; test -n "$(psdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(psdir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(psdir)/$$f"; \
-	done
-
-dist-info: $(INFO_DEPS)
-	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
-	list='$(INFO_DEPS)'; \
-	for base in $$list; do \
-	  case $$base in \
-	    $(srcdir)/*) base=`echo "$$base" | sed "s|^$$srcdirstrip/||"`;; \
-	  esac; \
-	  if test -f $$base; then d=.; else d=$(srcdir); fi; \
-	  base_i=`echo "$$base" | sed 's|\.info$$||;s|$$|.i|'`; \
-	  for file in $$d/$$base $$d/$$base-[0-9] $$d/$$base-[0-9][0-9] $$d/$$base_i[0-9] $$d/$$base_i[0-9][0-9]; do \
-	    if test -f $$file; then \
-	      relfile=`expr "$$file" : "$$d/\(.*\)"`; \
-	      test -f "$(distdir)/$$relfile" || \
-		cp -p $$file "$(distdir)/$$relfile"; \
-	    else :; fi; \
-	  done; \
-	done
-
-mostlyclean-aminfo:
-	-rm -rf apl.aux apl.cp apl.cps apl.fn apl.fns apl.ky apl.kys apl.log apl.pg \
-	  apl.pgs apl.tmp apl.toc apl.tp apl.tps apl.vr apl.vrs
-
-clean-aminfo:
-	-test -z "apl.dvi apl.pdf apl.ps apl.html" \
-	|| rm -rf apl.dvi apl.pdf apl.ps apl.html
-
-maintainer-clean-aminfo:
-	@list='$(INFO_DEPS)'; for i in $$list; do \
-	  i_i=`echo "$$i" | sed 's|\.info$$||;s|$$|.i|'`; \
-	  echo " rm -f $$i $$i-[0-9] $$i-[0-9][0-9] $$i_i[0-9] $$i_i[0-9][0-9]"; \
-	  rm -f $$i $$i-[0-9] $$i-[0-9][0-9] $$i_i[0-9] $$i_i[0-9][0-9]; \
-	done
-install-man1: $(man1_MANS)
-	@$(NORMAL_INSTALL)
-	@list1='$(man1_MANS)'; \
-	list2=''; \
-	test -n "$(man1dir)" \
-	  && test -n "`echo $$list1$$list2`" \
-	  || exit 0; \
-	echo " $(MKDIR_P) '$(DESTDIR)$(man1dir)'"; \
-	$(MKDIR_P) "$(DESTDIR)$(man1dir)" || exit 1; \
-	{ for i in $$list1; do echo "$$i"; done;  \
-	if test -n "$$list2"; then \
-	  for i in $$list2; do echo "$$i"; done \
-	    | sed -n '/\.1[a-z]*$$/p'; \
-	fi; \
-	} | while read p; do \
-	  if test -f $$p; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; echo "$$p"; \
-	done | \
-	sed -e 'n;s,.*/,,;p;h;s,.*\.,,;s,^[^1][0-9a-z]*$$,1,;x' \
-	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,' | \
-	sed 'N;N;s,\n, ,g' | { \
-	list=; while read file base inst; do \
-	  if test "$$base" = "$$inst"; then list="$$list $$file"; else \
-	    echo " $(INSTALL_DATA) '$$file' '$(DESTDIR)$(man1dir)/$$inst'"; \
-	    $(INSTALL_DATA) "$$file" "$(DESTDIR)$(man1dir)/$$inst" || exit $$?; \
-	  fi; \
-	done; \
-	for i in $$list; do echo "$$i"; done | $(am__base_list) | \
-	while read files; do \
-	  test -z "$$files" || { \
-	    echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(man1dir)'"; \
-	    $(INSTALL_DATA) $$files "$(DESTDIR)$(man1dir)" || exit $$?; }; \
-	done; }
-
-uninstall-man1:
-	@$(NORMAL_UNINSTALL)
-	@list='$(man1_MANS)'; test -n "$(man1dir)" || exit 0; \
-	files=`{ for i in $$list; do echo "$$i"; done; \
-	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^1][0-9a-z]*$$,1,;x' \
-	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \
-	dir='$(DESTDIR)$(man1dir)'; $(am__uninstall_files_from_dir)
 install-dist_docDATA: $(dist_doc_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
@@ -777,19 +571,6 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	@list='$(MANS)'; if test -n "$$list"; then \
-	  list=`for p in $$list; do \
-	    if test -f $$p; then d=; else d="$(srcdir)/"; fi; \
-	    if test -f "$$d$$p"; then echo "$$d$$p"; else :; fi; done`; \
-	  if test -n "$$list" && \
-	    grep 'ab help2man is required to generate this page' $$list >/dev/null; then \
-	    echo "error: found man pages containing the \`missing help2man' replacement text:" >&2; \
-	    grep -l 'ab help2man is required to generate this page' $$list | sed 's/^/         /' >&2; \
-	    echo "       to fix them, install help2man, remove and regenerate the man pages;" >&2; \
-	    echo "       typically \`make maintainer-clean' will remove them" >&2; \
-	    exit 1; \
-	  else :; fi; \
-	else :; fi
 	$(am__remove_distdir)
 	test -d "$(distdir)" || mkdir "$(distdir)"
 	@srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*]/\\\\&/g'`; \
@@ -846,9 +627,6 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) \
-	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
-	  dist-info
 	-test -n "$(am__skip_mode_fix)" \
 	|| find "$(distdir)" -type d ! -perm -755 \
 		-exec chmod u+rwx,go+rx {} \; -o \
@@ -981,10 +759,10 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(INFO_DEPS) $(MANS) $(DATA) config.h
+all-am: Makefile $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(sysconfdir)"; do \
+	for dir in "$(DESTDIR)$(docdir)" "$(DESTDIR)$(sysconfdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -1019,7 +797,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-aminfo clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -1029,193 +807,85 @@ distclean-am: clean-am distclean-generic distclean-hdr \
 
 dvi: dvi-recursive
 
-dvi-am: $(DVIS)
+dvi-am:
 
 html: html-recursive
 
-html-am: $(HTMLS)
+html-am:
 
 info: info-recursive
 
-info-am: $(INFO_DEPS)
+info-am:
 
-install-data-am: install-dist_docDATA install-info-am install-man
+install-data-am: install-dist_docDATA
 
 install-dvi: install-dvi-recursive
 
-install-dvi-am: $(DVIS)
-	@$(NORMAL_INSTALL)
-	@list='$(DVIS)'; test -n "$(dvidir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(dvidir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(dvidir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(dvidir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(dvidir)" || exit $$?; \
-	done
+install-dvi-am:
+
 install-exec-am: install-nobase_dist_sysconfDATA
 
 install-html: install-html-recursive
 
-install-html-am: $(HTMLS)
-	@$(NORMAL_INSTALL)
-	@list='$(HTMLS)'; list2=; test -n "$(htmldir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(htmldir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(htmldir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p" || test -d "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  $(am__strip_dir) \
-	  d2=$$d$$p; \
-	  if test -d "$$d2"; then \
-	    echo " $(MKDIR_P) '$(DESTDIR)$(htmldir)/$$f'"; \
-	    $(MKDIR_P) "$(DESTDIR)$(htmldir)/$$f" || exit 1; \
-	    echo " $(INSTALL_DATA) '$$d2'/* '$(DESTDIR)$(htmldir)/$$f'"; \
-	    $(INSTALL_DATA) "$$d2"/* "$(DESTDIR)$(htmldir)/$$f" || exit $$?; \
-	  else \
-	    list2="$$list2 $$d2"; \
-	  fi; \
-	done; \
-	test -z "$$list2" || { echo "$$list2" | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(htmldir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(htmldir)" || exit $$?; \
-	done; }
+install-html-am:
+
 install-info: install-info-recursive
 
-install-info-am: $(INFO_DEPS)
-	@$(NORMAL_INSTALL)
-	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
-	list='$(INFO_DEPS)'; test -n "$(infodir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(infodir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(infodir)" || exit 1; \
-	fi; \
-	for file in $$list; do \
-	  case $$file in \
-	    $(srcdir)/*) file=`echo "$$file" | sed "s|^$$srcdirstrip/||"`;; \
-	  esac; \
-	  if test -f $$file; then d=.; else d=$(srcdir); fi; \
-	  file_i=`echo "$$file" | sed 's|\.info$$||;s|$$|.i|'`; \
-	  for ifile in $$d/$$file $$d/$$file-[0-9] $$d/$$file-[0-9][0-9] \
-	               $$d/$$file_i[0-9] $$d/$$file_i[0-9][0-9] ; do \
-	    if test -f $$ifile; then \
-	      echo "$$ifile"; \
-	    else : ; fi; \
-	  done; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(infodir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(infodir)" || exit $$?; done
-	@$(POST_INSTALL)
-	@if $(am__can_run_installinfo); then \
-	  list='$(INFO_DEPS)'; test -n "$(infodir)" || list=; \
-	  for file in $$list; do \
-	    relfile=`echo "$$file" | sed 's|^.*/||'`; \
-	    echo " install-info --info-dir='$(DESTDIR)$(infodir)' '$(DESTDIR)$(infodir)/$$relfile'";\
-	    install-info --info-dir="$(DESTDIR)$(infodir)" "$(DESTDIR)$(infodir)/$$relfile" || :;\
-	  done; \
-	else : ; fi
-install-man: install-man1
+install-info-am:
+
+install-man:
 
 install-pdf: install-pdf-recursive
 
-install-pdf-am: $(PDFS)
-	@$(NORMAL_INSTALL)
-	@list='$(PDFS)'; test -n "$(pdfdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pdfdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pdfdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pdfdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pdfdir)" || exit $$?; done
+install-pdf-am:
+
 install-ps: install-ps-recursive
 
-install-ps-am: $(PSS)
-	@$(NORMAL_INSTALL)
-	@list='$(PSS)'; test -n "$(psdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(psdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(psdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(psdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(psdir)" || exit $$?; done
+install-ps-am:
+
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
 	-rm -f Makefile
-maintainer-clean-am: distclean-am maintainer-clean-aminfo \
-	maintainer-clean-generic
+maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-aminfo mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
 pdf: pdf-recursive
 
-pdf-am: $(PDFS)
+pdf-am:
 
 ps: ps-recursive
 
-ps-am: $(PSS)
+ps-am:
 
-uninstall-am: uninstall-dist_docDATA uninstall-dvi-am \
-	uninstall-html-am uninstall-info-am uninstall-man \
-	uninstall-nobase_dist_sysconfDATA uninstall-pdf-am \
-	uninstall-ps-am
-
-uninstall-man: uninstall-man1
+uninstall-am: uninstall-dist_docDATA uninstall-nobase_dist_sysconfDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
 	ctags-recursive install-am install-strip tags-recursive
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
-	all all-am am--refresh check check-am clean clean-aminfo \
-	clean-generic clean-libtool ctags ctags-recursive dist \
-	dist-all dist-bzip2 dist-gzip dist-info dist-lzip dist-lzma \
-	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
-	distclean-generic distclean-hdr distclean-libtool \
-	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dist_docDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-man1 install-nobase_dist_sysconfDATA install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-aminfo \
-	maintainer-clean-generic mostlyclean mostlyclean-aminfo \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am \
-	uninstall-dist_docDATA uninstall-dvi-am uninstall-html-am \
-	uninstall-info-am uninstall-man uninstall-man1 \
-	uninstall-nobase_dist_sysconfDATA uninstall-pdf-am \
-	uninstall-ps-am
+	all all-am am--refresh check check-am clean clean-generic \
+	clean-libtool ctags ctags-recursive dist dist-all dist-bzip2 \
+	dist-gzip dist-lzip dist-lzma dist-shar dist-tarZ dist-xz \
+	dist-zip distcheck distclean distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am \
+	install-dist_docDATA install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-nobase_dist_sysconfDATA \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-recursive uninstall uninstall-am \
+	uninstall-dist_docDATA uninstall-nobase_dist_sysconfDATA
 
-
-# apl.info in HTML format
-#
-apl.html:   apl.texi
-	    makeinfo --html apl.texi -o $@ --no-split
 
 # show make targets
 #
@@ -1260,7 +930,7 @@ DEB:	dist
 	cp $(distdir).tar.gz \
            debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
 	cd debian_tmp ; tar xf $(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
-	cp apl.1 debian_tmp/$(distdir)/debian/manpage.1
+	cp doc/apl.1 debian_tmp/$(distdir)/debian/manpage.1
 	cd debian_tmp/$(distdir) ; dpkg-buildpackage
 	mkdir -p ftp-upload
 	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_*.deb          ftp-upload/
