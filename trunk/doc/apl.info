@@ -120,9 +120,19 @@ APL understands the following command line options:
 
      show ./configure options used and exit.
 
+   * `--[no]COLOR'
+
+     start with ]COLOR ON [OFF].
+
    * `-d'
 
-     run the interpreter (or script) in the background (i.e. as daemon)
+     run the interpreter (or script) in the background (i.e. as
+     daemon). For this to work you need to provide some input to the
+     background process, e.g.  via the -f option.
+
+   * `--emacs'
+
+     run in emacs mode.
 
    * `-f file'
 
@@ -131,6 +141,10 @@ APL understands the following command line options:
      back to the keyboards.  If you want to terminate the APL
      interpreter after executing the file, use )OFF as last line in the
      file.
+
+   * `--gpl'
+
+     show GNU APL license (GPL) and exit.
 
    * `-h', `--help'
 
@@ -143,6 +157,10 @@ APL understands the following command line options:
      the ID becomes used as long as the interpreter runs. Processor IDs
      are used by shared variables to identify share partners.
 
+   * `-l num'
+
+     turn logging facility num ON (if dynamic logging is configured).
+
    * `--noCIN'
 
      do not echo stdin to stdout. Almost a must for scripting (unless
@@ -152,9 +170,9 @@ APL understands the following command line options:
 
      do not load a CONTINUE workspace on start-up.
 
-   * `--noSV'
+   * `--[no]SV'
 
-     do not start APnnn (a shared variable server) on start-up. This
+     do [not] start APnnn (a shared variable server) on start-up. This
      disables communication with other workspaces or auxiliary
      processors through shared variables.
 
@@ -166,12 +184,20 @@ APL understands the following command line options:
 
      do not use the readline library (even if configured to use it).
 
-   * `-s', `--script' this option is an abbreviation for:  `--silent'
-     `--noCIN' `--noCONT' `-f -' which is a typical combination of
-     options for APL scripts.
+   * `-s', `--script'
 
-   * `--silent' suppress printing of the GNU APL welcome message.
-     Useful for scripts.
+     this option is an abbreviation for:  `--silent' `--noCIN'
+     `--noCONT' `-f -' which is a typical combination of options for
+     APL scripts.
+
+   * `--silent'
+
+     suppress printing of the GNU APL welcome message. Useful for
+     scripts.
+
+   * `--safe'
+
+     disable shared variables and native functions
 
    * `-T testcases ...' run testcases. Testcases are text files that
      contain both input to the APL interpreter and the expected
@@ -204,6 +230,10 @@ APL understands the following command line options:
      `--TM 4' like `--TM 3', but exit after the first failed testcase.
      The is useful for automatic regression tests, where no errors are
      expected.
+
+   * `--TR'
+
+     executes test case files in random order.
 
    * `--TS'
 
@@ -299,7 +329,8 @@ INSTALL).
      function definition via ∇) like they would be entered by the user.
      APL scripts should have a file extension of .apl but other
      extensions  are also accepted by GNU APL. APL scripts are, for
-     example, the files  expected for the -f command line option.
+     example, the files  expected for the -f command line option. A
+     workspace can be written in this  format with the )DUMP command.
 
   4. APL testcase files are similar to APL scripts, but in addition to
      the APL commands and expression they also contain the expected
@@ -326,6 +357,8 @@ INSTALL).
    )PIN   [lib] name[.atf]
 
    )OUT  [lib] name[.atf]
+
+   )DUMP [lib] [name[.apl]]
 
    )LIB  [lib]
 
@@ -756,7 +789,7 @@ Complex numbers are fully supported.
 2.7 Native Functions
 ====================
 
-A Native Function is a function that can be called n APL like a normal
+A Native Function is a function that can be called in APL like a normal
 user defined APL function, but is implemented in C++.
 
    A native function is created with A ⎕FX B. A is a string that is the
@@ -801,6 +834,89 @@ src/native/template_F12.cc (for nomadic native functions),
 src/native/template_OP1.cc (for monadic native operators), or
 src/native/template_OP2/cc (for dyadic native operators) to your own
 .cc file and adjust src/native/Makefile.am accordingly.
+
+2.8 DUMP Command
+================
+
+GNU APL has a command )DUMP that saves a workspace to disk, similar to
+command  )OUT).  The difference to command )OUT is the file format
+being produced.  While )OUT produces a file in IBM's workspace
+interchange format, )DUMP produces a file in GNU APL's script format
+(i.e. readable APL statements).  Files written with )DUMP can be edited
+with normal text editors (vi, emacs), read back with "apl -f", or made
+executable (see scripting).
+
+2.9 Direct Functions (Lambdas)
+==============================
+
+GNU APL supports direct functions (aka. lambdas), but only in a rather
+limited form.
+
+2.9.1 Named Lambdas
+-------------------
+
+A statement of the form
+
+      FUN ← { body_statement }
+
+   creates a named lambda. body_statement can contain variable names ⍺
+and ⍵ as well as function names ⍶ and ⍹ which are replaced by the
+actual arguments of the lambda. If both ⍺ and ⍵ are present in
+body_statement then the lambda is dyadic. If only ⍹ is present then it
+is monadic, and if neither ⍺ nor ⍵ is present then the lambda is
+niladic.
+
+   Likewise, if ⍶ and ⍹ are present then the lambda is a dyadic
+operator. If only  ⍹ is present then it is a monadic operator, and if
+neither ⍶ nor ⍹ is present then the lambda is a normal function.
+
+   The way how a named lambda is implemented in GNU APL is that the
+statement
+
+      FUN ← { body_statement }
+
+   is translated to a two-line function ⎕FX 'lambda_header'
+'body_statement'.
+
+   For example:
+
+      )FNS
+
+      SUM ← { ⍺ + ⍵ }
+
+      )FNS
+SUM
+
+      ∇SUM[⎕]∇
+[0] λ←⍺ SUM ⍵
+[1] λ← ⍺ + ⍵
+
+   If a named lambda is created inside a function, then the name of the
+lambda (i.e. the name left of ← { ... }) can be made a local variable
+of the function in which the named lambda is created. This creates a
+lambda with local scope.
+
+2.9.2 Unnamed Lambdas
+---------------------
+
+An unnamed lambda is a statement inside { } but without assigning it to
+a name. This is often used together with the EACH operator.  For
+example:
+
+
+      { ⍴ , ⍵ } ¨ 'a' 'ab' 'abc'
+ 1  2  3
+
+   Unnamed lambdas are automatically local in scope (similar to
+labels). They can be passed as function arguments to operators.
+
+2.9.3 Limitations
+-----------------
+
+There are a number of features related to lambdas that are present in
+other APL interpreter but that are NOT implemented in GNU APL. This
+includes multiple statements, guards, lexical scoping, and probably
+more.
 
 
 File: apl.info,  Node: Chapter 3,  Next: Chapter 4,  Prev: Chapter 2,  Up: Top
@@ -2073,12 +2189,12 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top418
 Node: Chapter 11348
-Node: Chapter 213416
-Node: Chapter 327915
-Node: Chapter 429516
-Node: Chapter 530829
-Node: Section 5.131332
-Node: Section 5.256461
+Node: Chapter 214010
+Node: Chapter 331000
+Node: Chapter 432601
+Node: Chapter 533914
+Node: Section 5.134417
+Node: Section 5.259546
 
 End Tag Table
 
