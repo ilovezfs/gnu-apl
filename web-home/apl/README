@@ -1,0 +1,47 @@
+This directory produces a document apl-intro.html (describing GNU APL)
+and a testcase file (Book.tc) that checks that the examples in apl-intro.html
+are correct:
+
+		               apl-intro
+                                  / \
+                                 /   \		<-------- make
+                                /     \
+  apl-home.css     apl-intro.html     Book.tc)
+             \     /                     |
+              \   /                      |	<-------- apl -T Book.tc
+               \ /                       |
+             Browser                Book.tc.log
+
+
+This directory also produces apl.html (the home page of GNU APL at
+ http://www.gnu.org/software/apl:
+
+
+           ../../workspaces/APL_CGT.apl > apl.html
+                       |
+                       |
+                       |
+  apl-home.css     apl.html
+             \     /
+              \   /
+               \ /
+             Browser
+
+
+The source files in the above processes are:
+
+	apl-intro
+	apl-home.css
+	../../workspaces/APL_CGT.apl
+
+The tools used in the above processes are:
+
+	Makefile
+	translate.cc
+	make_intro
+	make_APL_demo
+	GNU APL
+
+The tags in apl-intro are of the form «xx », see tag_table open_tags[]
+in file translate.cc for supported tags, or apl-intro for examples.
+

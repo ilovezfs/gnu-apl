@@ -1,0 +1,20 @@
+#!/bin/bash
+
+{
+echo "<HTML>"
+echo "  <HEAD>"
+echo "    <META http-equiv='Content-Type' content='text/html; charset=UTF-8'>"
+echo "  </HEAD>"
+echo "  <BODY>"
+echo "    <PRE>"
+
+# replace < and > by &lt; and &gt;
+#
+cat ../../workspaces/APL_CGI.apl | sed 's/</\&lt;/g' | sed 's/>/\&gt;/g'
+
+echo "    </PRE>"
+echo "  </BODY>"
+echo "</HTML>"
+
+} > APL_demo.html
+

@@ -1,0 +1,101 @@
+
+BODY	{ background-color: #FFFFFF;
+          margin: 0; padding: 2em;
+          font: normal;
+        }
+
+H1, H2, H3, H4, H5, H6	{ text-align: center; }
+
+    /* the sections of the GNU APL home page
+     */
+.c1 {  background-color: #FFFFFF; }   /* header        */
+.c2 {  background-color: #E0E0E0; }   /* overview      */
+.c3 {  background-color: #C0F0C0; }   /* downloading   */
+.c4 {  background-color: #F0C0C0; }   /* bugs          */
+.c5 {  background-color: #E0F0F0; }   /* documentation */
+.c6 {  background-color: #E0E0E0; }   /* GNU stuff     */
+
+.c1, .c2, .c3, .c4, .c5, .c6 { margin: 1em; padding: 1em; }
+
+    /* table of content */
+.toc_a2	{
+          text-decoration:  none;
+	}
+
+.toc_H1	{ font-weight: 600;          font-size: 160%;
+          background-color: white;   color: blue;
+        }
+
+.toc_H2	{ font-weight: 600;          font-size: 140%;
+          background-color: white;   color: blue;
+        }
+
+.toc_H3	{ font-weight: 500;          font-size: 120%;
+          background-color: white;   color: blue;
+        }
+
+.toc_H4	{ font-weight: normal;       font-size: 100%;
+          background-color: white;   color: blue;
+        }
+
+.toc_H5	{ font-weight: normal;       font-size:  80%;
+          background-color: white;   color: blue;
+        }
+
+.toc_H6	{ font-weight: normal;       font-size:  80%;   font-style: italic;
+          background-color: white;   color: blue;
+        }
+
+    /* user input (first line)
+     */
+.input  { background-color: #E0E0E0; color: blue;
+          margin: 1em 4em 0 4em; padding: 0.5em 1em 0.1em 1em;
+          border-top: solid black;
+          border-right: solid black;
+          border-bottom: none;
+          border-left: solid black;
+          border-width: 2px;
+        }
+
+    /* user input (subsequent line)
+     */
+.input1 { background-color: #E0E0E0; color: blue;
+          margin: 0 4em 0 4em; padding: 0.5em 1em 0.1em 1em;
+          border-top: none;
+          border-right: solid black;
+          border-bottom: none;
+          border-left: solid black;
+          border-width: 2px;
+        }
+
+.input3 { background-color: #E0E0E0; color: blue;
+        }
+
+    /* APL output
+     */
+.output { background-color: #E0E0E0; color: black;
+          margin: 0 4em 1em 4em;     padding: 0.1em 1em 0.1em 1em;
+          border-top: none;
+          border-right: solid black;
+          border-bottom: solid black;
+          border-left: solid black;
+          border-width: 2px;
+        }
+
+.output1 { background-color: #E0E0E0; color: black;
+          margin: 0 4em 0   4em;     padding: 0.1em 1em 0.5em 1em;
+          border-top: none;
+          border-right: solid black;
+          border-bottom: none;
+          border-left: solid black;
+          border-width: 2px;
+        }
+
+    /* token
+     */
+.token	{ background-color: #E0E0E0; color: black;
+          margin: 0 1em 0 0;     padding: 0 0.5em 0 0.5em;
+          border: solid black;
+          border-width: 1px;
+       }
+
