@@ -452,7 +452,7 @@ xGNU_PIC←_src xHTTP_GNU, "graphics/gnu-head-sm.jpg"
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ some file names used in the BODY
 ⍝
-xAPL_VERSION←'apl-1.1'
+xAPL_VERSION←'apl-1.3'
 xTARFILE←xAPL_VERSION,  '.tar.gz'
 xRPMFILE←xAPL_VERSION,  '-0.i386.rpm'
 xSRPMFILE←xAPL_VERSION, '-0.src.rpm'
@@ -671,8 +671,8 @@ END-OF-⎕INP
       )VARS
       )SI
       '-->'
-⍝     )OFF
+      )OFF
+
       )WSID APL_CGI
-      ]log 25
-      ]log 26
       )DUMP
+
