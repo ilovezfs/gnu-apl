@@ -1,0 +1,2119 @@
+
+«#
+:imap <F11> «IN       »
+:imap <F12> «OU »
+
+»
+
+«H1 A Quick Tour of GNU APL»
+
+«H2 Document Conventions»
+
+Your keyboard input and the response from your computer is displayed like this:
+
+«IN7 This is what you type on the keyboard»
+«OU7 and this is the response you get»
+
+«H2 Starting and stopping the APL interpreter»
+
+APL is an easy-to-learn language. This quick start manual is an introduction
+to APL in a few simple steps. We assume that you are using GNU APL and that
+you have installed it according to the REAME files that come with it.
+«»
+«»
+APL is a normal program and is started like that: by entering its name.
+«»
+«IN7 $ apl»
+«OU7
+                    ______ _   __ __  __    ___     ____   __ 
+                   / ____// | / // / / /   /   |   / __ \ / / 
+                  / / __ /  |/ // / / /   / /| |  / /_/ // /  
+                 / /_/ // /|  // /_/ /   / ___ | / ____// /___
+                 \____//_/ |_/ \____/   /_/  |_|/_/    /_____/
+                                       
+                        Welcome to GNU APL version 1.1
+                                       
+                Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+                       Banner by FIGlet: www.figlet.org
+                                       
+                This program comes with ABSOLUTELY NO WARRANTY;
+                         for details run: ./apl --gpl.
+                                       
+     This program is free software, and you are welcome to redistribute it
+         according to the GNU Public License (GPL) version 3 or later.
+                                       
+
+
+»
+
+The interpreter shows a startup message and then enters an endless loop which
+is called «BO immediate execution mode». In immediate execution mode the
+interpreter reads one input line from the user or from a file (if the standard
+input of the interpreter was redircted). It then processes the line,
+possibly creating some output. Depending on the nature of the line entered,
+the interpreter may remain in immediate execution mode or leave it.
+«»
+In the first case, i.e. the interpreter remains in immediate execution mode,
+the whole process starts over again; the next lines is read, processed,
+and so on.
+
+The second case (leaving immediate execution mode) is explained in a later
+chapter.
+
+The first non-blank character of the line entered determines what happens next:
+
+«UL
+«LI if the first non-blank is ) then the line is interpreted as an APL
+    command. Commands are discussed in chapter "Commands" below.»
+«»
+«LI if the first non-blank is ∇ then a APL function editor is started.
+    Editing of (user-defined) functions are discussed in chapter
+    "User-defined Functions" below.»
+«»
+«LI Otherwise the line is considered a sequence of APL statements. The
+    statements executed and may leave immediate execution mode if an error
+    occurs or a user-defined function is called.
+    APL statements are discussed in chapter "APL Statements" below.»
+»
+
+The most important command at the moment is )OFF which ends the apl interpreter:
+
+«IN7       )OFF»
+«OU7 Goodbye.
+$»
+
+Pressing control-C or control-D - the normal way to end programs -
+merely stops the execution of the current APL statement, but does not end
+the interpreter. This behavior is similar to a shell where control-C
+stops the current program but does not exit from the shell.
+
+«H2 APL Statements»
+
+APL statements are constructed from:
+«UL
+«LI APL constants (numbers and characters)»
+«LI Names (functions and variables)»
+«LI other characters: ← → [ ; ] ( ) and :»
+»
+
+Several statements on the same line are spearated by the APL character ◊
+(called Diamond). Before discussing the execution of statements we will
+introduce their components, i.e. constants and names.
+
+«H3 Constants (Literals)»
+
+Constants, also called literals, are used in APL statements for denoting
+fixed values,
+
+«H4 Skalar Constants»
+
+The simplest constants are skalar constants, similar to atoms in Chemistry.
+From these skalar constants more complex constants can be created. There are
+also skalar APL values which are not constants; a definition of the term
+skalar will be given later. For the moment think of a skalar as a single
+data item.
+
+«H5 Skalar Text Constants»
+
+The simplest skalar constants are skalar text constants. A skalar text
+constant defines a single character.
+«»
+As we will discuss in more detail later, if you enter a constant
+(and nothing else) in immediate execution mode then
+the interpreter will output the same constant, although in a slightly
+different fashion.
+«»
+A skalar text constant is entered by enclosing the desired character in
+single quotes. The character A, for example, is entered as 'A' and
+the interpreter answers with A (removing the quotes around it):
+
+«IN       'A'»
+«OU A»
+
+The quote character itself is entered but doubling it inside the quotes
+that encloses it:
+
+«IN       ''''»
+«OU '»
+
+«H5 Numeric Skalar Constants»
+
+A numeric skalar constant is a single number. The simplest numeric skalar
+constant is an integer, entered as a sequence of decimal digits:
+
+«IN       42»
+«OU 42»
+
+Fractional numbers are entered with a decimal point and a fractional part:
+
+«IN       42.5»
+«OU 42.5»
+
+The integral part can be ommitted:
+
+«IN       .5»
+«OU 0.5»
+
+An optional scaling by a power of 10 (aka. scientific notation) can be applied
+with the character E followed the exponent:
+
+«IN       42.5E3»
+«OU 42500»
+
+Negative numbers use a leading ¯ (Overbar); a minus sign is NOT the sign of
+a number but a function that negates a value. The result ist often the same,
+but you should always use the overbar for negative numbers:
+
+«IN       ¯42.5E3»
+«OU ¯42500»
+
+The exponent in scientific notation can also be negative (in this case using
+- gives a different result):
+
+«IN       42.5E¯3»
+«OU 0.0425»
+«IN       42.5E-3»
+«OU SYNTAX ERROR»
+
+The syntax error occurs because we tried to subtract 3 from 42.5E, and
+42.5E is not a valid constant.
+
+Complex numbers can be entered in 3 different formats. The standard format
+(standard because is also the format used by the interpreter when printing
+complex numbers) is to specify the real and imaginary parts of a complex
+number separated by the letter J:
+
+«IN       3J4       ⍝ a complex number of magnitude 5»
+«OU 3J4»
+«IN       0.6J0.8   ⍝ same number scaled to magnitude 1»
+«OU 0.6J0.8»
+
+One alternative format is to specify the number as its magnitude and its
+angle in degrees, separated by the letter D (for "degrees").
+Since arccos(0.6) = 53.130102354, we get the same complex numbers:
+
+«IN       5D53.130102354»
+«OU 3J4»
+«IN       1D53.130102354»
+«OU 0.6J0.8»
+
+The other alternative format is to specify the number as its magnitude and its
+the angle in radians, separated by the letter R (for "radians").
+Since 53.130102354 &pi; / 180 = 0.927295218 we get the same numbers:
+
+«IN       5R0.927295218»
+«OU 3J4»
+«IN       1R0.927295218»
+«OU 0.6J0.8»
+
+Please keep in mind that whitespace characters (space, tab, etc.) are NOT
+permitted in numbers.
+
+«H4 Vector Constants»
+
+Vector constants are created by writing several skalar constants on the
+same line, separated by one or more spaces between them. A complex number
+is a single skalar even if has two components (real and imaginary parts).
+Multiple separating spaces between skalars are treated like single spaces:
+
+«IN       1   2 3»
+«OU 1 2 3»
+«IN       'A' 'B' 'C'»
+«OU ABC»
+
+Sequences of character skalars can be written with quotes around the sequence
+rather than quotes around each character. The rules for skalar character
+constants apply here as well:
+
+«IN       'ABC'»
+«OU ABC»
+«IN       'A''B''C'»
+«OU A'B'C»
+«IN       "A'B'C"»
+«OU A'B'C»
+
+You cannot enter numeric vector constants with less than two elements because
+numeric vector constants with one element would be a numeric skalar constant,
+and a numeric vector constants with no elements would be completely empty.
+
+You can enter an empty character vector constant (a vector with no elements)
+like this:
+
+«IN       ''»
+«OU »
+«IN       ""»
+«OU »
+
+You normally cannot enter character vector constants with one element for
+the same reason as for numeric vector constants: it would be a skalar
+constant rather than a vector. This can become cumbersome when dealing with
+text; if the length of a character sequence is one then the text is a skalar,
+otherwise it is a vector. For this reason GNU APL provides a non-standard
+extension using double quotes instead of single quotes. This extension has
+slightly differenmt and sometimes more convenient rules than texts in single
+quotes:
+
+«UL
+«LI double quoted characters are always vectors (even if their length is 1)»
+«LI single quotes stand for themselves and need not be doubled»
+«LI for some problematic characters C-like sequences are defined:
+    «UL
+    «LI \a produces NUL (null,            ASCII code  0) »
+    «LI \a produces BEL (bell,            ASCII code  7) »
+    «LI \b produces BS  (backspace,       ASCII code  8) »
+    «LI \t produces TAB (tab,             ASCII code  9) »
+    «LI \n produces NL  (newline,         ASCII code 10) »
+    «LI \v produces VT  (vertical tab,    ASCII code 11) »
+    «LI \f produces FF  (form feed,       ASCII code 12) »
+    «LI \r produces CR  (carriage return, ASCII code 13) »
+    «LI \[ produces ESC (escape,          ASCII code 27) »
+    «LI \" produces "   (double quote,    ASCII code 34) »
+    «LI \\ produces \   (backslash,       ASCII code 92) »
+    »
+»
+»
+
+Examples:
+
+«IN       "A"   ⍝ 1-element vector»
+«OU A»
+«IN       "'"   ⍝ a quote (')»
+«OU '»
+«IN       "A\"B\\C"   ⍝ 'A', double quote, 'B', backslash, 'C'»
+«OU A"B\C»
+
+«H4 Mixed Constants»
+
+The first APL interpreters (and the first APL standard, ISO 8485) only allowed
+constants and values whose components were either all numeric skalars, or all
+character skalars. The examples given so far were of that kind,
+
+The current APL standard, ISO 13751, allows a mix of characters and
+numbers in constants and values like these:
+
+«IN       1 2 'A' 'B' 3 4»
+«OU 1 2 AB 3 4»
+
+Such values are called «BO mixed».
+
+«H4 Nested Constants»
+
+The vector constants discussed so far were «BO simple», which means that their
+components were (numeric or character) skalars. Since ISO 13751, another
+APL value can be used instead of a skalar. Such constants or values are called 
+«BO nested». The nested components of constants are vectors that are
+either qouted texts or surrounded by parantheses:
+
+«IN       1 2 'AB' 3 4»
+«OU  1 2 AB 3 4 »
+«IN       1 2 (10 11) 3 4»
+«OU  1 2  10 11  3 4 »
+
+As the examples above show, it is sometimes difficult to distinguish nested
+and non-nested values, in particular if they are all numeric. Nested values
+differ from non-nested values comprised of the same skalars only by the
+number spaces between the skalars, which is difficult to see if the values
+are long.
+
+Most APL interpreters come with built-in or user-defined functions that
+display the structure of nested values in a better way. If the function is
+user-defined then it is usually called 'DISPLAY'. If the function is built-in
+(also called a system function) then the name is different. In GNU APL the
+function is built-in, is called (dyadic) ⎕CR, and will be explained below.
+
+«H4 Summary and Remarks»
+
+Constants are used for creating fixed APL values. There are many APL values
+that cannot be expressed by constants, like numeric vectors with less than
+2 components, and higher-dimensional values like matrices. These values
+can only be created using functions (as explained further down).
+
+«H3 APL Names»
+
+APL knows 3 kinds of names:
+
+«UL
+«LI user defined names»
+«LI names of system functions and variables, and»
+«LI names of primitive APL functions»
+»
+
+«H4 User-defined Names»
+
+User-defined names start with a letter (A-Z or a-z) or one of the 3 characters
+_ (underscore), ∆ (delta), or ⍙ (delta-underline. The starting character may be
+followed by letters, digits, or again one of the characters _, ∆, or ⍙.
+
+User-defined names are used to denote variables, functions, operators,
+or labels.
+
+«H4 Names of System Functions and System Variables»
+
+The names of system functions start with the APL character ⎕ (quad) followed by
+a small number of letters.
+
+A few system functions and system variables are standardized in ISO standard
+13751, but those that are not defined in the standard differ considerably
+between APL interpreters from different vendors.
+
+«H4 Names of Primitive APL Functions»
+
+The names of primitive functions are single APL characters that different from
+all characters allowed in user-defined names.
+
+Almost all the primitive APL functions (and hence their names) are
+identical in all APL interpreters and are standardized in ISO standard 13751.
+
+Apart from the differences mentioned above, there is no real difference
+between system functions and primitive APL functions.
+
+«H3 Functions and Operators»
+
+In APL functions can have no, one, or two arguments.
+Functions with no argument are called «BO niladic», functions with one
+argument «BO monadic», and functions with two arguments are called
+«BO dyadic».
+
+Monadic and dyadic functions can have another, optional, argument used for
+specifying an axis (a dimension along which the function is computed).
+Normally only primitive APL functions can have an axis argument, but GNU
+APL also supports an axis argument for user defined functions. Even though
+every primitive APL functions can be called with an axis argument, most of
+them simply ignore it.
+
+Most dyadic functions can be called with only one argument. These functions
+are called «BO nomadic». This basically means that the same function name is
+used for two different functions. The two functions are ofter related. For
+example the dyadic variant of the nomadic function ÷ divides one of its
+arguments by the other, whicle the monadic variant computs the invers of its
+sole argument.
+
+«H4 Niladic Functions»
+
+A niladic function takes no arguments. A niladic function call is simply the
+name of the niladic function. For example, ⎕TS is a niladic function that
+returns the current time as year, month, day, hours, minutes, seconds, and
+milliseconds:
+
+«IN       ⎕TS»
+«OU7 2013 11 3 10 31 33 847»
+«OU8 ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰»
+«IN       ⎕TS»
+«OU7 2013 11 3 10 31 54 76»
+«OU8 ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰»
+
+«H4 Monadic Functions»
+
+A monadic function takes one arguments. A monadic function call consists
+of the name of the function followed by its sole argument. For example, the
+monadic variant of the nomadic function ÷ computes the inverse of its argument:
+
+«IN       ÷ 2»
+«OU 0.5»
+«IN       ÷ 2J2»
+«OU 0.25J¯0.25»
+
+The optional axis argument mentioned above is always placed to the right of
+the function name. Like most functions, ÷ ignores its axis argument, but it
+is valid to provide one:
+
+«IN       ÷[55] 2»
+«OU 0.5»
+
+If an axis is provided then it will be computed even if the function
+ignores it:
+
+«IN       ÷[+] 2»
+«OU SYNTAX ERROR
+      ÷[+]2
+      ^  ^»
+
+«H4 Dyadic Functions»
+
+A dyadic function takes two arguments. A dyadic function call consists
+of the second (aka. left) argument, followed by the name of the function,
+followed by its other (aka. right)  argument. For example, the
+dyadic variant of the nomadic function ÷ computes the left argument divided
+by the right argument:
+
+«IN       4 ÷ 2»
+«OU 2»
+«IN       4J4 ÷ 2J2»
+«OU 2»
+
+As the last example above shows, APL automatically converts numbers to their
+simplest form, i.e. from complex to real, from floating point to integer,
+and from interger to boolean. At least it looks like that. A value that
+is, for example, printed like an integer may internally still be a real
+or even a complex number.
+
+In older APL interpreters there used to be a function ⎕DR (data representation)
+that would tell if an APL value was complex, real, integer, or boolean.
+For mixed arrays introduced by ISO 13751 that does not make too much sense
+anymore and the function has disappeared.
+
+«H4 Monadic Operators»
+
+APL operators are functions that have one or two additional arguments that
+are other functions rather than APL values.
+The attribute monadic resp. dyadic of an operator refers to the number of
+function arguments for the operator and not to the number of value arguments.
+«»
+«»
+A monadic operator is therefore an operator that has one function argument.
+All but one built-in operators in APL are monadic. A monadic operator,
+together with its function, defines a new function, the «BO the derived
+function». Depending on the operator and its function argument, the derived
+function can be monadic or dyadic.
+«»
+«»
+We take the most frequently used operator, reduction, as example. The
+APL symbol for the reduction operator is / (slash). The function argument
+of a monadic operator is the function immediately left of the operator
+symbol. The reduction operator is monadic (taking one function argument),
+the function provided as function argument must be dyadic, and the derived
+function is monadic. The derived function of reduction with function argument
+f is also called f-reduction.
+«»
+«»
+When the value argument of f-reduction is a vector, then f-reduction computes
+the result of placing f between the vector elements:
+«»
+«»
+f-reduction v1 v2 ... vn ↔ v1 f v2 f ... vn
+«»
+«»
+If function f is + (addition) then f-reduction of a vector is the sum of
+its elements:
+«IN       +/1 2 3 4 5 6»
+«OU 21»
+
+Likewise, if f is ⌈ (maximum) then f-reduction of a vector is the largest of
+its elements:
+«IN       ⌈/2 5 12 4 0»
+«OU 12»
+
+The f-reduction of a matrix is a vector with the f-reduction  of each row:
+«IN       3 3⍴1 2 3 4 5 6 7 8 9»
+«OU 1 2 3
+4 5 6
+7 8 9»
+«IN       +/ (3 3⍴1 2 3 4 5 6 7 8 9)»
+«OU 6 15 24»
+
+f-reduction is one of the functions that do not ignore their axis argument.
+The axis argument of f-reduction tells along which axis (i.e. rows or columns
+in the case of a matrix) the f-reduction shall be performed:
+
+«IN       +/[2] (3 3⍴1 2 3 4 5 6 7 8 9)» 
+«OU 6 15 24»
+«IN       +/[1] (3 3⍴1 2 3 4 5 6 7 8 9)» 
+«OU 12 15 18»
+
+In GNU APL, user defined monadic operators can have an axis argument, which
+is, like for their built-in pendants, placed in brackets right of the operator
+symbol.
+
+«H4 Dyadic Operators»
+
+A dyadic operator has two function arguments. There is only one dyadic
+operator in APL: the inner product.
+The APL symbol for the inner product operator is . (dot). The function arguments
+of the inner product are placed immediately left and immediately right of the
+dot. If A and B are matrices, then A +.× B is the normal matrix product:
+«IN       A←3 3⍴1 2 3 4 5 6 7 8 9»
+«OU »
+«IN       A»
+«OU 1 2 3
+4 5 6
+7 8 9»
+«IN       A +.× A»
+«OU  30  36  42
+ 66  81  96
+102 126 150»
+
+In general, for two matrices A and B and functions f and g, the inner product
+f.g is a matrix. The element in row i and column j in that matrix is obtained
+by applying function g to row i of A and column j of B and then to perform
+f-reduction of the (row f column) vector.
+
+Another way of looking at f.g (or at dyadic operators in general) is to
+consider (.g) as a derived monadic operator and f.g as f/(.g).
+However, dyadic operators cannot have an axis argument.
+
+«H3 General APL Values»
+
+The constants introduced so far were examples of APL values. However, many
+APL values can not be written as constants. In this chapter we will introduce
+APL values in a more formal way and we will show how arbitrary APL values
+can be constructed.
+
+An APL value is defined by two things: a list of skalars that is called
+the «BO ravel» of the value, and another list that is called the «BO shape»
+of the value. The shape determines how the ravel is arranged in order to
+produce an APL value.
+
+For example, the same ravel «BO 1 2 3 4 5 6» can be arranged (or "shaped")
+in 5 different ways:
+«»
+«»
+1. as a 6-element vector:
+«BO <pre>
+   1 2 3 4 5 6
+</pre>»
+
+2. as a 1 by 6 matrix:
+«BO <pre>
+   1 2 3 4 5 6
+</pre>»
+
+3. as a 2 by 3 matrix:
+«BO <pre>
+   1 2 3
+   4 5 6
+</pre>»
+
+4. as a 3 by 2 matrix:
+«BO <pre>
+   1 2
+   3 4
+   5 6
+</pre>»
+
+5. as a 6 by 1 matrix:
+«BO <pre>
+   1
+   2
+   3
+   4
+   5
+   6
+</pre>»
+«»
+In this example, the shape selects between the 5 possible arrangements
+of the ravel. The ravel and the shape are not entirely independent.
+Instead the following relation is satisfied by every APL value:
+«»
+«»
+«BO The product of all shape elements is equal to the number of ravel elements»
+«»
+«»
+The number of shape elements, also called the «BO rank» of the value,
+determines into how many elements the shape has:
+«»
+«»
+«TAB
+«TR» «TH» Rank «TH» Commonly called
+«TR» «TD» 0    «TD» Skalar (no shape dimension)
+«TR» «TD» 1    «TD» Vector (one shape dimension)
+«TR» «TD» 2    «TD» Matrix (two shape dimensions)
+«TR» «TD» 3    «TD» Cube   (three shape dimensions)
+«TR» «TD» ...  «TD» values with higher ranks (more than 3 shape dimensions)
+»
+
+A value also has a depth which tells the level of nesting. Simple skalars have
+a depth if 0. All other values have a depth of (1 + the maximum depth of all
+ravel elements). Unlike the shape, which can be imposed on a value, the depth
+is a consequence of the rank (skalar or not) and the ravel of the value.
+
+APL programming is the art of crating new APL values from other APL values.
+The starting point are the constants discussed above and the new APL values
+are created from existing APL values by calling functions with the existing
+APL values as function arguments.
+
+You have probably heard that APL has a large number of built-in functions.
+As a consequence, the same new APL value can usually be created in many
+different ways. APL programmers tend to prefer the ways that contains the
+smallest number of function calls, even though that is is not always the
+"cleanest" way.
+
+It is not always obvious how to create a particular APL value. Therefore we
+present a (somewhat awkward) method that always works. This method uses only
+a handful of built-in APL functions that - no surprise - belong to the most
+frequenly used functions in APL programs.
+
+«H4 Reshape and Shape: ⍴»
+
+Reshape is a simple, but powerful, function that creates values of arbitrary
+shapes. The function call A ⍴ B returns a new APL value Z with shape A and
+a ravel constructed from the ravel of value B as follows.
+
+Let len_B be the number of elements in the ravel of B, and
+let len_Z be the number of elements in the ravel of Z.
+
+«UL
+«LI If len_Z = len_B, then the ravel of Z are the ravel of B.»
+«LI If len_Z < len_B, then the ravel of Z are the first len_Z elements
+    of the ravel of B.»
+«LI If len_Z > len_B, then the ravel of B is appended to itself until one
+    of the cases above occurs.»
+»
+
+Note that the shape of B plays no role in the coputation of function rehape.
+Most frequently skalars and vectors are being reshaped.
+
+We can now enter the 5 examples above (which are all cases where
+len_Z = len_B) in APL:
+
+«IN       6 ⍴ 1 2 3 4 5 6»
+«OU 1 2 3 4 5 6»
+«IN       1 6 ⍴ 1 2 3 4 5 6»
+«OU 1 2 3 4 5 6»
+«IN       2 3 ⍴ 1 2 3 4 5 6»
+«OU 1 2 3
+4 5 6»
+«IN       3 2 ⍴ 1 2 3 4 5 6»
+«OU 1 2
+3 4
+5 6»
+«IN       6 1 ⍴ 1 2 3 4 5 6»
+«OU 1
+2
+3
+4
+5
+6»
+
+An examples with len_Z < len_B) is this:
+
+«IN       2 2 ⍴ 1 2 3 4 5 6»
+«OU 1 2
+3 4»
+
+The most powerful case is len_Z > len_B, in particular when len_B is small:
+
+«IN       10 10 ⍴ 1 2»
+«OU 1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2
+1 2 1 2 1 2 1 2 1 2»
+
+Another illustrative example is the creation of a unity matrix. Will will later
+repeat the creation of a unity matrix with other functions. Creating a
+unity matrix with function reshape is somewhat less "clean" than other
+methods, but short and effective (and therefore frequently seen in APL code):
+
+«IN       5 5 ⍴ 1 0 0 0 0 0»
+«OU 1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+0 0 0 1 0
+0 0 0 0 1»
+
+The monadic variant of ⍴ is called «BO Shape» and returns the shape of its
+right argument:
+
+«IN       ⍴ 1 0 0 0 0 0»
+«OU 6»
+
+«IN       ⍴ (5 5⍴1 0 0 0 0 0)»
+«OU 5 5»
+
+The parentheses in the last example are not required, but were added for
+clarity. Like in other languages, expressions in parentheses are evaluated
+first and the result replaces the parentheses and their content.
+The Shape of a skalar is an empty vector. Empty vectors produce
+no APL output:
+
+«IN       ⍴ 5   ⍝ Shape of a numeric skalar (no output)
+      ⍴ ' '   ⍝ Shape of a character skalar (no output)
+      ⍴ ''    ⍝ Shape of an empty vector»
+«OU 0»
+
+«H4 Catenate and Ravel: , and ⍪»
+
+The next important function on the way to arbitrary APL values is "catenate",
+or dyadic , (comma). The function call A , B appends values A and B. If A
+and B are skalars or vectors then the result is somewhat obvious:
+
+«IN      1 1 1 , 2 2 2   ⍝ append vector 1 1 1 and vector 2 2 2»
+«OU 1 1 1 2 2 2»
+«IN      1 1 1 , 'bbb'   ⍝ append vector 1 1 1 and vector 'bbb'»
+«OU 1 1 1 bbb»
+
+If A or B is a matrix or a value with even highr rank, then there are
+different ways to catenate two values. This is where the optional comes
+into play. The axis argument determines along which axis
+the concatenation shall take place:
+
+«IN      2 2⍴'A'»
+«OU AA
+AA»
+«IN      2 2⍴'B'»
+«OU BB
+BB»
+«IN      (2 2⍴'A') ,[1] (2 2⍴'B')»
+«OU AA
+AA
+BB
+BB»
+«IN      (2 2⍴'A'),[2] (2 2⍴'B')»
+«OU AABB
+AABB»
+
+The axes of a value are the different elements of its shape vector. A skalar
+has no axes, a vector has one axis, a matrix has two axes, and so on. When
+an APL value is printed then the last axis of the value is printed
+horizontally (on the same output line) while th other axes are printed
+vertically (on differen output lines). The default axis for concatenate,
+i.e. the axis used when no axis argument is given, is the last axis.
+There is a companion function of , comma) namely ⍪ (comma-bar) that is
+identical to comma if an axis is provided, but uses the first axis rather
+than the last axis if not. Therefore the last two examples could have
+been written without an axis argument like this:
+
+«IN      (2 2⍴'A') ⍪ (2 2⍴'B')»
+«OU AA
+AA
+BB
+BB»
+«IN      (2 2⍴'A') , (2 2⍴'B')»
+«OU AABB
+AABB»
+
+Note: There are some more function pairs that differ only by their default
+behavior when no axis argument is given: ⊖ and ⌽, / and ⌿, and  \ and ⍀.
+The variant with - in the symbol takes the first axis by default while the
+other variant takes the last axis.
+
+The monadic variant of , and ⍪ is a monadic function called "ravel" and
+returns the ravel of the value. While function reshape can be used,
+among other things, to create values of higher or lower ranks than vectors,
+function ravel does the opposite: it brings the rank of values with higher
+or lower ranks down to rank 1. In other words, function ravel converts a
+value with arbitrary shape to a vector. If a value is a value already then
+function ravel returns (a copy of) that vector.
+
+«H4 Universal Character Set (monadic ⎕UCS)»
+
+Function ⎕UCS is monadic and computes a value with the same shape as its
+right argument. The right argument must be simple (i.e. not nested) values
+whose ravel consists of all integers or all characters. Integers are
+converted to characters with the same Unicode, while characters are converted
+to an integer with the Unicode of the character.
+
+In most cases the characters that you use in strings will be on your
+keyboard, but function ⎕UCS can be used if they are not.
+
+Examples:
+
+«IN      ⎕UCS 'APL ⍴⍪ $¥£€⍧ ÄÖÜäöüß'    ⍝ Unicode → integer conversion»
+«OU 65 80 76 32 9076 9066 32 36 165 163 8364 9063 32 196 214 220 228 246 252 223»
+«IN      ⎕UCS 65 80 76 32 9076 9066 32 36 165 163 8364 9063 32 196 214 220 228 246 252 223  ⍝ And back to Unicode»
+«OU APL ⍴⍪ $¥£€⍧ ÄÖÜäöüß»
+
+«H4 Construction of arbitrary simple values»
+
+The functions reshape, concatenate, and occasionaly ⎕UCS can be combined in
+order to constructing arbitrary simple (i.e. not nested) values. We assume,
+of course, that it is known how the value shall look like. The algorithm
+for constructing the new value is then:
+
+«OL
+  «LI construct the shape vector of the new value from smaller items such 
+  as integer skalars or vectors. The integer skalars can be constants or
+  other ineger vectors computed elsewhere. Concatenate (dyadic ,) the
+  smaller pieces as needed. Put everything in parentheses (in many cases the
+  parentheses are optional and can be removed, but to be on the safe side we
+  leave them in).»
+
+  «LI construct the ravel of the new value from smaller items such as
+  integer skalars, integer vectors, character skalars and character vectors.
+  Possibly use ⎕UCS to create character or vectors using their Unocode.
+  Concatenate (dyadic ,) the smaller pieces as needed.»
+
+  «LI reshape the ravel with the shape vector using dyadic ⍴.»
+»
+
+Steps 1 and 2 are independent, so you can do 2 before 1.
+As an alert reader you will have noticed that you cannot create new
+skalars because a skalar has a shape vector of length 0, and we
+have seen earlier that empty integer constants do not exist.
+
+In older APL interpreters this was solved by using an empty character
+vector instead of an empty integer vector:
+
+«IN      '' ⍴ 1 2 3 4 5 6    ⍝ reshape 1 2 3 4 5 6 to a skalar»
+«OU 1»
+«IN      ⍴ ('' ⍴ 1 2 3 4 5 6)    ⍝ shape of '' ⍴ 1 2 3 4 5 6»
+«OU7 (no output since ⍴ ('' ⍴ 1 2 3 4 5 6) is an empty vector)»
+
+This worked well and you will find ''⍴ all over the place in older APL programs.
+In newer APL interpreters, including GNU APL, a constant ⍬ (zilde) was
+introduced. ⍬ is an empty numeric vector. ⍬⍴ is cleaner than ''⍴ because
+a shape should always be an integer verctor, but portability of APL programs
+using ''⍴ is better than ⍬⍴.
+«»
+You may also wonder if vectors can be created with the above algorithm (and
+remembering that there are not only no integer vector constants of length 0,
+but also no integer vector constants of legth 1).
+The answer is "yes" because the left argument A of A⍴B can be a vector
+or a skalar (the skalar is then treated like a 1-element vector).
+Note also, that when creating arbitrary simple vectors, Step 2 alone
+suffices in most cases. For simple vectors, steps 1 and 3 are only needed
+if the ravel constructed in step 2 has the wrong length.
+
+«H4 Construction of arbitrary nested values»
+
+The «BO depth» of a nested value is recursively defined as:
+
+«UL
+«LI 0, if the value is a simple skalar»
+«LI 1, if the value is a simple vector»
+«LI N+1, if the value is nested and N is the depth of its deepest ravel element»
+»
+The monadic APL function ≡ (called «BO Depth») returns the depth of an
+APL value.
+«»
+In the previous chapter we have seen how arbitrary simple values, i.e.
+values of depth 0 or 1 are constructed. We can now create a value of depth
+N + 1 resursively:
+
+«UL
+«LI construct the shape vector in the same way as for arbitrary simple values.»
+
+«LI construct the ravel of the new value from smaller items such as
+integer skalars, integer vectors, character skalars and character vectors,
+and items with a depth N or less. Enclose non-simple ravel items (i.e. items
+with depth > 1) in parantheses.»
+
+«LI reshape the ravel with the shape vector using dyadic ⍴.»
+»
+
+Examples:
+
+«IN      1 2 3      ⍝ three element vector»
+«OU 1 2 3»
+«IN      ⍴1 2 3     ⍝ how many elements?»
+«OU 3»
+«IN      ≡1 2 3     ⍝ how deep?»
+«OU 1»
+«IN      1 (2 3)    ⍝ two (!) element vector with nested second element»
+«OU  1  2 3 »
+«IN      ⍴1 (2 3)     ⍝ how many elements?»
+«OU 2»
+«IN      ≡1 (2 3)     ⍝ how deep?»
+«OU 2»
+«IN      1 (2 (3 4))  ⍝ two element vector with nested second element»
+«OU  1   2  3 4  »
+«IN      ⍴1 (2 3)     ⍝ how many elements?»
+«OU 2»
+«IN      ≡1 (2 3)     ⍝ how deep?»
+«OU 2»
+
+When the APL interpreter prints nested values then it prints extra spaces
+around them. These spaces distinguish nested values from their simple
+counterparts with the same ravel elements, but makes it rather difficult
+to understand values with deeper nestings.
+
+«H4 Showing the structure of values»
+
+We have seen n the examples above that that some APL values look the same
+(e.g. numeric skalars and numeric vectors) or very similar (nested values
+with the same elements in their ravels, like 1 2 3 vs. 1 (2 3) above).
+For that reason, APL interpreters that support nested values typically
+come with a function calls «BO Display» that shows the structure of a valuei
+in a better way. This function is very useful for analyzing problems that
+are caused by different values that look similar:
+
+«IN      1 2 3 + 1 2 3      ⍝ add two 3 element vectors»
+«OU 2 4 6»
+«IN      1 2 3 + 1 (2 3)    ⍝ add 3 element vector and 2 element vector»
+«OU LENGTH ERROR
+      1 2 3+1 (2 3)
+      ^    ^»
+
+Since the Display function is of such importance, GNU APL has made it a
+built-in function called dyadic ⎕CR. The monadic ⎕CR (character
+representation) is a standard function in all APL interpreters that converts
+APL values and user defined functions into character strings. The left
+argument of dyadic ⎕CR does the same, but its left argument lets you choose
+one of several formats. Format 4 of ⎕CR selects a format that is very similar
+to the output of the «BO Display» function in other interpreters:
+
+«IN      8 ⎕CR 1         ⍝ show structure of skalar 1»
+«OU ┌─┐
+│1│
+└─┘»
+«IN      8 ⎕CR 1 2 3     ⍝ show structure of simple vector 1 2 3»
+«OU ┌→────┐
+│1 2 3│
+└─────┘»
+«IN      8 ⎕CR 1 (2 3)   ⍝ show structure of nested vector 1 (2 3)»
+«OU ┌→──────┐
+│1 ┌→──┐│
+│  │2 3││
+│  └───┘│
+└∊──────┘»
+«IN      8 ⎕CR 1 (2 (3 4))   ⍝ show structure of nested vector 1 (2 (3 4))»
+«OU ┌→──────────┐
+│1 ┌→──────┐│
+│  │2 ┌→──┐││
+│  │  │3 4│││
+│  │  └───┘││
+│  └∊──────┘│
+└∊∊─────────┘»
+«IN      8 ⎕CR (2 2⍴ 1 2 3 4)    ⍝ show structure of simple matrix 2 2 ⍴ 1 2 3 4»
+«OU ┌→──┐
+↓1 2│
+│3 4│
+└───┘»
+
+«IN      8 ⎕CR (2 2⍴ 1 2 3 (2 2⍴4))    ⍝ a nested matrix»
+«OU ┌→──────┐
+↓1     2│
+│3 ┌→──┐│
+│  ↓4 4││
+│  │4 4││
+│  └───┘│
+└∊──────┘»
+
+8 ⎕CR is a character matrix constructed according to the following rules:
+
+«UL
+«LI the matrix consists of a «BO frame» (solid line) that surrounds
+    its «BO content».»
+«LI The content is created from the ravel elements of the value that are
+  arranged according to the shape of the value.i If a ravel element is a
+  nested value then that value is displayed with its own frame (and these rules
+  apply recursively.»
+«LI The frame can contain additional indicators. If the rank of the value
+ is ≥ 1 then the the horizontal top line of the frame contains information
+ pertaining to the last dimension of the value. If the rank of the value
+ is ≥ 2 then the the verticalal left line of the frame contains information 
+ pertaining to the other dimensions of the value. The horizontal bottom line
+ of the frame is related to the depth of the ravel.»
+«LI An arrow (→ on the top line or ↓ on the left line) indicates that the
+    corresponding dimension(s) are present and non-empty.»
+«LI An ⊖ on the top line or ⌽ on the left line) indicates that the
+ corresponding dimension(s) are present but empty. In this case the ravel
+ has length 0 and instead of the empty ravel the «BO prototype» of the value,
+ a concept explained later on, is shown.»
+«LI An ∊ on the bottom line indicates that the ravel contains nested elements;
+  multiple ∊ indicate deeper nestings.»
+»
+
+«H4 Vector Notation versus Catenation»
+
+For beginners the difference between vector notation (a sequence of items
+separated by spaces) and catenation (a sequence of items separated bi commas)
+can be confusing because often, in particular for simple skalars and vectors,
+both of them produce the same result:
+
+«IN       1 2 3»
+«OU 1 2 3»
+«IN       1,2,3»
+«OU 1 2 3»
+
+In the example above, vector notation executes faster because no function
+needs to be computed. Sometimes, however, vector notation may produce a
+result other than expected:
+
+«IN       1 2 3 (4 5)»
+«OU  1 2 3  4 5 »
+«IN       8 ⎕CR 1 2 3 (4 5)»
+«OU ┌→──────────┐
+│1 2 3 ┌→──┐│
+│      │4 5││
+│      └───┘│
+└∊──────────┘»
+«IN       1 2 3,(4 5)»
+«OU 1 2 3 4 5»
+«IN       8 ⎕CR 1 2 3,(4 5)»
+«OU ┌→────────┐
+│1 2 3 4 5│
+└─────────┘»
+
+Vector notation starts with the leftmost item and adds one item for every
+space (or group of spaces). If an item added is not a skalar (like (4 5) in
+the example above) then the item is automatically converted to a nested
+value.
+
+Catenation works differently; in the above example the two vectors 1 2 3 and
+(4 5) are simply catenated to form a vector of length 5.
+
+The parentheses in (4 5) in in the catenation example were redundant, while
+the parentheses in the vector notation were not. Once again 8 ⎕CR helped to
+clarify the matter.
+
+«H4 Skalar Extension»
+
+Before continuing we need to introduce a fundamental APL mechanism called
+«BO skalar extension». This mechanism is applied in many places.
+«»
+Almost all built-in APL functions are partial, which means that there are
+arguments for which the function returns an error instead of a result. Some
+of the very few total (i.e. non-partial) functions are monadic ⍴
+and monadic ≡. Typically dyadic function put more requirements on their
+arguments than monadic functions. The reason is that not only must the
+individual left and right arguments satisfy some conditions, but the left
+and right arguments must also fit to each other. For example:
+
+«IN      1 2 3 + 1 2 3   ⍝ 1 2 3 is a valid arguments for +»
+«OU 2 4 6»
+
+«IN      1 2 + 1 2       ⍝ 1 2 is also a valid arguments for +»
+«OU 2 4»
+«IN      1 2 + 1 2 3     ⍝ they cannot be mixed, though»
+«OU LENGTH ERROR
+      1 2+1 2 3
+      ^  ^»
+
+The most common requirement of dyadic functions is that the left
+and right argument have the same shape. The sum of two 3 element vectors
+makes sense, while the sum of a 2 element vector and a 3 element vector
+does not:
+
+«IN      1 2 3 + 4 5 6    ⍝ OK to add two 3 element vectors»
+«OU 5 7 9»
+«IN      1 2 3 + 4 5      ⍝ not OK to add  2 element vector to 3 element vector»
+«OU LENGTH ERROR
+      1 2 3+4 5
+      ^    ^»
+
+Now skalar extension is an exception to most matching shape requirements.
+If one of the arguments of a dyadic function is a skalar, and if the function
+supports skalar extension, then the skalar argument is automatically reshaped
+to the shape of the other argument. (If both arguments were skalar, then they
+have the same shape already and skalar extension would have no noticable
+effect).
+
+«IN      1 2 3 + 4      ⍝ OK by virtue of skalar extension of right argument»
+«OU 5 6 7»
+«IN      1 + 4 5 6      ⍝ OK by virtue of skalar extension of left argument»
+«OU 5 6 7»
+
+
+«H3 Variables»
+
+Like most computer languages, APL has variables. Unlike compiled computer
+languages, variables need not be declared beforehand. Instead variables
+are created by assigning a value to a name:
+
+«IN      VAR ← 1 2 3»
+«OU»
+
+If the name is in use, then a SYNTAX ERROR will be reported. After a value
+has been assigned to a name (and a variable with that name has been created
+as a side effect) referring to the name returns the last value assigned to 
+the variable:
+
+«IN      VAR»
+«OU 1 2 3»
+«IN      VAR ← 1 2 3 4»
+«OU»
+«IN      VAR»
+«OU 1 2 3 4»
+
+In the above examples a fundamental APL rule should be explained. Normally
+a values being computed, for example a constant or the result of a function,
+is displayed on the screen. If, however, the value is assigned to a variable,
+then it becomes a «BO committed value» which is not displayed. The value is
+not consumed by the assignment, so that it can be assigned to several variables
+in one go:
+
+«IN      V1 ← V2 ← 1 2 3»
+«OU»
+«IN      V1»
+«OU 1 2 3»
+«IN      V2»
+«OU 1 2 3»
+
+The lifetme of a variable is normally infinite; such variables are called
+«BO global». There exist also «BO local variables» whose lifetime is as
+long as the user defined function that declares them executes (this will be
+explained together with user defined functions).
+
+The lifetime of a variable can be explicitly terminated by either the
+command «BO )ERASE» or the APL function «BO ⎕EX» (expunge):
+
+«IN      V1»
+«OU 1 2 3»
+«IN      )ERASE V1»
+«OU»
+«IN      V1»
+«OU VALUE ERROR
+      V1
+      ^»
+«IN      V2»
+«OU 1 2 3»
+«IN      ⎕EX 'V2'»
+«OU 1»
+«IN      V2»
+«OU VALUE ERROR
+      V2
+      ^»
+
+The result 1 of ⎕EX indicates successful erasure of the variable. Note
+that the argument of ⎕EX is not the variable V2 but a character vector
+'V2' containing the name of the variable.
+
+«H4 The Variables ⎕ and ⍞»
+
+There are two important system variables, ⎕ (quad) and ⍞ (quote quad),
+that are used because of their side effects. They are probably the most
+frequently used system variables in APL programs.
+
+«H5 Input and Output with ⍞»
+
+When ⍞ is assigned a value then the value is displayed on the screen:
+«IN       ⍞ ← 1 + 2   ⍝ compute 1 + 2 and display the result»
+«OU 3»
+«»
+«»
+When ⍞ is referenced, then a line of input is read from the keyboard (actually
+from stdin which is normally the keyboard) and the characters read,
+excluding the end of line character. The result of referencing ⍞ is always
+a character vector (the user input is quoted by ⍞, which may explain
+its name quote quad).
+
+«IN       INPUT ← ⍞   ⍝ quote-quad input»
+«IN1 what we type»
+«OU»
+«IN       INPUT»
+«OU what we type»
+
+A special case arises when the assignment of a value to ⍞ (but not ⍞)
+is immediately (i.e. without another input or output operation) followed
+by a reference of ⍞. In that case the terminating end-of-line character is
+suppressed and the input requested on the same line:
+
+«IN       ⍞←"ENTER AMOUNT: " ◊ AMOUNT ← ⍞»
+«IN2 ENTER AMOUNT: 42»
+«IN8 ENTER AMOUNT: 42»
+«OU »
+«IN       AMOUNT»
+«OU               42»
+
+This special case is often used in interactive APL programs to print
+a prompt that tells the user what shall be entered. If this is not desired,
+then you can use ⎕ instead of ⍞ in the dirst assignment:
+
+«IN       ⎕←"ENTER AMOUNT: " ◊ AMOUNT ← ⍞»
+«IN1 ENTER AMOUNT: »      
+«IN1 42»      
+«OU »
+«IN       AMOUNT»
+«OU 42»
+
+
+«H5 Input and Output with ⎕»
+
+When a value is assigned to ⎕ then the value is disaplyed like for ⍞.
+However, the terminating end of line character is always printed, so that
+⎕ cannot display a prompt in the way ⍞ can.
+
+Reference of ⎕ differs from ⍞ in two ways. Firstly, ⎕ displays its own prompt,
+"⎕:" on a separate line. Secondly, ⎕ evaluates the input line as an APL
+expression rather than quoting it:
+
+Since ⎕ does not quote the input like ⍞ does, the user needs to quote
+the input:
+
+«IN       INPUT ← ⎕   ⍝ quad input»
+«OU2 ⎕:
+      «IN3 what we type»»
+«OU8 ⎕:
+      what we type»
+«OU VALUE ERROR
+      what we type
+              ^»
+«IN       INPUT ← ⎕   ⍝ quad input»
+«OU2 ⎕:
+     «IN3 'what we type quoted'»»
+«OU8 ⎕:
+     'what we type quoted'»
+«OU1»
+«IN1       INPUT»
+«OU what we type quoted»
+
+«H5 ⎕ Input in Application Programs»
+
+Input by means of ⎕ can be very powerful while writing APL programs. It
+should be avoided, however, in finished application programs.
+The reson is that ⎕ throws an error when the user enters something that
+is not a valid APL expression. In contrast, input by means of ⍞ neverA
+throws an error and is therefore safe to use in application programs.
+
+«H3 Indexing»
+
+Most programing languages provide indexing which either references or
+updates a part of the value. Most ofteni, however, indexing is restricted
+to a single item. In APL, indexing is much more powerful and can even be
+used to create bigger values than the indexed value.
+
+An «BO index expression», or «BO index», is a sequence of one or more
+non-negative simple integer values. The sequence is enclosed in brackets
+and the elements of the sequence are separated by semicolons (unless the
+length of the sequence is 1):
+
+«IN7      [1;2 3]»
+«OU»
+
+The example above shows an index with 2 elements 1 and 2 3. An index can not
+be used on its own, but is always attached to the value left of it. The value
+left of an index is then said to be indexed by the index expression. The
+semantics of indexing a value is that a subset of the ravel of the value
+is being addressed. This subset is then either referenced (copied) or
+changed (assigned) depending on whether the indexed value appears on the
+left of an assignment arrow ← or not. We call a value that is being assigned
+an «BO lvalue» (for left value).
+
+The index is most strongly bound to the value on its left, which causes
+indexing of the value to be  performed as soon as the value is available.
+If the value is an lvalue (a value subject to an assignment) then the
+lvalue is updated with some other value; otherwise the value is referenced.
+
+Often the item left of the index is a variable and then it looks as if parts
+the variable are updated or referenced:
+
+«IN       V←1 2 3 4   ⍝ create a variable»
+«OU »
+«IN      V[2 3]       ⍝ indexed reference»
+«OU 2 3»
+«IN      V[2 3]←'x'   ⍝ indexed assignment»
+«OU »
+«IN      V             ⍝ show result of indexed assignment»
+«OU 1 xx 4»
+
+What happens behind the scene, however, is that the variable V in the above
+examples is resolved into a value (indexed reference) or into an lvalue
+(indexed assignment). The value or lvalue is then being indexed.
+
+For indexing to be successful, the index must satisfy certain conditions:
+
+«UL
+  «LI The number of items in the index (i.e. the number of semicolons + 1)
+      must be equal to the rank of the index»
+  «LI The i«SU th» item in the index must be an integer between 1 and the
+       i«SU th» iterm of the shape of the value that is being indexed.»
+»
+
+As a consequence of the first condition, skalars cannot be indexed
+(an index without semicolons would require a rank of 1 for the indexed value).
+
+The second condition ensures that the corresponding index items do not exceed
+the corresponding shape items. As a C programmer or mathematician you will
+find it more natural if the range of an index starts at 0 rather than 1.
+In APL this can be achieved by setting the system variable ⎕IO (index origin)
+to 0:
+
+«IN       ⎕IO←0»
+«OU »
+«IN       (1 2 3 4)[2]»
+«OU 3»
+«IN       ⎕IO←1»
+«OU »
+«IN       (1 2 3 4)[2]»
+«OU 2»
+
+You should not use ⎕IO←0 too extensively because most APL programmers are
+used to the default value of 1 for ⎕IO and the readability of your code may
+suffer.
+
+An indexed assignment has the side effect of changing parts of the variable,
+but the result of it is the value that is assigned, i.e. the right side
+of the assignment. The result is not displayed. In that respect, indexed
+assignment behaves like non-indexed assignment.
+
+«IN       V←1 2 3 4»
+«OU »
+«IN       V[3 3 3⍴2]←'X'»
+«OU »
+«IN       V»
+«OU 1 X 3 4»
+
+The example above does not make too much sense because the same index
+2 is assigned 27 times. We used it to show the difference to indexed
+reference below.
+
+An indexed reference of a variable or value has a result whose shape is
+the concatenated shape of the index. This can be used to create values that
+are bigger than the indexed value:
+
+«IN       (1 2 3 4)[3 3 3⍴2]»
+«OU 2 2 2
+2 2 2
+2 2 2
+
+2 2 2
+2 2 2
+2 2 2
+
+2 2 2
+2 2 2
+2 2 2»
+
+Indexing is one of the favorite operations of APL programmers and fully
+understanding it is key to understanding APL. Therefore we summarize the
+rules governing indexed assignment and indexed reference:
+
+«UL
+«LI Common Requirements on Z ← A[X«su 1»;...;X«su N»] and
+      A[X«su 1»;...;X«su N»] ← B»
+  «UL
+  «LI A has rank N (and there are N-1 semicolons inside the brackets).»
+  «LI Each X«su i» is a non-nested integer value of arbitrary shape.»
+  «LI For every integer I in the ravel of X«su i»: ⎕IO ≤ I ≤ ⎕IO + (⍴A)[i]).»
+  »
+
+«LI Indexed Assignment A[X«su 1»;...;X«su N»] ← B»
+  «UL
+  «LI The result of an indexed assignment is B; as a side effect some items
+        in the ravel of A are updated with items in the ravel of B.»
+  «LI The result is a committed value (and is therefore not displayed).»
+  «LI If B is a skalar then it is skalar extended according to
+      X«su 1», ..., X«su N».»
+  «LI repeated values in some X«su i» are valid, but the result is
+      implementation dependent (unless the corresponding items in B are
+      identical).»
+  «LI The shape of B can have trivial dimensions (dimensions of length 1). Such
+      dimensions are ignored. The length of any non-trivial dimension (⍴B)[i]
+      must match the number of elements ⍴,X«su i» in the corresponding index
+      item X«su i».»
+  »
+
+«LI Indexed Reference Z ← A[X«su 1»;...;X«su N»]»
+  «UL
+    «LI The rank of the result, i.e. ⍴⍴Z, is the sum of the ranks of items
+        in the index list: ⍴⍴Z ↔ (⍴⍴Z«su 1») + ... + (⍴⍴Z«su N»)  »
+    «LI The shape of the result is the catenation of items in the index
+        list:  ⍴Z ↔ (⍴Z«su 1»), ..., (⍴X«su N») »
+  »
+»
+
+A special case of an index item is the "elided index". If no value is given
+between two brackets or semicolons, then this means that the entire dimension
+(and not, as you might expect, nothing) is selected by the index item:
+
+«IN       A←3 4 ⍴ 1 2 3 4 5 6 7 8 9 10 11 12»
+«OU »
+«IN       A»
+«OU 1  2  3  4
+5  6  7  8
+9 10 11 12»
+«IN       A[2;]   ⍝ elided index for last dimension, aka a "row"»
+«OU 5 6 7 8»
+«IN       A[;2]   ⍝ elided index for first dimension, aka a "column"»
+«OU 2 6 10»
+
+A final example shows the effect of multiple items in different dimensions:
+
+«IN       A←6 20⍴'∘'»
+«OU »
+«IN       A»
+«OU ∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘∘»
+«IN       A[;2 3 9 14]←'║'   ⍝ set columns 2, 3, 9, and 14 to ║»
+«OU »
+«IN       A»
+«OU ∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘»
+«IN       A[1 3 6;]←'═'   ⍝ set rows 1, 3, and 6»
+«OU »
+«IN       A»
+«OU ════════════════════
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+════════════════════
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+════════════════════»
+«IN       A[1 3 6;2 3 9 14]←'╬'   ⍝ set rows 1, 3, and 6 in columns 2, 3, 9, and 14»
+«OU »
+«IN       A»
+«OU ═╬╬═════╬════╬══════
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+═╬╬═════╬════╬══════
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+∘║║∘∘∘∘∘║∘∘∘∘║∘∘∘∘∘∘
+═╬╬═════╬════╬══════»
+
+A disadvantage of the bracket index is that while the shapes of the index items
+can be freely chosen, the number of semicolons (and therefore the rank of A)
+is fixed. That makes it impossible to write functions that cope with arbitrary
+ranks of A.
+
+For that reason, a dyadic function X⌷A (called index) is provided where
+X plays the role of X«su 1»;...;X«su N» in bracket index. X is a 
+(typically nested) vector of length N and both reference (Z←X⌷A) and
+assignment (X⌷A)←B are possible. Unlike bracket index, skalars can be
+indexed with the index function (X then has length 0), but elided indices
+are not supported by the index function.
+
+«H3 Execution of APL Statements»
+
+APL statements are entered in immediate execution mode and as the body lines of
+user defined functions.
+
+An APL statements starts out as a sequence of characters other than the
+statement separator ◊ (which, as the name suggests, separates different
+statements on the same line) and the end of line character (linefeed).
+The examples provided above were examples of APL statements.
+
+An example of a line with 3 statements (and no output) is this:
+
+«IN       A←1 ◊ B←2 ◊ C←3»
+«OU »
+
+
+The first thing that the APL interpreter does when a statement is entered
+is to convert the characters of the statement into an internal format
+called tokens. The conversion of a sequence of characters into a sequence
+of tokens, sometimes called lexical analysis, can lead to errors when
+characters that do not have a meaning in APL, are discovered:
+
+«IN       ∫ f(x) dx»
+«OU SYNTAX ERROR»
+
+The rules for tokenizing the input characters are relatively simple:
+
+«UL
+«LI APL literals are converted to a token that contains the APL value
+    represented by the literal (as discussed in previous chapters)»       
+«LI APL names are converted to a token that contains the name
+    (as discussed in previous chapters)»       
+«LI All other characters are converted to a token representing that character»
+»
+
+Tokenization is done because operation at the character level is relatively
+inefficient, while the internal token format can be parsed more efficiently.
+In compiled languages tokenization and parsing are both performed by the
+compiler and the efficiency of the internal representation is not relevant
+for the efficiency of the compiled program. APL is interpreted, however,
+part of the parsing is performed at runtime and the purpose of tokenization
+is to perform as much analysis of a statement as possible when the statement
+is entered rather than later (and possibly repeatedly) when the statement
+is executed.
+
+As an example, the statement
+
+«IN       VARIABLE←1 2 'Hello' (2 'world')»
+«OU »
+
+is converted into 3 tokens:
+«»
+«»
+«TO VARIABLE»«TO ←»«TO 1 2 'Hello' (2 'world')»
+«»
+«»
+This is possible because the somewhat complicated looking value
+1 2 'Hello' (2 'world') consists of literals only and a single nested
+value can be created at tokenization time. If there were functions or names
+between the literals then the literals left or right of the functions or
+names would have shown up in different tokens:
+
+«IN       VARIABLE←1 2 ⍴ 'Hello' (2 'world')»
+«OU »
+«»
+«TO VARIABLE»«TO ←»«TO 1 2»«TO ⍴»«TO 'Hello' (2 'world')»
+«»
+«»
+In immediate execution mode, the token sequence created by the tokenization
+of the input line is immediatly executed, and there seems to be no difference
+between tokenization time and execution time. With user defined functions,
+however, it pais off to separate lexical analysis from parsing at execution
+time.
+
+The token sequence for the statement is then stored until it is executed.
+Conceptually, the first step when a statement is executed it to group (also
+called "bind") certain token to other token. APL has no operator precedence
+like other languages (the large number of built-in functions and operators
+in APL would have made that a tedious task). However the binding of token
+plays a similar role. Unfortunately the ISO standard fails to mention the
+rules for token binding, but we can refer to the the descriptions of
+commercial APL vendors. According to those descriptions the binding of token
+has the following precedences (from strongest binding to weakest binding):
+
+«OL
+«LI bracket index to the token on its left»
+«LI assignment arrow to the token on its left»
+«LI dyadic operator to its right operand (the function right of it)»
+«LI items in vector notation»
+«LI operator to its left operand (the function left of it)»
+«LI function to its left argument (the value left of it)»
+«LI function to its right argument (the value right of it)»
+«LI assignment arrow to the token on its right»
+»
+
+When we refer to, for example, a "token on its left", then this means when
+the token becomes available. In the following example:
+
+«IN       (2 × 1 2 3 4)[2]»
+«OU 4»
+
+the bracket index [2] has the strongest binding. Before that binding can
+take place, however, the expression in parentheses, (2 × 1 2 3 4), must
+have been evaluated (yielding 2 4 6 8). The vector 2 4 6 8 is then indexed by
+bracket index [2] to give the final result 4.
+«»
+«»
+You may also wonder why operators bind to their operand but not to their
+arguments. The reason is that:
+
+«UL
+«LI when a dyadic operator binds to its right operand, then the bound dyadic
+    operator has become a monadic operator.»
+«LI when a monadic operator (or a bound dyadic operator) binds to its left
+    operand, then the bound monadic operator has become a function.»
+«LI the bound monadic operator, then binds to its left and right arguments like
+    every other dyadic or monadic function.»
+»
+
+Note also that the actual number of binding strengths is smaller than the list
+above suggets. This is because some bindings are not in conflict with each
+other. For example, vector notation binds two or more values to each other,
+while the next lower binding strength binds an operator to a function.
+These two bindings could have been given the same binding strength.
+«»
+«»
+Some bindings merely define the order in which things are evaluated while
+others produce an intermediate result. For example, the binding of a dyadic
+function to its left argument forces a left argument in parentheses to be
+evaluated first and then the result to be passed to the dyadic function.
+On the other hand, the binding of a bracket index to the value or lvalue
+on its left forces immediate computation of the bracket index as desribed
+above.
+«»
+«»
+After binding the token, the evalution of APL statements is performed 
+according to the "golden rule" of APL:
+«»
+«»
+«BO The rightmost function whose argument(s) are available is evaluated
+    first.
+    «»
+    The function and its argument(s) are then replaced by the result
+    returned by the function, which causes the arguments of other functions
+    to become available.
+»
+«»
+«»
+In short this means that APL statements are evaluated from right to left.
+Another consequence is that parentheses around the right argument of a
+function have no effect, while parentheses around the left argument make
+a difference:
+
+«IN       (1 + 2) × (3 + 4)   ⍝ 3 × 7»
+«OU 21»
+«IN       (1 + 2) × 3 + 4     ⍝ 3 × 7»
+«OU 21»
+«IN       1 + 2 × (3 + 4)     ⍝ 1 + (2 × 7)»
+«OU 15»
+«IN       1 + 2 × 3 + 4       ⍝ 1 + (2 × 7)»
+«OU 15»
+
+
+«H3 User-defined Functions»
+
+Programming in APL is primarily concerned with the creation and test of
+user defined functions. The immediate execution mode used so far is helpful
+to try things out, but not for larger applications.
+«»
+«»
+For the sake of explanation we define a user defined function to be a
+non-empty sequence of «BO function lines» numbered 0, 1, .... The first
+line is called function header and determines the following properties of
+the function:
+
+«UL
+«LI if the function returns a value or not»
+«LI the valence (number of value arguments): niladic, monadic, or dyadic»
+«LI the name of the function or operator»
+«LI the number of function arguments: none (normal function),
+    1 (monadic operator), or 2 (dyadic operator)»
+«LI the optional axis of the function or monadic operator»
+«LI the names of local variables of the function»
+» 
+
+«H4 Function Header»
+
+The header line of a user defined function consists of several APL names
+interleaved with some of the characters ←, (, ), [, ], and ;.
+The names can are freely chosen by the user; we will use the names
+Z, A, LO, F, X, B, RO, C, and D in our examples with the following meaning:
+
+«UL
+«LI Z: the name of the result»
+«LI A: the left value argument»
+«LI LO: the left function argument of an operator»
+«LI RO: the right function argument of a dyadic operator»
+«LI F: the name of the function»
+«LI X: the axis argument»
+«LI B: the right value argument»
+«LI C: the first local variable»
+«LI D: the second local variable...»
+» 
+
+The syntax of the function header is then:
+«»
+«»function-header ::= result-spec function-and-args local-variables
+«»result-spec ::= empty | Z ←
+«»function-and-args ::= function-spec | function-spec B | A function-spec B
+«»function-spec ::= function | ( LO function ) | ( LO function RO )
+«»function ::= F | F [ X ]
+«»local-variables ::= empty | ; C local-variables
+«»
+«»
+Additional requirements are that all names in the header must be different and
+that no name (with the exception of names for local variable names) must be
+user defined names. The names of a local variable may be the name of system
+variables, but must not be the name of a system function or primitive.
+«»
+The possible combinations in the syntax above produces 2×3×3×2 = 36
+different header variants. Of these 36 variants the following 7 combinations
+are not allowed:
+
+«UL
+«LI niladic function with axis»
+«LI monadic operator operator with no value argument»
+«LI monadic operator operator with axis and no value argument»
+«LI dyadic operator operator with no value argument»
+«LI dyadic operator operator with axis and no value argument»
+«LI dyadic operator operator with axis and one value argument»
+«LI dyadic operator operator with axis and two value arguments»
+»
+
+The following sections describe the different fields of the function header.
+Before that we briefly describe one way to create and display user defined
+functions.
+
+«H5 Creating and displaying user defined functions: ⎕FX and ⎕CR»
+
+The monadic system function ⎕FX creates a new Fnction. The single argument of
+⎕FX is either a character matrix (and the first row of that matrix is the
+function header) or a nested vector of character vectors (and the first
+character vector is then the header of the function. The remaining rows of
+the matrix or the remaining character vectors are the body lines of the
+function being created. On success ⎕FX returns the name of the function
+that it has created.
+
+Monadic ⎕CR displays the header and body lines of a function. The single
+argument of ⎕CR is the name of the function to be displayed. ⎕CR returns
+a matrix with the function header and the function body.
+
+«IN       ⎕FX 'FOO' '1 + 2'»
+«OU FOO»
+«IN       ⎕CR 'FOO'»
+«OU FOO  
+1 + 2»
+
+«H5 Result Specification»
+
+The example above has created a function FOO that had no result specification.
+Such functions can be executed, but they do not return a result and attempts
+to use their return fails:
+
+«IN       ⎕FX 'FOO' '1 + 2'   ⍝ create FOO without result»
+«OU FOO»
+«IN       FOO  ⍝ call FOO»
+«OU 3»
+«IN       VAR←FOO  ⍝ try to use FOO's result»
+«OU 3
+SYNTAX ERROR
+      VAR←FOO
+      ^   ^»
+
+The reason why some value (3) was displayed is not because FOO has returned
+the result 3, but because the stateent '1 + 2' was not assigned to a variable
+and therefore printed.
+
+For a function to return a result, two conditions must be met:
+
+«OL
+«LI the header must contain a result specification, and»
+«LI the variable named in the result specification must be assigned during
+    the execution of the function»
+»
+
+The specification is a user defined name followed by the assignment arrow ←:
+
+«IN       ⎕CR ⎕FX 'Z←FOO' 'Z←1 + 2'   ⍝ define FOO returning result Z»
+«OU Z←FOO  
+Z←1 + 2»
+
+«IN       FOO  ⍝ call FOO»
+«OU 3»
+
+«IN       VAR←FOO  ⍝ try to use FOO's result»
+«OU »
+«IN       VAR   ⍝ show result»
+«OU 3»
+
+The output of simply calling FOO is the same as before. However, the value
+3 is now the result of FOO and not the result of the statement Z←1 + 2 inside
+FOO. This is because the assignment Z←1 + 2 is now a committed value which
+is not printed.
+
+If the function header has a result specification, but the result variable is
+not assigned, then 
+
+«IN       ⎕CR ⎕FX 'Z←FOO' '1 + 2'   ⍝ define FOO returning Z without assigning Z»
+«OU Z←FOO
+1 + 2»
+
+«IN       FOO  ⍝ call FOO»
+«OU 3»
+
+«IN       VAR←FOO  ⍝ try to use FOO's result»
+«OU 3
+SYNTAX ERROR
+      VAR←FOO
+      ^   ^»
+
+«H5 Local Variables»
+
+The function header can optionally contain a list of local variables. Every
+local variable is appended with a semicolon in front of it. For example:
+
+«IN7 A FOO B;C;D»
+«OU7 »
+is the header of a dyadic function (with arguments A and B) and local
+variables C and D.
+
+At this point we should revesl that every user defined name, and also the
+APL system variables have an associated stack, The stack is created when
+the name is first mentioned (or from the outset if the name refers to an
+APL system variable).
+
+When a user defined function is called, then the stack of the following
+names is pushed:
+
+«UL
+«LI the function result»
+«LI the function arguments»
+«LI the local variabes, and»
+«LI labels (see below)»
+»
+
+After pushing a name, the name refers to nothing, which is usually changed
+shortly after pushing it. The previous values of the name are now
+inaccessible. Only the item on the top of a name's stack can be accessed.
+
+The name on the top of the stack remains accessigble until either another
+(or the same) function with the same name in its local variables is called,
+or else until the functions returns. If the function returns then the stacks
+of all its local variable names are poped and the previous top of the stack
+becomes accessible again.
+
+«H5 The Nabla Editor»
+
+⎕FX is not the only way to create user defined functions. ⎕FX is good if
+the function created is small and is often the only way to create new
+functions programmatically. An alternative present in many APL interpreters
+is the interactive Nabla editor. The Nabla editor is started by entering
+the character Nable (∇) and the full header of the new function. The Nabla
+editor has simple commands for displaying, inserting, editing, and deleting
+function lines.
+
+The Nabla editor has a prompt which is the next line to be added or changed;
+This line is displayed in square bracket. If the user wants to change a
+different line than the line proposed by the Nabla editor then the desired
+is entered (again in square brackets). The following is an overview of
+Nabla editor commands:
+«»
+«TAB 
+  «TR»  «TH Command» «TH Effect»
+  «TR»  «TD [N]»     «TD Continue editing with line N»
+  «TR»  «TD [⎕]»     «TD display all function lines»
+  «TR»  «TD [⎕N]»    «TD display function lines up to to N»
+  «TR»  «TD [N⎕]»    «TD display function lines starting at line N»
+  «TR»  «TD [N⎕M]»   «TD display function lines from line N to line M»
+  «TR»  «TD [∆N]»    «TD delete function lines N»
+  «TR»  «TD [N∆M]»   «TD delete function lines from line N to line M»
+  «TR»  «TD [→]»     «TD discard changes»
+  «TR»  «TD ∇»       «TD close the Nabla editor»
+»
+«»
+«»
+The line numbers N and M are including. Entering a non-existing fractionnal
+number, like in [3.5] creates a new line between the closest existing lines
+(between lines 3 and 4 of there are no other fractional line numbers between
+2 and 4). When the Nabla editor is closed then all lines will be renumbered,
+starting with header line 0.
+«»
+Normally you will use your own editor like Vim or emacs to edit APL functions
+and then cut-and-paste them into the window in which APL runs, or start APL
+with a text file containing function definitions. The commands of the
+Nabla editor are then irrelevant, but you still use ∇ to create new functions.
+«»
+For example, say you have a normal (but UTF8 encoded) text file containing
+the following:
+«IN7
+
+∇ Z←FOO
+  1 + 2
+∇»
+«OU»
+«»
+That defines the same function as;
+«IN7
+ ⎕FX 'Z←FOO' '1 + 2'
+»
+«OU»
+«»
+but is more readable, in particular when functions become longer. We will
+use this format for displaying functions. The above format is also suitable
+for displaying APL code snippets in emails or on web pages. The reader can
+simply cut-and-paste then into his interpreter (providedm of course, that
+the interpreter uses UTF8 encoded Unicode and not special APL fonts).
+
+«H5 Function Body»
+
+The remaining lines of a function are called the «BO function body».
+The function body consists of 0 or more «BO function lines». Every
+function line consists of 0 or more APL statements like those already
+discussed above.
+
+A function line can have an optional «BO label». A label is another kind
+of local variables that is automatically created, cannot be changed, and
+has an integer value that is equal to the number of the line on which it
+was written. For example:
+
+«IN7  ∇A FOO1 B;C;D
+L1: 'line 1'
+L2: 'line 2'
+ X←L2
+ ∇»
+«OU7 »
+
+The hypothetical function FOO1 above has two arguments A and B, explicit
+local variables C and D, and labels L1 and L2. The syntax for a label is a
+name followed by a colon. The variable X would get the values 2 because
+label L2 is on line 2. labels are read-only; attempting to change their
+value yields a SYNTAX ERROR. Labels will be discussed together with branching
+in functions below.
+
+«H4 How Functions and Operators are Evaluated»
+
+The execution (or evaluation) of a function starts when the function name
+is detected in a statement and all its arguments (as defined by the header
+of the function) are present. Lets assume we define FOO like this:
+
+«OU8 )ERASE FOO»
+
+«IN ∇Z←A FOO B;C;D
+L1: 'line 1'
+L2: 'line 2'
+ X←L2
+ Z←42
+ ∇»
+«OU»
+
+Then we enter the following in immediate execution mode:
+
+«IN       (3 + 4) FOO 5»
+«OU line 1
+line 2
+42»
+
+The APL interpreter will see FOO, but it will notice that the left argument
+of FOO, i.e. (3 + 4,) is not yet available because the result of (3 + 4) has
+not yet being computed. The interpreter will therefore compute (3 + 4) first
+and replace it by 7. We have now:
+
+«IN7  7 FOO 5»
+«OU»
+
+The interpreter can now evaluate 7 FOO 5 (or some other function in the
+general case) as follows:
+
+«OL
+  «LI first the stacks of all names are pushed. In our example, the names
+      being pushed are Z, A, B, C, D, L1, and L2 (but not FOO!)»
+  «LI next the actual arguments of the function (7 and 5) are assigned to
+      the formal parameters (A and B) of the function. That is, A←7 and B←5.»
+  «LI the labels are assigned, i.e. L1←1 and L2←2.»
+  «LI (at this point, the function result Z and the local variables C and D
+      are undefined, while the function arguments A and B and the labels
+      have values)»
+  «LI the statements in the function body are executed, starting with the
+      first statement in the first line.»
+  «LI the function result Z, which may or may not be defined is stored in
+      a temporary location.»
+  «LI all stacks of all names that were pushed above are poped. They now have
+      the value they had when FOO was called.»
+  «LI the function and its arguments are replaced by the function result in
+      the temporary location.»
+»
+
+In our example, the following output is produced:
+
+«IN      (3 + 4) FOO 5»
+«OU line 1
+line 2
+42»
+
+The first two output lines ("line 1" and "line 2") are output from lines
+1 and 2 of FOO, while the last line is the return value from FOO which
+is displayed «BO after» FOO has returned.
+
+«H4 Branching»
+
+The examples of user defined funtcions given so far were "linear" by which
+we mean that the statements in the body of the function were executed one
+after the other until the end of the function was reached.
+«»
+In addition to that, APL provides a means to change the order of the
+normal program flow from the beginning of a function to its end: a
+computed branch.
+«»
+APL has been criticized for having only one way of changing the order of
+the program flow instead of many (like if/else, for, while, and case in C/C++).
+However the computed branch in APL is so powerful that it can easily emulate
+the multiple flow control statements in other languages. And the fact that APL
+works on larger data structures than skalars makes the low-level loops found
+in other languages obsolete.
+«»
+A £BO computed branch» is a statement that consists of a branch arrow (→) and
+a numeric APL value. A slightly different statement, called «BO Escape»
+consists of the same branch arrow, but without the value. For example:
+
+«UL
+  «LI →L   ⍝ computed branch (to label L)»
+  «LI →    ⍝ escape»
+»
+«H5 Labels»
+
+The numeric argument of a computed branch is a line number. So →1 is a
+branch to line 1 of some user defined function. However, absolute line
+numbers should never be used for branching. The reason is that APL renumbers
+the lines of a user defined function when new lines are added between
+existing lines. The line numbers in branches are not renumbered when
+renumbering lines and as a consequence the absolute line numbers in branches
+become invalid. This problem can easily be solved by using labels.
+«»
+A label is an APL name followed by : (colon) at the beginning of a line.
+The label is an automatically created local variable whose value is
+the line number on which it was written and the variable is read-only
+(i.e. one cannot assign a new value to it). Unlike absolute line numbers,
+labels move with their line when other lines are inserted before them and
+as a consequence renumbering lines does not harm labels.
+«»
+Example:
+
+«IN »
+«OU7 ∇FOO
+    'line 1' ◊ →3    ⍝ Bad: absolute branch to line 3
+    'line 2' ◊ →L3   ⍝ Good: branch to line 3 with label L3
+L3: 'line 3' ◊ 
+∇»
+
+If another line is inserted before the first line, then FOO becomes:
+
+«IN »
+«OU7 ∇FOO
+    'new line before line 1' 
+    'line 1' ◊ →3    ⍝ Bad: absolute branch to line 3
+    'line 2' ◊ →L3   ⍝ Good: branch to line 3 with label L3
+L3: 'line 3' ◊ 
+∇»
+
+The previous line 3 with label L3 is now line 4. The branch to the absolute
+line number 3, i.e. →3, now branches to the line before the line with label
+L3 (ehich is most likely wrong now), while the branch to label L3 remains
+correct.
+
+«H5 Computed Branch (inside a function)»
+
+Inside a function a computed branch →EXPR where EXPR is some APL expression
+is executed as follows.
+
+«UL
+  «LI first the expression EXPR is evaluated. If the evaluation of EXPR fails
+      then this is an error and execution of the function stops as described
+      later on.
+  »
+      
+  «LI Let X be the result of evaluating EXPR. Then:
+    «UL
+      «LI if X is empty, then execution continues with the next statement after
+          the branch. This is can be used to emulate if statement in C++»
+      «LI if X is not empty, then it is expected to be a vector whose first
+          element is an integer L.»
+        «UL
+           «LI if L is a valied line number, (a number between 1 and
+                the number of lines in the function (including)) then
+               then a branch to that line is performed. That is, iexecution
+               continues at the first statement on the new line.»
+           «LI Otherwise, i.e. L is ≤ 0 or larger than the number of lines
+               in the function, then execution of the function is ended.»
+        »
+    »
+  »
+»
+
+In the following we explain some examples of frequently used branch patterns
+and their "equivalents" in C/C++
+
+«IN »
+«OU7
+                 ⍝ meaning                C/C++
+
+ →0              ⍝ leave the function     return;
+ →(COND)⍴0       ⍝ dito if COND           if (COND) return;
+ →(COND)↓0       ⍝ dito if not COND       if (!COND) return;
+
+ →LAB            ⍝ goto line LAB          goto LAB;
+ →(COND)⍴LAB     ⍝ dito if COND           if (COND)   goto LAB;
+ →(COND)↓LAB     ⍝ dito if not COND       if (!COND)  goto LAB;
+
+ →⎕LC            ⍝ repeat current line
+ →(COND)⍴⎕LC     ⍝ dito if COND           do { current line } while (COND)
+
+ →⎕LC+1          ⍝ goto next line
+ →(COND)⍴⎕LC+1   ⍝ dito if COND           if (COND)     { rest-of-line }
+
+ →⎕LC-1          ⍝ goto previous line
+ →(COND)⍴⎕LC-1   ⍝ dito if COND
+
+ →(X=V1,V2 ...)/L1, L2, ...)   ⍝          switch(X) { case V1: goto L1; ... }
+»
+
+In the examples above COND is usually a boolean expression like A≤B.
+«»
+«»
+Since all APL comparison operators have negated forms (=/≠, ≤/&gt; &lt; etc.)
+the (COND)↓ patterns above are far less frequent then the (COND)⍴ patterns.
+Not also that the (COND)↓ only works for single line numbers (like 0 or LAB
+above) but NOT for possibly longer vectors like ⎕LC.
+«»
+«»
+The (COND)⍴ pattern also works for non-boolean integer expressions (like
+if (COND) with nob-integer COND in C/C++). The should not be used,
+however, if the integer COND is large because then the computation of
+⍴ takes a long time and all but the first element of COND is discarded.
+To avoid that, use 0≠COND instead of COND if COND may be a large integer.
+
+«H5 Computed Branch (outside a function)»
+
+If a computed branch statement is executed outside a function (for example
+after an error in a function interrupts the execution of the function and
+returns to immediate execution mode) then the branch is executed as if it
+were executed inside the interrupted function. An error is thrown if no
+interrupted function exists.
+«»
+«»
+This can be used to jump back (i.e. continue) the execution of a function
+that was interrupted (typically after removing the cause of the error).
+
+«H5 Escape (Unwind)»
+
+
+«H2 Commands»
+
+«IN       )SIC»
+«OU »
