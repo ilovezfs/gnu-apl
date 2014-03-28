@@ -1408,7 +1408,7 @@ UCS_string text;
         else        // fix failed
            {
              CERR << "   *** loading of native function " << text
-                  << " failed" << endl << endl;;
+                  << " failed" << endl << endl;
              if (d == 0)   symbol.pop(false);
              symbol.push();
            }

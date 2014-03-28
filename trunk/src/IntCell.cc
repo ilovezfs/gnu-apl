@@ -65,7 +65,7 @@ const APL_Integer this_val  = get_int_value();
         case CT_CHAR:    return ascending;   // never greater
         case CT_POINTER: return !ascending;
         case CT_CELLREF: DOMAIN_ERROR;
-        defaulkt:        Assert(0 && "Bad celltype");
+        default:         Assert(0 && "Bad celltype");
       }
 
 const Comp_result comp = compare(*other);

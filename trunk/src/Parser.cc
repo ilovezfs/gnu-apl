@@ -464,8 +464,8 @@ Parser::degrade_scan_reduce(Token_string & tos)
                  {
                    // the (back-) slash is a function, not an operator.
                    //
-                   const int funtag = tos[src].get_tag() & ~TC_MASK | TC_FUN12;
-                   tos[src].ChangeTag((TokenTag)funtag);
+                   const int ftag = (tos[src].get_tag() & ~TC_MASK) | TC_FUN12;
+                   tos[src].ChangeTag((TokenTag)ftag);
                  }
             }
        }

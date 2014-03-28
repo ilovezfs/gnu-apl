@@ -91,7 +91,7 @@ Nabla::edit()
             }
 
          if (const char * loc = execute_oper())
-            CERR << "execute_oper() failed at " << loc << endl;;
+            CERR << "execute_oper() failed at " << loc << endl;
        }
 
    Log(LOG_nabla)
