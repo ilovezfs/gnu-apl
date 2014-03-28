@@ -356,7 +356,7 @@ public:
    virtual uint32_t get__ASSIGNED__error() const   ///< dito
       { bad_get("ASSIGNED", "error");   return 0; }
    virtual string get__ASSIGNED__error_loc() const   ///< dito
-      { bad_get("ASSIGNED", "error_loc");   return string();; }
+      { bad_get("ASSIGNED", "error_loc");   return string(); }
 
 
 /// ⎕SVE

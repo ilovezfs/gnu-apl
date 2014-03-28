@@ -215,7 +215,7 @@ ComplexCell::greater(const Cell * other, bool ascending) const
         case CT_COMPLEX: break;
         case CT_POINTER: return !ascending;
         case CT_CELLREF: DOMAIN_ERROR;
-        defaulkt:        Assert(0 && "Bad celltype");
+        default:         Assert(0 && "Bad celltype");
       }
 
 const Comp_result comp = compare(*other);
@@ -758,7 +758,7 @@ UCS_string ucs(value.cpxp->real(), scaled_real, pctx);
 ColInfo info;
    info.flags |= CT_COMPLEX;
    if (scaled_real)   info.flags |= real_has_E;
-int int_fract = ucs.size();;
+int int_fract = ucs.size();
    info.real_len = ucs.size();
    info.int_len = ucs.size();
    loop(u, ucs.size())

@@ -86,7 +86,7 @@ const APL_Float this_val  = get_real_value();
         case CT_COMPLEX: break;
         case CT_POINTER: return !ascending;
         case CT_CELLREF: DOMAIN_ERROR;
-        defaulkt:        Assert(0 && "Bad celltype");
+        default:         Assert(0 && "Bad celltype");
       }
 
 const Comp_result comp = compare(*other);
@@ -486,7 +486,7 @@ ColInfo info;
 
    // assume integer.
    //
-int int_fract = ucs.size();;
+int int_fract = ucs.size();
    info.real_len = ucs.size();
    info.int_len = ucs.size();
    loop(u, ucs.size())

@@ -75,7 +75,7 @@ const ShapeItem vlen = value->element_count();
 
         // instead of testing signed < 0 and >= max, we test unsigned >= max.
         //
-        if (idx >= max_idx)   INDEX_ERROR;
+        if (idx >= (uint64_t)max_idx)   INDEX_ERROR;
 
         indices.push_back(idx*w);
       }

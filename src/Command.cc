@@ -716,7 +716,7 @@ Command::cmd_OFF(int exit_val)
 {
    cleanup();
    COUT << endl;
-   if (!silent)   COUT << _("Goodbye.") << endl;;
+   if (!silent)   COUT << _("Goodbye.") << endl;
    exit(exit_val);
 }
 //-----------------------------------------------------------------------------

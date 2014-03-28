@@ -405,7 +405,7 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
         return;
       }
 
-   if (value_count != dest_count)   LENGTH_ERROR;
+   if (!new_value->is_skalar() && value_count != dest_count)   LENGTH_ERROR;
 
    loop(d, dest_count)
       {

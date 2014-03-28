@@ -41,7 +41,7 @@ UCS_string line;
         const Unicode uni = ucs[t];
         switch (uni)
            {
-             case UNI_ASCII_CR: break;;
+             case UNI_ASCII_CR:                                         break;
              case UNI_ASCII_LF: text.push_back(line);   line.clear();   break;
              default: line.append(uni);
           }
@@ -279,7 +279,7 @@ UCS_string & message_2 = error.error_message_2;
 
    if (body[pc_from_to.high].get_Class() == TC_RETURN &&
        pc_from_to.high > pc_from_to.low)
-       pc_from_to.high = Function_PC(pc_from_to.high - 1);;
+       pc_from_to.high = Function_PC(pc_from_to.high - 1);
 
 /*
     The statement is stored in reverse order in the body:

@@ -1577,7 +1577,7 @@ Token
 Bif_F12_PICK::eval_B(Value_P B)
 {
 const ShapeItem len_B = B->element_count();
-const Shape it_shape = item_shape(B);;
+const Shape it_shape = item_shape(B);
 const Shape shape_Z = B->get_shape() + it_shape;
 
 Value_P Z(new Value(shape_Z, LOC));

@@ -300,7 +300,7 @@ Symbol::assign_indexed(IndexExpr & IX, Value_P B)   // A[IX;...] ← B
 Value_P A = get_apl_value();
    if (A->get_rank() != IX.value_count())   INDEX_ERROR;
 
-   // B must either B a skalar (and is then skalar extended to the size
+   // B must either be a skalar (and is then skalar extended to the size
    // of the updated area, or else have the shape of the concatenated index
    // items for example:
    //
@@ -309,7 +309,7 @@ Value_P A = get_apl_value();
    //
    if (1 && !B->is_skalar())
       {
-        // remove dimensions with len 1 from X's and B's shapes...
+        // remove dimensions with len 1 from the shapes of X and B...
         // if we see an empty Xn then we return.
         //
         Shape B1;
@@ -357,7 +357,8 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
 
    while (!mult.done())
       {
-        Cell & dest = A->get_ravel(mult.next());
+        const ShapeItem offset_A = mult.next();
+        Cell & dest = A->get_ravel(offset_A);
         dest.release(LOC);   // free sub-values etc (if any)
         dest.init(*cB);
         cB += incr_B;

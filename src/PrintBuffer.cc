@@ -171,7 +171,7 @@ const ShapeItem rows = ec/cols;
               else
                 {
                   CERR << "??celltype= " << cell.get_classname()
-                       << " ??" << endl;;
+                       << " ??" << endl;
                   DOMAIN_ERROR;
                 }
 

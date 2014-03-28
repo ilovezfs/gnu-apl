@@ -58,7 +58,7 @@ PointerCell::greater(const Cell * other, bool ascending) const
         case CT_COMPLEX: return ascending;
         case CT_POINTER: break;   // continue below
         case CT_CELLREF: DOMAIN_ERROR;
-        defaulkt:        Assert(0 && "Bad celltype");
+        default:         Assert(0 && "Bad celltype");
       }
 
    // at this point both cells are pointer cells.
