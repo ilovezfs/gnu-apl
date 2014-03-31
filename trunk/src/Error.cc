@@ -43,8 +43,16 @@ Error::print(ostream & out) const
              return;
            }
 
-        if (error_message_1.size())   out << error_message_1 << endl;
-        else                          out << error_name(error_code) << endl;
+        if (error_message_1.size())
+           {
+             out << error_message_1 << endl;
+           }
+        else
+           {
+             out << error_name(error_code);
+             if (Workspace::more_error().size())   out << UNI_ASCII_PLUS;
+             out << endl;
+           }
 
         if (parser_loc)   out << "   Parser LOC: " << parser_loc << endl;
         if (print_loc)    out << "   Print LOC:  " << print_loc  << endl;

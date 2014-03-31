@@ -50,17 +50,21 @@ Nabla::Nabla(const UCS_string & cmd)
      first_command(cmd),
      current_line(1)
 {
+   Workspace::more_error().clear();
 }
 //-----------------------------------------------------------------------------
 void
 Nabla::throw_edit_error(const char * loc)
 {
-   COUT << "DEFN ERROR" << endl
+   COUT << "DEFN ERROR+" << endl
         << "      " << first_command << endl
         << "      " << UCS_string(first_command.size() - 1, UNI_ASCII_SPACE)
         << "^" << endl;
 
-   Workspace::more_error() = UCS_string(loc);
+   if (Workspace::more_error().size() == 0)
+      {
+        Workspace::more_error() = UCS_string(loc);
+      }
 
    throw_define_error(fun_name, first_command, loc);
 }
@@ -70,8 +74,11 @@ Nabla::edit()
 {
    if (const char * loc = start())
       {
-        CERR << "bad editor command '" << first_command
-             << "' : problem '" << loc << "'" << endl;
+        if (Workspace::more_error().size() == 0)
+           {
+             CERR << "bad editor command '" << first_command
+                  << "' : problem detected at '" << loc << "'" << endl;
+           }
         throw_edit_error(loc);
       }
 
