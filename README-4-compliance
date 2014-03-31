@@ -16,6 +16,8 @@ The following features may be added (if requested):
 The following features are planned:
 -----------------------------------
 
+)COPY and )LOAD to understand apl files created by )DUMP
+
 The following issues are known and maybe fixed mid-term:
 --------------------------------------------------------
 
