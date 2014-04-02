@@ -61,6 +61,22 @@ AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
 
+# check if rdtsc (read CPU cycle coubter is available.
+# This is expected only on Intel CPUs
+AC_MSG_CHECKING([whether CPU has rdtsc (read cycle counter) opcode])
+AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[]],
+	[[unsigned int lo, hi;
+          __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));]]
+    )],
+    [HAVE_rdtsc=yes],
+    [HAVE_rdtsc=no]
+    )
+AC_MSG_RESULT([$HAVE_rdtsc])
+if test "x$HAVE_rdtsc" = "xyes"; then
+   AC_DEFINE_UNQUOTED([HAVE_RDTSC], [1], [CPU has rdtsc opcode])
+fi
+
 # enable readline support if libreadline is present and the user
 # has not disabled it.
 #

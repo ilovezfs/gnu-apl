@@ -94,6 +94,9 @@
 /* Define to 1 if you have the `pow' function. */
 /* #undef HAVE_POW */
 
+/* CPU has rdtsc opcode */
+#define HAVE_RDTSC 1
+
 /* Define to 1 if you have the `sqrt' function. */
 /* #undef HAVE_SQRT */
 

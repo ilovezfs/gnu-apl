@@ -328,7 +328,37 @@ list_functions(ostream & out)
 Token
 eval_B(Value_P B)
 {
-   return list_functions(CERR);
+const APL_Integer what = B->get_ravel(0).get_int_value();
+   switch(what)
+      {
+        // what < 0 are "hacker functions" that should no be used by
+        // normal mortals.
+        //
+        case -2: // return CPU frequency
+             {
+               timeval tv = { 0, 100000 }; // 100 ms
+               const uint64_t from = cycle_counter();
+               select(0, 0, 0, 0, &tv);
+               const uint64_t to = cycle_counter();
+
+               Value_P Z(new Value(LOC));
+               new (&Z->get_ravel(0))   IntCell(10*(to - from));
+               Z->check_value(LOC);
+               return Token(TOK_APL_VALUE1, Z);
+             }
+
+        case -1: // return CPU cycle counter
+             {
+               Value_P Z(new Value(LOC));
+               new (&Z->get_ravel(0))   IntCell(cycle_counter());
+               Z->check_value(LOC);
+               return Token(TOK_APL_VALUE1, Z);
+             }
+
+        case 0: return list_functions(CERR);
+      }
+
+   DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 Token

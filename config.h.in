@@ -93,6 +93,9 @@
 /* Define to 1 if you have the `pow' function. */
 #undef HAVE_POW
 
+/* CPU has rdtsc opcode */
+#undef HAVE_RDTSC
+
 /* Define to 1 if you have the `sqrt' function. */
 #undef HAVE_SQRT
 

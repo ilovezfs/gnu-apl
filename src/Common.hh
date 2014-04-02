@@ -75,6 +75,21 @@ void common_delete(void * p);
 /// current time as microseconds since epoch
 APL_time_us now();
 
+/// CPU cycle counter (if present)
+#if HAVE_RDTSC
+inline uint64_t cycle_counter()
+{
+unsigned int lo, hi;
+   __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+   return ((uint64_t)hi << 32) | lo;
+}
+
+#else
+
+# define cycle_counter() (-1)
+
+#endif
+
 /// Year, Month, Day, hour, minute, second, millisecond
 struct YMDhmsu
 {
