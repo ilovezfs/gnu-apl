@@ -18,6 +18,8 @@ The following features are planned:
 
 )COPY and )LOAD to understand apl files created by )DUMP
 
+Support for SCAR format (to exchange data with Dyalog APL and APL2000).
+
 The following issues are known and maybe fixed mid-term:
 --------------------------------------------------------
 

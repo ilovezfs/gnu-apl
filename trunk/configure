@@ -18024,6 +18024,40 @@ _ACEOF
 fi
 
 
+# check if rdtsc (read CPU cycle coubter is available.
+# This is expected only on Intel CPUs
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether CPU has rdtsc (read cycle counter) opcode" >&5
+$as_echo_n "checking whether CPU has rdtsc (read cycle counter) opcode... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+unsigned int lo, hi;
+          __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  HAVE_rdtsc=yes
+else
+  HAVE_rdtsc=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_rdtsc" >&5
+$as_echo "$HAVE_rdtsc" >&6; }
+if test "x$HAVE_rdtsc" = "xyes"; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_RDTSC 1
+_ACEOF
+
+fi
+
 # enable readline support if libreadline is present and the user
 # has not disabled it.
 #
