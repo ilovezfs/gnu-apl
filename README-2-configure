@@ -47,6 +47,26 @@ ASSERT_LEVEL_WANTED=n
     ./configure ASSERT_LEVEL_WANTED=2
 
 
+CORE_COUNT_WANTED
+   This exprimental option specifies the number of CPU cores to be used.
+   The value is a number, 'all', 'argv', or 'syl'. The interpreter has 
+   sequential code and parallel code which is selected as follows:
+
+   value    code
+         0  sequential  (default, one core is used)
+         1  parallel    one core is used
+         N  parallel    N > 0 cores are used
+   all  -1  parallel    all existing cores are being used, 
+   argv -2  parallel    the number of cores can be set by command line option
+                        -cc N (same as all if -cc is not given).
+   syl  -3  parallel    the number of cores can be changed in APL via ⎕SYL,
+                        initially 1.
+
+   Example:
+
+   ./configure CORE_COUNT_WANTED=4
+
+
    CIN_COLOR_WANTED
   CERR_COLOR_WANTED
   COUT_COLOR_WANTED

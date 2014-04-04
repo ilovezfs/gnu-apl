@@ -757,6 +757,8 @@ COUT_COLOR_WANTED
 CIN_COLOR_WANTED
 CERR_COLOR_WANTED
 SHORT_VALUE_LENGTH_WANTED
+OPENMP
+CORE_COUNT_WANTED
 ASSERT_LEVEL_WANTED
 VF_TRACING_WANTED
 PRINT_SEMA_WANTED
@@ -933,6 +935,7 @@ DYNAMIC_LOG_WANTED
 PRINT_SEMA_WANTED
 VF_TRACING_WANTED
 ASSERT_LEVEL_WANTED
+CORE_COUNT_WANTED
 SHORT_VALUE_LENGTH_WANTED
 CERR_COLOR_WANTED
 CIN_COLOR_WANTED
@@ -1611,6 +1614,8 @@ Some influential environment variables:
               no
   ASSERT_LEVEL_WANTED
               Assert level (see README-2-configure) default: 1)
+  CORE_COUNT_WANTED
+              Core count (see README-2-configure) default: 0)
   SHORT_VALUE_LENGTH_WANTED
               Cellcount of short values (see README-2-configure) default: 12)
   CERR_COLOR_WANTED
@@ -5218,13 +5223,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:5221: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5226: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5224: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5229: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5227: output\"" >&5)
+  (eval echo "\"\$as_me:5232: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6429,7 +6434,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6432 "configure"' > conftest.$ac_ext
+  echo '#line 6437 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7690,11 +7695,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7693: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7698: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7697: \$? = $ac_status" >&5
+   echo "$as_me:7702: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8029,11 +8034,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8032: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8037: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8036: \$? = $ac_status" >&5
+   echo "$as_me:8041: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8134,11 +8139,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8137: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8142: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8141: \$? = $ac_status" >&5
+   echo "$as_me:8146: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8189,11 +8194,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8192: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8197: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8196: \$? = $ac_status" >&5
+   echo "$as_me:8201: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10573,7 +10578,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10576 "configure"
+#line 10581 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10669,7 +10674,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10672 "configure"
+#line 10677 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13559,11 +13564,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13562: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13567: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13566: \$? = $ac_status" >&5
+   echo "$as_me:13571: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13658,11 +13663,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13661: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13666: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13665: \$? = $ac_status" >&5
+   echo "$as_me:13670: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13710,11 +13715,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13713: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13718: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13717: \$? = $ac_status" >&5
+   echo "$as_me:13722: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17037,6 +17042,7 @@ for ac_header in 	    \
 	execinfo.h	    \
 	fcntl.h		    \
 	inttypes.h	    \
+	omp.h		    \
 	stdint.h	    \
 	stdlib.h	    \
         string.h	    \
@@ -17843,6 +17849,51 @@ _ACEOF
 
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for omp_set_num_threads in -lgomp" >&5
+$as_echo_n "checking for omp_set_num_threads in -lgomp... " >&6; }
+if test "${ac_cv_lib_gomp_omp_set_num_threads+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgomp  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char omp_set_num_threads ();
+int
+main ()
+{
+return omp_set_num_threads ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_gomp_omp_set_num_threads=yes
+else
+  ac_cv_lib_gomp_omp_set_num_threads=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_gomp_omp_set_num_threads" >&5
+$as_echo "$ac_cv_lib_gomp_omp_set_num_threads" >&6; }
+if test "x$ac_cv_lib_gomp_omp_set_num_threads" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBGOMP 1
+_ACEOF
+
+  LIBS="-lgomp $LIBS"
+
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for shm_open in -lrt" >&5
 $as_echo_n "checking for shm_open in -lrt... " >&6; }
 if test "${ac_cv_lib_rt_shm_open+set}" = set; then :
@@ -18220,6 +18271,23 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+# APL: number of cores ?
+
+if test "x$CORE_COUNT_WANTED" = "x";     then CORE_COUNT_WANTED=0;  fi
+if test "x$CORE_COUNT_WANTED" = "xall";  then CORE_COUNT_WANTED=-1; fi
+if test "x$CORE_COUNT_WANTED" = "xargv"; then CORE_COUNT_WANTED=-2; fi
+if test "x$CORE_COUNT_WANTED" = "xsyl";  then CORE_COUNT_WANTED=-3; fi
+
+cat >>confdefs.h <<_ACEOF
+#define CORE_COUNT_WANTED $CORE_COUNT_WANTED
+_ACEOF
+
+
+OPENMP=
+if test "x$CORE_COUNT_WANTED" != "x0"; then :
+  OPENMP="-fopenmp"
+
+fi
 
 # APL: desired cellcount of short values ?
 

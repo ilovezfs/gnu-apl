@@ -25,6 +25,7 @@ AC_CHECK_HEADERS([	    \
 	execinfo.h	    \
 	fcntl.h		    \
 	inttypes.h	    \
+	omp.h		    \
 	stdint.h	    \
 	stdlib.h	    \
         string.h	    \
@@ -56,6 +57,7 @@ AC_CHECK_LIB([blas],      [dcopy_])
 AC_CHECK_LIB([execinfo],  [backtrace])
 AC_CHECK_LIB([intl],      [libintl_gettext])
 AC_CHECK_LIB([m],         [acosh])
+AC_CHECK_LIB([gomp],      [omp_set_num_threads])
 AC_CHECK_LIB([rt],        [shm_open])
 AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
@@ -197,6 +199,19 @@ if test "x$ASSERT_LEVEL_WANTED" = "x"; then ASSERT_LEVEL_WANTED=1; fi
 AC_DEFINE_UNQUOTED([ASSERT_LEVEL_WANTED], [$ASSERT_LEVEL_WANTED],
                    [assert level])
 
+# APL: number of cores ?
+AC_ARG_VAR(CORE_COUNT_WANTED,
+   [ Core count (see README-2-configure) default: 0) ])
+if test "x$CORE_COUNT_WANTED" = "x";     then CORE_COUNT_WANTED=0;  fi
+if test "x$CORE_COUNT_WANTED" = "xall";  then CORE_COUNT_WANTED=-1; fi
+if test "x$CORE_COUNT_WANTED" = "xargv"; then CORE_COUNT_WANTED=-2; fi
+if test "x$CORE_COUNT_WANTED" = "xsyl";  then CORE_COUNT_WANTED=-3; fi
+AC_DEFINE_UNQUOTED([CORE_COUNT_WANTED], [$CORE_COUNT_WANTED],
+                   [core count])
+
+OPENMP=
+AS_IF(	[test "x$CORE_COUNT_WANTED" != "x0"],
+	[AC_SUBST([OPENMP], ["-fopenmp"])])
 
 # APL: desired cellcount of short values ?
 AC_ARG_VAR(SHORT_VALUE_LENGTH_WANTED,

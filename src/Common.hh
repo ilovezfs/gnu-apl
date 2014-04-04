@@ -45,6 +45,7 @@ enum { MAX_RANK = MAX_RANK_WANTED };
 
 #include "APL_types.hh"
 #include "Assert.hh"
+#include "Cores.hh"
 #include "Logging.hh"
 #include "SystemLimits.hh"
 

@@ -29,6 +29,7 @@ CollatingCache.cc			CollatingCache.hh	\
 Command.cc	    Command.def		Command.hh		\
 Common.cc				Common.hh		\
 ComplexCell.cc				ComplexCell.hh		\
+Cores.cc				Cores.hh		\
 DiffOut.cc				DiffOut.hh		\
 DynamicObject.cc			DynamicObject.hh	\
 					EOC_handler_args.hh	\
@@ -109,7 +110,10 @@ Workspace.cc				Workspace.hh
 update-svar_signals:
 	m4 -D protocol=Svar_signals udp_signal.m4 > Svar_signals.hh
 
-apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
+apl_CXXFLAGS =	-rdynamic \
+		$(GPROF_WANTED) \
+		-DSYSCONFDIR=\"$(sysconfdir)\" \
+		$(OPENMP)
 
 apl_LDFLAGS = $(GPROF_WANTED)
 apl_LDADD = $(LIBS) $(LIBREADLINE)

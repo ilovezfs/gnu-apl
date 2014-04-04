@@ -3,6 +3,9 @@
 /* assert level */
 #undef ASSERT_LEVEL_WANTED
 
+/* core count */
+#undef CORE_COUNT_WANTED
+
 /* define to enable dynamic logging */
 #undef DYNAMIC_LOG_WANTED
 
@@ -53,6 +56,9 @@
 /* Define to 1 if you have the `execinfo' library (-lexecinfo). */
 #undef HAVE_LIBEXECINFO
 
+/* Define to 1 if you have the `gomp' library (-lgomp). */
+#undef HAVE_LIBGOMP
+
 /* Define to 1 if you have the `intl' library (-lintl). */
 #undef HAVE_LIBINTL
 
@@ -89,6 +95,9 @@
 
 /* Define to 1 if you have the `munmap' function. */
 #undef HAVE_MUNMAP
+
+/* Define to 1 if you have the <omp.h> header file. */
+#undef HAVE_OMP_H
 
 /* Define to 1 if you have the `pow' function. */
 #undef HAVE_POW

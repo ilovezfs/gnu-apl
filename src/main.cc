@@ -382,6 +382,18 @@ show_configure_options()
 #endif
    << endl <<
 
+   "CORE_COUNT_WANTED=" << CORE_COUNT_WANTED <<
+#if   CORE_COUNT_WANTED == -3
+   "  (⎕SYL)"
+#elif CORE_COUNT_WANTED == -2
+   "  (argv (--cc))"
+#elif CORE_COUNT_WANTED == -1
+   "  (all)"
+#elif CORE_COUNT_WANTED == 0
+   "  (default: (sequential))"
+#endif
+   << endl <<
+
 #ifdef VF_TRACING_WANTED
    "    VF_TRACING_WANTED=yes"
 #else
@@ -425,7 +437,11 @@ _("usage: %s [options]\n"
    snprintf(cc, sizeof(cc), 
 _("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
    CERR << cc;
+#endif
 
+#if CORE_COUNT_WANTED == -2
+   CERR <<
+_("    --cc count           use count cores (default: all)\n");
 #endif
 
    snprintf(cc, sizeof(cc), _(
@@ -610,6 +626,7 @@ struct user_preferences
      do_Color(true),
      requested_id(0),
      requested_par(0),
+     requested_cc(CCNT_UNKNOWN),
      do_sv(true),
      daemon(false),
      append_summary(false),
@@ -629,7 +646,10 @@ struct user_preferences
    /// desired --par (⎕AI[1] and shared variable functions)
    int requested_par;
 
-   /// enable shared variables
+   /// desired core count
+   CoreCount requested_cc;
+
+   /// enable or disable shared variables
    bool do_sv;
 
    /// run as deamon
@@ -647,6 +667,42 @@ struct user_preferences
    /// safe mode
    bool safe_mode;
 };
+//-----------------------------------------------------------------------------
+static void
+init_OMP(const user_preferences  & up)
+{
+#ifdef MULTICORE
+
+# ifdef STATIC_CORE_COUNT
+
+CoreCount core_count_wanted = STATIC_CORE_COUNT;
+
+# elif CORE_COUNT_WANTED == -1  // all available cores
+
+const CoreCount core_count_wanted = max_cores();
+
+# elif CORE_COUNT_WANTED == -2  // --cc option
+
+const CoreCount core_count_wanted = (up.requested_cc == CCNT_UNKNOWN)
+                            ? max_cores()        // -cc option not given
+                            : up.requested_cc;   // --cc option value
+
+# elif CORE_COUNT_WANTED == -3  // ⎕SYL, initially 1
+
+const CoreCount core_count_wanted = CCNT_MIN;
+
+#else
+
+const CoreCount core_count_wanted = CCNT_MIN;
+
+#endif
+
+const CoreCount cores_available = setup_cores(core_count_wanted);
+   omp_set_dynamic(false);
+   omp_set_num_threads(cores_available);
+
+#endif // MULTICORE
+}
 //-----------------------------------------------------------------------------
 // read user preference file(s) if present
 void
@@ -972,7 +1028,6 @@ user_preferences up;
                  }
 
               up.requested_id = atoi(val);
-              continue;
             }
 #ifdef DYNAMIC_LOG_WANTED
          else if (!strcmp(opt, "-l"))
@@ -1010,16 +1065,27 @@ user_preferences up;
             {
               up.do_sv = false;
             }
+#if CORE_COUNT_WANTED == -2
+         else if (!strcmp(opt, "--cc"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "--cc without core count" << endl;
+                   return 4;
+                 }
+              up.requested_cc = (CoreCount)atoi(val);
+            }
+#endif
          else if (!strcmp(opt, "--par"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "--par without processor number" << endl;
-                   return 4;
+                   return 5;
                  }
               up.requested_par = atoi(val);
-              continue;
             }
          else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
             {
@@ -1080,7 +1146,7 @@ user_preferences up;
               else
                  {
                    CERR << _("--TM without test mode") << endl;
-                   return 5;
+                   return 6;
                  }
             }
          else if (!strcmp(opt, "--TR"))
@@ -1103,14 +1169,14 @@ user_preferences up;
               else
                  {
                    CERR << _("-w without milli(seconds)") << endl;
-                   return 6;
+                   return 7;
                  }
             }
          else
             {
               CERR << _("unknown option '") << opt << "'" << endl;
               usage(argv[0]);
-              return 7;
+              return 8;
             }
        }
 
@@ -1175,6 +1241,9 @@ user_preferences up;
 
    Log(LOG_startup)   CERR << "PID is " << getpid() << endl;
    Log(LOG_argc_argv)   show_argv(argc, argv);
+
+   // init OMP (will do nothing if OMP is not configured)
+   init_OMP(up);
 
    TestFiles::testcase_count = TestFiles::test_file_names.size();
    if (up.randomize_testfiles)   TestFiles::randomize_files();
