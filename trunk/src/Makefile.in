@@ -80,12 +80,13 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-Cell.$(OBJEXT) apl-CharCell.$(OBJEXT) \
 	apl-CollatingCache.$(OBJEXT) apl-Command.$(OBJEXT) \
 	apl-Common.$(OBJEXT) apl-ComplexCell.$(OBJEXT) \
-	apl-DiffOut.$(OBJEXT) apl-DynamicObject.$(OBJEXT) \
-	apl-Error.$(OBJEXT) apl-Executable.$(OBJEXT) \
-	apl-FloatCell.$(OBJEXT) apl-Function.$(OBJEXT) \
-	apl-DerivedFunction.$(OBJEXT) apl-Id.$(OBJEXT) \
-	apl-IndexExpr.$(OBJEXT) apl-IndexIterator.$(OBJEXT) \
-	apl-Input.$(OBJEXT) apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
+	apl-Cores.$(OBJEXT) apl-DiffOut.$(OBJEXT) \
+	apl-DynamicObject.$(OBJEXT) apl-Error.$(OBJEXT) \
+	apl-Executable.$(OBJEXT) apl-FloatCell.$(OBJEXT) \
+	apl-Function.$(OBJEXT) apl-DerivedFunction.$(OBJEXT) \
+	apl-Id.$(OBJEXT) apl-IndexExpr.$(OBJEXT) \
+	apl-IndexIterator.$(OBJEXT) apl-Input.$(OBJEXT) \
+	apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
 	apl-LibPaths.$(OBJEXT) apl-Logging.$(OBJEXT) \
 	apl-LvalCell.$(OBJEXT) apl-main.$(OBJEXT) \
 	apl-Malloc_hooks.$(OBJEXT) apl-Nabla.$(OBJEXT) \
@@ -196,6 +197,7 @@ CERR_COLOR_WANTED = @CERR_COLOR_WANTED@
 CFLAGS = @CFLAGS@
 CIN_COLOR_WANTED = @CIN_COLOR_WANTED@
 CLEAR_EOL_WANTED = @CLEAR_EOL_WANTED@
+CORE_COUNT_WANTED = @CORE_COUNT_WANTED@
 COUT_COLOR_WANTED = @COUT_COLOR_WANTED@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -249,6 +251,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENMP = @OPENMP@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -354,6 +357,7 @@ CollatingCache.cc			CollatingCache.hh	\
 Command.cc	    Command.def		Command.hh		\
 Common.cc				Common.hh		\
 ComplexCell.cc				ComplexCell.hh		\
+Cores.cc				Cores.hh		\
 DiffOut.cc				DiffOut.hh		\
 DynamicObject.cc			DynamicObject.hh	\
 					EOC_handler_args.hh	\
@@ -422,7 +426,11 @@ Value.cc				Value.hh		\
 ValueHistory.cc				ValueHistory.hh		\
 Workspace.cc				Workspace.hh
 
-apl_CXXFLAGS = -rdynamic $(GPROF_WANTED) -DSYSCONFDIR=\"$(sysconfdir)\"
+apl_CXXFLAGS = -rdynamic \
+		$(GPROF_WANTED) \
+		-DSYSCONFDIR=\"$(sysconfdir)\" \
+		$(OPENMP)
+
 apl_LDFLAGS = $(GPROF_WANTED)
 apl_LDADD = $(LIBS) $(LIBREADLINE)
 AM_MAKEFLAGS = -j 2
@@ -534,6 +542,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ComplexCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Cores.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DerivedFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DiffOut.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DynamicObject.Po@am__quote@
@@ -861,6 +870,20 @@ apl-ComplexCell.obj: ComplexCell.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ComplexCell.cc' object='apl-ComplexCell.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ComplexCell.obj `if test -f 'ComplexCell.cc'; then $(CYGPATH_W) 'ComplexCell.cc'; else $(CYGPATH_W) '$(srcdir)/ComplexCell.cc'; fi`
+
+apl-Cores.o: Cores.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Cores.o -MD -MP -MF $(DEPDIR)/apl-Cores.Tpo -c -o apl-Cores.o `test -f 'Cores.cc' || echo '$(srcdir)/'`Cores.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Cores.Tpo $(DEPDIR)/apl-Cores.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Cores.cc' object='apl-Cores.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Cores.o `test -f 'Cores.cc' || echo '$(srcdir)/'`Cores.cc
+
+apl-Cores.obj: Cores.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Cores.obj -MD -MP -MF $(DEPDIR)/apl-Cores.Tpo -c -o apl-Cores.obj `if test -f 'Cores.cc'; then $(CYGPATH_W) 'Cores.cc'; else $(CYGPATH_W) '$(srcdir)/Cores.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Cores.Tpo $(DEPDIR)/apl-Cores.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Cores.cc' object='apl-Cores.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Cores.obj `if test -f 'Cores.cc'; then $(CYGPATH_W) 'Cores.cc'; else $(CYGPATH_W) '$(srcdir)/Cores.cc'; fi`
 
 apl-DiffOut.o: DiffOut.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DiffOut.o -MD -MP -MF $(DEPDIR)/apl-DiffOut.Tpo -c -o apl-DiffOut.o `test -f 'DiffOut.cc' || echo '$(srcdir)/'`DiffOut.cc
