@@ -50,34 +50,47 @@ AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([floor memset munmap pow sqrt strchr strerror])
 
-# Checks for libraries.
+# Checks for libraries, less relevant first (to be last on linker command)
+#
+AC_CHECK_LIB([socket],    [socket])   # for Solaris
+AC_CHECK_LIB([nsl],       [yp_all])   # for Solaris
+AC_CHECK_LIB([curses],    [setupterm])
+
 AC_CHECK_LIB([lapack],    [dgelsy_])
 AC_CHECK_LIB([blas],      [dcopy_])
 #AC_CHECK_LIB([gfortran], [_gfortran_transpose])
-AC_CHECK_LIB([execinfo],  [backtrace])
+
 AC_CHECK_LIB([intl],      [libintl_gettext])
-AC_CHECK_LIB([m],         [acosh])
+AC_CHECK_LIB([execinfo],  [backtrace])
 AC_CHECK_LIB([gomp],      [omp_set_num_threads])
+AC_CHECK_LIB([m],         [acosh])
 AC_CHECK_LIB([rt],        [shm_open])
 AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
 
-# check if rdtsc (read CPU cycle coubter is available.
+# check if rdtsc (read CPU cycle counter is available.
 # This is expected only on Intel CPUs
 AC_MSG_CHECKING([whether CPU has rdtsc (read cycle counter) opcode])
 AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[]],
 	[[unsigned int lo, hi;
           __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));]]
-    )],
-    [HAVE_rdtsc=yes],
-    [HAVE_rdtsc=no]
-    )
+    )], [HAVE_rdtsc=yes], [HAVE_rdtsc=no])
 AC_MSG_RESULT([$HAVE_rdtsc])
 if test "x$HAVE_rdtsc" = "xyes"; then
    AC_DEFINE_UNQUOTED([HAVE_RDTSC], [1], [CPU has rdtsc opcode])
 fi
+
+# see if arg 3 of tputs is (*)(int) or (*)(char)
+AC_MSG_CHECKING([type of arg3 in tputs(0, 0, (*)(arg3))])
+AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[#include <term.h>],
+                      [extern int arg3(int);]],
+ 	             [[tputs(0, 0, arg3);]])],
+                     [TPUTS_arg3=int], [TPUTS_arg3=char])
+AC_MSG_RESULT([$TPUTS_arg3])
+AC_DEFINE_UNQUOTED([TPUTS_arg3], [$TPUTS_arg3], [arg3 of tputs()])
 
 # enable readline support if libreadline is present and the user
 # has not disabled it.

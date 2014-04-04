@@ -382,7 +382,7 @@ show_configure_options()
 #endif
    << endl <<
 
-   "CORE_COUNT_WANTED=" << CORE_COUNT_WANTED <<
+   "    CORE_COUNT_WANTED=" << CORE_COUNT_WANTED <<
 #if   CORE_COUNT_WANTED == -3
    "  (⎕SYL)"
 #elif CORE_COUNT_WANTED == -2
@@ -697,9 +697,8 @@ const CoreCount core_count_wanted = CCNT_MIN;
 
 #endif
 
-const CoreCount cores_available = setup_cores(core_count_wanted);
    omp_set_dynamic(false);
-   omp_set_num_threads(cores_available);
+const CoreCount cores_available = setup_cores(core_count_wanted);
 
 #endif // MULTICORE
 }

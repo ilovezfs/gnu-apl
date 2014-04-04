@@ -560,7 +560,9 @@ const char * dirs[] = { "", "/APs" };
                 dirent * entry = readdir(dir);
                 if (entry == 0)   break;   // directory done
 
+#ifdef _DIRENT_HAVE_D_TYPE
                 if (entry->d_type != DT_REG)   continue; // not a regular file
+#endif
 
                 char filename[PATH_MAX + 1];
                 snprintf(filename, PATH_MAX, "%s/%s", dirname, entry->d_name);

@@ -350,7 +350,7 @@ const int64_t a = A->get_int_value();
    if (b == 0)   { new (Z) IntCell(1);   return; }   // N^0 = 1
    if (b == 1)   { new (Z) IntCell(a);   return; }   // N^1 = N
 
-const double power = pow(a, b);
+const double power = pow((double)a, (double)b);
    if (power > LARGE_INT || b < 0)
       {
         new (Z) FloatCell(power);

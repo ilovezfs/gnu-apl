@@ -25,6 +25,11 @@
 #include <curses.h>
 #include <term.h>
 
+// curses #defines erase() on Solaris, conflicting with vector::erase()
+#ifdef erase
+#undef erase
+#endif
+
 #else
 
 #define tputs(x, y, z)
@@ -183,14 +188,14 @@ int ret = setupterm(NULL, fileno(stdout), NULL);
 }
 //-----------------------------------------------------------------------------
 int
-Output::putc_stderr(int ch)
+Output::putc_stderr(TPUTS_arg3 ch)
 {
    cerr << (char)ch;
    return ch;
 }
 //-----------------------------------------------------------------------------
 int
-Output::putc_stdout(int ch)
+Output::putc_stdout(TPUTS_arg3 ch)
 {
    cout << (char)ch;
    return ch;
@@ -222,6 +227,9 @@ Output::reset_colors()
       }
 }
 //-----------------------------------------------------------------------------
+/// make Solaris happy
+#define tparm10(x, y) tparm(x, y, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
 void
 Output::set_color_mode(Output::ColorMode mode)
 {
@@ -238,33 +246,33 @@ Output::set_color_mode(Output::ColorMode mode)
         switch(color_mode)
            {
              case COLM_INPUT:
-                  tputs(tparm(set_foreground, color_CIN_foreground),
+                  tputs(tparm10(set_foreground, color_CIN_foreground),
                               1, putc_stdout);
-                  tputs(tparm(set_background, color_CIN_background),
+                  tputs(tparm10(set_background, color_CIN_background),
                               1, putc_stdout);
                   tputs(clr_eol, 1, putc_stdout);
                   break;
 
              case COLM_OUTPUT:
-                  tputs(tparm(set_foreground, color_COUT_foreground),
+                  tputs(tparm10(set_foreground, color_COUT_foreground),
                               1, putc_stdout);
-                  tputs(tparm(set_background, color_COUT_background),
+                  tputs(tparm10(set_background, color_COUT_background),
                               1, putc_stdout);
                   tputs(clr_eol, 1, putc_stdout);
                   break;
 
              case COLM_ERROR:
-                  tputs(tparm(set_foreground, color_CERR_foreground),
+                  tputs(tparm10(set_foreground, color_CERR_foreground),
                               1, putc_stderr);
-                  tputs(tparm(set_background, color_CERR_background),
+                  tputs(tparm10(set_background, color_CERR_background),
                               1, putc_stderr);
                   tputs(clr_eol, 1, putc_stderr);
                   break;
 
              case COLM_UERROR:
-                  tputs(tparm(set_foreground, color_UERR_foreground),
+                  tputs(tparm10(set_foreground, color_UERR_foreground),
                               1, putc_stdout);
-                  tputs(tparm(set_background, color_UERR_background),
+                  tputs(tparm10(set_background, color_UERR_background),
                               1, putc_stdout);
                   tputs(clr_eol, 1, putc_stdout);
                   break;
