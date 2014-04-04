@@ -929,6 +929,12 @@ const APL_Integer qio = Workspace::get_IO();
 
              ravel_count_limit = cells;
            }
+#if CORE_COUNT_WANTED == -3
+        else if (x == SYL_CURRENT_CORES)   // number of cores
+           {
+             setup_cores((CoreCount)b);
+           }
+#endif
         else
            {
              INDEX_ERROR;
