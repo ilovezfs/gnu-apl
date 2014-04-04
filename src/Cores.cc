@@ -46,7 +46,7 @@ CoreCount setup_cores(CoreCount count)
       }
 
    __core_count = count;
-   get_CERR() << "CPU core count is: " << __core_count;
+   get_CERR() << "CPU core count is: " << __core_count << endl;
    return count;
 }
 //-----------------------------------------------------------------------------

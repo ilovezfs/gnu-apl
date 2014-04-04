@@ -26,7 +26,7 @@ syl1("largest numeric exponent"               , LARGEST_EXPO      , 308         
 syl1("max. shared variable size (bytes)"      , MAX_SVAR_SIZE     , 65000               )
 syl2("max. cores (per ./configure)"           , __CMAX1           , CORE_COUNT_WANTED   )
 syl2("max. cores (per max_cores())"           , __CMAX2           , max_cores()         )
-syl2("current cores (per core_count())"       , __CMAX3           , core_count()        )
+syl2("current cores (per core_count())"       , CURRENT_CORES     , core_count()        )
 
 #undef syl1
 #undef syl2
