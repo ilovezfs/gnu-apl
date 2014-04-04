@@ -237,6 +237,8 @@ Value::Value(const char * loc, Value_how how)
              new (&get_ravel(1)) CharCell(UNI_ASCII_CR);
              new (&get_ravel(2)) CharCell(UNI_ASCII_LF);
              break;
+
+        default: Assert(0);
       }
 
    check_value(LOC);

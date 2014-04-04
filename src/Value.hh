@@ -449,7 +449,7 @@ protected:
       {
 #define stv_def(x) Value_how_ ## x,
 #include "StaticValues.def"
-        Value_how_MAX   ///< all methof numbers are below this value
+        Value_how_MAX   ///< all method numbers are below this value
       };
 
    /// special constructor for static values (Zero, One etc.)

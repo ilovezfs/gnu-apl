@@ -21,6 +21,13 @@
    // to maintain )SAVE / )LOAD compatibility, append new items at the end
    // of their character!
 
+
+// make Solaris happy
+//
+#ifdef ES
+#undef ES
+#endif
+
 //      Id              Unicode             = Value    Macro
 //----------------------------------------------------------
 id_def( No_ID         , ---               , = 0      , pp )

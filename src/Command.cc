@@ -648,9 +648,16 @@ DIR * dir = opendir(path.c_str());
          dirent * entry = readdir(dir);
          if (entry == 0)   break;   // directory done
 
-         if (entry->d_type != DT_REG)   continue; // not a regular file
-
          const int dlen = strlen(entry->d_name);
+
+#ifdef _DIRENT_HAVE_D_TYPE
+         if (entry->d_type != DT_REG)   continue; // not a regular file
+#else
+         if (dlen == 1 && d_name[0] == '.')   continue;
+         if (dlen == 2 && d_name[0] == '.'
+                       && d_name[1] == '.')   continue;
+#endif
+
          int next_col = ((col + 9)/9)*9;
          if (col && (next_col + dlen) > print_width)
             {

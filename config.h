@@ -51,6 +51,9 @@
 /* Define to 1 if you have the `blas' library (-lblas). */
 #define HAVE_LIBBLAS 1
 
+/* Define to 1 if you have the `curses' library (-lcurses). */
+#define HAVE_LIBCURSES 1
+
 /* Define to 1 if you have the `dl' library (-ldl). */
 #define HAVE_LIBDL 1
 
@@ -72,6 +75,9 @@
 /* Define to 1 if you have the `ncurses' library (-lncurses). */
 #define HAVE_LIBNCURSES 1
 
+/* Define to 1 if you have the `nsl' library (-lnsl). */
+#define HAVE_LIBNSL 1
+
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #define HAVE_LIBPTHREAD 1
 
@@ -80,6 +86,9 @@
 
 /* Define to 1 if you have the `rt' library (-lrt). */
 #define HAVE_LIBRT 1
+
+/* Define to 1 if you have the `socket' library (-lsocket). */
+/* #undef HAVE_LIBSOCKET */
 
 /* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */
@@ -187,6 +196,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
+
+/* arg3 of tputs() */
+#define TPUTS_arg3 int
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE

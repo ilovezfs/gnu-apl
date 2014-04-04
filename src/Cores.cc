@@ -46,7 +46,10 @@ CoreCount setup_cores(CoreCount count)
       }
 
    __core_count = count;
-   get_CERR() << "CPU core count is: " << __core_count << endl;
+   omp_set_num_threads(__core_count);
+   get_CERR() << "OMP thread count set to " << __core_count << "("
+              << max_cores() << " cores)" << endl;
+   
    return count;
 }
 //-----------------------------------------------------------------------------
