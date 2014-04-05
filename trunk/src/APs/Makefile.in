@@ -286,9 +286,9 @@ common_files = APmain.cc APmain.hh	\
 AP100_SOURCES = AP100.cc $(common_files)
 AP210_SOURCES = AP210.cc $(common_files)
 APnnn_SOURCES = APnnn.cc $(common_files)
-AP100_CXXFLAGS = -I .. -g2 -DAP_NUM=100
-AP210_CXXFLAGS = -I .. -g2 -DAP_NUM=210
-APnnn_CXXFLAGS = -I .. -g2 -DAP_NUM=0
+AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100
+AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210
+APnnn_CXXFLAGS = -I .. -g -O2 -DAP_NUM=0
 AM_MAKEFLAGS = -j 2
 all: all-am
 

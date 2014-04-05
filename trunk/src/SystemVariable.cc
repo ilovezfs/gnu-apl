@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 */
 
 #include <langinfo.h>
+#include <locale.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/resource.h>   // for ⎕WA
@@ -550,7 +551,7 @@ Value_P old_value = get_apl_value();
         if (same)   return;
       }
 
-char new_locale[len + 1];
+DynArray(char, new_locale, len + 1);
    loop(l, len)
       {
          new_locale[l] = new_value->get_ravel(l).get_char_value();
@@ -560,7 +561,7 @@ char new_locale[len + 1];
 
    new_locale[len] = 0;
 
-const char * locale = setlocale(LC_ALL, new_locale);
+const char * locale = setlocale(LC_ALL, &new_locale[0]);
    if (locale == 0)   DOMAIN_ERROR;
 
    // setlocale() seems to mess up readline, so we need to re-init it
@@ -949,6 +950,7 @@ const Shape sh(SYL_MAX, 2);
 Value_P Z( new Value(sh, LOC));
 
 #define syl2(n, e, v) syl1(n, e, v)
+#define syl3(n, e, v) syl1(n, e, v)
 #define syl1(n, _e, v) \
   new (Z->next_ravel()) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC))); \
   new (Z->next_ravel()) IntCell(v);

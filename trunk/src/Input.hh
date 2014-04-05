@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "Assert.hh"
 #include "UCS_string.hh"

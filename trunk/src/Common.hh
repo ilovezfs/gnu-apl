@@ -37,7 +37,13 @@ enum { MAX_RANK = MAX_RANK_WANTED };
 #include <stdio.h>
 #include <stdlib.h>
 
+// if someone (like curses on Solaris) has #defined erase() then
+// #undef it because vector would not be happy with it
+#ifdef erase
+#undef erase
+#endif
 #include <vector>
+
 #include <complex>
 #include <iostream>
 #include <iomanip>
@@ -124,6 +130,43 @@ using namespace std;
 inline bool is_iPAD_char(Unicode uni)
    { return ((uni >= UNI_iPAD_U2) && (uni <= UNI_iPAD_U1)) ||
             ((uni >= UNI_iPAD_U0) && (uni <= UNI_iPAD_L9)); }
+
+//-----------------------------------------------------------------------------
+// dynamic arrays. Some platforms don't support them and we fix that here.
+
+#if HAVE_DYNAMIC_ARRAYS
+   //
+   // the platform supports dynamic arrays
+   //
+# define DynArray(Type, Name, Size) Type Name[Size];
+
+#else // not HAVE_DYNAMIC_ARRAYS
+   //
+   // the platform does not support dynamic arrays
+   //
+   template<typename Type>
+   class __DynArray
+      {
+        public:
+           __DynArray(ShapeItem len)
+              { data = new Type[len]; }
+
+           const Type & operator[](ShapeItem idx) const
+               { return data[idx]; }
+
+           Type & operator[](ShapeItem idx)
+               { return data[idx]; }
+
+           ~__DynArray()
+              { delete[] data; }
+
+        protected:
+           Type * data;
+      };
+
+# define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
+
+#endif // HAVE_DYNAMIC_ARRAYS
 
 //-----------------------------------------------------------------------------
 

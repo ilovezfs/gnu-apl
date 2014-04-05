@@ -21,7 +21,6 @@
 #include <string.h>
 
 #include <iomanip>
-#include <vector>
 
 #include "Common.hh"
 #include "Error.hh"

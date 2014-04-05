@@ -22,7 +22,6 @@
 #define __VALUE_HH_DEFINED__
 
 #include <memory>   // for shared_ptr
-#include <vector>
 
 #include "Cell.hh"
 #include "Common.hh"

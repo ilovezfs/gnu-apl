@@ -27,11 +27,18 @@ enum
 {
 #define syl1(_n, e, v) e = v,
 #define syl2(_n, e, v)
+#define syl3(_n, e, v)
 #include "SystemLimits.def"
 
    DEFAULT_Quad_PP = 10,
    DEFAULT_Quad_PW = 79,
 };
+
+// int64_enums not supported by Solaris
+#define syl1(_n, e, v)
+#define syl2(_n, e, v)
+#define syl3(_n, e, v) const int64_t e = v;
+#include "SystemLimits.def"
 
 #define MAX_Quad_CT     (1.0e-9)
 #define DEFAULT_Quad_CT (1.0e-13)

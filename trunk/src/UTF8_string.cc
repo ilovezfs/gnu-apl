@@ -21,8 +21,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <vector>
-
 #include "Avec.hh"
 #include "Common.hh"
 #include "Error.hh"

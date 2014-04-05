@@ -21,8 +21,6 @@
 #ifndef __SYSTEM_FUNCTION_HH_DEFINED__
 #define __SYSTEM_FUNCTION_HH_DEFINED__
 
-#include <vector>
-
 #include "Common.hh"
 #include "Function.hh"
 #include "Value.hh"

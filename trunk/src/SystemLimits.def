@@ -20,8 +20,8 @@ syl2("max. length of filenames (paths)"       , __FNMAX           , FILENAME_MAX
 syl1("max. number of shared variables"        , MAX_SVARS_OFFERED , 64                  )
 syl1("max. number of APs"                     , MAX_ACTIVE_PROCS  , 16                  )
 syl1("max. operators per statement"           , MAX_FUN_OPER      , 16                  )
-syl1("largest integer"                        , LARGE_INT         ,  9200000000000000000LL)
-syl1("smallest (negative) integer"            , SMALL_INT         , -9200000000000000000LL)
+syl3("largest integer"                        , LARGE_INT         ,  9200000000000000000LL)
+syl3("smallest (negative) integer"            , SMALL_INT         , -9200000000000000000LL)
 syl1("largest numeric exponent"               , LARGEST_EXPO      , 308                 )
 syl1("max. shared variable size (bytes)"      , MAX_SVAR_SIZE     , 65000               )
 syl2("max. cores (per ./configure)"           , __CMAX1           , CORE_COUNT_WANTED   )
@@ -30,5 +30,6 @@ syl2("current cores (per core_count())"       , CURRENT_CORES     , core_count()
 
 #undef syl1
 #undef syl2
+#undef syl3
 
 

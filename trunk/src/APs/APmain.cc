@@ -35,6 +35,7 @@
 #include <vector>
 
 #include "APmain.hh"
+#include "Common.hh"
 #include "Svar_DB.hh"
 #include "Svar_signals.hh"
 
@@ -286,8 +287,8 @@ Svar_partner this_proc;
 
    for (bool goon = true; goon;)
        {
-         uint8_t buffer[Signal_base::get_class_size()];
-         const Signal_base * signal = Signal_base::recv(sock, buffer, 10000);
+         DynArray(uint8_t, buff, Signal_base::get_class_size());
+         const Signal_base * signal = Signal_base::recv(sock, &buff[0], 10000);
          if (signal == 0)   // no signal for 10 seconds
             {
               // if our parent has died, then we are done

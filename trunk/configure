@@ -18275,6 +18275,37 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+
+# see if the compiler supports dynamic arrays
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if compiler supports dynamic arrays" >&5
+$as_echo_n "checking if compiler supports dynamic arrays... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+extern int len();
+int
+main ()
+{
+int array[len()];
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  DynArrays=yes
+else
+  DynArrays=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $DynArrays" >&5
+$as_echo "$DynArrays" >&6; }
+if test "x$DynArrays" = "xyes"; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DYNAMIC_ARRAYS 1
+_ACEOF
+
+fi
+
 # enable readline support if libreadline is present and the user
 # has not disabled it.
 #

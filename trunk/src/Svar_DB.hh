@@ -27,8 +27,6 @@
 #include <semaphore.h>
 #include <stdint.h>
 
-#include <vector>
-
 #include <iostream>
 
 using namespace std;

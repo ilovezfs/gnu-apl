@@ -21,7 +21,6 @@
 #ifndef __NATIVE_FUNCTION_HH_DEFINED__
 #define __NATIVE_FUNCTION_HH_DEFINED__
 
-#include <vector>
 #include <sys/types.h>
 
 #include "Executable.hh"
