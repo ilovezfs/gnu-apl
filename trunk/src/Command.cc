@@ -653,9 +653,9 @@ DIR * dir = opendir(path.c_str());
 #ifdef _DIRENT_HAVE_D_TYPE
          if (entry->d_type != DT_REG)   continue; // not a regular file
 #else
-         if (dlen == 1 && d_name[0] == '.')   continue;
-         if (dlen == 2 && d_name[0] == '.'
-                       && d_name[1] == '.')   continue;
+         if (dlen == 1 && entry->d_name[0] == '.')   continue;
+         if (dlen == 2 && entry->d_name[0] == '.'
+                       && entry->d_name[1] == '.')   continue;
 #endif
 
          int next_col = ((col + 9)/9)*9;
