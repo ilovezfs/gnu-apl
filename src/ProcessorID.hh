@@ -91,8 +91,6 @@ protected:
 
 // the normal ProcessorID to be used by the APL interpreter
 
-#include <vector>
-
 /// a mapping between the left argument of ⎕SVO or ⎕SVQ and AP numbers
 struct SvoPid
 {

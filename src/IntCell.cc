@@ -219,7 +219,7 @@ void IntCell::bif_floor(Cell * Z) const
 //-----------------------------------------------------------------------------
 void IntCell::bif_exponential(Cell * Z) const
 {
-   new (Z) FloatCell(exp(value.ival));
+   new (Z) FloatCell(exp((double)value.ival));
 }
 //-----------------------------------------------------------------------------
 void
@@ -231,7 +231,7 @@ IntCell::bif_nat_log(Cell * Z) const
       }
    else if (value.ival < 0)
       {
-        const double real = log(-value.ival);
+        const double real = log(-((double)value.ival));
         const double imag = M_PI;   // argz(-1)
         new (Z) ComplexCell(real, imag);
       }

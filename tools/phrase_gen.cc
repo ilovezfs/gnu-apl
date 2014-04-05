@@ -112,7 +112,7 @@ print_phrases(FILE * out)
 //-----------------------------------------------------------------------------
 int test_modu(int modu)
 {
-int tab[modu];
+int * tab = new int[modu];
 
    for (int m = 0; m < modu; ++m)   tab[m] = -1;
 
@@ -126,10 +126,12 @@ int tab[modu];
             }
          else                  // collision
             {
+              delete [] tab;
               return false;
             }
        }
 
+   delete [] tab;
    return true;
 }
 //-----------------------------------------------------------------------------
@@ -219,7 +221,7 @@ int MODU = TC_MAX_PHRASE;
 "  //  --------------------------------------------------\n");
 
    {
-     const _phrase * table[MODU];
+     const _phrase ** table = new const _phrase *[MODU];
      for (int i = 0; i < MODU; ++i)   table[i] = phrase_tab;
 
      for (int i = 0; i < PHRASE_COUNT; ++i)
@@ -232,7 +234,7 @@ int MODU = TC_MAX_PHRASE;
          {
            print_entry_macro(out, *table[i]);
          }
-
+      delete [] table;
    }
 
 

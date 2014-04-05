@@ -73,7 +73,7 @@ AC_CHECK_LIB([dl],        [dlopen])
 # This is expected only on Intel CPUs
 AC_MSG_CHECKING([whether CPU has rdtsc (read cycle counter) opcode])
 AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM([[]],
+	[AC_LANG_PROGRAM([[]],
 	[[unsigned int lo, hi;
           __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));]]
     )], [HAVE_rdtsc=yes], [HAVE_rdtsc=no])
@@ -90,7 +90,21 @@ AC_COMPILE_IFELSE(
  	             [[tputs(0, 0, arg3);]])],
                      [TPUTS_arg3=int], [TPUTS_arg3=char])
 AC_MSG_RESULT([$TPUTS_arg3])
-AC_DEFINE_UNQUOTED([TPUTS_arg3], [$TPUTS_arg3], [arg3 of tputs()])
+AC_DEFINE_UNQUOTED([TPUTS_arg3], [$TPUTS_arg3],
+                   [Define the type of arg3 in tputs(i, 0, (*)(arg3))])
+
+
+# see if the compiler supports dynamic arrays
+AC_MSG_CHECKING([if compiler supports dynamic arrays])
+AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[extern int len();]],
+ 	             [[int array[len()];]])],
+                     [DynArrays=yes], [DynArrays=no])
+AC_MSG_RESULT([$DynArrays])
+if test "x$DynArrays" = "xyes"; then
+   AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS], [1],
+                      [Define to 1 if the compiler supports dynamic arrays])
+fi
 
 # enable readline support if libreadline is present and the user
 # has not disabled it.

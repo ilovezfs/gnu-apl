@@ -19,7 +19,6 @@
 */
 
 #include <stdio.h>
-#include <vector>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -1007,7 +1006,7 @@ UTF8_string utf((const UTF8 *)start, len);
    utf.erase(len);
 
 UCS_string ucs(utf);
-   munmap(start, st.st_size);
+   munmap((char *)start, st.st_size);
    close(in);
 
 int error_line = -1;

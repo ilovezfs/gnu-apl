@@ -1462,8 +1462,8 @@ Quad_NL::do_quad_NL(Value_P A, Value_P B)
    if (!B->is_int_vector(0.1) && !B->is_int_skalar(0.1))   DOMAIN_ERROR;
 
 uint32_t symbol_count = Workspace::symbols_allocated();
-Symbol * table[symbol_count];
-   Workspace::get_all_symbols(table, symbol_count);
+DynArray(Symbol *, table, symbol_count);
+   Workspace::get_all_symbols(&table[0], symbol_count);
 
    // remove symbols that are erased or not in A (if provided). We remove
    // by overriding the symbol pointer to be erased by the last pointer in

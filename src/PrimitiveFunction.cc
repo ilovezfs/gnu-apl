@@ -2282,10 +2282,10 @@ const ShapeItem len_BZ = B->get_shape_item(0);
       }
 
 const ShapeItem comp_len = B->element_count()/len_BZ;
-const Cell * array[len_BZ];
+DynArray(const Cell *, array, len_BZ);
    loop(bz, len_BZ)   array[bz] = &B->get_ravel(bz*comp_len);
 
-   Cell::heapsort(array, len_BZ, ascending, &comp_len, &Cell::greater_vec);
+   Cell::heapsort(&array[0], len_BZ, ascending, &comp_len, &Cell::greater_vec);
 
 Value_P Z(new Value(len_BZ, LOC));
 
@@ -2326,10 +2326,10 @@ CollatingCache cc_cache(A->get_rank(), comp_len);
         new (&B1->get_ravel(b)) IntCell(b1);
       }
 
-const Cell * array[len_BZ];
+DynArray(const Cell *, array, len_BZ);
    loop(bz, len_BZ)   array[bz] = &B1->get_ravel(bz*comp_len);
 
-   Cell::heapsort(array, len_BZ, ascending, &cc_cache,
+   Cell::heapsort(&array[0], len_BZ, ascending, &cc_cache,
                   &CollatingCache::greater_vec);
 
 Value_P Z(new Value(len_BZ, LOC));
@@ -2937,7 +2937,10 @@ Bif_F12_FORMAT::Format_LIFER::fill_data_fields(double value,
                 UCS_string & data_expo)
 {
 char format[40];
-char data_buf[int_part.out_len + 1 + fract_part.out_len + 1 + exponent.out_len + 1];
+const int data_buf_len = int_part.out_len + 1        // 123.
+                       + fract_part.out_len          // 456
+                       + 1 + exponent.out_len + 1;   // E-22
+DynArray(char, data_buf, data_buf_len);
 char * fract_end = 0;
 
    if (exponent.size())
@@ -2948,10 +2951,10 @@ char * fract_end = 0;
                                   (unsigned long)fract_part.size());
         Assert(flen < sizeof(format));   // format was big enough.
 
-        const int dlen = snprintf(data_buf, sizeof(data_buf), format, value);
-        Assert(dlen < sizeof(data_buf));
+        const int dlen = snprintf(&data_buf[0], data_buf_len, format, value);
+        Assert(dlen < data_buf_len);
 
-        char * ep = strchr(data_buf, 'E');
+        char * ep = strchr(&data_buf[0], 'E');
         Assert(ep);
         fract_end = ep++;
         if      (*ep == '+')   ++ep;
@@ -2971,12 +2974,12 @@ char * fract_end = 0;
                                   (unsigned long)fract_part.size());
         Assert(flen < sizeof(format));   // assume no snprintf() overflow
 
-        const int dlen = snprintf(data_buf, sizeof(data_buf), format, value);
-        Assert(dlen < sizeof(data_buf));
-        fract_end = data_buf + dlen;
+        const int dlen = snprintf(&data_buf[0], data_buf_len, format, value);
+        Assert(dlen < data_buf_len);
+        fract_end = &data_buf[dlen];
       }
 
-char * int_end = strchr(data_buf, '.');
+char * int_end = strchr(&data_buf[0], '.');
    if (fract_part.size() == 0)
       {
         Assert(int_end == 0);
@@ -2996,7 +2999,7 @@ char * int_end = strchr(data_buf, '.');
         loop(f, flen)   data_fract.append(Unicode(fract_digits[f]));
       }
 
-const int ilen = int_end - data_buf;
+const int ilen = int_end - &data_buf[0];
 
    // insert leading zeros so that we will have at least min_len digits
    // after appending the integer data.

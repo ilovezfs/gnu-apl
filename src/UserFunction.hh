@@ -21,7 +21,6 @@
 #ifndef __USERFUNCTION_HH_DEFINED__
 #define __USERFUNCTION_HH_DEFINED__
 
-#include <vector>
 #include <sys/types.h>
 
 #include "Error.hh"

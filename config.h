@@ -27,6 +27,9 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 
+/* Define to 1 if the compiler supports dynamic arrays */
+#define HAVE_DYNAMIC_ARRAYS 1
+
 /* Define to 1 if you have the <execinfo.h> header file. */
 #define HAVE_EXECINFO_H 1
 
@@ -197,7 +200,7 @@
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
-/* arg3 of tputs() */
+/* Define the type of arg3 in tputs(i, 0, (*)(arg3)) */
 #define TPUTS_arg3 int
 
 /* Enable extensions on AIX 3, Interix.  */

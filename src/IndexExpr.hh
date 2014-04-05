@@ -21,8 +21,6 @@
 #ifndef __INDEXEXPR_HH_DEFINED__
 #define __INDEXEXPR_HH_DEFINED__
 
-#include <vector>
-
 #include "Cell.hh"
 #include "DynamicObject.hh"
 #include "Value.hh"

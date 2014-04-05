@@ -41,17 +41,23 @@ struct CDR_header
 {
    uint32_t be_ptr;    ///< a value to figure the endian of the machine
    uint32_t be_nb;     ///< number of bytes in big endian
-   uint32_t be_nelm;   ///< number of elements in big endian
+   int32_t be_nelm;   ///< number of elements in big endian
    uint8_t  type;      ///< CDR_type
    uint8_t  rank;      ///< rank of the value
    uint8_t  fill[2];   ///< fill bytes
-   uint32_t dim[0];    ///< shape of the value
 
-   // return the number of bytes in host endian
-   uint32_t get_nb() const     { return get_be32((const uint8_t *)&be_nb); }
+   // some compilers do not allow zero -sized arrays like dim[].
+   // Since dim is not used we just ignore it.
+   //
+// uint32_t dim[0];    ///< shape of the value
 
-   // return the number of elements in host endian
-   uint32_t get_nelm() const   { return get_be32((const uint8_t *)&be_nelm); }
+   /// return the number of bytes in host endian
+   uint32_t get_nb() const
+      { return get_be32((const uint8_t *)&be_nb); }
+
+   /// return the number of elements in host endian
+   uint32_t get_nelm() const
+      { return get_be32((const uint8_t *)&be_nelm); }
 
    /// convert big endian 32 bit value to 32 bit host value (== ntohl())
    static uint32_t get_be32(const uint8_t * data)

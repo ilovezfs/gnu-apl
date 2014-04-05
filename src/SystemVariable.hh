@@ -569,6 +569,7 @@ public:
 protected:
    enum SYL_INDEX
       {
+#define syl3(n, e, v) syl1(n, e, v)
 #define syl2(n, e, v) syl1(n, e, v)
 #define syl1(_n, e, _v) SYL_ ## e,
 #include "SystemLimits.def"

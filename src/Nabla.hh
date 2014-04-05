@@ -21,8 +21,6 @@
 #ifndef __NABLA_HH_DEFINED__
 #define __NABLA_HH_DEFINED__
 
-#include <vector>
-
 #include "UCS_string.hh"
 
 class Symbol;

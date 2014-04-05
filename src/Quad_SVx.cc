@@ -265,8 +265,9 @@ bool got_event = false;
        START_EVENT_REPORTING_c start(event_sock, event_sock.get_local_port());
      }
 
-     uint8_t buf[Signal_base::get_class_size()];
-     const Signal_base * resp = Signal_base::recv(event_sock, buf, wait / 1000);
+     DynArray(uint8_t, buf, Signal_base::get_class_size());
+     const Signal_base * resp = Signal_base::recv(event_sock, &buf[0],
+                                                  wait / 1000);
 
      if (resp)   // got event
         {

@@ -21,8 +21,6 @@
 #ifndef __WORKSPACE_HH_DEFINED__
 #define __WORKSPACE_HH_DEFINED__
 
-#include <vector>
-
 #include "PrimitiveOperator.hh"
 #include "QuadFunction.hh"
 #include "Quad_RL.hh"

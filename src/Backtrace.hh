@@ -21,8 +21,9 @@
 #ifndef __BACKTRACE_HH_DEFINED__
 #define __BACKTRACE_HH_DEFINED__
 
-#include <vector>
 #include <stdint.h>
+
+#include "Common.hh"
 
 /// show the current function call stack.
 class Backtrace
@@ -60,7 +61,7 @@ protected:
       };
 
    /// a mapping from PCs to source lines.
-   static std::vector<PC_src> pc_2_src;
+   static vector<PC_src> pc_2_src;
 };
 
 #endif // __BACKTRACE_HH_DEFINED__

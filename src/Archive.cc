@@ -315,8 +315,8 @@ XML_Saving_Archive::save_symtab(const SymbolTable & symtab)
    // collect all symbols in this symbol table.
    //
 int symbol_count = symtab.symbols_allocated();
-Symbol * all_symbols[symbol_count];
-   symtab.get_all_symbols(all_symbols, symbol_count);
+DynArray(Symbol *, all_symbols, symbol_count);
+   symtab.get_all_symbols(&all_symbols[0], symbol_count);
 
    // remove erased symbols
    //
