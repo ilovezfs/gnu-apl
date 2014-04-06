@@ -21,6 +21,8 @@
 #ifndef __SKALAR_FUNCTION_HH_DEFINED__
 #define __SKALAR_FUNCTION_HH_DEFINED__
 
+#include <semaphore.h>
+
 #include "PrimitiveFunction.hh"
 #include "Value.hh"
 #include "Id.hh"
@@ -63,10 +65,55 @@ protected:
 
    /// A helper function for eval_skalar_AXB().
    Token eval_skalar_AXB(Value_P A, bool * axis_present,
-                          Value_P B, prim_f2 fun, bool reversed);
+                         Value_P B, prim_f2 fun, bool reversed);
 
    /// Evaluate \b the identity function.
    Token eval_skalar_identity_fun(Value_P B, Axis axis, Value_P FI0);
+
+   /// a helper struct for a non-recursive implementation of
+   /// monaadic skalar functions with nested values.
+   struct Worklist_item1
+      {
+        ShapeItem len_Z;   ///< the number of result cells
+        Cell * cZ;         ///< result
+        const Cell * cB;   ///< right argument
+
+        const Cell & B_at(ShapeItem z) const
+           { return cB[z]; }
+        Cell & Z_at(ShapeItem z) const
+           { return cZ[z]; }
+      };
+
+   /// a helper struct for a non-recursive implementation of
+   /// dyadic skalar functions with nested values.
+   struct Worklist_item2
+      {
+        ShapeItem len_Z;   ///< the number of result cells
+        Cell * cZ;         ///< result
+        const Cell * cA;   ///< left argument
+        int inc_A;         ///< 0 (for skalar A) or 1
+        const Cell * cB;   ///< right argument
+        int inc_B;         ///< 0 (for skalar B) or 1
+
+        const Cell & A_at(ShapeItem z) const   { return cA[z * inc_A]; }
+        const Cell & B_at(ShapeItem z) const   { return cB[z * inc_B]; }
+        Cell & Z_at(ShapeItem z) const         { return cZ[z]; }
+      };
+
+   /// a list of worklist_1_item or worklist_2_item
+   template<typename itype>
+   struct Worklist
+      {
+        Worklist()
+           {
+             sem_init(&todo_sema,      /* shared */ 0, /* value */ 1);
+             sem_init(&new_value_sema, /* shared */ 0, /* value */ 1);
+           }
+        vector<itype> todo;            ///< computations to be done
+        sem_t         todo_sema;       ///< protection for todo
+        sem_t         new_value_sema;  ///< protection for Value() constructors
+      };
+
 };
 //-----------------------------------------------------------------------------
 /** Skalar functions binomial and factorial.

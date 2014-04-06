@@ -51,6 +51,8 @@ get_system_function(Id id)
 
 #define id_def(_id, _uni, _val, _mac) _mac(_id)
 #include "Id.def"
+
+        default: break;
       }
 
    return 0;
@@ -69,6 +71,8 @@ get_system_variable(Id id)
 
 #define id_def(_id, _uni, _val, _mac) _mac(_id)
 #include "Id.def"
+
+        default: break;
       }
 
    return 0;

@@ -113,6 +113,8 @@ operator << (ostream & out, TokenClass tc)
         tcc(TC_QUOTE)
         tcc(TC_OFF)
         tcc(TC_SI_LEAVE)
+
+        default: break;
       }
 #undef tcc
 
@@ -220,6 +222,8 @@ operator << (ostream & out, const Token & token)
         case TC_LINE:     return out << "\n[" << token.get_fun_line() << "] ";
         case TC_NUMERIC:  return out << "Numeric";
         case TC_NEWLINE:  return out << "{LFeed}";
+
+        default: break;
       }
 
    return out <<  "{-unknown Token " << token.get_tag() << "-}";
@@ -330,6 +334,8 @@ Token::print_function(ostream & out) const
         case TOK_FUN2:      return get_function()->print(out << "USER-F2 ");
         case TOK_OPER1:     return get_function()->print(out << "USER-OP1 ");
         case TOK_OPER2:     return get_function()->print(out << "USER-OP2 ");
+
+        default: break;
       }
 
    // unknown tag.
@@ -406,6 +412,8 @@ Token::print_value(ostream & out) const
         case TOK_Quad_SVE:
         case TOK_Quad_TZ:
         case TOK_Quad_WA:   return print_quad(out);
+
+        default: break;
       }
 
    out << "{ unknown value Token " << tag;

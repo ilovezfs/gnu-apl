@@ -268,6 +268,8 @@ char cc[80];
                    space--;   // PAD_U6
                  }
                  break;
+
+            default: Assert(0);
       }
 }
 //-----------------------------------------------------------------------------
@@ -581,6 +583,7 @@ XML_Saving_Archive::save_vstack_item(const ValueStackItem & vsi)
                  << "\"/>" << endl;
              break;
 
+        default: Assert(0);
       }
 }
 //-----------------------------------------------------------------------------

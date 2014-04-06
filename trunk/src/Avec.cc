@@ -244,7 +244,7 @@ Avec::map_alternative_char(Unicode alt_av)
    // map characters that look similar to characters used in GNU APL
    // to the GNU APL character.
    //
-   switch(alt_av)
+   switch((int)alt_av)
       {
         case 0x005E: return AV_AND;              //  map ^ to ∧
         case 0x007C: return AV_DIVIDES;          //  map | to ∣
@@ -269,6 +269,7 @@ Avec::map_alternative_char(Unicode alt_av)
         case 0x2B25: return AV_DIAMOND;          //  map ⬥ to ◊
         case 0x2B26: return AV_DIAMOND;          //  map ⬦ to ◊
         case 0x2B27: return AV_DIAMOND;          //  map ⬧ to ◊
+        default:     break;
       }
 
    return Invalid_CHT;

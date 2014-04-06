@@ -100,8 +100,9 @@ Symbol::print_verbose(ostream & out) const
                       out << endl;
                    }
                    continue;
-            }
 
+              default: break;
+            }
        }
 
    return out;
@@ -232,9 +233,9 @@ ValueStackItem & vs = value_stack.back();
              }
              if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;
+
+        default: SYNTAX_ERROR;
       }
-             
-   SYNTAX_ERROR;
 }
 //-----------------------------------------------------------------------------
 void
@@ -528,11 +529,9 @@ Symbol::can_be_assigned() const
       {
         case NC_UNUSED_USER_NAME:
         case NC_VARIABLE:
-        case NC_SHARED_VAR:
-             return true;
+        case NC_SHARED_VAR: return true;
+        default:            return false;
       }
-
-   return false;
 }
 //-----------------------------------------------------------------------------
 SV_key
@@ -560,9 +559,8 @@ Symbol::get_function() const
       {
         case NC_FUNCTION:
         case NC_OPERATOR: return value_stack.back().sym_val.function;
+        default:          return 0;
       }
-
-   return 0;
 }
 //-----------------------------------------------------------------------------
 Function *
@@ -609,6 +607,8 @@ const int * exec_properties = exec_prop;
              created = vs.sym_val.function->get_creation_time();
              exec_properties = vs.sym_val.function->get_exec_properties();
              break;
+
+        default: break;
       }
 
    switch(mode)
@@ -868,9 +868,8 @@ Symbol::resolve_class(bool left)
                return (valence == 2) ? TC_OPER2 : TC_OPER1;
              }
 
+        default: return TC_SYMBOL;
       }
-
-   return TC_SYMBOL;
 }
 //-----------------------------------------------------------------------------
 int
@@ -1112,6 +1111,8 @@ Symbol::unmark_all_values() const
                         }
                    }
                    break;
+
+              default: break;
             }
        }
 }
@@ -1147,6 +1148,8 @@ int count = 0;
 
                    }
                    break;
+
+              default: break;
             }
        }
 
@@ -1265,6 +1268,8 @@ ValueStackItem & tos = value_stack[0];
 
              delete tos.sym_val.function;
              break;
+
+        default: break;
       }
 }
 //-----------------------------------------------------------------------------
