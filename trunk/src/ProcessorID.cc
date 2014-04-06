@@ -46,6 +46,15 @@ ProcessorID::init(bool do_sv, int proc_id, int par_id)
    id.parent = par_id ? (AP_num)par_id : AP_NULL;
    id.grand = AP_NULL;
 
+   if (!do_sv)
+      {
+        // shared variables are disable, so Svar_DB is unavailable,
+        // we use id.proc of 1000 if no ID is provided and otherwise
+        // trust the provided ID.
+        if (proc_id == 0)   proc_id = 1000;
+        return false;
+      }
+
    if (proc_id == 0)
       {
         // no --id option in argv: use first free user ID

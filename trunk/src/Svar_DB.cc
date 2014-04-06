@@ -30,6 +30,7 @@
 #include <iomanip>
 
 #include "Backtrace.hh"
+#include "main.hh"
 #include "Svar_DB.hh"
 #include "Svar_signals.hh"
 #include "UdpSocket.hh"
@@ -686,6 +687,8 @@ offered_SVAR::print_name(ostream & out, const uint32_t * name, int len)
 Svar_DB::Svar_DB()
    : DB_memory(0)
 {
+   if (!do_svars)   return;
+
    // in order for CGI scripts to work (which often uses a user with
    // low permissions), we allow RW (i.e. mask only X) for everybody.
    //

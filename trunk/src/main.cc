@@ -55,6 +55,7 @@ bool silent = false;
 bool emacs_mode = false;
 bool do_not_echo = false;
 bool safe_mode = false;
+bool do_svars = true;
 
 const char * build_tag[] = { BUILDTAG, 0 };
 
@@ -627,7 +628,6 @@ struct user_preferences
      requested_id(0),
      requested_par(0),
      requested_cc(CCNT_UNKNOWN),
-     do_sv(true),
      daemon(false),
      append_summary(false),
      wait_ms(0),
@@ -648,9 +648,6 @@ struct user_preferences
 
    /// desired core count
    CoreCount requested_cc;
-
-   /// enable or disable shared variables
-   bool do_sv;
 
    /// run as deamon
    bool daemon;
@@ -830,7 +827,7 @@ int line = 0;
             }
          else if (yes_no && !strcasecmp(opt, "SharedVars"))
             {
-              up.do_sv = yes;
+              do_svars = yes;
             }
          else if (!strcasecmp(opt, "Logging"))
             {
@@ -929,6 +926,13 @@ int line = 0;
 int
 main(int argc, const char * _argv[])
 {
+   {
+     // make curses happy
+     //
+     const char * term = getenv("TERM");
+     if (term == 0 || *term == 0)   setenv("TERM", "dumb", 1);
+   }
+
 const char ** argv = expand_argv(argc, _argv);
    Quad_ARG::argc = argc;   // remember argc for ⎕ARG
    Quad_ARG::argv = argv;   // remember argv for ⎕ARG
@@ -1058,11 +1062,11 @@ user_preferences up;
             }
          else if (!strcmp(opt, "--SV"))
             {
-              up.do_sv = true;
+              do_svars = true;
             }
          else if (!strcmp(opt, "--noSV"))
             {
-              up.do_sv = false;
+              do_svars = false;
             }
 #if CORE_COUNT_WANTED == -2
          else if (!strcmp(opt, "--cc"))
@@ -1101,7 +1105,7 @@ user_preferences up;
          else if (!strcmp(opt, "--safe"))
             {
               safe_mode = true;
-              up.do_sv = false;
+              do_svars = false;
             }
          else if (!strcmp(opt, "-T"))
             {
@@ -1247,7 +1251,7 @@ user_preferences up;
    TestFiles::testcase_count = TestFiles::test_file_names.size();
    if (up.randomize_testfiles)   TestFiles::randomize_files();
 
-   if (ProcessorID::init(up.do_sv, up.requested_id, up.requested_par))
+   if (ProcessorID::init(do_svars, up.requested_id, up.requested_par))
       {
         // error message printed in ProcessorID::init()
         return 8;
