@@ -45,6 +45,9 @@ bool LOG_shared_variables = false;
 #else
 #endif
 
+extern bool do_svars;
+bool do_svars = true;
+
 //-----------------------------------------------------------------------------
 class CERR_Out : public filebuf
 {
