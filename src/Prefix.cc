@@ -430,6 +430,8 @@ found_prefix:
           case TC_FUN12:
                more = best->prio < BS_OP_RO && next == TC_OPER2;
                break;
+
+          default: break;
         }
 
      if (more)
@@ -1204,6 +1206,8 @@ Prefix::reduce_RETC___()
              }
              action = RA_RETURN;
              return;
+
+        default: break;
       }
 
    // not reached

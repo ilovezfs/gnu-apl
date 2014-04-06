@@ -504,6 +504,8 @@ Parser::check_if_value(const Token_string & tos, int pos)
 
         case TC_SYMBOL:
              return (tos[pos].get_tag() == TOK_P_SYMB);   // if value
+
+        default: break;
       }
 
    return false;
@@ -598,6 +600,8 @@ Parser::create_skalar_value(Token & output) const
         case TOK_APL_VALUE1:
         case TOK_APL_VALUE3:
              return;
+
+        default: break;
       }
 
    CERR << "Unexpected token " << output.get_tag() << ": " << output << endl;
@@ -643,6 +647,8 @@ Value_P vector(new Value(count, LOC));
                  new (addr) PointerCell(tok.get_apl_val());
                  tok.clear(LOC);   // invalidate token
                  break;
+
+              default: Assert(0);
             }
        }
 
@@ -722,6 +728,8 @@ Parser::mark_lsymb(Token_string & tos)
 
                    case TC_END:     prev = 0;   // stop prev loop
                                     break;
+
+                   default: break;
                  }
             }
       }

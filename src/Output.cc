@@ -277,6 +277,7 @@ Output::set_color_mode(Output::ColorMode mode)
                   tputs(clr_eol, 1, putc_stdout);
                   break;
 
+             default: break;
            }
       }
    else
@@ -287,6 +288,7 @@ Output::set_color_mode(Output::ColorMode mode)
              case COLM_OUTPUT: cout << color_COUT << clear_EOL;   break;
              case COLM_ERROR:  cerr << color_CERR << clear_EOL;   break;
              case COLM_UERROR: cout << color_UERR << clear_EOL;   break;
+             default: break;
            }
       }
 }

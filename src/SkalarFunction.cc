@@ -60,30 +60,45 @@ Bif_F12_WITHOUT   Bif_F12_WITHOUT::fun;
 Token
 SkalarFunction::eval_skalar_B(Value_P B, prim_f1 fun)
 {
-const ShapeItem count = B->element_count();
-   if (count == 0)   return eval_fill_B(B);
+const ShapeItem len_Z = B->element_count();
+   if (len_Z == 0)   return eval_fill_B(B);
 
 Value_P Z(new Value(B->get_shape(), LOC));
-   loop(c, count)
-       {
-         const Cell * cell_B =  &B->get_ravel(c);
-         Cell * cell_Z = &Z->get_ravel(c);
-         if (cell_B->is_pointer_cell())
-            {
-              Token token = eval_skalar_B(cell_B->get_pointer_value(), fun);
-              new (cell_Z) PointerCell(token.get_apl_val());
-            }
-         else
-            {
-              (cell_B->*fun)(cell_Z);
-            }
-       }
 
-   if (count == 0)   // Z was empty (hence B was empty)
+   // create a worklist with one item that computes Z. If nested values are
+   // detected when computing Z then jobs for them are added to the worklist.
+   // Finished jobs are NOT removed from the list to avoid unnecessary
+   // copying of worklist items.
+   //
+const Worklist_item1 wli = { len_Z, &Z->get_ravel(0), &B->get_ravel(0) };
+Worklist<Worklist_item1> wl;
+   wl.todo.push_back(wli);
+
+   loop(todo_idx, wl.todo.size())
       {
-        const Cell & cB = B->get_ravel(0);
-        if (cB.is_pointer_cell())   Z->get_ravel(0).init(cB);
-        else                        new (&Z->get_ravel(0)) IntCell(0);
+        // CAUTION: cannot use Worklist_item1 & because push_back() below
+        // could invalidate it !
+        const Worklist_item1 job = wl.todo[todo_idx];
+        loop(z, job.len_Z)
+           {
+             const Cell & cell_B = job.B_at(z);
+             Cell & cell_Z       = job.Z_at(z);
+
+             if (cell_B.is_pointer_cell())
+                {
+                  Value_P B1 = cell_B.get_pointer_value();
+                  Value_P Z1(new Value(B1->get_shape(), LOC));
+                  new (&cell_Z) PointerCell(Z1);
+                  const Worklist_item1 wli1 = { B1->nz_element_count(),
+                                                &Z1->get_ravel(0),
+                                                &B1->get_ravel(0) };
+                  wl.todo.push_back(wli1);
+                }
+             else
+                {
+                  (cell_B.*fun)(&cell_Z);
+                }
+           }
       }
 
    Z->check_value(LOC);
@@ -130,64 +145,143 @@ SkalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
 Token
 SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
 {
-   if (A->is_skalar_or_len1_vector())
-      {
-        const ShapeItem count = B->element_count();
-        if (count == 0)   return eval_fill_AB(A, B);
+const int inc_A = A->is_skalar_or_len1_vector() ? 0 : 1;
+const int inc_B = B->is_skalar_or_len1_vector() ? 0 : 1;
+const Shape * shape_Z = &B->get_shape();
+   if      (A->is_skalar())   shape_Z = &B->get_shape();
+   else if (B->is_skalar())   shape_Z = &A->get_shape();
+   else if (inc_B == 0)       shape_Z = &A->get_shape();
 
-        const Cell * cell_A = &A->get_ravel(0);
-        Value_P Z(new Value(B->get_shape(), LOC));
+const ShapeItem len_Z = shape_Z->get_volume();
+   if (len_Z == 0)   return eval_fill_AB(A, B);
 
-        loop(c, count)
-            {
-              const Cell * cell_B = &B->get_ravel(c);
-              Cell * cell_Z = &Z->get_ravel(c);
-              expand_pointers(cell_Z, cell_A, cell_B, fun);
-            }
-
-        Z->set_default(*B.get());
-        Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, Z);
-      }
-
-   if (B->is_skalar_or_len1_vector())
-      {
-        const ShapeItem count = A->element_count();
-        if (count == 0)   return eval_fill_AB(A, B);
-
-        const Cell * cell_B = &B->get_ravel(0);
-        Value_P Z(new Value(A->get_shape(), LOC));
-
-        loop(c, count)
-            {
-              const Cell * cell_A = &A->get_ravel(c);
-              Cell * cell_Z = &Z->get_ravel(c);
-              expand_pointers(cell_Z, cell_A, cell_B, fun);
-            }
-
-        Z->set_default(*B.get());
-        Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, Z);
-      }
-
-   if (!A->same_shape(B))
-      {
-        if (!A->same_rank(B))   RANK_ERROR;
-        else                    LENGTH_ERROR;
-      }
-
-const ShapeItem count = A->element_count();
-   if (count == 0)   return eval_fill_AB(A, B);
-
-Value_P Z(new Value(A->get_shape(), LOC));
-
-   loop(c, count)
+   if (inc_A && inc_B && !A->same_shape(B))
        {
-         const Cell * cell_A = &A->get_ravel(c);
-         const Cell * cell_B = &B->get_ravel(c);
-         Cell * cell_Z = &Z->get_ravel(c);
-         expand_pointers(cell_Z, cell_A, cell_B, fun);
+         if (!A->same_rank(B))   RANK_ERROR;
+         else                    LENGTH_ERROR;
        }
+
+Value_P Z(new Value(*shape_Z, LOC));
+
+   // create a worklist with one item that computes Z. If nested values are
+   // detected when computing Z then jobs for them are added to the worklist.
+   // Finished jobs are NOT removed from the list to avoid unnecessary
+   // copying of worklist items.
+   //
+const Worklist_item2 wli = { len_Z, &Z->get_ravel(0),
+                             &A->get_ravel(0), inc_A,
+                             &B->get_ravel(0), inc_B
+                           };
+Worklist<Worklist_item2> wl;
+   wl.todo.push_back(wli);
+
+   loop(todo_idx, wl.todo.size())
+      {
+        // CAUTION: cannot use Worklist_item2 & because push_back() below
+        // could invalidate it !
+        //
+        const Worklist_item2 job = wl.todo[todo_idx];
+        loop(z, job.len_Z)
+           {
+             const Cell & cell_A = job.A_at(z);
+             const Cell & cell_B = job.B_at(z);
+             Cell & cell_Z       = job.Z_at(z);
+
+             if (cell_A.is_pointer_cell())
+                if (cell_B.is_pointer_cell())
+                   {
+                     // both A and B are nested
+                     //
+                     Value_P A1 = cell_A.get_pointer_value();
+                     Value_P B1 = cell_B.get_pointer_value();
+                     const int inc_A1 = A1->is_skalar_or_len1_vector() ? 0 : 1;
+                     const int inc_B1 = B1->is_skalar_or_len1_vector() ? 0 : 1;
+                     const Shape * shape_Z1 = &B1->get_shape();
+                     if      (A1->is_skalar())   shape_Z1 = &B1->get_shape();
+                     else if (B1->is_skalar())   shape_Z1 = &A1->get_shape();
+                     else if (inc_B1 == 0)       shape_Z1 = &A1->get_shape();
+
+                     if (inc_A1 && inc_B1 && !A1->same_shape(B1))
+                        {
+                          if (!A1->same_rank(B1))   RANK_ERROR;
+                          else                      LENGTH_ERROR;
+                        }
+
+                     const ShapeItem len_Z1 = shape_Z1->get_volume();
+                     if (len_Z1 == 0)   return eval_fill_AB(A1, B1);
+
+                     Value_P Z1(new Value(*shape_Z1, LOC));
+                     new (&cell_Z) PointerCell(Z1);
+                     const Worklist_item2 wli1 =
+                                 { len_Z1, &Z1->get_ravel(0),
+                                    &A1->get_ravel(0), inc_A1,
+                                    &B1->get_ravel(0), inc_B1
+                                 };
+
+                     wl.todo.push_back(wli1);
+                   }
+                else
+                   {
+                     // A is nested, B is not
+                     //
+                     Value_P A1 = cell_A.get_pointer_value();
+                     const int inc_A1 = A1->is_skalar_or_len1_vector() ? 0 : 1;
+
+                     const ShapeItem len_Z1 = A1->get_shape().get_volume();
+                     if (len_Z1 == 0)
+                        {
+                          Value_P Z1= A1->clone(LOC);
+                          Z1->to_proto();
+                          Z1->check_value(LOC);
+                          new (&cell_Z) PointerCell(Z1);
+                        }
+                     else
+                        {
+                          Value_P Z1(new Value(A1->get_shape(), LOC));
+                          new (&cell_Z) PointerCell(Z1);
+                          const Worklist_item2 wli1 =
+                                 { len_Z1, &Z1->get_ravel(0),
+                                    &A1->get_ravel(0), inc_A1, &cell_B, 0
+                                 };
+
+                          wl.todo.push_back(wli1);
+                        }
+                   }
+             else
+                if (cell_B.is_pointer_cell())
+                   {
+                     // A is not nested, B is nested
+                     //
+                     Value_P B1 = cell_B.get_pointer_value();
+                     const int inc_B1 = B1->is_skalar_or_len1_vector() ? 0 : 1;
+
+                     const ShapeItem len_Z1 = B1->get_shape().get_volume();
+                     if (len_Z1 == 0)
+                        {
+                          Value_P Z1= B1->clone(LOC);
+                          Z1->to_proto();
+                          Z1->check_value(LOC);
+                          new (&cell_Z) PointerCell(Z1);
+                        }
+                     else
+                        {
+                          Value_P Z1(new Value(B1->get_shape(), LOC));
+                          new (&cell_Z) PointerCell(Z1);
+                          const Worklist_item2 wli1 =
+                                 { len_Z1,      &Z1->get_ravel(0),
+                                    &cell_A, 0, &B1->get_ravel(0), inc_B1
+                                 };
+                          wl.todo.push_back(wli1);
+                        }
+                   }
+                else
+                   {
+                     // neither A nor B are nested
+                     //
+                     (cell_B.*fun)(&cell_Z, &cell_A);
+                   }
+           }
+      }
 
    Z->set_default(*B.get());
    Z->check_value(LOC);

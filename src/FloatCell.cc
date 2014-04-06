@@ -570,6 +570,7 @@ FloatCell::map_FC(UCS_string & ucs)
              case UNI_ASCII_FULLSTOP: ucs[u] = Workspace::get_FC(0);   break;
              case UNI_ASCII_COMMA:    ucs[u] = Workspace::get_FC(1);   break;
              case UNI_OVERBAR:        ucs[u] = Workspace::get_FC(5);   break;
+             default:                 break;
            }
       }
 }

@@ -617,7 +617,6 @@ const int idx_from = find_line(edit_from);
         return 0;
       }
 
-
    // replace line
    //
    if (!current_text.size())   return 0;   // no text: done

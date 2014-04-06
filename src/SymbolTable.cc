@@ -56,9 +56,8 @@ Symbol * sym = lookup_existing_symbol(name);
 
         case NC_FUNCTION:
         case NC_OPERATOR: return sym->get_function();
+        default:          return 0;
       }
-
-   return 0;
 }
 //-----------------------------------------------------------------------------
 Symbol *
@@ -406,48 +405,49 @@ ValueStackItem & tos = symbol->value_stack[0];
 
    switch(tos.name_class)
       {
-             case NC_LABEL:
-                  Assert(0 && "should not happen since stack height == 1");
-                  return;
+        case NC_LABEL:
+             Assert(0 && "should not happen since stack height == 1");
+             return;
 
-             case NC_VARIABLE:
+        case NC_VARIABLE:
+             symbol->expunge();
+             symbol->set_erased(true);
+             return;
+
+        case NC_UNUSED_USER_NAME:
+             symbol->set_erased(true);
+             return;
+
+        case NC_FUNCTION:
+        case NC_OPERATOR:
+             Assert(tos.sym_val.function);
+             if (tos.sym_val.function->is_native())
+                {
                   symbol->expunge();
-                  symbol->set_erased(true);
                   return;
+                }
 
-             case NC_UNUSED_USER_NAME:
-                  symbol->set_erased(true);
-                  return;
-
-             case NC_FUNCTION:
-             case NC_OPERATOR:
-                  Assert(tos.sym_val.function);
-                  if (tos.sym_val.function->is_native())
-                     {
-                       symbol->expunge();
-                       return;
-                     }
-
+             {
+               const UserFunction * ufun = tos.sym_val.function->get_ufun1();
+               Assert(ufun);
+               if (Workspace::oldest_exec(ufun))
                   {
-                    const UserFunction * ufun =
-                                         tos.sym_val.function->get_ufun1();
-                    Assert(ufun);
-                    if (Workspace::oldest_exec(ufun))
-                       {
-                         UCS_string & t4 = Workspace::more_error();
-                         t4.clear();
-                         t4.append_utf8("Can't )ERASE symbol '");
-                         t4.append(sym);
-                         t4.append_utf8("':  pushed on SI-stack");
-                         return;
-                       }
+                    UCS_string & t4 = Workspace::more_error();
+                    t4.clear();
+                    t4.append_utf8("Can't )ERASE symbol '");
+                    t4.append(sym);
+                    t4.append_utf8("':  pushed on SI-stack");
+                    return;
                   }
+             }
 
-                  delete tos.sym_val.function;
-                  tos.sym_val.function = 0;
-                  tos.name_class = NC_UNUSED_USER_NAME;
-                  symbol->set_erased(true);
-                  return;
+             delete tos.sym_val.function;
+             tos.sym_val.function = 0;
+             tos.name_class = NC_UNUSED_USER_NAME;
+             symbol->set_erased(true);
+             return;
+
+        default: break;
       }
 
     Assert(0 && "Bad name_class in SymbolTable::erase_one_symbol()");

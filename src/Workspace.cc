@@ -331,6 +331,8 @@ const Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
         case UNI_ASCII_W:
              if (av_1 == UNI_ASCII_A)        var(WA, 2)
              break;
+
+        default: break;
       }
 
    var(Quad, 0);
