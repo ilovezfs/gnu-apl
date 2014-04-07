@@ -62,7 +62,7 @@ const char * build_tag[] = { BUILDTAG, 0 };
 //-----------------------------------------------------------------------------
 /// initialize subsystems
 void
-init(const char * argv0)
+init(const char * argv0, bool log_startup)
 {
 rlimit rl;
    getrlimit(RLIMIT_AS, &rl);
@@ -71,6 +71,7 @@ rlimit rl;
    Output::init();
    Avec::init();
    LibPaths::init(argv0);
+   Svar_DB::init(argv0, log_startup);
    Value::init();
    VH_entry::init();
 }
@@ -163,13 +164,28 @@ signal_HUP_handler(int)
 /**
     When APL is started as a script. then several options might be grouped
     into a single option. expand_argv() expands such grouped options into
-    individual options
+    individual options.
+
+    expand_argv() also checks for -l LID_startup so that startup messages
+    emitted before parsing the command line options become visioble (provided
+    that dynamic logging is on).
  **/
 const char **
-expand_argv(int & argc, const char ** argv)
+expand_argv(int & argc, const char ** argv, bool & log_startup)
 {
 bool need_expand = false;
 int end_of_arg = -1;   // position of --
+
+   // check for -l LID_startup
+   loop(a, argc - 1)
+      {
+        if (!strcmp(argv[a], "--"))   break;
+        if (!strcmp(argv[a], "-l") && atoi(argv[a + 1]) == LID_startup)
+           {
+             log_startup = true;
+             break;
+           }
+      }
 
    // check if any argument contains spaces and remember the '--' option
    //
@@ -436,7 +452,7 @@ _("usage: %s [options]\n"
 
 #ifdef DYNAMIC_LOG_WANTED
    snprintf(cc, sizeof(cc), 
-_("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX-1);
+_("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX - 1);
    CERR << cc;
 #endif
 
@@ -933,12 +949,17 @@ main(int argc, const char * _argv[])
      if (term == 0 || *term == 0)   setenv("TERM", "dumb", 1);
    }
 
-const char ** argv = expand_argv(argc, _argv);
+bool log_startup = false;
+const char ** argv = expand_argv(argc, _argv, log_startup);
    Quad_ARG::argc = argc;   // remember argc for ⎕ARG
    Quad_ARG::argv = argv;   // remember argv for ⎕ARG
 
+#ifdef DYNAMIC_LOG_WANTED
+   if (log_startup)   Log_control(LID_startup, true);
+#endif // DYNAMIC_LOG_WANTED
+
 const char * argv0 = argv[0];
-   init(argv0);
+   init(argv0, log_startup);
 
 user_preferences up;
    read_config_file(true,  up);   // /etc/gnu-apl.d/preferences
@@ -1032,18 +1053,21 @@ user_preferences up;
 
               up.requested_id = atoi(val);
             }
-#ifdef DYNAMIC_LOG_WANTED
          else if (!strcmp(opt, "-l"))
             {
               ++a;
+#ifdef DYNAMIC_LOG_WANTED
               if (val)   Log_control(LogId(atoi(val)), true);
               else
                  {
                    CERR << _("-l without log facility") << endl;
                    return 3;
                  }
-            }
+#else
+   CERR << _("the -l option was ignored (requires ./configure "
+           "DYNAMIC_LOG_WANTED=yes)") << endl;
 #endif // DYNAMIC_LOG_WANTED
+            }
          else if (!strcmp(opt, "--noCIN"))
             {
               do_not_echo = true;

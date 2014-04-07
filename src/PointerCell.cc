@@ -110,9 +110,15 @@ Value_P ret = value._valp();
 }
 //-----------------------------------------------------------------------------
 CellType
-PointerCell::compute_cell_types() const
+PointerCell::deep_cell_types() const
 {
-   return CellType(CT_POINTER | get_pointer_value()->compute_cell_types());
+   return CellType(CT_POINTER | get_pointer_value()->deep_cell_types());
+}
+//-----------------------------------------------------------------------------
+CellType
+PointerCell::deep_cell_subtypes() const
+{
+   return CellType(CT_POINTER | get_pointer_value()->deep_cell_subtypes());
 }
 //-----------------------------------------------------------------------------
 PrintBuffer

@@ -25,6 +25,7 @@ The following issues are known and maybe fixed mid-term:
 
 * shared variable improvements
 * improvements on ⍤ operator
+* trace and stop control; T∆fun and S∆fun
 
 The following extensions are provided:
 --------------------------------------

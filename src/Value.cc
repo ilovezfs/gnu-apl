@@ -923,17 +923,56 @@ Depth sub_depth = 0;
 }
 //-----------------------------------------------------------------------------
 CellType
-Value::compute_cell_types() const
+Value::flat_cell_types() const
 {
-int32_t ctypes = CT_NONE;
+int32_t ctypes = 0;
 
-const int64_t count = element_count();
+const ShapeItem count = nz_element_count();
+   loop(c, count)   ctypes |= get_ravel(c).get_cell_type();
+
+   return CellType(ctypes);
+}
+//-----------------------------------------------------------------------------
+CellType
+Value::flat_cell_subtypes() const
+{
+int32_t ctypes = 0;
+
+const ShapeItem count = nz_element_count();
+   loop(c, count)   ctypes |= get_ravel(c).get_cell_subtype();
+
+   return CellType(ctypes);
+}
+//-----------------------------------------------------------------------------
+CellType
+Value::deep_cell_types() const
+{
+int32_t ctypes = 0;
+
+const ShapeItem count = nz_element_count();
    loop(c, count)
       {
        const Cell & cell = get_ravel(c);
         ctypes |= cell.get_cell_type();
         if (cell.is_pointer_cell())
-           ctypes |= cell.get_pointer_value()->compute_cell_types();
+            ctypes |= cell.get_pointer_value()->deep_cell_types();
+      }
+
+   return CellType(ctypes);
+}
+//-----------------------------------------------------------------------------
+CellType
+Value::deep_cell_subtypes() const
+{
+int32_t ctypes = 0;
+
+const ShapeItem count = nz_element_count();
+   loop(c, count)
+      {
+       const Cell & cell = get_ravel(c);
+        ctypes |= cell.get_cell_subtype();
+        if (cell.is_pointer_cell())
+           ctypes |= cell.get_pointer_value()->deep_cell_subtypes();
       }
 
    return CellType(ctypes);

@@ -74,8 +74,6 @@ ProcessorID::init(bool do_sv, int proc_id, int par_id)
            }
       }
 
-   if (!do_sv)   return false;
-
    Quad_SVx::start_AP(id.proc, true);
    APnnn_port = Svar_DB::get_udp_port(id.proc, id.parent);
    if (APnnn_port == 0)

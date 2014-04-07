@@ -199,12 +199,13 @@ public:
    virtual CellType get_cell_type() const
       { return CT_BASE; }
 
+   /// return the subtype of \b this cell. The subtype is the set of containers
+   /// that can store the cell (only for Int and Char cells).
+   virtual CellType get_cell_subtype() const
+      { return get_cell_type(); }
+
    /// return the name of the class
    virtual const char * get_classname()  const   { return "Cell"; }
-
-   /// return the types of \b this cell and nested values
-   virtual CellType compute_cell_types() const
-      { return get_cell_type(); }
 
    /// convert near-real complex to real or integer
    virtual void demote_complex_to_real(APL_Float qct) {}
