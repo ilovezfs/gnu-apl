@@ -146,11 +146,19 @@ public:
    /// compute the depth of this value.
    Depth compute_depth() const;
 
-   /// compute the CellType contained in \b this value.
-   CellType compute_cell_types() const;
-
    /// store the skalars in this value into dest...
    void enlist(Cell * & dest, bool left) const;
+
+   /// compute the cell types contained in the top level of \b this value
+   CellType flat_cell_types() const;
+
+   /// compute the cell subtypes contained in the top level of \b this value
+   CellType flat_cell_subtypes() const;
+
+   /// compute the CellType contained in \b this value (recursively)
+   CellType deep_cell_types() const;
+
+   CellType deep_cell_subtypes() const;
 
    /// print \b this value
    ostream & print(ostream & out) const;

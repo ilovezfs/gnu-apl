@@ -58,8 +58,11 @@ protected:
    virtual CellType get_cell_type() const
       { return CT_POINTER; }
 
-   ///  Overloaded Cell::compute_cell_types()
-   virtual CellType compute_cell_types() const;
+   ///  Overloaded Cell::deep_cell_types()
+   CellType deep_cell_types() const;
+
+   ///  Overloaded Cell::deep_cell_types()
+   CellType deep_cell_subtypes() const;
 
    /// Overloaded Cell::get_classname().
    virtual const char * get_classname() const   { return "PointerCell"; }

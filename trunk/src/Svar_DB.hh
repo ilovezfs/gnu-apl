@@ -382,11 +382,19 @@ struct Svar_DB_memory
 class Svar_DB
 {
 public:
-   /// open (and possibly initialize) the shared variable database
-   Svar_DB();
+   Svar_DB()
+   : DB_memory(0)
+   {}
 
    /// remove all offers from this process
    ~Svar_DB();
+
+   /// open (and possibly initialize) the shared variable database
+   static void init(const char * progname, bool logit)
+      { the_Svar_DB._init(progname, logit); }
+
+   /// open (and possibly initialize) the shared variable database
+   void _init(const char * progname, bool logit);
 
    /// match a new offer against the DB. Return: 0 on error, 1 if the
    /// new offer was inserted into the DB (sicne no match was found), or

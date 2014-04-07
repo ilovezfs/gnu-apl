@@ -32,147 +32,150 @@
 class IntCell : public RealCell
 {
 public:
-   /// Construct an integer cell with value \b i.
+   /// Construct an integer cell with value \b i
    IntCell(APL_Integer i)
       { value.ival = i; }
 
-   /// Construct an integer cell with near-int value \b f.
+   /// Construct an integer cell with near-int value \b f
    IntCell(APL_Float f, APL_Float qct)
       { value.ival = near_int(f, qct); }
 
-   /// Overloaded Cell::is_integer_cell().
+   /// overloaded Cell::is_integer_cell()
    virtual bool is_integer_cell() const
       { return true; }
 
-   /// Overloaded Cell::greater().
+   /// overloaded Cell::greater()
    virtual bool greater(const Cell * other, bool ascending) const;
 
-   /// Overloaded Cell::equal().
+   /// overloaded Cell::equal()
    virtual bool equal(const Cell & other, APL_Float qct) const;
 
-   /// Overloaded Cell::bif_add().
+   /// overloaded Cell::bif_add()
    virtual void bif_add(Cell * Z, const Cell * A) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_ceiling(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_conjugate(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_direction(Cell * Z) const;
 
-   /// Overloaded Cell::bif_divide().
+   /// overloaded Cell::bif_divide()
    virtual void bif_divide(Cell * Z, const Cell * A) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_exponential(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_factorial(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_floor(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_magnitude(Cell * Z) const;
 
-   /// Overloaded Cell::bif_multiply().
+   /// overloaded Cell::bif_multiply()
    virtual void bif_multiply(Cell * Z, const Cell * A) const;
 
-   /// Overloaded Cell::bif_power().
+   /// overloaded Cell::bif_power()
    virtual void bif_power(Cell * Z, const Cell * A) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_nat_log(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_negative(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_pi_times(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_reciprocal(Cell * Z) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_roll(Cell * Z) const;
 
-   /// Overloaded Cell::bif_subtract().
+   /// overloaded Cell::bif_subtract()
    virtual void bif_subtract(Cell * Z, const Cell * A) const;
 
    /// compare this with other, throw DOMAIN ERROR on illegal comparisons
    virtual Comp_result compare(const Cell & other) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_maximum(Cell * Z, const Cell * A) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_minimum(Cell * Z, const Cell * A) const;
 
-   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   /// overloaded from the corresponding Cell:: function (see class Cell)
    virtual void bif_residue(Cell * Z, const Cell * A) const;
 
-   /// the Quad_CR representation of this cell.
+   /// the Quad_CR representation of this cell
    virtual PrintBuffer character_representation(const PrintContext &pctx) const;
 
-   /// return true iff this cell needs scaling (exponential format) in pctx.
+   /// return true iff this cell needs scaling (exponential format) in pctx
    /// According to lrm p. 13, integer cells ignore ⎕PP an never use scaling
    virtual bool need_scaling(const PrintContext &pctx) const
       { return false; }
 
 protected:
-   ///  Overloaded Cell::get_cell_type().
+   /// overloaded Cell::get_cell_type()
    virtual CellType get_cell_type() const
       { return CT_INT; }
 
-   /// Overloaded Cell::get_int_value().
+   /// overloaded Cell::get_cell_subtype()
+   virtual CellType get_cell_subtype() const;
+
+   /// overloaded Cell::get_int_value()
    virtual APL_Integer get_int_value()  const   { return value.ival; }
 
-   /// Overloaded Cell::get_real_value().
+   /// overloaded Cell::get_real_value()
    virtual APL_Float get_real_value() const   { return double(value.ival);  }
 
-   /// Overloaded Cell::get_imag_value().
+   /// overloaded Cell::get_imag_value()
    virtual APL_Float get_imag_value() const   { return 0.0;  }
 
-   /// Overloaded Cell::get_complex_value()
+   /// overloaded Cell::get_complex_value()
    virtual APL_Complex get_complex_value() const
       { return APL_Complex(value.ival, 0.0); }
 
-   /// Overloaded Cell::get_near_bool().
+   /// overloaded Cell::get_near_bool()
    virtual bool get_near_bool(APL_Float qct)  const
       { if (value.ival == 0)   return false;
         if (value.ival == 1)   return true;
         DOMAIN_ERROR; }
 
-   /// Overloaded Cell::get_near_int().
+   /// overloaded Cell::get_near_int()
    virtual APL_Integer get_near_int(APL_Float qct)  const
       { return value.ival; }
 
-   /// Overloaded Cell::get_checked_near_int().
+   /// overloaded Cell::get_checked_near_int()
    virtual APL_Integer get_checked_near_int()  const
       { return value.ival; }
 
-   /// Overloaded Cell::is_near_zero().
+   /// overloaded Cell::is_near_zero()
    virtual bool is_near_zero(APL_Float qct) const
       { return value.ival == 0; }
 
-   /// Overloaded Cell::is_near_one().
+   /// overloaded Cell::is_near_one()
    virtual bool is_near_one(APL_Float qct) const
       { return value.ival == 1; }
 
-   /// Overloaded Cell::is_near_int().
+   /// overloaded Cell::is_near_int()
    virtual bool is_near_int(APL_Float qct) const
       { return true; }
 
-   /// Overloaded Cell::is_near_real().
+   /// overloaded Cell::is_near_real()
    virtual bool is_near_real(APL_Float qct) const
       { return true; }
 
-   /// Overloaded Cell::get_classname().
+   /// overloaded Cell::get_classname()
    virtual const char * get_classname() const   { return "IntCell"; }
 
-   /// Overloaded Cell::CDR_size()
+   /// overloaded Cell::CDR_size()
    virtual int CDR_size() const;
 };
 //-----------------------------------------------------------------------------

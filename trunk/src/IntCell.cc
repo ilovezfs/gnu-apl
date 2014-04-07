@@ -40,6 +40,75 @@
 
  */
 //-----------------------------------------------------------------------------
+CellType
+IntCell::get_cell_subtype() const
+{
+   if (value.ival < 0)   // negative integer (only fits in signed containers)
+      {
+        if (-value.ival <= 0x80)
+           return (CellType)(CT_INT | CTS_S8 | CTS_S16 | CTS_S32 | CTS_S64);
+
+        if (-value.ival <= 0x8000)
+           return (CellType)(CT_INT | CTS_S16 | CTS_S32 | CTS_S64);
+
+        if (-value.ival <= 0x80000000)
+           return (CellType)(CT_INT | CTS_S32 | CTS_S64);
+
+        return (CellType)(CT_INT | CTS_S64);
+      }
+
+   // positive integer
+   //
+   if (value.ival == 0)   // 0: bit (fits in all containers)
+      return (CellType)(CT_INT | CTS_BIT |
+                                 CTS_X8  | CTS_S8  | CTS_U8  |
+                                 CTS_X16 | CTS_S16 | CTS_U16 |
+                                 CTS_X32 | CTS_S32 | CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival == 1)   // 1: bit (fits in all containers)
+      return (CellType)(CT_INT | CTS_BIT |
+                                 CTS_X8  | CTS_S8  | CTS_U8  |
+                                 CTS_X16 | CTS_S16 | CTS_U16 |
+                                 CTS_X32 | CTS_S32 | CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival <= 0x7F)
+      return (CellType)(CT_INT | CTS_X8  | CTS_S8  | CTS_U8  |
+                                 CTS_X16 | CTS_S16 | CTS_U16 |
+                                 CTS_X32 | CTS_S32 | CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival <= 0xFF)
+      return (CellType)(CT_INT |                     CTS_U8  |
+                                 CTS_X16 | CTS_S16 | CTS_U16 |
+                                 CTS_X32 | CTS_S32 | CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival <= 0x7FFF)
+      return (CellType)(CT_INT | CTS_X16 | CTS_S16 | CTS_U16 |
+                                 CTS_X32 | CTS_S32 | CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival <= 0xFFFF)
+      return (CellType)(CT_INT |                     CTS_U16 |
+                                 CTS_X32 | CTS_S32 | CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival <= 0x7FFFFFFF)
+      return (CellType)(CT_INT | CTS_X32 | CTS_S32 | CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival <= 0xFFFFFFFF)
+      return (CellType)(CT_INT |                     CTS_U32 |
+                                 CTS_X64 | CTS_S64 | CTS_U64);
+
+   if (value.ival <= 0x7FFFFFFFFFFFFFFFLL)   // note: this is always the case
+      return (CellType)(CT_INT | CTS_X64 | CTS_S64 | CTS_U64);
+
+   return (CellType)(CT_INT | CTS_U64);
+}
+//-----------------------------------------------------------------------------
 bool
 IntCell::greater(const Cell * other, bool ascending) const
 {

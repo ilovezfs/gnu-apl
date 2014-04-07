@@ -78,8 +78,26 @@ enum CellType
    CT_INT     = 0x10,
    CT_FLOAT   = 0x20,
    CT_COMPLEX = 0x40,
+   CT_ERROR   = 0x80,
    CT_NUMERIC = CT_INT  | CT_FLOAT   | CT_COMPLEX,
-   CT_MASK    = CT_CHAR | CT_POINTER | CT_NUMERIC,
+   CT_MASK    = CT_CHAR | CT_NUMERIC | CT_POINTER | CT_CELLREF | CT_ERROR,
+
+   // sub-types for Int and Char cells of different sizes.
+   //
+   CTS_BIT    = 0x0001000,   ///<                    1-bit  integer
+   CTS_X8     = 0x0002000,   ///< signed or unsigned 8-bit  integer or char
+   CTS_S8     = 0x0004000,   ///< signed             8-bit  integer or char
+   CTS_U8     = 0x0008000,   ///< unsigned           8-bit  integer or char
+   CTS_X16    = 0x0010000,   ///< signed or unsigned 16-bit integer or char
+   CTS_S16    = 0x0020000,   ///< signed             16-bit integer or char
+   CTS_U16    = 0x0040000,   ///< unsigned           16-bit integer or char
+   CTS_X32    = 0x0080000,   ///< signed or unsigned 32-bit integer or char
+   CTS_S32    = 0x0100000,   ///< signed             32-bit integer or char
+   CTS_U32    = 0x0200000,   ///< unsigned           32-bit integer or char
+   CTS_X64    = 0x0400000,   ///< signed or unsigned 64-bit integer
+   CTS_S64    = 0x0800000,   ///< signed             64-bit integer
+   CTS_U64    = 0x1000000,   ///< unsigned           64-bit integer
+   CTS_MASK   = 0x1FFF000,   ///< 
 };
 
 /// flags of a line to be printed. These flags extend CellType

@@ -32,8 +32,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.3\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-04-06 15:45+0200\n"
-"PO-Revision-Date: 2014-04-06 15:45+0200\n"
+"POT-Creation-Date: 2014-04-07 16:34+0200\n"
+"PO-Revision-Date: 2014-04-07 16:34+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
@@ -206,19 +206,19 @@ msgstr " *** bad sub-record of X"
 msgid "Unknown Error"
 msgstr "Unknown Error"
 
-#: src/main.cc:322
+#: src/main.cc:338
 msgid " (default)"
 msgstr " (default)"
 
-#: src/main.cc:333
+#: src/main.cc:349
 msgid "configurable options:"
 msgstr "configurable options:"
 
-#: src/main.cc:366
+#: src/main.cc:382
 msgid ", therefore:"
 msgstr ", therefore:"
 
-#: src/main.cc:429
+#: src/main.cc:445
 #, c-format
 msgid ""
 "usage: %s [options]\n"
@@ -237,16 +237,16 @@ msgstr ""
 "    --id proc            use processor ID proc (default: first unused > "
 "1000)\n"
 
-#: src/main.cc:439
+#: src/main.cc:455
 #, c-format
 msgid "    -l num               turn log facility num (1-%d) ON\n"
 msgstr "    -l num               turn log facility num (1-%d) ON\n"
 
-#: src/main.cc:445
+#: src/main.cc:461
 msgid "    --cc count           use count cores (default: all)\n"
 msgstr "    --cc count           use count cores (default: all)\n"
 
-#: src/main.cc:449
+#: src/main.cc:465
 #, c-format
 msgid ""
 "    --par proc           use processor parent ID proc (default: no parent)\n"
@@ -299,44 +299,49 @@ msgstr ""
 "    --TS                 append to (rather than override) summary.log\n"
 "    --                   end of options for %s\n"
 
-#: src/main.cc:512
+#: src/main.cc:528
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr "Welcome to GNU APL version %s"
 
-#: src/main.cc:513
+#: src/main.cc:529
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr "for details run: %s --gpl."
 
-#: src/main.cc:532
+#: src/main.cc:548
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr "This program comes with ABSOLUTELY NO WARRANTY;"
 
-#: src/main.cc:535
+#: src/main.cc:551
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr "This program is free software, and you are welcome to redistribute it"
 
-#: src/main.cc:536
+#: src/main.cc:552
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "according to the GNU Public License (GPL) version 3 or later."
 
-#: src/main.cc:1010
+#: src/main.cc:1031
 msgid "-f without filename"
 msgstr "-f without filename"
 
-#: src/main.cc:1042
+#: src/main.cc:1063
 msgid "-l without log facility"
 msgstr "-l without log facility"
 
-#: src/main.cc:1151
+#: src/main.cc:1067
+msgid "the -l option was ignored (requires ./configure DYNAMIC_LOG_WANTED=yes)"
+msgstr ""
+"the -l option was ignored (requires ./configure DYNAMIC_LOG_WANTED=yes)"
+
+#: src/main.cc:1175
 msgid "--TM without test mode"
 msgstr "--TM without test mode"
 
-#: src/main.cc:1174
+#: src/main.cc:1198
 msgid "-w without milli(seconds)"
 msgstr "-w without milli(seconds)"
 
-#: src/main.cc:1180
+#: src/main.cc:1204
 msgid "unknown option '"
 msgstr "unknown option '"

@@ -58,6 +58,9 @@ protected:
    virtual CellType get_cell_type() const
       { return CT_CHAR; }
 
+   /// overloaded Cell::get_cell_subtype()
+   virtual CellType get_cell_subtype() const;
+
    /// overloaded Cell::get_char_value()
    virtual Unicode get_char_value() const   { return value.aval; }
 

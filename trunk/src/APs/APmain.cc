@@ -228,6 +228,8 @@ bool auto_started = false;
 
    prog = argv[0];
 
+   Svar_DB::init(prog, false);
+
    if (strrchr(prog, '/'))   prog = strrchr(prog, '/') + 1;
    snprintf(pref, sizeof(pref) - 1, "%s(%u) ", prog, getpid());
 

@@ -83,20 +83,27 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
          const char * verbose = "";
          Log(LOG_shared_variables)   verbose = " -v";
          if (startup)
-            snprintf(filename, PATH_MAX,
-                     "%s%s/APnnn --id %u --par %u%s --ppid %u",
-                     LibPaths::get_APL_bin_path(), dirs[d],
-                     own_ID, par_ID, verbose, getpid());
+            {
+              snprintf(filename, PATH_MAX,
+                        "%s%s/APnnn --id %u --par %u%s --ppid %u",
+                         LibPaths::get_APL_bin_path(), dirs[d],
+                         own_ID, par_ID, verbose, getpid());
+            }
          else
-            snprintf(filename, PATH_MAX,
-                     "%s%s/AP%u --id %u --par %u --gra %u --auto%s --ppid %u",
-                     LibPaths::get_APL_bin_path(), dirs[d], proc, proc,
-                     own_ID, par_ID, verbose, getpid());
+            {
+              snprintf(filename, PATH_MAX,
+                       "%s%s/AP%u --id %u --par %u --gra %u --auto%s --ppid %u",
+                       LibPaths::get_APL_bin_path(), dirs[d], proc, proc,
+                       own_ID, par_ID, verbose, getpid());
+            }
 
          if (!is_executable(filename))   continue;
 
          Log(LOG_shared_variables)
             CERR << "found executable: " << filename << endl;
+
+         if (startup) Log(LOG_startup)
+                 get_CERR() << "Starting " << filename << endl;
 
          FILE * fp = popen(filename, "r");
          if (fp == 0)
