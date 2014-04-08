@@ -5,6 +5,7 @@ pkglib_LTLIBRARIES =	lib_file_io.la		\
 			lib_template_OP1.la	\
 			lib_template_OP2.la	
 
+AM_LDFLAGS = -E
 lib_file_io_la_SOURCES = file_io.cc
 
 lib_template_F0_la_SOURCES = template_F0.cc template.hh

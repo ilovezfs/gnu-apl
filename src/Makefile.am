@@ -110,12 +110,10 @@ Workspace.cc				Workspace.hh
 update-svar_signals:
 	m4 -D protocol=Svar_signals udp_signal.m4 > Svar_signals.hh
 
-apl_CXXFLAGS =	-rdynamic \
-		$(GPROF_WANTED) \
+apl_CXXFLAGS =	$(GPROF_WANTED) -Wl,-E \
 		-DSYSCONFDIR=\"$(sysconfdir)\" \
 		$(OPENMP)
 
-apl_LDFLAGS = $(GPROF_WANTED)
 apl_LDADD = $(LIBS) $(LIBREADLINE)
 
 apl.lines: apl

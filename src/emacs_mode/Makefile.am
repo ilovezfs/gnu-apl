@@ -1,6 +1,7 @@
 
 pkglib_LTLIBRARIES =	libemacs.la
 
+AM_LDFLAGS = -E
 libemacs_la_SOURCES =						\
 		DefCommand.cc		DefCommand.hh		\
 		emacs.cc		emacs.hh		\
@@ -23,3 +24,4 @@ libemacs_la_SOURCES =						\
 		util.cc			util.hh			\
 		VariablesCommand.cc	VariablesCommand.hh	\
 		VersionCommand.cc	VersionCommand.hh
+
