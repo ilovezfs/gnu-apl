@@ -296,7 +296,7 @@ IntCell::bif_nat_log(Cell * Z) const
 {
    if (value.ival > 0)
       {
-        new (Z) FloatCell(log(value.ival));
+        new (Z) FloatCell(log((double)value.ival));
       }
    else if (value.ival < 0)
       {

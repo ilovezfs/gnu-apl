@@ -30,7 +30,7 @@
 #include "Value.hh"
 #include "ValueHistory.hh"
 
-VH_entry VH_entry::history[VALUEHISTORY_SIZE];
+VH_entry VH_entry::history[VALUEHISTORY_SIZE + 1];
 int VH_entry::idx = 0;
 
 //----------------------------------------------------------------------------

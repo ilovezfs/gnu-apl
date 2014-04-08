@@ -22,6 +22,8 @@
 #include "VariablesCommand.hh"
 #include "emacs.hh"
 
+#include <sstream>
+
 enum TypeSpec {
     ALL,
     VARIABLE,
@@ -48,7 +50,7 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
     }
 
     int num_symbols = Workspace::symbols_allocated();
-    Symbol *symbols[num_symbols];
+    Symbol **symbols = new Symbol *[num_symbols];
     Workspace::get_all_symbols( symbols, num_symbols );
     for( int i = 0 ; i < num_symbols ; i++ ) {
         Symbol *symbol = symbols[i];
@@ -63,4 +65,6 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
     }
 
     conn.send_reply( out.str() );
+
+    delete[] symbols;
 }

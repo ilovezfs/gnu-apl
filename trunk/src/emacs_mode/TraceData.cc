@@ -23,6 +23,8 @@
 #include "FollowCommand.hh"
 #include "../Workspace.hh"
 
+#include <sstream>
+
 TraceData::TraceData( Symbol *symbol_in ) : symbol( symbol_in )
 {
 }
@@ -35,7 +37,7 @@ void TraceData::add_listener( NetworkConnection *connection, int cr_level )
         symbol->set_monitor_callback( symbol_assignment );
     }
 
-    active_listeners.insert( pair<NetworkConnection *, int>( connection, cr_level ) );
+    active_listeners.insert( pair<NetworkConnection *, TraceDataEntry>( connection, TraceDataEntry( cr_level ) ) );
 }
 
 void TraceData::remove_listener( NetworkConnection *connection )

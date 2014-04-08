@@ -555,7 +555,7 @@ APL_Integer set_size = B->get_ravel(0).get_near_int(qct);
 
 Value_P Z(new Value(aa, LOC));
 
-uint32_t idx_B[set_size];
+DynArray(uint32_t, idx_B, set_size);
    loop(c, set_size)   idx_B[c] = c + qio;
 
    loop(z, aa)
