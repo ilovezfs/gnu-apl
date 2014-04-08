@@ -60,9 +60,9 @@ bool do_svars = true;
 const char * build_tag[] = { BUILDTAG, 0 };
 
 //-----------------------------------------------------------------------------
-/// initialize subsystems
+/// initialize subsystems that are independent of argv[]
 void
-init(const char * argv0, bool log_startup)
+init_1(const char * argv0, bool log_startup)
 {
 rlimit rl;
    getrlimit(RLIMIT_AS, &rl);
@@ -71,9 +71,16 @@ rlimit rl;
    Output::init();
    Avec::init();
    LibPaths::init(argv0);
-   Svar_DB::init(argv0, log_startup);
    Value::init();
    VH_entry::init();
+}
+//-----------------------------------------------------------------------------
+/// initialize subsystems that  depend on argv[]
+void
+init_2(const char * argv0, bool log_startup)
+{
+   Svar_DB::init(argv0, log_startup);
+   Input::init(true);
 }
 //-----------------------------------------------------------------------------
 /// the opposite of init()
@@ -959,7 +966,7 @@ const char ** argv = expand_argv(argc, _argv, log_startup);
 #endif // DYNAMIC_LOG_WANTED
 
 const char * argv0 = argv[0];
-   init(argv0, log_startup);
+   init_1(argv0, log_startup);
 
 user_preferences up;
    read_config_file(true,  up);   // /etc/gnu-apl.d/preferences
@@ -1064,8 +1071,9 @@ user_preferences up;
                    return 3;
                  }
 #else
-   CERR << _("the -l option was ignored (requires ./configure "
-           "DYNAMIC_LOG_WANTED=yes)") << endl;
+   if (val && atoi(val) == LID_startup)   ;
+   else  CERR << _("the -l option was ignored (requires ./configure "
+                   "DYNAMIC_LOG_WANTED=yes)") << endl;
 #endif // DYNAMIC_LOG_WANTED
             }
          else if (!strcmp(opt, "--noCIN"))
@@ -1241,10 +1249,6 @@ user_preferences up;
         Output::clear_EOL[0] = 0;
       }
 
-   // init input after reading the command line options, so that the user
-   // has a chance to disable readline
-   //
-   Input::init(true);
 
    if (up.daemon)
       {
@@ -1264,9 +1268,11 @@ user_preferences up;
 
    if (up.wait_ms)   usleep(1000*up.wait_ms);
 
+   init_2(argv0, log_startup);
+
    if (!silent)   show_welcome(cout, argv0);
 
-   Log(LOG_startup)   CERR << "PID is " << getpid() << endl;
+   if (log_startup)   CERR << "PID is " << getpid() << endl;
    Log(LOG_argc_argv)   show_argv(argc, argv);
 
    // init OMP (will do nothing if OMP is not configured)
