@@ -18288,6 +18288,14 @@ _ACEOF
 fi
 
 
+# run g++ for compilation tests
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
 # check if rdtsc (read CPU cycle counter is available.
 # This is expected only on Intel CPUs
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether CPU has rdtsc (read cycle counter) opcode" >&5
@@ -18305,7 +18313,7 @@ unsigned int lo, hi;
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
+if ac_fn_cxx_try_compile "$LINENO"; then :
   HAVE_rdtsc=yes
 else
   HAVE_rdtsc=no
@@ -18322,6 +18330,7 @@ _ACEOF
 fi
 
 # see if arg 3 of tputs is (*)(int) or (*)(char)
+#
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking type of arg3 in tputs(0, 0, (*)(arg3))" >&5
 $as_echo_n "checking type of arg3 in tputs(0, 0, (*)(arg3))... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -18336,7 +18345,7 @@ tputs(0, 0, arg3);
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
+if ac_fn_cxx_try_compile "$LINENO"; then :
   TPUTS_arg3=int
 else
   TPUTS_arg3=char
@@ -18352,20 +18361,23 @@ _ACEOF
 
 
 # see if the compiler supports dynamic arrays
+#
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if compiler supports dynamic arrays" >&5
 $as_echo_n "checking if compiler supports dynamic arrays... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-extern int len();
+extern int foo();
 int
 main ()
 {
-int array[len()];
+int len = foo();int array[len];int a,r;
+    for (a=0; a<len; ++a) array[a]=a;
+    for (a=0; a<len; ++a) r+=array[a];  return r;
   ;
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
+if ac_fn_cxx_try_compile "$LINENO"; then :
   DynArrays=yes
 else
   DynArrays=no
@@ -18380,6 +18392,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 fi
+
 
 # enable readline support if libreadline is present and the user
 # has not disabled it.
@@ -18420,7 +18433,7 @@ return readline ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
+if ac_fn_cxx_try_link "$LINENO"; then :
   ac_cv_lib_readline_readline=yes
 else
   ac_cv_lib_readline_readline=no

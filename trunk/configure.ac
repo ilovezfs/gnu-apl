@@ -69,6 +69,9 @@ AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
 
+# run g++ for compilation tests
+AC_LANG(C++)
+
 # check if rdtsc (read CPU cycle counter is available.
 # This is expected only on Intel CPUs
 AC_MSG_CHECKING([whether CPU has rdtsc (read cycle counter) opcode])
@@ -83,6 +86,7 @@ if test "x$HAVE_rdtsc" = "xyes"; then
 fi
 
 # see if arg 3 of tputs is (*)(int) or (*)(char)
+#
 AC_MSG_CHECKING([type of arg3 in tputs(0, 0, (*)(arg3))])
 AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[#include <term.h>],
@@ -95,16 +99,20 @@ AC_DEFINE_UNQUOTED([TPUTS_arg3], [$TPUTS_arg3],
 
 
 # see if the compiler supports dynamic arrays
+#
 AC_MSG_CHECKING([if compiler supports dynamic arrays])
 AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM([[extern int len();]],
- 	             [[int array[len()];]])],
-                     [DynArrays=yes], [DynArrays=no])
+    [AC_LANG_PROGRAM([[extern int foo();]],
+   [[int len = foo();][int array[len];][int a,r;]
+    [for (a=0; a<len; ++a) array[a]=a;]
+    [for (a=0; a<len; ++a) r+=array[a];] [ return r;]])],
+    [DynArrays=yes], [DynArrays=no])
 AC_MSG_RESULT([$DynArrays])
 if test "x$DynArrays" = "xyes"; then
    AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS], [1],
                       [Define to 1 if the compiler supports dynamic arrays])
 fi
+
 
 # enable readline support if libreadline is present and the user
 # has not disabled it.

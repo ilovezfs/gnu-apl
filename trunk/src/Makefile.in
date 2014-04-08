@@ -112,8 +112,8 @@ apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 apl_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CXXLD) $(apl_CXXFLAGS) $(CXXFLAGS) \
-	$(apl_LDFLAGS) $(LDFLAGS) -o $@
+	--mode=link $(CXXLD) $(apl_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -427,12 +427,10 @@ Value.cc				Value.hh		\
 ValueHistory.cc				ValueHistory.hh		\
 Workspace.cc				Workspace.hh
 
-apl_CXXFLAGS = -rdynamic \
-		$(GPROF_WANTED) \
+apl_CXXFLAGS = $(GPROF_WANTED) -Wl,-E \
 		-DSYSCONFDIR=\"$(sysconfdir)\" \
 		$(OPENMP)
 
-apl_LDFLAGS = $(GPROF_WANTED)
 apl_LDADD = $(LIBS) $(LIBREADLINE)
 AM_MAKEFLAGS = -j 2
 all: all-recursive
