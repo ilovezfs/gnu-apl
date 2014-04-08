@@ -25,9 +25,13 @@
 #include <curses.h>
 #include <term.h>
 
-// curses #defines erase() on Solaris, conflicting with vector::erase()
+// curses #defines erase() and tab() on Solaris, conflicting with eg.
+// vector::erase() and others
 #ifdef erase
 #undef erase
+#endif
+#ifdef tab
+#undef tab
 #endif
 
 #else
@@ -228,7 +232,7 @@ Output::reset_colors()
 }
 //-----------------------------------------------------------------------------
 /// make Solaris happy
-#define tparm10(x, y) tparm(x, y, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#define tparm10(x, y) tparm(x, y, 0, 0, 0, 0, 0, 0, 0, 0)
 
 void
 Output::set_color_mode(Output::ColorMode mode)

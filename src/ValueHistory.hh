@@ -40,7 +40,7 @@ public:
 
    static void init();
 
-   static VH_entry history[VALUEHISTORY_SIZE];
+   static VH_entry history[VALUEHISTORY_SIZE + 1];   // +1 for Solaris
    static int idx;
 
 protected:
