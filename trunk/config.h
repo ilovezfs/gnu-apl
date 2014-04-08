@@ -17,6 +17,14 @@
 /* define to enable gprof profiling */
 #define GPROF_WANTED -pg
 
+/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
+   CoreFoundation framework. */
+/* #undef HAVE_CFLOCALECOPYCURRENT */
+
+/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
+   the CoreFoundation framework. */
+/* #undef HAVE_CFPREFERENCESCOPYAPPVALUE */
+
 /* Define to 1 if you have the <curses.h> header file. */
 #define HAVE_CURSES_H 1
 

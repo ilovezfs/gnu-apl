@@ -775,6 +775,7 @@ LIBINTL
 INTLLIBS
 LTLIBICONV
 LIBICONV
+INTL_MACOSX_LIBS
 XGETTEXT_EXTRA_OPTIONS
 MSGMERGE
 XGETTEXT_015
@@ -5223,13 +5224,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:5226: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5227: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5229: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5230: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5232: output\"" >&5)
+  (eval echo "\"\$as_me:5233: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6434,7 +6435,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6437 "configure"' > conftest.$ac_ext
+  echo '#line 6438 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7695,11 +7696,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7698: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7699: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7702: \$? = $ac_status" >&5
+   echo "$as_me:7703: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8034,11 +8035,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8037: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8038: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8041: \$? = $ac_status" >&5
+   echo "$as_me:8042: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8139,11 +8140,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8142: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8143: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8146: \$? = $ac_status" >&5
+   echo "$as_me:8147: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8194,11 +8195,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8197: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8198: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8201: \$? = $ac_status" >&5
+   echo "$as_me:8202: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10578,7 +10579,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10581 "configure"
+#line 10582 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10674,7 +10675,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10677 "configure"
+#line 10678 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13564,11 +13565,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13567: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13568: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13571: \$? = $ac_status" >&5
+   echo "$as_me:13572: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13663,11 +13664,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13666: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13667: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13670: \$? = $ac_status" >&5
+   echo "$as_me:13671: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13715,11 +13716,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13718: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13719: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13722: \$? = $ac_status" >&5
+   echo "$as_me:13723: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16149,7 +16150,81 @@ fi
 
 
 
-    gt_INTL_MACOSX
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CFPreferencesCopyAppValue" >&5
+$as_echo_n "checking for CFPreferencesCopyAppValue... " >&6; }
+if test "${gt_cv_func_CFPreferencesCopyAppValue+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  gt_save_LIBS="$LIBS"
+     LIBS="$LIBS -Wl,-framework -Wl,CoreFoundation"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <CoreFoundation/CFPreferences.h>
+int
+main ()
+{
+CFPreferencesCopyAppValue(NULL, NULL)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gt_cv_func_CFPreferencesCopyAppValue=yes
+else
+  gt_cv_func_CFPreferencesCopyAppValue=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+     LIBS="$gt_save_LIBS"
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gt_cv_func_CFPreferencesCopyAppValue" >&5
+$as_echo "$gt_cv_func_CFPreferencesCopyAppValue" >&6; }
+  if test $gt_cv_func_CFPreferencesCopyAppValue = yes; then
+
+$as_echo "#define HAVE_CFPREFERENCESCOPYAPPVALUE 1" >>confdefs.h
+
+  fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CFLocaleCopyCurrent" >&5
+$as_echo_n "checking for CFLocaleCopyCurrent... " >&6; }
+if test "${gt_cv_func_CFLocaleCopyCurrent+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  gt_save_LIBS="$LIBS"
+     LIBS="$LIBS -Wl,-framework -Wl,CoreFoundation"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <CoreFoundation/CFLocale.h>
+int
+main ()
+{
+CFLocaleCopyCurrent();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gt_cv_func_CFLocaleCopyCurrent=yes
+else
+  gt_cv_func_CFLocaleCopyCurrent=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+     LIBS="$gt_save_LIBS"
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gt_cv_func_CFLocaleCopyCurrent" >&5
+$as_echo "$gt_cv_func_CFLocaleCopyCurrent" >&6; }
+  if test $gt_cv_func_CFLocaleCopyCurrent = yes; then
+
+$as_echo "#define HAVE_CFLOCALECOPYCURRENT 1" >>confdefs.h
+
+  fi
+  INTL_MACOSX_LIBS=
+  if test $gt_cv_func_CFPreferencesCopyAppValue = yes || test $gt_cv_func_CFLocaleCopyCurrent = yes; then
+    INTL_MACOSX_LIBS="-Wl,-framework -Wl,CoreFoundation"
+  fi
+
+
 
 
 
