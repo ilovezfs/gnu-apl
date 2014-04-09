@@ -38,6 +38,9 @@ public:
    static NativeFunction * fix(const UCS_string & so_name,
                                const UCS_string & apl_name);
 
+   /// open .so file (set handle on success and update so_path)
+   void open_so_file();
+
    /// close all shared libs
    static void cleanup();
 

@@ -39,6 +39,7 @@ Executable.cc				Executable.hh		\
 FloatCell.cc				FloatCell.hh		\
 Function.cc				Function.hh		\
 DerivedFunction.cc			DerivedFunction.hh	\
+ErrorCell.cc				ErrorCell.hh		\
 Id.cc		    Id.def		Id.hh			\
 IndexExpr.cc				IndexExpr.hh		\
 IndexIterator.cc			IndexIterator.hh	\
@@ -110,8 +111,8 @@ Workspace.cc				Workspace.hh
 update-svar_signals:
 	m4 -D protocol=Svar_signals udp_signal.m4 > Svar_signals.hh
 
-apl_CXXFLAGS =	$(GPROF_WANTED) -Wl,-E \
-		-DSYSCONFDIR=\"$(sysconfdir)\" \
+apl_CXXFLAGS =	$(GPROF_WANTED) $(CXX_RDYNAMIC) \
+		-DSYSCONFDIR=\"$(sysconfdir)\"  \
 		$(OPENMP)
 
 apl_LDADD = $(LIBS) $(LIBREADLINE)

@@ -1,7 +1,8 @@
 
+AM_CXXFLAGS = $(CXX_RDYNAMIC)
+
 pkglib_LTLIBRARIES =	libemacs.la
 
-AM_LDFLAGS = -E
 libemacs_la_SOURCES =						\
 		DefCommand.cc		DefCommand.hh		\
 		emacs.cc		emacs.hh		\
