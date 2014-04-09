@@ -22,6 +22,10 @@
 
 #if HAVE_CURSES_H && HAVE_CURSES_H
 
+#if defined(__sun) && defined(__SVR4)
+#define NOMACROS
+#endif
+
 #include <curses.h>
 #include <term.h>
 

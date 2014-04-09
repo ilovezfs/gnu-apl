@@ -9,9 +9,14 @@ AC_CONFIG_SRCDIR([src])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
+# use g++ for tests
+#
+AC_LANG(C++)
+
 LT_INIT([dlopen])
 
 # Checks for programs.
+#
 AC_PROG_CXX
 AC_PROG_CC
 
@@ -19,21 +24,38 @@ AC_GNU_SOURCE
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 
+# check if compiler knows -rdynamic
+#
+AC_MSG_CHECKING([whether $CXX accepts -rdynamic])
+apl_save_CXXFLAGS=$CXXFLAGS
+CXXFLAGS="-rdynamic"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], 
+ [CAN_rdynamic=yes], [CAN_rdynamic=no])
+CXXFLAGS=$apl_save_CXXFLAGS
+if test "x$CAN_rdynamic" = "xyes"; then
+AC_SUBST([CXX_RDYNAMIC], ["-rdynamic"])
+fi
+AC_MSG_RESULT([$CAN_rdynamic])
+
 # Checks for header files.
-AC_CHECK_HEADERS([	    \
-	curses.h term.h	    \
-	execinfo.h	    \
-	fcntl.h		    \
-	inttypes.h	    \
-	omp.h		    \
-	stdint.h	    \
-	stdlib.h	    \
-        string.h	    \
-	strings.h	    \
-	unistd.h	    \
-	utmpx.h		    ])
+#
+AC_CHECK_HEADER([term.h], [], [], [
+# include <curses.h> ])
+AC_CHECK_HEADERS([	\
+	curses.h	\
+	execinfo.h	\
+	fcntl.h		\
+	inttypes.h	\
+	omp.h		\
+	stdint.h	\
+	stdlib.h	\
+        string.h	\
+	strings.h	\
+	unistd.h	\
+	utmpx.h		])
 
 # Checks for typedefs, structures, and compiler characteristics.
+#
 AC_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_INT32_T
@@ -68,9 +90,6 @@ AC_CHECK_LIB([rt],        [shm_open])
 AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
-
-# run g++ for compilation tests
-AC_LANG(C++)
 
 # check if rdtsc (read CPU cycle counter is available.
 # This is expected only on Intel CPUs
@@ -112,6 +131,9 @@ if test "x$DynArrays" = "xyes"; then
    AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS], [1],
                       [Define to 1 if the compiler supports dynamic arrays])
 fi
+
+# see if the compiler knoes -rdynamic
+#
 
 
 # enable readline support if libreadline is present and the user

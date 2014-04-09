@@ -170,6 +170,7 @@ CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
+CXX_RDYNAMIC = @CXX_RDYNAMIC@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -299,13 +300,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AM_CXXFLAGS = $(CXX_RDYNAMIC)
 pkglib_LTLIBRARIES = lib_file_io.la		\
 			lib_template_F0.la	\
 			lib_template_F12.la	\
 			lib_template_OP1.la	\
 			lib_template_OP2.la	
 
-AM_LDFLAGS = -E
 lib_file_io_la_SOURCES = file_io.cc
 lib_template_F0_la_SOURCES = template_F0.cc template.hh
 lib_template_F12_la_SOURCES = template_F12.cc template.hh

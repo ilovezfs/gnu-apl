@@ -20,6 +20,8 @@
 
 
 #include <dlfcn.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "Error.hh"
 #include "NativeFunction.hh"
@@ -38,84 +40,27 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
      valid(false),
      close_fun(0)
 {
-   // open .so file...
-   //
-   {
-     UTF8_string lib_name(so_path);
-     handle = 0;
-
-     if ((strchr(lib_name.c_str(), '/') == 0) &&
-         (strchr(lib_name.c_str(), '\\') == 0))
-        {
-          // the lib_name contains no path prefix. Try:
-          //
-          // PKGLIBDIR/lib_name
-          // PKGLIBDIR/lib_name.so
-          // PKGLIBDIR/lib_name.dylib
-          //
-          UTF8_string pkg_path = PKGLIBDIR;
-          pkg_path.append('/');
-          pkg_path.append(lib_name);
-          handle = dlopen(pkg_path.c_str(), RTLD_NOW);
-          if (handle == 0)   // no luck: try pkg_path.so
-             {
-               UTF8_string pkg_path__so(pkg_path);
-               pkg_path__so.append(UTF8_string(".so"));
-               handle = dlopen(pkg_path__so.c_str(), RTLD_NOW);
-             }
-          if (handle == 0)   // still no luck: try pkg_path.dylib
-             {
-               UTF8_string pkg_path__dylib(pkg_path);
-               pkg_path__dylib.append(UTF8_string(".dylib"));
-               handle = dlopen(pkg_path__dylib.c_str(), RTLD_NOW);
-             }
-        }
-
-     if (handle == 0)   // lib_name was not in PKGLIBDIR.
-        {
-          // Try:
-          //
-          // lib_name
-          // lib_name.so
-          // lib_name.dylib
-
-          handle = dlopen(lib_name.c_str(), RTLD_NOW);
-          if (handle == 0)   // no luck: try lib_name.so
-             {
-               UTF8_string lib_name__so(lib_name);
-               lib_name__so.append(UTF8_string(".so"));
-               handle = dlopen(lib_name__so.c_str(), RTLD_NOW);
-             }
-          if (handle == 0)   // still no luck: try lib_name.dylib
-             {
-               UTF8_string lib_name__dylib(lib_name);
-               lib_name__dylib.append(UTF8_string(".dylib"));
-               handle = dlopen(lib_name__dylib.c_str(), RTLD_NOW);
-             }
-        }
-
-     if (handle == 0)   // all dlopen() failed
-        {
-          Workspace::more_error() = UCS_string(dlerror());
-          return;
-        }
-   }
+   open_so_file();
+   if (handle == 0)   return;
+   Workspace::more_error() = UCS_string("shared library ");
+   Workspace::more_error().append(so_name);
 
    // get the function multiplexer
    //
 void * fmux = dlsym(handle, "get_function_mux");
      if (!fmux)
         {
-          CERR << "shared library is lacking the mandatory "
+          CERR << "shared library " << so_name << "is lacking the mandatory "
                   "function get_function_mux() !" << endl;
-          Workspace::more_error() = UCS_string(
-                                  "invalid .so file (no get_function_mux())");
+          Workspace::more_error().append_utf8(
+                                  "is invalid (no get_function_mux())");
           return;
         }
 
 void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
 
-   // get the mandatory function get_signature() which returns the function signature
+   // get the mandatory function get_signature() which returns
+   //  the function signature
    //
    {
      void * get_sig = get_function_mux("get_signature");
@@ -123,8 +68,8 @@ void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
         {
           CERR << "shared library is lacking the mandatory "
                   "function signature() !" << endl;
-          Workspace::more_error() = UCS_string(
-                                "invalid .so file (no get_signature())");
+          Workspace::more_error().append_utf8(
+                                  "is invalid (no get_signature())");
           return;
         }
 
@@ -186,6 +131,7 @@ Symbol * sym = Workspace::lookup_symbol(apl_name);
    if (is_operator())   sym->set_nc(NC_OPERATOR, this);
    else                 sym->set_nc(NC_FUNCTION, this);
 
+   Workspace::more_error().clear();
    valid = true;
    valid_functions.push_back(this);
 }
@@ -201,6 +147,116 @@ NativeFunction::~NativeFunction()
              valid_functions.erase(valid_functions.begin() + v);
            }
       }
+}
+//-----------------------------------------------------------------------------
+void
+NativeFunction::open_so_file()
+{
+   // prepare a )MORE error message containing the file names tried.
+   //
+   UCS_string & t4 = Workspace::more_error();
+   t4.clear();
+   t4.append_utf8("Could not find shared library '");
+   t4.append(so_path);
+   t4.append_utf8("'.\n"
+                  "The following directories and file names "
+                  "were tried (without success):\n");
+
+   // if the name starts with / (or \ on Windows) or .
+   // then take it as is without changes.
+   //
+   if (so_path[0] == UNI_ASCII_SLASH     ||
+       so_path[0] == UNI_ASCII_BACKSLASH ||
+       so_path[0] == UNI_ASCII_FULLSTOP)
+      {
+        t4.append_utf8("    ");
+        t4.append(so_path);
+        t4.append_utf8("\n");
+
+        UTF8_string filename(so_path);
+        handle = dlopen(filename.c_str(), RTLD_NOW);
+        return;
+      }
+
+   // otherwise try PKGLIBDIR . /usr/lib/apl and /usr/local/lib/apl,
+   // avoiding duplicates
+   //
+UTF8_string utf_so_path(so_path);
+const char * dirs[] =
+{
+  PKGLIBDIR,              // the normal case
+  "/usr/lib/apl",
+  "/usr/local/lib/apl",
+  ".",
+  "./native",             // if make install was not performed
+  "./emacs_mode",         // if make install was not performed
+};
+
+   // most likely PKGLIBDIR is either /usr/lib/apl or /usr/local/lib/apl.
+   // don't try them twice.
+   //
+   if (!strcmp(PKGLIBDIR, dirs[1]))   dirs[1] = 0;
+   if (!strcmp(PKGLIBDIR, dirs[2]))   dirs[2] = 0;
+
+   loop(d, sizeof(dirs) / sizeof(*dirs))
+       {
+         if (dirs[d] == 0)   continue;
+
+         UTF8_string dir_so_path(dirs[d]);
+         dir_so_path.append(UTF8_string("/"));
+         dir_so_path.append(utf_so_path);
+
+         UTF8_string dir_only(dir_so_path);
+         dir_only[strrchr(dir_only.c_str(), '/') - dir_only.c_str()] = 0;
+         if (access(dir_only.c_str(), R_OK | X_OK) != 0)
+            {
+              t4.append_utf8("    directory ");
+              t4.append_utf8(dir_only.c_str());
+              t4.append_utf8("\n");
+              continue;   // new directory
+            }
+
+         // try filename, then filename.so, and then filename.dylib
+         // unless the filename has an extension already.
+         //
+         const char * exts[] = { ".so", ".dylib", "" };
+
+         bool has_extension = false;
+         loop(e, sizeof(exts)/sizeof(*exts))
+            {
+              if (*exts[e])   // not "no extension"
+                 {
+                   const char * ext = exts[e];
+                   const char * end = dir_so_path.c_str();
+                   end += strlen(end) - strlen(ext);
+                   if (!strcmp(exts[e],  end))
+                      {
+                        has_extension = true;
+                        break;
+                      }
+                       
+                 }
+            }
+
+         loop(e, sizeof(exts)/sizeof(*exts))
+             {
+               if (has_extension && *exts[e])   continue;
+
+               UTF8_string filename(dir_so_path);
+               if (exts[e])   filename.append(UTF8_string(exts[e]));
+               handle = dlopen(filename.c_str(), RTLD_NOW);
+
+               if (handle)
+                  {
+                    so_path = UCS_string(filename);
+                    return;   // success
+                  }
+
+               t4.append_utf8("    file ");
+               t4.append_utf8(filename.c_str());
+               t4.append_utf8("\n");
+             }
+       }
 }
 //-----------------------------------------------------------------------------
 void

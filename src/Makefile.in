@@ -84,9 +84,9 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-DynamicObject.$(OBJEXT) apl-Error.$(OBJEXT) \
 	apl-Executable.$(OBJEXT) apl-FloatCell.$(OBJEXT) \
 	apl-Function.$(OBJEXT) apl-DerivedFunction.$(OBJEXT) \
-	apl-Id.$(OBJEXT) apl-IndexExpr.$(OBJEXT) \
-	apl-IndexIterator.$(OBJEXT) apl-Input.$(OBJEXT) \
-	apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
+	apl-ErrorCell.$(OBJEXT) apl-Id.$(OBJEXT) \
+	apl-IndexExpr.$(OBJEXT) apl-IndexIterator.$(OBJEXT) \
+	apl-Input.$(OBJEXT) apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
 	apl-LibPaths.$(OBJEXT) apl-Logging.$(OBJEXT) \
 	apl-LvalCell.$(OBJEXT) apl-main.$(OBJEXT) \
 	apl-Malloc_hooks.$(OBJEXT) apl-Nabla.$(OBJEXT) \
@@ -205,6 +205,7 @@ CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
+CXX_RDYNAMIC = @CXX_RDYNAMIC@
 CYGPATH_W = @CYGPATH_W@
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @DEFS@
 DEPDIR = @DEPDIR@
@@ -368,6 +369,7 @@ Executable.cc				Executable.hh		\
 FloatCell.cc				FloatCell.hh		\
 Function.cc				Function.hh		\
 DerivedFunction.cc			DerivedFunction.hh	\
+ErrorCell.cc				ErrorCell.hh		\
 Id.cc		    Id.def		Id.hh			\
 IndexExpr.cc				IndexExpr.hh		\
 IndexIterator.cc			IndexIterator.hh	\
@@ -427,8 +429,8 @@ Value.cc				Value.hh		\
 ValueHistory.cc				ValueHistory.hh		\
 Workspace.cc				Workspace.hh
 
-apl_CXXFLAGS = $(GPROF_WANTED) -Wl,-E \
-		-DSYSCONFDIR=\"$(sysconfdir)\" \
+apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) \
+		-DSYSCONFDIR=\"$(sysconfdir)\"  \
 		$(OPENMP)
 
 apl_LDADD = $(LIBS) $(LIBREADLINE)
@@ -546,6 +548,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DiffOut.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DynamicObject.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Error.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ErrorCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-FloatCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Function.Po@am__quote@
@@ -981,6 +984,20 @@ apl-DerivedFunction.obj: DerivedFunction.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DerivedFunction.cc' object='apl-DerivedFunction.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DerivedFunction.obj `if test -f 'DerivedFunction.cc'; then $(CYGPATH_W) 'DerivedFunction.cc'; else $(CYGPATH_W) '$(srcdir)/DerivedFunction.cc'; fi`
+
+apl-ErrorCell.o: ErrorCell.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ErrorCell.o -MD -MP -MF $(DEPDIR)/apl-ErrorCell.Tpo -c -o apl-ErrorCell.o `test -f 'ErrorCell.cc' || echo '$(srcdir)/'`ErrorCell.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ErrorCell.Tpo $(DEPDIR)/apl-ErrorCell.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ErrorCell.cc' object='apl-ErrorCell.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ErrorCell.o `test -f 'ErrorCell.cc' || echo '$(srcdir)/'`ErrorCell.cc
+
+apl-ErrorCell.obj: ErrorCell.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ErrorCell.obj -MD -MP -MF $(DEPDIR)/apl-ErrorCell.Tpo -c -o apl-ErrorCell.obj `if test -f 'ErrorCell.cc'; then $(CYGPATH_W) 'ErrorCell.cc'; else $(CYGPATH_W) '$(srcdir)/ErrorCell.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ErrorCell.Tpo $(DEPDIR)/apl-ErrorCell.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ErrorCell.cc' object='apl-ErrorCell.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ErrorCell.obj `if test -f 'ErrorCell.cc'; then $(CYGPATH_W) 'ErrorCell.cc'; else $(CYGPATH_W) '$(srcdir)/ErrorCell.cc'; fi`
 
 apl-Id.o: Id.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Id.o -MD -MP -MF $(DEPDIR)/apl-Id.Tpo -c -o apl-Id.o `test -f 'Id.cc' || echo '$(srcdir)/'`Id.cc

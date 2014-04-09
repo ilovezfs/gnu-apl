@@ -23,6 +23,7 @@
 
 #include <complex>
 
+#include "ErrorCode.hh"
 #include "Parser.hh"
 #include "PrintBuffer.hh"
 #include "SystemLimits.hh"
@@ -79,6 +80,9 @@ public:
 
    /// Return the character value of a cell
    virtual Unicode get_char_value() const   { DOMAIN_ERROR; }
+
+   /// Return the error code contained in a cell
+   virtual ErrorCode get_error_value() const   { DOMAIN_ERROR; }
 
    /// Return the integer value of a cell
    virtual APL_Integer get_int_value() const   { DOMAIN_ERROR; }
@@ -166,6 +170,10 @@ public:
    virtual bool is_lval_cell() const
       { return false; }
 
+   /// Return \b true iff \b this cell is an error cell
+   virtual bool is_error_cell() const
+      { return false; }
+
    /// Return \b true iff \b this cell is a complex number cell
    virtual bool is_complex_cell() const
       { return false; }
@@ -187,6 +195,7 @@ public:
       {
         Unicode       aval;    ///< A character
         APL_Integer   ival;    ///< An integer
+        ErrorCode     eval;    ///< An error code
         APL_Float     fval;    ///< A floating point number
         APL_Complex  *cpxp;   ///< Pointer to a complex number
         void         *vptr;   ///< A void pointer

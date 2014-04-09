@@ -159,6 +159,7 @@ CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
+CXX_RDYNAMIC = @CXX_RDYNAMIC@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -288,8 +289,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AM_CXXFLAGS = $(CXX_RDYNAMIC)
 pkglib_LTLIBRARIES = libemacs.la
-AM_LDFLAGS = -E
 libemacs_la_SOURCES = \
 		DefCommand.cc		DefCommand.hh		\
 		emacs.cc		emacs.hh		\
