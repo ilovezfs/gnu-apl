@@ -72,14 +72,14 @@ void LibPaths::compute_bin_path(const char * argv0)
               const size_t alen = strlen(argv0);
               const size_t plen = strlen(path);
               DynArray(char, path1, plen + 1);
-              strncpy(&path1[0], path, sizeof(path1));
+              strncpy(&path1[0], path, plen + 1);
               char * next = &path1[0];
               for (;;)
                   {
                     char * semi = strchr(next, ':');
                     if (semi)   *semi = 0;
                     DynArray(char, filename, plen + alen + 10);
-                    snprintf(&filename[0], sizeof(plen + alen + 8), "%s/%s",
+                    snprintf(&filename[0], plen + alen + 8, "%s/%s",
                              next, argv0);
 
                     if (access(&filename[0], X_OK) == 0)
