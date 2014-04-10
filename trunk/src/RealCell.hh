@@ -35,10 +35,10 @@ protected:
    virtual bool is_real_cell() const { return true; }
 
    /// Overloaded Cell::bif_circle_fun().
-   virtual void bif_circle_fun(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_circle_fun(Cell * Z, const Cell * A) const;
 
    /// Overloaded Cell::bif_logarithm().
-   virtual void bif_logarithm(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_logarithm(Cell * Z, const Cell * A) const;
 
    /// Overloaded Cell::get_classname().
    virtual const char * get_classname() const   { return "RealCell"; }

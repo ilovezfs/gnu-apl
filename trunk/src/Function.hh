@@ -129,7 +129,7 @@ public:
    /// Print \b this function.
    virtual ostream & print(ostream & out) const = 0;
 
-   typedef void (Cell::*assoc_f2)(Cell *, const Cell *) const;
+   typedef ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const;
 
    /// if this function is an associative skalar function then return
    /// its associative cell function, otherwise 0.

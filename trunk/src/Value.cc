@@ -1352,10 +1352,10 @@ const CellType ctype = get_ravel(0).get_cell_type();
 }
 //-----------------------------------------------------------------------------
 int
-Value::total_size_netto(int CDR_type) const
+Value::total_size_netto(CDR_type cdr_type) const
 {
-   if (CDR_type != 7)   // not nested
-      return 16 + 4*get_rank() + data_size(CDR_type);
+   if (cdr_type != 7)   // not nested
+      return 16 + 4*get_rank() + data_size(cdr_type);
 
    // nested: header + offset-array + sub-values.
    //
@@ -1376,7 +1376,7 @@ int size = 16 + 4*get_rank() + 4*ec;   // top_level size
         else if (cell.is_pointer_cell())
            {
              Value_P sub_val = cell.get_pointer_value();
-             const int sub_type = sub_val->get_CDR_type();
+             const CDR_type sub_type = sub_val->get_CDR_type();
              size += sub_val->total_size_brutto(sub_type);
            }
          else
@@ -1387,11 +1387,11 @@ int size = 16 + 4*get_rank() + 4*ec;   // top_level size
 }
 //-----------------------------------------------------------------------------
 int
-Value::data_size(int CDR_type) const
+Value::data_size(CDR_type cdr_type) const
 {
 const ShapeItem ec = nz_element_count();
    
-   switch (CDR_type) 
+   switch (cdr_type) 
       {
         case 0: return (ec + 7) / 8;   // 1/8 byte bit, rounded up
         case 1: return 4*ec;           //   4 byte integer
@@ -1419,7 +1419,7 @@ int size = 0;
         else if (cell.is_pointer_cell())
            {
              Value_P sub_val = cell.get_pointer_value();
-             const int sub_type = sub_val->get_CDR_type();
+             const CDR_type sub_type = sub_val->get_CDR_type();
              size += sub_val->data_size(sub_type);
            }
          else
@@ -1429,7 +1429,7 @@ int size = 0;
    return size;
 }
 //-----------------------------------------------------------------------------
-int
+CDR_type
 Value::get_CDR_type() const
 {
 const ShapeItem ec = nz_element_count();
@@ -1445,18 +1445,17 @@ const Cell & cell_0 = get_ravel(0);
         loop(e, ec)
            {
              const Cell & cell = get_ravel(e);
-             if (!cell.is_character_cell())   return 7;
+             if (!cell.is_character_cell())   return CDR_NEST32;
              const Unicode uni = cell.get_char_value();
              if (uni < 0)      has_big = true;
              if (uni >= 256)   has_big = true;
            }
 
-        return has_big ? 5 : 4;   // 8-bit or 32-bit char
+        return has_big ? CDR_CHAR32 : CDR_CHAR8;   // 8-bit or 32-bit char
       }
 
    if (cell_0.is_numeric())
       {
-        bool has_bool    = false;
         bool has_int     = false;
         bool has_float   = false;
         bool has_complex = false;
@@ -1467,8 +1466,8 @@ const Cell & cell_0 = get_ravel(0);
              if (cell.is_integer_cell())
                 {
                   const APL_Integer i = cell.get_int_value();
-                  if (i == 0)                   has_bool  = true;
-                  else if (i == 1)              has_bool  = true;
+                  if (i == 0)                   ;
+                  else if (i == 1)              ;
                   else if (i >  0x7FFFFFFFLL)   has_float = true;
                   else if (i < -0x80000000LL)   has_float = true;
                   else                          has_int   = true;
@@ -1481,16 +1480,16 @@ const Cell & cell_0 = get_ravel(0);
                 {
                   has_complex  = true;
                 }
-             else return 7;   // mixed: return 7
+             else return CDR_NEST32;   // mixed: return 7
            }
 
-        if (has_complex)   return 3;
-        if (has_float)     return 2;
-        if (has_int)       return 1;
-        return 0;
+        if (has_complex)   return CDR_CPLX128;
+        if (has_float)     return CDR_FLT64;
+        if (has_int)       return CDR_INT32;
+        return CDR_BOOL1;
       }
 
-   return 7;
+   return CDR_NEST32;
 }
 //-----------------------------------------------------------------------------
 ostream &

@@ -96,7 +96,8 @@ Worklist<Worklist_item1> wl;
                 }
              else
                 {
-                  (cell_B.*fun)(&cell_Z);
+                  const ErrorCode ec = (cell_B.*fun)(&cell_Z);
+                  if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
                 }
            }
       }
@@ -278,7 +279,8 @@ Worklist<Worklist_item2> wl;
                    {
                      // neither A nor B are nested
                      //
-                     (cell_B.*fun)(&cell_Z, &cell_A);
+                     const ErrorCode ec = (cell_B.*fun)(&cell_Z, &cell_A);
+                     if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
                    }
            }
       }

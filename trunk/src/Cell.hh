@@ -223,138 +223,138 @@ public:
    virtual void demote_float_to_int(APL_Float qct) {}
 
    /// round the value of this Cell up and store the result in Z
-   virtual void bif_ceiling(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_ceiling(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// conjugate the value of this Cell and store the result in Z
-   virtual void bif_conjugate(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_conjugate(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the direction (sign) of this Cell in Z
-   virtual void bif_direction(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_direction(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store e to the power of the value of this Cell in Z
-   virtual void bif_exponential(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_exponential(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the faculty (N!) of the value of this Cell in Z
-   virtual void bif_factorial(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_factorial(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// Round the value of this Cell down and store the result in Z
-   virtual void bif_floor(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_floor(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the absolute value of this Cell in Z
-   virtual void bif_magnitude(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_magnitude(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the base e logarithm of the value of this Cell in Z
-   virtual void bif_nat_log(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_nat_log(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the negative of the value of this Cell in Z
-   virtual void bif_negative(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_negative(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the logical complement of the value of this Cell in Z
-   virtual void bif_not(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_not(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store pi times the value of this Cell in Z
-   virtual void bif_pi_times(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_pi_times(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the reciprocal of the value of this Cell in Z
-   virtual void bif_reciprocal(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_reciprocal(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store a random number between 1 and the value of this Cell in Z
-   virtual void bif_roll(Cell * Z) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_roll(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the sum of A and \b this cell in Z
-   virtual void bif_add(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_add(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the logical and of A and \b this cell in Z
-   virtual void bif_and(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_and(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the binomial (n over k) of A and \b this cell in Z
-   virtual void bif_binomial(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_binomial(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the difference between A and \b this cell in Z
-   virtual void bif_subtract(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_subtract(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the quotient between A and \b this cell in Z
-   virtual void bif_divide(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_divide(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// compare this with other, throw DOMAIN ERROR on illegal comparisons
    virtual Comp_result compare(const Cell & other) const
       { DOMAIN_ERROR; }
 
    /// store 1 in Z if A == the value of \b this cell in Z, else 0
-   void bif_equal(Cell * Z, const Cell * A) const;
+   ErrorCode bif_equal(Cell * Z, const Cell * A) const;
 
    /// store 1 in Z if A != the value of \b this cell in Z, else 0
-   void bif_not_equal(Cell * Z, const Cell * A) const;
+   ErrorCode bif_not_equal(Cell * Z, const Cell * A) const;
 
    /// store 1 in Z if A > the value of \b this cell in Z, else 0
-   void bif_greater_than(Cell * Z, const Cell * A) const;
+   ErrorCode bif_greater_than(Cell * Z, const Cell * A) const;
 
    /// store 1 in Z if A <= the value of \b this cell in Z, else 0
-   void bif_less_eq(Cell * Z, const Cell * A) const;
+   ErrorCode bif_less_eq(Cell * Z, const Cell * A) const;
 
    /// store 1 in Z if A < the value of \b this cell in Z, else 0
-   void bif_less_than(Cell * Z, const Cell * A) const;
+   ErrorCode bif_less_than(Cell * Z, const Cell * A) const;
 
    /// store 1 in Z if A is >= the value of \b this cell in Z, else 0
-   void bif_greater_eq(Cell * Z, const Cell * A) const;
+   ErrorCode bif_greater_eq(Cell * Z, const Cell * A) const;
 
    /// store the base A logarithm of \b this cell in Z
-   virtual void bif_logarithm(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_logarithm(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the larger of A and of \b this cell in Z
-   virtual void bif_maximum(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_maximum(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the smaller of A and of \b this cell in Z
-   virtual void bif_minimum(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_minimum(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the product of A and \b this cell in Z
-   virtual void bif_multiply(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_multiply(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the logical nand of A and \b this cell in Z
-   virtual void bif_nand(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_nand(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the logical nor of A and \b this cell in Z
-   virtual void bif_nor(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_nor(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store the logical or of A and \b this cell in Z
-   virtual void bif_or(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_or(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store A to the power of \b this cell in Z
-   virtual void bif_power(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_power(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store A modulo \b this cell in Z
-   virtual void bif_residue(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_residue(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// store a circle function (according to A) of \b this cell in Z
-   virtual void bif_circle_fun(Cell * Z, const Cell * A) const
-      { DOMAIN_ERROR; }
+   virtual ErrorCode bif_circle_fun(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
 
    /// placement new
    void * operator new(std::size_t, void *);

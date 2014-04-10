@@ -170,7 +170,7 @@ IntCell::compare(const Cell & other) const
 //-----------------------------------------------------------------------------
 // monadic built-in functions...
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_factorial(Cell * Z) const
 {
 const APL_Integer iv = value.ival;
@@ -212,52 +212,63 @@ const APL_Integer iv = value.ival;
            };
 
         new (Z) IntCell(table[iv]);
-        return;
+        return E_NO_ERROR;
       }
 
 const double arg = double(iv + 1);
 const double res = tgamma(arg);
    new (Z) FloatCell(res);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_conjugate(Cell * Z) const
+ErrorCode
+IntCell::bif_conjugate(Cell * Z) const
 {
    new (Z) IntCell(value.ival);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_negative(Cell * Z) const
+ErrorCode
+IntCell::bif_negative(Cell * Z) const
 {
    if (value.ival == 0x8000000000000000LL)   // integer overflow
       new (Z) FloatCell(- value.ival);
    else
       new (Z) IntCell(- value.ival);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_direction(Cell * Z) const
+ErrorCode
+IntCell::bif_direction(Cell * Z) const
 {
    if      (value.ival > 0)   new (Z) IntCell( 1);
    else if (value.ival < 0)   new (Z) IntCell(-1);
    else                       new (Z) IntCell( 0);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_magnitude(Cell * Z) const
+ErrorCode
+IntCell::bif_magnitude(Cell * Z) const
 {
    if (value.ival >= 0)   new (Z) IntCell(value.ival);
    else                   bif_negative(Z);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_reciprocal(Cell * Z) const
+ErrorCode
+IntCell::bif_reciprocal(Cell * Z) const
 {
    switch(value.ival)
       {
         case  0: DOMAIN_ERROR;
-        case  1: new (Z) IntCell(1);    return;
-        case -1: new (Z) IntCell(-1);   return;
+        case  1: new (Z) IntCell(1);    return E_NO_ERROR;
+        case -1: new (Z) IntCell(-1);   return E_NO_ERROR;
         default: new (Z) FloatCell(1.0/value.ival);
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_roll(Cell * Z) const
 {
 const APL_Integer qio = Workspace::get_IO();
@@ -267,31 +278,38 @@ const APL_Integer set_size = value.ival;
 const APL_Integer rnd = Workspace::get_RL();
    if (set_size == 0)   new (Z) FloatCell((1.0*rnd)/0x8000000000000000ULL);
    else                 new (Z) IntCell(qio + (rnd % set_size));
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_pi_times(Cell * Z) const
 {
    new (Z) FloatCell(M_PI * value.ival);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_ceiling(Cell * Z) const
 {
    new (Z) IntCell(value.ival);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_floor(Cell * Z) const
+ErrorCode
+IntCell::bif_floor(Cell * Z) const
 {
    new (Z) IntCell(value.ival);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_exponential(Cell * Z) const
+ErrorCode
+IntCell::bif_exponential(Cell * Z) const
 {
    new (Z) FloatCell(exp((double)value.ival));
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_nat_log(Cell * Z) const
 {
    if (value.ival > 0)
@@ -308,17 +326,18 @@ IntCell::bif_nat_log(Cell * Z) const
       {
         DOMAIN_ERROR;
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 // dyadic built-in functions...
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_add(Cell * Z, const Cell * A) const
 {
    if (!A->is_integer_cell())
       {
         A->bif_add(Z, this);
-        return;
+        return E_NO_ERROR;
       }
 
    // both cells are integers.
@@ -329,16 +348,17 @@ const double sum = a + (double)b;
 
    if (sum > LARGE_INT || sum < SMALL_INT)   new (Z) FloatCell(sum);
    else                                      new (Z) IntCell(a + b);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_subtract(Cell * Z, const Cell * A) const
 {
    if (!A->is_integer_cell())
       {
         this->bif_negative(Z);   // Z = -B
         A->bif_add(Z, Z);        // Z = A + Z = A + -B
-        return;
+        return E_NO_ERROR;
       }
 
    // both cells are integers.
@@ -349,16 +369,17 @@ const double diff = a - (double)b;
 
    if (diff > LARGE_INT || diff < SMALL_INT)   new (Z) FloatCell(diff);
    else                                        new (Z) IntCell(a - b);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_divide(Cell * Z, const Cell * A) const
 {
    if (!A->is_integer_cell())
       {
         this->bif_reciprocal(Z);   // Z = ÷B
         A->bif_multiply(Z, Z);     // Z = A × Z = A × ÷B
-        return;
+        return E_NO_ERROR;
       }
 
    // both cells are integers.
@@ -370,7 +391,7 @@ const int64_t b =    get_int_value();
       {
         if (a != 0)   DOMAIN_ERROR;
         new (Z) IntCell(1);   // 0 ÷ 0 is defined as 1
-        return;
+        return E_NO_ERROR;
       }
 
 const double i_quot = a / b;
@@ -379,15 +400,16 @@ const double r_quot = a / (double)b;
    if (r_quot > LARGE_INT || r_quot < SMALL_INT)   new (Z) FloatCell(r_quot);
    else if (a != i_quot * b)                       new (Z) FloatCell(r_quot);
    else                                            new (Z) IntCell(i_quot);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_multiply(Cell * Z, const Cell * A) const
 {
    if (!A->is_integer_cell())
       {
         A->bif_multiply(Z, this);
-        return;
+        return E_NO_ERROR;
       }
 
    // both cells are integers.
@@ -398,32 +420,35 @@ const double prod = a * (double)b;
 
    if (prod > LARGE_INT || prod < SMALL_INT)   new (Z) FloatCell(prod);
    else                                        new (Z) IntCell(a * b);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 IntCell::bif_power(Cell * Z, const Cell * A) const
 {
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
+
 const int64_t b = get_int_value();
    
    if (!A->is_integer_cell())
       {
         FloatCell B(b);
         B.bif_power(Z, A);
-        return;
+        return E_NO_ERROR;
       }
 
 const int64_t a = A->get_int_value();
 
-   if (a == 0)   { new (Z) IntCell(0);   return; }   // 0^N = 0
-   if (a == 1)   { new (Z) IntCell(1);   return; }   // 1^N = 1
-   if (b == 0)   { new (Z) IntCell(1);   return; }   // N^0 = 1
-   if (b == 1)   { new (Z) IntCell(a);   return; }   // N^1 = N
+   if (a == 0)   { new (Z) IntCell(0);   return E_NO_ERROR; }   // 0^N = 0
+   if (a == 1)   { new (Z) IntCell(1);   return E_NO_ERROR; }   // 1^N = 1
+   if (b == 0)   { new (Z) IntCell(1);   return E_NO_ERROR; }   // N^0 = 1
+   if (b == 1)   { new (Z) IntCell(a);   return E_NO_ERROR; }   // N^1 = N
 
 const double power = pow((double)a, (double)b);
    if (power > LARGE_INT || b < 0)
       {
         new (Z) FloatCell(power);
-        return;
+        return E_NO_ERROR;
       }
 
    // power is an int small enough for int_64
@@ -439,9 +464,11 @@ int64_t ipow = 1;
       }
 
    new (Z) IntCell(ipow);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_residue(Cell * Z, const Cell * A) const
+ErrorCode
+IntCell::bif_residue(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
 
@@ -481,7 +508,7 @@ const APL_Float qct = Workspace::get_CT();
          if (Cell::is_near_zero(rest, qct))
             {
               new (Z) IntCell(0);
-              return;
+              return E_NO_ERROR;
             }
 
          if (valA < 0)   // A negative -> Z negative
@@ -509,9 +536,11 @@ const APL_Float qct = Workspace::get_CT();
       {
         DOMAIN_ERROR;
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_maximum(Cell * Z, const Cell * A) const
+ErrorCode
+IntCell::bif_maximum(Cell * Z, const Cell * A) const
 {
    if (A->is_integer_cell())
       {
@@ -529,9 +558,11 @@ void IntCell::bif_maximum(Cell * Z, const Cell * A) const
       {
         A->bif_maximum(Z, this);
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void IntCell::bif_minimum(Cell * Z, const Cell * A) const
+ErrorCode
+IntCell::bif_minimum(Cell * Z, const Cell * A) const
 {
    if (A->is_integer_cell())
       {
@@ -549,6 +580,7 @@ void IntCell::bif_minimum(Cell * Z, const Cell * A) const
       {
         A->bif_minimum(Z, this);
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 PrintBuffer

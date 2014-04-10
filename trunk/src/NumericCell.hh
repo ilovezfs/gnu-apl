@@ -36,25 +36,25 @@ protected:
       { return true; }
 
    /// overloaded Cell::bif_not()
-   virtual void bif_not(Cell * Z) const;
+   virtual ErrorCode bif_not(Cell * Z) const;
 
    /// overloaded Cell::bif_and()
-   virtual void bif_and(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_and(Cell * Z, const Cell * A) const;
 
    /// overloaded Cell::bif_binomial()
-   virtual void bif_binomial(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_binomial(Cell * Z, const Cell * A) const;
 
    /// compute binomial funtion for integers a and b
    static void do_binomial(Cell * Z, APL_Integer a, APL_Integer b, bool negate);
 
    /// overloaded Cell::bif_nand()
-   virtual void bif_nand(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_nand(Cell * Z, const Cell * A) const;
 
    /// overloaded Cell::bif_nor()
-   virtual void bif_nor(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_nor(Cell * Z, const Cell * A) const;
 
    /// overloaded Cell::bif_or()
-   virtual void bif_or(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_or(Cell * Z, const Cell * A) const;
 
    /// overloaded Cell::get_classname()
    virtual const char * get_classname() const   { return "NumericCell"; }

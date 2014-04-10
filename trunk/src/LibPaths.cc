@@ -67,8 +67,14 @@ void LibPaths::compute_bin_path(const char * argv0)
          //
          const char * path = getenv("PATH");   // must NOT be modified
 
-          if (path)
+         if (path)
             {
+              // we must not modify path, so we copy it to path1 and
+              // replace the semicolons in path1 by 0. That converts
+              // p1;p2; ... into a sequence of 0-terminated strings
+              // p1 p2 ... The variable next points to the start of each
+              // string.
+              //
               const size_t alen = strlen(argv0);
               const size_t plen = strlen(path);
               DynArray(char, path1, plen + 1);

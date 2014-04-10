@@ -31,7 +31,7 @@
 void
 CDR::to_CDR(CDR_string & result, Value_P value)
 {
-const int type = value->get_CDR_type();
+const CDR_type type = value->get_CDR_type();
 const int len = value->total_size_brutto(type);
    result.reserve(len + 1);
    result.clear();
@@ -248,7 +248,7 @@ const uint32_t nelm = val->element_count();
              else if (cell.is_pointer_cell())
                 {
                   Value_P sub_val = cell.get_pointer_value();
-                  const int sub_type = sub_val->get_CDR_type();
+                  const CDR_type sub_type = sub_val->get_CDR_type();
                   offset += sub_val->total_size_brutto(sub_type);
                 }
               else
@@ -270,7 +270,7 @@ const uint32_t nelm = val->element_count();
                   Value_P sub_val(new Value(LOC));
                   sub_val->get_ravel(0).init(cell);
 
-                  const int sub_type = sub_val->get_CDR_type();
+                  const CDR_type sub_type = sub_val->get_CDR_type();
                   const int sub_len = sub_val->total_size_brutto(sub_type);
                   fill(result, sub_type, sub_len, sub_val);
                 }
@@ -278,7 +278,7 @@ const uint32_t nelm = val->element_count();
                 {
                   Value_P sub_val = cell.get_pointer_value();
 
-                  const int sub_type = sub_val->get_CDR_type();
+                  const CDR_type sub_type = sub_val->get_CDR_type();
                   const int sub_len = sub_val->total_size_brutto(sub_type);
                   fill(result, sub_type, sub_len, sub_val);
                 }
@@ -316,7 +316,7 @@ struct tf3_header
 const uint8_t * data = cdr.get_items();
 
 const uint32_t nelm = get_4_be(data + 8);
-const uint32_t vtype = data[12];
+const CDR_type vtype = (CDR_type)(data[12]);
 const Rank rank = data[13];
 Shape shape;
    loop(r, rank)
@@ -329,7 +329,7 @@ Value_P ret(new Value(shape, loc));
 
 const uint8_t * ravel = data + 16 + 4*rank;
 
-   if (vtype == 0)        // packed bit vector
+   if (vtype == CDR_BOOL1)        // packed bit vector
       {
         loop(n, nelm)
            {
@@ -338,7 +338,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
              else       new (&ret->get_ravel(n)) IntCell(0);
            }
       }
-   else if (vtype == 1)   // 4 byte ints vector
+   else if (vtype == CDR_INT32)   // 4 byte ints vector
       {
         loop(n, nelm)
            {
@@ -347,7 +347,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
              new (&ret->get_ravel(n)) IntCell(d);
            }
       }
-   else if (vtype == 2)   // 8 byte float vector
+   else if (vtype == CDR_FLT64)   // 8 byte float vector
       {
         loop(n, nelm)
            {
@@ -355,7 +355,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
              new (&ret->get_ravel(n)) FloatCell(v);
            }
       }
-  else if (vtype == 3)   // 16 byte complex vector
+  else if (vtype == CDR_CPLX128)   // 16 byte complex vector
       {
         loop(n, nelm)
            {
@@ -364,7 +364,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
              new (&ret->get_ravel(n)) ComplexCell(vr, vi);
            }
       }
-   else if (vtype == 4)   // 1 byte char vector
+   else if (vtype == CDR_CHAR8)   // 1 byte char vector
       {
         loop(n, nelm)
            {
@@ -373,7 +373,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
              new (&ret->get_ravel(n)) CharCell(Unicode(d));
            }
       }
-   else if (vtype == 5)   // 4 byte UNICODE vector
+   else if (vtype == CDR_CHAR32)   // 4 byte UNICODE vector
       {
         loop(n, nelm)
            {
@@ -381,7 +381,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
              new (&ret->get_ravel(n)) CharCell(Unicode(d));
            }
       }
-   else if (vtype == 7)   // packed vector with 4 bytes offsets.
+   else if (vtype == CDR_NEST32)   // packed vector with 4 bytes offsets.
       {
         loop(n, nelm)
             {
@@ -478,6 +478,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
       }
    else
       {
+        CERR << "Unsupprted CDR type " << vtype << endl;
         Assert(0 && "Bad/unsupported CDR type");
       }
 
