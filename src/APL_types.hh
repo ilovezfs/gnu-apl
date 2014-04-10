@@ -377,6 +377,19 @@ enum Cause
    CAUSE_ERASED   = 2,
 };
 //-----------------------------------------------------------------------------
+/// the CDR data types
+enum CDR_type
+{
+   CDR_BOOL1   = 0,   ///< 1 bit boolean
+   CDR_INT32   = 1,   ///< 32 bit integer
+   CDR_FLT64   = 2,   ///< 64 bit double
+   CDR_CPLX128 = 3,   ///< 2*64 bit complex
+   CDR_CHAR8   = 4,   ///< 8 bit char
+   CDR_CHAR32  = 5,   ///< 32 bit char
+   CDR_PROG64  = 6,   ///< 2*32 bit progression vector
+   CDR_NEST32  = 7,   ///< 32 bit pointer to nested value
+};
+//-----------------------------------------------------------------------------
 /// the result of a comparison
 enum Comp_result
 {

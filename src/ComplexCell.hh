@@ -54,73 +54,73 @@ public:
    virtual Comp_result compare(const Cell & other) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_ceiling(Cell * Z) const;
+   virtual ErrorCode bif_ceiling(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_conjugate(Cell * Z) const;
+   virtual ErrorCode bif_conjugate(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_direction(Cell * Z) const;
+   virtual ErrorCode bif_direction(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_exponential(Cell * Z) const;
+   virtual ErrorCode bif_exponential(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_factorial(Cell * Z) const;
+   virtual ErrorCode bif_factorial(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_floor(Cell * Z) const;
+   virtual ErrorCode bif_floor(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_magnitude(Cell * Z) const;
+   virtual ErrorCode bif_magnitude(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_nat_log(Cell * Z) const;
+   virtual ErrorCode bif_nat_log(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_negative(Cell * Z) const;
+   virtual ErrorCode bif_negative(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_pi_times(Cell * Z) const;
+   virtual ErrorCode bif_pi_times(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_reciprocal(Cell * Z) const;
+   virtual ErrorCode bif_reciprocal(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_roll(Cell * Z) const;
+   virtual ErrorCode bif_roll(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_add(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_add(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_subtract(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_subtract(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_divide(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_divide(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_equal(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_equal(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_logarithm(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_logarithm(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_multiply(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_multiply(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_power(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_power(Cell * Z, const Cell * A) const;
 
   /// Overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_maximum(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_maximum(Cell * Z, const Cell * A) const;
 
   /// Overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_minimum(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_minimum(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_residue(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_residue(Cell * Z, const Cell * A) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
-   virtual void bif_circle_fun(Cell * Z, const Cell * A) const;
+   virtual ErrorCode bif_circle_fun(Cell * Z, const Cell * A) const;
 
    /// overloaded Cell::release()
    virtual void release(const char * loc);

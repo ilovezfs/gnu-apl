@@ -21,7 +21,6 @@
 #include <math.h>
 
 #include "Value.hh"
-#include "Error.hh"
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"
@@ -29,7 +28,7 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 RealCell::bif_logarithm(Cell * Z, const Cell * A) const
 {
    // A⍟B is defined as: (⍟B)÷(⍟A)
@@ -38,28 +37,29 @@ RealCell::bif_logarithm(Cell * Z, const Cell * A) const
 const APL_Float qct = Workspace::get_CT();
    if (A->is_near_one(qct))   // ⍟A is 0
       {
-         if (this->is_near_one(qct))   // ⍟B is 0
-            new (Z) IntCell(1);
-         else
-             DOMAIN_ERROR;
-         return;
+         if (!this->is_near_one(qct))   return E_DOMAIN_ERROR;
+
+         // ⍟B is 0
+         new (Z) IntCell(1);
+         return E_NO_ERROR;
       }
 
    if (A->is_real_cell())
       {
         new (Z) FloatCell(log(get_real_value()) / log(A->get_real_value()));
+        return E_NO_ERROR;
       }
-   else if (A->is_complex_cell())
+
+   if (A->is_complex_cell())
       {
         new (Z) ComplexCell(log(get_real_value())/log(A->get_complex_value()));
+        return E_NO_ERROR;
       }
-   else
-      {
-        DOMAIN_ERROR;
-      }
+
+   return E_DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 RealCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
 const APL_Integer fun = A->get_near_int(Workspace::get_CT());
@@ -67,34 +67,35 @@ const APL_Float b = get_real_value();
 
    switch(fun)
       {
-        case -12: ComplexCell(0, b).bif_exponential(Z);                  return;
-        case -11: new (Z) ComplexCell(0.0, b );                          return;
-        case -10: new (Z) FloatCell(      b );                           return;
-        case  -9: new (Z) FloatCell(      b );                           return;
-        case  -8: new (Z) ComplexCell(0, sqrt(1.0 + b*b));               return;
-        case  -7: new (Z) FloatCell(atanh(b));                           return;
-        case  -6: new (Z) FloatCell(acosh(b));                           return;
-        case  -5: new (Z) FloatCell(asinh(b));                           return;
+        case -12: ComplexCell(0, b).bif_exponential(Z);                  break;
+        case -11: new (Z) ComplexCell(0.0, b );                          break;
+        case -10: new (Z) FloatCell(      b );                           break;
+        case  -9: new (Z) FloatCell(      b );                           break;
+        case  -8: new (Z) ComplexCell(0, sqrt(1.0 + b*b));               break;
+        case  -7: new (Z) FloatCell(atanh(b));                           break;
+        case  -6: new (Z) FloatCell(acosh(b));                           break;
+        case  -5: new (Z) FloatCell(asinh(b));                           break;
         case  -4: if (b > 1)   new (Z) FloatCell(sqrt(b*b - 1.0));
-                  else         new (Z) ComplexCell(0, sqrt(1.0 - b*b));  return;
-        case  -3: new (Z) FloatCell(atan (b));                           return;
-        case  -2: new (Z) FloatCell(acos (b));                           return;
-        case  -1: new (Z) FloatCell(asin (b));                           return;
-        case   0: new (Z) FloatCell(sqrt (1 - b*b));                     return;
-        case   1: new (Z) FloatCell( sin (b));                           return;
-        case   2: new (Z) FloatCell( cos (b));                           return;
-        case   3: new (Z) FloatCell( tan (b));                           return;
-        case   4: new (Z) FloatCell(sqrt (1 + b*b));                     return;
-        case   5: new (Z) FloatCell( sinh(b));                           return;
-        case   6: new (Z) FloatCell( cosh(b));                           return;
-        case   7: new (Z) FloatCell( tanh(b));                           return;
-        case   8: new (Z) ComplexCell(0, -sqrt(1.0 + b*b));              return;
-        case   9: new (Z) FloatCell(      b );                           return;
-        case  10: new (Z) FloatCell((b < 0) ? -b : b);                   return;
-        case  11: new (Z) FloatCell(    0.0 );                           return;
-        case  12: new (Z) FloatCell(    0.0 );                           return;
+                  else         new (Z) ComplexCell(0, sqrt(1.0 - b*b));  break;
+        case  -3: new (Z) FloatCell(atan (b));                           break;
+        case  -2: new (Z) FloatCell(acos (b));                           break;
+        case  -1: new (Z) FloatCell(asin (b));                           break;
+        case   0: new (Z) FloatCell(sqrt (1 - b*b));                     break;
+        case   1: new (Z) FloatCell( sin (b));                           break;
+        case   2: new (Z) FloatCell( cos (b));                           break;
+        case   3: new (Z) FloatCell( tan (b));                           break;
+        case   4: new (Z) FloatCell(sqrt (1 + b*b));                     break;
+        case   5: new (Z) FloatCell( sinh(b));                           break;
+        case   6: new (Z) FloatCell( cosh(b));                           break;
+        case   7: new (Z) FloatCell( tanh(b));                           break;
+        case   8: new (Z) ComplexCell(0, -sqrt(1.0 + b*b));              break;
+        case   9: new (Z) FloatCell(      b );                           break;
+        case  10: new (Z) FloatCell((b < 0) ? -b : b);                   break;
+        case  11: new (Z) FloatCell(    0.0 );                           break;
+        case  12: new (Z) FloatCell(    0.0 );                           break;
+        default:  return E_DOMAIN_ERROR;
       }
 
-   DOMAIN_ERROR;
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------

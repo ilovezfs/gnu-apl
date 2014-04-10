@@ -27,8 +27,8 @@
 #include "Value.hh"
 #include "Id.hh"
 
-typedef void (Cell::*prim_f1)(Cell *) const;
-typedef void (Cell::*prim_f2)(Cell *, const Cell *) const;
+typedef ErrorCode (Cell::*prim_f1)(Cell *) const;
+typedef ErrorCode (Cell::*prim_f2)(Cell *, const Cell *) const;
 
 //-----------------------------------------------------------------------------
 /** Base class for skalar functions (functions whose monadic and/or dyadic

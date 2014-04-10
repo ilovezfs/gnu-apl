@@ -30,11 +30,12 @@
 #include "IntCell.hh"
 
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 NumericCell::bif_not(Cell * Z) const
 {
    if (get_near_bool(Workspace::get_CT()))   new (Z) IntCell(0);
    else                                      new (Z) IntCell(1);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 void
@@ -80,7 +81,7 @@ APL_Integer den_min = b - a;
       }
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 NumericCell::bif_binomial(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
@@ -99,7 +100,7 @@ const APL_Float qct = Workspace::get_CT();
         const APL_Complex gam_1_b__a = ComplexCell::gamma(r_1_b__a, i_b_a);
 
         new (Z) ComplexCell(gam_1_b / (gam_1_a * gam_1_b__a));
-        return;
+        return E_NO_ERROR;
       }
 
    if (!is_near_int(qct) || !A->is_near_int(qct))   // non-integer result
@@ -108,12 +109,12 @@ const APL_Float qct = Workspace::get_CT();
         const APL_Float r_1_b    = 1.0 + get_real_value();
         const APL_Float r_1_b__a = r_1_b - A->get_real_value();
 
-        if (r_1_a < 0    && is_near_int(r_1_a, qct))      DOMAIN_ERROR;
-        if (r_1_b < 0    && is_near_int(r_1_b, qct))      DOMAIN_ERROR;
-        if (r_1_b__a < 0 && is_near_int(r_1_b__a, qct))   DOMAIN_ERROR;
+        if (r_1_a < 0    && is_near_int(r_1_a, qct))      return E_DOMAIN_ERROR;
+        if (r_1_b < 0    && is_near_int(r_1_b, qct))      return E_DOMAIN_ERROR;
+        if (r_1_b__a < 0 && is_near_int(r_1_b__a, qct))   return E_DOMAIN_ERROR;
 
         new (Z) FloatCell(  tgamma(r_1_b) / (tgamma(r_1_a) * tgamma(r_1_b__a)));
-        return;
+        return E_NO_ERROR;
       }
 
 const APL_Integer a = A->get_near_int(qct);
@@ -126,18 +127,21 @@ int how = 0;
 
    switch(how)
       {
-        case 0: do_binomial(Z, a, b, false);                       return;
-        case 1: new (Z) IntCell(0);                                return;
-        case 2: Assert(0 && "Impossible case 2");                  return;
-        case 3: do_binomial(Z, a, a - (b + 1), a & 1);               return;
-        case 4: new (Z) IntCell(0);                                return;
-        case 5: Assert(0 && "Impossible case 5");                  return;
-        case 6: do_binomial(Z, -(b + 1), -(a + 1), (b - a) & 1);   return;
-        case 7: new (Z) IntCell(0);                                return;
+        case 0: do_binomial(Z, a, b, false);                       break;
+        case 1: new (Z) IntCell(0);                                break;
+        case 2: Assert(0 && "Impossible case 2");                  break;
+        case 3: do_binomial(Z, a, a - (b + 1), a & 1);             break;
+        case 4: new (Z) IntCell(0);                                break;
+        case 5: Assert(0 && "Impossible case 5");                  break;
+        case 6: do_binomial(Z, -(b + 1), -(a + 1), (b - a) & 1);   break;
+        case 7: new (Z) IntCell(0);                                break;
       }
+
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void NumericCell::bif_and(Cell * Z, const Cell * A) const
+ErrorCode
+NumericCell::bif_and(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
 
@@ -146,13 +150,13 @@ const APL_Float qct = Workspace::get_CT();
    if (A->is_near_zero(qct))
       {
         new (Z) IntCell(0);
-        return;
+        return E_NO_ERROR;
       }
 
    if (is_near_zero(qct))
       {
         new (Z) IntCell(0);
-        return;
+        return E_NO_ERROR;
       }
 
    if (!A->is_near_real(qct) || !is_near_real(qct))   // complex
@@ -163,7 +167,7 @@ const APL_Float qct = Workspace::get_CT();
                                            get_complex_value(), qct);
 
         new (Z) ComplexCell(A->get_complex_value() * (get_complex_value()/gcd));
-        return;
+        return E_NO_ERROR;
       }
 
    // if both args are boolean then return the classical A ∧ B
@@ -171,7 +175,7 @@ const APL_Float qct = Workspace::get_CT();
    if (A->is_near_bool(qct) && is_near_bool(qct))
       {
         new (Z) IntCell(1);
-        return;
+        return E_NO_ERROR;
       }
 
    // if both args are int then return the least common multiple of them
@@ -182,7 +186,7 @@ const APL_Float qct = Workspace::get_CT();
         const APL_Integer b =    get_near_int(qct);
         const APL_Integer gcd = int_gcd(a, b);
         new (Z) IntCell(a * (b / gcd));
-        return;
+        return E_NO_ERROR;
       }
 
    // if both args are real then return the (real) least common multiple of them
@@ -193,28 +197,31 @@ const APL_Float qct = Workspace::get_CT();
         const APL_Float b =    get_real_value();
         const APL_Float gcd = flt_gcd(a, b, qct);
         new (Z) FloatCell(a * (b / gcd));
-        return;
+        return E_NO_ERROR;
       }
 
-   DOMAIN_ERROR;   // char ?
+   return E_DOMAIN_ERROR;   // char ?
 }
 //-----------------------------------------------------------------------------
-void NumericCell::bif_nand(Cell * Z, const Cell * A) const
+ErrorCode
+NumericCell::bif_nand(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
    if ( A->get_near_bool(qct) && get_near_bool(qct))   new (Z) IntCell(0);
    else                                                new (Z) IntCell(1);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 NumericCell::bif_nor(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
    if ( A->get_near_bool(qct) || get_near_bool(qct))   new (Z) IntCell(0);
    else                                                new (Z) IntCell(1);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 NumericCell::bif_or(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
@@ -232,13 +239,13 @@ const APL_Float qct = Workspace::get_CT();
         if (A->is_near_zero(qct))
            {
              new (Z) ComplexCell(get_complex_value());
-             return;
+             return E_NO_ERROR;
            }
 
         if (is_near_zero(qct))
            {
              new (Z) ComplexCell(A->get_complex_value());
-             return;
+             return E_NO_ERROR;
            }
 
         // a or b is complex; we assume (require) Gaussian integers.
@@ -247,7 +254,7 @@ const APL_Float qct = Workspace::get_CT();
                                            get_complex_value(), qct);
 
         new (Z) ComplexCell(gcd);
-        return;
+        return E_NO_ERROR;
       }
 
    // if both args are int then return the greatest common divisor of them
@@ -258,7 +265,7 @@ const APL_Float qct = Workspace::get_CT();
         const APL_Integer b =    get_near_int(qct);
         const APL_Integer gcd = int_gcd(a, b);
         new (Z) IntCell(gcd);
-        return;
+        return E_NO_ERROR;
       }
 
    // if both args are real then return the (real) greatest common divisor
@@ -269,10 +276,10 @@ const APL_Float qct = Workspace::get_CT();
         const APL_Float b =    get_real_value();
         const APL_Float gcd = flt_gcd(a, b, qct);
         new (Z) FloatCell(gcd);
-        return;
+        return E_NO_ERROR;
       }
 
-   DOMAIN_ERROR;   // char ?
+   return E_DOMAIN_ERROR;   // char ?
 }
 //-----------------------------------------------------------------------------
 APL_Integer

@@ -215,8 +215,11 @@ Quad_FX::do_native_FX(Value_P A, Axis axis, Value_P B)
 {
    if (safe_mode)   DOMAIN_ERROR;
 
-UCS_string so_name = A->get_UCS_ravel();
+UCS_string so_name       = A->get_UCS_ravel();
 UCS_string function_name = B->get_UCS_ravel();
+
+   if (so_name.size() == 0)         LENGTH_ERROR;
+   if (function_name.size() == 0)   LENGTH_ERROR;
 
 NativeFunction * fun = NativeFunction::fix(so_name, function_name);
    if (fun == 0)

@@ -380,19 +380,19 @@ public:
    void check_value(const char * loc);
 
    /// return the total CDR size (header + data + padding) for \b this value.
-   int total_size_brutto(int CDR_type) const
-      { return (total_size_netto(CDR_type) + 15) & ~15; }
+   int total_size_brutto(CDR_type cdr_type) const
+      { return (total_size_netto(cdr_type) + 15) & ~15; }
 
    /// return the total CDR size in bytes (header + data),
    ///  not including any except padding for \b this value.
-   int total_size_netto(int CDR_type) const;
+   int total_size_netto(CDR_type cdr_type) const;
 
    /// return the CDR size in bytes for the data of \b value,
    /// not including the CDR header and padding
-   int data_size(int CDR_type) const;
+   int data_size(CDR_type cdr_type) const;
 
    /// return the CDR type for \b this value
-   int get_CDR_type() const;
+   CDR_type get_CDR_type() const;
 
    /// erase stale values
    static int erase_stale(const char * loc);

@@ -153,7 +153,8 @@ FloatCell::compare(const Cell & other) const
 //-----------------------------------------------------------------------------
 // monadic built-in functions...
 //-----------------------------------------------------------------------------
-void FloatCell::bif_factorial(Cell * Z) const
+ErrorCode
+FloatCell::bif_factorial(Cell * Z) const
 {
 const APL_Float qct = Workspace::get_CT();
 
@@ -162,31 +163,36 @@ const APL_Float qct = Workspace::get_CT();
         const APL_Integer iv = get_near_int(qct);
         IntCell icell(iv);
         icell.bif_factorial(Z);
-        return;
+        return E_NO_ERROR;
       }
 
    // max N! that fits into double is about 170
    //
-   if (value.fval > 170)   DOMAIN_ERROR;
+   if (value.fval > 170)   return E_DOMAIN_ERROR;
 
 const double arg = value.fval + 1.0;
    new (Z) FloatCell(tgamma(arg));
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_conjugate(Cell * Z) const
+ErrorCode
+FloatCell::bif_conjugate(Cell * Z) const
 {
    if (is_near_int(Workspace::get_CT()))
       new (Z) IntCell(get_checked_near_int());
    else
       new (Z) FloatCell(value.fval);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_negative(Cell * Z) const
+ErrorCode
+FloatCell::bif_negative(Cell * Z) const
 {
    new (Z) FloatCell(- value.fval);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_direction(Cell * Z) const
 {
    // bif_direction does NOT use ⎕CT
@@ -195,39 +201,48 @@ const APL_Float qct = Workspace::get_CT();
    if      (value.fval == 0)   new (Z) IntCell( 0);
    else if (value.fval < 0)    new (Z) IntCell(-1);
    else                        new (Z) IntCell( 1);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_magnitude(Cell * Z) const
+ErrorCode
+FloatCell::bif_magnitude(Cell * Z) const
 {
    if (value.fval >= 0.0)   new (Z) FloatCell( value.fval);
    else                     new (Z) FloatCell(-value.fval);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_reciprocal(Cell * Z) const
+ErrorCode
+FloatCell::bif_reciprocal(Cell * Z) const
 {
-   if (is_near_zero(Workspace::get_CT()))  DOMAIN_ERROR;
+   if (is_near_zero(Workspace::get_CT()))  return E_DOMAIN_ERROR;
 
    new (Z) FloatCell(1.0/value.fval);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_roll(Cell * Z) const
+ErrorCode
+FloatCell::bif_roll(Cell * Z) const
 {
 const APL_Integer qio = Workspace::get_IO();
-   if (!is_near_int(Workspace::get_CT()))   DOMAIN_ERROR;
+   if (!is_near_int(Workspace::get_CT()))   return E_DOMAIN_ERROR;
 
 const APL_Integer set_size = get_checked_near_int();
-   if (set_size <= 0)   DOMAIN_ERROR;
+   if (set_size <= 0)   return E_DOMAIN_ERROR;
 
 const APL_Integer rnd = Workspace::get_RL();
    new (Z) IntCell(qio + (rnd % set_size));
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_pi_times(Cell * Z) const
+ErrorCode
+FloatCell::bif_pi_times(Cell * Z) const
 {
    new (Z) FloatCell(M_PI * value.fval);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_ceiling(Cell * Z) const
 {
    // we want values slightly above an int to be rounded down rather than up
@@ -237,9 +252,11 @@ const double d_ret = ceil(value.fval - Workspace::get_CT());
 
    if (Cell::is_near_int(d_ret, qct))   new (Z) IntCell(llrint(d_ret));
    else                                 new (Z) FloatCell(d_ret);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_floor(Cell * Z) const
+ErrorCode
+FloatCell::bif_floor(Cell * Z) const
 {
    // we want values slightly below an int to be rounded up rather than down
    //
@@ -248,14 +265,18 @@ const double d_ret = floor(value.fval + qct);
 
    if (Cell::is_near_int(d_ret, qct))   new (Z) IntCell(llrint(d_ret)); 
    else                                 new (Z) FloatCell(d_ret);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_exponential(Cell * Z) const
+ErrorCode
+FloatCell::bif_exponential(Cell * Z) const
 {
    new (Z) FloatCell(exp(value.fval));
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void FloatCell::bif_nat_log(Cell * Z) const
+ErrorCode
+FloatCell::bif_nat_log(Cell * Z) const
 {
    if (value.fval > 0)
       {
@@ -269,13 +290,14 @@ void FloatCell::bif_nat_log(Cell * Z) const
       }
    else
       {
-        DOMAIN_ERROR;
+        return E_DOMAIN_ERROR;
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 // dyadic built-in functions...
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_add(Cell * Z, const Cell * A) const
 {
    if (A->is_complex_cell())
@@ -289,11 +311,12 @@ FloatCell::bif_add(Cell * Z, const Cell * A) const
       }
    else
       {
-        DOMAIN_ERROR;
+        return E_DOMAIN_ERROR;
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_subtract(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
@@ -312,11 +335,12 @@ const APL_Float qct = Workspace::get_CT();
       }
    else
       {
-        DOMAIN_ERROR;
+        return E_DOMAIN_ERROR;
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_multiply(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
@@ -332,20 +356,21 @@ const APL_Float qct = Workspace::get_CT();
       } 
    else
       {
-        DOMAIN_ERROR;
+        return E_DOMAIN_ERROR;
       } 
+   return E_NO_ERROR;
 }     
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_divide(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
 
    if (this->is_near_zero(qct))   // divide by 0
       {
-         if (!A->is_near_zero(qct))   DOMAIN_ERROR;
+         if (!A->is_near_zero(qct))   return E_DOMAIN_ERROR;
          new (Z) IntCell(1);   // 0/0 is 1 in APL
-         return;
+         return E_NO_ERROR;
       }
 
 const APL_Float real = A->get_real_value() / get_real_value();
@@ -364,11 +389,12 @@ const APL_Float real = A->get_real_value() / get_real_value();
       }
    else
       {
-        DOMAIN_ERROR;
+        return E_DOMAIN_ERROR;
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_power(Cell * Z, const Cell * A) const
 {
    if (A->is_real_cell())
@@ -393,11 +419,12 @@ FloatCell::bif_power(Cell * Z, const Cell * A) const
       }
    else
       {
-        DOMAIN_ERROR;
+        return E_DOMAIN_ERROR;
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_residue(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
@@ -407,7 +434,7 @@ const APL_Float qct = Workspace::get_CT();
    if (A->is_near_zero(0))
       {
         Z->init(*this);
-        return;
+        return E_NO_ERROR;
       }
 
    // if ⎕CT != 0 and B÷A is close to an integer within ⎕CT then return zero.
@@ -430,9 +457,10 @@ const APL_Float remainder = fmod(get_real_value(), A->get_real_value());
       {
         new (Z) FloatCell(remainder);
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_maximum(Cell * Z, const Cell * A) const
 {
    if (A->is_integer_cell())
@@ -451,9 +479,10 @@ FloatCell::bif_maximum(Cell * Z, const Cell * A) const
       {
         A->bif_maximum(Z, this);
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 FloatCell::bif_minimum(Cell * Z, const Cell * A) const
 {
    if (A->is_integer_cell())
@@ -472,6 +501,7 @@ FloatCell::bif_minimum(Cell * Z, const Cell * A) const
       {
         A->bif_minimum(Z, this);
       }
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 PrintBuffer

@@ -141,7 +141,7 @@ const ShapeItem m_len = B->get_shape_item(axis);
 const Shape3 shape_Z3(B->get_shape(), axis);
 
 Value_P Z(new Value(B->get_shape(), LOC));
-void (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
+ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
 
    if (assoc_f2)
       {

@@ -277,10 +277,10 @@ UCS_string ucs(pb, 0, Workspace::get_PW());
    return out << ucs << " ";
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Cell::bif_equal(Cell * Z, const Cell * A) const
 {
-int eq = 0;   // assume incompatible cell types ( == not equal)
+APL_Integer eq = 0;   // assume incompatible cell types ( == not equal)
 
    if (is_character_cell() == A->is_character_cell())   // compatible cell types
       {
@@ -288,12 +288,13 @@ int eq = 0;   // assume incompatible cell types ( == not equal)
       }
 
    new (Z) IntCell(eq);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Cell::bif_not_equal(Cell * Z, const Cell * A) const
 {
-int neq = 1;   // assume incompatible cell types ( == not equal)
+APL_Integer neq = 1;   // assume incompatible cell types ( == not equal)
 
    if (is_character_cell() == A->is_character_cell())   // compatible cell types
       {
@@ -301,29 +302,34 @@ int neq = 1;   // assume incompatible cell types ( == not equal)
       }
 
    new (Z) IntCell(neq);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Cell::bif_greater_than(Cell * Z, const Cell * A) const
 {
    new (Z) IntCell((A->compare(*this) == COMP_GT) ? 1 : 0);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Cell::bif_less_eq(Cell * Z, const Cell * A) const
 {
    new (Z) IntCell((A->compare(*this) != COMP_GT) ? 1 : 0);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Cell::bif_less_than(Cell * Z, const Cell * A) const
 {
    new (Z) IntCell((A->compare(*this) == COMP_LT) ? 1 : 0);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Cell::bif_greater_eq(Cell * Z, const Cell * A) const
 {
    new (Z) IntCell((A->compare(*this) != COMP_LT) ? 1 : 0);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------

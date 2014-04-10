@@ -108,9 +108,9 @@ SystemVariable::get_attributes(int mode, Cell * dest) const
 
         case 4: {
                   Value_P val = get_apl_value();
-                  const int CDR_type = val->get_CDR_type();
-                  const int brutto = val->total_size_brutto(CDR_type);
-                  const int data = val->data_size(CDR_type);
+                  const CDR_type cdr_type = val->get_CDR_type();
+                  const int brutto = val->total_size_brutto(cdr_type);
+                  const int data = val->data_size(cdr_type);
 
                   new (dest + 0) IntCell(brutto);
                   new (dest + 1) IntCell(data);
