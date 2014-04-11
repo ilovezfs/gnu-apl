@@ -156,7 +156,7 @@ Error::print_em(ostream & out, const char * loc)
 }
 //-----------------------------------------------------------------------------
 void
-throw_apl_error(ErrorCode code, const char * loc) throw(Error)
+throw_apl_error(ErrorCode code, const char * loc)
 {
    ADD_EVENT(0, VHE_Error, code, loc);
 
@@ -189,7 +189,7 @@ Error error(code, loc);
 }
 //-----------------------------------------------------------------------------
 void
-throw_parse_error(ErrorCode code, const char * par_loc, const char *loc) throw(Error)
+throw_parse_error(ErrorCode code, const char * par_loc, const char *loc)
 {
    Log(LOG_error_throw)
       CERR << endl
@@ -206,7 +206,7 @@ Error error(code, loc);
 }
 //-----------------------------------------------------------------------------
 void
-throw_symbol_error(const UCS_string & sym_name, const char * loc) throw(Error)
+throw_symbol_error(const UCS_string & sym_name, const char * loc)
 {
    Log(LOG_error_throw)   
       {   
@@ -226,7 +226,7 @@ Error error(E_VALUE_ERROR, loc);
 //-----------------------------------------------------------------------------
 void
 throw_define_error(const UCS_string & fun_name, const UCS_string & cmd,
-                   const char * loc) throw(Error)
+                   const char * loc)
 {
    Log(LOG_error_throw)   
       {   

@@ -137,7 +137,8 @@ enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
 
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(const UCS_string text)
-  : error(E_SYNTAX_ERROR),
+  : from_lambda(false),
+    error(E_SYNTAX_ERROR),
     error_loc(0),
     sym_Z(0),
     sym_A(0),
@@ -145,8 +146,7 @@ UserFunction_header::UserFunction_header(const UCS_string text)
     sym_FUN(0),
     sym_RO(0),
     sym_X(0),
-    sym_B(0),
-    from_lambda(false)
+    sym_B(0)
 {
 UCS_string header_line;
 
@@ -262,7 +262,8 @@ Fun_signature signature = SIG_NONE;
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(Fun_signature sig,
                                          const UCS_string fname)
-  : error(E_SYNTAX_ERROR),
+  : from_lambda(true),
+    error(E_SYNTAX_ERROR),
     function_name(fname),
     sym_Z(0),
     sym_A(0),
@@ -270,8 +271,7 @@ UserFunction_header::UserFunction_header(Fun_signature sig,
     sym_FUN(0),
     sym_RO(0),
     sym_X(0),
-    sym_B(0),
-    from_lambda(true)
+    sym_B(0)
 {
                        sym_Z = &Workspace::get_v_LAMBDA();
    if (sig & SIG_A)    sym_A = &Workspace::get_v_ALPHA();
@@ -434,8 +434,8 @@ UserFunction::UserFunction(const UCS_string txt,
                            int & error_line, const char * & error_loc,
                            bool keep_existing, const char * loc,
                            const UTF8_string & _creator)
-  : Executable(txt, loc),
-    Function(ID_USER_SYMBOL, TOK_FUN2),
+  : Function(ID_USER_SYMBOL, TOK_FUN2),
+    Executable(txt, loc),
     header(txt),
     creator(_creator)
 {
@@ -532,8 +532,8 @@ Function * old_function = header.FUN()->get_function();
 //-----------------------------------------------------------------------------
 UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
                            const UCS_string & text, const Token_string & bdy)
-  : Executable(sig, fname, text, LOC),
-    Function(ID_USER_SYMBOL, TOK_FUN0),
+  : Function(ID_USER_SYMBOL, TOK_FUN0),
+    Executable(sig, fname, text, LOC),
     header(sig, fname),
     creator(UNI_LAMBDA)
 {

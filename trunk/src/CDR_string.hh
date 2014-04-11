@@ -107,12 +107,12 @@ public:
       {
         uint32_t cnt = 1;
         for (int r = 0; r < get_rank(); ++r)   cnt *= get_4(16 + 4*r);
-        if (items == 0)                          return 1;
-        if (size() < 32)                         return 2;
-        if (get_ptr() != 0x00002020)             return 3;
-        if (header().get_nb() != size())         return 4;
-        if (header().get_nelm() != cnt)          return 5;
-        if (uint32_t(get_type()) > CDR_NEST32)   return 6;
+        if (items == 0)                           return 1;
+        if (size() < 32)                          return 2;
+        if (get_ptr() != 0x00002020)              return 3;
+        if ((int)(header().get_nb()) != size())   return 4;
+        if (header().get_nelm() != cnt)           return 5;
+        if (uint32_t(get_type()) > CDR_NEST32)    return 6;
         return 0;
       }
 

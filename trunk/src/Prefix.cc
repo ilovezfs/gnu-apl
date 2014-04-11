@@ -214,8 +214,6 @@ Function_PC high = lookahead_high;
 Function_PC
 Prefix::get_range_low() const
 {
-Function_PC high = lookahead_high;
-
    // if the stack is not empty then return the PC of the lowest element
    //
    if (size() > 0)     return at(size() - 1).pc;

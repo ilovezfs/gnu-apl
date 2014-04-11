@@ -109,7 +109,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    if (_arg.how == 1)   goto how_1;
 
-how_0:
    Assert1(_arg.how == 0);
    _arg.z = 0;
 
@@ -229,7 +228,6 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 
    if (_arg.how == 1)   goto how_1;
 
-how_0:
    Assert1(_arg.how == 0);
    _arg.z = 0;
 

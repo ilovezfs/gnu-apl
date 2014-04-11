@@ -25,7 +25,6 @@
 #include <string.h>
 
 #include "ComplexCell.hh"
-#include "ErrorCell.hh"
 #include "ErrorCode.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"

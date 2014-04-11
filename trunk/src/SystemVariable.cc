@@ -403,7 +403,6 @@ Quad_IO::assign(Value_P value, const char * loc)
         else                         LENGTH_ERROR;
       }
 
-const Cell & cell = value->get_ravel(0);
    current_io = value->get_ravel(0).get_near_bool(0.1);
    Symbol::assign(current_io ? Value::One_P : Value::Zero_P, LOC);
 }

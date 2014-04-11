@@ -123,7 +123,6 @@ Bif_REDUCE::reduce(Function * LO, Value_P B, Axis axis)
    if (axis >= B->get_rank())   AXIS_ERROR;
 
 const ShapeItem m_len = B->get_shape_item(axis);
-const APL_Float qct = Workspace::get_CT();
 
 const Shape shape_Z = B->get_shape().without_axis(axis);
 

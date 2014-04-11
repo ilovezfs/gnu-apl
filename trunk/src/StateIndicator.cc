@@ -155,7 +155,6 @@ StateIndicator::retry(const char * loc)
 
 Token Z;
 Token B(TOK_APL_VALUE1, eval_arg_B);
-int phrase_len = 1;
 
    if (!!eval_arg_A)   // dyadic
       {
@@ -166,12 +165,10 @@ int phrase_len = 1;
            {
              Token X(TOK_APL_VALUE1, eval_arg_X);
              move_2(Z, eval_AXB(A, F2, X, B), LOC);
-             phrase_len = 4;
            }
         else              // dyadic without axis
            {
              move_2(Z, eval_AB(A, F2, B), LOC);
-             phrase_len = 3;
            }
       }
    else              // monadic
@@ -182,12 +179,10 @@ int phrase_len = 1;
            {
              Token X(TOK_APL_VALUE1, eval_arg_X);
              move_2(Z, eval_XB(F1, X, B), LOC);
-             phrase_len = 3;
            }
         else              // monadic without axis
            {
              move_2(Z, eval_B(F1, B), LOC);
-             phrase_len = 2;
            }
       }
 

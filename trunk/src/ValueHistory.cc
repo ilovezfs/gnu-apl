@@ -36,8 +36,8 @@ int VH_entry::idx = 0;
 //----------------------------------------------------------------------------
 VH_entry::VH_entry(const Value * _val, VH_event _ev, int _iarg,
                    const char * _loc)
-  : event(_ev),
-    val(_val),
+  : val(_val),
+    event(_ev),
     iarg(_iarg),
     loc(_loc)
 {

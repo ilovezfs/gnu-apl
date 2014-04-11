@@ -20,6 +20,7 @@
 
 
 #include <dlfcn.h>
+#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -150,17 +151,46 @@ NativeFunction::~NativeFunction()
 }
 //-----------------------------------------------------------------------------
 void
+NativeFunction::try_one_file(const char * filename)
+{
+UCS_string & t4 = Workspace::more_error();
+const int t4_len = t4.size();
+   t4.append_utf8("    file ");
+   t4.append_utf8(filename);
+
+   if (access(filename, R_OK) != 0)
+      {
+        while (t4.size() < t4_len + 44)     t4.append_utf8(" ");
+        t4.append_utf8(" (");
+        t4.append_utf8(strerror(errno));
+        t4.append_utf8(")\n");
+        return;
+      }
+
+   handle = dlopen(filename, RTLD_NOW);
+   if (handle == 0)
+      {
+        const char * err = dlerror();
+        if (strrchr(err, ':'))   err = 1 + strrchr(err, ':');
+
+        while (t4.size() < t4_len + 44)     t4.append_utf8(" ");
+        t4.append_utf8(" (");
+        t4.append_utf8(err);
+        t4.append_utf8(" )\n");
+      }
+}
+//-----------------------------------------------------------------------------
+void
 NativeFunction::open_so_file()
 {
    // prepare a )MORE error message containing the file names tried.
    //
-   UCS_string & t4 = Workspace::more_error();
+UCS_string & t4 = Workspace::more_error();
    t4.clear();
    t4.append_utf8("Could not find shared library '");
    t4.append(so_path);
-   t4.append_utf8("'.\n"
-                  "The following directories and file names "
-                  "were tried (without success):\n");
+   t4.append_utf8("'\n"
+                  "The following directories and file names were tried:\n");
 
    // if the name starts with / (or \ on Windows) or .
    // then take it as is without changes.
@@ -169,12 +199,13 @@ NativeFunction::open_so_file()
        so_path[0] == UNI_ASCII_BACKSLASH ||
        so_path[0] == UNI_ASCII_FULLSTOP)
       {
-        t4.append_utf8("    ");
-        t4.append(so_path);
-        t4.append_utf8("\n");
-
         UTF8_string filename(so_path);
-        handle = dlopen(filename.c_str(), RTLD_NOW);
+        try_one_file(filename.c_str());
+
+        if (handle == 0)   t4.append_utf8(
+            "NOTE: Filename extensions are NOT automatically added "
+            "when a full path\n"
+            "      (i.e. a path starting with / or .) is used.");
         return;
       }
 
@@ -244,17 +275,8 @@ const char * dirs[] =
 
                UTF8_string filename(dir_so_path);
                if (exts[e])   filename.append(UTF8_string(exts[e]));
-               handle = dlopen(filename.c_str(), RTLD_NOW);
 
-               if (handle)
-                  {
-                    so_path = UCS_string(filename);
-                    return;   // success
-                  }
-
-               t4.append_utf8("    file ");
-               t4.append_utf8(filename.c_str());
-               t4.append_utf8("\n");
+               try_one_file(filename.c_str());
              }
        }
 }

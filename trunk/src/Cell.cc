@@ -21,7 +21,6 @@
 #include "CharCell.hh"
 #include "ComplexCell.hh"
 #include "Error.hh"
-#include "ErrorCell.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"
 #include "LvalCell.hh"
@@ -74,10 +73,6 @@ Cell::init(const Cell & other)
 
         case CT_CELLREF:
              new (this) LvalCell(other.get_lval_value());
-             return;
-
-        case CT_ERROR:
-             new (this) ErrorCell(other.get_error_value());
              return;
       }
 
