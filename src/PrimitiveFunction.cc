@@ -590,8 +590,6 @@ const ShapeItem from = axes.get_shape_item(0);
 const ShapeItem to   = axes.get_last_shape_item();
    if (to > B->get_rank())   AXIS_ERROR;
 
-const  ShapeItem len   = to - from;
-
    // check that the axes are contiguous and compute the number of elements
    // in the combined axes
    //
@@ -907,8 +905,6 @@ const Shape shape_A2(shape_B3.h(), shape_B3.l());
 
 
 Value_P Z(new Value(B->get_shape(), LOC));
-
-const Cell * cA = &A->get_ravel(0);
 
    loop(h, shape_B3.h())
    loop(m, shape_B3.m())
@@ -1458,7 +1454,6 @@ Bif_F12_PARTITION::partition(Value_P A, Value_P B, Axis axis)
    if (A->get_rank() > 1)    RANK_ERROR;
    if (B->get_rank() == 0)   RANK_ERROR;
 
-const APL_Float qct = Workspace::get_CT();
    if (A->is_skalar())
       {
         APL_Integer val = A->get_ravel(0).get_int_value();
@@ -2356,14 +2351,12 @@ Bif_SORT::collating_cache(Unicode uni, Value_P A, CollatingCache & cache)
 
    // uni is not in the cache. See if it is in the collating sequence.
    //
-bool uni_in_A = false;
 const ShapeItem ec_A = A->element_count();
 CollatingCacheEntry entry(uni, A->get_shape());
    loop(a, ec_A)
       {
         if (uni != A->get_ravel(a).get_char_value())   continue;
 
-        uni_in_A = true;
         ShapeItem aq = a;
         loop(r, entry.ce_shape.get_rank())
            {
@@ -2761,10 +2754,10 @@ Bif_F12_FORMAT::Format_LIFER::Format_LIFER(const UCS_string format)
 {
    // we split format into our format chunks...
    //
-size_t f = 0;
+int f = 0;
 bool exponent_pending = false;
 
-left_decorator:
+// left_decorator:
    while (f < format.size())
       {
         if (is_control_char(format[f]))   goto integral_part;
@@ -3095,7 +3088,7 @@ UCS_string
 Format_sub::insert_fract_commas(const UCS_string & data) const
 {
 UCS_string ucs;
-size_t d = 0;
+int d = 0;
 
    loop(f, format.size())
       {

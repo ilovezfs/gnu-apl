@@ -137,8 +137,7 @@ public:
 
    /// return true if every char in \b this string is '0'
    bool all_zeroes()
-      { for (size_t s = 0; s < size(); ++s)
-            if ((*this)[s] != UNI_ASCII_0)   return false;   
+      { loop(s, size())   if ((*this)[s] != UNI_ASCII_0)   return false;   
         return true;
       }
 

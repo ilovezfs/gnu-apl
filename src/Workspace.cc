@@ -469,8 +469,9 @@ int count = 0;
    loop(f, the_workspace.expunged_functions.size())
        {
          char cc[100];
-         snprintf(cc, sizeof(cc), "    ⎕EX[%lld] ", f);
-         count += the_workspace.expunged_functions[f]->show_owners(cc, out, value);
+         snprintf(cc, sizeof(cc), "    ⎕EX[%lld] ", (long long)f);
+         count += the_workspace.expunged_functions[f]
+                               ->show_owners(cc, out, value);
        }
 
    return count;

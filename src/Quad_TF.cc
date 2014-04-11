@@ -152,7 +152,6 @@ const ShapeItem ec = val->element_count();
       }
    else   // number
       {
-        const APL_Float qct = Workspace::get_CT();
         loop(e, ec)
            {
              ucs.append(UNI_ASCII_SPACE);

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU APL 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-04-08 12:46+0200\n"
+"POT-Creation-Date: 2014-04-11 17:04+0200\n"
 "PO-Revision-Date: 2013-09-15 14:04+0200\n"
 "Last-Translator: Juergen <eedjsa@localhost>\n"
 "Language-Team: German\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 # # Kommandos
 #: src/Command.cc:96 src/Command.cc:404 src/Command.cc:413 src/Command.cc:509
-#: src/Command.cc:735
+#: src/Command.cc:733
 msgid "BAD COMMAND"
 msgstr "FEHLERHAFTES KOMMANDO"
 
@@ -99,7 +99,7 @@ msgstr ")HOST Kommando fehlgeschlagen: "
 msgid "missing filename in command )IN"
 msgstr "fehlender Dateiname im Kommando )IN"
 
-#: src/Command.cc:525 src/Command.cc:750
+#: src/Command.cc:525 src/Command.cc:748
 msgid " failed: "
 msgstr " fehlgeschlagen: "
 
@@ -108,20 +108,20 @@ msgstr " fehlgeschlagen: "
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr "Kommando )IN: konnte Datei %s nicht zum Lesen öffnen: %s"
 
-#: src/Command.cc:569
+#: src/Command.cc:567
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr "Ungütltiger Zeichensatz (weder ASCII noch EBCDIC)"
 
-#: src/Command.cc:634
+#: src/Command.cc:632
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr "UNGÜLTIGE BIBLIOTHEK"
 
-#: src/Command.cc:639
+#: src/Command.cc:637
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr "Pfad %s konnte nicht als Verzeichnis geöffnet werden: %s"
 
-#: src/Command.cc:690
+#: src/Command.cc:688
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
@@ -132,52 +132,52 @@ msgstr ""
 " die Leistung des Interpreter) muß GNU APL folgendermaßen recompiliert "
 "werden:"
 
-#: src/Command.cc:696
+#: src/Command.cc:694
 msgid "other configure options"
 msgstr "andere configure Optionen"
 
-#: src/Command.cc:702
+#: src/Command.cc:700
 msgid "above the src directory."
 msgstr "oberhalb des Verzeichnisses src."
 
-#: src/Command.cc:713
+#: src/Command.cc:711
 msgid "NO MORE ERROR INFO"
 msgstr "KEINE ZUSÄTZLICHEN FEHLERINFORMATIONEN"
 
-#: src/Command.cc:726
+#: src/Command.cc:724
 msgid "Goodbye."
 msgstr "Und Tschüß."
 
-#: src/Command.cc:737
+#: src/Command.cc:735
 msgid "missing filename in command )OUT"
 msgstr "fehkender Dateiname im Kommando )OUT"
 
-#: src/Command.cc:753
+#: src/Command.cc:751
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr "Kommando )OUT: konnte Datei %s nicht zum Schreiben öffnen: %s"
 
-#: src/Command.cc:819
+#: src/Command.cc:817
 msgid " *** bad sub-record of *"
 msgstr "*** ungültiges sub-record von *"
 
-#: src/Command.cc:822
+#: src/Command.cc:820
 msgid " comment"
 msgstr " Kommentar"
 
-#: src/Command.cc:824
+#: src/Command.cc:822
 msgid " timestamp"
 msgstr " Zeitstempel"
 
-#: src/Command.cc:836
+#: src/Command.cc:834
 msgid " imbed"
 msgstr "i eingebettet"
 
-#: src/Command.cc:839
+#: src/Command.cc:837
 msgid "record #"
 msgstr "Record #"
 
-#: src/Command.cc:849
+#: src/Command.cc:847
 msgid " *** bad sub-record of X"
 msgstr "*** ungültiges sub-record von X"
 

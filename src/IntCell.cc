@@ -593,7 +593,7 @@ IntCell::character_representation(const PrintContext & pctx) const
       }
 
 char cc[40];
-int len = snprintf(cc, sizeof(cc), "%lld", value.ival);
+int len = snprintf(cc, sizeof(cc), "%lld", (long long)(value.ival));
 
 UCS_string ucs;
 
@@ -617,7 +617,6 @@ IntCell::CDR_size() const
    // use 4 byte for small integers and 8 bytes for others (converted to float).
    //
 const APL_Integer val = get_int_value();
-const int32_t high = val >> 32;
 
    if (val == 0)              return 4;
    if (val == 0xFFFFFFFF)     return 4;

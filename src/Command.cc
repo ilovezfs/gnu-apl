@@ -537,8 +537,6 @@ int idx = 0;
 
 transfer_context tctx(protection);
 
-bool new_record = true;
-
    for (;;)
       {
         const int cc = fgetc(in);
@@ -1165,7 +1163,6 @@ Command::transfer_context::add(const UTF8 * str, int len)
    loop(l, len)
       {
         const UTF8 utf = str[l];
-        Unicode uni;
         switch(utf)
            {
              case 0         ... ('*' - 1):   // < '*'

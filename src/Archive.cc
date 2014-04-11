@@ -143,15 +143,10 @@ void
 XML_Saving_Archive::save_UCS(const UCS_string & ucs)
 {
 int space = do_indent();
-char cc[40];
 bool char_mode = false;
    out << decr(space, "<UCS uni=\"");
    ++indent;
-   loop(u, ucs.size())
-      {
-        const Unicode uni = ucs[u];
-        emit_unicode(ucs[u], space, char_mode);
-      }
+   loop(u, ucs.size())   emit_unicode(ucs[u], space, char_mode);
 
    NEED(3, false) << "\"/>" << endl;
    --indent;
@@ -180,7 +175,8 @@ unsigned int parent_vid = -1;
 
    loop (r, v.get_rank())
       {
-        snprintf(cc, sizeof(cc), " sh-%llu=\"%llu\"", r, v.get_shape_item(r));
+        snprintf(cc, sizeof(cc), " sh-%llu=\"%llu\"", (unsigned long long)r,
+                 (unsigned long long)(v.get_shape_item(r)));
         out << cc;
       }
 
@@ -263,7 +259,7 @@ char cc[80];
                    const int vid = find_owner(cp);
                    const Value & val = values[vid]._val;
                    const ShapeItem offset = val.get_offset(cp);
-                   snprintf(cc, sizeof(cc), "%d[%lld]", vid, offset);
+                   snprintf(cc, sizeof(cc), "%d[%lld]", vid, (long long)offset);
                    NEED(1 + strlen(cc), false) << UNI_PAD_U7 << decr(space, cc);
                    space--;   // PAD_U6
                  }
@@ -1574,8 +1570,6 @@ void
 XML_Loading_Archive::read_SI_entry(int lev)
 {
 const int level     = find_int_attr("level",     false, 10);
-const int pc        = find_int_attr("pc",        false, 10);
-const int line      = find_int_attr("line",      false, 10);
 const int vid_arg_A = find_int_attr("vid_arg_A", true, 10);
 const int Id_arg_F  = find_int_attr("Id_arg_F",  true, 16);
 const int vid_arg_B = find_int_attr("vid_arg_B", true, 10);
@@ -1759,7 +1753,6 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
 
         case TV_INDEX: 
              {
-               const unsigned int rank = find_int_attr("rank", false, 10);
                char * vids = (char *)find_attr("index", false);
                IndexExpr & idx = *new IndexExpr(ASS_none, LOC);
                while (*vids != '"')
@@ -1775,7 +1768,6 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                          Assert1(*vids == 'i');   ++vids;
                          Assert1(*vids == 'd');   ++vids;
                          Assert1(*vids == '_');   ++vids;
-                         char * end;
                          const unsigned int vid = strtol(vids, &vids, 10);
                          Assert(vid < values.size());
                          idx.add(values[vid]);

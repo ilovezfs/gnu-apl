@@ -79,9 +79,7 @@ Bif_OPER2_PRODUCT::finish_outer_product(EOC_arg & arg)
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    if (_arg.how == 1)   goto how_1;
 
-how_0:
    Assert1(_arg.how == 0);
-
    _arg.a = 0;
 loop_a:
 
@@ -283,7 +281,6 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
         FIXME;
       }
 
-how_0:
    Assert1(_arg.how == 0);
    _arg.last_ufun = false;
 

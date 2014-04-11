@@ -1059,7 +1059,6 @@ Value::index(Value_P X) const
 
 const Shape shape_Z(X->get_shape());
 Value_P Z(new Value(shape_Z, LOC));
-const ShapeItem ec = shape_Z.get_volume();
 const ShapeItem max_idx = element_count();
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();

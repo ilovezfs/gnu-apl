@@ -197,7 +197,6 @@ FloatCell::bif_direction(Cell * Z) const
 {
    // bif_direction does NOT use ⎕CT
    //
-const APL_Float qct = Workspace::get_CT();
    if      (value.fval == 0)   new (Z) IntCell( 0);
    else if (value.fval < 0)    new (Z) IntCell(-1);
    else                        new (Z) IntCell( 1);

@@ -138,7 +138,7 @@ int64_t prev_pc = -1LL;
 
          if (s[8] == ':')   // opcode address
             {
-              int64_t pc = -1LL;
+              long long pc = -1LL;
               if (1 == sscanf(s, " %llx:", &pc))
                  {
                    if (pc < prev_pc)

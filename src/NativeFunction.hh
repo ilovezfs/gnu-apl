@@ -38,9 +38,6 @@ public:
    static NativeFunction * fix(const UCS_string & so_name,
                                const UCS_string & apl_name);
 
-   /// open .so file (set handle on success and update so_path)
-   void open_so_file();
-
    /// close all shared libs
    static void cleanup();
 
@@ -59,6 +56,13 @@ protected:
 
    /// destructor: close so_handle
    ~NativeFunction();
+
+   /// open .so file in one of several directories. On success set handle 
+   /// and update so_path.
+   void open_so_file();
+
+   /// try to open one .so file
+   void try_one_file(const char * filename);
 
    /// overloaded Function::is_native()
    virtual bool is_native() const   { return true; }

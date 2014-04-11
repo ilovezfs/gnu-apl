@@ -47,8 +47,8 @@ Nabla::Nabla(const UCS_string & cmd)
      function_existed(true),
      do_close(false),
      locked(false),
-     first_command(cmd),
-     current_line(1)
+     current_line(1),
+     first_command(cmd)
 {
    Workspace::more_error().clear();
 }

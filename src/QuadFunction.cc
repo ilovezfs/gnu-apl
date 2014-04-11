@@ -150,11 +150,13 @@ Value_P Z(new Value(shape_Z, LOC));
              const Token t(Workspace::get_quad(symbol_name, l));
              if (t.get_Class() == TC_SYMBOL)   // system variable
                 {
-                  Symbol * symbol = t.get_sym_ptr();
+                  // Assert() if symbol_name is not a function
+                  t.get_sym_ptr();
                 }
              else
                 {
-                  Function * fun = t.get_function();
+                  // throws SYNTAX_ERROR if t is not a function
+                  t.get_function();
                 }
            }
         else                                   // user defined
@@ -419,7 +421,6 @@ UCS_string epilog(name);
      if (max_len < 40)   max_len = 40;
      UCS_string line;
      int count = 0;
-     int lpos = 0;
      loop(p, value.element_count())
         {
           UCS_string pref = name;
@@ -1095,7 +1096,6 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
    //
    if (B->element_count() == 0)   return Token(TOK_APL_VALUE1, Value::Str0_0_P);
 
-const bool int_B = B->get_ravel(0).is_integer_cell();
    error.init(get_error_code(B), error.throw_loc);
 
    if (error.error_code == E_NO_ERROR)   // B = 0 0: reset ⎕ET and ⎕EM.

@@ -126,7 +126,7 @@ private:
 };
 
 /// throw an Error with \b code only (typically a standard APL error)
-void throw_apl_error(ErrorCode code, const char * loc) throw(Error)
+void throw_apl_error(ErrorCode code, const char * loc)
 #ifdef __GNUC__
     __attribute__ ((noreturn))
 #endif
@@ -134,14 +134,14 @@ void throw_apl_error(ErrorCode code, const char * loc) throw(Error)
 
 /// throw a error with a parser location
 void throw_parse_error(ErrorCode code, const char * par_loc,
-                       const char * loc) throw(Error)
+                       const char * loc)
 #ifdef __GNUC__
     __attribute__ ((noreturn))
 #endif
 ;
 
 /// throw an Error related to \b Symbol \b symbol
-void throw_symbol_error(const UCS_string & symb, const char * loc) throw(Error)
+void throw_symbol_error(const UCS_string & symb, const char * loc)
 #ifdef __GNUC__
     __attribute__ ((noreturn))
 #endif
@@ -149,7 +149,7 @@ void throw_symbol_error(const UCS_string & symb, const char * loc) throw(Error)
 
 /// throw a define error for function \b fun
 void throw_define_error(const UCS_string & fun, const UCS_string & cmd,
-                        const char * loc) throw(Error)
+                        const char * loc)
 #ifdef __GNUC__
     __attribute__ ((noreturn))
 #endif

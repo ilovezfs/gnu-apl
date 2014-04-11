@@ -153,7 +153,6 @@ ValueStackItem & vs = value_stack.back();
                CDR::to_CDR(cdr, new_value);
                if (cdr.size() > MAX_SVAR_SIZE)   LIMIT_ERROR_SVAR;
                string data((const char *)cdr.get_items(), cdr.size());
-               const SV_key key = get_SV_key();
 
                // wait for shared variable to be ready
                //
@@ -578,7 +577,6 @@ void
 Symbol::get_attributes(int mode, Cell * dest) const
 {
 const ValueStackItem & vs = value_stack.back();
-bool is_var = false;
 bool has_result = false;
 int fun_valence = 0;
 int oper_valence = 0;
@@ -590,7 +588,6 @@ const int * exec_properties = exec_prop;
       {
         case NC_LABEL:
         case NC_VARIABLE:
-             is_var = 1;
              has_result = true;
              break;
 
@@ -1073,7 +1070,7 @@ UCS_string data;
              buffer[1 + uu] = cc;
            }
 
-        sprintf(buffer + 72, "%8.8lld\r\n", seq++);
+        sprintf(buffer + 72, "%8.8lld\r\n", (long long)(seq++));
         fwrite(buffer, 1, 82, out);
       }
 }
@@ -1143,7 +1140,7 @@ int count = 0;
                                           item.sym_val.function->get_ufun1();
                      Assert(ufun);
                      char cc[100];
-                     snprintf(cc, sizeof(cc), "    VS[%lld] ", v);
+                     snprintf(cc, sizeof(cc), "    VS[%lld] ", (long long)v);
                      count += ufun->show_owners(cc, out, value);
 
                    }
