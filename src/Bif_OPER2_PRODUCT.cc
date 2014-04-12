@@ -274,12 +274,8 @@ Bif_OPER2_PRODUCT::finish_inner_product(EOC_arg & arg)
 {
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
-   if (_arg.how > 0)
-      {
-        if (_arg.how == 1)   goto how_1;
-        if (_arg.how == 2)   goto how_2;
-        FIXME;
-      }
+   if (_arg.how == 1)   goto how_1;
+   if (_arg.how == 2)   goto how_2;
 
    Assert1(_arg.how == 0);
    _arg.last_ufun = false;
@@ -415,16 +411,27 @@ Bif_OPER2_PRODUCT::eoc_inner_product(Token & token, EOC_arg & si_arg)
 EOC_arg arg = si_arg;
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
+   if      (token.get_Class() == TC_VALUE)   ;   // continue below
+   else if (token.get_tag() == TOK_ESCAPE)
+      {
+        loop(i, _arg.items_A)   _arg.args_A[i].reset();
+        loop(i, _arg.items_B)   _arg.args_B[i].reset();
+        return false;   // stop it
+      }
+   else
+      {
+        StateIndicator & si = *Workspace::SI_top();
+        si.set_eoc_handler(eoc_inner_product);
+        return false;   // stop it
+      }
+
    if (!_arg.last_ufun)   Workspace::pop_SI(LOC);
 
-   if (token.get_Class() == TC_VALUE)
-      {
-       // a user defined function has returned a value. Store it.
-       //
-       if      (_arg.how == 1)   arg.V1 = token.get_apl_val();
-       else if (_arg.how == 2)   arg.V2 = token.get_apl_val();
-       else                      FIXME;
-      }
+   // a user defined function has returned a value. Store it.
+   //
+   if      (_arg.how == 1)   arg.V1 = token.get_apl_val();
+   else if (_arg.how == 2)   arg.V2 = token.get_apl_val();
+   else                      FIXME;
 
    copy_1(token, finish_inner_product(arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
