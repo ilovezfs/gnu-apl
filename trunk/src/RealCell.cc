@@ -62,7 +62,10 @@ const APL_Float qct = Workspace::get_CT();
 ErrorCode
 RealCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
-const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+const APL_Float qct = Workspace::get_CT();
+   if (!A->is_near_int(qct))   return E_DOMAIN_ERROR;
+
+const APL_Integer fun = A->get_near_int(qct);
 const APL_Float b = get_real_value();
 
    switch(fun)

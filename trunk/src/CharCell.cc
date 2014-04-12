@@ -18,14 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Value.hh"
-#include "Error.hh"
-#include "Workspace.hh"
 #include "CharCell.hh"
-#include "ComplexCell.hh"
-#include "FloatCell.hh"
-#include "IntCell.hh"
-#include "PointerCell.hh"
 
 //-----------------------------------------------------------------------------
 CellType

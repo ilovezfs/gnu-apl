@@ -295,69 +295,55 @@ FloatCell::bif_nat_log(Cell * Z) const
 }
 //-----------------------------------------------------------------------------
 // dyadic built-in functions...
+//
+// where possible a function with non-real A is delegated to the corresponding
+// member function of A. For numeric cells that is the ComplexCell function
+// and otherwise the default function (that returns E_DOMAIN_ERROR.
+//
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_add(Cell * Z, const Cell * A) const
 {
-   if (A->is_complex_cell())
-      {
-        A->bif_add(Z, this);
-      }
-   else if (A->is_real_cell())
+   if (A->is_real_cell())
       {
         new (Z) FloatCell(A->get_real_value() + get_real_value());
         Z->demote_float_to_int(Workspace::get_CT());
+        return E_NO_ERROR;
       }
-   else
-      {
-        return E_DOMAIN_ERROR;
-      }
-   return E_NO_ERROR;
+
+   // delegate to A
+   //
+   return A->bif_add(Z, this);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_subtract(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-
-   if (A->is_complex_cell())
-      {
-        new (Z) ComplexCell(A->get_real_value() - get_real_value(),
-                            A->get_imag_value());
-        Z->demote_complex_to_real(qct);
-        Z->demote_float_to_int(qct);
-      }
-   else if (A->is_real_cell())
+   if (A->is_real_cell())
       {
         new (Z) FloatCell(A->get_real_value() - get_real_value());
-        Z->demote_float_to_int(qct);
+        Z->demote_float_to_int(Workspace::get_CT());
+        return E_NO_ERROR;
       }
-   else
-      {
-        return E_DOMAIN_ERROR;
-      }
-   return E_NO_ERROR;
+
+   // delegate to A
+   //
+   return A->bif_subtract(Z, this);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_multiply(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-      
-   if (A->is_complex_cell())
-      {                     
-        A->bif_multiply(Z, this);
-      } 
-   else if (A->is_real_cell())
+   if (A->is_real_cell())
       { 
         new (Z) FloatCell(A->get_real_value() * get_real_value());
-        Z->demote_float_to_int(qct);
+        Z->demote_float_to_int(Workspace::get_CT());
+        return E_NO_ERROR;
       } 
-   else
-      {
-        return E_DOMAIN_ERROR;
-      } 
-   return E_NO_ERROR;
+
+   // delegate to A
+   //
+   return A->bif_multiply(Z, this);
 }     
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -372,25 +358,18 @@ const APL_Float qct = Workspace::get_CT();
          return E_NO_ERROR;
       }
 
-const APL_Float real = A->get_real_value() / get_real_value();
 
-   if (A->is_complex_cell())
+   if (A->is_real_cell())
       {
-        const APL_Float imag = A->get_imag_value() / get_real_value();
-        if (!Cell::is_near_zero(imag, qct))     new (Z) ComplexCell(real, imag);
-        else if (Cell::is_near_int(real, qct))  new (Z) IntCell(real, qct);
-        else                                    new (Z) FloatCell(real);
-      }
-   else if (A->is_real_cell())
-      {
+        const APL_Float real = A->get_real_value() / get_real_value();
         if (Cell::is_near_int(real, qct))   new (Z) IntCell(real, qct);
         else                                new (Z) FloatCell(real);
+         return E_NO_ERROR;
       }
-   else
-      {
-        return E_DOMAIN_ERROR;
-      }
-   return E_NO_ERROR;
+
+   // delegate to A
+   //
+   return A->bif_divide(Z, this);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -408,55 +387,69 @@ FloatCell::bif_power(Cell * Z, const Cell * A) const
            {
              new (Z) FloatCell(pow(A->get_real_value(), get_real_value()));
            }
+        return E_NO_ERROR;
       }
-   else if (A->is_complex_cell())
+
+   if (A->is_complex_cell())
       {
         APL_Complex z = pow(A->get_complex_value(), get_real_value());
 
         new (Z) ComplexCell(z);
         Z->demote_complex_to_real(Workspace::get_CT());
+        return E_NO_ERROR;
       }
-   else
-      {
-        return E_DOMAIN_ERROR;
-      }
-   return E_NO_ERROR;
+
+   return E_DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_residue(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-
-   // if A is zero , return B
-   //
-   if (A->is_near_zero(0))
+   if (A->is_complex_cell())
       {
-        Z->init(*this);
+        ComplexCell B(get_real_value(), 0);
+        return B.bif_residue(Z, A);
+      }
+
+   if (A->is_numeric())
+      {
+        const APL_Float qct = Workspace::get_CT();
+
+        // if A is zero , return B
+        //
+        if (A->is_near_zero(0))
+           {
+             Z->init(*this);
+             return E_NO_ERROR;
+           }
+
+        // if ⎕CT != 0 and B÷A is close to an integer within ⎕CT then return 0.
+        // Otherwise return B mod A
+        //
+        const APL_Float remainder = fmod(get_real_value(), A->get_real_value()); 
+        if (qct == 0.0)   // ⎕CT is 0
+           {
+             new (Z) FloatCell(remainder);
+             return E_NO_ERROR;
+           }
+
+        if (Cell::is_near_zero(remainder, qct))
+           {
+             new (Z) IntCell(0);
+             return E_NO_ERROR;
+           }
+
+        if (Cell::is_near_zero(A->get_real_value() - remainder, qct))
+           {
+             new (Z) IntCell(0);
+             return E_NO_ERROR;
+           }
+
+        new (Z) FloatCell(remainder);
         return E_NO_ERROR;
       }
 
-   // if ⎕CT != 0 and B÷A is close to an integer within ⎕CT then return zero.
-   // Otherwise return B mod A
-   //
-const APL_Float remainder = fmod(get_real_value(), A->get_real_value()); 
-   if (qct == 0.0)   // ⎕CT is 0
-      {
-        new (Z) FloatCell(remainder);
-      }
-   else if (Cell::is_near_zero(remainder, qct))
-      {
-        new (Z) IntCell(0);
-      }
-   else if (Cell::is_near_zero(A->get_real_value() - remainder, qct))
-      {
-        new (Z) IntCell(0);
-      }
-   else
-      {
-        new (Z) FloatCell(remainder);
-      }
-   return E_NO_ERROR;
+   return E_DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -467,18 +460,20 @@ FloatCell::bif_maximum(Cell * Z, const Cell * A) const
          const APL_Integer a = A->get_int_value();
          if (APL_Float(a) >= value.fval)   new (Z) IntCell(a);
          else                              new (Z) FloatCell(value.fval);
+         return E_NO_ERROR;
       }
-   else if (A->is_float_cell())
+
+   if (A->is_float_cell())
       {
          const APL_Float a = A->get_real_value();
          if (a >= value.fval)   new (Z) FloatCell(a);
          else                   new (Z) FloatCell(value.fval);
+         return E_NO_ERROR;
       }
-   else
-      {
-        A->bif_maximum(Z, this);
-      }
-   return E_NO_ERROR;
+
+   // delegate to A
+   //
+   return A->bif_maximum(Z, this);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -489,20 +484,25 @@ FloatCell::bif_minimum(Cell * Z, const Cell * A) const
          const APL_Integer a = A->get_int_value();
          if (APL_Float(a) <= value.fval)   new (Z) IntCell(a);
          else                              new (Z) FloatCell(value.fval);
+         return E_NO_ERROR;
       }
-   else if (A->is_float_cell())
+
+   if (A->is_float_cell())
       {
          const APL_Float a = A->get_real_value();
          if (a <= value.fval)   new (Z) FloatCell(a);
          else                   new (Z) FloatCell(value.fval);
+         return E_NO_ERROR;
       }
-   else
-      {
-        A->bif_minimum(Z, this);
-      }
-   return E_NO_ERROR;
+
+   // delegate to A
+   //
+   return A->bif_minimum(Z, this);
 }
-//-----------------------------------------------------------------------------
+//=============================================================================
+// throw/nothrow boundary. Functions above MUST NOT (directly or indirectly)
+// throw while funcions below MAY throw.
+//=============================================================================
 PrintBuffer
 FloatCell::character_representation(const PrintContext & pctx) const
 {

@@ -24,9 +24,7 @@
 #include <complex>
 
 #include "ErrorCode.hh"
-#include "Parser.hh"
 #include "PrintBuffer.hh"
-#include "SystemLimits.hh"
 
 class Value;
 
@@ -80,9 +78,6 @@ public:
 
    /// Return the character value of a cell
    virtual Unicode get_char_value() const   { DOMAIN_ERROR; }
-
-   /// Return the error code contained in a cell
-   virtual ErrorCode get_error_value() const   { DOMAIN_ERROR; }
 
    /// Return the integer value of a cell
    virtual APL_Integer get_int_value() const   { DOMAIN_ERROR; }
