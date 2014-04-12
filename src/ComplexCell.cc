@@ -29,7 +29,6 @@
 #include "FloatCell.hh"
 #include "IntCell.hh"
 #include "Output.hh"
-#include "Value.hh"
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------

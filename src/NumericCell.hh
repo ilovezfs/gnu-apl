@@ -59,20 +59,16 @@ protected:
    /// overloaded Cell::get_classname()
    virtual const char * get_classname() const   { return "NumericCell"; }
 
-   /// Compute n over k for small n
-   static APL_Integer int_binom(APL_Integer a, APL_Integer b);
-
-   /// Compute n over k
-   static APL_Float flt_binom(APL_Integer a, APL_Integer b);
-
    /// return the greatest common divisor of integers a and b
-   static APL_Integer int_gcd(APL_Integer a, APL_Integer b);
+   static ErrorCode int_gcd(APL_Integer & z, APL_Integer a, APL_Integer b);
 
    /// return the greatest common divisor of real a and b
-   static APL_Float flt_gcd(APL_Float a, APL_Float b, APL_Float qct);
+   static ErrorCode flt_gcd(APL_Float & z, APL_Float a, APL_Float b,
+                            APL_Float qct);
 
    /// return the greatest common divisor of complex a and b
-   static APL_Complex cpx_gcd(APL_Complex a, APL_Complex b, APL_Float qct);
+   static ErrorCode cpx_gcd(APL_Complex & z, APL_Complex a, APL_Complex b,
+                              APL_Float qct);
 
    /// multiply \b a by 1, -1, i, or -i so that a.real is maximal
    static APL_Complex cpx_max_real(APL_Complex a);

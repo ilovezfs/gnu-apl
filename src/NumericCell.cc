@@ -33,6 +33,10 @@
 ErrorCode
 NumericCell::bif_not(Cell * Z) const
 {
+const APL_Float qct = Workspace::get_CT();
+
+   if (!is_near_bool(qct))   return E_DOMAIN_ERROR;
+
    if (get_near_bool(Workspace::get_CT()))   new (Z) IntCell(0);
    else                                      new (Z) IntCell(1);
    return E_NO_ERROR;
@@ -163,8 +167,10 @@ const APL_Float qct = Workspace::get_CT();
       {
         // a or b is complex; we assume (require) Gaussian integers.
         //
-        const APL_Complex gcd = cpx_gcd(A->get_complex_value(),
+        APL_Complex gcd;
+        const ErrorCode err = cpx_gcd(gcd, A->get_complex_value(),
                                            get_complex_value(), qct);
+        if (err)   return err;
 
         new (Z) ComplexCell(A->get_complex_value() * (get_complex_value()/gcd));
         return E_NO_ERROR;
@@ -184,7 +190,9 @@ const APL_Float qct = Workspace::get_CT();
       {
         const APL_Integer a = A->get_near_int(qct);
         const APL_Integer b =    get_near_int(qct);
-        const APL_Integer gcd = int_gcd(a, b);
+        APL_Integer gcd;
+        const ErrorCode err = int_gcd(gcd, a, b);
+        if (err)   return err;
         new (Z) IntCell(a * (b / gcd));
         return E_NO_ERROR;
       }
@@ -195,7 +203,9 @@ const APL_Float qct = Workspace::get_CT();
       {
         const APL_Float a = A->get_real_value();
         const APL_Float b =    get_real_value();
-        const APL_Float gcd = flt_gcd(a, b, qct);
+        APL_Float gcd;
+        const ErrorCode err = flt_gcd(gcd, a, b, qct);
+        if (err)   return err;
         new (Z) FloatCell(a * (b / gcd));
         return E_NO_ERROR;
       }
@@ -250,8 +260,10 @@ const APL_Float qct = Workspace::get_CT();
 
         // a or b is complex; we assume (require) Gaussian integers.
         //
-        const APL_Complex gcd = cpx_gcd(A->get_complex_value(),
+        APL_Complex gcd;
+        const ErrorCode err = cpx_gcd(gcd, A->get_complex_value(),
                                            get_complex_value(), qct);
+        if (err)   return err;
 
         new (Z) ComplexCell(gcd);
         return E_NO_ERROR;
@@ -263,7 +275,9 @@ const APL_Float qct = Workspace::get_CT();
       {
         const APL_Integer a = A->get_near_int(qct);
         const APL_Integer b =    get_near_int(qct);
-        const APL_Integer gcd = int_gcd(a, b);
+        APL_Integer gcd;
+        const ErrorCode err = int_gcd(gcd, a, b);
+        if (err)   return err;
         new (Z) IntCell(gcd);
         return E_NO_ERROR;
       }
@@ -274,94 +288,14 @@ const APL_Float qct = Workspace::get_CT();
       {
         const APL_Float a = A->get_real_value();
         const APL_Float b =    get_real_value();
-        const APL_Float gcd = flt_gcd(a, b, qct);
+        APL_Float gcd;
+        const ErrorCode err = flt_gcd(gcd, a, b, qct);
+        if (err)   return err;
         new (Z) FloatCell(gcd);
         return E_NO_ERROR;
       }
 
    return E_DOMAIN_ERROR;   // char ?
-}
-//-----------------------------------------------------------------------------
-APL_Integer
-NumericCell::int_gcd(APL_Integer a, APL_Integer b)
-{
-   if (a == 0x8000000000000000ULL)   DOMAIN_ERROR;
-   if (b == 0x8000000000000000ULL)   DOMAIN_ERROR;
-
-   if (a < 0)   a = - a;
-   if (b < 0)   b = - b;
-   if (b < a)
-      {
-         const APL_Integer _b = b;
-         b = a;
-         a = _b;
-      }
-
-   // at this point 0 ≤ a ≤ b
-   //
-   for (;;)
-       {
-         if (a == 0)   return b;
-         const APL_Integer r = b%a;
-         b = a;
-         a = r;
-       }
-}
-//-----------------------------------------------------------------------------
-APL_Float
-NumericCell::flt_gcd(APL_Float a, APL_Float b, APL_Float qct)
-{
-   if (a < 0)   a = - a;
-   if (b < 0)   b = - b;
-   if (b < a)
-      {
-         const APL_Float _b = b;
-         b = a;
-         a = _b;
-      }
-
-   // at this point 0 ≤ a ≤ b
-   //
-   for (;;)
-       {
-         if (is_near_zero(a, qct))   return b;
-         const APL_Float r = fmod(b, a);
-         b = a;
-         a = r;
-       }
-}
-//-----------------------------------------------------------------------------
-APL_Complex
-NumericCell::cpx_gcd(APL_Complex a, APL_Complex b, APL_Float qct)
-{
-   if (!is_near_int(a.real(), qct))   DOMAIN_ERROR;
-   if (!is_near_int(a.imag(), qct))   DOMAIN_ERROR;
-   if (!is_near_int(b.real(), qct))   DOMAIN_ERROR;
-   if (!is_near_int(b.imag(), qct))   DOMAIN_ERROR;
-
-   // make a and b true integers
-   //
-   a = APL_Complex(round(a.real()), a.imag());
-   b = APL_Complex(round(b.real()), b.imag());
-
-   for (;;)
-       {
-         if (abs(a) > abs(b))   // make ∣b∣ > ∣a∣
-            {
-               const APL_Complex _b = b;
-               b = a;
-               a = _b;
-            }
-
-         if (abs(a) < 0.2)   return b;
-
-         const APL_Complex xy = b/a;
-         const APL_Complex q(round(xy.real()), round(xy.imag()));
-         const APL_Complex r(b - q*a);
-
-         b = a;
-         a = r;
-       }
 }
 //-----------------------------------------------------------------------------
 APL_Complex
@@ -386,5 +320,88 @@ APL_Complex z;
       }
 
    return z;
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+NumericCell::int_gcd(APL_Integer & z, APL_Integer a, APL_Integer b)
+{
+   if (a == 0x8000000000000000ULL)   return E_DOMAIN_ERROR;
+   if (b == 0x8000000000000000ULL)   return E_DOMAIN_ERROR;
+
+   if (a < 0)   a = - a;
+   if (b < 0)   b = - b;
+   if (b < a)
+      {
+         const APL_Integer _b = b;
+         b = a;
+         a = _b;
+      }
+
+   // at this point 0 ≤ a ≤ b
+   //
+   for (;;)
+       {
+         if (a == 0)   { z = b;   return E_NO_ERROR; }
+         const APL_Integer r = b%a;
+         b = a;
+         a = r;
+       }
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+NumericCell::flt_gcd(APL_Float & z, APL_Float a, APL_Float b, APL_Float qct)
+{
+   if (a < 0)   a = - a;
+   if (b < 0)   b = - b;
+   if (b < a)
+      {
+         const APL_Float _b = b;
+         b = a;
+         a = _b;
+      }
+
+   // at this point 0 ≤ a ≤ b
+   //
+   for (;;)
+       {
+         if (is_near_zero(a, qct))   { z = b;   return E_NO_ERROR; }
+         const APL_Float r = fmod(b, a);
+         b = a;
+         a = r;
+       }
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+NumericCell::cpx_gcd(APL_Complex & z, APL_Complex a, APL_Complex b,
+                     APL_Float qct)
+{
+   if (!is_near_int(a.real(), qct))   return E_DOMAIN_ERROR;
+   if (!is_near_int(a.imag(), qct))   return E_DOMAIN_ERROR;
+   if (!is_near_int(b.real(), qct))   return E_DOMAIN_ERROR;
+   if (!is_near_int(b.imag(), qct))   return E_DOMAIN_ERROR;
+
+   // make a and b true integers
+   //
+   a = APL_Complex(round(a.real()), a.imag());
+   b = APL_Complex(round(b.real()), b.imag());
+
+   for (;;)
+       {
+         if (abs(a) > abs(b))   // make ∣b∣ > ∣a∣
+            {
+               const APL_Complex _b = b;
+               b = a;
+               a = _b;
+            }
+
+         if (abs(a) < 0.2)   { z = b;   return E_NO_ERROR; }
+
+         const APL_Complex xy = b/a;
+         const APL_Complex q(round(xy.real()), round(xy.imag()));
+         const APL_Complex r(b - q*a);
+
+         b = a;
+         a = r;
+       }
 }
 //-----------------------------------------------------------------------------
