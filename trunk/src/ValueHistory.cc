@@ -194,7 +194,7 @@ const ValueFlags flags_before = (ValueFlags)flags;
              break;
 
         case VHE_Error:
-             out << "  " << setw(36)
+             out << "  " << setw(38)
                  << Error::error_name((ErrorCode)iarg) << " ";
              break;
 

@@ -674,7 +674,19 @@ operator << (ostream & os, Unicode uni)
 ostream &
 operator << (ostream & os, const UCS_string & ucs)
 {
-   loop(u, ucs.size())   os << ucs[u];
+const int fill_len = os.width() - ucs.size();;
+
+   if (fill_len > 0)
+      {
+        os.width(0);
+        loop(u, ucs.size())   os << ucs[u];
+        loop(f, fill_len)     os << os.fill();
+      }
+   else
+      {
+        loop(u, ucs.size())   os << ucs[u];
+      }
+
    return os;
 }
 //-----------------------------------------------------------------------------

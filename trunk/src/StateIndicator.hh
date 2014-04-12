@@ -64,9 +64,6 @@ public:
    /// Return the function name, or "*" for an immediate execution context
    UCS_string function_name() const;
 
-   /// remove the stack entry (for command )SIC)
-   void clear(ostream & out);
-
    /// list the stack entry (for commands ]SI, )SI, and )SIS)
    void list(ostream & out, SI_mode mode) const;
 

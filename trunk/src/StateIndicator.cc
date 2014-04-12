@@ -265,16 +265,6 @@ StateIndicator::print(ostream & out) const
 }
 //-----------------------------------------------------------------------------
 void
-StateIndicator::clear(ostream & out)
-{
-const UserFunction * ufun = get_executable()->get_ufun();
-   if (ufun)
-      {
-         Value_P Z = ufun->pop_local_vars();
-      }
-}
-//-----------------------------------------------------------------------------
-void
 StateIndicator::list(ostream & out, SI_mode mode) const
 {
    Assert(this);
@@ -471,6 +461,12 @@ const UserFunction * ufun = get_executable()->get_ufun();
 void
 StateIndicator::escape()  
 {
+   if (eoc_handler)
+      {
+        Token tok(TOK_ESCAPE);
+        eoc_handler(tok, eoc_arg);
+      }
+
 const UserFunction * ufun = get_executable()->get_ufun();
    if (ufun)
       {

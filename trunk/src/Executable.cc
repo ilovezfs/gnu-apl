@@ -66,7 +66,16 @@ Executable::~Executable()
              << " (body size=" <<  body.size() << ")" << endl;
       }
 
-   loop(b, body.size())   body[b].extract_apl_val(LOC);
+   loop(b, body.size())
+      {
+        body[b].extract_apl_val(LOC);
+      }
+
+   loop(u, unnamed_lambdas.size())
+      {
+        const UserFunction * ufun = unnamed_lambdas[u];
+        delete ufun;
+      }
 }
 //-----------------------------------------------------------------------------
 void

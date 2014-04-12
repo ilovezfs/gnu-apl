@@ -551,7 +551,7 @@ Workspace::clear_SI(ostream & out)
 {
    while (SI_top())
       {
-        SI_top()->clear(out);
+        SI_top()->escape();
         pop_SI(LOC);
       }
 }
