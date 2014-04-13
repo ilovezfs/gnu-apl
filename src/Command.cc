@@ -476,7 +476,7 @@ Command::cmd_HELP(ostream & out)
 void
 Command::cmd_HOST(ostream & out, const UCS_string & arg)
 {
-   if (safe_mode)
+   if (uprefs.safe_mode)
       {
         out << _(")HOST command not allowed in safe mode.") << endl;
         return;
@@ -721,7 +721,7 @@ Command::cmd_OFF(int exit_val)
 {
    cleanup();
    COUT << endl;
-   if (!silent)   COUT << _("Goodbye.") << endl;
+   if (!uprefs.silent)   COUT << _("Goodbye.") << endl;
    exit(exit_val);
 }
 //-----------------------------------------------------------------------------
