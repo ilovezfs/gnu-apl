@@ -9,22 +9,29 @@ The following features may be added (if requested):
 ---------------------------------------------------
 
 * more shared variables / auxiliary processors
+
 * ⎕NA
+
 * more ⎕L and ⎕R testcases
 
 
-The following features are planned:
------------------------------------
+The following features are planned or will be investigated:
+-----------------------------------------------------------
 
-)COPY and )LOAD to understand apl files created by )DUMP
+* )COPY and )LOAD to understand apl files created by )DUMP
 
-Support for SCAR format (to exchange data with Dyalog APL and APL2000).
+* Support for SCAR format (to exchange data with Dyalog APL and APL2000).
+
+* operators from NARS2000 (email from Bob Smith, Dec-14-2013)
+
 
 The following issues are known and maybe fixed mid-term:
 --------------------------------------------------------
 
 * shared variable improvements
+
 * improvements on ⍤ operator
+
 * trace and stop control; T∆fun and S∆fun
 
 The following extensions are provided:

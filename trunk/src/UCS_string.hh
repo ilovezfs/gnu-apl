@@ -180,13 +180,6 @@ public:
    /// removing the CR and NL chars in \b this string.
    size_t to_vector(vector<UCS_string> & result) const;
 
-   /// return a UTF8 encoded std:string
-   string to_string() const
-      {
-       const UTF8_string utf(*this);
-       return string((const char *)(utf.get_items()), utf.size());
-      }
-   
    /// an iterator for UCS_strings
    class iterator
       {
