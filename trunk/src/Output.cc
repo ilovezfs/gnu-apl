@@ -142,7 +142,7 @@ char Output::clear_EOL[100] = CSI "K";
 int
 CinOut::overflow(int c)
 {
-   if (do_not_echo)   return 0;
+   if (uprefs.do_not_echo)   return 0;
    if (!Output::print_sema_held)
       {
         Svar_DB::start_print(LOC);

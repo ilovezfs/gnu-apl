@@ -45,9 +45,6 @@ bool LOG_shared_variables = false;
 #else
 #endif
 
-extern bool do_svars;
-bool do_svars = true;
-
 //-----------------------------------------------------------------------------
 class CERR_Out : public filebuf
 {
@@ -228,7 +225,7 @@ bool auto_started = false;
 
    prog = argv[0];
 
-   Svar_DB::init(prog, false);
+   Svar_DB::init(prog, false, true);
 
    if (strrchr(prog, '/'))   prog = strrchr(prog, '/') + 1;
    snprintf(pref, sizeof(pref) - 1, "%s(%u) ", prog, getpid());

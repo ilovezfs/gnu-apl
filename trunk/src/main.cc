@@ -49,13 +49,7 @@
 #define PATH_MAX 4096
 #endif
 
-   // global flags
-   //
-bool silent = false;
-bool emacs_mode = false;
-bool do_not_echo = false;
-bool safe_mode = false;
-bool do_svars = true;
+user_preferences uprefs;
 
 const char * build_tag[] = { BUILDTAG, 0 };
 
@@ -79,7 +73,7 @@ rlimit rl;
 void
 init_2(const char * argv0, bool log_startup)
 {
-   Svar_DB::init(argv0, log_startup);
+   Svar_DB::init(argv0, log_startup, uprefs.do_svars);
    Input::init(true);
 }
 //-----------------------------------------------------------------------------
@@ -641,55 +635,8 @@ const char * dom = textdomain(PACKAGE);
 #endif
 //-----------------------------------------------------------------------------
 
-/// a structure that contains user preferences from different sources
-/// (command line arguments, config files, environment variables ...)
-struct user_preferences
-{
-   user_preferences()
-   : do_CONT(true),
-     do_Color(true),
-     requested_id(0),
-     requested_par(0),
-     requested_cc(CCNT_UNKNOWN),
-     daemon(false),
-     append_summary(false),
-     wait_ms(0),
-     randomize_testfiles(false)
-   {}
-
-   /// load workspace CONTINUE on start-up
-   bool do_CONT;
-
-   /// output coloring enabled
-   bool do_Color;
-
-   /// desired --id (⎕AI[1] and shared variable functions)
-   int requested_id;
-
-   /// desired --par (⎕AI[1] and shared variable functions)
-   int requested_par;
-
-   /// desired core count
-   CoreCount requested_cc;
-
-   /// run as deamon
-   bool daemon;
-
-   /// append test results to summary.log rather than overriding it
-   bool append_summary;
-
-   /// wait at start-up
-   int wait_ms;
-
-   /// randomize the order of testfiles
-   bool randomize_testfiles;
-
-   /// safe mode
-   bool safe_mode;
-};
-//-----------------------------------------------------------------------------
 static void
-init_OMP(const user_preferences  & up)
+init_OMP()
 {
 #ifdef MULTICORE
 
@@ -703,9 +650,9 @@ const CoreCount core_count_wanted = max_cores();
 
 # elif CORE_COUNT_WANTED == -2  // --cc option
 
-const CoreCount core_count_wanted = (up.requested_cc == CCNT_UNKNOWN)
+const CoreCount core_count_wanted = (uprefs.requested_cc == CCNT_UNKNOWN)
                             ? max_cores()        // -cc option not given
-                            : up.requested_cc;   // --cc option value
+                            : uprefs.requested_cc;   // --cc option value
 
 # elif CORE_COUNT_WANTED == -3  // ⎕SYL, initially 1
 
@@ -724,8 +671,8 @@ const CoreCount cores_available = setup_cores(core_count_wanted);
 }
 //-----------------------------------------------------------------------------
 // read user preference file(s) if present
-void
-read_config_file(bool sys, user_preferences & up)
+static void
+read_config_file(bool sys)
 {
 char filename[PATH_MAX + 1] = "/etc/gnu-apl.d/preferences";   // fallback filename
 
@@ -830,27 +777,27 @@ int line = 0;
                    // then use_curses is cleared because at the time when
                    // "Yes" was valid, curses was not yet implemented.
                    //
-                   up.do_Color = yes;
+                   uprefs.do_Color = yes;
                    if (yes)   Output::use_curses = false;
                  }
               if (!strcasecmp(arg, "ANSI"))
                  {
-                   up.do_Color = true;
+                   uprefs.do_Color = true;
                    Output::use_curses = false;
                  }
               if (!strcasecmp(arg, "CURSES"))
                  {
-                   up.do_Color = true;
+                   uprefs.do_Color = true;
                    Output::use_curses = true;
                  }
             }
          else if (yes_no && !strcasecmp(opt, "Welcome"))
             {
-              silent = no;
+              uprefs.silent = no;
             }
          else if (yes_no && !strcasecmp(opt, "SharedVars"))
             {
-              do_svars = yes;
+              uprefs.do_svars = yes;
             }
          else if (!strcasecmp(opt, "Logging"))
             {
@@ -947,6 +894,223 @@ int line = 0;
 }
 //-----------------------------------------------------------------------------
 int
+user_preferences::parse_argv(int argc, const char * argv[])
+{
+   for (int a = 1; a < argc; )
+       {
+         const char * opt = argv[a++];
+         const char * val = (a < argc) ? argv[a] : 0;
+
+         if (!strcmp(opt, "--"))   // end of arguments
+            {
+              a = argc;
+              break;
+            }
+         else if (!strcmp(opt, "--cfg"))
+            {
+              show_configure_options();
+              return 0;
+            }
+         else if (!strcmp(opt, "--Color"))
+            {
+              do_Color = true;
+            }
+         else if (!strcmp(opt, "--noColor"))
+            {
+              do_Color = false;
+            }
+         else if (!strcmp(opt, "-d"))
+            {
+              daemon = true;
+            }
+         else if (!strcmp(opt, "-f"))
+            {
+              ++a;
+              if (val)   Input::input_file_name = val;
+              else
+                 {
+                   CERR << _("-f without filename") << endl;
+                   return 1;
+                 }
+            }
+         else if (!strcmp(opt, "--gpl"))
+            {
+              show_GPL(cout);
+              return 0;
+            }
+         else if (!strcmp(opt, "-h") || !strcmp(opt, "--help"))
+            {
+              usage(argv[0]);
+              return 0;
+            }
+         else if (!strcmp(opt, "--id"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "--id without processor number" << endl;
+                   return 2;
+                 }
+
+              requested_id = atoi(val);
+            }
+         else if (!strcmp(opt, "-l"))
+            {
+              ++a;
+#ifdef DYNAMIC_LOG_WANTED
+              if (val)   Log_control(LogId(atoi(val)), true);
+              else
+                 {
+                   CERR << _("-l without log facility") << endl;
+                   return 3;
+                 }
+#else
+   if (val && atoi(val) == LID_startup)   ;
+   else  CERR << _("the -l option was ignored (requires ./configure "
+                   "DYNAMIC_LOG_WANTED=yes)") << endl;
+#endif // DYNAMIC_LOG_WANTED
+            }
+         else if (!strcmp(opt, "--noCIN"))
+            {
+              do_not_echo = true;
+            }
+         else if (!strcmp(opt, "--rawCIN"))
+            {
+              Input::use_readline = false;
+            }
+         else if (!strcmp(opt, "--noCONT"))
+            {
+              do_CONT = false;
+            }
+         else if (!strcmp(opt, "--emacs"))
+            {
+              emacs_mode = true;
+            }
+         else if (!strcmp(opt, "--SV"))
+            {
+              do_svars = true;
+            }
+         else if (!strcmp(opt, "--noSV"))
+            {
+              do_svars = false;
+            }
+#if CORE_COUNT_WANTED == -2
+         else if (!strcmp(opt, "--cc"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "--cc without core count" << endl;
+                   return 4;
+                 }
+              requested_cc = (CoreCount)atoi(val);
+            }
+#endif
+         else if (!strcmp(opt, "--par"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "--par without processor number" << endl;
+                   return 5;
+                 }
+              requested_par = atoi(val);
+            }
+         else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
+            {
+              do_CONT = false;             // --noCONT
+              do_Color = false;            // --noColor
+              do_not_echo = true;             // -noCIN
+              silent = true;                  // --silent
+              Input::input_file_name = "-";   // -f -
+            }
+         else if (!strcmp(opt, "--silent"))
+            {
+              silent = true;
+            }
+         else if (!strcmp(opt, "--safe"))
+            {
+              safe_mode = true;
+              do_svars = false;
+            }
+         else if (!strcmp(opt, "-T"))
+            {
+              do_CONT = false;
+
+              // TestFiles::open_next_testfile() will exit if it sees "-"
+              //
+              TestFiles::need_total = true;
+              for (; a < argc; ++a)
+                  {
+                    if (!strcmp(argv[a], "--"))   // end of arguments
+                       {
+                         a = argc;
+                         break;
+                         
+                       }
+                    TestFiles::test_file_names.push_back(argv[a]);
+                  }
+
+              // 
+              if (TestFiles::is_validating())
+                 {
+                   // truncate summary.log, unless append_summary is desired
+                   //
+                   if (!append_summary)
+                      {
+                        ofstream summary("testcases/summary.log",
+                                         ios_base::trunc);
+                      }
+                   TestFiles::open_next_testfile();
+                 }
+            }
+         else if (!strcmp(opt, "--TM"))
+            {
+              ++a;
+              if (val)
+                 {
+                   const int mode = atoi(val);
+                   TestFiles::test_mode = TestFiles::TestMode(mode);
+                 }
+              else
+                 {
+                   CERR << _("--TM without test mode") << endl;
+                   return 6;
+                 }
+            }
+         else if (!strcmp(opt, "--TR"))
+            {
+              randomize_testfiles = true;
+            }
+         else if (!strcmp(opt, "--TS"))
+            {
+              append_summary = true;
+            }
+         else if (!strcmp(opt, "-v") || !strcmp(opt, "--version"))
+            {
+              show_version(cout);
+              return 0;
+            }
+         else if (!strcmp(opt, "-w"))
+            {
+              ++a;
+              if (val)   wait_ms = atoi(val);
+              else
+                 {
+                   CERR << _("-w without milli(seconds)") << endl;
+                   return 7;
+                 }
+            }
+         else
+            {
+              CERR << _("unknown option '") << opt << "'" << endl;
+              usage(argv[0]);
+              return 8;
+            }
+       }
+}
+//-----------------------------------------------------------------------------
+int
 main(int argc, const char * _argv[])
 {
    {
@@ -968,9 +1132,8 @@ const char ** argv = expand_argv(argc, _argv, log_startup);
 const char * argv0 = argv[0];
    init_1(argv0, log_startup);
 
-user_preferences up;
-   read_config_file(true,  up);   // /etc/gnu-apl.d/preferences
-   read_config_file(false, up);   // $HOME/.gnu_apl
+   read_config_file(true);    // read /etc/gnu-apl.d/preferences
+   read_config_file(false);   // read $HOME/.gnu_apl
 
    // struct sigaction differs between GNU/Linux and other systems, which
    // causes direct bracket assignment to not compile on some machines.
@@ -1002,220 +1165,9 @@ user_preferences up;
    init_NLS();
 #endif
 
-   for (int a = 1; a < argc; )
-       {
-         const char * opt = argv[a++];
-         const char * val = (a < argc) ? argv[a] : 0;
+   uprefs.parse_argv(argc, argv);
 
-         if (!strcmp(opt, "--"))   // end of arguments
-            {
-              a = argc;
-              break;
-            }
-         else if (!strcmp(opt, "--cfg"))
-            {
-              show_configure_options();
-              return 0;
-            }
-         else if (!strcmp(opt, "--Color"))
-            {
-              up.do_Color = true;
-            }
-         else if (!strcmp(opt, "--noColor"))
-            {
-              up.do_Color = false;
-            }
-         else if (!strcmp(opt, "-d"))
-            {
-              up.daemon = true;
-            }
-         else if (!strcmp(opt, "-f"))
-            {
-              ++a;
-              if (val)   Input::input_file_name = val;
-              else
-                 {
-                   CERR << _("-f without filename") << endl;
-                   return 1;
-                 }
-            }
-         else if (!strcmp(opt, "--gpl"))
-            {
-              show_GPL(cout);
-              return 0;
-            }
-         else if (!strcmp(opt, "-h") || !strcmp(opt, "--help"))
-            {
-              usage(argv[0]);
-              return 0;
-            }
-         else if (!strcmp(opt, "--id"))
-            {
-              ++a;
-              if (!val)
-                 {
-                   CERR << "--id without processor number" << endl;
-                   return 2;
-                 }
-
-              up.requested_id = atoi(val);
-            }
-         else if (!strcmp(opt, "-l"))
-            {
-              ++a;
-#ifdef DYNAMIC_LOG_WANTED
-              if (val)   Log_control(LogId(atoi(val)), true);
-              else
-                 {
-                   CERR << _("-l without log facility") << endl;
-                   return 3;
-                 }
-#else
-   if (val && atoi(val) == LID_startup)   ;
-   else  CERR << _("the -l option was ignored (requires ./configure "
-                   "DYNAMIC_LOG_WANTED=yes)") << endl;
-#endif // DYNAMIC_LOG_WANTED
-            }
-         else if (!strcmp(opt, "--noCIN"))
-            {
-              do_not_echo = true;
-            }
-         else if (!strcmp(opt, "--rawCIN"))
-            {
-              Input::use_readline = false;
-            }
-         else if (!strcmp(opt, "--noCONT"))
-            {
-              up.do_CONT = false;
-            }
-         else if (!strcmp(opt, "--emacs"))
-            {
-              emacs_mode = true;
-            }
-         else if (!strcmp(opt, "--SV"))
-            {
-              do_svars = true;
-            }
-         else if (!strcmp(opt, "--noSV"))
-            {
-              do_svars = false;
-            }
-#if CORE_COUNT_WANTED == -2
-         else if (!strcmp(opt, "--cc"))
-            {
-              ++a;
-              if (!val)
-                 {
-                   CERR << "--cc without core count" << endl;
-                   return 4;
-                 }
-              up.requested_cc = (CoreCount)atoi(val);
-            }
-#endif
-         else if (!strcmp(opt, "--par"))
-            {
-              ++a;
-              if (!val)
-                 {
-                   CERR << "--par without processor number" << endl;
-                   return 5;
-                 }
-              up.requested_par = atoi(val);
-            }
-         else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
-            {
-              up.do_CONT = false;             // --noCONT
-              up.do_Color = false;            // --noColor
-              do_not_echo = true;             // -noCIN
-              silent = true;                  // --silent
-              Input::input_file_name = "-";   // -f -
-            }
-         else if (!strcmp(opt, "--silent"))
-            {
-              silent = true;
-            }
-         else if (!strcmp(opt, "--safe"))
-            {
-              safe_mode = true;
-              do_svars = false;
-            }
-         else if (!strcmp(opt, "-T"))
-            {
-              up.do_CONT = false;
-
-              // TestFiles::open_next_testfile() will exit if it sees "-"
-              //
-              TestFiles::need_total = true;
-              for (; a < argc; ++a)
-                  {
-                    if (!strcmp(argv[a], "--"))   // end of arguments
-                       {
-                         a = argc;
-                         break;
-                         
-                       }
-                    TestFiles::test_file_names.push_back(argv[a]);
-                  }
-
-              // 
-              if (TestFiles::is_validating())
-                 {
-                   // truncate summary.log, unless append_summary is desired
-                   //
-                   if (!up.append_summary)
-                      {
-                        ofstream summary("testcases/summary.log",
-                                         ios_base::trunc);
-                      }
-                   TestFiles::open_next_testfile();
-                 }
-            }
-         else if (!strcmp(opt, "--TM"))
-            {
-              ++a;
-              if (val)
-                 {
-                   const int mode = atoi(val);
-                   TestFiles::test_mode = TestFiles::TestMode(mode);
-                 }
-              else
-                 {
-                   CERR << _("--TM without test mode") << endl;
-                   return 6;
-                 }
-            }
-         else if (!strcmp(opt, "--TR"))
-            {
-              up.randomize_testfiles = true;
-            }
-         else if (!strcmp(opt, "--TS"))
-            {
-              up.append_summary = true;
-            }
-         else if (!strcmp(opt, "-v") || !strcmp(opt, "--version"))
-            {
-              show_version(cout);
-              return 0;
-            }
-         else if (!strcmp(opt, "-w"))
-            {
-              ++a;
-              if (val)   up.wait_ms = atoi(val);
-              else
-                 {
-                   CERR << _("-w without milli(seconds)") << endl;
-                   return 7;
-                 }
-            }
-         else
-            {
-              CERR << _("unknown option '") << opt << "'" << endl;
-              usage(argv[0]);
-              return 8;
-            }
-       }
-
-   if (emacs_mode)
+   if (uprefs.emacs_mode)
       {
         // CIN = U+F00C0 = UTF8 F3 B0 83 80 ...
         Output::color_CIN[0] = 0xF3;
@@ -1250,7 +1202,7 @@ user_preferences up;
       }
 
 
-   if (up.daemon)
+   if (uprefs.daemon)
       {
         const pid_t pid = fork();
         if (pid)   // parent
@@ -1266,30 +1218,32 @@ user_preferences up;
            CERR << "child forked (pid" << getpid() << ")" << endl;
       }
 
-   if (up.wait_ms)   usleep(1000*up.wait_ms);
+   if (uprefs.wait_ms)   usleep(1000*uprefs.wait_ms);
 
    init_2(argv0, log_startup);
 
-   if (!silent)   show_welcome(cout, argv0);
+   if (!uprefs.silent)   show_welcome(cout, argv0);
 
    if (log_startup)   CERR << "PID is " << getpid() << endl;
    Log(LOG_argc_argv)   show_argv(argc, argv);
 
    // init OMP (will do nothing if OMP is not configured)
-   init_OMP(up);
+   init_OMP();
 
    TestFiles::testcase_count = TestFiles::test_file_names.size();
-   if (up.randomize_testfiles)   TestFiles::randomize_files();
+   if (uprefs.randomize_testfiles)   TestFiles::randomize_files();
 
-   if (ProcessorID::init(do_svars, up.requested_id, up.requested_par))
+   if (ProcessorID::init(uprefs.do_svars,
+                         uprefs.requested_id,
+                         uprefs.requested_par))
       {
         // error message printed in ProcessorID::init()
         return 8;
       }
 
-   if (up.do_Color)   Output::toggle_color("ON");
+   if (uprefs.do_Color)   Output::toggle_color("ON");
 
-   if (up.do_CONT)
+   if (uprefs.do_CONT)
       {
          UCS_string cont("CONTINUE");
          UTF8_string filename =

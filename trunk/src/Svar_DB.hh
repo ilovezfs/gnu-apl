@@ -390,11 +390,11 @@ public:
    ~Svar_DB();
 
    /// open (and possibly initialize) the shared variable database
-   static void init(const char * progname, bool logit)
-      { the_Svar_DB._init(progname, logit); }
+   static void init(const char * progname, bool logit, bool do_svars)
+      { the_Svar_DB._init(progname, logit, do_svars); }
 
    /// open (and possibly initialize) the shared variable database
-   void _init(const char * progname, bool logit);
+   void _init(const char * progname, bool logit, bool do_svars);
 
    /// match a new offer against the DB. Return: 0 on error, 1 if the
    /// new offer was inserted into the DB (sicne no match was found), or

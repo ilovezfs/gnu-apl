@@ -686,7 +686,7 @@ offered_SVAR::print_name(ostream & out, const uint32_t * name, int len)
 }
 //-----------------------------------------------------------------------------
 void
-Svar_DB::_init(const char * progname, bool logit)
+Svar_DB::_init(const char * progname, bool logit, bool do_svars)
 {
    if (do_svars)
       {

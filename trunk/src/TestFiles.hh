@@ -69,6 +69,7 @@ using namespace std;
 class TestFiles
 {
    friend int main(int argc, const char *argv[]);
+   friend struct user_preferences;
 
 public:
    /// randomize the order of test_file_names

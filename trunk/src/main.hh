@@ -27,15 +27,74 @@ extern bool attention_raised;
 /// true if Control-C was hit twice within 500 ms
 extern bool interrupt_raised;
 
-/// true if no banner/Goodbye is wanted.
-extern bool silent;
+//-----------------------------------------------------------------------------
 
-/// true if no banner/Goodbye is wanted.
-extern bool do_not_echo;
+/// a structure that contains user preferences from different sources
+/// (command line arguments, config files, environment variables ...)
+struct user_preferences
+{
+   user_preferences()
+   : silent(false),
+     emacs_mode(false),
+     do_not_echo(false),
+     safe_mode(false),
+     do_svars(true),
+     do_CONT(true),
+     do_Color(true),
+     requested_id(0),
+     requested_par(0),
+     requested_cc(CCNT_UNKNOWN),
+     daemon(false),
+     append_summary(false),
+     wait_ms(0),
+     randomize_testfiles(false)
+   {}
 
-/// true if --safe command line option was given
-extern bool safe_mode;
+   /// parse command line parameters
+   int parse_argv(int argc, const char * argv[]);
 
-/// true if shared variables are enabled
-extern bool do_svars;
+   /// true if no banner/Goodbye is wanted.
+   bool silent;
+
+   /// true if emacs mode is wanted
+   bool emacs_mode;
+
+   /// true if no banner/Goodbye is wanted.
+   bool do_not_echo;
+
+   /// true if --safe command line option was given
+   bool safe_mode;
+
+   /// true if shared variables are enabled
+   bool do_svars;
+
+   /// load workspace CONTINUE on start-up
+   bool do_CONT;
+
+  /// output coloring enabled
+   bool do_Color;
+
+   /// desired --id (⎕AI[1] and shared variable functions)
+   int requested_id;
+
+   /// desired --par (⎕AI[1] and shared variable functions)
+   int requested_par;
+
+   /// desired core count
+   CoreCount requested_cc;
+
+   /// run as deamon
+   bool daemon;
+
+   /// append test results to summary.log rather than overriding it
+   bool append_summary;
+
+   /// wait at start-up
+   int wait_ms;
+
+   /// randomize the order of testfiles
+   bool randomize_testfiles;
+};
+
+extern user_preferences uprefs;
 
