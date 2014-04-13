@@ -151,19 +151,24 @@ const APL_Float qct = Workspace::get_CT();
 
    // if either value is 0 then return 0
    //
-   if (A->is_near_zero(qct))
+   if (A->is_near_zero(qct) || is_near_zero(qct))
       {
         new (Z) IntCell(0);
         return E_NO_ERROR;
       }
 
-   if (is_near_zero(qct))
+   // if both args are 1 then return the classical A ∧ B
+   //
+   if (A->is_near_one(qct) && is_near_one(qct))
       {
-        new (Z) IntCell(0);
+        new (Z) IntCell(1);
         return E_NO_ERROR;
       }
 
-   if (!A->is_near_real(qct) || !is_near_real(qct))   // complex
+   // handle the complex case before the int case because
+   // is_near_int() can be true for complex numbers.
+   //
+   if (A->is_complex_cell() || is_complex_cell())   // complex
       {
         // a or b is complex; we assume (require) Gaussian integers.
         //
@@ -173,14 +178,6 @@ const APL_Float qct = Workspace::get_CT();
         if (err)   return err;
 
         new (Z) ComplexCell(A->get_complex_value() * (get_complex_value()/gcd));
-        return E_NO_ERROR;
-      }
-
-   // if both args are boolean then return the classical A ∧ B
-   //
-   if (A->is_near_bool(qct) && is_near_bool(qct))
-      {
-        new (Z) IntCell(1);
         return E_NO_ERROR;
       }
 
@@ -242,6 +239,7 @@ const APL_Float qct = Workspace::get_CT();
       {
         if ( A->get_near_bool(qct) || get_near_bool(qct))   new (Z) IntCell(1);
         else                                                new (Z) IntCell(0);
+        return E_NO_ERROR;
       }
 
    if (!A->is_near_real(qct) || !is_near_real(qct))   // complex

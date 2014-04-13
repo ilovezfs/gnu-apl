@@ -24,6 +24,8 @@
 
 #include "../Native_interface.hh"
 
+class NativeFunction;
+
 /**
    This file demonstrates how to write native APL functions. A native
    APL function is a function that is written in C++ but can be called
@@ -72,15 +74,15 @@ No such process
 // mandatory functios
 extern "C" void * get_function_mux(const char * function_name);
 static Fun_signature get_signature();
-static Token eval_fill_B(Value_P B);
-static Token eval_fill_AB(Value_P A, Value_P B);
-static Token eval_ident_Bx(Value_P B, Axis x);
+static Token eval_fill_B(Value_P B, const NativeFunction * caller);
+static Token eval_fill_AB(Value_P A, Value_P B, const NativeFunction * caller);
+static Token eval_ident_Bx(Value_P B, Axis x, const NativeFunction * caller);
 
 #if defined TEMPLATE_F0
 
 Fun_signature get_signature() { return SIG_Z_F0; }
 
-static Token eval_();
+static Token eval_(const NativeFunction * caller);
 
 void *
 get_function_mux(const char * function_name)
@@ -94,7 +96,7 @@ get_function_mux(const char * function_name)
 }
 
 Token
-eval_()
+eval_(const NativeFunction * caller)
 {
 UCS_string ucs("eval_() called");
 Value_P Z(new Value(ucs, LOC));
@@ -107,10 +109,11 @@ Value_P Z(new Value(ucs, LOC));
 
 Fun_signature get_signature() { return SIG_Z_A_F2_B; }
 
-static Token eval_B(Value_P B);
-static Token eval_AB(Value_P A, Value_P B);
-static Token eval_XB(Value_P X, Value_P B);
-static Token eval_AXB(Value_P A, Value_P X, Value_P B);
+static Token eval_B(Value_P B, const NativeFunction * caller);
+static Token eval_AB(Value_P A, Value_P B, const NativeFunction * caller);
+static Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller);
+static Token eval_AXB(Value_P A, Value_P X, Value_P B,
+                      const NativeFunction * caller);
 
 void *
 get_function_mux(const char * function_name)
@@ -127,7 +130,7 @@ get_function_mux(const char * function_name)
 }
 //-----------------------------------------------------------------------------
 Token
-eval_B(Value_P B)
+eval_B(Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_B() called");
 Value_P Z(new Value(ucs, LOC));
@@ -136,7 +139,7 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_AB(Value_P A, Value_P B)
+eval_AB(Value_P A, Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_AB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -145,7 +148,7 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_XB(Value_P X, Value_P B)
+eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_XB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -154,7 +157,7 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_AXB(Value_P A, Value_P X, Value_P B)
+eval_AXB(Value_P A, Value_P X, Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_AXB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -167,10 +170,13 @@ Value_P Z(new Value(ucs, LOC));
 
 Fun_signature get_signature() { return SIG_Z_A_LO_OP1_B; }
 
-static Token eval_LB(Function & LO, Value_P B);
-static Token eval_ALB(Value_P A, Function & LO, Value_P B);
-static Token eval_LXB(Function & LO, Value_P X, Value_P B);
-static Token eval_ALXB(Value_P A, Function & LO, Value_P X, Value_P B);
+static Token eval_LB(Function & LO, Value_P B, const NativeFunction * caller);
+static Token eval_ALB(Value_P A, Function & LO, Value_P B,
+                      const NativeFunction * caller);
+static Token eval_LXB(Function & LO, Value_P X, Value_P B,
+                      const NativeFunction * caller);
+static Token eval_ALXB(Value_P A, Function & LO, Value_P X, Value_P B,
+                       const NativeFunction * caller);
 
 void *
 get_function_mux(const char * function_name)
@@ -187,7 +193,7 @@ get_function_mux(const char * function_name)
 }
 //-----------------------------------------------------------------------------
 Token
-eval_LB(Function & LO, Value_P B)
+eval_LB(Function & LO, Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_LB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -196,7 +202,7 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALB(Value_P A, Function & LO, Value_P B)
+eval_ALB(Value_P A, Function & LO, Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_ALB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -205,7 +211,7 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_LXB(Function & LO, Value_P X, Value_P B)
+eval_LXB(Function & LO, Value_P X, Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_LXB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -214,7 +220,8 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALXB(Value_P A, Function & LO, Value_P X, Value_P B)
+eval_ALXB(Value_P A, Function & LO, Value_P X, Value_P B,
+          const NativeFunction * caller)
 {
 UCS_string ucs("eval_ALXB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -227,10 +234,14 @@ Value_P Z(new Value(ucs, LOC));
 
 Fun_signature get_signature() { return SIG_Z_A_LO_OP2_RO_B; }
 
-static Token eval_LRB(Function & LO, Function & RO, Value_P B);
-static Token eval_ALRB(Value_P A, Function & LO, Function & RO, Value_P B);
-static Token eval_LRXB(Function & LO, Function & RO, Value_P X, Value_P B);
-static Token eval_ALRXB(Value_P A, Function & LO, Function & RO, Value_P X, Value_P B);
+static Token eval_LRB(Function & LO, Function & RO, Value_P B,
+                      const NativeFunction * caller);
+static Token eval_ALRB(Value_P A, Function & LO, Function & RO, Value_P B,
+                       const NativeFunction * caller);
+static Token eval_LRXB(Function & LO, Function & RO, Value_P X, Value_P B,
+                       const NativeFunction * caller);
+static Token eval_ALRXB(Value_P A, Function & LO, Function & RO, Value_P X,
+                        Value_P B, const NativeFunction * caller);
 
 void *
 get_function_mux(const char * function_name)
@@ -247,7 +258,8 @@ get_function_mux(const char * function_name)
 }
 //-----------------------------------------------------------------------------
 Token
-eval_LRB(Function & LO, Function & RO, Value_P B)
+eval_LRB(Function & LO, Function & RO, Value_P B,
+         const NativeFunction * caller)
 {
 UCS_string ucs("eval_LRB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -256,7 +268,8 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALRB(Value_P A, Function & LO, Function & RO, Value_P B)
+eval_ALRB(Value_P A, Function & LO, Function & RO, Value_P B,
+          const NativeFunction * caller)
 {
 UCS_string ucs("eval_ALRB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -266,7 +279,8 @@ Value_P Z(new Value(ucs, LOC));
 
 //-----------------------------------------------------------------------------
 Token
-eval_LRXB(Function & LO, Function & RO, Value_P X, Value_P B)
+eval_LRXB(Function & LO, Function & RO, Value_P X, Value_P B,
+          const NativeFunction * caller)
 {
 UCS_string ucs("eval_LRXB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -275,7 +289,8 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ALRXB(Value_P A, Function & LO, Function & RO, Value_P X, Value_P B)
+eval_ALRXB(Value_P A, Function & LO, Function & RO, Value_P X, Value_P B,
+           const NativeFunction * caller)
 {
 UCS_string ucs("eval_ALRXB() called");
 Value_P Z(new Value(ucs, LOC));
@@ -287,7 +302,7 @@ Value_P Z(new Value(ucs, LOC));
 #endif
 
 Token
-eval_fill_B(Value_P B)
+eval_fill_B(Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_fill_B() called");
 Value_P Z(new Value(ucs, LOC));
@@ -296,7 +311,7 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_fill_AB(Value_P A, Value_P B)
+eval_fill_AB(Value_P A, Value_P B, const NativeFunction * caller)
 {
 UCS_string ucs("eval_fill_B() called");
 Value_P Z(new Value(ucs, LOC));
@@ -305,7 +320,7 @@ Value_P Z(new Value(ucs, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_ident_Bx(Value_P B, Axis x)
+eval_ident_Bx(Value_P B, Axis x, const NativeFunction * caller)
 {
 UCS_string ucs("eval_ident_Bx() called");
 Value_P Z(new Value(ucs, LOC));

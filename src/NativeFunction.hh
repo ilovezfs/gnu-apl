@@ -134,6 +134,10 @@ protected:
    /// Overloaded Function::destroy()
    virtual void destroy();
 
+   const UCS_string & get_name() const
+      { return name; }
+
+protected:
    /// dl_open() handle of shared library
    void * handle;
 
@@ -153,24 +157,26 @@ protected:
 
    typedef Value_P Vr;
    typedef Function & Fr;
+#define Th const NativeFunction *
 
-   Token (*f_eval_)        (                              );
-   Token (*f_eval_B)       (                          Vr B);
-   Token (*f_eval_AB)      (Vr A,                     Vr B);
-   Token (*f_eval_LB)      (      Fr LO,              Vr B);
-   Token (*f_eval_ALB)     (Vr A, Fr LO,              Vr B);
-   Token (*f_eval_LRB)     (      Fr LO, Fr RO,       Vr B);
-   Token (*f_eval_ALRB)    (Vr A, Fr LO, Fr RO,       Vr B);
-   Token (*f_eval_XB)      (                    Vr X, Vr B);
-   Token (*f_eval_AXB)     (Vr A,               Vr X, Vr B);
-   Token (*f_eval_LXB)     (      Fr LO,        Vr X, Vr B);
-   Token (*f_eval_ALXB)    (Vr A, Fr LO,        Vr X, Vr B);
-   Token (*f_eval_LRXB)    (      Fr LO, Fr RO, Vr X, Vr B);
-   Token (*f_eval_ALRXB)   (Vr A, Fr LO, Fr RO, Vr X, Vr B);
+   Token (*f_eval_)        (                                Th);
+   Token (*f_eval_B)       (                          Vr B, Th);
+   Token (*f_eval_AB)      (Vr A,                     Vr B, Th);
+   Token (*f_eval_LB)      (      Fr LO,              Vr B, Th);
+   Token (*f_eval_ALB)     (Vr A, Fr LO,              Vr B, Th);
+   Token (*f_eval_LRB)     (      Fr LO, Fr RO,       Vr B, Th);
+   Token (*f_eval_ALRB)    (Vr A, Fr LO, Fr RO,       Vr B, Th);
+   Token (*f_eval_XB)      (                    Vr X, Vr B, Th);
+   Token (*f_eval_AXB)     (Vr A,               Vr X, Vr B, Th);
+   Token (*f_eval_LXB)     (      Fr LO,        Vr X, Vr B, Th);
+   Token (*f_eval_ALXB)    (Vr A, Fr LO,        Vr X, Vr B, Th);
+   Token (*f_eval_LRXB)    (      Fr LO, Fr RO, Vr X, Vr B, Th);
+   Token (*f_eval_ALRXB)   (Vr A, Fr LO, Fr RO, Vr X, Vr B, Th);
 
-   Token (*f_eval_fill_B)  (                          Vr B);
-   Token (*f_eval_fill_AB) (Vr A,                     Vr B);
-   Token (*f_eval_ident_Bx)(Vr B,                   Axis x);
+   Token (*f_eval_fill_B)  (                          Vr B, Th);
+   Token (*f_eval_fill_AB) (Vr A,                     Vr B, Th);
+   Token (*f_eval_ident_Bx)(Vr B,                   Axis x, Th);
+#undef Th
 
    void (*close_fun)(Cause cause);
 };

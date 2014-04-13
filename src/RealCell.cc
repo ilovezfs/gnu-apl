@@ -31,6 +31,8 @@
 ErrorCode
 RealCell::bif_logarithm(Cell * Z, const Cell * A) const
 {
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
+
    // A⍟B is defined as: (⍟B)÷(⍟A)
    // if A=1 then ⍟A is 0 which causes division by 0 unless ⍟B is 0 as well.
    //
@@ -39,7 +41,8 @@ const APL_Float qct = Workspace::get_CT();
       {
          if (!this->is_near_one(qct))   return E_DOMAIN_ERROR;
 
-         // ⍟B is 0
+         // both ⍟A and ⍟B are 0, so we get 0÷0 (= 1 in APL)
+         //
          new (Z) IntCell(1);
          return E_NO_ERROR;
       }
@@ -52,7 +55,7 @@ const APL_Float qct = Workspace::get_CT();
 
    if (A->is_complex_cell())
       {
-        new (Z) ComplexCell(log(get_real_value())/log(A->get_complex_value()));
+        new (Z) ComplexCell(log(get_real_value()) / log(A->get_complex_value()));
         return E_NO_ERROR;
       }
 
@@ -64,6 +67,7 @@ RealCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
 const APL_Float qct = Workspace::get_CT();
    if (!A->is_near_int(qct))   return E_DOMAIN_ERROR;
+   if (!A->is_numeric())       return E_DOMAIN_ERROR;
 
 const APL_Integer fun = A->get_near_int(qct);
 const APL_Float b = get_real_value();

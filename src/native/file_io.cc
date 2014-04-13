@@ -34,6 +34,8 @@
 /// the default buffer size if the user does not provide one
 enum { SMALL_BUF = 5000 };
 
+class NativeFunction;
+
 //-----------------------------------------------------------------------------
 struct file_entry
 {
@@ -247,10 +249,10 @@ Value_P Z(new Value(LOC));   // skalar result
 //-----------------------------------------------------------------------------
 extern "C" void * get_function_mux(const char * function_name);
 static Fun_signature get_signature();
-static Token eval_B(Value_P B);
-static Token eval_AB(Value_P A, Value_P B);
-static Token eval_XB(Value_P X, Value_P B);
-static Token eval_AXB(Value_P A, Value_P X, Value_P B);
+static Token eval_B(Value_P B, const NativeFunction * caller);
+static Token eval_AB(Value_P A, Value_P B, const NativeFunction * caller);
+static Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller);
+static Token eval_AXB(Value_P A, Value_P X, Value_P B, const NativeFunction * caller);
 
 void *
 get_function_mux(const char * function_name)
@@ -326,7 +328,7 @@ list_functions(ostream & out)
 }
 //-----------------------------------------------------------------------------
 Token
-eval_B(Value_P B)
+eval_B(Value_P B, const NativeFunction * caller)
 {
 const APL_Integer what = B->get_ravel(0).get_int_value();
    switch(what)
@@ -362,13 +364,13 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
 }
 //-----------------------------------------------------------------------------
 Token
-eval_AB(Value_P A, Value_P B)
+eval_AB(Value_P A, Value_P B, const NativeFunction * caller)
 {
    return list_functions(COUT);
 }
 //-----------------------------------------------------------------------------
 Token
-eval_XB(Value_P X, Value_P B)
+eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
 {
 const APL_Float qct = Workspace::get_CT();
 const int function_number = X->get_ravel(0).get_near_int(qct);
@@ -576,7 +578,8 @@ Value_P Z(Value_P(new Value(LOC)));
 }
 //-----------------------------------------------------------------------------
 Token
-eval_AXB(const Value_P A, const Value_P X, const Value_P B)
+eval_AXB(const Value_P A, const Value_P X, const Value_P B,
+         const NativeFunction * caller)
 {
 const APL_Float qct = Workspace::get_CT();
 const int function_number = X->get_ravel(0).get_near_int(qct);
