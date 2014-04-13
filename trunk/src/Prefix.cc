@@ -98,6 +98,15 @@ Prefix::syntax_error(const char * loc)
           }
       }
 
+   // see if error was caused by a function not returning a value.
+   // in that case we throw a value error instead of a syntax error.
+   //
+   loop (s, size())
+      {
+        if (at(s).tok.get_Class() == TC_VOID)
+           throw_apl_error(E_VALUE_ERROR, loc);
+      }
+
    throw_apl_error(get_assign_state() == ASS_none ? E_SYNTAX_ERROR
                                                   : E_LEFT_SYNTAX_ERROR, loc);
 }
