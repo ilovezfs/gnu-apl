@@ -783,6 +783,12 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
 int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);
+   if (dump_fd != -1)
+      {
+        the_workspace.clear_WS(CERR, true);
+        load_DUMP(out, filename, dump_fd);   // closes dump_fd
+        return UCS_string();
+      }
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
       {
