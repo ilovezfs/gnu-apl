@@ -27,6 +27,7 @@
 #include "Quad_FX.hh"
 #include "Symbol.hh"
 #include "UserFunction.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 Quad_FX  Quad_FX::fun;

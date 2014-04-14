@@ -24,6 +24,7 @@ The following features are planned or will be investigated:
 
 * operators from NARS2000 (email from Bob Smith, Dec-14-2013)
 
+* versioning of .so files
 
 The following issues are known and maybe fixed mid-term:
 --------------------------------------------------------

@@ -219,6 +219,9 @@ public:
    /// set or inquire the workspace ID
    static void wsid(ostream & out, UCS_string arg);
 
+   /// load )DUMPed file from open file descriptor fd (closes fd)
+   static void load_DUMP(ostream & out, const UTF8_string & filename, int fd);
+
    /// load \b lib_ws into the_workspace. Return ⎕LX of the new WS.
    static UCS_string load_WS(ostream & out, const vector<UCS_string> & lib_ws);
 

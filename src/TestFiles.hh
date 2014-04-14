@@ -69,18 +69,9 @@ using namespace std;
 class TestFiles
 {
    friend int main(int argc, const char *argv[]);
-   friend struct user_preferences;
+   friend struct UserPreferences;
 
 public:
-   /// randomize the order of test_file_names
-   static void randomize_files();
-
-   /// the files to be processed.
-   static vector<const char *> test_file_names;
-
-   /// return true if this workspaces is in test mode
-   static bool is_validating()   { return test_file_names.size() > 0; }
-
    /// count an error
    static void reset_errors()
       {
@@ -119,12 +110,6 @@ public:
    /// return the current test report
    static ofstream & get_current_testreport()   { return current_testreport; }
 
-   /// return the name of the current test file
-   static const char * get_testfile_name()   { return current_testfile_name; }
-
-   /// return the current test file
-   static FILE * get_testfile()   { return current_testfile; }
-
    /// return line number in the current test file
    static int get_current_lineno()   { return current_lineno; }
 
@@ -156,12 +141,6 @@ protected:
 
    /// true until total error count is printed.
    static bool need_total;
-
-   /// the name of the current test file
-   static const char * current_testfile_name;
-
-   /// the current test file
-   static FILE * current_testfile;
 
    /// line number in the current test file
    static int current_lineno;

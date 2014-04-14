@@ -109,7 +109,6 @@ public:
         return *this;
       }
 
-   /// 0-terminate the items and return a pointer to them
    /// return the items of the string (not 0-terminated)
    const T * get_items() const
       {

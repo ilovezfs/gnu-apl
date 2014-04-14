@@ -810,10 +810,10 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
    return *this;
 }
 //=============================================================================
-XML_Loading_Archive::XML_Loading_Archive(const char * _filename)
+XML_Loading_Archive::XML_Loading_Archive(const char * _filename, int & dump_fd)
    : line(1),
      data(0),
-     end(0),
+     file_end(0),
      copying(false),
      protection(false),
      reading_vids(false),
@@ -831,19 +831,36 @@ struct stat st;
         return;
       }
 
-void * map = mmap(0, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-   if (map == MAP_FAILED)
+   map_length = st.st_size;
+   map_start = mmap(0, map_length, PROT_READ, MAP_SHARED, fd, 0);
+   if (map_start == MAP_FAILED)
       {
         CERR << "mmap() failed: " << strerror(errno) << endl;
         close(fd);
         fd = -1;
+        return;
       }
 
    // success
    //
-   file_start = (const UTF8 *)map;
-   end = file_start + st.st_size;
+   file_start = (const UTF8 *)map_start;
+   file_end = file_start + map_length;
+
    reset();
+
+   if (file_start[0] == '#')   // a )DUMP file
+      {
+        // the file was written with )DUMP. Return the open file
+        // descriptor (the destructor will unmap())
+        //
+        dump_fd = fd;
+        return;
+      }
+}
+//-----------------------------------------------------------------------------
+XML_Loading_Archive::~XML_Loading_Archive()
+{
+   munmap(map_start, map_length);
 }
 //-----------------------------------------------------------------------------
 void
@@ -904,7 +921,7 @@ XML_Loading_Archive::where_att(ostream & out)
 bool
 XML_Loading_Archive::get_uni()
 {
-   if (data > end)   return true;   // EOF
+   if (data > file_end)   return true;   // EOF
 
 int len = 0;
    current_char = UTF8_string::toUni(data, len);

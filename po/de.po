@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU APL 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-04-13 16:55+0200\n"
+"POT-Creation-Date: 2014-04-14 17:49+0200\n"
 "PO-Revision-Date: 2013-09-15 14:04+0200\n"
 "Last-Translator: Juergen <eedjsa@localhost>\n"
 "Language-Team: German\n"
@@ -17,111 +17,111 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # # Kommandos
-#: src/Command.cc:96 src/Command.cc:404 src/Command.cc:413 src/Command.cc:509
-#: src/Command.cc:733
+#: src/Command.cc:97 src/Command.cc:405 src/Command.cc:414 src/Command.cc:510
+#: src/Command.cc:734
 msgid "BAD COMMAND"
 msgstr "FEHLERHAFTES KOMMANDO"
 
-#: src/Command.cc:129
+#: src/Command.cc:130
 msgid "SYNTAX ERROR"
 msgstr "FEHLERHAFTE SYNTAX"
 
-#: src/Command.cc:148
+#: src/Command.cc:149
 msgid "main: Parse error."
 msgstr "main: Fehler beim parsen."
 
-#: src/Command.cc:256
+#: src/Command.cc:257
 #, fuzzy
 msgid "branch back into function (→N) without suspended function"
 msgstr "leerer Sprung (→⍳0) ohne suspendierte Function"
 
-#: src/Command.cc:354
+#: src/Command.cc:355
 #, c-format
 msgid "WARNING - %d stale functions (%serased)"
 msgstr "WARNUNG - %d stale functions (%sgelöscht)"
 
-#: src/Command.cc:358
+#: src/Command.cc:359
 msgid "OK      - no stale functions"
 msgstr "OK      - keine stale functions"
 
-#: src/Command.cc:366
+#: src/Command.cc:367
 #, c-format
 msgid "ERROR   - %d stale values"
 msgstr "FEHLER  - %d stale Werte"
 
-#: src/Command.cc:369
+#: src/Command.cc:370
 msgid "OK      - no stale values"
 msgstr "OK      - keine stale values"
 
-#: src/Command.cc:376
+#: src/Command.cc:377
 #, c-format
 msgid "ERROR   - %d stale indices"
 msgstr "ERROR   - %d stale Indexwerte"
 
-#: src/Command.cc:379
+#: src/Command.cc:380
 msgid "OK      - no stale indices"
 msgstr "OK      - keine stale Indexwerte"
 
-#: src/Command.cc:407
+#: src/Command.cc:408
 msgid "missing workspace name in command )DROP"
 msgstr "fehlender Workspace-Name in Kommando )DROP"
 
-#: src/Command.cc:416
+#: src/Command.cc:417
 msgid "too many parameters in command )DROP"
 msgstr "zu viele Parameter in Kommando )DROP"
 
-#: src/Command.cc:431
+#: src/Command.cc:432
 msgid " NOT DROPPED: "
 msgstr "NICHT GELÖSCHT"
 
-#: src/Command.cc:434
+#: src/Command.cc:435
 msgid "could not unlink file "
 msgstr "konnte Datei nicht löschen"
 
-#: src/Command.cc:448
+#: src/Command.cc:449
 msgid "US Keyboard Layout:"
 msgstr "US Tastatur Layout:"
 
-#: src/Command.cc:469
+#: src/Command.cc:470
 msgid "Commands are:"
 msgstr "Gültige Kommandos:"
 
-#: src/Command.cc:481
+#: src/Command.cc:482
 #, fuzzy
 msgid ")HOST command not allowed in safe mode."
 msgstr ")HOST Kommando fehlgeschlagen: "
 
-#: src/Command.cc:489
+#: src/Command.cc:490
 msgid ")HOST command failed: "
 msgstr ")HOST Kommando fehlgeschlagen: "
 
-#: src/Command.cc:511
+#: src/Command.cc:512
 msgid "missing filename in command )IN"
 msgstr "fehlender Dateiname im Kommando )IN"
 
-#: src/Command.cc:525 src/Command.cc:748
+#: src/Command.cc:526 src/Command.cc:749
 msgid " failed: "
 msgstr " fehlgeschlagen: "
 
-#: src/Command.cc:529
+#: src/Command.cc:530
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr "Kommando )IN: konnte Datei %s nicht zum Lesen öffnen: %s"
 
-#: src/Command.cc:567
+#: src/Command.cc:568
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr "Ungütltiger Zeichensatz (weder ASCII noch EBCDIC)"
 
-#: src/Command.cc:632
+#: src/Command.cc:633
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr "UNGÜLTIGE BIBLIOTHEK"
 
-#: src/Command.cc:637
+#: src/Command.cc:638
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr "Pfad %s konnte nicht als Verzeichnis geöffnet werden: %s"
 
-#: src/Command.cc:688
+#: src/Command.cc:689
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
@@ -132,52 +132,52 @@ msgstr ""
 " die Leistung des Interpreter) muß GNU APL folgendermaßen recompiliert "
 "werden:"
 
-#: src/Command.cc:694
+#: src/Command.cc:695
 msgid "other configure options"
 msgstr "andere configure Optionen"
 
-#: src/Command.cc:700
+#: src/Command.cc:701
 msgid "above the src directory."
 msgstr "oberhalb des Verzeichnisses src."
 
-#: src/Command.cc:711
+#: src/Command.cc:712
 msgid "NO MORE ERROR INFO"
 msgstr "KEINE ZUSÄTZLICHEN FEHLERINFORMATIONEN"
 
-#: src/Command.cc:724
+#: src/Command.cc:725
 msgid "Goodbye."
 msgstr "Und Tschüß."
 
-#: src/Command.cc:735
+#: src/Command.cc:736
 msgid "missing filename in command )OUT"
 msgstr "fehkender Dateiname im Kommando )OUT"
 
-#: src/Command.cc:751
+#: src/Command.cc:752
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr "Kommando )OUT: konnte Datei %s nicht zum Schreiben öffnen: %s"
 
-#: src/Command.cc:817
+#: src/Command.cc:818
 msgid " *** bad sub-record of *"
 msgstr "*** ungültiges sub-record von *"
 
-#: src/Command.cc:820
+#: src/Command.cc:821
 msgid " comment"
 msgstr " Kommentar"
 
-#: src/Command.cc:822
+#: src/Command.cc:823
 msgid " timestamp"
 msgstr " Zeitstempel"
 
-#: src/Command.cc:834
+#: src/Command.cc:835
 msgid " imbed"
 msgstr "i eingebettet"
 
-#: src/Command.cc:837
+#: src/Command.cc:838
 msgid "record #"
 msgstr "Record #"
 
-#: src/Command.cc:847
+#: src/Command.cc:848
 msgid " *** bad sub-record of X"
 msgstr "*** ungültiges sub-record von X"
 
@@ -185,145 +185,129 @@ msgstr "*** ungültiges sub-record von X"
 msgid "Unknown Error"
 msgstr "Unbekannter Fehler"
 
-# # main
-#: src/main.cc:339
-msgid " (default)"
-msgstr " (Standardeinstellung)"
-
-#: src/main.cc:350
-msgid "configurable options:"
-msgstr "konfigurierbare Optionen:"
-
-#: src/main.cc:383
-msgid ", therefore:"
-msgstr ", folglich:"
-
-#: src/main.cc:446
-#, c-format
-msgid ""
-"usage: %s [options]\n"
-"    options: \n"
-"    -h, --help           print this help\n"
-"    -d                   run in the background (i.e. as daemon)\n"
-"    -f file              read input from file (after all -T files)\n"
-"    --id proc            use processor ID proc (default: first unused > "
-"1000)\n"
-msgstr ""
-"Aufruf: %s [Optionen]\n"
-"    Optionen: \n"
-"    -h, --help           diese Hilfe anzeigen\n"
-"    -d                   im Hintergrund (d.h. als Dämon) ausführen\n"
-"    -f file              Eingaben von Datei file lesen (nach allen -T "
-"Dateien)\n"
-"    --id proc            Prozessor ID proc benutzen (Standard: erste "
-"unbenutzte ID > 1000)\n"
-
-#: src/main.cc:456
-#, c-format
-msgid "    -l num               turn log facility num (1-%d) ON\n"
-msgstr "    -l num               Logeinrichtung num (1-%d) AN\n"
-
-#: src/main.cc:462
-msgid "    --cc count           use count cores (default: all)\n"
-msgstr ""
-
-#: src/main.cc:466
-#, fuzzy, c-format
-msgid ""
-"    --par proc           use processor parent ID proc (default: no parent)\n"
-"    -w milli             wait milli milliseconds at startup\n"
-"    --noCIN              do not echo input(for scripting)\n"
-"    --rawCIN             do not use the readline lib for input\n"
-"    --[no]Color          start with ]XTERM ON [OFF])\n"
-"    --noCONT             do not load CONTINUE workspace on startup)\n"
-"    --emacs              run in emacs mode\n"
-"    --[no]SV             [do not] start APnnn (a shared variable server)\n"
-"    --cfg                show ./configure options used and exit\n"
-"    --gpl                show license (GPL) and exit\n"
-"    --silent             do not show the welcome message\n"
-"    --safe               safe mode (no shared vars, no native functions)\n"
-"    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
-"    -v, --version        show version information and exit\n"
-"    -T testcases ...     run testcases\n"
-"    --TM mode            test mode (for -T files):\n"
-"                         0:   (default) exit after last testcase\n"
-"                         1:   exit after last testcase if no error\n"
-"                         2:   continue (don't exit) after last testcase\n"
-"                         3:   stop testcases after first error (don't exit)\n"
-"                         4:   exit after first error\n"
-"    --TR                 randomize order of testfiles\n"
-"    --TS                 append to (rather than override) summary.log\n"
-"    --                   end of options for %s\n"
-msgstr ""
-"    --par proc           benutze Prozessor Eltern ID proc (Standard: keine)\n"
-"    -w milli             warte milli Millisekunden beim Start\n"
-"    --noCIN              kein Echo der Eingabe (für Scripting)\n"
-"    --noCONT             Workspace CONTINUE nicht automatisch laden)\n"
-"    --noSV               APnnn nicht starten (ein Server Prozeß für Shared "
-"Variablen)\n"
-"    --cfg                ./configure Optionen anzeigen und beenden\n"
-"    --gpl                Lizenz (GPL) anzeigen und beenden\n"
-"    --silent             Begrüßung unterfrücken\n"
-"    -s, --script         Abkürzung für --silent --noCIN --noCONT -f -\n"
-"    -v, --version        Versions Information anzeigen und beenden\n"
-"    -T testcases ...     Testcases ausführen\n"
-"    --TM mode            Test Modus (for -T Dateien):\n"
-"                         0:   (Standard) nach letztem Testcase beenden\n"
-"                         1:   nach letztem Testcase beenden wenn kein "
-"Fehler\n"
-"                         2:   nach letztem Testcase fortfahren\n"
-"                         3:   nach erstem Fehler anhalten (nicht beenden)\n"
-"                         4:   nach erstem Fehler beenden\n"
-"    --TS                 Testerggebnisse an summary.log anhängen statt zu "
-"überschreiben\n"
-"    --                   Ende der Optionen für %s\n"
-
-#: src/main.cc:529
+#: src/main.cc:315
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr "Willkommen bei GNU APL Version %s"
 
-#: src/main.cc:530
+#: src/main.cc:316
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr "für Einzelheiten führen Sie bitte %s --gpl aus."
 
-#: src/main.cc:549
+#: src/main.cc:335
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr "Für dieses Programm werden KEINERLEI GARANTIEN übernommen;"
 
-#: src/main.cc:552
+#: src/main.cc:338
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 "Dieses Programm ist freie Software und kann gerne gemäß den Bedingungen"
 
-#: src/main.cc:553
+#: src/main.cc:339
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "der GNU Public License (GPL) Version 3 or später verbreitet werden."
 
-#: src/main.cc:932
-msgid "-f without filename"
-msgstr "-f ohne Dateiname"
+# # main
+#~ msgid " (default)"
+#~ msgstr " (Standardeinstellung)"
 
-#: src/main.cc:964
-msgid "-l without log facility"
-msgstr "-l ohne Logeinrichtung"
+#~ msgid "configurable options:"
+#~ msgstr "konfigurierbare Optionen:"
 
-#: src/main.cc:969
-msgid "the -l option was ignored (requires ./configure DYNAMIC_LOG_WANTED=yes)"
-msgstr ""
+#~ msgid ", therefore:"
+#~ msgstr ", folglich:"
 
-#: src/main.cc:1077
-msgid "--TM without test mode"
-msgstr "--TM ohne Testmode"
+#~ msgid ""
+#~ "usage: %s [options]\n"
+#~ "    options: \n"
+#~ "    -h, --help           print this help\n"
+#~ "    -d                   run in the background (i.e. as daemon)\n"
+#~ "    -f file              read input from file (after all -T files)\n"
+#~ "    --id proc            use processor ID proc (default: first unused > "
+#~ "1000)\n"
+#~ msgstr ""
+#~ "Aufruf: %s [Optionen]\n"
+#~ "    Optionen: \n"
+#~ "    -h, --help           diese Hilfe anzeigen\n"
+#~ "    -d                   im Hintergrund (d.h. als Dämon) ausführen\n"
+#~ "    -f file              Eingaben von Datei file lesen (nach allen -T "
+#~ "Dateien)\n"
+#~ "    --id proc            Prozessor ID proc benutzen (Standard: erste "
+#~ "unbenutzte ID > 1000)\n"
 
-#: src/main.cc:1100
-msgid "-w without milli(seconds)"
-msgstr "-w ohne Millisekunden"
+#~ msgid "    -l num               turn log facility num (1-%d) ON\n"
+#~ msgstr "    -l num               Logeinrichtung num (1-%d) AN\n"
 
-#: src/main.cc:1106
-msgid "unknown option '"
-msgstr "Unbekannte Option '"
+#, fuzzy
+#~ msgid ""
+#~ "    --par proc           use processor parent ID proc (default: no "
+#~ "parent)\n"
+#~ "    -w milli             wait milli milliseconds at startup\n"
+#~ "    --noCIN              do not echo input(for scripting)\n"
+#~ "    --rawCIN             do not use the readline lib for input\n"
+#~ "    --[no]Color          start with ]XTERM ON [OFF])\n"
+#~ "    --noCONT             do not load CONTINUE workspace on startup)\n"
+#~ "    --emacs              run in emacs mode\n"
+#~ "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
+#~ "    --cfg                show ./configure options used and exit\n"
+#~ "    --gpl                show license (GPL) and exit\n"
+#~ "    --silent             do not show the welcome message\n"
+#~ "    --safe               safe mode (no shared vars, no native functions)\n"
+#~ "    -s, --script         same as --silent --noCIN --noCONT --noColor -f "
+#~ "-\n"
+#~ "    -v, --version        show version information and exit\n"
+#~ "    -T testcases ...     run testcases\n"
+#~ "    --TM mode            test mode (for -T files):\n"
+#~ "                         0:   (default) exit after last testcase\n"
+#~ "                         1:   exit after last testcase if no error\n"
+#~ "                         2:   continue (don't exit) after last testcase\n"
+#~ "                         3:   stop testcases after first error (don't "
+#~ "exit)\n"
+#~ "                         4:   exit after first error\n"
+#~ "    --TR                 randomize order of testfiles\n"
+#~ "    --TS                 append to (rather than override) summary.log\n"
+#~ "    --                   end of options for %s\n"
+#~ msgstr ""
+#~ "    --par proc           benutze Prozessor Eltern ID proc (Standard: "
+#~ "keine)\n"
+#~ "    -w milli             warte milli Millisekunden beim Start\n"
+#~ "    --noCIN              kein Echo der Eingabe (für Scripting)\n"
+#~ "    --noCONT             Workspace CONTINUE nicht automatisch laden)\n"
+#~ "    --noSV               APnnn nicht starten (ein Server Prozeß für "
+#~ "Shared Variablen)\n"
+#~ "    --cfg                ./configure Optionen anzeigen und beenden\n"
+#~ "    --gpl                Lizenz (GPL) anzeigen und beenden\n"
+#~ "    --silent             Begrüßung unterfrücken\n"
+#~ "    -s, --script         Abkürzung für --silent --noCIN --noCONT -f -\n"
+#~ "    -v, --version        Versions Information anzeigen und beenden\n"
+#~ "    -T testcases ...     Testcases ausführen\n"
+#~ "    --TM mode            Test Modus (for -T Dateien):\n"
+#~ "                         0:   (Standard) nach letztem Testcase beenden\n"
+#~ "                         1:   nach letztem Testcase beenden wenn kein "
+#~ "Fehler\n"
+#~ "                         2:   nach letztem Testcase fortfahren\n"
+#~ "                         3:   nach erstem Fehler anhalten (nicht "
+#~ "beenden)\n"
+#~ "                         4:   nach erstem Fehler beenden\n"
+#~ "    --TS                 Testerggebnisse an summary.log anhängen statt zu "
+#~ "überschreiben\n"
+#~ "    --                   Ende der Optionen für %s\n"
+
+#~ msgid "-f without filename"
+#~ msgstr "-f ohne Dateiname"
+
+#~ msgid "-l without log facility"
+#~ msgstr "-l ohne Logeinrichtung"
+
+#~ msgid "--TM without test mode"
+#~ msgstr "--TM ohne Testmode"
+
+#~ msgid "-w without milli(seconds)"
+#~ msgstr "-w ohne Millisekunden"
+
+#~ msgid "unknown option '"
+#~ msgstr "Unbekannte Option '"
 
 #~ msgid "*** Another APL interpreter with --id "
 #~ msgstr "*** Ein anderer APL interpreter mit --id "
