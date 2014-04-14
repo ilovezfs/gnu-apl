@@ -148,7 +148,10 @@ class XML_Loading_Archive
 {
 public:
    /// constructor: remember file name and workspace
-   XML_Loading_Archive(const char * _filename);
+   XML_Loading_Archive(const char * _filename, int & dump_fd);
+
+   /// destructor (unmap()s file).
+   ~XML_Loading_Archive();
 
    /// return true iff constructor could open the file
    bool is_open() const   { return fd != -1; }
@@ -230,10 +233,10 @@ protected:
 
 protected:
    /// return true iff there is more data in the file
-   bool more() const   { return data < end; }
+   bool more() const   { return data < file_end; }
 
    /// return true iff there is no more data in the file
-   bool done() const   { return data >= end; }
+   bool done() const   { return data >= file_end; }
 
    /// retur true if we have an object list and \b obj is in the list
    bool is_allowed(const UCS_string & obj) const
@@ -269,6 +272,12 @@ protected:
    /// the file descriptor for the mmap()ed workspace.xml file
    int fd;
 
+   /// the start of the file (for mmap())
+   void * map_start;
+
+   /// the length of the file (for mmap())
+   size_t map_length;
+
    /// the start of the file
    const UTF8 * file_start;
 
@@ -294,7 +303,7 @@ protected:
    const UTF8 * end_attr;
 
    /// the end of the file
-   const UTF8 * end;
+   const UTF8 * file_end;
 
    /// all values in the workspace
    vector<Value_P> values;

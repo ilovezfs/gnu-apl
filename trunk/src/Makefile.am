@@ -93,6 +93,7 @@ UCS_string.cc				UCS_string.hh		\
 UdpSocket.cc				UdpSocket.hh		\
 					Unicode.hh		\
 UserFunction.cc				UserFunction.hh		\
+UserPreferences.cc			UserPreferences.hh	\
 UTF8_string.cc				UTF8_string.hh		\
 Value.cc				Value.hh		\
 ValueHistory.cc				ValueHistory.hh		\

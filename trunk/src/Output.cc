@@ -53,6 +53,7 @@
 #include "PrintOperator.hh"
 #include "Svar_DB.hh"
 #include "TestFiles.hh"
+#include "UserPreferences.hh"
 
 bool Output::colors_enabled = false;
 bool Output::colors_changed = false;
@@ -129,7 +130,7 @@ char Output::color_COUT[100] = CSI "0;30;48;2;255;255;255m";
 /// VT100 escape sequence to change to cerr color
 char Output::color_CERR[100] = CSI "0;35;48;2;255;255;255m";
 
-/// VT100 escape sequence to change to cerr color
+/// VT100 escape sequence to change to uerr color
 char Output::color_UERR[100] = CSI "0;35;48;2;255;255;255m";
 
 /// VT100 escape sequence to reset colors to their default
@@ -142,7 +143,7 @@ char Output::clear_EOL[100] = CSI "K";
 int
 CinOut::overflow(int c)
 {
-   if (uprefs.do_not_echo)   return 0;
+   if (!uprefs.echo_current_file())   return 0;
    if (!Output::print_sema_held)
       {
         Svar_DB::start_print(LOC);
@@ -188,7 +189,7 @@ ErrOut::overflow(int c)
 void
 Output::init()
 {
-int ret = setupterm(NULL, fileno(stdout), NULL);
+const int ret = setupterm(NULL, fileno(stdout), NULL);
    if (ret != 0)
       {
         use_curses = false;

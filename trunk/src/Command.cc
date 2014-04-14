@@ -44,6 +44,7 @@
 #include "TestFiles.hh"
 #include "Tokenizer.hh"
 #include "UserFunction.hh"
+#include "UserPreferences.hh"
 #include "Value.hh"
 #include "Workspace.hh"
 

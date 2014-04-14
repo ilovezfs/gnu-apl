@@ -34,6 +34,7 @@ using namespace std;
 #include "Quad_TF.hh"
 #include "TestFiles.hh"
 #include "UserFunction.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 // Workspace::the_workspace is defined in StaticObjects.cc
@@ -658,6 +659,28 @@ const char * tz_sign = (offset < 0) ? "" : "+";
 }
 //-----------------------------------------------------------------------------
 void
+Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd)
+{
+   out << "loading )DUMP file " << filename << "..." << endl;
+FILE * file = fdopen(fd, "r");
+
+   // make sure that filename is not already open (which would indicate
+   // )COPY recursion
+   //
+   loop(f, uprefs.files_todo.size())
+      {
+        if (filename == uprefs.files_todo[f].filename)   // same filename
+           {
+             CERR << ")COPY " << filename << " causes recursion" << endl;
+             return;
+           }
+      }
+
+Filename_and_mode fam = { filename, file, false, false };
+   uprefs.files_todo.insert(uprefs.files_todo.begin(), fam);
+}
+//-----------------------------------------------------------------------------
+void
 Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws)
 {
    // )DUMP
@@ -758,7 +781,8 @@ LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
-XML_Loading_Archive in(filename.c_str());
+int dump_fd = -1;
+XML_Loading_Archive in(filename.c_str(), dump_fd);
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
       {
@@ -771,7 +795,8 @@ XML_Loading_Archive in(filename.c_str());
              // filename does not end with .xml, so we try filename.xml
              //
              filename.append(UTF8_string(".xml"));
-             new (&in) XML_Loading_Archive(filename.c_str());
+             int dump_fd = -1;
+             new (&in) XML_Loading_Archive(filename.c_str(), dump_fd);
            }
 
         if (!in.is_open())   // open failed again: give up
@@ -821,7 +846,13 @@ LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
-XML_Loading_Archive in(filename.c_str());
+int dump_fd = -1;
+XML_Loading_Archive in(filename.c_str(), dump_fd);
+   if (dump_fd != -1)
+      {
+        load_DUMP(out, filename, dump_fd);   // closes dump_fd
+        return;
+      }
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
       {
@@ -834,7 +865,8 @@ XML_Loading_Archive in(filename.c_str());
              // filename does not end with .xml, so we try filename.xml
              //
              filename.append(UTF8_string(".xml"));
-             new (&in) XML_Loading_Archive(filename.c_str());
+             int dump_fd = -1;
+             new (&in) XML_Loading_Archive(filename.c_str(), dump_fd);
            }
 
         if (!in.is_open())   // open failed again: give up

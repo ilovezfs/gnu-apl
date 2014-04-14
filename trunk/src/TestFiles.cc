@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,12 +27,10 @@
 #include "main.hh"
 #include "Output.hh"
 #include "TestFiles.hh"
+#include "UserPreferences.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
-vector<const char *> TestFiles::test_file_names;
-FILE * TestFiles::current_testfile = 0;
-const char * TestFiles::current_testfile_name = 0;
 int TestFiles::current_lineno = 0;
 int TestFiles::testcase_count = 0;
 int TestFiles::testcases_done = 0;
@@ -51,12 +49,12 @@ ofstream TestFiles::current_testreport;
 const UTF8 *
 TestFiles::get_testcase_line()
 {
-   while (is_validating())   // as long as we have testfiles
+   while (uprefs.current_file())   // as long as we have input files
       {
-        if (current_testfile == 0)
+        if (uprefs.current_file()->file == 0)
            {
-             open_next_testfile();
-             if (current_testfile == 0)   break;   // no more files
+             uprefs.open_current_file();
+             if (uprefs.current_file()->file == 0)   break;   // no more files
            }
 
         // read a line with CR and LF removed.
@@ -71,7 +69,7 @@ TestFiles::get_testcase_line()
              if (Workspace::SI_entry_count() > 1)
                 {
                   CERR << endl << ")SI not cleared at the end of "
-                       << test_file_names[0] << ":" << endl;
+                       << uprefs.current_filename() << ":" << endl;
                   Workspace::list_SI(CERR, SIM_SIS);
                   CERR << endl;
 
@@ -79,9 +77,9 @@ TestFiles::get_testcase_line()
                      {
                        current_testreport << endl
                                           << ")SI not cleared at the end of "
-                                          << test_file_names[0] << ":" << endl;
-                       Workspace::list_SI(current_testreport,
-                                                         SIM_SIS);
+                                          << uprefs.current_filename()<< ":"
+                                          << endl;
+                       Workspace::list_SI(current_testreport, SIM_SIS);
                        current_testreport << endl;
                      }
                   apl_error(LOC);
@@ -119,14 +117,12 @@ TestFiles::get_testcase_line()
                      }
                 }
              
-             fclose(current_testfile);
+             uprefs.close_current_file();
              ++testcases_done;
 
              Log(LOG_test_execution)
-               CERR << "closed testcase file " << current_testfile_name << endl;
-
-             current_testfile = 0;
-             current_testfile_name = 0;
+               CERR << "closed testcase file " << uprefs.current_filename()
+                    << endl;
 
              ofstream summary("testcases/summary.log", ios_base::app);
              summary << error_count() << " ";
@@ -141,12 +137,12 @@ TestFiles::get_testcase_line()
                              << "    ";
 
                    summary << assert_errors << " assert, "
-                          << diff_errors   << " diff, "
-                          << parse_errors  << " parse) ";
+                           << diff_errors   << " diff, "
+                           << parse_errors  << " parse) ";
 
                 }
 
-             summary << test_file_names[0] << endl;
+             summary << uprefs.current_filename() << endl;
 
              if ((test_mode == TM_STOP_AFTER_ERROR ||
                   test_mode == TM_EXIT_AFTER_ERROR) && error_count())
@@ -155,14 +151,15 @@ TestFiles::get_testcase_line()
                        << "Stopping test execution since an error "
                           "has occurred"  << endl
                        << "The error count is " << error_count() << endl
-                       << "Failed testcase is " << test_file_names[0] << endl 
+                       << "Failed testcase is " << uprefs.current_filename()
+                       << endl 
                        << endl;
                   
-                  test_file_names.resize(0);
+                  uprefs.files_todo.resize(0);
                   break;
                 }
 
-             test_file_names.erase(test_file_names.begin());
+             uprefs.files_todo.erase(uprefs.files_todo.begin());
 
              Output::reset_dout();
              reset_errors();
@@ -196,44 +193,6 @@ TestFiles::get_testcase_line()
 }
 //-----------------------------------------------------------------------------
 void
-TestFiles::randomize_files()
-{
-   {
-     timeval now;
-     gettimeofday(&now, 0);
-     srandom(now.tv_sec + now.tv_usec);
-   }
-
-   for (int done = 0; done < 4*test_file_names.size();)
-       {
-         const int n1 = random() % test_file_names.size();
-         const int n2 = random() % test_file_names.size();
-         if (n1 == n2)   continue;
-
-         const char * f1 = test_file_names[n1];
-         const char * f2 = test_file_names[n2];
-
-         const char * ff1 = strrchr(f1, '/');
-         if (!ff1++)   ff1 = f1;
-         const char * ff2 = strrchr(f2, '/');
-         if (!ff2++)   ff2 = f2;
-
-         // the order of files named AAA... or ZZZ... shall not be changed
-         //
-         if (strncmp(ff1, "AAA", 3) == 0)   continue;
-         if (strncmp(ff1, "ZZZ", 3) == 0)   continue;
-         if (strncmp(ff2, "AAA", 3) == 0)   continue;
-         if (strncmp(ff2, "ZZZ", 3) == 0)   continue;
-
-         // at this point f1 and f2 shall be swapped.
-         //
-         test_file_names[n1] = f2;
-         test_file_names[n2] = f1;
-         ++done;
-       }
-}
-//-----------------------------------------------------------------------------
-void
 TestFiles::print_summary()
 {
 ofstream summary("testcases/summary.log", ios_base::app);
@@ -259,7 +218,7 @@ static char buf[2000];
 int b = 0;
    for (;b < sizeof(buf) - 1; ++b)
        {
-         int cc = fgetc(current_testfile);
+         int cc = fgetc(uprefs.current_file()->file);
          if (cc == EOF)   // end of file
             {
               if (b == 0)   return 0;
@@ -288,42 +247,40 @@ int b = 0;
 void
 TestFiles::open_next_testfile()
 {
-   if (current_testfile)
+   if (uprefs.current_file()->file)
       {
         CERR << "Workspace::open_next_testfile(): already open" << endl;
         return;
       }
 
-   while (is_validating())
+   while (uprefs.is_validating())
       {
-        current_testfile_name = test_file_names[0];
         CERR << " #######################################"
                 "#######################################"  << endl
              << "########################################"
                 "########################################" << endl
              << " #######################################"
                 "#######################################"  << endl
-             << " Testfile: " << current_testfile_name     << endl
+             << " Testfile: " << uprefs.current_filename() << endl
              << "########################################"
                 "########################################" << endl;
-        current_testfile = fopen(current_testfile_name, "r");
-        if (current_testfile == 0)
+        uprefs.open_current_file();
+        if (uprefs.current_file()->file == 0)
            {
-             CERR << "could not open " << current_testfile_name << endl;
-             test_file_names.erase(test_file_names.begin());
-             current_testfile_name = 0;
-            continue;
+             CERR << "could not open " << uprefs.current_filename() << endl;
+             uprefs.files_todo.erase(uprefs.files_todo.begin());
+             continue;
            }
 
         Log(LOG_test_execution)
-           CERR << "openened testcase file " << current_testfile_name << endl;
+           CERR << "openened testcase file " << uprefs.current_filename() << endl;
 
         Output::reset_dout();
         reset_errors();
 
         char log_name[FILENAME_MAX];
         snprintf(log_name, sizeof(log_name) - 1,  "%s.log",
-                 current_testfile_name);
+                 uprefs.current_filename());
         
         current_testreport.close();
         current_testreport.open(log_name, ofstream::out | ofstream::trunc);
@@ -358,7 +315,7 @@ const int cnt = arg.atoi();
 void
 TestFiles::syntax_error()
 {
-   if (!current_testfile)   return;
+   if (!uprefs.current_file()->file)   return;
 
    ++parse_errors;
 
@@ -371,7 +328,7 @@ TestFiles::syntax_error()
 void
 TestFiles::apl_error(const char * loc)
 {
-   if (!current_testfile)   return;
+   if (!uprefs.current_file()->file)   return;
 
    ++apl_errors;
    last_apl_error_loc = loc;
@@ -384,7 +341,7 @@ TestFiles::apl_error(const char * loc)
 void
 TestFiles::assert_error()
 {
-   if (!current_testfile)   return;
+   if (!uprefs.current_file()->file)   return;
 
    ++assert_errors;
    Log(LOG_test_execution)
@@ -394,7 +351,7 @@ TestFiles::assert_error()
 void
 TestFiles::diff_error()
 {
-   if (!current_testfile)   return;
+   if (!uprefs.current_file()->file)   return;
 
    ++diff_errors;
    Log(LOG_test_execution)

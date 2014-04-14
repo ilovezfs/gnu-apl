@@ -27,6 +27,7 @@
 #include "PrintOperator.hh"
 #include "TestFiles.hh"
 #include "UCS_string.hh"
+#include "UserPreferences.hh"
 #include "Value.hh"
 #include "ValueHistory.hh"
 
@@ -41,7 +42,7 @@ VH_entry::VH_entry(const Value * _val, VH_event _ev, int _iarg,
     iarg(_iarg),
     loc(_loc)
 {
-   testcase_file = TestFiles::get_testfile_name();
+   testcase_file = uprefs.current_filename();
    testcase_line = TestFiles::get_current_lineno();
 }
 //----------------------------------------------------------------------------

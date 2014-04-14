@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DiffOut.hh"
-
-#include "TestFiles.hh"
-
 #include "Avec.hh"
 #include "Common.hh"
+#include "DiffOut.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "Svar_DB.hh"
+#include "TestFiles.hh"
+#include "UserPreferences.hh"
 #include "UTF8_string.hh"
 
 //-----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ DiffOut::overflow(int c)
    Svar_DB::end_print(LOC);
    Output::print_sema_held = false;
 
-   if (!TestFiles::is_validating())   return 0;
+   if (!uprefs.is_validating())   return 0;
 
 ofstream & rep = TestFiles::get_current_testreport();
    Assert(rep.is_open());

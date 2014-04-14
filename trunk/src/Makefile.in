@@ -105,9 +105,9 @@ am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-SystemVariable.$(OBJEXT) apl-TestFiles.$(OBJEXT) \
 	apl-Token.$(OBJEXT) apl-Tokenizer.$(OBJEXT) \
 	apl-UCS_string.$(OBJEXT) apl-UdpSocket.$(OBJEXT) \
-	apl-UserFunction.$(OBJEXT) apl-UTF8_string.$(OBJEXT) \
-	apl-Value.$(OBJEXT) apl-ValueHistory.$(OBJEXT) \
-	apl-Workspace.$(OBJEXT)
+	apl-UserFunction.$(OBJEXT) apl-UserPreferences.$(OBJEXT) \
+	apl-UTF8_string.$(OBJEXT) apl-Value.$(OBJEXT) \
+	apl-ValueHistory.$(OBJEXT) apl-Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
@@ -423,6 +423,7 @@ UCS_string.cc				UCS_string.hh		\
 UdpSocket.cc				UdpSocket.hh		\
 					Unicode.hh		\
 UserFunction.cc				UserFunction.hh		\
+UserPreferences.cc			UserPreferences.hh	\
 UTF8_string.cc				UTF8_string.hh		\
 Value.cc				Value.hh		\
 ValueHistory.cc				ValueHistory.hh		\
@@ -593,6 +594,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UTF8_string.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UdpSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserPreferences.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Value.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ValueHistory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Workspace.Po@am__quote@
@@ -1584,6 +1586,20 @@ apl-UserFunction.obj: UserFunction.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UserFunction.cc' object='apl-UserFunction.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserFunction.obj `if test -f 'UserFunction.cc'; then $(CYGPATH_W) 'UserFunction.cc'; else $(CYGPATH_W) '$(srcdir)/UserFunction.cc'; fi`
+
+apl-UserPreferences.o: UserPreferences.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserPreferences.o -MD -MP -MF $(DEPDIR)/apl-UserPreferences.Tpo -c -o apl-UserPreferences.o `test -f 'UserPreferences.cc' || echo '$(srcdir)/'`UserPreferences.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UserPreferences.Tpo $(DEPDIR)/apl-UserPreferences.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UserPreferences.cc' object='apl-UserPreferences.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserPreferences.o `test -f 'UserPreferences.cc' || echo '$(srcdir)/'`UserPreferences.cc
+
+apl-UserPreferences.obj: UserPreferences.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserPreferences.obj -MD -MP -MF $(DEPDIR)/apl-UserPreferences.Tpo -c -o apl-UserPreferences.obj `if test -f 'UserPreferences.cc'; then $(CYGPATH_W) 'UserPreferences.cc'; else $(CYGPATH_W) '$(srcdir)/UserPreferences.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UserPreferences.Tpo $(DEPDIR)/apl-UserPreferences.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UserPreferences.cc' object='apl-UserPreferences.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserPreferences.obj `if test -f 'UserPreferences.cc'; then $(CYGPATH_W) 'UserPreferences.cc'; else $(CYGPATH_W) '$(srcdir)/UserPreferences.cc'; fi`
 
 apl-UTF8_string.o: UTF8_string.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UTF8_string.o -MD -MP -MF $(DEPDIR)/apl-UTF8_string.Tpo -c -o apl-UTF8_string.o `test -f 'UTF8_string.cc' || echo '$(srcdir)/'`UTF8_string.cc
