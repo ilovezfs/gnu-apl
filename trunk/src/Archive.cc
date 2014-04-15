@@ -848,12 +848,22 @@ struct stat st;
 
    reset();
 
-   if (file_start[0] == '#')   // a )DUMP file
+   if (!strncmp((const char *)file_start, "#!", 2))   // a )DUMP file
       {
         // the file was written with )DUMP. Return the open file
         // descriptor (the destructor will unmap())
         //
         dump_fd = fd;
+        fd = -1;   // file will be closed via dump_fd
+        return;
+      }
+
+   if (strncmp((const char *)file_start, "<?xml", 5))   // not an xml file
+      {
+        CERR << "file " << filename << " does not " << endl
+             << "have the format of a GNU APL .xml or .apl file" << endl;
+        close(fd);
+        fd = -1;
         return;
       }
 }
@@ -861,6 +871,7 @@ struct stat st;
 XML_Loading_Archive::~XML_Loading_Archive()
 {
    munmap(map_start, map_length);
+   if (fd != -1)   close(fd);
 }
 //-----------------------------------------------------------------------------
 void
@@ -1102,6 +1113,8 @@ const char ** tag_pos = tag_order;
    // remove them.
    //
    Value::erase_stale(LOC);
+
+   if (reading_vids)   return;
 
 const char * tz_sign = (tzone < 0) ? "" : "+";
    COUT << "SAVED " << year << "-" << month << "-" << day
@@ -1441,8 +1454,8 @@ UCS_string text;
            }
         else
            {
-             CERR << "fix(" << symbol.get_name() << ") failed at line "
-                  << err << " (" << Workspace::more_error() << ")" << endl;
+             CERR << "    ⎕FX " << symbol.get_name() << " failed: "
+                  << Workspace::more_error() << endl;
              symbol.push();
            }
       }

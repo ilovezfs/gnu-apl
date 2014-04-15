@@ -59,7 +59,7 @@ public:
       }
 
    /// return sorce location where error was detected
-   const char * get_error_loc() const   { return error_loc; }
+   const char * get_error_cause() const   { return error_cause; }
 
    bool has_result() const   { return sym_Z != 0; }
 
@@ -131,7 +131,7 @@ protected:
    ErrorCode error;
 
    /// source location where error was detected
-   const char * error_loc;
+   const char * error_cause;
 
    /// the name of this function
    UCS_string function_name;
@@ -181,7 +181,7 @@ class UserFunction : public Function, public Executable
 public:
    /// Construct a user defined function
    UserFunction(const UCS_string txt,
-                int & error_line, const char * & error_loc,
+                int & error_line, const char * & error_cause,
                 bool keep_existing, const char * loc,
                 const UTF8_string &  _creator);
 

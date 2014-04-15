@@ -139,7 +139,7 @@ enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
 UserFunction_header::UserFunction_header(const UCS_string text)
   : from_lambda(false),
     error(E_SYNTAX_ERROR),
-    error_loc(0),
+    error_cause(0),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
@@ -158,7 +158,7 @@ UCS_string header_line;
          else                            header_line.append(uni);
        }
 
-   if (header_line.size() == 0)   { error_loc = LOC;   return; }
+   if (header_line.size() == 0)   { error_cause = LOC;   return; }
 
    Log(LOG_UserFunction__set_line)
       {
@@ -176,7 +176,7 @@ Token_string tos;
      const Parser parser(PM_FUNCTION, LOC);
      const ErrorCode err = parser.parse(header_line, tos);
 
-     if (err != E_NO_ERROR)   { error = err;   error_loc = LOC;  return; }
+     if (err != E_NO_ERROR)   { error = err;   error_cause = LOC;  return; }
    }
 
    // count symbols before first semicolon, allow one symbol too much.
@@ -216,7 +216,7 @@ Fun_signature signature = SIG_NONE;
            }
       }
 
-   if (signature == SIG_NONE)   { error_loc = LOC;   return; }
+   if (signature == SIG_NONE)   { error_cause = LOC;   return; }
 
    // note: constructor has set all symbol pointers to 0!
    // store symbol pointers according to signature.
@@ -240,7 +240,7 @@ Fun_signature signature = SIG_NONE;
       {
         if (tos[tos_idx++].get_tag() != TOK_SEMICOL)
            {
-             error_loc = LOC;
+             error_cause = LOC;
              return;
            }
 
@@ -431,7 +431,7 @@ UserFunction_header::eval_common()
 }
 //=============================================================================
 UserFunction::UserFunction(const UCS_string txt,
-                           int & error_line, const char * & error_loc,
+                           int & error_line, const char * & error_cause,
                            bool keep_existing, const char * loc,
                            const UTF8_string & _creator)
   : Function(ID_USER_SYMBOL, TOK_FUN2),
@@ -451,7 +451,7 @@ UserFunction::UserFunction(const UCS_string txt,
    if (header.get_error() != E_NO_ERROR)   // bad header
       {
         error_line = 0;
-        error_loc = header.get_error_loc();
+        error_cause = header.get_error_cause();
         DEFN_ERROR;
       }
 
@@ -466,10 +466,19 @@ UserFunction::UserFunction(const UCS_string txt,
 
    // check that the function can be defined.
    //
-   if (!header.FUN()->can_be_defined())   DEFN_ERROR;
+const char * why_not = header.FUN()->cant_be_defined();
+   if (why_not)
+      {
+         error_cause = why_not;
+         DEFN_ERROR;
+      }
      
 Function * old_function = header.FUN()->get_function();
-   if (old_function && keep_existing)    DEFN_ERROR;
+   if (old_function && keep_existing)
+      {
+        error_cause = "function exists";
+        DEFN_ERROR;
+      }
 
    for (int l = 1; l < get_text_size(); ++l)
       {
@@ -555,7 +564,7 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
    if (header.FUN())
       {
         if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
-   else                    header.FUN()->set_nc(NC_FUNCTION, this);
+        else               header.FUN()->set_nc(NC_FUNCTION, this);
       }
 }
 //-----------------------------------------------------------------------------
@@ -1024,7 +1033,7 @@ UserFunction::pc_for_line(int l) const
 UserFunction *
 UserFunction::fix(const UCS_string & text, int & error_line,
                   bool keep_existing, const char * loc,
-                  const UTF8_string &  creator)
+                  const UTF8_string & creator)
 {
    Log(LOG_UserFunction__fix)
       {
@@ -1035,10 +1044,10 @@ UserFunction::fix(const UCS_string & text, int & error_line,
    if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(true);
 
 UserFunction * fun = 0;
-const char * error_loc = 0;
+const char * error_cause = 0;
    try
       {
-        fun = new UserFunction(text, error_line, error_loc,
+        fun = new UserFunction(text, error_line, error_cause,
                                keep_existing, loc, creator);
       }
    catch (Error err)
@@ -1046,7 +1055,7 @@ const char * error_loc = 0;
         err.print(CERR);
         if (Workspace::SI_top())
            Workspace::SI_top()->set_safe_execution(false);
-        if (error_loc) Workspace::more_error() = UCS_string(error_loc);
+        if (error_cause)   Workspace::more_error() = UCS_string(error_cause);
         return 0;
       }
    catch (...)

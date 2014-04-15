@@ -216,7 +216,7 @@ Prefix::get_range_high() const
 Function_PC high = lookahead_high;
    if (high == Function_PC_invalid)   high = at(0).pc;
 
-   if (best->misc)   --high;
+   if (best && best->misc)   --high;
    return high;
 }
 //-----------------------------------------------------------------------------
