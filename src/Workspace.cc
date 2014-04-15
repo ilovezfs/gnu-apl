@@ -828,28 +828,37 @@ void
 Workspace::copy_WS(ostream & out, vector<UCS_string> & lib_ws_objects,
                    bool protection)
 {
+   // )COPY wsname                              wsname /absolute or relative
+   // )COPY libnum wsname                       wsname relative
+   // )COPY wsname objects...                   wsname /absolute or relative
+   // )COPY libnum wsname objects...            wsname relative
+
    if (lib_ws_objects.size() < 1)   // at least workspace name is required
       {
         out << "BAD COMMAND" << endl;
+        more_error() = UCS_string(
+                       "missing parameter(s) in command )COPY or )PCOPY");
         return;
       }
 
-   // move the first one or two items in lib_ws_objects to lib_ws
-   //
-vector<UCS_string> lib_ws;
-const bool with_lib = Command::is_lib_ref(lib_ws_objects.front());
-
-   lib_ws.push_back(lib_ws_objects[0]);
-   lib_ws_objects.erase(lib_ws_objects.begin());
-   if (with_lib)   // lib wname
+LibRef libref = LIB_NONE;
+   if (Avec::is_digit(lib_ws_objects.front()[0]))
       {
-        lib_ws.push_back(lib_ws_objects[0]);
+        libref = (LibRef)(lib_ws_objects.front().atoi());
         lib_ws_objects.erase(lib_ws_objects.begin());
       }
 
-LibRef libref = LIB_NONE;
-   if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
-UCS_string wname = lib_ws.back();
+   if (lib_ws_objects.size() < 1)   // at least workspace name is required
+      {
+        out << "BAD COMMAND" << endl;
+        more_error() = UCS_string(
+                       "missing parameter(s) in command )COPY or )PCOPY");
+        return;
+      }
+
+UCS_string wname = lib_ws_objects.front();
+   lib_ws_objects.erase(lib_ws_objects.begin());
+
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
 
 int dump_fd = -1;
