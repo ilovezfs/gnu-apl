@@ -90,9 +90,10 @@ void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
    //
 Symbol * sym = Workspace::lookup_symbol(apl_name);
    Assert(sym);
-   if (!sym->can_be_defined())
+const char * why_not = sym->cant_be_defined();
+   if (why_not)
       {
-        Workspace::more_error() = UCS_string("Symbol is locked");
+        Workspace::more_error() = UCS_string(why_not);
         return;
       }
 

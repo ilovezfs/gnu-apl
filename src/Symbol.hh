@@ -202,8 +202,8 @@ public:
    /// overloaded NamedObject::get_value()
    virtual Value_P get_value();
 
-   /// return true if this symbol can become a defined function.
-   bool can_be_defined() const;
+   /// return a reason why this symbol cant become a defined function.
+   const char * cant_be_defined() const;
 
    /// overloaded NamedObject::get_symbol()
    virtual Symbol * get_symbol() 

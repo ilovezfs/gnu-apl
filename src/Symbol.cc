@@ -499,16 +499,16 @@ const ValueStackItem & vs = value_stack.back();
    return Value_P();
 }
 //-----------------------------------------------------------------------------
-bool
-Symbol::can_be_defined() const
+const char *
+Symbol::cant_be_defined() const
 {
-   if (value_stack.size() > 1)         return false;   // localized
-   if (Workspace::is_called(symbol))   return false;  // on stack
+   if (value_stack.size() > 1)         return "symbol was localized";
+   if (Workspace::is_called(symbol))   return "function is called";
 
-   if (value_stack.back().name_class == NC_UNUSED_USER_NAME)   return true;
-   if (value_stack.back().name_class == NC_FUNCTION)           return true;
-   if (value_stack.back().name_class == NC_OPERATOR)           return true;
-   return false;
+   if (value_stack.back().name_class == NC_UNUSED_USER_NAME)   return 0;   // OK
+   if (value_stack.back().name_class == NC_FUNCTION)           return 0;   // OK
+   if (value_stack.back().name_class == NC_OPERATOR)           return 0;   // OK
+   return "bad name class";
 }
 //-----------------------------------------------------------------------------
 Value_P

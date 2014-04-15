@@ -391,8 +391,6 @@ const UserFunction * ufun = executable->get_ufun();
         const Function_PC from = current_stack.get_range_low();
         Function_PC to   = current_stack.get_range_high();
         const Function_PC2 error_range(from, to);
-        // current_stack.print_range(CERR);
-        // CERR  << endl;
         executable->set_error_info(err, error_range);
       }
 
