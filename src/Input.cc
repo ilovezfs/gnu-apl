@@ -97,13 +97,6 @@ int len = strlen(buffer);
    if (len && buffer[len - 1] == '\r')   buffer[--len] = 0;
    return buffer;
 }
-
-
-const char * Input::input_file_name = 0;
-FILE * Input::input_file_FILE = 0;
-
-bool Input::stdin_from_file = false;
-
 //-----------------------------------------------------------------------------
 void
 Input::init(bool read_history)
@@ -146,49 +139,14 @@ const UTF8 * buf = TestFiles::get_testcase_line();
         input_type = "-T";
         CIN << Workspace::get_prompt() << buf << endl;
       }
-   else if (input_file_FILE)   // a -f file is open
-      {
-        input_type = "-f";
-        buf = get_f_line(input_file_FILE);
-        if (buf)   CIN << Workspace::get_prompt() << buf << endl;
-      }
-   else if (input_file_name)   // -f present, but not opened yet
-      {
-        // A special case is -f - where we open stdin
-        //
-        stdin_from_file = !strcmp(input_file_name, "-");
-        if (stdin_from_file && scriptname)
-           {
-             input_file_FILE = fopen(scriptname, "r");
-           }
-        else if (stdin_from_file)
-           {
-            input_file_FILE = stdin;
-           }
-        else
-           {
-             input_file_FILE = fopen(input_file_name, "r");
-           }
-
-        if (input_file_FILE)
-           {
-             input_type = "-f";
-             buf = get_f_line(input_file_FILE);
-           }
-        else
-           {
-             CERR << "cannot open file " << input_file_name
-                  << " (from -f) at " LOC << endl;
-             input_file_name = 0;
-           }
-      }
 
 const APL_time_us from = now();
 int control_D_count = 0;
    while (buf == 0)
       {
         input_type = "U";
-        buf = get_user_line(&Workspace::get_prompt(), false);
+        Output::set_color_mode(Output::COLM_INPUT);
+        buf = get_user_line(&Workspace::get_prompt());
 
         if (buf == 0)   // ^D or end of file
            {
@@ -240,13 +198,7 @@ Input::get_f_line(FILE * file)
 static char buffer[MAX_INPUT_LEN];
 
 const char * s = fgets(buffer, sizeof(buffer) - 1, file);
-   if (s == 0)   // end of file
-      {
-        input_file_name = 0;
-        input_file_FILE = 0;
-        stdin_from_file = false;
-        return 0;
-      }
+   if (s == 0)   return 0;// end of file
 
    buffer[sizeof(buffer) - 1] = 0;   // make strlen happy.
 size_t len = strlen(buffer);
@@ -265,11 +217,9 @@ Input::exit_readline()
 }
 //-----------------------------------------------------------------------------
 const unsigned char *
-Input::get_user_line(const UCS_string * prompt, bool from_nabla)
+Input::get_user_line(const UCS_string * prompt)
 {
    if (start_input)   (*start_input)();
-
-   if (!from_nabla)   Output::set_color_mode(Output::COLM_INPUT);
 
 const APL_time_us from = now();
 char * line;
@@ -306,74 +256,11 @@ UTF8 * l = (UTF8 *)line;
 const char *
 Input::get_user_line_nabla(const UCS_string * prompt)
 {
+   uprefs.increment_current_line_no();
+
 const UTF8 * line = TestFiles::get_testcase_line();
    if (line)   return (const char *)line;
-
-   if (input_file_FILE)   // a -f file is open
-      {
-        line = get_f_line(input_file_FILE);
-        if (line)   return (const char *)line;
-      }
-
-   if (input_file_name)   // -f present, but not opened yet
-      {
-        // we have a -f option with a filename to rerad from
-        // we open the file and read from it as long as possible.
-        // get_f_line() will set input_file_name and input_file_FILE to 0 when
-        // it reaches EOF.
-        //
-        // A special case is -f - where we open stdin
-        //
-        stdin_from_file = !strcmp(input_file_name, "-");
-        if (stdin_from_file)
-           {
-             input_file_FILE = stdin;
-           }
-        else
-           {
-             input_file_FILE = fopen(input_file_name, "r");
-           }
-        if (input_file_FILE)
-           {
-             line = get_f_line(input_file_FILE);
-             if (line)   return (const char *)line;
-           }
-        else
-           {
-             CERR << "cannot open file " << input_file_name
-                  << "(from -f) at " LOC << endl;
-             input_file_name = 0;
-           }
-      }
-
-   // all reads from files failed.
-   //
-   return (const char *)get_user_line(prompt, true);
-
-
-const APL_time_us from = now();
-   if (!use_readline)
-      {
-        line = (UTF8 *)no_readline(prompt);
-      }
-   else
-     {
-       if (prompt)
-          {
-            UTF8_string prompt_utf(*prompt);
-            loop(p, prompt_utf.size())
-            readline_lib::rl_stuff_char(prompt_utf[p] & 0x00FF);
-          }
-
-       line = (UTF8 *)readline_lib::readline(0);
-     }
-
-   while (*line && *line <= ' ')   ++line;
-
-const APL_time_us to = now();
-   Workspace::add_wait(to - from);
-
-   return (const char *)line;
+   return (const char *)get_user_line(prompt);
 }
 //-----------------------------------------------------------------------------
 UCS_string

@@ -83,15 +83,8 @@ public:
    /// Exit the readline library, editing the history file.
    static void exit_readline();
 
-   /// like get_user_line, but making the prompt editable
-   /// (and part of the user input)
+   /// read one line from the user (-terminal) for the ∇-editor
    static const char * get_user_line_nabla(const UCS_string * prompt);
-
-   /// the name of a file from the -f file command line option
-   static const char * input_file_name;
-
-   /// a FILE * for an opened \b input_file (0 if none)
-   static FILE * input_file_FILE;
 
    /// initialize readline library
    static void init(bool read_history);
@@ -109,13 +102,8 @@ public:
    static const UTF8 * read_file_line();
 
 protected:
-   /// read one line from the user.
-   static const unsigned char * get_user_line(const UCS_string * prompt,
-                                              bool from_nabla);
-
-private:
-   /// true iff -f - was given
-   static bool stdin_from_file;
+   /// read one line from the user (-terminal).
+   static const unsigned char * get_user_line(const UCS_string * prompt);
 };
 
 #endif // __LINE_INPUT_HH_DEFINED__

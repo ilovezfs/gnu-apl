@@ -41,7 +41,7 @@ UserPreferences::open_current_file()
    if (files_todo.size() && files_todo[0].file == 0)
       {
         files_todo[0].file = fopen(current_filename(), "r");
-        files_todo[0].line_no = 1;
+        files_todo[0].line_no = 0;
       }
 }
 //-----------------------------------------------------------------------------
@@ -278,7 +278,6 @@ UserPreferences::parse_argv(int argc, const char * argv[])
               do_Color = false;            // --noColor
               do_not_echo = true;             // -noCIN
               silent = true;                  // --silent
-              Input::input_file_name = "-";   // -f -
             }
          else if (!strcmp(opt, "--silent"))
             {
