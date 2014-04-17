@@ -559,7 +559,7 @@ void
 UCS_string::append_number(ShapeItem num)
 {
 char cc[40];
-   snprintf(cc, sizeof(cc) - 1, "%lld", num);
+   snprintf(cc, sizeof(cc) - 1, "%lld", (long long)num);
    loop(c, sizeof(cc))
       {
         if (cc[c])   append(Unicode(cc[c]));
