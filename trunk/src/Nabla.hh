@@ -131,6 +131,9 @@ protected:
    /// return index of line with label lab, or -1 if not found.
    int find_line(const LineLabel & lab);
 
+   /// the line number of the ∇ that started the editor
+   const int defn_line_no;
+
    /// the name of the function being edited
    UCS_string fun_name;
 

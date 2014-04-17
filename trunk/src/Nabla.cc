@@ -41,7 +41,8 @@ Nabla nabla(cmd);
 }
 //-----------------------------------------------------------------------------
 Nabla::Nabla(const UCS_string & cmd)
-   : fun_symbol(0),
+   : defn_line_no(uprefs.current_line_no()),
+     fun_symbol(0),
      ecmd(ECMD_NOP),
      edit_from(-1),
      edit_to(-1),
@@ -115,7 +116,7 @@ UCS_string fun_text;
 int error_line = 0;
 UCS_string creator(uprefs.current_filename());
    creator.append(UNI_ASCII_COLON);
-   creator.append_number(uprefs.current_line_no());
+   creator.append_number(defn_line_no);
 UTF8_string creator_utf8(creator);
 
 UserFunction * ufun = UserFunction::fix(fun_text, error_line, false,
