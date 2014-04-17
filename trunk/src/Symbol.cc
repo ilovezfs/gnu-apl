@@ -1043,7 +1043,7 @@ UCS_string data;
 
                for (char * cp = buffer + strlen(buffer);
                     cp < (buffer + 72); )   *cp++ = ' ';
-                sprintf(buffer + 72, "%8.8lld\r\n", seq++);
+                sprintf(buffer + 72, "%8.8lld\r\n", (long long)(seq++));
                 fwrite(buffer, 1, 82, out);
 
                // write function record(s)

@@ -654,7 +654,9 @@ UTF8_string utf;
    if (utf.size() == minus_pos)   return false;
    {
      const int real_cnt = sscanf(utf.c_str(), "%lg", &flt_val);
-                          sscanf(utf.c_str(), "%lld", &int_val);
+     long long int_val1;
+                          sscanf(utf.c_str(), "%lld", &int_val1);
+     int_val = int_val1;
      if (digit_seen && (real_cnt > 0))   return true;   // valid real number
    }
 

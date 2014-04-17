@@ -226,7 +226,8 @@ char cc[80];
                  break;
 
             case CT_INT:
-                 snprintf(cc, sizeof(cc), "%lld", cell.get_int_value());
+                 snprintf(cc, sizeof(cc), "%lld",
+                          (long long)cell.get_int_value());
                  NEED(1 + strlen(cc), false) << UNI_PAD_U3 << decr(space, cc);
                  space--;   // PAD_U3
                  break;
