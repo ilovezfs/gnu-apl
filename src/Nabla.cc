@@ -27,6 +27,7 @@
 #include "PrintOperator.hh"
 #include "Symbol.hh"
 #include "UserFunction.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 #define NABLA_ERROR throw_edit_error(LOC)
@@ -112,8 +113,13 @@ UCS_string fun_text;
       }
 
 int error_line = 0;
+UCS_string creator(uprefs.current_filename());
+   creator.append(UNI_ASCII_COLON);
+   creator.append_number(uprefs.current_line_no());
+UTF8_string creator_utf8(creator);
+
 UserFunction * ufun = UserFunction::fix(fun_text, error_line, false,
-                                        LOC, "∇ editor");
+                                        LOC, creator_utf8);
    if (ufun == 0)   NABLA_ERROR;
 
    if (locked)

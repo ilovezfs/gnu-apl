@@ -36,6 +36,28 @@ UserPreferences uprefs;
 
 //-----------------------------------------------------------------------------
 void
+UserPreferences::open_current_file()
+{
+   if (files_todo.size() && files_todo[0].file == 0)
+      {
+        files_todo[0].file = fopen(current_filename(), "r");
+        files_todo[0].line_no = 1;
+      }
+}
+//-----------------------------------------------------------------------------
+
+void
+UserPreferences::close_current_file()
+{
+   if (files_todo.size() && files_todo[0].file)
+      {
+        fclose(files_todo[0].file);
+        files_todo[0].file = 0;
+        files_todo[0].line_no = -1;
+      }
+}
+//-----------------------------------------------------------------------------
+void
 UserPreferences::usage(const char * prog)
 {
 const char * prog1 = strrchr(prog, '/');
@@ -164,7 +186,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
 
                     Filename_and_mode fam =
                              { UTF8_string(argv[a]), 0, false, !do_not_echo };
-                    uprefs.files_todo.push_back(fam);
+                    files_todo.push_back(fam);
                   }
             }
          else if (!strcmp(opt, "--gpl"))
@@ -284,11 +306,11 @@ UserPreferences::parse_argv(int argc, const char * argv[])
                        }
                     Filename_and_mode fam =
                              { UTF8_string(argv[a]), 0, true, true };
-                    uprefs.files_todo.push_back(fam);
+                    files_todo.push_back(fam);
                   }
 
               // 
-              if (uprefs.is_validating())
+              if (is_validating())
                  {
                    // truncate summary.log, unless append_summary is desired
                    //
@@ -345,10 +367,16 @@ UserPreferences::parse_argv(int argc, const char * argv[])
             }
        }
 
-   if (uprefs.randomize_testfiles)   uprefs.randomize_files();
-   TestFiles::testcase_count = uprefs.files_todo.size();
-}
+   if (randomize_testfiles)   randomize_files();
 
+   // count number of testfiles
+   //
+   TestFiles::testcase_count = 0;
+   loop(f, files_todo.size())
+      {
+        if (files_todo[f].test)   ++TestFiles::testcase_count;
+      }
+}
 //-----------------------------------------------------------------------------
 void
 UserPreferences::randomize_files()
@@ -394,8 +422,8 @@ UserPreferences::randomize_files()
 
          // at this point f1 and f2 shall be swapped.
          //
-         uprefs.files_todo[n1] = f2;
-         uprefs.files_todo[n2] = f1;
+         files_todo[n1] = f2;
+         files_todo[n2] = f1;
          ++done;
        }
 }

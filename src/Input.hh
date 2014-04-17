@@ -31,34 +31,34 @@
 using namespace std;
 
 /*
- o The classes below are used to combine normal user I/O and automatic
+ The classes below are used to combine normal user I/O and automatic
  testcase execution. It works like this:
 
-       (cin)
+       (CIN)
          |
          |
          V
      +---+---+             +-------------------+
-     | Input | <--------   | testcase files(s) |
-     +---+---+             +---------+---------+
-         |                           |
-         |                           |
-         V                           |
-      +--+--+                        |
-      | APL |                        |
-      +--+--+                        |
-         |                           |
-         |                           |
-         +-----------------------+   |
-         |                       |   |
-         |                       V   V
-         |                    +--+---+--+
-         |                    | compare |
-         |                    +----+----+
-         |                         |
-         |                         |
-         V                         V
-       (cout)                (test results)
+     | Input | <--------   | testcase files(s) +-----+
+     +---+---+             +---------+---------+     |
+         |                           |               |
+         |                           |               |
+         V                           |               |
+      +--+--+                        |               |
+      | APL |                        |               |
+      +--+--+                        |               |
+         |                           |               |
+         |                           |               |
+         +-----------------------+   |               |
+         |                       |   |               |
+         |                       V   V               |
+         |                    +--+---+--+            |
+         |                    | compare +            |
+         |                    +----+----+            |
+         |                         |                 |
+         |                         |                 |
+         V                         V                 V
+       (COUT)                testcase.log       summary.log
  
  */
 
@@ -104,8 +104,12 @@ public:
 
    /// location of the readline history
    static UTF8_string readline_history_path;
+
+   /// read one line from input file with CR and LF removed
+   static const UTF8 * read_file_line();
+
 protected:
-   /// Read one line from the user.
+   /// read one line from the user.
    static const unsigned char * get_user_line(const UCS_string * prompt,
                                               bool from_nabla);
 

@@ -811,7 +811,7 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 }
 //=============================================================================
 XML_Loading_Archive::XML_Loading_Archive(const char * _filename, int & dump_fd)
-   : line(1),
+   : line_no(1),
      data(0),
      file_end(0),
      copying(false),
@@ -870,7 +870,7 @@ struct stat st;
 //-----------------------------------------------------------------------------
 XML_Loading_Archive::~XML_Loading_Archive()
 {
-   munmap(map_start, map_length);
+   munmap((char *)map_start, map_length);
    if (fd != -1)   close(fd);
 }
 //-----------------------------------------------------------------------------
@@ -878,7 +878,7 @@ void
 XML_Loading_Archive::reset()
 {
    line_start = data = file_start;
-   line = 1;
+   line_no = 1;
    next_tag(LOC);
 }
 //-----------------------------------------------------------------------------
@@ -908,7 +908,7 @@ XML_Loading_Archive::read_vids()
 void
 XML_Loading_Archive::where(ostream & out)
 {
-   out << "line=" << line << "+" << (data - line_start) << " '";
+   out << "line=" << line_no << "+" << (data - line_start) << " '";
 
    loop(j, 40)   { if (data[j] == 0x0A)   break;   out << data[j]; }
    out << "'" << endl;
@@ -917,7 +917,7 @@ XML_Loading_Archive::where(ostream & out)
 void
 XML_Loading_Archive::where_att(ostream & out)
 {
-   out << "line=" << line << "+" << (attributes - line_start) << " '";
+   out << "line=" << line_no << "+" << (attributes - line_start) << " '";
 
    loop(j, 40)
       {
@@ -937,7 +937,7 @@ XML_Loading_Archive::get_uni()
 int len = 0;
    current_char = UTF8_string::toUni(data, len);
    data += len;
-   if (current_char == 0x0A)   { ++line;   line_start = data; }
+   if (current_char == 0x0A)   { ++line_no;   line_start = data; }
    return false;
 }
 //-----------------------------------------------------------------------------
@@ -955,7 +955,7 @@ XML_Loading_Archive::expect_tag(const char * prefix, const char * loc) const
         CERR << "   Got tag ";
         print_tag(CERR);
         CERR << " when expecting tag " << prefix
-             << " at " << loc << "  line " << line << endl;
+             << " at " << loc << "  line " << line_no << endl;
         DOMAIN_ERROR;
       }
 }
@@ -1059,7 +1059,7 @@ again:
 /*
    CERR << "See tag ";
    for (const UTF8 * t = tag_name; t < attributes; ++t)   CERR << (char)*t;
-   CERR << " at " << loc << " line " << line << endl;
+   CERR << " at " << loc << " line " << line_no << endl;
 */
 
    return false;
@@ -1280,7 +1280,7 @@ const Unicode type = UTF8_string::toUni(first, len);
              }
              break;
 
-        default: Q1(type) Q1(line) DOMAIN_ERROR;
+        default: Q1(type) Q1(line_no) DOMAIN_ERROR;
       }
 }
 //-----------------------------------------------------------------------------
@@ -1415,6 +1415,7 @@ const int value = find_int_attr("value", false, 10);
 void
 XML_Loading_Archive::read_Function(int d, Symbol & symbol)
 {
+const int function_line_no = line_no;
 const int native = find_int_attr("native", true, 10);
 
    next_tag(LOC);
@@ -1445,7 +1446,13 @@ UCS_string text;
    else
       {
         int err = 0;
-        UserFunction * fun = UserFunction::fix(text, err, false, LOC, filename);
+        UCS_string creator(filename);
+        creator.append(UNI_ASCII_COLON);
+        creator.append_number(function_line_no);
+        UTF8_string creator_utf8(creator);
+
+        UserFunction * fun = UserFunction::fix(text, err, false,
+                                               LOC, creator_utf8);
 
         if (d == 0)   symbol.pop(false);
         if (fun)

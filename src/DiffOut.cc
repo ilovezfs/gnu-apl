@@ -21,6 +21,7 @@
 #include "Avec.hh"
 #include "Common.hh"
 #include "DiffOut.hh"
+#include "Input.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "Svar_DB.hh"
@@ -56,7 +57,7 @@ ofstream & rep = TestFiles::get_current_testreport();
    Assert(rep.is_open());
 
 const char * apl = aplout.c_str();
-const UTF8 * ref = TestFiles::read_file_line();
+const UTF8 * ref = Input::read_file_line();
    if (ref == 0)   // nothing in current_testfile
       {
         rep << "extra: " << apl << endl;

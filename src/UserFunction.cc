@@ -405,10 +405,13 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 
    if (label_values.size())
       {
-        out << ind << "Labels:         ";
+        out << ind << "Labels:        ";
         loop(l, label_values.size())
-                   out << " " << *label_values[l].sym
-                       << " = " << label_values[l].line;
+           {
+             if (l)   out << ",";
+             out << " " << *label_values[l].sym
+                 << "=" << label_values[l].line;
+           }
         out << endl;
       }
 }
@@ -1116,7 +1119,8 @@ UserFunction::print_properties(ostream & out, int indent) const
 {
    header.print_properties(out, indent);
 UCS_string ind(indent, UNI_ASCII_SPACE);
-   out << ind << "Body Lines:     " << line_starts.size() << endl;
+   out << ind << "Body Lines:     " << line_starts.size() << endl
+       << ind << "Creator:        " << get_creator()      << endl;
 }
 //-----------------------------------------------------------------------------
 const UCS_string &

@@ -799,9 +799,7 @@ const char * argv0 = argv[0];
    // init OMP (will do nothing if OMP is not configured)
    init_OMP();
 
-   if (ProcessorID::init(uprefs.do_svars,
-                         uprefs.requested_id,
-                         uprefs.requested_par))
+   if (ProcessorID::init(log_startup))
       {
         // error message printed in ProcessorID::init()
         return 8;

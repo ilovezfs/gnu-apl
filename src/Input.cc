@@ -136,6 +136,7 @@ UCS_string
 Input::get_line()
 {
    Quad_QUOTE::done(true, LOC);
+   uprefs.increment_current_line_no();
 
 const char * input_type = "?";
 const UTF8 * buf = TestFiles::get_testcase_line();
@@ -418,5 +419,37 @@ const char * line;
 
 const UTF8_string uline(line);
    return UCS_string(uline);
+}
+//-----------------------------------------------------------------------------
+const UTF8 *
+Input::read_file_line()
+{
+static char buf[2000];
+int b = 0;
+   for (;b < sizeof(buf) - 1; ++b)
+       {
+         int cc = fgetc(uprefs.current_file()->file);
+         if (cc == EOF)   // end of file
+            {
+              if (b == 0)   return 0;
+              break;
+            }
+
+         if (cc == '\n' || cc == 2)   // end of line or ^B
+            {
+              break;
+            }
+
+         if (cc == '\r')   continue;   // ignore carrige returns
+
+          buf[b] = cc;
+       }
+
+   buf[b] = 0;
+
+   Log(LOG_test_execution)
+      CERR << "read_file_line() -> " << buf << endl;
+
+   return (UTF8 *)buf;
 }
 //-----------------------------------------------------------------------------

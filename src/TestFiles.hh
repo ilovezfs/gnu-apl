@@ -110,13 +110,10 @@ public:
    /// return the current test report
    static ofstream & get_current_testreport()   { return current_testreport; }
 
-   /// return line number in the current test file
-   static int get_current_lineno()   { return current_lineno; }
-
-   /// read one line from input file with CR and LF removed
-   static const UTF8 * read_file_line();
-
 protected:
+   // dito (close files, print errors, summary etc).
+   static bool end_of_file_processing();
+
    /// how to handle test results
    static enum TestMode
       {
@@ -141,9 +138,6 @@ protected:
 
    /// true until total error count is printed.
    static bool need_total;
-
-   /// line number in the current test file
-   static int current_lineno;
 
    /// the number of testcases provided
    static int testcase_count;

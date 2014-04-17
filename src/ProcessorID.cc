@@ -28,6 +28,7 @@
 #include "ProcessorID.hh"
 #include "Quad_SVx.hh"
 #include "Svar_signals.hh"
+#include "UserPreferences.hh"
 
 AP_num3 ProcessorID::id(NO_AP, AP_NULL, AP_NULL);
 
@@ -39,36 +40,46 @@ bool ProcessorID::doing_SV = true;
 
 //-----------------------------------------------------------------------------
 bool
-ProcessorID::init(bool do_sv, int proc_id, int par_id)
+ProcessorID::init(bool log_startup)
 {
-   doing_SV = do_sv;
-   id.proc = (AP_num)proc_id;
-   id.parent = par_id ? (AP_num)par_id : AP_NULL;
+   if (log_startup)
+      {
+        CERR << "uprefs.do_svars:      " << uprefs.do_svars      << endl
+             << "uprefs.requested_id:  " << uprefs.requested_id  << endl
+             << "uprefs.requested_par: " << uprefs.requested_par << endl;
+      }
+
+   doing_SV = uprefs.do_svars;
+   id.proc = (AP_num)uprefs.requested_id;
+   id.parent = uprefs.requested_par ? (AP_num)uprefs.requested_par : AP_NULL;
    id.grand = AP_NULL;
 
-   if (!do_sv)
+   if (!doing_SV)
       {
-        // shared variables are disable, so Svar_DB is unavailable,
+        // shared variables are disabled, so Svar_DB is unavailable,
         // we use id.proc of 1000 if no ID is provided and otherwise
         // trust the provided ID.
-        if (proc_id == 0)   proc_id = 1000;
+        //
+        if (id.proc == 0)   id.proc = (AP_num)1000;
+        if (log_startup)   CERR << "id.proc: " << id.proc << " at " LOC << endl;
         return false;
       }
 
-   if (proc_id == 0)
+   if (id.proc == 0)
       {
         // no --id option in argv: use first free user ID
         //
         id.proc = Svar_DB::get_unused_id();
+        if (log_startup)   CERR << "id.proc: " << id.proc << " at " LOC << endl;
       }
    else
       {
         // --id option provided in argv: check that it is not in use
         //
-        if (!Svar_DB::is_unused_id(AP_num(proc_id)))
+        if (!Svar_DB::is_unused_id(AP_num(id.proc)))
            {
              CERR << _("*** Another APL interpreter with --id ")
-                  << proc_id <<  _(" is already running") << endl;
+                  << id.proc <<  _(" is already running") << endl;
  
              return true;
            }
@@ -76,6 +87,7 @@ ProcessorID::init(bool do_sv, int proc_id, int par_id)
 
    Quad_SVx::start_AP(id.proc, true);
    APnnn_port = Svar_DB::get_udp_port(id.proc, id.parent);
+   if (log_startup)  CERR << "APnnn_port: " << APnnn_port << " at " LOC << endl;
    if (APnnn_port == 0)
       {
         CERR << "*** Failed to start APnnn: processor " << id.proc
