@@ -31,7 +31,6 @@
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
-int TestFiles::current_lineno = 0;
 int TestFiles::testcase_count = 0;
 int TestFiles::testcases_done = 0;
 int TestFiles::total_errors = 0;
@@ -59,111 +58,12 @@ TestFiles::get_testcase_line()
 
         // read a line with CR and LF removed.
         //
-        const UTF8 * s = read_file_line();
+        const UTF8 * s = Input::read_file_line();
 
         if (s == 0)   // end of file reached: do some global checks
            {
-             // we expect )SI to be clear after a testcase has finished.
-             // Complain if it is not.
-             //
-             if (Workspace::SI_entry_count() > 1)
-                {
-                  CERR << endl << ")SI not cleared at the end of "
-                       << uprefs.current_filename() << ":" << endl;
-                  Workspace::list_SI(CERR, SIM_SIS);
-                  CERR << endl;
-
-                  if (current_testreport.is_open())
-                     {
-                       current_testreport << endl
-                                          << ")SI not cleared at the end of "
-                                          << uprefs.current_filename()<< ":"
-                                          << endl;
-                       Workspace::list_SI(current_testreport, SIM_SIS);
-                       current_testreport << endl;
-                     }
-                  apl_error(LOC);
-                }
-
-             // check for stale values and indices
-             //
-             if (current_testreport.is_open())
-                {
-                  if (Value::print_incomplete(current_testreport))
-                     {
-                       current_testreport
-                          << " (automatic check for incomplete values failed)"
-                          << endl;
-                       apl_error(LOC);
-                     }
-
-                  if (Value::print_stale(current_testreport))
-                     {
-                       current_testreport
-                          << " (automatic check for stale values failed,"
-                             " offending Value erased)." << endl;
-
-                       apl_error(LOC);
-                       Value::erase_stale(LOC);
-                     }
-
-                  if (IndexExpr::print_stale(current_testreport))
-                     {
-                       current_testreport
-                          << " (automatic check for stale indices failed,"
-                             " offending IndexExpr erased)." << endl;
-                       apl_error(LOC);
-                       IndexExpr::erase_stale(LOC);
-                     }
-                }
-             
-             uprefs.close_current_file();
-             ++testcases_done;
-
-             Log(LOG_test_execution)
-               CERR << "closed testcase file " << uprefs.current_filename()
-                    << endl;
-
-             ofstream summary("testcases/summary.log", ios_base::app);
-             summary << error_count() << " ";
-
-             if (error_count())
-                {
-                  total_errors += error_count();
-                  summary << "(" << apl_errors    << " APL, ";
-                  if (apl_errors)
-                     summary << "    loc=" << last_apl_error_loc 
-                             << " .tc line="  << last_apl_error_line << endl
-                             << "    ";
-
-                   summary << assert_errors << " assert, "
-                           << diff_errors   << " diff, "
-                           << parse_errors  << " parse) ";
-
-                }
-
-             summary << uprefs.current_filename() << endl;
-
-             if ((test_mode == TM_STOP_AFTER_ERROR ||
-                  test_mode == TM_EXIT_AFTER_ERROR) && error_count())
-                {
-                  CERR << endl
-                       << "Stopping test execution since an error "
-                          "has occurred"  << endl
-                       << "The error count is " << error_count() << endl
-                       << "Failed testcase is " << uprefs.current_filename()
-                       << endl 
-                       << endl;
-                  
-                  uprefs.files_todo.resize(0);
-                  break;
-                }
-
-             uprefs.files_todo.erase(uprefs.files_todo.begin());
-
-             Output::reset_dout();
-             reset_errors();
-             continue;   // try again.
+             if (end_of_file_processing())   continue;   // try again.
+              else                           break;      // done
            }
 
         current_testreport << "----> " << s << endl;
@@ -192,6 +92,110 @@ TestFiles::get_testcase_line()
    return 0;
 }
 //-----------------------------------------------------------------------------
+bool
+TestFiles::end_of_file_processing()
+{
+   // we expect )SI to be clear after a testcase has finished.
+   // Complain if it is not.
+   //
+   if (Workspace::SI_entry_count() > 1)
+      {
+        CERR << endl << ")SI not cleared at the end of "
+             << uprefs.current_filename() << ":" << endl;
+        Workspace::list_SI(CERR, SIM_SIS);
+        CERR << endl;
+
+        if (current_testreport.is_open())
+           {
+             current_testreport << endl
+                                << ")SI not cleared at the end of "
+                                << uprefs.current_filename()<< ":"
+                                << endl;
+             Workspace::list_SI(current_testreport, SIM_SIS);
+             current_testreport << endl;
+           }
+        apl_error(LOC);
+      }
+
+   // check for stale values and indices
+   //
+   if (current_testreport.is_open())
+      {
+        if (Value::print_incomplete(current_testreport))
+           {
+             current_testreport
+                << " (automatic check for incomplete values failed)"
+                << endl;
+             apl_error(LOC);
+           }
+
+        if (Value::print_stale(current_testreport))
+           {
+             current_testreport
+                << " (automatic check for stale values failed,"
+                   " offending Value erased)." << endl;
+
+             apl_error(LOC);
+             Value::erase_stale(LOC);
+           }
+
+        if (IndexExpr::print_stale(current_testreport))
+           {
+             current_testreport
+                << " (automatic check for stale indices failed,"
+                   " offending IndexExpr erased)." << endl;
+             apl_error(LOC);
+             IndexExpr::erase_stale(LOC);
+           }
+      }
+             
+   uprefs.close_current_file();
+   ++testcases_done;
+
+   Log(LOG_test_execution)
+      CERR << "closed testcase file " << uprefs.current_filename()
+           << endl;
+
+   ofstream summary("testcases/summary.log", ios_base::app);
+   summary << error_count() << " ";
+
+   if (error_count())
+      {
+        total_errors += error_count();
+        summary << "(" << apl_errors    << " APL, ";
+        if (apl_errors)
+           summary << "    loc=" << last_apl_error_loc 
+                   << " .tc line="  << last_apl_error_line << endl
+                   << "    ";
+
+        summary << assert_errors << " assert, "
+                << diff_errors   << " diff, "
+                << parse_errors  << " parse) ";
+      }
+
+   summary << uprefs.current_filename() << endl;
+
+   if ((test_mode == TM_STOP_AFTER_ERROR ||
+        test_mode == TM_EXIT_AFTER_ERROR) && error_count())
+      {
+        CERR << endl
+             << "Stopping test execution since an error has occurred"  << endl
+             << "The error count is " << error_count() << endl
+             << "Failed testcase is " << uprefs.current_filename()
+             << endl 
+             << endl;
+                  
+        uprefs.files_todo.resize(0);
+        return false;
+      }
+
+   uprefs.files_todo.erase(uprefs.files_todo.begin());
+
+   Output::reset_dout();
+   reset_errors();
+   return true;   // continue processing
+}
+//-----------------------------------------------------------------------------
 void
 TestFiles::print_summary()
 {
@@ -209,39 +213,6 @@ ofstream summary("testcases/summary.log", ios_base::app);
            << total_errors << " errors in " << testcases_done
            << "(" << testcase_count << ")"
            << " testcase files" << endl;
-}
-//-----------------------------------------------------------------------------
-const UTF8 *
-TestFiles::read_file_line()
-{
-static char buf[2000];
-int b = 0;
-   for (;b < sizeof(buf) - 1; ++b)
-       {
-         int cc = fgetc(uprefs.current_file()->file);
-         if (cc == EOF)   // end of file
-            {
-              if (b == 0)   return 0;
-              break;
-            }
-
-         if (cc == '\n' || cc == 2)   // end of line or ^B
-            {
-              ++current_lineno;
-              break;
-            }
-
-         if (cc == '\r')   continue;   // ignore carrige returns
-
-          buf[b] = cc;
-       }
-
-   buf[b] = 0;
-
-   Log(LOG_test_execution)
-      CERR << "read_file_line() -> " << buf << endl;
-
-   return (UTF8 *)buf;
 }
 //-----------------------------------------------------------------------------
 void
@@ -272,8 +243,8 @@ TestFiles::open_next_testfile()
              continue;
            }
 
-        Log(LOG_test_execution)
-           CERR << "openened testcase file " << uprefs.current_filename() << endl;
+        Log(LOG_test_execution)   CERR <<
+            "openened testcase file " << uprefs.current_filename() << endl;
 
         Output::reset_dout();
         reset_errors();
@@ -286,7 +257,6 @@ TestFiles::open_next_testfile()
         current_testreport.open(log_name, ofstream::out | ofstream::trunc);
         Assert(current_testreport.is_open());
 
-        current_lineno = 0;
         return;
       }
 }
@@ -332,7 +302,7 @@ TestFiles::apl_error(const char * loc)
 
    ++apl_errors;
    last_apl_error_loc = loc;
-   last_apl_error_line = get_current_lineno();
+   last_apl_error_line = uprefs.current_line_no();
 
    Log(LOG_test_execution)
       CERR << "APL errors incremented to " << apl_errors << endl;

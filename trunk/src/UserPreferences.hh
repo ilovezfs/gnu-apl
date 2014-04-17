@@ -32,7 +32,8 @@ struct Filename_and_mode
    UTF8_string  filename;   ///< dito.
    FILE       * file;       /// file descriptor
    bool         test;       ///< true for -T testfile, false for -f APLfile
-   bool echo;               ///< echo stdin
+   bool         echo;       ///< echo stdin
+   int          line_no;    ///< line number in file
 };
 
 /// a structure that contains user preferences from different sources
@@ -53,7 +54,8 @@ struct UserPreferences
      daemon(false),
      append_summary(false),
      wait_ms(0),
-     randomize_testfiles(false)
+     randomize_testfiles(false),
+      stdin_line_no(1)
    {}
 
    /// print possible command line options and exit
@@ -131,20 +133,26 @@ struct UserPreferences
    Filename_and_mode * current_file()
       { return files_todo.size() ? &files_todo[0] : 0; }
 
-   /// the name of the currrent filee
+   /// the name of the currrent file
    const char * current_filename()
-      { return files_todo.size() ? files_todo[0].filename.c_str() : "???"; }
+      { return files_todo.size() ? files_todo[0].filename.c_str() : "stdin"; }
 
-   void open_current_file()
-      { if (files_todo.size() && files_todo[0].file == 0)
-           files_todo[0].file = fopen(current_filename(), "r"); }
+   /// the line number of the currrent file
+   int current_line_no() const
+      { return files_todo.size() ? files_todo[0].line_no : stdin_line_no; }
 
-   void close_current_file()
-      { if (files_todo.size() && files_todo[0].file)
-           { fclose(files_todo[0].file); files_todo[0].file = 0; } }
+   void increment_current_line_no()
+      { if (files_todo.size()) ++files_todo[0].line_no; else ++stdin_line_no; }
+
+   void open_current_file();
+
+   void close_current_file();
 
    bool echo_current_file() const
       { return (files_todo.size()) ? files_todo[0].echo : !do_not_echo; }
+
+protected:
+   int stdin_line_no;
 };
 
 extern UserPreferences uprefs;

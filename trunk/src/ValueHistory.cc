@@ -43,7 +43,7 @@ VH_entry::VH_entry(const Value * _val, VH_event _ev, int _iarg,
     loc(_loc)
 {
    testcase_file = uprefs.current_filename();
-   testcase_line = TestFiles::get_current_lineno();
+   testcase_line = uprefs.current_line_no();
 }
 //----------------------------------------------------------------------------
 void

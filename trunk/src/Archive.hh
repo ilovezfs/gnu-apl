@@ -285,7 +285,7 @@ protected:
    const UTF8 * line_start;
 
    /// the current line
-   int line;
+   int line_no;
 
    /// the current char
    Unicode current_char;

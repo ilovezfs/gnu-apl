@@ -138,7 +138,7 @@ public:
    /// proc_id == 0 uses the next free ID > 1000; otherwise proc_id is used.
    /// \b do_sv defines if an APnnn process for incoming ⎕SVO offers
    /// shall be forked.
-   static bool init(bool do_sv, int proc_id, int par_id);
+   static bool init(bool log_startup);
 
    /// return the own id, parent, and grand-parent
    static const AP_num3 & get_id()        { return id; }
