@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apl 1.3\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-04-14 17:49+0200\n"
+"POT-Creation-Date: 2014-04-18 17:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -178,24 +178,24 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
-#: src/main.cc:315
+#: src/main.cc:177
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr ""
 
-#: src/main.cc:316
+#: src/main.cc:178
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr ""
 
-#: src/main.cc:335
+#: src/main.cc:197
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr ""
 
-#: src/main.cc:338
+#: src/main.cc:200
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 
-#: src/main.cc:339
+#: src/main.cc:201
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr ""

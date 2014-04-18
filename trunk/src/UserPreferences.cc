@@ -71,7 +71,7 @@ _("usage: %s [options]\n"
 "    options: \n"
 "    -h, --help           print this help\n"
 "    -d                   run in the background (i.e. as daemon)\n"
-"    -f file ...          read APL input from file\n"
+"    -f file ...          read APL input from file(s)\n"
 "    --id proc            use processor ID proc (default: first unused > 1000)\n"), prog);
    CERR << cc;
 
@@ -146,6 +146,27 @@ UserPreferences::show_GPL(ostream & out)
 void
 UserPreferences::parse_argv(int argc, const char * argv[])
 {
+   // execve() puts the script name (and optional args at the end of argv.
+   // For example, argv might look like this:
+   //
+   // /usr/bin/apl -apl-options... -- ./scriptname -script-options
+   //
+   // If a script name is present then strip it off and remember its place.
+   //
+int script_argc = argc;   // $0 of the apl script
+   for (int a = argc - 2; a >= 0; --a)
+       {
+         if (!strcmp(argv[a], "--"))   // found script name
+            {
+              script_argc = a + 1;
+              argc = a;
+              Filename_and_mode fam =
+                 { UTF8_string(argv[script_argc]), 0, false, !do_not_echo };
+              files_todo.push_back(fam);
+            }
+       }
+
+
    for (int a = 1; a < argc; )
        {
          const char * opt = argv[a++];
@@ -184,18 +205,15 @@ UserPreferences::parse_argv(int argc, const char * argv[])
 
                        }
 
+                    const char * filename = argv[a];
                     if (!strcmp(argv[a], "-"))   // "-" shall mean  stdin
                        {
-                         Filename_and_mode fam =
-                             { UTF8_string("-"), stdin, false, !do_not_echo };
-                         files_todo.push_back(fam);
+                         if (script_argc < argc)   filename = argv[script_argc];
+                         else                      filename = "-";
                        }
-                    else
-                       {
-                         Filename_and_mode fam =
-                             { UTF8_string(argv[a]), 0, false, !do_not_echo };
-                         files_todo.push_back(fam);
-                       }
+                    Filename_and_mode fam =
+                             { UTF8_string(filename), 0, false, !do_not_echo };
+                    files_todo.push_back(fam);
                   }
             }
          else if (!strcmp(opt, "--gpl"))
@@ -384,6 +402,145 @@ UserPreferences::parse_argv(int argc, const char * argv[])
       {
         if (files_todo[f].test)   ++TestFiles::testcase_count;
       }
+}
+//-----------------------------------------------------------------------------
+/**
+    When APL is started as a script. then several options might be grouped
+    into a single option (and one string argv[a] can contain several options
+    separated by spaces.
+
+    expand_argv() expands such grouped options into individual options.
+
+    expand_argv() also checks for -l LID_startup so that startup messages
+    emitted before parsing the command line options become visioble (provided
+    that dynamic logging is on).
+ **/
+const char **
+UserPreferences::expand_argv(int & argc, const char ** argv, bool & log_startup)
+{
+bool need_expand = false;
+int end_of_arg = -1;   // position of --
+
+   // check for -l LID_startup
+   loop(a, argc - 1)
+      {
+        if (!strcmp(argv[a], "--"))   break;
+        if (!strcmp(argv[a], "-l") && atoi(argv[a + 1]) == LID_startup)
+           {
+             log_startup = true;
+             break;
+           }
+      }
+
+   // check if any argument contains spaces and remember the '--' option
+   //
+   loop(a, argc)
+      {
+        if (end_of_arg != -1)   // '--' seen
+           {
+             scriptname = argv[a];
+             end_of_arg = -1;
+           }
+        if (strchr(argv[a], ' '))     need_expand = true;
+        if (!strcmp(argv[a], "--"))   end_of_arg = a;
+      }
+
+   // if no argument had a space then return the original argv 
+   //
+   if (!need_expand)   return argv;
+
+vector<const char *>argvec;
+
+   end_of_arg = -1;
+   loop(a, argc)
+      {
+        if (end_of_arg != -1)   // '--' seen
+           {
+             scriptname = argv[a];
+             end_of_arg = -1;
+           }
+        end_of_arg = -1;
+
+        if (strchr(argv[a], ' ') == 0)   // no space in this arg
+           {
+             argvec.push_back(argv[a]);
+             if (!strcmp(argv[a], "--"))   end_of_arg = a;
+             continue;
+           }
+
+        // arg has spaces, i.e. it may have multiple options
+        //
+        const char * arg = argv[a];
+
+        for (;;)
+            {
+              while (*arg == ' ')   ++arg;   // skip leading spaces
+              if (*arg == 0)        break;   // nothing left
+              if (*arg == '#')      break;   // comment
+
+              const char * sp = strchr(arg, ' ');
+              if (sp == 0)   sp = arg + strlen(arg);
+              const int new_len = sp - arg;   // excluding terminating 0
+              if (!strncmp(arg, "--", new_len))   end_of_arg = a;
+
+              char * new_arg = new char[new_len + 1];
+              memcpy(new_arg, arg, new_len);
+              new_arg[new_len] = 0;
+              argvec.push_back(new_arg);
+              arg = sp;
+            }
+      }
+
+   argc = argvec.size();
+
+   // the user may not be aware of how 'execve' calls an interpreter script
+   // and may not have given -f as the last option in the script file.
+   // In that situation argv is something like:
+   //
+   // "-f" "-other-options..." "script-name"
+   //
+   // instead of the expected:
+   //
+   // "-other-options..." "-f" "script-name"
+   //
+   // We fix this common mistake here. The downside is, or course, that option
+   // names cannnot be script names. We ignore options -h and --help since
+   // they exit immediately.
+   //
+   for (int a = 1; a < (argc - 1); ++a)
+       {
+         const char * opt = argvec[a];
+         const char * next = argvec[a + 1];
+         if (!strcmp(opt, "-f") && ( !strcmp(next, "-d")        ||
+                                     !strcmp(next, "--id")      ||
+                                     !strcmp(next, "-l")        ||
+                                     !strcmp(next, "--noCIN")   ||
+                                     !strcmp(next, "--noCONT")  ||
+                                     !strcmp(next, "--Color")   ||
+                                     !strcmp(next, "--noColor") ||
+                                     !strcmp(next, "--SV")      ||
+                                     !strcmp(next, "--noSV")    ||
+                                     !strcmp(next, "--par")     ||
+                                     !strcmp(next, "-s")        ||
+                                     !strcmp(next, "--script")  ||
+                                     !strcmp(next, "--silent")  ||
+                                     !strcmp(next, "-T")        ||
+                                     !strcmp(next, "--TM")      ||
+                                     !strcmp(next, "-w")))
+            {
+              // there is another known option after -f
+              //
+              for (int aa = a; aa < (argc - 2); ++aa)
+                 argvec[aa] = argvec[aa + 1];
+              argvec[argc - 2] = opt;   // put the -f before last
+              break;   // for a...
+            }
+       }
+
+const char ** ret = new const char *[argc + 1];
+   loop(a, argc)   ret[a] = argvec[a];
+   ret[argc] = 0;
+   return ret;
 }
 //-----------------------------------------------------------------------------
 void

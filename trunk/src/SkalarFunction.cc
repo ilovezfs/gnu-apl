@@ -184,6 +184,7 @@ Worklist<Worklist_item2> wl;
         const Worklist_item2 job = wl.todo[todo_idx];
         loop(z, job.len_Z)
            {
+Probe::P_1.start();
              const Cell & cell_A = job.A_at(z);
              const Cell & cell_B = job.B_at(z);
              Cell & cell_Z       = job.Z_at(z);
@@ -282,6 +283,7 @@ Worklist<Worklist_item2> wl;
                      const ErrorCode ec = (cell_B.*fun)(&cell_Z, &cell_A);
                      if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
                    }
+Probe::P_1.stop();
            }
       }
 

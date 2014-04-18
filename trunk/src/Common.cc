@@ -38,7 +38,14 @@ const char * scriptname = 0;
 // Probes...
 
 int64_t Probe::dummy = 0;
-Probe Probe::probes[PROBE_COUNT];
+Probe Probe::probes[Probe::PROBE_COUNT];
+
+Probe & Probe::P0 = probes[0];
+Probe & Probe::P_1 = probes[Probe::PROBE_COUNT - 1];
+Probe & Probe::P_2 = probes[Probe::PROBE_COUNT - 2];
+Probe & Probe::P_3 = probes[Probe::PROBE_COUNT - 3];
+Probe & Probe::P_4 = probes[Probe::PROBE_COUNT - 4];
+Probe & Probe::P_5 = probes[Probe::PROBE_COUNT - 5];
 
 //-----------------------------------------------------------------------------
 void *

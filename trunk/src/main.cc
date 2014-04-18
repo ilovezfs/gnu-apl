@@ -161,144 +161,6 @@ signal_HUP_handler(int)
    raise(SIGHUP);
 }
 //-----------------------------------------------------------------------------
-/**
-    When APL is started as a script. then several options might be grouped
-    into a single option. expand_argv() expands such grouped options into
-    individual options.
-
-    expand_argv() also checks for -l LID_startup so that startup messages
-    emitted before parsing the command line options become visioble (provided
-    that dynamic logging is on).
- **/
-const char **
-expand_argv(int & argc, const char ** argv, bool & log_startup)
-{
-bool need_expand = false;
-int end_of_arg = -1;   // position of --
-
-   // check for -l LID_startup
-   loop(a, argc - 1)
-      {
-        if (!strcmp(argv[a], "--"))   break;
-        if (!strcmp(argv[a], "-l") && atoi(argv[a + 1]) == LID_startup)
-           {
-             log_startup = true;
-             break;
-           }
-      }
-
-   // check if any argument contains spaces and remember the '--' option
-   //
-   loop(a, argc)
-      {
-        if (end_of_arg != -1)   // '--' seen
-           {
-             scriptname = argv[a];
-             end_of_arg = -1;
-           }
-
-        if (strchr(argv[a], ' '))     need_expand = true;
-        if (!strcmp(argv[a], "--"))   end_of_arg = a;
-      }
-
-   // if no argument had a space then return the original argv 
-   //
-   if (!need_expand)   return argv;
-
-vector<const char *>argvec;
-
-   end_of_arg = -1;
-   loop(a, argc)
-      {
-        if (end_of_arg != -1)   // '--' seen
-           {
-             scriptname = argv[a];
-             end_of_arg = -1;
-           }
-        end_of_arg = -1;
-
-        if (strchr(argv[a], ' ') == 0)   // no space in this arg
-           {
-             argvec.push_back(argv[a]);
-             if (!strcmp(argv[a], "--"))   end_of_arg = a;
-             continue;
-           }
-
-        // arg has spaces, i.e. it may have multiple options
-        //
-        const char * arg = argv[a];
-
-        for (;;)
-            {
-              while (*arg == ' ')   ++arg;   // skip leading spaces
-              if (*arg == 0)        break;   // nothing left
-              if (*arg == '#')      break;   // comment
-
-              const char * sp = strchr(arg, ' ');
-              if (sp == 0)   sp = arg + strlen(arg);
-              const int new_len = sp - arg;   // excluding terminating 0
-              if (!strncmp(arg, "--", new_len))   end_of_arg = a;
-
-              char * new_arg = new char[new_len + 1];
-              memcpy(new_arg, arg, new_len);
-              new_arg[new_len] = 0;
-              argvec.push_back(new_arg);
-              arg = sp;
-            }
-      }
-
-   argc = argvec.size();
-
-   // the user may not be aware of how 'execve' calls an interpreter script
-   // and may not have given -f as the last option in the script file.
-   // In that situation argv is something like:
-   //
-   // "-f" "-other-options..." "script-name"
-   //
-   // instead of the expected:
-   //
-   // "-other-options..." "-f" "script-name"
-   //
-   // We fix this common mistake here. The downside is, or course, that option
-   // names cannnot be script names. We ignore options -h and --help since
-   // they exit immediately.
-   //
-   for (int a = 1; a < (argc - 1); ++a)
-       {
-         const char * opt = argvec[a];
-         const char * next = argvec[a + 1];
-         if (!strcmp(opt, "-f") && ( !strcmp(next, "-d")        ||
-                                     !strcmp(next, "--id")      ||
-                                     !strcmp(next, "-l")        ||
-                                     !strcmp(next, "--noCIN")   ||
-                                     !strcmp(next, "--noCONT")  ||
-                                     !strcmp(next, "--Color")   ||
-                                     !strcmp(next, "--noColor") ||
-                                     !strcmp(next, "--SV")      ||
-                                     !strcmp(next, "--noSV")    ||
-                                     !strcmp(next, "--par")     ||
-                                     !strcmp(next, "-s")        ||
-                                     !strcmp(next, "--script")  ||
-                                     !strcmp(next, "--silent")  ||
-                                     !strcmp(next, "-T")        ||
-                                     !strcmp(next, "--TM")      ||
-                                     !strcmp(next, "-w")))
-            {
-              // there is another known option after -f
-              //
-              for (int aa = a; aa < (argc - 2); ++aa)
-                 argvec[aa] = argvec[aa + 1];
-              argvec[argc - 2] = opt;   // put the -f before last
-              break;   // for a...
-            }
-       }
-
-const char ** ret = new const char *[argc + 1];
-   loop(a, argc)   ret[a] = argvec[a];
-   ret[argc] = 0;
-   return ret;
-}
-//-----------------------------------------------------------------------------
 void
 show_argv(int argc, const char ** argv)
 {
@@ -690,7 +552,7 @@ main(int argc, const char * _argv[])
    }
 
 bool log_startup = false;
-const char ** argv = expand_argv(argc, _argv, log_startup);
+const char ** argv = UserPreferences::expand_argv(argc, _argv, log_startup);
    Quad_ARG::argc = argc;   // remember argc for ⎕ARG
    Quad_ARG::argv = argv;   // remember argv for ⎕ARG
 
@@ -701,7 +563,7 @@ const char ** argv = expand_argv(argc, _argv, log_startup);
 const char * argv0 = argv[0];
    init_1(argv0, log_startup);
 
-   read_config_file(true,  log_startup);   // read /etc/gnu-apl.d/preferences
+   read_config_file(true, log_startup);   // read /etc/gnu-apl.d/preferences
    read_config_file(false, log_startup);   // read $HOME/.gnu_apl
 
    // struct sigaction differs between GNU/Linux and other systems, which
@@ -794,7 +656,7 @@ const char * argv0 = argv[0];
    if (!uprefs.silent)   show_welcome(cout, argv0);
 
    if (log_startup)   CERR << "PID is " << getpid() << endl;
-   Log(LOG_argc_argv)   show_argv(argc, argv);
+   Log(LOG_argc_argv || log_startup)   show_argv(argc, argv);
 
    // init OMP (will do nothing if OMP is not configured)
    init_OMP();

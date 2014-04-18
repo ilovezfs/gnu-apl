@@ -101,7 +101,7 @@ unsigned int lo, hi;
 //-----------------------------------------------------------------------------
 /*
   Software probes. A probe is a measurement of CPU cycles executed between two
-  points in the source code.
+  points P1 and P2 in the source code.
  */
 class Probe
 {
@@ -120,8 +120,15 @@ public:
         stop_p  = &dummy;
       }
 
+   /// init the p'th probe
+   static int init(int p)
+      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+        probes[p].init();
+        return 0;
+      }
+
    static void init_all()
-      { loop(p, PROBE_COUNT)   probes[p].init(); }
+      { loop(p, PROBE_COUNT)   init(p); }
 
    void start()
       {
@@ -155,7 +162,7 @@ public:
         ++idx;
       }
 
-   // get the m'th time of this probe
+   /// get the m'th time (from P1 to P2) of this probe
    int64_t get_time(int m) const
       { if ((unsigned int)m >= (unsigned int)idx)   return -1;
         const int64_t diff = measurements[m].cycles_to
@@ -164,33 +171,48 @@ public:
         return diff;
       }
 
-   // get the m'th time of the p'th probe
+   /// get the m'th time of the p'th probe
    static int get_time(int p, int m)
       { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
         return probes[p].get_time(m);
       }
 
+   /// get the m'th start time of this probe
    int64_t get_start(int m) const
       { if ((unsigned int)m >= (unsigned int)idx)   return -1;
         return measurements[m].cycles_from;
       }
 
-   // get the m'th start time of the p'th probe
+   /// get the m'th start time of the p'th probe
    static int get_start(int p, int m)
       { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
         return probes[p].get_start(m);
       }
 
+   /// get the m'th stop time of this probe
    int64_t get_stop(int m) const
       { if ((unsigned int)m >= (unsigned int)idx)   return -1;
         return measurements[m].cycles_to;
       }
 
-   // get the m'th stop time of the p'th probe
+   /// get the m'th stop time of the p'th probe
    static int get_stop(int p, int m)
       { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
         return probes[p].get_stop(m);
       }
+
+   /// get the number of times int the p'th probe
+   static int get_length(int p)
+      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+        return probes[p].idx;
+      }
+
+   static Probe & P0;    ///< start of vector probe
+   static Probe & P_1;   ///< individual probe 1
+   static Probe & P_2;   ///< individual probe 2
+   static Probe & P_3;   ///< individual probe 3
+   static Probe & P_4;   ///< individual probe 4
+   static Probe & P_5;   ///< individual probe 5
 
 protected:
    struct measurement
