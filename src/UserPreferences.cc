@@ -143,7 +143,7 @@ UserPreferences::show_GPL(ostream & out)
 "\n";
 }
 //-----------------------------------------------------------------------------
-int
+void
 UserPreferences::parse_argv(int argc, const char * argv[])
 {
    for (int a = 1; a < argc; )
@@ -159,7 +159,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
          else if (!strcmp(opt, "--cfg"))
             {
               show_configure_options();
-              return 0;
+              exit(0);
             }
          else if (!strcmp(opt, "--Color"))
             {
@@ -184,20 +184,29 @@ UserPreferences::parse_argv(int argc, const char * argv[])
 
                        }
 
-                    Filename_and_mode fam =
+                    if (!strcmp(argv[a], "-"))   // "-" shall mean  stdin
+                       {
+                         Filename_and_mode fam =
+                             { UTF8_string("-"), stdin, false, !do_not_echo };
+                         files_todo.push_back(fam);
+                       }
+                    else
+                       {
+                         Filename_and_mode fam =
                              { UTF8_string(argv[a]), 0, false, !do_not_echo };
-                    files_todo.push_back(fam);
+                         files_todo.push_back(fam);
+                       }
                   }
             }
          else if (!strcmp(opt, "--gpl"))
             {
               show_GPL(cout);
-              return 0;
+              exit(0);
             }
          else if (!strcmp(opt, "-h") || !strcmp(opt, "--help"))
             {
               usage(argv[0]);
-              return 0;
+              exit(0);
             }
          else if (!strcmp(opt, "--id"))
             {
@@ -205,7 +214,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
               if (!val)
                  {
                    CERR << "--id without processor number" << endl;
-                   return 2;
+                   exit(2);
                  }
 
               requested_id = atoi(val);
@@ -218,7 +227,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
               else
                  {
                    CERR << _("-l without log facility") << endl;
-                   return 3;
+                   exit(3);
                  }
 #else
    if (val && atoi(val) == LID_startup)   ;
@@ -257,7 +266,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
               if (!val)
                  {
                    CERR << "--cc without core count" << endl;
-                   return 4;
+                   exit(4);
                  }
               requested_cc = (CoreCount)atoi(val);
             }
@@ -268,7 +277,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
               if (!val)
                  {
                    CERR << "--par without processor number" << endl;
-                   return 5;
+                   exit(5);
                  }
               requested_par = atoi(val);
             }
@@ -332,7 +341,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
               else
                  {
                    CERR << _("--TM without test mode") << endl;
-                   return 6;
+                   exit(6);
                  }
             }
          else if (!strcmp(opt, "--TR"))
@@ -346,7 +355,7 @@ UserPreferences::parse_argv(int argc, const char * argv[])
          else if (!strcmp(opt, "-v") || !strcmp(opt, "--version"))
             {
               show_version(cout);
-              return 0;
+              exit(0);
             }
          else if (!strcmp(opt, "-w"))
             {
@@ -355,14 +364,14 @@ UserPreferences::parse_argv(int argc, const char * argv[])
               else
                  {
                    CERR << _("-w without milli(seconds)") << endl;
-                   return 7;
+                   exit(7);
                  }
             }
          else
             {
               CERR << _("unknown option '") << opt << "'" << endl;
               usage(argv[0]);
-              return 8;
+              exit(8);
             }
        }
 

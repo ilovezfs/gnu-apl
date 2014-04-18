@@ -34,6 +34,13 @@ uint64_t total_memory = 0;
 const char * scriptname = 0;
 
 //-----------------------------------------------------------------------------
+
+// Probes...
+
+int64_t Probe::dummy = 0;
+Probe Probe::probes[PROBE_COUNT];
+
+//-----------------------------------------------------------------------------
 void *
 common_new(size_t size)
 {

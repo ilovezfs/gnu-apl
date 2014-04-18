@@ -322,6 +322,10 @@ list_functions(ostream & out)
 "   Zi ← A  FUN[22] 2     fprintf(stderr, A1, A2...) format A1\n"
 "   Zi ← A  FUN[22] Bh    fprintf(Bh,     A1, A2...) format A1\n"
 "   Zi ← Ac FUN[23] Bh    fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8\n"
+"   Zh ← As FUN[24] Bs    popen(Bs, As) command Bs mode As\n"
+"   Zh ←    FUN[24] Bs    popen(Bs, \"r\") command Bs\n"
+"\n"
+"   Ze ←    FUN[25] Bh    pclose(Bh)\n"
 "\n";
 
    return Token(TOK_APL_VALUE1, Value::Str0_P);
@@ -565,6 +569,43 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 rmdir(path.c_str());
               }
               goto out_errno;
+
+         case 24:   // popen(Bs, "r") command Bs
+              {
+                UTF8_string path(*B.get());
+                errno = 0;
+                FILE * f = popen(path.c_str(), "r");
+                if (f == 0)
+                   {
+                     if (errno)   goto out_errno;   // errno may be set or not
+                     return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+                   }
+
+                file_entry fe(f, fileno(f));
+                fe.fe_may_read = true;
+                open_files.push_back(fe);
+                Value_P Z(new Value(LOC));
+                new (&Z->get_ravel(0))   IntCell(fe.fe_fd);
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 25:   // pclose(Bh)
+              {
+                errno = 0;
+                file_entry & fe = get_file(*B.get());
+                int err = EBADF;   /* Bad file number */
+                if (fe.fe_file)   err = pclose(fe.fe_file);
+
+                fe = open_files.back();       // move last file to fe
+                open_files.pop_back();        // erase last file
+
+                if (err == -1)   goto out_errno;   // pclose() failed
+                Value_P Z(new Value(LOC));
+                new (&Z->get_ravel(0))   IntCell(err);
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
       }
 
    CERR << "Bad eval_XB() function number: " << function_number << endl;
@@ -741,6 +782,38 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
+
+         case 24:   // popen(Bs, As) command Bs mode As
+              {
+                UTF8_string path(*B.get());
+                UTF8_string mode(*A.get());
+                const char * m = mode.c_str();
+                bool read = false;
+                bool write = false;
+                if      (!strncmp(m, "er", 2))     read = true;
+                else if (!strncmp(m, "r" , 1))     read = true;
+                else if (!strncmp(m, "ew", 2))     write = true;
+                else if (!strncmp(m, "w" , 1))     write = true;
+                else    DOMAIN_ERROR;
+
+                errno = 0;
+                FILE * f = popen(path.c_str(), m);
+                if (f == 0)
+                   {
+                     if (errno)   goto out_errno;   // errno may be set or not
+                     return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+                   }
+
+                file_entry fe(f, fileno(f));
+                fe.fe_may_read = read;
+                fe.fe_may_write = write;
+                open_files.push_back(fe);
+                Value_P Z(new Value(LOC));
+                new (&Z->get_ravel(0))   IntCell(fe.fe_fd);
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
       }
 
    CERR << "eval_AXB() function number: " << function_number << endl;
