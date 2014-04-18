@@ -139,6 +139,16 @@ No such file or directory
 HELLO ⍋ ⌽ ⍒ ⍴ ⍵
 0 
 
+      ⍝ popen "r"
+      ⍝
+      Command←'ls FILE_IO*'
+      Handle← FILE_IO[24] Command
+      Z←20000 FILE_IO[6] Handle
+      ⍴Z
+⁰
+      FILE_IO[4] Handle ⍝ close command (returning its exit code)
+0
+      
       )ERASE FORMAT
 
 ⍝ ==================================

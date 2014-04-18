@@ -73,8 +73,9 @@ extern ostream UERR;
 
 class UCS_string;
 
-// #define TROUBLESHOOT_NEW_DELETE
+#define loop(v, e) for (ShapeItem v = 0; v < ShapeItem(e); ++v)
 
+// #define TROUBLESHOOT_NEW_DELETE
 
 void * common_new(size_t size);
 void common_delete(void * p);
@@ -97,6 +98,117 @@ unsigned int lo, hi;
 
 #endif
 
+//-----------------------------------------------------------------------------
+/*
+  Software probes. A probe is a measurement of CPU cycles executed between two
+  points in the source code.
+ */
+class Probe
+{
+public:
+   enum { PROBE_COUNT = 100,   ///< the number of probes
+          PROBE_LEN   = 20     ///< the number of measurements in each probe
+        };
+
+   Probe()
+      { init(); }
+
+   void init()
+      {
+        idx = 0;
+        start_p = &dummy;
+        stop_p  = &dummy;
+      }
+
+   static void init_all()
+      { loop(p, PROBE_COUNT)   probes[p].init(); }
+
+   void start()
+      {
+         if (idx < PROBE_LEN)
+            {
+               measurement & m = measurements[idx];
+               start_p = &measurements[idx].cycles_from;
+               stop_p =  &measurements[idx].cycles_to;
+            }
+         else
+            {
+               start_p = &dummy;
+               stop_p  = &dummy;
+            }
+
+         // write to *start_p and *stop_p so that they are loaded into the cache
+         //
+         *stop_p = cycle_counter();
+         *start_p = cycle_counter();
+
+         // now the real start of the measurment
+         //
+         *start_p = cycle_counter();
+      }
+
+   void stop()
+      {
+        // the real end of the measurment
+        //
+        *stop_p = cycle_counter();
+        ++idx;
+      }
+
+   // get the m'th time of this probe
+   int64_t get_time(int m) const
+      { if ((unsigned int)m >= (unsigned int)idx)   return -1;
+        const int64_t diff = measurements[m].cycles_to
+                           - measurements[m].cycles_from;
+        if (diff < 0)   return -2;
+        return diff;
+      }
+
+   // get the m'th time of the p'th probe
+   static int get_time(int p, int m)
+      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+        return probes[p].get_time(m);
+      }
+
+   int64_t get_start(int m) const
+      { if ((unsigned int)m >= (unsigned int)idx)   return -1;
+        return measurements[m].cycles_from;
+      }
+
+   // get the m'th start time of the p'th probe
+   static int get_start(int p, int m)
+      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+        return probes[p].get_start(m);
+      }
+
+   int64_t get_stop(int m) const
+      { if ((unsigned int)m >= (unsigned int)idx)   return -1;
+        return measurements[m].cycles_to;
+      }
+
+   // get the m'th stop time of the p'th probe
+   static int get_stop(int p, int m)
+      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+        return probes[p].get_stop(m);
+      }
+
+protected:
+   struct measurement
+      {
+        int64_t cycles_from;   ///< the cycle counter at point 1
+        int64_t cycles_to;     ///< the cycle counter at point 2
+      };
+
+   measurement measurements[PROBE_LEN];
+
+   int idx;
+   int64_t * start_p;
+   int64_t * stop_p;
+
+   static int64_t dummy;
+   static Probe probes[];
+};
+//-----------------------------------------------------------------------------
 /// Year, Month, Day, hour, minute, second, millisecond
 struct YMDhmsu
 {
@@ -121,8 +233,6 @@ inline void   operator delete(void * p)   { common_delete(p); }
 #endif
 
 using namespace std;
-
-#define loop(v, e) for (ShapeItem v = 0; v < ShapeItem(e); ++v)
 
 //-----------------------------------------------------------------------------
 

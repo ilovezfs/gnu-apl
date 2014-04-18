@@ -75,7 +75,7 @@ struct UserPreferences
    static void show_version(ostream & out);
 
    /// parse command line parameters
-   int parse_argv(int argc, const char * argv[]);
+   void parse_argv(int argc, const char * argv[]);
 
    /// true if no banner/Goodbye is wanted.
    bool silent;
