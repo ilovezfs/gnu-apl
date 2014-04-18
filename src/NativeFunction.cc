@@ -142,6 +142,9 @@ const char * why_not = sym->cant_be_defined();
 //-----------------------------------------------------------------------------
 NativeFunction::~NativeFunction()
 {
+  Log(LOG_UserFunction__enter_leave)
+      CERR << "Native function " << get_name() << " deleted." << endl;
+
    if (handle)   dlclose(handle);
 
    loop(v, valid_functions.size())

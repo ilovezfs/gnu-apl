@@ -77,6 +77,10 @@ struct UserPreferences
    /// parse command line parameters
    void parse_argv(int argc, const char * argv[]);
 
+   /// expand lumped arguments
+   static const char ** expand_argv(int & argc, const char ** argv,
+                                    bool & log_startup);
+
    /// true if no banner/Goodbye is wanted.
    bool silent;
 

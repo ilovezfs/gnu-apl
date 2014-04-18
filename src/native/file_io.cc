@@ -340,6 +340,10 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
         // what < 0 are "hacker functions" that should no be used by
         // normal mortals.
         //
+        case -4: // clear all probes (ignores B, returns 0)
+             Probe::init_all();
+             return Token(TOK_APL_VALUE1, Value::Zero_P);
+
         case -2: // return CPU frequency
              {
                timeval tv = { 0, 100000 }; // 100 ms
@@ -370,6 +374,35 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
 Token
 eval_AB(Value_P A, Value_P B, const NativeFunction * caller)
 {
+const APL_Integer what = B->get_ravel(0).get_int_value();
+   switch(what)
+      {
+        case -3: // read probe A and clear it
+             {
+               APL_Integer probe = A->get_ravel(0).get_int_value();
+
+               // negative numbers mean take from end (like ↑ and ↓)
+               // convention ins that 0, 1, 2, ... are a probe vector (such as
+               // one entry per core) while probes at the end are individual
+               // probes.
+               //
+               if (probe < 0)   probe = Probe::PROBE_COUNT + probe;
+               if (probe >= Probe::PROBE_COUNT)   // too high
+                  return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+
+               const int len = Probe::get_length(probe);
+               if (len < 0)   return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+
+                Value_P Z(new Value(len, LOC));
+                loop(m, len)
+                    new (Z->next_ravel())   IntCell(Probe::get_time(probe, m));
+
+                Probe::init(probe);
+                return Token(TOK_APL_VALUE1, Z);
+             }
+             
+      }
+
    return list_functions(COUT);
 }
 //-----------------------------------------------------------------------------

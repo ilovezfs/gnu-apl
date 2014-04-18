@@ -1,4 +1,4 @@
-#!/usr/bin/apl --script --
+#!/usr/local/bin/apl --script --
 
 ⍝ This is an APL CGI script that demonstrates the use of APL for CGI scripting
 ⍝ It outputs an HTML page like GNU APL's homepage at www.gnu.org.
