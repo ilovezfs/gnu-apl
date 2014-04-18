@@ -1254,6 +1254,9 @@ ValueStackItem & tos = value_stack[0];
 
         case NC_FUNCTION:
         case NC_OPERATOR:
+             tos.sym_val.function->destroy();
+             break;
+
              if (tos.sym_val.function->is_native())   break;
 
              {

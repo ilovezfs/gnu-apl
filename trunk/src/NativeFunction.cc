@@ -290,10 +290,12 @@ const char * dirs[] =
 void
 NativeFunction::cleanup()
 {
+   // delete in reverse construction order
+   //
    loop(v, valid_functions.size())
       {
-        void (*close_fun)(Cause cause) = valid_functions[v]->close_fun;
-        if (close_fun)   (*close_fun)(CAUSE_SHUTDOWN);
+        NativeFunction & fun = *valid_functions.back();
+        if (fun.close_fun)   (*fun.close_fun)(CAUSE_SHUTDOWN);
         delete valid_functions[v];
       }
 }
