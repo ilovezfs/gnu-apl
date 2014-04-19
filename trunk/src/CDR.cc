@@ -29,10 +29,10 @@
 
 //-----------------------------------------------------------------------------
 void
-CDR::to_CDR(CDR_string & result, Value_P value)
+CDR::to_CDR(CDR_string & result, const Value & value)
 {
-const CDR_type type = value->get_CDR_type();
-const int len = value->total_size_brutto(type);
+const CDR_type type = value.get_CDR_type();
+const int len = value.total_size_brutto(type);
    result.reserve(len + 1);
    result.clear();
 
@@ -40,7 +40,7 @@ const int len = value->total_size_brutto(type);
 }
 //-----------------------------------------------------------------------------
 void
-CDR::fill(CDR_string & result, int type, int len, Value_P val)
+CDR::fill(CDR_string & result, int type, int len, const Value & val)
 {
    Assert((len & 0x0F) == 0);
 
@@ -74,7 +74,7 @@ const uint32_t ptr = 0x00002020;
 
    // nelm
    //
-const uint32_t nelm = val->element_count();
+const uint32_t nelm = val.element_count();
    result.append(Unicode(nelm >> 24 & 0xFF));
    result.append(Unicode(nelm >> 16 & 0xFF));
    result.append(Unicode(nelm >>  8 & 0xFF));
@@ -83,15 +83,15 @@ const uint32_t nelm = val->element_count();
    // type, rank, 0, 0
    //
    result.append(Unicode(type));
-   result.append(Unicode(val->get_rank()));
+   result.append(Unicode(val.get_rank()));
    result.append(Unicode_0);
    result.append(Unicode_0);
 
    // shape
    //
-   loop(r, val->get_rank())
+   loop(r, val.get_rank())
       {
-        const uint32_t sh = val->get_shape_item(r);
+        const uint32_t sh = val.get_shape_item(r);
         result.append(Unicode(sh >> 24 & 0xFF));
         result.append(Unicode(sh >> 16 & 0xFF));
         result.append(Unicode(sh >>  8 & 0xFF));
@@ -107,7 +107,7 @@ const uint32_t nelm = val->element_count();
         loop(e, nelm)
            {
              const int bit = e%8;
-             const APL_Integer i = val->get_ravel(e).get_int_value();
+             const APL_Integer i = val.get_ravel(e).get_int_value();
              Assert(i == 0 || i == 1);
              if (i)   accu |= 0x80 >> bit;
              if (bit == 7)
@@ -127,7 +127,7 @@ const uint32_t nelm = val->element_count();
       {
         loop(e, nelm)
            {
-             uint64_t i = val->get_ravel(e).get_int_value();
+             uint64_t i = val.get_ravel(e).get_int_value();
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
@@ -139,7 +139,7 @@ const uint32_t nelm = val->element_count();
       {
         loop(e, nelm)
            {
-             const double v = val->get_ravel(e).get_real_value();
+             const double v = val.get_ravel(e).get_real_value();
              uint64_t i = *(uint64_t *)&v;
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
@@ -155,7 +155,7 @@ const uint32_t nelm = val->element_count();
       {
         loop(e, nelm)
            {
-             double v = val->get_ravel(e).get_real_value();
+             double v = val.get_ravel(e).get_real_value();
              uint64_t i = *(uint64_t *)&v;
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
@@ -166,7 +166,7 @@ const uint32_t nelm = val->element_count();
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
 
-             v = val->get_ravel(e).get_imag_value();
+             v = val.get_ravel(e).get_imag_value();
              i = *(uint64_t *)&v;
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
@@ -182,7 +182,7 @@ const uint32_t nelm = val->element_count();
       {
         loop(e, nelm)
            {
-             const Unicode uni = val->get_ravel(e).get_char_value();
+             const Unicode uni = val.get_ravel(e).get_char_value();
              Assert(uni >= 0);
              Assert(uni < 256);
              result.append(uni);
@@ -192,7 +192,7 @@ const uint32_t nelm = val->element_count();
       {
         loop(e, nelm)
            {
-             uint32_t i = val->get_ravel(e).get_char_value();
+             uint32_t i = val.get_ravel(e).get_char_value();
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
              result.append(Unicode(i & 0xFF));   i >>= 8;
@@ -228,7 +228,7 @@ const uint32_t nelm = val->element_count();
         //   +------------------+
         //
       
-        uint32_t offset = 16 + 4*val->get_rank() + 4*nelm;
+        uint32_t offset = 16 + 4*val.get_rank() + 4*nelm;
         while (offset & 0x0F)   ++offset;
         loop(e, nelm)
            {
@@ -237,7 +237,7 @@ const uint32_t nelm = val->element_count();
              result.append(Unicode(offset >> 16 & 0xFF));
              result.append(Unicode(offset >> 24 & 0xFF));
 
-             const Cell & cell = val->get_ravel(e);
+             const Cell & cell = val.get_ravel(e);
              if (cell.is_character_cell() || cell.is_numeric())
                 {
                   // a non-pointer sub value: 16 byte header,
@@ -247,9 +247,9 @@ const uint32_t nelm = val->element_count();
                 }
              else if (cell.is_pointer_cell())
                 {
-                  Value_P sub_val = cell.get_pointer_value();
-                  const CDR_type sub_type = sub_val->get_CDR_type();
-                  offset += sub_val->total_size_brutto(sub_type);
+                  const Value & sub_val = *cell.get_pointer_value();
+                  const CDR_type sub_type = sub_val.get_CDR_type();
+                  offset += sub_val.total_size_brutto(sub_type);
                 }
               else
                 DOMAIN_ERROR;
@@ -264,7 +264,7 @@ const uint32_t nelm = val->element_count();
         //
         loop(e, nelm)
            {
-             const Cell & cell = val->get_ravel(e);
+             const Cell & cell = val.get_ravel(e);
              if (cell.is_character_cell() || cell.is_numeric())
                 {
                   Value_P sub_val(new Value(LOC));
@@ -272,7 +272,7 @@ const uint32_t nelm = val->element_count();
 
                   const CDR_type sub_type = sub_val->get_CDR_type();
                   const int sub_len = sub_val->total_size_brutto(sub_type);
-                  fill(result, sub_type, sub_len, sub_val);
+                  fill(result, sub_type, sub_len, *sub_val);
                 }
               else
                 {
@@ -280,7 +280,7 @@ const uint32_t nelm = val->element_count();
 
                   const CDR_type sub_type = sub_val->get_CDR_type();
                   const int sub_len = sub_val->total_size_brutto(sub_type);
-                  fill(result, sub_type, sub_len, sub_val);
+                  fill(result, sub_type, sub_len, *sub_val);
                 }
            }
 
@@ -482,6 +482,8 @@ const uint8_t * ravel = data + 16 + 4*rank;
         Assert(0 && "Bad/unsupported CDR type");
       }
 
+   ret->set_default(*Value::Zero_P);
+   ret->check_value(LOC);
    return ret;
 }
 //-----------------------------------------------------------------------------

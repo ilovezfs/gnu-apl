@@ -872,8 +872,8 @@ NamedObject * obj = Workspace::lookup_existing_name(name);
 Symbol * symbol = obj->get_symbol();
    if (symbol)
       {
-        Value_P value = symbol->get_apl_value();
-        if (!!value)
+        const Value & value = *symbol->get_apl_value();
+        if (&value)
            {
              CDR_string cdr;
              CDR::to_CDR(cdr, value);
