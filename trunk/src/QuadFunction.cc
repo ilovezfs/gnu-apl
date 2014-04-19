@@ -294,6 +294,8 @@ PrintStyle style;
         case 12: {
                    // CDR → Value conversion
                    //
+                   if (B.get_rank() > 1)   RANK_ERROR;
+
                    CDR_string cdr;
                    loop(b, B.element_count())
                        cdr.append(B.get_ravel(b).get_char_value());
