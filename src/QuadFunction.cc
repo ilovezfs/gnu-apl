@@ -277,9 +277,35 @@ PrintStyle style;
                    return Z;
                  }
 
+        case 11: {
+                   // Value → CDR conversion
+                   //
+                   CDR_string cdr;
+                   CDR::to_CDR(cdr, B);
+                   const ShapeItem len = cdr.size();
+                   Value_P Z(new Value(len, LOC));
+                   loop(l, len)
+                       new (Z->next_ravel()) CharCell((Unicode)(0xFF & cdr[l]));
+                   Z->set_default(*Value::Str0_P);
+                   Z->check_value(LOC);
+                   return Z;
+                 }
+
+        case 12: {
+                   // CDR → Value conversion
+                   //
+                   CDR_string cdr;
+                   loop(b, B.element_count())
+                       cdr.append(B.get_ravel(b).get_char_value());
+                   Value_P Z = CDR::from_CDR(cdr, LOC);
+                   return Z;
+                 }
+
         default: DOMAIN_ERROR;
       }
 
+   // common code for ⎕CR variants that only differs by print style...
+   //
 const PrintContext pctx(style, Workspace::get_PP(),
                         Workspace::get_CT(), Workspace::get_PW());
 PrintBuffer pb(B, pctx);

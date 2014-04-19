@@ -33,7 +33,7 @@ class CDR
 {
 public:
    /// convert \b value into a CDR_string
-   static void to_CDR(CDR_string & result, Value_P value);
+   static void to_CDR(CDR_string & result, const Value & value);
 
    /// create a value from a CDR_string, throwing
    /// DOMAIN ERROR if cdr is ill-formed
@@ -59,7 +59,7 @@ public:
 
 protected:
    /// fill result with the bytes of the CDR of \b value
-   static void fill(CDR_string & result, int type, int len, Value_P v);
+   static void fill(CDR_string & result, int type, int len, const Value & val);
 };
 //-----------------------------------------------------------------------------
 
