@@ -1188,7 +1188,7 @@ UserFunction::line_prefix(Function_Line l)
 {
 UCS_string ucs;
    ucs.append(UNI_ASCII_L_BRACK);
-   if (l < 10)   ucs.append(UNI_ASCII_SPACE);
+   if (l < Function_Line_10)   ucs.append(UNI_ASCII_SPACE);
 
 char cc[40];
    snprintf(cc, sizeof(cc), "%d", l);

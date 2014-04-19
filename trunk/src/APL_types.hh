@@ -206,9 +206,10 @@ enum Bitmask
 /// return from the function).
 enum Function_Line
 {
-   Function_Retry  = -2,   // →'' in immediate execution
-   Function_Line_0 = 0,
-   Function_Line_1 = 1,
+   Function_Retry   = -2,   // →'' in immediate execution
+   Function_Line_0  =  0,
+   Function_Line_1  =  1,
+   Function_Line_10 = 10,
 };
 //-----------------------------------------------------------------------------
 ///  What is being parsed (function, immediate execution statements, or ⍎expr)
