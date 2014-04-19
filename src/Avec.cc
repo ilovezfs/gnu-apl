@@ -284,6 +284,8 @@ Avec::is_known_char(Unicode av)
 #define char_df1(_n, u, _t, _f, _p)  case u: 
 #include "Avec.def"
           return true;
+
+        default: break;
       }
 
    return false;   // not found

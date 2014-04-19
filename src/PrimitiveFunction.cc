@@ -2896,6 +2896,7 @@ int flt_cnt = 0;
              case UNI_ASCII_7:              flt_mask |= BIT_7;   break; 
              case UNI_ASCII_8:              flt_mask |= BIT_8;   break; 
              case UNI_ASCII_9:              flt_mask |= BIT_9;   break;
+             default:                                            break;
            }
       }
 

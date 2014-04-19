@@ -452,11 +452,13 @@ Executable::setup_lambdas()
                move_1(t, body[b], LOC);
                body[b].clear(LOC);   // invalidate in main body
 
+               // figure the signature by looking for ⍺, ⍶, ⍵, ⍹, and χ
+               // and compain about ◊ and →
                switch(t.get_tag())
                   {
                     case TOK_L_CURLY:
-                         if (body_nesting == 1)  { goon = false;   continue; }
-                         else               { --body_nesting;      break;    }
+                         if (body_nesting == 1)  { goon = false;     continue; }
+                         else                    { --body_nesting;   break;    }
 
                     case TOK_ALPHA:    signature |= SIG_A;    /* no break */
                     case TOK_OMEGA:    signature |= SIG_B;    break;
@@ -468,6 +470,8 @@ Executable::setup_lambdas()
                     case TOK_DIAMOND:  DEFN_ERROR;
                     case TOK_BRANCH:   DEFN_ERROR;
                     case TOK_ESCAPE:   DEFN_ERROR;
+
+                    default: break;
                   }
 
                rev_lambda_body.append(t, LOC);

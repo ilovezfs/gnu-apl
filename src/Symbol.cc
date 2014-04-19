@@ -1257,18 +1257,6 @@ ValueStackItem & tos = value_stack[0];
              tos.sym_val.function->destroy();
              break;
 
-             if (tos.sym_val.function->is_native())   break;
-
-             {
-               const UserFunction * ufun = tos.sym_val.function->get_ufun1();
-               Assert(ufun);
-               const Executable * exec = ufun;
-               Assert(!Workspace::oldest_exec(exec));
-             }
-
-             delete tos.sym_val.function;
-             break;
-
         default: break;
       }
 }

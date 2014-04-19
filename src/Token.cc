@@ -544,33 +544,39 @@ Token::short_class_name(TokenClass cls)
 {
    switch(cls)
       {
-        case TC_INVALID:   return "INV";
-        case TC_END:      return "END";
-        case TC_RETURN:    return "RET";
-        case TC_VALUE:     return "VAL";
-        case TC_INDEX:     return "IDX";
-        case TC_PINDEX:    return "PIDX";
-        case TC_SYMBOL:    return "SYM";
+        case TC_ASSIGN:    return "←";
+        case TC_R_ARROW:   return "→";
+        case TC_L_BRACK:   return "[";
+        case TC_R_BRACK:   return "]";
+        case TC_END:       return "END";
         case TC_FUN0:      return "F0";
         case TC_FUN12:     return "F12";
+        case TC_INDEX:     return "IDX";
         case TC_OPER1:     return "OP1";
         case TC_OPER2:     return "OP2";
-        case TC_R_PARENT:  return ")";
-        case TC_R_BRACK:   return "]";
         case TC_L_PARENT:  return "(";
-        case TC_L_BRACK:   return "[/;";
-        case TC_R_ARROW:   return "→";
-        case TC_ASSIGN:    return "←";
-        case TC_LINE:      return "LINE";
+        case TC_R_PARENT:  return ")";
+        case TC_RETURN:    return "RET";
+        case TC_SYMBOL:    return "SYM";
+        case TC_VALUE:     return "VAL";
+
+        case TC_PINDEX:    return "PIDX";
         case TC_VOID:      return "VOID";
+
+        case TC_OFF:       return "OFF";
+        case TC_SI_LEAVE:  return "LEAVE";
+        case TC_LINE:      return "LINE";
         case TC_DIAMOND:   return "◊";
         case TC_NUMERIC:   return "NUMB";
         case TC_SPACE:     return "SPACE";
         case TC_NEWLINE:   return "LF";
         case TC_COLON:     return ":";
         case TC_QUOTE:     return "QUOTE";
-        case TC_OFF:       return "OFF";
-        case TC_SI_LEAVE:  return "LEAVE";
+        case TC_L_CURLY:   return "{";
+        case TC_R_CURLY:   return "}";
+
+        case TC_INVALID:   return "INV";
+        default:           break;
       }
 
    return "???";
@@ -600,33 +606,39 @@ Token::class_name(TokenClass tc)
 
    switch(tc)
       {
-        tcn( TC_INVALID  )
+        tcn( TC_ASSIGN   )
+        tcn( TC_R_ARROW  )
+        tcn( TC_L_BRACK  )
+        tcn( TC_R_BRACK  )
         tcn( TC_END      )
-        tcn( TC_RETURN   )
-        tcn( TC_VALUE    )
-        tcn( TC_INDEX    )
-        tcn( TC_PINDEX   )
-        tcn( TC_SYMBOL   )
         tcn( TC_FUN0     )
         tcn( TC_FUN12    )
+        tcn( TC_INDEX    )
         tcn( TC_OPER1    )
         tcn( TC_OPER2    )
-        tcn( TC_R_PARENT )
-        tcn( TC_R_BRACK  )
         tcn( TC_L_PARENT )
-        tcn( TC_L_BRACK  )
-        tcn( TC_R_ARROW  )
-        tcn( TC_ASSIGN   )
-        tcn( TC_LINE     )
+        tcn( TC_R_PARENT )
+        tcn( TC_RETURN   )
+        tcn( TC_SYMBOL   )
+        tcn( TC_VALUE    )
+
+        tcn( TC_PINDEX   )
         tcn( TC_VOID     )
+
+        tcn( TC_OFF      )
+        tcn( TC_SI_LEAVE )
+        tcn( TC_LINE     )
         tcn( TC_DIAMOND  )
         tcn( TC_NUMERIC  )
         tcn( TC_SPACE    )
         tcn( TC_NEWLINE  )
         tcn( TC_COLON    )
         tcn( TC_QUOTE    )
-        tcn( TC_OFF      )
-        tcn( TC_SI_LEAVE )
+        tcn( TC_L_CURLY  )
+        tcn( TC_R_CURLY  )
+
+        tcn( TC_INVALID  )
+        default: break;
       }
 
    return "*** Obscure token class ***";
