@@ -376,7 +376,7 @@ Quad_TF::tf2_var(const UCS_string & var_name, Value_P value)
 UCS_string ucs(var_name);
    ucs.append(UNI_LEFT_ARROW);
 
-const bool error = tf2_ravel(0, ucs, value);
+const bool error = tf2_value(0, ucs, value);
 
    // return '' for invalid values.
    //
@@ -457,12 +457,14 @@ Token_string tos;
    return UCS_string();
 }
 //-----------------------------------------------------------------------------
-void
+bool
 Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
 {
    // dont print anything if shape is a skalar or non-empty vector
-   if (shape.get_volume() != 0 && shape.get_rank() <=1)   return;
+   //
+   if (shape.get_volume() != 0 && shape.get_rank() <= 1)   return false;
 
+   ucs.append(UNI_ASCII_L_PARENT);
    loop(r, shape.get_rank())
       {
         if (r)   ucs.append(UNI_ASCII_SPACE);
@@ -470,10 +472,11 @@ Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
       }
 
    ucs.append(UNI_RHO);
+   return true;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_TF::tf2_ravel(int level, UCS_string & ucs, Value_P value)
+Quad_TF::tf2_value(int level, UCS_string & ucs, Value_P value)
 {
 const ShapeItem ec = value->element_count();
 
@@ -499,12 +502,12 @@ const ShapeItem ec = value->element_count();
            }
 
         // other empty values: print ( shape ⍴ prototype )
-        ucs.append(UNI_ASCII_L_PARENT);
 
-        tf2_shape(ucs, value->get_shape());
+        const bool rho_used = tf2_shape(ucs, value->get_shape());
+        Assert(rho_used);
 
         Value_P proto = value->prototype(LOC);
-        tf2_ravel(level + 1, ucs, proto);
+        tf2_value(level + 1, ucs, proto);
         ucs.append(UNI_ASCII_R_PARENT);
         return  false;
       }
@@ -513,7 +516,7 @@ const ShapeItem ec = value->element_count();
    //
    if (!value->NOTCHAR())
       {
-        tf2_shape(ucs, value->get_shape());
+        const bool rho_used = tf2_shape(ucs, value->get_shape());
 
         // check if ⎕UCS is needed. 
         //
@@ -555,15 +558,23 @@ const ShapeItem ec = value->element_count();
                 }
              ucs.append(UNI_SINGLE_QUOTE);
            }
+
+        if (rho_used) ucs.append(UNI_ASCII_R_PARENT);
         return  false;
       }
 
 const Depth depth = value->compute_depth();
-   if (depth && level)   ucs.append(UNI_ASCII_L_PARENT);
+bool need_parenth = depth && level;
 
    // maybe print shape followed by ⍴
    //
-   tf2_shape(ucs, value->get_shape());
+bool have_parenth = tf2_shape(ucs, value->get_shape());
+
+   if (need_parenth && !have_parenth)
+      {
+        have_parenth = true;
+        ucs.append(UNI_ASCII_L_PARENT);
+      }
 
    loop(e, ec)
       {
@@ -572,7 +583,7 @@ const Depth depth = value->compute_depth();
 
         if (cell.is_pointer_cell())
            {
-             if (tf2_ravel(level + 1, ucs, cell.get_pointer_value()))
+             if (tf2_value(level + 1, ucs, cell.get_pointer_value()))
                 return true;
            }
         else if (cell.is_lval_cell())
@@ -605,7 +616,7 @@ const Depth depth = value->compute_depth();
            }
       }
 
-   if (depth && level)   ucs.append(UNI_ASCII_R_PARENT);
+   if (have_parenth)   ucs.append(UNI_ASCII_R_PARENT);
 
    return false;
 }

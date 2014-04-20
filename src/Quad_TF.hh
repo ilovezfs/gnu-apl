@@ -50,11 +50,11 @@ public:
    /// return B in transfer format 3 (APL2 CDR format)
    static Value_P tf3(const UCS_string & symbol_name);
 
-   /// append \b shape in tf2_format to \b ucs
-   static void tf2_shape(UCS_string & ucs, const Shape & shape);
+   /// append \b shape in tf2_format to \b ucs. Return true if (A⍴ was appended
+   static bool tf2_shape(UCS_string & ucs, const Shape & shape);
 
-   /// append ravel of \b value in tf2_format to \b ucs
-   static bool tf2_ravel(int level, UCS_string & ucs, Value_P value);
+   /// append ravel of \b value in tf2_format to \b ucs. Return true on error
+   static bool tf2_value(int level, UCS_string & ucs, Value_P value);
 
    /// try inverse ⎕TF2 of ucs, set \b new_var_or_fun if successful
    static UCS_string tf2_inv(const UCS_string & ravel);

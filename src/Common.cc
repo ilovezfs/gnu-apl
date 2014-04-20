@@ -122,4 +122,18 @@ print_flags (ostream & out, ValueFlags flags)
               << ((flags & VF_forever)  ?  "∞" : "-");
 }
 //-----------------------------------------------------------------------------
+int
+nibble(Unicode uni)
+{
+   switch(uni)
+      {
+        case UNI_ASCII_0 ... UNI_ASCII_9:   return      uni - UNI_ASCII_0;
+        case UNI_ASCII_A ... UNI_ASCII_F:   return 10 + uni - UNI_ASCII_A;
+        case UNI_ASCII_a ... UNI_ASCII_f:   return 10 + uni - UNI_ASCII_a;
+        default: break;
+      }
+
+   return -1;   // uni is not a hex digit
+}
+//-----------------------------------------------------------------------------
 

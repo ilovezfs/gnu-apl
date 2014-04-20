@@ -767,6 +767,42 @@ The system limits are displayed in the following order:
 @item hard system limits (defined by the underlying machine)
 @end enumerate
 
+@section Dyadic ⎕CR
+
+The ⎕CR function has an optional left argument that selects one of several
+formatting style and conversions in addition to the well-known monadic form.
+
+Say a @b{byte vector} is a character vector with each character having an
+8-bit value (i.e. a value from -127 to 255 inclusive). Let Z←A ⎕CR B.
+
+Then the left argument A of ⎕CR selects one of the following:
+
+A=0-4 or 7-9: various formatting styles (boxed, APL input/output, etc.).
+Just try them out.
+
+A=5/6: convert byte vector B to a string of uppercase/lowercase hex digits.
+
+A=10: convert variable named in B to an APL expression producing it.
+
+A=11: convert value B to byte vector Z in CDR format (similar to 3 ⎕TF).
+
+A=12: convert byte vector Z in CDR format to value Z.
+
+A=13: convert hex string B to byte vector Z.
+
+If a conversion has an inverse conversion (like 12 being the inverse of 11)
+then the inverse conversion can be expressed as the negative of the conversion
+number. For example, 12 ⎕CR B is the same as ¯11 ⎕CR B.
+
+A=14: conversion 11 followed by conversion 13 (Value to hex string in
+CDR format)
+
+A=15: conversion 13 followed by conversion 12 (hex string in CDR format
+to Value)
+
+Conversions 14 and 15 can be used, for example, to store APL values as ASCII
+texts in databases.
+
 @section Debug Commands
 
 Besides the classical commands like )LOAD or )SAVE there are a number of

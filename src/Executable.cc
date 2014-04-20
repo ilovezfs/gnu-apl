@@ -191,7 +191,7 @@ Token_string out;
    Log(LOG_UserFunction__set_line)
       {
         CERR << "[non-reverse " << line << "] ";
-        Parser::print_token_list(CERR, out, 0);
+        out.print(CERR);
       } 
 
    loop(t, out.size())   body.append(out[t], LOC);
@@ -217,7 +217,7 @@ Executable::print(ostream & out) const
    out << endl
        <<  "Function body [" << body.size() << " token]:" << endl;
 
-   Parser::print_token_list(out, body);
+   body.print(out);
    return out;
 }
 //-----------------------------------------------------------------------------

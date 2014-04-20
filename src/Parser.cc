@@ -59,7 +59,7 @@ Parser::parse(const Token_string & input, Token_string & tos) const
    Log(LOG_parse)
       {
         CERR << "parse 1 [" << input.size() << "]: ";
-        print_token_list(CERR, input, 0);
+        input.print(CERR);
         CERR << endl;
       }
 
@@ -115,7 +115,7 @@ Parser::parse_statement(Token_string & tos) const
    Log(LOG_parse)
       {
         CERR << "parse 2 [" << tos.size() << "]: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
    // 2. convert groups like '(' val val...')' into single APL values
@@ -131,7 +131,7 @@ Parser::parse_statement(Token_string & tos) const
    Log(LOG_parse)
       {
         CERR << "parse 3 [" << tos.size() << "]: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
    // 3. convert vectors like 1 2 3 or '1' 2 '3' into single APL values
@@ -142,7 +142,7 @@ Parser::parse_statement(Token_string & tos) const
    Log(LOG_parse)
       {
         CERR << "parse 4 [" << tos.size() << "]: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
    // 4. mark symbol left of ← as LSYMB
@@ -151,7 +151,7 @@ Parser::parse_statement(Token_string & tos) const
    Log(LOG_parse)
       {
         CERR << "parse 5 [" << tos.size() << "]: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
    // 5. resolve ambiguous / ⌿ \ and ⍀ operators/functions
@@ -160,7 +160,7 @@ Parser::parse_statement(Token_string & tos) const
    Log(LOG_parse)
       {
         CERR << "parse 6 [" << tos.size() << "]: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
    return E_NO_ERROR;
@@ -172,7 +172,7 @@ Parser::collect_constants(Token_string & tos) const
    Log(LOG_collect_constants)
       {
         CERR << "collect_constants [" << tos.size() << " token] in: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
    // convert several items in vector notation into a single APL value
@@ -232,7 +232,7 @@ Parser::collect_constants(Token_string & tos) const
    Log(LOG_collect_constants)
       {
         CERR << "collect_constants [" << tos.size() << " token] out: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 }
 //-----------------------------------------------------------------------------
@@ -242,7 +242,7 @@ Parser::collect_groups(Token_string & tos) const
    Log(LOG_collect_constants)
       {
         CERR << "collect_groups [" << tos.size() << " token] in: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
 int opening = -1;
@@ -282,7 +282,7 @@ int opening = -1;
                       {
                         CERR << "collect_groups [" << tos.size()
                              << " token] out: ";
-                        print_token_list(CERR, tos, 0);
+                        tos.print(CERR);
                       }
                    return true;
 
@@ -533,7 +533,7 @@ Parser::create_value(Token_string & tos, int pos, int count) const
       {
         CERR << "create_value(" << __LINE__ << ") tos[" << tos.size()
              <<  "]  pos " << pos << " count " << count << " in:";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 
    if (count == 1)   create_skalar_value(tos[pos]);
@@ -543,7 +543,7 @@ Parser::create_value(Token_string & tos, int pos, int count) const
       {
         CERR << "create_value(" << __LINE__ << ") tos[" << tos.size()
              <<  "]  pos " << pos << " count " << count << " out:";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 }
 //-----------------------------------------------------------------------------
@@ -660,7 +660,7 @@ Token tok(TOK_APL_VALUE3, vector);
    Log(LOG_create_value)
       {
         CERR << "create_value [" << tos.size() << " token] out: ";
-        print_token_list(CERR, tos, 0);
+        tos.print(CERR);
       }
 }
 //-----------------------------------------------------------------------------
@@ -733,13 +733,5 @@ Parser::mark_lsymb(Token_string & tos)
                  }
             }
       }
-}
-//-----------------------------------------------------------------------------
-void
-Parser::print_token_list(ostream & out, const Token_string & tos, int from)
-{
-   loop(t, tos.size() - from)   out << "`" << tos[from + t] << "  ";
-
-   out << endl;
 }
 //-----------------------------------------------------------------------------
