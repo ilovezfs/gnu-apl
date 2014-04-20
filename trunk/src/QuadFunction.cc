@@ -250,6 +250,7 @@ PrintStyle style;
         case  1:  style = PR_APL_FUN;          break;
         case  2:  style = PR_BOXED_CHAR;       break;
         case  3:  style = PR_BOXED_GRAPHIC;    break;
+
         case  4:
         case  8: { // like 3/7, but enclose B so that the entire B is boxed
                    Value_P B1(new Value(LOC));
@@ -258,10 +259,12 @@ PrintStyle style;
                    return Z;
                  }
                  break;
+
         case  5: style = PR_HEX;              break;
         case  6: style = PR_hex;              break;
         case  7: style = PR_BOXED_GRAPHIC1;   break;
         case  9: style = PR_BOXED_GRAPHIC2;   break;
+
         case 10: {
                    vector<UCS_string> ucs_vec;
                    do_CR10(ucs_vec, B);
@@ -277,9 +280,10 @@ PrintStyle style;
                    return Z;
                  }
 
-        case 11: {
-                   // Value → CDR conversion
-                   //
+        case -12:
+        case 11: // Value → CDR conversion
+                 //
+                 {
                    CDR_string cdr;
                    CDR::to_CDR(cdr, B);
                    const ShapeItem len = cdr.size();
@@ -291,14 +295,80 @@ PrintStyle style;
                    return Z;
                  }
 
-        case 12: {
-                   // CDR → Value conversion
-                   //
+        case -11:
+        case 12: // CDR → Value conversion
+                 //
+                 {
                    if (B.get_rank() > 1)   RANK_ERROR;
 
                    CDR_string cdr;
                    loop(b, B.element_count())
                        cdr.append(B.get_ravel(b).get_char_value());
+                   Value_P Z = CDR::from_CDR(cdr, LOC);
+                   return Z;
+                 }
+
+        case -5:
+        case -6:
+        case 13: // hex → Value conversion. 2 characters per byte, therefore
+                 // last axis of B must have even length
+                 {
+                   if (B.get_cols() & 1)   LENGTH_ERROR;  // odd length
+
+                   Shape shape_Z(B.get_shape());
+                   shape_Z.set_shape_item(B.get_rank() - 1, B.get_cols() / 2);
+                   Value_P Z(new Value(shape_Z, LOC));
+                   const Cell * cB = &B.get_ravel(0);
+                   loop(z, Z->element_count())
+                      {
+                        const int n1 = nibble(cB++->get_char_value());
+                        const int n2 = nibble(cB++->get_char_value());
+                        if (n1 < 0 || n2 < 0)   DOMAIN_ERROR;
+                        new (Z->next_ravel()) CharCell(Unicode(16*n1 + n2));
+                      }
+                   Z->set_default(*Value::Zero_P);
+                   Z->check_value(LOC);
+                   return Z;
+                 }
+
+        case -15:
+        case 14: // Value → CDR → hex conversion
+                 //
+                 {
+                   const char * hex = "0123456789abcdef";
+                   CDR_string cdr;
+                   CDR::to_CDR(cdr, B);
+                   const ShapeItem len = cdr.size();
+                   Value_P Z(new Value(2*len, LOC));
+                   loop(l, len)
+                       {
+                         const Unicode uh = Unicode(hex[0x0F & cdr[l] >> 4]);
+                         const Unicode ul = Unicode(hex[0x0F & cdr[l]]);
+                         new (Z->next_ravel()) CharCell(uh);
+                         new (Z->next_ravel()) CharCell(ul);
+                       }
+                   Z->set_default(*Value::Str0_P);
+                   Z->check_value(LOC);
+                   return Z;
+                 }
+
+        case -14:
+        case 15: // hex → CDR → Value conversion
+                 //
+                 {
+                   if (B.get_rank() > 1)   RANK_ERROR;
+
+                   CDR_string cdr;
+                   const ShapeItem len = B.element_count()/2;
+                   const Cell * cB = &B.get_ravel(0);
+                   loop(b, len)
+                      {
+                        const int n1 = nibble(cB++->get_char_value());
+                        const int n2 = nibble(cB++->get_char_value());
+                        if (n1 < 0 || n2 < 0)   DOMAIN_ERROR;
+                        cdr.append(16*n1 + n2);
+                      }
+
                    Value_P Z = CDR::from_CDR(cdr, LOC);
                    return Z;
                  }
@@ -326,6 +396,13 @@ Value_P Z(new Value(sh, LOC));
    loop(y, height)
       loop(x, width)
          Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)));
+
+   if (a == 5 || a == 6)   // reshape to (sort of) original
+      {
+        Shape sh_Z = B.get_shape();
+        sh_Z.set_shape_item(B.get_rank() - 1, B.get_cols() * 2);
+        Z->set_shape(sh_Z);
+      }
 
    return Z;
 }

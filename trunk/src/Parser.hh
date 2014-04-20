@@ -41,10 +41,6 @@ public:
    /// Parse token string \b input into token string \b tos.
    ErrorCode parse(const Token_string & input, Token_string & tos) const;
 
-   /// print the array \b token of \b Token into \b out.
-   static void print_token_list(ostream & out, const Token_string & token,
-                                int from = 0);
-
    /// remove VOID token from \b token (compacting \b token)
    static void remove_void_token(Token_string & token);
 

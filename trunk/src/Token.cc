@@ -714,3 +714,15 @@ move_2(Token & dst, const Token & src, const char * loc)
       }
 }
 //-----------------------------------------------------------------------------
+void
+Token_string::print(ostream & out, int from) const
+{
+   loop(t, size() - from)
+       {
+         const Token & tok = (*this)[from + t];
+         out << "`" << tok << "  ";
+       }
+
+   out << endl;
+}
+//-----------------------------------------------------------------------------

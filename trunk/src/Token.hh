@@ -304,6 +304,9 @@ public:
    : Simple_string<Token>(other, pos, len)
    {}
 
+   /// print the token string, starting at \b from
+   void print(ostream & out, int from = 0) const;
+
 private:
    // prevent accidental copying
    Token_string & operator =(const Token_string & other);

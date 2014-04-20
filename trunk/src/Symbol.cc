@@ -1025,7 +1025,7 @@ UCS_string data;
                data.append(UNI_ASCII_A);
                data.append(get_name());
                data.append(UNI_LEFT_ARROW);
-               Quad_TF::tf2_ravel(0, data, value_stack[0].apl_val);
+               Quad_TF::tf2_value(0, data, value_stack[0].apl_val);
              }
              break;
 

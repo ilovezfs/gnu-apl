@@ -81,4 +81,7 @@ enum Unicode
 #endif
 };
 
+/// value 0-15 of hex digit, or -1 if uni not in "023456789ABCDEFabcdef"
+extern int nibble(Unicode uni);
+
 #endif // __UNICODE_HH_DEFINED__

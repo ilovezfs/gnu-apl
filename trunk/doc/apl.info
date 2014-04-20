@@ -691,7 +691,47 @@ to the current value, is rejected with a DOMAIN ERROR.
 
   5. hard system limits (defined by the underlying machine)
 
-2.3 Debug Commands
+2.3 Dyadic ⎕CR
+================
+
+The ⎕CR function has an optional left argument that selects one of
+several formatting style and conversions in addition to the well-known
+monadic form.
+
+   Say a byte vector is a character vector with each character having an
+8-bit value (i.e. a value from -127 to 255 inclusive). Let Z←A ⎕CR B.
+
+   Then the left argument A of ⎕CR selects one of the following:
+
+   A=0-4 or 7-9: various formatting styles (boxed, APL input/output,
+etc.).  Just try them out.
+
+   A=5/6: convert byte vector B to a string of uppercase/lowercase hex
+digits.
+
+   A=10: convert variable named in B to an APL expression producing it.
+
+   A=11: convert value B to byte vector Z in CDR format (similar to 3
+⎕TF).
+
+   A=12: convert byte vector Z in CDR format to value Z.
+
+   A=13: convert hex string B to byte vector Z.
+
+   If a conversion has an inverse conversion (like 12 being the inverse
+of 11) then the inverse conversion can be expressed as the negative of
+the conversion number. For example, 12 ⎕CR B is the same as ¯11 ⎕CR B.
+
+   A=14: conversion 11 followed by conversion 13 (Value to hex string in
+CDR format)
+
+   A=15: conversion 13 followed by conversion 12 (hex string in CDR
+format to Value)
+
+   Conversions 14 and 15 can be used, for example, to store APL values
+as ASCII texts in databases.
+
+2.4 Debug Commands
 ==================
 
 Besides the classical commands like )LOAD or )SAVE there are a number of
@@ -704,7 +744,7 @@ output, uses different colors for stdout and stdout.
    Type )HELP or ]HELP in the interpreter for a list of all commands
 available.
 
-2.4 Colored Output
+2.5 Colored Output
 ==================
 
 The APL interpreter gets its input from the standard input (stdin),
@@ -730,7 +770,7 @@ colors and UTF-8 (Unicode) encoded character I/O.
 can be configured in the 'preferences' file.  The 'preferences' file
 also contains a description of all possible color settings.
 
-2.5 Logging Facilities
+2.6 Logging Facilities
 ======================
 
 The APL interpreter has over 30 logging facilities. Each logging
@@ -743,7 +783,7 @@ logging - then it cannot be changed later on. Otherwise - we call that
 dynamic logging - there is a debug command ]LOG that allows to turn
 logging facilities to be turned ON or OFF.
 
-2.5.1 Static Logging
+2.6.1 Static Logging
 --------------------
 
 By default the logging facilities that shall be turned ON are defined
@@ -759,7 +799,7 @@ compile time and not at run-time.
    If you benchmark the APL interpreter, then ./configure Static
 Logging by NOT setting DYNAMIC_LOG_WANTED=yes.
 
-2.5.2 Dynamic Logging
+2.6.2 Dynamic Logging
 ---------------------
 
 Dynamic Logging is intended for trouble-shooters of GNU APL, but also
@@ -781,12 +821,12 @@ current state. The command
 
    toggles the state of logging facility N from OFF to ON and back.
 
-2.6 Complex Numbers
+2.7 Complex Numbers
 ===================
 
 Complex numbers are fully supported.
 
-2.7 Native Functions
+2.8 Native Functions
 ====================
 
 A Native Function is a function that can be called in APL like a normal
@@ -835,7 +875,7 @@ src/native/template_OP1.cc (for monadic native operators), or
 src/native/template_OP2/cc (for dyadic native operators) to your own
 .cc file and adjust src/native/Makefile.am accordingly.
 
-2.8 DUMP Command
+2.9 DUMP Command
 ================
 
 GNU APL has a command )DUMP that saves a workspace to disk, similar to
@@ -846,14 +886,14 @@ interchange format, )DUMP produces a file in GNU APL's script format
 with normal text editors (vi, emacs), read back with "apl -f", or made
 executable (see scripting).
 
-2.9 Direct Functions (Lambdas)
-==============================
+2.10 Direct Functions (Lambdas)
+===============================
 
 GNU APL supports direct functions (aka. lambdas), but only in a rather
 limited form.
 
-2.9.1 Named Lambdas
--------------------
+2.10.1 Named Lambdas
+--------------------
 
 A statement of the form
 
@@ -896,8 +936,8 @@ lambda (i.e. the name left of ← { ... }) can be made a local variable
 of the function in which the named lambda is created. This creates a
 lambda with local scope.
 
-2.9.2 Unnamed Lambdas
----------------------
+2.10.2 Unnamed Lambdas
+----------------------
 
 An unnamed lambda is a statement inside { } but without assigning it to
 a name. This is often used together with the EACH operator.  For
@@ -910,8 +950,8 @@ example:
    Unnamed lambdas are automatically local in scope (similar to
 labels). They can be passed as function arguments to operators.
 
-2.9.3 Limitations
------------------
+2.10.3 Limitations
+------------------
 
 There are a number of features related to lambdas that are present in
 other APL interpreter but that are NOT implemented in GNU APL. This
@@ -2190,11 +2230,11 @@ Tag Table:
 Node: Top418
 Node: Chapter 11348
 Node: Chapter 214010
-Node: Chapter 331000
-Node: Chapter 432601
-Node: Chapter 533914
-Node: Section 5.134417
-Node: Section 5.259546
+Node: Chapter 332343
+Node: Chapter 433944
+Node: Chapter 535257
+Node: Section 5.135760
+Node: Section 5.260889
 
 End Tag Table
 
