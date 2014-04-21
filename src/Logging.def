@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ log_def(0, shared_variables            , "Shared Variable operations          ")
 log_def(0, argc_argv                   , "command line arguments (argc/argv)  ")
 log_def(0, startup                     , "interpreter start-up messages       ")
 log_def(0, optimization                , "optimization messages               ")
+log_def(0, archive                     , ")LOAD and )SAVE details             ")
 
 #undef log_def
 

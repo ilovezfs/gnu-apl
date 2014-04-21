@@ -49,7 +49,8 @@ public:
    /// constructor: remember output stream and  workspace
    XML_Saving_Archive(ofstream & of)
    : indent(0),
-     out(of)
+     out(of),
+     char_mode(false)
    {}
 
    /// destructor
@@ -102,13 +103,23 @@ protected:
    int find_owner(const Cell * val);
 
    /// emit one unicode character (inside "...")
-   void emit_unicode(Unicode uni, int & space, bool & char_mode);
+   void emit_unicode(Unicode uni, int & space);
 
    /// emit one ravel cell \b cell
-   void emit_cell(const Cell & cell, int & space, bool & char_mode);
+   void emit_cell(const Cell & cell, int & space);
 
    /// emit a token value up (excluding) the '>' of the end token
    void emit_token_val(const Token & tok);
+
+   /// enter char mode. maybe print ² and return the number of chars printed
+   int enter_char_mode()
+      { if (char_mode)   return 0;   // already in char mode
+        out << UNI_PAD_U2;   char_mode = true;   return 1; }
+
+   /// leave char mode. maybe print ⁰ and return the number of chars printed
+   int leave_char_mode()
+      { if (!char_mode)   return 0;   // not in char mode
+        out << UNI_PAD_U0;   char_mode = false;   return 1; }
 
    /// decrement \b space by length of \b str and return \b str
    static const char * decr(int & space, const char * str);
@@ -141,6 +152,9 @@ protected:
 
    /// current value number
    int vid;
+
+   /// true iff ² is pending
+   bool char_mode;
 };
 //-----------------------------------------------------------------------------
 /// a helper class for loading an APL workspace
