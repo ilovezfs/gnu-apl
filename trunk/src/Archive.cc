@@ -49,9 +49,10 @@
 
 using namespace std;
 
-#define NEED(x, cm)   if (space < (x))                                   \
-                         { if (cm)   out << UNI_PAD_U0;   out << "\n";   \
-                           space = do_indent(); char_mode = false; } out
+/// if there is less than x chars left on the current line then leave
+/// char mode and start a new line indented.
+#define NEED(x)   if (space < (x))   { leave_char_mode();   out << "\n";   \
+                                       space = do_indent(); } out
 
 //-----------------------------------------------------------------------------
 bool
@@ -78,7 +79,7 @@ XML_Saving_Archive::do_indent()
 const int spaces = indent * INDENT_LEN;
    loop(s, spaces)   out << " ";
 
-   return 78 - spaces;
+   return 72 - spaces;
 }
 //-----------------------------------------------------------------------------
 int
@@ -108,33 +109,27 @@ XML_Saving_Archive::find_vid(const Value & val)
 }
 //-----------------------------------------------------------------------------
 void
-XML_Saving_Archive::emit_unicode(Unicode uni, int & space, bool & char_mode)
+XML_Saving_Archive::emit_unicode(Unicode uni, int & space)
 {
-   NEED(2, char_mode) << "";
    if (uni == UNI_ASCII_LF)
       {
-        NEED(2, char_mode) << UNI_PAD_U1 << "A";
-        char_mode = false;
-        NEED(space + 4, char_mode);   // force new line
+        leave_char_mode();
+        out << UNI_PAD_U1 << "A" << "\n";
+        space = do_indent();
       }
    else if (!xml_allowed(uni))
       {
+        space -= leave_char_mode();
         char cc[40];
         snprintf(cc, sizeof(cc), "%X", uni);
-        NEED(1 + strlen(cc), char_mode) << UNI_PAD_U1 << decr(space, cc);
+        NEED(1 + strlen(cc)) << UNI_PAD_U1 << decr(space, cc);
         space--;   // PAD_U1
-        char_mode = false;
-      }
-
-   else if (!char_mode)
-      {
-        NEED(2, char_mode) << UNI_PAD_U2 << uni;
-        space -= 2;   // PAD_U2 + uni
-        char_mode = true;
       }
    else 
       {
-        NEED(1, char_mode) << uni;
+        NEED(1) << "";
+        space -= enter_char_mode();
+        out << uni;
         space--;   // uni
       }
 }
@@ -143,12 +138,13 @@ void
 XML_Saving_Archive::save_UCS(const UCS_string & ucs)
 {
 int space = do_indent();
-bool char_mode = false;
    out << decr(space, "<UCS uni=\"");
+   Assert(char_mode == false);
    ++indent;
-   loop(u, ucs.size())   emit_unicode(ucs[u], space, char_mode);
-
-   NEED(3, false) << "\"/>" << endl;
+   loop(u, ucs.size())   emit_unicode(ucs[u], space);
+   leave_char_mode();
+   out << "\"/>" << endl;
+   space -= 2;
    --indent;
 }
 //-----------------------------------------------------------------------------
@@ -188,7 +184,6 @@ XML_Saving_Archive &
 XML_Saving_Archive::save_ravel(const Value & v)
 {
 int space = do_indent();
-bool char_mode = false;
 
 char cc[80];
    snprintf(cc, sizeof(cc), "<Ravel vid=\"%d\" cells=\"", vid);
@@ -197,72 +192,64 @@ char cc[80];
    ++indent;
 const ShapeItem len = v.nz_element_count();
 const Cell * C = &v.get_ravel(0);
-   loop(l, len)
-      {
-        if (char_mode && C->get_cell_type() != CT_CHAR)
-           {
-             out << UNI_PAD_U0;
-             char_mode = false;
-             --space;
-           }
+   loop(l, len)   emit_cell(*C++, space);
 
-        emit_cell(*C++, space, char_mode);
-      }
-
-   NEED(3, false) << "\"/>" << endl;
+   space -= leave_char_mode();
+   out<< "\"/>" << endl;
+   space -= 2;
    --indent;
 
    return *this;
 }
 //-----------------------------------------------------------------------------
 void
-XML_Saving_Archive::emit_cell(const Cell & cell, int & space, bool & char_mode)
+XML_Saving_Archive::emit_cell(const Cell & cell, int & space)
 {
 char cc[80];
    switch(cell.get_cell_type())
       {
-            case CT_CHAR:   // UNI_PAD_U0, UNI_PAD_U1, and UNI_PAD_U2
-                 emit_unicode(cell.get_char_value(), space, char_mode);
+            case CT_CHAR:   // uses UNI_PAD_U0, UNI_PAD_U1, and UNI_PAD_U2
+                 emit_unicode(cell.get_char_value(), space);
                  break;
 
-            case CT_INT:
+            case CT_INT:   // uses UNI_PAD_U3
+                 space -= leave_char_mode();
                  snprintf(cc, sizeof(cc), "%lld",
                           (long long)cell.get_int_value());
-                 NEED(1 + strlen(cc), false) << UNI_PAD_U3 << decr(space, cc);
-                 space--;   // PAD_U3
+                 NEED(1 + strlen(cc)) << UNI_PAD_U3 << decr(--space, cc);
                  break;
 
-            case CT_FLOAT:
+            case CT_FLOAT:   // uses UNI_PAD_U4
+                 space -= leave_char_mode();
                  snprintf(cc, sizeof(cc), "%g", cell.get_real_value());
-                 NEED(1 + strlen(cc), false) << UNI_PAD_U4 << decr(space, cc);
-                 space--;   // PAD_U4
+                 NEED(1 + strlen(cc)) << UNI_PAD_U4 << decr(--space, cc);
                  break;
 
-            case CT_COMPLEX:
+            case CT_COMPLEX:   // uses UNI_PAD_U5
+                 space -= leave_char_mode();
                  snprintf(cc, sizeof(cc), "%gJ%g",
                           cell.get_real_value(), cell.get_imag_value());
-                 NEED(1 + strlen(cc), false) << UNI_PAD_U5 << decr(space, cc);
-                 space--;   // PAD_U5
+                 NEED(1 + strlen(cc)) << UNI_PAD_U5 << decr(--space, cc);
                  break;
 
-            case CT_POINTER:
+            case CT_POINTER:   // uses UNI_PAD_U6
+                 space -= leave_char_mode();
                  {
                    const int vid = find_vid(*cell.get_pointer_value());
                    snprintf(cc, sizeof(cc), "%d", vid);
-                   NEED(1 + strlen(cc), false) << UNI_PAD_U6 << decr(space, cc);
-                   space--;   // PAD_U6
+                   NEED(1 + strlen(cc)) << UNI_PAD_U6 << decr(--space, cc);
                  }
                  break;
 
-            case CT_CELLREF:
+            case CT_CELLREF:   // uses UNI_PAD_U7
+                 space -= leave_char_mode();
                  {
                    Cell * cp = cell.get_lval_value();
                    const int vid = find_owner(cp);
                    const Value & val = values[vid]._val;
                    const ShapeItem offset = val.get_offset(cp);
                    snprintf(cc, sizeof(cc), "%d[%lld]", vid, (long long)offset);
-                   NEED(1 + strlen(cc), false) << UNI_PAD_U7 << decr(space, cc);
-                   space--;   // PAD_U6
+                   NEED(1 + strlen(cc)) << UNI_PAD_U7 << decr(--space, cc);
                  }
                  break;
 
@@ -820,6 +807,8 @@ XML_Loading_Archive::XML_Loading_Archive(const char * _filename, int & dump_fd)
      reading_vids(false),
      filename(_filename)
 {
+   Log(LOG_archive)   CERR << "Loading file " << filename << endl;
+
    fd = open(filename, O_RDONLY);
    if (fd == -1)   return;
 
@@ -1080,6 +1069,8 @@ const int minute   = find_int_attr("minute",   false, 10);
 const int second   = find_int_attr("second",   false, 10);
 const int tzone    = find_int_attr("timezone", false, 10);
 
+   Log(LOG_archive)   CERR << "read_Workspace() " << endl;
+
 const char * tag_order[] = { "Value",          "Ravel",
                              "SymbolTable",    "Symbol",
                              "StateIndicator", "/Workspace", 0 };
@@ -1140,6 +1131,8 @@ const int  flg = find_int_attr("flg", false, 16);
 const int  vid = find_int_attr("vid", false, 10);
 const int  parent = find_int_attr("parent", true, 10);
 const int  rk  = find_int_attr("rk",  false, 10);
+
+   Log(LOG_archive)   CERR << "  read_Value() vid=" << vid << endl;
 
    if (reading_vids)
       {
@@ -1208,6 +1201,7 @@ const Unicode type = UTF8_string::toUni(first, len);
    switch (type)
       {
         case UNI_PAD_U0: // end of UNI_PAD_U2
+        case '\n':       // end of UNI_PAD_U2 (fix old bug)
              first += len;
              break;
 
@@ -1294,7 +1288,7 @@ XML_Loading_Archive::read_chars(UCS_string & ucs, const UTF8 * & utf)
        {
          if (*utf == '"')   break;   // end of attribute value
 
-          if (char_mode && *utf < 0x80)
+          if (char_mode && *utf < 0x80 && *utf != '\n')
              {
                ucs.append(Unicode(*utf++));
                continue;
@@ -1328,6 +1322,18 @@ XML_Loading_Archive::read_chars(UCS_string & ucs, const UTF8 * & utf)
               continue;
             }
 
+         if (type == '\n')   // end of char_mode (fix old bug)
+            {
+              // due to an old bug, the trailing UNI_PAD_U0 may be missing
+              // at the end of the line. We therefore reset char_mode at the
+              // end of the line so that workspaces save with that fault can
+              // be read.
+              //
+              utf += len;   // skip UNI_PAD_U0
+              char_mode = false;
+              continue;
+            }
+
          break;
        }
 
@@ -1341,6 +1347,8 @@ XML_Loading_Archive::read_Ravel()
 
 const int vid = find_int_attr("vid", false, 10);
 const UTF8 * cells = find_attr("cells", false);
+
+   Log(LOG_archive)   CERR << "    read_Ravel() vid=" << vid << endl;
 
    Assert(vid < values.size());
 Value_P val = values[vid];
@@ -1385,6 +1393,9 @@ XML_Loading_Archive::read_Variable(int d, Symbol & symbol)
 const unsigned int vid = find_int_attr("vid", false, 10);
    Assert(vid < values.size());
 
+   Log(LOG_archive)   CERR << "      read_Variable() vid=" << vid
+                           << " name=" << symbol.get_name() << endl;
+
    if (d != 0)   symbol.push();
 
    // some system variables are  saved for troubleshooting purposes, but
@@ -1416,8 +1427,9 @@ const int value = find_int_attr("value", false, 10);
 void
 XML_Loading_Archive::read_Function(int d, Symbol & symbol)
 {
-const int function_line_no = line_no;
 const int native = find_int_attr("native", true, 10);
+
+   Log(LOG_archive)   CERR << "      read_Function() native=" << native << endl;
 
    next_tag(LOC);
    expect_tag("UCS", LOC);
@@ -1449,7 +1461,7 @@ UCS_string text;
         int err = 0;
         UCS_string creator(filename);
         creator.append(UNI_ASCII_COLON);
-        creator.append_number(function_line_no);
+        creator.append_number(line_no);
         UTF8_string creator_utf8(creator);
 
         UserFunction * fun = UserFunction::fix(text, err, false,
@@ -1483,6 +1495,8 @@ XML_Loading_Archive::read_SymbolTable()
 {
 const int size = find_int_attr("size", false, 10);
 
+   Log(LOG_archive)   CERR << "  read_SymbolTable() vid=" << endl;
+
    loop(s, size)
       {
         next_tag(LOC);
@@ -1506,6 +1520,8 @@ UCS_string name_ucs;
      UTF8_string name_utf(name, name_end - name);
      name_ucs = UCS_string(name_utf);
    }
+
+   Log(LOG_archive)   CERR << "    read_Symbol() name=" << name_ucs << endl;
 
 const int depth = find_int_attr("stack-size", false, 10);
 
@@ -1588,6 +1604,8 @@ XML_Loading_Archive::read_StateIndicator()
           return;
       }
 
+   Log(LOG_archive)   CERR << "read_StateIndicator()" << endl;
+
 const int levels = find_int_attr("levels", false, 10);
 
    loop(l, levels)
@@ -1611,6 +1629,8 @@ const int level     = find_int_attr("level",     false, 10);
 const int vid_arg_A = find_int_attr("vid_arg_A", true, 10);
 const int Id_arg_F  = find_int_attr("Id_arg_F",  true, 16);
 const int vid_arg_B = find_int_attr("vid_arg_B", true, 10);
+
+   Log(LOG_archive)   CERR << "read_SI_entry() level=" << level << endl;
 
    next_tag(LOC);
 const Executable * exec = 0;
