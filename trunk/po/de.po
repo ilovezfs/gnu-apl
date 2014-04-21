@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU APL 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-04-18 17:34+0200\n"
+"POT-Creation-Date: 2014-04-21 18:35+0200\n"
 "PO-Revision-Date: 2013-09-15 14:04+0200\n"
 "Last-Translator: Juergen <eedjsa@localhost>\n"
 "Language-Team: German\n"
@@ -185,26 +185,26 @@ msgstr "*** ungültiges sub-record von X"
 msgid "Unknown Error"
 msgstr "Unbekannter Fehler"
 
-#: src/main.cc:177
+#: src/main.cc:178
 #, c-format
 msgid "Welcome to GNU APL version %s"
 msgstr "Willkommen bei GNU APL Version %s"
 
-#: src/main.cc:178
+#: src/main.cc:179
 #, c-format
 msgid "for details run: %s --gpl."
 msgstr "für Einzelheiten führen Sie bitte %s --gpl aus."
 
-#: src/main.cc:197
+#: src/main.cc:198
 msgid "This program comes with ABSOLUTELY NO WARRANTY;"
 msgstr "Für dieses Programm werden KEINERLEI GARANTIEN übernommen;"
 
-#: src/main.cc:200
+#: src/main.cc:201
 msgid "This program is free software, and you are welcome to redistribute it"
 msgstr ""
 "Dieses Programm ist freie Software und kann gerne gemäß den Bedingungen"
 
-#: src/main.cc:201
+#: src/main.cc:202
 msgid "according to the GNU Public License (GPL) version 3 or later."
 msgstr "der GNU Public License (GPL) Version 3 or später verbreitet werden."
 

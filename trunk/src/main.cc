@@ -34,6 +34,7 @@
 #include "LibPaths.hh"
 #include "Logging.hh"
 #include "main.hh"
+#include "makefile.h"
 #include "Output.hh"
 #include "NativeFunction.hh"
 #include "Prefix.hh"
@@ -254,7 +255,7 @@ const char * locale = setlocale(LC_ALL, "");
    //
    setlocale(LC_NUMERIC, "C");
 
-const char * dir = bindtextdomain(PACKAGE, LOCALEDIR);
+const char * dir = bindtextdomain(PACKAGE, Makefile__localedir);
 
    if (dir)
       {
@@ -263,7 +264,7 @@ const char * dir = bindtextdomain(PACKAGE, LOCALEDIR);
       }
    else
       {
-        CERR << "*** bindtextdomain(" << PACKAGE << ", " << LOCALEDIR
+        CERR << "*** bindtextdomain(" << PACKAGE << ", " << Makefile__localedir
              << " failed: " << strerror(errno) << endl;
         return;
       }
@@ -275,7 +276,7 @@ const char * dom = textdomain(PACKAGE);
       }
    else
       {
-        CERR << "*** textdomain(" << PACKAGE << ", " << LOCALEDIR
+        CERR << "*** textdomain(" << PACKAGE << ", " << Makefile__localedir
              << " failed: " << strerror(errno) << endl;
         return;
       }
@@ -320,24 +321,16 @@ const CoreCount cores_available = setup_cores(core_count_wanted);
 //-----------------------------------------------------------------------------
 // read user preference file(s) if present
 static void
-read_config_file(bool sys, bool log)
+read_config_file(bool sys, bool log_startup)
 {
-char filename[PATH_MAX + 1] = "/etc/gnu-apl.d/preferences";   // fallback filename
+char filename[PATH_MAX + 1] = Makefile__sysconfdir;   // fallback filename
 
-
-   if (sys)   // try /etc/gnu-apl/preferences
-      {
-#ifdef SYSCONFDIR
-        if (strlen(SYSCONFDIR))
-           snprintf(filename, PATH_MAX, "%s/gnu-apl.d/preferences", SYSCONFDIR);
-#endif
-      }
-   else       // try $HOME/.gnu_apl
+   if (!sys)   // try $HOME/.gnu_apl
       {
         const char * HOME = getenv("HOME");
         if (HOME == 0)
            {
-             if (log)
+             if (log_startup)
                 CERR << "environment variable 'HOME' is not defined!" << endl;
              return;
            }
@@ -349,13 +342,13 @@ char filename[PATH_MAX + 1] = "/etc/gnu-apl.d/preferences";   // fallback filena
 FILE * f = fopen(filename, "r");
    if (f == 0)
       {
-         if (log)
+         if (log_startup)
             CERR << "config file " << filename
                  << " is not present/readable" << endl;
          return;
       }
 
-   if (log)
+   if (log_startup)
       CERR << "Reading config file " << filename << " ..." << endl;
 
 int line = 0;
@@ -563,7 +556,7 @@ const char ** argv = UserPreferences::expand_argv(argc, _argv, log_startup);
 const char * argv0 = argv[0];
    init_1(argv0, log_startup);
 
-   read_config_file(true, log_startup);   // read /etc/gnu-apl.d/preferences
+   read_config_file(true,  log_startup);   // read /etc/gnu-apl.d/preferences
    read_config_file(false, log_startup);   // read $HOME/.gnu_apl
 
    // struct sigaction differs between GNU/Linux and other systems, which

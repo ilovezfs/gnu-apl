@@ -5,7 +5,6 @@ bin_PROGRAMS = apl
 
 datadir = @datadir@
 localedir = $(datadir)/locale
-DEFS = -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @DEFS@
 
 apl_SOURCES = \
 		    buildtag		buildtag.hh		\
@@ -49,6 +48,7 @@ LibPaths.cc				LibPaths.hh		\
 Logging.cc	    Logging.def		Logging.hh		\
 LvalCell.cc				LvalCell.hh		\
 main.cc					main.hh			\
+					makefile.h		\
 Malloc_hooks.cc							\
 Nabla.cc				Nabla.hh		\
 NamedObject.cc				NamedObject.hh		\
@@ -112,7 +112,6 @@ update-svar_signals:
 	m4 -D protocol=Svar_signals udp_signal.m4 > Svar_signals.hh
 
 apl_CXXFLAGS =	$(GPROF_WANTED) $(CXX_RDYNAMIC) \
-		-DSYSCONFDIR=\"$(sysconfdir)\"  \
 		$(OPENMP)
 
 apl_LDADD = $(LIBS) $(LIBREADLINE)
@@ -135,4 +134,11 @@ perf: apl
 
 AM_MAKEFLAGS = -j 2
 
+makefile.h: Makefile
+	@echo "// some strings exported from Makefile"           > $@
+	@echo "//"                                              >> $@
+	@echo "#define Makefile__sysconfdir \"${sysconfdir}\""  >> $@
+	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> $@
+	@echo "#define Makefile__localedir  \"${localedir}\""   >> $@
+	@echo                                                   >> $@
 
