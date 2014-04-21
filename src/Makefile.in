@@ -207,7 +207,7 @@ CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CXX_RDYNAMIC = @CXX_RDYNAMIC@
 CYGPATH_W = @CYGPATH_W@
-DEFS = -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @DEFS@
+DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -379,6 +379,7 @@ LibPaths.cc				LibPaths.hh		\
 Logging.cc	    Logging.def		Logging.hh		\
 LvalCell.cc				LvalCell.hh		\
 main.cc					main.hh			\
+					makefile.h		\
 Malloc_hooks.cc							\
 Nabla.cc				Nabla.hh		\
 NamedObject.cc				NamedObject.hh		\
@@ -430,7 +431,6 @@ ValueHistory.cc				ValueHistory.hh		\
 Workspace.cc				Workspace.hh
 
 apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) \
-		-DSYSCONFDIR=\"$(sysconfdir)\"  \
 		$(OPENMP)
 
 apl_LDADD = $(LIBS) $(LIBREADLINE)
@@ -2006,6 +2006,14 @@ test2: all
 
 perf: apl
 	./apl --id 1010 --TM 3 -T testcases/Performance.pt
+
+makefile.h: Makefile
+	@echo "// some strings exported from Makefile"           > $@
+	@echo "//"                                              >> $@
+	@echo "#define Makefile__sysconfdir \"${sysconfdir}\""  >> $@
+	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> $@
+	@echo "#define Makefile__localedir  \"${localedir}\""   >> $@
+	@echo                                                   >> $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

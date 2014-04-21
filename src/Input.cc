@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <string.h>
 #include <unistd.h>
 
 #include "Command.hh"
@@ -103,7 +104,7 @@ Input::init(bool read_history)
 {
    if (use_readline)
       {
-        readline_lib::rl_readline_name = "GnuAPL";
+        readline_lib::rl_readline_name = strdup("GnuAPL");
         readline_lib::rl_initialize();
         if (read_history)
            {

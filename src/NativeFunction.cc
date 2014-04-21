@@ -25,6 +25,7 @@
 #include <unistd.h>
 
 #include "Error.hh"
+#include "makefile.h"
 #include "NativeFunction.hh"
 #include "Symbol.hh"
 #include "Workspace.hh"
@@ -215,13 +216,13 @@ UCS_string & t4 = Workspace::more_error();
         return;
       }
 
-   // otherwise try PKGLIBDIR . /usr/lib/apl and /usr/local/lib/apl,
+   // otherwise try Makefile__pkglibdir . /usr/lib/apl and /usr/local/lib/apl,
    // avoiding duplicates
    //
 UTF8_string utf_so_path(so_path);
 const char * dirs[] =
 {
-  PKGLIBDIR,              // the normal case
+  Makefile__pkglibdir,    // the normal case
   "/usr/lib/apl",
   "/usr/local/lib/apl",
   ".",
@@ -229,11 +230,11 @@ const char * dirs[] =
   "./emacs_mode",         // if make install was not performed
 };
 
-   // most likely PKGLIBDIR is either /usr/lib/apl or /usr/local/lib/apl.
+   // most likely Makefile__pkglibdir is /usr/lib/apl or /usr/local/lib/apl.
    // don't try them twice.
    //
-   if (!strcmp(PKGLIBDIR, dirs[1]))   dirs[1] = 0;
-   if (!strcmp(PKGLIBDIR, dirs[2]))   dirs[2] = 0;
+   if (!strcmp(Makefile__pkglibdir, dirs[1]))   dirs[1] = 0;
+   if (!strcmp(Makefile__pkglibdir, dirs[2]))   dirs[2] = 0;
 
    loop(d, sizeof(dirs) / sizeof(*dirs))
        {

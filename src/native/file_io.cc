@@ -89,100 +89,113 @@ do_printf(FILE * out, Value_P A)
    // format string, followed by the values for each % field. Result is the
    // number of characters (not bytes!) printed.
    //
-int out_len = 0;
-int a = 0;   // index into A
-Value_P format = A->get_ravel(a++).get_pointer_value();
+int out_len = 0;   // the length of the output produced by all fprintf/fwrite
+int a = 0;         // index into A (the next argument to be printed).
+const Value & format = *A->get_ravel(a++).get_pointer_value();
 
-   for (int f = 0; f < format->element_count(); /* no f++ */ )
+   for (int f = 0; f < format.element_count(); /* no f++ */ )
        {
-         const Unicode uni = format->get_ravel(f++).get_char_value();
+         const Unicode uni = format.get_ravel(f++).get_char_value();
          if (uni != UNI_ASCII_PERCENT)   // not %
             {
               UCS_string ucs(uni);
               UTF8_string utf(ucs);
               fwrite(utf.c_str(), 1, utf.size(), out);
-              out_len++;
+              out_len++;   // count 1 char
               continue;
             }
 
-         // % seen. copy field to fmt and fprintf it with the next argument
+         // % seen. copy the field in format to fmt and fprintf it with
+         // the next argument. That is for format = eg. "...%42.42llf..."
+         // we want fmt to be "%42.42llf"
          //
          char fmt[40];
-         int fm = 0;   // an index into fmt;
-         fmt[fm++] = '%';
-         for (; fm < (sizeof(fmt) - 1); fm)
+         int fm = 0;        // an index into fmt;
+         fmt[fm++] = '%';   // copy the '%'
+         for (;;)
              {
-               if (f >= format->element_count())
+               if (f >= format.element_count())
                   {
-                    // end of format reached without seeing the format char.
-                    // we print the string and are done.
+                    // end of format string reached without seeing the
+                    // format char. We print the string and are done.
+                    // (This was a mal-formed format string from the user)
                     //
                     fwrite(fmt, 1, fm, out);
                     out_len += fm;
-                    break;
+                    goto printf_done;
                   }
-               else
+
+               if (fm >= sizeof(fmt))
                   {
-                    const Unicode un1 = format->get_ravel(f++).get_char_value();
-                    switch(un1)
-                       {
-                         // flag chars and field width/precision
-                         //
-                         case '#':
-                         case '0' ... '9':
-                         case '-':
-                         case ' ':
-                         case '+':
-                         case '\'':   // SUSE
-                         case 'I':    // glibc
-                         case '.':
+                    // end of fmt reached without seeing the format char.
+                    // We print the string and are done.
+                    // (This may or may not be a mal-formed format string
+                    // from the user; we assume it is)
+                    //
+                    fwrite(fmt, 1, fm, out);
+                    out_len += fm;
+                    goto field_done;
+                  }
 
-                         // length modifiers
-                         //
-                         case 'h':
-                         case 'l':
-                         case 'L':
-                         case 'q':
-                         case 'j':
-                         case 'z':
-                         case 't': fmt[fm++] = un1;   fmt[fm] = 0;
-                                   continue;
+               const Unicode un1 = format.get_ravel(f++).get_char_value();
+               switch(un1)
+                  {
+                     // flag chars and field width/precision
+                     //
+                     case '#':
+                     case '0' ... '9':
+                     case '-':
+                     case ' ':
+                     case '+':
+                     case '\'':   // SUSE
+                     case 'I':    // glibc
+                     case '.':
 
-                         // conversion specifier
-                         //
-                         case 'd':   case 'i':   case 'o':
-                         case 'u':   case 'x':   case 'X':   case 'p':
-                              {
-                                const Cell & cell = A->get_ravel(a++);
-                                APL_Integer iv;
-                                if (cell.is_integer_cell())
-                                   {
-                                     iv = cell.get_int_value();
-                                   }
-                                else 
-                                   {
-                                     const APL_Float fv = cell.get_real_value();
-                                     if (fv < 0)   iv = -int(-fv);
-                                     else          iv = int(fv);
-                                   }
-                                fmt[fm++] = un1;   fmt[fm] = 0;
-                                out_len += fprintf(out, fmt, iv);
-                              }
-                              goto field_done;
+                     // length modifiers
+                     //
+                     case 'h':
+                     case 'l':
+                     case 'L':
+                     case 'q':
+                     case 'j':
+                     case 'z':
+                     case 't': fmt[fm++] = un1;   fmt[fm] = 0;
+                               continue;
 
-                         case 'e':   case 'E':   case 'f':   case 'F':
-                         case 'g':   case 'G':   case 'a':   case 'A':
-                              {
-                                const APL_Float fv =
+                         // conversion specifiers
+                         //
+                     case 'd':   case 'i':   case 'o':
+                     case 'u':   case 'x':   case 'X':   case 'p':
+                          {
+                            const Cell & cell = A->get_ravel(a++);
+                            APL_Integer iv;
+                            if (cell.is_integer_cell())
+                               {
+                                 iv = cell.get_int_value();
+                               }
+                            else 
+                               {
+                                 const APL_Float fv = cell.get_real_value();
+                                 if (fv < 0)   iv = -int(-fv);
+                                 else          iv = int(fv);
+                               }
+                            fmt[fm++] = un1;   fmt[fm] = 0;
+                            out_len += fprintf(out, fmt, iv);
+                          }
+                          goto field_done;
+
+                     case 'e':   case 'E':   case 'f':   case 'F':
+                     case 'g':   case 'G':   case 'a':   case 'A':
+                          {
+                            const APL_Float fv =
                                             A->get_ravel(a++).get_real_value();
-                                fmt[fm++] = un1;   fmt[fm] = 0;
-                                out_len += fprintf(out, fmt, fv);
-                              }
-                              goto field_done;
+                            fmt[fm++] = un1;   fmt[fm] = 0;
+                            out_len += fprintf(out, fmt, fv);
+                          }
+                          goto field_done;
 
-                         case 's':   // string or char
-                              if (A->get_ravel(a).is_character_cell())
-                                 goto cval;
+                     case 's':   // string or char
+                          if (A->get_ravel(a).is_character_cell())   goto cval;
                               {
                                 Value_P str =
                                         A->get_ravel(a++).get_pointer_value();
@@ -191,55 +204,54 @@ Value_P format = A->get_ravel(a++).get_pointer_value();
                                 fwrite(utf.c_str(), 1, utf.size(), out); 
                                 out_len += ucs.size();   // not utf.size() !
                               }
-                              goto field_done;
+                          goto field_done;
 
-                         case 'c':   // single char
-                         cval:
-                              {
-                                const Unicode cv =
+                     case 'c':   // single char
+                     cval:
+                          {
+                            const Unicode cv =
                                             A->get_ravel(a++).get_char_value();
-                                UCS_string ucs(cv);
-                                UTF8_string utf(ucs);
-                                fwrite(utf.c_str(), 1, utf.size(), out); 
-                                ++out_len;
-                              }
-                              goto field_done;
+                            UCS_string ucs(cv);
+                            UTF8_string utf(ucs);
+                            fwrite(utf.c_str(), 1, utf.size(), out); 
+                            ++out_len;
+                          }
+                          goto field_done;
 
-                         case 'n':
-                              out_len += fprintf(out, "%d", out_len);
-                              goto field_done;
+                     case 'n':
+                          out_len += fprintf(out, "%d", out_len);
+                          goto field_done;
 
-                         case 'm':
-                              out_len += fprintf(out, "%s", strerror(errno));
-                              goto field_done;
+                     case 'm':
+                          out_len += fprintf(out, "%s", strerror(errno));
+                          goto field_done;
 
 
-                         case '%':
-                              if (fm == 0)   // %% is %
-                                 {
-                                   fputc('%', out);
-                                   ++out_len;
-                                   goto field_done;
-                                 }
-                              /* no break */
-
-                         default:
+                     case '%':
+                          if (fm == 0)   // %% is %
                              {
-                               UCS_string & t4 = Workspace::more_error();
-                               t4.clear();
-                               t4.append_utf8("invalid format character ");
-                               t4.append(un1, LOC);
-                               t4.append_utf8(" in function 22 (aka. printf())"
-                                              " in module file_io:: ");
-                               DOMAIN_ERROR;   // bad format char
+                               fputc('%', out);
+                               ++out_len;
+                               goto field_done;
                              }
-                       }
+                          /* no break */
+
+                     default:
+                        {
+                          UCS_string & t4 = Workspace::more_error();
+                          t4.clear();
+                          t4.append_utf8("invalid format character ");
+                          t4.append(un1, LOC);
+                          t4.append_utf8(" in function 22 (aka. printf())"
+                                         " in module file_io:: ");
+                          DOMAIN_ERROR;   // bad format char
+                        }
                   }
              }
          field_done: ;
        }
 
-   
+printf_done:
 
 Value_P Z(new Value(LOC));   // skalar result
    new (Z->next_ravel())   IntCell(out_len);
