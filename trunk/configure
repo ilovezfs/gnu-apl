@@ -17355,32 +17355,19 @@ $as_echo "#define HAVE_DCGETTEXT 1" >>confdefs.h
 
 
 
-# check if compiler knows -rdynamic
+# check if compiler knows -rdynamic. Some compilers accept it but issue a
+# warning if it is used. We therefore check explicitly if the compiler is g++
+# rather than testing if the compiler accepts -rdynamic
 #
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX accepts -rdynamic" >&5
-$as_echo_n "checking whether $CXX accepts -rdynamic... " >&6; }
-apl_save_CXXFLAGS=$CXXFLAGS
-CXXFLAGS="-rdynamic"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether compiler is g++ (and then honors -rdynamic)" >&5
+$as_echo_n "checking whether compiler is g++ (and then honors -rdynamic)... " >&6; }
+if test "x$CXX" = "xg++"; then
+   CAN_rdynamic=yes
+   CXX_RDYNAMIC="-rdynamic"
 
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  CAN_rdynamic=yes
 else
-  CAN_rdynamic=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-CXXFLAGS=$apl_save_CXXFLAGS
-if test "x$CAN_rdynamic" = "xyes"; then
-CXX_RDYNAMIC="-rdynamic"
+   CAN_rdynamic=no
+   CXX_RDYNAMIC=""
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CAN_rdynamic" >&5

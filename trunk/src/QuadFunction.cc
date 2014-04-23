@@ -261,6 +261,7 @@ PrintStyle style;
                  break;
 
         case  5: style = PR_HEX;              break;
+        case -13:
         case  6: style = PR_hex;              break;
         case  7: style = PR_BOXED_GRAPHIC1;   break;
         case  9: style = PR_BOXED_GRAPHIC2;   break;

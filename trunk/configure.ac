@@ -24,16 +24,17 @@ AC_GNU_SOURCE
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 
-# check if compiler knows -rdynamic
+# check if compiler knows -rdynamic. Some compilers accept it but issue a
+# warning if it is used. We therefore check explicitly if the compiler is g++
+# rather than testing if the compiler accepts -rdynamic
 #
-AC_MSG_CHECKING([whether $CXX accepts -rdynamic])
-apl_save_CXXFLAGS=$CXXFLAGS
-CXXFLAGS="-rdynamic"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], 
- [CAN_rdynamic=yes], [CAN_rdynamic=no])
-CXXFLAGS=$apl_save_CXXFLAGS
-if test "x$CAN_rdynamic" = "xyes"; then
-AC_SUBST([CXX_RDYNAMIC], ["-rdynamic"])
+AC_MSG_CHECKING([whether compiler is g++ (and then honors -rdynamic)])
+if test "x$CXX" = "xg++"; then
+   CAN_rdynamic=yes
+   AC_SUBST([CXX_RDYNAMIC], ["-rdynamic"])
+else
+   CAN_rdynamic=no
+   AC_SUBST([CXX_RDYNAMIC], [""])
 fi
 AC_MSG_RESULT([$CAN_rdynamic])
 
