@@ -58,6 +58,9 @@ struct UserPreferences
       stdin_line_no(1)
    {}
 
+   /// read a preference file and update parameters set there
+   void read_config_file(bool sys, bool log_startup);
+
    /// print possible command line options and exit
    static void usage(const char * prog);
 
