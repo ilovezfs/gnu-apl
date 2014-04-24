@@ -107,6 +107,60 @@ DOMAIN ERROR
       ^      ^
       →
 
+      ⍝ base64 encoding (see RFC 4648)
+      ⍝
+      16 ⎕CR 13 ⎕CR '14fb9c03d97e'
+FPucA9l+
+
+      16 ⎕CR 13 ⎕CR '14fb9c03d9'
+FPucA9k=
+
+      16 ⎕CR 13 ⎕CR '14fb9c03'
+FPucAw==
+
+
+      16 ⎕CR ''
+
+      16 ⎕CR 'f'
+Zg==
+
+      16 ⎕CR 'fo'
+Zm8=
+
+      16 ⎕CR 'foo'
+Zm9v
+
+      16 ⎕CR 'foob'
+Zm9vYg==
+
+      16 ⎕CR 'fooba'
+Zm9vYmE=
+
+      16 ⎕CR 'foobar'
+Zm9vYmFy
+
+
+      ¯16 ⎕CR 16 ⎕CR 'foobar'
+foobar
+
+      ¯16 ⎕CR 16 ⎕CR 'fooba'
+fooba
+
+      ¯16 ⎕CR 16 ⎕CR 'foob'
+foob
+
+      ¯16 ⎕CR 16 ⎕CR 'foo'
+foo
+
+      ¯16 ⎕CR 16 ⎕CR 'fo'
+fo
+
+      ¯16 ⎕CR 16 ⎕CR 'f'
+f
+
+      ¯16 ⎕CR 16 ⎕CR ''
+
+
 ⍝ ==================================
 
 

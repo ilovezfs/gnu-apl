@@ -159,6 +159,8 @@ Workspace::immediate_execution(bool exit_on_error)
 NamedObject *
 Workspace::lookup_existing_name(const UCS_string & name)
 {
+   if (name.size() == 0)   return 0;
+
    if (Avec::is_quad(name[0]))   // distinguished name
       {
         int len;

@@ -44,7 +44,8 @@ Copyright (C) 2013 Free Software Foundation, Inc.-->
 <ul>
 <li><a href="#Chapter-2">2.1.1 redirect the script file the stdin of the GNU APL interpreter</a>
 <li><a href="#Chapter-2">2.1.2 make the script file executable</a>
-<li><a href="#Chapter-2">2.1.3 Script Example</a>
+<li><a href="#Chapter-2">2.1.3 Helpful features for scripting</a>
+<li><a href="#Chapter-2">2.1.4 Script Example</a>
 </li></ul>
 <li><a href="#Chapter-2">2.2 ⎕SYL - System limits</a>
 <li><a href="#Chapter-2">2.3 Dyadic ⎕CR</a>
@@ -504,7 +505,7 @@ current directory (i.e. ".") is used and converted to an absolute path.
    <p>./wslib2/test.xml
 
    <p>Using a library root implies that all 10 library directories are contained
-in the same directory. This is good enough for single-user environments
+in the same directory. This is good enough for single-user environments but
 is often not adequate for multi-user environments where some directories
 are not writable by users and different users have different home directories.
 
@@ -530,11 +531,14 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <h3 class="section">2.1 APL Scripting</h3>
 
-<p>as already mentioned, it is possible to write APL scripts. Like for other
+<p>As already mentioned, it is possible to write APL scripts. Like for other
 script languages, the script starts with <samp><span class="option">#!</span></samp>, followed by the
 absolute or relative path to the interpreter, followed by command line
 arguments passed on to the interpreter. In our case this could be, for
 example:
+
+<pre class="verbatim">    #! /bin/apl --id 1010
+</pre>
 
    <p>There are essentially two ways to run an APL script: redirecting the script
 file to stdin of the interpreter or making the script executable and indicate
@@ -579,7 +583,9 @@ echoing of stdin to stdout, automatic loading of a )CONTINUE workspaces,
 do not know in advance where the APL interpreter will be installed) then
 it must be in $PATH of the shell that runs the script).
 
-   <p>In order to be really useful for scripting, two more features have been added:
+<h4 class="subsection">2.1.3 Helpful features for scripting</h4>
+
+<p>In order to be really useful for scripting, three more features have been added:
 
    <p>The system variable ⎕ARG contains all command line arguments passed to the
 interpreter. In the first example above this would be a nested 3-element
@@ -639,7 +645,7 @@ END-OF-⎕INP
 
    <p>These features together allow you to write Web pages in APL!
 
-<h4 class="subsection">2.1.3 Script Example</h4>
+<h4 class="subsection">2.1.4 Script Example</h4>
 
 <p>Note that the two different ways of running an APL script have an impact on
 how ⎕ARG looks like. If stdin is redirected then there is only one (possibly
@@ -690,8 +696,9 @@ is not indented.
 
 </pre>
 
-   <p>The <samp><span class="option">script</span></samp> implies <samp><span class="option">--noCIN</span></samp> so that the
-input lines for the interpreter are no longer echoed to the output. 
+   <p>The <samp><span class="option">--script</span></samp> implies <samp><span class="option">--noCIN</span></samp> so that the
+
+   <p>input lines for the interpreter are no longer echoed to the output. 
 That is most likely what you want when writing a script.
 
    <p>Also, the first line of the script is no longer ignored as a comment,
@@ -791,7 +798,7 @@ current value, is rejected with a DOMAIN ERROR.
 formatting style and conversions in addition to the well-known monadic form.
 
    <p>Say a <b>byte vector</b> is a character vector with each character having an
-8-bit value (i.e. a value from -127 to 255 inclusive). Let Z←A ⎕CR B.
+8-bit value (i.e. a value from -128 to 255 inclusive). Let Z←A ⎕CR B.
 
    <p>Then the left argument A of ⎕CR selects one of the following:
 
@@ -818,8 +825,20 @@ CDR format)
    <p>A=15: conversion 13 followed by conversion 12 (hex string in CDR format
 to Value)
 
-   <p>Conversions 14 and 15 can be used, for example, to store APL values as ASCII
+   <p>A=16: encode byte vector B into Z (base64 encoding RFC 4648)
+
+   <p>A=17: decode base64 vector B into byte vector Z (base64 encoding RFC 4648)
+
+   <p>Conversions 14 to 17 can be used, for example, to store APL values as ASCII
 texts in databases.
+
+   <p>For byte vector arguments, a DOMAIN ERROR is thrown if a ravel item is not
+a character. It is, however not checked (for performance reasons) that the
+value of the character is in the range -128 to 255. Instead the low byte
+of the value is taken. This is OK for ASCII strings but does not work for
+general APL text vectors. Those need to be translated to bytes first and can
+then be used as input for e.g. byte vector → hex or byte vector → base64
+conversions.
 
 <h3 class="section">2.4 Debug Commands</h3>
 
@@ -874,7 +893,7 @@ turned ON or OFF.
 <p>By default the logging facilities that shall be turned ON are defined
 statically. To change the logging facilities that shall be turned ON,
 you can edit the file src/Logging.def which defines the different logging
-facilities. The first argument if macro log_def() tells if the logging
+facilities. The first argument of macro log_def() tells if the logging
 facility shall be ON (1) or OFF (0).
 
    <p>Static logging results in a faster interpreter than dynamic logging because
@@ -981,14 +1000,14 @@ limited form.
    <p>creates a named lambda. body_statement can contain variable names ⍺ and ⍵
 as well as function names ⍶ and ⍹ which are replaced by the actual arguments
 of the lambda. If both ⍺ and ⍵ are present in body_statement then the lambda
-is dyadic. If only ⍹ is present then it is monadic, and if neither ⍺ nor ⍵ is
+is dyadic. If only ⍵ is present then it is monadic, and if neither ⍺ nor ⍵ is
 present then the lambda is niladic.
 
    <p>Likewise, if ⍶ and ⍹ are present then the lambda is a dyadic operator. If only
  ⍹ is present then it is a monadic operator, and if neither ⍶ nor ⍹ is present
 then the lambda is a normal function.
 
-   <p>The way how a named lambda is implemented in GNU APL is that the statement
+   <p>The way a named lambda is implemented in GNU APL is that the statement
 
 <pre class="verbatim">      FUN ← { body_statement }
 </pre>
