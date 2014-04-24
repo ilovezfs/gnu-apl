@@ -478,7 +478,7 @@ will try to load the workspace file
 ./wslib2/test.xml
 
 Using a library root implies that all 10 library directories are contained
-in the same directory. This is good enough for single-user environments 
+in the same directory. This is good enough for single-user environments but
 is often not adequate for multi-user environments where some directories
 are not writable by users and different users have different home directories.
 
@@ -496,11 +496,15 @@ There are a few possibly useful features in GNU APL:
 
 @section APL Scripting
 
-as already mentioned, it is possible to write APL scripts. Like for other
+As already mentioned, it is possible to write APL scripts. Like for other
 script languages, the script starts with @option{#!}, followed by the
 absolute or relative path to the interpreter, followed by command line
 arguments passed on to the interpreter. In our case this could be, for
 example:
+
+@verbatim
+    #! /bin/apl --id 1010
+@end verbatim
 
 There are essentially two ways to run an APL script: redirecting the script
 file to stdin of the interpreter or making the script executable and indicate
@@ -549,7 +553,9 @@ If the path to the interpreter is relative (which might be useful if you
 do not know in advance where the APL interpreter will be installed) then
 it must be in $PATH of the shell that runs the script).
 
-In order to be really useful for scripting, two more features have been added:
+@subsection Helpful features for scripting
+
+In order to be really useful for scripting, three more features have been added:
 
 The system variable ⎕ARG contains all command line arguments passed to the
 interpreter. In the first example above this would be a nested 3-element
@@ -668,7 +674,8 @@ Then we get:
 
 @end verbatim
 
-The @option{script} implies @option{--noCIN} so that the
+The @option{--script} implies @option{--noCIN} so that the
+
 input lines for the interpreter are no longer echoed to the output.
 That is most likely what you want when writing a script.
 
@@ -773,7 +780,7 @@ The ⎕CR function has an optional left argument that selects one of several
 formatting style and conversions in addition to the well-known monadic form.
 
 Say a @b{byte vector} is a character vector with each character having an
-8-bit value (i.e. a value from -127 to 255 inclusive). Let Z←A ⎕CR B.
+8-bit value (i.e. a value from -128 to 255 inclusive). Let Z←A ⎕CR B.
 
 Then the left argument A of ⎕CR selects one of the following:
 
@@ -800,8 +807,20 @@ CDR format)
 A=15: conversion 13 followed by conversion 12 (hex string in CDR format
 to Value)
 
-Conversions 14 and 15 can be used, for example, to store APL values as ASCII
+A=16: encode byte vector B into Z (base64 encoding RFC 4648)
+
+A=17: decode base64 vector B into byte vector Z (base64 encoding RFC 4648)
+
+Conversions 14 to 17 can be used, for example, to store APL values as ASCII
 texts in databases.
+
+For byte vector arguments, a DOMAIN ERROR is thrown if a ravel item is not
+a character. It is, however not checked (for performance reasons) that the
+value of the character is in the range -128 to 255. Instead the low byte
+of the value is taken. This is OK for ASCII strings but does not work for
+general APL text vectors. Those need to be translated to bytes first and can
+then be used as input for e.g. byte vector → hex or byte vector → base64
+conversions.
 
 @section Debug Commands
 
@@ -857,7 +876,7 @@ turned ON or OFF.
 By default the logging facilities that shall be turned ON are defined
 statically. To change the logging facilities that shall be turned ON,
 you can edit the file src/Logging.def which defines the different logging
-facilities. The first argument if macro log_def() tells if the logging
+facilities. The first argument of macro log_def() tells if the logging
 facility shall be ON (1) or OFF (0).
 
 Static logging results in a faster interpreter than dynamic logging because
@@ -966,14 +985,14 @@ A statement of the form
 creates a named lambda. body_statement can contain variable names ⍺ and ⍵
 as well as function names ⍶ and ⍹ which are replaced by the actual arguments
 of the lambda. If both ⍺ and ⍵ are present in body_statement then the lambda
-is dyadic. If only ⍹ is present then it is monadic, and if neither ⍺ nor ⍵ is
+is dyadic. If only ⍵ is present then it is monadic, and if neither ⍺ nor ⍵ is
 present then the lambda is niladic.
 
 Likewise, if ⍶ and ⍹ are present then the lambda is a dyadic operator. If only
  ⍹ is present then it is a monadic operator, and if neither ⍶ nor ⍹ is present
 then the lambda is a normal function.
 
-The way how a named lambda is implemented in GNU APL is that the statement
+The way a named lambda is implemented in GNU APL is that the statement
 
 @verbatim
       FUN ← { body_statement }

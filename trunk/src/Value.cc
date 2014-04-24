@@ -782,8 +782,9 @@ Value::is_char_vector() const
 {
    if (get_rank() != 1)   return false;
 
-   loop(c, get_shape_item(0))
-      if (!get_ravel(c).is_character_cell())   return false;
+const Cell * C = &get_ravel(0);
+   loop(c, nz_element_count())   // also check prototype
+      if (!C++->is_character_cell())   return false;   // not char
    return true;
 }
 //-----------------------------------------------------------------------------

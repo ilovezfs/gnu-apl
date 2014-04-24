@@ -127,9 +127,32 @@ nibble(Unicode uni)
 {
    switch(uni)
       {
-        case UNI_ASCII_0 ... UNI_ASCII_9:   return      uni - UNI_ASCII_0;
-        case UNI_ASCII_A ... UNI_ASCII_F:   return 10 + uni - UNI_ASCII_A;
-        case UNI_ASCII_a ... UNI_ASCII_f:   return 10 + uni - UNI_ASCII_a;
+        case UNI_ASCII_0 ... UNI_ASCII_9:   return      (uni - UNI_ASCII_0);
+        case UNI_ASCII_A ... UNI_ASCII_F:   return 10 + (uni - UNI_ASCII_A);
+        case UNI_ASCII_a ... UNI_ASCII_f:   return 10 + (uni - UNI_ASCII_a);
+        default: break;
+      }
+
+   return -1;   // uni is not a hex digit
+}
+//-----------------------------------------------------------------------------
+int
+sixbit(Unicode uni)
+{
+   switch(uni)
+      {
+        case UNI_ASCII_A ... UNI_ASCII_Z:   return      (uni - UNI_ASCII_A);
+        case UNI_ASCII_a ... UNI_ASCII_z:   return 26 + (uni - UNI_ASCII_a);
+        case UNI_ASCII_0 ... UNI_ASCII_9:   return 52 + (uni - UNI_ASCII_0);
+
+        case UNI_ASCII_PLUS:                             // standard    62
+        case UNI_ASCII_MINUS:               return 62;   // alternative 62
+
+        case UNI_ASCII_SLASH:                            // standard    63
+        case UNI_ASCII_UNDERSCORE:          return 63;   // alternative 63
+
+        case UNI_ASCII_EQUAL:               return 64;   // fill character
+
         default: break;
       }
 

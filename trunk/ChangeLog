@@ -80,3 +80,4 @@
  6096 GNU APL 1.3 release
  6403 more ⎕CR conversions
  6421 new check for -rdynamic
+ 6431 base64 encoding and decoding of byte vectors
