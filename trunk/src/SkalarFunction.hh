@@ -24,7 +24,7 @@
 #include <semaphore.h>
 
 #include "PrimitiveFunction.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Id.hh"
 
 typedef ErrorCode (Cell::*prim_f1)(Cell *) const;

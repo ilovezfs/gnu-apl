@@ -22,7 +22,7 @@
 #include "Common.hh"
 #include "DynamicObject.hh"
 #include "PrintOperator.hh"
-#include "Value.hh"   // so that casting to Value * works
+#include "Value.icc"   // so that casting to Value * works
 
 //-----------------------------------------------------------------------------
 ostream &

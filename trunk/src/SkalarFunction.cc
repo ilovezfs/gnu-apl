@@ -18,18 +18,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SkalarFunction.hh"
-#include "Value.hh"
-#include "Workspace.hh"
 #include "ArrayIterator.hh"
-#include "IndexIterator.hh"
-#include "IndexExpr.hh"
 #include "Avec.hh"
 #include "CharCell.hh"
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
+#include "IndexExpr.hh"
+#include "IndexIterator.hh"
 #include "IntCell.hh"
 #include "PointerCell.hh"
+#include "SkalarFunction.hh"
+#include "Value.icc"
+#include "Workspace.hh"
 
 Bif_F2_LESS       Bif_F2_LESS::fun;
 Bif_F2_EQUAL      Bif_F2_EQUAL::fun;
@@ -156,10 +156,10 @@ const Shape * shape_Z = &B->get_shape();
 const ShapeItem len_Z = shape_Z->get_volume();
    if (len_Z == 0)   return eval_fill_AB(A, B);
 
-   if (inc_A && inc_B && !A->same_shape(B))
+   if (inc_A && inc_B && !A->same_shape(*B))
        {
-         if (!A->same_rank(B))   RANK_ERROR;
-         else                    LENGTH_ERROR;
+         if (!A->same_rank(*B))   RANK_ERROR;
+         else                     LENGTH_ERROR;
        }
 
 Value_P Z(new Value(*shape_Z, LOC));
@@ -203,10 +203,10 @@ Probe::P_1.start();
                      else if (B1->is_skalar())   shape_Z1 = &A1->get_shape();
                      else if (inc_B1 == 0)       shape_Z1 = &A1->get_shape();
 
-                     if (inc_A1 && inc_B1 && !A1->same_shape(B1))
+                     if (inc_A1 && inc_B1 && !A1->same_shape(*B1))
                         {
-                          if (!A1->same_rank(B1))   RANK_ERROR;
-                          else                      LENGTH_ERROR;
+                          if (!A1->same_rank(*B1))   RANK_ERROR;
+                          else                       LENGTH_ERROR;
                         }
 
                      const ShapeItem len_Z1 = shape_Z1->get_volume();
@@ -315,7 +315,7 @@ SkalarFunction::eval_fill_AB(Value_P A, Value_P B)
 
    // both A and B are empty
    //
-   Assert(A->same_shape(B));   // has been checked already
+   Assert(A->same_shape(*B));   // has been checked already
 Value_P Z = B->clone(LOC);
    Z->to_proto();
    Z->check_value(LOC);

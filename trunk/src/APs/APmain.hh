@@ -50,11 +50,15 @@ extern void print_vars(ostream & out);
 extern vector<Coupled_var> coupled_vars;
 
 //-----------------------------------------------------------------------------
+#ifndef __ERRORCODE_HH_DEFINED__
 enum APL_error_code
 {
 #define err_def(c, t, maj, min) E_ ## c = (maj) << 16 | (min),
 #include "../Error.def"
 };
+#else
+#define APL_error_code ErrorCode
+#endif
 
 /// send GOT_EVENT to the event_port (if non-zero)
 extern void got_event(uint32_t event, SV_key key);

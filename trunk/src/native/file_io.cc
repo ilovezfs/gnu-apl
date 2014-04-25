@@ -19,9 +19,11 @@
 */
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 
 #include "../Native_interface.hh"
@@ -338,6 +340,7 @@ list_functions(ostream & out)
 "   Zh ←    FUN[24] Bs    popen(Bs, \"r\") command Bs\n"
 "\n"
 "   Ze ←    FUN[25] Bh    pclose(Bh)\n"
+"   Zs ←    FUN[26] Bs    return entire file Bs as byte vector\n"
 "\n";
 
    return Token(TOK_APL_VALUE1, Value::Str0_P);
@@ -648,6 +651,35 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (err == -1)   goto out_errno;   // pclose() failed
                 Value_P Z(new Value(LOC));
                 new (&Z->get_ravel(0))   IntCell(err);
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 26:   // read entire file
+              {
+                errno = 0;
+                UTF8_string path(*B.get());
+                int fd = open(path.c_str(), O_RDONLY);
+                if (fd == -1)   goto out_errno;
+
+                struct stat st;
+                if (fstat(fd, &st))
+                   {
+                     close(fd);
+                     goto out_errno;
+                   }
+
+                ShapeItem len = st.st_size;
+                unsigned char * data = (unsigned char *)mmap(0, len, PROT_READ,
+                                MAP_SHARED, fd, 0);
+                close(fd);
+                if (data == 0)   goto out_errno;
+
+                Value_P Z(new Value(len, LOC));
+                loop(z, len)   new (Z->next_ravel()) CharCell((Unicode)data[z]);
+                munmap((char *)data, len);
+
+                Z->set_default(*Value::Spc_P);
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }

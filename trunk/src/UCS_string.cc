@@ -28,7 +28,7 @@
 #include "PrintOperator.hh"
 #include "UCS_string.hh"
 #include "UTF8_string.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 //-----------------------------------------------------------------------------
 UCS_string::UCS_string(const char * cstring)

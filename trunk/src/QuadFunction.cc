@@ -35,7 +35,7 @@
 #include "QuadFunction.hh"
 #include "Tokenizer.hh"
 #include "UserFunction.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
 
 extern char **environ;

@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include "../Value.icc"
 #include "../Native_interface.hh"
 
 class NativeFunction;

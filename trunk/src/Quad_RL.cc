@@ -21,7 +21,7 @@
 #include <stdlib.h>
 
 #include "Quad_RL.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "IntCell.hh"
 
 //=============================================================================

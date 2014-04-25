@@ -95,7 +95,7 @@ UdpSocket.cc				UdpSocket.hh		\
 UserFunction.cc				UserFunction.hh		\
 UserPreferences.cc			UserPreferences.hh	\
 UTF8_string.cc				UTF8_string.hh		\
-Value.cc				Value.hh		\
+Value.cc		Value.icc	Value.hh		\
 ValueHistory.cc				ValueHistory.hh		\
 Workspace.cc				Workspace.hh
 

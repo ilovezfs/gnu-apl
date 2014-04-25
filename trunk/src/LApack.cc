@@ -24,7 +24,7 @@
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "Output.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 using namespace std;
 

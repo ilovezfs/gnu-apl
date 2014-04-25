@@ -26,7 +26,7 @@
 #include "PointerCell.hh"
 #include "PrintBuffer.hh"
 #include "PrintOperator.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 //-----------------------------------------------------------------------------
 PrintBuffer::PrintBuffer()

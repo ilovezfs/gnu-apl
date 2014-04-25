@@ -27,7 +27,7 @@
 #include "NamedObject.hh"
 #include "Parser.hh"
 #include "PrintBuffer.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 class Workspace;
 class UserFunction;

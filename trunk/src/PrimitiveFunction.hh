@@ -23,7 +23,7 @@
 
 #include "Common.hh"
 #include "Function.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Id.hh"
 
 class ArrayIterator;

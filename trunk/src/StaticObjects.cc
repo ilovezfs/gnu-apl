@@ -19,7 +19,7 @@
 */
 
 #include "Id.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
 
 /**

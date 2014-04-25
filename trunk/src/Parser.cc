@@ -32,7 +32,7 @@
 #include "Symbol.hh"
 #include "SystemLimits.hh"
 #include "SystemVariable.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Tokenizer.hh"
 #include "Workspace.hh"
 

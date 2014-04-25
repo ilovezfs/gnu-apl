@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-#include "Value.hh"
+#include "Value.icc"
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"

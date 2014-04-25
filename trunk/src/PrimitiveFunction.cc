@@ -39,7 +39,7 @@
 #include "PrintOperator.hh"
 #include "StateIndicator.hh"
 #include "UserFunction.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
                                             
 Bif_F0_ZILDE      Bif_F0_ZILDE::fun;         // ⍬
@@ -2395,7 +2395,7 @@ const APL_Float qct = Workspace::get_CT();
 const ShapeItem count = A->nz_element_count();  // compare at least the prototype
 bool different = false;
 
-   if (!A->same_shape(B))
+   if (!A->same_shape(*B))
       {
         different = true;
         goto done;

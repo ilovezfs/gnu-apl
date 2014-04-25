@@ -34,7 +34,7 @@
 #include "SystemVariable.hh"
 #include "TestFiles.hh"
 #include "UCS_string.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "ValueHistory.hh"
 #include "Workspace.hh"
 

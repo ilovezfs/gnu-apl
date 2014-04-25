@@ -23,7 +23,7 @@
 #include <math.h>
 
 #include "Workspace.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Error.hh"
 #include "ComplexCell.hh"
 #include "FloatCell.hh"

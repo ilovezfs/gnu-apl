@@ -1,0 +1,144 @@
+/*
+    This file is part of GNU APL, a free implementation of the
+    ISO/IEC Standard 13751, "Programming Language APL, Extended"
+
+    Copyright (C) 2014  Dr. Jürgen Sauermann
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef __VALUE_ICC_DEFINED__
+#define __VALUE_ICC_DEFINED__
+
+#include "Value.hh"
+
+//-----------------------------------------------------------------------------
+inline int
+get_owner_count(const Value * v)
+{
+   return  v ? v->owner_count : -99;
+}
+//-----------------------------------------------------------------------------
+inline void
+increment_owner_count(Value * v, const char * loc)
+{
+   Assert1(v);
+   if (v->check_ptr == ((const char *)v + 7))   ++v->owner_count;
+}
+//-----------------------------------------------------------------------------
+inline void
+decrement_owner_count(Value * & v, const char * loc)
+{
+   Assert1(v);
+
+   if (v->check_ptr == ((const char *)v + 7))
+      {
+        Assert1(v->owner_count > 0);
+         --v->owner_count;
+
+        if (v->owner_count == 0)   { delete v;   v = 0; }
+      }
+}
+//-----------------------------------------------------------------------------
+inline Value_P::Value_P(Value * val)
+     : value_p(val)
+     {
+       if (value_p)
+          {
+            increment_owner_count(value_p, LOC);
+            ADD_EVENT(value_p, VHE_PtrNew, use_count(), LOC);
+          }
+     }
+
+//-----------------------------------------------------------------------------
+inline Value_P::Value_P(Value * val, const char * loc)
+     : value_p(val)
+     {
+       if (value_p)
+          {
+            increment_owner_count(value_p, loc);
+            ADD_EVENT(value_p, VHE_PtrNew, use_count(), loc);
+          }
+     }
+//-----------------------------------------------------------------------------
+inline Value_P::Value_P(const Value_P & other)
+   : value_p(other.value_p)
+   {
+     if (value_p)
+        {
+          increment_owner_count(value_p, LOC);
+          ADD_EVENT(value_p, VHE_PtrCopy1, use_count(), LOC);
+        }
+   }
+//-----------------------------------------------------------------------------
+inline Value_P & Value_P::operator =(const Value_P & other)
+   {
+      if (value_p == other.value_p)   return *this;   // same pointer
+
+      if (value_p)   // override existing pointer
+         {
+           decrement_owner_count(value_p, LOC);
+           ADD_EVENT(value_p, VHE_PtrClr, other.use_count(), LOC);
+         }
+
+      value_p = other.value_p;
+      if (value_p)
+         {
+           increment_owner_count(value_p, LOC);
+           ADD_EVENT(value_p, VHE_PtrCopy3, use_count(), LOC);
+         }
+
+      return *this;
+   }
+
+//-----------------------------------------------------------------------------
+inline Value_P::~Value_P()
+      {    
+        if (value_p)
+           {
+             decrement_owner_count(value_p, LOC);
+             ADD_EVENT(value_p, VHE_PtrDel, use_count(), LOC);
+          }
+      }    
+//-----------------------------------------------------------------------------
+inline void
+Value_P::reset()
+      {
+        if (value_p)
+           {
+             decrement_owner_count(value_p, LOC);
+             value_p = 0;
+           }
+      }
+
+//-----------------------------------------------------------------------------
+inline int Value_P::use_count() const
+      { return get_owner_count(value_p); }
+//-----------------------------------------------------------------------------
+inline void
+Value_P::clear(const char * loc)
+     {
+       if (value_p)
+          {
+            decrement_owner_count(value_p, LOC);
+            ADD_EVENT(value_p, VHE_PtrClr, use_count(), loc);
+
+            value_p = 0;
+          }
+    }
+
+//-----------------------------------------------------------------------------
+
+#endif // __VALUE_ICC_DEFINED__
+

@@ -23,7 +23,7 @@
 
 #include "Cell.hh"
 #include "DynamicObject.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 //-----------------------------------------------------------------------------
 /**
