@@ -23,7 +23,7 @@
 
 #include "Common.hh"
 #include "Shape.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 /// arguments of the EOC handler for ⎕EA
 struct quad_EA

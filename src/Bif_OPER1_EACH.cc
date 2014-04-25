@@ -81,7 +81,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         if (LO->has_result())
            arg.Z = Value_P(new Value(A->get_shape(), LOC));
       }
-   else if (A->same_shape(B))
+   else if (A->same_shape(*B))
       {
         _arg.count = B->element_count();
         if (LO->has_result())
@@ -89,7 +89,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
       }
    else
       {
-        if (A->same_rank(B))   LENGTH_ERROR;
+        if (A->same_rank(*B))   LENGTH_ERROR;
         RANK_ERROR;
       }
 

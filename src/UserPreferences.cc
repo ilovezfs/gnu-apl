@@ -33,7 +33,7 @@ static const char * build_tag[] = { BUILDTAG, 0 };
 #include "makefile.h"
 #include "TestFiles.hh"
 #include "UserPreferences.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 UserPreferences uprefs;
 

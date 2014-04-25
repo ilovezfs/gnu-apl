@@ -21,7 +21,11 @@
 #ifndef __VALUE_HH_DEFINED__
 #define __VALUE_HH_DEFINED__
 
-#include <memory>   // for shared_ptr
+// prevent bypassing of Value.icc
+//
+#ifndef __VALUE_ICC_DEFINED__
+#error "Do not #include Value.hh directly! Please #include Value.icc instead"
+#endif
 
 #include "Cell.hh"
 #include "Common.hh"
@@ -32,6 +36,7 @@ using namespace std;
 
 class IndexExpr;
 class CDR_string;
+class Value_P;
 
 //=============================================================================
 /**
@@ -288,14 +293,14 @@ public:
    bool is_complex(APL_Float qct) const;
 
    /// return \b true iff \b this value has the same rank as \b other.
-   bool same_rank(Value_P other) const
-      { return get_rank() == other->get_rank(); }
+   bool same_rank(const Value & other) const
+      { return get_rank() == other.get_rank(); }
 
    /// return \b true iff \b this value has the same shape as \b other.
-   bool same_shape(Value_P other) const
-      { if (get_rank() != other->get_rank())   return false;
-        for (Rank r = 0; r < get_rank(); ++r)
-            if (get_shape_item(r) != other->get_shape_item(r))   return false;
+   bool same_shape(const Value & other) const
+      { if (get_rank() != other.get_rank())   return false;
+        loop (r, get_rank())
+            if (get_shape_item(r) != other.get_shape_item(r))   return false;
         return true;
       }
 
@@ -487,44 +492,5 @@ extern void print_history(ostream & out, const Value * val,
                                 const char * loc);
 
 // ----------------------------------------------------------------------------
-inline int
-get_owner_count(const Value * v)
-{
-   return  v ? v->owner_count : -99;
-}
-//-----------------------------------------------------------------------------
-inline void
-increment_owner_count(Value * v, const char * loc)
-{
-   Assert1(v);
-   if (v->check_ptr == ((const char *)v + 7))   ++v->owner_count;
-}
-//-----------------------------------------------------------------------------
-inline void
-decrement_owner_count(Value * & v, const char * loc)
-{
-   Assert1(v);
-
-   if (v->check_ptr == ((const char *)v + 7))
-      {
-        Assert1(v->owner_count > 0);
-        if (v->owner_count == 0)
-           {
-             static bool dumped = false;
-             if (dumped)   return;
-             dumped = true;
-             cerr << "decrement_owner_count() reached 0 for static value "
-                  << v->where_allocated() << endl;
-             Backtrace::show(__FILE__, __LINE__);
-             exit(0);
-             return;
-           }
-
-         --v->owner_count;
-
-        if (v->owner_count == 0)   { delete v;   v = 0; }
-      }
-}
-//-----------------------------------------------------------------------------
 
 #endif // __VALUE_HH_DEFINED__

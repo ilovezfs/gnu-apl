@@ -21,7 +21,7 @@
 #include "Error.hh"
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ PointerCell::equal(const Cell & other, APL_Float qct) const
 Value_P A = get_pointer_value();
 Value_P B = other.get_pointer_value();
 
-   if (!A->same_shape(B))                 return false;
+   if (!A->same_shape(*B))                 return false;
 
 const ShapeItem count = A->element_count();
    loop(c, count)

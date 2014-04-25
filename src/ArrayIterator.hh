@@ -22,7 +22,7 @@
 #define __ARRAY_ITERATOR_HH_DEFINED__
 
 #include "Common.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "SystemLimits.hh"
 
 //-----------------------------------------------------------------------------

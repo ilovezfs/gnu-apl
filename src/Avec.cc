@@ -29,7 +29,7 @@
 #include "Parser.hh"
 #include "PrintOperator.hh"
 #include "UTF8_string.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 using namespace std;
 

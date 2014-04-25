@@ -28,7 +28,7 @@
 #include "TestFiles.hh"
 #include "UCS_string.hh"
 #include "UserPreferences.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "ValueHistory.hh"
 
 VH_entry VH_entry::history[VALUEHISTORY_SIZE + 1];

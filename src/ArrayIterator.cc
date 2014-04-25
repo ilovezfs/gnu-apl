@@ -20,7 +20,7 @@
 
 #include "ArrayIterator.hh"
 #include "Common.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 //-----------------------------------------------------------------------------
 ArrayIteratorBase::ArrayIteratorBase(const Shape & shape)

@@ -21,7 +21,7 @@
 #include "IndexExpr.hh"
 #include "PrintBuffer.hh"
 #include "PrintOperator.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------

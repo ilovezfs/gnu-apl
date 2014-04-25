@@ -29,10 +29,6 @@ class Value;
 
 #define ptr_clear(p, l) p.reset()
 
-int  get_owner_count(const Value * v);
-void increment_owner_count(Value * v, const char * loc);
-void decrement_owner_count(Value * & v, const char * loc);
-
 class Value_P
 {
 public:
@@ -42,80 +38,25 @@ public:
    {}
 
    /// Constructor: from Value *
-   Value_P(Value * val)
-     : value_p(val)
-     {
-       if (value_p)
-          {
-            increment_owner_count(value_p, LOC);
-            ADD_EVENT(value_p, VHE_PtrNew, use_count(), LOC);
-          }
-     }
+   inline Value_P(Value * val);
 
    /// Constructor: from Value *
-   Value_P(Value * val, const char * loc)
-     : value_p(val)
-     {
-       if (value_p)
-          {
-            increment_owner_count(value_p, loc);
-            ADD_EVENT(value_p, VHE_PtrNew, use_count(), loc);
-          }
-     }
+   inline Value_P(Value * val, const char * loc);
+
+   inline int use_count() const;
 
    /// Constructor: from other Value_P
-   Value_P(const Value_P & other)
-   : value_p(other.value_p)
-   {
-     if (value_p)
-        {
-          increment_owner_count(value_p, LOC);
-          ADD_EVENT(value_p, VHE_PtrCopy1, use_count(), LOC);
-        }
-   }
+   Value_P(const Value_P & other);
 
    /// copy operator
-   Value_P & operator =(const Value_P & other)
-   {
-      if (value_p == other.value_p)   return *this;   // same pointer
-
-      if (value_p)   // override existing pointer
-         {
-           decrement_owner_count(value_p, LOC);
-           ADD_EVENT(value_p, VHE_PtrClr, other.use_count(), LOC);
-         }
-          
-      value_p = other.value_p;
-      if (value_p)
-         {
-           increment_owner_count(value_p, LOC);
-           ADD_EVENT(value_p, VHE_PtrCopy3, use_count(), LOC);
-         }
-
-      return *this;
-   }
-
-   int use_count() const
-      { return get_owner_count(value_p); }
+   Value_P & operator =(const Value_P & other);
 
    /// Destructor
-   ~Value_P()
-      {
-        if (value_p)
-           {
-             decrement_owner_count(value_p, LOC);
-             ADD_EVENT(value_p, VHE_PtrDel, use_count(), LOC);
-          }
-      }
+   inline ~Value_P();
 
-   void reset()
-      {
-        if (value_p)
-           {
-             decrement_owner_count(value_p, LOC);
-             value_p = 0;
-           }
-      }
+   inline void reset();
+
+   inline void clear(const char * loc);
 
    const Value * operator->()  const
       { return value_p; }
@@ -141,17 +82,6 @@ public:
 
    bool operator !=(const Value_P & other) const
       { return value_p != other.value_p; }
-
-   void clear(const char * loc)
-     {
-       if (value_p)
-          {
-            decrement_owner_count(value_p, LOC);
-            ADD_EVENT(value_p, VHE_PtrClr, use_count(), loc);
-
-            value_p = 0;
-          }
-    }
 
 protected:
    Value * value_p;

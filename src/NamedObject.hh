@@ -22,7 +22,7 @@
 #define __NAMED_OBJECT_HH_DEFINED__
 
 #include "Id.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 class Function;
 class Symbol;

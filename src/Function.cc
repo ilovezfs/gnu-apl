@@ -31,7 +31,7 @@
 #include "Parser.hh"
 #include "PrintOperator.hh"
 #include "Symbol.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 //-----------------------------------------------------------------------------
 void

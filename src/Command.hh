@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Value.hh"
+#include "Value.icc"
 #include "Common.hh"
 #include "UTF8_string.hh"
 

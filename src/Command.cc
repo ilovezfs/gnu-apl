@@ -45,7 +45,7 @@
 #include "Tokenizer.hh"
 #include "UserFunction.hh"
 #include "UserPreferences.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
 
 #ifndef PATH_MAX

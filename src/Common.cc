@@ -27,7 +27,7 @@
 
 #include "Common.hh"
 #include "Output.hh"
-#include "Value.hh"
+#include "Value.icc"
 
 uint64_t total_memory = 0;
 

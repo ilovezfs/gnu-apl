@@ -28,7 +28,7 @@
 #include "LvalCell.hh"
 #include "PointerCell.hh"
 #include "PrimitiveOperator.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------

@@ -43,7 +43,7 @@
 #include "StateIndicator.hh"
 #include "SystemVariable.hh"
 #include "UserFunction.hh"
-#include "Value.hh"
+#include "Value.icc"
 #include "Workspace.hh"
 
 UCS_string Quad_QUOTE::prompt;

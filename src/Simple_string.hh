@@ -32,13 +32,11 @@
 # include "Common.hh"
 #endif
 
-#include "Backtrace.hh"
-
 using namespace std;
 
 //-----------------------------------------------------------------------------
 /// a simple string
-template <class T>
+template <typename T>
 class Simple_string
 {
 public:
