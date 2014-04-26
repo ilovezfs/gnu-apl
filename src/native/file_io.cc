@@ -798,7 +798,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                    buffer = del = new char[bytes + 1];
 
                 const char * s = fgets(buffer, bytes, fe.fe_file);
-                const int len = strlen(buffer);
+                const int len = s ? strlen(s) : 0;
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
