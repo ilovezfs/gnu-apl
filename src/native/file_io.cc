@@ -349,6 +349,8 @@ list_functions(ostream & out)
 Token
 eval_B(Value_P B, const NativeFunction * caller)
 {
+   if (!B->get_ravel(0).is_integer_cell())     return list_functions(COUT);
+
 const APL_Integer what = B->get_ravel(0).get_int_value();
    switch(what)
       {
@@ -379,16 +381,16 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                Z->check_value(LOC);
                return Token(TOK_APL_VALUE1, Z);
              }
-
-        case 0: return list_functions(CERR);
       }
 
-   DOMAIN_ERROR;
+   return list_functions(COUT);
 }
 //-----------------------------------------------------------------------------
 Token
 eval_AB(Value_P A, Value_P B, const NativeFunction * caller)
 {
+   if (!B->get_ravel(0).is_integer_cell())     return list_functions(COUT);
+
 const APL_Integer what = B->get_ravel(0).get_int_value();
    switch(what)
       {
