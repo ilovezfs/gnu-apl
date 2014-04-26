@@ -163,8 +163,8 @@ int script_argc = argc;   // $0 of the apl script
             {
               script_argc = a + 1;
               argc = a;
-              Filename_and_mode fam =
-                 { UTF8_string(argv[script_argc]), 0, false, !do_not_echo };
+              Filename_and_mode fam = { UTF8_string(argv[script_argc]), 0,
+                                        false, !do_not_echo, true };
               files_todo.push_back(fam);
             }
        }
@@ -214,8 +214,8 @@ int script_argc = argc;   // $0 of the apl script
                          if (script_argc < argc)   filename = argv[script_argc];
                          else                      filename = "-";
                        }
-                    Filename_and_mode fam =
-                             { UTF8_string(filename), 0, false, !do_not_echo };
+                    Filename_and_mode fam = { UTF8_string(filename), 0,
+                                              false, !do_not_echo, true };
                     files_todo.push_back(fam);
                   }
             }
@@ -333,8 +333,8 @@ int script_argc = argc;   // $0 of the apl script
                          break;
 
                        }
-                    Filename_and_mode fam =
-                             { UTF8_string(argv[a]), 0, true, true };
+                    Filename_and_mode fam = { UTF8_string(argv[a]), 0,
+                                              true, true, true };
                     files_todo.push_back(fam);
                   }
 

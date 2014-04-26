@@ -45,12 +45,19 @@ struct LineLabel
    /// true iff this line number is smaller than \b other
    bool operator <(const LineLabel & other) const;
 
+   /// true if tis line number is valid (i.e. the line exists)
+   bool valid() const
+      { return ln_major != -1; }
+
    /// invalidate the line number
    void clear()
           { ln_major = -1;   ln_minor.clear(); }
 
    /// increase the line number
    void next();
+
+   /// increase the line number
+   void insert();
 
    /// the integer part of the line number
    int ln_major;
@@ -123,15 +130,20 @@ protected:
    const char * open_new_function();
 
    /// open an existing function, or create a new one.
-   const char * open_existing_function(Symbol * fsym);
+   const char * open_existing_function(Symbol * fsym, bool clear_old);
 
    /// parse [nn.mm] into a LineLabel;
    LineLabel parse_lineno(UCS_string::iterator & c);
 
    /// return index of line with label lab, or -1 if not found.
-   int find_line(const LineLabel & lab);
+   int find_line(const LineLabel & lab) const;
 
-   /// the line number of the ∇ that started the editor
+   /// true if line with label lab exists
+   bool line_exists(const LineLabel & lab) const
+      { return find_line(lab) != -1; }
+   
+
+   /// the line number (in a .apl script file) of the ∇ that started the editor
    const int defn_line_no;
 
    /// the name of the function being edited

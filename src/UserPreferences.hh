@@ -34,6 +34,7 @@ struct Filename_and_mode
    bool         test;       ///< true for -T testfile, false for -f APLfile
    bool         echo;       ///< echo stdin
    int          line_no;    ///< line number in file
+   bool         is_script;  /// 
 };
 
 /// a structure that contains user preferences from different sources
@@ -157,6 +158,9 @@ struct UserPreferences
 
    bool echo_current_file() const
       { return (files_todo.size()) ? files_todo[0].echo : !do_not_echo; }
+
+   bool running_script() const
+      { return files_todo.size() > 0 && files_todo[0].is_script; }
 
 protected:
    int stdin_line_no;
