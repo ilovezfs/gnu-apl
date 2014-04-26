@@ -146,9 +146,15 @@ HELLO ⍋ ⌽ ⍒ ⍴ ⍵
       Z←20000 FILE_IO[6] Handle
       ⍴Z
 ⁰
-      FILE_IO[4] Handle ⍝ close command (returning its exit code)
+      FILE_IO[25] Handle ⍝ close command (returning its exit code)
 0
-      
+
+      ⍝ read entire file
+      ⍝
+      ⎕UCS FILE_IO[26] 'FILE_IO.test1'
+72 69 76 76 79 32 226 141 139 32 226 140 189 32 226 141 146 32 226 141 180 32 
+      226 141 181
+
       )ERASE FORMAT
 
 ⍝ ==================================

@@ -418,34 +418,48 @@ LineLabel ret(0);
 const char *
 Nabla::open_function()
 {
-   // open an existing function according to fun_name, or create a new function.
+   // either open an existing function 'fun_name', or create a new function.
 
-   // there are two cases when a new function is created:
+   // there are three cases when a new function is created (as opposed to
+   // opening an existing functions:
    //
-   // 1. the header line contains at least one non-symbol char, or
-   // 2. the header consists of only symbol chars and a function with
+   // 1. the editor is run from a script (eg. )COPY)
+   // 2. the header line contains at least one non-symbol char, or
+   // 3. the header consists of only symbol chars and a function with
    //    that name exists.
    //
    // Examples:
    //
-   // 1.   R←A ANY_FUNCTION B
-   // 2.   EXISTING_FUNCTION
+   // 1.   )COPY lib  (and ∇... called in lib)
+   // 2.   R←A ANY_FUNCTION B
+   // 3.   EXISTING_FUNCTION
    //
-   loop(f, fun_name.size())
+bool clear_existing = false;
+Symbol * fsym = Workspace::lookup_existing_symbol(fun_name);
+
+   // 1. check for )COPY etc
+   //
+   if (uprefs.running_script())   // script
       {
-        if (!Avec::is_symbol_char(fun_name[f]))
+        if (fsym == 0)    return open_new_function();
+        clear_existing = true;
+      }
+   else                                     // interactive
+      {
+        if (fsym == 0)   return open_new_function();
+        loop(f, fun_name.size())
            {
-             return open_new_function();
+             if (!Avec::is_symbol_char(fun_name[f]))
+                {
+                  return open_new_function();
+                }
            }
       }
 
-   // all chars are symbol chars.
-   // They may or may not relate to an existing symbol.
+   // at this point fsym is non-zero, i.e. its symbol exists
+   // it may or may not be to an existing function
    //
-Symbol * fsym = Workspace::lookup_existing_symbol(fun_name);
-   if (fsym == 0)   return open_new_function();
-
-   // existing symbol: check that function is not on the SI stack.
+   // check that function is not on the SI stack.
    //
    if (Workspace::is_called(fun_name))
       {
@@ -460,11 +474,11 @@ Symbol * fsym = Workspace::lookup_existing_symbol(fun_name);
 
    if (fsym->get_nc() == NC_UNUSED_USER_NAME)   return open_new_function();
 
-   return open_existing_function(fsym);
+   return open_existing_function(fsym, clear_existing);
 }
 //-----------------------------------------------------------------------------
 const char *
-Nabla::open_existing_function(Symbol * fsym)
+Nabla::open_existing_function(Symbol * fsym, bool clear_old)
 {
    Log(LOG_nabla)
       CERR << "opening existing function '" << fun_name << "'" << endl;
@@ -483,16 +497,22 @@ Function * function = fsym->get_function();
 
    if (function->get_exec_properties()[0])   NABLA_ERROR;   // locked
 
-const UCS_string ftxt = function->canonical(false);
-   Log(LOG_nabla)
-      CERR << "function is:\n" << ftxt << endl;
+   if (clear_old)   // script
+      {
+        current_line = LineLabel(1);
+      }
+   else
+      {
+        const UCS_string ftxt = function->canonical(false);
+        Log(LOG_nabla)   CERR << "function is:\n" << ftxt << endl;
 
-vector<UCS_string> tlines;
-   ftxt.to_vector(tlines);
+        vector<UCS_string> tlines;
+        ftxt.to_vector(tlines);
 
-   loop(t, tlines.size())   lines.push_back(FunLine(t, tlines[t]));
+        loop(t, tlines.size())   lines.push_back(FunLine(t, tlines[t]));
 
-   current_line = LineLabel(tlines.size());
+        current_line = LineLabel(tlines.size());
+      }
    return 0;
 }
 //-----------------------------------------------------------------------------
@@ -524,8 +544,6 @@ const bool have_to = edit_to.ln_major != -1;
 
    if (!have_from && ecmd != ECMD_DELETE)   edit_from = lines[0].label;
    if (!have_to)     edit_to = lines[lines.size() - 1].label;
-   if (edit_to.ln_major > lines.size() - 1)
-      { edit_to.ln_major = lines.size() - 1;   edit_to.ln_minor.clear(); };
 
    if (ecmd == ECMD_NOP)
       {
@@ -550,10 +568,13 @@ const char *
 Nabla::execute_show()
 {
    Log(LOG_nabla)
-      CERR << "Nabla::execute_oper(SHOW) from "
-           << edit_from << " to " << edit_to << " line-count " << lines.size() << endl;
+      CERR << "Nabla::execute_oper(SHOW) from " << edit_from
+           << " to " << edit_to << " line-count " << lines.size() << endl;
+
 int idx_from = find_line(edit_from);
 int idx_to   = find_line(edit_to);
+
+const LineLabel user_edit_to = edit_to;
 
    if (idx_from == -1)   edit_from = lines[idx_from = 0].label;
    if (idx_to == -1)     edit_to   = lines[idx_to = lines.size() - 1].label;
@@ -563,8 +584,30 @@ int idx_to   = find_line(edit_to);
            << edit_from << " to " << edit_to << endl;
 
    for (int e = idx_from; e <= idx_to; ++e)   lines[e].print(COUT);
-   current_line = lines.back().label;
-   current_line.next();
+
+   if (user_edit_to.valid())   // eg. [⎕42] or [2⎕42]
+      {
+        current_line = user_edit_to;
+        if (line_exists(current_line))   current_line.next();
+        if (line_exists(current_line))
+           {
+             // user_edit_to and its next line exist. Increase minor length
+             // That is, if both [8] and [9] exist then use [8.1]
+             //
+             current_line = user_edit_to;
+             current_line.insert();
+           }
+      }
+   else                      // eg. [42⎕] of [⎕]
+      {
+        current_line = lines.back().label;
+        current_line.next();
+      }
+
+   Log(LOG_nabla)
+      CERR << "Nabla::execute_oper(SHOW) done with current line "
+           << current_line << endl;
+
    return 0;
 }
 //-----------------------------------------------------------------------------
@@ -642,7 +685,7 @@ Nabla::execute_escape()
 }
 //-----------------------------------------------------------------------------
 int
-Nabla::find_line(const LineLabel & lab)
+Nabla::find_line(const LineLabel & lab) const
 {
    if (lab.ln_major == -1)   return -1;
 
@@ -697,6 +740,12 @@ LineLabel::next()
 const Unicode cc = ln_minor[ln_minor.size() - 1];
    if (cc != UNI_ASCII_9)   ln_minor[ln_minor.size() - 1] = Unicode(cc + 1);
    else                     ln_minor.append(UNI_ASCII_1);
+}
+//-----------------------------------------------------------------------------
+void
+LineLabel::insert()
+{
+   ln_minor.append(UNI_ASCII_1);
 }
 //-----------------------------------------------------------------------------
 bool
