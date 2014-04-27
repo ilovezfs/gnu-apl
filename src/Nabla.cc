@@ -263,7 +263,8 @@ command_loop:
 
    // optional edit_from
    //
-   if (Avec::is_digit(c.get()))   edit_from = parse_lineno(c);
+   if (Avec::is_digit(c.get()) || c.get() == UNI_ASCII_FULLSTOP)
+      edit_from = parse_lineno(c);
 
    // operation, which is one of:
    //
