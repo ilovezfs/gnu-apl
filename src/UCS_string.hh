@@ -217,6 +217,9 @@ public:
    /// round last digit and discard it.
    void round_last_digit();
 
+   /// return true if \b this string contains \b uni
+   bool contains(Unicode uni);
+
    /// convert a signed integer value to an UCS_string (like sprintf())
    static UCS_string from_int(int64_t value);
 

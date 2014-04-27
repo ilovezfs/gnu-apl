@@ -207,9 +207,15 @@ Workspace::get_quad(UCS_string ucs, int & len)
        return Token();
      }
 
-const Unicode av_0 = (ucs.size() > 1) ? ucs[1] : Invalid_Unicode;
-const Unicode av_1 = (ucs.size() > 2) ? ucs[2] : Invalid_Unicode;
-const Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
+Unicode av_0 = (ucs.size() > 1) ? ucs[1] : Invalid_Unicode;
+Unicode av_1 = (ucs.size() > 2) ? ucs[2] : Invalid_Unicode;
+Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
+
+   // lowercase to uppercase
+   //
+   if (av_0 >= 'a' && av_0 <= 'z')   av_0 = Unicode(av_0 - 0x20);
+   if (av_1 >= 'a' && av_1 <= 'z')   av_1 = Unicode(av_1 - 0x20);
+   if (av_2 >= 'a' && av_2 <= 'z')   av_2 = Unicode(av_2 - 0x20);
 
 #define var(t, l) { len = l + 1; \
    return Token(TOK_Quad_ ## t, &the_workspace.v_Quad_ ## t); }

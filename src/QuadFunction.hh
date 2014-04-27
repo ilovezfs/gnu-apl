@@ -283,11 +283,12 @@ public:
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
 
-   static Quad_NC           fun;          ///< Built-in function.
+   /// return the ⎕NC for variable name \b var
+   static APL_Integer get_NC(const UCS_string var);
+
+   static Quad_NC fun;          ///< Built-in function.
 
 protected:
-   /// return the ⎕NC for variable name \b var
-   APL_Integer get_NC(const UCS_string var);
 };
 //-----------------------------------------------------------------------------
 /**

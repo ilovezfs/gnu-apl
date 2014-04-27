@@ -64,8 +64,7 @@ UCS_string::UCS_string(const UTF8_string & utf)
              utf.dump_hex(CERR << "Bad UTF8 string: ", 40)
                                << " at " << LOC <<  endl;
              Backtrace::show(__FILE__, __LINE__);
-             Assert(0 && "Error in UCS_string::UCS_string()");
-             break;
+             return;
            }
 
         uint32_t uni = 0;
@@ -84,7 +83,7 @@ UCS_string::UCS_string(const UTF8_string & utf)
                    utf.dump_hex(CERR << "Bad UTF8 string: ", 40)
                       << " at " << LOC <<  endl;
                    Backtrace::show(__FILE__, __LINE__);
-                   Assert(0 && "Error in UCS_string::UCS_string()");
+                   return;
                  }
 
               bx  <<= 6;
@@ -883,7 +882,7 @@ UCS_string::round_last_digit()
                  {
                    items[q] = Unicode(cc + 1);
                    if (cc != UNI_ASCII_9)   break;    // 0-8 rounded up: stop
-                   items[q] = UNI_ASCII_0;   // 9 rounded up: say 0 and continue
+                   items[q] = UNI_ASCII_0;    // 9 rounded up: say 0 and repeat
                  }
             }
       }
@@ -891,4 +890,11 @@ UCS_string::round_last_digit()
    shrink(size() - 1);
    if (items[size() - 1] == UNI_ASCII_FULLSTOP)   shrink(size() - 1);
 }
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+bool
+UCS_string::contains(Unicode uni)
+{
+   loop(u, size())   if ((*this)[u] == uni)   return true;
+   return false;
+}
+//----------------------------------------------------------------------------
