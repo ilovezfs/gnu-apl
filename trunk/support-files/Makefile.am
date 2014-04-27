@@ -12,5 +12,6 @@ dist_noinst_DATA =			\
 		keyboard1.dyalog.txt	\
 		apl.unicomp.xkb		\
 		apl.unicomp.xkb.txt	\
-		Unicomp.jpg
+		Unicomp1.jpg		\
+		Unicomp2.jpg
 

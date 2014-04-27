@@ -95,7 +95,8 @@ make DESTDIR=%{buildroot} install
 %doc support-files/keyboard1.txt
 %doc support-files/apl.unicomp.xkb
 %doc support-files/apl.unicomp.xkb.txt
-%doc support-files/Unicomp.jpg
+%doc support-files/Unicomp1.jpg
+%doc support-files/Unicomp2.jpg
 
 %{_docdir}/*
 %{_infodir}/*
