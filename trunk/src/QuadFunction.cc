@@ -33,6 +33,8 @@
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
 #include "QuadFunction.hh"
+#include "Quad_FX.hh"
+#include "Quad_TF.hh"
 #include "Tokenizer.hh"
 #include "UserFunction.hh"
 #include "Value.icc"
@@ -1699,8 +1701,8 @@ Quad_NC::get_NC(const UCS_string ucs)
         int len = 0;
         const Token t = Workspace::get_quad(ucs, len);
         if (len < 2)                      return -1;   // invalid quad
-        if (t.get_Class() == TC_SYMBOL)   return  2;   // quad variable
-        else                              return  3;   // quad function
+        if (t.get_Class() == TC_SYMBOL)   return  5;   // quad variable
+        else                              return  6;   // quad function
 
         // cases 0, 1, or 4 cannot happen for Quad symbols
       }
@@ -1719,94 +1721,110 @@ const NameClass nc = symbol->get_nc();
 Token
 Quad_NL::do_quad_NL(Value_P A, Value_P B)
 {
-   if (!!A && !A->is_char_string())                        DOMAIN_ERROR;
-   if (!B->is_int_vector(0.1) && !B->is_int_skalar(0.1))   DOMAIN_ERROR;
+   if (!!A && !A->is_char_string())   DOMAIN_ERROR;
+   if (B->get_rank() > 1)             RANK_ERROR;
 
-uint32_t symbol_count = Workspace::symbols_allocated();
-DynArray(Symbol *, table, symbol_count);
-   Workspace::get_all_symbols(&table[0], symbol_count);
+UCS_string first_chars;
+   if (!!A)   first_chars = UCS_string(*A);
 
-   // remove symbols that are erased or not in A (if provided). We remove
-   // by overriding the symbol pointer to be erased by the last pointer in
-   // the table and reducing the table size by 1.
+   // 1. create a bitmap of ⎕NC values requested in B
    //
-   loop(s, symbol_count)
+int requested_NCs = 0;
+   {
+     loop(b, B->element_count())
+        {
+          const APL_Integer bb = B->get_ravel(b).get_int_value();
+          if (bb < 1)   DOMAIN_ERROR;
+          if (bb > 6)   DOMAIN_ERROR;
+          requested_NCs |= 1 << bb;
+        }
+   }
+
+   // 2, build a name table, starting with user defined names
+   //
+vector<const UCS_string *> names;
+   {
+     const uint32_t symbol_count = Workspace::symbols_allocated();
+     DynArray(Symbol *, table, symbol_count);
+     Workspace::get_all_symbols(&table[0], symbol_count);
+
+     loop(s, symbol_count)
+        {
+          Symbol * symbol = table[s];
+          if (symbol->is_erased())   continue;   // erased symbol
+
+          NameClass nc = symbol->get_nc();
+          if (nc == NC_SHARED_VAR)   nc = NC_VARIABLE;
+
+          if (!(requested_NCs & 1 << nc))   continue;   // name class not in B
+
+          if (first_chars.size())
+             {
+               const Unicode first_char = symbol->get_name()[0];
+               if (!first_chars.contains(first_char))   continue;
+             }
+
+          names.push_back(&symbol->get_name());
+        }
+   }
+
+   // 3, append ⎕-vars and ⎕-functions to name table (unless prevented by A)
+   //
+   if (first_chars.size() == 0 || first_chars.contains(UNI_Quad_Quad))
       {
-        Symbol * sym = table[s];
-        bool do_erase = sym->is_erased();
-        if (!!A)
-           {
-             const ShapeItem ec_A = A->element_count();
-             const Unicode first_char = sym->get_name()[0];
-             bool first_in_A = false;
-             loop(a, ec_A)
-                {
-                  if (A->get_ravel(a).get_char_value() == first_char)
-                     {
-                       first_in_A = true;
-                       break;
-                     }
-                }
+#define ro_sv_def(x) { Symbol * symbol = &Workspace::get_v_ ## x();           \
+                       const UCS_string & ucs = symbol->get_name();           \
+                       if (ucs[0] == UNI_Quad_Quad && requested_NCs & 1 << 5) \
+                       names.push_back(&ucs); }
 
-             if (!first_in_A)   do_erase = true;
-           }
+#define rw_sv_def(x) { Symbol * symbol = &Workspace::get_v_ ## x();           \
+                       const UCS_string & ucs = symbol->get_name();           \
+                       if (ucs[0] == UNI_Quad_Quad && requested_NCs & 1 << 5) \
+                       names.push_back(&ucs); }
 
-        const NameClass nc = sym->get_nc();
-        const ShapeItem ec_B = B->element_count();
-        bool nc_in_B = false;
-
-        loop(b, ec_B)
-           {
-             if (B->get_ravel(b).get_int_value() == nc)
-                {
-                  nc_in_B = true;
-                  break;
-                }
-           }
-
-        if (!nc_in_B)   do_erase = true;
-
-        // we decrement s in order to retry it
-        if (do_erase)   table[s--] = table[--symbol_count];
+#define sf_def(x)    { if (requested_NCs & 1 << 6) \
+                          names.push_back(&(x::fun.get_name())); }
+#include "SystemVariable.def"
       }
 
-   // compute length of longest name
+
+   // 4. compute length of longest name
    //
 int longest = 0;
-   loop(s, symbol_count)
+   loop(n, names.size())
       {
-        if (longest < table[s]->get_name().size())   
-           longest = table[s]->get_name().size();
+        if (longest < names[n]->size())
+           longest = names[n]->size();
       }
 
-const Shape shZ(symbol_count, longest);
+const Shape shZ(names.size(), longest);
 Value_P Z(new Value(shZ, LOC));
 
-   // the number of symbols is small and ⎕NL is (or should) not be a perfomance
-   // critical function, so we do a linear sort (find smallest and remove)
-   // approach.
+   // 5. construct result. The number of symbols is small and ⎕NL is
+   // (or should) not be a perfomance // critical function, so we can
+   // use a simple (find smallest and print) // approach.
    //
-   while (symbol_count)
+   for (int count = names.size(); count; --count)
       {
         // find smallest.
         //
-        uint32_t smallest = symbol_count - 1;
-        loop(t, symbol_count - 1)
+        uint32_t smallest = count - 1;
+        loop(t, count - 1)
            {
-             if (table[smallest]->get_name().compare(table[t]->get_name()) > 0)
-                smallest = t;
+             if (names[smallest]->compare(*names[t]) > 0)   smallest = t;
            }
-
         // copy name to result, padded with spaces.
         //
         loop(l, longest)
            {
-             const UCS_string & ucs = table[smallest]->get_name();
-             new (Z->next_ravel())   CharCell(l < ucs.size() ? ucs[l] : UNI_ASCII_SPACE);
+             const UCS_string & ucs = *names[smallest];
+             new (Z->next_ravel())
+                 CharCell(l < ucs.size() ? ucs[l] : UNI_ASCII_SPACE);
            }
 
-        // remove from table
-        table[smallest] = table[--symbol_count];
+        // remove smalles from table
+        //
+        names[smallest] = names[count - 1];
       }
 
    Z->set_default(*Value::Str0_P.get());
