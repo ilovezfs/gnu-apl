@@ -1,3 +1,9 @@
+
+//  Keyboard setup for the Unicomp APL keyboard by Blake McBride (blake1024@gmail.com)
+//  for use with xkbcomp
+//  See file apl.unicomp.xkb.txt for full documentation
+
+
 xkb_keymap {
 xkb_keycodes "evdev+aliases(qwerty)" {
     minimum = 8;
@@ -594,7 +600,7 @@ xkb_types "complete" {
     };
 };
 
-xkb_compatibility "complete+ledscroll(group_lock)" {
+xkb_compatibility "complete" {
 
     virtual_modifiers NumLock,Alt,LevelThree,LAlt,RAlt,RControl,LControl,ScrollLock,LevelFive,AltGr,Meta,Super,Hyper;
 
@@ -973,67 +979,67 @@ xkb_compatibility "complete+ledscroll(group_lock)" {
     interpret Shift_L+AnyOfOrNone(all) {
         action= SetMods(modifiers=Shift,clearLocks);
     };
-    interpret XF86_Switch_VT_1+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_1+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=1,!same);
     };
-    interpret XF86_Switch_VT_2+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_2+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=2,!same);
     };
-    interpret XF86_Switch_VT_3+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_3+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=3,!same);
     };
-    interpret XF86_Switch_VT_4+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_4+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=4,!same);
     };
-    interpret XF86_Switch_VT_5+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_5+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=5,!same);
     };
-    interpret XF86_Switch_VT_6+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_6+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=6,!same);
     };
-    interpret XF86_Switch_VT_7+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_7+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=7,!same);
     };
-    interpret XF86_Switch_VT_8+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_8+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=8,!same);
     };
-    interpret XF86_Switch_VT_9+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_9+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=9,!same);
     };
-    interpret XF86_Switch_VT_10+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_10+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=10,!same);
     };
-    interpret XF86_Switch_VT_11+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_11+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=11,!same);
     };
-    interpret XF86_Switch_VT_12+AnyOfOrNone(all) {
+    interpret XF86Switch_VT_12+AnyOfOrNone(all) {
         repeat= True;
         action= SwitchScreen(screen=12,!same);
     };
-    interpret 0x1008fe25+AnyOfOrNone(all) {
+    interpret XF86LogGrabInfo+AnyOfOrNone(all) {
         repeat= True;
         action= Private(type=0x86,data[0]=0x50,data[1]=0x72,data[2]=0x47,data[3]=0x72,data[4]=0x62,data[5]=0x73,data[6]=0x00);
     };
-    interpret 0x1008fe24+AnyOfOrNone(all) {
+    interpret XF86LogWindowTree+AnyOfOrNone(all) {
         repeat= True;
         action= Private(type=0x86,data[0]=0x50,data[1]=0x72,data[2]=0x57,data[3]=0x69,data[4]=0x6e,data[5]=0x73,data[6]=0x00);
     };
-    interpret XF86_Next_VMode+AnyOfOrNone(all) {
+    interpret XF86Next_VMode+AnyOfOrNone(all) {
         repeat= True;
         action= Private(type=0x86,data[0]=0x2b,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00);
     };
-    interpret XF86_Prev_VMode+AnyOfOrNone(all) {
+    interpret XF86Prev_VMode+AnyOfOrNone(all) {
         repeat= True;
         action= Private(type=0x86,data[0]=0x2d,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00);
     };
@@ -1069,7 +1075,8 @@ xkb_compatibility "complete+ledscroll(group_lock)" {
         modifiers= NumLock;
     };
     indicator "Scroll Lock" {
-        groups= 0xfe;
+        whichModState= locked;
+        modifiers= ScrollLock;
     };
     indicator "Shift Lock" {
         !allowExplicit;
@@ -1086,278 +1093,251 @@ xkb_compatibility "complete+ledscroll(group_lock)" {
     };
 };
 
-xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
+xkb_symbols "pc+us+inet(evdev)+level3(ralt_switch)+level5(rctrl_switch)" {
 
     name[group1]="English (US)";
-    name[group2]="APL";
 
     key  <ESC> {         [          Escape ] };
     key <AE01> {
-        symbols[Group1]= [               1,          exclam ],
-        symbols[Group2]= [       diaeresis,      exclamdown ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               1,          exclam, diaeresis, NoSymbol, U2336, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE02> {
-        symbols[Group1]= [               2,              at ],
-        symbols[Group2]= [          macron ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               2,              at, macron, NoSymbol,  U236B, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE03> {
-        symbols[Group1]= [               3,      numbersign ],
-        symbols[Group2]= [            less ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               3,      numbersign, less, NoSymbol, U2352, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE04> {
-        symbols[Group1]= [               4,          dollar ],
-        symbols[Group2]= [           U2264,            cent ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               4,          dollar, U2264,            cent, U234B, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE05> {
-        symbols[Group1]= [               5,         percent ],
-        symbols[Group2]= [           equal ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               5,         percent, equal, NoSymbol, U233D, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE06> {
-        symbols[Group1]= [               6,     asciicircum ],
-        symbols[Group2]= [           U2265 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               6,     asciicircum, U2265, NoSymbol, U2349, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE07> {
-        symbols[Group1]= [               7,       ampersand ],
-        symbols[Group2]= [         greater ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               7,       ampersand, greater, NoSymbol, U2296, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE08> {
-        symbols[Group1]= [               8,        asterisk ],
-        symbols[Group2]= [           U2260,           U2342 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               8,        asterisk, U2260, NoSymbol, U235F, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE09> {
-        symbols[Group1]= [               9,       parenleft ],
-        symbols[Group2]= [           U2228,           U2371 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               9,       parenleft, U2228, NoSymbol, U2371, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE10> {
-        symbols[Group1]= [               0,      parenright ],
-        symbols[Group2]= [           U2227,           U2372 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [               0,      parenright, U2227, NoSymbol, U2372, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE11> {
-        symbols[Group1]= [           minus,      underscore ],
-        symbols[Group2]= [        multiply,           U2261 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [           minus,      underscore, plus, minus, exclamdown, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AE12> {
-        symbols[Group1]= [           equal,            plus ],
-        symbols[Group2]= [        division,           U2339 ]
+	type[Group1] = "EIGHT_LEVEL",
+    	symbols[Group1]=[  equal, plus, multiply, division, U2339, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <BKSP> {         [       BackSpace,       BackSpace ] };
     key  <TAB> {         [             Tab,    ISO_Left_Tab ] };
     key <AD01> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               q,               Q ],
-        symbols[Group2]= [        question,    questiondown ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ q, Q, question,    questiondown, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD02> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               w,               W ],
-        symbols[Group2]= [           U2375,           U233D ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ w, W, U2375,           U233D, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD03> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               e,               E ],
-        symbols[Group2]= [           U220A,           U2377 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ e, E, U220A,           U2377, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD04> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               r,               R ],
-        symbols[Group2]= [           U2374 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ r, R, U2374, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD05> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               t,               T ],
-        symbols[Group2]= [      asciitilde,           U2349 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ t, T, asciitilde,           U2349, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD06> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               y,               Y ],
-        symbols[Group2]= [           U2191 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ y, Y,  U2191, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD07> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               u,               U ],
-        symbols[Group2]= [           U2193 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ u, U, U2193, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD08> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               i,               I ],
-        symbols[Group2]= [           U2373,           U2378 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ i, I, U2373,           U2378, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD09> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               o,               O ],
-        symbols[Group2]= [           U25CB,           U2365 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ o, O, U25CB, U2365, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD10> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               p,               P ],
-        symbols[Group2]= [        asterisk,           U235F ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ p, P, asterisk,           U235F, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD11> {
-        symbols[Group1]= [     bracketleft,       braceleft ],
-        symbols[Group2]= [           U2190 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [     bracketleft,       braceleft, U2190, U2192, U235E, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AD12> {
-        symbols[Group1]= [    bracketright,      braceright ],
-        symbols[Group2]= [           U2192 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [    bracketright,      braceright, U2337, U2378, U2359, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <RTRN> {         [          Return ] };
     key <LCTL> {         [       Control_L ] };
     key <AC01> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               a,               A ],
-        symbols[Group2]= [           U237A,           U2296 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ a, A, U237A,           U2296, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC02> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               s,               S ],
-        symbols[Group2]= [           U2308 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ s, S, U2308, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC03> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               d,               D ],
-        symbols[Group2]= [           U230A ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ d, D, U230A, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC04> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               f,               F ],
-        symbols[Group2]= [      underscore,           U236B ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ f, F, underscore,           U236B, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC05> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               g,               G ],
-        symbols[Group2]= [           U2207,           U2352 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ g, G, U2207,           U2352, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC06> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               h,               H ],
-        symbols[Group2]= [           U2206,           U234B ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ h, H, U2206,           U234B, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC07> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               j,               J ],
-        symbols[Group2]= [           U2218,           U2364 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ j, J, U2218,           U2364, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC08> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               k,               K ],
-        symbols[Group2]= [      apostrophe,           U233B ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ k, K, apostrophe,           U233B, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC09> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               l,               L ],
-        symbols[Group2]= [           U2395,           U235E ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ l, L, U2395,           U235E, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC10> {
-        symbols[Group1]= [       semicolon,           colon ],
-        symbols[Group2]= [           U22A2 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [       semicolon,           colon, bracketleft, parenleft, U234E, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AC11> {
-        symbols[Group1]= [      apostrophe,        quotedbl ],
-        symbols[Group2]= [           U22A3 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [      apostrophe,        quotedbl, bracketright, parenright, U2355, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <TLDE> {
-        symbols[Group1]= [           grave,      asciitilde ],
-        symbols[Group2]= [           U22C4 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [           grave,      asciitilde, U233B, NoSymbol, U22C4, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <LFSH> {         [         Shift_L ] };
     key <BKSL> {
-        symbols[Group1]= [       backslash,             bar ],
-        symbols[Group2]= [           U235D,           U2340 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [       backslash,             bar, U2261, U2377, U2235, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB01> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               z,               Z ],
-        symbols[Group2]= [           U2282 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ z, Z, U2282, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB02> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               x,               X ],
-        symbols[Group2]= [           U2283 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ x, X, U2283, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB03> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               c,               C ],
-        symbols[Group2]= [           U2229,           U235D ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ c, C, U2229,           U235D, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB04> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               v,               V ],
-        symbols[Group2]= [           U222A ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ v, V, U222A, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB05> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               b,               B ],
-        symbols[Group2]= [           U22A5,           U234E ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ b, B, U22A5,           U234E, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB06> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               n,               N ],
-        symbols[Group2]= [           U22A4,           U2355 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ n, N, U22A4,           U2355, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB07> {
-        type[group1]= "ALPHABETIC",
-        symbols[Group1]= [               m,               M ],
-        symbols[Group2]= [             bar,           U2336 ]
+        type[Group1] = "EIGHT_LEVEL",
+        symbols[Group1]= [ m, M, bar,           U2336, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB08> {
-        symbols[Group1]= [           comma,            less ],
-        symbols[Group2]= [           U2337,           U236A ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [           comma,            less, comma, semicolon, U235D, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB09> {
-        symbols[Group1]= [          period,         greater ],
-        symbols[Group2]= [           U234E,           U2359 ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [          period,         greater, period, colon, U2340, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <AB10> {
-        symbols[Group1]= [           slash,        question ],
-        symbols[Group2]= [           U2355,           U233F ]
+	type[Group1] = "EIGHT_LEVEL",
+	symbols[Group1] = [           slash,        question, slash, backslash, U233F, NoSymbol, NoSymbol, NoSymbol ]
     };
     key <RTSH> {         [         Shift_R ] };
     key <KPMU> {
         type= "CTRL+ALT",
-        symbols[Group1]= [     KP_Multiply,     KP_Multiply,     KP_Multiply,     KP_Multiply,  XF86_ClearGrab ]
+        symbols[Group1]= [     KP_Multiply,     KP_Multiply,     KP_Multiply,     KP_Multiply,   XF86ClearGrab ]
     };
     key <LALT> {         [           Alt_L,          Meta_L ] };
     key <SPCE> {         [           space ] };
     key <CAPS> {         [       Caps_Lock ] };
     key <FK01> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F1,              F1,              F1,              F1, XF86_Switch_VT_1 ]
+        symbols[Group1]= [              F1,              F1,              F1,              F1, XF86Switch_VT_1 ]
     };
     key <FK02> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F2,              F2,              F2,              F2, XF86_Switch_VT_2 ]
+        symbols[Group1]= [              F2,              F2,              F2,              F2, XF86Switch_VT_2 ]
     };
     key <FK03> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F3,              F3,              F3,              F3, XF86_Switch_VT_3 ]
+        symbols[Group1]= [              F3,              F3,              F3,              F3, XF86Switch_VT_3 ]
     };
     key <FK04> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F4,              F4,              F4,              F4, XF86_Switch_VT_4 ]
+        symbols[Group1]= [              F4,              F4,              F4,              F4, XF86Switch_VT_4 ]
     };
     key <FK05> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F5,              F5,              F5,              F5, XF86_Switch_VT_5 ]
+        symbols[Group1]= [              F5,              F5,              F5,              F5, XF86Switch_VT_5 ]
     };
     key <FK06> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F6,              F6,              F6,              F6, XF86_Switch_VT_6 ]
+        symbols[Group1]= [              F6,              F6,              F6,              F6, XF86Switch_VT_6 ]
     };
     key <FK07> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F7,              F7,              F7,              F7, XF86_Switch_VT_7 ]
+        symbols[Group1]= [              F7,              F7,              F7,              F7, XF86Switch_VT_7 ]
     };
     key <FK08> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F8,              F8,              F8,              F8, XF86_Switch_VT_8 ]
+        symbols[Group1]= [              F8,              F8,              F8,              F8, XF86Switch_VT_8 ]
     };
     key <FK09> {
         type= "CTRL+ALT",
-        symbols[Group1]= [              F9,              F9,              F9,              F9, XF86_Switch_VT_9 ]
+        symbols[Group1]= [              F9,              F9,              F9,              F9, XF86Switch_VT_9 ]
     };
     key <FK10> {
         type= "CTRL+ALT",
-        symbols[Group1]= [             F10,             F10,             F10,             F10, XF86_Switch_VT_10 ]
+        symbols[Group1]= [             F10,             F10,             F10,             F10, XF86Switch_VT_10 ]
     };
     key <NMLK> {         [        Num_Lock ] };
     key <SCLK> {         [     Scroll_Lock ] };
@@ -1366,14 +1346,14 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key  <KP9> {         [        KP_Prior,            KP_9 ] };
     key <KPSU> {
         type= "CTRL+ALT",
-        symbols[Group1]= [     KP_Subtract,     KP_Subtract,     KP_Subtract,     KP_Subtract, XF86_Prev_VMode ]
+        symbols[Group1]= [     KP_Subtract,     KP_Subtract,     KP_Subtract,     KP_Subtract,  XF86Prev_VMode ]
     };
     key  <KP4> {         [         KP_Left,            KP_4 ] };
     key  <KP5> {         [        KP_Begin,            KP_5 ] };
     key  <KP6> {         [        KP_Right,            KP_6 ] };
     key <KPAD> {
         type= "CTRL+ALT",
-        symbols[Group1]= [          KP_Add,          KP_Add,          KP_Add,          KP_Add, XF86_Next_VMode ]
+        symbols[Group1]= [          KP_Add,          KP_Add,          KP_Add,          KP_Add,  XF86Next_VMode ]
     };
     key  <KP1> {         [          KP_End,            KP_1 ] };
     key  <KP2> {         [         KP_Down,            KP_2 ] };
@@ -1387,11 +1367,11 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     };
     key <FK11> {
         type= "CTRL+ALT",
-        symbols[Group1]= [             F11,             F11,             F11,             F11, XF86_Switch_VT_11 ]
+        symbols[Group1]= [             F11,             F11,             F11,             F11, XF86Switch_VT_11 ]
     };
     key <FK12> {
         type= "CTRL+ALT",
-        symbols[Group1]= [             F12,             F12,             F12,             F12, XF86_Switch_VT_12 ]
+        symbols[Group1]= [             F12,             F12,             F12,             F12, XF86Switch_VT_12 ]
     };
     key <KATA> {         [        Katakana ] };
     key <HIRA> {         [        Hiragana ] };
@@ -1399,18 +1379,21 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <HKTG> {         [ Hiragana_Katakana ] };
     key <MUHE> {         [        Muhenkan ] };
     key <KPEN> {         [        KP_Enter ] };
-    key <RCTL> {         [       Control_R ] };
+    key <RCTL> {
+        type= "ONE_LEVEL",
+        symbols[Group1]= [ ISO_Level5_Shift ]
+    };
     key <KPDV> {
         type= "CTRL+ALT",
-        symbols[Group1]= [       KP_Divide,       KP_Divide,       KP_Divide,       KP_Divide,     XF86_Ungrab ]
+        symbols[Group1]= [       KP_Divide,       KP_Divide,       KP_Divide,       KP_Divide,      XF86Ungrab ]
     };
     key <PRSC> {
         type= "PC_ALT_LEVEL2",
         symbols[Group1]= [           Print,         Sys_Req ]
     };
     key <RALT> {
-        type= "TWO_LEVEL",
-        symbols[Group1]= [     Mode_switch,       Multi_key ]
+        type= "ONE_LEVEL",
+        symbols[Group1]= [ ISO_Level3_Shift ]
     };
     key <LNFD> {         [        Linefeed ] };
     key <HOME> {         [            Home ] };
@@ -1494,9 +1477,10 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <FK16> {         [     XF86Launch7 ] };
     key <FK17> {         [     XF86Launch8 ] };
     key <FK18> {         [     XF86Launch9 ] };
+    key <FK20> {         [ XF86AudioMicMute ] };
     key <FK21> {         [ XF86TouchpadToggle ] };
-    key <FK22> {         [      0x1008ffb0 ] };
-    key <FK23> {         [      0x1008ffb1 ] };
+    key <FK22> {         [  XF86TouchpadOn ] };
+    key <FK23> {         [ XF86TouchpadOff ] };
     key <MDSW> {         [     Mode_switch ] };
     key  <ALT> {         [        NoSymbol,           Alt_L ] };
     key <META> {         [        NoSymbol,          Meta_L ] };
@@ -1543,7 +1527,7 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     modifier_map Lock { <CAPS> };
     modifier_map Mod2 { <NMLK> };
     modifier_map Mod5 { <LVL3> };
-    modifier_map Control { <RCTL> };
+    modifier_map Mod3 { <RCTL> };
     modifier_map Mod4 { <LWIN> };
     modifier_map Mod4 { <RWIN> };
     modifier_map Mod5 { <MDSW> };
