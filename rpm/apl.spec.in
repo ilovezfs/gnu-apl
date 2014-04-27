@@ -91,7 +91,11 @@ make DESTDIR=%{buildroot} install
 %doc support-files/apl.xmodmap
 %doc support-files/apl.vim
 %doc support-files/keyboard.txt
+%doc support-files/
 %doc support-files/keyboard1.txt
+%doc support-files/apl.unicomp.xkb
+%doc support-files/apl.unicomp.xkb.txt
+%doc support-files/Unicomp.jpg
 
 %{_docdir}/*
 %{_infodir}/*

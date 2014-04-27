@@ -9,5 +9,8 @@ dist_noinst_DATA =			\
 		keyboard.txt		\
 		keyboard.dyalog.txt	\
 		keyboard1.txt		\
-		keyboard1.dyalog.txt
+		keyboard1.dyalog.txt	\
+		apl.unicomp.xkb		\
+		apl.unicomp.xkb.txt	\
+		Unicomp.jpg
 

@@ -140,6 +140,7 @@ The file support-files/apl.xkb is the text file from which apl.xkm was
 generated. If you modify apl.xkb according to your preferences then you
 can generate your own apl.xkm file (see man pages for setxkbmap and xkbcomp).
 
+See also Blake's notes in support-files/apl.unicomp.xkb.txt
 
 4. loadkeys
 ===========
