@@ -266,7 +266,29 @@ Value::Value(const UCS_string & ucs, const char * loc)
 
    if (ucs.size())
       {
-        loop(l, ucs.size())   new (&get_ravel(l)) CharCell(ucs[l]);
+        loop(l, ucs.size())   new (next_ravel()) CharCell(ucs[l]);
+      }
+   else   // empty string: set prototype
+      {
+        new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
+      }
+
+   set_complete();
+}
+//-----------------------------------------------------------------------------
+Value::Value(const UTF8_string & utf, const char * loc)
+   : DynamicObject(loc, &all_values),
+     shape(utf.size()),
+     flags(VF_NONE),
+     valid_ravel_items(0)
+{
+   ADD_EVENT(this, VHE_Create, 0, loc);
+   init_ravel();
+
+   if (utf.size())
+      {
+        loop(l, utf.size())
+            new (next_ravel()) CharCell((Unicode)(utf[l] & 0xFF));
       }
    else   // empty string: set prototype
       {

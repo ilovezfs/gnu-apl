@@ -734,13 +734,19 @@ CDR format)
    A=15: conversion 13 followed by conversion 12 (hex string in CDR
 format to Value)
 
-   A=16: encode byte vector B into Z (base64 encoding RFC 4648)
+   A=16: encode byte vector B into Z (base64 encoding, RFC 4648)
 
-   A=17: decode base64 vector B into byte vector Z (base64 encoding RFC
-4648)
+   A=17: decode base64 vector B into byte vector Z (base64 encoding,
+RFC 4648)
 
-   Conversions 14 to 17 can be used, for example, to store APL values
-as ASCII texts in databases.
+   A=18: convert text vector B into byte vector Z (UTF8 encoding, RFC
+3629)
+
+   A=19: convert byte vector B into text vector Z (UTF8 encoding, RFC
+3629)
+
+   Conversions 14 to 17 can be used, for example, to store APL values as
+printable ASCII texts in databases.
 
    For byte vector arguments, a DOMAIN ERROR is thrown if a ravel item
 is not a character. It is, however not checked (for performance
@@ -1038,8 +1044,9 @@ environment variable is correctly set. For German, that would be
    $export LANG=de_DE.utf8
 
    A misspelling of the language can cause APL characters to become
-unavailable, even if you xmodmap is correct. You can check your setting
-by executing the program 'locale'.  If it  shows warnings like these:
+unavailable, even if your xmodmap is correct. You can check your
+setting by executing the program 'locale'.  If it  shows warnings like
+these:
 
    locale: Cannot set LC_CTYPE to default locale: No such file or
 directory locale: Cannot set LC_MESSAGES to default locale: No such
@@ -2249,11 +2256,11 @@ Tag Table:
 Node: Top418
 Node: Chapter 11348
 Node: Chapter 214014
-Node: Chapter 333060
-Node: Chapter 434661
-Node: Chapter 535974
-Node: Section 5.136477
-Node: Section 5.261606
+Node: Chapter 333226
+Node: Chapter 434827
+Node: Chapter 536141
+Node: Section 5.136644
+Node: Section 5.261773
 
 End Tag Table
 
