@@ -61,6 +61,9 @@ public:
    /// construct a simple character vector from a UCS string
    Value(const UCS_string & ucs, const char * loc);
 
+   /// construct a simple character vector from a UTF8 string
+   Value(const UTF8_string & ucs, const char * loc);
+
    /// construct a simple character vector from a CDR string
    Value(const CDR_string & ui8, const char * loc);
 

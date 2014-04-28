@@ -52,7 +52,7 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
 void * fmux = dlsym(handle, "get_function_mux");
      if (!fmux)
         {
-          CERR << "shared library " << so_name << "is lacking the mandatory "
+          CERR << "shared library " << so_name << " is lacking the mandatory "
                   "function get_function_mux() !" << endl;
           Workspace::more_error().append_utf8(
                                   "is invalid (no get_function_mux())");

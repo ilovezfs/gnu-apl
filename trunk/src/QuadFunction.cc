@@ -539,6 +539,24 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                return Z;
              }
 
+        case -19:
+        case 18: // UCS → UTF8 byte vector
+             {
+               UCS_string ucs(B);
+               UTF8_string utf(ucs);
+               Value_P Z(new Value(utf, LOC));
+               return Z;
+             }
+
+        case -18:
+        case 19: // UTF8 byte vector → UCS string
+             {
+               UTF8_string utf(B);
+               UCS_string ucs(utf);
+               Value_P Z(new Value(ucs, LOC));
+               return Z;
+             }
+
         default: DOMAIN_ERROR;
       }
 
