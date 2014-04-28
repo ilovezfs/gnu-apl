@@ -1999,9 +1999,9 @@ ShapeItem z = 0;
 Token
 Quad_UCS::eval_B(Value_P B)
 {
-const ShapeItem ec = B->element_count();
 Value_P Z(new Value(B->get_shape(), LOC));
 
+const ShapeItem ec = B->nz_element_count();
    loop(v, ec)
        {
          const Cell & cell_B = B->get_ravel(v);
