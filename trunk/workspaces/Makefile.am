@@ -1,4 +1,6 @@
 
-dist_doc_DATA = APL_CGI.apl  script.apl
+dist_doc_DATA =	    APL_CGI.apl		\
+		    script.apl		\
+		    SkalarBenchmark.apl
 
 
