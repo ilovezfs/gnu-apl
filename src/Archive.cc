@@ -800,6 +800,7 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 //=============================================================================
 XML_Loading_Archive::XML_Loading_Archive(const char * _filename, int & dump_fd)
    : line_no(1),
+     current_char(UNI_ASCII_SPACE),
      data(0),
      file_end(0),
      copying(false),
