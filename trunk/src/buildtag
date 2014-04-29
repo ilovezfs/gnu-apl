@@ -6,6 +6,7 @@ PACKAGE_NAME=$1
 PACKAGE_VERSION=$2
 
 SVNINFO=`svnversion`
+ARCHIVE_SVNINFO=`svn info Archive.cc | grep Revision | awk '{print $2;}'`
 CONFIGURE_OPTS=`../config.status -V | grep "with options" | sed 's/[^"]*//'`
 BUILD_DATE=`date -u "+%F %R:%S %Z"`
 BUILD_OS=`uname -s -r -m`
@@ -13,4 +14,5 @@ BUILD_TAG="\" / $SVNINFO\", \"$BUILD_DATE\", \"$BUILD_OS\", $CONFIGURE_OPTS"
 
 echo "#include \"Common.hh\""                                    > buildtag.hh
 echo "#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION $BUILD_TAG" >> buildtag.hh
+echo "#define ARCHIVE_SVN $ARCHIVE_SVNINFO" >> buildtag.hh
 
