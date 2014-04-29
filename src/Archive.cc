@@ -27,6 +27,7 @@
 #include <sys/types.h>
 
 #include "Archive.hh"
+#include "buildtag.hh"   // for ARCHIVE_SVN
 #include "Common.hh"
 #include "CharCell.hh"
 #include "ComplexCell.hh"
@@ -581,6 +582,8 @@ tm * t;
      t = gmtime(&now.tv_sec);
    }
 
+const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
+
    out <<
 "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>\n"
 "\n"
@@ -690,7 +693,8 @@ tm * t;
 "           hour=\""     <<  t->tm_hour
      << "\" minute=\""   <<  t->tm_min
      << "\" second=\""   <<  t->tm_sec
-     << "\" timezone=\"" << Workspace::get_v_Quad_TZ().get_offset()
+     << "\" timezone=\"" << offset << "\"" << endl <<
+"           saving_SVN=\"" << ARCHIVE_SVN
      << "\">\n" << endl;
 
    ++indent;
@@ -1369,7 +1373,11 @@ Cell * end = C + count;
         while (*cells <= ' ')   ++cells;   // skip trailing whitespace
       }
 
-   Assert(C == end);   // all cells read
+   if (C != end)   // unless all cells read
+      {
+        CERR << "vid=" << vid << endl;
+        FIXME;
+      }
 
    {
      int len = 0;
