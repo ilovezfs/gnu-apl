@@ -597,7 +597,8 @@ Workspace::save_WS(ostream & out, vector<UCS_string> & lib_ws)
 LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
-UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "xml");
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
+                                                  ".xml", 0);
 
    if (wname.compare(UCS_string("CLEAR WS")) == 0)   // don't save CLEAR WS
       {
@@ -711,7 +712,8 @@ Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws)
 LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
-UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false, "apl");
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
+                                                  ".apl", 0);
 
    if (wname.compare(UCS_string("CLEAR WS")) == 0)   // don't save CLEAR WS
       {
@@ -787,7 +789,8 @@ Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws)
 LibRef libref = LIB_NONE;
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
 UCS_string wname = lib_ws.back();
-UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true,
+                                                  ".xml", ".apl");
 
 int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);
@@ -867,7 +870,8 @@ LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws_objects.front();
    lib_ws_objects.erase(lib_ws_objects.begin());
 
-UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true,
+                                                  ".xml", ".apl");
 
 int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);

@@ -224,56 +224,88 @@ UTF8_string ret(APL_lib_root);
 //-----------------------------------------------------------------------------
 UTF8_string
 LibPaths::get_lib_filename(LibRef lib, const UTF8_string & name, 
-                           bool existing, const char * extension)
+                           bool existing, const char * ext1, const char * ext2)
 {
-   if (name[0] == UNI_ASCII_SLASH)   // absolute path
+   // check if name has one of the extensions ext1 or ext2 already.
+   //
+int name_has_extension = 0;   // assume name has neither extension ext1 nor ext2
+   if      (name.ends_with(ext1))   name_has_extension = 1;
+   else if (name.ends_with(ext2))   name_has_extension = 2;
+
+   if (name.starts_with("/")   || 
+       name.starts_with("./")  || 
+       name.starts_with("../"))
       {
-         // absolute paths are fallbacks and never modified
-         // but taken as they are
+        // paths from / or ./ are fallbacks for the case where the library
+        // path setup id wrong. So that the user can survive by using an
+        // explicit path
+        //
+        if (name_has_extension)   return name;
+
+        UTF8_string filename(name);
+        if (access(filename.c_str(), F_OK) == 0)   return filename;
+
+        if (ext1)
+           {
+             UTF8_string filename_ext1 = name;
+             filename_ext1.append_str(ext1);
+             if (!access(filename_ext1.c_str(), F_OK))   return filename_ext1;
+           }
+
+        if (ext2)
+           {
+             UTF8_string filename_ext2 = name;
+             filename_ext2.append_str(ext2);
+             if (!access(filename_ext2.c_str(), F_OK))   return filename_ext2;
+           }
+
+         // neither ext1 nor ext2 worked: return original name
          //
-         return name;
+         filename = name;
+         return filename;
       }
 
-UTF8_string ret = get_lib_dir(lib);
-   ret.append(UNI_ASCII_SLASH);
-   ret.append(name);
+UTF8_string filename = get_lib_dir(lib);
+   filename.append(UNI_ASCII_SLASH);
+   filename.append(name);
 
-bool has_extension = false;
+   if (name_has_extension)   return filename;
 
    if (existing)
       {
         // file ret is supposed to exist (and will be openend read-only).
         // If it does return filename otherwise filename.extension.
         //
-        UTF8_string filename(ret);
-        has_extension = access(filename.c_str(), F_OK) == 0;
+        if (access(filename.c_str(), F_OK) == 0)   return filename;
+
+        if (ext1)
+           {
+             UTF8_string filename_ext1 = filename;
+             filename_ext1.append_str(ext1);
+             if (!access(filename_ext1.c_str(), F_OK))   return filename_ext1;
+           }
+
+        if (ext2)
+           {
+             UTF8_string filename_ext2 = filename;
+             filename_ext2.append_str(ext2);
+             if (!access(filename_ext2.c_str(), F_OK))   return filename_ext2;
+           }
+
+        return filename;   // without ext
       }
    else
       {
         // file may or may not exist (and will be created if not).
-        // check that the file ends with extension and append extension if not.
+        // therefore checking the existence does not work.
+        // check that the file ends with ext1 or ext2 if provided
         //
-        const size_t elen = strlen(extension);
-        bool has_extension = false;
-       if (elen < name.size())   // name is long enough to end with .extension
-          {
-            has_extension = name[name.size() - elen] == UNI_ASCII_FULLSTOP;
-            loop(e, elen)
-               {
-                 if (!has_extension)   break;
-                 has_extension = name[name.size() - e] == Unicode(extension[e]);
-               }
-          }
-      }
+        if (name_has_extension)   return filename;
 
-   if (!has_extension)
-      {
-        ret.append(UNI_ASCII_FULLSTOP);
-        const UTF8_string utf_extension(extension);
-        ret.append(utf_extension);
+        if      (ext1) filename.append_str(ext1);
+        else if (ext2) filename.append_str(ext2);
+        return filename;
       }
-
-   return UTF8_string(ret);
 }
 //-----------------------------------------------------------------------------
 

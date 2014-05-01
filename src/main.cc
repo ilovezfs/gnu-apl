@@ -451,7 +451,7 @@ const char * argv0 = argv[0];
       {
          UCS_string cont("CONTINUE");
          UTF8_string filename =
-            LibPaths::get_lib_filename(LIB0, cont, true, "xml");
+            LibPaths::get_lib_filename(LIB0, cont, true, ".xml", ".apl");
 
          if (access(filename.c_str(), F_OK) == 0)
             {

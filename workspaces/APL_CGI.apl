@@ -1,5 +1,7 @@
 #!/usr/local/bin/apl --script --
 
+)COPY 3 HTML
+
 ⍝ This is an APL CGI script that demonstrates the use of APL for CGI scripting
 ⍝ It outputs an HTML page like GNU APL's homepage at www.gnu.org.
 ⍝
@@ -41,23 +43,6 @@ yBODY←0⍴'<please-set-yBODY>'
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ append boxes A and B horizontally:
-⍝
-⍝ AABBB   AA      BBB
-⍝ AABBB ← AA xbox BBB
-⍝ AA      AA
-⍝
-∇yZ←yA xbox yB;LenA;H
- Assert 2 ≡ ≡yA ◊ Assert 1 ≡ ''⍴⍴⍴yA
- Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- LenA←⌈/⍴¨yA
- H←↑(⍴yA)⌈⍴yB
- yA←H↑LenA↑¨yA
- yZ←yA ,¨H↑yB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ depth, rank, and shape of B
 ⍝ A: optional variable name
 ⍝ B: variable value
@@ -69,7 +54,7 @@ yBODY←0⍴'<please-set-yBODY>'
  yPROP←yPROP,⊂'⍴⍴ ',V,': ',,⍕⍴⍴B
  yPROP←yPROP,⊂'⍴  ',V,': ',,⍕⍴B
  yVAL←⊂[⎕IO+1]4 ⎕CR B
- ⊃yPROP xbox yVAL
+ ⊃yPROP HTML∆xbox yVAL
  '</pre>'
  Z←B
 ∇

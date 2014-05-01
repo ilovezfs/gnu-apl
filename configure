@@ -18732,7 +18732,7 @@ fi
 
 fi
 
-ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile po/Makefile.in po/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile tools/Makefile workspaces/Makefile wslib1/Makefile wslib2/Makefile"
+ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile po/Makefile.in po/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile tools/Makefile workspaces/Makefile wslib1/Makefile wslib2/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile"
 
 
 # APL: max. rank ?
@@ -19984,6 +19984,9 @@ do
     "workspaces/Makefile") CONFIG_FILES="$CONFIG_FILES workspaces/Makefile" ;;
     "wslib1/Makefile") CONFIG_FILES="$CONFIG_FILES wslib1/Makefile" ;;
     "wslib2/Makefile") CONFIG_FILES="$CONFIG_FILES wslib2/Makefile" ;;
+    "wslib3/Makefile") CONFIG_FILES="$CONFIG_FILES wslib3/Makefile" ;;
+    "wslib4/Makefile") CONFIG_FILES="$CONFIG_FILES wslib4/Makefile" ;;
+    "wslib5/Makefile") CONFIG_FILES="$CONFIG_FILES wslib5/Makefile" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
