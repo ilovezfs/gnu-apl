@@ -96,9 +96,10 @@ public:
    static LibDir::CfgSrc get_cfg_src(LibRef lib)
       { return lib_dirs[lib].cfg_src; }
 
-   /// return full path for file \b name
+   /// return full path for file \b name, possibly adding .ext1 or .ext2
    static UTF8_string get_lib_filename(LibRef lib, const UTF8_string & name,
-                                      bool existing, const char * extension);
+                                      bool existing, const char * ext1,
+                                                     const char * ext2);
 protected:
    /// compute the location of the apl binary
    static void compute_bin_path(const char * argv0);

@@ -241,6 +241,24 @@ uint32_t uni = 0;
    return Unicode(bx | uni);
 }
 //-----------------------------------------------------------------------------
+bool
+UTF8_string::starts_with(const char * path) const
+{
+   if (path == 0)   return false;   // no path provided
+   return strncmp(path, (const char *)items, strlen(path)) == 0;
+}
+//-----------------------------------------------------------------------------
+bool
+UTF8_string::ends_with(const char * ext) const
+{
+   if (ext == 0)   return false;   // no ext provided
+
+const int ext_len = strlen(ext);
+   if (ext_len > size())   return false;   // ext longer than this string
+
+   return strcmp(ext, (const char *)items + size() - ext_len) == 0;
+}
+//-----------------------------------------------------------------------------
 ostream &
 operator<<(ostream & os, const UTF8_string & utf)
 {

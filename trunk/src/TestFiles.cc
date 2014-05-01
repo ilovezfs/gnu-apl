@@ -52,7 +52,7 @@ TestFiles::get_testcase_line()
       {
         if (uprefs.current_file()->file == 0)
            {
-             uprefs.open_current_file();
+             open_next_testfile();
              if (uprefs.current_file()->file == 0)   break;   // no more files
            }
 

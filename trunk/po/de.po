@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU APL 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-04-21 18:35+0200\n"
+"POT-Creation-Date: 2014-05-01 19:58+0200\n"
 "PO-Revision-Date: 2013-09-15 14:04+0200\n"
 "Last-Translator: Juergen <eedjsa@localhost>\n"
 "Language-Team: German\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # # Kommandos
-#: src/Command.cc:97 src/Command.cc:405 src/Command.cc:414 src/Command.cc:510
-#: src/Command.cc:734
+#: src/Command.cc:97 src/Command.cc:405 src/Command.cc:414 src/Command.cc:512
+#: src/Command.cc:737
 msgid "BAD COMMAND"
 msgstr "FEHLERHAFTES KOMMANDO"
 
@@ -70,58 +70,58 @@ msgstr "fehlender Workspace-Name in Kommando )DROP"
 msgid "too many parameters in command )DROP"
 msgstr "zu viele Parameter in Kommando )DROP"
 
-#: src/Command.cc:432
+#: src/Command.cc:434
 msgid " NOT DROPPED: "
 msgstr "NICHT GELÖSCHT"
 
-#: src/Command.cc:435
+#: src/Command.cc:437
 msgid "could not unlink file "
 msgstr "konnte Datei nicht löschen"
 
-#: src/Command.cc:449
+#: src/Command.cc:451
 msgid "US Keyboard Layout:"
 msgstr "US Tastatur Layout:"
 
-#: src/Command.cc:470
+#: src/Command.cc:472
 msgid "Commands are:"
 msgstr "Gültige Kommandos:"
 
-#: src/Command.cc:482
+#: src/Command.cc:484
 #, fuzzy
 msgid ")HOST command not allowed in safe mode."
 msgstr ")HOST Kommando fehlgeschlagen: "
 
-#: src/Command.cc:490
+#: src/Command.cc:492
 msgid ")HOST command failed: "
 msgstr ")HOST Kommando fehlgeschlagen: "
 
-#: src/Command.cc:512
+#: src/Command.cc:514
 msgid "missing filename in command )IN"
 msgstr "fehlender Dateiname im Kommando )IN"
 
-#: src/Command.cc:526 src/Command.cc:749
+#: src/Command.cc:529 src/Command.cc:753
 msgid " failed: "
 msgstr " fehlgeschlagen: "
 
-#: src/Command.cc:530
+#: src/Command.cc:533
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr "Kommando )IN: konnte Datei %s nicht zum Lesen öffnen: %s"
 
-#: src/Command.cc:568
+#: src/Command.cc:571
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr "Ungütltiger Zeichensatz (weder ASCII noch EBCDIC)"
 
-#: src/Command.cc:633
+#: src/Command.cc:636
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr "UNGÜLTIGE BIBLIOTHEK"
 
-#: src/Command.cc:638
+#: src/Command.cc:641
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr "Pfad %s konnte nicht als Verzeichnis geöffnet werden: %s"
 
-#: src/Command.cc:689
+#: src/Command.cc:692
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
@@ -132,52 +132,52 @@ msgstr ""
 " die Leistung des Interpreter) muß GNU APL folgendermaßen recompiliert "
 "werden:"
 
-#: src/Command.cc:695
+#: src/Command.cc:698
 msgid "other configure options"
 msgstr "andere configure Optionen"
 
-#: src/Command.cc:701
+#: src/Command.cc:704
 msgid "above the src directory."
 msgstr "oberhalb des Verzeichnisses src."
 
-#: src/Command.cc:712
+#: src/Command.cc:715
 msgid "NO MORE ERROR INFO"
 msgstr "KEINE ZUSÄTZLICHEN FEHLERINFORMATIONEN"
 
-#: src/Command.cc:725
+#: src/Command.cc:728
 msgid "Goodbye."
 msgstr "Und Tschüß."
 
-#: src/Command.cc:736
+#: src/Command.cc:739
 msgid "missing filename in command )OUT"
 msgstr "fehkender Dateiname im Kommando )OUT"
 
-#: src/Command.cc:752
+#: src/Command.cc:756
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr "Kommando )OUT: konnte Datei %s nicht zum Schreiben öffnen: %s"
 
-#: src/Command.cc:818
+#: src/Command.cc:822
 msgid " *** bad sub-record of *"
 msgstr "*** ungültiges sub-record von *"
 
-#: src/Command.cc:821
+#: src/Command.cc:825
 msgid " comment"
 msgstr " Kommentar"
 
-#: src/Command.cc:823
+#: src/Command.cc:827
 msgid " timestamp"
 msgstr " Zeitstempel"
 
-#: src/Command.cc:835
+#: src/Command.cc:839
 msgid " imbed"
 msgstr "i eingebettet"
 
-#: src/Command.cc:838
+#: src/Command.cc:842
 msgid "record #"
 msgstr "Record #"
 
-#: src/Command.cc:848
+#: src/Command.cc:852
 msgid " *** bad sub-record of X"
 msgstr "*** ungültiges sub-record von X"
 

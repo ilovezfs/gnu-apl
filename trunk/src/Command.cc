@@ -424,7 +424,9 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
 LibRef libref = LIB_NONE;
 UCS_string wname = lib_ws.back();
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
-UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true, "xml");
+
+UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true,
+                                                  ".xml", ".apl");
 
 int result = unlink(filename.c_str());
    if (result)
@@ -516,7 +518,8 @@ Command::cmd_IN(ostream & out, vector<UCS_string> & args, bool protection)
 UCS_string fname = args.front();
    args.erase(args.begin());
 
-UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, true, "atf");
+UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, true,
+                                                  ".atf", 0);
 
 FILE * in = fopen(filename.c_str(), "r");
    if (in == 0)   // open failed: try filename.atf unless already .atf
@@ -740,7 +743,8 @@ Command::cmd_OUT(ostream & out, vector<UCS_string> & args)
 UCS_string fname = args.front();
    args.erase(args.begin());
 
-UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, false,"atf");
+UTF8_string filename = LibPaths::get_lib_filename(LIB_NONE, fname, false,
+                                                  ".atf", 0);
    
 FILE * atf = fopen(filename.c_str(), "w");
    if (atf == 0)

@@ -182,7 +182,10 @@ AC_CONFIG_FILES([Makefile
                  tools/Makefile
                  workspaces/Makefile
                  wslib1/Makefile
-                 wslib2/Makefile])
+                 wslib2/Makefile
+                 wslib3/Makefile
+                 wslib4/Makefile
+                 wslib5/Makefile])
 
 # APL: max. rank ?
 AC_ARG_VAR(MAX_RANK_WANTED,

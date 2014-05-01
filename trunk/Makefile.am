@@ -1,6 +1,7 @@
 
-SUBDIRS      = doc po src support-files tools
-DIST_SUBDIRS = $(SUBDIRS) workspaces wslib1 wslib2 rpm debian
+SUBDIRS		= doc po src support-files tools
+APL_DIRS	= workspaces wslib1 wslib2 wslib3 wslib4 wslib5
+DIST_SUBDIRS	= $(SUBDIRS) $(APL_DIRS) rpm debian
 
 dist_doc_DATA = README			\
 		README-1-prerequisites	\
