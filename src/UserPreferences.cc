@@ -339,7 +339,7 @@ int script_argc = argc;   // $0 of the apl script
                   }
 
               // 
-              if (is_validating())
+              if (TestFiles::need_total)
                  {
                    // truncate summary.log, unless append_summary is desired
                    //
@@ -348,7 +348,6 @@ int script_argc = argc;   // $0 of the apl script
                         ofstream summary("testcases/summary.log",
                                          ios_base::trunc);
                       }
-                   TestFiles::open_next_testfile();
                  }
             }
          else if (!strcmp(opt, "--TM"))

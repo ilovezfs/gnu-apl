@@ -218,47 +218,57 @@ ofstream summary("testcases/summary.log", ios_base::app);
 void
 TestFiles::open_next_testfile()
 {
+   if (uprefs.current_file() == 0)
+      {
+        CERR << "Workspace::open_next_testfile(): no more files" << endl;
+        return;
+      }
+
    if (uprefs.current_file()->file)
       {
         CERR << "Workspace::open_next_testfile(): already open" << endl;
         return;
       }
 
-   while (uprefs.is_validating())
-      {
-        CERR << " #######################################"
-                "#######################################"  << endl
-             << "########################################"
-                "########################################" << endl
-             << " #######################################"
-                "#######################################"  << endl
-             << " Testfile: " << uprefs.current_filename() << endl
-             << "########################################"
-                "########################################" << endl;
-        uprefs.open_current_file();
-        if (uprefs.current_file()->file == 0)
-           {
-             CERR << "could not open " << uprefs.current_filename() << endl;
-             uprefs.files_todo.erase(uprefs.files_todo.begin());
-             continue;
-           }
+     for (;;)
+         {
+           if (uprefs.current_file()->test)
+              {
+                CERR << " #######################################"
+                        "#######################################\n"
+                     << "########################################"
+                        "########################################\n"
+                     << " #######################################"
+                        "#######################################\n"
+                     << " Testfile: " << uprefs.current_filename() << endl
+                     << "########################################"
+                        "########################################" << endl;
+              }
 
-        Log(LOG_test_execution)   CERR <<
-            "openened testcase file " << uprefs.current_filename() << endl;
+           uprefs.open_current_file();
+           if (uprefs.current_file()->file == 0)
+              {
+                CERR << "could not open " << uprefs.current_filename() << endl;
+                uprefs.files_todo.erase(uprefs.files_todo.begin());
+                continue;
+              }
 
-        Output::reset_dout();
-        reset_errors();
+           Log(LOG_test_execution)   CERR <<
+               "openened testcase file " << uprefs.current_filename() << endl;
 
-        char log_name[FILENAME_MAX];
-        snprintf(log_name, sizeof(log_name) - 1,  "%s.log",
-                 uprefs.current_filename());
+           Output::reset_dout();
+           reset_errors();
+
+           char log_name[FILENAME_MAX];
+           snprintf(log_name, sizeof(log_name) - 1,  "%s.log",
+                    uprefs.current_filename());
         
-        current_testreport.close();
-        current_testreport.open(log_name, ofstream::out | ofstream::trunc);
-        Assert(current_testreport.is_open());
+           current_testreport.close();
+           current_testreport.open(log_name, ofstream::out | ofstream::trunc);
+           Assert(current_testreport.is_open());
 
-        return;
-      }
+           return;
+         }
 }
 //-----------------------------------------------------------------------------
 void
