@@ -843,10 +843,11 @@ struct stat st;
 
    reset();
 
-   if (!strncmp((const char *)file_start, "#!", 2))   // a )DUMP file
+   if (!strncmp((const char *)file_start, "#!", 2) ||    // a )DUMP file
+       !strncmp((const char *)file_start, "⍝!", 4))      // a library
       {
-        // the file was written with )DUMP. Return the open file
-        // descriptor (the destructor will unmap())
+        // the file was either written with )DUMP or is a library.
+        // Return the open file descriptor (the destructor will unmap())
         //
         dump_fd = fd;
         fd = -1;   // file will be closed via dump_fd

@@ -803,25 +803,10 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
       {
-        if (filename.size() < 5                  ||
-            filename[filename.size() - 4] != '.' ||
-            filename[filename.size() - 3] != 'x' ||
-            filename[filename.size() - 2] != 'm' ||
-            filename[filename.size() - 1] != 'l' )
-           {
-             // filename does not end with .xml, so we try filename.xml
-             //
-             filename.append(UTF8_string(".xml"));
-             int dump_fd = -1;
-             new (&in) XML_Loading_Archive(filename.c_str(), dump_fd);
-           }
+        CERR << ")LOAD " << wname << " (file " << filename
+             << ") failed: " << strerror(errno) << endl;
 
-        if (!in.is_open())   // open failed again: give up
-           {
-             CERR << ")LOAD " << wname << " (file " << filename
-                  << ") failed: " << strerror(errno) << endl;
-             return UCS_string();
-           }
+        return UCS_string();
       }
 
    Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
@@ -883,25 +868,9 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
       {
-        if (filename.size() < 5                  ||
-            filename[filename.size() - 4] != '.' ||
-            filename[filename.size() - 3] != 'x' ||
-            filename[filename.size() - 2] != 'm' ||
-            filename[filename.size() - 1] != 'l' )
-           {
-             // filename does not end with .xml, so we try filename.xml
-             //
-             filename.append(UTF8_string(".xml"));
-             int dump_fd = -1;
-             new (&in) XML_Loading_Archive(filename.c_str(), dump_fd);
-           }
-
-        if (!in.is_open())   // open failed again: give up
-           {
-             CERR << ")COPY " << wname << " (file " << filename
-                  << ") failed: " << strerror(errno) << endl;
-             return;
-           }
+        CERR << ")COPY " << wname << " (file " << filename
+             << ") failed: " << strerror(errno) << endl;
+        return;
       }
 
    Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
