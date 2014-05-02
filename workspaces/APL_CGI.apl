@@ -1,4 +1,4 @@
-#!/usr/local/bin/apl --script --
+#!/usr/bin/apl --script --
 
 )COPY 3 HTML
 
@@ -654,6 +654,9 @@ END-OF-⎕INP
 
       '<!--'
       )VARS
+
+      )FNS
+
       )SI
       '-->'
       )OFF
