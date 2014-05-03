@@ -410,7 +410,7 @@ int count = 0;
         const Token & tok = body[b];
         if (tok.get_ValueType() != TV_VAL)      continue;
 
-        if (tok.get_apl_val().get() == &value)
+        if (tok.get_apl_val()->is_or_contains(value))
            {
              out << prefix << get_name() << "[" << b << "]" << endl;
              ++count;

@@ -307,6 +307,9 @@ public:
         return true;
       }
 
+   /// returen true if value == \b this or value is contained in \b this
+   bool is_or_contains(const Value & value) const;
+
    /// print debug info about setting or clearing of flags to CERR
    void flag_info(const char * loc, ValueFlags flag, const char * flag_name,
                   bool set) const;
