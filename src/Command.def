@@ -21,7 +21,6 @@
 
 // definition of APL commands and the functions that implement them
 
-cmd_def(")HELP"     , cmd_HELP(CERR);                       , )
 cmd_def(")CHECK"    , cmd_CHECK(out);                       , )
 cmd_def(")CLEAR"    , Workspace::clear_WS(out, false);      , )
 cmd_def(")CONTINUE" , cmd_CONTINUE(out);                    , )
@@ -30,6 +29,7 @@ cmd_def(")DROP"     , cmd_DROP(out, args);                  , )
 cmd_def(")DUMP"     , Workspace::dump_WS(out, args);        , [[lib] ws-name])
 cmd_def(")ERASE"    , cmd_ERASE(CERR, args);                , symbol ...)
 cmd_def(")FNS"      , Workspace::list(out, LIST_FUNS, arg); , [from-to])
+cmd_def(")HELP"     , cmd_HELP(CERR);                       , )
 cmd_def(")HOST"     , cmd_HOST(out, arg);                   , command)
 cmd_def(")IN"       , cmd_IN(out, args, false);             , filename [names])
 cmd_def(")LIBS"     , cmd_LIBS(out, args);                  , [new root])
@@ -53,10 +53,10 @@ cmd_def(")VALUES"   , Value::list_all(out, false);          , )
 cmd_def(")VARS"     , Workspace::list(out, LIST_VARS, arg); , [from-to])
 cmd_def(")WSID"     , Workspace::wsid(out, arg);            , [ws-name])
 
-cmd_def("]HELP"     , cmd_HELP(out);                        , )
 cmd_def("]BOXING"   , cmd_BOXING(out, arg);                 , OFF or 2-4 or 7-9)
 cmd_def("]COLOR"    , Output::toggle_color(arg);            , [ON or OFF])
 cmd_def("]EXPECT"   , TestFiles::expect_apl_errors(arg);    , errors)
+cmd_def("]HELP"     , cmd_HELP(out);                        , )
 cmd_def("]KEYB"     , cmd_KEYB();                           , )
 cmd_def("]LOG"      , cmd_LOG(out, arg);                    , [facility])
 cmd_def("]OWNERS"   , Value::list_all(out, true);           , )

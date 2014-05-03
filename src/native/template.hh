@@ -75,6 +75,7 @@ No such process
 // mandatory functios
 extern "C" void * get_function_mux(const char * function_name);
 static Fun_signature get_signature();
+static bool close_fun(Cause cause, const NativeFunction * caller);
 static Token eval_fill_B(Value_P B, const NativeFunction * caller);
 static Token eval_fill_AB(Value_P A, Value_P B, const NativeFunction * caller);
 static Token eval_ident_Bx(Value_P B, Axis x, const NativeFunction * caller);
@@ -302,6 +303,15 @@ Value_P Z(new Value(ucs, LOC));
 
 #endif
 
+/// an optional function that is called when the native function in the
+/// APL interpreter is about to be removed. Return \b true if the caller shall
+/// dlclose() this library
+bool
+close_fun(Cause cause, const NativeFunction * caller)
+{
+   return true;
+}
+//-----------------------------------------------------------------------------
 Token
 eval_fill_B(Value_P B, const NativeFunction * caller)
 {
