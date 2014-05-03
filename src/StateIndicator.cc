@@ -501,13 +501,13 @@ StateIndicator::show_owners(ostream & out, const Value & value) const
 {
 int count = 0;
 
-   if (&value == eval_arg_A.get())
+   if (eval_arg_A->is_or_contains(value))
       { out << "    SI[" << level << "] eval_arg_A" << endl;   ++count; }
 
-   if (&value == eval_arg_X.get())
+   if (eval_arg_X->is_or_contains(value))
       { out << "    SI[" << level << "] eval_arg_X" << endl;   ++count; }
 
-   if (&value == eval_arg_B.get())
+   if (eval_arg_B->is_or_contains(value))
       { out << "    SI[" << level << "] eval_arg_B" << endl;   ++count; }
 
    Assert(executable);

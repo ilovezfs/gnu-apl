@@ -188,7 +188,7 @@ int count = 0;
         const Token & tok = at(s).tok;
         if (tok.get_ValueType() != TV_VAL)      continue;
 
-        if (tok.get_apl_val().get() == &value)
+        if (tok.get_apl_val()->is_or_contains(value))
            {
              out << prefix << " Fifo [" << s << "]" << endl;
              ++count;

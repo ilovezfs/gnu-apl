@@ -463,6 +463,26 @@ const ShapeItem ec = nz_element_count();
    return false;
 }
 //-----------------------------------------------------------------------------
+bool
+Value::is_or_contains(const Value & value) const
+{
+   if (this == 0)        return false;   // not a valie value
+
+   if (this == &value)   return true;
+
+const Cell * C = &get_ravel(0);
+   loop(e, nz_element_count())
+      {
+        if (C->is_pointer_cell())
+           {
+             if (C->get_pointer_value()->is_or_contains(value))   return true;;
+           }
+        ++C;
+      }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
 void
 Value::flag_info(const char * loc, ValueFlags flag, const char * flag_name,
                  bool set) const
@@ -682,6 +702,7 @@ Value::list_one(ostream & out, bool show_owners)
         loop(r, get_rank())   out << " " << get_shape_item(r);
       }
 
+   out << ", Depth = " << compute_depth();
    out << ":" << endl;
    print(out);
    out << endl;
@@ -694,7 +715,7 @@ Value::list_one(ostream & out, bool show_owners)
    // static variables
    //
 #define stv_def(x) \
-   if (this == x ## _P.get())   out << "(static) Value::_" #x << endl;
+   if (x ## _P->is_or_contains(*this))   out << "(static) Value::_" #x << endl;
 #include "StaticValues.def"
 
    Workspace::show_owners(out, *this);
