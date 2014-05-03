@@ -1,27 +1,29 @@
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
+This file is part of GNU APL, a free implementation of the
+ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2014  Elias Mårtenson
+Copyright (C) 2014 Elias Mårtenson
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "emacs.hh"
 #include "network.hh"
 
 #include <pthread.h>
+
+class NativeFunction;
 
 static pthread_mutex_t apl_main_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t apl_main_cond = PTHREAD_COND_INITIALIZER;
@@ -76,17 +78,17 @@ static Token list_functions( ostream &out )
 }
 
 Token
-eval_B(Value_P B)
+eval_B(Value_P B, const NativeFunction * caller)
 {
     return list_functions( CERR );
 }
 
-Token eval_AB(Value_P A, Value_P B)
+Token eval_AB(Value_P A, Value_P B, const NativeFunction * caller)
 {
     return list_functions( COUT );
 }
 
-Token eval_XB(Value_P X, Value_P B)
+Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
 {
     const APL_Float qct = Workspace::get_CT();
     const int function_number = X->get_ravel(0).get_near_int(qct);
@@ -115,25 +117,32 @@ Token eval_XB(Value_P X, Value_P B)
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
-Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
+Token eval_AXB(const Value_P A, const Value_P X, const Value_P B,
+               const NativeFunction * caller)
 {
     COUT << "eval_AXB" << endl;
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
-void close_fun( Cause cause )
+bool close_fun( Cause cause , const NativeFunction * caller)
 {
-    close_listeners();
+    if( cause == CAUSE_ERASED ) {
+        return false;
+    }
+    else {
+        close_listeners();
+        return true;
+    }
 }
 
 void *get_function_mux( const char *function_name )
 {
     if( strcmp( function_name, "get_signature" ) == 0 ) return (void *)&get_signature;
-    if( strcmp( function_name, "eval_B" ) == 0 )        return (void *)&eval_B;
-    if( strcmp( function_name, "eval_AB" ) == 0 )       return (void *)&eval_AB;
-    if( strcmp( function_name, "eval_XB" ) == 0 )       return (void *)&eval_XB;
-    if( strcmp( function_name, "eval_AXB" ) == 0 )      return (void *)&eval_AXB;
-    if( strcmp( function_name, "close_fun" ) == 0 )     return (void *)&close_fun;
+    if( strcmp( function_name, "eval_B" ) == 0 ) return (void *)&eval_B;
+    if( strcmp( function_name, "eval_AB" ) == 0 ) return (void *)&eval_AB;
+    if( strcmp( function_name, "eval_XB" ) == 0 ) return (void *)&eval_XB;
+    if( strcmp( function_name, "eval_AXB" ) == 0 ) return (void *)&eval_AXB;
+    if( strcmp( function_name, "close_fun" ) == 0 ) return (void *)&close_fun;
     return 0;
 }
 
