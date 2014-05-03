@@ -83,7 +83,7 @@ void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
    // this function disappears
    {
      void * cfun = get_function_mux("close_fun");
-     if (cfun)   close_fun = (void (*)(Cause))cfun;
+     if (cfun)   close_fun = (bool (*)(Cause, const NativeFunction *))cfun;
      else        close_fun = 0;
    }
 
@@ -145,8 +145,6 @@ NativeFunction::~NativeFunction()
 {
   Log(LOG_UserFunction__enter_leave)
       CERR << "Native function " << get_name() << " deleted." << endl;
-
-   if (handle)   dlclose(handle);
 
    loop(v, valid_functions.size())
       {
@@ -296,7 +294,15 @@ NativeFunction::cleanup()
    loop(v, valid_functions.size())
       {
         NativeFunction & fun = *valid_functions.back();
-        if (fun.close_fun)   (*fun.close_fun)(CAUSE_SHUTDOWN);
+        if (fun.close_fun && fun.handle)
+           {
+             const bool do_dlclose = (*fun.close_fun)(CAUSE_SHUTDOWN, &fun);
+             if (do_dlclose)
+                {
+                  dlclose(fun.handle);
+                  fun.handle = 0;
+                }
+           }
         delete valid_functions[v];
       }
 }
@@ -304,7 +310,16 @@ NativeFunction::cleanup()
 void
 NativeFunction::destroy()
 {
-   if (close_fun)   (*close_fun)(CAUSE_ERASED);
+   if (close_fun)   (*close_fun)(CAUSE_ERASED, this);
+   if (close_fun && handle)
+      {
+        const bool do_dlclose = (*close_fun)(CAUSE_ERASED, this);
+        if (do_dlclose)
+           {
+             dlclose(handle);
+             handle = 0;
+           }
+      }
    delete this;
 }
 //-----------------------------------------------------------------------------

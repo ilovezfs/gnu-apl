@@ -263,15 +263,18 @@ Value_P Z(new Value(LOC));   // skalar result
 //-----------------------------------------------------------------------------
 extern "C" void * get_function_mux(const char * function_name);
 static Fun_signature get_signature();
+static bool close_fun(Cause cause, const NativeFunction * caller);
 static Token eval_B(Value_P B, const NativeFunction * caller);
 static Token eval_AB(Value_P A, Value_P B, const NativeFunction * caller);
 static Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller);
-static Token eval_AXB(Value_P A, Value_P X, Value_P B, const NativeFunction * caller);
+static Token eval_AXB(Value_P A, Value_P X, Value_P B,
+                      const NativeFunction * caller);
 
 void *
 get_function_mux(const char * function_name)
 {
    if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
+   if (!strcmp(function_name, "close_fun"))       return (void *)&close_fun;
    if (!strcmp(function_name, "eval_B"))          return (void *)&eval_B;
    if (!strcmp(function_name, "eval_AB"))         return (void *)&eval_AB;
    if (!strcmp(function_name, "eval_XB"))         return (void *)&eval_XB;
@@ -286,6 +289,15 @@ Fun_signature
 get_signature()
 {
    return SIG_Z_A_F2_B;
+}
+//-----------------------------------------------------------------------------
+/// an optional function that is called when the native function in the
+/// APL interpreter is about to be removed. Return true if the caller shall
+/// dlclose() this library
+bool
+close_fun(Cause cause, const NativeFunction * caller)
+{
+   return true;
 }
 //-----------------------------------------------------------------------------
 static Token

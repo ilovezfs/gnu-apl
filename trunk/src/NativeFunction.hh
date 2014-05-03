@@ -178,7 +178,7 @@ protected:
    Token (*f_eval_ident_Bx)(Vr B,                   Axis x, Th);
 #undef Th
 
-   void (*close_fun)(Cause cause);
+   bool (*close_fun)(Cause cause, const NativeFunction * caller);
 };
 //-----------------------------------------------------------------------------
 
