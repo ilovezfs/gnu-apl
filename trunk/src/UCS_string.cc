@@ -73,7 +73,13 @@ UCS_string::UCS_string(const UTF8_string & utf)
               if (i >= utf.size())
                  {
                    utf.dump_hex(CERR << "Truncated UTF8 string: ", 40)
-                      << " at " << LOC <<  endl;
+                      << " len " << utf.size() << " at " << LOC <<  endl;
+                   if (utf.size() >= 40)
+                      {
+                         UTF8_string end(utf.get_items() + utf.size() - 10, 10);
+                         end.dump_hex(CERR << endl << "(ending with : ", 20)
+                                           << ")" << endl;
+                      }
                    return;
                  }
 
@@ -81,7 +87,13 @@ UCS_string::UCS_string(const UTF8_string & utf)
               if ((subc & 0xC0) != 0x80)
                  {
                    utf.dump_hex(CERR << "Bad UTF8 string: ", 40)
-                      << " at " << LOC <<  endl;
+                      << " len " << utf.size() << " at " << LOC <<  endl;
+                   if (utf.size() >= 40)
+                      {
+                         UTF8_string end(utf.get_items() + utf.size() - 10, 10);
+                         end.dump_hex(CERR << endl << "(ending with : ", 20)
+                                           << ")" << endl;
+                      }
                    Backtrace::show(__FILE__, __LINE__);
                    return;
                  }

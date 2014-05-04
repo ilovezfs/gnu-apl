@@ -258,7 +258,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-dist_doc_DATA = HTML.apl
+dist_doc_DATA = 
 all: all-am
 
 .SUFFIXES:
