@@ -263,12 +263,12 @@ Value_P Z(new Value(LOC));   // skalar result
 //-----------------------------------------------------------------------------
 extern "C" void * get_function_mux(const char * function_name);
 static Fun_signature get_signature();
-static bool close_fun(Cause cause, const NativeFunction * caller);
-static Token eval_B(Value_P B, const NativeFunction * caller);
-static Token eval_AB(Value_P A, Value_P B, const NativeFunction * caller);
-static Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller);
-static Token eval_AXB(Value_P A, Value_P X, Value_P B,
-                      const NativeFunction * caller);
+static bool close_fun(Cause cause,          const NativeFunction * caller);
+static Token eval_B  (Value_P B,            const NativeFunction * caller);
+static Token eval_AB (Value_P A, Value_P B, const NativeFunction * caller);
+static Token eval_XB (Value_P X, Value_P B, const NativeFunction * caller);
+static Token eval_AXB(Value_P A, Value_P X,
+                      Value_P B,            const NativeFunction * caller);
 
 void *
 get_function_mux(const char * function_name)
