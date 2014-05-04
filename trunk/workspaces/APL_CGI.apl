@@ -94,47 +94,22 @@ yBODY←0⍴'<please-set-yBODY>'
 ⍝ generic HTML related helper functions
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ emit a CGI header (if started from a web server)
-∇xZ←HTTP_header
- xZ←'' ◊ →(0=⍴,⎕ENV "GATEWAY_INTERFACE")⍴0   ⍝ nothing if not run as CGI script
- ⍝
- ⍝ The 'Content-type: ...' string ends with LF (and no CR)
- ⍝ ⎕UCS 13 10 13 emits CR LF CR.
- ⍝ Together this gives two lines, each ending with CR/LF
- ⍝ Most tolerate LF without CR, but the CGI standard wants CR/LF
- ⍝
- xZ←'Content-type: text/html; charset=UTF-8', ⎕UCS 13 10 13
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ HTML attribute xA with value xB
-⍝ xA="xB"
-⍝
-∇xZ←xA attr xB
- Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- xZ←' ',xA,'="',xB,'"'
- Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
-∇
-
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ Frequently used HTML attributes
 ⍝
-0⍴⎕FX 'xZ←_in'           'xZ←"class"      attr "apl_in"'
-0⍴⎕FX 'xZ←_out'          'xZ←"class"      attr "apl_out"'
+0⍴⎕FX 'xZ←_in'           'xZ←"class"      HTML∆attr "apl_in"'
+0⍴⎕FX 'xZ←_out'          'xZ←"class"      HTML∆attr "apl_out"'
 
-0⍴⎕FX 'xZ←_alt  xB'      'xZ←"alt"        attr xB'
-0⍴⎕FX 'xZ←_content xB'   'xZ←"content"    attr xB'
-0⍴⎕FX 'xZ←_href xB'      'xZ←"href"       attr xB'
-0⍴⎕FX 'xZ←_http_eq xB'   'xZ←"http-equiv" attr xB'
-0⍴⎕FX 'xZ←_name xB'      'xZ←"name"       attr xB'
-0⍴⎕FX 'xZ←_rel  xB'      'xZ←"rel"        attr xB'
-0⍴⎕FX 'xZ←_src  xB'      'xZ←"src"        attr xB'
-0⍴⎕FX 'xZ←_type xB'      'xZ←"type"       attr xB'
-0⍴⎕FX 'xZ←_width B'      'xZ←"width"      attr ⍕B'
-0⍴⎕FX 'xZ←_height B'     'xZ←"height"     attr ⍕B'
+0⍴⎕FX 'xZ←_alt  xB'      'xZ←"alt"        HTML∆attr xB'
+0⍴⎕FX 'xZ←_content xB'   'xZ←"content"    HTML∆attr xB'
+0⍴⎕FX 'xZ←_href xB'      'xZ←"href"       HTML∆attr xB'
+0⍴⎕FX 'xZ←_http_eq xB'   'xZ←"http-equiv" HTML∆attr xB'
+0⍴⎕FX 'xZ←_name xB'      'xZ←"name"       HTML∆attr xB'
+0⍴⎕FX 'xZ←_rel  xB'      'xZ←"rel"        HTML∆attr xB'
+0⍴⎕FX 'xZ←_src  xB'      'xZ←"src"        HTML∆attr xB'
+0⍴⎕FX 'xZ←_type xB'      'xZ←"type"       HTML∆attr xB'
+0⍴⎕FX 'xZ←_width B'      'xZ←"width"      HTML∆attr ⍕B'
+0⍴⎕FX 'xZ←_height B'     'xZ←"height"     HTML∆attr ⍕B'
 0⍴⎕FX 'xZ←_h_w B'        'xZ←(_height ↑B), _width 1↓B
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
@@ -388,7 +363,7 @@ yBODY←0⍴'<please-set-yBODY>'
 ⍝ The entire document
 ⍝
 ∇yZ←Document 
- yZ←    x2y HTTP_header
+ yZ←    x2y HTML∆HTTP_header
  yZ←yZ, x2y '<!DOCTYPE html>'
  yZ←yZ, Html yBODY
  Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
