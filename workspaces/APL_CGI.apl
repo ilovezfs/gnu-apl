@@ -1,6 +1,6 @@
 #!/usr/bin/apl --script --
 
-)COPY 3 HTML
+)COPY 5 HTML.apl
 
 ⍝ This is an APL CGI script that demonstrates the use of APL for CGI scripting
 ⍝ It outputs an HTML page like GNU APL's homepage at www.gnu.org.
@@ -25,7 +25,7 @@
 
       ⍝ disable colored output and avoid APL line wrapping
       ⍝
-      ]XTERM OFF
+      ]COLOR OFF
       ⎕PW←1000
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
@@ -37,344 +37,6 @@ xTITLE←'<please-set-xTITLE>'
 xDESCRIPTION←'<please-set-xDESCRIPTION>'
 
 yBODY←0⍴'<please-set-yBODY>'
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ Misc. helper functions
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ depth, rank, and shape of B
-⍝ A: optional variable name
-⍝ B: variable value
-⍝
-∇Z←A debug B;yPROP;yVAL
- yPROP←,⊂'<pre>At ',(,¯2 ⎕SI 3),': ' ◊ V←''
- →1+(0=⎕NC 'A')⍴⎕LC ◊  yPROP←'' ◊ V←A
- yPROP←yPROP,⊂'≡  ',V,': ',,⍕≡B
- yPROP←yPROP,⊂'⍴⍴ ',V,': ',,⍕⍴⍴B
- yPROP←yPROP,⊂'⍴  ',V,': ',,⍕⍴B
- yVAL←⊂[⎕IO+1]4 ⎕CR B
- ⊃yPROP HTML∆xbox yVAL
- '</pre>'
- Z←B
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ check a condition
-⍝
-∇Assert B;COND;LOC;VAR
- →(1≡B)⍴0
- ' '
- COND←7↓,¯2 ⎕SI 4
- LOC←,¯2 ⎕SI 3
- '<pre>************************************************'
- ' '
- '*** Assertion (', COND, ') failed at ',LOC
- ''
-
- ⍝ show variable (assuming COND ends with the variable name)
- ⍝
- VCHAR←'∆⍙',⎕UCS ,64 96 ∘.+⍳26
- VAR←(⌽∧\⌽(COND∈VCHAR))/COND
- '</pre>'
- 0 0⍴VAR debug ⍎VAR
- '<pre>'
-
- ⍝ show stack
- ⍝ 
- ' '
- 'Stack:'
- 7 ⎕CR ⊃¯1↓⎕SI 3
- ' '
- '************************************************</pre>'
- →
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ generic HTML related helper functions
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ Frequently used HTML attributes
-⍝
-0⍴⎕FX 'xZ←_in'           'xZ←"class"      HTML∆attr "apl_in"'
-0⍴⎕FX 'xZ←_out'          'xZ←"class"      HTML∆attr "apl_out"'
-
-0⍴⎕FX 'xZ←_alt  xB'      'xZ←"alt"        HTML∆attr xB'
-0⍴⎕FX 'xZ←_content xB'   'xZ←"content"    HTML∆attr xB'
-0⍴⎕FX 'xZ←_href xB'      'xZ←"href"       HTML∆attr xB'
-0⍴⎕FX 'xZ←_http_eq xB'   'xZ←"http-equiv" HTML∆attr xB'
-0⍴⎕FX 'xZ←_name xB'      'xZ←"name"       HTML∆attr xB'
-0⍴⎕FX 'xZ←_rel  xB'      'xZ←"rel"        HTML∆attr xB'
-0⍴⎕FX 'xZ←_src  xB'      'xZ←"src"        HTML∆attr xB'
-0⍴⎕FX 'xZ←_type xB'      'xZ←"type"       HTML∆attr xB'
-0⍴⎕FX 'xZ←_width B'      'xZ←"width"      HTML∆attr ⍕B'
-0⍴⎕FX 'xZ←_height B'     'xZ←"height"     HTML∆attr ⍕B'
-0⍴⎕FX 'xZ←_h_w B'        'xZ←(_height ↑B), _width 1↓B
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ HTML tag xA with attributes xX.
-⍝ B determines the tag variant:
-⍝
-⍝   B = 1: HTML start Tag        <xA xX>
-⍝   B = 2: HTML end Tag          </xA>
-⍝   B = 3: XML start/end Tag     <xA xX/>
-⍝
-∇xZ←xA T[xX] B
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
- Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- xZ←'<',((B=2)⍴'/'),xA,xX,((B=3)⍴'/'),'>'
- Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ multi-line B tagged with A and /A
-⍝ <A X>
-⍝   B
-⍝ </A>
-⍝
-∇yZ←xA TX_B_E[xX] yB
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
- Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- yZ←,⊂xA T[xX] 1
- yZ←yZ,indent yB
- yZ←yZ,⊂xA T 2
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ single-line xB tagged with xA and /xA
-⍝ <xA xX> xB </xA>
-⍝
-∇yZ←xA TX_B_E_1[xX] xB
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- yZ←,⊂(xA T[xX] 1),xB,xA T 2
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ single-line xB tagged with xA (no /A)
-⍝ <xA xX> xB
-⍝
-∇yZ←xA TX_B_1[xX] xB
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- Assert 1 ≡ ≡xA ◊ Assert 1 ≡ ''⍴⍴⍴xA
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- yZ←,⊂(xA T[xX] 1),xB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ convert single-line xB to multi-line yZ
-⍝
-∇yZ←x2y xB
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- yZ←,⊂xB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ indent single-line xB
-⍝
-∇xZ←indent_2 xB
- xB←,xB
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- xZ←'  ',xB
- Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ indent multi-line xB
-⍝
-∇yZ←indent yB
- Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- yZ←indent_2 ¨,yB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ disclose one-line yB and print it
-⍝
-∇emit_1 yB
- ⊃yB
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ disclose multi-line yB and print it
-⍝
-∇emit yB
- Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- emit_1¨yB
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ specific HTML Elements
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag xB as ANCHOR with URI xHREF
-⍝ <A href=xHREF> xB </A>
-⍝
-∇xZ←xHREF A xB
- Assert 1 ≡ ≡xB    ◊ Assert 1 ≡ ''⍴⍴⍴xB
- Assert 1 ≡ ≡xHREF ◊ Assert 1 ≡ ''⍴⍴⍴xHREF
- xZ←,⊃"A" TX_B_E_1[_href xHREF] xB
- Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag xB as TITLE
-⍝ <TITLE> xB </TITLE>
-⍝
-∇yZ←Title xB
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- yZ←'TITLE' TX_B_E_1 xB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag xB as IMAGE
-⍝ <IMG xB>
-⍝
-∇yZ←Img[xX] xB
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- yZ←,⊂'IMG' T[xX] xB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag xB as LINK
-⍝ <LINK xB>                         ⍝
-⍝
-∇yZ←Link xX
- Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- yZ←,⊂'LINK' T[xX] 1
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag yB as STYLE
-⍝ <STYLE xX >
-⍝   yB
-⍝ </STYLE>
-⍝
-∇yZ←Style[xX] yB
- Assert 1 ≡ ≡xX ◊ Assert 1 ≡ ''⍴⍴⍴xX
- Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- yZ←'STYLE' TX_B_E[xX] yB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag xB as LIST ITEM
-⍝ <LI> xB
-⍝
-∇xZ←Li xB
- Assert 1 ≡ ≡xB ◊ Assert 1 ≡ ''⍴⍴⍴xB
- xZ←'<LI> ', xB
- Assert 1 ≡ ≡xZ ◊ Assert 1 ≡ ''⍴⍴⍴xZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag yB as ORDERED LIST
-⍝ <OL>
-⍝   <LI> B[1]
-⍝   <LI> B[2]
-⍝   ...
-⍝ </OL>
-⍝
-∇yZ←Ol[xX] yB
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- yZ←'OL' TX_B_E[xX] Li¨yB
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag yB as UNORDERED LIST
-⍝ <UL>
-⍝   <LI> B[1]
-⍝   <LI> B[2]
-⍝   ...
-⍝ </UL>
-⍝
-∇yZ←Ul[xX] yB
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- yZ←'UL' TX_B_E[xX] Li¨yB
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ Wrappers for frequently used HTML elements
-⍝
-0⍴⎕FX 'yZ←H1[xX] xB'   'yZ←"H1" TX_B_E_1[xX] xB'
-0⍴⎕FX 'yZ←H2[xX] xB'   'yZ←"H2" TX_B_E_1[xX] xB'
-0⍴⎕FX 'yZ←H3[xX] xB'   'yZ←"H3" TX_B_E_1[xX] xB'
-0⍴⎕FX 'yZ←H4[xX] xB'   'yZ←"H4" TX_B_E_1[xX] xB'
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ return HEAD using xTITLE
-⍝ <HEAD>
-⍝   B
-⍝ </HEAD>
-⍝
-∇yZ←Head;yB
- yB←Title xTITLE
- yB←yB,,⊂'META' T[(_http_eq 'Content-Type'), _content 'text/html; charset=UTF-8'] 1
- yB←yB,,⊂'META' T[(_name 'description'), _content xDESCRIPTION] 1
- yB←yB,Link (_rel  'stylesheet'),(_type 'text/css'), _href 'apl-home.css'
- yB←yB,Style[_type  'text/css'] ,⊂''
-
- yZ←'HEAD' TX_B_E yB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ tag yB as BODY
-⍝ <BODY X>
-⍝   B
-⍝ </BODY>
-⍝
-∇yZ←Body[xX] yB
- Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- yZ←'BODY' TX_B_E[xX] yB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ HTML document with body yB
-⍝ <HTML X>
-⍝   B
-⍝ </HTML>
-⍝
-∇yZ←Html[xX] yB
- →1+(0≠⎕NC 'xX')⍴⎕LC ◊ xX←''
- Assert 2 ≡ ≡yB ◊ Assert 1 ≡ ''⍴⍴⍴yB
- yZ←'HTML' TX_B_E Head, Body[xX] yB
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
-⍝ The entire document
-⍝
-∇yZ←Document 
- yZ←    x2y HTML∆HTTP_header
- yZ←yZ, x2y '<!DOCTYPE html>'
- yZ←yZ, Html yBODY
- Assert 2 ≡ ≡yZ ◊ Assert 1 ≡ ''⍴⍴⍴yZ
-∇
-
-      ⍝ save the functions and variables defined so far, You can do that
-      ⍝ to create a workspace containing the functions and variables defined 
-      ⍝ above that you can )COPY into other web pages.
-      ⍝
-      ⍝ )WSID APL_CGI
-      ⍝ )SAVE
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ The content of the HTML page
@@ -407,7 +69,7 @@ xFTP_GNU←"ftp://ftp.gnu.org"
 xFTP_APL←xFTP_GNU,"/gnu/apl"
 xCYGWIN←"www.cygwin.org"
 xMIRRORS←'http://www.gnu.org/prep/ftp.html'
-xGNU_PIC←_src xHTTP_GNU, "graphics/gnu-head-sm.jpg"
+xGNU_PIC←HTML∆__src xHTTP_GNU, "graphics/gnu-head-sm.jpg"
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ some file names used in the BODY
@@ -430,20 +92,20 @@ xSVN_APL←'https://savannah.gnu.org/svn/?group=apl'
 yFEATURES←           ⊂ 'nested arrays and related functions'
 yFEATURES←yFEATURES, ⊂ 'complex numbers, and'
 yFEATURES←yFEATURES, ⊂ 'a shared variable interface'
-yFEATURES←Ul yFEATURES
+yFEATURES←HTML∆Ul yFEATURES
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ Installation instructios
 ⍝
 ∇yZ←INSTALL;I1;I2;I3;I4
-I1←      'Visit one of the ', xMIRRORS A 'GNU mirrors'
+I1←      'Visit one of the ', xMIRRORS HTML∆A 'GNU mirrors'
 I1←  I1, ' and download the tar file <B>', xTARFILE,'</B> in directory'
 I1←⊂ I1, ' <B>apl</B>.'
 I2←⊂     'Unpack the tar file: <B>tar xzf ', xTARFILE, '</B>'
 I3←⊂     'Change to the newly created directory: <B>cd ', xAPL_VERSION, '</B>'
 I4←      'Read (and follow) the instructions in files <B>INSTALL</B>'
 I4←⊂ I4, ' and <B>README-*</B>'
-yZ←⊃ Ol I1, I2, I3, I4
+yZ←⊃ HTML∆Ol I1, I2, I3, I4
 ∇
 
       ⍝ ⎕INP acts like a HERE document in bash. The monadic form ⎕INP B
@@ -465,10 +127,10 @@ yZ←⊃ Ol I1, I2, I3, I4
       yBODY← '<?apl' '?>' ⎕INP 'END-OF-⎕INP'   ⍝ php style
 
 <DIV class="c1">
-<?apl H1[''] xTITLE ?>
+<?apl HTML∆H1[''] xTITLE ?>
 <TABLE>
   <TR>
-    <TD> <?apl Img[xGNU_PIC, (_alt 'Astrid'), _h_w 122 129] 1 ?>
+    <TD> <?apl HTML∆Img[xGNU_PIC, (HTML∆_alt 'Astrid'), HTML∆__h_w 122 129] 1 ?>
     <TD width="20%">
     <TD><I> Rho, rho, rho of X<BR>
          Always equals 1<BR>
@@ -493,7 +155,7 @@ The APL interpreter has implemented:
 <?apl ⊃ yFEATURES ?>
 
 In addition, <B>GNU APL</B> can be scripted. For example,
-<?apl x2y 'APL_demo.html' A "<B>this HTML page</B>" ?>
+<?apl HTML∆x2y 'APL_demo.html' HTML∆A "<B>this HTML page</B>" ?>
 is the output of a CGI script written in APL.
 <BR>
 <BR>
@@ -501,26 +163,26 @@ GNU APL was written and is being maintained by Jürgen Sauermann.
 </DIV>
 <DIV class="c3">
 
-<?apl H2[''] 'Downloading and Installing GNU APL' ?>
+<?apl HTML∆H2[''] 'Downloading and Installing GNU APL' ?>
 GNU APL should be available on every 
-<?apl  xMIRRORS A 'GNU mirror' ?>
+<?apl  xMIRRORS HTML∆A 'GNU mirror' ?>
 (in directory <B>apl</B>) and at
-<?apl  xFTP_APL A xFTP_GNU ?>.
+<?apl  xFTP_APL HTML∆A xFTP_GNU ?>.
 
-<?apl H4[''] 'Normal Installation of GNU APL' ?>
+<?apl HTML∆H4[''] 'Normal Installation of GNU APL' ?>
 The normal (and fully supported) way to install GNU APL is this:
 
 <?apl ⊃ INSTALL ?>
 
-<?apl H4[''] 'GNU APL for WINDOWs' ?>
+<?apl HTML∆H4[''] 'GNU APL for WINDOWs' ?>
 
 GNU APL compiles under CYGWIN, (see
-<?apl  ('http://',xCYGWIN) A xCYGWIN ?>),
-provided that the necessary libraries are installed. A 32-bit <B>apl.exe</B>
+<?apl  ('http://',xCYGWIN) HTML∆A xCYGWIN ?>),
+provided that the necessary libraries are installed. HTML∆A 32-bit <B>apl.exe</B>
 that may run under CYGWIN lives in the download area. Use at your own risk and
 see <B>README-5-WINDOWS</B> for further information.
 
-<?apl H4[''] 'Subversion (SVN) repository for GNU APL' ?>
+<?apl HTML∆H4[''] 'Subversion (SVN) repository for GNU APL' ?>
 
 You can also check out the latest version of GNU APL from its subversion
 repository on Savannah:
@@ -529,10 +191,10 @@ repository on Savannah:
 <B>svn co http://svn.savannah.gnu.org/svn/apl/trunk</B>.
 <BR>
 <BR>
-Here is <?apl x2y xSVN_APL A "<EM>more information</EM>" ?>
+Here is <?apl HTML∆x2y xSVN_APL HTML∆A "<EM>more information</EM>" ?>
 about using Subversion with GNU APL.
 
-<?apl H4[''] 'RPMs for GNU APL' ?>
+<?apl HTML∆H4[''] 'RPMs for GNU APL' ?>
 
 For RPM based GNU/Linux distributions we have created source and binary RPMs.
 Look for files <B><?apl xRPMFILE ?></B> (binary RPM for i386) or 
@@ -540,7 +202,7 @@ Look for files <B><?apl xRPMFILE ?></B> (binary RPM for i386) or
 RPMs, then please report it, but with a solution, since the maintainer of
 GNU APL may use a GNU/Linux distribution with a different package manager.
 
-<?apl H4[''] 'Debian packages for GNU APL' ?>
+<?apl HTML∆H4[''] 'Debian packages for GNU APL' ?>
 
 For Debian based GNU/Linux distributions we have created source and binary 
 packages for Debian. Look for files <B><?apl xDEBFILE ?></B> (binary Debian
@@ -549,7 +211,7 @@ If you encounter a problem with these packages, then please report it,
 but with a solution, since the maintainer of GNU APL may use a GNU/Linux
 distribution with a different package manager.
 
-<?apl H4[''] 'GNU APL Binary' ?>
+<?apl HTML∆H4[''] 'GNU APL Binary' ?>
 
 If you just want to quickly give GNU APL a try, and if you are very lucky
 (which includes having shared libraries libreadline.so.5 and liblapack.so.3gf
@@ -567,19 +229,19 @@ be updated with every GNU APL release. Therefore it will contain errors that
 have been corrected already.
 </DIV>
 <DIV class="c4">
-<?apl H2[''] 'Reporting Bugs' ?>
+<?apl HTML∆H2[''] 'Reporting Bugs' ?>
 
 GNU APL is made up of about 50,000 lines of C++ code. In a code of that
 size, programming mistakes are inevitable. Even though mistakes are hardly
 avoidable, they can be <B>corrected</B> once they are found. In order to
 improve the quality of GNU APL, we would like to encourage you to report
 errors that you find in GNU APL to
-<?apl x2y ("mailto:", xMAIL_APL) A "<EM>", xMAIL_APL, "</EM>" ?>.
+<?apl HTML∆x2y ("mailto:", xMAIL_APL) HTML∆A "<EM>", xMAIL_APL, "</EM>" ?>.
 <BR><BR>
 Your email should include a small example of how to reproduce the fault.
 </DIV><DIV class="c5">
-<?apl H2[''] 'Documentation' ?>
-We have an <?apl x2y 'apl.html' A "<B>info manual</B>" ?> for GNU APL.
+<?apl HTML∆H2[''] 'Documentation' ?>
+We have an <?apl HTML∆x2y 'apl.html' HTML∆A "<B>info manual</B>" ?> for GNU APL.
 
 We are also looking for <B>free</B> documentation on APL in general
 (volunteers welcome) that can be published here. A "Quick start" document
@@ -602,20 +264,20 @@ END-OF-⎕INP
       ⍝
       yBODY←yBODY, (,¨'{}') ⎕INP 'END-OF-⎕INP'   ⍝ more compact style
 <DIV class="c6">
-Return to {x2y "http://www.gnu.org/home.html" A "GNU's home page"}.
+Return to {HTML∆x2y "http://www.gnu.org/home.html" HTML∆A "GNU's home page"}.
 <P>
 
 Please send FSF &amp; GNU inquiries &amp; questions to
 
-{x2y ("mailto:", xMAIL_GNU) A "<EM>", xMAIL_GNU, "</EM>"}.
+{HTML∆x2y ("mailto:", xMAIL_GNU) HTML∆A "<EM>", xMAIL_GNU, "</EM>"}.
 There are also
-{x2y "http://www.gnu.org/home.html#ContactInfo" A "other ways to contact"}
+{HTML∆x2y "http://www.gnu.org/home.html#ContactInfo" HTML∆A "other ways to contact"}
 the FSF.
 <P>
 Please send comments on these web pages to
-{x2y ("mailto:", xMAIL_WEB) A "<EM>", xMAIL_WEB, "</EM>"}.
+{HTML∆x2y ("mailto:", xMAIL_WEB) HTML∆A "<EM>", xMAIL_WEB, "</EM>"}.
 send other questions to
-{x2y ("mailto:", xMAIL_GNU) A "<EM>", xMAIL_GNU, "</EM>"}.
+{HTML∆x2y ("mailto:", xMAIL_GNU) HTML∆A "<EM>", xMAIL_GNU, "</EM>"}.
 <P>
 Copyright (C) 2014 Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110,  USA
@@ -625,7 +287,7 @@ permitted in any medium, provided this notice is preserved.<P>
 </DIV>
 END-OF-⎕INP
 
-      emit Document
+      HTML∆emit HTML∆Document
 
       '<!--'
       )VARS

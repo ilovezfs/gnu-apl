@@ -1,3 +1,3 @@
 
-dist_doc_DATA =     HTML.apl
+dist_doc_DATA =     
 
