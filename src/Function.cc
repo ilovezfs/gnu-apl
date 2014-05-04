@@ -82,7 +82,7 @@ Function::eval_()
 Token
 Function::eval_B(Value_P B)
 {
-   CERR << get_name() << "::" << __FUNCTION__
+   Log(LOG_verbose_error)   CERR << get_name() << "::" << __FUNCTION__
         << "() called (overloaded variant not yet implemented?)" << endl;
    VALENCE_ERROR;
 }
@@ -90,7 +90,7 @@ Function::eval_B(Value_P B)
 Token
 Function::eval_AB(Value_P A, Value_P B)
 {
-   CERR << get_name() << "::" << __FUNCTION__
+   Log(LOG_verbose_error)   CERR << get_name() << "::" << __FUNCTION__
         << "() called (overloaded variant not yet implemented?)" << endl;
    VALENCE_ERROR;
 }
@@ -98,7 +98,7 @@ Function::eval_AB(Value_P A, Value_P B)
 Token
 Function::eval_LB(Token & LO, Value_P B)
 {
-   CERR << get_name() << "::" << __FUNCTION__
+   Log(LOG_verbose_error)   CERR << get_name() << "::" << __FUNCTION__
         << "() called (overloaded variant not yet implemented?)" << endl;
    VALENCE_ERROR;
 }
@@ -106,7 +106,7 @@ Function::eval_LB(Token & LO, Value_P B)
 Token
 Function::eval_ALB(Value_P A, Token & LO, Value_P B)
 {
-   CERR << get_name() << "::" << __FUNCTION__
+   Log(LOG_verbose_error)   CERR << get_name() << "::" << __FUNCTION__
         << "() called (overloaded variant not yet implemented?)" << endl;
    VALENCE_ERROR;
 }
@@ -114,7 +114,7 @@ Function::eval_ALB(Value_P A, Token & LO, Value_P B)
 Token
 Function::eval_LRB(Token & LO, Token & RO, Value_P B)
 {
-   CERR << get_name() << "::" << __FUNCTION__
+   Log(LOG_verbose_error)   CERR << get_name() << "::" << __FUNCTION__
         << "() called (overloaded variant not yet implemented?)" << endl;
    VALENCE_ERROR;
 }
@@ -122,7 +122,7 @@ Function::eval_LRB(Token & LO, Token & RO, Value_P B)
 Token
 Function::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 {
-   CERR << get_name() << "::" << __FUNCTION__
+   Log(LOG_verbose_error)   CERR << get_name() << "::" << __FUNCTION__
         << "() called (overloaded variant not yet implemented?)" << endl;
    VALENCE_ERROR;
 }
