@@ -33,6 +33,8 @@ Log_control(LogId lid, bool ON)
       {
 #define log_def(val, item, txt) case LID_ ## item: LOG_ ## item = ON; return;
 #include "Logging.def"
+
+        default:
       }
 }
 
@@ -43,7 +45,11 @@ Log_status(LogId lid)
       {
 #define log_def(val, item, txt) case LID_ ## item: return LOG_ ## item;
 #include "Logging.def"
+
+        default:
       }
+
+   return false;
 }
 
 const char *
@@ -53,6 +59,8 @@ Log_info(LogId lid)
       {
 #define log_def(val, item, txt) case LID_ ## item: return txt;
 #include "Logging.def"
+
+        default:
       }
 
    return 0;

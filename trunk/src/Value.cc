@@ -688,24 +688,16 @@ Value::list_one(ostream & out, bool show_owners)
         if (is_complete())   { out << sep << "COMPLETE";   sep = '+'; }
         if (is_marked())     { out << sep << "MARKED";     sep = '+'; }
         if (is_temp())       { out << sep << "TEMP";       sep = '+'; }
-        out << ",";
       }
    else
       {
-        out << "   Flags = NONE,";
+        out << "   Flags = NONE";
       }
 
-   out << " Rank = " << get_rank();
-   if (get_rank())
-      {
-        out << ", Shape =";
-        loop(r, get_rank())   out << " " << get_shape_item(r);
-      }
-
-   out << ", Depth = " << compute_depth();
-   out << ":" << endl;
+   out << ", ⍴" << get_shape() << " ≡" << compute_depth() << ":" << endl;
    print(out);
    out << endl;
+
    if (!show_owners)   return out;
 
    // print owners...
