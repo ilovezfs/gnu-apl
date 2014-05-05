@@ -160,6 +160,16 @@ protected:
 
    /// format for ]BOXING
    static int boxing_format;
+
+   /// one user defined command
+   struct user_command
+      {
+        UCS_string prefix;         ///< the first characters of the command
+        UCS_string apl_function;   ///< APL function implementing the command
+        int type;                  ///< command type (currently unused)
+      };
+
+   static vector<user_command> user_commands;
 };
 //-----------------------------------------------------------------------------
 

@@ -100,7 +100,10 @@ Nabla::edit()
             }
 
          if (const char * loc = execute_oper())
-            CERR << "execute_oper() failed at " << loc << endl;
+            {
+              CERR << "∇ editor command failed: " << loc << endl;
+              Output::set_color_mode(Output::COLM_INPUT);
+            }
        }
 
    Log(LOG_nabla)
@@ -618,7 +621,7 @@ Nabla::execute_delete()
    // for delete we want exact numbers.
    //
 const int idx_to = find_line(LineLabel(edit_to));
-   if (idx_to == -1)   return "No/bad edit_to at " LOC;
+   if (idx_to == -1)   return "Bad line number N in [M∆N] ";
 
    if (edit_from == -1)   // delete single line
       {
@@ -629,8 +632,8 @@ const int idx_to = find_line(LineLabel(edit_to));
    // delete multiple lines
    //
 const int idx_from = find_line(LineLabel(edit_from));
-   if (idx_from == -1)       return "No/bad edit_from at " LOC;
-   if (idx_from >= idx_to)   return "idx_from >= idx_to at " LOC;
+   if (idx_from == -1)       return "Bad line number M in [M∆N] ";
+   if (idx_from >= idx_to)   return "M ≥ N in [M∆N] ";
 
    lines.erase(lines.begin() + idx_from, lines.begin() + idx_to);
    current_line = lines.back().label;
