@@ -54,6 +54,8 @@
 
 int Command::boxing_format = -1;
 
+vector<Command::user_command> Command::user_commands;
+
 //-----------------------------------------------------------------------------
 void
 Command::process_line()

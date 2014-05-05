@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU APL 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-05-01 19:58+0200\n"
+"POT-Creation-Date: 2014-05-05 15:51+0200\n"
 "PO-Revision-Date: 2013-09-15 14:04+0200\n"
 "Last-Translator: Juergen <eedjsa@localhost>\n"
 "Language-Team: German\n"
@@ -17,111 +17,111 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # # Kommandos
-#: src/Command.cc:97 src/Command.cc:405 src/Command.cc:414 src/Command.cc:512
-#: src/Command.cc:737
+#: src/Command.cc:99 src/Command.cc:407 src/Command.cc:416 src/Command.cc:514
+#: src/Command.cc:739
 msgid "BAD COMMAND"
 msgstr "FEHLERHAFTES KOMMANDO"
 
-#: src/Command.cc:130
+#: src/Command.cc:132
 msgid "SYNTAX ERROR"
 msgstr "FEHLERHAFTE SYNTAX"
 
-#: src/Command.cc:149
+#: src/Command.cc:151
 msgid "main: Parse error."
 msgstr "main: Fehler beim parsen."
 
-#: src/Command.cc:257
+#: src/Command.cc:259
 #, fuzzy
 msgid "branch back into function (→N) without suspended function"
 msgstr "leerer Sprung (→⍳0) ohne suspendierte Function"
 
-#: src/Command.cc:355
+#: src/Command.cc:357
 #, c-format
 msgid "WARNING - %d stale functions (%serased)"
 msgstr "WARNUNG - %d stale functions (%sgelöscht)"
 
-#: src/Command.cc:359
+#: src/Command.cc:361
 msgid "OK      - no stale functions"
 msgstr "OK      - keine stale functions"
 
-#: src/Command.cc:367
+#: src/Command.cc:369
 #, c-format
 msgid "ERROR   - %d stale values"
 msgstr "FEHLER  - %d stale Werte"
 
-#: src/Command.cc:370
+#: src/Command.cc:372
 msgid "OK      - no stale values"
 msgstr "OK      - keine stale values"
 
-#: src/Command.cc:377
+#: src/Command.cc:379
 #, c-format
 msgid "ERROR   - %d stale indices"
 msgstr "ERROR   - %d stale Indexwerte"
 
-#: src/Command.cc:380
+#: src/Command.cc:382
 msgid "OK      - no stale indices"
 msgstr "OK      - keine stale Indexwerte"
 
-#: src/Command.cc:408
+#: src/Command.cc:410
 msgid "missing workspace name in command )DROP"
 msgstr "fehlender Workspace-Name in Kommando )DROP"
 
-#: src/Command.cc:417
+#: src/Command.cc:419
 msgid "too many parameters in command )DROP"
 msgstr "zu viele Parameter in Kommando )DROP"
 
-#: src/Command.cc:434
+#: src/Command.cc:436
 msgid " NOT DROPPED: "
 msgstr "NICHT GELÖSCHT"
 
-#: src/Command.cc:437
+#: src/Command.cc:439
 msgid "could not unlink file "
 msgstr "konnte Datei nicht löschen"
 
-#: src/Command.cc:451
+#: src/Command.cc:453
 msgid "US Keyboard Layout:"
 msgstr "US Tastatur Layout:"
 
-#: src/Command.cc:472
+#: src/Command.cc:474
 msgid "Commands are:"
 msgstr "Gültige Kommandos:"
 
-#: src/Command.cc:484
+#: src/Command.cc:486
 #, fuzzy
 msgid ")HOST command not allowed in safe mode."
 msgstr ")HOST Kommando fehlgeschlagen: "
 
-#: src/Command.cc:492
+#: src/Command.cc:494
 msgid ")HOST command failed: "
 msgstr ")HOST Kommando fehlgeschlagen: "
 
-#: src/Command.cc:514
+#: src/Command.cc:516
 msgid "missing filename in command )IN"
 msgstr "fehlender Dateiname im Kommando )IN"
 
-#: src/Command.cc:529 src/Command.cc:753
+#: src/Command.cc:531 src/Command.cc:755
 msgid " failed: "
 msgstr " fehlgeschlagen: "
 
-#: src/Command.cc:533
+#: src/Command.cc:535
 #, c-format
 msgid "command )IN: could not open file %s for reading: %s"
 msgstr "Kommando )IN: konnte Datei %s nicht zum Lesen öffnen: %s"
 
-#: src/Command.cc:571
+#: src/Command.cc:573
 msgid "BAD record charset (neither ASCII nor EBCDIC)"
 msgstr "Ungütltiger Zeichensatz (weder ASCII noch EBCDIC)"
 
-#: src/Command.cc:636
+#: src/Command.cc:638
 msgid "IMPROPER LIBRARY REFERENCE"
 msgstr "UNGÜLTIGE BIBLIOTHEK"
 
-#: src/Command.cc:641
+#: src/Command.cc:643
 #, c-format
 msgid "path %s: could not be openend as directory: %s"
 msgstr "Pfad %s konnte nicht als Verzeichnis geöffnet werden: %s"
 
-#: src/Command.cc:692
+#: src/Command.cc:694
 msgid ""
 "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
@@ -132,52 +132,52 @@ msgstr ""
 " die Leistung des Interpreter) muß GNU APL folgendermaßen recompiliert "
 "werden:"
 
-#: src/Command.cc:698
+#: src/Command.cc:700
 msgid "other configure options"
 msgstr "andere configure Optionen"
 
-#: src/Command.cc:704
+#: src/Command.cc:706
 msgid "above the src directory."
 msgstr "oberhalb des Verzeichnisses src."
 
-#: src/Command.cc:715
+#: src/Command.cc:717
 msgid "NO MORE ERROR INFO"
 msgstr "KEINE ZUSÄTZLICHEN FEHLERINFORMATIONEN"
 
-#: src/Command.cc:728
+#: src/Command.cc:730
 msgid "Goodbye."
 msgstr "Und Tschüß."
 
-#: src/Command.cc:739
+#: src/Command.cc:741
 msgid "missing filename in command )OUT"
 msgstr "fehkender Dateiname im Kommando )OUT"
 
-#: src/Command.cc:756
+#: src/Command.cc:758
 #, c-format
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr "Kommando )OUT: konnte Datei %s nicht zum Schreiben öffnen: %s"
 
-#: src/Command.cc:822
+#: src/Command.cc:824
 msgid " *** bad sub-record of *"
 msgstr "*** ungültiges sub-record von *"
 
-#: src/Command.cc:825
+#: src/Command.cc:827
 msgid " comment"
 msgstr " Kommentar"
 
-#: src/Command.cc:827
+#: src/Command.cc:829
 msgid " timestamp"
 msgstr " Zeitstempel"
 
-#: src/Command.cc:839
+#: src/Command.cc:841
 msgid " imbed"
 msgstr "i eingebettet"
 
-#: src/Command.cc:842
+#: src/Command.cc:844
 msgid "record #"
 msgstr "Record #"
 
-#: src/Command.cc:852
+#: src/Command.cc:854
 msgid " *** bad sub-record of X"
 msgstr "*** ungültiges sub-record von X"
 

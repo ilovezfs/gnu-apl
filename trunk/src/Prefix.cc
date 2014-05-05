@@ -1253,6 +1253,19 @@ Prefix::reduce_RETC_GOTO_B_()
    if (size() != 3)   syntax_error(LOC);
 
    reduce_END_GOTO_B_();
+
+   if (action == RA_NEXT_STAT)
+      {
+        // reduce_END_GOTO_B_() has detected a non-taken branch (e.g. →'')
+        // and wants to continue with the next statement.
+        // We are in ⍎ mode, so there is no next statement and we
+        // RA_RETURN a TOK_VOID instead of RA_NEXT_STAT.
+        //
+        Token tok(TOK_VOID);
+        Token_loc tl(tok, Function_PC_0);
+        push(tl);
+      }
+
    action = RA_RETURN;
 }
 //-----------------------------------------------------------------------------
