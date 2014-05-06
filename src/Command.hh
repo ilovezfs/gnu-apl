@@ -57,6 +57,17 @@ public:
    static int get_boxing_format()
       { return boxing_format; }
 
+   /// one user defined command
+   struct user_command
+      {
+        UCS_string prefix;         ///< the first characters of the command
+        UCS_string apl_function;   ///< APL function implementing the command
+        int        mode;           ///< how left arg of apl_function is computed
+      };
+
+   /// one user defined command
+   static vector<user_command> user_commands;
+
 protected:
    /// show list of commands
    static void cmd_BOXING(ostream & out, const UCS_string & arg);
@@ -170,16 +181,6 @@ protected:
 
    /// format for ]BOXING
    static int boxing_format;
-
-   /// one user defined command
-   struct user_command
-      {
-        UCS_string prefix;         ///< the first characters of the command
-        UCS_string apl_function;   ///< APL function implementing the command
-        int        mode;           ///< command type (currently unused)
-      };
-
-   static vector<user_command> user_commands;
 };
 //-----------------------------------------------------------------------------
 
