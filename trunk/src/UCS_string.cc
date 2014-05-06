@@ -494,6 +494,23 @@ UCS_string::starts_iwith(const char * prefix) const
    return *prefix == 0;   
 }
 //-----------------------------------------------------------------------------
+bool 
+UCS_string::starts_iwith(const UCS_string & prefix) const
+{
+   if (prefix.size() > size())   return false;
+
+   loop(p, prefix.size())
+      {
+        int c1 = (*this)[p];
+        int c2 = prefix[p];
+        if (c1 >= 'a' && c1 <= 'z')   c1 -= 'a' - 'A';
+        if (c2 >= 'a' && c2 <= 'z')   c2 -= 'a' - 'A';
+        if (c1 != c2)   return false;
+      }
+
+   return true;
+}
+//-----------------------------------------------------------------------------
 UCS_string
 UCS_string::no_pad() const
 {
@@ -558,6 +575,19 @@ const UTF8_string utf(str, len);
 const UCS_string ucs(utf);
 
    append(ucs);
+}
+//-----------------------------------------------------------------------------
+void
+UCS_string::append_quoted(const UCS_string & other)
+{
+   append(UNI_SINGLE_QUOTE);
+   loop(s, other.size())
+       {
+          const Unicode uni = other[s];
+          append(uni);
+          if (uni == UNI_SINGLE_QUOTE)   append(uni);
+       }
+   append(UNI_SINGLE_QUOTE);
 }
 //-----------------------------------------------------------------------------
 void

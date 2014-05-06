@@ -911,13 +911,45 @@ interchange format, )DUMP produces a file in GNU APL's script format
 with normal text editors (vi, emacs), read back with "apl -f", or made
 executable (see scripting).
 
-2.10 Direct Functions (Lambdas)
+2.10 User-define Command
+========================
+
+There is a simple mechanism to define additional APL commands. This
+mechanism is intended to introduce new commands by APL libraries. Like
+system commands, user-define commands can only be executed in immediate
+execution mode and not from user-defined functions or from ⍎. It is not
+intended to extend the functionality of user-defined commands beyond
+what is being described in the following.
+
+   A user-defined command ]NEW_COMMAND is created with the debug command
+]USERCMD like this:
+
+      ]USERCMD ]NEW_COMMAND APL_FUNCTION [mode]
+
+   APL_FUNCTION is an APL function that will be called when the command
+is entered in immediate execution mode. The entire line entered by the
+user, starting at ]NEW_COMMAND, is the right argument of APL_FUNCTION.
+If mode is missing (or 0) then APL_FUNCTION is called monadically. If
+mode is 1 then APL_FUNCTION is called dyadically; the left argument is
+a vector of strings that is the left argument broken down into
+individual argument strings.
+
+   The function APL_FUNCTION that implements a command need not exist
+when the command is created.
+
+   A single user-defined command ]UCMD, or all user-defined commands can
+be deleted like this:
+
+      ]USERCMD REMOVE ]UCMD
+      ]USERCMD REMOVE-ALL
+
+2.11 Direct Functions (Lambdas)
 ===============================
 
 GNU APL supports direct functions (aka. lambdas), but only in a rather
 limited form.
 
-2.10.1 Named Lambdas
+2.11.1 Named Lambdas
 --------------------
 
 A statement of the form
@@ -961,7 +993,7 @@ lambda (i.e. the name left of ← { ... }) can be made a local variable
 of the function in which the named lambda is created. This creates a
 lambda with local scope.
 
-2.10.2 Unnamed Lambdas
+2.11.2 Unnamed Lambdas
 ----------------------
 
 An unnamed lambda is a statement inside { } but without assigning it to
@@ -975,7 +1007,7 @@ example:
    Unnamed lambdas are automatically local in scope (similar to
 labels). They can be passed as function arguments to operators.
 
-2.10.3 Limitations
+2.11.3 Limitations
 ------------------
 
 There are a number of features related to lambdas that are present in
@@ -2256,11 +2288,11 @@ Tag Table:
 Node: Top418
 Node: Chapter 11348
 Node: Chapter 214014
-Node: Chapter 333226
-Node: Chapter 434827
-Node: Chapter 536141
-Node: Section 5.136644
-Node: Section 5.261773
+Node: Chapter 334516
+Node: Chapter 436117
+Node: Chapter 537431
+Node: Section 5.137934
+Node: Section 5.263063
 
 End Tag Table
 
