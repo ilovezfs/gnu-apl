@@ -116,8 +116,11 @@ public:
    /// return true if \b this starts with prefix (ASCII, case matters).
    bool starts_with(const char * prefix) const;
 
-   /// return true if \b this starts with prefix (ASCII, case insensitive).
+   /// return true if \b this starts with \b prefix (ASCII, case insensitive).
    bool starts_iwith(const char * prefix) const;
+
+   /// return true if \b this starts with \b prefix (case insensitive).
+   bool starts_iwith(const UCS_string & prefix) const;
 
    /// return a string like this, but with pad chars mapped to spaces
    UCS_string no_pad() const;
@@ -169,6 +172,9 @@ public:
    /// return \b this string and \b other concatenated
    UCS_string operator +(const UCS_string & other) const
       { UCS_string ret(*this);   ret.append(other);   return ret; }
+
+   /// append \b other in quotes, doubling quoted in \b other
+   void append_quoted(const UCS_string & other);
 
    /// append number (in ASCII encoding like %d) to this string
    void append_number(ShapeItem num);

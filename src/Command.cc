@@ -74,6 +74,8 @@ Command::process_line(UCS_string & line)
          case UNI_ASCII_R_PARENT:      // regular command, e.g. )SI
          case UNI_ASCII_R_BRACK:       // debug command, e.g. ]LOG
               {
+                const UCS_string line1(line);   // the original line
+
                 ostream & out = (line[0] == UNI_ASCII_R_PARENT) ? COUT : CERR;
 
                 // split line into command and arguments
@@ -96,16 +98,26 @@ Command::process_line(UCS_string & line)
                 if (cmd.starts_iwith(cmd_str)) { code } else
 #include "Command.def"
                    {
+                     // check for user defined commands...
+                     //
+                     loop(u, user_commands.size())
+                         {
+                           if (cmd.starts_iwith(user_commands[u].prefix))
+                              {
+                                do_USERCMD(out, line, line1, cmd, args, u);
+                                goto apl_statements;
+                              }
+                         }
                      out << _("BAD COMMAND") << endl;
                      return;
                    }
 
                 if (line.size() == 0)   return;
-
-                // if line is non-empty then is it ⎕LX of )LOAD
-                //
               }
-              break;   // continue below
+
+              // if line is non-empty then is it ⎕LX of )LOAD
+              //
+              goto apl_statements;
 
          case UNI_NABLA:               // e.g. ∇FUN
               Nabla::edit_function(line);
@@ -115,11 +127,13 @@ Command::process_line(UCS_string & line)
          case UNI_COMMENT:             // e.g. ⍝ comment
               return;
 
-        default: /* continue below */ ;
+        default: goto apl_statements;
+
       }
 
    // at this point, line should be a statement list. Parse it...
    //
+apl_statements:
    Workspace::more_error().clear();
 
 const Executable * statements = 0;
@@ -256,7 +270,8 @@ const Executable * statements = 0;
               if (si == 0)
                  {
                     Workspace::more_error() = UCS_string(
-                          _("branch back into function (→N) without suspended function"));
+                          _("branch back into function (→N) without "
+                            "suspended function"));
                     SYNTAX_ERROR;   // →N without function,
                  }
 
@@ -473,9 +488,21 @@ Command::cmd_HELP(ostream & out)
 {
    out << _("Commands are:") << endl;
 #define cmd_def(cmd_str, _cod, arg) \
-   CERR << "       " cmd_str " " #arg << endl;
+   CERR << "      " cmd_str " " #arg << endl;
 #include "Command.def"
    out << endl;
+
+   if (user_commands.size())
+      {
+        out << "User defined commands:" << endl;
+        loop(u, user_commands.size())
+           {
+             out << "      " << user_commands[u].prefix << " → ";
+             if (user_commands[u].mode)   out << "A ";
+             out << user_commands[u].apl_function << " B"
+                 << " (mode " << user_commands[u].mode << ")" << endl;
+           }
+      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -765,6 +792,156 @@ uint64_t seq = 1;   // sequence number for records written
    Workspace::write_OUT(atf, seq, args);
 
    fclose(atf);
+}
+//-----------------------------------------------------------------------------
+bool
+Command::check_name_conflict(ostream & out, const UCS_string & cnew,
+                             const UCS_string cold)
+{
+int len = cnew.size();
+        if (len > cold.size())   len = cold.size();
+
+   loop(l, len)
+      {
+        int c1 = cnew[l];
+        int c2 = cold[l];
+        if (c1 >= 'a' && c1 <= 'z')   c1 -= 0x20;   // uppercase
+        if (c2 >= 'a' && c2 <= 'z')   c2 -= 0x20;   // uppercase
+        if (l && (c1 != c2))   return false;   // OK: different
+     }
+
+   out << "BAD COMMAND" << endl;
+   Workspace::more_error() = UCS_string(
+          "conflict with existing command name in command ]USERCMD");
+
+   return true;
+}
+//-----------------------------------------------------------------------------
+void
+Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
+                     vector<UCS_string> & args)
+{
+   // ]USERCMD REMOVE-ALL
+   // ]USERCMD REMOVE        ]existing-command
+   // ]USERCMD ]new-command  APL-fun
+   // ]USERCMD ]new-command  APL-fun  mode
+   //
+   if (args.size() < 2)
+      {
+        out << "BAD COMMAND" << endl;
+        Workspace::more_error() =
+                   UCS_string("too few parameters in command ]USERCMD");
+        return;
+      }
+
+  if (args.size() == 1 && args[0].starts_iwith("REMOVE-ALL"))
+     {
+       user_commands.clear();
+       out << "    All user-defined commands removed." << endl;
+       return;
+     }
+
+  if (args.size() == 2 && args[0].starts_iwith("REMOVE"))
+     {
+       loop(u, user_commands.size())
+           {
+             if (user_commands[u].prefix.starts_iwith(args[1]) &&
+                 args[1].starts_iwith(user_commands[u].prefix))   // same
+                {
+                  user_commands.erase(user_commands.begin() + u);
+                  out << "    User-defined command "
+                      << user_commands[u].prefix<< " removed." << endl;
+                  return;
+                }
+           }
+
+       out << "BAD COMMAND" << endl;
+       Workspace::more_error() = UCS_string(
+                "user command in command ]USERCMD REMOVE does not exist");
+       return;
+     }
+
+   if (args.size() > 3)
+      {
+        out << "BAD COMMAND" << endl;
+        Workspace::more_error() =
+                   UCS_string("too many parameters in command ]USERCMD");
+        return;
+      }
+
+const UCS_string & apl_fun = args[1];
+const int mode = (args.size() == 3) ? args[2].atoi() : 0;
+   if (mode < 0 || mode > 1)
+      {
+        out << "BAD COMMAND" << endl;
+        Workspace::more_error() =
+                   UCS_string("unsupported mode in command ]USERCMD");
+        return;
+      }
+
+   // check command name
+   //
+   loop(c, args[0].size())
+      {
+        bool error = false;
+        if (c == 0)   error = error || args[0][c] != ']';
+        else          error = error || !Avec::is_symbol_char(args[0][c]);
+        if (error)
+           {
+             out << "BAD COMMAND" << endl;
+             Workspace::more_error() =
+                   UCS_string("bad user command name in command ]USERCMD");
+             return;
+           }
+      }
+
+   // check conflicts with existing commands
+   //
+#define cmd_def(cmd_str, _cod, arg) \
+   if (check_name_conflict(out, cmd_str, args[0]))   return;
+#include "Command.def"
+   loop(u, user_commands.size())
+       if (check_name_conflict(out, args[0], user_commands[u].prefix))   return;
+
+   // check APL function name
+   //
+   loop(c, args[1].size())
+      {
+        if (!Avec::is_symbol_char(args[1][c]))
+           {
+             out << "BAD COMMAND" << endl;
+             Workspace::more_error() =
+                   UCS_string("bad APL function name in command ]USERCMD");
+             return;
+           }
+      }
+
+user_command new_user_command = { args[0], args[1], mode };
+   user_commands.push_back(new_user_command);
+
+   out << "    User-defined command "
+       << new_user_command.prefix << " installed." << endl;
+}
+//-----------------------------------------------------------------------------
+void
+Command::do_USERCMD(ostream & out, UCS_string & apl_cmd,
+                    const UCS_string & line, const UCS_string & cmd,
+                    vector<UCS_string> & args, int uidx)
+{
+  if (user_commands[uidx].mode > 0)   // dyadic
+     {
+        apl_cmd.append_quoted(cmd);
+        apl_cmd.append(UNI_ASCII_SPACE);
+        loop(a, args.size())
+           {
+             apl_cmd.append_quoted(args[a]);
+             apl_cmd.append(UNI_ASCII_SPACE);
+           }
+     }
+
+   apl_cmd.append(user_commands[uidx].apl_function);
+   apl_cmd.append(UNI_ASCII_SPACE);
+   apl_cmd.append_quoted(line);
 }
 //-----------------------------------------------------------------------------
 #ifdef DYNAMIC_LOG_WANTED

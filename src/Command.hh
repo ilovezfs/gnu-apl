@@ -100,6 +100,16 @@ protected:
    /// )OUT: export a workspace file
    static void cmd_OUT(ostream & out, vector<UCS_string> & args);
 
+   static void cmd_USERCMD(ostream & out, const UCS_string & arg,
+                           vector<UCS_string> & args);
+
+   static void do_USERCMD(ostream & out, UCS_string & line,
+                          const UCS_string & line1, const UCS_string & cmd,
+                          vector<UCS_string> & args, int uidx);
+
+   static bool check_name_conflict(ostream & out, const UCS_string & cnew,
+                                   const UCS_string cold);
+
    /// a helper struct for the )IN command
    struct transfer_context
       {
@@ -166,7 +176,7 @@ protected:
       {
         UCS_string prefix;         ///< the first characters of the command
         UCS_string apl_function;   ///< APL function implementing the command
-        int type;                  ///< command type (currently unused)
+        int        mode;           ///< command type (currently unused)
       };
 
    static vector<user_command> user_commands;

@@ -973,6 +973,40 @@ produces a file in GNU APL's script format (i.e. readable APL statements).
 Files written with )DUMP can be edited with normal text editors (vi, emacs),
 read back with "apl -f", or made executable (see scripting).
 
+@section User-define Command
+
+There is a simple mechanism to define additional APL commands. This mechanism
+is intended to introduce new commands by APL libraries. Like system commands,
+user-define commands can only be executed in immediate execution mode and not
+from user-defined functions or from ⍎. It is not intended to extend the
+functionality of user-defined commands beyond what is being described in the
+following.
+
+A user-defined command ]NEW_COMMAND is created with the debug command
+]USERCMD like this:
+
+@verbatim
+      ]USERCMD ]NEW_COMMAND APL_FUNCTION [mode]
+@end verbatim
+
+APL_FUNCTION is an APL function that will be called when the command is
+entered in immediate execution mode. The entire line entered by the user,
+starting at ]NEW_COMMAND, is the right argument of APL_FUNCTION. If mode is
+missing (or 0) then APL_FUNCTION is called monadically. If mode is 1 then
+APL_FUNCTION is called dyadically; the left argument is a vector of strings
+that is the left argument broken down into individual argument strings.
+
+The function APL_FUNCTION that implements a command need not exist when the
+command is created.
+
+A single user-defined command ]UCMD, or all user-defined commands can
+be deleted like this:
+
+@verbatim
+      ]USERCMD REMOVE ]UCMD
+      ]USERCMD REMOVE-ALL
+@end verbatim
+
 @section Direct Functions (Lambdas)
 
 GNU APL supports direct functions (aka. lambdas), but only in a rather

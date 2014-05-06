@@ -13,5 +13,6 @@ dist_noinst_DATA =				\
 	Quad_ARG.tc				\
 	Quad_CR.tc				\
 	Quad_INP.tc				\
+	UserCommand.tc				\
 	Performance.pt
 

@@ -184,7 +184,11 @@ UCS_string::iterator c(first_command.begin());
       {
         UCS_string oper;
         Unicode cc;
-        do oper.append(cc = c.next());   while (cc != UNI_ASCII_R_BRACK);
+        do 
+          {
+            if (!c.more())   return LOC;
+            oper.append(cc = c.next());
+          } while (cc != UNI_ASCII_R_BRACK);
         if (const char * loc = parse_oper(oper, true))   return loc;   // error
       }
 
