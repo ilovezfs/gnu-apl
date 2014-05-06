@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU APL 1.0\n"
 "Report-Msgid-Bugs-To: bug-apl@gnu.org\n"
-"POT-Creation-Date: 2014-05-06 16:59+0200\n"
+"POT-Creation-Date: 2014-05-06 19:53+0200\n"
 "PO-Revision-Date: 2013-09-15 14:04+0200\n"
 "Last-Translator: Juergen <eedjsa@localhost>\n"
 "Language-Team: German\n"
@@ -157,27 +157,27 @@ msgstr "fehkender Dateiname im Kommando )OUT"
 msgid "command )OUT: could not open file %s for writing: %s"
 msgstr "Kommando )OUT: konnte Datei %s nicht zum Schreiben öffnen: %s"
 
-#: src/Command.cc:1001
+#: src/Command.cc:1003
 msgid " *** bad sub-record of *"
 msgstr "*** ungültiges sub-record von *"
 
-#: src/Command.cc:1004
+#: src/Command.cc:1006
 msgid " comment"
 msgstr " Kommentar"
 
-#: src/Command.cc:1006
+#: src/Command.cc:1008
 msgid " timestamp"
 msgstr " Zeitstempel"
 
-#: src/Command.cc:1018
+#: src/Command.cc:1020
 msgid " imbed"
 msgstr "i eingebettet"
 
-#: src/Command.cc:1021
+#: src/Command.cc:1023
 msgid "record #"
 msgstr "Record #"
 
-#: src/Command.cc:1031
+#: src/Command.cc:1033
 msgid " *** bad sub-record of X"
 msgstr "*** ungültiges sub-record von X"
 

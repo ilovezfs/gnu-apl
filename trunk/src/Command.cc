@@ -848,9 +848,11 @@ Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
              if (user_commands[u].prefix.starts_iwith(args[1]) &&
                  args[1].starts_iwith(user_commands[u].prefix))   // same
                 {
-                  user_commands.erase(user_commands.begin() + u);
+                  // print first and remove then!
+                  //
                   out << "    User-defined command "
-                      << user_commands[u].prefix<< " removed." << endl;
+                      << user_commands[u].prefix << " removed." << endl;
+                  user_commands.erase(user_commands.begin() + u);
                   return;
                 }
            }
