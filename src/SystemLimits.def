@@ -27,6 +27,7 @@ syl1("max. shared variable size (bytes)"      , MAX_SVAR_SIZE     , 65000       
 syl2("max. cores (per ./configure)"           , __CMAX1           , CORE_COUNT_WANTED   )
 syl2("max. cores (per max_cores())"           , __CMAX2           , max_cores()         )
 syl2("current cores (per core_count())"       , CURRENT_CORES     , core_count()        )
+syl2("print length limit (0 = no limit)"      , PRINT_LIMIT       , print_length_limit  )
 
 #undef syl1
 #undef syl2
