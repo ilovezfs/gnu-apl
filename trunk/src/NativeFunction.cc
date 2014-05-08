@@ -91,6 +91,7 @@ void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
    //
 Symbol * sym = Workspace::lookup_symbol(apl_name);
    Assert(sym);
+
 const char * why_not = sym->cant_be_defined();
    if (why_not)
       {
@@ -331,7 +332,26 @@ NativeFunction::fix(const UCS_string & so_name,
    //
    loop(v, valid_functions.size())
       {
-        if (so_name == valid_functions[v]->so_path)   return valid_functions[v];
+        NativeFunction * fun = valid_functions[v];
+        if (so_name == fun->so_path)
+           {
+             // the NativeFunction object exists, but may have been
+             // )ERASEd at APL level. If so, then re-install it.
+             //
+             Symbol * sym = Workspace::lookup_symbol(fun->get_name());
+             Assert(sym);
+
+             const char * why_not = sym->cant_be_defined();
+             if (why_not)
+                {
+                  Workspace::more_error() = UCS_string(why_not);
+                  return 0;
+                }
+
+             if (fun->is_operator())   sym->set_nc(NC_OPERATOR, fun);
+             else                      sym->set_nc(NC_FUNCTION, fun);
+             return fun;
+           }
       }
 
 NativeFunction * new_function = new NativeFunction(so_name, function_name);
