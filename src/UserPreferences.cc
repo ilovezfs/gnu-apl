@@ -70,26 +70,26 @@ const char * prog1 = strrchr(prog, '/');
 char cc[4000];
    snprintf(cc, sizeof(cc),
 
-_("usage: %s [options]\n"
+"usage: %s [options]\n"
 "    options: \n"
 "    -h, --help           print this help\n"
 "    -d                   run in the background (i.e. as daemon)\n"
 "    -f file ...          read APL input from file(s)\n"
-"    --id proc            use processor ID proc (default: first unused > 1000)\n"), prog);
+"    --id proc            use processor ID proc (default: first unused > 1000)\n", prog);
    CERR << cc;
 
 #ifdef DYNAMIC_LOG_WANTED
    snprintf(cc, sizeof(cc),
-_("    -l num               turn log facility num (1-%d) ON\n"), LID_MAX - 1);
+"    -l num               turn log facility num (1-%d) ON\n", LID_MAX - 1);
    CERR << cc;
 #endif
 
 #if CORE_COUNT_WANTED == -2
    CERR <<
-_("    --cc count           use count cores (default: all)\n");
+"    --cc count           use count cores (default: all)\n";
 #endif
 
-   snprintf(cc, sizeof(cc), _(
+   snprintf(cc, sizeof(cc),
 "    --par proc           use processor parent ID proc (default: no parent)\n"
 "    -w milli             wait milli milliseconds at startup\n"
 "    --noCIN              do not echo input(for scripting)\n"
@@ -113,7 +113,7 @@ _("    --cc count           use count cores (default: all)\n");
 "                         4:   exit after first error\n"
 "    --TR                 randomize order of testfiles\n"
 "    --TS                 append to (rather than override) summary.log\n"
-"    --                   end of options for %s\n"), prog1);
+"    --                   end of options for %s\n", prog1);
    CERR << cc << endl;
 }
 //-----------------------------------------------------------------------------
@@ -247,13 +247,13 @@ int script_argc = argc;   // $0 of the apl script
               if (val)   Log_control(LogId(atoi(val)), true);
               else
                  {
-                   CERR << _("-l without log facility") << endl;
+                   CERR << "-l without log facility" << endl;
                    exit(3);
                  }
 #else
    if (val && atoi(val) == LID_startup)   ;
-   else  CERR << _("the -l option was ignored (requires ./configure "
-                   "DYNAMIC_LOG_WANTED=yes)") << endl;
+   else  CERR << "the -l option was ignored (requires ./configure "
+                   "DYNAMIC_LOG_WANTED=yes)" << endl;
 #endif // DYNAMIC_LOG_WANTED
             }
          else if (!strcmp(opt, "--noCIN"))
@@ -360,7 +360,7 @@ int script_argc = argc;   // $0 of the apl script
                  }
               else
                  {
-                   CERR << _("--TM without test mode") << endl;
+                   CERR << "--TM without test mode" << endl;
                    exit(6);
                  }
             }
@@ -383,13 +383,13 @@ int script_argc = argc;   // $0 of the apl script
               if (val)   wait_ms = atoi(val);
               else
                  {
-                   CERR << _("-w without milli(seconds)") << endl;
+                   CERR << "-w without milli(seconds)" << endl;
                    exit(7);
                  }
             }
          else
             {
-              CERR << _("unknown option '") << opt << "'" << endl;
+              CERR << "unknown option '" << opt << "'" << endl;
               usage(argv[0]);
               exit(8);
             }
@@ -628,7 +628,7 @@ UserPreferences::show_configure_options()
           header_size = value_size - cell_size * SHORT_VALUE_LENGTH_WANTED,
         };
 
-   CERR << endl << _("configurable options:") << endl <<
+   CERR << endl << "configurable options:" << endl <<
                    "---------------------" << endl <<
 
    "    ASSERT_LEVEL_WANTED=" << ASSERT_LEVEL_WANTED
@@ -638,12 +638,6 @@ UserPreferences::show_configure_options()
    "    DYNAMIC_LOG_WANTED=yes"
 #else
    "    DYNAMIC_LOG_WANTED=no (default)"
-#endif
-   << endl <<
-#ifdef ENABLE_NLS
-   "    NLS enabled"
-#else
-   "    NLS disabled"
 #endif
    << endl <<
 
@@ -660,7 +654,7 @@ UserPreferences::show_configure_options()
 
    "    SHORT_VALUE_LENGTH_WANTED=" << SHORT_VALUE_LENGTH_WANTED
         << is_default(SHORT_VALUE_LENGTH_WANTED == 1)
-        << _(", therefore:") << endl <<
+        << ", therefore:" << endl <<
    "        sizeof(Value)       : "  << value_size  << " bytes" << endl <<
    "        sizeof(Cell)        :  " << cell_size   << " bytes" << endl <<
    "        sizeof(Value header): "  << header_size << " bytes" << endl <<

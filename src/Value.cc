@@ -220,16 +220,6 @@ Value::Value(const char * loc, Value_how how)
              new (&get_ravel(0)) IntCell(MAX_Quad_PP);
              break;
 
-        case Value_how_Quad_NLT:
-             {
-                const char * cp = "En_US.nlt";
-                const ShapeItem len = strlen(cp);
-                new (&shape) Shape(len);
-                init_ravel();
-                loop(l, len)   new (&get_ravel(l)) CharCell(Unicode(cp[l]));
-             }
-             break;
-
         case Value_how_Quad_TC:
              new (&shape) Shape(3);
              init_ravel();

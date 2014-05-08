@@ -16,18 +16,6 @@ the following GNU APL specific ./configure options are recognized:
     ./configure --without-readline --disable-nls
 
 
---disable-nls
-    Sometimes internationalization and localization support causes problems
-    with APL characters when the locale settings are wrong or locale support
-    in general is broken, and it can be cumbersome to fix such problems.
-
-    Given the very few languages supported by GNU APL (English and German),
-    it is much easier to disable native language support completely with
-    --disable-nls. Example:
-
-    ./configure --disable-nls
-
-
 ASSERT_LEVEL_WANTED=n
    There are numerous Assert() and Assert1 macros in the source code of the
    APL interpreter. These macros check more (Assert1) or less (Assert)

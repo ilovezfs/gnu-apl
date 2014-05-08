@@ -287,11 +287,7 @@ Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
         case UNI_ASCII_N:
              if (av_1 == UNI_ASCII_A)        f2 (NA, 2);
              if (av_1 == UNI_ASCII_C)        f2 (NC, 2);
-             if (av_1 == UNI_ASCII_L)
-                {
-                  if (av_2 == UNI_ASCII_T)   var(NLT, 3)
-                                             f1 (NL, 2)
-                }
+             if (av_1 == UNI_ASCII_L)        f1 (NL, 2)
              break;
 
         case UNI_ASCII_P:
