@@ -125,8 +125,8 @@ id_def( NA            , ---               , = 0x4E01 , qf )
 id_def( F2_NAND       , NAND              ,          , av )
 id_def( NC            , ---               ,          , qf )
 id_def( NL            , ---               ,          , qf )
-id_def( NLT           , ---               ,          , qv )
-id_def( NO_VALUE      , ---               ,          , pp )
+  /**  ⎕NLT removed                              **/
+id_def( NO_VALUE      , ---               , = 0x4E06 , pp )
 id_def( F2_NOR        , NOR               ,          , av )
 
 id_def( OFF           , ---               , = 0x4F01 , pp )

@@ -9,27 +9,11 @@
 /* define to enable dynamic logging */
 #undef DYNAMIC_LOG_WANTED
 
-/* Define to 1 if translation of program messages to the user's native
-   language is requested. */
-#undef ENABLE_NLS
-
 /* define to enable gprof profiling */
 #undef GPROF_WANTED
 
-/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
-   CoreFoundation framework. */
-#undef HAVE_CFLOCALECOPYCURRENT
-
-/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
-   the CoreFoundation framework. */
-#undef HAVE_CFPREFERENCESCOPYAPPVALUE
-
 /* Define to 1 if you have the <curses.h> header file. */
 #undef HAVE_CURSES_H
-
-/* Define if the GNU dcgettext() function is already present or preinstalled.
-   */
-#undef HAVE_DCGETTEXT
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -49,12 +33,6 @@
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
 
-/* Define if the GNU gettext() function is already present or preinstalled. */
-#undef HAVE_GETTEXT
-
-/* Define if you have the iconv() function and it works. */
-#undef HAVE_ICONV
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -72,9 +50,6 @@
 
 /* Define to 1 if you have the `gomp' library (-lgomp). */
 #undef HAVE_LIBGOMP
-
-/* Define to 1 if you have the `intl' library (-lintl). */
-#undef HAVE_LIBINTL
 
 /* Define to 1 if you have the `lapack' library (-llapack). */
 #undef HAVE_LIBLAPACK

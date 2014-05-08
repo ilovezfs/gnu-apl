@@ -1125,8 +1125,8 @@ APL interpreter rather that adding auxiliary processors.
 @node Chapter 4
 @chapter Internationalization
 
-GNU APL is internationalized by means of GNU gettext. Currently one language,
-German, is available in addition to English.
+GNU APL is used to be internationalized by means of GNU gettext, but is not
+anymore. 
 
 For APL characters to work properly with keyboards and terminal emulators
 (see also README-3-keyboard) it is essential that your LANG environment
@@ -1144,9 +1144,6 @@ locale: Cannot set LC_ALL to default locale: No such file or directory
 
 then something is wrong and you should check your LANG setting and installed
 locales.
-
-As a last resort, you can ./configure GNU APL with --disable-nls, but that
-may not fix problems related to the keyboard or to the terminal (emulation).
 
 As far as xterm is concerned, the xterm command line options -u8, -lc, and
 -en might solve problems related to the terminal.

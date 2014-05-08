@@ -1065,8 +1065,8 @@ File: apl.info,  Node: Chapter 4,  Next: Chapter 5,  Prev: Chapter 3,  Up: Top
 4 Internationalization
 **********************
 
-GNU APL is internationalized by means of GNU gettext. Currently one
-language, German, is available in addition to English.
+GNU APL is used to be internationalized by means of GNU gettext, but is
+not anymore.
 
    For APL characters to work properly with keyboards and terminal
 emulators (see also README-3-keyboard) it is essential that your LANG
@@ -1087,10 +1087,6 @@ file or directory
 
    then something is wrong and you should check your LANG setting and
 installed locales.
-
-   As a last resort, you can ./configure GNU APL with -disable-nls, but
-that may not fix problems related to the keyboard or to the terminal
-(emulation).
 
    As far as xterm is concerned, the xterm command line options -u8,
 -lc, and -en might solve problems related to the terminal.
@@ -2290,9 +2286,9 @@ Node: Chapter 11348
 Node: Chapter 214014
 Node: Chapter 334516
 Node: Chapter 436117
-Node: Chapter 537431
-Node: Section 5.137934
-Node: Section 5.263063
+Node: Chapter 537238
+Node: Section 5.137741
+Node: Section 5.262870
 
 End Tag Table
 

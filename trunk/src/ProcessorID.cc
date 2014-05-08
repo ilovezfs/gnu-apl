@@ -78,8 +78,8 @@ ProcessorID::init(bool log_startup)
         //
         if (!Svar_DB::is_unused_id(AP_num(id.proc)))
            {
-             CERR << _("*** Another APL interpreter with --id ")
-                  << id.proc <<  _(" is already running") << endl;
+             CERR << "*** Another APL interpreter with --id "
+                  << id.proc <<  " is already running" << endl;
  
              return true;
            }

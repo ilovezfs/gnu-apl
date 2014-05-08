@@ -1411,8 +1411,8 @@ const unsigned int vid = find_int_attr("vid", false, 10);
    // some system variables are  saved for troubleshooting purposes, but
    // should not be loaded...
    //
-   if (symbol.is_readonly())   return;
-   if (symbol.get_name() == id_name(ID_Quad_NLT))    return;
+   if (symbol.is_readonly())                         return;
+   if (symbol.get_name().starts_iwith("⎕NLT"))       return;
    if (symbol.get_name() == id_name(ID_Quad_SYL))    return;
 
    try

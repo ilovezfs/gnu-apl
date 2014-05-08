@@ -175,8 +175,8 @@ show_welcome(ostream & out, const char * argv0)
 {
 char c1[200];
 char c2[200];
-   snprintf(c1, sizeof(c1), _("Welcome to GNU APL version %s"),build_tag[1]);
-   snprintf(c2, sizeof(c2), _("for details run: %s --gpl."), argv0);
+   snprintf(c1, sizeof(c1), "Welcome to GNU APL version %s",build_tag[1]);
+   snprintf(c2, sizeof(c2), "for details run: %s --gpl.", argv0);
 
 const char * lines[] =
 {
@@ -195,11 +195,11 @@ const char * lines[] =
   "Copyright (C) 2008-2014  Dr. Jürgen Sauermann",
   "Banner by FIGlet: www.figlet.org",
   "",
-_("This program comes with ABSOLUTELY NO WARRANTY;"),
+  "This program comes with ABSOLUTELY NO WARRANTY;",
   c2,
   "",
-_("This program is free software, and you are welcome to redistribute it"),
-_("according to the GNU Public License (GPL) version 3 or later."),
+  "This program is free software, and you are welcome to redistribute it",
+  "according to the GNU Public License (GPL) version 3 or later.",
   "",
   0
 };
@@ -225,63 +225,6 @@ const int left_pad = (80 - len)/2;
          out << cl << endl;
        }
 }
-//-----------------------------------------------------------------------------
-#ifdef ENABLE_NLS
-extern char * bindtextdomain (const char * domainname, const char * dirname);
-extern char * textdomain (const char * domainname);
-
-static void
-init_NLS()
-{
-   Log(LOG_startup)   CERR << "NLS is enabled." << endl;
-
-const char * locale = setlocale(LC_ALL, "");
-   if (locale == 0)
-      {
-        CERR <<
-"*** function locale() has returned 0 which indicates a problem\n"
-"with your locale settings. This will most likely prevent APL characters\n"
-"from being entered or displayed properly\n"
-"\n"
-"Please fix your locales or ./configure GNU APL with --disable-nls\n"
-              << endl;
-        return;
-      }
-
-   Log(LOG_startup)   CERR << "locale is: " << locale << "." << endl;
-
-   // ensure that numbers are scanned and printed in
-   // a defined APL-compatible manner, regardless of the locale
-   //
-   setlocale(LC_NUMERIC, "C");
-
-const char * dir = bindtextdomain(PACKAGE, Makefile__localedir);
-
-   if (dir)
-      {
-        Log(LOG_startup)   CERR << "locale directory is: "
-                                << dir << "." << endl;
-      }
-   else
-      {
-        CERR << "*** bindtextdomain(" << PACKAGE << ", " << Makefile__localedir
-             << " failed: " << strerror(errno) << endl;
-        return;
-      }
-
-const char * dom = textdomain(PACKAGE);
-   if (dom)
-      {
-        Log(LOG_startup)   CERR << "locale domain is: " << dom << "." << endl;
-      }
-   else
-      {
-        CERR << "*** textdomain(" << PACKAGE << ", " << Makefile__localedir
-             << " failed: " << strerror(errno) << endl;
-        return;
-      }
-}
-#endif
 //-----------------------------------------------------------------------------
 
 static void
@@ -367,12 +310,6 @@ const char * argv0 = argv[0];
    sigaction(SIGSEGV, &new_SEGV_action,      &old_SEGV_action);
    sigaction(SIGTERM, &new_TERM_action,      &old_TERM_action);
    sigaction(SIGHUP,  &new_HUP_action,       &old_HUP_action);
-
-   // init NLS so that usage() will be translated
-   //
-#ifdef ENABLE_NLS
-   init_NLS();
-#endif
 
    uprefs.parse_argv(argc, argv);
 

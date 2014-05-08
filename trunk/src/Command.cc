@@ -108,7 +108,7 @@ Command::process_line(UCS_string & line)
                                 goto apl_statements;
                               }
                          }
-                     out << _("BAD COMMAND") << endl;
+                     out << "BAD COMMAND" << endl;
                      return;
                    }
 
@@ -143,7 +143,7 @@ const Executable * statements = 0;
       }
    catch (Error err)
       {
-        COUT << _("SYNTAX ERROR") << endl;
+        COUT << "SYNTAX ERROR" << endl;
         if (err.get_error_line_2().size())
            {
              COUT << "      " << err.get_error_line_2() << endl
@@ -162,7 +162,7 @@ const Executable * statements = 0;
 
    if (statements == 0)
       {
-        COUT << _("main: Parse error.") << endl;
+        COUT << "main: Parse error." << endl;
         return;
       }
 
@@ -270,8 +270,8 @@ const Executable * statements = 0;
               if (si == 0)
                  {
                     Workspace::more_error() = UCS_string(
-                          _("branch back into function (→N) without "
-                            "suspended function"));
+                          "branch back into function (→N) without "
+                            "suspended function");
                     SYNTAX_ERROR;   // →N without function,
                  }
 
@@ -369,11 +369,11 @@ Command::cmd_CHECK(ostream & out)
      if (stale)
         {
           char cc[200];
-          snprintf(cc, sizeof(cc), _("WARNING - %d stale functions (%serased)"),
-                   stale, (erased ? "" : "not "));
+          snprintf(cc, sizeof(cc), "WARNING - %d stale functions (%serased)"),
+                   stale, (erased ? "" : "not ");
           CERR << cc << endl;
         }
-     else CERR << _("OK      - no stale functions") << endl;
+     else CERR << "OK      - no stale functions" << endl;
    }
 
    {
@@ -381,20 +381,20 @@ Command::cmd_CHECK(ostream & out)
      if (stale)
         {
           char cc[200];
-          snprintf(cc, sizeof(cc), _("ERROR   - %d stale values"), stale);
+          snprintf(cc, sizeof(cc), "ERROR   - %d stale values", stale);
           out << cc << endl;
         }
-     else out << _("OK      - no stale values") << endl;
+     else out << "OK      - no stale values" << endl;
    }
    {
      const int stale = IndexExpr::print_stale(CERR);
      if (stale)
         {
           char cc[200];
-          snprintf(cc, sizeof(cc), _("ERROR   - %d stale indices"), stale);
+          snprintf(cc, sizeof(cc), "ERROR   - %d stale indices", stale);
           out << cc << endl;
         }
-     else out << _("OK      - no stale indices") << endl;
+     else out << "OK      - no stale indices" << endl;
    }
 }
 //-----------------------------------------------------------------------------
@@ -419,19 +419,19 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
    //
    if (lib_ws.size() == 0)   // missing argument
       {
-        out << _("BAD COMMAND") << endl;
+        out << "BAD COMMAND" << endl;
 
         UCS_string & t4 = Workspace::more_error();
-        t4 = UCS_string(_("missing workspace name in command )DROP"));
+        t4 = UCS_string("missing workspace name in command )DROP");
         return;
       }
 
    if (lib_ws.size() > 2)   // too many arguments
       {
-        out << _("BAD COMMAND") << endl;
+        out << "BAD COMMAND" << endl;
         UCS_string & t4 = Workspace::more_error();
 
-        t4 = UCS_string(_("too many parameters in command )DROP"));
+        t4 = UCS_string("too many parameters in command )DROP");
         return;
       }
 
@@ -448,10 +448,10 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true,
 int result = unlink(filename.c_str());
    if (result)
       {
-        out << wname << _(" NOT DROPPED: ") << strerror(errno) << endl;
+        out << wname << " NOT DROPPED: " << strerror(errno) << endl;
         UCS_string & t4 = Workspace::more_error();
         t4.clear();
-        t4.append_ascii(_("could not unlink file "));
+        t4.append_ascii("could not unlink file ");
         t4.append_utf8(filename.c_str());
       }
 }
@@ -465,7 +465,7 @@ Command::cmd_ERASE(ostream & out, vector<UCS_string> & args)
 void 
 Command::cmd_KEYB()
 {
-   CERR << _("US Keyboard Layout:") <<      "\n"
+   CERR << "US Keyboard Layout:" <<      "\n"
                                             "\n"
 "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗\n"
 "║ ~⍨ ║ !¡ ║ @€ ║ #£ ║ $⍧ ║ %  ║ ^  ║ &  ║ *⍂ ║ (⍱ ║ )⍲ ║ _≡ ║ +⌹ ║         ║\n"
@@ -486,7 +486,7 @@ Command::cmd_KEYB()
 void 
 Command::cmd_HELP(ostream & out)
 {
-   out << _("Commands are:") << endl;
+   out << "Commands are:" << endl;
 #define cmd_def(cmd_str, _cod, arg) \
    CERR << "      " cmd_str " " #arg << endl;
 #include "Command.def"
@@ -510,7 +510,7 @@ Command::cmd_HOST(ostream & out, const UCS_string & arg)
 {
    if (uprefs.safe_mode)
       {
-        out << _(")HOST command not allowed in safe mode.") << endl;
+        out << ")HOST command not allowed in safe mode." << endl;
         return;
       }
 
@@ -518,7 +518,7 @@ UTF8_string host_cmd(arg);
 FILE * pipe = popen(host_cmd.c_str(), "r");
    if (pipe == 0)   // popen failed
       {
-        out << _(")HOST command failed: ") << strerror(errno) << endl;
+        out << ")HOST command failed: " << strerror(errno) << endl;
         return;
       }
 
@@ -538,9 +538,9 @@ Command::cmd_IN(ostream & out, vector<UCS_string> & args, bool protection)
 {
    if (args.size() == 0)
       {
-        out << _("BAD COMMAND") << endl;
+        out << "BAD COMMAND" << endl;
         Workspace::more_error() =
-                   UCS_string(_("missing filename in command )IN"));
+                   UCS_string("missing filename in command )IN");
         return;
       }
 
@@ -555,11 +555,11 @@ FILE * in = fopen(filename.c_str(), "r");
       {
         UTF8_string fname_utf8(fname);
         CERR << ")IN " << fname_utf8.c_str()
-             << _(" failed: ") << strerror(errno) << endl;
+             << " failed: " << strerror(errno) << endl;
 
         char cc[200];
         snprintf(cc, sizeof(cc),
-                 _("command )IN: could not open file %s for reading: %s"),
+                 "command )IN: could not open file %s for reading: %s",
                  fname_utf8.c_str(), strerror(errno));
         Workspace::more_error() = UCS_string(cc);
         return;
@@ -597,7 +597,7 @@ transfer_context tctx(protection);
              continue;
            }
 
-        CERR << _("BAD record charset (neither ASCII nor EBCDIC)") << endl;
+        CERR << "BAD record charset (neither ASCII nor EBCDIC)" << endl;
         break;
       }
 
@@ -662,12 +662,12 @@ UTF8_string path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
 DIR * dir = opendir(path.c_str());
    if (dir == 0)
       {
-        out << _("IMPROPER LIBRARY REFERENCE") << ": " << path << "/ : "
+        out << "IMPROPER LIBRARY REFERENCE" << ": " << path << "/ : "
             << strerror(errno) << endl;
 
         char cc[200];
           snprintf(cc, sizeof(cc),
-                   _("path %s: could not be openend as directory: %s"),
+                   "path %s: could not be openend as directory: %s",
                    path.c_str(), strerror(errno));
         Workspace::more_error() = UCS_string(cc);
         return;
@@ -718,19 +718,19 @@ Command::cmd_LOG(ostream & out, const UCS_string & arg)
 #else
 
    out << "\n"
-<< _("Command ]LOG is not available, since dynamic logging was not\n"
+<< "Command ]LOG is not available, since dynamic logging was not\n"
 "configured for this APL interpreter. To enable dynamic logging (which\n"
-"will decrease performance), recompile the interpreter as follows:")
+"will decrease performance), recompile the interpreter as follows:"
 
 << "\n\n"
 "   ./configure DYNAMIC_LOG_WANTED=yes (... "
-<< _("other configure options")
+<< "other configure options"
 << ")\n"
 "   make\n"
 "   make install (or try: src/apl)\n"
 "\n"
 
-<< _("above the src directory.")
+<< "above the src directory."
 << "\n";
 
 #endif
@@ -741,7 +741,7 @@ Command::cmd_MORE(ostream & out)
 {
    if (Workspace::more_error().size() == 0)
       {
-        out << _("NO MORE ERROR INFO") << endl;
+        out << "NO MORE ERROR INFO" << endl;
         return;
       }
 
@@ -754,7 +754,7 @@ Command::cmd_OFF(int exit_val)
 {
    cleanup();
    COUT << endl;
-   if (!uprefs.silent)   COUT << _("Goodbye.") << endl;
+   if (!uprefs.silent)   COUT << "Goodbye." << endl;
    exit(exit_val);
 }
 //-----------------------------------------------------------------------------
@@ -763,9 +763,9 @@ Command::cmd_OUT(ostream & out, vector<UCS_string> & args)
 {
    if (args.size() == 0)
       {
-        out << _("BAD COMMAND") << endl;
+        out << "BAD COMMAND" << endl;
         Workspace::more_error() =
-                   UCS_string(_("missing filename in command )OUT"));
+                   UCS_string("missing filename in command )OUT");
         return;
       }
 
@@ -779,10 +779,10 @@ FILE * atf = fopen(filename.c_str(), "w");
    if (atf == 0)
       {
         UTF8_string fname_utf8(fname);
-        out << ")OUT " << fname << _(" failed: ") << strerror(errno) << endl;
+        out << ")OUT " << fname << " failed: " << strerror(errno) << endl;
         char cc[200];
         snprintf(cc, sizeof(cc),
-                 _("command )OUT: could not open file %s for writing: %s"),
+                 "command )OUT: could not open file %s for writing: %s",
                  fname_utf8.c_str(), strerror(errno));
         Workspace::more_error() = UCS_string(cc);
         return;
@@ -1000,12 +1000,12 @@ const char sub_type = record[1];
       {
         Log(LOG_command_IN)
            {
-             const char * stype = _(" *** bad sub-record of *");
+             const char * stype = " *** bad sub-record of *";
              switch(sub_type)
                 {
-                  case ' ': stype = _(" comment");     break;
+                  case ' ': stype = " comment";     break;
                   case '(': {
-                              stype = _(" timestamp");
+                              stype = " timestamp";
                               YMDhmsu t(now());   // fallback if sscanf() != 7
                               if (7 == sscanf((const char *)(record + 1),
                                               "(%d %d %d %d %d %d %d)",
@@ -1017,10 +1017,10 @@ const char sub_type = record[1];
                                   }
                             }
                             break;
-                  case 'I': stype = _(" imbed");       break;
+                  case 'I': stype = " imbed";       break;
                 }
 
-             CERR << _("record #") << setw(3) << recnum << ": '" << rec_type
+             CERR << "record #" << setw(3) << recnum << ": '" << rec_type
                   << "'" << stype << endl;
            }
       }
@@ -1030,7 +1030,7 @@ const char sub_type = record[1];
            {
              Log(LOG_command_IN)
                 {
-                  const char * stype = _(" *** bad sub-record of X");
+                  const char * stype = " *** bad sub-record of X";
 
 //                          " -------------------------------------";
                   switch(sub_type)

@@ -67,7 +67,7 @@ struct UserPreferences
 
    /// return " (default)" if yes is true
    static const char * is_default(bool yes)
-      { return yes ? _(" (default)") : ""; }
+      { return yes ? " (default)" : ""; }
 
    /// print how the interpreter was configured (via ./configure) and exit
    static void show_configure_options();

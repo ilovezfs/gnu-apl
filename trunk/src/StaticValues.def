@@ -43,7 +43,6 @@ stv_def(Min      )   ///< -72370055773322621e75
 stv_def(AV       )   ///< ⎕AV
 stv_def(Max_CT   )   ///< max. ⎕CT
 stv_def(Max_PP   )   ///< max. ⎕PP
-stv_def(Quad_NLT )   ///< 'En_US.nlt'
 stv_def(Quad_TC  )   ///< ⎕UCS 8 13 10
 
 #undef stv_def

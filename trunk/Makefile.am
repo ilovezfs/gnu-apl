@@ -1,5 +1,5 @@
 
-SUBDIRS		= doc po src support-files tools
+SUBDIRS		= doc src support-files tools
 APL_DIRS	= workspaces wslib1 wslib2 wslib3 wslib4 wslib5
 DIST_SUBDIRS	= $(SUBDIRS) $(APL_DIRS) rpm debian
 

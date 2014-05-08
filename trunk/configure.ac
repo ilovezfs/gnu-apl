@@ -21,8 +21,6 @@ AC_PROG_CXX
 AC_PROG_CC
 
 AC_GNU_SOURCE
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.17])
 
 # check if compiler knows -rdynamic. Some compilers accept it but issue a
 # warning if it is used. We therefore check explicitly if the compiler is g++
@@ -83,7 +81,6 @@ AC_CHECK_LIB([lapack],    [dgelsy_])
 AC_CHECK_LIB([blas],      [dcopy_])
 #AC_CHECK_LIB([gfortran], [_gfortran_transpose])
 
-AC_CHECK_LIB([intl],      [libintl_gettext])
 AC_CHECK_LIB([execinfo],  [backtrace])
 AC_CHECK_LIB([gomp],      [omp_set_num_threads])
 AC_CHECK_LIB([m],         [acosh])
@@ -169,7 +166,6 @@ AC_CONFIG_FILES([Makefile
                  debian/Makefile
                  debian/source/Makefile
                  doc/Makefile
-		 po/Makefile.in po/Makefile
                  rpm/Makefile
 		 rpm/apl.spec
                  src/Makefile

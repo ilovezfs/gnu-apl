@@ -402,7 +402,6 @@ Token::print_value(ostream & out) const
         case TOK_Quad_LC:
         case TOK_Quad_LX:
         case TOK_Quad_L:
-        case TOK_Quad_NLT:
         case TOK_Quad_PP:
         case TOK_Quad_PR:
         case TOK_Quad_PS:

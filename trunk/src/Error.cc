@@ -73,12 +73,12 @@ Error::error_name(ErrorCode err)
       {
    /// the cases
 #define err_def(c, txt, _maj, _min) \
-   case E_ ## c:   return UCS_string(UTF8_string(_(txt)));
+   case E_ ## c:   return UCS_string(UTF8_string(txt));
 
 #include "Error.def"
       }
 
-   return UCS_string(_("Unknown Error"));
+   return UCS_string("Unknown Error");
 }
 //-----------------------------------------------------------------------------
 bool

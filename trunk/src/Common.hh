@@ -379,21 +379,6 @@ operator --(Function_PC & pc)
 #define UNI(x)     "U+" << uhex <<          setw(4) << int(x) << nohex
 
 //-----------------------------------------------------------------------------
-/// a wrapper for gettext()
-inline const char *
-_(const char * msgid)
-{
-#ifdef ENABLE_NLS
-
-   return gettext(msgid);
-
-#else
-
-   return msgid;
-
-#endif
-}
-//-----------------------------------------------------------------------------
 
 #include "SharedValuePointer.hh"
 
