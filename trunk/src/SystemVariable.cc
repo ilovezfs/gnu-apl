@@ -51,6 +51,7 @@ UCS_string Quad_QUOTE::prompt;
 ShapeItem Quad_SYL::si_depth_limit = 0;
 ShapeItem Quad_SYL::value_count_limit = 0;
 ShapeItem Quad_SYL::ravel_count_limit = 0;
+ShapeItem Quad_SYL::print_length_limit = 0;
 
 int Quad_ARG::argc = 0;
 const char ** Quad_ARG::argv = 0;
@@ -935,6 +936,11 @@ const APL_Integer qio = Workspace::get_IO();
              setup_cores((CoreCount)b);
            }
 #endif
+        else if (x == SYL_PRINT_LIMIT)   // print length limit
+           {
+             if (b < 1000)   DOMAIN_ERROR;
+             print_length_limit = b;
+           }
         else
            {
              INDEX_ERROR;

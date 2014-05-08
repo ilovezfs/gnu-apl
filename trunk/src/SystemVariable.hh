@@ -566,7 +566,9 @@ public:
    /// maximum number of ravel bytes
    static ShapeItem ravel_count_limit;
 
-protected:
+   /// maximum number of ravel bytes in APL printout
+   static ShapeItem print_length_limit;
+
    enum SYL_INDEX
       {
 #define syl3(n, e, v) syl1(n, e, v)
@@ -576,6 +578,8 @@ protected:
 
         SYL_MAX
       };
+
+protected:
 };
 //-----------------------------------------------------------------------------
 /**

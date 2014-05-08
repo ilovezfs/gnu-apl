@@ -27,6 +27,7 @@
 #include "Output.hh"
 #include "Prefix.hh"
 #include "StateIndicator.hh"
+#include "SystemLimits.hh"
 #include "UserFunction.hh"
 #include "Workspace.hh"
 
@@ -904,19 +905,49 @@ Value_P B(result.get_apl_val());
 
    // print TOK_APL_VALUE and TOK_APL_VALUE1, but not TOK_APL_VALUE2
    //
-   if (tag == TOK_APL_VALUE1 || tag == TOK_APL_VALUE3)
+   if (tag != TOK_APL_VALUE1 && tag != TOK_APL_VALUE3)   return;
+
+   Quad_QUOTE::done(false, LOC);
+
+const int boxing_format = Command::get_boxing_format();
+   if (boxing_format == -1)
       {
-        Quad_QUOTE::done(false, LOC);
-        const int boxing_format = Command::get_boxing_format();
-        if (boxing_format == -1)
+        if (Quad_SYL::print_length_limit &&
+            B->element_count() >= Quad_SYL::print_length_limit)
            {
-             B->print(COUT);
+             // the value exceeds print_length_limit.
+             // We cut the longest dimension in half until we are below the
+             // limit
+             //
+             Shape sh(B->get_shape());
+             while (sh.get_volume() >= Quad_SYL::print_length_limit)
+                {
+                  Rank longest = 0;
+                  loop(r, sh.get_rank())
+                     {
+                       if (sh.get_shape_item(r) > sh.get_shape_item(longest))
+                          longest = r;
+                     }
+
+                  sh.set_shape_item(longest, sh.get_shape_item(longest) / 2);
+                }
+
+             Value_P B1 = Bif_F12_TAKE::do_take(sh, B).get_apl_val();
+             B1->print(COUT);
+
+             CERR << "      *** display of value was truncated (limit "
+                     "⎕SYL[⎕IO + " << Quad_SYL::SYL_PRINT_LIMIT
+                  << "] reached)  ***" << endl;
            }
         else
            {
-             Value_P B1 = Quad_CR::do_CR(boxing_format, *B.get());
-             B1->print(COUT);
+             B->print(COUT);
            }
+      }
+   else
+      {
+        Value_P B1 = Quad_CR::do_CR(boxing_format, *B.get());
+        B1->print(COUT);
       }
 }
 //-----------------------------------------------------------------------------
