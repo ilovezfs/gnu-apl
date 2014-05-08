@@ -434,7 +434,7 @@ apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) \
 		$(OPENMP)
 
 apl_LDADD = $(LIBS) $(LIBREADLINE)
-AM_MAKEFLAGS = -j 2
+AM_MAKEFLAGS = -j 8
 all: all-recursive
 
 .SUFFIXES:

@@ -132,7 +132,7 @@ perf: apl
 	./apl --id 1010 --TM 3 -T testcases/Performance.pt
 
 
-AM_MAKEFLAGS = -j 2
+AM_MAKEFLAGS = -j 8
 
 makefile.h: Makefile
 	@echo "// some strings exported from Makefile"           > $@
