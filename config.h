@@ -14,10 +14,10 @@
 #define GPROF_WANTED -pg
 
 /* Define to 1 if you have the <curses.h> header file. */
-#define HAVE_CURSES_H 1
+/* #undef HAVE_CURSES_H */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-/* #undef HAVE_DLFCN_H */
+#define HAVE_DLFCN_H 1
 
 /* Define to 1 if the compiler supports dynamic arrays */
 #define HAVE_DYNAMIC_ARRAYS 1
@@ -41,7 +41,7 @@
 #define HAVE_LIBBLAS 1
 
 /* Define to 1 if you have the `curses' library (-lcurses). */
-#define HAVE_LIBCURSES 1
+/* #undef HAVE_LIBCURSES */
 
 /* Define to 1 if you have the `dl' library (-ldl). */
 #define HAVE_LIBDL 1
@@ -59,7 +59,7 @@
 #define HAVE_LIBM 1
 
 /* Define to 1 if you have the `ncurses' library (-lncurses). */
-#define HAVE_LIBNCURSES 1
+/* #undef HAVE_LIBNCURSES */
 
 /* Define to 1 if you have the `nsl' library (-lnsl). */
 #define HAVE_LIBNSL 1
@@ -68,7 +68,7 @@
 #define HAVE_LIBPTHREAD 1
 
 /* Define if you have libreadline */
-#define HAVE_LIBREADLINE 1
+/* #undef HAVE_LIBREADLINE */
 
 /* Define to 1 if you have the `rt' library (-lrt). */
 #define HAVE_LIBRT 1
@@ -181,7 +181,7 @@
 #define STDC_HEADERS 1
 
 /* Define the type of arg3 in tputs(i, 0, (*)(arg3)) */
-#define TPUTS_arg3 int
+#define TPUTS_arg3 char
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE

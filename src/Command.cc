@@ -365,13 +365,11 @@ Command::cmd_CHECK(ostream & out)
    //
    {
      bool erased = false;
-     const int stale = Workspace::cleanup_expunged(CERR, erased);
+     int stale = Workspace::cleanup_expunged(CERR, erased);
      if (stale)
         {
-          char cc[200];
-          snprintf(cc, sizeof(cc), "WARNING - %d stale functions (%serased)"),
-                   stale, (erased ? "" : "not ");
-          CERR << cc << endl;
+          CERR << "WARNING - " << stale << " stale functions ("
+               << (erased ? "" : "not ") << "erased)" << endl;
         }
      else CERR << "OK      - no stale functions" << endl;
    }

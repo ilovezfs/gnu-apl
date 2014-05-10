@@ -59,7 +59,7 @@ make DESTDIR=%{buildroot} install
 #
 # what is being installed
 #
-%files -f %{name}.lang
+%files
 %defattr(-,root,root,-)
 
 %{_bindir}/AP100

@@ -81,8 +81,8 @@ protected:
    /// Hash table for all symbols.
    Symbol * symbol_table[MAX_SYMBOL_COUNT];
 
-   /// dito
-   void erase_one_symbol(ostream & out, const UCS_string & sym);
+   /// erase one symbol, return \b true on error, \b false on success
+   bool erase_one_symbol(const UCS_string & sym);
 };
 //-----------------------------------------------------------------------------
 

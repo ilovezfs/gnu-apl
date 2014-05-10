@@ -324,10 +324,20 @@ SymbolTable::write_all_symbols(FILE * out, uint64_t & seq) const
 void
 SymbolTable::erase_symbols(ostream & out, const vector<UCS_string> & symbols)
 {
+int error_count = 0;
    loop(s, symbols.size())
        {
-         erase_one_symbol(out, symbols[s]);
+         const bool error = erase_one_symbol(symbols[s]);
+         if (error)
+            {
+              ++error_count;
+              if (error_count == 1)   // first error
+                 out << "NOT ERASED:";
+              out << " " << symbols[s];
+            }
        }
+
+   if (error_count)   out << endl;
 }
 //-----------------------------------------------------------------------------
 void
@@ -356,8 +366,8 @@ SymbolTable::clear(ostream & out)
       } 
 }
 //-----------------------------------------------------------------------------
-void
-SymbolTable::erase_one_symbol(ostream & out, const UCS_string & sym)
+bool
+SymbolTable::erase_one_symbol(const UCS_string & sym)
 {
 Symbol * symbol = lookup_existing_symbol(sym);
 
@@ -368,7 +378,7 @@ Symbol * symbol = lookup_existing_symbol(sym);
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
         t4.append_utf8("': unknown symbol ");
-        return;
+        return true;
       }
 
    if (symbol->is_erased())
@@ -378,7 +388,7 @@ Symbol * symbol = lookup_existing_symbol(sym);
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
         t4.append_utf8("': already erased");
-        return;
+        return true;
       }
 
    if (symbol->value_stack.size() != 1)
@@ -388,7 +398,7 @@ Symbol * symbol = lookup_existing_symbol(sym);
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
         t4.append_utf8("': symbol is pushed (localized)");
-        return;
+        return true;
       }
 
    if (Workspace::is_called(sym))
@@ -398,7 +408,7 @@ Symbol * symbol = lookup_existing_symbol(sym);
         t4.append_utf8("Can't )ERASE symbol '");
         t4.append(sym);
         t4.append_utf8("': symbol is called (is on SI)");
-        return;
+        return true;
       }
 
 ValueStackItem & tos = symbol->value_stack[0];
@@ -407,16 +417,16 @@ ValueStackItem & tos = symbol->value_stack[0];
       {
         case NC_LABEL:
              Assert(0 && "should not happen since stack height == 1");
-             return;
+             return true;
 
         case NC_VARIABLE:
              symbol->expunge();
              symbol->set_erased(true);
-             return;
+             return false;
 
         case NC_UNUSED_USER_NAME:
              symbol->set_erased(true);
-             return;
+             return true;
 
         case NC_FUNCTION:
         case NC_OPERATOR:
@@ -424,7 +434,7 @@ ValueStackItem & tos = symbol->value_stack[0];
              if (tos.sym_val.function->is_native())
                 {
                   symbol->expunge();
-                  return;
+                  return false;
                 }
 
              {
@@ -437,7 +447,7 @@ ValueStackItem & tos = symbol->value_stack[0];
                     t4.append_utf8("Can't )ERASE symbol '");
                     t4.append(sym);
                     t4.append_utf8("':  pushed on SI-stack");
-                    return;
+                    return true;
                   }
              }
 
@@ -445,12 +455,13 @@ ValueStackItem & tos = symbol->value_stack[0];
              tos.sym_val.function = 0;
              tos.name_class = NC_UNUSED_USER_NAME;
              symbol->set_erased(true);
-             return;
+             return false;
 
         default: break;
       }
 
     Assert(0 && "Bad name_class in SymbolTable::erase_one_symbol()");
+   return true;
 }
 //-----------------------------------------------------------------------------
 int
