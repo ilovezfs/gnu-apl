@@ -252,10 +252,6 @@ protected:
    /// return true iff there is no more data in the file
    bool done() const   { return data >= file_end; }
 
-   /// retur true if we have an object list and \b obj is in the list
-   bool is_allowed(const UCS_string & obj) const
-      { return !allowed_objects.size() || obj.contained_in(allowed_objects); }
-
    /// show some characters starting at the current position
    void where(ostream & out);
 

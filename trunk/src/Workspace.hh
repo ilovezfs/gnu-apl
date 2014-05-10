@@ -148,7 +148,7 @@ public:
 
    /// erase the symbols in \b symbols from the symbol table
    static void erase_symbols(ostream & out, const vector<UCS_string> & symbols)
-      { the_workspace.symbol_table.erase_symbols(out, symbols); }
+      { the_workspace.symbol_table.erase_symbols(CERR, symbols); }
 
    /// list all symbols (of category \b which) with names in \b from_to
    static void list(ostream & out, ListCategory which, UCS_string from_to)

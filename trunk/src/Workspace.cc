@@ -577,9 +577,11 @@ Workspace::save_WS(ostream & out, vector<UCS_string> & lib_ws)
    // )SAVE wsname
    // )SAVE libnum wsname
 
+bool name_from_WSID = false;
    if (lib_ws.size() == 0)   // no argument: use )WSID value
       {
-         lib_ws.push_back(the_workspace.WS_name);
+        name_from_WSID = true;
+        lib_ws.push_back(the_workspace.WS_name);
       }
    else if (lib_ws.size() > 2)   // too many arguments
       {
@@ -648,18 +650,21 @@ XML_Saving_Archive ar(outf);
 
    // print time and date to COUT
    {
-     const int offset = get_v_Quad_TZ().get_offset();
-     const YMDhmsu time(now());
-const char * tz_sign = (offset < 0) ? "" : "+";
+     const APL_time_us offset = get_v_Quad_TZ().get_offset();
+     const YMDhmsu time(now() + 1000000*offset);
+     const char * tz_sign = (offset < 0) ? "" : "+";
 
-     COUT << setfill('0') << time.year  << "-"
-          << setw(2)      << time.month << "-"
-          << setw(2)      << time.day   << "  " 
-          << setw(2)      << time.hour  << ":"
-          << setw(2)      << time.minute << ":"
-          << setw(2)      << time.second << " (GMT"
-          << tz_sign      << offset/3600 << ")"
-          << setfill(' ') << endl;
+     out << setfill('0') << time.year  << "-"
+         << setw(2)      << time.month << "-"
+         << setw(2)      << time.day   << "  " 
+         << setw(2)      << time.hour  << ":"
+         << setw(2)      << time.minute << ":"
+         << setw(2)      << time.second << " (GMT"
+         << tz_sign      << offset/3600 << ")"
+         << setfill(' ');
+
+     if (name_from_WSID)   out << " " << the_workspace.WS_name;
+     out << endl;
    }
 }
 //-----------------------------------------------------------------------------
@@ -731,8 +736,8 @@ ofstream outf(filename.c_str(), ofstream::out);
    // print header line, workspace name, time, and date to outf
    //
    {
-     const int offset = get_v_Quad_TZ().get_offset();
-     const YMDhmsu time(now());
+     const APL_time_us offset = get_v_Quad_TZ().get_offset();
+     const YMDhmsu time(now() + 1000000*offset);
      const char * tz_sign = (offset < 0) ? "" : "+";
 
      outf << "#!" << LibPaths::get_APL_bin_path()

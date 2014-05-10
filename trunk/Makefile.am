@@ -90,7 +90,7 @@ SYNC:	dist
 
 # build all packages and SYNC
 #
-.PHONY:	EXPO
+.PHONY:	EXPfrom/to SVNO
 EXPO:
 	tools/check_src
 	svn -m "auto-commit by make EXPO" commit
@@ -103,6 +103,17 @@ EXPO:
 	make DEB
 	make RPM
 	make SYNC
+
+# EXPO1 is EXPO without updating/committing from/to SVN
+.PHONY:	EXPO1
+EXPO1:
+	tools/check_src
+	cd src; source buildtag
+	./configure
+	make
+	make dist
+	make DEB
+	make RPM
 
 am--refresh:
 	echo "making am--refresh"

@@ -1126,6 +1126,13 @@ const char * tz_sign = (tzone < 0) ? "" : "+";
 
         Workspace::set_WS_name(UCS_string(UTF8_string(wsid, end - wsid)));
       }
+
+   if (allowed_objects.size())
+      {
+        CERR << "NOT COPIED:";
+        loop(a, allowed_objects.size())   CERR << " " << allowed_objects[a];
+        CERR << endl;
+      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -1541,10 +1548,13 @@ Symbol * symbol = Workspace::lookup_existing_symbol(name_ucs);
 
    // we do NOT copy if:
    //
-   //  )PCOPY and the symbol exists, or 
-   //  there is an object list and this symbol is not contained in the list
+   // 1. )PCOPY and the symbol exists, or 
+   // 2.  there is an object list and this symbol is not contained in the list
    //
-const bool no_copy = (symbol && protection) || ! is_allowed(name_ucs);
+const bool is_protected = symbol && protection;
+const bool is_selected = name_ucs.contained_in(allowed_objects);
+const bool have_allowed_objects = allowed_objects.size() != 0;
+const bool no_copy = is_protected || (have_allowed_objects && !is_selected);
 
    if (reading_vids)
       {
@@ -1553,8 +1563,6 @@ const bool no_copy = (symbol && protection) || ! is_allowed(name_ucs);
         //
         if (no_copy || (depth == 0))
            {
-             //
-             COUT << "NOT COPIED: " << name_ucs << endl;
              skip_to_tag("/Symbol");
              return;
            }
@@ -1577,6 +1585,18 @@ const bool no_copy = (symbol && protection) || ! is_allowed(name_ucs);
            {
              skip_to_tag("/Symbol");
              return;
+           }
+      }
+
+   // remove this symbol from allowed_objects so that we can print NOT COPIED
+   // at the end for all objects that are still in the list.
+   //
+   loop(a, allowed_objects.size())
+      {
+        if (allowed_objects[a] == name_ucs)
+             {
+               allowed_objects.erase(allowed_objects.begin() + a);
+               break;
            }
       }
 
