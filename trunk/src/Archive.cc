@@ -1540,6 +1540,14 @@ UCS_string name_ucs;
 
    Log(LOG_archive)   CERR << "    read_Symbol() name=" << name_ucs << endl;
 
+   // ⎕NLT was removed, but could lurk around in old workspaces.
+   //
+   if (name_ucs == UCS_string(UTF8_string("⎕NLT")))
+      {
+        skip_to_tag("/Symbol");
+        return;
+      }
+
 const int depth = find_int_attr("stack-size", false, 10);
 
    // lookup symbol, trying ⎕xx first
@@ -1600,7 +1608,10 @@ const bool no_copy = is_protected || (have_allowed_objects && !is_selected);
            }
       }
 
-   if (symbol == 0)   symbol = Workspace::lookup_symbol(name_ucs);
+   if (symbol == 0)
+      {
+        symbol = Workspace::lookup_symbol(name_ucs);
+      }
    Assert(symbol);
 
    loop(d, depth)
