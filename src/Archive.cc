@@ -1420,6 +1420,7 @@ const unsigned int vid = find_int_attr("vid", false, 10);
    //
    if (symbol.is_readonly())                         return;
    if (symbol.get_name().starts_iwith("⎕NLT"))       return;
+   if (symbol.get_name() == id_name(ID_Quad_SVE))    return;
    if (symbol.get_name() == id_name(ID_Quad_SYL))    return;
 
    try
