@@ -1423,6 +1423,8 @@ const unsigned int vid = find_int_attr("vid", false, 10);
    if (symbol.get_name() == id_name(ID_Quad_SVE))    return;
    if (symbol.get_name() == id_name(ID_Quad_SYL))    return;
 
+   if (!values[vid])   return;   // value filtered out
+
    try
       {
         symbol.assign(values[vid], LOC);
