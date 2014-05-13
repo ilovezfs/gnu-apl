@@ -20,6 +20,7 @@
 
 
 #include "Avec.hh"
+#include "Command.hh"
 #include "Input.hh"
 #include "Logging.hh"
 #include "Nabla.hh"
@@ -86,11 +87,25 @@ Nabla::edit()
 
    // editor loop
    //
+int control_D_count = 0;
    Log(LOG_nabla)   CERR << "Nabla(" << fun_name << ")..." << endl;
    while (!do_close)
        {
          const UCS_string prompt = current_line.print_prompt();
          const char * line = Input::get_user_line_nabla(&prompt);
+
+         if (line == 0)   // end-of-input (^D) pressed
+            {
+              ++control_D_count;
+              if (control_D_count < 5)
+                 {
+                    COUT << "^D" << endl;
+                    continue;
+                 }
+               COUT << endl << "      *** end of input" << endl;
+               Command::cmd_OFF(2);
+            }
+
          const UTF8_string utf(line);
          const UCS_string ucs(utf);
          if (const char * loc = parse_oper(ucs, false))
