@@ -1578,6 +1578,24 @@ const Shape shape_Z = B->get_shape() + it_shape;
 Value_P Z(new Value(shape_Z, LOC));
 
 const ShapeItem llen = it_shape.get_volume();
+   if (llen == 0)   // empty enclosed value
+      {
+        const Cell & B0 = B->get_ravel(0);
+         if (B0.is_pointer_cell())
+            {
+              Value_P vB = B0.get_pointer_value();
+              Value_P B_proto = vB->prototype(LOC);
+              Z->get_ravel(0).init(B_proto->get_ravel(0));
+            }
+         else
+            {
+              Z->get_ravel(0).init(B0);
+            }
+
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
    loop(h, len_B)
        {
          const Cell & B_item = B->get_ravel(h);
@@ -1739,7 +1757,7 @@ Bif_F12_PICK::item_shape(Value_P B)
    // return the shape with rank R and the (per-dimension) max. of
    // each shape item
    //
-const ShapeItem len_B = B->element_count();
+const ShapeItem len_B = B->nz_element_count();
 
 Shape ret;   // of the first non-skalar in B
 
