@@ -1136,13 +1136,16 @@ int count = 0;
               case NC_FUNCTION:
               case NC_OPERATOR:
                    {
-                     const Executable * ufun =
-                                          item.sym_val.function->get_ufun1();
-                     Assert(ufun);
-                     char cc[100];
-                     snprintf(cc, sizeof(cc), "    VS[%lld] ", (long long)v);
-                     count += ufun->show_owners(cc, out, value);
-
+                     const Function * fun = item.sym_val.function;
+                     const Executable * ufun = fun->get_ufun1();
+                     Assert(ufun || fun->is_native());
+                     if (ufun)
+                        {
+                          char cc[100];
+                          snprintf(cc, sizeof(cc), "    VS[%lld] ",
+                                   (long long)v);
+                          count += ufun->show_owners(cc, out, value);
+                        }
                    }
                    break;
 
@@ -1154,9 +1157,8 @@ int count = 0;
 }
 //-----------------------------------------------------------------------------
 void
-Symbol::vector_assignment(vector<Symbol *> & symbols, Value_P values)
+Symbol::vector_assignment(Symbol * * symbols, int sym_count, Value_P values)
 {
-const int sym_count = symbols.size();
    if (values->get_rank() > 1)   RANK_ERROR;
    if (!values->is_skalar() &&
        values->element_count() != sym_count)   LENGTH_ERROR;
