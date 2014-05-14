@@ -607,6 +607,7 @@ const LineLabel user_edit_to = edit_to;
            << edit_from << " to " << edit_to << endl;
 
    for (int e = idx_from; e <= idx_to; ++e)   lines[e].print(COUT);
+   if (idx_to == lines.size() - 1)   COUT << "∇" << endl;  // last line printed
 
    if (user_edit_to.valid())   // eg. [⎕42] or [2⎕42]
       {
@@ -621,7 +622,7 @@ const LineLabel user_edit_to = edit_to;
              current_line.insert();
            }
       }
-   else                      // eg. [42⎕] of [⎕]
+   else                      // eg. [42⎕] or [⎕]
       {
         current_line = lines.back().label;
         current_line.next();
@@ -721,15 +722,37 @@ void
 Nabla::FunLine::print(ostream & out) const
 {
    label.print(out);
-   out << " " << text << endl;
+
+   // print a space unless text is a label or a comment
+   //
+   if (text[0] == UNI_ASCII_NUMBER_SIGN)   goto rest;   // comment
+   if (text[0] == UNI_COMMENT)             goto rest;   // comment
+   loop(t, text.size())
+       {
+         if (text[t] == UNI_ASCII_COLON)     goto rest;   // label
+         if (!Avec::is_symbol_char(text[t]))   break;
+       }
+
+   out << " ";   // neither comment nor label
+
+rest:
+   out << text << endl;
 }
 //-----------------------------------------------------------------------------
 void
 LineLabel::print(ostream & out) const
 {
-   out << "[" << ln_major;
-   if (ln_minor.size())   out << "." << ln_minor;
-   out << "]";
+UCS_string ucs("[");
+   ucs.append_number(ln_major);
+   if (ln_minor.size())
+      {
+        ucs.append_utf8(".");
+        ucs.append(ln_minor);
+      }
+   ucs.append_utf8("]");
+
+   while (ucs.size() < 5)   ucs.append_utf8(" ");
+   out << ucs;
 }
 //-----------------------------------------------------------------------------
 UCS_string
