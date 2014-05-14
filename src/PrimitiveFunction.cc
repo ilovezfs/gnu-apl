@@ -79,6 +79,12 @@ PrimitiveFunction::eval_fill_AB(Value_P A, Value_P B)
    return eval_AB(A, B);
 }
 //-----------------------------------------------------------------------------
+Token
+PrimitiveFunction::eval_fill_B(Value_P B)
+{
+   return eval_B(B);
+}
+//-----------------------------------------------------------------------------
 ostream &
 PrimitiveFunction::print(ostream & out) const
 {
@@ -2006,43 +2012,46 @@ Value_P Z = B->index(*index_expr);
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
-Token
-Bif_F12_TAKE::eval_B(Value_P B)
+Value_P
+Bif_F12_TAKE::first(Value_P B)
 {
-Value_P Z;
-const Cell & first_B = B->get_ravel(0);
-
-   if (B->element_count() == 0)   // return prototype
+   if (B->element_count() == 0)   // empty value: return prototype
       {
-        Z = B->prototype(LOC);
+        Value_P Z = B->prototype(LOC);
+        Z->check_value(LOC);
+        return Z;
       }
-   else if (first_B.is_pointer_cell())
-      {
-        Value_P v1 = first_B.get_pointer_value();
-        if (v1->is_lval())
-           {
-             Value_P B1(new Value(LOC));
-             new (&B1->get_ravel(0))   PointerCell(v1);
 
-             Z = Value_P(new Value(LOC));
-             new (&Z->get_ravel(0))   LvalCell(&B1->get_ravel(0));
-           }
-        else
-           {
-             const ShapeItem ec = v1->nz_element_count();
-             Z = Value_P(new Value(v1->get_shape(), LOC));
-             loop(e, ec)   Z->get_ravel(e).init(v1->get_ravel(e));
-           }
+const Cell & first_B = B->get_ravel(0);
+   if (!first_B.is_pointer_cell())   // simple cell
+      {
+        Value_P Z(new Value(LOC));
+        Z->get_ravel(0).init(first_B);
+        Z->check_value(LOC);
+        return Z;
+      }
+
+Value_P v1 = first_B.get_pointer_value();
+   if (v1->is_lval())
+      {
+        Value_P B1(new Value(LOC));
+        new (&B1->get_ravel(0))   PointerCell(v1);
+
+        Value_P Z(new Value(LOC));
+        new (&Z->get_ravel(0))   LvalCell(&B1->get_ravel(0));
+
+        Z->check_value(LOC);
+        return Z;
       }
    else
       {
-        Z = Value_P(new Value(LOC));
+        const ShapeItem ec = v1->nz_element_count();
+        Value_P Z(new Value(v1->get_shape(), LOC));
+        loop(e, ec)   Z->get_ravel(e).init(v1->get_ravel(e));
 
-        Z->get_ravel(0).init(first_B);
+        Z->check_value(LOC);
+        return Z;
       }
-
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token

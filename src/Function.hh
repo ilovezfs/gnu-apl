@@ -187,11 +187,11 @@ public:
 
    /// Evaluate \b the fill function.
    virtual Token eval_fill_B(Value_P B)
-      { VALENCE_ERROR; }
+      { DOMAIN_ERROR; }
 
    /// Evaluate \b the fill function.
    virtual Token eval_fill_AB(Value_P A, Value_P B)
-      { VALENCE_ERROR; }
+      { DOMAIN_ERROR; }
 
    /// Evaluate \b the identity function.
    virtual Token eval_identity_fun(Value_P B, Axis axis)

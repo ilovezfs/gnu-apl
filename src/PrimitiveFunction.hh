@@ -56,6 +56,9 @@ protected:
    /// Overloaded Function::eval_fill_AB()
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
+   /// Overloaded Function::eval_fill_B()
+   virtual Token eval_fill_B(Value_P B);
+
    /// Print the name of \b this PrimitiveFunction to \b out
    virtual ostream & print(ostream & out) const;
 
@@ -307,7 +310,8 @@ public:
    {}
 
    /// Overloaded Function::eval_B()
-   virtual Token eval_B(Value_P B);
+   virtual Token eval_B(Value_P B)
+      { return Token(TOK_APL_VALUE1, first(B));}
 
    /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
@@ -322,6 +326,8 @@ public:
    static void fill(const Shape & shape_Zi, Cell * Z, Value_P B);
 
    static Bif_F12_TAKE      fun;   ///< Built-in function
+
+   static Value_P first(Value_P B);
 
 protected:
    /// Take A from B

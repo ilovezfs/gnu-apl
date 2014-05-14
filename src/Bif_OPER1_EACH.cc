@@ -33,13 +33,12 @@ Bif_OPER1_EACH::eval_ALB(Value_P A, Token & _LO, Value_P B)
 Function * LO = _LO.get_function();
    Assert1(LO);
 
-
    if (A->is_empty() || B->is_empty())
       {
         if (!LO->has_result())   return Token(TOK_VOID);
 
-        Value_P Fill_A = Bif_F12_TAKE::fun.eval_B(A).get_apl_val();
-        Value_P Fill_B = Bif_F12_TAKE::fun.eval_B(B).get_apl_val();
+        Value_P Fill_A = Bif_F12_TAKE::first(A);
+        Value_P Fill_B = Bif_F12_TAKE::first(B);
         Shape shape_Z;
 
         if (A->is_empty())          shape_Z = A->get_shape();
@@ -208,6 +207,14 @@ Bif_OPER1_EACH::eval_LB(Token & _LO, Value_P B)
 Function * LO = _LO.get_function();
    Assert1(LO);
 
+   if (B->is_empty())
+      {
+        if (!LO->has_result())   return Token(TOK_VOID);
+
+        Value_P Fill_B = Bif_F12_TAKE::first(B);
+        return LO->eval_fill_B(Fill_B);
+      }
+
 EOC_arg arg(B);
 EACH_LB & _arg = arg.u.u_EACH_LB;
 
@@ -349,6 +356,10 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
         Value_P vZ = token.get_apl_val();
+Q(vZ.get())
+Q(vZ->get_shape())
+Q(vZ->get_ravel(0).get_cell_type())
+Q(*vZ)
 
         if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
         else if (vZ->is_simple_skalar())

@@ -351,6 +351,12 @@ protected:
    virtual Token eval_ALRXB(Value_P A, Token & LO, Token & RO,
                             Value_P X, Value_P B);
 
+   /// Overloaded Function::eval_fill_B()
+   virtual Token eval_fill_B(Value_P B);
+
+   /// Overloaded Function::eval_fill_AB()
+   virtual Token eval_fill_AB(Value_P A, Value_P B);
+
    UserFunction_header header;
 
    /// helper function to print token with Function or Value content
