@@ -967,52 +967,23 @@ const int count = vector_ass_count();
         return;
       }
 
-   // B should be a vector with count elements.
+   // vector assignment.
    //
+DynArray(Symbol *, symbols, count + 1);
+   symbols[0] = at0().get_sym_ptr();
+   loop(c, count)
+      {
+        Token_loc tl = lookahead();
+        Assert1(tl.tok.get_tag() == TOK_LSYMB2);   // by vector_ass_count()
+        Symbol * V = tl.tok.get_sym_ptr();
+        Assert(V);
+        symbols[c + 1] = V;
+      }
+
 Value_P B = at3().get_apl_val();
-   if (B->is_skalar())
-      {
-        if (B->get_ravel(0).is_pointer_cell())   // disclose B if enclosed
-           B = B->get_ravel(0).get_pointer_value();
+   Symbol::vector_assignment(symbols, count + 1, B);
 
-        Symbol * V = at0().get_sym_ptr();
-        V->assign(B, LOC);
-        loop(c, count)
-           {
-             Token_loc tl = lookahead();
-             Assert1(tl.tok.get_tag() == TOK_LSYMB2);   // by vector_ass_count()
-             V = tl.tok.get_sym_ptr();
-             V->assign(B, LOC);
-           }
-      }
-   else
-      {
-        if (B->get_rank() != 1)   RANK_ERROR;
-        if (B->element_count() != (count + 1))   LENGTH_ERROR;
-
-        // assign last element of B to V
-        //
-        {
-          Symbol * V = at0().get_sym_ptr();
-          Cell & cell = B->get_ravel(count);
-          Value_P B_last(new Value(cell, LOC));
-          V->assign(B_last, LOC);
-        }
-
-        // assign other elements of B to other variables...
-        //
-        loop(c, count)
-           {
-             Token_loc tl = lookahead();
-             Assert1(tl.tok.get_tag() == TOK_LSYMB2);   // by vector_ass_count()
-             Symbol * V = tl.tok.get_sym_ptr();
-             Cell & cell = B->get_ravel(count - c - 1);
-             Value_P B_cell(new Value(cell, LOC));
-             V->assign(B_cell, LOC);
-           }
-      }
-
-    set_assign_state(ASS_none);
+   set_assign_state(ASS_none);
 
    // clean up stack
    //
