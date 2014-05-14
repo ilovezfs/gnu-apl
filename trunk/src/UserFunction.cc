@@ -909,6 +909,20 @@ UserFunction::eval_ALRXB(Value_P A, Token & LO, Token & RO,
    return Token(TOK_SI_PUSHED);
 }
 //-----------------------------------------------------------------------------
+Token
+UserFunction::eval_fill_B(Value_P B)
+{
+Value_P Z = B->clone(LOC);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+Token
+UserFunction::eval_fill_AB(Value_P A, Value_P B)
+{
+Value_P Z = B->clone(LOC);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
 void
 UserFunction::set_locked_error_info(Error & error) const
 {
