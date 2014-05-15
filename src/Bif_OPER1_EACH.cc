@@ -212,7 +212,10 @@ Function * LO = _LO.get_function();
         if (!LO->has_result())   return Token(TOK_VOID);
 
         Value_P Fill_B = Bif_F12_TAKE::first(B);
-        return LO->eval_fill_B(Fill_B);
+        Token tZ = LO->eval_fill_B(Fill_B);
+        Value_P Z = tZ.get_apl_val();
+        Z->set_shape(B->get_shape());
+        return Token(TOK_APL_VALUE1, Z);
       }
 
 EOC_arg arg(B);
@@ -356,10 +359,6 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
         Value_P vZ = token.get_apl_val();
-Q(vZ.get())
-Q(vZ->get_shape())
-Q(vZ->get_ravel(0).get_cell_type())
-Q(*vZ)
 
         if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
         else if (vZ->is_simple_skalar())
