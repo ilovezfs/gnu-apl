@@ -315,38 +315,46 @@ const char * argv0 = argv[0];
 
    if (uprefs.emacs_mode)
       {
-        // CIN = U+F00C0 = UTF8 F3 B0 83 80 ...
-        Output::color_CIN[0] = 0xF3;
-        Output::color_CIN[1] = 0xB0;
-        Output::color_CIN[2] = 0x83;
-        Output::color_CIN[3] = 0x80;
-        Output::color_CIN[4] = 0;
+        UCS_string t4 = NativeFunction::load_emacs_library();
+        if (t4.size())   // problems loading library
+           {
+             CERR << t4 << endl;
+           }
+        else
+           {
+             // CIN = U+F00C0 = UTF8 F3 B0 83 80 ...
+             Output::color_CIN[0] = 0xF3;
+             Output::color_CIN[1] = 0xB0;
+             Output::color_CIN[2] = 0x83;
+             Output::color_CIN[3] = 0x80;
+             Output::color_CIN[4] = 0;
 
-        // COUT = U+F00C1 = UTF8 F3 B0 83 81 ...
-        Output::color_COUT[0] = 0xF3;
-        Output::color_COUT[1] = 0xB0;
-        Output::color_COUT[2] = 0x83;
-        Output::color_COUT[3] = 0x81;
-        Output::color_COUT[4] = 0;
+             // COUT = U+F00C1 = UTF8 F3 B0 83 81 ...
+             Output::color_COUT[0] = 0xF3;
+             Output::color_COUT[1] = 0xB0;
+             Output::color_COUT[2] = 0x83;
+             Output::color_COUT[3] = 0x81;
+             Output::color_COUT[4] = 0;
 
-        // CERR = U+F00C2 = UTF8 F3 B0 83 82 ...
-        Output::color_CERR[0] = 0xF3;
-        Output::color_CERR[1] = 0xB0;
-        Output::color_CERR[2] = 0x83;
-        Output::color_CERR[3] = 0x82;
-        Output::color_CERR[4] = 0;
+             // CERR = U+F00C2 = UTF8 F3 B0 83 82 ...
+             Output::color_CERR[0] = 0xF3;
+             Output::color_CERR[1] = 0xB0;
+             Output::color_CERR[2] = 0x83;
+             Output::color_CERR[3] = 0x82;
+             Output::color_CERR[4] = 0;
 
-        // UERR = U+F00C3 = UTF8 F3 B0 83 83 ...
-        Output::color_UERR[0] = 0xF3;
-        Output::color_UERR[1] = 0xB0;
-        Output::color_UERR[2] = 0x83;
-        Output::color_UERR[3] = 0x83;
-        Output::color_UERR[4] = 0;
+             // UERR = U+F00C3 = UTF8 F3 B0 83 83 ...
+             Output::color_UERR[0] = 0xF3;
+             Output::color_UERR[1] = 0xB0;
+             Output::color_UERR[2] = 0x83;
+             Output::color_UERR[3] = 0x83;
+             Output::color_UERR[4] = 0;
 
-        // no clear_EOL
-        Output::clear_EOL[0] = 0;
+             // no clear_EOL
+             Output::clear_EOL[0] = 0;
 
-        Output::use_curses = false;
+             Output::use_curses = false;
+           }
       }
 
 

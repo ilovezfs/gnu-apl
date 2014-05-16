@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# this script checks for bad settings when exporting a package
+# this script shall be run in the top-level directory
+
+
+echo -n "checking that logging facilities are turned off ... "
+cnt1=`grep -c "log_def("   src/Logging.def`
+cnt2=`grep -c "log_def(0" src/Logging.def`
+
+if [ $cnt1 != $cnt2 ]
+then
+   echo
+   echo "*** Cannot build packages because some logging facility is ON in src/Logging.def"
+   exit 1
+exit 0
+fi
+
+echo "OK."
+exit 0
+

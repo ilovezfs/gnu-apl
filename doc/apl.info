@@ -53,7 +53,9 @@ File: apl.info,  Node: Chapter 1,  Next: Chapter 2,  Prev: Top,  Up: Top
 
 APL is built and installed like this:
 
-   * download and unpack the tar file containing GNU APL
+   * download the tar file containing GNU APL, from
+     `ftp://ftp.gnu.org/gnu/apl' or from one of its mirrors  (see
+     `http://www.gnu.org/prep/ftp.html'), and untar the file.
 
    * read (and follow) the instructions given in file README in the
      unpacked directory
@@ -2283,12 +2285,12 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top418
 Node: Chapter 11348
-Node: Chapter 214014
-Node: Chapter 334516
-Node: Chapter 436117
-Node: Chapter 537238
-Node: Section 5.137741
-Node: Section 5.262870
+Node: Chapter 214137
+Node: Chapter 334639
+Node: Chapter 436240
+Node: Chapter 537361
+Node: Section 5.137864
+Node: Section 5.262993
 
 End Tag Table
 

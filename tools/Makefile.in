@@ -15,6 +15,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -54,7 +55,8 @@ host_triplet = @host@
 noinst_PROGRAMS = APL_keyboard$(EXEEXT) APL_keyboard_learn$(EXEEXT) \
 	APL_keyboard_show$(EXEEXT) phrase_gen$(EXEEXT)
 subdir = tools
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(dist_noinst_SCRIPTS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -79,6 +81,7 @@ APL_keyboard_show_LDADD = $(LDADD)
 am_phrase_gen_OBJECTS = phrase_gen.$(OBJEXT)
 phrase_gen_OBJECTS = $(am_phrase_gen_OBJECTS)
 phrase_gen_LDADD = $(LDADD)
+SCRIPTS = $(dist_noinst_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -239,6 +242,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+dist_noinst_SCRIPTS = check_src
 APL_keyboard_show_SOURCES = APL_keyboard_show.cc
 APL_keyboard_learn_SOURCES = APL_keyboard_learn.cc  APL_keyboard.orig.def
 APL_keyboard_SOURCES = APL_keyboard.cc        APL_keyboard.def
@@ -421,7 +425,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(SCRIPTS)
 installdirs:
 install: install-am
 install-exec: install-exec-am
