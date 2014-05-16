@@ -50,6 +50,9 @@ public:
         NCAT_OP2,   ///< dyadic operator
       };
 
+   // load hsared lib for emacs mode, return true on success
+   static UCS_string load_emacs_library();
+
 protected:
    /// constructor (only fix() may call it)
    NativeFunction(const UCS_string & so_name, const UCS_string & apl_name);
@@ -59,10 +62,10 @@ protected:
 
    /// open .so file in one of several directories. On success set handle 
    /// and update so_path.
-   void open_so_file();
+   static void * open_so_file(UCS_string & t4, UCS_string & so_path);
 
    /// try to open one .so file
-   void try_one_file(const char * filename);
+   static void * try_one_file(const char * filename, UCS_string & t4);
 
    /// overloaded Function::is_native()
    virtual bool is_native() const   { return true; }
@@ -137,7 +140,6 @@ protected:
    const UCS_string & get_name() const
       { return name; }
 
-protected:
    /// dl_open() handle of shared library
    void * handle;
 

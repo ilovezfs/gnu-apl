@@ -1,8 +1,10 @@
 
-noinst_PROGRAMS = APL_keyboard		\
-                  APL_keyboard_learn	\
-                  APL_keyboard_show	\
-                  phrase_gen
+noinst_PROGRAMS =	APL_keyboard		\
+			APL_keyboard_learn	\
+			APL_keyboard_show	\
+			phrase_gen
+
+dist_noinst_SCRIPTS =	check_src
 
 LIBS =
 APL_keyboard_show_SOURCES  = APL_keyboard_show.cc

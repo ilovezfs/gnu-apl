@@ -42,10 +42,17 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
      valid(false),
      close_fun(0)
 {
-   open_so_file();
-   if (handle == 0)   return;
-   Workspace::more_error() = UCS_string("shared library ");
-   Workspace::more_error().append(so_name);
+UCS_string t4;
+   handle = open_so_file(t4, so_path);
+   if (handle == 0)
+      {
+         Workspace::more_error() = t4;
+         return;
+      }
+
+   t4 = UCS_string("shared library ");
+   t4.append(so_name);
+   t4.append_utf8(" ");
 
    // get the function multiplexer
    //
@@ -54,8 +61,8 @@ void * fmux = dlsym(handle, "get_function_mux");
         {
           CERR << "shared library " << so_name << " is lacking the mandatory "
                   "function get_function_mux() !" << endl;
-          Workspace::more_error().append_utf8(
-                                  "is invalid (no get_function_mux())");
+          t4.append_utf8("is invalid (no get_function_mux())");
+          Workspace::more_error() = t4;
           return;
         }
 
@@ -70,8 +77,8 @@ void * (*get_function_mux)(const char *) = (void * (*)(const char *))fmux;
         {
           CERR << "shared library is lacking the mandatory "
                   "function signature() !" << endl;
-          Workspace::more_error().append_utf8(
-                                  "is invalid (no get_signature())");
+          t4.append_utf8("is invalid (no get_signature())");
+          Workspace::more_error() = t4;
           return;
         }
 
@@ -156,10 +163,9 @@ NativeFunction::~NativeFunction()
       }
 }
 //-----------------------------------------------------------------------------
-void
-NativeFunction::try_one_file(const char * filename)
+void *
+NativeFunction::try_one_file(const char * filename, UCS_string & t4)
 {
-UCS_string & t4 = Workspace::more_error();
 const int t4_len = t4.size();
    t4.append_utf8("    file ");
    t4.append_utf8(filename);
@@ -170,10 +176,10 @@ const int t4_len = t4.size();
         t4.append_utf8(" (");
         t4.append_utf8(strerror(errno));
         t4.append_utf8(")\n");
-        return;
+        return 0;
       }
 
-   handle = dlopen(filename, RTLD_NOW);
+void * handle = dlopen(filename, RTLD_NOW);
    if (handle == 0)
       {
         const char * err = dlerror();
@@ -184,14 +190,15 @@ const int t4_len = t4.size();
         t4.append_utf8(err);
         t4.append_utf8(" )\n");
       }
+
+   return handle;
 }
 //-----------------------------------------------------------------------------
-void
-NativeFunction::open_so_file()
+void *
+NativeFunction::open_so_file(UCS_string & t4, UCS_string & so_path)
 {
    // prepare a )MORE error message containing the file names tried.
    //
-UCS_string & t4 = Workspace::more_error();
    t4.clear();
    t4.append_utf8("Could not find shared library '");
    t4.append(so_path);
@@ -206,13 +213,16 @@ UCS_string & t4 = Workspace::more_error();
        so_path[0] == UNI_ASCII_FULLSTOP)
       {
         UTF8_string filename(so_path);
-        try_one_file(filename.c_str());
+        void * handle = try_one_file(filename.c_str(), t4);
 
-        if (handle == 0)   t4.append_utf8(
+        if (handle == 0)
+           {
+             t4.append_utf8(
             "NOTE: Filename extensions are NOT automatically added "
             "when a full path\n"
             "      (i.e. a path starting with / or .) is used.");
-        return;
+           }
+        return handle;
       }
 
    // otherwise try Makefile__pkglibdir . /usr/lib/apl and /usr/local/lib/apl,
@@ -245,7 +255,7 @@ const char * dirs[] =
 
          UTF8_string dir_only(dir_so_path);
          dir_only[strrchr(dir_only.c_str(), '/') - dir_only.c_str()] = 0;
-         if (access(dir_only.c_str(), R_OK | X_OK) != 0)
+         if (access(dir_only.c_str(), R_OK | X_OK))
             {
               t4.append_utf8("    directory ");
               t4.append_utf8(dir_only.c_str());
@@ -271,7 +281,6 @@ const char * dirs[] =
                         has_extension = true;
                         break;
                       }
-                       
                  }
             }
 
@@ -282,9 +291,16 @@ const char * dirs[] =
                UTF8_string filename(dir_so_path);
                if (exts[e])   filename.append(UTF8_string(exts[e]));
 
-               try_one_file(filename.c_str());
+               void * handle = try_one_file(filename.c_str(), t4);
+               if (handle)   // found library
+                  {
+                    so_path = UCS_string(filename);   // update so_path
+                    return handle;
+                  }
              }
        }
+
+   return 0;
 }
 //-----------------------------------------------------------------------------
 void
@@ -407,6 +423,40 @@ NativeFunction::print(std::ostream & out) const
    else                 out << "native Function " << name << endl;
 
    return out;
+}
+//-----------------------------------------------------------------------------
+UCS_string
+NativeFunction::load_emacs_library()
+{
+UCS_string so_path("libemacs");
+UCS_string t4;
+
+void * handle = open_so_file(t4, so_path);
+   if (handle == 0)   return t4;
+
+   t4 = UCS_string("found emacs library ");
+   t4.append(so_path);
+
+void * fmux = dlsym(handle, "get_function_mux");
+   if (fmux == 0)
+      {
+        t4.append_utf8(", but it\n   it is lacking the mandatory "
+                       "function get_function_mux()\n");
+        return t4;
+      }
+
+void * get_sig = ((void *(*)(const char *))fmux)("get_signature");
+   if (fmux == 0)
+      {
+        t4.append_utf8(", but it\n   it is lacking the mandatory "
+                       "function get_signature()\n");
+        return t4;
+      }
+
+Fun_signature signature = ((Fun_signature (*)())get_sig)();
+
+   t4.clear();   // success
+   return t4;
 }
 //-----------------------------------------------------------------------------
 Token

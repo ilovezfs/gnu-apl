@@ -6,7 +6,13 @@ PACKAGE_NAME=$1
 PACKAGE_VERSION=$2
 
 SVNINFO=`svnversion`
+
 ARCHIVE_SVNINFO=`svn info Archive.cc | grep Revision | awk '{print $2;}'`
+if [ $? != "0" ]
+then
+    ARCHIVE_SVNINFO=0
+fi
+
 CONFIGURE_OPTS=`../config.status -V | grep "with options" | sed 's/[^"]*//'`
 BUILD_DATE=`date -u "+%F %R:%S %Z"`
 BUILD_OS=`uname -s -r -m`

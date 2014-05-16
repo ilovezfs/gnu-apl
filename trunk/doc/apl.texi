@@ -83,7 +83,10 @@ and texts about APL. We would like to refer the reader to the following:
 APL is built and installed like this:
 
 @itemize
-@item download and unpack the tar file containing GNU APL
+@item download the tar file containing GNU APL, from
+ @uref{ftp://ftp.gnu.org/gnu/apl} or from one of its mirrors
+ (see @uref{http://www.gnu.org/prep/ftp.html}), and
+untar the file.
 
 @item read (and follow) the instructions given in file README in the unpacked
 directory
