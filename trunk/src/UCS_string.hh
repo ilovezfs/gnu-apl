@@ -138,6 +138,9 @@ public:
    /// return this string reversed (i.e. characters from back to front).
    UCS_string reverse() const;
 
+   /// return true if \b yhis string starts with # or ⍝ or x:
+   bool is_comment_or_label() const;
+
    /// return true if every char in \b this string is '0'
    bool all_zeroes()
       { loop(s, size())   if ((*this)[s] != UNI_ASCII_0)   return false;   
