@@ -426,7 +426,7 @@ NativeFunction::print(std::ostream & out) const
 }
 //-----------------------------------------------------------------------------
 UCS_string
-NativeFunction::load_emacs_library()
+NativeFunction::load_emacs_library(const char * emacs_arg)
 {
 UCS_string so_path("libemacs");
 UCS_string t4;
@@ -437,23 +437,24 @@ void * handle = open_so_file(t4, so_path);
    t4 = UCS_string("found emacs library ");
    t4.append(so_path);
 
-void * fmux = dlsym(handle, "get_function_mux");
-   if (fmux == 0)
+void * emacs_start = dlsym(handle, "emacs_start");
+   if (emacs_start == 0)
       {
         t4.append_utf8(", but it\n   it is lacking the mandatory "
-                       "function get_function_mux()\n");
+                       "function emacs_start()\n");
         return t4;
       }
 
-void * get_sig = ((void *(*)(const char *))fmux)("get_signature");
-   if (fmux == 0)
+UTF8_string so_path_utf(so_path);
+const int error = ((int (*)(const char *, const char *))emacs_start)
+                  (emacs_arg, (const char *)so_path_utf.c_str());
+   if (error)
       {
-        t4.append_utf8(", but it\n   it is lacking the mandatory "
-                       "function get_signature()\n");
+        t4.append_utf8(", but emacs_start()  returned error ");
+        t4.append_number(error);
+        t4.append_utf8("\n");
         return t4;
       }
-
-Fun_signature signature = ((Fun_signature (*)())get_sig)();
 
    t4.clear();   // success
    return t4;
