@@ -1134,7 +1134,8 @@ UserFunction::print_properties(ostream & out, int indent) const
    header.print_properties(out, indent);
 UCS_string ind(indent, UNI_ASCII_SPACE);
    out << ind << "Body Lines:     " << line_starts.size() << endl
-       << ind << "Creator:        " << get_creator()      << endl;
+       << ind << "Creator:        " << get_creator()      << endl
+       << ind << "⎕NC:            " << get_nc()           << endl;
 }
 //-----------------------------------------------------------------------------
 const UCS_string &

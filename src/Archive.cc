@@ -261,9 +261,14 @@ char cc[80];
 void
 XML_Saving_Archive::save_function(const Function & fun)
 {
+const int * eprops = fun.get_exec_properties();
    do_indent();
-   out << "<Function";
+   out << "<Function exec-properties=\""
+       << eprops[0] << "," << eprops[1] << ","
+       << eprops[2] << "," << eprops[3] << "\"";
+
    if (fun.is_native())   out << " native=\"1\"";
+
    out << ">" << endl;
    ++indent;
 
@@ -656,8 +661,9 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "                <!ELEMENT Execute (UCS)>\n"
 "\n"
 "                <!ELEMENT UserFunction (#PCDATA)>\n"
-"                <!ATTLIST UserFunction ufun-name    CDATA #REQUIRED>\n"
-"                <!ATTLIST UserFunction symbol-level CDATA #REQUIRED>\n"
+"                <!ATTLIST UserFunction ufun-name       CDATA #REQUIRED>\n"
+"                <!ATTLIST UserFunction symbol-level    CDATA #REQUIRED>\n"
+"                <!ATTLIST UserFunction exec-properties CDATA #IMPLIED>\n"
 "\n"
 "                <!ELEMENT Parser (Token*)>\n"
 "                <!ATTLIST Parser assign-pending CDATA #REQUIRED>\n"
@@ -1448,6 +1454,13 @@ void
 XML_Loading_Archive::read_Function(int d, Symbol & symbol)
 {
 const int native = find_int_attr("native", true, 10);
+int eprops[4] = { 0, 0, 0, 0 };
+const UTF8 * ep = find_attr("exec-properties", true);
+   if (ep)
+      {
+        sscanf((const char *)ep, "%d,%d,%d,%d",
+               eprops, eprops + 1, eprops + 2, eprops+ 3);
+      }
 
    Log(LOG_archive)   CERR << "      read_Function() native=" << native << endl;
 
@@ -1484,13 +1497,14 @@ UCS_string text;
         creator.append_number(line_no);
         UTF8_string creator_utf8(creator);
 
-        UserFunction * fun = UserFunction::fix(text, err, false,
+        UserFunction * ufun = UserFunction::fix(text, err, false,
                                                LOC, creator_utf8);
 
         if (d == 0)   symbol.pop(false);
-        if (fun)
+        if (ufun)
            {
-             symbol.push_function(fun);
+             symbol.push_function(ufun);
+             ufun->set_exec_properties(eprops);
            }
         else
            {

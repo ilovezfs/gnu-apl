@@ -726,17 +726,7 @@ Nabla::FunLine::print(ostream & out) const
 
    // print a space unless text is a label or a comment
    //
-   if (text[0] == UNI_ASCII_NUMBER_SIGN)   goto rest;   // comment
-   if (text[0] == UNI_COMMENT)             goto rest;   // comment
-   loop(t, text.size())
-       {
-         if (text[t] == UNI_ASCII_COLON)     goto rest;   // label
-         if (!Avec::is_symbol_char(text[t]))   break;
-       }
-
-   out << " ";   // neither comment nor label
-
-rest:
+   if (!text.is_comment_or_label())   out << " ";
    out << text << endl;
 }
 //-----------------------------------------------------------------------------

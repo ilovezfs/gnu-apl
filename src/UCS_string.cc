@@ -567,6 +567,21 @@ UCS_string ret;
    return ret;
 }
 //-----------------------------------------------------------------------------
+bool
+UCS_string::is_comment_or_label() const
+{
+   if (size() == 0)                               return false;
+   if ((*this)[0] == UNI_ASCII_NUMBER_SIGN)       return true;   // comment
+   if ((*this)[0] == UNI_COMMENT)                 return true;   // comment
+   loop(t, size())
+       {
+         if ((*this)[t] == UNI_ASCII_COLON)       return true;   // label
+         if (!Avec::is_symbol_char((*this)[t]))   return false;
+       }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
 void
 UCS_string::append_utf8(const UTF8 * str)
 {

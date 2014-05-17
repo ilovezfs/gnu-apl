@@ -586,29 +586,51 @@ Value_P Z(new Value(sh, LOC));
 void
 Quad_CR::do_CR10(vector<UCS_string> & result, const Value & B)
 {
-const UCS_string obj_name(B);
-const NamedObject * named_obj = Workspace::lookup_existing_name(obj_name);
-   if (named_obj == 0)   DOMAIN_ERROR;
+const UCS_string symbol_name(B);
+const Symbol * symbol = Workspace::lookup_existing_symbol(symbol_name);
+   if (symbol == 0)   DOMAIN_ERROR;
 
-   switch(named_obj->get_nc())
+   switch(symbol->get_nc())
       {
         case NC_VARIABLE:
              {
-               const  Symbol * symbol = named_obj->get_symbol();
-               Assert(symbol);
                const Value & value = *symbol->get_apl_value().get();
                const UCS_string pick;
-               do_CR10_var(result, obj_name, pick, value);
+               do_CR10_var(result, symbol_name, pick, value);
                return;
              }
 
         case NC_FUNCTION:
         case NC_OPERATOR:
-             TODO;
+             {
+               const Function & ufun = *symbol->get_function();
+               const UCS_string text = ufun.canonical(false);
+               UCS_string res("∇");
+               
+               loop(u, text.size())
+                  {
+                     if (text[u] == '\n')
+                        {
+                          result.push_back(res);
+                          res.clear();
+                          UCS_string next(text, u + 1, text.size() - u - 1);
+                          if (!next.is_comment_or_label() &&
+                              u < (text.size() - 1))
+                             res.append(UNI_ASCII_SPACE);
+                        }
+                     else
+                        {
+                          res.append(text[u]);
+                        }
+                  }
+               if (ufun.get_exec_properties()[0])   res.append(UNI_DEL_TILDE);
+               else                                 res.append(UNI_NABLA);
+               result.push_back(res);
+               return;
+             }
 
         default: DOMAIN_ERROR;
       }
-
 }
 //-----------------------------------------------------------------------------
 void

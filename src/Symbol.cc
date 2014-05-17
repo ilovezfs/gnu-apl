@@ -1226,7 +1226,9 @@ const ValueStackItem & vs = (*this)[0];
               out << text[u];
               if (text[u] == '\n' && u < text.size() - 1)   out << " ";
            }
-        out << "∇" << endl << endl;
+        if (ufun->get_exec_properties()[0])   out << "⍫";
+        else                                  out << "∇";
+        out << endl << endl;
       }
 }
 //-----------------------------------------------------------------------------
