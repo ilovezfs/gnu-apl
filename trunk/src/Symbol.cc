@@ -61,8 +61,7 @@ ostream &
 Symbol::print_verbose(ostream & out) const
 {
    out << "Symbol ";
-   print(out);
-   out << endl;
+   print(out) << " " << (const void *)this << endl;
 
    loop(v, value_stack.size())
        {
@@ -96,10 +95,16 @@ Symbol::print_verbose(ostream & out) const
                    {
                      Function * fun = item.sym_val.function;
                      Assert(fun);
-                     fun->print_properties(out, 8);
-                      out << endl;
+
+                     fun->print_properties(out, 4);
+                     out << "    ⎕NC:            " << item.name_class
+                         << endl
+                         << "    addr:           " << (const void *)fun
+                         << endl;
+
+                     out << endl;
                    }
-                   continue;
+                   break;
 
               default: break;
             }
@@ -502,7 +507,7 @@ const ValueStackItem & vs = value_stack.back();
 const char *
 Symbol::cant_be_defined() const
 {
-   if (value_stack.size() > 1)         return "symbol was localized";
+// if (value_stack.size() > 1)         return "symbol was localized";
    if (Workspace::is_called(symbol))   return "function is called";
 
    if (value_stack.back().name_class == NC_UNUSED_USER_NAME)   return 0;   // OK
