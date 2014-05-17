@@ -362,10 +362,27 @@ StateIndicator * ret = 0;
 bool
 Workspace::is_called(const UCS_string & funname)
 {
+   // return true if the current-referent of funname is pendant
+   //
+Symbol * current_referent = lookup_existing_symbol(funname);
+   if (current_referent == 0)   return false;   // no such symbol
+
+   Assert(current_referent->get_Id() == ID_USER_SYMBOL);
+
+const NameClass nc = current_referent->get_nc();
+   if (nc != NC_FUNCTION && nc != NC_OPERATOR)   return false;
+
+const Function * fun = current_referent->get_function();
+   Assert(fun);
+
+const UserFunction * ufun = fun->get_ufun1();
+   if (!ufun)   return false;         // not a defined function
+
+const Executable * uexec = ufun;
+
    for (const StateIndicator * si = SI_top(); si; si = si->get_parent())
       {
-        UCS_string si_fun = si->function_name();
-       if (funname == si_fun)   return true;
+       if (uexec == si->get_executable())   return true;
       }
 
    return false;
