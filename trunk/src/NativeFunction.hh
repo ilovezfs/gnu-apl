@@ -50,8 +50,8 @@ public:
         NCAT_OP2,   ///< dyadic operator
       };
 
-   // load hsared lib for emacs mode, return true on success
-   static UCS_string load_emacs_library();
+   // load shared lib for emacs mode, return error info on failure
+   static UCS_string load_emacs_library(const char * emacs_arg);
 
 protected:
    /// constructor (only fix() may call it)
