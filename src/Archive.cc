@@ -1691,7 +1691,7 @@ const int vid_arg_B = find_int_attr("vid_arg_B", true, 10);
    Log(LOG_archive)   CERR << "read_SI_entry() level=" << level << endl;
 
    next_tag(LOC);
-const Executable * exec = 0;
+Executable * exec = 0;
    if      (is_tag("Execute"))        exec = read_Execute();
    else if (is_tag("Statements"))     exec = read_Statement();
    else if (is_tag("UserFunction"))   exec = read_UserFunction();
@@ -1713,7 +1713,7 @@ StateIndicator * si = Workspace::SI_top();
    read_Parsers(*si);
 }
 //-----------------------------------------------------------------------------
-const Executable *
+Executable *
 XML_Loading_Archive::read_Execute()
 {
    next_tag(LOC);
@@ -1724,11 +1724,11 @@ UCS_string text;
    next_tag(LOC);
    expect_tag("/Execute", LOC);
 
-const Executable * exec = new ExecuteList(text, LOC);
+Executable * exec = new ExecuteList(text, LOC);
    return exec;
 }
 //-----------------------------------------------------------------------------
-const Executable *
+Executable *
 XML_Loading_Archive::read_Statement()
 {
    next_tag(LOC);
@@ -1740,11 +1740,11 @@ UCS_string text;
    next_tag(LOC);
    expect_tag("/Statements", LOC);
 
-const Executable * exec = new StatementList(text, LOC);
+Executable * exec = new StatementList(text, LOC);
    return exec;
 }
 //-----------------------------------------------------------------------------
-const Executable *
+Executable *
 XML_Loading_Archive::read_UserFunction()
 {
 const int level = find_int_attr("symbol-level", false, 10);
@@ -1760,9 +1760,9 @@ Symbol * symbol = Workspace::lookup_symbol(name_ucs);
    Assert(level < symbol->value_stack_size());
 ValueStackItem & vsi = (*symbol)[level];
    Assert(vsi.name_class == NC_FUNCTION);
-const Function * fun = vsi.sym_val.function;
+Function * fun = vsi.sym_val.function;
    Assert(fun);
-const UserFunction * ufun = fun->get_ufun1();
+UserFunction * ufun = fun->get_ufun1();
    Assert(fun == ufun);
 
    return ufun;

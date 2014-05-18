@@ -28,13 +28,13 @@
 /// arguments of the EOC handler for ⎕EA
 struct quad_EA
 {
-  // the EOC handler for ⎕EC has no additional arguments
+   // ⎕EA has no additional arguments
 };
 
 /// arguments of the EOC handler for ⎕EC
 struct quad_EC
 {
-  // the EOC handler for ⎕EC has no arguments
+   // ⎕EC has no additional arguments
 };
 
 /// arguments of the EOC handler for ⎕INP

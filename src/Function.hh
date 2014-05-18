@@ -120,6 +120,9 @@ public:
    virtual void get_attributes(int mode, Cell * dest) const;
 
    /// return a pointer to \b this UserFunction (if it is one)
+   virtual UserFunction * get_ufun1()   { return 0; }
+
+   /// return a pointer to \b this UserFunction (if it is one)
    virtual const UserFunction * get_ufun1() const   { return 0; }
 
    /// return true if this function has a name with alphabetic chars,

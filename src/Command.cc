@@ -136,7 +136,7 @@ Command::process_line(UCS_string & line)
 apl_statements:
    Workspace::more_error().clear();
 
-const Executable * statements = 0;
+Executable * statements = 0;
    try
       {
         statements = StatementList::fix(line, LOC);
@@ -208,8 +208,7 @@ const Executable * statements = 0;
          // NOTE that the entire SI may change while executing this loop.
          // We should therefore avoid references to SI entries.
          //
-         Token token = Workspace::SI_top()
-                                  ->get_executable()->execute_body();
+         Token token = Workspace::SI_top()->get_executable()->execute_body();
 
 // Q(token)
 
@@ -219,6 +218,7 @@ const Executable * statements = 0;
 
          // maybe call EOC handler and repeat if true returned
          //
+       check_EOC:
          if (Workspace::SI_top()->call_eoc_handler(token))
             continue;
 
@@ -315,6 +315,36 @@ const Executable * statements = 0;
               attention_raised = false;
               interrupt_raised = false;
 
+              // check for safe execution mode. Entries in safe execution mode
+              // can be far above the current SI entry. The EOC handler will
+              // unroll the SI stack.
+              //
+              for (StateIndicator * si = Workspace::SI_top();
+                   si; si = si->get_parent())
+                  {
+                    if (si->get_safe_execution())
+                       {
+                         // pop SI entries above the entry with safe_execution
+                         //
+                         while (Workspace::SI_top() != si)
+                            {
+                              Assert(Workspace::SI_top());
+                              Executable * exec =
+                                       Workspace::SI_top()->get_executable();
+                              Assert1(exec);
+                              UserFunction * ufun = exec->get_ufun();
+                              if (ufun)
+                                 {
+                                   Value_P Z = ufun->pop_local_vars();
+                                 }
+
+                               Workspace::pop_SI(LOC);
+                            }
+
+                         goto check_EOC;
+                       }
+                  }
+            
               Workspace::get_error()->print(CERR);
               if (Workspace::SI_top()->get_level() == 0)
                  {

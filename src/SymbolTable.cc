@@ -343,8 +343,10 @@ int error_count = 0;
 void
 SymbolTable::clear(ostream & out)
 {
-   // this function should only be called when the SI is clear.
+   // SymbolTable::clear() should only be called after Workspace::clear_SI()
    //
+   Assert(Workspace::SI_entry_count() == 0);
+
    loop(hash, MAX_SYMBOL_COUNT)
       {
         Symbol * sym = symbol_table[hash];
@@ -357,8 +359,12 @@ SymbolTable::clear(ostream & out)
               if (sym->value_stack.size() == 0)   continue;
 
               Assert(!Workspace::is_called(sym->get_name()));
-              Assert(sym->value_stack.size() == 1);
-
+              if (sym->value_stack.size() != 1)
+                {
+                  Q1(sym->value_stack.size())
+                  Q1(sym->symbol)
+                  Assert(0);
+                }
               sym->clear_vs();
             }
 

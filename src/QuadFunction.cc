@@ -1052,10 +1052,13 @@ const UCS_string statement_B(*B.get());
    // install end of context handler. The handler will do nothing when
    // B succeeds, but will execute A if not.
    //
-StateIndicator * si = Workspace::SI_top();
-   si->set_eoc_handler(eoc_B_done);
-   si->get_eoc_arg().A = A;
-   si->get_eoc_arg().B = B;
+   {
+     Value_P dummy_Z;
+     EOC_arg arg(dummy_Z, B, A);
+
+     Workspace::SI_top()->set_eoc_handler(eoc_B_done);
+     Workspace::SI_top()->get_eoc_arg() = arg;
+   }
 
    return Token(TOK_SI_PUSHED);
 }
@@ -1113,10 +1116,11 @@ ExecuteList * fun = 0;
    // install end of context handler for the result of ⍎A. 
    //
    {
+     Value_P dummy_Z;
+     EOC_arg arg(dummy_Z, B, A);
      StateIndicator * si1 = Workspace::SI_top();
      si1->set_eoc_handler(eoc_A_done);
-     si1->get_eoc_arg().A = A;
-     si1->get_eoc_arg().B = B;
+     si1->get_eoc_arg() = arg;
    }
 
    return true;
@@ -1240,15 +1244,19 @@ ExecuteList * fun = 0;
    // install end of context handler.
    // The handler will create the result after executing B.
    //
-   Workspace::SI_top()->set_eoc_handler(eoc);
-   // no EOC handler arguments
+   {
+     Value_P dummy_B;
+     EOC_arg arg(dummy_B);
+
+     Workspace::SI_top()->set_eoc_handler(eoc);
+     Workspace::SI_top()->get_eoc_arg() = arg;
+   }
 
    return Token(TOK_SI_PUSHED);
 }
-
 //-----------------------------------------------------------------------------
 bool
-Quad_EC::eoc(Token & result_B, EOC_arg &)
+Quad_EC::eoc(Token & result_B, EOC_arg & arg)
 {
    Workspace::SI_top()->set_safe_execution(false);
 

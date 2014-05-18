@@ -200,6 +200,10 @@ public:
    { return this; }
 
    /// overloaded Function::get_ufun1()
+   virtual UserFunction * get_ufun1()
+   { return this; }
+
+   /// overloaded Function::get_ufun1()
    virtual const UserFunction * get_ufun1() const
    { return this; }
 
