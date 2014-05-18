@@ -41,7 +41,7 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 void
-Workspace::push_SI(const Executable * fun, const char * loc)
+Workspace::push_SI(Executable * fun, const char * loc)
 {
    Assert1(fun);
 
@@ -77,7 +77,6 @@ Workspace::pop_SI(const char * loc)
    Assert(SI_top());
 const Executable * exec = SI_top()->get_executable();
    Assert1(exec);
-
 
    Log(LOG_StateIndicator__push_pop)
       {

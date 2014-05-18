@@ -179,7 +179,7 @@ public:
       { the_workspace.WS_name = new_name; }
 
    /// Create a new SI-entry on the SI stack.
-   static void push_SI(const Executable * fun, const char * loc);
+   static void push_SI(Executable * fun, const char * loc);
 
    /// Remove the current SI-entry from the SI stack.
    static void pop_SI(const char * loc);

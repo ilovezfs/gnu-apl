@@ -234,13 +234,13 @@ protected:
    void read_Parsers(StateIndicator & si);
 
    /// read ⍎ Executable
-   const Executable * read_Execute();
+   Executable * read_Execute();
 
    /// read ◊ Executable
-   const Executable * read_Statement();
+   Executable * read_Statement();
 
    /// read user defined Executable
-   const Executable * read_UserFunction();
+   Executable * read_UserFunction();
 
    /// read a token
    bool read_Token(Token_loc & tloc);

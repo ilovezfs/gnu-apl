@@ -44,7 +44,7 @@ class StateIndicator
 
 public:
    /// constructor
-   StateIndicator(const Executable * exec, StateIndicator * _par);
+   StateIndicator(Executable * exec, StateIndicator * _par);
 
    /// destructor
    ~StateIndicator();
@@ -72,6 +72,10 @@ public:
 
    /// print spaces according to level
    ostream & indent(ostream & out) const;
+
+   /// return pointer to the current user function, statements, or execute
+   Executable * get_executable()
+      { return executable; }
 
    /// return pointer to the current user function, statements, or execute
    const Executable * get_executable() const
@@ -234,7 +238,7 @@ public:
 
 protected:
    /// the user function that is being executed
-   const Executable * executable;
+   Executable * executable;
 
    /// true iff this context is in safe execution mode (⎕EA, ⎕EC)
    bool safe_execution;

@@ -32,7 +32,7 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-StateIndicator::StateIndicator(const Executable * exec, StateIndicator * _par)
+StateIndicator::StateIndicator(Executable * exec, StateIndicator * _par)
    : executable(exec),
      safe_execution(false),
      eoc_handler(0),
@@ -228,6 +228,7 @@ StateIndicator::print(ostream & out) const
 {
    out << "Depth:    " << level << endl;
    out << "Exec:     " << executable << endl;
+   out << "Safe ex:  " << (safe_execution ? "yes" : "no") << endl;
 
    Assert(executable);
 
@@ -397,7 +398,18 @@ const UserFunction * ufun = executable->get_ufun();
 
    // print error, unless we are in safe execution mode.
    //
-   if (!safe_execution)   err.print_em(UERR, LOC);
+   {
+     bool print_error = true;
+     for (const StateIndicator * si = this; si; si = si->get_parent())
+         {
+           if (si->get_safe_execution())
+              {
+                print_error = false;
+                break;
+              }
+         }
+     if (print_error)   err.print_em(UERR, LOC);
+   }
 
    Workspace::update_EM_ET(err);   // update ⎕EM and ⎕ET
 
