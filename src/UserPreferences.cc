@@ -96,7 +96,8 @@ char cc[4000];
 "    --rawCIN             do not use the readline lib for input\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
-"    --emacs arg          run in emacs mode with argument arg\n"
+"    --emacs              run in (classical) emacs mode\n"
+"    --emacs_arg arg      run in emacs mode with argument arg\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
@@ -270,13 +271,18 @@ int script_argc = argc;   // $0 of the apl script
             }
          else if (!strcmp(opt, "--emacs"))
             {
+              emacs_mode = true;
+            }
+         else if (!strcmp(opt, "--emacs_arg"))
+            {
               ++a;
               if (!val)
                  {
-                   CERR << "--emacs without argument" << endl;
+                   CERR << "--emacs_arg without argument" << endl;
                    exit(2);
                  }
 
+              emacs_mode = true;
               emacs_arg = val;
             }
          else if (!strcmp(opt, "--SV"))

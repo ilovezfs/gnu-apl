@@ -313,9 +313,14 @@ const char * argv0 = argv[0];
 
    uprefs.parse_argv(argc, argv);
 
-   if (uprefs.emacs_arg)
+   if (uprefs.emacs_mode)
       {
-        UCS_string t4 = NativeFunction::load_emacs_library(uprefs.emacs_arg);
+        UCS_string t4;
+        if (uprefs.emacs_arg)
+           {
+             t4 = NativeFunction::load_emacs_library(uprefs.emacs_arg);
+           }
+
         if (t4.size())   // problems loading library
            {
              CERR << t4 << endl;

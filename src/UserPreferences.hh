@@ -43,6 +43,7 @@ struct UserPreferences
 {
    UserPreferences()
    : silent(false),
+     emacs_mode(false),
      emacs_arg(0),
      do_not_echo(false),
      safe_mode(false),
@@ -89,6 +90,9 @@ struct UserPreferences
    bool silent;
 
    /// true if emacs mode is wanted
+   bool emacs_mode;
+
+   /// an argument for emacs mode
    const char * emacs_arg;
 
    /// true if no banner/Goodbye is wanted.
