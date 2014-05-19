@@ -69,6 +69,7 @@ setenv LDFLAGS '-L/usr/local/lib'
 The latest version (SVN) of GNU APL was reported to compile and run on OS-X
 without special measures.
 
-For Macintosh users, Peter Teeson has contirinuted a very nice installation
-instructions that can be found in the doc/ subdirectory.
+For Macintosh users, Peter Teeson has contributed a very nice installation
+instructions that can be found in the doc/ subdirectory (file
+APL-on-Macintosh.pdf).
 

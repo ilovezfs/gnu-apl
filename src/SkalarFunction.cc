@@ -151,16 +151,14 @@ const int inc_B = B->is_skalar_or_len1_vector() ? 0 : 1;
 const Shape * shape_Z = &B->get_shape();
    if      (A->is_skalar())   shape_Z = &B->get_shape();
    else if (B->is_skalar())   shape_Z = &A->get_shape();
-   else if (inc_B == 0)       shape_Z = &A->get_shape();
+   else if (!A->same_shape(*B))
+      {
+        if (!A->same_rank(*B))   RANK_ERROR;
+        else                     LENGTH_ERROR;
+      }
 
 const ShapeItem len_Z = shape_Z->get_volume();
    if (len_Z == 0)   return eval_fill_AB(A, B);
-
-   if (inc_A && inc_B && !A->same_shape(*B))
-       {
-         if (!A->same_rank(*B))   RANK_ERROR;
-         else                     LENGTH_ERROR;
-       }
 
 Value_P Z(new Value(*shape_Z, LOC));
 
