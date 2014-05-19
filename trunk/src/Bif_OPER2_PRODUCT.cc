@@ -55,6 +55,18 @@ Function * RO = _RO.get_function();
    Assert(RO);
 
 Value_P Z(new Value(A->get_shape() + B->get_shape(), LOC));
+
+   if (Z->is_empty())
+      {
+        Value_P Fill_A = Bif_F12_TAKE::first(A);
+        Value_P Fill_B = Bif_F12_TAKE::first(B);
+
+        Value_P Z1 = RO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
+        Z->get_ravel(0).init(Z1->get_ravel(0));
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
 EOC_arg arg(Z, B, A);
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 

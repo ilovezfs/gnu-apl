@@ -372,8 +372,8 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
    if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
 }
 //-----------------------------------------------------------------------------
-Value_P
-Symbol::pop(bool erase)
+void
+Symbol::pop()
 {
    Assert(value_stack.size());
 const ValueStackItem & vs = value_stack.back();
@@ -383,17 +383,15 @@ const ValueStackItem & vs = value_stack.back();
         Value_P ret = vs.apl_val;
         Log(LOG_SYMBOL_push_pop)
            {
-             CERR << "-pop-value " << symbol;
-             if (erase)   CERR  << " (and erase) ";
-             CERR << " flags " << ret->get_flags() << " ";
+             CERR << "-pop-value " << symbol
+                  << " flags " << ret->get_flags() << " ";
              if (value_stack.size() == 0)   CERR << " (last)";
              CERR << " addr " << (const void *)ret.get() << endl;
            }
-        if (erase)   ptr_clear(ret, LOC);
+        ptr_clear(ret, LOC);
 
         value_stack.pop_back();
         if (monitor_callback)   monitor_callback(*this, SEV_POPED);
-        return ret;
       }
    else
       {
@@ -406,7 +404,6 @@ const ValueStackItem & vs = value_stack.back();
            }
         value_stack.pop_back();
         if (monitor_callback)   monitor_callback(*this, SEV_POPED);
-        return Value_P();
       }
 }
 //-----------------------------------------------------------------------------
@@ -1242,7 +1239,7 @@ Symbol::clear_vs()
 {
    while (value_stack.size() > 1)
       {
-        Value_P deleted = pop(true);
+        pop();
       }
 
 ValueStackItem & tos = value_stack[0];

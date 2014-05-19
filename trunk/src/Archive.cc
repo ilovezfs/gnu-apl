@@ -1446,7 +1446,7 @@ void
 XML_Loading_Archive::read_Label(int d, Symbol & symbol)
 {
 const int value = find_int_attr("value", false, 10);
-   if (d == 0)   symbol.pop(false);
+   if (d == 0)   symbol.pop();
    symbol.push_label(Function_Line(value));
 }
 //-----------------------------------------------------------------------------
@@ -1478,14 +1478,14 @@ UCS_string text;
         NativeFunction * nfun = NativeFunction::fix(text, symbol.get_name());
         if (nfun)   // fix succeeded
            {
-             if (d == 0)   symbol.pop(false);
+             if (d == 0)   symbol.pop();
              symbol.push_function(nfun);
            }
         else        // fix failed
            {
              CERR << "   *** loading of native function " << text
                   << " failed" << endl << endl;
-             if (d == 0)   symbol.pop(false);
+             if (d == 0)   symbol.pop();
              symbol.push();
            }
       }
@@ -1500,7 +1500,7 @@ UCS_string text;
         UserFunction * ufun = UserFunction::fix(text, err, false,
                                                LOC, creator_utf8);
 
-        if (d == 0)   symbol.pop(false);
+        if (d == 0)   symbol.pop();
         if (ufun)
            {
              symbol.push_function(ufun);

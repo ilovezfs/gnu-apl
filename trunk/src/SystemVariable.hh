@@ -79,7 +79,7 @@ protected:
    virtual void push_value(Value_P value) {}
 
    /// overloaded Symbol::pop()
-   virtual Value_P pop() { return Value_P(); }
+   virtual void pop() { }
 };
 //-----------------------------------------------------------------------------
 /**

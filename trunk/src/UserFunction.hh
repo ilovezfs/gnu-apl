@@ -98,8 +98,8 @@ public:
    /// print local vars etc.
    void print_properties(ostream & out, int indent) const;
 
-   /// pop all local vars, return Z
-   Value_P pop_local_vars() const;
+   /// pop all local vars, labels, and parameters
+   void pop_local_vars() const;
 
    /// print the local variables for command )SINL
    void print_local_vars(ostream & out) const;
@@ -228,8 +228,8 @@ public:
       { return header.has_axis(); }
 
    // pop all
-   Value_P pop_local_vars() const
-      { return header.pop_local_vars(); }
+   void pop_local_vars() const
+      { header.pop_local_vars(); }
 
    /// print the local variables for command )SINL
    void print_local_vars(ostream & out) const

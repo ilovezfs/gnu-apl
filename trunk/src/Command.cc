@@ -328,17 +328,7 @@ Executable * statements = 0;
                          //
                          while (Workspace::SI_top() != si)
                             {
-                              Assert(Workspace::SI_top());
-                              Executable * exec =
-                                       Workspace::SI_top()->get_executable();
-                              Assert1(exec);
-                              UserFunction * ufun = exec->get_ufun();
-                              if (ufun)
-                                 {
-                                   Value_P Z = ufun->pop_local_vars();
-                                 }
-
-                               Workspace::pop_SI(LOC);
+                              Workspace::pop_SI(LOC);
                             }
 
                          goto check_EOC;

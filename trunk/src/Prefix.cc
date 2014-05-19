@@ -1156,7 +1156,6 @@ Prefix::reduce_RETC___()
              {
                const UserFunction * ufun = si.get_executable()->get_ufun();
                Assert1(ufun);
-               ufun->pop_local_vars();
                at0().clear(LOC);
              }
              action = RA_RETURN;
@@ -1166,7 +1165,9 @@ Prefix::reduce_RETC___()
              {
                const UserFunction * ufun = si.get_executable()->get_ufun();
                Assert1(ufun);
-               Value_P Z = ufun->pop_local_vars();
+               Symbol * ufun_Z = ufun->get_sym_Z();
+               Value_P Z;
+               if (ufun_Z)   Z = ufun_Z->get_value();
                if (!!Z)
                   {
                     Log(LOG_prefix_parser)

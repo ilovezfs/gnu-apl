@@ -54,6 +54,8 @@ public:
    bool have_expo() const
       { return real_len > (int_len + fract_len); }
 
+   int total_len() const
+      { return real_len + imag_len; }
    /// some flags
    int flags;
 
@@ -62,7 +64,7 @@ public:
    int int_len;
 
    /// the length of the fraction part (of numbers)
-   /// I.e. the leading dot and the ditis until an 'E'
+   /// I.e. the leading dot and the digits left of an 'E'
    int fract_len;
 
    /// the length of the real part (of complex numbers) or total length

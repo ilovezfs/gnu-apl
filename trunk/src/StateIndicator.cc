@@ -56,9 +56,15 @@ StateIndicator::~StateIndicator()
    //
    clear_args(LOC);
 
-   // delete the body token unless executable is a user defined function
+   // if executable is a user defined function then pop its local vars.
+   // otherwise delete the body token
    //
-   if ((executable->get_parse_mode() != PM_FUNCTION))
+   if (executable->get_parse_mode() == PM_FUNCTION)
+      {
+        const UserFunction * ufun = get_executable()->get_ufun();
+        if (ufun)   ufun->pop_local_vars();
+      }
+   else
       {
          Assert1(executable);
          delete executable;
@@ -476,12 +482,6 @@ StateIndicator::escape()
       {
         Token tok(TOK_ESCAPE);
         eoc_handler(tok, eoc_arg);
-      }
-
-const UserFunction * ufun = get_executable()->get_ufun();
-   if (ufun)
-      {
-        Value_P Z = ufun->pop_local_vars();
       }
 }
 //-----------------------------------------------------------------------------
