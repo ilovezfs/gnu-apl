@@ -845,14 +845,15 @@ PrintBuffer::align_dot(ColInfo & COL_INFO)
    else
       {
         // right-align char items
-        size_t LEN = COL_INFO.int_len + COL_INFO.fract_len;
-        size_t len = col_info.int_len + col_info.fract_len;
+        size_t LEN = COL_INFO.total_len();
+        size_t len = col_info.total_len();
         if (LEN > len)
            {
              const size_t diff = LEN - len;
              pad_l(UNI_iPAD_L5, diff);
              col_info.int_len   = COL_INFO.int_len;
              col_info.fract_len = COL_INFO.fract_len;
+             col_info.real_len = COL_INFO.real_len;
            }
       }
 

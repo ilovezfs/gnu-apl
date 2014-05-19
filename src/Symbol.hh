@@ -150,9 +150,7 @@ public:
    ostream & print_verbose(ostream & out) const;
 
    /// Pop latest entry from the stack of \b this \b Symbol.
-   /// Return value if symbol was an assigned variable, or 0 if not,
-   /// or erase the pop'ed value and return 0.
-   virtual Value_P pop(bool erase);
+   virtual void pop();
 
    /// Push an undefined entry onto the stack of \b this \b Symbol.
    virtual void push();

@@ -288,22 +288,19 @@ UserFunction_header::UserFunction_header(Fun_signature sig,
    error = E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
-Value_P
+void
 UserFunction_header::pop_local_vars() const
 {
-   loop(l, label_values.size())   label_values[l].sym->pop(true);
+   loop(l, label_values.size())   label_values[l].sym->pop();
 
-   loop(l, local_vars.size())   local_vars[l]->pop(true);
+   loop(l, local_vars.size())   local_vars[l]->pop();
 
-   if (sym_B)    sym_B->pop(true);
-   if (sym_X)    sym_X->pop(true);
-   if (sym_A)    sym_A->pop(true);
-   if (sym_LO)   sym_LO->pop(true);
-   if (sym_RO)   sym_RO->pop(true);
-
-   if (!sym_Z)   return Value_P();
-
-   return sym_Z->pop(false);
+   if (sym_B)    sym_B ->pop();
+   if (sym_X)    sym_X ->pop();
+   if (sym_A)    sym_A ->pop();
+   if (sym_LO)   sym_LO->pop();
+   if (sym_RO)   sym_RO->pop();
+   if (sym_Z)    sym_Z ->pop();
 }
 //-----------------------------------------------------------------------------
 void
