@@ -143,7 +143,9 @@ Executable * statements = 0;
       }
    catch (Error err)
       {
-        COUT << "SYNTAX ERROR" << endl;
+        COUT << "SYNTAX ERROR";
+        if (Workspace::more_error().size())   COUT << "+";
+        COUT << endl;
         if (err.get_error_line_2().size())
            {
              COUT << "      " << err.get_error_line_2() << endl
