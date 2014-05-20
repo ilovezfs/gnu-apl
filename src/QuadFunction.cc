@@ -1415,18 +1415,32 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
         return Token(TOK_APL_VALUE1, Value::Str0_0_P);
       }
 
+   if (error.error_code == E_ASSERTION_FAILED)   // B = 0 ASSERTION_FAILED
+      {
+        Assert(0 && "simulated ASSERTION_FAILED in ⎕ES");
+      }
+
    // at this point we shall throw the error. Add some error details.
 
    // set up error message 1
    //
+Q(error.error_code)
    if (A)                                 // A ⎕ES B
-      error.error_message_1 = *A;
+      {
+        error.error_message_1 = *A;
+      }
    else if (error.error_code == E_USER_DEFINED_ERROR)   // ⎕ES with character B
-      error.error_message_1 = UCS_string(*B.get());
+      {
+        error.error_message_1 = UCS_string(*B.get());
+      }
    else if (error.is_known())             //  ⎕ES B with known major/minor B
-      /* error_message_1 already OK */ ;
+      {
+        /* error_message_1 already OK */ ;
+      }
    else                                   //  ⎕ES B with unknown major/minor B
-      error.error_message_1.clear();
+      {
+        error.error_message_1.clear();
+      }
 
    error.show_locked = true;
 

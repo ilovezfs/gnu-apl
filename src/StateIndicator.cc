@@ -632,6 +632,11 @@ StateIndicator::recover_from_error(const char * loc)
        recover_from_error(LOC);                 \
        return Token(TOK_ERROR, e.error_code);   \
       }                                         \
+   catch (ErrorCode ec)                         \
+      {                                         \
+       recover_from_error(LOC);                 \
+       return Token(TOK_ERROR, ec);   \
+      }                                         \
    catch (...)                                  \
       {                                         \
         FIXME;                                  \
