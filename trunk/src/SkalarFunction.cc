@@ -148,10 +148,13 @@ SkalarFunction::eval_skalar_AB(Value_P A, Value_P B, prim_f2 fun)
 {
 const int inc_A = A->is_skalar_or_len1_vector() ? 0 : 1;
 const int inc_B = B->is_skalar_or_len1_vector() ? 0 : 1;
-const Shape * shape_Z = &B->get_shape();
-   if      (A->is_skalar())   shape_Z = &B->get_shape();
-   else if (B->is_skalar())   shape_Z = &A->get_shape();
-   else if (!A->same_shape(*B))
+const Shape * shape_Z = 0;
+   if      (A->is_skalar())      shape_Z = &B->get_shape();
+   else if (B->is_skalar())      shape_Z = &A->get_shape();
+   else if (inc_A == 0)          shape_Z = &B->get_shape();
+   else if (inc_B == 0)          shape_Z = &A->get_shape();
+   else if (A->same_shape(*B))   shape_Z = &B->get_shape();
+   else 
       {
         if (!A->same_rank(*B))   RANK_ERROR;
         else                     LENGTH_ERROR;
@@ -371,6 +374,7 @@ const Cell & cell_FI0 = FI0->get_ravel(0);
    else
       {
         while (Z->more())   Z->next_ravel()->init(cell_FI0);
+        if (Z->is_empty())  Z->get_ravel(0).init(cell_FI0);
       }
 
    Z->check_value(LOC);

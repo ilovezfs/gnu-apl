@@ -321,6 +321,7 @@ TestFiles::apl_error(const char * loc)
 void
 TestFiles::assert_error()
 {
+   if (!uprefs.current_file())         return;
    if (!uprefs.current_file()->file)   return;
 
    ++assert_errors;
