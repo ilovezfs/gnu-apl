@@ -197,6 +197,8 @@ throw_parse_error(ErrorCode code, const char * par_loc, const char *loc)
 
    Log(LOG_verbose_error)   Backtrace::show(__FILE__, __LINE__);
 
+   Workspace::more_error() = Error::error_name(code);
+
 Error error(code, loc);
    error.parser_loc = par_loc;
 
