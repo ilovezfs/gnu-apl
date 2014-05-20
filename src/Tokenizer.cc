@@ -384,17 +384,22 @@ const Unicode uni = src.get();
    Assert(uni == UNI_SINGLE_QUOTE);
 
 UCS_string string_value;
+bool got_end = false;
 
    while (src.rest())
        {
          const Unicode uni = src.get();
 
-         // a single ' is the end of the string, while a double ' (i.e. '')
-         // a single '. 
-         //
          if (uni == UNI_SINGLE_QUOTE)
             {
-              if ((src.rest() == 0) || (*src != UNI_SINGLE_QUOTE))   break;
+              // a single ' is the end of the string, while a double '
+              // (i.e. '') is a single '. 
+              //
+              if ((src.rest() == 0) || (*src != UNI_SINGLE_QUOTE))
+                 {
+                   got_end = true;
+                   break;
+                 }
 
               string_value.append(UNI_SINGLE_QUOTE);
               ++src;      // skip the second '
@@ -413,6 +418,8 @@ UCS_string string_value;
               string_value.append(uni);
             }
        }
+
+   if (!got_end)   throw_parse_error(E_NO_STRING_END, LOC, loc);
 
    if (string_value.size() == 1)   // skalar
       {
@@ -445,6 +452,7 @@ Tokenizer::tokenize_string2(Source<Unicode> & src, Token_string & tos)
    }
 
 UCS_string string_value;
+bool got_end = false;
 
    while (src.rest())
        {
@@ -452,6 +460,7 @@ UCS_string string_value;
 
          if (uni == UNI_ASCII_DOUBLE_QUOTE)     // terminating "
             {
+              got_end = true;
               break;
             }
          else if (uni == UNI_ASCII_CR)          // ignore CR
@@ -488,6 +497,8 @@ UCS_string string_value;
               string_value.append(uni);
             }
        }
+
+   if (!got_end)   throw_parse_error(E_NO_STRING_END, LOC, loc);
 
    if (string_value.size() == 0)
       {
