@@ -800,6 +800,53 @@ const APL_Float rval = get_real_value();
 PrintBuffer
 ComplexCell::character_representation(const PrintContext & pctx) const
 {
+   if (pctx.get_PP() < MAX_Quad_PP)
+      {
+         // 10⋆max ⎕PP
+         //
+         static APL_Float ten_to_max_PP = -1.0;   // invalid
+         if (ten_to_max_PP < 0)
+            {
+              ten_to_max_PP = 1.0;
+              loop(p, MAX_Quad_PP)   ten_to_max_PP *= 10.0;
+            }
+      
+         // lrm p. 13: In J notation, the real or imaginary part is not
+         // displayed if it is less than the other by more than ⎕PP orders
+         // of magnitude (unless ⎕PP is at its maximum).
+         //
+         const APL_Float pos_real = value.cpxp->real() < 0
+                                  ? -value.cpxp->real() : value.cpxp->real();
+         const APL_Float pos_imag = value.cpxp->imag() < 0
+                                  ? -value.cpxp->imag() : value.cpxp->imag();
+
+         if (pos_real >= pos_imag)   // pos_real dominates pos_imag
+            {
+              if (pos_real > pos_imag*ten_to_max_PP)
+                 {
+                   const FloatCell real_cell(value.cpxp->real());
+                   return real_cell.character_representation(pctx);
+                 }
+            }
+         else                        // pos_imag dominates pos_real
+            {
+              if (pos_imag > pos_real*ten_to_max_PP)
+                 {
+                   const FloatCell imag_cell(value.cpxp->imag());
+                   PrintBuffer ret = imag_cell.character_representation(pctx);
+                   ret.pad_l(UNI_ASCII_J, 1);
+                   ret.pad_l(UNI_ASCII_0, 1);
+                   
+                   ret.get_info().flags |= CT_COMPLEX;
+                   ret.get_info().imag_len = 1 + ret.get_info().real_len;
+                   ret.get_info().int_len = 1;
+                   ret.get_info().fract_len = 0;
+                   ret.get_info().real_len = 1;
+                   return ret;
+                 }
+            }
+      }
+
 bool scaled_real = pctx.get_scaled();   // may be changed by print function
 UCS_string ucs(value.cpxp->real(), scaled_real, pctx);
 

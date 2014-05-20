@@ -23,7 +23,7 @@
 
 #include "NumericCell.hh"
 
-/*! A cell that is either an integer cell, a floating point cell.
+/*! A cell that is either an integer cell or a floating point cell.
     This class contains all cell functions for which the detailed type
     makes no difference.
 */
