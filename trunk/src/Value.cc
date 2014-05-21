@@ -1314,30 +1314,17 @@ Value::check_value(const char * loc)
    // if value was initialized by means of the next_ravel() mechanism,
    // then all cells are supposed to be OK.
    //
-   if (valid_ravel_items && valid_ravel_items >= element_count())   return;
-
-uint32_t error_count = 0;
-const CellType ctype = get_ravel(0).get_cell_type();
-   switch(ctype)
+   if (valid_ravel_items && valid_ravel_items >= element_count())
       {
-        case CT_CHAR:
-        case CT_POINTER:
-        case CT_CELLREF:
-        case CT_INT:
-        case CT_FLOAT:
-        case CT_COMPLEX:   break;   // OK
-
-        default:
-                 CERR << endl
-                      << "*** check_value(" << loc << ") detects:" << endl
-                      << "   bad ravel[0] (CellType " << ctype << ")" << endl;
-                 ++error_count;
+        goto complete;
       }
 
-    loop(c, element_count())
+uint32_t error_count = 0;
+const Cell * C = &get_ravel(0);
+
+    loop(c, nz_element_count())
        {
-         const Cell * cell = &get_ravel(c);
-         const CellType ctype = cell->get_cell_type();
+         const CellType ctype = C->get_cell_type();
          switch(ctype)
             {
               case CT_CHAR:
@@ -1349,10 +1336,10 @@ const CellType ctype = get_ravel(0).get_cell_type();
 
               default:
                  CERR << endl
-                      << "*** check_value(" << loc << ") detects:"
-                      << endl
+                      << "*** check_value(" << loc << ") detects:" << endl
                       << "   bad ravel[" << c << "] (CellType "
                       << ctype << ")" << endl;
+
                  ++error_count;
             }
 
@@ -1361,6 +1348,8 @@ const CellType ctype = get_ravel(0).get_cell_type();
               CERR << endl << "..." << endl;
               break;
             }
+
+         ++C;
        }
 
    if (error_count)
@@ -1373,6 +1362,7 @@ const CellType ctype = get_ravel(0).get_cell_type();
       }
 #endif
 
+complete:
    set_complete();
 }
 //-----------------------------------------------------------------------------
@@ -1531,8 +1521,7 @@ PrintStyle style;
         style = PrintStyle(style | PST_NO_FRACT_0);
       }
 
-PrintContext pctx(style, Workspace::get_PP(), 
-                         Workspace::get_CT(), Workspace::get_PW());
+PrintContext pctx(style, Workspace::get_PP(), Workspace::get_PW());
 PrintBuffer pb(*this, pctx);
 
 //   pb.debug(CERR, "Value::print()");
@@ -1577,7 +1566,9 @@ Value::print_boxed(ostream & out, const char * info)
 {
    if (info)   out << info << endl;
 
-Value_P Z = Quad_CR::do_CR(4, *this);
+const PrintContext pctx(PST_NONE);
+
+Value_P Z = Quad_CR::do_CR(4, *this, pctx);
    out << *Z << endl;
    return out;
 }
@@ -1886,7 +1877,8 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
    try 
       {
         print_structure(out, 0, 0);
-        Value_P Z = Quad_CR::do_CR(7, *this);
+        const PrintContext pctx(PST_NONE);
+        Value_P Z = Quad_CR::do_CR(7, *this, pctx);
         Z->print(out);
         out << endl;
       }

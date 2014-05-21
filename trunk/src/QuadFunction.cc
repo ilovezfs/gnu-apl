@@ -236,28 +236,28 @@ Quad_CR::eval_AB(Value_P A, Value_P B)
    if (!A->is_skalar_or_len1_vector())       LENGTH_ERROR;
    if (!A->get_ravel(0).is_integer_cell())   DOMAIN_ERROR;
 
-Value_P Z = do_CR(A->get_ravel(0).get_int_value(), *B.get());
+const PrintContext pctx(PST_NONE, Workspace::get_PP(), Workspace::get_PW());
+Value_P Z = do_CR(A->get_ravel(0).get_int_value(), *B.get(), pctx);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
-Quad_CR::do_CR(APL_Integer a, const Value & B)
+Quad_CR::do_CR(APL_Integer a, const Value & B, PrintContext pctx)
 {
-PrintStyle style;
 const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
    switch(a)
       {
-        case  0:  style = PR_APL;              break;
-        case  1:  style = PR_APL_FUN;          break;
-        case  2:  style = PR_BOXED_CHAR;       break;
-        case  3:  style = PR_BOXED_GRAPHIC;    break;
+        case  0:  pctx.set_style(PR_APL);              break;
+        case  1:  pctx.set_style(PR_APL_FUN);          break;
+        case  2:  pctx.set_style(PR_BOXED_CHAR);       break;
+        case  3:  pctx.set_style(PR_BOXED_GRAPHIC);    break;
 
         case  4:
         case  8: { // like 3/7, but enclose B so that the entire B is boxed
                    Value_P B1(new Value(LOC));
                    new (&B1->get_ravel(0))   PointerCell(B.clone(LOC));
-                   Value_P Z = do_CR(a - 1, *B1.get());
+                   Value_P Z = do_CR(a - 1, *B1.get(), pctx);
                    return Z;
                  }
                  break;
@@ -288,8 +288,8 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                return Z;
              }
 
-        case  7: style = PR_BOXED_GRAPHIC1;   break;
-        case  9: style = PR_BOXED_GRAPHIC2;   break;
+        case  7: pctx.set_style(PR_BOXED_GRAPHIC1);   break;
+        case  9: pctx.set_style(PR_BOXED_GRAPHIC2);   break;
 
         case 10: {
                    vector<UCS_string> ucs_vec;
@@ -562,8 +562,6 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
 
    // common code for ⎕CR variants that only differs by print style...
    //
-const PrintContext pctx(style, Workspace::get_PP(),
-                        Workspace::get_CT(), Workspace::get_PW());
 PrintBuffer pb(B, pctx);
    Assert(pb.is_rectangular());
 
@@ -808,14 +806,14 @@ UCS_string epilog(name);
              {
                next_mode = Vm_NUM;
                bool scaled = false;
-               PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, 0.0, MAX_Quad_PW);
+               PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, MAX_Quad_PW);
                next = UCS_string(cell.get_real_value(), scaled, pctx);
              }
           else if (cell.is_complex_cell())
              {
                next_mode = Vm_NUM;
                bool scaled = false;
-               PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, 0.0, MAX_Quad_PW);
+               PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, MAX_Quad_PW);
                next = UCS_string(cell.get_real_value(), scaled, pctx);
                next.append_utf8("J");
                scaled = false;

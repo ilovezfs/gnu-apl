@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,8 +24,6 @@
 #include "Common.hh"
 #include "SystemLimits.hh"
 
-class Workspace;
-
 /// PrintContext is a collection of attributes that control how
 /// APL values are being printed.
 class PrintContext
@@ -43,10 +41,10 @@ public:
    {}
 
    /// constructor for given values
-   PrintContext(PrintStyle st, int qpp, double pct, int w)
+   PrintContext(PrintStyle st, int qpp, int qpw)
    : style(st),
      precision(qpp),
-     width(w)
+     width(qpw)
    {}
 
    /// return the print style to be used

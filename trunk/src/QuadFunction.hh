@@ -95,8 +95,8 @@ public:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// compute a ⎕CR B
-   static Value_P do_CR(APL_Integer a, const Value & B);
+   /// compute \b a ⎕CR \b B
+   static Value_P do_CR(APL_Integer a, const Value & B, PrintContext pctx);
 
    static Quad_CR fun;          ///< Built-in function.
 
