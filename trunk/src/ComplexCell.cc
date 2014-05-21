@@ -802,14 +802,10 @@ ComplexCell::character_representation(const PrintContext & pctx) const
 {
    if (pctx.get_PP() < MAX_Quad_PP)
       {
-         // 10⋆max ⎕PP
+         // 10⋆get_PP()
          //
-         static APL_Float ten_to_max_PP = -1.0;   // invalid
-         if (ten_to_max_PP < 0)
-            {
-              ten_to_max_PP = 1.0;
-              loop(p, MAX_Quad_PP)   ten_to_max_PP *= 10.0;
-            }
+         APL_Float ten_to_PP = 1.0;
+         loop(p, pctx.get_PP())   ten_to_PP *= 10.0;
       
          // lrm p. 13: In J notation, the real or imaginary part is not
          // displayed if it is less than the other by more than ⎕PP orders
@@ -822,7 +818,7 @@ ComplexCell::character_representation(const PrintContext & pctx) const
 
          if (pos_real >= pos_imag)   // pos_real dominates pos_imag
             {
-              if (pos_real > pos_imag*ten_to_max_PP)
+              if (pos_real > pos_imag*ten_to_PP)
                  {
                    const FloatCell real_cell(value.cpxp->real());
                    return real_cell.character_representation(pctx);
@@ -830,7 +826,7 @@ ComplexCell::character_representation(const PrintContext & pctx) const
             }
          else                        // pos_imag dominates pos_real
             {
-              if (pos_imag > pos_real*ten_to_max_PP)
+              if (pos_imag > pos_real*ten_to_PP)
                  {
                    const FloatCell imag_cell(value.cpxp->imag());
                    PrintBuffer ret = imag_cell.character_representation(pctx);

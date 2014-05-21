@@ -7,7 +7,8 @@ PACKAGE_VERSION=$2
 
 SVNINFO=`svnversion`
 
-ARCHIVE_SVNINFO=`svn info Archive.cc | grep Revision | awk '{print $2;}'`
+ARCHIVE_SVNINFO=`svn info Archive.cc | grep "Last Changed Rev" \
+                                     | awk -F : '{print $2;}'`
 if [ $? != "0" ]
 then
     ARCHIVE_SVNINFO=0
