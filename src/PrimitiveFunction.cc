@@ -2098,9 +2098,10 @@ Shape ravel_A1(ravel_A);
         proto.init_type(B->get_ravel(0));
         const Shape ravel_A1_abs = ravel_A1.abs();
         Value_P Z(new Value(ravel_A1_abs, LOC));
-        const ShapeItem ec_Z = Z->nz_element_count();   // incl. proto
+        const ShapeItem ec_Z = Z->element_count();   // incl. proto
 
         loop(z, ec_Z)   Z->next_ravel()->init(proto);
+        if (ec_Z == 0)   Z->get_ravel(0).init(proto);
 
         // compute the position of the non-default element. It is the first
         // item of the corresponfig dimension if the axis is positive, or the
