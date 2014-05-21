@@ -382,7 +382,7 @@ Token::print_value(ostream & out) const
                         break;
                       }
 
-                   const PrintContext pctx(PR_APL, 2, 0.02, 80);
+                   const PrintContext pctx(PR_APL, 2, 80);
                    out << UCS_string(v->get_ravel(e)
                                        .character_representation(pctx), 0, 80)
                        << " ";
@@ -470,7 +470,7 @@ UCS_string ucs;
 
         case TC_VALUE:
              {
-               PrintContext pctx(style, 16, 1.0E-18, 80);
+               PrintContext pctx(style, 16, 80);
                PrintBuffer pbuf(*get_apl_val(), pctx);
                if (pbuf.get_height() == 0)   return ucs;
                return pbuf.l1();
