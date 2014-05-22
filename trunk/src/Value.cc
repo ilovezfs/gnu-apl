@@ -1534,6 +1534,32 @@ UCS_string ucs(pb, get_rank(), pctx.get_PW());
 }
 //-----------------------------------------------------------------------------
 ostream &
+Value::print1(ostream & out, PrintContext pctx) const
+{
+int style = pctx.get_style();
+   if (get_rank() < 2)   // skalar or vector
+      {
+        style = PR_APL_MIN;
+      }
+   else                  // matrix or higher
+      {
+        style |= PST_NO_FRACT_0;
+      }
+
+   pctx.set_style((PrintStyle)style);
+
+PrintBuffer pb(*this, pctx);
+
+//   pb.debug(CERR, "Value::print1()");
+
+UCS_string ucs(pb, get_rank(), pctx.get_PW());
+
+   if (ucs.size() == 0)   return out;
+
+   return out << ucs << endl;
+}
+//-----------------------------------------------------------------------------
+ostream &
 Value::print_properties(ostream & out, int indent) const
 {
 UCS_string ind(indent, UNI_ASCII_SPACE);

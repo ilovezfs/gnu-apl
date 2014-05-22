@@ -168,8 +168,11 @@ public:
 
    CellType deep_cell_subtypes() const;
 
-   /// print \b this value
+   /// print \b this value (line break at Workspace::get_PW())
    ostream & print(ostream & out) const;
+
+   /// print \b this value (line break at print_width)
+   ostream & print1(ostream & out, PrintContext pctx) const;
 
    /// print the properties (shape, flags etc) of \b this value
    ostream & print_properties(ostream & out, int indent) const;
