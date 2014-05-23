@@ -922,12 +922,5 @@ Workspace::wsid(ostream & out, UCS_string arg)
    out << "WAS " << the_workspace.WS_name << endl;
    the_workspace.WS_name = arg;
 }
-//=============================================================================
-PrintContext::PrintContext()
-: style(Workspace::get_PS()),
-  precision(Workspace::get_PP()),
-  width(Workspace::get_PW())
-{
-}
-//=============================================================================
+//-----------------------------------------------------------------------------
 

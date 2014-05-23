@@ -236,7 +236,7 @@ Quad_CR::eval_AB(Value_P A, Value_P B)
    if (!A->is_skalar_or_len1_vector())       LENGTH_ERROR;
    if (!A->get_ravel(0).is_integer_cell())   DOMAIN_ERROR;
 
-const PrintContext pctx(PST_NONE, Workspace::get_PP(), Workspace::get_PW());
+const PrintContext pctx = Workspace::get_PrintContext(PST_NONE);
 Value_P Z = do_CR(A->get_ravel(0).get_int_value(), *B.get(), pctx);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);

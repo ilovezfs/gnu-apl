@@ -693,7 +693,7 @@ DIR * dir = opendir(path.c_str());
         return;
       }
 
-   const int print_width = Workspace::get_PW();
+   const int print_width = Workspace::get_PrintContext().get_PW();
    for (int col = 0;;)   // scan files in directory
        {
          dirent * entry = readdir(dir);
