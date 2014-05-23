@@ -21,7 +21,7 @@
 #ifndef EMACS_HH
 #define EMACS_HH
 
-// #pragma GCC diagnostic push
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -36,7 +36,7 @@
 
 void set_active( bool v );
 
-#define PROTOCOL_VERSION "1.3"
+#define PROTOCOL_VERSION "1.4"
 
 #define END_TAG "APL_NATIVE_END_TAG"
 #define NOTIFICATION_START_TAG "APL_NATIVE_NOTIFICATION_START"
@@ -52,11 +52,11 @@ public:
 const UCS_string ucs_string_from_string( const std::string &string );
 Value_P make_string_cell( const std::string &string, const char *loc );
 
-   /// return a UTF8 encoded std:string
-   inline std::string to_string(const UCS_string & ucs)
-      {
-       const UTF8_string utf(ucs);
-       return string((const char *)(utf.get_items()), utf.size());
-      }
+/// return a UTF8 encoded std:string
+inline std::string to_string(const UCS_string & ucs)
+{
+    const UTF8_string utf(ucs);
+    return string((const char *)(utf.get_items()), utf.size());
+}
 
 #endif

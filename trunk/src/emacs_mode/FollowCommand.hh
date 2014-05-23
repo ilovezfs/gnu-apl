@@ -22,8 +22,8 @@
 #define FOLLOW_COMMAND_HH
 
 #include "NetworkCommand.hh"
-#include "TraceData.hh"
 #include "../Symbol.hh"
+#include "TraceData.hh"
 
 class FollowCommand : public NetworkCommand {
 public:
