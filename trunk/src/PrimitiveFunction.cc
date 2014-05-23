@@ -2480,7 +2480,7 @@ Value_P Z;
 Value_P
 Bif_F12_FORMAT::monadic_format(Value_P B)
 {
-PrintContext pctx;
+PrintContext pctx = Workspace::get_PrintContext();
    pctx.set_style(PrintStyle(pctx.get_style() | PST_NO_FRACT_0));
 const PrintBuffer pb(*B, pctx);
 

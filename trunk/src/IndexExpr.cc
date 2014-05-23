@@ -183,11 +183,11 @@ operator <<(ostream & out, const IndexExpr & idx)
            {
              // value::print() may print a trailing LF that we dont want here.
              //
-             PrintContext pctx;
+             PrintContext pctx = Workspace::get_PrintContext();
              pctx.set_style(PR_APL_MIN);
              PrintBuffer pb(*idx.values[i], pctx);
 
-             UCS_string ucs(pb, idx.values[i]->get_rank(), Workspace::get_PW());
+             UCS_string ucs(pb, idx.values[i]->get_rank(), Workspace::get_PrintContext().get_PW());
              out << ucs;
            }
       }

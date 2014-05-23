@@ -29,10 +29,6 @@
 class PrintContext
 {
 public:
-   /// default constructor from ⎕PS, ⎕PP, ⎕CT, and ⎕PW of workspace \b ws.
-   /// implementation is in Workspace.cc !!
-   PrintContext();
-
    /// constructor from another style
    PrintContext(PrintStyle st)
    : style(st),

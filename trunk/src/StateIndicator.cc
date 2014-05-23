@@ -963,9 +963,7 @@ const int boxing_format = Command::get_boxing_format();
       }
    else
       {
-        const PrintContext pctx(PST_NONE, Workspace::get_PP(),
-                                Workspace::get_PW());
-
+        const PrintContext pctx = Workspace::get_PrintContext(PST_NONE);
         Value_P B1 = Quad_CR::do_CR(boxing_format, *B.get(), pctx);
         B1->print(COUT);
       }

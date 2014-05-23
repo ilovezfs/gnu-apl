@@ -22,6 +22,7 @@
 #define __WORKSPACE_HH_DEFINED__
 
 #include "PrimitiveOperator.hh"
+#include "PrintContext.hh"
 #include "QuadFunction.hh"
 #include "Quad_RL.hh"
 #include "Quad_SVx.hh"
@@ -71,35 +72,38 @@ public:
    static void set_CT(APL_Float new_CT)
       { the_workspace.v_Quad_FC.current(); }
 
-   /// Return element \b pos of the current Quad-FC (pos should be 0..5)
+   /// return element \b pos of the current Quad-FC (pos should be 0..5)
    static APL_Char get_FC(int p)
       { return the_workspace.v_Quad_FC.current()[p]; }
 
-   /// Return the current Quad-IO
+   /// return the current Quad-IO
    static APL_Integer get_IO()
       { return the_workspace.v_Quad_IO.current(); }
 
-   /// Return the current Quad-LX
+   /// return the current Quad-LX
    static UCS_string get_LX()
       { return UCS_string(*the_workspace.v_Quad_LX.get_apl_value()); }
 
-   /// Return the current Quad-PP
-   static APL_Integer get_PP()
-      { return the_workspace.v_Quad_PP.current(); }
+   /// return the current ⎕PS, ⎕PP, and ⎕PW
+   static PrintContext get_PrintContext()
+      {
+        return PrintContext(the_workspace.v_Quad_PS.current(),
+                            the_workspace.v_Quad_PP.current(),
+                            the_workspace.v_Quad_PW.current());
+      }
 
-   /// Return the current Quad-PR
+   /// return style and the current ⎕PP, and ⎕PW
+   static PrintContext get_PrintContext(PrintStyle style)
+      {
+        return PrintContext(style, the_workspace.v_Quad_PP.current(),
+                                   the_workspace.v_Quad_PW.current());
+      }
+
+   /// return the current Quad-PR
    static const UCS_string & get_PR()
       { return the_workspace.v_Quad_PR.current(); }
 
-   /// Return the current Quad-PS
-   static PrintStyle get_PS()
-      { return the_workspace.v_Quad_PS.current(); }
-
-   /// Return the current Quad-PW.
-   static APL_Integer get_PW()
-      { return the_workspace.v_Quad_PW.current(); }
-
-   /// Return the Quad-RL.
+   /// return the Quad-RL.
    static APL_Integer get_RL()
       { return the_workspace.v_Quad_RL.get_random(); }
 
@@ -222,7 +226,7 @@ public:
    /// load )DUMPed file from open file descriptor fd (closes fd)
    static void load_DUMP(ostream & out, const UTF8_string & filename, int fd);
 
-   /// load \b lib_ws into the_workspace. Return ⎕LX of the new WS.
+   /// load \b lib_ws into the_workspace. return ⎕LX of the new WS.
    static UCS_string load_WS(ostream & out, const vector<UCS_string> & lib_ws);
 
    /// copy objects from another workspace

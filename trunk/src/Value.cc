@@ -1316,7 +1316,8 @@ Value::check_value(const char * loc)
    //
    if (valid_ravel_items && valid_ravel_items >= element_count())
       {
-        goto complete;
+        set_complete();
+        return;
       }
 
 uint32_t error_count = 0;
@@ -1362,7 +1363,6 @@ const Cell * C = &get_ravel(0);
       }
 #endif
 
-complete:
    set_complete();
 }
 //-----------------------------------------------------------------------------
@@ -1510,18 +1510,16 @@ const Cell & cell_0 = get_ravel(0);
 ostream &
 Value::print(ostream & out) const
 {
-PrintStyle style;
+PrintContext pctx = Workspace::get_PrintContext();
    if (get_rank() < 2)   // skalar or vector
       {
-        style = PR_APL_MIN;
+        pctx.set_style(PR_APL_MIN);
       }
    else                  // matrix or higher
       {
-        style = Workspace::get_PS();
-        style = PrintStyle(style | PST_NO_FRACT_0);
+        pctx.set_style((PrintStyle)(pctx.get_style() | PST_NO_FRACT_0));
       }
 
-PrintContext pctx(style, Workspace::get_PP(), Workspace::get_PW());
 PrintBuffer pb(*this, pctx);
 
 //   pb.debug(CERR, "Value::print()");
@@ -1582,7 +1580,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 void
 Value::debug(const char * info)
 {
-const PrintContext pctx;
+const PrintContext pctx = Workspace::get_PrintContext();
 PrintBuffer pb(*this, pctx);
    pb.debug(CERR, info);
 }
