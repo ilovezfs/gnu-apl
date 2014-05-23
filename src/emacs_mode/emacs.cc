@@ -1,29 +1,28 @@
 /*
-This file is part of GNU APL, a free implementation of the
-ISO/IEC Standard 13751, "Programming Language APL, Extended"
+    This file is part of GNU APL, a free implementation of the
+    ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-Copyright (C) 2014 Elias Mårtenson
+    Copyright (C) 2014  Elias Mårtenson
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "emacs.hh"
 #include "network.hh"
+#include "../NativeFunction.hh"
 
 #include <pthread.h>
-
-class NativeFunction;
 
 static pthread_mutex_t apl_main_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t apl_main_cond = PTHREAD_COND_INITIALIZER;
@@ -34,6 +33,7 @@ extern void (*end_input)();
 
 extern "C" {
     void *get_function_mux( const char *function_name );
+    int emacs_start( const char *emacs_arg, const char *lib_path );
 }
 
 void set_active( bool v )
@@ -45,7 +45,7 @@ void set_active( bool v )
     }
     if( v ) {
         while( apl_active ) {
-            pthread_cond_wait( &apl_main_cond, &apl_main_lock );
+             pthread_cond_wait( &apl_main_cond, &apl_main_lock );
         }
     }
     apl_active = v;
@@ -78,17 +78,17 @@ static Token list_functions( ostream &out )
 }
 
 Token
-eval_B(Value_P B, const NativeFunction * caller)
+eval_B(Value_P B)
 {
     return list_functions( CERR );
 }
 
-Token eval_AB(Value_P A, Value_P B, const NativeFunction * caller)
+Token eval_AB(Value_P A, Value_P B)
 {
     return list_functions( COUT );
 }
 
-Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
+Token eval_XB(Value_P X, Value_P B)
 {
     const APL_Float qct = Workspace::get_CT();
     const int function_number = X->get_ravel(0).get_near_int(qct);
@@ -106,7 +106,15 @@ Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
         else {
             port = B->get_ravel( 0 ).get_near_int( qct );
         }
-        return start_listener( port );
+
+        try {
+            start_listener( port );
+        }
+        catch( InitProtocolError &error ) {
+            Workspace::more_error() = error.get_message().c_str();
+            DOMAIN_ERROR;
+        }
+        return Token(TOK_APL_VALUE1, Value::Str0_P);
     }
 
     default:
@@ -117,14 +125,13 @@ Token eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
-Token eval_AXB(const Value_P A, const Value_P X, const Value_P B,
-               const NativeFunction * caller)
+Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 {
     COUT << "eval_AXB" << endl;
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
-bool close_fun( Cause cause , const NativeFunction * caller)
+bool close_fun( Cause cause, const NativeFunction *caller )
 {
     if( cause == CAUSE_ERASED ) {
         return false;
@@ -138,11 +145,18 @@ bool close_fun( Cause cause , const NativeFunction * caller)
 void *get_function_mux( const char *function_name )
 {
     if( strcmp( function_name, "get_signature" ) == 0 ) return (void *)&get_signature;
-    if( strcmp( function_name, "eval_B" ) == 0 ) return (void *)&eval_B;
-    if( strcmp( function_name, "eval_AB" ) == 0 ) return (void *)&eval_AB;
-    if( strcmp( function_name, "eval_XB" ) == 0 ) return (void *)&eval_XB;
-    if( strcmp( function_name, "eval_AXB" ) == 0 ) return (void *)&eval_AXB;
-    if( strcmp( function_name, "close_fun" ) == 0 ) return (void *)&close_fun;
+    if( strcmp( function_name, "eval_B" ) == 0 )        return (void *)&eval_B;
+    if( strcmp( function_name, "eval_AB" ) == 0 )       return (void *)&eval_AB;
+    if( strcmp( function_name, "eval_XB" ) == 0 )       return (void *)&eval_XB;
+    if( strcmp( function_name, "eval_AXB" ) == 0 )      return (void *)&eval_AXB;
+    if( strcmp( function_name, "close_fun" ) == 0 )     return (void *)&close_fun;
+    return 0;
+}
+
+int emacs_start( const char *emacs_arg, const char *lib_path )
+{
+    int port = atoi( emacs_arg );
+    start_listener( port );
     return 0;
 }
 

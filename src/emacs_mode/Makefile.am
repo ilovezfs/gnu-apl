@@ -1,4 +1,3 @@
-
 AM_CXXFLAGS = $(CXX_RDYNAMIC)
 
 pkglib_LTLIBRARIES =	libemacs.la
@@ -25,4 +24,3 @@ libemacs_la_SOURCES =						\
 		util.cc			util.hh			\
 		VariablesCommand.cc	VariablesCommand.hh	\
 		VersionCommand.cc	VersionCommand.hh
-
