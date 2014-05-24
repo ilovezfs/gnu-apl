@@ -89,6 +89,7 @@ phrase(BS_ANY + 2,       END  , GOTO ,      ,    )
 
 // end of user defined function, ⍎, or ◊ context
 phrase(BS_ANY + 1,       RETC ,      ,      ,    )
+phrase(BS_ANY + 2,       RETC , VOID ,      ,    )
 phrase(BS_ANY + 2,       RETC , B    ,      ,    )
 phrase(BS_ANY + 2,       RETC , GOTO ,      ,    )
 phrase(BS_ANY + 3,       RETC , GOTO , B    ,    )

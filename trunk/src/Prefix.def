@@ -57,9 +57,10 @@
    phrase 51:  END  →    VAL            3
    phrase 52:  END  →                   2
    phrase 53:  RET                      1
-   phrase 54:  RET  VAL                 2
-   phrase 55:  RET  →                   2
-   phrase 56:  RET  →    VAL            3
+   phrase 54:  RET  VOID                2
+   phrase 55:  RET  VAL                 2
+   phrase 56:  RET  →                   2
+   phrase 57:  RET  →    VAL            3
    --------------------------------------
 
    *** phrase table ***/
@@ -105,11 +106,12 @@
    void reduce_END_GOTO_B_();        ///< reduce phrase END GOTO B 
    void reduce_END_GOTO__();         ///< reduce phrase END GOTO  
    void reduce_RETC___();            ///< reduce phrase RETC   
+   void reduce_RETC_VOID__();        ///< reduce phrase RETC VOID  
    void reduce_RETC_B__();           ///< reduce phrase RETC B  
    void reduce_RETC_GOTO__();        ///< reduce phrase RETC GOTO  
    void reduce_RETC_GOTO_B_();       ///< reduce phrase RETC GOTO B 
 
-   enum { PHRASE_COUNT   = 57,      ///< number of phrases
+   enum { PHRASE_COUNT   = 58,      ///< number of phrases
           PHRASE_MODU    = 283,     ///< hash table size
           MAX_PHRASE_LEN = 4 };     ///< max. number of token in a phrase
 
@@ -411,7 +413,7 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH( A C          ,    271,   82,   0,  2, A_C__        )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
+  PH( RETC VOID    ,    557,    2,   0,  2, RETC_VOID__  )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )

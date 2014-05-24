@@ -1118,6 +1118,16 @@ Token result = Token(TOK_ESCAPE);
 }
 //-----------------------------------------------------------------------------
 void
+Prefix::reduce_RETC_VOID__()
+{
+   Assert1(prefix_len == 2);
+
+Token result = Token(TOK_VOID);
+   pop_args_push_result(result);
+   action = RA_RETURN;
+}
+//-----------------------------------------------------------------------------
+void
 Prefix::reduce_RETC___()
 {
    Assert1(prefix_len == 1);
