@@ -13,3 +13,6 @@ APL_keyboard_SOURCES       = APL_keyboard.cc        APL_keyboard.def
 
 phrase_gen_SOURCES = phrase_gen.cc phrase_gen.def
 
+gen:	phrase_gen
+	./phrase_gen > ../src/Prefix.def
+
