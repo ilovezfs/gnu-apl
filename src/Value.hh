@@ -151,6 +151,9 @@ public:
    /// return \b true iff \b this value is simple (i.e. not nested).
    bool is_simple() const;
 
+   /// return \b true iff \b this value and its ravel items have rank < 2
+   bool is_one_dimensional() const;
+
    /// compute the depth of this value.
    Depth compute_depth() const;
 

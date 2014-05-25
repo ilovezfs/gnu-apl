@@ -2447,8 +2447,83 @@ Value_P Z = different ? Value::Zero_P : Value::One_P;
 Token
 Bif_F12_FORMAT::eval_B(Value_P B)
 {
-Value_P Z = monadic_format(B);
-   Z->set_default(*Value::Spc_P);
+   // ISO and lrm: If B is a character array, then Z is B
+   //
+   if (!B->NOTCHAR())   return Token(TOK_APL_VALUE1, B);
+
+   if (B->is_empty())
+      {
+        Value_P Z(new Value(Z->get_shape(), LOC));
+        new (&Z->get_ravel(0)) CharCell(UNI_ASCII_SPACE);
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
+Value_P Z;
+   if (B->get_rank() > 2)
+      {
+        // reduce N>2 dimensions to 2 dimensions
+        //
+        const Shape shape_B1(B->get_rows(), B->get_cols());
+        Value_P B1 = B->clone(LOC);
+        B1->set_shape(shape_B1);
+
+        Z = monadic_format(B1);
+
+        Shape shape_Z(B->get_shape());
+        shape_Z.set_last_shape_item(Z->get_last_shape_item());
+        Assert(shape_Z.get_volume() == Z->element_count());
+        Z->set_shape(shape_Z);
+      }
+   else
+      {
+        Z = monadic_format(B);
+      }
+
+   // adjust rank as needed:
+   // ρρZ ←→ ,1⌈⍴ρB     if B is simple
+   // ρρZ ←→ ,1 or ,2   if B is nested
+   //
+const Depth depth = B->compute_depth();
+Shape sZ;
+   if (depth > 1)   // nested
+      {
+        // the  examples in lrm contradict the text in lrm.
+        //
+        // Page 136 shows: R←2 3ρ'ONE' 1 1 'TWO' 2 22 which contains only
+        // scalar and vector items (R itself being a matrix) and therefore
+        // ⍕R shoule be a vector according to page 137:
+        //
+        // "Nested Arrays: When R is a nested array, Z is a vector if all"
+        // items of R at any depth are scalars or vectors."
+        // 
+        // lrm also contradicts the ISO standard regarding the rank of Z.
+        //
+        // We try our best...
+        //
+        if (B->is_one_dimensional())
+           {
+             sZ = Shape(Z->element_count());
+           }
+        else
+           {
+             sZ = Z->get_shape();   // leave Z as is (2-dimensional)
+           }
+      }
+   else             // simple:                    result rank: 
+      {
+        if (B->get_rank() < 2)  sZ = Shape(Z->get_cols());
+        else
+           {
+             sZ = B->get_shape();
+             sZ.set_last_shape_item(Z->get_last_shape_item());
+           }
+      }
+
+        if (sZ != Z->get_shape())
+           {
+             Assert(sZ.get_volume() == Z->element_count());
+             Z->set_shape(sZ);
+           }
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -2482,13 +2557,20 @@ Value_P Z;
 Value_P
 Bif_F12_FORMAT::monadic_format(Value_P B)
 {
+   Assert(B->get_rank() <= 2);
+
 PrintContext pctx = Workspace::get_PrintContext();
    pctx.set_style(PrintStyle(pctx.get_style() | PST_NO_FRACT_0));
+
 const PrintBuffer pb(*B, pctx);
 
-const uint32_t width  = pb.get_width(0);
-const uint32_t height = pb.get_height();
+const ShapeItem width  = pb.get_width(0);
+const ShapeItem height = pb.get_height();
 
+   // monadic_format() returns the Value with rank 1 or 2 which may be changed
+   // in Bif_F12_FORMAT::eval_B() later on to match the rather arbitrary rules
+   // in lrm.
+   //
 Value_P Z;
    if (height == 1)   Z = Value_P(new Value(width, LOC));
    else               Z = Value_P(new Value(Shape(height, width), LOC));
