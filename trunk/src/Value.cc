@@ -907,7 +907,6 @@ Value::is_simple() const
 const ShapeItem count = element_count();
 const Cell * C = &get_ravel(0);
 
-
    loop(c, count)
        {
          if (C->is_pointer_cell())   return false;
@@ -916,6 +915,31 @@ const Cell * C = &get_ravel(0);
        }
 
    return true;
+}
+//-----------------------------------------------------------------------------
+bool
+Value::is_one_dimensional() const
+{
+   // lrm would not return false if the value itself is, e.g. a matrix.
+   // That is wrong, however
+   //
+   if (get_rank() > 1)   return false;
+
+const ShapeItem count = nz_element_count();
+const Cell * C = &get_ravel(0);
+
+   loop(c, count)
+       {
+         if (C->is_pointer_cell())
+            {
+             Value_P sub_val = C->get_pointer_value();
+             if (sub_val->get_rank() > 1)                return false;
+             if (!sub_val->is_one_dimensional())         return false;
+            }
+         ++C;
+       }
+
+   return true;   // all items are skalars or vectors
 }
 //-----------------------------------------------------------------------------
 Depth
