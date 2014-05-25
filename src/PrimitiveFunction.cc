@@ -139,6 +139,7 @@ const ShapeItem len_Z = shape_Z.get_volume();
         if (shape_Z.get_shape_item(z) < 0)   DOMAIN_ERROR;
       }
 
+#if 0
    // optimize if Z is not larger than B.
    //
    if (len_Z <= len_B && B->is_temp())
@@ -155,6 +156,7 @@ const ShapeItem len_Z = shape_Z.get_volume();
         B->set_shape(shape_Z);
         return Token(TOK_APL_VALUE1, B);
       }
+#endif
 
 Value_P Z(new Value(shape_Z, LOC));
 

@@ -265,7 +265,11 @@ TestFiles::open_next_testfile()
         
            current_testreport.close();
            current_testreport.open(log_name, ofstream::out | ofstream::trunc);
-           Assert(current_testreport.is_open());
+           if (!current_testreport.is_open())
+              {
+                CERR << "could not open testcase log file " << log_name
+                     << "; producing no .log file" << endl;
+              }
 
            return;
          }
