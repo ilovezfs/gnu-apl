@@ -724,11 +724,13 @@ Quad_QUOTE::get_apl_value() const
       CERR << "Quad_QUOTE::get_apl_value() called, buffer = ["
            << prompt << "]" << endl;
 
-   // get_quad_cr_line() calls done(), so we save the current prompt.
+   // get_quad_cr_line() may call done(), so we save the current prompt.
    //
-UCS_string old_prompt(prompt);
+const UCS_string old_prompt(prompt);
 
 UCS_string in = Input::get_quad_cr_line(old_prompt);
+   done(false, LOC);   // if get_quad_cr_line() has not called it
+
 const UCS_string qpr = Workspace::get_PR();
 
    if (qpr.size() > 0)   // valid prompt replacement char

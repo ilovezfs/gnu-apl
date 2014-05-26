@@ -317,10 +317,11 @@ int script_argc = argc;   // $0 of the apl script
             }
          else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
             {
-              do_CONT = false;             // --noCONT
-              do_Color = false;            // --noColor
-              do_not_echo = true;             // -noCIN
-              silent = true;                  // --silent
+              do_CONT = false;               // --noCONT
+              do_not_echo = true;            // -noCIN
+              do_Color = false;              // --noColor
+              Input::use_readline = false;   // --rawCIN
+              silent = true;                 // --silent
             }
          else if (!strcmp(opt, "--silent"))
             {
