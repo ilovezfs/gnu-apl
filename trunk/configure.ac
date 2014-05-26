@@ -149,7 +149,7 @@ LIBREADLINE=
 	[AC_CHECK_LIB(
 	    [readline],
 	    [readline],
-            [AC_SUBST([LIBREADLINE], ["-lreadline -lncurses"])
+            [AC_SUBST([LIBREADLINE], ["-lreadline"])
              AC_DEFINE([HAVE_LIBREADLINE],
                       [1],
                       [Define if you have libreadline])
@@ -159,7 +159,7 @@ LIBREADLINE=
 		    [--with-readline was given, but test for readline failed])
 	      fi
 	    ],
-	    -lncurses)
+	    )
 	])
 
 AC_CONFIG_FILES([Makefile

@@ -706,10 +706,14 @@ PrintBuffer pb(*value, pctx);
              COUT << prompt;
            }
       }
-   else
+   else if (pb.get_height() > 0)
       {
         COUT << pb.l1().no_pad();
         prompt.append(pb.l1());
+      }
+   else   // empty output
+      {
+        // nothing to do
       }
 
    Log(LOG_cork)
