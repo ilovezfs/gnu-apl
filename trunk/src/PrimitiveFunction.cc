@@ -2453,7 +2453,7 @@ Bif_F12_FORMAT::eval_B(Value_P B)
 
    if (B->is_empty())
       {
-        Value_P Z(new Value(Z->get_shape(), LOC));
+        Value_P Z(new Value(B->get_shape(), LOC));
         new (&Z->get_ravel(0)) CharCell(UNI_ASCII_SPACE);
         return Token(TOK_APL_VALUE1, Z);
       }
