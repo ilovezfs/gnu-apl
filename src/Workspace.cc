@@ -815,7 +815,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
       {
         the_workspace.clear_WS(CERR, true);
         load_DUMP(out, filename, dump_fd);   // closes dump_fd
-        return UCS_string();
+        return Workspace::get_LX();
       }
 
    if (!in.is_open())   // open failed: try filename.xml unless already .xml
