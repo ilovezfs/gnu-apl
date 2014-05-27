@@ -186,15 +186,9 @@ Cell * C = &Z->get_ravel(0);
 }
 //=============================================================================
 Quad_CT::Quad_CT()
-   : SystemVariable(ID_Quad_CT),
-     current_ct(DEFAULT_Quad_CT)
+   : SystemVariable(ID_Quad_CT)
 {
-Value_P value(new Value(LOC));
-   new (&value->get_ravel(0)) FloatCell(current_ct);
-
-   value->check_value(LOC);
-
-   Symbol::assign(value, LOC);
+   Symbol::assign(Value::Default_CT_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -222,7 +216,6 @@ APL_Float val = cell.get_real_value();
       }
 
    Symbol::assign(value, LOC);
-   current_ct = value->get_ravel(0).get_real_value();
 }
 //=============================================================================
 Value_P
@@ -285,26 +278,7 @@ Value_P Z(new Value(2, LOC));
 //=============================================================================
 Quad_FC::Quad_FC() : SystemVariable(ID_Quad_FC)
 {
-   set_default();
-
-Value_P value(new Value(6, LOC));
-
-   loop(c, 6)   new (&value->get_ravel(c))  CharCell(current_fc[c]);
-
-   value->check_value(LOC);
-
-   Symbol::assign(value, LOC);
-}
-//-----------------------------------------------------------------------------
-void
-Quad_FC::set_default()
-{
-   current_fc[0] = UNI_ASCII_FULLSTOP;
-   current_fc[1] = UNI_ASCII_COMMA;
-   current_fc[2] = UNI_STAR_OPERATOR;
-   current_fc[3] = UNI_ASCII_0;
-   current_fc[4] = UNI_ASCII_UNDERSCORE;
-   current_fc[5] = UNI_OVERBAR;
+   Symbol::assign(Value::Default_FC_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -318,19 +292,24 @@ ShapeItem value_len = value->element_count();
    loop(c, value_len)
        if (!value->get_ravel(c).is_character_cell())   DOMAIN_ERROR;
 
-   // value is OK.
+   // new value is correct. 
    //
-   if (value_len < 6)   set_default();
-
-   loop(c, value_len)
-      {
-        current_fc[c] = value->get_ravel(c).get_char_value();
-      }
-
+Unicode fc[6];
+                  
+   loop(c, 6)
+      if (c < value_len)
+         fc[c] = value->get_ravel(c).get_char_value();
+      else
+         fc[c] = Value::Default_FC_P->get_ravel(c).get_char_value();
+                  
    // 0123456789,. are forbidden for ⎕FC[4 + ⎕IO]
    //
-   if (Bif_F12_FORMAT::is_control_char(current_fc[4]))
-      current_fc[4] = UNI_ASCII_SPACE;
+   if (Bif_F12_FORMAT::is_control_char(fc[4]))
+      fc[4] = UNI_ASCII_SPACE;
+
+UCS_string ucs(fc, 6);
+Value_P new_val(new Value(ucs, LOC));
+   Symbol::assign(new_val, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -359,40 +338,35 @@ ShapeItem ec = X->element_count();
    if (ec > 6)   ec = 6;
 
 const APL_Integer qio = Workspace::get_IO();
+Unicode fc[6];
+   {
+     Value_P old = get_apl_value();
+     loop(e, 6)   fc[e] = old->get_ravel(e).get_char_value();
+   }
+
    loop(e, ec)
       {
         const APL_Integer idx = X->get_ravel(e).get_int_value() - qio;
         if (idx < 0)   continue;
         if (idx > 5)   continue;
 
-        current_fc[idx] = value->get_ravel(e).get_char_value();
+        fc[idx] = value->get_ravel(e).get_char_value();
       }
 
    // 0123456789,. are forbidden for ⎕FC[4 + ⎕IO]
    //
-   if (Bif_F12_FORMAT::is_control_char(current_fc[4]))
-      current_fc[4] = UNI_ASCII_SPACE;
-}
-//-----------------------------------------------------------------------------
-Value_P Quad_FC::get_apl_value() const
-{
-Value_P v1(new Value(6, LOC));
-   loop(c, 6)   new (&v1->get_ravel(c))   CharCell(current_fc[c]);
-   v1->check_value(LOC);
-   return v1;
+   if (Bif_F12_FORMAT::is_control_char(fc[4]))
+      fc[4] = UNI_ASCII_SPACE;
+
+UCS_string ucs(fc, 6);
+Value_P new_val(new Value(ucs, LOC));
+   Symbol::assign(new_val, LOC);
 }
 //=============================================================================
 Quad_IO::Quad_IO()
-   : SystemVariable(ID_Quad_IO),
-     current_io(1)
+   : SystemVariable(ID_Quad_IO)
 {
-Value_P value(new Value(LOC));
-
-   new (&value->get_ravel(0)) IntCell(current_io);
-
-   value->check_value(LOC);
-
-   Symbol::assign(value, LOC);
+   Symbol::assign(Value::One_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -404,16 +378,10 @@ Quad_IO::assign(Value_P value, const char * loc)
         else                         LENGTH_ERROR;
       }
 
-   current_io = value->get_ravel(0).get_near_bool(0.1);
-   Symbol::assign(current_io ? Value::One_P : Value::Zero_P, LOC);
-}
-//-----------------------------------------------------------------------------
-int
-Quad_IO::expunge()
-{
-   current_io = -1;
-   Symbol::expunge();
-   return 1;
+   if (value->get_ravel(0).get_near_bool(0.1))
+      Symbol::assign(Value::One_P, LOC);
+   else
+      Symbol::assign(Value::Zero_P, LOC);
 }
 //=============================================================================
 Quad_L::Quad_L()
@@ -497,12 +465,11 @@ Quad_LX::assign(Value_P value, const char * loc)
 }
 //=============================================================================
 Quad_PP::Quad_PP()
-   : SystemVariable(ID_Quad_PP),
-     current_pp(DEFAULT_Quad_PP)
+   : SystemVariable(ID_Quad_PP)
 {
 Value_P value(new Value(LOC));
 
-   new (&value->get_ravel(0)) IntCell(current_pp);
+   new (&value->get_ravel(0)) IntCell(DEFAULT_Quad_PP);
 
    value->check_value(LOC);
    Symbol::assign(value, LOC);
@@ -523,25 +490,20 @@ const APL_Integer val = cell.get_near_int(0.1);
 
    if (val > MAX_Quad_PP)
       {
-        current_pp = MAX_Quad_PP;
-        value = Value::Max_PP_P;
+        Symbol::assign(Value::Max_PP_P, LOC);
       }
    else
       {
-        current_pp = val;
+        Value_P v(new Value(LOC));
+        new (&v->get_ravel(0))   IntCell(val);
+        Symbol::assign(value, LOC);
       }
-
-   Symbol::assign(value, LOC);
 }
 //=============================================================================
 Quad_PR::Quad_PR()
-   : SystemVariable(ID_Quad_PR),
-     current_pr(UNI_ASCII_SPACE)
+   : SystemVariable(ID_Quad_PR)
 {
-Value_P value(new Value(current_pr, LOC));
-
-   value->check_value(LOC);
-   Symbol::assign(value, LOC);
+   Symbol::assign(Value::Spc_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -551,16 +513,13 @@ UCS_string ucs = value->get_UCS_ravel();
 
    if (ucs.size() > 1)   LENGTH_ERROR;
 
-   current_pr = ucs;
-
    Symbol::assign(value, LOC);
 }
 //=============================================================================
 Quad_PS::Quad_PS()
-   : SystemVariable(ID_Quad_PS),
-     current_ps(PR_APL)
+   : SystemVariable(ID_Quad_PS)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(Value::Default_PS_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -574,14 +533,14 @@ Quad_PS::assign(Value_P value, const char * loc)
 
 const Cell & cell = value->get_ravel(0);
 const APL_Integer val = cell.get_near_int(0.1);
-   if      (val == 0)   current_ps = PR_APL;
-   else if (val == 1)   current_ps = PR_APL_FUN;
-   else if (val == 2)   current_ps = PR_BOXED_CHAR;
-   else if (val == 3)   current_ps = PR_BOXED_GRAPHIC;
-   else                 DOMAIN_ERROR;
-
-   new (&value->get_ravel(0))  IntCell(val);
-   Symbol::assign(value, LOC);
+   switch(val)
+      {
+        case 0:  Symbol::assign(Value::Zero_P,  LOC);   return;
+        case 1:  Symbol::assign(Value::One_P,   LOC);   return;
+        case 2:  Symbol::assign(Value::Two_P,   LOC);   return;
+        case 3:  Symbol::assign(Value::Three_P, LOC);   return;
+        default: DOMAIN_ERROR;
+      }
 }
 //=============================================================================
 Quad_PT::Quad_PT()
@@ -601,15 +560,9 @@ Value_P Z(new Value(LOC));
 }
 //=============================================================================
 Quad_PW::Quad_PW()
-   : SystemVariable(ID_Quad_PW),
-     current_pw(80)
+   : SystemVariable(ID_Quad_PW)
 {
-Value_P value(new Value(LOC));
-
-   new (&value->get_ravel(0)) IntCell(current_pw);
-
-   value->check_value(LOC);
-   Symbol::assign(value, LOC);
+   Symbol::assign(Value::Default_PW_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -630,7 +583,6 @@ const APL_Integer val = cell.get_near_int(0.1);
    // max val is system specific. Ignore larger values.
    if (val > MAX_Quad_PW)   return;
 
-   current_pw = val;
    Symbol::assign(value, LOC);
 }
 //=============================================================================

@@ -100,7 +100,7 @@ public:
       }
 
    /// return the current Quad-PR
-   static const UCS_string & get_PR()
+   static const UCS_string get_PR()
       { return the_workspace.v_Quad_PR.current(); }
 
    /// return the Quad-RL.

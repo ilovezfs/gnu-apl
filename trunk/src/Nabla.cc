@@ -549,7 +549,12 @@ int error_line = 0;
 UserFunction * ufun = UserFunction::fix(fun_name, error_line, true, LOC,
                                         "∇ editor");
 
-   if (ufun == 0)   return "Bad function header at " LOC;
+   if (ufun == 0)
+      {
+Q(Workspace::more_error())
+          return "Bad function header at " LOC;
+      }
+
    fun_name = ufun->get_name();
 
    Log(LOG_nabla)

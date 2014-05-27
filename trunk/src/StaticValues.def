@@ -44,5 +44,10 @@ stv_def(AV       )   ///< ⎕AV
 stv_def(Max_CT   )   ///< max. ⎕CT
 stv_def(Max_PP   )   ///< max. ⎕PP
 stv_def(Quad_TC  )   ///< ⎕UCS 8 13 10
+stv_def(Default_CT)  ///< 1E¯13
+stv_def(Default_FC)  ///< ".,⋆0_¯"
+stv_def(Default_PP)  ///< 10
+stv_def(Default_PS)  ///< PR_MATRIX
+stv_def(Default_PW)  ///< 79
 
 #undef stv_def
