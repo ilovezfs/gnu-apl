@@ -228,6 +228,38 @@ Value::Value(const char * loc, Value_how how)
              new (&get_ravel(2)) CharCell(UNI_ASCII_LF);
              break;
 
+        case Value_how_Default_CT:
+             init_ravel();
+             new (&get_ravel(0)) FloatCell(DEFAULT_Quad_CT);
+             break;
+
+        case Value_how_Default_FC:
+             new (&shape) Shape(6);
+             init_ravel();
+             new (&get_ravel(0)) CharCell(UNI_ASCII_FULLSTOP);
+             new (&get_ravel(1)) CharCell(UNI_ASCII_COMMA);
+             new (&get_ravel(2)) CharCell(UNI_STAR_OPERATOR);
+             new (&get_ravel(3)) CharCell(UNI_ASCII_0);
+             new (&get_ravel(4)) CharCell(UNI_ASCII_UNDERSCORE);
+             new (&get_ravel(5)) CharCell(UNI_OVERBAR);
+             break;
+
+        case Value_how_Default_PP:
+             init_ravel();
+             new (&get_ravel(0)) IntCell(DEFAULT_Quad_PW);
+             break;
+
+
+        case Value_how_Default_PS:
+             init_ravel();
+             new (&get_ravel(0)) IntCell(PR_APL);
+             break;
+
+        case Value_how_Default_PW:
+             init_ravel();
+             new (&get_ravel(0)) IntCell(DEFAULT_Quad_PW);
+             break;
+
         default: Assert(0);
       }
 

@@ -50,7 +50,7 @@ public:
    /// overloaded Symbol::get_attributes().
    virtual void get_attributes(int mode, Cell * dest) const;
 
-   /// most system vars cannot be expunged. Those who can will overload again.
+   /// system vars cannot be expunged.
    virtual int expunge() { return 0; }
 };
 //-----------------------------------------------------------------------------
@@ -177,18 +177,17 @@ public:
 
    /// return the current comparison tolerance
    APL_Float current() const
-      { return current_ct; }
-
-   /// set the current comparison tolerance
-   void set_current(APL_Float new_CT)
-      { current_ct = new_CT; }
+      { return get_apl_value()->get_ravel(0).get_real_value(); }
 
 protected:
-   /// the current comparison tolerance
-   APL_Float current_ct;
-
    /// overloaded Symbol::assign()
    virtual void assign(Value_P value, const char * loc);
+
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();   Symbol::assign(Value::Default_CT_P, LOC);
+      }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -256,16 +255,10 @@ public:
    Quad_FC();
 
    /// return the current format control (used by Workspace::get_FC())
-   const APL_Char * current() const
-      { return current_fc; }
+   const UCS_string current() const
+      { return UCS_string(*get_apl_value()); }
 
 protected:
-   /// Set current_fc to its default values.
-   void set_default();
-
-   /// The current format control.
-   APL_Char current_fc[6];
-
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
 
@@ -275,8 +268,11 @@ protected:
    /// overloaded Symbol::assign_indexed().
    virtual void assign_indexed(IndexExpr & IX, Value_P value);
 
-   /// overloaded Symbol::get_apl_value().
-   virtual Value_P get_apl_value() const;
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();   Symbol::assign(Value::Default_FC_P, LOC);
+      }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -290,18 +286,11 @@ public:
 
    /// Return the current index origin.
    APL_Integer current() const
-      { if (current_io == -1)   throw_apl_error(E_Quad_IO_ERROR, LOC);
-        return current_io; }
+      { return get_apl_value()->get_ravel(0).get_int_value(); }
 
 protected:
-   /// The current index origin.
-   APL_Integer current_io;
-
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
-
-   /// overloaded Symbol::expunge().
-   virtual int expunge();
 };
 //-----------------------------------------------------------------------------
 /**
@@ -367,17 +356,17 @@ public:
 
    /// Return the current print precision.
    APL_Integer current() const
-      { return current_pp; }
+      { return get_apl_value()->get_ravel(0).get_int_value(); }
 
 protected:
-   /// The current print precision.
-   APL_Integer current_pp;
-
-   /// the current print tolerance
-   APL_Float current_pt;
-
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
+
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();   Symbol::assign(Value::Default_PP_P, LOC);
+      }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -390,15 +379,18 @@ public:
    Quad_PR();
 
    /// Return the current prompt replacement.
-   const UCS_string & current() const
-      { return current_pr; }
+   const UCS_string current() const
+      { return  UCS_string(*get_apl_value()); }
 
 protected:
-   /// the current ⎕PR
-   UCS_string current_pr;
-
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
+
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();   Symbol::assign(Value::Spc_P, LOC);
+      }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -413,14 +405,25 @@ public:
 
    /// Return the current print style.
    PrintStyle current() const
-      { return current_ps; }
+      { switch (get_apl_value()->get_ravel(0).get_int_value())
+           {
+             case 0: return PR_APL;
+             case 1: return PR_APL_FUN;
+             case 2: return PR_BOXED_CHAR;
+             case 3: return PR_BOXED_GRAPHIC;
+             default: return PST_NONE;
+           }
+      }
 
 protected:
-   /// The current print style.
-   PrintStyle current_ps;
-
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
+
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();   Symbol::assign(Value::Default_PS_P, LOC);
+      }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -447,14 +450,17 @@ public:
 
    /// return the current ⎕PW
    APL_Integer current() const
-      { return current_pw; }
+      { return (get_apl_value()->get_ravel(0).get_int_value()); }
 
 protected:
-   /// the current ⎕PW
-   APL_Integer current_pw;
-
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
+
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();   Symbol::assign(Value::Default_PW_P, LOC);
+      }
 };
 //-----------------------------------------------------------------------------
 /**

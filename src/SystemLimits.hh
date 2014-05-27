@@ -31,7 +31,7 @@ enum
 #include "SystemLimits.def"
 
    DEFAULT_Quad_PP = 10,
-   DEFAULT_Quad_PW = 79,
+   DEFAULT_Quad_PW = 80,
 };
 
 // int64_enums not supported by Solaris
