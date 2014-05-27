@@ -325,7 +325,7 @@ Value_P A = get_apl_value();
            }
 
         Shape IX1;
-        loop(ix, IX.value_count())
+        for (ShapeItem ix = IX.value_count() - 1; ix >= 0; --ix)
             {
               const Value * ix_val = IX.values[ix].get();
               if (ix_val)   // normal index
