@@ -249,12 +249,6 @@ Value::Value(const char * loc, Value_how how)
              new (&get_ravel(0)) IntCell(DEFAULT_Quad_PW);
              break;
 
-
-        case Value_how_Default_PS:
-             init_ravel();
-             new (&get_ravel(0)) IntCell(PR_APL);
-             break;
-
         case Value_how_Default_PW:
              init_ravel();
              new (&get_ravel(0)) IntCell(DEFAULT_Quad_PW);

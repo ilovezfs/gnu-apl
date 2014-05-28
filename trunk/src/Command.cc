@@ -837,6 +837,33 @@ int len = cnew.size();
    return true;
 }
 //-----------------------------------------------------------------------------
+bool
+Command::check_redefinition(ostream & out, const UCS_string & cnew,
+                            const UCS_string fnew, const int mnew)
+{
+   loop(u, user_commands.size())
+     {
+       const UCS_string cold = user_commands[u].prefix;
+       const UCS_string fold = user_commands[u].apl_function;
+       const int mold = user_commands[u].mode;
+
+       if (cnew != cold)   continue;
+
+       // user command name matches; so must mode and function
+       if (mnew != mold || fnew != fold)
+         {
+           out << "BAD COMMAND" << endl;
+           Workspace::more_error() 
+             = UCS_string(
+                          "conflict with existing user command definition"
+                          " in command ]USERCMD");
+         }
+       return true;
+     }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
 void
 Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
                      vector<UCS_string> & args)
@@ -922,8 +949,12 @@ const int mode = (args.size() == 3) ? args[2].atoi() : 0;
 #define cmd_def(cmd_str, _cod, arg) \
    if (check_name_conflict(out, cmd_str, args[0]))   return;
 #include "Command.def"
-   loop(u, user_commands.size())
-       if (check_name_conflict(out, args[0], user_commands[u].prefix))   return;
+   if (check_redefinition(out, args[0], args[1], mode))
+     {
+       out << "    User-defined command "
+           << args[0] << " installed." << endl;
+       return;
+     }
 
    // check APL function name
    //

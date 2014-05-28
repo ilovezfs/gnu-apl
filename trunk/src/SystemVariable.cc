@@ -519,7 +519,7 @@ UCS_string ucs = value->get_UCS_ravel();
 Quad_PS::Quad_PS()
    : SystemVariable(ID_Quad_PS)
 {
-   Symbol::assign(Value::Default_PS_P, LOC);
+   Symbol::assign(Value::Zero_P, LOC);
 }
 //-----------------------------------------------------------------------------
 void

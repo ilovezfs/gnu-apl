@@ -101,6 +101,10 @@ public:
                                       bool existing, const char * ext1,
                                                      const char * ext2);
 protected:
+   static void maybe_warn_ambiguous(int name_has_extension,
+                                    const UTF8_string name,
+                                    const char * ext1, const char * ext2);
+
    /// compute the location of the apl binary
    static void compute_bin_path(const char * argv0);
 

@@ -422,7 +422,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(Value::Default_PS_P, LOC);
+        Symbol::push();   Symbol::assign(Value::Zero_P, LOC);
       }
 };
 //-----------------------------------------------------------------------------
