@@ -67,23 +67,38 @@ PrintContext pctx(_pctx);
 const ShapeItem ec = value.element_count();
    if (ec == 0)   // empty value of any dimension
       {
-         const Shape sh = value.get_shape().without_axis(value.get_rank() - 1);
-         if (sh.get_volume() <= 1)   // empty vector
+         if (value.get_rank() == 1)   // vector: 1 line
             {
               if (pctx.get_style() == PR_APL_FUN)
                  {
                    if (value.get_ravel(0).is_character_cell())   // ''
                       {
-                        UCS_string ucs;
-                        ucs.append(UNI_SINGLE_QUOTE);
-                        ucs.append(UNI_SINGLE_QUOTE);
+                        UCS_string ucs("''");
+                        ColInfo ci;
+                        *this = PrintBuffer(ucs, ci);
+                        add_outer_frame(outer_style);
+                        return;
+                      }
 
+                   if (value.get_ravel(0).is_numeric())   // ⍬
+                      {
+                        UCS_string ucs("⍬");
                         ColInfo ci;
                         *this = PrintBuffer(ucs, ci);
                         add_outer_frame(outer_style);
                         return;
                       }
                  }
+
+              UCS_string ucs;   // empty
+              append_ucs(ucs);
+              add_outer_frame(outer_style);
+              return;   // 1 rows
+            }
+
+         const Shape sh = value.get_shape().without_axis(value.get_rank() - 1);
+         if (sh.get_volume() <= 1)   // empty vector
+            {
               add_outer_frame(outer_style);
               return;   // 0 rows
             }
@@ -126,60 +141,6 @@ const ShapeItem rows = ec/cols;
                   if (e)   ucs.append(UNI_ASCII_SPACE);
                   ucs.append(UCS_string(pb, 0, pctx.get_PW()));
                 }
-           }
-
-        ColInfo ci;
-        *this = PrintBuffer(ucs, ci);
-        add_outer_frame(outer_style);
-        return;
-      }
-   else if (pctx.get_style() & PST_HEXDUMP)
-      {
-        UCS_string ucs;
-        const char * char_fmt;
-        const char * int_fmt;
-        if (pctx.get_style() & PST_HEXlower)
-           {
-             if (pctx.get_style() & PST_PACKED)   char_fmt = "%04x";
-             else                                 char_fmt = "%02x";
-             if (sizeof(APL_Integer) == 4)        int_fmt  = "%08x";
-             else                                 int_fmt  = "%016x";
-           }
-        else
-           {
-             if (pctx.get_style() & PST_PACKED)   char_fmt = "%04X";
-             else                                 char_fmt = "%02X";
-             if (sizeof(APL_Integer) == 4)        int_fmt  = "%08X";
-             else                                 int_fmt  = "%016X";
-           }
-
-        loop(e, ec)
-           {
-             const Cell & cell = value.get_ravel(e);
-             char cc[200];
-             if (cell.is_character_cell())
-                {
-                  const Unicode uni = cell.get_char_value();
-                  snprintf(cc, sizeof(cc) - 1, char_fmt, uni);
-                }
-              else if (cell.is_integer_cell())
-                {
-                  const APL_Integer val = cell.get_int_value();
-                  snprintf(cc, sizeof(cc) - 1, int_fmt, val);
-                  
-                }
-              else
-                {
-                  CERR << "??celltype= " << cell.get_classname()
-                       << " ??" << endl;
-                  DOMAIN_ERROR;
-                }
-
-              loop(c, sizeof(cc))
-                 {
-                   if (cc[c])   ucs.append(Unicode(cc[c]));
-                   else         break;
-                 }
            }
 
         ColInfo ci;

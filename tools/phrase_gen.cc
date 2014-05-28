@@ -40,7 +40,7 @@ struct _phrase
    phrase1(prio, LBRA,  b, c, d)              \
    phrase1(prio, END,   b, c, d)              \
    phrase1(prio, LPAR,  b, c, d)              \
-   phrase1(prio, RBRA,  b, c, d)              \
+   phrase1(prio, C,     b, c, d)              \
    phrase1(prio, RETC,  b, c, d)              \
    phrase1(prio, M,     b, c, d)
 

@@ -1567,8 +1567,18 @@ ostream &
 Value::print(ostream & out) const
 {
 PrintContext pctx = Workspace::get_PrintContext();
-   if (get_rank() < 2)   // skalar or vector
+   if (get_rank() == 0)   // skalar
       {
+        pctx.set_style(PR_APL_MIN);
+      }
+   else if (get_rank() == 1)   // vector
+      {
+        if (element_count() == 0 &&   // empty vector
+            (get_ravel(0).is_character_cell() || get_ravel(0).is_numeric()))
+           {
+             return out << endl;
+           }
+            
         pctx.set_style(PR_APL_MIN);
       }
    else                  // matrix or higher

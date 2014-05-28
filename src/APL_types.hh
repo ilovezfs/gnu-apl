@@ -244,8 +244,6 @@ enum PrintStyle
    PST_NO_FRACT_0    = 0x00000400,       ///< remove trailing fractional 0s
    PST_EMPTY_LAST    = 0x00000800,       ///< last axis is empty
    PST_EMPTY_NLAST   = 0x00001000,       ///< some non-last axis is empty
-   PST_HEXDUMP       = 0x00002000,       ///< hexadecimal dump
-   PST_HEXlower      = 0x00004000,       ///< lowercase hex
 
    PST_MATRIX        = 0x00010000,       ///< multi line output
    PST_INPUT         = 0x00020000,       ///< use '' for chars and () for nested
@@ -258,9 +256,6 @@ enum PrintStyle
    PR_APL_FUN        = PST_INPUT,        ///< ⎕CR function
    PR_Quad           = PST_INPUT,        ///< ⎕ output
    PR_QUOTE_Quad     = PST_NONE,         ///< ⍞ output
-   PR_HEX            = PST_HEXDUMP,      ///< hexadecimal ravel dump
-   PR_hex            = PST_HEXDUMP       ///< lower-case hexadecimal ravel dump
-                     | PST_HEXlower,
    PR_BOXED_CHAR     = PST_MATRIX
                      | PST_CS_ASCII,     ///< 2 ⎕CR (ASCII chars)
    PR_BOXED_GRAPHIC  = PST_MATRIX

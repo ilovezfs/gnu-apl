@@ -40,8 +40,8 @@ enum R_action
    /// repeat phrase matching with current stack
    RA_CONTINUE = 0,
 
-   /// repeat phrase matching with current stack (stack is empty)
-   RA_NEXT_STAT = 1,
+   /// push next token and repeat phrase matching with current stack
+   RA_PUSH_NEXT = 1,
 
    /// return from parser with result arg[0]
    RA_RETURN = 2,
@@ -90,6 +90,10 @@ public:
 
    /// lowest PC in current statement
    Function_PC get_range_low() const;
+
+   /// lookahead is a complete index. return true if it belongs to a value
+   /// and is not a function axis.
+   bool value_expected();
 
    /// print the current range (PC from - PC to) on out
    void print_range(ostream & out) const;
