@@ -226,13 +226,11 @@ void
 LibPaths::maybe_warn_ambiguous(int name_has_extension, const UTF8_string name,
                                const char * ext1, const char * ext2)
 {
-Q(name_has_extension)
    if (name_has_extension)   return;   // extension was provided
    if (ext2 == 0)            return;   // no second extension
 
 UTF8_string filename_ext2 = name;
    filename_ext2.append_str(ext2);
-Q(filename_ext2)
    if (access(filename_ext2.c_str(), F_OK))   return;   // not existing
 
    CERR << endl 
@@ -309,10 +307,10 @@ UTF8_string filename = get_lib_dir(lib);
            {
              UTF8_string filename_ext1 = filename;
              filename_ext1.append_str(ext1);
-Q(filename_ext1)
              if (!access(filename_ext1.c_str(), F_OK))
                 {
-                   maybe_warn_ambiguous(name_has_extension, filename, ext1, ext2);
+                  maybe_warn_ambiguous(name_has_extension,
+                                       filename, ext1, ext2);
                    return filename_ext1;
                 }
            }
