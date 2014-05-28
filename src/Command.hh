@@ -121,6 +121,9 @@ protected:
    static bool check_name_conflict(ostream & out, const UCS_string & cnew,
                                    const UCS_string cold);
 
+   static bool check_redefinition(ostream & out, const UCS_string & cnew,
+                                  const UCS_string fnew, const int mnew);
+
    /// a helper struct for the )IN command
    struct transfer_context
       {

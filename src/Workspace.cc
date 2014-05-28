@@ -814,26 +814,45 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
    if (dump_fd != -1)
       {
         the_workspace.clear_WS(CERR, true);
+
+        Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
+                                   << filename << "' ..." << endl;
+
         load_DUMP(out, filename, dump_fd);   // closes dump_fd
+
+        // )DUMP files have no )WSID so create on from the filename
+        //
+        const char * wsid_start = strrchr(filename.c_str(), '/');
+        if (wsid_start == 0)   wsid_start = filename.c_str();
+        else                   ++wsid_start;   // skip /
+        const char * wsid_end = filename.c_str() + filename.size() - 4;
+        const UTF8_string wsid_utf8((const UTF8 *)wsid_start,
+                                    wsid_end - wsid_start);
+        const UCS_string wsid_ucs(wsid_utf8);
+        wsid(out, wsid_ucs);
+
         return Workspace::get_LX();
       }
-
-   if (!in.is_open())   // open failed: try filename.xml unless already .xml
+   else
       {
-        CERR << ")LOAD " << wname << " (file " << filename
-             << ") failed: " << strerror(errno) << endl;
+        if (!in.is_open())   // open failed
+           {
+             CERR << ")LOAD " << wname << " (file " << filename
+                  << ") failed: " << strerror(errno) << endl;
 
-        return UCS_string();
+             return UCS_string();
+           }
+
+        Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
+                                   << filename << "' ..." << endl;
+
+        // got open file. We assume that from here on everything will be fine.
+        // clear current WS and load it from file
+        //
+        the_workspace.clear_WS(CERR, true);
+        in.read_Workspace();
       }
 
-   Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
-                              << filename << "' ..." << endl;
-
-   // got open file. We assume that from here on everything will be fine.
-   // clear current WS and load it from file
-   //
-   the_workspace.clear_WS(CERR, true);
-   in.read_Workspace();
    return Workspace::get_LX();
 }
 //-----------------------------------------------------------------------------
