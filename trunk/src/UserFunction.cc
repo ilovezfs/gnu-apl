@@ -249,6 +249,7 @@ Fun_signature signature = SIG_NONE;
         const TokenTag tag = tos[tos_idx].get_tag();
         if (tag != TOK_SYMBOL && tag != TOK_Quad_CT
                               && tag != TOK_Quad_FC
+                              && tag != TOK_Quad_IO
                               && tag != TOK_Quad_PP
                               && tag != TOK_Quad_PR
                               && tag != TOK_Quad_PW

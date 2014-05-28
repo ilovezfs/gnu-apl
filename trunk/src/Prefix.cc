@@ -235,6 +235,74 @@ Prefix::get_range_low() const
    return lookahead_high;
 }
 //-----------------------------------------------------------------------------
+bool
+Prefix::value_expected()
+{
+   // return true iff the current saved_lookahead token (which has been tested
+   // to be a TC_INDEX token) is the index of a value and false it it is
+   // a function axis
+
+   // if it contains semicolons then get_ValueType() is TV_INDEX and
+   // it MUST be a value.
+   //
+   if (saved_lookahead.tok.get_ValueType() == TV_INDEX)   return true;
+
+int brack_count = 0;
+   for (int pc = PC; pc < body.size();)
+      {
+        const Token & tok = body[pc++];
+        switch(tok.get_Class())
+           {
+               case TC_R_BRACK:  // skip to opening [
+                    //
+                    brack_count = 1;   // this [...]
+                    for (;pc < body.size(); ++pc)
+                        {
+                          if (body[pc].get_Class() == TC_R_BRACK)   // another ]
+                             {
+                               ++brack_count;
+                             }
+                          else if (body[pc].get_Class() == TC_L_BRACK)
+                             {
+                               --brack_count;
+                               if (brack_count == 0)   break;
+                               ++pc;
+                               continue;   // inner for (.,,)
+                             }
+                        }
+                    ++pc;
+                    continue;   // outer for (.,,)
+
+               case TC_END:      goto done;
+
+               case TC_FUN0:   return true;   // niladic function is a value
+               case TC_FUN12:  return false;  // function
+
+               case TC_SYMBOL:
+                    {
+                      const Symbol * sym = tok.get_sym_ptr();
+                      const NameClass nc = sym->get_nc();
+                      
+                      if (nc == NC_FUNCTION)   return false;
+                      if (nc == NC_OPERATOR)   return false;
+                      return true;   // value
+                    }
+             
+               case TC_RETURN:   goto done;
+               case TC_VALUE:   return true;
+
+               default: continue;
+           }
+
+         break;  // for (;;)
+      }
+
+   // this is a syntax error.
+   //
+done:
+   return false;
+}
+//-----------------------------------------------------------------------------
 void
 Prefix::unmark_all_values() const
 {
@@ -482,9 +550,9 @@ found_prefix:
         goto again;
       }
 
-   if (action == RA_NEXT_STAT)
+   if (action == RA_PUSH_NEXT)
       {
-        Log(LOG_prefix_parser)   CERR << "RA_NEXT_STAT" << endl;
+        Log(LOG_prefix_parser)   CERR << "RA_PUSH_NEXT" << endl;
         goto grow;
       }
 
@@ -583,6 +651,19 @@ Prefix::reduce_MISC_F_B_()
 {
    Assert1(prefix_len == 2);
 
+   if (saved_lookahead.tok.get_Class() == TC_INDEX)
+      {
+        if (value_expected())
+           {
+             // push [...] and read one more token
+             //
+             push(saved_lookahead);
+             saved_lookahead.tok.clear(LOC);
+             action = RA_PUSH_NEXT;
+             return;
+           }
+      }
+
    pop_args_push_result(si.eval_B(at0(), at1()));
    at0().SET_temp();
    set_action(at0());
@@ -592,6 +673,19 @@ void
 Prefix::reduce_MISC_F_C_B()
 {
    Assert1(prefix_len == 3);
+
+   if (saved_lookahead.tok.get_Class() == TC_INDEX)
+      {
+        if (value_expected())
+           {
+             // push [...] and read one more token
+             //
+             push(saved_lookahead);
+             saved_lookahead.tok.clear(LOC);
+             action = RA_PUSH_NEXT;
+             return;
+           }
+      }
 
    if (at1().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
    if (!at1().get_apl_val())              SYNTAX_ERROR;
@@ -1009,7 +1103,7 @@ const bool end_of_line = at0().get_tag() == TOK_ENDL;
 
 Token Void(TOK_VOID);
    si.statement_result(Void);
-   action = RA_NEXT_STAT;
+   action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
       {
         attention_raised = false;
@@ -1032,7 +1126,7 @@ Token B = pop().tok;    // pop B
 
    si.statement_result(B);
 
-   action = RA_NEXT_STAT;
+   action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
       {
         attention_raised = false;
@@ -1075,7 +1169,7 @@ const Token result = si.jump(line);
 
    if (result.get_tag() == TOK_VOID)   // branch not taken, e.g. →''
       {
-        action = RA_NEXT_STAT;
+        action = RA_PUSH_NEXT;
         if (attention_raised && end_of_line)
            {
              attention_raised = false;
@@ -1096,7 +1190,7 @@ const Function_PC new_pc = si.get_PC();
       }
 
    Assert1(size() == 0);
-   action = RA_NEXT_STAT;
+   action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
       {
         attention_raised = false;
@@ -1236,12 +1330,12 @@ Prefix::reduce_RETC_GOTO_B_()
 
    reduce_END_GOTO_B_();
 
-   if (action == RA_NEXT_STAT)
+   if (action == RA_PUSH_NEXT)
       {
         // reduce_END_GOTO_B_() has detected a non-taken branch (e.g. →'')
         // and wants to continue with the next statement.
         // We are in ⍎ mode, so there is no next statement and we
-        // RA_RETURN a TOK_VOID instead of RA_NEXT_STAT.
+        // RA_RETURN a TOK_VOID instead of RA_PUSH_NEXT.
         //
         Token tok(TOK_VOID);
         Token_loc tl(tok, Function_PC_0);
