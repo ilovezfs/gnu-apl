@@ -551,7 +551,6 @@ UserFunction * ufun = UserFunction::fix(fun_name, error_line, true, LOC,
 
    if (ufun == 0)
       {
-Q(Workspace::more_error())
           return "Bad function header at " LOC;
       }
 

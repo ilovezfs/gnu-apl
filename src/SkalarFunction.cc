@@ -584,17 +584,33 @@ Bif_F12_ROLL::eval_B(Value_P B)
    // the standard wants ? to be atomic. We therefore check beforehand
    // that all elements of B are proper, and throw an error if not
    //
-const ShapeItem ec_B = B->element_count();
-const APL_Float qct = Workspace::get_CT();
-
-   loop(b, ec_B)
-      {
-        // throw error now !
-        const APL_Integer val =  B->get_ravel(b).get_near_int(qct);
-        if (val < 0)   DOMAIN_ERROR;
-      }
+   if (check_B(*B, Workspace::get_CT()))   DOMAIN_ERROR;
 
    return eval_skalar_B(B, &Cell::bif_roll);
+}
+//-----------------------------------------------------------------------------
+bool
+Bif_F12_ROLL::check_B(const Value & B, const APL_Float qct)
+{
+const ShapeItem count = B.nz_element_count();
+const Cell * C = &B.get_ravel(0);
+
+   loop(b, count)
+      {
+       if (C->is_pointer_cell())
+          {
+            Value_P sub_val = C->get_pointer_value();
+            if (check_B(*sub_val, qct))   return true;   // check sub_val failed
+            continue;
+          }
+
+       if (!C->is_near_int(qct))       return true;
+       if (C->get_near_int(qct) < 0)   return true;
+
+        ++C;
+      }
+
+   return false;
 }
 //=============================================================================
 Token
