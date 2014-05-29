@@ -505,6 +505,10 @@ protected:
    /// dial A from B.
    /// Overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
+
+   /// recursively check that all ravel elements of B are integers ≥ 0 and
+   /// return \b true iff not.
+   static bool check_B(const Value & B, const APL_Float qct);
 };
 //-----------------------------------------------------------------------------
 /** Skalar function not and non-skalar function without.

@@ -1422,7 +1422,6 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
 
    // set up error message 1
    //
-Q(error.error_code)
    if (A)                                 // A ⎕ES B
       {
         error.error_message_1 = *A;
