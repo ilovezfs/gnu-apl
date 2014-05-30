@@ -47,7 +47,7 @@ Nabla::Nabla(const UCS_string & cmd)
      ecmd(ECMD_NOP),
      edit_from(-1),
      edit_to(-1),
-     function_existed(true),
+     function_existed(false),
      do_close(false),
      locked(false),
      current_line(1),
@@ -196,15 +196,11 @@ UCS_string::iterator c(first_command.begin());
             }
       }
 
-   {
-     UserFunction_header hdr(fun_header);
-     if (hdr.get_error())   return LOC;   // bad header
-     fun_symbol = hdr.FUN();
-     Assert(fun_symbol);
-   }
+UserFunction_header hdr(fun_header);
+   if (hdr.get_error())   return LOC;   // bad header
+   fun_symbol = hdr.FUN();
+   Assert(fun_symbol);
 
-// Q(fun_header)
-// Q(fun_symbol->get_name())
    if (fun_header.size() == 0)   return LOC;   // no function name
 
    // optional operation
@@ -221,7 +217,50 @@ UCS_string::iterator c(first_command.begin());
         if (const char * loc = parse_oper(oper, true))   return loc;   // error
       }
 
-   if (const char * loc = open_function())   return loc;
+   switch(fun_symbol->get_nc())
+      {
+        case NC_UNUSED_USER_NAME:   // open a new function
+             function_existed = false;
+             {
+               const char * open_loc = open_new_function();
+               if (open_loc)   return open_loc;
+             }
+             break;
+
+        case NC_FUNCTION:
+        case NC_OPERATOR:   // open an existing function
+             function_existed = true;
+             if (uprefs.running_script())   // script
+                {
+                  const char * open_loc = open_new_function();
+                  if (open_loc)   return open_loc;
+                  break;
+                }
+              else                          // interactive
+                {
+                  if (hdr.has_vars())
+                     {
+                       // an existing function was opened with a header that
+                       // contains more than the function name.
+                       //
+                       return "attempt to ∇-open existing function with "
+                              "new function header at " LOC;
+                     }
+                }
+
+             {
+               const char * open_loc = open_existing_function();
+               if (open_loc)   return open_loc;
+             }
+             break;
+
+        default:
+             return "attempt to ∇-open a variable at " LOC;
+      }
+
+   // at this point the (new or existing) function was successfully opened.
+   // That means that at least the header is present (lines.size() > 0)
+
 
    // immediate close (only show command is allowed here),
    // e.g. ∇fun[⎕]∇
@@ -453,128 +492,55 @@ LineLabel ret(0);
 }
 //-----------------------------------------------------------------------------
 const char *
-Nabla::open_function()
-{
-   // either open an existing function 'fun_header', or create a new function.
-
-   // there are three cases when a new function is created (as opposed to
-   // opening an existing functions:
-   //
-   // 1. the editor is run from a script (eg. )COPY)
-   // 2. the header line contains at least one non-symbol char, or
-   // 3. the header consists of only symbol chars and a function with
-   //    that name exists.
-   //
-   // Examples:
-   //
-   // 1.   )COPY lib  (and ∇... called in lib)
-   // 2.   R←A ANY_FUNCTION B
-   // 3.   EXISTING_FUNCTION
-   //
-bool clear_existing = false;
-Symbol * fsym = Workspace::lookup_existing_symbol(fun_header);
-
-   // 1. check for )COPY etc
-   //
-   if (uprefs.running_script())   // script
-      {
-        if (fsym == 0)    return open_new_function();
-        clear_existing = true;
-      }
-   else                                     // interactive
-      {
-        if (fsym == 0)   return open_new_function();
-        loop(f, fun_header.size())
-           {
-             if (!Avec::is_symbol_char(fun_header[f]))
-                {
-                  return open_new_function();
-                }
-           }
-      }
-
-   // at this point fsym is non-zero, i.e. its symbol exists
-   // it may or may not be to an existing function
-   //
-   // check that function is not on the SI stack.
-   //
-   if (Workspace::is_called(fun_header))
-      {
-        UCS_string & t4 = Workspace::more_error();
-        t4.clear();
-        t4.append_utf8("function ");
-        t4.append(fun_header);
-        t4.append_utf8(" could not be edited, since "
-                       "it is used on the )SI stack.");
-        return LOC;
-      }
-
-   if (fsym->get_nc() == NC_UNUSED_USER_NAME)   return open_new_function();
-
-   return open_existing_function(fsym, clear_existing);
-}
-//-----------------------------------------------------------------------------
-const char *
-Nabla::open_existing_function(Symbol * fsym, bool clear_old)
+Nabla::open_new_function()
 {
    Log(LOG_nabla)
-      CERR << "opening existing function '" << fun_header << "'" << endl;
+      CERR << "creating new function '" << fun_symbol->get_name() 
+           << "' with header '" << fun_header << "'" << endl;
 
-const NameClass nc = fsym->get_nc();
-   if (nc != NC_FUNCTION && nc != NC_OPERATOR)
-      {
-        Log(LOG_nabla)
-           CERR << "symbol '" << fun_header << "' has name class " << nc
-                << " (not function or operator)" << endl;
-        return LOC;
-      }
-
-Function * function = fsym->get_function();
-   Assert(function);
-
-   if (function->get_exec_properties()[0])   NABLA_ERROR;   // locked
-
-   if (clear_old)   // script
-      {
-        current_line = LineLabel(1);
-      }
-   else
-      {
-        const UCS_string ftxt = function->canonical(false);
-        Log(LOG_nabla)   CERR << "function is:\n" << ftxt << endl;
-
-        vector<UCS_string> tlines;
-        ftxt.to_vector(tlines);
-
-        loop(t, tlines.size())   lines.push_back(FunLine(t, tlines[t]));
-
-        current_line = LineLabel(tlines.size());
-      }
+   lines.push_back(FunLine(0, fun_header));
    return 0;
 }
 //-----------------------------------------------------------------------------
 const char *
-Nabla::open_new_function()
+Nabla::open_existing_function()
 {
    Log(LOG_nabla)
-      CERR << "creating new function '" << fun_header << "'" << endl;
+      CERR << "opening existing function '" << fun_symbol->get_name() << "'" << endl;
 
-int error_line = 0;
-UserFunction * ufun = UserFunction::fix(fun_header, error_line, true, LOC,
-                                        "∇ editor");
+   // this function must only be called when editing functions interactovely
+   //
+   Assert(!uprefs.running_script());
 
+Function * function = fun_symbol->get_function();
+   Assert(function);
+
+   if (function->get_exec_properties()[0])
+      return "function is locked at " LOC;
+
+   if (function->is_native())
+      return "function is native at " LOC;
+
+   if (Workspace::is_called(fun_symbol->get_name()))
+      return "function is pendent or suspended";
+
+const UserFunction * ufun = function->get_ufun1();
    if (ufun == 0)
-      {
-          return "Bad function header at " LOC;
-      }
+      return "function is not editable at " LOC;
 
-   fun_header = ufun->get_name();
+const UCS_string ftxt = function->canonical(false);
+   Log(LOG_nabla)   CERR << "existing function is:\n" << ftxt << endl;
 
-   Log(LOG_nabla)
-      CERR << "created new function '" << fun_header << "'" << endl;
-   function_existed = false;
+vector<UCS_string> tlines;
+   ftxt.to_vector(tlines);
 
-   return open_function();
+   Assert(tlines.size());
+   fun_header = tlines[0];
+   loop(t, tlines.size())   lines.push_back(FunLine(t, tlines[t]));
+
+   current_line = LineLabel(tlines.size());
+
+   return 0;
 }
 //-----------------------------------------------------------------------------
 const char *
@@ -726,7 +692,7 @@ const char *
 Nabla::execute_escape()
 {
    lines.clear();
-   open_function();
+   lines.push_back(FunLine(0, fun_header));
    return 0;
 }
 //-----------------------------------------------------------------------------

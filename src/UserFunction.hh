@@ -61,7 +61,14 @@ public:
    /// return source location where error was detected
    const char * get_error_cause() const   { return error_cause; }
 
+   /// return true if the header indicates a result (Z←)
    bool has_result() const   { return sym_Z != 0; }
+
+   /// return true if the header contains variables (result, arguments,
+   /// or local variables
+   bool has_vars() const
+      { return sym_Z || sym_A || sym_LO || sym_X || sym_RO || sym_B ||
+               local_vars.size(); }
 
    /// return true iff the function returns a value
    int has_axis() const   { return sym_X != 0; }

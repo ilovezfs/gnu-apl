@@ -123,14 +123,11 @@ protected:
    /// restore function
    const char * execute_escape();
 
-   /// open an existing function, or create a new function.
-   const char * open_function();
-
    /// create a new function.
    const char * open_new_function();
 
    /// open an existing function, or create a new one.
-   const char * open_existing_function(Symbol * fsym, bool clear_old);
+   const char * open_existing_function();
 
    /// parse [nn.mm] into a LineLabel;
    LineLabel parse_lineno(UCS_string::iterator & c);
@@ -141,7 +138,6 @@ protected:
    /// true if line with label lab exists
    bool line_exists(const LineLabel & lab) const
       { return find_line(lab) != -1; }
-   
 
    /// the line number (in a .apl script file) of the ∇ that started the editor
    const int defn_line_no;
