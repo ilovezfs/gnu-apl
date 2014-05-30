@@ -62,6 +62,22 @@ TestFiles::get_testcase_line()
 
         if (s == 0)   // end of file reached: do some global checks
            {
+             if (uprefs.current_file() && uprefs.current_file()->with_LX)
+                {
+                  uprefs.current_file()->with_LX = false;
+                  UCS_string LX = Workspace::get_LX();
+                  if (LX.size())   // ⎕LX pending
+                     {
+                       LX.append_utf8(" ⍝ ⎕LX");
+                       UTF8_string LX_utf8(LX);
+                       static UTF8 buf[2000];
+                       int len = LX_utf8.size();
+                       if (len > sizeof(buf) - 1)   len = sizeof(buf) - 1;
+                       memcpy(buf, LX_utf8.c_str(), len);
+                       buf[len] = 0;
+                       return buf;
+                     }
+                }
              if (end_of_file_processing())   continue;   // try again.
               else                           break;      // done
            }
