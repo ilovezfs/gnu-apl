@@ -1285,6 +1285,7 @@ int et1 = 0;
              break;
 
         case TOK_NO_VALUE:
+        case TOK_VOID:
              result_type = 3;
              Z2 = Value::Idx0_P;  // 0⍴0
              break;
@@ -1301,7 +1302,7 @@ int et1 = 0;
              break;
 
         default: CERR << "unexpected result tag " << result_B.get_tag()
-                      << " in " << __FUNCTION__ << endl;
+                      << " in Quad_EC::eoc()" << endl;
                  Assert(0);
       }
 
