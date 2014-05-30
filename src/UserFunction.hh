@@ -58,7 +58,7 @@ public:
         return 0;                 // niladic function
       }
 
-   /// return sorce location where error was detected
+   /// return source location where error was detected
    const char * get_error_cause() const   { return error_cause; }
 
    bool has_result() const   { return sym_Z != 0; }
@@ -93,7 +93,7 @@ public:
    Symbol * B()   const   { return sym_B; }
 
    /// return true if header was parsed successfully
-   bool get_error() const   { return error; }
+   ErrorCode get_error() const   { return error; }
 
    /// print local vars etc.
    void print_properties(ostream & out, int indent) const;

@@ -146,8 +146,8 @@ protected:
    /// the line number (in a .apl script file) of the ∇ that started the editor
    const int defn_line_no;
 
-   /// the name of the function being edited
-   UCS_string fun_name;
+   /// the header of the function being edited
+   UCS_string fun_header;
 
    /// the symbol for the function being edited
    Symbol * fun_symbol;

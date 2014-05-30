@@ -702,7 +702,7 @@ FILE * file = fdopen(fd, "r");
            }
       }
 
-Filename_and_mode fam = { filename, file, false, false, true };
+Filename_and_mode fam = { filename, file, false, false, 0, true };
    uprefs.files_todo.insert(uprefs.files_todo.begin(), fam);
 }
 //-----------------------------------------------------------------------------
