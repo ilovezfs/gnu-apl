@@ -29,12 +29,28 @@
 /// added by )COPY and friends
 struct Filename_and_mode
 {
+   /// constructor for vector<>::resize()
+   Filename_and_mode() {}   // for resize()
+
+   /// Normal constructor
+   Filename_and_mode(const UTF8_string & _filename, FILE * _file,
+                     bool _test, bool _echo, bool _is_script, bool _with_LX)
+   : filename (_filename),
+     file     (_file),
+     test     (_test),
+     echo     (_echo),
+     is_script(_is_script),
+     with_LX  (_with_LX),
+     line_no  (0)
+   {}
+
    UTF8_string  filename;   ///< dito.
    FILE       * file;       /// file descriptor
    bool         test;       ///< true for -T testfile, false for -f APLfile
    bool         echo;       ///< echo stdin
+   bool         is_script;  ///< script (override existing functions)
+   bool         with_LX;    ///< execute ⎕LX at the end
    int          line_no;    ///< line number in file
-   bool         is_script;  /// 
 };
 
 /// a structure that contains user preferences from different sources

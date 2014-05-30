@@ -234,21 +234,20 @@ UserFunction_header hdr(fun_header);
                 {
                   const char * open_loc = open_new_function();
                   if (open_loc)   return open_loc;
-                  break;
+                  break;   // continue below
                 }
-              else                          // interactive
-                {
-                  if (hdr.has_vars())
-                     {
+
+             // interactive
+             {
+               if (hdr.has_vars())
+                  {
                        // an existing function was opened with a header that
                        // contains more than the function name.
                        //
                        return "attempt to ∇-open existing function with "
                               "new function header at " LOC;
-                     }
-                }
+                  }
 
-             {
                const char * open_loc = open_existing_function();
                if (open_loc)   return open_loc;
              }

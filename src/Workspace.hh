@@ -224,7 +224,8 @@ public:
    static void wsid(ostream & out, UCS_string arg);
 
    /// load )DUMPed file from open file descriptor fd (closes fd)
-   static void load_DUMP(ostream & out, const UTF8_string & filename, int fd);
+   static void load_DUMP(ostream & out, const UTF8_string & filename, int fd,
+                         bool with_LX);
 
    /// load \b lib_ws into the_workspace. return ⎕LX of the new WS.
    static UCS_string load_WS(ostream & out, const vector<UCS_string> & lib_ws);

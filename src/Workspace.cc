@@ -685,7 +685,8 @@ XML_Saving_Archive ar(outf);
 }
 //-----------------------------------------------------------------------------
 void
-Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd)
+Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
+                     bool with_LX)
 {
    out << "loading )DUMP file " << filename << "..." << endl;
 FILE * file = fdopen(fd, "r");
@@ -702,7 +703,7 @@ FILE * file = fdopen(fd, "r");
            }
       }
 
-Filename_and_mode fam = { filename, file, false, false, 0, true };
+Filename_and_mode fam(filename, file, false, false, true, with_LX);
    uprefs.files_todo.insert(uprefs.files_todo.begin(), fam);
 }
 //-----------------------------------------------------------------------------
@@ -818,7 +819,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
                                    << filename << "' ..." << endl;
 
-        load_DUMP(out, filename, dump_fd);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, true);   // closes dump_fd
 
         // )DUMP files have no )WSID so create on from the filename
         //
@@ -831,7 +832,8 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         const UCS_string wsid_ucs(wsid_utf8);
         wsid(out, wsid_ucs);
 
-        return Workspace::get_LX();
+        // we cant return ⎕LX because it was not executed yet.
+        return UCS_string();
       }
    else
       {
@@ -898,7 +900,7 @@ int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);
    if (dump_fd != -1)
       {
-        load_DUMP(out, filename, dump_fd);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, false);   // closes dump_fd
         return;
       }
 
