@@ -69,7 +69,7 @@ Nabla::throw_edit_error(const char * loc)
         Workspace::more_error() = UCS_string(loc);
       }
 
-   throw_define_error(fun_name, first_command, loc);
+   throw_define_error(fun_header, first_command, loc);
 }
 //-----------------------------------------------------------------------------
 void
@@ -88,7 +88,7 @@ Nabla::edit()
    // editor loop
    //
 int control_D_count = 0;
-   Log(LOG_nabla)   CERR << "Nabla(" << fun_name << ")..." << endl;
+   Log(LOG_nabla)   CERR << "Nabla(" << fun_header << ")..." << endl;
    while (!do_close)
        {
          const UCS_string prompt = current_line.print_prompt();
@@ -122,7 +122,7 @@ int control_D_count = 0;
        }
 
    Log(LOG_nabla)
-      CERR << "done '" << fun_name << "'" << endl;
+      CERR << "done '" << fun_header << "'" << endl;
 
 UCS_string fun_text;
    loop(l, lines.size())
@@ -160,17 +160,22 @@ Nabla::start()
    //
 UCS_string::iterator c(first_command.begin());
 
+   // skip leading spaces
+   //
+   while (c.more() && c.get() <= UNI_ASCII_SPACE)   c.next();
+
    // skip leading nabla.
    //
    if (c.next() != UNI_NABLA)   return LOC;
 
    // skip leading spaces
    //
-   while (c.more() && c.get() == UNI_ASCII_SPACE)   c.next();
+   while (c.more() && c.get() <= UNI_ASCII_SPACE)   c.next();
 
-   // function name or header.
+   // function header.
    //
-   while (c.more() && c.get() != UNI_ASCII_L_BRACK)   fun_name.append(c.next());
+   while (c.more() && c.get() != UNI_ASCII_L_BRACK)
+         fun_header.append(c.next());
 
    // at this point there could be an axis specification [X] that
    // could be confused with an operation like [⎕]. We take the first char
@@ -183,15 +188,24 @@ UCS_string::iterator c(first_command.begin());
               if (c.get(off) <= UNI_ASCII_SPACE)   continue; 
               if (Avec::is_first_symbol_char(c.get(off)))   // axis
                  {
-                   fun_name.append(c.next());   //  copy the [
+                   fun_header.append(c.next());   //  copy the [
                    while (c.more() && c.get() != UNI_ASCII_L_BRACK)
-                         fun_name.append(c.next());
+                         fun_header.append(c.next());
                  }
               break;
             }
       }
 
-   if (fun_name.size() == 0)   return LOC;   // no function name
+   {
+     UserFunction_header hdr(fun_header);
+     if (hdr.get_error())   return LOC;   // bad header
+     fun_symbol = hdr.FUN();
+     Assert(fun_symbol);
+   }
+
+// Q(fun_header)
+// Q(fun_symbol->get_name())
+   if (fun_header.size() == 0)   return LOC;   // no function name
 
    // optional operation
    //
@@ -336,7 +350,7 @@ again:
    // [from ∆ to]
    // [from]
 
-   while (c.get() == UNI_ASCII_SPACE)   c.next();
+   while (c.get() <= UNI_ASCII_SPACE)   c.next();
 
    if (c.get() == UNI_ASCII_L_BRACK)   // another command: ignore previous
       {
@@ -441,7 +455,7 @@ LineLabel ret(0);
 const char *
 Nabla::open_function()
 {
-   // either open an existing function 'fun_name', or create a new function.
+   // either open an existing function 'fun_header', or create a new function.
 
    // there are three cases when a new function is created (as opposed to
    // opening an existing functions:
@@ -458,7 +472,7 @@ Nabla::open_function()
    // 3.   EXISTING_FUNCTION
    //
 bool clear_existing = false;
-Symbol * fsym = Workspace::lookup_existing_symbol(fun_name);
+Symbol * fsym = Workspace::lookup_existing_symbol(fun_header);
 
    // 1. check for )COPY etc
    //
@@ -470,9 +484,9 @@ Symbol * fsym = Workspace::lookup_existing_symbol(fun_name);
    else                                     // interactive
       {
         if (fsym == 0)   return open_new_function();
-        loop(f, fun_name.size())
+        loop(f, fun_header.size())
            {
-             if (!Avec::is_symbol_char(fun_name[f]))
+             if (!Avec::is_symbol_char(fun_header[f]))
                 {
                   return open_new_function();
                 }
@@ -484,12 +498,12 @@ Symbol * fsym = Workspace::lookup_existing_symbol(fun_name);
    //
    // check that function is not on the SI stack.
    //
-   if (Workspace::is_called(fun_name))
+   if (Workspace::is_called(fun_header))
       {
         UCS_string & t4 = Workspace::more_error();
         t4.clear();
         t4.append_utf8("function ");
-        t4.append(fun_name);
+        t4.append(fun_header);
         t4.append_utf8(" could not be edited, since "
                        "it is used on the )SI stack.");
         return LOC;
@@ -504,13 +518,13 @@ const char *
 Nabla::open_existing_function(Symbol * fsym, bool clear_old)
 {
    Log(LOG_nabla)
-      CERR << "opening existing function '" << fun_name << "'" << endl;
+      CERR << "opening existing function '" << fun_header << "'" << endl;
 
 const NameClass nc = fsym->get_nc();
    if (nc != NC_FUNCTION && nc != NC_OPERATOR)
       {
         Log(LOG_nabla)
-           CERR << "symbol '" << fun_name << "' has name class " << nc
+           CERR << "symbol '" << fun_header << "' has name class " << nc
                 << " (not function or operator)" << endl;
         return LOC;
       }
@@ -543,10 +557,10 @@ const char *
 Nabla::open_new_function()
 {
    Log(LOG_nabla)
-      CERR << "creating new function '" << fun_name << "'" << endl;
+      CERR << "creating new function '" << fun_header << "'" << endl;
 
 int error_line = 0;
-UserFunction * ufun = UserFunction::fix(fun_name, error_line, true, LOC,
+UserFunction * ufun = UserFunction::fix(fun_header, error_line, true, LOC,
                                         "∇ editor");
 
    if (ufun == 0)
@@ -554,10 +568,10 @@ UserFunction * ufun = UserFunction::fix(fun_name, error_line, true, LOC,
           return "Bad function header at " LOC;
       }
 
-   fun_name = ufun->get_name();
+   fun_header = ufun->get_name();
 
    Log(LOG_nabla)
-      CERR << "created new function '" << fun_name << "'" << endl;
+      CERR << "created new function '" << fun_header << "'" << endl;
    function_existed = false;
 
    return open_function();
@@ -566,17 +580,20 @@ UserFunction * ufun = UserFunction::fix(fun_name, error_line, true, LOC,
 const char *
 Nabla::execute_oper()
 {
-const bool have_from = edit_from.ln_major != -1;
-const bool have_to = edit_to.ln_major != -1;
-
-   if (!have_from && ecmd != ECMD_DELETE)   edit_from = lines[0].label;
-   if (!have_to)     edit_to = lines[lines.size() - 1].label;
-
    if (ecmd == ECMD_NOP)
       {
         Log(LOG_nabla)
            CERR << "Nabla::execute_oper(NOP)" << endl;
         return 0;
+      }
+
+const bool have_from = edit_from.ln_major != -1;
+const bool have_to = edit_to.ln_major != -1;
+
+   if (lines.size())
+      {
+        if (!have_from && ecmd != ECMD_DELETE)   edit_from = lines[0].label;
+        if (!have_to)     edit_to = lines[lines.size() - 1].label;
       }
 
    if (ecmd == ECMD_SHOW)     return execute_show();

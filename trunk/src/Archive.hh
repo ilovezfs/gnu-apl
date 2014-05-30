@@ -175,7 +175,8 @@ public:
 
    /// set copying and maybe set protection
    void set_protection(bool prot, const vector<UCS_string> & allowed)
-      { copying = true;   protection = prot;   allowed_objects = allowed; }
+      { copying = true;   protection = prot;   allowed_objects = allowed;
+        have_allowed_objects = allowed_objects.size() > 0; }
 
    /// reset archive to the start position
    void reset();
@@ -245,7 +246,6 @@ protected:
    /// read a token
    bool read_Token(Token_loc & tloc);
 
-protected:
    /// return true iff there is more data in the file
    bool more() const   { return data < file_end; }
 
@@ -332,6 +332,9 @@ protected:
 
    /// the names of objects (empty if all)
    vector<UCS_string> allowed_objects;
+
+   /// true for selective copy (COPY with symbol names)
+   bool have_allowed_objects;
 
    /// a value ID and the ID of its parent
    struct _vid_pvid
