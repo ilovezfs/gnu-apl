@@ -628,7 +628,7 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
 
    if (wname.compare(UCS_string("CLEAR WS")) == 0)   // don't save CLEAR WS
       {
-        COUT << "NOT SAVED: THIS WS IS " << wname << endl;
+        COUT << "NOT SAVED: THIS WS IS CLEAR WS" << endl;
         more_error() = UCS_string(
         "the workspace was not saved because 'CLEAR WS' is a special \n"
         "workspace name that cannot be saved. Use )WSID <name> first.");
@@ -642,7 +642,8 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
         {
           if (wname.compare(the_workspace.WS_name) != 0)   // names differ
              {
-               COUT << "NOT SAVED: THIS WS IS " << wname << endl;
+               COUT << "NOT SAVED: THIS WS IS "
+                    << the_workspace.WS_name << endl;
                UCS_string & t4 = more_error();
                t4.clear();
                t4.append_utf8("the workspace was not saved because:\n"

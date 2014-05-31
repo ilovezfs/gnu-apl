@@ -461,6 +461,9 @@ public:
    /// the number of values created
    static ShapeItem value_count;
 
+   /// a "checksum" to detect deleted values
+   const void * check_ptr;
+
 protected:
    /// init the ravel of an APL value, return the ravel length
    inline void init_ravel();
@@ -494,9 +497,53 @@ protected:
    /// the cells of a short (i.e. ⍴,value ≤ SHORT_VALUE_LENGTH_WANTED) value
    Cell short_value[SHORT_VALUE_LENGTH_WANTED];
 
+   /// values that have been deleted
+   static void * deleted_values;
+
+   /// number values that have been deleted
+   static int deleted_values_count;
+
+   /// max. number values that have been deleted
+   enum { deleted_values_MAX = 10000 };
+
+#if 1 // enable/disable deleted values chain for faster memory allocation
+
 public:
-   /// a "checksum" to detect deleted values
-   const void * check_ptr;
+   static void * operator new(size_t sz)
+      {
+        if (deleted_values)   // we have deleted values: recycle one
+           {
+             --deleted_values_count;
+             void * ret = deleted_values;
+             deleted_values = *(void **)deleted_values;
+             return ret;
+           }
+
+        return malloc(sz);
+      }
+
+   static void operator delete(void * ptr)
+      {
+        if (deleted_values_count < deleted_values_MAX)   // we have space
+           {
+             ++deleted_values_count;
+             *(void **)ptr = deleted_values;
+             deleted_values = ptr;
+           }
+        else                                             // no more space
+           {
+             free(ptr);
+           }
+      }
+
+#endif
+
+private:
+   /// prevent new[] of Value
+   static void * operator new[](size_t sz);
+
+   /// prevent delete[] of Value
+   static void operator delete[](void* ptr);
 };
 // ----------------------------------------------------------------------------
 

@@ -30,6 +30,7 @@
 # include <utmpx.h>           // for ⎕UL
 #endif
 
+#include "Bif_F12_FORMAT.hh"
 #include "CDR.hh"
 #include "CharCell.hh"
 #include "Common.hh"
