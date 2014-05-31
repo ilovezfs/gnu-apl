@@ -15,6 +15,7 @@ ArrayIterator.cc			ArrayIterator.hh	\
 Assert.cc				Assert.hh		\
 Avec.cc		    Avec.def		Avec.hh			\
 Backtrace.cc				Backtrace.hh		\
+Bif_F12_FORMAT.cc			Bif_F12_FORMAT.hh		\
 Bif_OPER1_COMMUTE.cc			Bif_OPER1_COMMUTE.hh	\
 Bif_OPER1_EACH.cc			Bif_OPER1_EACH.hh	\
 Bif_OPER2_PRODUCT.cc			Bif_OPER2_PRODUCT.hh	\

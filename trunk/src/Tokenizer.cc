@@ -20,6 +20,7 @@
 
 #include <string.h>
 
+#include "Bif_F12_FORMAT.hh"
 #include "Bif_OPER1_COMMUTE.hh"
 #include "Bif_OPER1_EACH.hh"
 #include "Bif_OPER2_PRODUCT.hh"

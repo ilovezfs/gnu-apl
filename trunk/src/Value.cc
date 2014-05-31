@@ -43,6 +43,9 @@ ShapeItem Value::total_ravel_count = 0;
 
 // the static Value instances are defined in StaticObjects.cc
 
+void * Value::deleted_values = 0;
+int Value::deleted_values_count = 0;
+
 //-----------------------------------------------------------------------------
 void
 Value::init_ravel()
