@@ -96,6 +96,18 @@ StateIndicator * del = SI_top();
    delete del;
 }
 //-----------------------------------------------------------------------------
+void
+Workspace::clear_error(const char * loc)
+{
+   // clear errors up to (including) next user defined function (see ⎕ET)
+   //
+   for (StateIndicator * si = the_workspace.SI_top(); si; si = si->get_parent())
+       {
+         si->get_error().init(E_NO_ERROR, LOC);
+         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
+       }
+}
+//-----------------------------------------------------------------------------
 StateIndicator *
 Workspace::SI_top_fun()
 {

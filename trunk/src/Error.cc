@@ -244,7 +244,6 @@ Error error(E_DEFN_ERROR, loc);
    error.error_message_2.append(cmd);   // something like ∇FUN[⎕]∇
    error.left_caret = error.error_message_2.size() - 1;
    if (Workspace::SI_top())   *Workspace::get_error() = error;
-   Workspace::update_EM_ET(error);   // update ⎕EM and ⎕ET
    throw error;
 }
 //-----------------------------------------------------------------------------

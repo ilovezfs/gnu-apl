@@ -417,8 +417,6 @@ const UserFunction * ufun = executable->get_ufun();
      if (print_error)   err.print_em(UERR, LOC);
    }
 
-   Workspace::update_EM_ET(err);   // update ⎕EM and ⎕ET
-
    error = err;
 }
 //-----------------------------------------------------------------------------
