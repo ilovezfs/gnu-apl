@@ -221,16 +221,28 @@ APL_Float val = cell.get_real_value();
 Value_P
 Quad_EM::get_apl_value() const
 {
-   if (error.error_code == E_NO_ERROR)
+const Error * err = 0;
+
+   for (StateIndicator * si = Workspace::SI_top(); si; si = si->get_parent())
+       {
+         if (si->get_error().error_code != E_NO_ERROR)
+            {
+              err = &si->get_error();
+              break;
+            }
+         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
+       }
+
+   if (err == 0)   // no SI entry with non-zero error code
       {
         // return 3 0⍴' '
         //
         return Value::Str3_0_P;
       }
 
-const UCS_string msg_1 = error.get_error_line_1();
-const UCS_string msg_2 = error.get_error_line_2();
-const UCS_string msg_3 = error.get_error_line_3();
+const UCS_string msg_1 = err->get_error_line_1();
+const UCS_string msg_2 = err->get_error_line_2();
+const UCS_string msg_3 = err->get_error_line_3();
 
    // compute max line length of the 3 error lines,
    //
@@ -267,10 +279,20 @@ Value_P Z(new Value(sh, LOC));
 Value_P
 Quad_ET::get_apl_value() const
 {
+StateIndicator * si = Workspace::SI_top();
+ErrorCode ec = E_NO_ERROR;
+
+   for (; si; si = si->get_parent())
+       {
+         ec = si->get_error().error_code;
+         if (ec != E_NO_ERROR)   break;
+         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
+       }
+
 Value_P Z(new Value(2, LOC));
 
-   new (&Z->get_ravel(0)) IntCell(Error::error_major(error.error_code));
-   new (&Z->get_ravel(1)) IntCell(Error::error_minor(error.error_code));
+   new (&Z->get_ravel(0)) IntCell(Error::error_major(ec));
+   new (&Z->get_ravel(1)) IntCell(Error::error_minor(ec));
 
    Z->check_value(LOC);
    return Z;

@@ -128,16 +128,6 @@ public:
    static Symbol * lookup_symbol(const UCS_string & symbol_name)
       { return the_workspace.symbol_table.lookup_symbol(symbol_name);}
 
-   /// clear ⎕EM and ⎕ET
-   static void clear_error(const char * loc)
-      { the_workspace.v_Quad_EM.clear(loc);
-        the_workspace.v_Quad_ET.clear(loc); }
-
-   /// update ⎕EM and ⎕ET according to \b error
-   static void update_EM_ET(const Error & error)
-      { the_workspace.v_Quad_EM.update(error);
-        the_workspace.v_Quad_ET.update(error); }
-
    /// increase the wait time for user input as reported in ⎕AI
    static void add_wait(APL_time_us diff)
       { the_workspace.v_Quad_AI.add_wait(diff); }
@@ -187,6 +177,10 @@ public:
 
    /// Remove the current SI-entry from the SI stack.
    static void pop_SI(const char * loc);
+
+   /// clear ⎕EM and ⎕ET related errors (error entries on SI up to (including)
+   /// the next user-defined function
+   static void clear_error(const char * loc);
 
    /// create and execute one immediate execution context
    // (leave with TOK_ESCAPE)

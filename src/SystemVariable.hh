@@ -198,22 +198,10 @@ class Quad_EM : public RO_SystemVariable
 public:
    /// Constructor.
    Quad_EM()
-   : RO_SystemVariable(ID_Quad_EM),
-     error(E_NO_ERROR, LOC)
+   : RO_SystemVariable(ID_Quad_EM)
    {}
 
-   /// update ⎕EM from err
-   void update(const Error & err)
-      { error = err; }
-
-   /// clear ⎕EM
-   void clear(const char * loc)
-      { error.init(E_NO_ERROR, loc); }
-
 protected:
-   /// the last error (as per update(err))
-   Error error;
-
    /// overloaded Symbol::get_apl_value()
    virtual Value_P get_apl_value() const;
 };
@@ -225,22 +213,10 @@ class Quad_ET : public RO_SystemVariable
 {
 public:
    /// Constructor.
-   Quad_ET() : RO_SystemVariable(ID_Quad_ET),
-   error(E_NO_ERROR, LOC) 
+   Quad_ET() : RO_SystemVariable(ID_Quad_ET)
    {}
 
-   /// update ⎕ET from err
-   void update(const Error & other)
-      { error = other; }
-
-   /// clear ⎕ET
-   void clear(const char * loc)
-      { error.init(E_NO_ERROR, loc); }
-
 protected:
-   /// the last error (as per update(err))
-   Error error;
-
    /// overloaded Symbol::get_apl_value().
    virtual Value_P get_apl_value() const;
 };

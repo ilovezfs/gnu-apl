@@ -1068,18 +1068,15 @@ StateIndicator * si = Workspace::SI_top();
 
    // in A ⎕EA B, ⍎B was executed and may or may not have failed.
    //
-   si->set_safe_execution(false);
-
    if (token.get_tag() != TOK_ERROR)   // ⍎B succeeded
       {
+        si->set_safe_execution(false);
         // do not clear ⎕EM and ⎕ET; they should remain visible.
         return false;   // ⍎B successful.
       }
 
-   // in A ⎕EA B, ⍎B has failed.
+   // in A ⎕EA B, ⍎B has failed...
    //
-   si->set_safe_execution(true);
-
 Value_P A = arg.A;
 Value_P B = arg.B;
 const UCS_string statement_A(*A.get());
@@ -1101,7 +1098,7 @@ ExecuteList * fun = 0;
    //
    if (fun == 0)   SYNTAX_ERROR;
 
-   // A could be fixed: execute it.
+   // A could be ⎕FXed: execute it.
    //
    Assert(fun);
 
@@ -1109,6 +1106,8 @@ ExecuteList * fun = 0;
 
    Workspace::pop_SI(LOC);
    Workspace::push_SI(fun, LOC);
+   Workspace::SI_top()->get_error().init((ErrorCode)(token.get_int_val()), LOC);
+
    Workspace::SI_top()->set_safe_execution(true);
 
    // install end of context handler for the result of ⍎A. 
@@ -1130,11 +1129,14 @@ Quad_EA::eoc_A_done(Token & token, EOC_arg & arg)
    // in A ⎕EA B, ⍎B has failed, and ⍎A was executed and may or
    // may not have failed.
    //
-   Workspace::SI_top()->set_safe_execution(false);
+StateIndicator * si = Workspace::SI_top();
+   si->set_safe_execution(false);
 
-   if (token.get_tag() != TOK_ERROR)   // ⍎B succeeded
+   if (token.get_tag() != TOK_ERROR)   // ⍎A succeeded
       {
-        return false;   // ⍎B successful.
+        StateIndicator * si1 = si->get_parent();
+        si1->get_error() = si->get_error();
+        return false;   // ⍎A successful.
       }
 
 Value_P A = arg.A;
@@ -1149,7 +1151,6 @@ const UCS_string statement_A(*A.get());
    // display of errors was disabled since ⎕EM was incorrect.
    // now we have fixed ⎕EM and can display it.
    //
-StateIndicator * si = Workspace::SI_top();
    COUT << si->get_error().get_error_line_1() << endl
         << si->get_error().get_error_line_2() << endl
         << si->get_error().get_error_line_3() << endl;
@@ -1195,8 +1196,6 @@ const UCS_string statement_B(*B.get());
 
 StateIndicator * si = Workspace::SI_top();
    si->get_error() .set_error_line_2(ucs_2, left_caret, right_caret);
-
-   Workspace::update_EM_ET(si->get_error());  // ⎕EM and ⎕ET
 }
 //=============================================================================
 Token
