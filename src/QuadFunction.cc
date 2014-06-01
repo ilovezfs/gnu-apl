@@ -1262,15 +1262,14 @@ Value_P Z(new Value(3, LOC));
 Value_P Z2;
 
 int result_type = 0;
-int et0 = 0;
-int et1 = 0;
+ErrorCode ec = E_NO_ERROR;
 
    switch(result_B.get_tag())
       {
        case TOK_ERROR:
             result_type = 0;
-             Z2 = Value_P(new Value(Error::error_name(
-                            ErrorCode(result_B.get_int_val())), LOC));
+            ec = ErrorCode(result_B.get_int_val());
+             Z2 = Value_P(new Value(Error::error_name(ec), LOC));
              break;
 
         case TOK_APL_VALUE1:
@@ -1307,8 +1306,8 @@ int et1 = 0;
       }
 
 Value_P Z1(new Value(2, LOC));
-   new (&Z1->get_ravel(0)) IntCell(et0);
-   new (&Z1->get_ravel(1)) IntCell(et1);
+   new (&Z1->get_ravel(0)) IntCell(Error::error_major(ec));
+   new (&Z1->get_ravel(1)) IntCell(Error::error_minor(ec));
 
    new (&Z->get_ravel(0)) IntCell(result_type);
    new (&Z->get_ravel(1)) PointerCell(Z1);

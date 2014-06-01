@@ -286,7 +286,11 @@ ErrorCode ec = E_NO_ERROR;
    for (; si; si = si->get_parent())
        {
          ec = si->get_error().error_code;
-         if (ec != E_NO_ERROR)   break;
+         if (ec != E_NO_ERROR)
+            {
+              break;
+            }
+
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
        }
 
@@ -429,7 +433,7 @@ StateIndicator * si = Workspace::SI_top_fun();
 Value_P
 Quad_L::get_apl_value() const
 {
-const StateIndicator * si = Workspace::SI_top_error();
+StateIndicator * si = Workspace::SI_top_error();
    if (si)
       {
         Value_P ret = si->get_L();
@@ -749,7 +753,7 @@ StateIndicator * si = Workspace::SI_top_fun();
 Value_P
 Quad_R::get_apl_value() const
 {
-const StateIndicator * si = Workspace::SI_top_error();
+StateIndicator * si = Workspace::SI_top_error();
    if (si)
       {
         Value_P ret = si->get_R();

@@ -102,6 +102,15 @@ public:
    /// return true on success
    bool replace_AB(Value_P old_value, Value_P new_value);
 
+   /// return the left argument of a failed primitive function (if any)
+   Token * locate_L();
+
+   /// return the axis argument of a failed primitive function (if any)
+   Token * locate_X();
+
+   /// return the right argument of a failed primitive function (if any)
+   Token * locate_R();
+
    /// execute one context (user defined function or operator, execute,
    /// or immediate execution)
    Token reduce_statements();

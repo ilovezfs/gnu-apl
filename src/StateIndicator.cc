@@ -542,10 +542,12 @@ StateIndicator::info(ostream & out, const char * loc) const
 }
 //-----------------------------------------------------------------------------
 Value_P
-StateIndicator::get_L() const
+StateIndicator::get_L()
 {
    if (eval_arg_F == 0)                 return Value_P();   // no function
    if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
+
+Token * tok_L = current_stack.locate_L();
    return eval_arg_A;
 }
 //-----------------------------------------------------------------------------
@@ -558,7 +560,7 @@ Value_P old_value = eval_arg_A;
 }
 //-----------------------------------------------------------------------------
 Value_P
-StateIndicator::get_X() const
+StateIndicator::get_X()
 {
    if (eval_arg_F == 0)                 return Value_P();   // no function
    if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
@@ -574,7 +576,7 @@ Value_P old_value = eval_arg_X;
 }
 //-----------------------------------------------------------------------------
 Value_P
-StateIndicator::get_R() const
+StateIndicator::get_R()
 {
    if (eval_arg_F == 0)                 return Value_P();   // no function
    if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
