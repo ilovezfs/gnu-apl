@@ -596,6 +596,21 @@ Prefix::replace_AB(Value_P old_value, Value_P new_value)
    return false;
 }
 //-----------------------------------------------------------------------------
+Token * Prefix::locate_L()
+{
+   print_stack(CERR, LOC);
+}
+//-----------------------------------------------------------------------------
+Token * Prefix::locate_X()
+{
+   print_stack(CERR, LOC);
+}
+//-----------------------------------------------------------------------------
+Token * Prefix::locate_R()
+{
+   print_stack(CERR, LOC);
+}
+//-----------------------------------------------------------------------------
 void
 Prefix::print(ostream & out, int indent) const
 {

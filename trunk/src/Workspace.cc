@@ -119,10 +119,10 @@ Workspace::SI_top_fun()
    return 0;   // no context wirh parse mode PM_FUNCTION
 }
 //-----------------------------------------------------------------------------
-const StateIndicator *
+StateIndicator *
 Workspace::SI_top_error()
 {
-   for (const StateIndicator * si = SI_top(); si; si = si->get_parent())
+   for (StateIndicator * si = SI_top(); si; si = si->get_parent())
        {
          if (si->get_error().error_code != E_NO_ERROR)   return si;
        }

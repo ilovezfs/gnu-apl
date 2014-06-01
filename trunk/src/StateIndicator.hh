@@ -130,19 +130,19 @@ public:
    const Error & get_error() const { return error; }
 
    /// return eval_arg_L if eval_arg_F is a primitive function
-   Value_P get_L() const;
+   Value_P get_L();
 
    /// change eval_arg_L
    void set_L(Value_P value);
 
    /// return eval_arg_X if eval_arg_F is a primitive function
-   Value_P get_X() const;
+   Value_P get_X();
 
    /// change eval_arg_X
    void set_X(Value_P value);
 
    /// return eval_arg_R if eval_arg_F is a primitive function
-   Value_P get_R() const;
+   Value_P get_R();
 
    /// change eval_arg_R
    void set_R(Value_P value);

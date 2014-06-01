@@ -199,7 +199,7 @@ public:
    static StateIndicator * SI_top_fun();
 
    /// the topmost SI with an error
-   static const StateIndicator * SI_top_error();
+   static StateIndicator * SI_top_error();
 
    /// lookup an existing name (user defined or ⎕xx, var or function).
    /// return 0 if not found.
