@@ -13,6 +13,9 @@
 /* define to enable gprof profiling */
 #define GPROF_WANTED -pg
 
+/* Define if compiling for Android */
+/* #undef HAVE_ANDROID */
+
 /* Define to 1 if you have the <curses.h> header file. */
 #define HAVE_CURSES_H 1
 
@@ -75,10 +78,6 @@
 
 /* Define to 1 if you have the `socket' library (-lsocket). */
 /* #undef HAVE_LIBSOCKET */
-
-/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
-   to 0 otherwise. */
-#define HAVE_MALLOC 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -258,9 +257,6 @@
 /* Define to the type of a signed integer type of width exactly 64 bits if
    such a type exists and the standard includes do not define it. */
 /* #undef int64_t */
-
-/* Define to rpl_malloc if the replacement function should be used. */
-/* #undef malloc */
 
 /* Define to `long int' if <sys/types.h> does not define. */
 /* #undef off_t */

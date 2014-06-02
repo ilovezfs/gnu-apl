@@ -67,7 +67,6 @@ AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
-AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([floor memset munmap pow sqrt strchr strerror])
 
@@ -129,6 +128,19 @@ if test "x$DynArrays" = "xyes"; then
    AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS], [1],
                       [Define to 1 if the compiler supports dynamic arrays])
 fi
+
+AC_ARG_WITH( [android],
+             [AS_HELP_STRING([--with-android],
+             [Enable when cross-compiling for Android])]
+             [],
+             [with_android=yes])
+
+echo "with_android = ,$with_android,"
+if test "x$with_android" = xyes ; then
+   AC_DEFINE([HAVE_ANDROID], [1], [Define if compiling for Android])
+fi
+
+AM_CONDITIONAL(HAVE_ANDROID, test "x$with_android" = xyes)
 
 # see if the compiler knoes -rdynamic
 #
