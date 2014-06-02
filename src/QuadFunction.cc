@@ -1256,7 +1256,8 @@ ExecuteList * fun = 0;
 bool
 Quad_EC::eoc(Token & result_B, EOC_arg & arg)
 {
-   Workspace::SI_top()->set_safe_execution(false);
+StateIndicator * si = Workspace::SI_top();
+   si->set_safe_execution(false);
 
 Value_P Z(new Value(3, LOC));
 Value_P Z2;
@@ -1267,10 +1268,26 @@ ErrorCode ec = E_NO_ERROR;
    switch(result_B.get_tag())
       {
        case TOK_ERROR:
-            result_type = 0;
-            ec = ErrorCode(result_B.get_int_val());
-             Z2 = Value_P(new Value(Error::error_name(ec), LOC));
-             break;
+            {
+              result_type = 0;
+              const Error & err = si->get_error();
+
+              ec = ErrorCode(result_B.get_int_val());
+
+              Z2 = Value_P(new Value(3, LOC));   // 3 line message like ⎕EM
+              UCS_string Z21_ucs = Error::error_name(ec);
+              UCS_string Z22_ucs = err.get_error_line_2();
+              UCS_string Z23_ucs = err.get_error_line_3();
+
+              Value_P Z21_val(new Value(Z21_ucs, LOC));
+              Value_P Z22_val(new Value(Z22_ucs, LOC));
+              Value_P Z23_val(new Value(Z23_ucs, LOC));
+
+              new (Z2->next_ravel())   PointerCell(Z21_val);
+              new (Z2->next_ravel())   PointerCell(Z22_val);
+              new (Z2->next_ravel())   PointerCell(Z23_val);
+            }
+            break;
 
         case TOK_APL_VALUE1:
         case TOK_APL_VALUE3:
