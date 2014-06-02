@@ -1,4 +1,9 @@
-SUBDIRS = APs native emacs_mode workspaces
+if ! HAVE_ANDROID
+EXTRA_DIRS = APs emacs_mode workspaces
+else
+EXTRA_DIRS =
+endif
+SUBDIRS = native $(EXTRA_DIRS)
 DIST_SUBDIRS = $(SUBDIRS) testcases
 
 bin_PROGRAMS = apl
