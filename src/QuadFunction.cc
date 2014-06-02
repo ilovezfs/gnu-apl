@@ -1274,18 +1274,25 @@ ErrorCode ec = E_NO_ERROR;
 
               ec = ErrorCode(result_B.get_int_val());
 
-              Z2 = Value_P(new Value(3, LOC));   // 3 line message like ⎕EM
-              UCS_string Z21_ucs = Error::error_name(ec);
-              UCS_string Z22_ucs = err.get_error_line_2();
-              UCS_string Z23_ucs = err.get_error_line_3();
+              UCS_string row_1 = Error::error_name(ec);
+              UCS_string row_2 = err.get_error_line_2();
+              UCS_string row_3 = err.get_error_line_3();
+              int cols = row_1.size();
+              if (cols < row_2.size())   cols = row_2.size();
+              if (cols < row_3.size())   cols = row_3.size();
 
-              Value_P Z21_val(new Value(Z21_ucs, LOC));
-              Value_P Z22_val(new Value(Z22_ucs, LOC));
-              Value_P Z23_val(new Value(Z23_ucs, LOC));
-
-              new (Z2->next_ravel())   PointerCell(Z21_val);
-              new (Z2->next_ravel())   PointerCell(Z22_val);
-              new (Z2->next_ravel())   PointerCell(Z23_val);
+              const Shape sh_Z2(3, cols);
+              Z2 = Value_P(new Value(sh_Z2, LOC));   // 3 line message like ⎕EM
+              Cell * C2 = &Z2->get_ravel(0);
+              loop(c, cols)
+                 if (c < row_1.size())   new (C2++) CharCell(row_1[c]);
+                 else                    new (C2++) CharCell(UNI_ASCII_SPACE);
+              loop(c, cols)
+                 if (c < row_2.size())   new (C2++) CharCell(row_2[c]);
+                 else                    new (C2++) CharCell(UNI_ASCII_SPACE);
+              loop(c, cols)
+                 if (c < row_3.size())   new (C2++) CharCell(row_3[c]);
+                 else                    new (C2++) CharCell(UNI_ASCII_SPACE);
             }
             break;
 
