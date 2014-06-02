@@ -198,33 +198,6 @@ public:
    /// call axis fun with arguments A and B, axix X, remembering args on error.
    Token eval_AXB(Token & A, Token & fun, Token & X, Token & B);
 
-   /// call monadic operator with function L and argument B, remembering args
-   Token eval_LB(Token & LO, Token & oper, Token & B);
-
-   /// call monadic operator with function L and arguments A and B
-   Token eval_ALB(Token & A, Token & LO, Token & oper, Token & B);
-
-   /// call monadic axis operator with function L and argument B
-   Token eval_LXB(Token & LO, Token & oper, Token & X, Token & B);
-
-   /// call monadic axis operator with function L and arguments A and B
-   Token eval_ALXB(Token & A, Token & LO, Token & oper, Token & X, Token & B);
-
-   /// call dyadic operator with functions L and R, and argument B
-   Token eval_LRB(Token & LO, Token & oper, Token & RO, Token & B);
-
-   /// call dyadic operator with functions L and R, and arguments A and B
-   Token eval_ALRB(Token & A, Token & LO, Token & oper,
-                   Token & RO, Token & B);
-
-   /// call dyadic axis operator with functions L and R, and argument B
-   Token eval_LRXB(Token & LO, Token & oper,
-                   Token & RO, Token & X, Token & B);
-
-   /// call dyadic axis operator with functions L and R, and arguments A and B
-   Token eval_ALRXB(Token & A, Token & LO, Token & oper,
-                    Token & RO, Token & X, Token & B);
-
    /// get the current prefix parser
    Prefix & get_prefix()
       { return current_stack; }

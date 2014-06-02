@@ -656,9 +656,9 @@ Prefix::reduce_N___()
    Assert1(prefix_len == 1);
 
 Token result = si.eval_(at0());
-   move_1(at0(), result, LOC);
-   at0().SET_temp();
-   set_action(at0());
+   pop_args_push_result(result);
+   result.SET_temp();
+   set_action(result);
 }
 //-----------------------------------------------------------------------------
 void
@@ -679,9 +679,10 @@ Prefix::reduce_MISC_F_B_()
            }
       }
 
-   pop_args_push_result(si.eval_B(at0(), at1()));
-   at0().SET_temp();
-   set_action(at0());
+Token result = si.eval_B(at0(), at1());
+   pop_args_push_result(result);
+   result.SET_temp();
+   set_action(result);
 }
 //-----------------------------------------------------------------------------
 void
@@ -705,9 +706,10 @@ Prefix::reduce_MISC_F_C_B()
    if (at1().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
    if (!at1().get_apl_val())              SYNTAX_ERROR;
 
-   pop_args_push_result(si.eval_XB(at0(), at1(), at2()));
-   at0().SET_temp();
-   set_action(at0());
+Token result = si.eval_XB(at0(), at1(), at2());
+   pop_args_push_result(result);
+   result.SET_temp();
+   set_action(result);
 }
 //-----------------------------------------------------------------------------
 void
@@ -715,9 +717,10 @@ Prefix::reduce_A_F_B_()
 {
    Assert1(prefix_len == 3);
 
-   pop_args_push_result(si.eval_AB(at0(), at1(), at2()));
-   at0().SET_temp();
-   set_action(at0());
+Token result = si.eval_AB(at0(), at1(), at2());
+   pop_args_push_result(result);
+   result.SET_temp();
+   set_action(result);
 }
 //-----------------------------------------------------------------------------
 void
@@ -736,9 +739,10 @@ Prefix::reduce_A_F_C_B()
    if (at2().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
    if (!at2().get_apl_val())              SYNTAX_ERROR;
 
-   pop_args_push_result(si.eval_AXB(at0(), at1(), at2(), at3()));
-   at0().SET_temp();
-   set_action(at0());
+Token result = si.eval_AXB(at0(), at1(), at2(), at3());
+   pop_args_push_result(result);
+   result.SET_temp();
+   set_action(result);
 }
 //-----------------------------------------------------------------------------
 void
