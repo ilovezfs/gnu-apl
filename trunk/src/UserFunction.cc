@@ -551,7 +551,6 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
     header(sig, fname),
     creator(UNI_LAMBDA)
 {
-Q(text)
    exec_properties[0] = 0;
    exec_properties[1] = 0;
    exec_properties[2] = 0;

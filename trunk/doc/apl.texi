@@ -1084,6 +1084,24 @@ There are a number of features related to lambdas that are present in other
 APL interpreter but that are NOT implemented in GNU APL. This includes
 multiple statements, guards, lexical scoping, and probably more.
 
+@section Axis argument in user-defined functions
+
+User-defined functions and operators accept an axis argument. For example:
+
+@verbatim
+∇Z←Average[X] B
+ Z←(+/[X]B) ÷ (⍴B)[X]
+∇
+
+      Average[1] 5 5⍴⍳25
+11 12 13 14 15
+
+      Average[2] 5 5⍴⍳25
+3 8 13 18 23
+@end verbatim
+
+The axis is used in the same way as for primitive functions and operators.
+
 @c ----------------------------------------------------------------------------
 @node Chapter 3
 @chapter Limitations and Missing Features

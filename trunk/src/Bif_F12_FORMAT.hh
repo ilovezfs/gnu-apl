@@ -124,7 +124,8 @@ public:
 
         /// Print \b value into int, fract, and expo fields
         void fill_data_fields(double value, UCS_string & data_int,
-                              UCS_string & data_fract, UCS_string & data_expo);
+                              UCS_string & data_fract, UCS_string & data_expo,
+                              bool & overflow);
 
         Format_sub left_deco;    ///< the left decorator
         Format_sub int_part;     ///< the integer part

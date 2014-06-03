@@ -66,6 +66,7 @@ Copyright (C) 2013 Free Software Foundation, Inc.-->
 <li><a href="#Chapter-2">2.11.2 Unnamed Lambdas</a>
 <li><a href="#Chapter-2">2.11.3 Limitations</a>
 </li></ul>
+<li><a href="#Chapter-2">2.12 Axis argument in user-defined functions</a>
 </li></ul>
 <li><a name="toc_Chapter-3" href="#Chapter-3">3 Limitations and Missing Features</a>
 <ul>
@@ -1094,6 +1095,23 @@ be passed as function arguments to operators.
 <p>There are a number of features related to lambdas that are present in other
 APL interpreter but that are NOT implemented in GNU APL. This includes
 multiple statements, guards, lexical scoping, and probably more.
+
+<h3 class="section">2.12 Axis argument in user-defined functions</h3>
+
+<p>User-defined functions and operators accept an axis argument. For example:
+
+<pre class="verbatim">∇Z←Average[X] B
+ Z←(+/[X]B) ÷ (⍴B)[X]
+∇
+
+      Average[1] 5 5⍴⍳25
+11 12 13 14 15
+
+      Average[2] 5 5⍴⍳25
+3 8 13 18 23
+</pre>
+
+   <p>The axis is used in the same way as for primitive functions and operators.
 
 <!--  -->
 <div class="node">
