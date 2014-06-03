@@ -1017,6 +1017,25 @@ other APL interpreter but that are NOT implemented in GNU APL. This
 includes multiple statements, guards, lexical scoping, and probably
 more.
 
+2.12 Axis argument in user-defined functions
+============================================
+
+User-defined functions and operators accept an axis argument. For
+example:
+
+∇Z←Average[X] B
+ Z←(+/[X]B) ÷ (⍴B)[X]
+∇
+
+      Average[1] 5 5⍴⍳25
+11 12 13 14 15
+
+      Average[2] 5 5⍴⍳25
+3 8 13 18 23
+
+   The axis is used in the same way as for primitive functions and
+operators.
+
 
 File: apl.info,  Node: Chapter 3,  Next: Chapter 4,  Prev: Chapter 2,  Up: Top
 
@@ -2286,11 +2305,11 @@ Tag Table:
 Node: Top418
 Node: Chapter 11348
 Node: Chapter 214137
-Node: Chapter 334639
-Node: Chapter 436240
-Node: Chapter 537361
-Node: Section 5.137864
-Node: Section 5.262993
+Node: Chapter 335025
+Node: Chapter 436626
+Node: Chapter 537747
+Node: Section 5.138250
+Node: Section 5.263379
 
 End Tag Table
 

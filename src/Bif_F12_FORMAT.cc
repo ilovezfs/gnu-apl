@@ -324,15 +324,17 @@ UCS_string data_fract;
 UCS_string data_expo;
 const double val_1 = (value < 0) ? -value : value;
 
-   fill_data_fields(val_1, data_int, data_fract, data_expo);
+bool overflow = false;
+   fill_data_fields(val_1, data_int, data_fract, data_expo, overflow);
    Log(LOG_Bif_F12_FORMAT)
       {
+        Q1(overflow)
         Q1(data_int)
         Q1(data_fract)
         Q1(data_expo)
       }
+   if (overflow)   return UCS_string(out_size(), Workspace::get_FC(3));
 
-bool overflow = false;
 const UCS_string left = format_left_side(data_int, value < 0, overflow);
    if (overflow)   return UCS_string(out_size(), Workspace::get_FC(3));
    Assert(left.size() == (left_deco.out_len + int_part.out_len));
@@ -628,7 +630,7 @@ Format_sub::print(ostream & out) const
 void
 Bif_F12_FORMAT::Format_LIFER::fill_data_fields(double value,
                 UCS_string & data_int, UCS_string & data_fract,
-                UCS_string & data_expo)
+                UCS_string & data_expo, bool & overflow)
 {
 char format[40];
 const int data_buf_len = int_part.out_len + 1        // 123.
@@ -675,7 +677,12 @@ char * fract_end = 0;
         //
         const char * dot = strchr(data_buf, '.');
         const int ilen = dot ? (dot - data_buf) : strlen(data_buf);
-        if (ilen > int_part.out_len)   DOMAIN_ERROR;
+        if (ilen > int_part.out_len)
+           {
+             if (Workspace::get_FC(3) == UNI_ASCII_0)   DOMAIN_ERROR;
+             overflow = true;
+             return ;
+           }
 
         Assert(dlen < data_buf_len);
         fract_end = &data_buf[dlen];
