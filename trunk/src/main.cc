@@ -55,7 +55,7 @@ static const char * build_tag[] = { BUILDTAG, 0 };
 
 //-----------------------------------------------------------------------------
 /// initialize subsystems that are independent of argv[]
-void
+static void
 init_1(const char * argv0, bool log_startup)
 {
 rlimit rl;
@@ -70,7 +70,7 @@ rlimit rl;
 }
 //-----------------------------------------------------------------------------
 /// initialize subsystems that  depend on argv[]
-void
+static void
 init_2(const char * argv0, bool log_startup)
 {
    Svar_DB::init(argv0, log_startup, uprefs.do_svars);
@@ -108,7 +108,6 @@ APL_time_us when = now();
 
    interrupt_when = when;
 }
-
 //-----------------------------------------------------------------------------
 static struct sigaction old_SEGV_action;
 static struct sigaction new_SEGV_action;
@@ -162,7 +161,7 @@ signal_HUP_handler(int)
    raise(SIGHUP);
 }
 //-----------------------------------------------------------------------------
-void
+static void
 show_argv(int argc, const char ** argv)
 {
    CERR << "argc: " << argc << endl;
@@ -263,7 +262,7 @@ const CoreCount cores_available = setup_cores(core_count_wanted);
 }
 //-----------------------------------------------------------------------------
 int
-main(int argc, const char * _argv[])
+init_apl(int argc, const char * _argv[])
 {
    {
      // make curses happy
@@ -412,6 +411,15 @@ const char * argv0 = argv[0];
             }
       }
 
+   return 0;
+}
+//-----------------------------------------------------------------------------
+int
+main(int argc, const char *argv[])
+{
+const int ret = init_apl(argc, argv);
+   if (ret)   return ret;
+
    for (;;)
        {
          Token t = Workspace::immediate_execution(
@@ -419,6 +427,6 @@ const char * argv0 = argv[0];
          if (t.get_tag() == TOK_OFF)   Command::cmd_OFF(0);
        }
 
-   /* not reached */
+   return 0;
 }
 //-----------------------------------------------------------------------------
