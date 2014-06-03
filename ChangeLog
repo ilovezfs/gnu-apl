@@ -81,3 +81,4 @@
  6403 more ⎕CR conversions
  6421 new check for -rdynamic
  6431 base64 encoding and decoding of byte vectors
+ 6858 several bugs fixed

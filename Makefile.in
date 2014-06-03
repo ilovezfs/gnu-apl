@@ -944,7 +944,7 @@ SYNC:	dist
 
 # build all packages and SYNC
 #
-.PHONY:	EXPfrom/to SVNO
+.PHONY:	EXPO
 EXPO:
 	tools/check_src
 	svn -m "auto-commit by make EXPO" commit
