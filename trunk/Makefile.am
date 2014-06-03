@@ -90,7 +90,7 @@ SYNC:	dist
 
 # build all packages and SYNC
 #
-.PHONY:	EXPfrom/to SVNO
+.PHONY:	EXPO
 EXPO:
 	tools/check_src
 	svn -m "auto-commit by make EXPO" commit
@@ -117,7 +117,6 @@ EXPO1:
 
 am--refresh:
 	echo "making am--refresh"
-
 
 ACLOCAL_AMFLAGS = -I m4
 

@@ -669,6 +669,14 @@ char * fract_end = 0;
         Assert(flen < sizeof(format));   // assume no snprintf() overflow
 
         const int dlen = snprintf(&data_buf[0], data_buf_len, format, value);
+        data_buf[data_buf_len - 1] = 0;
+
+        // the int part could be longer than allowed by the exaple string.
+        //
+        const char * dot = strchr(data_buf, '.');
+        const int ilen = dot ? (dot - data_buf) : strlen(data_buf);
+        if (ilen > int_part.out_len)   DOMAIN_ERROR;
+
         Assert(dlen < data_buf_len);
         fract_end = &data_buf[dlen];
       }
