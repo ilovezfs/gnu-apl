@@ -25,10 +25,11 @@ help:
 	@echo "in addition to standard targets (all, install, clean, ...) "
 	@echo "the following make targets may be supported (at this level):"
 	@echo ""
-	@echo "    make help               - print this text"
-	@echo "    make DOXY               - create Dougen documentation"
-	@echo "    make RPM                - create (source and binary) RPMs"
-	@echo "    make DEB                - create debian packages"
+	@echo "    make help    - print this text"
+	@echo "    make DIST    - dist + a Makefile that calls ./configure"
+	@echo "    make DOXY    - create Dougen documentation"
+	@echo "    make RPM     - create (source and binary) RPMs"
+	@echo "    make DEB     - create debian packages"
 	@echo ""
 	@echo "NOTE: The RPM and DEB targets may fail because they require" 
 	@echo "additional tools that may not be present on your machine."
@@ -43,7 +44,7 @@ DOXY:
 # source and binary RPMs
 #
 .PHONY:	RPM
-RPM:	dist
+RPM:	DIST
 	rm -f rpm/rpm-tmp.*
 	make -C rpm $@
 	mkdir -p ftp-upload
@@ -53,7 +54,7 @@ RPM:	dist
 # source and binary Debian packages
 #
 .PHONY:	DEB
-DEB:	dist
+DEB:	DIST
 	rm -Rf debian_tmp
 	mkdir debian_tmp
 	cp $(distdir).tar.gz \
@@ -82,7 +83,7 @@ develop:
 # a checkout of the GNU APL repository ar Savannah
 #
 .PHONY:	SYNC
-SYNC:	dist
+SYNC:	DIST
 	tar xvzf apl-$(VERSION).tar.gz
 	cp -a apl-$(VERSION)/* ../savannah-repo-apl/trunk/
 	rm -Rf apl-$(VERSION)
@@ -114,6 +115,15 @@ EXPO1:
 	make dist
 	make DEB
 	make RPM
+
+# dist and then adding Makefile,dist as Makefile to the tar file
+DIST:	dist Makefile.dist
+	pwd
+	mkdir -p tmp
+	cd tmp; tar xzf ../apl-$(VERSION).tar.gz;		\
+	cp -f ../Makefile.dist apl-$(VERSION)/Makefile;		\
+	tar czf ../apl-$(VERSION).tar.gz apl-$(VERSION)
+	rm -Rf tmp
 
 am--refresh:
 	echo "making am--refresh"

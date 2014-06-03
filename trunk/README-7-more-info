@@ -15,6 +15,14 @@ The ISO standard implemented by GNU APL can be found here:
 
     www.math.uwaterloo.ca/~ljdickey/apl-rep/docs/is13751.pdf
 
+Note that this file is, despite of its .pdf extension, a gzip compressed
+PDF file. You have to fetch it, rename it, and then gunzip it:
+
+    wget www.math.uwaterloo.ca/~ljdickey/apl-rep/docs/is13751.pdf
+    mv is13751.pdf is13751.pdf.gz
+    gunzip is13751.pdf.gz
+
+
 IBM Documentation
 -----------------
 
