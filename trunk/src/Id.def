@@ -211,6 +211,8 @@ id_def( VOID          , ---               ,          , pp )
 id_def( WA            , ---               , = 0x5701 , qv )
 id_def( F12_WITHOUT   , TILDE_OPERATOR    ,          , av )
 
+id_def( X             , ---               , = 0x5801 , qv )
+
 id_def( F0_ZILDE      , ZILDE             , = 0x5A01 , av )
 
 //-----------------------------------------------------------------------------

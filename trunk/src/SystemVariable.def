@@ -47,6 +47,7 @@ rw_sv_def(Quad_R  )
 rw_sv_def(Quad_RL )
 rw_sv_def(Quad_SYL)
 rw_sv_def(Quad_TZ )
+rw_sv_def(Quad_X  )
 
 rw_sv_def(ALPHA   )
 rw_sv_def(ALPHA_U )

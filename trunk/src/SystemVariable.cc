@@ -418,6 +418,7 @@ Quad_L::Quad_L()
 void
 Quad_L::assign(Value_P value, const char * loc)
 {
+Q(LOC)
 StateIndicator * si = Workspace::SI_top_fun();
    if (si == 0)   return;
 
@@ -1083,5 +1084,37 @@ uint64_t proc_mem = 0;            // memory as reported proc/mem_info
 
    Z->check_value(LOC);
    return Z;
+}
+//=============================================================================
+Quad_X::Quad_X()
+ : NL_SystemVariable(ID_Quad_X)
+{
+   Symbol::assign(Value::Zero_P, LOC);
+}
+//-----------------------------------------------------------------------------
+void
+Quad_X::assign(Value_P value, const char * loc)
+{
+StateIndicator * si = Workspace::SI_top_fun();
+   if (si == 0)   return;
+
+   // ignore assignments if error was SYNTAX ERROR or VALUE ERROR
+   //
+   if (si->get_error().is_syntax_or_value_error())   return;
+
+   si->set_X(value);
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_X::get_apl_value() const
+{
+StateIndicator * si = Workspace::SI_top_error();
+   if (si)
+      {
+        Value_P ret = si->get_X();
+        if (!!ret)   return ret;
+      }
+
+   VALUE_ERROR;
 }
 //=============================================================================

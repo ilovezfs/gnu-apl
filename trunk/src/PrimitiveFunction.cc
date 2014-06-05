@@ -2007,10 +2007,21 @@ IndexExpr * index_expr = new IndexExpr(ASS_none, LOC);
         index_expr->set_value(axis, val);
       }
 
-Value_P Z = B->index(*index_expr);
+   if (index_expr->value_count() == 1)
+      {
+        Value_P idx = index_expr->extract_value(0);
+        Value_P Z = B->index(idx);
 
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
+   else
+      {
+        Value_P Z = B->index(*index_expr);
+
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
 }
 //-----------------------------------------------------------------------------
 Value_P
