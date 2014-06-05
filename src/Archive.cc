@@ -360,30 +360,8 @@ const Executable & exec = *si.get_executable();
    do_indent();
    out << "<SI-entry level=\"" << si.get_level()
        << "\" pc=\"" << si.get_PC()
-       << "\" line=\"" << exec.get_line(si.get_PC()) << "\"" << flush;
-
-   if (si.eval_arg_F)   // function pending
-      {
-        if (!!si.eval_arg_A)   // function has a left arg
-           {
-             const unsigned int vid_A = find_vid(*si.eval_arg_A.get());
-             out << " vid_arg_A=\"" << vid_A << "\"";
-           }
-
-        {
-          char cc[80];
-          snprintf(cc, sizeof(cc), " Id_arg_F=\"%X\"", si.eval_arg_F->get_Id());
-          out << cc;
-        }
-
-        if (!!si.eval_arg_B)   // function has a right arg
-           {
-             const int vid_B = find_vid(*si.eval_arg_B.get());
-             out << " vid_arg_B=\"" << vid_B << "\"";
-           }
-      }
-
-   out <<">" << endl << flush;
+       << "\" line=\"" << exec.get_line(si.get_PC()) << "\""
+       <<">" << endl << flush;
 
    ++indent;
    do_indent();
@@ -652,9 +630,6 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "            <!ATTLIST SI-entry level     CDATA #REQUIRED>\n"
 "            <!ATTLIST SI-entry pc        CDATA #REQUIRED>\n"
 "            <!ATTLIST SI-entry line      CDATA #REQUIRED>\n"
-"            <!ATTLIST SI-entry vid_arg_A CDATA #IMPLIED>\n"
-"            <!ATTLIST SI-entry Id_arg_F  CDATA #IMPLIED>\n"
-"            <!ATTLIST SI-entry vid_arg_B CDATA #IMPLIED>\n"
 "\n"
 "                <!ELEMENT Statements (UCS)>\n"
 "\n"
@@ -1687,9 +1662,6 @@ void
 XML_Loading_Archive::read_SI_entry(int lev)
 {
 const int level     = find_int_attr("level",     false, 10);
-const int vid_arg_A = find_int_attr("vid_arg_A", true, 10);
-const int Id_arg_F  = find_int_attr("Id_arg_F",  true, 16);
-const int vid_arg_B = find_int_attr("vid_arg_B", true, 10);
 
    Log(LOG_archive)   CERR << "read_SI_entry() level=" << level << endl;
 
@@ -1706,13 +1678,6 @@ Executable * exec = 0;
    Workspace::push_SI(exec, LOC);
 StateIndicator * si = Workspace::SI_top();
    Assert(si);
-   if (Id_arg_F != -1)
-      {
-        si->eval_arg_F = get_system_function(Id(Id_arg_F));
-        if (vid_arg_A != -1)  si->eval_arg_A = values[vid_arg_A];
-        if (vid_arg_B != -1)  si->eval_arg_B = values[vid_arg_B];
-      }
-
    read_Parsers(*si);
 }
 //-----------------------------------------------------------------------------

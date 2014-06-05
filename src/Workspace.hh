@@ -250,10 +250,6 @@ public:
    /// maybe remove functions for which ⎕EX has failed
    static int cleanup_expunged(ostream & out, bool & erased);
 
-   /// replace old_value by new_value in the next higher SI context. Called
-   /// when a variable is assigned and the old value has arg flag set.
-   static void replace_arg(Value_P old_value, Value_P new_value);
-
    // access to system variables.
    //
 #define ro_sv_def(x) static x & get_v_ ## x() \

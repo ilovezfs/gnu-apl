@@ -348,6 +348,10 @@ Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
              if (av_1 == UNI_ASCII_A)        var(WA, 2)
              break;
 
+        case UNI_ASCII_X:
+                                             var(X, 1)
+             break;
+
         default: break;
       }
 
@@ -534,15 +538,6 @@ const int ret = the_workspace.expunged_functions.size();
 
    erased = true;
    return ret;
-}
-//-----------------------------------------------------------------------------
-void
-Workspace::replace_arg(Value_P old_value, Value_P new_value)
-{
-   for (StateIndicator * si = SI_top(); si; si = si->get_parent())
-       {
-        if (si->replace_arg(old_value, new_value))   break;
-       }
 }
 //-----------------------------------------------------------------------------
 void

@@ -598,17 +598,58 @@ Prefix::replace_AB(Value_P old_value, Value_P new_value)
 //-----------------------------------------------------------------------------
 Token * Prefix::locate_L()
 {
-   print_stack(CERR, LOC);
+   // expect at least A f B (so we have at0(), at1() and at2()
+
+   if (prefix_len < 3)   return 0;
+
+   if (at1().get_Class() != TC_FUN12 &&
+       at1().get_Class() != TC_OPER1 &&
+       at1().get_Class() != TC_OPER2)   return 0;
+
+   if (at0().get_Class() == TC_VALUE)   return &at0();
+   return 0;
 }
 //-----------------------------------------------------------------------------
-Token * Prefix::locate_X()
+Token *
+Prefix::locate_X()
 {
-   print_stack(CERR, LOC);
+   // expect at least B X (so we have at0() and at1() and at2()
+
+   if (prefix_len < 2)   return 0;
+
+   // either at0() (for monadic f X B) or at1() (for dyadic A f X B) must
+   // be a function or operator
+   //
+   for (int x = put - 2; x >= put - prefix_len; --x)
+       {
+         if (content[x].tok.get_Class() == TC_INDEX)   // found X
+            {
+              return &content[x].tok;
+            }
+       }
+
+   return 0;
 }
 //-----------------------------------------------------------------------------
 Token * Prefix::locate_R()
 {
-   print_stack(CERR, LOC);
+   // expect at least f B (so we have at0(), at1() and at2()
+
+   if (prefix_len < 2)   return 0;
+
+   // either at0() (for monadic f B) or at1() (for dyadic A f B) must
+   // be a function or operator
+   //
+   if (at0().get_Class() != TC_FUN12 &&
+       at0().get_Class() != TC_OPER1 &&
+       at0().get_Class() != TC_OPER2 &&
+       at1().get_Class() != TC_FUN12 &&
+       at1().get_Class() != TC_OPER1 &&
+       at1().get_Class() != TC_OPER2)   return 0;
+
+Token * ret = &content[put - prefix_len].tok;
+   if (ret->get_Class() == TC_VALUE)   return ret;
+   return 0;
 }
 //-----------------------------------------------------------------------------
 void
@@ -655,7 +696,15 @@ Prefix::reduce_N___()
 {
    Assert1(prefix_len == 1);
 
-Token result = si.eval_(at0());
+Token result = at0().get_function()->eval_();
+   if (result.get_tag() == TOK_ERROR)
+      {
+        Token_loc tl(result, get_range_low());
+        push(tl);
+        action = RA_RETURN;
+        return;
+      }
+
    pop_args_push_result(result);
    result.SET_temp();
    set_action(result);
@@ -679,7 +728,15 @@ Prefix::reduce_MISC_F_B_()
            }
       }
 
-Token result = si.eval_B(at0(), at1());
+Token result = at0().get_function()->eval_B(at1().get_apl_val());
+   if (result.get_tag() == TOK_ERROR)
+      {
+        Token_loc tl(result, get_range_low());
+        push(tl);
+        action = RA_RETURN;
+        return;
+      }
+
    pop_args_push_result(result);
    result.SET_temp();
    set_action(result);
@@ -706,7 +763,16 @@ Prefix::reduce_MISC_F_C_B()
    if (at1().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
    if (!at1().get_apl_val())              SYNTAX_ERROR;
 
-Token result = si.eval_XB(at0(), at1(), at2());
+Token result = at0().get_function()->eval_XB(at1().get_apl_val(),
+                                             at2().get_apl_val());
+   if (result.get_tag() == TOK_ERROR)
+      {
+        Token_loc tl(result, get_range_low());
+        push(tl);
+        action = RA_RETURN;
+        return;
+      }
+
    pop_args_push_result(result);
    result.SET_temp();
    set_action(result);
@@ -717,7 +783,16 @@ Prefix::reduce_A_F_B_()
 {
    Assert1(prefix_len == 3);
 
-Token result = si.eval_AB(at0(), at1(), at2());
+Token result = at1().get_function()->eval_AB(at0().get_apl_val(),
+                                             at2().get_apl_val());
+   if (result.get_tag() == TOK_ERROR)
+      {
+        Token_loc tl(result, get_range_low());
+        push(tl);
+        action = RA_RETURN;
+        return;
+      }
+
    pop_args_push_result(result);
    result.SET_temp();
    set_action(result);
@@ -739,7 +814,17 @@ Prefix::reduce_A_F_C_B()
    if (at2().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
    if (!at2().get_apl_val())              SYNTAX_ERROR;
 
-Token result = si.eval_AXB(at0(), at1(), at2(), at3());
+Token result = at1().get_function()->eval_AXB(at0().get_apl_val(),
+                                              at2().get_apl_val(),
+                                              at3().get_apl_val());
+   if (result.get_tag() == TOK_ERROR)
+      {
+        Token_loc tl(result, get_range_low());
+        push(tl);
+        action = RA_RETURN;
+        return;
+      }
+
    pop_args_push_result(result);
    result.SET_temp();
    set_action(result);

@@ -279,13 +279,12 @@ Executable * statements = 0;
 
               // pop contexts above defined function
               //
-              while (si != Workspace::SI_top())
-                    Workspace::pop_SI(LOC);
+              while (si != Workspace::SI_top())   Workspace::pop_SI(LOC);
 
               const Function_Line line = Function_Line(token.get_int_val());
 
               if (line == Function_Retry)   si->retry(LOC);
-                else                        si->goon(line, LOC);
+              else                          si->goon(line, LOC);
               continue;
             }
 

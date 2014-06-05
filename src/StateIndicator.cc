@@ -40,7 +40,6 @@ StateIndicator::StateIndicator(Executable * exec, StateIndicator * _par)
      level(_par ? 1 + _par->get_level() : 0),
      error(E_NO_ERROR, LOC),
      current_stack(*this, exec->get_body()),
-     eval_arg_F(0),
      parent(_par)
 {
 }
@@ -51,10 +50,6 @@ StateIndicator::~StateIndicator()
    // copied directly from the body of the executable are not killed.
    //
    current_stack.cleanup();
-
-   // some args could come from the body, so we erase them BEFORE the body.
-   //
-   clear_args(LOC);
 
    // if executable is a user defined function then pop its local vars.
    // otherwise delete the body token
@@ -73,62 +68,6 @@ StateIndicator::~StateIndicator()
 }
 //-----------------------------------------------------------------------------
 void
-StateIndicator::clear_args(const char * loc)
-{
-   // discard duplicate args
-   //
-   if (eval_arg_B == eval_arg_A)   ptr_clear(eval_arg_A, loc);
-   if (eval_arg_B == eval_arg_X)   ptr_clear(eval_arg_X, loc);
-   if (eval_arg_A == eval_arg_X)   ptr_clear(eval_arg_X, loc);
-
-   if (!!eval_arg_A)
-      {
-        ptr_clear(eval_arg_A, loc);
-      }
-
-   if (!!eval_arg_B)
-      {
-        ptr_clear(eval_arg_B, loc);
-      }
-
-   if (!!eval_arg_X)
-      {
-        ptr_clear(eval_arg_X, loc);
-      }
-
-   eval_arg_F = 0;
-}
-//-----------------------------------------------------------------------------
-void
-StateIndicator::set_args(Token * A, Token & F, Token * X, Token * B)
-{
-   if (A)
-      {
-        eval_arg_A = A->get_apl_val();
-      }
-
-   if (X)
-      {
-        // X can be a single value (which is OK) or an IndexExpr (which is not)
-        //
-        if (X->get_ValueType() != TV_VAL)
-           {
-             IndexExpr & idx = X->get_index_val();
-             idx.extract_all();   // clear all values in X
-             SYNTAX_ERROR;
-           }
-        eval_arg_X = X->get_axes();
-      }
-
-   if (B)
-      {
-        eval_arg_B = B->get_apl_val();
-      }
-
-   eval_arg_F = F.get_function();
-}
-//-----------------------------------------------------------------------------
-void
 StateIndicator::goon(Function_Line new_line, const char * loc)
 {
 const Function_PC pc = get_executable()->get_ufun()->pc_for_line(new_line);
@@ -138,7 +77,8 @@ const Function_PC pc = get_executable()->get_ufun()->pc_for_line(new_line);
            << " pc=" << pc << " at " << loc << endl;
 
    set_PC(pc);
-   Log(LOG_prefix_parser)   CERR << "GOTO " << get_PC() << endl;
+
+   Log(LOG_prefix_parser)   CERR << "GOTO [" << get_line() << "]" << endl;
 
    current_stack.reset(LOC);
 }
@@ -146,59 +86,8 @@ const Function_PC pc = get_executable()->get_ufun()->pc_for_line(new_line);
 void
 StateIndicator::retry(const char * loc)
 {
-   CERR << endl << "RETRY" << endl << endl;
-
-   if (eval_arg_F == 0)
-      {
-        CERR << endl << "Can't RETRY: no function" << endl << endl;
-        return;
-      }
-
-   if (!eval_arg_B)
-      {
-        CERR << endl << "Can't RETRY: no right argument" << endl << endl;
-        return;
-      }
-
-Token Z;
-Token B(TOK_APL_VALUE1, eval_arg_B);
-
-   if (!!eval_arg_A)   // dyadic
-      {
-        Token A(TOK_APL_VALUE1, eval_arg_A);
-        Token F2(TOK_FUN2, eval_arg_F);
-
-        if (!!eval_arg_X)   // dyadic with axis
-           {
-             Token X(TOK_APL_VALUE1, eval_arg_X);
-             move_2(Z, eval_AXB(A, F2, X, B), LOC);
-           }
-        else              // dyadic without axis
-           {
-             move_2(Z, eval_AB(A, F2, B), LOC);
-           }
-      }
-   else              // monadic
-      {
-        Token F1(TOK_FUN1, eval_arg_F);
-
-        if (!!eval_arg_X)   // monadic with axis
-           {
-             Token X(TOK_APL_VALUE1, eval_arg_X);
-             move_2(Z, eval_XB(F1, X, B), LOC);
-           }
-        else              // monadic without axis
-           {
-             move_2(Z, eval_B(F1, B), LOC);
-           }
-      }
-
-   if (Z.get_Class() == TC_VALUE)   // retry successful
-      {
-        Token_loc tl_Z(Z, Function_PC(get_PC() - 1));
-        clear_args(LOC);
-        current_stack.push(tl_Z);
-      }
+   Log(LOG_StateIndicator__push_pop || LOG_prefix_parser)
+      CERR << endl << "RETRY " << loc << ")" << endl;
 }
 //-----------------------------------------------------------------------------
 UCS_string
@@ -497,10 +386,6 @@ Token result = current_stack.reduce_statements();
 void
 StateIndicator::unmark_all_values() const
 {
-   if (!!eval_arg_A)   eval_arg_A->unmark();
-   if (!!eval_arg_X)   eval_arg_X->unmark();
-   if (!!eval_arg_B)   eval_arg_B->unmark();
-
    Assert(executable);
    executable->unmark_all_values();
 
@@ -511,15 +396,6 @@ int
 StateIndicator::show_owners(ostream & out, const Value & value) const
 {
 int count = 0;
-
-   if (eval_arg_A->is_or_contains(value))
-      { out << "    SI[" << level << "] eval_arg_A" << endl;   ++count; }
-
-   if (eval_arg_X->is_or_contains(value))
-      { out << "    SI[" << level << "] eval_arg_X" << endl;   ++count; }
-
-   if (eval_arg_B->is_or_contains(value))
-      { out << "    SI[" << level << "] eval_arg_B" << endl;   ++count; }
 
    Assert(executable);
 char cc[100];
@@ -544,201 +420,55 @@ StateIndicator::info(ostream & out, const char * loc) const
 Value_P
 StateIndicator::get_L()
 {
-   if (eval_arg_F == 0)                 return Value_P();   // no function
-   if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
-
 Token * tok_L = current_stack.locate_L();
-   return eval_arg_A;
-}
-//-----------------------------------------------------------------------------
-void
-StateIndicator::set_L(Value_P new_value)
-{
-Value_P old_value = eval_arg_A;
-
-   eval_arg_A = new_value;
-}
-//-----------------------------------------------------------------------------
-Value_P
-StateIndicator::get_X()
-{
-   if (eval_arg_F == 0)                 return Value_P();   // no function
-   if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
-   return eval_arg_X;
-}
-//-----------------------------------------------------------------------------
-void
-StateIndicator::set_X(Value_P new_value)
-{
-Value_P old_value = eval_arg_X;
-
-   eval_arg_X = new_value;
+   if (tok_L)   return tok_L->get_apl_val();
+   return Value_P();
 }
 //-----------------------------------------------------------------------------
 Value_P
 StateIndicator::get_R()
 {
-   if (eval_arg_F == 0)                 return Value_P();   // no function
-   if (eval_arg_F->is_user_defined())   return Value_P();   // user defined function
-   return eval_arg_B;
+Token * tok_R = current_stack.locate_R();
+   if (tok_R)   return tok_R->get_apl_val();
+   return Value_P();
+}
+//-----------------------------------------------------------------------------
+Value_P
+StateIndicator::get_X()
+{
+Token * tok_X = current_stack.locate_X();
+   if (tok_X)   return tok_X->get_apl_val();
+   return Value_P();
+}
+//-----------------------------------------------------------------------------
+void
+StateIndicator::set_L(Value_P new_value)
+{
+Token * tok_L = current_stack.locate_L();
+   if (tok_L == 0)   return;
+
+Value_P old_value = tok_L->get_apl_val();   // so that 
+   move_2(*tok_L, Token(tok_L->get_tag(), new_value), LOC);
 }
 //-----------------------------------------------------------------------------
 void
 StateIndicator::set_R(Value_P new_value)
 {
-Value_P old_value = eval_arg_B;
+Token * tok_R = current_stack.locate_R();
+   if (tok_R == 0)   return;
 
-   eval_arg_B = new_value;
-}
-//-----------------------------------------------------------------------------
-bool
-StateIndicator::replace_arg(Value_P old_value, Value_P new_value)
-{
-   current_stack.replace_AB(old_value, new_value);
-
-bool success = false;
-   if (old_value == eval_arg_A)
-      {
-        eval_arg_A = new_value;
-        success = true;
-      }
-
-   if (old_value == eval_arg_B)
-      {
-        eval_arg_B = new_value;
-        success = true;
-      }
-
-   if (old_value == eval_arg_X)
-      {
-        eval_arg_X = new_value;
-        success = true;
-      }
-
-   return success;
+Value_P old_value = tok_R->get_apl_val();   // so that 
+   move_2(*tok_R, Token(tok_R->get_tag(), new_value), LOC);
 }
 //-----------------------------------------------------------------------------
 void
-StateIndicator::recover_from_error(const char * loc)
+StateIndicator::set_X(Value_P new_value)
 {
-   Value::finish_incomplete(loc);
-}
-//-----------------------------------------------------------------------------
-/// a macro for the common part of all StateIndicator::eval_XXX() calls
-/// catch exceptions and check for errors,
-#define FINISH_EVAL \
-   catch (Error e)                              \
-      {                                         \
-       recover_from_error(LOC);                 \
-       return Token(TOK_ERROR, e.error_code);   \
-      }                                         \
-   catch (ErrorCode ec)                         \
-      {                                         \
-       recover_from_error(LOC);                 \
-       return Token(TOK_ERROR, ec);   \
-      }                                         \
-   catch (...)                                  \
-      {                                         \
-        FIXME;                                  \
-      }                                         \
-                                                \
-   return Token(TOK_ERROR, error.error_code);
+Token * tok_X = current_stack.locate_X();
+   if (tok_X == 0)   return;
 
-//-----------------------------------------------------------------------------
-Token
-StateIndicator::eval_(Token & fun)
-{
-   set_args(0, fun, 0, 0);
-
-   try
-      {
-        const Token result = eval_arg_F->eval_();
-
-        if (result.get_tag() != TOK_ERROR)
-           {
-             clear_args(LOC);
-             return result;
-           }
-      }
-
-   FINISH_EVAL
-}
-//-----------------------------------------------------------------------------
-Token
-StateIndicator::eval_B(Token & fun, Token & B)
-{
-   set_args(0, fun, 0, &B);
-
-   try
-      {
-        const Token result = eval_arg_F->eval_B(eval_arg_B);
-
-        if (result.get_tag() != TOK_ERROR)
-           {
-             clear_args(LOC);
-             return result;
-           }
-      }
-
-   FINISH_EVAL
-}
-//-----------------------------------------------------------------------------
-Token
-StateIndicator::eval_AB(Token & A, Token & fun, Token & B)
-{
-   set_args(&A, fun, 0, &B);
-
-   try
-      {
-        const Token result = eval_arg_F->eval_AB(eval_arg_A, eval_arg_B);
-
-        if (result.get_tag() != TOK_ERROR)
-           {
-             clear_args(LOC);
-             return result;
-           }
-      }
-
-   FINISH_EVAL
-}
-//-----------------------------------------------------------------------------
-Token
-StateIndicator::eval_XB(Token & fun, Token & X, Token & B)
-{
-   set_args(0, fun, &X, &B);
-
-   try
-      {
-        const Token result = eval_arg_F->eval_XB(eval_arg_X,
-                                                 eval_arg_B);
-        if (result.get_tag() != TOK_ERROR)
-           {
-             clear_args(LOC);
-             return result;
-           }
-      }
-
-   FINISH_EVAL
-}
-//-----------------------------------------------------------------------------
-Token
-StateIndicator::eval_AXB(Token & A, Token & fun, Token & X, Token & B)
-{
-   set_args(&A, fun, &X, &B);
-
-   try
-      {
-        const Token result = eval_arg_F->eval_AXB(eval_arg_A,
-                                                  eval_arg_X,
-                                                  eval_arg_B);
-        if (result.get_tag() != TOK_ERROR)
-           {
-             clear_args(LOC);
-             return result;
-           }
-      }
-
-   FINISH_EVAL
+Value_P old_value = tok_X->get_apl_val();   // so that 
+   move_2(*tok_X, Token(tok_X->get_tag(), new_value), LOC);
 }
 //-----------------------------------------------------------------------------
 Function_Line

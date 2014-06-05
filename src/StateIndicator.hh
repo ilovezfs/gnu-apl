@@ -49,12 +49,6 @@ public:
    /// destructor
    ~StateIndicator();
 
-   /// clear all eval_arg_XXX variables
-   void clear_args(const char * loc);
-
-   /// set eval_arg_XXX pointers and remember arg bits set
-   void set_args(Token * A, Token & F, Token * X, Token * B);
-
    /// continue this StateIndicator (to line N after →N back into it)
    void goon(Function_Line N, const char * loc);
 
@@ -129,29 +123,23 @@ public:
    /// return the error related info in this context
    const Error & get_error() const { return error; }
 
-   /// return eval_arg_L if eval_arg_F is a primitive function
+   /// return left arg
    Value_P get_L();
 
-   /// change eval_arg_L
+   /// change left arg
    void set_L(Value_P value);
 
-   /// return eval_arg_X if eval_arg_F is a primitive function
+   /// return axis arg
    Value_P get_X();
 
-   /// change eval_arg_X
+   /// change axis arg
    void set_X(Value_P value);
 
-   /// return eval_arg_R if eval_arg_F is a primitive function
+   /// return right arg
    Value_P get_R();
 
-   /// change eval_arg_R
+   /// change right arg
    void set_R(Value_P value);
-
-   /// replace all occurences of old_value int his SI by new_value
-   bool replace_arg(Value_P old_value, Value_P new_value);
-
-   /// clean up after some eval_XXX() function has thrown an error
-   void recover_from_error(const char * loc);
 
    /// call eoc_handler(). Return false if there is none or else the result of
    /// the eoc_handler.
@@ -182,21 +170,6 @@ public:
    /// set safe_execution mode
    void set_safe_execution(bool on_off)
       { safe_execution = on_off; }
-
-   /// call fun with no arguments
-   Token eval_(Token & fun);
-
-   /// call fun with argument B, remembering args on error.
-   Token eval_B(Token & fun, Token & B);
-
-   /// call fun with arguments A and B, remembering args on error.
-   Token eval_AB(Token & A, Token & fun, Token & B);
-
-   /// call axis fun with arguments A and B, axix X, remembering args on error.
-   Token eval_XB(Token & fun, Token & X, Token & B);
-
-   /// call axis fun with arguments A and B, axix X, remembering args on error.
-   Token eval_AXB(Token & A, Token & fun, Token & X, Token & B);
 
    /// get the current prefix parser
    Prefix & get_prefix()
@@ -231,18 +204,6 @@ protected:
 
    /// the current-stack of this context.
    Prefix current_stack;
-
-   /// the left eval_XXX argument (0 if none)
-   Value_P eval_arg_A;
-
-   /// the axis argument of eval_XXX (0 if none)
-   Value_P eval_arg_X;
-
-   /// the eval_XXX function (or operator) argument
-   Function * eval_arg_F;
-
-   /// the right eval_XXX argument (0 if none)
-   Value_P eval_arg_B;
 
    /// the StateIndicator that has called this one
    StateIndicator * parent;

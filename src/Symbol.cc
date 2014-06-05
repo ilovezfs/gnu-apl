@@ -144,10 +144,6 @@ ValueStackItem & vs = value_stack.back();
 
              new_value = new_value->clone(loc);
 
-             // un-assign and erase old value
-             //
-             Workspace::replace_arg(vs.apl_val, new_value);
-
              vs.apl_val = new_value;
              if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;

@@ -625,4 +625,24 @@ protected:
    virtual Value_P get_apl_value() const;
 };
 //-----------------------------------------------------------------------------
+/**
+   System variable Quad-X (Axis Argument).
+ */
+class Quad_X : public NL_SystemVariable
+{
+public:
+   /// Constructor.
+   Quad_X();
+
+   /// overloaded Symbol::save()
+   virtual void save(ostream & out) const {}
+
+protected:
+   /// overloaded Symbol::assign()
+   virtual void assign(Value_P value, const char * loc);
+
+   /// overloaded Symbol::get_apl_value().
+   virtual Value_P get_apl_value() const;
+};
+//-----------------------------------------------------------------------------
 #endif // __SYSTEM_VARIABLE_HH_DEFINED__
