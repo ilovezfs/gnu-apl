@@ -45,8 +45,8 @@ TD(TOK_OPER2         , TC_OPER2     , TV_FUN  , ID_No_ID        ) // user def'd
 TD(TOK_FIRST_TIME    , TC_VOID      , TV_NONE , ID_FIRST_TIME   )
 TD(TOK_INVALID       , TC_INVALID   , TV_NONE , ID_INVALID      )
 TD(TOK_VOID          , TC_VOID      , TV_NONE , ID_VOID         )
-TD(TOK_END           , TC_END       , TV_NONE , ID_END          )
-TD(TOK_ENDL          , TC_END       , TV_NONE , ID_ENDL         )   // last END
+TD(TOK_END           , TC_END       , TV_INT  , ID_END          )
+TD(TOK_ENDL          , TC_END       , TV_INT  , ID_ENDL         ) // last END
 TD(TOK_OFF           , TC_OFF       , TV_NONE , ID_OFF          )
 TD(TOK_ESCAPE        , TC_R_ARROW   , TV_NONE , ID_ESCAPE       )
 TD(TOK_SPACE         , TC_SPACE     , TV_NONE , ID_SPACE        )
@@ -171,9 +171,12 @@ TD(TOK_F12_ROTATE1   , TC_FUN2      , TV_FUN  , ID_F12_ROTATE1  )
 TD(TOK_F12_SORT_ASC  , TC_FUN2      , TV_FUN  , ID_F12_SORT_ASC )
 TD(TOK_F12_SORT_DES  , TC_FUN2      , TV_FUN  , ID_F12_SORT_DES )
 TD(TOK_F12_STILE     , TC_FUN2      , TV_FUN  , ID_F12_STILE    )
+TD(TOK_STOP_LINE     , TC_R_ARROW   , TV_NONE , ID_STOP_LINE    )  // S∆ 
+TD(TOK_STOP_VEC      , TC_FUN2      , TV_FUN  , ID_STOP_VEC     )
 TD(TOK_F12_TAKE      , TC_FUN2      , TV_FUN  , ID_F12_TAKE     )
 TD(TOK_F12_TIMES     , TC_FUN2      , TV_FUN  , ID_F12_TIMES    )
 TD(TOK_F12_TRANSPOSE , TC_FUN2      , TV_FUN  , ID_F12_TRANSPOSE)
+TD(TOK_TRACE_VEC     , TC_FUN2      , TV_FUN  , ID_TRACE_VEC    )
 TD(TOK_F12_WITHOUT   , TC_FUN2      , TV_FUN  , ID_F12_WITHOUT  )
 TD(TOK_F12_UNION     , TC_FUN2      , TV_FUN  , ID_F12_UNION    )
 TD(TOK_Quad_ES       , TC_FUN2      , TV_FUN  , ID_Quad_ES      )

@@ -772,6 +772,38 @@ UCS_string symbol;
          ++src;
        }
 
+   if (symbol.size() > 2 && symbol[1] == UNI_DELTA  &&
+       (symbol[0] == UNI_ASCII_S || symbol[0] == UNI_ASCII_T))
+      {
+        // S∆ or T∆
+
+        while (src.rest() && *src <= UNI_ASCII_SPACE)   src.get();   // spaces
+        UCS_string symbol1(symbol, 2, symbol.size() - 2);   // without S∆/T∆
+        Value_P AB(new Value(symbol1, LOC));
+        Function * ST = 0;
+        if (symbol[0] == UNI_ASCII_S) ST = &Stop_Vector::fun;
+        else                          ST = &Trace_Vector::fun;
+
+        const bool assigned = (src.rest() && *src == UNI_LEFT_ARROW);
+        if (assigned)   // dyadic: AB ∆fun
+           {
+             src.get();                                // skip ←
+             Log(LOG_tokenize)
+                CERR << "Stop/Trace assigned: " << symbol1 << endl;
+             tos.append(Token(TOK_APL_VALUE1, AB));   // left argument of ST
+             tos.append(Token(TOK_FUN2, ST));
+           }
+        else
+           {
+             Log(LOG_tokenize)
+                CERR << "Stop/Trace referenved: " << symbol1 << endl;
+             tos.append(Token(TOK_FUN2, ST));
+             tos.append(Token(TOK_APL_VALUE1, AB));   // right argument of ST
+           }
+
+        return;
+      }
+
 Symbol * sym = Workspace::lookup_symbol(symbol);
    tos.append(Token(TOK_SYMBOL, sym));
 }

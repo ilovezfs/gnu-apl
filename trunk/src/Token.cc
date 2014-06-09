@@ -425,6 +425,81 @@ Token::print_value(ostream & out) const
    return out <<  ", }";
 }
 //-----------------------------------------------------------------------------
+void
+Token::show_trace(ostream & out, const UCS_string & fun_name, 
+                  Function_Line line) const
+{
+   switch(get_tag())
+      {
+        case TOK_APL_VALUE1:
+        case TOK_APL_VALUE2:
+        case TOK_APL_VALUE3:
+        case TOK_BRANCH:
+        case TOK_ESCAPE:
+             break;
+
+        default: return;
+      }
+
+UCS_string fn = fun_name;
+   fn.append_utf8("[");
+   fn.append_number(line);
+   fn.append_utf8("] ");
+
+   out << fn;
+
+   switch(get_tag())
+      {
+        case TOK_APL_VALUE1:
+        case TOK_APL_VALUE2:
+        case TOK_APL_VALUE3:
+             break;   // continue below
+
+        case TOK_BRANCH:
+             out << "→" << get_int_val() << endl;
+             return;
+
+        case TOK_ESCAPE:
+             out << "→" << endl;
+             return;
+
+        default: FIXME;
+      }
+
+PrintContext pctx = Workspace::get_PrintContext();
+const Value & val = *get_apl_val();
+   if (val.get_rank() == 0)   // skalar
+      {
+        pctx.set_style(PR_APL_MIN);
+      }
+   else if (val.get_rank() == 1)   // vector
+      {
+        if (val.element_count() == 0 &&   // empty vector
+            (val.get_ravel(0).is_character_cell() ||
+             val.get_ravel(0).is_numeric()))
+           {
+             out << endl;
+             return;
+           }
+            
+        pctx.set_style(PR_APL_MIN);
+      }
+   else                  // matrix or higher
+      {
+        pctx.set_style((PrintStyle)(pctx.get_style() | PST_NO_FRACT_0));
+      }
+
+PrintBuffer pb(val, pctx);
+const UCS_string indent(fn.size(), UNI_ASCII_SPACE);
+   loop(l, pb.get_height())
+      {
+        if (l)   out << indent;
+        out << pb.get_line(l) << endl;
+      }
+
+   if (pb.get_height() == 0)   out << endl;
+}
+//-----------------------------------------------------------------------------
 ostream &
 Token::print_quad(ostream & out) const
 {

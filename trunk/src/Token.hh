@@ -23,10 +23,10 @@
 
 #include <ostream>
 
-#include "Common.hh"
 #include "Avec.hh"
-#include "Id.hh"
+#include "Common.hh"
 #include "Error.hh"
+#include "Id.hh"
 #include "Simple_string.hh"
 #include "Source.hh"
 #include "TokenEnums.hh"
@@ -226,6 +226,10 @@ public:
 
    /// helper function to print an APL value
    ostream & print_value(ostream & out) const;
+
+   /// show trace output for this token
+   void show_trace(ostream & out, const UCS_string & fun_name,
+                   Function_Line line) const;
 
    /// the Quad_CR representation of the token.
    UCS_string canonical(PrintStyle style) const;

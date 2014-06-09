@@ -46,6 +46,9 @@ public:
    /// destructor: release values held by the body
    virtual ~Executable();
 
+   /// delete values in body and remove lambdas
+   void clear_body();
+
    /// the parse mode for \b this Executable
    virtual ParseMode get_parse_mode() const = 0;
 
@@ -118,12 +121,12 @@ protected:
    const char * alloc_loc;
 
    /// parse the body line number \b line of \b this function
-   void parse_body_line(Function_Line line, const UCS_string & ucs,
+   void parse_body_line(Function_Line line, const UCS_string & ucs, bool trace,
                         const char * loc);
 
    /// parse the body line number \b line of \b this function
    void parse_body_line(Function_Line line, const Token_string & tos,
-                        const char * loc);
+                        bool trace, const char * loc);
 
    /// the program text from which \b body was created
    vector<UCS_string> text;

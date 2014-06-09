@@ -146,6 +146,21 @@ UserFunction * ufun = UserFunction::fix(fun_text, error_line, false,
          const int exec_properties[4] = { 1, 1, 1, 1 };
          ufun->set_exec_properties(exec_properties);
       }
+
+   // set stop and trace vectors
+   //
+DynArray(Function_Line, stop_vec,  lines.size());
+DynArray(Function_Line, trace_vec, lines.size());
+int stop_count = 0;
+int trace_count = 0;
+   loop(l, lines.size())
+       {
+         if (lines[l].stop_flag)    stop_vec [stop_count++]  = Function_Line(l);
+         if (lines[l].trace_flag)   trace_vec[trace_count++] = Function_Line(l);
+       }
+
+   ufun->set_trace_stop(stop_vec,  stop_count,  true);
+   ufun->set_trace_stop(trace_vec, trace_count, false);
 }
 //-----------------------------------------------------------------------------
 const char *
@@ -222,6 +237,10 @@ UserFunction_header hdr(fun_header);
         case NC_UNUSED_USER_NAME:   // open a new function
              function_existed = false;
              {
+               // a new function must not have a command
+               //
+               if (ecmd != ECMD_NOP)   return LOC;
+
                const char * open_loc = open_new_function();
                if (open_loc)   return open_loc;
              }
@@ -507,7 +526,7 @@ Nabla::open_existing_function()
    Log(LOG_nabla)
       CERR << "opening existing function '" << fun_symbol->get_name() << "'" << endl;
 
-   // this function must only be called when editing functions interactovely
+   // this function must only be called when editing functions interactively
    //
    Assert(!uprefs.running_script());
 
@@ -535,7 +554,32 @@ vector<UCS_string> tlines;
 
    Assert(tlines.size());
    fun_header = tlines[0];
-   loop(t, tlines.size())   lines.push_back(FunLine(t, tlines[t]));
+   loop(t, tlines.size())
+       {
+         FunLine fl(t, tlines[t]);
+
+         // set stop and trace flags
+         //
+         loop(st, ufun->get_stop_lines().size())
+             {
+               if (t == ufun->get_stop_lines()[st])   // stop set
+                  {
+                    fl.stop_flag = true;
+                    break;
+                  }
+             }
+
+         loop(tr, ufun->get_trace_lines().size())
+             {
+               if (t == ufun->get_trace_lines()[tr])   // trace set
+                  {
+                    fl.trace_flag = true;
+                    break;
+                  }
+             }
+
+         lines.push_back(fl);
+       }
 
    current_line = LineLabel(tlines.size());
 

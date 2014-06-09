@@ -418,7 +418,6 @@ Quad_L::Quad_L()
 void
 Quad_L::assign(Value_P value, const char * loc)
 {
-Q(LOC)
 StateIndicator * si = Workspace::SI_top_fun();
    if (si == 0)   return;
 

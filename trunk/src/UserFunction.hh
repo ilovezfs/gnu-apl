@@ -318,6 +318,20 @@ public:
    const UTF8_string get_creator() const
       { return creator; }
 
+   /// set trace or stop vector
+   void set_trace_stop(Function_Line * lines, int line_count, bool stop);
+
+   /// recompile the body
+   void parse_body(int & error_line, const char * loc);
+
+   /// return stop lines (from S∆fun ← lines)
+   const vector<Function_Line> & get_stop_lines() const
+      { return stop_lines; }
+
+   /// return trace lines (from S∆fun ← lines)
+   const vector<Function_Line> & get_trace_lines() const
+      { return trace_lines; }
+
 protected:
    /// overladed Function::may_push_SI()
    virtual bool may_push_SI() const   { return true; }
@@ -368,13 +382,14 @@ protected:
    /// Overloaded Function::eval_fill_AB()
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
-   UserFunction_header header;
-
    /// helper function to print token with Function or Value content
    static ostream & print_val_or_fun(ostream & out, Token & tok);
 
    /// "[nn] " prefix
    static UCS_string line_prefix(Function_Line l);
+
+   /// the header (line [0]) of the user-defined function
+   UserFunction_header header;
 
    /** Offsets to the first token in every line (for jumps).
        lines[0] points to the last line, which is automatically
@@ -398,6 +413,12 @@ protected:
 
    **/
    vector<Function_PC> line_starts;
+
+   /// stop lines (from S∆fun ← lines)
+   vector<Function_Line> stop_lines;
+
+   /// trace lines (from S∆fun ← lines)
+   vector<Function_Line> trace_lines;
 
    /// execution properties as per 3⎕AT
    int exec_properties[4];
