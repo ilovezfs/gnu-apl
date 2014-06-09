@@ -478,11 +478,22 @@ StateIndicator::get_line() const
 }
 //-----------------------------------------------------------------------------
 void
-StateIndicator::statement_result(Token & result)
+StateIndicator::statement_result(Token & result, bool trace)
 {
    Log(LOG_StateIndicator__enter_leave)
       CERR << "StateIndicator::statement_result(pmode="
            << get_parse_mode_name() << ", result=" << result << endl;
+
+   if (trace)
+      {
+        const UserFunction * ufun = executable->get_ufun();
+        if (ufun && (ufun->get_exec_properties()[0] == 0))
+           {
+             const Function_Line line =
+                            executable->get_line((Function_PC)(get_PC() - 1));
+             result.show_trace(COUT, ufun->get_name(), line);
+           }
+      }
 
    fun_oper_cache.reset();
 

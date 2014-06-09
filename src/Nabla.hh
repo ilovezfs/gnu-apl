@@ -89,7 +89,9 @@ protected:
         /// constructor
         FunLine(LineLabel lab, const UCS_string & tx)
         : label(lab),
-          text(tx)
+          text(tx),
+          stop_flag(false),
+          trace_flag(false)
         {}
 
         /// print the line
@@ -100,6 +102,12 @@ protected:
 
         /// the function text of the line
         UCS_string text;
+
+        /// true if the line has a stop flag (existing function with ∆S)
+        bool stop_flag;
+
+        /// true if the line has a trace flag (existing function with ∆T)
+        bool trace_flag;
       };
 
     /// start editing, return source location if \b first_command is bad.

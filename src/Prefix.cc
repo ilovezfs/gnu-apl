@@ -1201,12 +1201,13 @@ Prefix::reduce_END_VOID__()
    if (size() != 2)   syntax_error(LOC);
 
 const bool end_of_line = at0().get_tag() == TOK_ENDL;
+const bool trace = (at0().get_int_val() & 1) != 0;
 
    pop_and_discard();   // pop END
    pop_and_discard();   // pop VOID
 
 Token Void(TOK_VOID);
-   si.statement_result(Void);
+   si.statement_result(Void, trace);
    action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
       {
@@ -1224,11 +1225,11 @@ Prefix::reduce_END_B__()
    if (size() != 2)   syntax_error(LOC);
 
 const bool end_of_line = at0().get_tag() == TOK_ENDL;
+const bool trace = (at0().get_int_val() & 1) != 0;
 
    pop_and_discard();   // pop END
 Token B = pop().tok;    // pop B
-
-   si.statement_result(B);
+   si.statement_result(B, trace);
 
    action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
@@ -1310,9 +1311,33 @@ Prefix::reduce_END_GOTO__()
 
    if (size() != 2)   syntax_error(LOC);
 
-Token result = Token(TOK_ESCAPE);
-   pop_args_push_result(result);
-   action = RA_RETURN;
+   // the statement is → which could mean TOK_ESCAPE (normal →) or
+   //  TOK_STOP_LINE from S∆←line
+   //
+   if (at1().get_tag() == TOK_STOP_LINE)   // S∆ line
+      {
+        const UserFunction * ufun = si.get_executable()->get_ufun();
+        if (ufun && ufun->get_exec_properties()[2])
+           {
+              // the function ignores attention (aka. weak interrupt)
+              //
+              pop_and_discard();   // pop() END
+              pop_and_discard();   // pop() GOTO
+              action = RA_CONTINUE;
+              return;
+           }
+
+        COUT << si.function_name() << "[" << si.get_line() << "]" << endl;
+        Token result(TOK_ERROR, E_STOP_LINE);
+        pop_args_push_result(result);
+        action = RA_RETURN;
+      }
+   else
+      {
+        Token result(TOK_ESCAPE);
+        pop_args_push_result(result);
+        action = RA_RETURN;
+      }
 }
 //-----------------------------------------------------------------------------
 void

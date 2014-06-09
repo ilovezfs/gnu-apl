@@ -485,51 +485,10 @@ Function * old_function = header.FUN()->get_function();
         DEFN_ERROR;
       }
 
-   for (int l = 1; l < get_text_size(); ++l)
-      {
-        error_line = l;
-        line_starts.push_back(Function_PC(body.size()));
-
-        const UCS_string & text = get_text(l);
-        parse_body_line(Function_Line(l), text, loc);
-        setup_lambdas();
-      }
-
-#if 0
-   // resolve named lambdas
-   //
-   loop(l, named_lambdas.size())
-      {
-        UserFunction * lambda = named_lambdas[l];
-        const UCS_string & lambda_name = lambda->get_name();
-        loop(b, body.size())
-           {
-             if (body[b].get_ValueType() != TV_SYM)   continue;
-
-             Symbol * sym = body[b].get_sym_ptr();
-             if (!sym)                                continue;
-
-             const UCS_string & sym_name = sym->get_name();
-             if (lambda_name != sym_name)             continue;
-
-             move_2(body[b], lambda->get_token(), LOC);
-           }
-      }
-#endif
-
-   Log(LOG_UserFunction__fix)
-      {
-        CERR << "body.size() is " << body.size() << endl
-             << "line_starts.size() is " << line_starts.size() <<endl; 
-      }
-
-   // let [0] be the end of the function.
-   line_starts[0] = Function_PC(body.size());
-
-   if (header.Z())   body.append(Token(TOK_RETURN_SYMBOL, header.Z()), LOC);
-   else              body.append(Token(TOK_RETURN_VOID), LOC);
+   parse_body(error_line, loc);
 
    header.check_duplicate_symbols();
+   if (error_line > 0)   error_cause = "Error in function body";
 
    if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
    else               header.FUN()->set_nc(NC_FUNCTION, this);
@@ -562,7 +521,7 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
    else if (header.B())    tag = TOK_FUN1;
    else                    tag = TOK_FUN0;
 
-   parse_body_line(Function_Line_0, bdy, LOC);
+   parse_body_line(Function_Line_0, bdy, false, LOC);
    setup_lambdas();
    line_starts.push_back(Function_PC(bdy.size() - 1));
 
@@ -959,6 +918,97 @@ UCS_string & message_2 = error.error_message_2;
    error.right_caret = error.left_caret + message_2.size() - 7;
 }
 //-----------------------------------------------------------------------------
+void
+UserFunction::set_trace_stop(Function_Line * lines, int line_count, bool stop)
+{
+   // Sort lines
+   //
+DynArray(bool, ts_lines, line_starts.size());
+   loop(ts, line_starts.size())   ts_lines[ts] = false;
+   loop(ll, line_count)
+      {
+        Function_Line line = lines[ll];
+        if (line >= 1 && line < line_starts.size())   ts_lines[line] = true;
+      }
+
+   if (stop)
+      {
+        stop_lines.clear();
+        loop(ts, line_starts.size())
+           {
+             if (ts_lines[ts])   stop_lines.push_back((Function_Line)ts);
+           }
+      }
+   else
+      {
+        trace_lines.clear();
+        loop(ts, line_starts.size())
+           {
+             if (ts_lines[ts])   trace_lines.push_back((Function_Line)ts);
+           }
+      }
+
+int error_line = -1;
+   parse_body(error_line, LOC);
+}
+//-----------------------------------------------------------------------------
+void
+UserFunction::parse_body(int & error_line, const char * loc)
+{
+   line_starts.clear();
+   line_starts.push_back(Function_PC_0);   // will be set later.
+
+   clear_body();
+
+   for (int l = 1; l < get_text_size(); ++l)
+      {
+        bool stop_line = false;
+        loop(s, stop_lines.size())
+           {
+             if (stop_lines[s] == l)
+                {
+                  stop_line = true;
+                  break;
+                }
+           }
+
+        bool trace_line = false;
+        loop(t, trace_lines.size())
+           {
+             if (trace_lines[t] == l)
+                {
+                  trace_line = true;
+                  break;
+                }
+           }
+
+        error_line = l;
+        line_starts.push_back(Function_PC(body.size()));
+
+        if (stop_line)
+           {
+             body.append(Token(TOK_STOP_LINE));
+             body.append(Token(TOK_END, 0LL));
+           }
+
+        const UCS_string & text = get_text(l);
+        parse_body_line(Function_Line(l), text, trace_line, loc);
+        setup_lambdas();
+      }
+
+   Log(LOG_UserFunction__fix)
+      {
+        CERR << "body.size() is " << body.size() << endl
+             << "line_starts.size() is " << line_starts.size() <<endl; 
+      }
+
+   // let [0] be the end of the function.
+   line_starts[0] = Function_PC(body.size());
+
+   if (header.Z())   body.append(Token(TOK_RETURN_SYMBOL, header.Z()), LOC);
+   else              body.append(Token(TOK_RETURN_VOID), LOC);
+}
+//-----------------------------------------------------------------------------
 UserFunction *
 UserFunction::load(const char * workspace, const char * function)
 {
@@ -1057,7 +1107,7 @@ UserFunction::fix(const UCS_string & text, int & error_line,
    Log(LOG_UserFunction__fix)
       {
         CERR << "fix pmode=user function:" << endl << text << endl
-             <<  "------------------- fix --" << endl;
+             <<  "------------------- UserFunction::fix() --" << endl;
       }
 
    if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(true);
@@ -1074,7 +1124,25 @@ const char * error_cause = 0;
         err.print(CERR);
         if (Workspace::SI_top())
            Workspace::SI_top()->set_safe_execution(false);
-        if (error_cause)   Workspace::more_error() = UCS_string(error_cause);
+
+        if (error_cause)
+           {
+             Log(LOG_UserFunction__fix)
+                CERR << "Error: " << error_cause << endl;
+             Workspace::more_error() = UCS_string(error_cause);
+           }
+
+         if (error_line == 0)
+           {
+             Workspace::more_error().append_utf8(" (function header)");
+           }
+         else if (error_line > 0)
+           {
+             Workspace::more_error().append_utf8(" (function line [");
+             Workspace::more_error().append_number(error_line);
+             Workspace::more_error().append_utf8("])");
+           }
+                
         return 0;
       }
    catch (...)
@@ -1100,6 +1168,8 @@ const char * error_cause = 0;
    //
    if (error_line != -1)
       {
+        Log(LOG_UserFunction__fix)
+           CERR << "Line: " << error_line << endl;
         delete fun;
         return 0;
       }
@@ -1166,6 +1236,9 @@ Function_Line
 UserFunction::get_line(Function_PC pc) const
 {
    Assert(pc >= 0);
+
+   // search line_starts backwards until a line with non-greater pc is found.
+   //
    for (int l = line_starts.size() - 1; l > 0; --l)
        {
          if (line_starts[l] <= pc)   return Function_Line(l);

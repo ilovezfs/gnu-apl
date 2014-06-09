@@ -1091,7 +1091,11 @@ Symbol::unmark_all_values() const
                    {
                      const UserFunction * ufun =
                                           item.sym_val.function->get_ufun1();
-                     Assert(ufun);
+
+                     // ufun can be 0 for example if F is a function argument
+                     // of a defined operator and F is a primitive function
+                     //
+                     if (ufun == 0)   break;
 
                      const Token_string & body = ufun->get_body();
                      loop(b, body.size())

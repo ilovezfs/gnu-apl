@@ -337,31 +337,48 @@ extern uint64_t total_memory;
 
 #endif
 
+//=============================================================================
 /// Function_Line ++ (post increment)
-inline int operator ++(Function_Line & fl, int)   { return ((int &)fl)++; }
+inline int operator ++(Function_Line & fl, int)
+{
+   return ((int &)fl)++;
+}
 
+//=============================================================================
+inline Function_PC
+operator +(Function_PC pc, int offset)
+{
+   return Function_PC((int)pc + offset);
+}
+//-----------------------------------------------------------------------------
+inline Function_PC
+operator -(Function_PC pc, int offset)
+{
+   return Function_PC((int)pc - offset);
+}
+//-----------------------------------------------------------------------------
 /// Function_PC ++ (post increment)
 inline Function_PC
 operator ++(Function_PC & pc, int)
 {
-const Function_PC ret = pc; 
-   pc = Function_PC(pc + 1);
-   return ret;
+const Function_PC before = pc; 
+   pc = pc + 1;
+   return before;
 }
-
+//-----------------------------------------------------------------------------
 /// Function_PC ++ (pre increment)
 inline Function_PC &
 operator ++(Function_PC & pc)
 {
-   pc = Function_PC(pc + 1);
+   pc = pc + 1;
    return pc;
 }
-
+//-----------------------------------------------------------------------------
 /// Function_PC -- (pre decrement)
 inline Function_PC &
 operator --(Function_PC & pc)
 {
-   pc = Function_PC(pc - 1);
+   pc = pc - 1;
    return pc;
 }
 //-----------------------------------------------------------------------------

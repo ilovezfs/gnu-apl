@@ -67,6 +67,8 @@ Bif_F2_INTER      Bif_F2_INTER::fun;         // ∩
 Bif_F12_UNION     Bif_F12_UNION::fun;        // ∪
 Bif_F2_LEFT       Bif_F2_LEFT::fun;          // ⊣
 Bif_F2_RIGHT      Bif_F2_RIGHT::fun;         // ⊢
+Stop_Vector       Stop_Vector::fun;          // S∆
+Trace_Vector      Trace_Vector::fun;         // T∆
 
 const CharCell PrimitiveFunction::c_filler(UNI_ASCII_SPACE);
 const IntCell  PrimitiveFunction::n_filler(0);
@@ -2659,4 +2661,103 @@ Value_P Z(new Value(eq_count, LOC));
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
+//=============================================================================
+UserFunction *
+Stop_Trace::locate_fun(const Value & fun_name)
+{
+UCS_string fun_name_ucs(fun_name);
+   if (fun_name_ucs.size() == 0)   LENGTH_ERROR;
+
+Symbol * fun_symbol = Workspace::lookup_existing_symbol(fun_name_ucs);
+   if (fun_symbol == 0)
+      {
+        CERR << "symbol " << fun_name_ucs << " not found" << endl;
+        return 0;
+      }
+
+Function * fun = fun_symbol->get_function();
+   if (fun_symbol == 0)
+      {
+        CERR << "symbol " << fun_name_ucs << " is not a function" << endl;
+        return 0;
+      }
+
+UserFunction * ufun = fun->get_ufun1();
+   if (ufun == 0)
+      {
+        CERR << "symbol " << fun_name_ucs
+             << " is not a defined function" << endl;
+        return 0;
+      }
+
+   return ufun;
+}
 //-----------------------------------------------------------------------------
+Token
+Stop_Trace::reference(const vector<Function_Line> & lines, bool assigned)
+{
+Value_P Z(new Value(lines.size(), LOC));
+
+   loop(z, lines.size())   new (Z->next_ravel()) IntCell(lines[z]);
+
+   Z->set_default(*Value::Zero_P);
+   if (assigned)   return Token(TOK_APL_VALUE2, Z);
+   else            return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+void
+Stop_Trace::assign(UserFunction * ufun, const Value & new_value, bool stop)
+{
+DynArray(Function_Line, lines, new_value.element_count());
+int line_count = 0;
+
+const APL_Float qct = Workspace::get_CT();
+   loop(l, new_value.element_count())
+      {
+         APL_Integer line = new_value.get_ravel(l).get_near_int(qct);
+         if (line < 1)   continue;
+         lines[line_count++] = (Function_Line)line;
+      }
+
+   ufun->set_trace_stop(lines, line_count, stop);
+}
+//=============================================================================
+Token
+Stop_Vector::eval_AB(Value_P A, Value_P B)
+{
+UserFunction * ufun = locate_fun(*A);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   assign(ufun, *B, true);
+   return reference(ufun->get_stop_lines(), true);
+}
+//-----------------------------------------------------------------------------
+Token
+Stop_Vector::eval_B(Value_P B)
+{
+UserFunction * ufun = locate_fun(*B);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   return reference(ufun->get_stop_lines(), false);
+}
+//=============================================================================
+Token
+Trace_Vector::eval_AB(Value_P A, Value_P B)
+{
+UserFunction * ufun = locate_fun(*A);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   assign(ufun, *B, false);
+   return reference(ufun->get_trace_lines(), true);
+}
+//-----------------------------------------------------------------------------
+Token
+Trace_Vector::eval_B(Value_P B)
+{
+UserFunction * ufun = locate_fun(*B);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   return reference(ufun->get_trace_lines(), false);
+}
+//=============================================================================
+

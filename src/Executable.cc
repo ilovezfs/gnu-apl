@@ -66,21 +66,32 @@ Executable::~Executable()
              << " (body size=" <<  body.size() << ")" << endl;
       }
 
+   clear_body();
+}
+//-----------------------------------------------------------------------------
+void
+Executable::clear_body()
+{
    loop(b, body.size())
       {
         body[b].extract_apl_val(LOC);
       }
 
+   body.clear();
+
    loop(u, unnamed_lambdas.size())
       {
         const UserFunction * ufun = unnamed_lambdas[u];
         delete ufun;
+        unnamed_lambdas[u] = 0;
       }
+
+   unnamed_lambdas.clear();
 }
 //-----------------------------------------------------------------------------
 void
 Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
-                            const char * loc)
+                            bool trace, const char * loc)
 {
    Log(LOG_UserFunction__set_line)
       CERR << "[" << line << "]" << ucs_line << endl;
@@ -92,12 +103,12 @@ const Parser parser(get_parse_mode(), loc);
      if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
    }
 
-   parse_body_line(line, in, loc);
+   parse_body_line(line, in, trace, loc);
 } 
 //-----------------------------------------------------------------------------
 void
 Executable::parse_body_line(Function_Line line, const Token_string & in,
-                            const char * loc)
+                            bool trace, const char * loc)
 {
 Source<Token> src(in);
 
@@ -121,72 +132,57 @@ Token_string out;
       {
         // find next diamond. If there is one, copy statement in reverse order,
         // append TOK_ENDL, and continue.
+        
+        // 1. determine statement length
         //
-        {
-          uint32_t stat_len = 0;   // statement length, not counting ◊
-          bool got_diamond = false;
-          loop(t, src.rest())
-              {
+        ShapeItem stat_len = 0;   // statement length, not counting ◊
+        int diamond = 0;
+        loop(t, src.rest())
+            {
               if (src[t].get_tag() == TOK_DIAMOND)
                  {
-                   got_diamond = true;
+                   diamond = 1;
                    break;
                  }
               else
                  {
                    ++stat_len;
                  }
-              }
+            }
 
-          if (got_diamond)
-             {
-               loop(s, stat_len)
-                   {
-                     const Token & tok = src[stat_len - s - 1];
-                     if (tok.get_Class() >= TC_MAX_PERM &&
-                         tok.get_tag() != TOK_L_CURLY &&
-                         tok.get_tag() != TOK_R_CURLY)
-                        {
-                          CERR << "Line " << line << endl
-                               << "Offending token: (tag > TC_MAX_PERM) "
-                               << tok.get_tag() << " " << tok << endl
-                               << "Statement: ";
-                          Token::print_token_list(CERR, in);
-                          SYNTAX_ERROR;
-                        }
-                     out.append(tok);
-                   }
-               if (stat_len)   out.append(Token(TOK_ENDL), LOC);
-               src.skip(stat_len + 1);
-               continue;
-           }
-        }
-
-        // at this point src contains only the last statement.
-        // copy it in reverse order.
+        // 2. check for bad token and append statement to out
         //
-        loop(s, src.rest())
+        loop(s, stat_len)
+            {
+              const Token & tok = src[stat_len - s - 1];
+              if (tok.get_Class() >= TC_MAX_PERM &&
+                  tok.get_tag() != TOK_L_CURLY &&
+                  tok.get_tag() != TOK_R_CURLY)
+                 {
+                   CERR << "Line " << line << endl
+                        << "Offending token: (tag > TC_MAX_PERM) "
+                        << tok.get_tag() << " " << tok << endl
+                        << "Statement: ";
+                   Token::print_token_list(CERR, in);
+                   SYNTAX_ERROR;
+                 }
+              out.append(tok);
+            }
+        src.skip(stat_len + diamond);   // skip statement and maybe ◊
+
+        // 3. maybe add a TOK_END or TOK_ENDL
+        //
+        if (stat_len && (diamond || get_parse_mode() != PM_EXECUTE))
            {
-             const Token & tok = src[src.rest() - s - 1];
-             if (tok.get_Class() >= TC_MAX_PERM &&
-                 tok.get_tag()   != TOK_L_CURLY &&
-                 tok.get_tag()   != TOK_R_CURLY)
-                {
-                  CERR << "Line " << line << endl
-                       << "Offending token: (tag > TC_MAX_PERM) "
-                       << tok.get_tag() << " " << tok << endl
-                       << "Statement: ";
-                  Token::print_token_list(CERR, in);
-                  SYNTAX_ERROR;
-                }
-             out.append(tok);
+             const int64_t tr = trace ? 1 : 0;
+             out.append(Token(TOK_END, tr), LOC);
            }
-        src.skip(src.rest());
-
-        // add an appropriate end token
-        //
-        if (get_parse_mode() != PM_EXECUTE)   out.append(Token(TOK_ENDL), LOC);
       }
+
+   // replace the trailing TOK_END (if any) into TOK_ENDL
+   //
+   if (out.size() && out.last().get_tag() == TOK_END)
+      out.last().ChangeTag(TOK_ENDL);
 
    Log(LOG_UserFunction__set_line)
       {
@@ -239,8 +235,13 @@ const UCS_string & line_txt = text[line];
    // count statement ends before pc
    //
 int stats_before = 0;
-   for (int p = line_start(line); p < pc; ++p)
+   for (Function_PC p = line_start(line); p < pc; ++p)
        {
+         // a TOK_STOP_LINE is immediately followd by a TC_END, but the
+         // TC_END has no ◊ in line_txt. We therefore discount stats_before.
+         //
+         if (body[p].get_tag() == TOK_STOP_LINE)          --stats_before;
+
          if (body[p].get_Class() == TC_END)               ++stats_before;
          else if (body[p].get_tag() == TOK_RETURN_EXEC)   ++stats_before;
        }
@@ -431,7 +432,7 @@ Executable::setup_lambdas()
 
          // a named lambda has the form Q←{ ... }
          //
-         // however, eg. Q←{ ... } / ... is not a named lambda by an unnamed
+         // however, eg. Q←{ ... } / ... is not a named lambda but an unnamed
          // lambda for / whose result is assigned to Q. We need to distinguish
          // the two cases and remember if the token after } is the end of
          // the statement or not.
@@ -489,7 +490,7 @@ Executable::setup_lambdas()
                 Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
                 forw_lambda_body.append(ret_lambda, LOC);
 
-                forw_lambda_body.append(Token(TOK_ENDL));
+                forw_lambda_body.append(Token(TOK_ENDL, 0LL));
 
                 Symbol * sym_Z = &Workspace::get_v_LAMBDA();
                 forw_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
@@ -627,7 +628,7 @@ ExecuteList * fun = new ExecuteList(data, loc);
       {
         CERR << "fix pmode=execute list:" << endl << data
              << " addr " << (const void *)fun << endl
-             << "------------------- fix --" << endl;
+             << "------------------- ExecuteList::fix() --" << endl;
       }
 
    {
@@ -648,7 +649,7 @@ ExecuteList * fun = new ExecuteList(data, loc);
 
    try
       {
-        fun->parse_body_line(Function_Line_0, data, loc);
+        fun->parse_body_line(Function_Line_0, data, false, loc);
       }
    catch (Error err)
       {
@@ -679,7 +680,7 @@ StatementList * fun = new StatementList(data, loc);
       {
         CERR << "fix pmode=statement list:" << endl << data << endl
              << " addr " << (const void *)fun << endl
-             << "------------------- fix --" << endl;
+             << "------------------- StatementList::fix() --" << endl;
       }
 
    {
@@ -687,7 +688,7 @@ StatementList * fun = new StatementList(data, loc);
      if (err)   err->parser_loc = 0;
    }
 
-   fun->parse_body_line(Function_Line_0, data, loc);
+   fun->parse_body_line(Function_Line_0, data, false, loc);
    fun->setup_lambdas();
 
    Log(LOG_UserFunction__fix)

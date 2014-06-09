@@ -49,6 +49,7 @@ err_def(SYSTEM_LIMIT_VALCOUNT,  "SYSTEM LIMIT (value count)"     , 1,    101 )
 err_def(SYSTEM_LIMIT_RAVELSIZE, "SYSTEM LIMIT (ravel size)"      , 1,    102 )
 err_def(SYSTEM_LIMIT_SVAR,      "SYSTEM LIMIT (shared var size)" , 1,    103 )
 err_def(ATTENTION,              "ATTENTION"                      , 1,     17 )
+err_def(STOP_LINE,              "STOP_LINE"                      , 1,     18 )
 
 err_def(SYNTAX_ERROR,           "SYNTAX ERROR"                   , 2,      2 )
 err_def(NO_TOKEN,               "No token"                       , 2, 0x0102 )
