@@ -57,7 +57,7 @@ Nabla::Nabla(const UCS_string & cmd)
 }
 //-----------------------------------------------------------------------------
 void
-Nabla::throw_edit_error(const char * loc)
+Nabla::throw_edit_error(const char * why)
 {
    COUT << "DEFN ERROR+" << endl
         << "      " << first_command << endl
@@ -66,29 +66,30 @@ Nabla::throw_edit_error(const char * loc)
 
    if (Workspace::more_error().size() == 0)
       {
-        Workspace::more_error() = UCS_string(loc);
+        Workspace::more_error() = UCS_string(why);
       }
 
-   throw_define_error(fun_header, first_command, loc);
+   throw_define_error(fun_header, first_command, why);
 }
 //-----------------------------------------------------------------------------
 void
 Nabla::edit()
 {
-   if (const char * loc = start())
+const char * error = start();
+   if (error)
       {
-        if (Workspace::more_error().size() == 0)
+        Log(LOG_verbose_error)   if (Workspace::more_error().size() == 0)
            {
-             CERR << "bad editor command '" << first_command
-                  << "' : problem detected at '" << loc << "'" << endl;
+             UERR << "Bad ∇-open '" << first_command
+                  << "' : '" << error << "'" << endl;
            }
-        throw_edit_error(loc);
+        throw_edit_error(error);
       }
 
    // editor loop
    //
 int control_D_count = 0;
-   Log(LOG_nabla)   CERR << "Nabla(" << fun_header << ")..." << endl;
+   Log(LOG_nabla)   UERR << "Nabla(" << fun_header << ")..." << endl;
    while (!do_close)
        {
          const UCS_string prompt = current_line.print_prompt();
@@ -110,19 +111,19 @@ int control_D_count = 0;
          const UCS_string ucs(utf);
          if (const char * loc = parse_oper(ucs, false))
             {
-              CERR << "???" << endl;
+              UERR << "???" << endl;
               continue;
             }
 
          if (const char * loc = execute_oper())
             {
-              CERR << "∇ editor command failed: " << loc << endl;
+              UERR << "∇-command failed: " << loc << endl;
               Output::set_color_mode(Output::COLM_INPUT);
             }
        }
 
    Log(LOG_nabla)
-      CERR << "done '" << fun_header << "'" << endl;
+      UERR << "done '" << fun_header << "'" << endl;
 
 UCS_string fun_text;
    loop(l, lines.size())
@@ -181,7 +182,7 @@ UCS_string::iterator c(first_command.begin());
 
    // skip leading nabla.
    //
-   if (c.next() != UNI_NABLA)   return LOC;
+   if (c.next() != UNI_NABLA)   return "Bad ∇-command (no ∇)";
 
    // skip leading spaces
    //
@@ -212,11 +213,11 @@ UCS_string::iterator c(first_command.begin());
       }
 
 UserFunction_header hdr(fun_header);
-   if (hdr.get_error())   return LOC;   // bad header
+   if (hdr.get_error())   return "Bad function header";
    fun_symbol = hdr.FUN();
    Assert(fun_symbol);
 
-   if (fun_header.size() == 0)   return LOC;   // no function name
+   if (fun_header.size() == 0)   return "no function name";
 
    // optional operation
    //
@@ -226,10 +227,12 @@ UserFunction_header hdr(fun_header);
         Unicode cc;
         do 
           {
-            if (!c.more())   return LOC;
+            if (!c.more())   return "no ] in ∇-command";
             oper.append(cc = c.next());
           } while (cc != UNI_ASCII_R_BRACK);
-        if (const char * loc = parse_oper(oper, true))   return loc;   // error
+
+        const char * loc = parse_oper(oper, true);
+        if (loc)   return loc;   // error
       }
 
    switch(fun_symbol->get_nc())
@@ -239,7 +242,7 @@ UserFunction_header hdr(fun_header);
              {
                // a new function must not have a command
                //
-               if (ecmd != ECMD_NOP)   return LOC;
+               if (ecmd != ECMD_NOP)   return "∇-command in new function";
 
                const char * open_loc = open_new_function();
                if (open_loc)   return open_loc;
@@ -264,7 +267,7 @@ UserFunction_header hdr(fun_header);
                        // contains more than the function name.
                        //
                        return "attempt to ∇-open existing function with "
-                              "new function header at " LOC;
+                              "new function header";
                   }
 
                const char * open_loc = open_existing_function();
@@ -285,15 +288,15 @@ UserFunction_header hdr(fun_header);
    //
    if (c.get() == UNI_NABLA)
       {
-        if (ecmd != ECMD_SHOW)   return LOC;
+        if (ecmd != ECMD_SHOW)   return "illegal command between ∇ ... ∇";
         if (const char * loc = execute_oper())
-           CERR << "execute_oper() failed at " << loc << endl;
+           UERR << "execute_oper() failed at " << loc << endl;
         do_close = true;
         return 0;
       }
 
    if (const char * loc = execute_oper())
-      CERR << "execute_oper() failed at " << loc << endl;
+      UERR << "execute_oper() failed at " << loc << endl;
 
    return 0;   // no error
 }
@@ -302,7 +305,7 @@ const char *
 Nabla::parse_oper(const UCS_string & oper, bool initial)
 {
    Log(LOG_nabla)
-      CERR << "parsing oper '" << oper << "'" << endl;
+      UERR << "parsing oper '" << oper << "'" << endl;
 
    current_text.clear();
    ecmd = ECMD_NOP;
@@ -372,17 +375,17 @@ command_loop:
         case UNI_ASCII_R_BRACK: ecmd = ECMD_EDIT;                 break;
         case UNI_DELTA:         ecmd = ECMD_DELETE;   c.next();   break;
         case UNI_RIGHT_ARROW:   ecmd = ECMD_ESCAPE;   c.next();   break;
-        case Invalid_Unicode:   return LOC;
+        case Invalid_Unicode:   return "Bad ∇-command";
 
-        default: CERR << "Bad edit op '" << c.get() << "'" << endl;
-                 return LOC;
+        default: UERR << "Bad edit op '" << c.get() << "'" << endl;
+                 return "Bad ∇-command";
       }
 
    // don't allow delete or escape in the first command
    if (initial)
       {
-        if (ecmd == ECMD_DELETE)   return LOC;
-        if (ecmd == ECMD_ESCAPE)   return LOC;
+        if (ecmd == ECMD_DELETE)   return "Bad initial ∇-command ∆";
+        if (ecmd == ECMD_ESCAPE)   return "Bad initial ∇-command →";
       }
 
 again:
@@ -392,14 +395,14 @@ again:
 
    if (c.get() == UNI_ASCII_MINUS)   // range
       {
-        if (got_minus)   return "error: second -  at " LOC;
+        if (got_minus)   return "error: second -  in ∇-range";
         got_minus = true;
         edit_from = edit_to;
         c.next();   // eat the -
         goto again;
       }
 
-   if (c.next() != UNI_ASCII_R_BRACK)   return LOC;
+   if (c.next() != UNI_ASCII_R_BRACK)   return "missing ] in ∇-range";
 
    // at this point we have parsed an editor command, like:
    //
@@ -513,7 +516,7 @@ const char *
 Nabla::open_new_function()
 {
    Log(LOG_nabla)
-      CERR << "creating new function '" << fun_symbol->get_name() 
+      UERR << "creating new function '" << fun_symbol->get_name() 
            << "' with header '" << fun_header << "'" << endl;
 
    lines.push_back(FunLine(0, fun_header));
@@ -524,7 +527,7 @@ const char *
 Nabla::open_existing_function()
 {
    Log(LOG_nabla)
-      CERR << "opening existing function '" << fun_symbol->get_name() << "'" << endl;
+      UERR << "opening existing function '" << fun_symbol->get_name() << "'" << endl;
 
    // this function must only be called when editing functions interactively
    //
@@ -534,10 +537,10 @@ Function * function = fun_symbol->get_function();
    Assert(function);
 
    if (function->get_exec_properties()[0])
-      return "function is locked at " LOC;
+      return "function is locked";
 
    if (function->is_native())
-      return "function is native at " LOC;
+      return "function is native";
 
    if (Workspace::is_called(fun_symbol->get_name()))
       return "function is pendent or suspended";
@@ -547,7 +550,7 @@ const UserFunction * ufun = function->get_ufun1();
       return "function is not editable at " LOC;
 
 const UCS_string ftxt = function->canonical(false);
-   Log(LOG_nabla)   CERR << "existing function is:\n" << ftxt << endl;
+   Log(LOG_nabla)   UERR << "existing function is:\n" << ftxt << endl;
 
 vector<UCS_string> tlines;
    ftxt.to_vector(tlines);
@@ -592,7 +595,7 @@ Nabla::execute_oper()
    if (ecmd == ECMD_NOP)
       {
         Log(LOG_nabla)
-           CERR << "Nabla::execute_oper(NOP)" << endl;
+           UERR << "Nabla::execute_oper(NOP)" << endl;
         return 0;
       }
 
@@ -610,7 +613,7 @@ const bool have_to = edit_to.ln_major != -1;
    if (ecmd == ECMD_EDIT)     return execute_edit();
    if (ecmd == ECMD_ESCAPE)   return execute_escape();
 
-   CERR << "edit command " << ecmd
+   UERR << "edit command " << ecmd
         << " from " << edit_from << " to " << edit_to << endl;
    FIXME;
 
@@ -621,7 +624,7 @@ const char *
 Nabla::execute_show()
 {
    Log(LOG_nabla)
-      CERR << "Nabla::execute_oper(SHOW) from " << edit_from
+      UERR << "Nabla::execute_oper(SHOW) from " << edit_from
            << " to " << edit_to << " line-count " << lines.size() << endl;
 
 int idx_from = find_line(edit_from);
@@ -633,7 +636,7 @@ const LineLabel user_edit_to = edit_to;
    if (idx_to == -1)     edit_to   = lines[idx_to = lines.size() - 1].label;
 
    Log(LOG_nabla)
-      CERR << "Nabla::execute_oper(SHOW) from "
+      UERR << "Nabla::execute_oper(SHOW) from "
            << edit_from << " to " << edit_to << endl;
 
    if (idx_from == 0)   COUT << "    ∇" << endl;               // if header line
@@ -660,7 +663,7 @@ const LineLabel user_edit_to = edit_to;
       }
 
    Log(LOG_nabla)
-      CERR << "Nabla::execute_oper(SHOW) done with current line "
+      UERR << "Nabla::execute_oper(SHOW) done with current line "
            << current_line << endl;
 
    return 0;

@@ -258,6 +258,22 @@ const ShapeItem count = B->element_count();
 Value_P
 Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
 {
+   if (B->is_empty())
+      {
+        Shape shape_Z = B->get_shape();
+        shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) + 1);
+        Value_P Z(new Value(shape_Z, LOC));
+        if (Z->is_empty())
+           {
+              Z->get_ravel(0).init(cell_A);
+           }
+        else
+           {
+             loop(z, Z->element_count())   Z->next_ravel()->init(cell_A);
+           }
+        return Z;
+      }
+
    if (B->is_skalar())
       {
         Value_P Z(new Value(2, LOC));
@@ -294,6 +310,24 @@ const Cell * cB = &B->get_ravel(0);
 Value_P
 Bif_COMMA::append_skalar(Value_P A, Axis axis, const Cell & cell_B)
 {
+   if (A->is_empty())
+      {
+        Shape shape_Z = A->get_shape();
+        shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) + 1);
+        Value_P Z(new Value(shape_Z, LOC));
+        if (Z->is_empty())
+           {
+              Z->get_ravel(0).init(cell_B);
+           }
+        else
+           {
+             loop(z, Z->element_count())   Z->next_ravel()->init(cell_B);
+           }
+        return Z;
+      }
+
+   // A->is_skalar() is handled by prepend_skalar()
+
    if (axis >= A->get_rank())   INDEX_ERROR;
 
 Shape shape_Z(A->get_shape());
