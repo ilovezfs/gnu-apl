@@ -1048,14 +1048,20 @@ XML_Loading_Archive::read_Workspace()
 {
    expect_tag("Workspace", LOC);
 
+const int offset    = find_int_attr("timezone", false, 10);
 const UTF8 * wsid  = find_attr("wsid",         false);
-const int year     = find_int_attr("year",     false, 10);
-const int month    = find_int_attr("month",    false, 10);
-const int day      = find_int_attr("day",      false, 10);
-const int hour     = find_int_attr("hour",     false, 10);
-const int minute   = find_int_attr("minute",   false, 10);
-const int second   = find_int_attr("second",   false, 10);
-const int tzone    = find_int_attr("timezone", false, 10);
+
+struct tm saved;
+   saved.tm_year = find_int_attr("year",     false, 10) - 1900;
+   saved.tm_mon  = find_int_attr("month",    false, 10) - 1;
+   saved.tm_mday = find_int_attr("day",      false, 10);
+   saved.tm_hour = find_int_attr("hour",     false, 10);
+   saved.tm_min  = find_int_attr("minute",   false, 10);
+   saved.tm_sec  = find_int_attr("second",   false, 10);
+
+time_t saved_sec = mktime(&saved);   // saved time in GMT
+   saved_sec += offset;               // saved time in local time
+struct tm * time = localtime(&saved_sec);
 
    Log(LOG_archive)   CERR << "read_Workspace() " << endl;
 
@@ -1096,10 +1102,16 @@ const char ** tag_pos = tag_order;
 
    if (reading_vids)   return;
 
-const char * tz_sign = (tzone < 0) ? "" : "+";
-   COUT << "SAVED " << year << "-" << month << "-" << day
-        << "  " << hour << ":" << minute << ":" << second
-        << " (GMT" << tz_sign << tzone/3600 << ")" << endl;
+const char * tz_sign = (offset < 0) ? "" : "+";
+   COUT << "SAVED "
+        << setfill('0') << (time->tm_year + 1900) << "-"
+        << setw(2)      << (time->tm_mon + 1)  << "-"
+        << setw(2)      <<  time->tm_mday << " "
+        << setw(2)      <<  time->tm_hour << ":"
+        << setw(2)      <<  time->tm_min  << ":"
+        << setw(2)      <<  time->tm_sec  << " (GMT"
+        << tz_sign      <<  offset/3600    << ")"
+        << setfill(' ') <<  endl;
 
    if (!copying)
       {
