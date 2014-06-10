@@ -438,6 +438,7 @@ Executable::setup_lambdas()
          // the statement or not.
          //
          const bool maybe_named = b == 0 || (body[b-1].get_tag() == TOK_DIAMOND
+                                         || body[b-1].get_tag() == TOK_END
                                          || body[b-1].get_tag() == TOK_ENDL);
 
          body[b++].clear(LOC);   // invalidate }
@@ -490,7 +491,8 @@ Executable::setup_lambdas()
                 Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
                 forw_lambda_body.append(ret_lambda, LOC);
 
-                forw_lambda_body.append(Token(TOK_ENDL, 0LL));
+                const int64_t tr = 0;
+                forw_lambda_body.append(Token(TOK_ENDL, tr));
 
                 Symbol * sym_Z = &Workspace::get_v_LAMBDA();
                 forw_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);

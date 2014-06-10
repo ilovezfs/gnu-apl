@@ -988,7 +988,8 @@ UserFunction::parse_body(int & error_line, const char * loc)
         if (stop_line)
            {
              body.append(Token(TOK_STOP_LINE));
-             body.append(Token(TOK_END, 0LL));
+             const int64_t tr = 0;
+             body.append(Token(TOK_END, tr));
            }
 
         const UCS_string & text = get_text(l);

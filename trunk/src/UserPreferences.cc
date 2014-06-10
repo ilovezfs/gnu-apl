@@ -21,6 +21,7 @@
 #include <limits.h>
 #include <string.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include "../config.h"
 
@@ -723,9 +724,14 @@ UserPreferences::show_configure_options()
 void
 UserPreferences::read_config_file(bool sys, bool log_startup)
 {
-char filename[PATH_MAX + 1] = Makefile__sysconfdir;   // fallback filename
+char filename[PATH_MAX + 1];
 
-   if (!sys)   // try $HOME/.gnu_apl
+   if (sys)   // eg. /etc/gnu-apl.d/preferences
+      {
+        snprintf(filename, PATH_MAX,
+                 "%s/gnu-apl.d/preferences", Makefile__sysconfdir);
+      }
+   else       // try $HOME/.gnu_apl
       {
         const char * HOME = getenv("HOME");
         if (HOME == 0)
@@ -734,7 +740,19 @@ char filename[PATH_MAX + 1] = Makefile__sysconfdir;   // fallback filename
                 CERR << "environment variable 'HOME' is not defined!" << endl;
              return;
            }
+
         snprintf(filename, PATH_MAX, "%s/.gnu-apl/preferences", HOME);
+        filename[PATH_MAX] = 0;
+
+        // check that $HOME/.gnu-apl/preferences exist and fall back to
+        // $HOME/.config gnu-apl/preferences if not
+        //
+        if (access(filename, F_OK) != 0)   // file does not exit
+           {
+             snprintf(filename, PATH_MAX,
+                      "%s/.config/gnu-apl/preferences", HOME);
+             filename[PATH_MAX] = 0;
+           }
       }
 
    filename[PATH_MAX] = 0;

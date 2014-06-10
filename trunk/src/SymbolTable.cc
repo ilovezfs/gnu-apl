@@ -253,29 +253,52 @@ int symbol_count = 0;
         return;
       }
 
+const int qpw = Workspace::get_PrintContext().get_PW();
 int col = 0;
    while (list.size() > 0)
       {
-        // find smallest item.
+        // 1. find symbol sym with smallest name
         //
-        uint32_t smallest = 0;
-        for (uint32_t j = 1; j < list.size(); ++j)
+        int smallest = 0;
+        for (int j = 1; j < list.size(); ++j)
             {
               if (list[j]->compare(*list[smallest]) < 0)
               smallest = j;
             }
-
         Symbol * sym = list[smallest];
-        col += sym->get_name().size();
+
+        // 2. compute column where printing would end.
+        //
+        int spaces = 0;
+        int end = col;
+        do ++spaces; while (++end & 3);   // spaces before next mod 4 position
+
+        int name_etc = sym->get_name().size();
+        if (which == LIST_NAMES)   name_etc += 2;   // append .NC
+        end += name_etc;
+
+        // print the symbol
+        //
+        if (end >= qpw)   // ⎕PW exceeded
+           {
+             out << endl;
+             col = 0;
+           }
+         else if (col)   // within ⎕PW and not start of line
+           {
+             UCS_string sp(spaces, UNI_ASCII_SPACE);
+             out << sp;
+             col += spaces;
+           }
+
         sym->print(out);
         if (which == LIST_NAMES)   // append .NC
-           {
-             col += 2;
              out << "." << sym->value_stack.back().name_class;
-           }
-        do out << " ";   while (++col & 7);
-        if (col > 70)   { out << endl;   col = 0; }
+        col += name_etc;
+        
 
+        // 4. remove sym from list
+        //
         list[smallest] = list.back();
         list.pop_back();
       }
