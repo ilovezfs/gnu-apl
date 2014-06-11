@@ -83,3 +83,4 @@
  6431 base64 encoding and decoding of byte vectors
  6858 several bugs fixed
  6970 ∆S and ∆T (stop/trace control)
+ 6995 make commands executable

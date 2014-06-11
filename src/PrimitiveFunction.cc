@@ -26,6 +26,7 @@
 #include "Bif_OPER1_EACH.hh"
 #include "CharCell.hh"
 #include "ComplexCell.hh"
+#include "Command.hh"
 #include "CollatingCache.hh"
 #include "FloatCell.hh"
 #include "Id.hh"
@@ -2504,7 +2505,7 @@ Bif_F1_EXECUTE::eval_B(Value_P B)
 {
    if (B->get_rank() > 1)   RANK_ERROR;
 
-const UCS_string statement(*B.get());
+UCS_string statement(*B.get());
 
    if (statement.size() == 0)   return Token(TOK_NO_VALUE);
 
@@ -2512,8 +2513,45 @@ const UCS_string statement(*B.get());
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F1_EXECUTE::execute_statement(const UCS_string & statement)
+Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
 {
+   statement.remove_leading_and_trailing_whitespaces();
+   if (statement[0] == UNI_ASCII_R_PARENT ||
+       statement[0] == UNI_ASCII_R_BRACK)
+      {
+        UTF8_ostream out;
+        const bool valid = Command::do_APL_command(out, statement);
+        if (!valid)   return Token(TOK_VOID);
+
+        UTF8_string result_utf8 = out.get_data();
+        if (result_utf8.last() != UNI_ASCII_LF)
+           result_utf8.append(UNI_ASCII_LF);
+
+        vector<ShapeItem> line_starts;
+        line_starts.push_back(0);
+        loop(r, result_utf8.size())
+           {
+             if (result_utf8[r] == UNI_ASCII_LF)   line_starts.push_back(r + 1);
+           }
+
+        Value_P Z(new Value((ShapeItem)line_starts.size() - 1, LOC));
+        loop(l, line_starts.size() - 1)
+           {
+             ShapeItem len;
+             if (l < line_starts.size() - 1)
+                len = line_starts[l + 1] - line_starts[l] - 1;
+             else
+                len = result_utf8.size() - line_starts[l];
+
+             UTF8_string line_utf8(&result_utf8[line_starts[l]], len);
+             UCS_string line_ucs(line_utf8);
+             Value_P ZZ(new Value(line_ucs, LOC));
+             new (Z->next_ravel())   PointerCell(ZZ);
+           }
+
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
 ExecuteList * fun = ExecuteList::fix(statement.no_pad(), LOC);
    if (fun == 0)   SYNTAX_ERROR;
 

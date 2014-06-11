@@ -67,58 +67,20 @@ UCS_string line = Input::get_line();   // get_line() removes leading whitespace
 void
 Command::process_line(UCS_string & line)
 {
-   line.remove_leading_and_trailing_whitespace();
+   line.remove_leading_and_trailing_whitespaces();
    if (line.size() == 0)   return;   // empty input line
 
    switch(line[0])
       {
          case UNI_ASCII_R_PARENT:      // regular command, e.g. )SI
+              do_APL_command(COUT, line);
+              if (line.size())   break;
+              return;
+
          case UNI_ASCII_R_BRACK:       // debug command, e.g. ]LOG
-              {
-                const UCS_string line1(line);   // the original line
-
-                ostream & out = (line[0] == UNI_ASCII_R_PARENT) ? COUT : CERR;
-
-                // split line into command and arguments
-                //
-                UCS_string cmd;   // the command without arguments
-                int len = 0;
-                line.copy_black(cmd, len);
-                UCS_string arg(line, len, line.size() - len);
-                vector<UCS_string> args;
-                arg.copy_black_list(args);
-                line.clear();
-                if (!cmd.starts_iwith(")MORE")) 
-                   {
-                     // clear )MORE info unless command is )MORE
-                     //
-                     Workspace::more_error().clear();
-                   }
-
-#define cmd_def(cmd_str, code, _arg) \
-                if (cmd.starts_iwith(cmd_str)) { code } else
-#include "Command.def"
-                   {
-                     // check for user defined commands...
-                     //
-                     loop(u, user_commands.size())
-                         {
-                           if (cmd.starts_iwith(user_commands[u].prefix))
-                              {
-                                do_USERCMD(out, line, line1, cmd, args, u);
-                                goto apl_statements;
-                              }
-                         }
-                     out << "BAD COMMAND" << endl;
-                     return;
-                   }
-
-                if (line.size() == 0)   return;
-              }
-
-              // if line is non-empty then is it ⎕LX of )LOAD
-              //
-              goto apl_statements;
+              do_APL_command(CERR, line);
+              if (line.size())   break;
+              return;
 
          case UNI_NABLA:               // e.g. ∇FUN
               Nabla::edit_function(line);
@@ -128,13 +90,56 @@ Command::process_line(UCS_string & line)
          case UNI_COMMENT:             // e.g. ⍝ comment
               return;
 
-        default: goto apl_statements;
-
+        default: ;
       }
 
-   // at this point, line should be a statement list. Parse it...
+   do_APL_expression(line);
+}
+//-----------------------------------------------------------------------------
+bool
+Command::do_APL_command(ostream & out, UCS_string & line)
+{
+const UCS_string line1(line);   // the original line
+
+   // split line into command and arguments
    //
-apl_statements:
+UCS_string cmd;   // the command without arguments
+int len = 0;
+   line.copy_black(cmd, len);
+
+UCS_string arg(line, len, line.size() - len);
+vector<UCS_string> args;
+   arg.copy_black_list(args);
+   line.clear();
+   if (!cmd.starts_iwith(")MORE")) 
+      {
+        // clear )MORE info unless command is )MORE
+        //
+        Workspace::more_error().clear();
+      }
+
+#define cmd_def(cmd_str, code, _arg) \
+   if (cmd.starts_iwith(cmd_str)) { code; return true; }
+#include "Command.def"
+
+   // check for user defined commands...
+   //
+   loop(u, user_commands.size())
+       {
+         if (cmd.starts_iwith(user_commands[u].prefix))
+            {
+              do_USERCMD(out, line, line1, cmd, args, u);
+              return true;
+            }
+       }
+
+     out << "BAD COMMAND" << endl;
+     return false;
+}
+//-----------------------------------------------------------------------------
+void
+Command::do_APL_expression(UCS_string & line)
+{
    Workspace::more_error().clear();
 
 Executable * statements = 0;

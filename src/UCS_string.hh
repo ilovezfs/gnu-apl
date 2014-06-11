@@ -93,7 +93,7 @@ public:
    /// remove leading blanks, tabs, etc
    void remove_leading_whitespaces();
 
-   void remove_leading_and_trailing_whitespace()
+   void remove_leading_and_trailing_whitespaces()
       {
         remove_trailing_whitespaces();
         remove_leading_whitespaces();
