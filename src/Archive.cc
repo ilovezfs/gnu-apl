@@ -1052,12 +1052,13 @@ const int offset    = find_int_attr("timezone", false, 10);
 const UTF8 * wsid  = find_attr("wsid",         false);
 
 struct tm saved;
-   saved.tm_year = find_int_attr("year",     false, 10) - 1900;
-   saved.tm_mon  = find_int_attr("month",    false, 10) - 1;
-   saved.tm_mday = find_int_attr("day",      false, 10);
-   saved.tm_hour = find_int_attr("hour",     false, 10);
-   saved.tm_min  = find_int_attr("minute",   false, 10);
-   saved.tm_sec  = find_int_attr("second",   false, 10);
+   saved.tm_year  = find_int_attr("year",     false, 10) - 1900;
+   saved.tm_mon   = find_int_attr("month",    false, 10) - 1;
+   saved.tm_mday  = find_int_attr("day",      false, 10);
+   saved.tm_hour  = find_int_attr("hour",     false, 10);
+   saved.tm_min   = find_int_attr("minute",   false, 10);
+   saved.tm_sec   = find_int_attr("second",   false, 10);
+   saved.tm_isdst = 0;   // no daylight saving
 
 time_t saved_sec = mktime(&saved);   // saved time in GMT
    saved_sec += offset;               // saved time in local time

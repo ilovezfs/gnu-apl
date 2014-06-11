@@ -1305,7 +1305,8 @@ Value_P Z(new Value(shape_Z, LOC));
         const Cell * cB = &B->get_ravel(0);
         loop(b, ec_B)
             {
-              encode(dZ, Z->next_ravel(), ah, al, &A->get_ravel(a1), *cB++, qct);
+              encode(dZ, Z->next_ravel(), ah, al,
+                     &A->get_ravel(a1), *cB++, qct);
             }
        }
 
@@ -1347,8 +1348,16 @@ APL_Complex value_C = cB.get_complex_value();   // C[] in the standard
              value_C /= cA->get_complex_value();
            }
 
-         cZ->demote_complex_to_real(qct);
-         cZ->demote_float_to_int(qct);
+         if (cZ->is_near_zero(qct))
+            {
+              // demote_complex_to_real doesn't for near-zero numbers
+              new (cZ) IntCell(0);
+            }
+         else
+            {
+              cZ->demote_complex_to_real(qct);
+              cZ->demote_float_to_int(qct);
+            }
        }
 }
 //-----------------------------------------------------------------------------

@@ -216,6 +216,17 @@ public:
    void pop()
       { if (items_valid)   --items_valid; }
 
+  void drop_leading(int count)
+      {
+        if (count <= 0)   return;
+        if (count >= items_valid)   items_valid = 0;
+        else
+           {
+             items_valid -= count;
+             _copy(items, items + count, items_valid);
+           }
+      }
+
    const T & last() const
       { return items[items_valid - 1]; }
 
@@ -325,16 +336,15 @@ protected:
    /// copy \b count characters
    static void _copy(T * dst, const T * src, int count)
       {
-        Assert(count >= 0);
+        Assert1(count >= 0);
         for (int c = 0; c < count; ++c)  copy_1(dst[c], src[c], LOC);
-        
       }
 
-   /// copy \b count characters downwards (for oveerlapping src/dst
+   /// copy \b count characters downwards (for overlapping src/dst
    static void copy_downwards(T * dst, const T * src, int count)
       {
         Assert(count >= 0);
-        for (int c = count - 1; c >= 0; --c)  dst[c] = src[c];
+        for (int c = count - 1; c >= 0; --c)  copy_1(dst[c], src[c], LOC);
       }
 
    /// the number of characters allocated
