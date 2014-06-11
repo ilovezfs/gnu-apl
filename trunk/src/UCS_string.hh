@@ -87,6 +87,18 @@ public:
    /// remove trailing pad characters
    void remove_trailing_padchars();
 
+   /// remove trailing blanks, tabs, etc
+   void remove_trailing_whitespaces();
+
+   /// remove leading blanks, tabs, etc
+   void remove_leading_whitespaces();
+
+   void remove_leading_and_trailing_whitespace()
+      {
+        remove_trailing_whitespaces();
+        remove_leading_whitespaces();
+      }
+
    /// skip leading whitespaces starting at idx, append the following
    /// non-whitespaces (if any) to \b dest, and skip trailing whitespaces
    void copy_black(UCS_string & dest, int & idx) const;

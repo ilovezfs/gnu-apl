@@ -95,12 +95,13 @@ APL_time_us
 YMDhmsu::get() const
 {
 tm t;
-   t.tm_year = year - 1900;
-   t.tm_mon  = month - 1;
-   t.tm_mday = day;
-   t.tm_hour = hour;
-   t.tm_min  = minute;
-   t.tm_sec  = second;
+   t.tm_year  = year - 1900;
+   t.tm_mon   = month - 1;
+   t.tm_mday  = day;
+   t.tm_hour  = hour;
+   t.tm_min   = minute;
+   t.tm_sec   = second;
+   t.tm_isdst = 0;
 
 APL_time_us ret =  mktime(&t);
    ret *= 1000000;

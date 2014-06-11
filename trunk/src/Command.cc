@@ -61,13 +61,14 @@ void
 Command::process_line()
 {
 UCS_string line = Input::get_line();   // get_line() removes leading whitespace
-
-   if (line.size() > 0)   process_line(line);
+   process_line(line);
 }
 //-----------------------------------------------------------------------------
 void
 Command::process_line(UCS_string & line)
 {
+   line.remove_leading_and_trailing_whitespace();
+   if (line.size() == 0)   return;   // empty input line
 
    switch(line[0])
       {

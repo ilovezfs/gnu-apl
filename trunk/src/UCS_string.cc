@@ -381,6 +381,25 @@ UCS_string::remove_trailing_padchars()
       }
 }
 //-----------------------------------------------------------------------------
+void
+UCS_string::remove_trailing_whitespaces()
+{
+   while (size() && (last() <= UNI_ASCII_SPACE))   pop();
+}
+//-----------------------------------------------------------------------------
+void
+UCS_string::remove_leading_whitespaces()
+{
+int count = 0;
+   loop(s, size())
+      {
+        if ((*this)[s] <= UNI_ASCII_SPACE)   ++count;
+        else                                 break;
+      }
+
+   drop_leading(count);
+}
+//-----------------------------------------------------------------------------
 /// constructor
 UCS_string::UCS_string(const Value & value)
    : Simple_string<Unicode>(0, 0)
