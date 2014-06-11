@@ -113,7 +113,7 @@ public:
    static Bif_F1_EXECUTE    fun;   ///< Built-in function
 
    /// execute string
-   static Token execute_statement(const UCS_string & statement);
+   static Token execute_statement(UCS_string & statement);
 
    /// overladed Function::eval_B()
    virtual Token eval_B(Value_P B);

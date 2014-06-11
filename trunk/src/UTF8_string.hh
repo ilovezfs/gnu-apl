@@ -69,7 +69,7 @@ public:
    const char * c_str()
       {
         extend(items_valid + 1);
-        items[items_valid] = 0;   // the termnating 0
+        items[items_valid] = 0;   // the terminating 0
         return (const char *)items;
       }
 
@@ -90,6 +90,32 @@ public:
    /// return the next UTF8 encoded char from an input file
    static Unicode getc(istream & in);
 };
-//-----------------------------------------------------------------------------
+//=============================================================================
+class UTF8_filebuf : public filebuf
+{
+public:
+   const UTF8_string & get_data()
+      { return data; }
+
+protected:
+   virtual int overflow(int c);
+
+   UTF8_string data;
+};
+//=============================================================================
+class UTF8_ostream : public ostream
+{
+public:
+   UTF8_ostream()
+   : ostream(&utf8_filebuf)
+   {}
+
+   const UTF8_string & get_data()
+      { return utf8_filebuf.get_data(); }
+
+protected:
+   UTF8_filebuf utf8_filebuf;
+};
+//=============================================================================
 
 #endif // __UTF8_STRING_HH_DEFINED__

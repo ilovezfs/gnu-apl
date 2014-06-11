@@ -32,11 +32,18 @@ class Workspace;
 class Command
 {
 public:
-   /// Process a single line entered by the user (in immediate execution mode)
+   /// process a single line entered by the user (in immediate execution mode)
    static void process_line();
 
-   /// Process \b line which contains a command or statements
+   /// process \b line which contains a command or statements
    static void process_line(UCS_string & line);
+
+   /// process \b line which contains an APL command. Return true iff the
+   /// command was found
+   static bool do_APL_command(ostream & out, UCS_string & line);
+
+   /// process \b line which contains APL statements
+   static void do_APL_expression(UCS_string & line);
 
    /// parse user-suplied argument (of )VARS, )OPS, or )NMS commands)
    /// into strings from and to
