@@ -1048,21 +1048,47 @@ XML_Loading_Archive::read_Workspace()
 {
    expect_tag("Workspace", LOC);
 
-const int offset    = find_int_attr("timezone", false, 10);
+const int offset   = find_int_attr("timezone", false, 10);
 const UTF8 * wsid  = find_attr("wsid",         false);
 
-struct tm saved;
-   saved.tm_year  = find_int_attr("year",     false, 10) - 1900;
-   saved.tm_mon   = find_int_attr("month",    false, 10) - 1;
-   saved.tm_mday  = find_int_attr("day",      false, 10);
-   saved.tm_hour  = find_int_attr("hour",     false, 10);
-   saved.tm_min   = find_int_attr("minute",   false, 10);
-   saved.tm_sec   = find_int_attr("second",   false, 10);
-   saved.tm_isdst = 0;   // no daylight saving
+int year  = find_int_attr("year",     false, 10);
+int mon   = find_int_attr("month",    false, 10);
+int day   = find_int_attr("day",      false, 10);
+int hour  = find_int_attr("hour",     false, 10);
+int min   = find_int_attr("minute",   false, 10);
+int sec   = find_int_attr("second",   false, 10);
 
-time_t saved_sec = mktime(&saved);   // saved time in GMT
-   saved_sec += offset;               // saved time in local time
-struct tm * time = localtime(&saved_sec);
+   sec  += offset          % 60;
+   min  += (offset /   60) % 60;
+   hour += (offset / 3600) % 60;
+   if (sec  >= 60)   { sec  -= 60;   ++min;  }
+   if (min  >= 60)   { min  -= 60;   ++hour; }
+   if (hour >= 24)   { hour -= 24;   ++day;  }
+
+bool next_month = false;
+   switch(day)
+      {
+        case 32: next_month = true;
+                 break;
+
+        case 31: if (mon == 4 || mon == 6 || mon == 9 || mon == 11)
+                    next_month = true;
+                 break;
+
+        case 30: if (mon == 2)   next_month = true;
+                 break;
+
+        case 29: if (mon != 2)         break;               // not februry
+                 if (year & 3)         next_month = true;   // not leap yer
+                 // the above fails if someone loads a workspace that
+                 // was saved around midnight on 2/28/2100. Bad luck!
+                 break;
+
+        default: break;
+      }
+
+   if (next_month)   { day = 1; ++mon;  }
+   if (mon > 12)     { mon = 1; ++year; }
 
    Log(LOG_archive)   CERR << "read_Workspace() " << endl;
 
@@ -1105,13 +1131,13 @@ const char ** tag_pos = tag_order;
 
 const char * tz_sign = (offset < 0) ? "" : "+";
    COUT << "SAVED "
-        << setfill('0') << (time->tm_year + 1900) << "-"
-        << setw(2)      << (time->tm_mon + 1)  << "-"
-        << setw(2)      <<  time->tm_mday << " "
-        << setw(2)      <<  time->tm_hour << ":"
-        << setw(2)      <<  time->tm_min  << ":"
-        << setw(2)      <<  time->tm_sec  << " (GMT"
-        << tz_sign      <<  offset/3600    << ")"
+        << setfill('0') << year        << "-"
+        << setw(2)      << mon         << "-"
+        << setw(2)      << day         << " "
+        << setw(2)      << hour        << ":"
+        << setw(2)      << min         << ":"
+        << setw(2)      << sec         << " (GMT"
+        << tz_sign      << offset/3600 << ")"
         << setfill(' ') <<  endl;
 
    if (!copying)
