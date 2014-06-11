@@ -76,7 +76,17 @@ const Function_PC pc = get_executable()->get_ufun()->pc_for_line(new_line);
       CERR << "Continue SI[" << level << "] at line " << new_line
            << " pc=" << pc << " at " << loc << endl;
 
-   set_PC(pc);
+   if (get_executable()->get_body()[pc].get_tag() == TOK_STOP_LINE)   // S∆
+      {
+        // pc points to a S∆ token. We are jumping back from immediate
+        // execution, so we don't want to stop again.
+        //
+        set_PC(pc + 2);
+      }
+   else
+      {
+        set_PC(pc);
+      }
 
    Log(LOG_prefix_parser)   CERR << "GOTO [" << get_line() << "]" << endl;
 
