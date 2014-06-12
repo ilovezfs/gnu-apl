@@ -178,6 +178,7 @@ AC_CONFIG_FILES([Makefile
                  debian/Makefile
                  debian/source/Makefile
                  doc/Makefile
+                 gnu-apl.d/Makefile
                  rpm/Makefile
 		 rpm/apl.spec
                  src/Makefile
@@ -309,3 +310,4 @@ fi
 AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])
 
 AC_OUTPUT
+
