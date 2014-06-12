@@ -16714,7 +16714,7 @@ fi
 
 fi
 
-ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile tools/Makefile workspaces/Makefile wslib1/Makefile wslib2/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile"
+ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile gnu-apl.d/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile tools/Makefile workspaces/Makefile wslib1/Makefile wslib2/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile"
 
 
 # APL: max. rank ?
@@ -17947,6 +17947,7 @@ do
     "debian/Makefile") CONFIG_FILES="$CONFIG_FILES debian/Makefile" ;;
     "debian/source/Makefile") CONFIG_FILES="$CONFIG_FILES debian/source/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+    "gnu-apl.d/Makefile") CONFIG_FILES="$CONFIG_FILES gnu-apl.d/Makefile" ;;
     "rpm/Makefile") CONFIG_FILES="$CONFIG_FILES rpm/Makefile" ;;
     "rpm/apl.spec") CONFIG_FILES="$CONFIG_FILES rpm/apl.spec" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
@@ -19481,4 +19482,5 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
+
 

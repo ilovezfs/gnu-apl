@@ -253,9 +253,9 @@
 # LIBREF-0 /home/xyz/my-own-libs
 # LIBREF-1 /home/xyz/my-group-libs
 # LIBREF-2 /group/abc/other-libs
-  LIBREF-3 /usr/local/lib/apl/wslib3
-  LIBREF-4 /usr/local/lib/apl/wslib4
-  LIBREF-5 /usr/local/lib/apl/wslib5
+  LIBREF-3 @GNU_APL_LIBS@/wslib3
+  LIBREF-4 @GNU_APL_LIBS@/wslib4
+  LIBREF-5 @GNU_APL_LIBS@/wslib5
 # LIBREF-6 /usr/lib/gnu-apl/lib-6
 # LIBREF-7 /usr/lib/gnu-apl/lib-7
 # LIBREF-8 /usr/lib/gnu-apl/lib-8

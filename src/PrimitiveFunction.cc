@@ -2521,7 +2521,7 @@ Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
       {
         UTF8_ostream out;
         const bool valid = Command::do_APL_command(out, statement);
-        if (!valid)   return Token(TOK_VOID);
+        if (!valid)   throw_apl_error(E_INCORRECT_COMMAND, LOC);
 
         UTF8_string result_utf8 = out.get_data();
         if (result_utf8.last() != UNI_ASCII_LF)
