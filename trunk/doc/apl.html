@@ -1130,7 +1130,8 @@ multiple statements, guards, lexical scoping, and probably more.
 
 <p>User-defined functions and operators accept an axis argument. For example:
 
-<pre class="verbatim">∇Z←Average[X] B
+<pre class="verbatim">
+∇Z←Average[X] B
  Z←(+/[X]B) ÷ (⍴B)[X]
 ∇
 
@@ -1139,9 +1140,16 @@ multiple statements, guards, lexical scoping, and probably more.
 
       Average[2] 5 5⍴⍳25
 3 8 13 18 23
+
 </pre>
 
-   <p>The axis is used in the same way as for primitive functions and operators.
+   <p>Syntactically, the axis is used in the same way as for primitive functions
+and operators.
+
+   <p>There are no contraints on the axis such as being integers. Therefore you
+can use an axis as a third function argument. Keep in mind, however, that
+doing so will make your APL code incompatible with other APLs. Use this
+feature carefully!
 
 <!--  -->
 <div class="node">

@@ -164,6 +164,9 @@ public:
 
    /// return ⎕AV[pos - ⎕IO]
    static Unicode indexed_at(uint32_t pos);
+
+   /// a static ⎕AV
+   static Unicode qav[MAX_AV];
 };
 //-----------------------------------------------------------------------------
 /**
@@ -186,7 +189,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(Value::Default_CT_P, LOC);
+        Symbol::push();   Symbol::assign(FloatSkalar(DEFAULT_Quad_CT, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -245,10 +248,7 @@ protected:
    virtual void assign_indexed(IndexExpr & IX, Value_P value);
 
    // overloaded Symbol::push()
-   virtual void push()
-      {
-        Symbol::push();   Symbol::assign(Value::Default_FC_P, LOC);
-      }
+   virtual void push();
 };
 //-----------------------------------------------------------------------------
 /**
@@ -341,7 +341,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(Value::Default_PP_P, LOC);
+        Symbol::push();   Symbol::assign(IntSkalar(DEFAULT_Quad_PP, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -365,7 +365,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(Value::Spc_P, LOC);
+        Symbol::push();   Symbol::assign(Spc(LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -398,7 +398,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(Value::Zero_P, LOC);
+        Symbol::push();   Symbol::assign(IntSkalar(0, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -435,7 +435,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(Value::Default_PW_P, LOC);
+        Symbol::push();   Symbol::assign(IntSkalar(DEFAULT_Quad_PW, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -556,10 +556,6 @@ class Quad_TC : public RO_SystemVariable
 public:
    /// Constructor.
    Quad_TC();
-
-protected:
-   /// overloaded Symbol::get_apl_value().
-   virtual Value_P get_apl_value() const;
 };
 //-----------------------------------------------------------------------------
 /**

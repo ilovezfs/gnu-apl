@@ -93,7 +93,7 @@ Value_P
 Quad_TF::tf1(const UCS_string & name)
 {
 NamedObject * obj = Workspace::lookup_existing_name(name);
-   if (obj == 0)   return Value::Str0_P;
+   if (obj == 0)   return Str0(LOC);
 
 const Function * function = obj->get_function();
 
@@ -102,7 +102,7 @@ const Function * function = obj->get_function();
         if (obj->is_user_defined())   return tf1(name, *function);
 
         // quad function or primitive: return ''
-        return Value::Str0_P;
+        return Str0(LOC);
       }
 
 Symbol * symbol = obj->get_symbol();
@@ -114,7 +114,7 @@ Symbol * symbol = obj->get_symbol();
         /* not a variable: fall through */
       }
 
-   return Value::Str0_P;
+   return Str0(LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -144,7 +144,7 @@ const ShapeItem ec = val->element_count();
              const Cell & cell = val->get_ravel(e);
              if (!cell.is_character_cell())
                 {
-                  return  Value::Str0_P;
+                  return  Str0(LOC);
                 }
 
              ucs.append(cell.get_char_value());
@@ -340,7 +340,7 @@ Token
 Quad_TF::tf2(const UCS_string & name)
 {
 NamedObject * obj = Workspace::lookup_existing_name(name);
-   if (obj == 0)   return Token(TOK_APL_VALUE1, Value::Str0_P);
+   if (obj == 0)   return Token(TOK_APL_VALUE1, Str0(LOC));
 
 const Function * function = obj->get_function();
 
@@ -355,7 +355,7 @@ const Function * function = obj->get_function();
            }
 
         // quad function or primitive: return ''
-        return Token(TOK_APL_VALUE1, Value::Str0_P);
+        return Token(TOK_APL_VALUE1, Str0(LOC));
       }
 
 Symbol * symbol = obj->get_symbol();
@@ -367,7 +367,7 @@ Symbol * symbol = obj->get_symbol();
         /* not a variable: fall through */
       }
 
-   return Token(TOK_APL_VALUE1, Value::Str0_P);
+   return Token(TOK_APL_VALUE1, Str0(LOC));
 }
 //-----------------------------------------------------------------------------
 Token
@@ -380,7 +380,7 @@ const bool error = tf2_value(0, ucs, value);
 
    // return '' for invalid values.
    //
-   if (error)   return Token(TOK_APL_VALUE1, Value::Str0_P);
+   if (error)   return Token(TOK_APL_VALUE1, Str0(LOC));
 
 Value_P Z(new Value(ucs, LOC));
    Z->check_value(LOC);
@@ -871,13 +871,13 @@ Value_P
 Quad_TF::tf3(const UCS_string & name)
 {
 NamedObject * obj = Workspace::lookup_existing_name(name);
-   if (obj == 0)   return Value::Str0_P;
+   if (obj == 0)   return Str0(LOC);
 
    if (obj->get_function())
       {
         // 3⎕TF is not defined for functions.
         //
-        return Value::Str0_P;
+        return Str0(LOC);
       }
 
 Symbol * symbol = obj->get_symbol();
@@ -895,6 +895,6 @@ Symbol * symbol = obj->get_symbol();
         /* not a variable: fall through */
       }
 
-   return Value::Str0_P;
+   return Str0(LOC);
 }
 //-----------------------------------------------------------------------------

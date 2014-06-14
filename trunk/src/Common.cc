@@ -26,6 +26,7 @@
 #include <sys/time.h>
 
 #include "Common.hh"
+#include "FloatCell.hh"
 #include "Output.hh"
 #include "Value.icc"
 
@@ -158,6 +159,55 @@ sixbit(Unicode uni)
       }
 
    return -1;   // uni is not a hex digit
+}
+//-----------------------------------------------------------------------------
+Value_P
+IntSkalar(APL_Integer val, const char * loc)
+{
+Value_P Z(new Value(loc));
+   new (Z->next_ravel())   IntCell(val);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+FloatSkalar(APL_Float val, const char * loc)
+{
+Value_P Z(new Value(loc));
+   new (Z->next_ravel())   FloatCell(val);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Idx0(const char * loc)
+{
+Value_P Z(new Value((ShapeItem)0, loc));
+   new (&Z->get_ravel(0))   IntCell(0);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Spc(const char * loc)
+{
+Value_P Z(new Value(loc));
+   new (Z->next_ravel())   CharCell(UNI_ASCII_SPACE);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Str0(const char * loc)
+{
+Value_P Z(new Value((ShapeItem)0, loc));
+   new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Str0_0(const char * loc)
+{
+Shape sh((ShapeItem)0, (ShapeItem)0);
+Value_P Z(new Value(sh, loc));
+   new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
+   return Z;
 }
 //-----------------------------------------------------------------------------
 

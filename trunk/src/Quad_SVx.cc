@@ -218,7 +218,7 @@ Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
 Quad_SVE::Quad_SVE()
    : NL_SystemVariable(ID_Quad_SVE)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -257,7 +257,7 @@ const APL_time_us wait = timer_end - current_time;
    if (wait <= 0)
       {
         Svar_DB::clear_all_events();
-        return Value::Zero_P;
+        return IntSkalar(0, LOC);
       }
 
    // At this point the timer is still running.
@@ -302,13 +302,13 @@ bool got_event = false;
 
    // if no event has occurred (timeout) then return 0
    //
-  if (!got_event)   return Value::Zero_P;
+  if (!got_event)   return IntSkalar(0, LOC);
 
    // we have got an event; return remaining time.
    //
 const APL_Float remaining = timer_end - now();
 
-   if (remaining < 0)   return Value::Zero_P;
+   if (remaining < 0)   return IntSkalar(0, LOC);
 
 Value_P Z(new Value(LOC));
    new (&Z->get_ravel(0))   FloatCell(0.000001 * remaining);
@@ -659,7 +659,7 @@ Value_P Z(new Value(shZ, LOC));
         else                 new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
       }
 
-   Z->set_default(*Value::Spc_P);   // prototype: character
+   Z->set_default_Spc();   // prototype: character
    return Z;
 }
 //=============================================================================

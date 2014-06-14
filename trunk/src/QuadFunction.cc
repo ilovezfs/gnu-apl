@@ -43,21 +43,23 @@
 
 extern char **environ;
 
-Quad_AF  Quad_AF::fun;
-Quad_AT  Quad_AT::fun;
-Quad_CR  Quad_CR::fun;
-Quad_DL  Quad_DL::fun;
-Quad_EA  Quad_EA::fun;
-Quad_EC  Quad_EC::fun;
-Quad_ENV Quad_ENV::fun;
-Quad_ES  Quad_ES::fun;
-Quad_EX  Quad_EX::fun;
-Quad_INP Quad_INP::fun;
-Quad_NA  Quad_NA::fun;
-Quad_NC  Quad_NC::fun;
-Quad_NL  Quad_NL::fun;
-Quad_SI  Quad_SI::fun;
-Quad_UCS Quad_UCS::fun;
+Quad_AF    Quad_AF::fun;
+Quad_AT    Quad_AT::fun;
+Quad_CR    Quad_CR::fun;
+Quad_DL    Quad_DL::fun;
+Quad_EA    Quad_EA::fun;
+Quad_EC    Quad_EC::fun;
+Quad_ENV   Quad_ENV::fun;
+Quad_ES    Quad_ES::fun;
+Quad_EX    Quad_EX::fun;
+Quad_INP   Quad_INP::fun;
+Quad_NA    Quad_NA::fun;
+Quad_NC    Quad_NC::fun;
+Quad_NL    Quad_NL::fun;
+Quad_SI    Quad_SI::fun;
+Quad_UCS   Quad_UCS::fun;
+Quad_STOP  Quad_STOP::fun;            // S∆
+Quad_TRACE Quad_TRACE::fun;           // T∆
 
 //=============================================================================
 Token
@@ -191,14 +193,14 @@ UCS_string symbol_name(*B.get());
     *  4) symbol_name is not displayable
     */
 NamedObject * obj = Workspace::lookup_existing_name(symbol_name);
-   if (obj == 0)   return Token(TOK_APL_VALUE1, Value::Str0_0_P);
-   if (!obj->is_user_defined())   return Token(TOK_APL_VALUE1, Value::Str0_0_P);
+   if (obj == 0)                  return Token(TOK_APL_VALUE1, Str0_0(LOC));
+   if (!obj->is_user_defined())   return Token(TOK_APL_VALUE1, Str0_0(LOC));
 
 const Function * function = obj->get_function();
-   if (function == 0)   return Token(TOK_APL_VALUE1, Value::Str0_0_P);
+   if (function == 0)   return Token(TOK_APL_VALUE1, Str0_0(LOC));
 
    if (function->get_exec_properties()[0] != 0)
-      return Token(TOK_APL_VALUE1, Value::Str0_0_P);
+      return Token(TOK_APL_VALUE1, Str0_0(LOC));
 
    // show the function...
    //
@@ -284,7 +286,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                      new (Z->next_ravel())   CharCell((Unicode)l);
                    }
 
-               Z->set_default(*Value::Spc_P);
+               Z->set_default_Spc();
                Z->check_value(LOC);
                return Z;
              }
@@ -302,7 +304,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                         Value_P Z_line(new Value(ucs_vec[line], LOC));
                         new (Z->next_ravel())   PointerCell(Z_line);
                       }
-                   Z->set_default(*Value::Str0_0_P);
+                   Z->set_default_Spc();
                    Z->check_value(LOC);
                    return Z;
                  }
@@ -317,7 +319,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                    Value_P Z(new Value(len, LOC));
                    loop(l, len)
                        new (Z->next_ravel()) CharCell((Unicode)(0xFF & cdr[l]));
-                   Z->set_default(*Value::Str0_P);
+                   Z->set_default_Spc();
                    Z->check_value(LOC);
                    return Z;
                  }
@@ -356,7 +358,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                         new (Z->next_ravel()) CharCell(Unicode(16*n1 + n2));
                       }
 
-                   Z->set_default(*Value::Zero_P);
+                   Z->set_default_Zero();
                    Z->check_value(LOC);
                    return Z;
                  }
@@ -377,7 +379,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                          new (Z->next_ravel()) CharCell(uh);
                          new (Z->next_ravel()) CharCell(ul);
                        }
-                   Z->set_default(*Value::Str0_P);
+                   Z->set_default_Spc();
                    Z->check_value(LOC);
                    return Z;
                  }
@@ -471,7 +473,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                           break;
                   }
 
-               Z->set_default(*Value::Spc_P);
+               Z->set_default_Spc();
                Z->check_value(LOC);
                return Z;
              }
@@ -481,7 +483,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
              {
                if (B.get_rank() != 1)   RANK_ERROR;
                if (B.get_cols() & 3)    LENGTH_ERROR;          // length not 4*n
-               if (B.get_cols() == 0)   return Value::Str0_P;  // empty value
+               if (B.get_cols() == 0)   return Str0(LOC);  // empty value
 
                // figure number of missing chars in final quantum
                //
@@ -535,7 +537,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                         }
                    }
 
-               Z->set_default(*Value::Spc_P);
+               Z->set_default_Spc();
                Z->check_value(LOC);
                return Z;
              }
@@ -1310,7 +1312,7 @@ ErrorCode ec = E_NO_ERROR;
         case TOK_NO_VALUE:
         case TOK_VOID:
              result_type = 3;
-             Z2 = Value::Idx0_P;  // 0⍴0
+             Z2 = Idx0(LOC);  // 0⍴0
              break;
 
         case TOK_BRANCH:
@@ -1321,7 +1323,7 @@ ErrorCode ec = E_NO_ERROR;
 
         case TOK_ESCAPE:
              result_type = 5;
-             Z2 = Value::Idx0_P;  // 0⍴0
+             Z2 = Idx0(LOC);  // 0⍴0
              break;
 
         default: CERR << "unexpected result tag " << result_B.get_tag()
@@ -1396,7 +1398,7 @@ Value_P Z(new Value(sh_Z, LOC));
         new (Z->next_ravel()) PointerCell(varval);
       }
 
-   Z->set_default(*Value::Spc_P);
+   Z->set_default_Spc();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1427,14 +1429,14 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
 {
    // B is empty: no action
    //
-   if (B->element_count() == 0)   return Token(TOK_APL_VALUE1, Value::Str0_0_P);
+   if (B->element_count() == 0)   return Token(TOK_APL_VALUE1, Str0_0(LOC));
 
    error.init(get_error_code(B), error.throw_loc);
 
    if (error.error_code == E_NO_ERROR)   // B = 0 0: reset ⎕ET and ⎕EM.
       {
         Workspace::clear_error(LOC);
-        return Token(TOK_APL_VALUE1, Value::Str0_0_P);
+        return Token(TOK_APL_VALUE1, Str0_0(LOC));
       }
 
    if (error.error_code == E_ASSERTION_FAILED)   // B = 0 ASSERTION_FAILED
@@ -1751,7 +1753,14 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
    delete arg.esc1;
    if (arg.esc2 != arg.esc1)   delete arg.esc2;
 
-   Z->set_default(*Value::zStr0_P);
+   if (Z->is_empty())   // then Z←⊂''
+      {
+        Shape sh(0);   // length 0 vector
+        Value_P ZZ(new Value(sh, LOC));
+        ZZ->set_default_Spc();
+        new (&Z->get_ravel(0)) PointerCell(ZZ);
+      }
+
    Z->check_value(LOC);
    move_2(token, Token(TOK_APL_VALUE1, Z), LOC);
    return false;   // continue
@@ -1873,7 +1882,7 @@ vector<const UCS_string *> names;
 
    // 4. compute length of longest name
    //
-int longest = 0;
+ShapeItem longest = 0;
    loop(n, names.size())
       {
         if (longest < names[n]->size())
@@ -1910,7 +1919,7 @@ Value_P Z(new Value(shZ, LOC));
         names[smallest] = names[count - 1];
       }
 
-   Z->set_default(*Value::Str0_P.get());
+   Z->set_default_Spc();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1988,7 +1997,7 @@ const APL_Integer b = B->get_ravel(0).get_int_value();
         default: DOMAIN_ERROR;
       }
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -2056,7 +2065,7 @@ ShapeItem z = 0;
 
        }
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -2091,6 +2100,132 @@ const ShapeItem ec = B->nz_element_count();
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
+}
+//=============================================================================
+UserFunction *
+Stop_Trace::locate_fun(const Value & fun_name)
+{
+UCS_string fun_name_ucs(fun_name);
+   if (fun_name_ucs.size() == 0)   LENGTH_ERROR;
+
+Symbol * fun_symbol = Workspace::lookup_existing_symbol(fun_name_ucs);
+   if (fun_symbol == 0)
+      {
+        CERR << "symbol " << fun_name_ucs << " not found" << endl;
+        return 0;
+      }
+
+Function * fun = fun_symbol->get_function();
+   if (fun_symbol == 0)
+      {
+        CERR << "symbol " << fun_name_ucs << " is not a function" << endl;
+        return 0;
+      }
+
+UserFunction * ufun = fun->get_ufun1();
+   if (ufun == 0)
+      {
+        CERR << "symbol " << fun_name_ucs
+             << " is not a defined function" << endl;
+        return 0;
+      }
+
+   return ufun;
+}
+//-----------------------------------------------------------------------------
+Token
+Stop_Trace::reference(const vector<Function_Line> & lines, bool assigned)
+{
+Value_P Z(new Value(lines.size(), LOC));
+
+   loop(z, lines.size())   new (Z->next_ravel()) IntCell(lines[z]);
+
+   Z->set_default_Zero();
+   if (assigned)   return Token(TOK_APL_VALUE2, Z);
+   else            return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+void
+Stop_Trace::assign(UserFunction * ufun, const Value & new_value, bool stop)
+{
+DynArray(Function_Line, lines, new_value.element_count());
+int line_count = 0;
+
+const APL_Float qct = Workspace::get_CT();
+   loop(l, new_value.element_count())
+      {
+         APL_Integer line = new_value.get_ravel(l).get_near_int(qct);
+         if (line < 1)   continue;
+         lines[line_count++] = (Function_Line)line;
+      }
+
+   ufun->set_trace_stop(lines, line_count, stop);
+}
+//=============================================================================
+Token
+Quad_STOP::eval_AB(Value_P A, Value_P B)
+{
+   // Note: Quad_STOP::eval_AB can be called directly or via S∆. If
+   //
+   // 1. called via S∆   then A is the function and B are the lines.
+   // 2. called directly then B is the function and A are the lines.
+   //
+UserFunction * ufun = locate_fun(*A);
+   if (ufun)   // case 1.
+      {
+        assign(ufun, *B, true);
+        return reference(ufun->get_stop_lines(), true);
+      }
+
+   // case 2.
+   //
+   ufun = locate_fun(*B);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   assign(ufun, *A, true);
+   return reference(ufun->get_stop_lines(), true);
+}
+//-----------------------------------------------------------------------------
+Token
+Quad_STOP::eval_B(Value_P B)
+{
+UserFunction * ufun = locate_fun(*B);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   return reference(ufun->get_stop_lines(), false);
+}
+//=============================================================================
+Token
+Quad_TRACE::eval_AB(Value_P A, Value_P B)
+{
+   // Note: Quad_TRACE::eval_AB can be called directly or via S∆. If
+   //
+   // 1. called via S∆   then A is the function and B are the lines.
+   // 2. called directly then B is the function and A are the lines.
+   //
+UserFunction * ufun = locate_fun(*A);
+   if (ufun)   // case 1.
+      {
+        assign(ufun, *B, false);
+        return reference(ufun->get_trace_lines(), true);
+      }
+
+   // case 2.
+   //
+   ufun = locate_fun(*B);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   assign(ufun, *A, false);
+   return reference(ufun->get_trace_lines(), true);
+}
+//-----------------------------------------------------------------------------
+Token
+Quad_TRACE::eval_B(Value_P B)
+{
+UserFunction * ufun = locate_fun(*B);
+   if (ufun == 0)   DOMAIN_ERROR;
+
+   return reference(ufun->get_trace_lines(), false);
 }
 //=============================================================================
 

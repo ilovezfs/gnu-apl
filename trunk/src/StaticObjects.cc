@@ -35,14 +35,7 @@
 DynamicObject DynamicObject::all_values(LOC);
 DynamicObject DynamicObject::all_index_exprs(LOC);
 
-// 2. static APL values must exist before system variables (in Workspace)
-//    because some system variable constructors use them.
-//
-#define stv_def(x) Value Value:: _ ## x(LOC, Value::Value_how_ ## x); \
-                   Value_P Value:: x ## _P(&Value::_## x, LOC);
-#include "StaticValues.def"
-
-// 3. Id strings are used by function id_name() which is used by system
+// 2. Id strings are used by function id_name() which is used by system
 //    variable constructors (in Workspace)
 //
 #define av(x, u) const UCS_string id_ ## x (UNI_ ## u);
@@ -74,7 +67,7 @@ id_name(Id id)
    Assert(0 && "Bad Id");
 }
 
-// 4. now Workspace can be constructed
+// 3. now Workspace can be constructed
 //
 Workspace Workspace::the_workspace;
 

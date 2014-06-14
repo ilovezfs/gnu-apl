@@ -221,12 +221,16 @@ Workspace::get_quad(UCS_string ucs, int & len)
 Unicode av_0 = (ucs.size() > 1) ? ucs[1] : Invalid_Unicode;
 Unicode av_1 = (ucs.size() > 2) ? ucs[2] : Invalid_Unicode;
 Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
+Unicode av_3 = (ucs.size() > 4) ? ucs[4] : Invalid_Unicode;
+Unicode av_4 = (ucs.size() > 5) ? ucs[5] : Invalid_Unicode;
 
    // lowercase to uppercase
    //
    if (av_0 >= 'a' && av_0 <= 'z')   av_0 = Unicode(av_0 - 0x20);
    if (av_1 >= 'a' && av_1 <= 'z')   av_1 = Unicode(av_1 - 0x20);
    if (av_2 >= 'a' && av_2 <= 'z')   av_2 = Unicode(av_2 - 0x20);
+   if (av_3 >= 'a' && av_3 <= 'z')   av_3 = Unicode(av_3 - 0x20);
+   if (av_4 >= 'a' && av_4 <= 'z')   av_4 = Unicode(av_4 - 0x20);
 
 #define var(t, l) { len = l + 1; \
    return Token(TOK_Quad_ ## t, &the_workspace.v_Quad_ ## t); }
@@ -284,6 +288,7 @@ Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
              if (av_1 == UNI_ASCII_N)
                 {
                   if (av_2 == UNI_ASCII_P)   f2(INP, 3)
+                  break;
                 }
 
              if (av_1 == UNI_ASCII_O)        var(IO, 2)
@@ -316,6 +321,12 @@ Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
 
         case UNI_ASCII_S:
              if (av_1 == UNI_ASCII_I)      f1 (SI, 2)
+             if (av_1 == UNI_ASCII_T)
+                {
+                  if (av_2 == UNI_ASCII_O &&
+                      av_3 == UNI_ASCII_P)   f2 (STOP, 4)
+                  break;
+                }
              if (av_1 == UNI_ASCII_V)
                 {
                   if (av_2 == UNI_ASCII_C)   f2 (SVC, 3)
@@ -324,16 +335,25 @@ Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
                   if (av_2 == UNI_ASCII_Q)   f2 (SVQ, 3)
                   if (av_2 == UNI_ASCII_R)   f1 (SVR, 3)
                   if (av_2 == UNI_ASCII_S)   f1 (SVS, 3)
+                  break;
                 }
              if (av_1 == UNI_ASCII_Y)
                 {
                   if (av_2 == UNI_ASCII_L)   var(SYL, 3)
+                  break;
                 }
              break;
 
         case UNI_ASCII_T:
              if (av_1 == UNI_ASCII_C)        var(TC, 2)
              if (av_1 == UNI_ASCII_F)        f2 (TF, 2)
+             if (av_1 == UNI_ASCII_R)
+                {
+                  if (av_2 == UNI_ASCII_A &&
+                      av_3 == UNI_ASCII_C &&
+                      av_4 == UNI_ASCII_E)   f2 (TRACE, 5)
+                  break;
+                }
              if (av_1 == UNI_ASCII_S)        var(TS, 2)
              if (av_1 == UNI_ASCII_Z)        var(TZ, 2)
              break;

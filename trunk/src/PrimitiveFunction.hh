@@ -415,9 +415,16 @@ public:
 
    static Bif_F12_ENCODE fun;   ///< Built-in function
 protected:
-   /// Encode B according to A
+   /// encode b according to A (integer A and b)
    void encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
-               const Cell * cA, const Cell & cB, double qct);
+               const Cell * cA, APL_Integer b);
+
+   void encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
+               const Cell * cA, APL_Float b, double qct);
+
+   /// encode B according to A
+   void encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
+               const Cell * cA, APL_Complex b, double qct);
 };
 //-----------------------------------------------------------------------------
 /** System function decode
@@ -774,60 +781,6 @@ public:
 
    static Bif_F2_RIGHT fun;   ///< Built-in function
 protected:
-};
-//-----------------------------------------------------------------------------
-class Stop_Trace : public NonskalarFunction
-{
-protected:
-   Stop_Trace(TokenTag tag)
-   : NonskalarFunction (tag)
-   {}
-
-   // find UserFunction named \b fun_name
-   UserFunction * locate_fun(const Value & fun_name);
-
-   // return integers in lines
-   Token reference(const vector<Function_Line> & lines, bool assigned);
-
-   // return assign lines in new_value to stop or trace vector in ufun
-   void assign(UserFunction * ufun, const Value & new_value, bool stop);
-};
-//-----------------------------------------------------------------------------
-/// functions common for Stop_Vector and Trace_Vector
-class Stop_Vector : public Stop_Trace
-{
-public:
-   /// Constructor
-   Stop_Vector()
-   : Stop_Trace(TOK_STOP_VEC)
-   {}
-
-   /// Overloaded Function::eval_AB()
-   virtual Token eval_AB(Value_P A, Value_P B);
-
-   /// Overloaded Function::eval_B()
-   virtual Token eval_B(Value_P B);
-
-   /// Built-in function
-   static Stop_Vector fun;
-};
-//-----------------------------------------------------------------------------
-class Trace_Vector : public Stop_Trace
-{
-public:
-   /// Constructor
-   Trace_Vector()
-   : Stop_Trace(TOK_TRACE_VEC)
-   {}
-
-   /// Overloaded Function::eval_AB()
-   virtual Token eval_AB(Value_P A, Value_P B);
-
-   /// Overloaded Function::eval_B()
-   virtual Token eval_B(Value_P B);
-
-   /// Built-in function
-   static Trace_Vector fun;
 };
 //-----------------------------------------------------------------------------
 

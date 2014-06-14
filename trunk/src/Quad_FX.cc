@@ -223,12 +223,7 @@ UCS_string function_name = B->get_UCS_ravel();
    if (function_name.size() == 0)   LENGTH_ERROR;
 
 NativeFunction * fun = NativeFunction::fix(so_name, function_name);
-   if (fun == 0)
-      {
-        Value_P Z = Value::Zero_P;
-        Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, Z);
-      }
+   if (fun == 0)  return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));
 
 Value_P Z = B;
    Z->check_value(LOC);
