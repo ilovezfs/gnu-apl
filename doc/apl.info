@@ -1048,6 +1048,7 @@ more.
 User-defined functions and operators accept an axis argument. For
 example:
 
+
 ∇Z←Average[X] B
  Z←(+/[X]B) ÷ (⍴B)[X]
 ∇
@@ -1058,8 +1059,13 @@ example:
       Average[2] 5 5⍴⍳25
 3 8 13 18 23
 
-   The axis is used in the same way as for primitive functions and
-operators.
+   Syntactically, the axis is used in the same way as for primitive
+functions and operators.
+
+   There are no contraints on the axis such as being integers.
+Therefore you can use an axis as a third function argument. Keep in
+mind, however, that doing so will make your APL code incompatible with
+other APLs. Use this feature carefully!
 
 
 File: apl.info,  Node: Chapter 3,  Next: Chapter 4,  Prev: Chapter 2,  Up: Top
@@ -2330,11 +2336,11 @@ Tag Table:
 Node: Top418
 Node: Chapter 11348
 Node: Chapter 214137
-Node: Chapter 336180
-Node: Chapter 437781
-Node: Chapter 538899
-Node: Section 5.139402
-Node: Section 5.264531
+Node: Chapter 336439
+Node: Chapter 438040
+Node: Chapter 539158
+Node: Section 5.139661
+Node: Section 5.264790
 
 End Tag Table
 

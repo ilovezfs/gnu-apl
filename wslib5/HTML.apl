@@ -7,7 +7,7 @@
 ⍝
 ⍝ The library is used by means of the )COPY command:
 ⍝
-⍝ )COPY 3 HTML
+⍝ )COPY 5 HTML
 ⍝
 ⍝
 ⍝ The library  provides the following functions (meta functions omitted):

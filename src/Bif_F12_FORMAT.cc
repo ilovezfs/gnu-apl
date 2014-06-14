@@ -137,7 +137,7 @@ Value_P Z;
         DOMAIN_ERROR;
       }
 
-   Z->set_default(*Value::Spc_P);
+   Z->set_default_Spc();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -870,7 +870,7 @@ const APL_Float qct = Workspace::get_CT();
         Value_P Z(new Value(shape_Z, LOC));
         loop(z, ec_Z)   new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
 
-        Z->set_default(*Value::Spc_P);
+        Z->set_default_Spc();
         return Z;
       }
 

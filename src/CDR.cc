@@ -482,7 +482,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
         Assert(0 && "Bad/unsupported CDR type");
       }
 
-   ret->set_default(*Value::Zero_P);
+   ret->set_default_Zero();
    ret->check_value(LOC);
    return ret;
 }

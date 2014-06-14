@@ -399,4 +399,24 @@ operator --(Function_PC & pc)
 
 #include "SharedValuePointer.hh"
 
+// frequently used values
+
+/// integer skalar
+Value_P IntSkalar(APL_Integer val, const char * loc);
+
+/// floating-point skalar
+Value_P FloatSkalar(APL_Float val, const char * loc);
+
+/// ' '
+Value_P Spc(const char * loc);
+
+/// ⍳0 (aka. ⍬)
+Value_P Idx0(const char * loc);
+
+/// ''
+Value_P Str0(const char * loc);
+
+/// 0 0⍴''
+Value_P Str0_0(const char * loc);
+
 #endif // __COMMON_HH_DEFINED__

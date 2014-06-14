@@ -28,14 +28,16 @@
 #endif
 
 #include "Cell.hh"
+#include "CharCell.hh"
 #include "Common.hh"
 #include "DynamicObject.hh"
+#include "IntCell.hh"
 #include "Shape.hh"
 
 using namespace std;
 
-class IndexExpr;
 class CDR_string;
+class IndexExpr;
 class Value_P;
 
 //=============================================================================
@@ -144,6 +146,14 @@ public:
    /// set the prototype (according to B) if this value is empty.
    void set_default(const Value & B)
       { if (is_empty())   ravel[0].init_type(B.get_ravel(0)); }
+
+   /// set the prototype to ' ' if this value is empty.
+   void set_default_Spc()
+      { if (is_empty())   new (&ravel[0]) CharCell(UNI_ASCII_SPACE); }
+
+   /// set the prototype to 0 if this value is empty.
+   void set_default_Zero()
+      { if (is_empty())   new (&ravel[0]) IntCell(0); }
 
    /// Return the number of skalars in this value (enlist).
    ShapeItem get_enlist_count() const;
@@ -452,9 +462,6 @@ public:
    /// print stale Values, and return the number of stale Values.
    static int print_stale(ostream & out);
 
-#define stv_def(x) /** x **/ static Value _ ## x; static Value_P x ## _P;
-#include "StaticValues.def"
-
    /// total nz_element_counts of all non-short values
    static ShapeItem total_ravel_count;
 
@@ -470,17 +477,6 @@ protected:
 
    /// the shape of \b this value (only the first \b rank values are valid.
    Shape shape;
-
-   /// a method number for creating a static value
-   enum Value_how
-      {
-#define stv_def(x) Value_how_ ## x,
-#include "StaticValues.def"
-        Value_how_MAX   ///< all method numbers are below this value
-      };
-
-   /// special constructor for static values (Zero, One etc.)
-   Value(const char * loc, Value_how how);
 
    /// release sub-values of this value
    void release_sub(const char * loc);

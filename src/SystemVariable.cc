@@ -55,6 +55,8 @@ ShapeItem Quad_SYL::print_length_limit = 0;
 int Quad_ARG::argc = 0;
 const char ** Quad_ARG::argv = 0;
 
+Unicode Quad_AV::qav[MAX_AV];
+
 //=============================================================================
 void
 SystemVariable::assign(Value_P value, const char * loc)
@@ -125,13 +127,24 @@ SystemVariable::get_attributes(int mode, Cell * dest) const
 Quad_AV::Quad_AV()
    : RO_SystemVariable(ID_Quad_AV)
 {
-   Symbol::assign(Value::AV_P, LOC);
+Value_P AV(new Value(MAX_AV, LOC));
+   loop(cti, MAX_AV)
+       {
+         const int av_pos = Avec::get_av_pos(CHT_Index(cti));
+         const Unicode uni = Avec::unicode(CHT_Index(cti));
+
+         qav[av_pos] = uni;   // remember unicode for indexed_at()
+         new (&AV->get_ravel(av_pos))  CharCell(uni);
+       }
+   AV->check_value(LOC);
+
+   Symbol::assign(AV, LOC);
 }
 //-----------------------------------------------------------------------------
 Unicode
 Quad_AV::indexed_at(uint32_t pos)
 {
-   if (pos < MAX_AV)   return Value::AV_P->get_ravel(pos).get_char_value();
+   if (pos < MAX_AV)   return qav[pos];
    return UNI_AV_MAX;
 }
 //=============================================================================
@@ -187,7 +200,7 @@ Cell * C = &Z->get_ravel(0);
 Quad_CT::Quad_CT()
    : SystemVariable(ID_Quad_CT)
 {
-   Symbol::assign(Value::Default_CT_P, LOC);
+   Symbol::assign(FloatSkalar(DEFAULT_Quad_CT, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -209,12 +222,14 @@ APL_Float val = cell.get_real_value();
    // APL2 "discourages" the use of ⎕CT > 1E¯9.
    // We round down to MAX_Quad_CT (= 1E¯9) instead.
    //
-   if (val > Value::Max_CT_P->get_ravel(0).get_real_value())
+   if (val > MAX_Quad_CT)
       {
-        value = Value::Max_CT_P;
+        Symbol::assign(FloatSkalar(MAX_Quad_CT, LOC), LOC);
       }
-
-   Symbol::assign(value, LOC);
+   else
+      {
+        Symbol::assign(value, LOC);
+      }
 }
 //=============================================================================
 Value_P
@@ -236,7 +251,11 @@ const Error * err = 0;
       {
         // return 3 0⍴' '
         //
-        return Value::Str3_0_P;
+        Shape sh((ShapeItem)3, (ShapeItem)0);
+        Value_P Z(new Value(sh, LOC));
+        new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
+        Z->check_value(LOC);
+        return Z;
       }
 
 const UCS_string msg_1 = err->get_error_line_1();
@@ -303,7 +322,33 @@ Value_P Z(new Value(2, LOC));
 //=============================================================================
 Quad_FC::Quad_FC() : SystemVariable(ID_Quad_FC)
 {
-   Symbol::assign(Value::Default_FC_P, LOC);
+Value_P QFC(new Value(6, LOC));
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_FULLSTOP);
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_COMMA);
+   new (QFC->next_ravel()) CharCell(UNI_STAR_OPERATOR);
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_0);
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_UNDERSCORE);
+   new (QFC->next_ravel()) CharCell(UNI_OVERBAR);
+   QFC->check_value(LOC);
+
+   Symbol::assign(QFC, LOC);
+}
+//-----------------------------------------------------------------------------
+void
+Quad_FC::push()
+{
+   Symbol::push();
+
+Value_P QFC(new Value(6, LOC));
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_FULLSTOP);
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_COMMA);
+   new (QFC->next_ravel()) CharCell(UNI_STAR_OPERATOR);
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_0);
+   new (QFC->next_ravel()) CharCell(UNI_ASCII_UNDERSCORE);
+   new (QFC->next_ravel()) CharCell(UNI_OVERBAR);
+   QFC->check_value(LOC);
+
+   Symbol::assign(QFC, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -319,13 +364,11 @@ ShapeItem value_len = value->element_count();
 
    // new value is correct. 
    //
-Unicode fc[6];
+Unicode fc[6] = { UNI_ASCII_FULLSTOP, UNI_ASCII_COMMA,      UNI_STAR_OPERATOR,
+                  UNI_ASCII_0,        UNI_ASCII_UNDERSCORE, UNI_OVERBAR };
                   
-   loop(c, 6)
-      if (c < value_len)
+   loop(c, 6)   if (c < value_len)
          fc[c] = value->get_ravel(c).get_char_value();
-      else
-         fc[c] = Value::Default_FC_P->get_ravel(c).get_char_value();
                   
    // 0123456789,. are forbidden for ⎕FC[4 + ⎕IO]
    //
@@ -391,7 +434,7 @@ Value_P new_val(new Value(ucs, LOC));
 Quad_IO::Quad_IO()
    : SystemVariable(ID_Quad_IO)
 {
-   Symbol::assign(Value::One_P, LOC);
+   Symbol::assign(IntSkalar(1, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -404,15 +447,15 @@ Quad_IO::assign(Value_P value, const char * loc)
       }
 
    if (value->get_ravel(0).get_near_bool(0.1))
-      Symbol::assign(Value::One_P, LOC);
+      Symbol::assign(IntSkalar(1, LOC), LOC);
    else
-      Symbol::assign(Value::Zero_P, LOC);
+      Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //=============================================================================
 Quad_L::Quad_L()
  : NL_SystemVariable(ID_Quad_L)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -444,7 +487,7 @@ StateIndicator * si = Workspace::SI_top_error();
 Quad_LC::Quad_LC()
    : RO_SystemVariable(ID_Quad_LC)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -469,7 +512,7 @@ Value_P Z(new Value(len, LOC));
             new (Z->next_ravel())   IntCell(si->get_line());
        }
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Z;
 }
@@ -477,7 +520,7 @@ Value_P Z(new Value(len, LOC));
 Quad_LX::Quad_LX()
    : NL_SystemVariable(ID_Quad_LX)
 {
-   Symbol::assign(Value::Str0_P, LOC);
+   Symbol::assign(Str0(LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -510,25 +553,18 @@ Quad_PP::assign(Value_P value, const char * loc)
       }
 
 const Cell & cell = value->get_ravel(0);
-const APL_Integer val = cell.get_near_int(0.1);
+APL_Integer val = cell.get_near_int(0.1);
    if (val < MIN_Quad_PP)   DOMAIN_ERROR;
 
-   if (val > MAX_Quad_PP)
-      {
-        Symbol::assign(Value::Max_PP_P, LOC);
-      }
-   else
-      {
-        Value_P v(new Value(LOC));
-        new (&v->get_ravel(0))   IntCell(val);
-        Symbol::assign(value, LOC);
-      }
+   if (val > MAX_Quad_PP)   val = MAX_Quad_PP;
+
+   Symbol::assign(IntSkalar(val, LOC), LOC);
 }
 //=============================================================================
 Quad_PR::Quad_PR()
    : SystemVariable(ID_Quad_PR)
 {
-   Symbol::assign(Value::Spc_P, LOC);
+   Symbol::assign(Spc(LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -544,7 +580,7 @@ UCS_string ucs = value->get_UCS_ravel();
 Quad_PS::Quad_PS()
    : SystemVariable(ID_Quad_PS)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -560,10 +596,10 @@ const Cell & cell = value->get_ravel(0);
 const APL_Integer val = cell.get_near_int(0.1);
    switch(val)
       {
-        case 0:  Symbol::assign(Value::Zero_P,  LOC);   return;
-        case 1:  Symbol::assign(Value::One_P,   LOC);   return;
-        case 2:  Symbol::assign(Value::Two_P,   LOC);   return;
-        case 3:  Symbol::assign(Value::Three_P, LOC);   return;
+        case 0:
+        case 1:
+        case 2:
+        case 3:  Symbol::assign(IntSkalar(val, LOC), LOC);   return;
         default: DOMAIN_ERROR;
       }
 }
@@ -571,7 +607,7 @@ const APL_Integer val = cell.get_near_int(0.1);
 Quad_PT::Quad_PT()
    : RO_SystemVariable(ID_Quad_PT)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -587,7 +623,7 @@ Value_P Z(new Value(LOC));
 Quad_PW::Quad_PW()
    : SystemVariable(ID_Quad_PW)
 {
-   Symbol::assign(Value::Default_PW_P, LOC);
+   Symbol::assign(IntSkalar(DEFAULT_Quad_PW, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -732,7 +768,7 @@ Value_P Z(new Value(in, LOC));
 Quad_R::Quad_R()
  : NL_SystemVariable(ID_Quad_R)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -772,7 +808,7 @@ Quad_SYL::assign(Value_P value, const char * loc)
    // this assign is called from the constructor in order to trigger the
    // creation of a symbol for Quad_SYL.
    //
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -874,19 +910,19 @@ Value_P Z( new Value(sh, LOC));
 Quad_TC::Quad_TC()
    : RO_SystemVariable(ID_Quad_TC)
 {
-   Symbol::assign(Value::Quad_TC_P, LOC);
-}
-//-----------------------------------------------------------------------------
-Value_P
-Quad_TC::get_apl_value() const
-{
-   return Value::Quad_TC_P;
+Value_P QCT(new Value(3, LOC));
+   new (QCT->next_ravel()) CharCell(UNI_ASCII_BS);
+   new (QCT->next_ravel()) CharCell(UNI_ASCII_CR);
+   new (QCT->next_ravel()) CharCell(UNI_ASCII_LF);
+   QCT->check_value(LOC);
+
+   Symbol::assign(QCT, LOC);
 }
 //=============================================================================
 Quad_TS::Quad_TS()
    : RO_SystemVariable(ID_Quad_TS)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -1018,7 +1054,7 @@ Value_P Z(new Value(LOC));
 Quad_WA::Quad_WA()
    : RO_SystemVariable(ID_Quad_WA)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -1088,7 +1124,7 @@ uint64_t proc_mem = 0;            // memory as reported proc/mem_info
 Quad_X::Quad_X()
  : NL_SystemVariable(ID_Quad_X)
 {
-   Symbol::assign(Value::Zero_P, LOC);
+   Symbol::assign(IntSkalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void

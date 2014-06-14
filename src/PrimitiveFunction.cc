@@ -68,8 +68,6 @@ Bif_F2_INTER      Bif_F2_INTER::fun;         // ∩
 Bif_F12_UNION     Bif_F12_UNION::fun;        // ∪
 Bif_F2_LEFT       Bif_F2_LEFT::fun;          // ⊣
 Bif_F2_RIGHT      Bif_F2_RIGHT::fun;         // ⊢
-Stop_Vector       Stop_Vector::fun;          // S∆
-Trace_Vector      Trace_Vector::fun;         // T∆
 
 const CharCell PrimitiveFunction::c_filler(UNI_ASCII_SPACE);
 const IntCell  PrimitiveFunction::n_filler(0);
@@ -105,7 +103,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 Token
 Bif_F0_ZILDE::eval_()
 {
-   return Token(TOK_APL_VALUE1, Value::Idx0_P);
+   return Token(TOK_APL_VALUE1, Idx0(LOC));
 }
 //=============================================================================
 Token
@@ -115,7 +113,7 @@ Value_P Z(new Value(B->get_rank(), LOC));
 
    loop(r, B->get_rank())   new (&Z->get_ravel(r)) IntCell(B->get_shape_item(r));
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -199,7 +197,7 @@ Value_P Z(new Value(len, LOC));
 
    loop(z, len)   new (&Z->get_ravel(z)) IntCell(qio + z);
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -236,7 +234,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
             new (&Z->get_ravel(bz)) IntCell(qio + len_A);
        }
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1304,10 +1302,37 @@ Value_P Z(new Value(shape_Z, LOC));
    loop(a1, al)
       {
         const Cell * cB = &B->get_ravel(0);
+
+        // find largest Celltype in a1...
+        //
+        CellType ct_a1 = CT_INT;
+        loop(h, ah)
+            {
+              const CellType ct = A->get_ravel(a1 + h*al).get_cell_type();
+              if (ct == CT_INT)            ;
+              else if (ct == CT_FLOAT)     { if (ct_a1 == CT_INT)  ct_a1 = ct; }
+              else if (ct == CT_COMPLEX)   ct_a1 = CT_COMPLEX;
+              else                         DOMAIN_ERROR;
+            }
+
         loop(b, ec_B)
             {
-              encode(dZ, Z->next_ravel(), ah, al,
-                     &A->get_ravel(a1), *cB++, qct);
+              CellType ct = ct_a1;
+              const CellType ct_b = cB->get_cell_type();
+              if (ct_b == CT_INT)            ;
+              else if (ct_b == CT_FLOAT)     { if (ct == CT_INT)  ct = ct_b; }
+              else if (ct_b == CT_COMPLEX)   ct = CT_COMPLEX;
+              else                           DOMAIN_ERROR;
+
+              if (ct == CT_INT)
+                 encode(dZ, Z->next_ravel(), ah, al,
+                        &A->get_ravel(a1), cB++->get_int_value());
+              else if (ct == CT_FLOAT)
+                 encode(dZ, Z->next_ravel(), ah, al,
+                        &A->get_ravel(a1), cB++->get_real_value(), qct);
+              else
+                 encode(dZ, Z->next_ravel(), ah, al,
+                        &A->get_ravel(a1), cB++->get_complex_value(), qct);
             }
        }
 
@@ -1319,12 +1344,8 @@ Value_P Z(new Value(shape_Z, LOC));
 //-----------------------------------------------------------------------------
 void
 Bif_F12_ENCODE::encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
-                       const Cell * cA, const Cell & cB, double qct)
+                       const Cell * cA, APL_Integer b)
 {
-   if (!cB.is_numeric())   DOMAIN_ERROR;
-
-APL_Complex value_C = cB.get_complex_value();   // C[] in the standard
-
    // we work downwards from the higher indices...
    //
    cA += ah*al;   // the end of A
@@ -1334,19 +1355,85 @@ APL_Complex value_C = cB.get_complex_value();   // C[] in the standard
        {
          cA -= al;
          cZ -= dZ;
-         if (!cA->is_numeric())   DOMAIN_ERROR;
 
-        const ComplexCell cC(value_C);
+        const IntCell cC(b);
+        cC.bif_residue(cZ, cA);
+
+        if (cA->get_int_value() == 0)
+           {
+             b = 0;
+           }
+         else
+           {
+             b -= cZ->get_int_value();
+             b /= cA->get_int_value();
+           }
+       }
+}
+//-----------------------------------------------------------------------------
+void
+Bif_F12_ENCODE::encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
+                       const Cell * cA, APL_Float b, double qct)
+{
+   // we work downwards from the higher indices...
+   //
+   cA += ah*al;   // the end of A
+   cZ += ah*dZ;   // the end of Z
+
+   loop(l, ah)
+       {
+         cA -= al;
+         cZ -= dZ;
+
+        const FloatCell cC(b);
         cC.bif_residue(cZ, cA);
 
         if (cA->is_near_zero(qct))
            {
-             value_C = APL_Complex(0, 0);
+             b = 0.0;
            }
          else
            {
-             value_C -= cZ->get_complex_value();
-             value_C /= cA->get_complex_value();
+             b -= cZ->get_real_value();
+             b /= cA->get_real_value();
+           }
+
+         if (cZ->is_near_zero(qct))
+            {
+              new (cZ) IntCell(0);
+            }
+         else
+            {
+              cZ->demote_float_to_int(qct);
+            }
+       }
+}
+//-----------------------------------------------------------------------------
+void
+Bif_F12_ENCODE::encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
+                       const Cell * cA, APL_Complex b, double qct)
+{
+   // we work downwards from the higher indices...
+   //
+   cA += ah*al;   // the end of A
+   cZ += ah*dZ;   // the end of Z
+
+   loop(l, ah)
+       {
+         cA -= al;
+         cZ -= dZ;
+
+        const ComplexCell cC(b);
+        cC.bif_residue(cZ, cA);
+
+        if (cA->is_near_zero(qct))
+           {
+             b = APL_Complex(0, 0);
+           }
+         else
+           {
+             b -= cZ->get_complex_value();
+             b /= cA->get_complex_value();
            }
 
          if (cZ->is_near_zero(qct))
@@ -1400,7 +1487,7 @@ Value_P Z(new Value(A->get_shape(), LOC));
          new (&Z->get_ravel(z))   IntCell(same);
        }
    
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1512,7 +1599,7 @@ Bif_F12_PARTITION::partition(Value_P A, Value_P B, Axis axis)
         APL_Integer val = A->get_ravel(0).get_int_value();
         if (val == 0)
            {
-             return Token(TOK_APL_VALUE1, Value::Idx0_P);
+             return Token(TOK_APL_VALUE1, Idx0(LOC));
            }
 
         return eval_B(B);
@@ -2355,12 +2442,7 @@ Bif_SORT::sort(Value_P B, bool ascending)
    if (B->is_skalar())   RANK_ERROR;
 
 const ShapeItem len_BZ = B->get_shape_item(0);
-   if (len_BZ == 0)
-      {
-        Value_P Z = Value::Idx0_P;
-        Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, Z);
-      }
+   if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
 
 const ShapeItem comp_len = B->element_count()/len_BZ;
 DynArray(const Cell *, array, len_BZ);
@@ -2375,7 +2457,7 @@ const Cell * base = &B->get_ravel(0);
    loop(bz, len_BZ)
        new (Z->next_ravel())   IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -2388,13 +2470,11 @@ Bif_SORT::sort_collating(Value_P A, Value_P B, bool ascending)
 
 const APL_Integer qio = Workspace::get_IO();
    if (B->NOTCHAR())     DOMAIN_ERROR;
-   if (B->is_skalar())   return Token(TOK_APL_VALUE1, qio ? Value::One_P
-                                                          : Value::Zero_P);
+   if (B->is_skalar())   return Token(TOK_APL_VALUE1, IntSkalar(qio, LOC));
 
 const ShapeItem len_BZ = B->get_shape_item(0);
-   if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Value::Idx0_P);
-   if (len_BZ == 1)   return Token(TOK_APL_VALUE1, qio ? Value::One_P
-                                                       : Value::Zero_P);
+   if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
+   if (len_BZ == 1)   return Token(TOK_APL_VALUE1, IntSkalar(qio, LOC));
 
 Value_P B1(new Value(B->get_shape(), LOC));
 const ShapeItem ec_B = B->element_count();
@@ -2419,7 +2499,7 @@ const Cell * base = &B1->get_ravel(0);
    loop(bz, len_BZ)
        new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
 
-   Z->set_default(*Value::Zero_P);
+   Z->set_default_Zero();
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -2478,26 +2558,17 @@ Bif_F12_EQUIV::eval_AB(Value_P A, Value_P B)
    //
 
 const APL_Float qct = Workspace::get_CT();
-const ShapeItem count = A->nz_element_count();  // compare at least the prototype
-bool different = false;
+const ShapeItem count = A->nz_element_count();  // compare at least prototype
 
-   if (!A->same_shape(*B))
-      {
-        different = true;
-        goto done;
-      }
+   if (!A->same_shape(*B))   return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));   // no match
 
    loop(c, count)
        if (!A->get_ravel(c).equal(B->get_ravel(c), qct))
           {
-            different = true;
-            break;
+            return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));   // no match
           }
-done:
 
-Value_P Z = different ? Value::Zero_P : Value::One_P;
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+   return Token(TOK_APL_VALUE1, IntSkalar(1, LOC));   // match
 }
 //-----------------------------------------------------------------------------
 Token
@@ -2741,104 +2812,6 @@ Value_P Z(new Value(eq_count, LOC));
    Z->set_default(*B.get());
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
-}
-//=============================================================================
-UserFunction *
-Stop_Trace::locate_fun(const Value & fun_name)
-{
-UCS_string fun_name_ucs(fun_name);
-   if (fun_name_ucs.size() == 0)   LENGTH_ERROR;
-
-Symbol * fun_symbol = Workspace::lookup_existing_symbol(fun_name_ucs);
-   if (fun_symbol == 0)
-      {
-        CERR << "symbol " << fun_name_ucs << " not found" << endl;
-        return 0;
-      }
-
-Function * fun = fun_symbol->get_function();
-   if (fun_symbol == 0)
-      {
-        CERR << "symbol " << fun_name_ucs << " is not a function" << endl;
-        return 0;
-      }
-
-UserFunction * ufun = fun->get_ufun1();
-   if (ufun == 0)
-      {
-        CERR << "symbol " << fun_name_ucs
-             << " is not a defined function" << endl;
-        return 0;
-      }
-
-   return ufun;
-}
-//-----------------------------------------------------------------------------
-Token
-Stop_Trace::reference(const vector<Function_Line> & lines, bool assigned)
-{
-Value_P Z(new Value(lines.size(), LOC));
-
-   loop(z, lines.size())   new (Z->next_ravel()) IntCell(lines[z]);
-
-   Z->set_default(*Value::Zero_P);
-   if (assigned)   return Token(TOK_APL_VALUE2, Z);
-   else            return Token(TOK_APL_VALUE1, Z);
-}
-//-----------------------------------------------------------------------------
-void
-Stop_Trace::assign(UserFunction * ufun, const Value & new_value, bool stop)
-{
-DynArray(Function_Line, lines, new_value.element_count());
-int line_count = 0;
-
-const APL_Float qct = Workspace::get_CT();
-   loop(l, new_value.element_count())
-      {
-         APL_Integer line = new_value.get_ravel(l).get_near_int(qct);
-         if (line < 1)   continue;
-         lines[line_count++] = (Function_Line)line;
-      }
-
-   ufun->set_trace_stop(lines, line_count, stop);
-}
-//=============================================================================
-Token
-Stop_Vector::eval_AB(Value_P A, Value_P B)
-{
-UserFunction * ufun = locate_fun(*A);
-   if (ufun == 0)   DOMAIN_ERROR;
-
-   assign(ufun, *B, true);
-   return reference(ufun->get_stop_lines(), true);
-}
-//-----------------------------------------------------------------------------
-Token
-Stop_Vector::eval_B(Value_P B)
-{
-UserFunction * ufun = locate_fun(*B);
-   if (ufun == 0)   DOMAIN_ERROR;
-
-   return reference(ufun->get_stop_lines(), false);
-}
-//=============================================================================
-Token
-Trace_Vector::eval_AB(Value_P A, Value_P B)
-{
-UserFunction * ufun = locate_fun(*A);
-   if (ufun == 0)   DOMAIN_ERROR;
-
-   assign(ufun, *B, false);
-   return reference(ufun->get_trace_lines(), true);
-}
-//-----------------------------------------------------------------------------
-Token
-Trace_Vector::eval_B(Value_P B)
-{
-UserFunction * ufun = locate_fun(*B);
-   if (ufun == 0)   DOMAIN_ERROR;
-
-   return reference(ufun->get_trace_lines(), false);
 }
 //=============================================================================
 

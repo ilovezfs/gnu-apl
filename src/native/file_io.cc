@@ -355,7 +355,7 @@ list_functions(ostream & out)
 "   Zs ←    FUN[26] Bs    return entire file Bs as byte vector\n"
 "\n";
 
-   return Token(TOK_APL_VALUE1, Value::Str0_P);
+   return Token(TOK_APL_VALUE1, Str0(LOC));
 }
 //-----------------------------------------------------------------------------
 Token
@@ -371,7 +371,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
         //
         case -4: // clear all probes (ignores B, returns 0)
              Probe::init_all();
-             return Token(TOK_APL_VALUE1, Value::Zero_P);
+             return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));
 
         case -2: // return CPU frequency
              {
@@ -417,10 +417,10 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                //
                if (probe < 0)   probe = Probe::PROBE_COUNT + probe;
                if (probe >= Probe::PROBE_COUNT)   // too high
-                  return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+                  return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
 
                const int len = Probe::get_length(probe);
-               if (len < 0)   return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+               if (len < 0)   return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
 
                 Value_P Z(new Value(len, LOC));
                 loop(m, len)
@@ -467,7 +467,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 UTF8_string path(*B.get());
                 errno = 0;
                 FILE * f = fopen(path.c_str(), "r");
-                if (f == 0)   return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+                if (f == 0)   return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
 
                 file_entry fe(f, fileno(f));
                 fe.fe_may_read = true;
@@ -640,7 +640,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (f == 0)
                    {
                      if (errno)   goto out_errno;   // errno may be set or not
-                     return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+                     return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
                    }
 
                 file_entry fe(f, fileno(f));
@@ -693,7 +693,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 loop(z, len)   new (Z->next_ravel()) CharCell((Unicode)data[z]);
                 munmap((char *)data, len);
 
-                Z->set_default(*Value::Spc_P);
+                Z->set_default_Spc();
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
@@ -738,7 +738,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                 errno = 0;
                 FILE * f = fopen(path.c_str(), m);
-                if (f == 0)   return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+                if (f == 0)   return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
 
                 file_entry fe(f, fileno(f));
                 fe.fe_may_read = read;
@@ -892,7 +892,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (f == 0)
                    {
                      if (errno)   goto out_errno;   // errno may be set or not
-                     return Token(TOK_APL_VALUE1, Value::Minus_One_P);
+                     return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
                    }
 
                 file_entry fe(f, fileno(f));

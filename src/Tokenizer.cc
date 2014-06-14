@@ -356,15 +356,11 @@ Tokenizer::tokenize_quad(Source<Unicode> & src, Token_string & tos)
 UCS_string ucs(UNI_Quad_Quad);
    Assert(ucs[0]);
 
-   ucs.append((src.rest() > 0) ? src[0] : Invalid_Unicode);
-   ucs.append((src.rest() > 1) ? src[1] : Invalid_Unicode);
-   ucs.append((src.rest() > 2) ? src[2] : Invalid_Unicode);
-
-   // allow lowercase ⎕xx
-   //
-   if (ucs[1] >= 'a' && ucs[1] <= 'z')   ucs[1] = (Unicode)(ucs[1] - 32);
-   if (ucs[2] >= 'a' && ucs[2] <= 'z')   ucs[2] = (Unicode)(ucs[2] - 32);
-   if (ucs[3] >= 'a' && ucs[3] <= 'z')   ucs[3] = (Unicode)(ucs[3] - 32);
+   if (src.rest() > 0)   ucs.append(src[0]);
+   if (src.rest() > 1)   ucs.append(src[1]);
+   if (src.rest() > 2)   ucs.append(src[2]);
+   if (src.rest() > 3)   ucs.append(src[3]);
+   if (src.rest() > 4)   ucs.append(src[4]);
 
 int len = 0;
 const Token t = Workspace::get_quad(ucs, len);
@@ -425,10 +421,6 @@ bool got_end = false;
    if (string_value.size() == 1)   // skalar
       {
         tos.append(Token(TOK_CHARACTER, string_value[0]));
-      }
-   else if (string_value.size() == 0)
-      {
-        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P), LOC);
       }
    else
       {
@@ -501,10 +493,6 @@ bool got_end = false;
 
    if (!got_end)   throw_parse_error(E_NO_STRING_END, LOC, loc);
 
-   if (string_value.size() == 0)
-      {
-        tos.append(Token(TOK_APL_VALUE1, Value::Str0_P), LOC);
-      }
    else
       {
         tos.append(Token(TOK_APL_VALUE1,
@@ -781,8 +769,8 @@ UCS_string symbol;
         UCS_string symbol1(symbol, 2, symbol.size() - 2);   // without S∆/T∆
         Value_P AB(new Value(symbol1, LOC));
         Function * ST = 0;
-        if (symbol[0] == UNI_ASCII_S) ST = &Stop_Vector::fun;
-        else                          ST = &Trace_Vector::fun;
+        if (symbol[0] == UNI_ASCII_S) ST = &Quad_STOP::fun;
+        else                          ST = &Quad_TRACE::fun;
 
         const bool assigned = (src.rest() && *src == UNI_LEFT_ARROW);
         if (assigned)   // dyadic: AB ∆fun

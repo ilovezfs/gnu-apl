@@ -47,7 +47,7 @@ public:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-AF (Atomic Function)
+   The system function ⎕AF (Atomic Function)
  */
 class Quad_AF : public QuadFunction
 {
@@ -64,7 +64,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-AT (Attributes)
+   The system function ⎕AT (Attributes)
  */
 class Quad_AT : public QuadFunction
 {
@@ -81,7 +81,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-CR (Character Representation).
+   The system function ⎕CR (Character Representation).
  */
 class Quad_CR : public QuadFunction
 {
@@ -111,7 +111,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-DL (Delay).
+   The system function ⎕DL (Delay).
  */
 class Quad_DL : public QuadFunction
 {
@@ -127,7 +127,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-EA (Execute Alternate)
+   The system function ⎕EA (Execute Alternate)
  */
 class Quad_EA : public QuadFunction
 {
@@ -152,7 +152,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-EC (Execute Controlled)
+   The system function ⎕EC (Execute Controlled)
  */
 class Quad_EC : public QuadFunction
 {
@@ -171,7 +171,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-ENV (ENvironment Variables)
+   The system function ⎕ENV (ENvironment Variables)
  */
 class Quad_ENV : public QuadFunction
 {
@@ -187,7 +187,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-ES (Event Simulate).
+   The system function ⎕ES (Event Simulate).
  */
 class Quad_ES : public QuadFunction
 {
@@ -212,7 +212,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-EX (Expunge).
+   The system function ⎕EX (Expunge).
  */
 class Quad_EX : public QuadFunction
 {
@@ -231,7 +231,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-INP (input from script, aka. HERE document)
+   The system function ⎕INP (input from script, aka. HERE document)
  */
 class Quad_INP : public QuadFunction
 {
@@ -253,7 +253,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-NA (Name Association).
+   The system function ⎕NA (Name Association).
  */
 class Quad_NA : public QuadFunction
 {
@@ -272,7 +272,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-NC (Name class).
+   The system function ⎕NC (Name class).
  */
 class Quad_NC : public QuadFunction
 {
@@ -292,7 +292,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-NL (Name List).
+   The system function ⎕NL (Name List).
  */
 class Quad_NL : public QuadFunction
 {
@@ -316,7 +316,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-SI (State Indicator)
+   The system function ⎕SI (State Indicator)
  */
 class Quad_SI : public QuadFunction
 {
@@ -337,7 +337,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function Quad-UCS (Universal Character Set)
+   The system function ⎕UCS (Universal Character Set)
  */
 class Quad_UCS : public QuadFunction
 {
@@ -354,5 +354,62 @@ public:
 protected:
 };
 //-----------------------------------------------------------------------------
+/// functions common for ⎕STOP and ⎕TRACE
+class Stop_Trace : public QuadFunction
+{
+protected:
+   Stop_Trace(TokenTag tag)
+   : QuadFunction (tag)
+   {}
+
+   // find UserFunction named \b fun_name
+   UserFunction * locate_fun(const Value & fun_name);
+
+   // return integers in lines
+   Token reference(const vector<Function_Line> & lines, bool assigned);
+
+   // return assign lines in new_value to stop or trace vector in ufun
+   void assign(UserFunction * ufun, const Value & new_value, bool stop);
+};
+//-----------------------------------------------------------------------------
+class Quad_STOP : public Stop_Trace
+{
+public:
+   /// Constructor
+   Quad_STOP()
+   : Stop_Trace(TOK_Quad_STOP)
+   {}
+
+   /// Overloaded Function::eval_AB()
+   virtual Token eval_AB(Value_P A, Value_P B);
+
+   /// Overloaded Function::eval_B()
+   virtual Token eval_B(Value_P B);
+
+   /// Built-in function
+   static Quad_STOP fun;
+};
+//-----------------------------------------------------------------------------
+class Quad_TRACE : public Stop_Trace
+{
+public:
+   /// Constructor
+   Quad_TRACE()
+   : Stop_Trace(TOK_Quad_TRACE)
+   {}
+
+   /// Overloaded Function::eval_AB()
+   virtual Token eval_AB(Value_P A, Value_P B);
+
+   /// Overloaded Function::eval_B()
+   virtual Token eval_B(Value_P B);
+
+   /// Built-in function
+   static Quad_TRACE fun;
+};
+//-----------------------------------------------------------------------------
+
+
+
 
 #endif // __Quad_FUNCTION_HH_DEFINED__
