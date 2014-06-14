@@ -328,6 +328,7 @@ UserFunction_header::check_duplicate_symbols()
    check_duplicate_symbol(sym_LO);
    check_duplicate_symbol(sym_FUN);
    check_duplicate_symbol(sym_RO);
+   check_duplicate_symbol(sym_X);
    check_duplicate_symbol(sym_B);
 
    loop(l, local_vars.size())
@@ -348,6 +349,7 @@ int count = 0;
    if (sym == sym_LO)    ++count;
    if (sym == sym_FUN)   ++count;
    if (sym == sym_RO)    ++count;
+   if (sym == sym_X)     ++count;
    if (sym == sym_B)     ++count;
 
    loop(l, local_vars.size())   if (sym == local_vars[l])   ++count;
