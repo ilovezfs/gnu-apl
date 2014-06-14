@@ -556,12 +556,18 @@ const APL_Integer qio = Workspace::get_IO();
 
 const uint32_t aa = A->get_ravel(0).get_near_int(qct);
 APL_Integer set_size = B->get_ravel(0).get_near_int(qct);
-   if (aa > set_size)   DOMAIN_ERROR;
-   if (set_size <= 0)   DOMAIN_ERROR;
+   if (aa > set_size)           DOMAIN_ERROR;
+   if (set_size <= 0)           DOMAIN_ERROR;
+   if (set_size > 0x7FFFFFFF)   DOMAIN_ERROR;
+
 
 Value_P Z(new Value(aa, LOC));
 
-DynArray(uint32_t, idx_B, set_size);
+   // set_size can be rather big, so we new/delete it
+   //
+uint32_t * idx_B = new uint32_t[set_size];
+   if (idx_B == 0)   DOMAIN_ERROR;
+   
    loop(c, set_size)   idx_B[c] = c + qio;
 
    loop(z, aa)
@@ -571,6 +577,8 @@ DynArray(uint32_t, idx_B, set_size);
          idx_B[rnd] = idx_B[set_size - 1];   // move last item in.
          --set_size;
        }
+
+   delete idx_B;
 
    Z->set_default_Zero();
 

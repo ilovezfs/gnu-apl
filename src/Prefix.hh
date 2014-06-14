@@ -119,10 +119,6 @@ public:
    int size() const
       { return put; }
 
-   /// return true if there is space left in the FIFO
-   bool has_space() const
-      { return size() < MAX_CONTENT_1; }
-
    /// return the leftmost token (e.g. A in A←B)
    const Token & at0() const
       { Assert1(size() > 0);   return content[put - 1].tok; }
@@ -170,8 +166,7 @@ public:
    /// store one more token
    void push(const Token_loc & tl)
       {
-        Assert1(has_space());
-
+        if (size() >= MAX_CONTENT_1)   LIMIT_ERROR_PREFIX;
         content[put++].copy(tl, LOC);
       }
 
