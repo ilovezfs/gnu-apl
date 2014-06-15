@@ -118,8 +118,11 @@ vector<UCS_string> args;
         Workspace::more_error().clear();
       }
 
+   // ??? cerr << ""; below does nothing but prevents segfault on a
+   // failed )LOAD xxx ???
+   //
 #define cmd_def(cmd_str, code, _arg) \
-   if (cmd.starts_iwith(cmd_str)) { code; return true; }
+   if (cmd.starts_iwith(cmd_str)) { cerr << ""; code; return true; }
 #include "Command.def"
 
    // check for user defined commands...
@@ -1308,6 +1311,12 @@ UCS_string statement;
    statement.append(UNI_ASCII_LF);
 
 UCS_string fun_name1 = Quad_TF::tf2_inv(statement);
+   if (fun_name1.size() == 0)   // tf2_inv() failed
+      {
+        CERR << "inverse 2 ⎕TF failed for the following APL statement: "
+             << endl << "    " << statement << endl;
+        return;
+      }
 
 Symbol * sym1 = Workspace::lookup_existing_symbol(fun_name1);
    Assert(sym1);

@@ -575,7 +575,7 @@ Workspace::clear_WS(ostream & out, bool silent)
    //
    more_error().clear();
 
-   // clear the read/write system variables...
+   // clear the value stacks of read/write system variables...
    //
 #define rw_sv_def(x) get_v_ ## x().clear_vs();
 #define ro_sv_def(x)
@@ -589,6 +589,8 @@ Workspace::clear_WS(ostream & out, bool silent)
 #define rw_sv_def(x) new  (&get_v_ ##x()) x;
 #define ro_sv_def(x)
 #include "SystemVariable.def"
+
+   get_v_Quad_RL().reset_seed();
 
    set_WS_name(UCS_string("CLEAR WS"));
    if (!silent)   out << "CLEAR WS" << endl;
