@@ -101,11 +101,22 @@ if test "x$HAVE_rdtsc" = "xyes"; then
    AC_DEFINE_UNQUOTED([HAVE_RDTSC], [1], [CPU has rdtsc opcode])
 fi
 
+# check if shm_open() is in libc (like in OSX) or in a library above
+AC_MSG_CHECKING([whether shm_open() is in libc])
+AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM([[extern int shm_open(const char *, int, int);]],
+	[[return shm_open("", 0, 0);]]
+    )], [HAVE_shm_open=yes], [HAVE_shm_open=no])
+AC_MSG_RESULT([$HAVE_shm_open])
+if test "x$HAVE_shm_open" = "xyes"; then
+   AC_DEFINE_UNQUOTED([HAVE_shm_open], [1], [libc has shm_open()])
+fi
+
 # see if arg 3 of tputs is (*)(int) or (*)(char)
 #
 AC_MSG_CHECKING([type of arg3 in tputs(0, 0, (*)(arg3))])
 AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM([[#include <term.h>],
+    [AC_LANG_PROGRAM([[#include <term.h>]
                       [extern int arg3(int);]],
  	             [[tputs(0, 0, arg3);]])],
                      [TPUTS_arg3=int], [TPUTS_arg3=char])
