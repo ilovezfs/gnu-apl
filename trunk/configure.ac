@@ -190,8 +190,6 @@ AC_CONFIG_FILES([Makefile
 		 support-files/Makefile
                  tools/Makefile
                  workspaces/Makefile
-                 wslib1/Makefile
-                 wslib2/Makefile
                  wslib3/Makefile
                  wslib4/Makefile
                  wslib5/Makefile])

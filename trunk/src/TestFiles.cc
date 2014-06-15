@@ -315,6 +315,7 @@ const int cnt = arg.atoi();
 void
 TestFiles::syntax_error()
 {
+   if (!uprefs.current_file())         return;
    if (!uprefs.current_file()->file)   return;
 
    ++parse_errors;
@@ -328,6 +329,7 @@ TestFiles::syntax_error()
 void
 TestFiles::apl_error(const char * loc)
 {
+   if (!uprefs.current_file())         return;
    if (!uprefs.current_file()->file)   return;
 
    ++apl_errors;
@@ -352,6 +354,7 @@ TestFiles::assert_error()
 void
 TestFiles::diff_error()
 {
+   if (!uprefs.current_file())         return;
    if (!uprefs.current_file()->file)   return;
 
    ++diff_errors;

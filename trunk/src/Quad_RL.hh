@@ -22,6 +22,7 @@
 #define __QUAD_RL_HH_DEFINED__
 
 #include "SystemVariable.hh"
+
 //-----------------------------------------------------------------------------
 /**
    System variable Quad-RL (Random Link).
@@ -34,6 +35,8 @@ public:
 
    /// Return a random number.
    APL_Integer get_random();
+
+   unsigned int reset_seed()   { srandom(1);   random();   return 1; }
 
 protected:
    /// Overloaded Symbol::assign().

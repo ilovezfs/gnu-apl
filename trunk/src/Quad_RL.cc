@@ -30,10 +30,11 @@ Quad_RL::Quad_RL()
 {
 Value_P value(new Value(LOC));
 
-   new (&value->get_ravel(0)) IntCell(1);
+const unsigned int seed = reset_seed();
+
+   new (value->next_ravel()) IntCell(seed);
    value->check_value(LOC);
 
-   srandom(1);
    Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -58,6 +59,7 @@ Quad_RL::get_random()
 {
 const APL_Integer r1 = random();
 const APL_Integer seed = random();
+
    Assert(value_stack.size());
    if (value_stack.back().name_class != NC_VARIABLE)   VALUE_ERROR;
 

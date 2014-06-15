@@ -439,6 +439,25 @@ Token_string tos;
 
    // Try ⎕FX fun-text
    //
+   if (tos.size() == 3)   // native function
+      {
+        if (tos[0].get_Class() != TC_VALUE)    return UCS_string();
+        if (tos[1].get_tag() != TOK_Quad_FX)   return UCS_string();
+        if (tos[2].get_Class() != TC_VALUE)    return UCS_string();
+
+        Value_P fname   =  tos[0].get_apl_val();
+        Value_P so_path =  tos[2].get_apl_val();
+
+        const Token tok = Quad_FX::fun.eval_AB(so_path, fname);
+        if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
+           {
+             Value_P val = tok.get_apl_val();
+             return UCS_string(*val.get());
+           }
+
+        return UCS_string();
+      }
+
    if (tos.size() != 2)                   return UCS_string();
    if (tos[0].get_tag() != TOK_Quad_FX)   return UCS_string();
    if (tos[1].get_Class() != TC_VALUE)    return UCS_string();
@@ -784,6 +803,22 @@ Quad_TF::tf2_fun_ucs(UCS_string & ucs, const UCS_string & fun_name,
                     const Function & fun)
 {
 const UCS_string text = fun.canonical(false);
+
+   if (fun.is_native())
+      {
+        CERR << "Warning: the workspace contains a native function '"
+             << fun_name << "', making the" << endl
+             << "   .atf output file incompatible with other APL interpreters."
+             << endl;
+
+        ucs.append_utf8("'");
+        ucs.append(fun_name);
+        ucs.append_utf8("' ⎕FX '");
+        ucs.append(text);
+        ucs.append_utf8("'");
+        return;
+      }
+
 vector<UCS_string> lines;
    text.to_vector(lines);
 

@@ -38,6 +38,7 @@ NativeFunction::NativeFunction(const UCS_string & so_name,
    : Function(ID_USER_SYMBOL, TOK_FUN2),
      handle(0),
      name(apl_name),
+     original_so_path(so_name),
      so_path(so_name),
      valid(false),
      close_fun(0)
@@ -413,7 +414,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 UCS_string
 NativeFunction::canonical(bool with_lines) const
 {
-   return so_path;
+   return original_so_path;
 }
 //-----------------------------------------------------------------------------
 ostream &

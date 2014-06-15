@@ -146,6 +146,9 @@ protected:
    /// APL name of the function
    UCS_string name;
 
+   /// the right argument B of of A ⎕FX B before expanding it to a path
+   UCS_string original_so_path;
+
    /// library file path of the function
    UCS_string so_path;
 

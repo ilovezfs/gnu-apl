@@ -1,7 +1,7 @@
 
-SUBDIRS		= doc gnu-apl.d src support-files tools
-APL_DIRS	= workspaces wslib1 wslib2 wslib3 wslib4 wslib5
-DIST_SUBDIRS	= $(SUBDIRS) $(APL_DIRS) rpm debian
+APL_DIRS	= workspaces wslib3 wslib4 wslib5
+SUBDIRS		= doc gnu-apl.d src support-files tools $(APL_DIRS)
+DIST_SUBDIRS	= $(SUBDIRS) rpm debian
 
 dist_doc_DATA = README			\
 		README-1-prerequisites	\

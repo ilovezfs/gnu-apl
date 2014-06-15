@@ -1,3 +1,5 @@
 
-dist_doc_DATA =     HTML.apl
+dist_apl5_DATA =     HTML.apl
+
+apl5dir = $(pkglibdir)/wslib5
 
