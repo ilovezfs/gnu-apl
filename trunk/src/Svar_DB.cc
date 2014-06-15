@@ -43,7 +43,7 @@ Svar_DB Svar_DB::the_Svar_DB;
 
 const char * SHM_NAME = "/apl-svars";
 
-#ifndef HAVE_LIBRT
+#ifndef HAVE_shm_open
 # define shm_open(name, oflag, mode) (-1)
 # define shm_unlink(name) (-1)
 #endif

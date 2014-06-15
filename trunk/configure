@@ -16553,13 +16553,44 @@ _ACEOF
 
 fi
 
+# check if shm_open() is in libc (like in OSX) or in a library above
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether shm_open() is in libc" >&5
+$as_echo_n "checking whether shm_open() is in libc... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+extern int shm_open(const char *, int, int);
+int
+main ()
+{
+return shm_open("", 0, 0);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  HAVE_shm_open=yes
+else
+  HAVE_shm_open=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_shm_open" >&5
+$as_echo "$HAVE_shm_open" >&6; }
+if test "x$HAVE_shm_open" = "xyes"; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_shm_open 1
+_ACEOF
+
+fi
+
 # see if arg 3 of tputs is (*)(int) or (*)(char)
 #
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking type of arg3 in tputs(0, 0, (*)(arg3))" >&5
 $as_echo_n "checking type of arg3 in tputs(0, 0, (*)(arg3))... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <term.h>,
+#include <term.h>
                       extern int arg3(int);
 int
 main ()

@@ -1,6 +1,6 @@
 #!/usr/bin/apl --script --
 
-)COPY 5 HTML.apl
+0 0⍴⍎')COPY 5 HTML.apl'
 
 ⍝ This is an APL CGI script that demonstrates the use of APL for CGI scripting
 ⍝ It outputs an HTML page like GNU APL's homepage at www.gnu.org.
@@ -239,7 +239,8 @@ errors that you find in GNU APL to
 <?apl HTML∆x2y ("mailto:", xMAIL_APL) HTML∆A "<EM>", xMAIL_APL, "</EM>" ?>.
 <BR><BR>
 Your email should include a small example of how to reproduce the fault.
-</DIV><DIV class="c5">
+</DIV>
+<DIV class="c5">
 <?apl HTML∆H2[''] 'Documentation' ?>
 We have an <?apl HTML∆x2y 'apl.html' HTML∆A "<B>info manual</B>" ?> for GNU APL.
 
@@ -251,6 +252,15 @@ The C++ source files for GNU APL are Doxygen documented. You can generate
 this documentation by running <B>make DOXY</B> in the top level directory
 of the GNU APL package.
 </DIV>
+<DIV class="c6">
+<?apl HTML∆H2[''] 'GNU APL Community' ?>
+There is a growing group of people that are using GNU APL and that have made
+their own developments related to APL available to the public.
+We have created a
+<?apl  'Community.html' HTML∆A '<b>GNU APL Community Web page</b>' ?>
+that collects links to those developments to avoid that they get lost.
+</DIV>
+
 END-OF-⎕INP
 
 
@@ -263,7 +273,7 @@ END-OF-⎕INP
       ⍝ as shown in the following example:
       ⍝
       yBODY←yBODY, (,¨'{}') ⎕INP 'END-OF-⎕INP'   ⍝ more compact style
-<DIV class="c6">
+<DIV class="c7">
 Return to {HTML∆x2y "http://www.gnu.org/home.html" HTML∆A "GNU's home page"}.
 <P>
 
