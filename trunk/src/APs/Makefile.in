@@ -52,6 +52,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = AP100$(EXEEXT) AP210$(EXEEXT) APnnn$(EXEEXT)
+@DEVELOP_TRUE@am__append_1 = -Werror -Wall -Wno-sign-compare \
+@DEVELOP_TRUE@	-Wno-strict-aliasing
 subdir = src/APs
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -149,6 +151,7 @@ CXX_RDYNAMIC = @CXX_RDYNAMIC@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DEVELOP_WANTED = @DEVELOP_WANTED@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 DYNAMIC_LOG_WANTED = @DYNAMIC_LOG_WANTED@
@@ -267,10 +270,11 @@ common_files = APmain.cc APmain.hh	\
 AP100_SOURCES = AP100.cc $(common_files)
 AP210_SOURCES = AP210.cc $(common_files)
 APnnn_SOURCES = APnnn.cc $(common_files)
-AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100 $(CXX_RDYNAMIC)
-AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210 $(CXX_RDYNAMIC)
-APnnn_CXXFLAGS = -I .. -g -O2 -DAP_NUM=0   $(CXX_RDYNAMIC)
-AM_MAKEFLAGS = -j 2
+AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100
+AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210
+APnnn_CXXFLAGS = -I .. -g -O2 -DAP_NUM=0
+AM_CXXFLAGS = $(CXX_RDYNAMIC) $(am__append_1)
+AM_MAKEFLAGS = -j 8
 all: all-am
 
 .SUFFIXES:

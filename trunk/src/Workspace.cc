@@ -27,12 +27,12 @@ using namespace std;
 #include "Archive.hh"
 #include "Command.hh"
 #include "Input.hh"
+#include "IO_Files.hh"
 #include "LibPaths.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "Quad_FX.hh"
 #include "Quad_TF.hh"
-#include "TestFiles.hh"
 #include "UserFunction.hh"
 #include "UserPreferences.hh"
 #include "Workspace.hh"
@@ -150,7 +150,7 @@ Workspace::immediate_execution(bool exit_on_error)
                              << HEX(err.error_code) << " ("
                              << err.error_name(err.error_code) << ")" << endl;
 
-                        TestFiles::apl_error(LOC);
+                        IO_Files::apl_error(LOC);
                       }
                  }
               if (exit_on_error)   return Token(TOK_OFF);
@@ -159,7 +159,7 @@ Workspace::immediate_execution(bool exit_on_error)
             {
               CERR << "*** " << __FUNCTION__
                    << "() caught other exception ***" << endl;
-              TestFiles::apl_error(LOC);
+              IO_Files::apl_error(LOC);
               if (exit_on_error)   return Token(TOK_OFF);
             }
       }
@@ -823,15 +823,16 @@ int variable_count = 0;
         << " VARIABLES)" << endl;
 }
 //-----------------------------------------------------------------------------
-// )LOAD WS, return ⎕LX of loaded WS on success
-UCS_string 
-Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws)
+// )LOAD WS, set ⎕LX of loaded WS on success
+void
+Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws,
+                   UCS_string & quad_lx)
 {
    if (lib_ws.size() < 1 || lib_ws.size() > 2)   // no or too many argument(s)
       {
         out << "BAD COMMAND" << endl;
         more_error() = UCS_string("too many parameters in command )LOAD");
-        return UCS_string();
+        return;
       }
 
 LibRef libref = LIB_NONE;
@@ -862,8 +863,8 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         const UCS_string wsid_ucs(wsid_utf8);
         wsid(out, wsid_ucs);
 
-        // we cant return ⎕LX because it was not executed yet.
-        return UCS_string();
+        // we cant set ⎕LX because it was not executed yet.
+        return;
       }
    else
       {
@@ -872,7 +873,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
              CERR << ")LOAD " << wname << " (file " << filename
                   << ") failed: " << strerror(errno) << endl;
 
-             return UCS_string();
+             return;
            }
 
         Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
@@ -885,7 +886,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         in.read_Workspace();
       }
 
-   return Workspace::get_LX();
+   if (Workspace::get_LX().size())  quad_lx = Workspace::get_LX();
 }
 //-----------------------------------------------------------------------------
 void

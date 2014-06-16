@@ -51,6 +51,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@DEVELOP_TRUE@am__append_1 = -Werror -Wall -Wno-sign-compare \
+@DEVELOP_TRUE@	-Wno-strict-aliasing
 subdir = src/native
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -170,6 +172,7 @@ CXX_RDYNAMIC = @CXX_RDYNAMIC@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DEVELOP_WANTED = @DEVELOP_WANTED@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 DYNAMIC_LOG_WANTED = @DYNAMIC_LOG_WANTED@
@@ -279,7 +282,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CXXFLAGS = $(CXX_RDYNAMIC)
+AM_CXXFLAGS = $(CXX_RDYNAMIC) $(am__append_1)
 pkglib_LTLIBRARIES = lib_file_io.la		\
 			lib_template_F0.la	\
 			lib_template_F12.la	\

@@ -40,6 +40,8 @@ char LibPaths::APL_lib_root[PATH_MAX + 10] = "";
 
 LibPaths::LibDir LibPaths::lib_dirs[LIB_MAX];
 
+const void * unused = 0;
+
 //-----------------------------------------------------------------------------
 void LibPaths::init(const char * argv0)
 {
@@ -100,7 +102,7 @@ void LibPaths::compute_bin_path(const char * argv0)
             }
       }
 
-const void * unused = realpath(argv0, APL_bin_path);
+   unused = realpath(argv0, APL_bin_path);
    APL_bin_path[PATH_MAX] = 0;
 char * slash =   strrchr(APL_bin_path, '/');
    if (slash)   { *slash = 0;   APL_bin_name = slash + 1; }
@@ -141,7 +143,7 @@ LibPaths::search_APL_lib_root()
 const char * path = getenv("APL_LIB_ROOT");
    if (path)
       {
-        const void * unused = realpath(path, APL_lib_root);
+        unused = realpath(path, APL_lib_root);
         root_from_env = true;
         return;
       }
@@ -153,7 +155,7 @@ int last_len = 2*PATH_MAX;
    APL_lib_root[1] = 0;
    for (;;)
        {
-         const void * unused = realpath(APL_lib_root, APL_lib_root);
+         unused = realpath(APL_lib_root, APL_lib_root);
          int len = strlen(APL_lib_root);
 
          if (is_lib_root(APL_lib_root))   return;   // lib-rot found
@@ -174,14 +176,14 @@ int last_len = 2*PATH_MAX;
 
    // no lib-root found. use ".";
    //
-const void * unused = realpath(".", APL_lib_root);
+   unused = realpath(".", APL_lib_root);
    root_from_pwd = true;
 }
 //-----------------------------------------------------------------------------
 void
 LibPaths::set_APL_lib_root(const char * new_root)
 {
-const void * unused = realpath(new_root, APL_lib_root);
+   unused = realpath(new_root, APL_lib_root);
 }
 //-----------------------------------------------------------------------------
 void

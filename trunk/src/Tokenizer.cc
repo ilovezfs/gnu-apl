@@ -594,7 +594,6 @@ bool
 Tokenizer::tokenize_real(Source<Unicode> &src, APL_Float & flt_val,
                          APL_Integer & int_val)
 {
-const int32_t src_size = src.rest();
 bool dot_seen = false;
 int E_pos = 0;   // position of 'e' in utf
 int minus_pos = 0;   // position of (exponent-) ¯ in utf

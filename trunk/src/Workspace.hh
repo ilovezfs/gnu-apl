@@ -221,8 +221,9 @@ public:
    static void load_DUMP(ostream & out, const UTF8_string & filename, int fd,
                          bool with_LX);
 
-   /// load \b lib_ws into the_workspace. return ⎕LX of the new WS.
-   static UCS_string load_WS(ostream & out, const vector<UCS_string> & lib_ws);
+   /// load \b lib_ws into the_workspace, maybe set ⎕LX of the new WS.
+   static void load_WS(ostream & out, const vector<UCS_string> & lib_ws,
+                       UCS_string & quad_lx);
 
    /// copy objects from another workspace
    static void copy_WS(ostream & out, vector<UCS_string> & lib_ws,

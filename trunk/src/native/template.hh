@@ -311,6 +311,10 @@ close_fun(Cause cause, const NativeFunction * caller)
 {
    return true;
 }
+
+// prevent compiler warning
+bool (*close_fun_is_unused)(Cause, const NativeFunction *) = &close_fun;
+
 //-----------------------------------------------------------------------------
 Token
 eval_fill_B(Value_P B, const NativeFunction * caller)

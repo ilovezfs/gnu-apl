@@ -31,7 +31,6 @@
 #include "Parser.hh"
 #include "StateIndicator.hh"
 #include "Symbol.hh"
-#include "TestFiles.hh"
 #include "UserFunction.hh"
 #include "Value.icc"
 #include "Workspace.hh"

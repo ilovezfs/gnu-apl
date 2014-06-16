@@ -747,6 +747,8 @@ ac_header_list=
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+DEVELOP_FALSE
+DEVELOP_TRUE
 ON_i686_FALSE
 ON_i686_TRUE
 VISIBLE_MARKERS_WANTED
@@ -766,6 +768,7 @@ GPROF_WANTED
 VALUE_HISTORY_WANTED
 VALUE_CHECK_WANTED
 MAX_RANK_WANTED
+DEVELOP_WANTED
 LIBREADLINE
 HAVE_ANDROID_FALSE
 HAVE_ANDROID_TRUE
@@ -910,6 +913,7 @@ CXX
 CXXFLAGS
 CCC
 CXXCPP
+DEVELOP_WANTED
 MAX_RANK_WANTED
 VALUE_CHECK_WANTED
 VALUE_HISTORY_WANTED
@@ -1575,6 +1579,8 @@ Some influential environment variables:
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
   CXXCPP      C++ preprocessor
+  DEVELOP_WANTED
+              set development options (see README-2-configure) default: no
   MAX_RANK_WANTED
               the max. Rank of APL values (see README-2-configure) default: 8)
   VALUE_CHECK_WANTED
@@ -5442,13 +5448,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:5445: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5451: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5448: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5454: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5451: output\"" >&5)
+  (eval echo "\"\$as_me:5457: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6653,7 +6659,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6656 "configure"' > conftest.$ac_ext
+  echo '#line 6662 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7914,11 +7920,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7917: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7923: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7921: \$? = $ac_status" >&5
+   echo "$as_me:7927: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8253,11 +8259,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8256: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8262: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8260: \$? = $ac_status" >&5
+   echo "$as_me:8266: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8358,11 +8364,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8361: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8367: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8365: \$? = $ac_status" >&5
+   echo "$as_me:8371: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8413,11 +8419,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8416: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8422: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8420: \$? = $ac_status" >&5
+   echo "$as_me:8426: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10797,7 +10803,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10800 "configure"
+#line 10806 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10893,7 +10899,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10896 "configure"
+#line 10902 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13784,11 +13790,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13787: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13793: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13791: \$? = $ac_status" >&5
+   echo "$as_me:13797: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13883,11 +13889,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13886: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13892: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13890: \$? = $ac_status" >&5
+   echo "$as_me:13896: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13935,11 +13941,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13938: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13944: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13942: \$? = $ac_status" >&5
+   echo "$as_me:13948: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16748,6 +16754,23 @@ fi
 ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile gnu-apl.d/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile tools/Makefile workspaces/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile"
 
 
+# APL: development configuration desired ? Set this before other xxx_WANTED
+# options so that the implied xxx_WANTED options set here can be overridden
+# further down
+
+if test "x$DEVELOP_WANTED" = "xyes"; then
+
+cat >>confdefs.h <<_ACEOF
+#define DEVELOP_WANTED yes
+_ACEOF
+
+   VALUE_CHECK_WANTED=yes
+   VALUE_HISTORY_WANTED=yes
+   DYNAMIC_LOG_WANTED=yes
+   ASSERT_LEVEL_WANTED=2
+   PRINT_SEMA_WANTED=yes
+fi
+
 # APL: max. rank ?
 
 if test "x$MAX_RANK_WANTED" = "x"; then MAX_RANK_WANTED=8; fi
@@ -16872,7 +16895,6 @@ _ACEOF
 
 
 
-
 # APL: visible markers (debug only option) ?
 
 if test "x$VISIBLE_MARKERS_WANTED" = "xyes"; then
@@ -16889,6 +16911,16 @@ fi
 else
   ON_i686_TRUE='#'
   ON_i686_FALSE=
+fi
+
+
+# check if we want development options
+ if test x$DEVELOP_WANTED = xyes; then
+  DEVELOP_TRUE=
+  DEVELOP_FALSE='#'
+else
+  DEVELOP_TRUE='#'
+  DEVELOP_FALSE=
 fi
 
 
@@ -17019,6 +17051,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ON_i686_TRUE}" && test -z "${ON_i686_FALSE}"; then
   as_fn_error "conditional \"ON_i686\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${DEVELOP_TRUE}" && test -z "${DEVELOP_FALSE}"; then
+  as_fn_error "conditional \"DEVELOP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

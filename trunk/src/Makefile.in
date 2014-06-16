@@ -52,6 +52,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = apl$(EXEEXT)
+@DEVELOP_TRUE@am__append_1 = -Werror -Wall -Wno-sign-compare \
+@DEVELOP_TRUE@	-Wno-strict-aliasing
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -67,49 +69,38 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_apl_OBJECTS = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
-	apl-Assert.$(OBJEXT) apl-Avec.$(OBJEXT) \
-	apl-Backtrace.$(OBJEXT) apl-Bif_F12_FORMAT.$(OBJEXT) \
-	apl-Bif_OPER1_COMMUTE.$(OBJEXT) apl-Bif_OPER1_EACH.$(OBJEXT) \
-	apl-Bif_OPER2_PRODUCT.$(OBJEXT) apl-Bif_OPER1_RANK.$(OBJEXT) \
-	apl-Bif_OPER1_REDUCE.$(OBJEXT) apl-Bif_OPER1_SCAN.$(OBJEXT) \
-	apl-CDR.$(OBJEXT) apl-Cell.$(OBJEXT) apl-CharCell.$(OBJEXT) \
-	apl-CollatingCache.$(OBJEXT) apl-Command.$(OBJEXT) \
-	apl-Common.$(OBJEXT) apl-ComplexCell.$(OBJEXT) \
-	apl-Cores.$(OBJEXT) apl-DiffOut.$(OBJEXT) \
-	apl-DynamicObject.$(OBJEXT) apl-Error.$(OBJEXT) \
-	apl-Executable.$(OBJEXT) apl-FloatCell.$(OBJEXT) \
-	apl-Function.$(OBJEXT) apl-DerivedFunction.$(OBJEXT) \
-	apl-Id.$(OBJEXT) apl-IndexExpr.$(OBJEXT) \
-	apl-IndexIterator.$(OBJEXT) apl-Input.$(OBJEXT) \
-	apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
-	apl-LibPaths.$(OBJEXT) apl-Logging.$(OBJEXT) \
-	apl-LvalCell.$(OBJEXT) apl-main.$(OBJEXT) \
-	apl-Malloc_hooks.$(OBJEXT) apl-Nabla.$(OBJEXT) \
-	apl-NamedObject.$(OBJEXT) apl-NativeFunction.$(OBJEXT) \
-	apl-NumericCell.$(OBJEXT) apl-Output.$(OBJEXT) \
-	apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
-	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
-	apl-PrimitiveOperator.$(OBJEXT) apl-PrintBuffer.$(OBJEXT) \
-	apl-QuadFunction.$(OBJEXT) apl-ProcessorID.$(OBJEXT) \
-	apl-Quad_FX.$(OBJEXT) apl-Quad_RL.$(OBJEXT) \
-	apl-Quad_SVx.$(OBJEXT) apl-Quad_TF.$(OBJEXT) \
-	apl-RealCell.$(OBJEXT) apl-Shape.$(OBJEXT) \
-	apl-SkalarFunction.$(OBJEXT) apl-StateIndicator.$(OBJEXT) \
-	apl-StaticObjects.$(OBJEXT) apl-Svar_DB.$(OBJEXT) \
-	apl-Symbol.$(OBJEXT) apl-SymbolTable.$(OBJEXT) \
-	apl-SystemVariable.$(OBJEXT) apl-TestFiles.$(OBJEXT) \
-	apl-Token.$(OBJEXT) apl-Tokenizer.$(OBJEXT) \
-	apl-UCS_string.$(OBJEXT) apl-UdpSocket.$(OBJEXT) \
-	apl-UserFunction.$(OBJEXT) apl-UserPreferences.$(OBJEXT) \
-	apl-UTF8_string.$(OBJEXT) apl-Value.$(OBJEXT) \
-	apl-ValueHistory.$(OBJEXT) apl-Workspace.$(OBJEXT)
+am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
+	Assert.$(OBJEXT) Avec.$(OBJEXT) Backtrace.$(OBJEXT) \
+	Bif_F12_FORMAT.$(OBJEXT) Bif_OPER1_COMMUTE.$(OBJEXT) \
+	Bif_OPER1_EACH.$(OBJEXT) Bif_OPER2_PRODUCT.$(OBJEXT) \
+	Bif_OPER1_RANK.$(OBJEXT) Bif_OPER1_REDUCE.$(OBJEXT) \
+	Bif_OPER1_SCAN.$(OBJEXT) CDR.$(OBJEXT) Cell.$(OBJEXT) \
+	CharCell.$(OBJEXT) CollatingCache.$(OBJEXT) Command.$(OBJEXT) \
+	Common.$(OBJEXT) ComplexCell.$(OBJEXT) Cores.$(OBJEXT) \
+	DiffOut.$(OBJEXT) DynamicObject.$(OBJEXT) Error.$(OBJEXT) \
+	Executable.$(OBJEXT) FloatCell.$(OBJEXT) Function.$(OBJEXT) \
+	DerivedFunction.$(OBJEXT) Id.$(OBJEXT) IndexExpr.$(OBJEXT) \
+	IndexIterator.$(OBJEXT) Input.$(OBJEXT) IntCell.$(OBJEXT) \
+	LApack.$(OBJEXT) LibPaths.$(OBJEXT) Logging.$(OBJEXT) \
+	LvalCell.$(OBJEXT) main.$(OBJEXT) Malloc_hooks.$(OBJEXT) \
+	Nabla.$(OBJEXT) NamedObject.$(OBJEXT) NativeFunction.$(OBJEXT) \
+	NumericCell.$(OBJEXT) Output.$(OBJEXT) Parser.$(OBJEXT) \
+	Prefix.$(OBJEXT) PointerCell.$(OBJEXT) \
+	PrimitiveFunction.$(OBJEXT) PrimitiveOperator.$(OBJEXT) \
+	PrintBuffer.$(OBJEXT) QuadFunction.$(OBJEXT) \
+	ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) Quad_RL.$(OBJEXT) \
+	Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) RealCell.$(OBJEXT) \
+	Shape.$(OBJEXT) SkalarFunction.$(OBJEXT) \
+	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
+	Svar_DB.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
+	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
+	Tokenizer.$(OBJEXT) UCS_string.$(OBJEXT) UdpSocket.$(OBJEXT) \
+	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
+	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
+	Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-apl_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CXXLD) $(apl_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -205,6 +196,7 @@ CXX_RDYNAMIC = @CXX_RDYNAMIC@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DEVELOP_WANTED = @DEVELOP_WANTED@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 DYNAMIC_LOG_WANTED = @DYNAMIC_LOG_WANTED@
@@ -319,101 +311,100 @@ top_srcdir = @top_srcdir@
 SUBDIRS = native $(EXTRA_DIRS)
 DIST_SUBDIRS = $(SUBDIRS) testcases
 apl_SOURCES = \
-		    buildtag		buildtag.hh		\
-					../config.h		\
-					APL_types.hh		\
-Archive.cc				Archive.hh		\
-ArrayIterator.cc			ArrayIterator.hh	\
-Assert.cc				Assert.hh		\
-Avec.cc		    Avec.def		Avec.hh			\
-Backtrace.cc				Backtrace.hh		\
-Bif_F12_FORMAT.cc			Bif_F12_FORMAT.hh		\
-Bif_OPER1_COMMUTE.cc			Bif_OPER1_COMMUTE.hh	\
-Bif_OPER1_EACH.cc			Bif_OPER1_EACH.hh	\
-Bif_OPER2_PRODUCT.cc			Bif_OPER2_PRODUCT.hh	\
-Bif_OPER1_RANK.cc			Bif_OPER1_RANK.hh	\
-Bif_OPER1_REDUCE.cc			Bif_OPER1_REDUCE.hh	\
-Bif_OPER1_SCAN.cc			Bif_OPER1_SCAN.hh	\
-CDR.cc					CDR.hh			\
-Cell.cc					Cell.hh			\
-CharCell.cc				CharCell.hh		\
-CollatingCache.cc			CollatingCache.hh	\
-Command.cc	    Command.def		Command.hh		\
-Common.cc				Common.hh		\
-ComplexCell.cc				ComplexCell.hh		\
-Cores.cc				Cores.hh		\
-DiffOut.cc				DiffOut.hh		\
-DynamicObject.cc			DynamicObject.hh	\
-					EOC_handler_args.hh	\
-Error.cc	    Error.def		Error.hh		\
-					ErrorCode.hh		\
-Executable.cc				Executable.hh		\
-FloatCell.cc				FloatCell.hh		\
-Function.cc				Function.hh		\
-DerivedFunction.cc			DerivedFunction.hh	\
-Id.cc		    Id.def		Id.hh			\
-IndexExpr.cc				IndexExpr.hh		\
-IndexIterator.cc			IndexIterator.hh	\
-Input.cc				Input.hh		\
-IntCell.cc				IntCell.hh		\
-LApack.cc							\
-LibPaths.cc				LibPaths.hh		\
-Logging.cc	    Logging.def		Logging.hh		\
-LvalCell.cc				LvalCell.hh		\
-main.cc					main.hh			\
-					makefile.h		\
-Malloc_hooks.cc							\
-Nabla.cc				Nabla.hh		\
-NamedObject.cc				NamedObject.hh		\
-NativeFunction.cc			NativeFunction.hh	\
-					Native_interface.hh	\
-NumericCell.cc				NumericCell.hh		\
-Output.cc				Output.hh		\
-Parser.cc				Parser.hh		\
-Prefix.cc	    Prefix.def		Prefix.hh		\
-PointerCell.cc				PointerCell.hh		\
-PrimitiveFunction.cc			PrimitiveFunction.hh	\
-PrimitiveOperator.cc			PrimitiveOperator.hh	\
-PrintBuffer.cc				PrintBuffer.hh		\
-					PrintContext.hh		\
-					PrintOperator.hh	\
-QuadFunction.cc				QuadFunction.hh		\
-ProcessorID.cc				ProcessorID.hh		\
-Quad_FX.cc				Quad_FX.hh		\
-Quad_RL.cc				Quad_RL.hh		\
-Quad_SVx.cc				Quad_SVx.hh		\
-Quad_TF.cc				Quad_TF.hh		\
-RealCell.cc				RealCell.hh		\
-Shape.cc				Shape.hh		\
-					SharedValuePointer.hh	\
-					Simple_string.hh	\
-SkalarFunction.cc			SkalarFunction.hh	\
-					Source.hh		\
-StateIndicator.cc			StateIndicator.hh	\
-StaticObjects.cc						\
-Svar_DB.cc				Svar_DB.hh		\
-udp_signal.m4	    Svar_signals.def	Svar_signals.hh		\
-Symbol.cc				Symbol.hh		\
-SymbolTable.cc				SymbolTable.hh		\
-		    SystemLimits.def	SystemLimits.hh		\
-SystemVariable.cc   SystemVariable.def	SystemVariable.hh	\
-TestFiles.cc				TestFiles.hh		\
-Token.cc	    Token.def		Token.hh		\
-					TokenEnums.hh		\
-Tokenizer.cc				Tokenizer.hh		\
-UCS_string.cc				UCS_string.hh		\
-UdpSocket.cc				UdpSocket.hh		\
-					Unicode.hh		\
-UserFunction.cc				UserFunction.hh		\
-UserPreferences.cc			UserPreferences.hh	\
-UTF8_string.cc				UTF8_string.hh		\
-Value.cc		Value.icc	Value.hh		\
-ValueHistory.cc				ValueHistory.hh		\
-Workspace.cc				Workspace.hh
+			buildtag		buildtag.hh		\
+						../config.h		\
+						APL_types.hh		\
+Archive.cc					Archive.hh		\
+ArrayIterator.cc				ArrayIterator.hh	\
+Assert.cc					Assert.hh		\
+Avec.cc			Avec.def		Avec.hh			\
+Backtrace.cc					Backtrace.hh		\
+Bif_F12_FORMAT.cc				Bif_F12_FORMAT.hh	\
+Bif_OPER1_COMMUTE.cc				Bif_OPER1_COMMUTE.hh	\
+Bif_OPER1_EACH.cc				Bif_OPER1_EACH.hh	\
+Bif_OPER2_PRODUCT.cc				Bif_OPER2_PRODUCT.hh	\
+Bif_OPER1_RANK.cc				Bif_OPER1_RANK.hh	\
+Bif_OPER1_REDUCE.cc				Bif_OPER1_REDUCE.hh	\
+Bif_OPER1_SCAN.cc				Bif_OPER1_SCAN.hh	\
+CDR.cc						CDR.hh			\
+Cell.cc						Cell.hh			\
+CharCell.cc					CharCell.hh		\
+CollatingCache.cc				CollatingCache.hh	\
+Command.cc		Command.def		Command.hh		\
+Common.cc					Common.hh		\
+ComplexCell.cc				    	ComplexCell.hh		\
+Cores.cc					Cores.hh		\
+DiffOut.cc					DiffOut.hh		\
+DynamicObject.cc				DynamicObject.hh	\
+						EOC_handler_args.hh	\
+Error.cc		Error.def		Error.hh		\
+						ErrorCode.hh		\
+Executable.cc					Executable.hh		\
+FloatCell.cc					FloatCell.hh		\
+Function.cc					Function.hh		\
+DerivedFunction.cc				DerivedFunction.hh	\
+Id.cc			Id.def			Id.hh			\
+IndexExpr.cc					IndexExpr.hh		\
+IndexIterator.cc				IndexIterator.hh	\
+Input.cc					Input.hh		\
+IntCell.cc					IntCell.hh		\
+LApack.cc								\
+LibPaths.cc					LibPaths.hh		\
+Logging.cc	    Logging.def			Logging.hh		\
+LvalCell.cc					LvalCell.hh		\
+main.cc						main.hh			\
+						makefile.h		\
+Malloc_hooks.cc								\
+Nabla.cc					Nabla.hh		\
+NamedObject.cc					NamedObject.hh		\
+NativeFunction.cc				NativeFunction.hh	\
+						Native_interface.hh	\
+NumericCell.cc					NumericCell.hh		\
+Output.cc					Output.hh		\
+Parser.cc					Parser.hh		\
+Prefix.cc		Prefix.def		Prefix.hh		\
+PointerCell.cc					PointerCell.hh		\
+PrimitiveFunction.cc				PrimitiveFunction.hh	\
+PrimitiveOperator.cc				PrimitiveOperator.hh	\
+PrintBuffer.cc					PrintBuffer.hh		\
+						PrintContext.hh		\
+						PrintOperator.hh	\
+QuadFunction.cc					QuadFunction.hh		\
+ProcessorID.cc					ProcessorID.hh		\
+Quad_FX.cc					Quad_FX.hh		\
+Quad_RL.cc					Quad_RL.hh		\
+Quad_SVx.cc					Quad_SVx.hh		\
+Quad_TF.cc					Quad_TF.hh		\
+RealCell.cc					RealCell.hh		\
+Shape.cc					Shape.hh		\
+						SharedValuePointer.hh	\
+						Simple_string.hh	\
+SkalarFunction.cc				SkalarFunction.hh	\
+						Source.hh		\
+StateIndicator.cc				StateIndicator.hh	\
+StaticObjects.cc							\
+Svar_DB.cc					Svar_DB.hh		\
+udp_signal.m4		Svar_signals.def	Svar_signals.hh		\
+Symbol.cc					Symbol.hh		\
+SymbolTable.cc					SymbolTable.hh		\
+			SystemLimits.def	SystemLimits.hh		\
+SystemVariable.cc	SystemVariable.def	SystemVariable.hh	\
+IO_Files.cc					IO_Files.hh		\
+Token.cc		Token.def		Token.hh		\
+						TokenEnums.hh		\
+Tokenizer.cc					Tokenizer.hh		\
+UCS_string.cc					UCS_string.hh		\
+UdpSocket.cc					UdpSocket.hh		\
+						Unicode.hh		\
+UserFunction.cc					UserFunction.hh		\
+UserPreferences.cc				UserPreferences.hh	\
+UTF8_string.cc					UTF8_string.hh		\
+Value.cc		Value.icc		Value.hh		\
+ValueHistory.cc					ValueHistory.hh		\
+Workspace.cc					Workspace.hh
 
-apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) \
-		$(OPENMP)
-
+AM_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(OPENMP) \
+	$(am__append_1)
 apl_LDADD = $(LIBS) $(LIBREADLINE)
 AM_MAKEFLAGS = -j 8
 all: all-recursive
@@ -498,7 +489,7 @@ clean-binPROGRAMS:
 	rm -f $$list
 apl$(EXEEXT): $(apl_OBJECTS) $(apl_DEPENDENCIES) $(EXTRA_apl_DEPENDENCIES) 
 	@rm -f apl$(EXEEXT)
-	$(apl_LINK) $(apl_OBJECTS) $(apl_LDADD) $(LIBS)
+	$(CXXLINK) $(apl_OBJECTS) $(apl_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -506,81 +497,81 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Archive.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ArrayIterator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Assert.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Avec.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Backtrace.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Bif_F12_FORMAT.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Bif_OPER1_COMMUTE.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Bif_OPER1_EACH.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Bif_OPER1_RANK.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Bif_OPER1_REDUCE.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Bif_OPER1_SCAN.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Bif_OPER2_PRODUCT.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-CDR.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Cell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-CharCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-CollatingCache.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Command.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Common.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ComplexCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Cores.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DerivedFunction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DiffOut.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DynamicObject.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Error.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Executable.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-FloatCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Function.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Id.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-IndexExpr.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-IndexIterator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Input.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-IntCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LApack.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LibPaths.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Logging.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-LvalCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Malloc_hooks.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Nabla.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NamedObject.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NativeFunction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-NumericCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Output.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Parser.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PointerCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Prefix.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrimitiveFunction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrimitiveOperator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrintBuffer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ProcessorID.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-QuadFunction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_FX.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_RL.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_SVx.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_TF.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-RealCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Shape.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-SkalarFunction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-StateIndicator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-StaticObjects.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Svar_DB.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Symbol.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-SymbolTable.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-SystemVariable.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-TestFiles.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Token.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Tokenizer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UCS_string.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UTF8_string.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UdpSocket.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserFunction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserPreferences.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Value.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ValueHistory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Workspace.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Archive.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ArrayIterator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Assert.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Avec.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Backtrace.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_F12_FORMAT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_COMMUTE.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_EACH.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_RANK.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_REDUCE.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_SCAN.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER2_PRODUCT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CDR.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CharCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CollatingCache.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Command.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ComplexCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cores.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DerivedFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DiffOut.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DynamicObject.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Error.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Executable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FloatCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Function.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IO_Files.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Id.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IndexExpr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IndexIterator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Input.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IntCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LApack.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LibPaths.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Logging.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LvalCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Malloc_hooks.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Nabla.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NamedObject.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NativeFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NumericCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Output.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PointerCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prefix.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrimitiveFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrimitiveOperator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrintBuffer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ProcessorID.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QuadFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Quad_FX.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Quad_RL.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Quad_SVx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Quad_TF.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RealCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Shape.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SkalarFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StateIndicator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StaticObjects.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Svar_DB.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Symbol.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SymbolTable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SystemVariable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Tokenizer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UCS_string.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UTF8_string.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UdpSocket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UserFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UserPreferences.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Value.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ValueHistory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Workspace.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -602,1056 +593,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-apl-Archive.o: Archive.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Archive.o -MD -MP -MF $(DEPDIR)/apl-Archive.Tpo -c -o apl-Archive.o `test -f 'Archive.cc' || echo '$(srcdir)/'`Archive.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Archive.Tpo $(DEPDIR)/apl-Archive.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Archive.cc' object='apl-Archive.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Archive.o `test -f 'Archive.cc' || echo '$(srcdir)/'`Archive.cc
-
-apl-Archive.obj: Archive.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Archive.obj -MD -MP -MF $(DEPDIR)/apl-Archive.Tpo -c -o apl-Archive.obj `if test -f 'Archive.cc'; then $(CYGPATH_W) 'Archive.cc'; else $(CYGPATH_W) '$(srcdir)/Archive.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Archive.Tpo $(DEPDIR)/apl-Archive.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Archive.cc' object='apl-Archive.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Archive.obj `if test -f 'Archive.cc'; then $(CYGPATH_W) 'Archive.cc'; else $(CYGPATH_W) '$(srcdir)/Archive.cc'; fi`
-
-apl-ArrayIterator.o: ArrayIterator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ArrayIterator.o -MD -MP -MF $(DEPDIR)/apl-ArrayIterator.Tpo -c -o apl-ArrayIterator.o `test -f 'ArrayIterator.cc' || echo '$(srcdir)/'`ArrayIterator.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ArrayIterator.Tpo $(DEPDIR)/apl-ArrayIterator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ArrayIterator.cc' object='apl-ArrayIterator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ArrayIterator.o `test -f 'ArrayIterator.cc' || echo '$(srcdir)/'`ArrayIterator.cc
-
-apl-ArrayIterator.obj: ArrayIterator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ArrayIterator.obj -MD -MP -MF $(DEPDIR)/apl-ArrayIterator.Tpo -c -o apl-ArrayIterator.obj `if test -f 'ArrayIterator.cc'; then $(CYGPATH_W) 'ArrayIterator.cc'; else $(CYGPATH_W) '$(srcdir)/ArrayIterator.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ArrayIterator.Tpo $(DEPDIR)/apl-ArrayIterator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ArrayIterator.cc' object='apl-ArrayIterator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ArrayIterator.obj `if test -f 'ArrayIterator.cc'; then $(CYGPATH_W) 'ArrayIterator.cc'; else $(CYGPATH_W) '$(srcdir)/ArrayIterator.cc'; fi`
-
-apl-Assert.o: Assert.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Assert.o -MD -MP -MF $(DEPDIR)/apl-Assert.Tpo -c -o apl-Assert.o `test -f 'Assert.cc' || echo '$(srcdir)/'`Assert.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Assert.Tpo $(DEPDIR)/apl-Assert.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Assert.cc' object='apl-Assert.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Assert.o `test -f 'Assert.cc' || echo '$(srcdir)/'`Assert.cc
-
-apl-Assert.obj: Assert.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Assert.obj -MD -MP -MF $(DEPDIR)/apl-Assert.Tpo -c -o apl-Assert.obj `if test -f 'Assert.cc'; then $(CYGPATH_W) 'Assert.cc'; else $(CYGPATH_W) '$(srcdir)/Assert.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Assert.Tpo $(DEPDIR)/apl-Assert.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Assert.cc' object='apl-Assert.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Assert.obj `if test -f 'Assert.cc'; then $(CYGPATH_W) 'Assert.cc'; else $(CYGPATH_W) '$(srcdir)/Assert.cc'; fi`
-
-apl-Avec.o: Avec.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Avec.o -MD -MP -MF $(DEPDIR)/apl-Avec.Tpo -c -o apl-Avec.o `test -f 'Avec.cc' || echo '$(srcdir)/'`Avec.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Avec.Tpo $(DEPDIR)/apl-Avec.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Avec.cc' object='apl-Avec.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Avec.o `test -f 'Avec.cc' || echo '$(srcdir)/'`Avec.cc
-
-apl-Avec.obj: Avec.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Avec.obj -MD -MP -MF $(DEPDIR)/apl-Avec.Tpo -c -o apl-Avec.obj `if test -f 'Avec.cc'; then $(CYGPATH_W) 'Avec.cc'; else $(CYGPATH_W) '$(srcdir)/Avec.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Avec.Tpo $(DEPDIR)/apl-Avec.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Avec.cc' object='apl-Avec.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Avec.obj `if test -f 'Avec.cc'; then $(CYGPATH_W) 'Avec.cc'; else $(CYGPATH_W) '$(srcdir)/Avec.cc'; fi`
-
-apl-Backtrace.o: Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Backtrace.o -MD -MP -MF $(DEPDIR)/apl-Backtrace.Tpo -c -o apl-Backtrace.o `test -f 'Backtrace.cc' || echo '$(srcdir)/'`Backtrace.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Backtrace.Tpo $(DEPDIR)/apl-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Backtrace.cc' object='apl-Backtrace.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Backtrace.o `test -f 'Backtrace.cc' || echo '$(srcdir)/'`Backtrace.cc
-
-apl-Backtrace.obj: Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Backtrace.obj -MD -MP -MF $(DEPDIR)/apl-Backtrace.Tpo -c -o apl-Backtrace.obj `if test -f 'Backtrace.cc'; then $(CYGPATH_W) 'Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/Backtrace.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Backtrace.Tpo $(DEPDIR)/apl-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Backtrace.cc' object='apl-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Backtrace.obj `if test -f 'Backtrace.cc'; then $(CYGPATH_W) 'Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/Backtrace.cc'; fi`
-
-apl-Bif_F12_FORMAT.o: Bif_F12_FORMAT.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_F12_FORMAT.o -MD -MP -MF $(DEPDIR)/apl-Bif_F12_FORMAT.Tpo -c -o apl-Bif_F12_FORMAT.o `test -f 'Bif_F12_FORMAT.cc' || echo '$(srcdir)/'`Bif_F12_FORMAT.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_F12_FORMAT.Tpo $(DEPDIR)/apl-Bif_F12_FORMAT.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_F12_FORMAT.cc' object='apl-Bif_F12_FORMAT.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_F12_FORMAT.o `test -f 'Bif_F12_FORMAT.cc' || echo '$(srcdir)/'`Bif_F12_FORMAT.cc
-
-apl-Bif_F12_FORMAT.obj: Bif_F12_FORMAT.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_F12_FORMAT.obj -MD -MP -MF $(DEPDIR)/apl-Bif_F12_FORMAT.Tpo -c -o apl-Bif_F12_FORMAT.obj `if test -f 'Bif_F12_FORMAT.cc'; then $(CYGPATH_W) 'Bif_F12_FORMAT.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_F12_FORMAT.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_F12_FORMAT.Tpo $(DEPDIR)/apl-Bif_F12_FORMAT.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_F12_FORMAT.cc' object='apl-Bif_F12_FORMAT.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_F12_FORMAT.obj `if test -f 'Bif_F12_FORMAT.cc'; then $(CYGPATH_W) 'Bif_F12_FORMAT.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_F12_FORMAT.cc'; fi`
-
-apl-Bif_OPER1_COMMUTE.o: Bif_OPER1_COMMUTE.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_COMMUTE.o -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_COMMUTE.Tpo -c -o apl-Bif_OPER1_COMMUTE.o `test -f 'Bif_OPER1_COMMUTE.cc' || echo '$(srcdir)/'`Bif_OPER1_COMMUTE.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_COMMUTE.Tpo $(DEPDIR)/apl-Bif_OPER1_COMMUTE.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_COMMUTE.cc' object='apl-Bif_OPER1_COMMUTE.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_COMMUTE.o `test -f 'Bif_OPER1_COMMUTE.cc' || echo '$(srcdir)/'`Bif_OPER1_COMMUTE.cc
-
-apl-Bif_OPER1_COMMUTE.obj: Bif_OPER1_COMMUTE.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_COMMUTE.obj -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_COMMUTE.Tpo -c -o apl-Bif_OPER1_COMMUTE.obj `if test -f 'Bif_OPER1_COMMUTE.cc'; then $(CYGPATH_W) 'Bif_OPER1_COMMUTE.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_COMMUTE.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_COMMUTE.Tpo $(DEPDIR)/apl-Bif_OPER1_COMMUTE.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_COMMUTE.cc' object='apl-Bif_OPER1_COMMUTE.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_COMMUTE.obj `if test -f 'Bif_OPER1_COMMUTE.cc'; then $(CYGPATH_W) 'Bif_OPER1_COMMUTE.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_COMMUTE.cc'; fi`
-
-apl-Bif_OPER1_EACH.o: Bif_OPER1_EACH.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_EACH.o -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_EACH.Tpo -c -o apl-Bif_OPER1_EACH.o `test -f 'Bif_OPER1_EACH.cc' || echo '$(srcdir)/'`Bif_OPER1_EACH.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_EACH.Tpo $(DEPDIR)/apl-Bif_OPER1_EACH.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_EACH.cc' object='apl-Bif_OPER1_EACH.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_EACH.o `test -f 'Bif_OPER1_EACH.cc' || echo '$(srcdir)/'`Bif_OPER1_EACH.cc
-
-apl-Bif_OPER1_EACH.obj: Bif_OPER1_EACH.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_EACH.obj -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_EACH.Tpo -c -o apl-Bif_OPER1_EACH.obj `if test -f 'Bif_OPER1_EACH.cc'; then $(CYGPATH_W) 'Bif_OPER1_EACH.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_EACH.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_EACH.Tpo $(DEPDIR)/apl-Bif_OPER1_EACH.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_EACH.cc' object='apl-Bif_OPER1_EACH.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_EACH.obj `if test -f 'Bif_OPER1_EACH.cc'; then $(CYGPATH_W) 'Bif_OPER1_EACH.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_EACH.cc'; fi`
-
-apl-Bif_OPER2_PRODUCT.o: Bif_OPER2_PRODUCT.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER2_PRODUCT.o -MD -MP -MF $(DEPDIR)/apl-Bif_OPER2_PRODUCT.Tpo -c -o apl-Bif_OPER2_PRODUCT.o `test -f 'Bif_OPER2_PRODUCT.cc' || echo '$(srcdir)/'`Bif_OPER2_PRODUCT.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER2_PRODUCT.Tpo $(DEPDIR)/apl-Bif_OPER2_PRODUCT.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER2_PRODUCT.cc' object='apl-Bif_OPER2_PRODUCT.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER2_PRODUCT.o `test -f 'Bif_OPER2_PRODUCT.cc' || echo '$(srcdir)/'`Bif_OPER2_PRODUCT.cc
-
-apl-Bif_OPER2_PRODUCT.obj: Bif_OPER2_PRODUCT.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER2_PRODUCT.obj -MD -MP -MF $(DEPDIR)/apl-Bif_OPER2_PRODUCT.Tpo -c -o apl-Bif_OPER2_PRODUCT.obj `if test -f 'Bif_OPER2_PRODUCT.cc'; then $(CYGPATH_W) 'Bif_OPER2_PRODUCT.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER2_PRODUCT.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER2_PRODUCT.Tpo $(DEPDIR)/apl-Bif_OPER2_PRODUCT.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER2_PRODUCT.cc' object='apl-Bif_OPER2_PRODUCT.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER2_PRODUCT.obj `if test -f 'Bif_OPER2_PRODUCT.cc'; then $(CYGPATH_W) 'Bif_OPER2_PRODUCT.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER2_PRODUCT.cc'; fi`
-
-apl-Bif_OPER1_RANK.o: Bif_OPER1_RANK.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_RANK.o -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_RANK.Tpo -c -o apl-Bif_OPER1_RANK.o `test -f 'Bif_OPER1_RANK.cc' || echo '$(srcdir)/'`Bif_OPER1_RANK.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_RANK.Tpo $(DEPDIR)/apl-Bif_OPER1_RANK.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_RANK.cc' object='apl-Bif_OPER1_RANK.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_RANK.o `test -f 'Bif_OPER1_RANK.cc' || echo '$(srcdir)/'`Bif_OPER1_RANK.cc
-
-apl-Bif_OPER1_RANK.obj: Bif_OPER1_RANK.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_RANK.obj -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_RANK.Tpo -c -o apl-Bif_OPER1_RANK.obj `if test -f 'Bif_OPER1_RANK.cc'; then $(CYGPATH_W) 'Bif_OPER1_RANK.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_RANK.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_RANK.Tpo $(DEPDIR)/apl-Bif_OPER1_RANK.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_RANK.cc' object='apl-Bif_OPER1_RANK.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_RANK.obj `if test -f 'Bif_OPER1_RANK.cc'; then $(CYGPATH_W) 'Bif_OPER1_RANK.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_RANK.cc'; fi`
-
-apl-Bif_OPER1_REDUCE.o: Bif_OPER1_REDUCE.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_REDUCE.o -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_REDUCE.Tpo -c -o apl-Bif_OPER1_REDUCE.o `test -f 'Bif_OPER1_REDUCE.cc' || echo '$(srcdir)/'`Bif_OPER1_REDUCE.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_REDUCE.Tpo $(DEPDIR)/apl-Bif_OPER1_REDUCE.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_REDUCE.cc' object='apl-Bif_OPER1_REDUCE.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_REDUCE.o `test -f 'Bif_OPER1_REDUCE.cc' || echo '$(srcdir)/'`Bif_OPER1_REDUCE.cc
-
-apl-Bif_OPER1_REDUCE.obj: Bif_OPER1_REDUCE.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_REDUCE.obj -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_REDUCE.Tpo -c -o apl-Bif_OPER1_REDUCE.obj `if test -f 'Bif_OPER1_REDUCE.cc'; then $(CYGPATH_W) 'Bif_OPER1_REDUCE.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_REDUCE.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_REDUCE.Tpo $(DEPDIR)/apl-Bif_OPER1_REDUCE.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_REDUCE.cc' object='apl-Bif_OPER1_REDUCE.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_REDUCE.obj `if test -f 'Bif_OPER1_REDUCE.cc'; then $(CYGPATH_W) 'Bif_OPER1_REDUCE.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_REDUCE.cc'; fi`
-
-apl-Bif_OPER1_SCAN.o: Bif_OPER1_SCAN.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_SCAN.o -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_SCAN.Tpo -c -o apl-Bif_OPER1_SCAN.o `test -f 'Bif_OPER1_SCAN.cc' || echo '$(srcdir)/'`Bif_OPER1_SCAN.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_SCAN.Tpo $(DEPDIR)/apl-Bif_OPER1_SCAN.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_SCAN.cc' object='apl-Bif_OPER1_SCAN.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_SCAN.o `test -f 'Bif_OPER1_SCAN.cc' || echo '$(srcdir)/'`Bif_OPER1_SCAN.cc
-
-apl-Bif_OPER1_SCAN.obj: Bif_OPER1_SCAN.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Bif_OPER1_SCAN.obj -MD -MP -MF $(DEPDIR)/apl-Bif_OPER1_SCAN.Tpo -c -o apl-Bif_OPER1_SCAN.obj `if test -f 'Bif_OPER1_SCAN.cc'; then $(CYGPATH_W) 'Bif_OPER1_SCAN.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_SCAN.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Bif_OPER1_SCAN.Tpo $(DEPDIR)/apl-Bif_OPER1_SCAN.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Bif_OPER1_SCAN.cc' object='apl-Bif_OPER1_SCAN.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Bif_OPER1_SCAN.obj `if test -f 'Bif_OPER1_SCAN.cc'; then $(CYGPATH_W) 'Bif_OPER1_SCAN.cc'; else $(CYGPATH_W) '$(srcdir)/Bif_OPER1_SCAN.cc'; fi`
-
-apl-CDR.o: CDR.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-CDR.o -MD -MP -MF $(DEPDIR)/apl-CDR.Tpo -c -o apl-CDR.o `test -f 'CDR.cc' || echo '$(srcdir)/'`CDR.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-CDR.Tpo $(DEPDIR)/apl-CDR.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CDR.cc' object='apl-CDR.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-CDR.o `test -f 'CDR.cc' || echo '$(srcdir)/'`CDR.cc
-
-apl-CDR.obj: CDR.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-CDR.obj -MD -MP -MF $(DEPDIR)/apl-CDR.Tpo -c -o apl-CDR.obj `if test -f 'CDR.cc'; then $(CYGPATH_W) 'CDR.cc'; else $(CYGPATH_W) '$(srcdir)/CDR.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-CDR.Tpo $(DEPDIR)/apl-CDR.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CDR.cc' object='apl-CDR.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-CDR.obj `if test -f 'CDR.cc'; then $(CYGPATH_W) 'CDR.cc'; else $(CYGPATH_W) '$(srcdir)/CDR.cc'; fi`
-
-apl-Cell.o: Cell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Cell.o -MD -MP -MF $(DEPDIR)/apl-Cell.Tpo -c -o apl-Cell.o `test -f 'Cell.cc' || echo '$(srcdir)/'`Cell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Cell.Tpo $(DEPDIR)/apl-Cell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Cell.cc' object='apl-Cell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Cell.o `test -f 'Cell.cc' || echo '$(srcdir)/'`Cell.cc
-
-apl-Cell.obj: Cell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Cell.obj -MD -MP -MF $(DEPDIR)/apl-Cell.Tpo -c -o apl-Cell.obj `if test -f 'Cell.cc'; then $(CYGPATH_W) 'Cell.cc'; else $(CYGPATH_W) '$(srcdir)/Cell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Cell.Tpo $(DEPDIR)/apl-Cell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Cell.cc' object='apl-Cell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Cell.obj `if test -f 'Cell.cc'; then $(CYGPATH_W) 'Cell.cc'; else $(CYGPATH_W) '$(srcdir)/Cell.cc'; fi`
-
-apl-CharCell.o: CharCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-CharCell.o -MD -MP -MF $(DEPDIR)/apl-CharCell.Tpo -c -o apl-CharCell.o `test -f 'CharCell.cc' || echo '$(srcdir)/'`CharCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-CharCell.Tpo $(DEPDIR)/apl-CharCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CharCell.cc' object='apl-CharCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-CharCell.o `test -f 'CharCell.cc' || echo '$(srcdir)/'`CharCell.cc
-
-apl-CharCell.obj: CharCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-CharCell.obj -MD -MP -MF $(DEPDIR)/apl-CharCell.Tpo -c -o apl-CharCell.obj `if test -f 'CharCell.cc'; then $(CYGPATH_W) 'CharCell.cc'; else $(CYGPATH_W) '$(srcdir)/CharCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-CharCell.Tpo $(DEPDIR)/apl-CharCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CharCell.cc' object='apl-CharCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-CharCell.obj `if test -f 'CharCell.cc'; then $(CYGPATH_W) 'CharCell.cc'; else $(CYGPATH_W) '$(srcdir)/CharCell.cc'; fi`
-
-apl-CollatingCache.o: CollatingCache.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-CollatingCache.o -MD -MP -MF $(DEPDIR)/apl-CollatingCache.Tpo -c -o apl-CollatingCache.o `test -f 'CollatingCache.cc' || echo '$(srcdir)/'`CollatingCache.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-CollatingCache.Tpo $(DEPDIR)/apl-CollatingCache.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CollatingCache.cc' object='apl-CollatingCache.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-CollatingCache.o `test -f 'CollatingCache.cc' || echo '$(srcdir)/'`CollatingCache.cc
-
-apl-CollatingCache.obj: CollatingCache.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-CollatingCache.obj -MD -MP -MF $(DEPDIR)/apl-CollatingCache.Tpo -c -o apl-CollatingCache.obj `if test -f 'CollatingCache.cc'; then $(CYGPATH_W) 'CollatingCache.cc'; else $(CYGPATH_W) '$(srcdir)/CollatingCache.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-CollatingCache.Tpo $(DEPDIR)/apl-CollatingCache.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CollatingCache.cc' object='apl-CollatingCache.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-CollatingCache.obj `if test -f 'CollatingCache.cc'; then $(CYGPATH_W) 'CollatingCache.cc'; else $(CYGPATH_W) '$(srcdir)/CollatingCache.cc'; fi`
-
-apl-Command.o: Command.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Command.o -MD -MP -MF $(DEPDIR)/apl-Command.Tpo -c -o apl-Command.o `test -f 'Command.cc' || echo '$(srcdir)/'`Command.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Command.Tpo $(DEPDIR)/apl-Command.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Command.cc' object='apl-Command.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Command.o `test -f 'Command.cc' || echo '$(srcdir)/'`Command.cc
-
-apl-Command.obj: Command.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Command.obj -MD -MP -MF $(DEPDIR)/apl-Command.Tpo -c -o apl-Command.obj `if test -f 'Command.cc'; then $(CYGPATH_W) 'Command.cc'; else $(CYGPATH_W) '$(srcdir)/Command.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Command.Tpo $(DEPDIR)/apl-Command.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Command.cc' object='apl-Command.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Command.obj `if test -f 'Command.cc'; then $(CYGPATH_W) 'Command.cc'; else $(CYGPATH_W) '$(srcdir)/Command.cc'; fi`
-
-apl-Common.o: Common.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Common.o -MD -MP -MF $(DEPDIR)/apl-Common.Tpo -c -o apl-Common.o `test -f 'Common.cc' || echo '$(srcdir)/'`Common.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Common.Tpo $(DEPDIR)/apl-Common.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Common.cc' object='apl-Common.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Common.o `test -f 'Common.cc' || echo '$(srcdir)/'`Common.cc
-
-apl-Common.obj: Common.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Common.obj -MD -MP -MF $(DEPDIR)/apl-Common.Tpo -c -o apl-Common.obj `if test -f 'Common.cc'; then $(CYGPATH_W) 'Common.cc'; else $(CYGPATH_W) '$(srcdir)/Common.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Common.Tpo $(DEPDIR)/apl-Common.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Common.cc' object='apl-Common.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Common.obj `if test -f 'Common.cc'; then $(CYGPATH_W) 'Common.cc'; else $(CYGPATH_W) '$(srcdir)/Common.cc'; fi`
-
-apl-ComplexCell.o: ComplexCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ComplexCell.o -MD -MP -MF $(DEPDIR)/apl-ComplexCell.Tpo -c -o apl-ComplexCell.o `test -f 'ComplexCell.cc' || echo '$(srcdir)/'`ComplexCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ComplexCell.Tpo $(DEPDIR)/apl-ComplexCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ComplexCell.cc' object='apl-ComplexCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ComplexCell.o `test -f 'ComplexCell.cc' || echo '$(srcdir)/'`ComplexCell.cc
-
-apl-ComplexCell.obj: ComplexCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ComplexCell.obj -MD -MP -MF $(DEPDIR)/apl-ComplexCell.Tpo -c -o apl-ComplexCell.obj `if test -f 'ComplexCell.cc'; then $(CYGPATH_W) 'ComplexCell.cc'; else $(CYGPATH_W) '$(srcdir)/ComplexCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ComplexCell.Tpo $(DEPDIR)/apl-ComplexCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ComplexCell.cc' object='apl-ComplexCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ComplexCell.obj `if test -f 'ComplexCell.cc'; then $(CYGPATH_W) 'ComplexCell.cc'; else $(CYGPATH_W) '$(srcdir)/ComplexCell.cc'; fi`
-
-apl-Cores.o: Cores.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Cores.o -MD -MP -MF $(DEPDIR)/apl-Cores.Tpo -c -o apl-Cores.o `test -f 'Cores.cc' || echo '$(srcdir)/'`Cores.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Cores.Tpo $(DEPDIR)/apl-Cores.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Cores.cc' object='apl-Cores.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Cores.o `test -f 'Cores.cc' || echo '$(srcdir)/'`Cores.cc
-
-apl-Cores.obj: Cores.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Cores.obj -MD -MP -MF $(DEPDIR)/apl-Cores.Tpo -c -o apl-Cores.obj `if test -f 'Cores.cc'; then $(CYGPATH_W) 'Cores.cc'; else $(CYGPATH_W) '$(srcdir)/Cores.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Cores.Tpo $(DEPDIR)/apl-Cores.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Cores.cc' object='apl-Cores.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Cores.obj `if test -f 'Cores.cc'; then $(CYGPATH_W) 'Cores.cc'; else $(CYGPATH_W) '$(srcdir)/Cores.cc'; fi`
-
-apl-DiffOut.o: DiffOut.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DiffOut.o -MD -MP -MF $(DEPDIR)/apl-DiffOut.Tpo -c -o apl-DiffOut.o `test -f 'DiffOut.cc' || echo '$(srcdir)/'`DiffOut.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-DiffOut.Tpo $(DEPDIR)/apl-DiffOut.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DiffOut.cc' object='apl-DiffOut.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DiffOut.o `test -f 'DiffOut.cc' || echo '$(srcdir)/'`DiffOut.cc
-
-apl-DiffOut.obj: DiffOut.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DiffOut.obj -MD -MP -MF $(DEPDIR)/apl-DiffOut.Tpo -c -o apl-DiffOut.obj `if test -f 'DiffOut.cc'; then $(CYGPATH_W) 'DiffOut.cc'; else $(CYGPATH_W) '$(srcdir)/DiffOut.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-DiffOut.Tpo $(DEPDIR)/apl-DiffOut.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DiffOut.cc' object='apl-DiffOut.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DiffOut.obj `if test -f 'DiffOut.cc'; then $(CYGPATH_W) 'DiffOut.cc'; else $(CYGPATH_W) '$(srcdir)/DiffOut.cc'; fi`
-
-apl-DynamicObject.o: DynamicObject.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DynamicObject.o -MD -MP -MF $(DEPDIR)/apl-DynamicObject.Tpo -c -o apl-DynamicObject.o `test -f 'DynamicObject.cc' || echo '$(srcdir)/'`DynamicObject.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-DynamicObject.Tpo $(DEPDIR)/apl-DynamicObject.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DynamicObject.cc' object='apl-DynamicObject.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DynamicObject.o `test -f 'DynamicObject.cc' || echo '$(srcdir)/'`DynamicObject.cc
-
-apl-DynamicObject.obj: DynamicObject.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DynamicObject.obj -MD -MP -MF $(DEPDIR)/apl-DynamicObject.Tpo -c -o apl-DynamicObject.obj `if test -f 'DynamicObject.cc'; then $(CYGPATH_W) 'DynamicObject.cc'; else $(CYGPATH_W) '$(srcdir)/DynamicObject.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-DynamicObject.Tpo $(DEPDIR)/apl-DynamicObject.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DynamicObject.cc' object='apl-DynamicObject.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DynamicObject.obj `if test -f 'DynamicObject.cc'; then $(CYGPATH_W) 'DynamicObject.cc'; else $(CYGPATH_W) '$(srcdir)/DynamicObject.cc'; fi`
-
-apl-Error.o: Error.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Error.o -MD -MP -MF $(DEPDIR)/apl-Error.Tpo -c -o apl-Error.o `test -f 'Error.cc' || echo '$(srcdir)/'`Error.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Error.Tpo $(DEPDIR)/apl-Error.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Error.cc' object='apl-Error.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Error.o `test -f 'Error.cc' || echo '$(srcdir)/'`Error.cc
-
-apl-Error.obj: Error.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Error.obj -MD -MP -MF $(DEPDIR)/apl-Error.Tpo -c -o apl-Error.obj `if test -f 'Error.cc'; then $(CYGPATH_W) 'Error.cc'; else $(CYGPATH_W) '$(srcdir)/Error.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Error.Tpo $(DEPDIR)/apl-Error.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Error.cc' object='apl-Error.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Error.obj `if test -f 'Error.cc'; then $(CYGPATH_W) 'Error.cc'; else $(CYGPATH_W) '$(srcdir)/Error.cc'; fi`
-
-apl-Executable.o: Executable.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Executable.o -MD -MP -MF $(DEPDIR)/apl-Executable.Tpo -c -o apl-Executable.o `test -f 'Executable.cc' || echo '$(srcdir)/'`Executable.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Executable.Tpo $(DEPDIR)/apl-Executable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Executable.cc' object='apl-Executable.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Executable.o `test -f 'Executable.cc' || echo '$(srcdir)/'`Executable.cc
-
-apl-Executable.obj: Executable.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Executable.obj -MD -MP -MF $(DEPDIR)/apl-Executable.Tpo -c -o apl-Executable.obj `if test -f 'Executable.cc'; then $(CYGPATH_W) 'Executable.cc'; else $(CYGPATH_W) '$(srcdir)/Executable.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Executable.Tpo $(DEPDIR)/apl-Executable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Executable.cc' object='apl-Executable.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Executable.obj `if test -f 'Executable.cc'; then $(CYGPATH_W) 'Executable.cc'; else $(CYGPATH_W) '$(srcdir)/Executable.cc'; fi`
-
-apl-FloatCell.o: FloatCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-FloatCell.o -MD -MP -MF $(DEPDIR)/apl-FloatCell.Tpo -c -o apl-FloatCell.o `test -f 'FloatCell.cc' || echo '$(srcdir)/'`FloatCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-FloatCell.Tpo $(DEPDIR)/apl-FloatCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='FloatCell.cc' object='apl-FloatCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-FloatCell.o `test -f 'FloatCell.cc' || echo '$(srcdir)/'`FloatCell.cc
-
-apl-FloatCell.obj: FloatCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-FloatCell.obj -MD -MP -MF $(DEPDIR)/apl-FloatCell.Tpo -c -o apl-FloatCell.obj `if test -f 'FloatCell.cc'; then $(CYGPATH_W) 'FloatCell.cc'; else $(CYGPATH_W) '$(srcdir)/FloatCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-FloatCell.Tpo $(DEPDIR)/apl-FloatCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='FloatCell.cc' object='apl-FloatCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-FloatCell.obj `if test -f 'FloatCell.cc'; then $(CYGPATH_W) 'FloatCell.cc'; else $(CYGPATH_W) '$(srcdir)/FloatCell.cc'; fi`
-
-apl-Function.o: Function.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Function.o -MD -MP -MF $(DEPDIR)/apl-Function.Tpo -c -o apl-Function.o `test -f 'Function.cc' || echo '$(srcdir)/'`Function.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Function.Tpo $(DEPDIR)/apl-Function.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Function.cc' object='apl-Function.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Function.o `test -f 'Function.cc' || echo '$(srcdir)/'`Function.cc
-
-apl-Function.obj: Function.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Function.obj -MD -MP -MF $(DEPDIR)/apl-Function.Tpo -c -o apl-Function.obj `if test -f 'Function.cc'; then $(CYGPATH_W) 'Function.cc'; else $(CYGPATH_W) '$(srcdir)/Function.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Function.Tpo $(DEPDIR)/apl-Function.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Function.cc' object='apl-Function.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Function.obj `if test -f 'Function.cc'; then $(CYGPATH_W) 'Function.cc'; else $(CYGPATH_W) '$(srcdir)/Function.cc'; fi`
-
-apl-DerivedFunction.o: DerivedFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DerivedFunction.o -MD -MP -MF $(DEPDIR)/apl-DerivedFunction.Tpo -c -o apl-DerivedFunction.o `test -f 'DerivedFunction.cc' || echo '$(srcdir)/'`DerivedFunction.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-DerivedFunction.Tpo $(DEPDIR)/apl-DerivedFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DerivedFunction.cc' object='apl-DerivedFunction.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DerivedFunction.o `test -f 'DerivedFunction.cc' || echo '$(srcdir)/'`DerivedFunction.cc
-
-apl-DerivedFunction.obj: DerivedFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DerivedFunction.obj -MD -MP -MF $(DEPDIR)/apl-DerivedFunction.Tpo -c -o apl-DerivedFunction.obj `if test -f 'DerivedFunction.cc'; then $(CYGPATH_W) 'DerivedFunction.cc'; else $(CYGPATH_W) '$(srcdir)/DerivedFunction.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-DerivedFunction.Tpo $(DEPDIR)/apl-DerivedFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DerivedFunction.cc' object='apl-DerivedFunction.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DerivedFunction.obj `if test -f 'DerivedFunction.cc'; then $(CYGPATH_W) 'DerivedFunction.cc'; else $(CYGPATH_W) '$(srcdir)/DerivedFunction.cc'; fi`
-
-apl-Id.o: Id.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Id.o -MD -MP -MF $(DEPDIR)/apl-Id.Tpo -c -o apl-Id.o `test -f 'Id.cc' || echo '$(srcdir)/'`Id.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Id.Tpo $(DEPDIR)/apl-Id.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Id.cc' object='apl-Id.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Id.o `test -f 'Id.cc' || echo '$(srcdir)/'`Id.cc
-
-apl-Id.obj: Id.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Id.obj -MD -MP -MF $(DEPDIR)/apl-Id.Tpo -c -o apl-Id.obj `if test -f 'Id.cc'; then $(CYGPATH_W) 'Id.cc'; else $(CYGPATH_W) '$(srcdir)/Id.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Id.Tpo $(DEPDIR)/apl-Id.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Id.cc' object='apl-Id.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Id.obj `if test -f 'Id.cc'; then $(CYGPATH_W) 'Id.cc'; else $(CYGPATH_W) '$(srcdir)/Id.cc'; fi`
-
-apl-IndexExpr.o: IndexExpr.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-IndexExpr.o -MD -MP -MF $(DEPDIR)/apl-IndexExpr.Tpo -c -o apl-IndexExpr.o `test -f 'IndexExpr.cc' || echo '$(srcdir)/'`IndexExpr.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-IndexExpr.Tpo $(DEPDIR)/apl-IndexExpr.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IndexExpr.cc' object='apl-IndexExpr.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-IndexExpr.o `test -f 'IndexExpr.cc' || echo '$(srcdir)/'`IndexExpr.cc
-
-apl-IndexExpr.obj: IndexExpr.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-IndexExpr.obj -MD -MP -MF $(DEPDIR)/apl-IndexExpr.Tpo -c -o apl-IndexExpr.obj `if test -f 'IndexExpr.cc'; then $(CYGPATH_W) 'IndexExpr.cc'; else $(CYGPATH_W) '$(srcdir)/IndexExpr.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-IndexExpr.Tpo $(DEPDIR)/apl-IndexExpr.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IndexExpr.cc' object='apl-IndexExpr.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-IndexExpr.obj `if test -f 'IndexExpr.cc'; then $(CYGPATH_W) 'IndexExpr.cc'; else $(CYGPATH_W) '$(srcdir)/IndexExpr.cc'; fi`
-
-apl-IndexIterator.o: IndexIterator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-IndexIterator.o -MD -MP -MF $(DEPDIR)/apl-IndexIterator.Tpo -c -o apl-IndexIterator.o `test -f 'IndexIterator.cc' || echo '$(srcdir)/'`IndexIterator.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-IndexIterator.Tpo $(DEPDIR)/apl-IndexIterator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IndexIterator.cc' object='apl-IndexIterator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-IndexIterator.o `test -f 'IndexIterator.cc' || echo '$(srcdir)/'`IndexIterator.cc
-
-apl-IndexIterator.obj: IndexIterator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-IndexIterator.obj -MD -MP -MF $(DEPDIR)/apl-IndexIterator.Tpo -c -o apl-IndexIterator.obj `if test -f 'IndexIterator.cc'; then $(CYGPATH_W) 'IndexIterator.cc'; else $(CYGPATH_W) '$(srcdir)/IndexIterator.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-IndexIterator.Tpo $(DEPDIR)/apl-IndexIterator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IndexIterator.cc' object='apl-IndexIterator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-IndexIterator.obj `if test -f 'IndexIterator.cc'; then $(CYGPATH_W) 'IndexIterator.cc'; else $(CYGPATH_W) '$(srcdir)/IndexIterator.cc'; fi`
-
-apl-Input.o: Input.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Input.o -MD -MP -MF $(DEPDIR)/apl-Input.Tpo -c -o apl-Input.o `test -f 'Input.cc' || echo '$(srcdir)/'`Input.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Input.Tpo $(DEPDIR)/apl-Input.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Input.cc' object='apl-Input.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Input.o `test -f 'Input.cc' || echo '$(srcdir)/'`Input.cc
-
-apl-Input.obj: Input.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Input.obj -MD -MP -MF $(DEPDIR)/apl-Input.Tpo -c -o apl-Input.obj `if test -f 'Input.cc'; then $(CYGPATH_W) 'Input.cc'; else $(CYGPATH_W) '$(srcdir)/Input.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Input.Tpo $(DEPDIR)/apl-Input.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Input.cc' object='apl-Input.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Input.obj `if test -f 'Input.cc'; then $(CYGPATH_W) 'Input.cc'; else $(CYGPATH_W) '$(srcdir)/Input.cc'; fi`
-
-apl-IntCell.o: IntCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-IntCell.o -MD -MP -MF $(DEPDIR)/apl-IntCell.Tpo -c -o apl-IntCell.o `test -f 'IntCell.cc' || echo '$(srcdir)/'`IntCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-IntCell.Tpo $(DEPDIR)/apl-IntCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IntCell.cc' object='apl-IntCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-IntCell.o `test -f 'IntCell.cc' || echo '$(srcdir)/'`IntCell.cc
-
-apl-IntCell.obj: IntCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-IntCell.obj -MD -MP -MF $(DEPDIR)/apl-IntCell.Tpo -c -o apl-IntCell.obj `if test -f 'IntCell.cc'; then $(CYGPATH_W) 'IntCell.cc'; else $(CYGPATH_W) '$(srcdir)/IntCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-IntCell.Tpo $(DEPDIR)/apl-IntCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IntCell.cc' object='apl-IntCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-IntCell.obj `if test -f 'IntCell.cc'; then $(CYGPATH_W) 'IntCell.cc'; else $(CYGPATH_W) '$(srcdir)/IntCell.cc'; fi`
-
-apl-LApack.o: LApack.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LApack.o -MD -MP -MF $(DEPDIR)/apl-LApack.Tpo -c -o apl-LApack.o `test -f 'LApack.cc' || echo '$(srcdir)/'`LApack.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LApack.Tpo $(DEPDIR)/apl-LApack.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LApack.cc' object='apl-LApack.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LApack.o `test -f 'LApack.cc' || echo '$(srcdir)/'`LApack.cc
-
-apl-LApack.obj: LApack.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LApack.obj -MD -MP -MF $(DEPDIR)/apl-LApack.Tpo -c -o apl-LApack.obj `if test -f 'LApack.cc'; then $(CYGPATH_W) 'LApack.cc'; else $(CYGPATH_W) '$(srcdir)/LApack.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LApack.Tpo $(DEPDIR)/apl-LApack.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LApack.cc' object='apl-LApack.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LApack.obj `if test -f 'LApack.cc'; then $(CYGPATH_W) 'LApack.cc'; else $(CYGPATH_W) '$(srcdir)/LApack.cc'; fi`
-
-apl-LibPaths.o: LibPaths.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LibPaths.o -MD -MP -MF $(DEPDIR)/apl-LibPaths.Tpo -c -o apl-LibPaths.o `test -f 'LibPaths.cc' || echo '$(srcdir)/'`LibPaths.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LibPaths.Tpo $(DEPDIR)/apl-LibPaths.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LibPaths.cc' object='apl-LibPaths.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LibPaths.o `test -f 'LibPaths.cc' || echo '$(srcdir)/'`LibPaths.cc
-
-apl-LibPaths.obj: LibPaths.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LibPaths.obj -MD -MP -MF $(DEPDIR)/apl-LibPaths.Tpo -c -o apl-LibPaths.obj `if test -f 'LibPaths.cc'; then $(CYGPATH_W) 'LibPaths.cc'; else $(CYGPATH_W) '$(srcdir)/LibPaths.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LibPaths.Tpo $(DEPDIR)/apl-LibPaths.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LibPaths.cc' object='apl-LibPaths.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LibPaths.obj `if test -f 'LibPaths.cc'; then $(CYGPATH_W) 'LibPaths.cc'; else $(CYGPATH_W) '$(srcdir)/LibPaths.cc'; fi`
-
-apl-Logging.o: Logging.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Logging.o -MD -MP -MF $(DEPDIR)/apl-Logging.Tpo -c -o apl-Logging.o `test -f 'Logging.cc' || echo '$(srcdir)/'`Logging.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Logging.Tpo $(DEPDIR)/apl-Logging.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Logging.cc' object='apl-Logging.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Logging.o `test -f 'Logging.cc' || echo '$(srcdir)/'`Logging.cc
-
-apl-Logging.obj: Logging.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Logging.obj -MD -MP -MF $(DEPDIR)/apl-Logging.Tpo -c -o apl-Logging.obj `if test -f 'Logging.cc'; then $(CYGPATH_W) 'Logging.cc'; else $(CYGPATH_W) '$(srcdir)/Logging.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Logging.Tpo $(DEPDIR)/apl-Logging.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Logging.cc' object='apl-Logging.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Logging.obj `if test -f 'Logging.cc'; then $(CYGPATH_W) 'Logging.cc'; else $(CYGPATH_W) '$(srcdir)/Logging.cc'; fi`
-
-apl-LvalCell.o: LvalCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LvalCell.o -MD -MP -MF $(DEPDIR)/apl-LvalCell.Tpo -c -o apl-LvalCell.o `test -f 'LvalCell.cc' || echo '$(srcdir)/'`LvalCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LvalCell.Tpo $(DEPDIR)/apl-LvalCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LvalCell.cc' object='apl-LvalCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LvalCell.o `test -f 'LvalCell.cc' || echo '$(srcdir)/'`LvalCell.cc
-
-apl-LvalCell.obj: LvalCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-LvalCell.obj -MD -MP -MF $(DEPDIR)/apl-LvalCell.Tpo -c -o apl-LvalCell.obj `if test -f 'LvalCell.cc'; then $(CYGPATH_W) 'LvalCell.cc'; else $(CYGPATH_W) '$(srcdir)/LvalCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-LvalCell.Tpo $(DEPDIR)/apl-LvalCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LvalCell.cc' object='apl-LvalCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-LvalCell.obj `if test -f 'LvalCell.cc'; then $(CYGPATH_W) 'LvalCell.cc'; else $(CYGPATH_W) '$(srcdir)/LvalCell.cc'; fi`
-
-apl-main.o: main.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-main.o -MD -MP -MF $(DEPDIR)/apl-main.Tpo -c -o apl-main.o `test -f 'main.cc' || echo '$(srcdir)/'`main.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-main.Tpo $(DEPDIR)/apl-main.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='main.cc' object='apl-main.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-main.o `test -f 'main.cc' || echo '$(srcdir)/'`main.cc
-
-apl-main.obj: main.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-main.obj -MD -MP -MF $(DEPDIR)/apl-main.Tpo -c -o apl-main.obj `if test -f 'main.cc'; then $(CYGPATH_W) 'main.cc'; else $(CYGPATH_W) '$(srcdir)/main.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-main.Tpo $(DEPDIR)/apl-main.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='main.cc' object='apl-main.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-main.obj `if test -f 'main.cc'; then $(CYGPATH_W) 'main.cc'; else $(CYGPATH_W) '$(srcdir)/main.cc'; fi`
-
-apl-Malloc_hooks.o: Malloc_hooks.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Malloc_hooks.o -MD -MP -MF $(DEPDIR)/apl-Malloc_hooks.Tpo -c -o apl-Malloc_hooks.o `test -f 'Malloc_hooks.cc' || echo '$(srcdir)/'`Malloc_hooks.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Malloc_hooks.Tpo $(DEPDIR)/apl-Malloc_hooks.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Malloc_hooks.cc' object='apl-Malloc_hooks.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Malloc_hooks.o `test -f 'Malloc_hooks.cc' || echo '$(srcdir)/'`Malloc_hooks.cc
-
-apl-Malloc_hooks.obj: Malloc_hooks.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Malloc_hooks.obj -MD -MP -MF $(DEPDIR)/apl-Malloc_hooks.Tpo -c -o apl-Malloc_hooks.obj `if test -f 'Malloc_hooks.cc'; then $(CYGPATH_W) 'Malloc_hooks.cc'; else $(CYGPATH_W) '$(srcdir)/Malloc_hooks.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Malloc_hooks.Tpo $(DEPDIR)/apl-Malloc_hooks.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Malloc_hooks.cc' object='apl-Malloc_hooks.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Malloc_hooks.obj `if test -f 'Malloc_hooks.cc'; then $(CYGPATH_W) 'Malloc_hooks.cc'; else $(CYGPATH_W) '$(srcdir)/Malloc_hooks.cc'; fi`
-
-apl-Nabla.o: Nabla.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Nabla.o -MD -MP -MF $(DEPDIR)/apl-Nabla.Tpo -c -o apl-Nabla.o `test -f 'Nabla.cc' || echo '$(srcdir)/'`Nabla.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Nabla.Tpo $(DEPDIR)/apl-Nabla.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Nabla.cc' object='apl-Nabla.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Nabla.o `test -f 'Nabla.cc' || echo '$(srcdir)/'`Nabla.cc
-
-apl-Nabla.obj: Nabla.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Nabla.obj -MD -MP -MF $(DEPDIR)/apl-Nabla.Tpo -c -o apl-Nabla.obj `if test -f 'Nabla.cc'; then $(CYGPATH_W) 'Nabla.cc'; else $(CYGPATH_W) '$(srcdir)/Nabla.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Nabla.Tpo $(DEPDIR)/apl-Nabla.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Nabla.cc' object='apl-Nabla.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Nabla.obj `if test -f 'Nabla.cc'; then $(CYGPATH_W) 'Nabla.cc'; else $(CYGPATH_W) '$(srcdir)/Nabla.cc'; fi`
-
-apl-NamedObject.o: NamedObject.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NamedObject.o -MD -MP -MF $(DEPDIR)/apl-NamedObject.Tpo -c -o apl-NamedObject.o `test -f 'NamedObject.cc' || echo '$(srcdir)/'`NamedObject.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NamedObject.Tpo $(DEPDIR)/apl-NamedObject.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NamedObject.cc' object='apl-NamedObject.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NamedObject.o `test -f 'NamedObject.cc' || echo '$(srcdir)/'`NamedObject.cc
-
-apl-NamedObject.obj: NamedObject.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NamedObject.obj -MD -MP -MF $(DEPDIR)/apl-NamedObject.Tpo -c -o apl-NamedObject.obj `if test -f 'NamedObject.cc'; then $(CYGPATH_W) 'NamedObject.cc'; else $(CYGPATH_W) '$(srcdir)/NamedObject.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NamedObject.Tpo $(DEPDIR)/apl-NamedObject.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NamedObject.cc' object='apl-NamedObject.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NamedObject.obj `if test -f 'NamedObject.cc'; then $(CYGPATH_W) 'NamedObject.cc'; else $(CYGPATH_W) '$(srcdir)/NamedObject.cc'; fi`
-
-apl-NativeFunction.o: NativeFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NativeFunction.o -MD -MP -MF $(DEPDIR)/apl-NativeFunction.Tpo -c -o apl-NativeFunction.o `test -f 'NativeFunction.cc' || echo '$(srcdir)/'`NativeFunction.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NativeFunction.Tpo $(DEPDIR)/apl-NativeFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NativeFunction.cc' object='apl-NativeFunction.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NativeFunction.o `test -f 'NativeFunction.cc' || echo '$(srcdir)/'`NativeFunction.cc
-
-apl-NativeFunction.obj: NativeFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NativeFunction.obj -MD -MP -MF $(DEPDIR)/apl-NativeFunction.Tpo -c -o apl-NativeFunction.obj `if test -f 'NativeFunction.cc'; then $(CYGPATH_W) 'NativeFunction.cc'; else $(CYGPATH_W) '$(srcdir)/NativeFunction.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NativeFunction.Tpo $(DEPDIR)/apl-NativeFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NativeFunction.cc' object='apl-NativeFunction.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NativeFunction.obj `if test -f 'NativeFunction.cc'; then $(CYGPATH_W) 'NativeFunction.cc'; else $(CYGPATH_W) '$(srcdir)/NativeFunction.cc'; fi`
-
-apl-NumericCell.o: NumericCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NumericCell.o -MD -MP -MF $(DEPDIR)/apl-NumericCell.Tpo -c -o apl-NumericCell.o `test -f 'NumericCell.cc' || echo '$(srcdir)/'`NumericCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NumericCell.Tpo $(DEPDIR)/apl-NumericCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NumericCell.cc' object='apl-NumericCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NumericCell.o `test -f 'NumericCell.cc' || echo '$(srcdir)/'`NumericCell.cc
-
-apl-NumericCell.obj: NumericCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-NumericCell.obj -MD -MP -MF $(DEPDIR)/apl-NumericCell.Tpo -c -o apl-NumericCell.obj `if test -f 'NumericCell.cc'; then $(CYGPATH_W) 'NumericCell.cc'; else $(CYGPATH_W) '$(srcdir)/NumericCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-NumericCell.Tpo $(DEPDIR)/apl-NumericCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NumericCell.cc' object='apl-NumericCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-NumericCell.obj `if test -f 'NumericCell.cc'; then $(CYGPATH_W) 'NumericCell.cc'; else $(CYGPATH_W) '$(srcdir)/NumericCell.cc'; fi`
-
-apl-Output.o: Output.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Output.o -MD -MP -MF $(DEPDIR)/apl-Output.Tpo -c -o apl-Output.o `test -f 'Output.cc' || echo '$(srcdir)/'`Output.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Output.Tpo $(DEPDIR)/apl-Output.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Output.cc' object='apl-Output.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Output.o `test -f 'Output.cc' || echo '$(srcdir)/'`Output.cc
-
-apl-Output.obj: Output.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Output.obj -MD -MP -MF $(DEPDIR)/apl-Output.Tpo -c -o apl-Output.obj `if test -f 'Output.cc'; then $(CYGPATH_W) 'Output.cc'; else $(CYGPATH_W) '$(srcdir)/Output.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Output.Tpo $(DEPDIR)/apl-Output.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Output.cc' object='apl-Output.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Output.obj `if test -f 'Output.cc'; then $(CYGPATH_W) 'Output.cc'; else $(CYGPATH_W) '$(srcdir)/Output.cc'; fi`
-
-apl-Parser.o: Parser.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Parser.o -MD -MP -MF $(DEPDIR)/apl-Parser.Tpo -c -o apl-Parser.o `test -f 'Parser.cc' || echo '$(srcdir)/'`Parser.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Parser.Tpo $(DEPDIR)/apl-Parser.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Parser.cc' object='apl-Parser.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Parser.o `test -f 'Parser.cc' || echo '$(srcdir)/'`Parser.cc
-
-apl-Parser.obj: Parser.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Parser.obj -MD -MP -MF $(DEPDIR)/apl-Parser.Tpo -c -o apl-Parser.obj `if test -f 'Parser.cc'; then $(CYGPATH_W) 'Parser.cc'; else $(CYGPATH_W) '$(srcdir)/Parser.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Parser.Tpo $(DEPDIR)/apl-Parser.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Parser.cc' object='apl-Parser.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Parser.obj `if test -f 'Parser.cc'; then $(CYGPATH_W) 'Parser.cc'; else $(CYGPATH_W) '$(srcdir)/Parser.cc'; fi`
-
-apl-Prefix.o: Prefix.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Prefix.o -MD -MP -MF $(DEPDIR)/apl-Prefix.Tpo -c -o apl-Prefix.o `test -f 'Prefix.cc' || echo '$(srcdir)/'`Prefix.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Prefix.Tpo $(DEPDIR)/apl-Prefix.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Prefix.cc' object='apl-Prefix.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Prefix.o `test -f 'Prefix.cc' || echo '$(srcdir)/'`Prefix.cc
-
-apl-Prefix.obj: Prefix.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Prefix.obj -MD -MP -MF $(DEPDIR)/apl-Prefix.Tpo -c -o apl-Prefix.obj `if test -f 'Prefix.cc'; then $(CYGPATH_W) 'Prefix.cc'; else $(CYGPATH_W) '$(srcdir)/Prefix.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Prefix.Tpo $(DEPDIR)/apl-Prefix.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Prefix.cc' object='apl-Prefix.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Prefix.obj `if test -f 'Prefix.cc'; then $(CYGPATH_W) 'Prefix.cc'; else $(CYGPATH_W) '$(srcdir)/Prefix.cc'; fi`
-
-apl-PointerCell.o: PointerCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PointerCell.o -MD -MP -MF $(DEPDIR)/apl-PointerCell.Tpo -c -o apl-PointerCell.o `test -f 'PointerCell.cc' || echo '$(srcdir)/'`PointerCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PointerCell.Tpo $(DEPDIR)/apl-PointerCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PointerCell.cc' object='apl-PointerCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PointerCell.o `test -f 'PointerCell.cc' || echo '$(srcdir)/'`PointerCell.cc
-
-apl-PointerCell.obj: PointerCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PointerCell.obj -MD -MP -MF $(DEPDIR)/apl-PointerCell.Tpo -c -o apl-PointerCell.obj `if test -f 'PointerCell.cc'; then $(CYGPATH_W) 'PointerCell.cc'; else $(CYGPATH_W) '$(srcdir)/PointerCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PointerCell.Tpo $(DEPDIR)/apl-PointerCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PointerCell.cc' object='apl-PointerCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PointerCell.obj `if test -f 'PointerCell.cc'; then $(CYGPATH_W) 'PointerCell.cc'; else $(CYGPATH_W) '$(srcdir)/PointerCell.cc'; fi`
-
-apl-PrimitiveFunction.o: PrimitiveFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrimitiveFunction.o -MD -MP -MF $(DEPDIR)/apl-PrimitiveFunction.Tpo -c -o apl-PrimitiveFunction.o `test -f 'PrimitiveFunction.cc' || echo '$(srcdir)/'`PrimitiveFunction.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrimitiveFunction.Tpo $(DEPDIR)/apl-PrimitiveFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrimitiveFunction.cc' object='apl-PrimitiveFunction.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrimitiveFunction.o `test -f 'PrimitiveFunction.cc' || echo '$(srcdir)/'`PrimitiveFunction.cc
-
-apl-PrimitiveFunction.obj: PrimitiveFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrimitiveFunction.obj -MD -MP -MF $(DEPDIR)/apl-PrimitiveFunction.Tpo -c -o apl-PrimitiveFunction.obj `if test -f 'PrimitiveFunction.cc'; then $(CYGPATH_W) 'PrimitiveFunction.cc'; else $(CYGPATH_W) '$(srcdir)/PrimitiveFunction.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrimitiveFunction.Tpo $(DEPDIR)/apl-PrimitiveFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrimitiveFunction.cc' object='apl-PrimitiveFunction.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrimitiveFunction.obj `if test -f 'PrimitiveFunction.cc'; then $(CYGPATH_W) 'PrimitiveFunction.cc'; else $(CYGPATH_W) '$(srcdir)/PrimitiveFunction.cc'; fi`
-
-apl-PrimitiveOperator.o: PrimitiveOperator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrimitiveOperator.o -MD -MP -MF $(DEPDIR)/apl-PrimitiveOperator.Tpo -c -o apl-PrimitiveOperator.o `test -f 'PrimitiveOperator.cc' || echo '$(srcdir)/'`PrimitiveOperator.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrimitiveOperator.Tpo $(DEPDIR)/apl-PrimitiveOperator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrimitiveOperator.cc' object='apl-PrimitiveOperator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrimitiveOperator.o `test -f 'PrimitiveOperator.cc' || echo '$(srcdir)/'`PrimitiveOperator.cc
-
-apl-PrimitiveOperator.obj: PrimitiveOperator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrimitiveOperator.obj -MD -MP -MF $(DEPDIR)/apl-PrimitiveOperator.Tpo -c -o apl-PrimitiveOperator.obj `if test -f 'PrimitiveOperator.cc'; then $(CYGPATH_W) 'PrimitiveOperator.cc'; else $(CYGPATH_W) '$(srcdir)/PrimitiveOperator.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrimitiveOperator.Tpo $(DEPDIR)/apl-PrimitiveOperator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrimitiveOperator.cc' object='apl-PrimitiveOperator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrimitiveOperator.obj `if test -f 'PrimitiveOperator.cc'; then $(CYGPATH_W) 'PrimitiveOperator.cc'; else $(CYGPATH_W) '$(srcdir)/PrimitiveOperator.cc'; fi`
-
-apl-PrintBuffer.o: PrintBuffer.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrintBuffer.o -MD -MP -MF $(DEPDIR)/apl-PrintBuffer.Tpo -c -o apl-PrintBuffer.o `test -f 'PrintBuffer.cc' || echo '$(srcdir)/'`PrintBuffer.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrintBuffer.Tpo $(DEPDIR)/apl-PrintBuffer.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrintBuffer.cc' object='apl-PrintBuffer.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrintBuffer.o `test -f 'PrintBuffer.cc' || echo '$(srcdir)/'`PrintBuffer.cc
-
-apl-PrintBuffer.obj: PrintBuffer.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-PrintBuffer.obj -MD -MP -MF $(DEPDIR)/apl-PrintBuffer.Tpo -c -o apl-PrintBuffer.obj `if test -f 'PrintBuffer.cc'; then $(CYGPATH_W) 'PrintBuffer.cc'; else $(CYGPATH_W) '$(srcdir)/PrintBuffer.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-PrintBuffer.Tpo $(DEPDIR)/apl-PrintBuffer.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='PrintBuffer.cc' object='apl-PrintBuffer.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-PrintBuffer.obj `if test -f 'PrintBuffer.cc'; then $(CYGPATH_W) 'PrintBuffer.cc'; else $(CYGPATH_W) '$(srcdir)/PrintBuffer.cc'; fi`
-
-apl-QuadFunction.o: QuadFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-QuadFunction.o -MD -MP -MF $(DEPDIR)/apl-QuadFunction.Tpo -c -o apl-QuadFunction.o `test -f 'QuadFunction.cc' || echo '$(srcdir)/'`QuadFunction.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-QuadFunction.Tpo $(DEPDIR)/apl-QuadFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='QuadFunction.cc' object='apl-QuadFunction.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-QuadFunction.o `test -f 'QuadFunction.cc' || echo '$(srcdir)/'`QuadFunction.cc
-
-apl-QuadFunction.obj: QuadFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-QuadFunction.obj -MD -MP -MF $(DEPDIR)/apl-QuadFunction.Tpo -c -o apl-QuadFunction.obj `if test -f 'QuadFunction.cc'; then $(CYGPATH_W) 'QuadFunction.cc'; else $(CYGPATH_W) '$(srcdir)/QuadFunction.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-QuadFunction.Tpo $(DEPDIR)/apl-QuadFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='QuadFunction.cc' object='apl-QuadFunction.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-QuadFunction.obj `if test -f 'QuadFunction.cc'; then $(CYGPATH_W) 'QuadFunction.cc'; else $(CYGPATH_W) '$(srcdir)/QuadFunction.cc'; fi`
-
-apl-ProcessorID.o: ProcessorID.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ProcessorID.o -MD -MP -MF $(DEPDIR)/apl-ProcessorID.Tpo -c -o apl-ProcessorID.o `test -f 'ProcessorID.cc' || echo '$(srcdir)/'`ProcessorID.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ProcessorID.Tpo $(DEPDIR)/apl-ProcessorID.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ProcessorID.cc' object='apl-ProcessorID.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ProcessorID.o `test -f 'ProcessorID.cc' || echo '$(srcdir)/'`ProcessorID.cc
-
-apl-ProcessorID.obj: ProcessorID.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ProcessorID.obj -MD -MP -MF $(DEPDIR)/apl-ProcessorID.Tpo -c -o apl-ProcessorID.obj `if test -f 'ProcessorID.cc'; then $(CYGPATH_W) 'ProcessorID.cc'; else $(CYGPATH_W) '$(srcdir)/ProcessorID.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ProcessorID.Tpo $(DEPDIR)/apl-ProcessorID.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ProcessorID.cc' object='apl-ProcessorID.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ProcessorID.obj `if test -f 'ProcessorID.cc'; then $(CYGPATH_W) 'ProcessorID.cc'; else $(CYGPATH_W) '$(srcdir)/ProcessorID.cc'; fi`
-
-apl-Quad_FX.o: Quad_FX.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_FX.o -MD -MP -MF $(DEPDIR)/apl-Quad_FX.Tpo -c -o apl-Quad_FX.o `test -f 'Quad_FX.cc' || echo '$(srcdir)/'`Quad_FX.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_FX.Tpo $(DEPDIR)/apl-Quad_FX.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_FX.cc' object='apl-Quad_FX.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_FX.o `test -f 'Quad_FX.cc' || echo '$(srcdir)/'`Quad_FX.cc
-
-apl-Quad_FX.obj: Quad_FX.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_FX.obj -MD -MP -MF $(DEPDIR)/apl-Quad_FX.Tpo -c -o apl-Quad_FX.obj `if test -f 'Quad_FX.cc'; then $(CYGPATH_W) 'Quad_FX.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_FX.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_FX.Tpo $(DEPDIR)/apl-Quad_FX.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_FX.cc' object='apl-Quad_FX.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_FX.obj `if test -f 'Quad_FX.cc'; then $(CYGPATH_W) 'Quad_FX.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_FX.cc'; fi`
-
-apl-Quad_RL.o: Quad_RL.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_RL.o -MD -MP -MF $(DEPDIR)/apl-Quad_RL.Tpo -c -o apl-Quad_RL.o `test -f 'Quad_RL.cc' || echo '$(srcdir)/'`Quad_RL.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_RL.Tpo $(DEPDIR)/apl-Quad_RL.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_RL.cc' object='apl-Quad_RL.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_RL.o `test -f 'Quad_RL.cc' || echo '$(srcdir)/'`Quad_RL.cc
-
-apl-Quad_RL.obj: Quad_RL.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_RL.obj -MD -MP -MF $(DEPDIR)/apl-Quad_RL.Tpo -c -o apl-Quad_RL.obj `if test -f 'Quad_RL.cc'; then $(CYGPATH_W) 'Quad_RL.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_RL.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_RL.Tpo $(DEPDIR)/apl-Quad_RL.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_RL.cc' object='apl-Quad_RL.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_RL.obj `if test -f 'Quad_RL.cc'; then $(CYGPATH_W) 'Quad_RL.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_RL.cc'; fi`
-
-apl-Quad_SVx.o: Quad_SVx.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_SVx.o -MD -MP -MF $(DEPDIR)/apl-Quad_SVx.Tpo -c -o apl-Quad_SVx.o `test -f 'Quad_SVx.cc' || echo '$(srcdir)/'`Quad_SVx.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_SVx.Tpo $(DEPDIR)/apl-Quad_SVx.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_SVx.cc' object='apl-Quad_SVx.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_SVx.o `test -f 'Quad_SVx.cc' || echo '$(srcdir)/'`Quad_SVx.cc
-
-apl-Quad_SVx.obj: Quad_SVx.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_SVx.obj -MD -MP -MF $(DEPDIR)/apl-Quad_SVx.Tpo -c -o apl-Quad_SVx.obj `if test -f 'Quad_SVx.cc'; then $(CYGPATH_W) 'Quad_SVx.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_SVx.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_SVx.Tpo $(DEPDIR)/apl-Quad_SVx.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_SVx.cc' object='apl-Quad_SVx.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_SVx.obj `if test -f 'Quad_SVx.cc'; then $(CYGPATH_W) 'Quad_SVx.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_SVx.cc'; fi`
-
-apl-Quad_TF.o: Quad_TF.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_TF.o -MD -MP -MF $(DEPDIR)/apl-Quad_TF.Tpo -c -o apl-Quad_TF.o `test -f 'Quad_TF.cc' || echo '$(srcdir)/'`Quad_TF.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_TF.Tpo $(DEPDIR)/apl-Quad_TF.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_TF.cc' object='apl-Quad_TF.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_TF.o `test -f 'Quad_TF.cc' || echo '$(srcdir)/'`Quad_TF.cc
-
-apl-Quad_TF.obj: Quad_TF.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_TF.obj -MD -MP -MF $(DEPDIR)/apl-Quad_TF.Tpo -c -o apl-Quad_TF.obj `if test -f 'Quad_TF.cc'; then $(CYGPATH_W) 'Quad_TF.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_TF.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Quad_TF.Tpo $(DEPDIR)/apl-Quad_TF.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Quad_TF.cc' object='apl-Quad_TF.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_TF.obj `if test -f 'Quad_TF.cc'; then $(CYGPATH_W) 'Quad_TF.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_TF.cc'; fi`
-
-apl-RealCell.o: RealCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-RealCell.o -MD -MP -MF $(DEPDIR)/apl-RealCell.Tpo -c -o apl-RealCell.o `test -f 'RealCell.cc' || echo '$(srcdir)/'`RealCell.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-RealCell.Tpo $(DEPDIR)/apl-RealCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='RealCell.cc' object='apl-RealCell.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-RealCell.o `test -f 'RealCell.cc' || echo '$(srcdir)/'`RealCell.cc
-
-apl-RealCell.obj: RealCell.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-RealCell.obj -MD -MP -MF $(DEPDIR)/apl-RealCell.Tpo -c -o apl-RealCell.obj `if test -f 'RealCell.cc'; then $(CYGPATH_W) 'RealCell.cc'; else $(CYGPATH_W) '$(srcdir)/RealCell.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-RealCell.Tpo $(DEPDIR)/apl-RealCell.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='RealCell.cc' object='apl-RealCell.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-RealCell.obj `if test -f 'RealCell.cc'; then $(CYGPATH_W) 'RealCell.cc'; else $(CYGPATH_W) '$(srcdir)/RealCell.cc'; fi`
-
-apl-Shape.o: Shape.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Shape.o -MD -MP -MF $(DEPDIR)/apl-Shape.Tpo -c -o apl-Shape.o `test -f 'Shape.cc' || echo '$(srcdir)/'`Shape.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Shape.Tpo $(DEPDIR)/apl-Shape.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Shape.cc' object='apl-Shape.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Shape.o `test -f 'Shape.cc' || echo '$(srcdir)/'`Shape.cc
-
-apl-Shape.obj: Shape.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Shape.obj -MD -MP -MF $(DEPDIR)/apl-Shape.Tpo -c -o apl-Shape.obj `if test -f 'Shape.cc'; then $(CYGPATH_W) 'Shape.cc'; else $(CYGPATH_W) '$(srcdir)/Shape.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Shape.Tpo $(DEPDIR)/apl-Shape.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Shape.cc' object='apl-Shape.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Shape.obj `if test -f 'Shape.cc'; then $(CYGPATH_W) 'Shape.cc'; else $(CYGPATH_W) '$(srcdir)/Shape.cc'; fi`
-
-apl-SkalarFunction.o: SkalarFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-SkalarFunction.o -MD -MP -MF $(DEPDIR)/apl-SkalarFunction.Tpo -c -o apl-SkalarFunction.o `test -f 'SkalarFunction.cc' || echo '$(srcdir)/'`SkalarFunction.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-SkalarFunction.Tpo $(DEPDIR)/apl-SkalarFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SkalarFunction.cc' object='apl-SkalarFunction.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-SkalarFunction.o `test -f 'SkalarFunction.cc' || echo '$(srcdir)/'`SkalarFunction.cc
-
-apl-SkalarFunction.obj: SkalarFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-SkalarFunction.obj -MD -MP -MF $(DEPDIR)/apl-SkalarFunction.Tpo -c -o apl-SkalarFunction.obj `if test -f 'SkalarFunction.cc'; then $(CYGPATH_W) 'SkalarFunction.cc'; else $(CYGPATH_W) '$(srcdir)/SkalarFunction.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-SkalarFunction.Tpo $(DEPDIR)/apl-SkalarFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SkalarFunction.cc' object='apl-SkalarFunction.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-SkalarFunction.obj `if test -f 'SkalarFunction.cc'; then $(CYGPATH_W) 'SkalarFunction.cc'; else $(CYGPATH_W) '$(srcdir)/SkalarFunction.cc'; fi`
-
-apl-StateIndicator.o: StateIndicator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-StateIndicator.o -MD -MP -MF $(DEPDIR)/apl-StateIndicator.Tpo -c -o apl-StateIndicator.o `test -f 'StateIndicator.cc' || echo '$(srcdir)/'`StateIndicator.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-StateIndicator.Tpo $(DEPDIR)/apl-StateIndicator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StateIndicator.cc' object='apl-StateIndicator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-StateIndicator.o `test -f 'StateIndicator.cc' || echo '$(srcdir)/'`StateIndicator.cc
-
-apl-StateIndicator.obj: StateIndicator.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-StateIndicator.obj -MD -MP -MF $(DEPDIR)/apl-StateIndicator.Tpo -c -o apl-StateIndicator.obj `if test -f 'StateIndicator.cc'; then $(CYGPATH_W) 'StateIndicator.cc'; else $(CYGPATH_W) '$(srcdir)/StateIndicator.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-StateIndicator.Tpo $(DEPDIR)/apl-StateIndicator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StateIndicator.cc' object='apl-StateIndicator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-StateIndicator.obj `if test -f 'StateIndicator.cc'; then $(CYGPATH_W) 'StateIndicator.cc'; else $(CYGPATH_W) '$(srcdir)/StateIndicator.cc'; fi`
-
-apl-StaticObjects.o: StaticObjects.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-StaticObjects.o -MD -MP -MF $(DEPDIR)/apl-StaticObjects.Tpo -c -o apl-StaticObjects.o `test -f 'StaticObjects.cc' || echo '$(srcdir)/'`StaticObjects.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-StaticObjects.Tpo $(DEPDIR)/apl-StaticObjects.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StaticObjects.cc' object='apl-StaticObjects.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-StaticObjects.o `test -f 'StaticObjects.cc' || echo '$(srcdir)/'`StaticObjects.cc
-
-apl-StaticObjects.obj: StaticObjects.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-StaticObjects.obj -MD -MP -MF $(DEPDIR)/apl-StaticObjects.Tpo -c -o apl-StaticObjects.obj `if test -f 'StaticObjects.cc'; then $(CYGPATH_W) 'StaticObjects.cc'; else $(CYGPATH_W) '$(srcdir)/StaticObjects.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-StaticObjects.Tpo $(DEPDIR)/apl-StaticObjects.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StaticObjects.cc' object='apl-StaticObjects.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-StaticObjects.obj `if test -f 'StaticObjects.cc'; then $(CYGPATH_W) 'StaticObjects.cc'; else $(CYGPATH_W) '$(srcdir)/StaticObjects.cc'; fi`
-
-apl-Svar_DB.o: Svar_DB.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Svar_DB.o -MD -MP -MF $(DEPDIR)/apl-Svar_DB.Tpo -c -o apl-Svar_DB.o `test -f 'Svar_DB.cc' || echo '$(srcdir)/'`Svar_DB.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Svar_DB.Tpo $(DEPDIR)/apl-Svar_DB.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Svar_DB.cc' object='apl-Svar_DB.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Svar_DB.o `test -f 'Svar_DB.cc' || echo '$(srcdir)/'`Svar_DB.cc
-
-apl-Svar_DB.obj: Svar_DB.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Svar_DB.obj -MD -MP -MF $(DEPDIR)/apl-Svar_DB.Tpo -c -o apl-Svar_DB.obj `if test -f 'Svar_DB.cc'; then $(CYGPATH_W) 'Svar_DB.cc'; else $(CYGPATH_W) '$(srcdir)/Svar_DB.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Svar_DB.Tpo $(DEPDIR)/apl-Svar_DB.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Svar_DB.cc' object='apl-Svar_DB.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Svar_DB.obj `if test -f 'Svar_DB.cc'; then $(CYGPATH_W) 'Svar_DB.cc'; else $(CYGPATH_W) '$(srcdir)/Svar_DB.cc'; fi`
-
-apl-Symbol.o: Symbol.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Symbol.o -MD -MP -MF $(DEPDIR)/apl-Symbol.Tpo -c -o apl-Symbol.o `test -f 'Symbol.cc' || echo '$(srcdir)/'`Symbol.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Symbol.Tpo $(DEPDIR)/apl-Symbol.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Symbol.cc' object='apl-Symbol.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Symbol.o `test -f 'Symbol.cc' || echo '$(srcdir)/'`Symbol.cc
-
-apl-Symbol.obj: Symbol.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Symbol.obj -MD -MP -MF $(DEPDIR)/apl-Symbol.Tpo -c -o apl-Symbol.obj `if test -f 'Symbol.cc'; then $(CYGPATH_W) 'Symbol.cc'; else $(CYGPATH_W) '$(srcdir)/Symbol.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Symbol.Tpo $(DEPDIR)/apl-Symbol.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Symbol.cc' object='apl-Symbol.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Symbol.obj `if test -f 'Symbol.cc'; then $(CYGPATH_W) 'Symbol.cc'; else $(CYGPATH_W) '$(srcdir)/Symbol.cc'; fi`
-
-apl-SymbolTable.o: SymbolTable.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-SymbolTable.o -MD -MP -MF $(DEPDIR)/apl-SymbolTable.Tpo -c -o apl-SymbolTable.o `test -f 'SymbolTable.cc' || echo '$(srcdir)/'`SymbolTable.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-SymbolTable.Tpo $(DEPDIR)/apl-SymbolTable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SymbolTable.cc' object='apl-SymbolTable.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-SymbolTable.o `test -f 'SymbolTable.cc' || echo '$(srcdir)/'`SymbolTable.cc
-
-apl-SymbolTable.obj: SymbolTable.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-SymbolTable.obj -MD -MP -MF $(DEPDIR)/apl-SymbolTable.Tpo -c -o apl-SymbolTable.obj `if test -f 'SymbolTable.cc'; then $(CYGPATH_W) 'SymbolTable.cc'; else $(CYGPATH_W) '$(srcdir)/SymbolTable.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-SymbolTable.Tpo $(DEPDIR)/apl-SymbolTable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SymbolTable.cc' object='apl-SymbolTable.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-SymbolTable.obj `if test -f 'SymbolTable.cc'; then $(CYGPATH_W) 'SymbolTable.cc'; else $(CYGPATH_W) '$(srcdir)/SymbolTable.cc'; fi`
-
-apl-SystemVariable.o: SystemVariable.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-SystemVariable.o -MD -MP -MF $(DEPDIR)/apl-SystemVariable.Tpo -c -o apl-SystemVariable.o `test -f 'SystemVariable.cc' || echo '$(srcdir)/'`SystemVariable.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-SystemVariable.Tpo $(DEPDIR)/apl-SystemVariable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SystemVariable.cc' object='apl-SystemVariable.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-SystemVariable.o `test -f 'SystemVariable.cc' || echo '$(srcdir)/'`SystemVariable.cc
-
-apl-SystemVariable.obj: SystemVariable.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-SystemVariable.obj -MD -MP -MF $(DEPDIR)/apl-SystemVariable.Tpo -c -o apl-SystemVariable.obj `if test -f 'SystemVariable.cc'; then $(CYGPATH_W) 'SystemVariable.cc'; else $(CYGPATH_W) '$(srcdir)/SystemVariable.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-SystemVariable.Tpo $(DEPDIR)/apl-SystemVariable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SystemVariable.cc' object='apl-SystemVariable.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-SystemVariable.obj `if test -f 'SystemVariable.cc'; then $(CYGPATH_W) 'SystemVariable.cc'; else $(CYGPATH_W) '$(srcdir)/SystemVariable.cc'; fi`
-
-apl-TestFiles.o: TestFiles.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-TestFiles.o -MD -MP -MF $(DEPDIR)/apl-TestFiles.Tpo -c -o apl-TestFiles.o `test -f 'TestFiles.cc' || echo '$(srcdir)/'`TestFiles.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-TestFiles.Tpo $(DEPDIR)/apl-TestFiles.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TestFiles.cc' object='apl-TestFiles.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-TestFiles.o `test -f 'TestFiles.cc' || echo '$(srcdir)/'`TestFiles.cc
-
-apl-TestFiles.obj: TestFiles.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-TestFiles.obj -MD -MP -MF $(DEPDIR)/apl-TestFiles.Tpo -c -o apl-TestFiles.obj `if test -f 'TestFiles.cc'; then $(CYGPATH_W) 'TestFiles.cc'; else $(CYGPATH_W) '$(srcdir)/TestFiles.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-TestFiles.Tpo $(DEPDIR)/apl-TestFiles.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TestFiles.cc' object='apl-TestFiles.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-TestFiles.obj `if test -f 'TestFiles.cc'; then $(CYGPATH_W) 'TestFiles.cc'; else $(CYGPATH_W) '$(srcdir)/TestFiles.cc'; fi`
-
-apl-Token.o: Token.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Token.o -MD -MP -MF $(DEPDIR)/apl-Token.Tpo -c -o apl-Token.o `test -f 'Token.cc' || echo '$(srcdir)/'`Token.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Token.Tpo $(DEPDIR)/apl-Token.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Token.cc' object='apl-Token.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Token.o `test -f 'Token.cc' || echo '$(srcdir)/'`Token.cc
-
-apl-Token.obj: Token.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Token.obj -MD -MP -MF $(DEPDIR)/apl-Token.Tpo -c -o apl-Token.obj `if test -f 'Token.cc'; then $(CYGPATH_W) 'Token.cc'; else $(CYGPATH_W) '$(srcdir)/Token.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Token.Tpo $(DEPDIR)/apl-Token.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Token.cc' object='apl-Token.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Token.obj `if test -f 'Token.cc'; then $(CYGPATH_W) 'Token.cc'; else $(CYGPATH_W) '$(srcdir)/Token.cc'; fi`
-
-apl-Tokenizer.o: Tokenizer.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Tokenizer.o -MD -MP -MF $(DEPDIR)/apl-Tokenizer.Tpo -c -o apl-Tokenizer.o `test -f 'Tokenizer.cc' || echo '$(srcdir)/'`Tokenizer.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Tokenizer.Tpo $(DEPDIR)/apl-Tokenizer.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Tokenizer.cc' object='apl-Tokenizer.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Tokenizer.o `test -f 'Tokenizer.cc' || echo '$(srcdir)/'`Tokenizer.cc
-
-apl-Tokenizer.obj: Tokenizer.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Tokenizer.obj -MD -MP -MF $(DEPDIR)/apl-Tokenizer.Tpo -c -o apl-Tokenizer.obj `if test -f 'Tokenizer.cc'; then $(CYGPATH_W) 'Tokenizer.cc'; else $(CYGPATH_W) '$(srcdir)/Tokenizer.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Tokenizer.Tpo $(DEPDIR)/apl-Tokenizer.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Tokenizer.cc' object='apl-Tokenizer.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Tokenizer.obj `if test -f 'Tokenizer.cc'; then $(CYGPATH_W) 'Tokenizer.cc'; else $(CYGPATH_W) '$(srcdir)/Tokenizer.cc'; fi`
-
-apl-UCS_string.o: UCS_string.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UCS_string.o -MD -MP -MF $(DEPDIR)/apl-UCS_string.Tpo -c -o apl-UCS_string.o `test -f 'UCS_string.cc' || echo '$(srcdir)/'`UCS_string.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UCS_string.Tpo $(DEPDIR)/apl-UCS_string.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UCS_string.cc' object='apl-UCS_string.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UCS_string.o `test -f 'UCS_string.cc' || echo '$(srcdir)/'`UCS_string.cc
-
-apl-UCS_string.obj: UCS_string.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UCS_string.obj -MD -MP -MF $(DEPDIR)/apl-UCS_string.Tpo -c -o apl-UCS_string.obj `if test -f 'UCS_string.cc'; then $(CYGPATH_W) 'UCS_string.cc'; else $(CYGPATH_W) '$(srcdir)/UCS_string.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UCS_string.Tpo $(DEPDIR)/apl-UCS_string.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UCS_string.cc' object='apl-UCS_string.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UCS_string.obj `if test -f 'UCS_string.cc'; then $(CYGPATH_W) 'UCS_string.cc'; else $(CYGPATH_W) '$(srcdir)/UCS_string.cc'; fi`
-
-apl-UdpSocket.o: UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UdpSocket.o -MD -MP -MF $(DEPDIR)/apl-UdpSocket.Tpo -c -o apl-UdpSocket.o `test -f 'UdpSocket.cc' || echo '$(srcdir)/'`UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UdpSocket.Tpo $(DEPDIR)/apl-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UdpSocket.cc' object='apl-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UdpSocket.o `test -f 'UdpSocket.cc' || echo '$(srcdir)/'`UdpSocket.cc
-
-apl-UdpSocket.obj: UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UdpSocket.obj -MD -MP -MF $(DEPDIR)/apl-UdpSocket.Tpo -c -o apl-UdpSocket.obj `if test -f 'UdpSocket.cc'; then $(CYGPATH_W) 'UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/UdpSocket.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UdpSocket.Tpo $(DEPDIR)/apl-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UdpSocket.cc' object='apl-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UdpSocket.obj `if test -f 'UdpSocket.cc'; then $(CYGPATH_W) 'UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/UdpSocket.cc'; fi`
-
-apl-UserFunction.o: UserFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserFunction.o -MD -MP -MF $(DEPDIR)/apl-UserFunction.Tpo -c -o apl-UserFunction.o `test -f 'UserFunction.cc' || echo '$(srcdir)/'`UserFunction.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UserFunction.Tpo $(DEPDIR)/apl-UserFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UserFunction.cc' object='apl-UserFunction.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserFunction.o `test -f 'UserFunction.cc' || echo '$(srcdir)/'`UserFunction.cc
-
-apl-UserFunction.obj: UserFunction.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserFunction.obj -MD -MP -MF $(DEPDIR)/apl-UserFunction.Tpo -c -o apl-UserFunction.obj `if test -f 'UserFunction.cc'; then $(CYGPATH_W) 'UserFunction.cc'; else $(CYGPATH_W) '$(srcdir)/UserFunction.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UserFunction.Tpo $(DEPDIR)/apl-UserFunction.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UserFunction.cc' object='apl-UserFunction.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserFunction.obj `if test -f 'UserFunction.cc'; then $(CYGPATH_W) 'UserFunction.cc'; else $(CYGPATH_W) '$(srcdir)/UserFunction.cc'; fi`
-
-apl-UserPreferences.o: UserPreferences.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserPreferences.o -MD -MP -MF $(DEPDIR)/apl-UserPreferences.Tpo -c -o apl-UserPreferences.o `test -f 'UserPreferences.cc' || echo '$(srcdir)/'`UserPreferences.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UserPreferences.Tpo $(DEPDIR)/apl-UserPreferences.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UserPreferences.cc' object='apl-UserPreferences.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserPreferences.o `test -f 'UserPreferences.cc' || echo '$(srcdir)/'`UserPreferences.cc
-
-apl-UserPreferences.obj: UserPreferences.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserPreferences.obj -MD -MP -MF $(DEPDIR)/apl-UserPreferences.Tpo -c -o apl-UserPreferences.obj `if test -f 'UserPreferences.cc'; then $(CYGPATH_W) 'UserPreferences.cc'; else $(CYGPATH_W) '$(srcdir)/UserPreferences.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UserPreferences.Tpo $(DEPDIR)/apl-UserPreferences.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UserPreferences.cc' object='apl-UserPreferences.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserPreferences.obj `if test -f 'UserPreferences.cc'; then $(CYGPATH_W) 'UserPreferences.cc'; else $(CYGPATH_W) '$(srcdir)/UserPreferences.cc'; fi`
-
-apl-UTF8_string.o: UTF8_string.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UTF8_string.o -MD -MP -MF $(DEPDIR)/apl-UTF8_string.Tpo -c -o apl-UTF8_string.o `test -f 'UTF8_string.cc' || echo '$(srcdir)/'`UTF8_string.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UTF8_string.Tpo $(DEPDIR)/apl-UTF8_string.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UTF8_string.cc' object='apl-UTF8_string.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UTF8_string.o `test -f 'UTF8_string.cc' || echo '$(srcdir)/'`UTF8_string.cc
-
-apl-UTF8_string.obj: UTF8_string.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UTF8_string.obj -MD -MP -MF $(DEPDIR)/apl-UTF8_string.Tpo -c -o apl-UTF8_string.obj `if test -f 'UTF8_string.cc'; then $(CYGPATH_W) 'UTF8_string.cc'; else $(CYGPATH_W) '$(srcdir)/UTF8_string.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-UTF8_string.Tpo $(DEPDIR)/apl-UTF8_string.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UTF8_string.cc' object='apl-UTF8_string.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UTF8_string.obj `if test -f 'UTF8_string.cc'; then $(CYGPATH_W) 'UTF8_string.cc'; else $(CYGPATH_W) '$(srcdir)/UTF8_string.cc'; fi`
-
-apl-Value.o: Value.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Value.o -MD -MP -MF $(DEPDIR)/apl-Value.Tpo -c -o apl-Value.o `test -f 'Value.cc' || echo '$(srcdir)/'`Value.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Value.Tpo $(DEPDIR)/apl-Value.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Value.cc' object='apl-Value.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Value.o `test -f 'Value.cc' || echo '$(srcdir)/'`Value.cc
-
-apl-Value.obj: Value.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Value.obj -MD -MP -MF $(DEPDIR)/apl-Value.Tpo -c -o apl-Value.obj `if test -f 'Value.cc'; then $(CYGPATH_W) 'Value.cc'; else $(CYGPATH_W) '$(srcdir)/Value.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Value.Tpo $(DEPDIR)/apl-Value.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Value.cc' object='apl-Value.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Value.obj `if test -f 'Value.cc'; then $(CYGPATH_W) 'Value.cc'; else $(CYGPATH_W) '$(srcdir)/Value.cc'; fi`
-
-apl-ValueHistory.o: ValueHistory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ValueHistory.o -MD -MP -MF $(DEPDIR)/apl-ValueHistory.Tpo -c -o apl-ValueHistory.o `test -f 'ValueHistory.cc' || echo '$(srcdir)/'`ValueHistory.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ValueHistory.Tpo $(DEPDIR)/apl-ValueHistory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ValueHistory.cc' object='apl-ValueHistory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ValueHistory.o `test -f 'ValueHistory.cc' || echo '$(srcdir)/'`ValueHistory.cc
-
-apl-ValueHistory.obj: ValueHistory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-ValueHistory.obj -MD -MP -MF $(DEPDIR)/apl-ValueHistory.Tpo -c -o apl-ValueHistory.obj `if test -f 'ValueHistory.cc'; then $(CYGPATH_W) 'ValueHistory.cc'; else $(CYGPATH_W) '$(srcdir)/ValueHistory.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-ValueHistory.Tpo $(DEPDIR)/apl-ValueHistory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ValueHistory.cc' object='apl-ValueHistory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ValueHistory.obj `if test -f 'ValueHistory.cc'; then $(CYGPATH_W) 'ValueHistory.cc'; else $(CYGPATH_W) '$(srcdir)/ValueHistory.cc'; fi`
-
-apl-Workspace.o: Workspace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Workspace.o -MD -MP -MF $(DEPDIR)/apl-Workspace.Tpo -c -o apl-Workspace.o `test -f 'Workspace.cc' || echo '$(srcdir)/'`Workspace.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Workspace.Tpo $(DEPDIR)/apl-Workspace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Workspace.cc' object='apl-Workspace.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Workspace.o `test -f 'Workspace.cc' || echo '$(srcdir)/'`Workspace.cc
-
-apl-Workspace.obj: Workspace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Workspace.obj -MD -MP -MF $(DEPDIR)/apl-Workspace.Tpo -c -o apl-Workspace.obj `if test -f 'Workspace.cc'; then $(CYGPATH_W) 'Workspace.cc'; else $(CYGPATH_W) '$(srcdir)/Workspace.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/apl-Workspace.Tpo $(DEPDIR)/apl-Workspace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Workspace.cc' object='apl-Workspace.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Workspace.obj `if test -f 'Workspace.cc'; then $(CYGPATH_W) 'Workspace.cc'; else $(CYGPATH_W) '$(srcdir)/Workspace.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1982,7 +923,7 @@ uninstall-am: uninstall-binPROGRAMS
 # Svar_signals.hh: Svar_signals.def udp_signal.m4
 #
 # but what if m4 is missing? So we explicitly 'make update-svar_signals'
-# when Svar_signals.def or udp_signal.m4 have changed (ehich rarely happens)
+# when Svar_signals.def or udp_signal.m4 have changed (which rarely happens)
 #
 .PHONY:	update-svar_signals
 update-svar_signals:

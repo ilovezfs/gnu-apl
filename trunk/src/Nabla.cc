@@ -111,7 +111,7 @@ int control_D_count = 0;
          const UCS_string ucs(utf);
          if (const char * loc = parse_oper(ucs, false))
             {
-              UERR << "???" << endl;
+              UERR << "??? " << loc << endl;
               continue;
             }
 

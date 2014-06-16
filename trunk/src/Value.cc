@@ -32,7 +32,6 @@
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
 #include "SystemVariable.hh"
-#include "TestFiles.hh"
 #include "UCS_string.hh"
 #include "Value.icc"
 #include "ValueHistory.hh"
