@@ -782,6 +782,8 @@ ofstream outf(filename.c_str(), ofstream::out);
 
    // print header line, workspace name, time, and date to outf
    //
+Q(LibPaths::get_APL_bin_path())
+Q(LibPaths::get_APL_bin_name())
    {
      const APL_time_us offset = get_v_Quad_TZ().get_offset();
      const YMDhmsu time(now() + 1000000*offset);

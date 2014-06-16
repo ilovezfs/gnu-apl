@@ -46,13 +46,13 @@ ofstream IO_Files::current_testreport;
 
 //-----------------------------------------------------------------------------
 const UTF8 *
-IO_Files::get_testcase_line()
+IO_Files::get_file_line()
 {
    while (uprefs.current_file())   // as long as we have input files
       {
         if (uprefs.current_file()->file == 0)
            {
-             open_next_testfile();
+             open_next_file();
              if (uprefs.current_file()->file == 0)   break;   // no more files
            }
 
@@ -78,8 +78,8 @@ IO_Files::get_testcase_line()
                        return buf;
                      }
                 }
-             if (end_of_file_processing())   continue;   // try again.
-              else                           break;      // done
+             if (end_of_current_file())   continue;   // try again.
+              else                        break;      // done
            }
 
         current_testreport << "----> " << s << endl;
@@ -109,7 +109,7 @@ IO_Files::get_testcase_line()
 }
 //-----------------------------------------------------------------------------
 bool
-IO_Files::end_of_file_processing()
+IO_Files::end_of_current_file()
 {
    // we expect )SI to be clear after a testcase has finished.
    // Complain if it is not.
@@ -232,17 +232,17 @@ ofstream summary("testcases/summary.log", ios_base::app);
 }
 //-----------------------------------------------------------------------------
 void
-IO_Files::open_next_testfile()
+IO_Files::open_next_file()
 {
    if (uprefs.current_file() == 0)
       {
-        CERR << "Workspace::open_next_testfile(): no more files" << endl;
+        CERR << "Workspace::open_next_file(): no more files" << endl;
         return;
       }
 
    if (uprefs.current_file()->file)
       {
-        CERR << "Workspace::open_next_testfile(): already open" << endl;
+        CERR << "Workspace::open_next_file(): already open" << endl;
         return;
       }
 

@@ -92,7 +92,11 @@ void LibPaths::compute_bin_path(const char * argv0)
 
                     if (access(&filename[0], X_OK) == 0)
                        {
-                         strncpy(APL_bin_path, next, sizeof(APL_bin_path));
+                         strncpy(APL_bin_path, filename, sizeof(APL_bin_path));
+                         char * slash =   strrchr(APL_bin_path, '/');
+                         Assert(slash);   // due to %s/%s above
+                         *slash = 0;
+                         APL_bin_name = slash + 1;
                          return;
                        }
 
