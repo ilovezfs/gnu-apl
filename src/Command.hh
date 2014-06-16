@@ -193,8 +193,3 @@ protected:
    static int boxing_format;
 };
 //-----------------------------------------------------------------------------
-
-/// return the next test case line, or 0 if no more testcase are ongoing.
-extern UTF8 * get_testcase_line();
-
-//-----------------------------------------------------------------------------

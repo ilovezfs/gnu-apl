@@ -100,19 +100,19 @@ public:
    /// count a output diff error
    static void diff_error();
 
-   /// get one line from the current testcase file.
-   /// open the next testcase file if necceessary.
-   static const UTF8 * get_testcase_line() ;
+   /// get one line from the current file, open the next file if necceessary
+   static const UTF8 * get_file_line() ;
 
    /// open the next test file 
-   static void open_next_testfile();
+   static void open_next_file();
 
    /// return the current test report
-   static ofstream & get_current_testreport()   { return current_testreport; }
+   static ofstream & get_current_testreport()
+      { return current_testreport; }
 
 protected:
    // dito (close files, print errors, summary etc).
-   static bool end_of_file_processing();
+   static bool end_of_current_file();
 
    /// how to handle test results
    static enum TestMode
@@ -131,7 +131,7 @@ protected:
 
         /// exit() after the first error
         TM_EXIT_AFTER_ERROR      = 4,
-      } test_mode;   /// the desired test mode as per argv[]
+      } test_mode;   /// the desired test mode as per --TM n
 
    /// write testcases summary file
    static void print_summary();
@@ -151,7 +151,7 @@ protected:
    /// the tital number of errors in all test files
    static int total_errors;
 
-   /// the number of APL errors when executing test file
+   /// the number of APL errors when executing in current file
    static int apl_errors;
 
    /// the source location where the last APL error was thrown

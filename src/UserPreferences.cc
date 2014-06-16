@@ -337,7 +337,7 @@ int script_argc = argc;   // $0 of the apl script
             {
               do_CONT = false;
 
-              // IO_Files::open_next_testfile() will exit if it sees "-"
+              // IO_Files::open_next_file() will exit if it sees "-"
               //
               IO_Files::need_total = true;
               for (; a < argc; ++a)
