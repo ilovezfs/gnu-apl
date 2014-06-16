@@ -1161,7 +1161,6 @@ XML_Loading_Archive::read_Value()
 {
    expect_tag("Value", LOC);
 
-const int  flg = find_int_attr("flg", false, 16);
 const int  vid = find_int_attr("vid", false, 10);
 const int  parent = find_int_attr("parent", true, 10);
 const int  rk  = find_int_attr("rk",  false, 10);

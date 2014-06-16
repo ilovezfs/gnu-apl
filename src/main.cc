@@ -31,6 +31,7 @@
 #include "Command.hh"
 #include "Common.hh"
 #include "Input.hh"
+#include "IO_Files.hh"
 #include "LibPaths.hh"
 #include "Logging.hh"
 #include "main.hh"
@@ -40,7 +41,6 @@
 #include "Prefix.hh"
 #include "ProcessorID.hh"
 #include "Quad_SVx.hh"
-#include "TestFiles.hh"
 #include "UserFunction.hh"
 #include "ValueHistory.hh"
 #include "Workspace.hh"
@@ -123,7 +123,7 @@ signal_SEGV_handler(int)
    CERR << "====================================================\n";
 
    // count errors
-   TestFiles::assert_error();
+   IO_Files::assert_error();
 
    Command::cmd_OFF(3);
 }
@@ -423,7 +423,7 @@ const int ret = init_apl(argc, argv);
    for (;;)
        {
          Token t = Workspace::immediate_execution(
-                       TestFiles::test_mode == TestFiles::TM_EXIT_AFTER_ERROR);
+                       IO_Files::test_mode == IO_Files::TM_EXIT_AFTER_ERROR);
          if (t.get_tag() == TOK_OFF)   Command::cmd_OFF(0);
        }
 

@@ -161,10 +161,14 @@ interpreter is to not use any options, i.e:
 
 The typical setting for software development of the APL interpreter is:
 
-    ./configure VALUE_CHECK_WANTED=yes \
+    ./configure DEVELOP_WANTED=yes
+
+which is a shortcut for:
+
+    ./configure VALUE_CHECK_WANTED=yes   \
                 VALUE_HISTORY_WANTED=yes \
-                DYNAMIC_LOG_WANTED=yes \
-                ASSERT_LEVEL_WANTED=2  \
+                DYNAMIC_LOG_WANTED=yes   \
+                ASSERT_LEVEL_WANTED=2    \
                 PRINT_SEMA_WANTED=yes
 
 After the first ./configure run (which creates the top level Makefile)

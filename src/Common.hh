@@ -135,8 +135,8 @@ public:
          if (idx < PROBE_LEN)
             {
                measurement & m = measurements[idx];
-               start_p = &measurements[idx].cycles_from;
-               stop_p =  &measurements[idx].cycles_to;
+               start_p = &m.cycles_from;
+               stop_p =  &m.cycles_to;
             }
          else
             {

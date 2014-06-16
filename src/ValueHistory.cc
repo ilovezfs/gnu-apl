@@ -25,7 +25,6 @@
 #include "Common.hh"
 #include "Error.hh"
 #include "PrintOperator.hh"
-#include "TestFiles.hh"
 #include "UCS_string.hh"
 #include "UserPreferences.hh"
 #include "Value.icc"

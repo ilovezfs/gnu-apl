@@ -31,6 +31,7 @@
 #include "IndexExpr.hh"
 #include "IntCell.hh"
 #include "Input.hh"
+#include "IO_Files.hh"
 #include "LibPaths.hh"
 #include "main.hh"
 #include "Nabla.hh"
@@ -41,7 +42,6 @@
 #include "StateIndicator.hh"
 #include "Svar_DB.hh"
 #include "Symbol.hh"
-#include "TestFiles.hh"
 #include "Tokenizer.hh"
 #include "UserFunction.hh"
 #include "UserPreferences.hh"
@@ -926,7 +926,6 @@ Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
         return;
       }
 
-const UCS_string & apl_fun = args[1];
 const int mode = (args.size() == 3) ? args[2].atoi() : 0;
    if (mode < 0 || mode > 1)
       {

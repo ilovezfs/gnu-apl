@@ -32,7 +32,7 @@ static const char * build_tag[] = { BUILDTAG, 0 };
 #include "Input.hh"
 #include "LibPaths.hh"
 #include "makefile.h"
-#include "TestFiles.hh"
+#include "IO_Files.hh"
 #include "UserPreferences.hh"
 #include "Value.icc"
 
@@ -337,9 +337,9 @@ int script_argc = argc;   // $0 of the apl script
             {
               do_CONT = false;
 
-              // TestFiles::open_next_testfile() will exit if it sees "-"
+              // IO_Files::open_next_testfile() will exit if it sees "-"
               //
-              TestFiles::need_total = true;
+              IO_Files::need_total = true;
               for (; a < argc; ++a)
                   {
                     if (!strcmp(argv[a], "--"))   // end of -T arguments
@@ -354,7 +354,7 @@ int script_argc = argc;   // $0 of the apl script
                   }
 
               // 
-              if (TestFiles::need_total)
+              if (IO_Files::need_total)
                  {
                    // truncate summary.log, unless append_summary is desired
                    //
@@ -371,7 +371,7 @@ int script_argc = argc;   // $0 of the apl script
               if (val)
                  {
                    const int mode = atoi(val);
-                   TestFiles::test_mode = TestFiles::TestMode(mode);
+                   IO_Files::test_mode = IO_Files::TestMode(mode);
                  }
               else
                  {
@@ -414,10 +414,10 @@ int script_argc = argc;   // $0 of the apl script
 
    // count number of testfiles
    //
-   TestFiles::testcase_count = 0;
+   IO_Files::testcase_count = 0;
    loop(f, files_todo.size())
       {
-        if (files_todo[f].test)   ++TestFiles::testcase_count;
+        if (files_todo[f].test)   ++IO_Files::testcase_count;
       }
 }
 //-----------------------------------------------------------------------------

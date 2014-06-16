@@ -90,7 +90,6 @@ RANK_LXB & _arg = arg.u.u_RANK_LXB;
 
    if (_arg.how == 1)   goto how_1;
 
-how_0:
    Assert1(_arg.how == 0);
    _arg.h = 0;
 
@@ -296,7 +295,6 @@ RANK_ALXB & _arg = arg.u.u_RANK_ALXB;
 
    if (_arg.how == 1)   goto how_1;
 
-how_0:
    Assert1(_arg.how == 0);
    _arg.h = 0;
 

@@ -22,26 +22,27 @@
 
 #if HAVE_CURSES_H && HAVE_CURSES_H
 
-#if defined(__sun) && defined(__SVR4)
-#define NOMACROS
-#endif
+# if defined(__sun) && defined(__SVR4)
+#  define NOMACROS
+# endif
 
-#include <curses.h>
-#include <term.h>
+# include <curses.h>
+# include <term.h>
 
 // curses #defines erase() and tab() on Solaris, conflicting with eg.
 // vector::erase() and others
-#ifdef erase
-#undef erase
-#endif
-#ifdef tab
-#undef tab
-#endif
+# ifdef erase
+#  undef erase
+# endif
 
-#else
+# ifdef tab
+#  undef tab
+# endif
 
-#define tputs(x, y, z)
-#define setupterm(x, y, z) -1
+#else // not (HAVE_CURSES_H && HAVE_CURSES_H)
+
+# define tputs(x, y, z)
+# define setupterm(x, y, z) -1
 
 #endif
 
@@ -52,7 +53,6 @@
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "Svar_DB.hh"
-#include "TestFiles.hh"
 #include "UserPreferences.hh"
 
 bool Output::colors_enabled = false;
@@ -105,10 +105,15 @@ bool ErrOut::used = false;
 DiffOut dout_filebuf(false);
 DiffOut uerr_filebuf(true);
 
-ostream CIN(&cin_filebuf);
+// Android defines its own CIN, COUT, CERR, and UERR ostreams
+#ifndef HAVE_ANDROID
+
+ostream CIN (&cin_filebuf);
 ostream COUT(&dout_filebuf);
 ostream CERR(cerr_filebuf.use());
 ostream UERR(&uerr_filebuf);
+
+#endif
 
 extern ostream & get_CERR();
 ostream & get_CERR()

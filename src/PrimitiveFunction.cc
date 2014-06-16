@@ -579,7 +579,7 @@ Bif_COMMA::ravel_axis(Value_P X, Value_P B, Axis axis)
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
-   if (!&X)   SYNTAX_ERROR;
+   if (!X)   SYNTAX_ERROR;
 
    // I must be a (integer or real) skalar or simple integer vector
    //

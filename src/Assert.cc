@@ -24,7 +24,7 @@
 #include "Backtrace.hh"
 #include "Common.hh"
 #include "Output.hh"
-#include "TestFiles.hh"
+#include "IO_Files.hh"
 #include "Workspace.hh"
 
 /// prevent recursive do_Assert() calls.
@@ -78,7 +78,7 @@ char * loc = new char[loc_len + 1];
            "=======================================" << endl;
 
    // count errors
-   TestFiles::assert_error();
+   IO_Files::assert_error();
 
 Error * err = Workspace::get_error();
    if (err)   err->init(E_ASSERTION_FAILED, loc);

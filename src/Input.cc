@@ -24,11 +24,11 @@
 #include "Command.hh"
 #include "Common.hh"   // for HAVE_LIBREADLINE etc.
 #include "Input.hh"
+#include "IO_Files.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "SystemVariable.hh"
-#include "TestFiles.hh"
 #include "UserPreferences.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"
@@ -133,7 +133,7 @@ Input::get_line()
    uprefs.increment_current_line_no();
 
 const char * input_type = "?";
-const UTF8 * buf = TestFiles::get_testcase_line();
+const UTF8 * buf = IO_Files::get_testcase_line();
 
    if (buf)   // we got a line from a test file.
       {
@@ -259,7 +259,7 @@ Input::get_user_line_nabla(const UCS_string * prompt)
 {
    uprefs.increment_current_line_no();
 
-const UTF8 * line = TestFiles::get_testcase_line();
+const UTF8 * line = IO_Files::get_testcase_line();
    if (line)   return (const char *)line;
    return (const char *)get_user_line(prompt);
 }
@@ -271,7 +271,7 @@ Input::get_quad_cr_line(UCS_string ucs_prompt)
       {
         Quad_QUOTE::done(true, LOC);
 
-        const UTF8 * line = TestFiles::get_testcase_line();
+        const UTF8 * line = IO_Files::get_testcase_line();
         if (line)
            {
              // for each leading backspace in line: remove last prompt char

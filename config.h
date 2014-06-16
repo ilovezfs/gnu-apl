@@ -7,6 +7,9 @@
 /* core count */
 #define CORE_COUNT_WANTED 0
 
+/* define to set options typical for software development */
+/* #undef DEVELOP_WANTED */
+
 /* define to enable dynamic logging */
 /* #undef DYNAMIC_LOG_WANTED */
 

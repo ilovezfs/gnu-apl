@@ -22,10 +22,10 @@
 #include "Common.hh"
 #include "DiffOut.hh"
 #include "Input.hh"
+#include "IO_Files.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "Svar_DB.hh"
-#include "TestFiles.hh"
 #include "UserPreferences.hh"
 #include "UTF8_string.hh"
 
@@ -53,7 +53,7 @@ DiffOut::overflow(int c)
 
    if (!uprefs.is_validating())   return 0;
 
-ofstream & rep = TestFiles::get_current_testreport();
+ofstream & rep = IO_Files::get_current_testreport();
    Assert(rep.is_open());
 
 const char * apl = aplout.c_str();
@@ -68,7 +68,7 @@ const UTF8 * ref = Input::read_file_line();
    //
    if (different((const UTF8 *)apl, ref))   // different
       {
-        TestFiles::diff_error();
+        IO_Files::diff_error();
         rep << "apl: ⋅⋅⋅" << apl << "⋅⋅⋅" << endl
             << "ref: ⋅⋅⋅" << ref << "⋅⋅⋅" << endl;
       }

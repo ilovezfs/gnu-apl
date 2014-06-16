@@ -205,6 +205,21 @@ AC_CONFIG_FILES([Makefile
                  wslib4/Makefile
                  wslib5/Makefile])
 
+# APL: development configuration desired ? Set this before other xxx_WANTED
+# options so that the implied xxx_WANTED options set here can be overridden
+# further down
+AC_ARG_VAR(DEVELOP_WANTED,
+   [ set development options (see README-2-configure) default: no])
+if test "x$DEVELOP_WANTED" = "xyes"; then
+   AC_DEFINE_UNQUOTED([DEVELOP_WANTED], [yes],
+                   [define to set options typical for software development])
+   VALUE_CHECK_WANTED=yes
+   VALUE_HISTORY_WANTED=yes
+   DYNAMIC_LOG_WANTED=yes
+   ASSERT_LEVEL_WANTED=2
+   PRINT_SEMA_WANTED=yes
+fi
+
 # APL: max. rank ?
 AC_ARG_VAR(MAX_RANK_WANTED,
    [ the max. Rank of APL values (see README-2-configure) default: 8) ])
@@ -307,7 +322,6 @@ AC_ARG_VAR(COUT_COLOR_WANTED,   [ obsolete option ])
 AC_ARG_VAR(RESET_COLORS_WANTED, [ obsolete option ])
 AC_ARG_VAR(CLEAR_EOL_WANTED,    [ obsolete option ])
 
-
 # APL: visible markers (debug only option) ?
 AC_ARG_VAR(VISIBLE_MARKERS_WANTED,
    [ enable CHECK() macro (see README-2-configure) default: no ])
@@ -317,6 +331,9 @@ AC_DEFINE_UNQUOTED([VISIBLE_MARKERS_WANTED], [yes],
 fi
 # check if we are on i686 (to fix a strange rpmbuild problem
 AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])
+
+# check if we want development options
+AM_CONDITIONAL([DEVELOP], [test x$DEVELOP_WANTED = xyes])
 
 AC_OUTPUT
 
