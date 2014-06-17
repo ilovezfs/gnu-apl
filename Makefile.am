@@ -72,6 +72,7 @@ DEB:	DIST
 .PHONY:	develop
 develop:
 	./configure DEVELOP_WANTED=yes
+	make all
 
 # a shortcut to export changes to ../savannah-repo-apl (which is supposed to be
 # a checkout of the GNU APL repository ar Savannah

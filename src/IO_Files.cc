@@ -267,13 +267,15 @@ IO_Files::open_next_file()
            InputFile::open_current_file();
            if (InputFile::current_file()->file == 0)
               {
-                CERR << "could not open " << InputFile::current_filename() << endl;
+                CERR << "could not open "
+                     << InputFile::current_filename() << endl;
                 InputFile::files_todo.erase(InputFile::files_todo.begin());
                 continue;
               }
 
-           Log(LOG_test_execution)   CERR <<
-               "openened testcase file " << InputFile::current_filename() << endl;
+           Log(LOG_test_execution)
+              CERR << "openened testcase file "
+                   << InputFile::current_filename() << endl;
 
            Output::reset_dout();
            reset_errors();
@@ -283,11 +285,16 @@ IO_Files::open_next_file()
                     InputFile::current_filename());
         
            current_testreport.close();
-           current_testreport.open(log_name, ofstream::out | ofstream::trunc);
-           if (!current_testreport.is_open())
+
+           if (InputFile::current_file()->test)
               {
-                CERR << "could not open testcase log file " << log_name
-                     << "; producing no .log file" << endl;
+                current_testreport.open(log_name,
+                                        ofstream::out | ofstream::trunc);
+                if (!current_testreport.is_open())
+                   {
+                     CERR << "could not open testcase log file " << log_name
+                          << "; producing no .log file" << endl;
+                   }
               }
 
            return;
