@@ -44,7 +44,8 @@ struct UserPreferences
      daemon(false),
      append_summary(false),
      wait_ms(0),
-     randomize_testfiles(false)
+     randomize_testfiles(false),
+     user_profile(0)
    {}
 
    /// read a preference file and update parameters set there
@@ -117,6 +118,11 @@ struct UserPreferences
 
    /// randomize the order of testfiles
    bool randomize_testfiles;
+
+   /// the profile to be used (in the preferences file)
+   int user_profile;
+
+   UTF8_string latent_expression;
 };
 
 extern UserPreferences uprefs;

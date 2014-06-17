@@ -398,6 +398,18 @@ const char * argv0 = argv[0];
 
    if (uprefs.do_Color)   Output::toggle_color("ON");
 
+   if (uprefs.latent_expression.size())
+      {
+        // there was a --LX expression on the command line
+        //
+        UCS_string lx(uprefs.latent_expression);
+
+        if (log_startup)
+           CERR << "executing --LX '" << lx << "'" << endl;
+
+        Command::process_line(lx);
+      }
+
    if (uprefs.do_CONT)
       {
          UCS_string cont("CONTINUE");

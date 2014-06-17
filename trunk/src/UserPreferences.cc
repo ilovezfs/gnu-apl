@@ -71,21 +71,21 @@ char cc[4000];
 #endif
 
    snprintf(cc, sizeof(cc),
-"    --par proc           use processor parent ID proc (default: no parent)\n"
-"    -w milli             wait milli milliseconds at startup\n"
+"    --cfg                show ./configure options used and exit\n"
 "    --noCIN              do not echo input(for scripting)\n"
 "    --rawCIN             do not use the readline lib for input\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --emacs              run in (classical) emacs mode\n"
 "    --emacs_arg arg      run in emacs mode with argument arg\n"
-"    --[no]SV             [do not] start APnnn (a shared variable server)\n"
-"    --cfg                show ./configure options used and exit\n"
 "    --gpl                show license (GPL) and exit\n"
-"    --silent             do not show the welcome message\n"
-"    --safe               safe mode (no shared vars, no native functions)\n"
+"    --LX expr            execute APL expression expr first\n"
+"    -p N                 use profile N in preferences files\n"
+"    --par proc           use processor parent ID proc (default: no parent)\n"
 "    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
-"    -v, --version        show version information and exit\n"
+"    --safe               safe mode (no shared vars, no native functions)\n"
+"    --silent             do not show the welcome message\n"
+"    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    -T testcases ...     run testcases\n"
 "    --TM mode            test mode (for -T files):\n"
 "                         0:   (default) exit after last testcase\n"
@@ -95,6 +95,8 @@ char cc[4000];
 "                         4:   exit after first error\n"
 "    --TR                 randomize order of testfiles\n"
 "    --TS                 append to (rather than override) summary.log\n"
+"    -v, --version        show version information and exit\n"
+"    -w milli             wait milli milliseconds at startup\n"
 "    --                   end of options for %s\n", prog1);
    CERR << cc << endl;
 }
@@ -162,6 +164,18 @@ int script_argc = argc;   // $0 of the apl script
               a = argc;
               break;
             }
+#if CORE_COUNT_WANTED == -2
+         else if (!strcmp(opt, "--cc"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "--cc without core count" << endl;
+                   exit(2);
+                 }
+              requested_cc = (CoreCount)atoi(val);
+            }
+#endif
          else if (!strcmp(opt, "--cfg"))
             {
               show_configure_options();
@@ -171,13 +185,25 @@ int script_argc = argc;   // $0 of the apl script
             {
               do_Color = true;
             }
-         else if (!strcmp(opt, "--noColor"))
-            {
-              do_Color = false;
-            }
          else if (!strcmp(opt, "-d"))
             {
               daemon = true;
+            }
+         else if (!strcmp(opt, "--emacs"))
+            {
+              emacs_mode = true;
+            }
+         else if (!strcmp(opt, "--emacs_arg"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "--emacs_arg without argument" << endl;
+                   exit(3);
+                 }
+
+              emacs_mode = true;
+              emacs_arg = val;
             }
          else if (!strcmp(opt, "-f"))
             {
@@ -217,7 +243,7 @@ int script_argc = argc;   // $0 of the apl script
               if (!val)
                  {
                    CERR << "--id without processor number" << endl;
-                   exit(2);
+                   exit(4);
                  }
 
               requested_id = atoi(val);
@@ -230,7 +256,7 @@ int script_argc = argc;   // $0 of the apl script
               else
                  {
                    CERR << "-l without log facility" << endl;
-                   exit(3);
+                   exit(5);
                  }
 #else
    if (val && atoi(val) == LID_startup)   ;
@@ -238,63 +264,62 @@ int script_argc = argc;   // $0 of the apl script
                    "DYNAMIC_LOG_WANTED=yes)" << endl;
 #endif // DYNAMIC_LOG_WANTED
             }
+         else if (!strcmp(opt, "--LX"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "--LX without APL expression" << endl;
+                   exit(6);
+                 }
+
+               latent_expression = UTF8_string(val);
+            }
          else if (!strcmp(opt, "--noCIN"))
             {
               do_not_echo = true;
             }
-         else if (!strcmp(opt, "--rawCIN"))
+         else if (!strcmp(opt, "--noColor"))
             {
-              Input::use_readline = false;
+              do_Color = false;
             }
          else if (!strcmp(opt, "--noCONT"))
             {
               do_CONT = false;
             }
-         else if (!strcmp(opt, "--emacs"))
-            {
-              emacs_mode = true;
-            }
-         else if (!strcmp(opt, "--emacs_arg"))
-            {
-              ++a;
-              if (!val)
-                 {
-                   CERR << "--emacs_arg without argument" << endl;
-                   exit(2);
-                 }
-
-              emacs_mode = true;
-              emacs_arg = val;
-            }
-         else if (!strcmp(opt, "--SV"))
-            {
-              do_svars = true;
-            }
          else if (!strcmp(opt, "--noSV"))
             {
               do_svars = false;
             }
-#if CORE_COUNT_WANTED == -2
-         else if (!strcmp(opt, "--cc"))
+         else if (!strcmp(opt, "-p"))
             {
               ++a;
               if (!val)
                  {
-                   CERR << "--cc without core count" << endl;
-                   exit(4);
+                   CERR << "-p without profile number" << endl;
+                   exit(7);
                  }
-              requested_cc = (CoreCount)atoi(val);
+
+               user_profile = atoi(val);
             }
-#endif
          else if (!strcmp(opt, "--par"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "--par without processor number" << endl;
-                   exit(5);
+                   exit(8);
                  }
               requested_par = atoi(val);
+            }
+         else if (!strcmp(opt, "--rawCIN"))
+            {
+              Input::use_readline = false;
+            }
+         else if (!strcmp(opt, "--safe"))
+            {
+              safe_mode = true;
+              do_svars = false;
             }
          else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
             {
@@ -308,10 +333,9 @@ int script_argc = argc;   // $0 of the apl script
             {
               silent = true;
             }
-         else if (!strcmp(opt, "--safe"))
+         else if (!strcmp(opt, "--SV"))
             {
-              safe_mode = true;
-              do_svars = false;
+              do_svars = true;
             }
          else if (!strcmp(opt, "-T"))
             {
@@ -356,7 +380,7 @@ int script_argc = argc;   // $0 of the apl script
               else
                  {
                    CERR << "--TM without test mode" << endl;
-                   exit(6);
+                   exit(9);
                  }
             }
          else if (!strcmp(opt, "--TR"))
@@ -379,14 +403,14 @@ int script_argc = argc;   // $0 of the apl script
               else
                  {
                    CERR << "-w without milli(seconds)" << endl;
-                   exit(7);
+                   exit(10);
                  }
             }
          else
             {
               CERR << "unknown option '" << opt << "'" << endl;
               usage(argv[0]);
-              exit(8);
+              exit(11);
             }
        }
 
@@ -434,6 +458,11 @@ int end_of_arg = -1;   // position of --
              scriptname = argv[a];
              end_of_arg = -1;
            }
+
+        // don't expand --LX arguments
+        //
+        if (!strcmp(argv[a], "--LX"))   { ++a;   continue; }
+
         if (strchr(argv[a], ' '))     need_expand = true;
         if (!strcmp(argv[a], "--"))   end_of_arg = a;
       }
@@ -453,6 +482,8 @@ vector<const char *>argvec;
              end_of_arg = -1;
            }
         end_of_arg = -1;
+
+        if (!strcmp(argv[a], "--LX"))   { ++a;   continue; }
 
         if (strchr(argv[a], ' ') == 0)   // no space in this arg
            {
@@ -497,28 +528,42 @@ vector<const char *>argvec;
    // "-other-options..." "-f" "script-name"
    //
    // We fix this common mistake here. The downside is, or course, that option
-   // names cannnot be script names. We ignore options -h and --help since
+   // names cannot be script names. We ignore options -h and --help since
    // they exit immediately.
    //
    for (int a = 1; a < (argc - 1); ++a)
        {
          const char * opt = argvec[a];
          const char * next = argvec[a + 1];
-         if (!strcmp(opt, "-f") && ( !strcmp(next, "-d")        ||
-                                     !strcmp(next, "--id")      ||
-                                     !strcmp(next, "-l")        ||
-                                     !strcmp(next, "--noCIN")   ||
-                                     !strcmp(next, "--noCONT")  ||
-                                     !strcmp(next, "--Color")   ||
-                                     !strcmp(next, "--noColor") ||
-                                     !strcmp(next, "--SV")      ||
-                                     !strcmp(next, "--noSV")    ||
-                                     !strcmp(next, "--par")     ||
-                                     !strcmp(next, "-s")        ||
-                                     !strcmp(next, "--script")  ||
-                                     !strcmp(next, "--silent")  ||
-                                     !strcmp(next, "-T")        ||
-                                     !strcmp(next, "--TM")      ||
+         if (!strcmp(opt, "-f") && ( !strcmp(next, "--cc")        ||
+                                     !strcmp(next, "--cfg")       ||
+                                     !strcmp(next, "--Color")     ||
+                                     !strcmp(next, "-d")          ||
+                                     !strcmp(next, "--emacs")     ||
+                                     !strcmp(next, "--emacs_arg") ||
+                                     !strcmp(next, "--gpl")       ||
+                                     !strcmp(next, "-h")          ||
+                                     !strcmp(next, "--help")      ||
+                                     !strcmp(next, "--id")        ||
+                                     !strcmp(next, "-l")          ||
+                                     !strcmp(next, "--LX")        ||
+                                     !strcmp(next, "--noCIN")     ||
+                                     !strcmp(next, "--noColor")   ||
+                                     !strcmp(next, "--noCONT")    ||
+                                     !strcmp(next, "--noSV")      ||
+                                     !strcmp(next, "--par")       ||
+                                     !strcmp(next, "-p")          ||
+                                     !strcmp(next, "--rawCIN")    ||
+                                     !strcmp(next, "-s")          ||
+                                     !strcmp(next, "--safe")      ||
+                                     !strcmp(next, "--script")    ||
+                                     !strcmp(next, "--silent")    ||
+                                     !strcmp(next, "--SV")        ||
+                                     !strcmp(next, "-T")          ||
+                                     !strcmp(next, "--TM")        ||
+                                     !strcmp(next, "--TR")        ||
+                                     !strcmp(next, "-v")          ||
+                                     !strcmp(next, "--version")   ||
                                      !strcmp(next, "-w")))
             {
               // there is another known option after -f
@@ -696,6 +741,7 @@ FILE * f = fopen(filename, "r");
       CERR << "Reading config file " << filename << " ..." << endl;
 
 int line = 0;
+int file_profile = 0;   // the current profile in the preferences file
    for (;;)
        {
          enum { BUFSIZE = 200 };
@@ -709,8 +755,10 @@ int line = 0;
          // skip leading spaces
          //
          while (*s && *s <= ' ')   ++s;
+
          if (*s == 0)     continue;   // empty line
          if (*s == '#')   continue;   // comment line
+
          char opt[BUFSIZE] = { 0 };
          char arg[BUFSIZE] = { 0 };
          int d[100];
@@ -752,6 +800,17 @@ int line = 0;
                        || !strcasecmp(arg, "OFF"     ) ;
 
          const bool yes_no  = yes || no;
+
+         // first check for profile commands and continue if we are in the
+         // wrong profile. Profile 0 in the file matches all profiles of
+         // the user while Profile N > 0 in the file requires the same
+         // profile requested by the user.
+         //
+         if (!strcasecmp(opt, "Profile"))   // Never ignore Profile entries
+            {
+              file_profile = atoi(arg);
+            }
+         if (file_profile && (file_profile != user_profile))   continue;
 
          if (!strcasecmp(opt, "Color"))
             {
