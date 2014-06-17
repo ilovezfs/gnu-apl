@@ -25,34 +25,6 @@
 
 #include "UTF8_string.hh"
 
-/// a file mentioned on the command line (via -T or -f) and later on
-/// added by )COPY and friends
-struct Filename_and_mode
-{
-   /// constructor for vector<>::resize()
-   Filename_and_mode() {}   // for resize()
-
-   /// Normal constructor
-   Filename_and_mode(const UTF8_string & _filename, FILE * _file,
-                     bool _test, bool _echo, bool _is_script, bool _with_LX)
-   : filename (_filename),
-     file     (_file),
-     test     (_test),
-     echo     (_echo),
-     is_script(_is_script),
-     with_LX  (_with_LX),
-     line_no  (0)
-   {}
-
-   UTF8_string  filename;   ///< dito.
-   FILE       * file;       /// file descriptor
-   bool         test;       ///< true for -T testfile, false for -f APLfile
-   bool         echo;       ///< echo stdin
-   bool         is_script;  ///< script (override existing functions)
-   bool         with_LX;    ///< execute ⎕LX at the end
-   int          line_no;    ///< line number in file
-};
-
 /// a structure that contains user preferences from different sources
 /// (command line arguments, config files, environment variables ...)
 struct UserPreferences
@@ -72,8 +44,7 @@ struct UserPreferences
      daemon(false),
      append_summary(false),
      wait_ms(0),
-     randomize_testfiles(false),
-      stdin_line_no(1)
+     randomize_testfiles(false)
    {}
 
    /// read a preference file and update parameters set there
@@ -146,44 +117,6 @@ struct UserPreferences
 
    /// randomize the order of testfiles
    bool randomize_testfiles;
-
-   /// return true if the current input file (if any) is a test file
-   bool is_validating()
-      { return files_todo.size() > 0 && files_todo[0].test; }
-
-   /// randomize the order of test_file_names
-   void randomize_files();
-
-   /// files that need to be processed
-   vector<Filename_and_mode> files_todo;
-
-   /// the current file
-   Filename_and_mode * current_file()
-      { return files_todo.size() ? &files_todo[0] : 0; }
-
-   /// the name of the currrent file
-   const char * current_filename()
-      { return files_todo.size() ? files_todo[0].filename.c_str() : "stdin"; }
-
-   /// the line number of the currrent file
-   int current_line_no() const
-      { return files_todo.size() ? files_todo[0].line_no : stdin_line_no; }
-
-   void increment_current_line_no()
-      { if (files_todo.size()) ++files_todo[0].line_no; else ++stdin_line_no; }
-
-   void open_current_file();
-
-   void close_current_file();
-
-   bool echo_current_file() const
-      { return (files_todo.size()) ? files_todo[0].echo : !do_not_echo; }
-
-   bool running_script() const
-      { return files_todo.size() > 0 && files_todo[0].is_script; }
-
-protected:
-   int stdin_line_no;
 };
 
 extern UserPreferences uprefs;

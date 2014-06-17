@@ -22,12 +22,12 @@
 
 #include "Common.hh"
 #include "Command.hh"
-#include "Input.hh"
-#include "IO_Files.hh"
 #include "IndexExpr.hh"
+#include "Input.hh"
+#include "InputFile.hh"
+#include "IO_Files.hh"
 #include "main.hh"
 #include "Output.hh"
-#include "UserPreferences.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
@@ -48,12 +48,13 @@ ofstream IO_Files::current_testreport;
 const UTF8 *
 IO_Files::get_file_line()
 {
-   while (uprefs.current_file())   // as long as we have input files
+   while (InputFile::current_file())   // as long as we have input files
       {
-        if (uprefs.current_file()->file == 0)
+        if (!InputFile::current_file()->file)
            {
              open_next_file();
-             if (uprefs.current_file()->file == 0)   break;   // no more files
+             if (!InputFile::current_file())         break;   // no more files
+             if (!InputFile::current_file()->file)   break;   // no more files
            }
 
         // read a line with CR and LF removed.
@@ -62,9 +63,9 @@ IO_Files::get_file_line()
 
         if (s == 0)   // end of file reached: do some global checks
            {
-             if (uprefs.current_file() && uprefs.current_file()->with_LX)
+             if (InputFile::current_file() && InputFile::current_file()->with_LX)
                 {
-                  uprefs.current_file()->with_LX = false;
+                  InputFile::current_file()->with_LX = false;
                   UCS_string LX = Workspace::get_LX();
                   if (LX.size())   // ⎕LX pending
                      {
@@ -117,7 +118,7 @@ IO_Files::end_of_current_file()
    if (Workspace::SI_entry_count() > 1)
       {
         CERR << endl << ")SI not cleared at the end of "
-             << uprefs.current_filename() << ":" << endl;
+             << InputFile::current_filename() << ":" << endl;
         Workspace::list_SI(CERR, SIM_SIS);
         CERR << endl;
 
@@ -125,7 +126,7 @@ IO_Files::end_of_current_file()
            {
              current_testreport << endl
                                 << ")SI not cleared at the end of "
-                                << uprefs.current_filename()<< ":"
+                                << InputFile::current_filename()<< ":"
                                 << endl;
              Workspace::list_SI(current_testreport, SIM_SIS);
              current_testreport << endl;
@@ -165,11 +166,11 @@ IO_Files::end_of_current_file()
            }
       }
              
-   uprefs.close_current_file();
+   InputFile::close_current_file();
    ++testcases_done;
 
    Log(LOG_test_execution)
-      CERR << "closed testcase file " << uprefs.current_filename()
+      CERR << "closed testcase file " << InputFile::current_filename()
            << endl;
 
    ofstream summary("testcases/summary.log", ios_base::app);
@@ -189,7 +190,7 @@ IO_Files::end_of_current_file()
                 << parse_errors  << " parse) ";
       }
 
-   summary << uprefs.current_filename() << endl;
+   summary << InputFile::current_filename() << endl;
 
    if ((test_mode == TM_STOP_AFTER_ERROR ||
         test_mode == TM_EXIT_AFTER_ERROR) && error_count())
@@ -197,15 +198,15 @@ IO_Files::end_of_current_file()
         CERR << endl
              << "Stopping test execution since an error has occurred"  << endl
              << "The error count is " << error_count() << endl
-             << "Failed testcase is " << uprefs.current_filename()
+             << "Failed testcase is " << InputFile::current_filename()
              << endl 
              << endl;
                   
-        uprefs.files_todo.resize(0);
+        InputFile::files_todo.resize(0);
         return false;
       }
 
-   uprefs.files_todo.erase(uprefs.files_todo.begin());
+   InputFile::files_todo.erase(InputFile::files_todo.begin());
 
    Output::reset_dout();
    reset_errors();
@@ -234,13 +235,13 @@ ofstream summary("testcases/summary.log", ios_base::app);
 void
 IO_Files::open_next_file()
 {
-   if (uprefs.current_file() == 0)
+   if (InputFile::current_file() == 0)
       {
         CERR << "Workspace::open_next_file(): no more files" << endl;
         return;
       }
 
-   if (uprefs.current_file()->file)
+   if (InputFile::current_file()->file)
       {
         CERR << "Workspace::open_next_file(): already open" << endl;
         return;
@@ -248,7 +249,9 @@ IO_Files::open_next_file()
 
      for (;;)
          {
-           if (uprefs.current_file()->test)
+           if (!InputFile::current_file())   break;   // no more files
+
+           if (InputFile::current_file()->test)
               {
                 CERR << " #######################################"
                         "#######################################\n"
@@ -256,28 +259,28 @@ IO_Files::open_next_file()
                         "########################################\n"
                      << " #######################################"
                         "#######################################\n"
-                     << " Testfile: " << uprefs.current_filename() << endl
+                     << " Testfile: " << InputFile::current_filename() << endl
                      << "########################################"
                         "########################################" << endl;
               }
 
-           uprefs.open_current_file();
-           if (uprefs.current_file()->file == 0)
+           InputFile::open_current_file();
+           if (InputFile::current_file()->file == 0)
               {
-                CERR << "could not open " << uprefs.current_filename() << endl;
-                uprefs.files_todo.erase(uprefs.files_todo.begin());
+                CERR << "could not open " << InputFile::current_filename() << endl;
+                InputFile::files_todo.erase(InputFile::files_todo.begin());
                 continue;
               }
 
            Log(LOG_test_execution)   CERR <<
-               "openened testcase file " << uprefs.current_filename() << endl;
+               "openened testcase file " << InputFile::current_filename() << endl;
 
            Output::reset_dout();
            reset_errors();
 
            char log_name[FILENAME_MAX];
            snprintf(log_name, sizeof(log_name) - 1,  "%s.log",
-                    uprefs.current_filename());
+                    InputFile::current_filename());
         
            current_testreport.close();
            current_testreport.open(log_name, ofstream::out | ofstream::trunc);
@@ -315,8 +318,8 @@ const int cnt = arg.atoi();
 void
 IO_Files::syntax_error()
 {
-   if (!uprefs.current_file())         return;
-   if (!uprefs.current_file()->file)   return;
+   if (!InputFile::current_file())         return;
+   if (!InputFile::current_file()->file)   return;
 
    ++parse_errors;
 
@@ -329,12 +332,12 @@ IO_Files::syntax_error()
 void
 IO_Files::apl_error(const char * loc)
 {
-   if (!uprefs.current_file())         return;
-   if (!uprefs.current_file()->file)   return;
+   if (!InputFile::current_file())         return;
+   if (!InputFile::current_file()->file)   return;
 
    ++apl_errors;
    last_apl_error_loc = loc;
-   last_apl_error_line = uprefs.current_line_no();
+   last_apl_error_line = InputFile::current_line_no();
 
    Log(LOG_test_execution)
       CERR << "APL errors incremented to " << apl_errors << endl;
@@ -343,8 +346,8 @@ IO_Files::apl_error(const char * loc)
 void
 IO_Files::assert_error()
 {
-   if (!uprefs.current_file())         return;
-   if (!uprefs.current_file()->file)   return;
+   if (!InputFile::current_file())         return;
+   if (!InputFile::current_file()->file)   return;
 
    ++assert_errors;
    Log(LOG_test_execution)
@@ -354,8 +357,8 @@ IO_Files::assert_error()
 void
 IO_Files::diff_error()
 {
-   if (!uprefs.current_file())         return;
-   if (!uprefs.current_file()->file)   return;
+   if (!InputFile::current_file())         return;
+   if (!InputFile::current_file()->file)   return;
 
    ++diff_errors;
    Log(LOG_test_execution)

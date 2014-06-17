@@ -101,7 +101,7 @@ public:
    /// overloaded NamedObject::get_function()
    virtual const Function * get_function() const   { return this; }
 
-   /// when this function was created; { 0, 0 } for system functions
+   /// GMT when this function was created; 0 for system functions
    APL_time_us get_creation_time() const
       {  return creation_time; }
 

@@ -22,13 +22,13 @@
 #include "Avec.hh"
 #include "Command.hh"
 #include "Input.hh"
+#include "InputFile.hh"
 #include "Logging.hh"
 #include "Nabla.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "Symbol.hh"
 #include "UserFunction.hh"
-#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 #define NABLA_ERROR throw_edit_error(LOC)
@@ -42,7 +42,7 @@ Nabla nabla(cmd);
 }
 //-----------------------------------------------------------------------------
 Nabla::Nabla(const UCS_string & cmd)
-   : defn_line_no(uprefs.current_line_no()),
+   : defn_line_no(InputFile::current_line_no()),
      fun_symbol(0),
      ecmd(ECMD_NOP),
      edit_from(-1),
@@ -133,7 +133,7 @@ UCS_string fun_text;
       }
 
 int error_line = 0;
-UCS_string creator(uprefs.current_filename());
+UCS_string creator(InputFile::current_filename());
    creator.append(UNI_ASCII_COLON);
    creator.append_number(defn_line_no);
 UTF8_string creator_utf8(creator);
@@ -252,7 +252,7 @@ UserFunction_header hdr(fun_header);
         case NC_FUNCTION:
         case NC_OPERATOR:   // open an existing function
              function_existed = true;
-             if (uprefs.running_script())   // script
+             if (InputFile::running_script())   // script
                 {
                   const char * open_loc = open_new_function();
                   if (open_loc)   return open_loc;
@@ -531,7 +531,7 @@ Nabla::open_existing_function()
 
    // this function must only be called when editing functions interactively
    //
-   Assert(!uprefs.running_script());
+   Assert(!InputFile::running_script());
 
 Function * function = fun_symbol->get_function();
    Assert(function);

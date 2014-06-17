@@ -24,9 +24,9 @@
 
 #include "Common.hh"
 #include "Error.hh"
+#include "InputFile.hh"
 #include "PrintOperator.hh"
 #include "UCS_string.hh"
-#include "UserPreferences.hh"
 #include "Value.icc"
 #include "ValueHistory.hh"
 
@@ -41,8 +41,8 @@ VH_entry::VH_entry(const Value * _val, VH_event _ev, int _iarg,
     iarg(_iarg),
     loc(_loc)
 {
-   testcase_file = uprefs.current_filename();
-   testcase_line = uprefs.current_line_no();
+   testcase_file = InputFile::current_filename();
+   testcase_line = InputFile::current_line_no();
 }
 //----------------------------------------------------------------------------
 void

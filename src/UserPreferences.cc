@@ -30,36 +30,16 @@ static const char * build_tag[] = { BUILDTAG, 0 };
 
 #include "Common.hh"
 #include "Input.hh"
+#include "IO_Files.hh"
+#include "InputFile.hh"
 #include "LibPaths.hh"
 #include "makefile.h"
-#include "IO_Files.hh"
+#include "Output.hh"
 #include "UserPreferences.hh"
 #include "Value.icc"
 
 UserPreferences uprefs;
 
-//-----------------------------------------------------------------------------
-void
-UserPreferences::open_current_file()
-{
-   if (files_todo.size() && files_todo[0].file == 0)
-      {
-        files_todo[0].file = fopen(current_filename(), "r");
-        files_todo[0].line_no = 0;
-      }
-}
-//-----------------------------------------------------------------------------
-
-void
-UserPreferences::close_current_file()
-{
-   if (files_todo.size() && files_todo[0].file)
-      {
-        fclose(files_todo[0].file);
-        files_todo[0].file = 0;
-        files_todo[0].line_no = -1;
-      }
-}
 //-----------------------------------------------------------------------------
 void
 UserPreferences::usage(const char * prog)
@@ -165,9 +145,9 @@ int script_argc = argc;   // $0 of the apl script
             {
               script_argc = a + 1;
               argc = a;
-              Filename_and_mode fam(UTF8_string(argv[script_argc]), 0,
+              InputFile fam(UTF8_string(argv[script_argc]), 0,
                                         false, !do_not_echo, true, false);
-              files_todo.push_back(fam);
+              InputFile::files_todo.push_back(fam);
             }
        }
 
@@ -216,9 +196,9 @@ int script_argc = argc;   // $0 of the apl script
                          if (script_argc < argc)   filename = argv[script_argc];
                          else                      filename = "-";
                        }
-                    Filename_and_mode fam(UTF8_string(filename), 0, false,
+                    InputFile fam(UTF8_string(filename), 0, false,
                                           !do_not_echo, true, false);
-                    files_todo.push_back(fam);
+                    InputFile::files_todo.push_back(fam);
                   }
             }
          else if (!strcmp(opt, "--gpl"))
@@ -348,9 +328,9 @@ int script_argc = argc;   // $0 of the apl script
                          break;
 
                        }
-                    Filename_and_mode fam(UTF8_string(argv[a]), 0, true,
+                    InputFile fam(UTF8_string(argv[a]), 0, true,
                                           true, false, false);
-                    files_todo.push_back(fam);
+                    InputFile::files_todo.push_back(fam);
                   }
 
               // 
@@ -410,15 +390,11 @@ int script_argc = argc;   // $0 of the apl script
             }
        }
 
-   if (randomize_testfiles)   randomize_files();
+   if (randomize_testfiles)   InputFile::randomize_files();
 
    // count number of testfiles
    //
-   IO_Files::testcase_count = 0;
-   loop(f, files_todo.size())
-      {
-        if (files_todo[f].test)   ++IO_Files::testcase_count;
-      }
+   IO_Files::testcase_count = InputFile::testcase_file_count();
 }
 //-----------------------------------------------------------------------------
 /**
@@ -558,56 +534,6 @@ const char ** ret = new const char *[argc + 1];
    loop(a, argc)   ret[a] = argvec[a];
    ret[argc] = 0;
    return ret;
-}
-//-----------------------------------------------------------------------------
-void
-UserPreferences::randomize_files()
-{
-   {
-     timeval now;
-     gettimeofday(&now, 0);
-     srandom(now.tv_sec + now.tv_usec);
-   }
-
-   // check that all file are test files
-   //
-   loop(f, files_todo.size())
-      {
-        if (files_todo[f].test == false)   // not a test file
-           {
-             CERR << "Cannot randomise testfiles when a mix of -T"
-                     " and -f is used (--TR ignored)" << endl;
-             return;
-           }
-      }
-
-   for (int done = 0; done < 4*files_todo.size();)
-       {
-         const int n1 = random() % files_todo.size();
-         const int n2 = random() % files_todo.size();
-         if (n1 == n2)   continue;
-
-         Filename_and_mode f1 = files_todo[n1];
-         Filename_and_mode f2 = files_todo[n2];
-
-         const char * ff1 = strrchr(f1.filename.c_str(), '/');
-         if (!ff1++)   ff1 = f1.filename.c_str();
-         const char * ff2 = strrchr(f2.filename.c_str(), '/');
-         if (!ff2++)   ff2 = f2.filename.c_str();
-
-         // the order of files named AAA... or ZZZ... shall not be changed
-         //
-         if (strncmp(ff1, "AAA", 3) == 0)   continue;
-         if (strncmp(ff1, "ZZZ", 3) == 0)   continue;
-         if (strncmp(ff2, "AAA", 3) == 0)   continue;
-         if (strncmp(ff2, "ZZZ", 3) == 0)   continue;
-
-         // at this point f1 and f2 shall be swapped.
-         //
-         files_todo[n1] = f2;
-         files_todo[n2] = f1;
-         ++done;
-       }
 }
 //-----------------------------------------------------------------------------
 void

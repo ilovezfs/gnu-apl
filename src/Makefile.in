@@ -80,17 +80,17 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	DiffOut.$(OBJEXT) DynamicObject.$(OBJEXT) Error.$(OBJEXT) \
 	Executable.$(OBJEXT) FloatCell.$(OBJEXT) Function.$(OBJEXT) \
 	DerivedFunction.$(OBJEXT) Id.$(OBJEXT) IndexExpr.$(OBJEXT) \
-	IndexIterator.$(OBJEXT) Input.$(OBJEXT) IntCell.$(OBJEXT) \
-	LApack.$(OBJEXT) LibPaths.$(OBJEXT) Logging.$(OBJEXT) \
-	LvalCell.$(OBJEXT) main.$(OBJEXT) Malloc_hooks.$(OBJEXT) \
-	Nabla.$(OBJEXT) NamedObject.$(OBJEXT) NativeFunction.$(OBJEXT) \
-	NumericCell.$(OBJEXT) Output.$(OBJEXT) Parser.$(OBJEXT) \
-	Prefix.$(OBJEXT) PointerCell.$(OBJEXT) \
-	PrimitiveFunction.$(OBJEXT) PrimitiveOperator.$(OBJEXT) \
-	PrintBuffer.$(OBJEXT) QuadFunction.$(OBJEXT) \
-	ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) Quad_RL.$(OBJEXT) \
-	Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) RealCell.$(OBJEXT) \
-	Shape.$(OBJEXT) SkalarFunction.$(OBJEXT) \
+	IndexIterator.$(OBJEXT) Input.$(OBJEXT) InputFile.$(OBJEXT) \
+	IntCell.$(OBJEXT) LApack.$(OBJEXT) LibPaths.$(OBJEXT) \
+	Logging.$(OBJEXT) LvalCell.$(OBJEXT) main.$(OBJEXT) \
+	Malloc_hooks.$(OBJEXT) Nabla.$(OBJEXT) NamedObject.$(OBJEXT) \
+	NativeFunction.$(OBJEXT) NumericCell.$(OBJEXT) \
+	Output.$(OBJEXT) Parser.$(OBJEXT) Prefix.$(OBJEXT) \
+	PointerCell.$(OBJEXT) PrimitiveFunction.$(OBJEXT) \
+	PrimitiveOperator.$(OBJEXT) PrintBuffer.$(OBJEXT) \
+	QuadFunction.$(OBJEXT) ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) \
+	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
+	RealCell.$(OBJEXT) Shape.$(OBJEXT) SkalarFunction.$(OBJEXT) \
 	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
 	Svar_DB.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
 	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
@@ -347,6 +347,7 @@ Id.cc			Id.def			Id.hh			\
 IndexExpr.cc					IndexExpr.hh		\
 IndexIterator.cc				IndexIterator.hh	\
 Input.cc					Input.hh		\
+InputFile.cc					InputFile.hh		\
 IntCell.cc					IntCell.hh		\
 LApack.cc								\
 LibPaths.cc					LibPaths.hh		\
@@ -529,6 +530,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IndexExpr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IndexIterator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Input.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InputFile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IntCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LApack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LibPaths.Po@am__quote@
