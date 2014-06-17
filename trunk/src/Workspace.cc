@@ -27,6 +27,7 @@ using namespace std;
 #include "Archive.hh"
 #include "Command.hh"
 #include "Input.hh"
+#include "InputFile.hh"
 #include "IO_Files.hh"
 #include "LibPaths.hh"
 #include "main.hh"
@@ -34,7 +35,6 @@ using namespace std;
 #include "Quad_FX.hh"
 #include "Quad_TF.hh"
 #include "UserFunction.hh"
-#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 // Workspace::the_workspace is defined in StaticObjects.cc
@@ -724,17 +724,17 @@ FILE * file = fdopen(fd, "r");
    // make sure that filename is not already open (which would indicate
    // )COPY recursion
    //
-   loop(f, uprefs.files_todo.size())
+   loop(f, InputFile::files_todo.size())
       {
-        if (filename == uprefs.files_todo[f].filename)   // same filename
+        if (filename == InputFile::files_todo[f].filename)   // same filename
            {
              CERR << ")COPY " << filename << " causes recursion" << endl;
              return;
            }
       }
 
-Filename_and_mode fam(filename, file, false, false, true, with_LX);
-   uprefs.files_todo.insert(uprefs.files_todo.begin(), fam);
+InputFile fam(filename, file, false, false, true, with_LX);
+   InputFile::files_todo.insert(InputFile::files_todo.begin(), fam);
 }
 //-----------------------------------------------------------------------------
 void

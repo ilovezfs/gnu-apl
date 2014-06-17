@@ -993,6 +993,13 @@ functions), src/native/template_OP1.cc (for monadic native operators),
 or src/native/template_OP2/cc (for dyadic native operators) to your own
 .cc file and adjust src/native/Makefile.am accordingly.
 
+Note: The )IN and )OUT commands of GNU APL support native functions, but
+in order to do so they have to use dyadic ⎕FX. This renders the workspace
+interchange file (.atf files) written by )OUT incompatible with all other
+APL interpreters if the workspace contains native functions. The )OUT 
+command prints a warning when the )OUT command is used with a
+workspace that contains native functions.
+
 @section DUMP Command
 
 GNU APL has a command )DUMP that saves a workspace to disk, similar to command
@@ -1131,9 +1138,9 @@ User-defined functions and operators accept an axis argument. For example:
 Syntactically, the axis is used in the same way as for primitive functions
 and operators.
 
-There are no contraints on the axis such as being integers. Therefore you
+There are no constraints on the axis such as being integers. Therefore you
 can use an axis as a third function argument. Keep in mind, however, that
-doing so will make your APL code incompatible with other APLs. Use this
+doing so will make your APL code incompatible with other APL interpreters. Use this
 feature carefully!
 
 @c ----------------------------------------------------------------------------

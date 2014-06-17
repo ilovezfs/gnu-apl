@@ -22,11 +22,11 @@
 #include "Common.hh"
 #include "DiffOut.hh"
 #include "Input.hh"
+#include "InputFile.hh"
 #include "IO_Files.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "Svar_DB.hh"
-#include "UserPreferences.hh"
 #include "UTF8_string.hh"
 
 //-----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ DiffOut::overflow(int c)
    Svar_DB::end_print(LOC);
    Output::print_sema_held = false;
 
-   if (!uprefs.is_validating())   return 0;
+   if (!InputFile::is_validating())   return 0;
 
 ofstream & rep = IO_Files::get_current_testreport();
    Assert(rep.is_open());

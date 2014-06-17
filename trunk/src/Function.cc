@@ -46,13 +46,16 @@ Function::get_attributes(int mode, Cell * dest) const
                 return;
 
         case 2: // creation time (7⍴0 for system functions)
-                new (dest + 0) IntCell(0);
-                new (dest + 1) IntCell(0);
-                new (dest + 2) IntCell(0);
-                new (dest + 3) IntCell(0);
-                new (dest + 4) IntCell(0);
-                new (dest + 5) IntCell(0);
-                new (dest + 6) IntCell(0);
+                {
+                  const YMDhmsu created(get_creation_time());
+                  new (dest + 0) IntCell(created.year);
+                  new (dest + 1) IntCell(created.month);
+                  new (dest + 2) IntCell(created.day);
+                  new (dest + 3) IntCell(created.hour);
+                  new (dest + 4) IntCell(created.minute);
+                  new (dest + 5) IntCell(created.second);
+                  new (dest + 6) IntCell(created.micro/1000);
+                }
                 return;
 
         case 3: // execution properties

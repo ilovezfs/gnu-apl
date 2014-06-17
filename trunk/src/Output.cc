@@ -49,11 +49,11 @@
 #include "Command.hh"
 #include "Common.hh"
 #include "DiffOut.hh"
+#include "InputFile.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "Svar_DB.hh"
-#include "UserPreferences.hh"
 
 bool Output::colors_enabled = false;
 bool Output::colors_changed = false;
@@ -148,7 +148,7 @@ char Output::clear_EOL[100] = CSI "K";
 int
 CinOut::overflow(int c)
 {
-   if (!uprefs.echo_current_file())   return 0;
+   if (!InputFile::echo_current_file())   return 0;
    if (!Output::print_sema_held)
       {
         Svar_DB::start_print(LOC);

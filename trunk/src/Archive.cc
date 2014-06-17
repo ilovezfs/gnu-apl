@@ -262,8 +262,10 @@ void
 XML_Saving_Archive::save_function(const Function & fun)
 {
 const int * eprops = fun.get_exec_properties();
+const APL_time_us creation_time = fun.get_creation_time();
    do_indent();
-   out << "<Function exec-properties=\""
+   out << "<Function creation-time=\"" << creation_time
+       << "\" exec-properties=\""
        << eprops[0] << "," << eprops[1] << ","
        << eprops[2] << "," << eprops[3] << "\"";
 
@@ -638,6 +640,7 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "                <!ELEMENT UserFunction (#PCDATA)>\n"
 "                <!ATTLIST UserFunction ufun-name       CDATA #REQUIRED>\n"
 "                <!ATTLIST UserFunction symbol-level    CDATA #REQUIRED>\n"
+"                <!ATTLIST UserFunction creation-time   CDATA #IMPLIED>\n"
 "                <!ATTLIST UserFunction exec-properties CDATA #IMPLIED>\n"
 "\n"
 "                <!ELEMENT Parser (Token*)>\n"
@@ -1469,6 +1472,7 @@ void
 XML_Loading_Archive::read_Function(int d, Symbol & symbol)
 {
 const int native = find_int_attr("native", true, 10);
+const APL_time_us creation_time = find_int_attr("creation-time", true, 10);
 int eprops[4] = { 0, 0, 0, 0 };
 const UTF8 * ep = find_attr("exec-properties", true);
    if (ep)
@@ -1493,6 +1497,7 @@ UCS_string text;
         NativeFunction * nfun = NativeFunction::fix(text, symbol.get_name());
         if (nfun)   // fix succeeded
            {
+             nfun->set_creation_time(creation_time);
              if (d == 0)   symbol.pop();
              symbol.push_function(nfun);
            }
@@ -1518,6 +1523,7 @@ UCS_string text;
         if (d == 0)   symbol.pop();
         if (ufun)
            {
+             ufun->set_creation_time(creation_time);
              symbol.push_function(ufun);
              ufun->set_exec_properties(eprops);
            }

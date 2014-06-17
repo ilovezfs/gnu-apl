@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __LINE_TESTFILES_HH_DEFINED__
-#define __LINE_TESTFILES_HH_DEFINED__
+#ifndef __IO_FILES_HH_DEFINED__
+#define __IO_FILES_HH_DEFINED__
 
 #include <stdio.h>
 #include <iostream>
@@ -170,4 +170,4 @@ protected:
    static ofstream current_testreport;
 };
 
-#endif // __LINE_TESTFILES_HH_DEFINED__
+#endif // __IO_FILES_HH_DEFINED__

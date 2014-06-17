@@ -48,6 +48,7 @@ Id.cc			Id.def			Id.hh			\
 IndexExpr.cc					IndexExpr.hh		\
 IndexIterator.cc				IndexIterator.hh	\
 Input.cc					Input.hh		\
+InputFile.cc					InputFile.hh		\
 IntCell.cc					IntCell.hh		\
 LApack.cc								\
 LibPaths.cc					LibPaths.hh		\

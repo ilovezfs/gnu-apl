@@ -24,12 +24,12 @@
 #include "Command.hh"
 #include "Common.hh"   // for HAVE_LIBREADLINE etc.
 #include "Input.hh"
+#include "InputFile.hh"
 #include "IO_Files.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "SystemVariable.hh"
-#include "UserPreferences.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"
 
@@ -130,7 +130,7 @@ UCS_string
 Input::get_line()
 {
    Quad_QUOTE::done(true, LOC);
-   uprefs.increment_current_line_no();
+   InputFile::increment_current_line_no();
 
 const char * input_type = "?";
 const UTF8 * buf = IO_Files::get_file_line();
@@ -257,7 +257,7 @@ UTF8 * l = (UTF8 *)line;
 const char *
 Input::get_user_line_nabla(const UCS_string * prompt)
 {
-   uprefs.increment_current_line_no();
+   InputFile::increment_current_line_no();
 
 const UTF8 * line = IO_Files::get_file_line();
    if (line)   return (const char *)line;
@@ -267,7 +267,7 @@ const UTF8 * line = IO_Files::get_file_line();
 UCS_string
 Input::get_quad_cr_line(UCS_string ucs_prompt)
 {
-   if (uprefs.is_validating())
+   if (InputFile::is_validating())
       {
         Quad_QUOTE::done(true, LOC);
 
@@ -316,7 +316,7 @@ static char buf[2000];
 int b = 0;
    for (;b < sizeof(buf) - 1; ++b)
        {
-         int cc = fgetc(uprefs.current_file()->file);
+         int cc = fgetc(InputFile::current_file()->file);
          if (cc == EOF)   // end of file
             {
               if (b == 0)   return 0;
