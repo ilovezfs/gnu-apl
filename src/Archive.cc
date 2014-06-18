@@ -787,7 +787,12 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 }
 //=============================================================================
 XML_Loading_Archive::XML_Loading_Archive(const char * _filename, int & dump_fd)
-   : line_no(1),
+   : fd(-1),
+     map_start(0),
+     map_length(0),
+     file_start(0),
+     line_start(0),
+     line_no(1),
      current_char(UNI_ASCII_SPACE),
      data(0),
      file_end(0),
@@ -851,7 +856,7 @@ struct stat st;
 //-----------------------------------------------------------------------------
 XML_Loading_Archive::~XML_Loading_Archive()
 {
-   munmap((char *)map_start, map_length);
+   if (map_start)   munmap((char *)map_start, map_length);
    if (fd != -1)   close(fd);
 }
 //-----------------------------------------------------------------------------

@@ -118,11 +118,8 @@ vector<UCS_string> args;
         Workspace::more_error().clear();
       }
 
-   // ??? cerr << ""; below does nothing but prevents segfault on a
-   // failed )LOAD xxx ???
-   //
 #define cmd_def(cmd_str, code, _arg) \
-   if (cmd.starts_iwith(cmd_str)) { cerr << ""; code; return true; }
+   if (cmd.starts_iwith(cmd_str)) { code; return true; }
 #include "Command.def"
 
    // check for user defined commands...
