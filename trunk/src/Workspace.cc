@@ -782,8 +782,6 @@ ofstream outf(filename.c_str(), ofstream::out);
 
    // print header line, workspace name, time, and date to outf
    //
-Q(LibPaths::get_APL_bin_path())
-Q(LibPaths::get_APL_bin_name())
    {
      const APL_time_us offset = get_v_Quad_TZ().get_offset();
      const YMDhmsu time(now() + 1000000*offset);
@@ -845,6 +843,7 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true,
 
 int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);
+
    if (dump_fd != -1)
       {
         the_workspace.clear_WS(CERR, true);
@@ -874,7 +873,6 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
            {
              CERR << ")LOAD " << wname << " (file " << filename
                   << ") failed: " << strerror(errno) << endl;
-
              return;
            }
 
