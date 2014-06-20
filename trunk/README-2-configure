@@ -99,14 +99,7 @@ MAX_RANK_WANTED=n
 
 
 PRINT_SEMA_WANTED=yes
-   If the APL interpreter starts new processes for shared variables (for
-   example AP100, AP210, or APnnn) then these processes use the same output
-   channels (cout and cerr) as the interpreter, and the garbled output can
-   be difficult to read. With PRINT_SEMA_WANTED=yes, a semaphore makes sure
-   that output lines from different sources are not mixed. The downside of
-   this is a slightly lower performance on output. Example:
-
-    ./configure PRINT_SEMA_WANTED=yes
+   This option is now obsolete.
 
 
 VALUE_CHECK_WANTED=yes
@@ -168,8 +161,7 @@ which is a shortcut for:
     ./configure VALUE_CHECK_WANTED=yes   \
                 VALUE_HISTORY_WANTED=yes \
                 DYNAMIC_LOG_WANTED=yes   \
-                ASSERT_LEVEL_WANTED=2    \
-                PRINT_SEMA_WANTED=yes
+                ASSERT_LEVEL_WANTED=2
 
 After the first ./configure run (which creates the top level Makefile)
 you can do:

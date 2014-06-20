@@ -57,7 +57,6 @@
 
 bool Output::colors_enabled = false;
 bool Output::colors_changed = false;
-bool Output::print_sema_held = false;
 bool Output::use_curses = true;
 
 int Output::color_CIN_foreground = 0;
@@ -149,45 +148,17 @@ int
 CinOut::overflow(int c)
 {
    if (!InputFile::echo_current_file())   return 0;
-   if (!Output::print_sema_held)
-      {
-        Svar_DB::start_print(LOC);
-        Output::print_sema_held = true;
-      }
 
    Output::set_color_mode(Output::COLM_INPUT);
    cerr << (char)c;
-
-   if (c == 0x0A)
-      {
-        if (Output::print_sema_held)
-           {
-             Svar_DB::end_print(LOC);
-             Output::print_sema_held = false;
-           }
-      }
-
    return 0;
 }
 //-----------------------------------------------------------------------------
 int
 ErrOut::overflow(int c)
 {
-   if (!Output::print_sema_held)
-      {
-        Svar_DB::start_print(LOC);
-        Output::print_sema_held = true;
-      }
-
    Output::set_color_mode(Output::COLM_ERROR);
    cerr << (char)c;
-
-   if (c == '\n')
-      {
-        Svar_DB::end_print(LOC);
-        Output::print_sema_held = false;
-      }
-
    return 0;
 }
 //-----------------------------------------------------------------------------

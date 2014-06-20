@@ -703,6 +703,40 @@ Nabla::execute_edit()
 
    current_line = edit_from;
 
+   // check that current_text is valid
+   //
+   if (current_line.is_header_line())
+      {
+
+        UserFunction_header header(current_text);
+        bool bad_header = header.get_error() != E_NO_ERROR;
+
+        // check that the function name has not changed
+        //
+        bad_header = bad_header
+                   || (fun_symbol && header.FUN() &&
+                       fun_symbol->get_name() != header.FUN()->get_name());
+
+        if (bad_header)
+           {
+             CERR << "BAD FUNCTION HEADER";
+             COUT << endl;
+             return 0;
+           }
+      }
+   else
+      {
+        const Parser parser(PM_FUNCTION, LOC);
+        Token_string in;
+        ErrorCode ec = parser.parse(current_text, in);
+        if (ec)
+           {
+             CERR << "SYNTAX ERROR";
+             COUT << endl;
+             return 0;
+           }
+      }
+
 const int idx_from = find_line(edit_from);
 
    Assert(lines.size() > 0);

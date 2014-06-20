@@ -33,12 +33,6 @@
 int
 DiffOut::overflow(int c)
 {
-   if (!Output::print_sema_held)
-      {
-        Svar_DB::start_print(LOC);
-        Output::print_sema_held = true;
-      }
-
    Output::set_color_mode(errout ? Output::COLM_UERROR : Output::COLM_OUTPUT);
    cout << char(c);
 
@@ -47,9 +41,6 @@ DiffOut::overflow(int c)
         aplout.append(c);
         return 0;
       }
-
-   Svar_DB::end_print(LOC);
-   Output::print_sema_held = false;
 
    if (!InputFile::is_validating())   return 0;
 

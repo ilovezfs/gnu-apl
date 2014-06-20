@@ -93,9 +93,6 @@ public:
    /// initialize curses library
    static void  init();
 
-   /// true if the print semaphore was acquired
-   static bool print_sema_held;
-
    /// escape sequence for CIN colors
    static char color_CIN[100];
 

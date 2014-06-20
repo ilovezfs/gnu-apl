@@ -580,20 +580,6 @@ public:
    /// print the database
    static void print(ostream & out);
 
-#ifdef PRINT_SEMA_WANTED
-   /// acquire print_sema and hold it until end_print() is called
-   static void start_print(const char * loc);
-
-   /// release print_sema
-   static void end_print(const char * loc);
-#else
-   /// acquire print_sema and hold it until end_print() is called
-   static void start_print(const char * loc) {}
-
-   /// release print_sema
-   static void end_print(const char * loc) {}
-#endif
-
 protected:
    /// return if the shared memory was opened successfully
    bool is_open() const   { return DB_memory; }
@@ -603,9 +589,6 @@ protected:
 
    /// the database in the shared memory
    static Svar_DB the_Svar_DB;
-
-   /// true after start_print(), false after end_print()
-   static bool print_sema_acquired;
 };
 
 #endif // __SVAR_DB_HH_DEFINED__

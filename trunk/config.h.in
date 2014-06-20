@@ -175,9 +175,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* define to enable the print semaphore */
-#undef PRINT_SEMA_WANTED
-
 /* short value cellcount */
 #undef SHORT_VALUE_LENGTH_WANTED
 
