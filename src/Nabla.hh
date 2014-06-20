@@ -53,6 +53,10 @@ struct LineLabel
    void clear()
           { ln_major = -1;   ln_minor.clear(); }
 
+   /// return true iff this line number is the header line [0]
+   bool is_header_line() const
+      { return ln_major == 0 && ln_minor.size() == 0; }
+
    /// increase the line number
    void next();
 

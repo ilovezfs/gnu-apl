@@ -429,18 +429,6 @@ void
 Token::show_trace(ostream & out, const UCS_string & fun_name, 
                   Function_Line line) const
 {
-   switch(get_tag())
-      {
-        case TOK_APL_VALUE1:
-        case TOK_APL_VALUE2:
-        case TOK_APL_VALUE3:
-        case TOK_BRANCH:
-        case TOK_ESCAPE:
-             break;
-
-        default: return;
-      }
-
 UCS_string fn = fun_name;
    fn.append_utf8("[");
    fn.append_number(line);
@@ -463,8 +451,15 @@ UCS_string fn = fun_name;
              out << "→" << endl;
              return;
 
-        default: FIXME;
+        case TOK_VOID:
+             out << endl;
+             return;
+
+        default: Q1(*this)
+                 FIXME;
       }
+
+   // print a value
 
 PrintContext pctx = Workspace::get_PrintContext();
 const Value & val = *get_apl_val();

@@ -65,6 +65,7 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/AP100
 %{_bindir}/AP210
 %{_bindir}/APnnn
+%{_bindir}/APserver
 %{_bindir}/apl
 
 %{_libdir}/apl/*.0

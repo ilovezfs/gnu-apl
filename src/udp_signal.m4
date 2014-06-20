@@ -249,7 +249,7 @@ define(`sig_memb', `   `Sig_item_'$2 $3;   ///< $3
 ')
 define(`sig_load', `$3(buffer)')
 define(`sig_bad', `   virtual typtrans($2) get__$1__$3() const   ///< dito
-      { bad_get("$1", "$3"); }
+      { bad_get("$1", "$3"); return 0; }
 ')
 define(`sig_good', `  /// return item $3 of this signal 
    virtual typtrans($2) get__$1__$3() const { return $3.get_value(); }
@@ -299,12 +299,12 @@ define(`m4_signal', `   /// access functions for signal $1...
 expa(`sig_bad', `', $@)')
 include(protocol.def)dnl
 
-   /// receive a signal
+   /// receive a signal (UDP)
    inline static Signal_base * recv(UdpSocket & sock, void * class_buffer,
                                     uint16_t & from_port, uint32_t & from_ip,
                                     uint32_t timeout_ms = 0);
 
-   /// receive a signal, ignore sender's IP and port
+   /// receive a signal (UDP) ignore sender's IP and port
    static Signal_base * recv(UdpSocket & sock, void * class_buffer,
                              uint32_t timeout_ms = 0)
       {
@@ -313,14 +313,39 @@ include(protocol.def)dnl
          return recv(sock, class_buffer, from_port, from_ip, timeout_ms);
       }
 
+   /// receive a signal (TCP)
+   static Signal_base * recv_TCP(int s, void * class_buffer)
+      {
+        const int expected = get_class_size();
+        const int received = ::recv(s, class_buffer, expected,  MSG_WAITALL);
+        return (expected == received) ? (Signal_base *)class_buffer : 0;
+      }
+
+   /// decode a received signal (TCP)
+   inline static Signal_base * decode(const uint8_t * buffer, size_t len,
+                                      bool debug);
+
 protected:
-   /// send this signal on sock
-   int send(const UdpSocket & sock) const
+   /// send this signal on sock (UDP)
+   int send_UDP(const UdpSocket & sock) const
        {
          string buffer;
          store(buffer);
-         sock.send(buffer);
+         const int len = sock.send(buffer);
          if (ostream * out = sock.get_debug())   print(*out << "--> ");
+         return len;
+       }
+
+   int send_TCP(int tcp_sock) const
+       {
+         string buffer;
+         store(buffer);
+
+         char ll[sizeof(uint32_t)];
+         *(uint32_t *)ll = htonl(buffer.size());
+         send(tcp_sock, ll, 4, 0);
+         ssize_t sent = send(tcp_sock, buffer.data(), buffer.size(), 0);
+         return sent;
        }
 };
 define(`m4_signal',
@@ -329,11 +354,17 @@ define(`m4_signal',
 class $1_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on socket ctx
+   /// contructor that creates the signal and sends it on UDP socket ctx
    $1_c(const UdpSocket & ctx`'expa(`sig_args', `', $@))ifelse(`$#', `1', `', `
    : expa(`sig_init', `,
      ', $@)')
-   { send(ctx); }
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   $1_c(int s`'expa(`sig_args', `', $@))ifelse(`$#', `1', `', `
+   : expa(`sig_init', `,
+     ', $@)')
+   { send_TCP(s); }
 
    /// construct (deserialize) this item from a (received) buffer
    /// id has already been load()ed.
@@ -390,7 +421,7 @@ Signal_base::recv(UdpSocket & sock, void * class_buffer,
                   uint16_t & from_port, uint32_t & from_ip,
                   uint32_t timeout_ms)
 {
-uint8_t buffer[2000];   // can be larger than *class_buffer due to strings!
+uint8_t buffer[10000];   // can be larger than *class_buffer due to strings!
 size_t len = sock.recv(buffer, sizeof(buffer), from_port, from_ip, timeout_ms);
    if (len <= 0)   return 0;
 
@@ -410,6 +441,29 @@ include(protocol.def)dnl
       }
 
    if (ostream * out = sock.get_debug())   ret->print(*out << "<-- ");
+
+   return ret;   // invalid id
+}
+//----------------------------------------------------------------------------
+Signal_base *
+Signal_base::decode(const uint8_t * buffer, size_t len, bool debug)
+{
+const uint8_t * b = buffer;
+Sig_item_u16 id(b);
+
+Signal_base * ret = 0;
+   switch(id.get_value())
+      {
+define(`m4_signal',
+       `        case sid_`'$1: ret = new $1`'_c(b);   break;')
+include(protocol.def)dnl
+        default: cerr << "UdpSocket::decode() failed: unknown id "
+                      << id.get_value() << endl;
+                 errno = EBADRQC;
+                 return 0;
+      }
+
+   if (debug)   ret->print(cerr << "<-- ");
 
    return ret;   // invalid id
 }

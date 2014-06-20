@@ -51,7 +51,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = AP100$(EXEEXT) AP210$(EXEEXT) APnnn$(EXEEXT)
+bin_PROGRAMS = AP100$(EXEEXT) AP210$(EXEEXT) APnnn$(EXEEXT) \
+	APserver$(EXEEXT)
 @DEVELOP_TRUE@am__append_1 = -Werror -Wall -Wno-sign-compare \
 @DEVELOP_TRUE@	-Wno-strict-aliasing
 subdir = src/APs
@@ -93,6 +94,12 @@ APnnn_LDADD = $(LDADD)
 APnnn_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(APnnn_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_APserver_OBJECTS = APserver-APserver.$(OBJEXT)
+APserver_OBJECTS = $(am_APserver_OBJECTS)
+APserver_LDADD = $(LDADD)
+APserver_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(APserver_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -115,8 +122,10 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(AP100_SOURCES) $(AP210_SOURCES) $(APnnn_SOURCES)
-DIST_SOURCES = $(AP100_SOURCES) $(AP210_SOURCES) $(APnnn_SOURCES)
+SOURCES = $(AP100_SOURCES) $(AP210_SOURCES) $(APnnn_SOURCES) \
+	$(APserver_SOURCES)
+DIST_SOURCES = $(AP100_SOURCES) $(AP210_SOURCES) $(APnnn_SOURCES) \
+	$(APserver_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -195,7 +204,6 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-PRINT_SEMA_WANTED = @PRINT_SEMA_WANTED@
 RANLIB = @RANLIB@
 RESET_COLORS_WANTED = @RESET_COLORS_WANTED@
 SED = @SED@
@@ -270,9 +278,11 @@ common_files = APmain.cc APmain.hh	\
 AP100_SOURCES = AP100.cc $(common_files)
 AP210_SOURCES = AP210.cc $(common_files)
 APnnn_SOURCES = APnnn.cc $(common_files)
+APserver_SOURCES = APserver.cc
 AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100
 AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210
 APnnn_CXXFLAGS = -I .. -g -O2 -DAP_NUM=0
+APserver_CXXFLAGS = -I .. -g -O2
 AM_CXXFLAGS = $(CXX_RDYNAMIC) $(am__append_1)
 AM_MAKEFLAGS = -j 8
 all: all-am
@@ -364,6 +374,9 @@ AP210$(EXEEXT): $(AP210_OBJECTS) $(AP210_DEPENDENCIES) $(EXTRA_AP210_DEPENDENCIE
 APnnn$(EXEEXT): $(APnnn_OBJECTS) $(APnnn_DEPENDENCIES) $(EXTRA_APnnn_DEPENDENCIES) 
 	@rm -f APnnn$(EXEEXT)
 	$(APnnn_LINK) $(APnnn_OBJECTS) $(APnnn_LDADD) $(LIBS)
+APserver$(EXEEXT): $(APserver_OBJECTS) $(APserver_DEPENDENCIES) $(EXTRA_APserver_DEPENDENCIES) 
+	@rm -f APserver$(EXEEXT)
+	$(APserver_LINK) $(APserver_OBJECTS) $(APserver_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -386,6 +399,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-Backtrace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-Svar_DB.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-UdpSocket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APserver-APserver.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -617,6 +631,20 @@ APnnn-Backtrace.obj: ../Backtrace.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='APnnn-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
+
+APserver-APserver.o: APserver.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-APserver.o -MD -MP -MF $(DEPDIR)/APserver-APserver.Tpo -c -o APserver-APserver.o `test -f 'APserver.cc' || echo '$(srcdir)/'`APserver.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-APserver.Tpo $(DEPDIR)/APserver-APserver.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='APserver.cc' object='APserver-APserver.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-APserver.o `test -f 'APserver.cc' || echo '$(srcdir)/'`APserver.cc
+
+APserver-APserver.obj: APserver.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-APserver.obj -MD -MP -MF $(DEPDIR)/APserver-APserver.Tpo -c -o APserver-APserver.obj `if test -f 'APserver.cc'; then $(CYGPATH_W) 'APserver.cc'; else $(CYGPATH_W) '$(srcdir)/APserver.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-APserver.Tpo $(DEPDIR)/APserver-APserver.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='APserver.cc' object='APserver-APserver.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-APserver.obj `if test -f 'APserver.cc'; then $(CYGPATH_W) 'APserver.cc'; else $(CYGPATH_W) '$(srcdir)/APserver.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

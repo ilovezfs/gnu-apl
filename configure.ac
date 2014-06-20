@@ -217,7 +217,6 @@ if test "x$DEVELOP_WANTED" = "xyes"; then
    VALUE_HISTORY_WANTED=yes
    DYNAMIC_LOG_WANTED=yes
    ASSERT_LEVEL_WANTED=2
-   PRINT_SEMA_WANTED=yes
 fi
 
 # APL: max. rank ?
@@ -265,15 +264,6 @@ AC_ARG_VAR(DYNAMIC_LOG_WANTED,
 if test "x$DYNAMIC_LOG_WANTED" = "xyes"; then
 AC_DEFINE_UNQUOTED([DYNAMIC_LOG_WANTED], [yes],
                    [ define to enable dynamic logging ])
-fi
-
-
-# APL: print semaphore desired ?
-AC_ARG_VAR(PRINT_SEMA_WANTED,
-   [ enable print semaphore (see README-2-configure) default: no ])
-if test "x$PRINT_SEMA_WANTED" = "xyes"; then
-AC_DEFINE_UNQUOTED([PRINT_SEMA_WANTED], [yes],
-                   [ define to enable the print semaphore ])
 fi
 
 

@@ -49,13 +49,11 @@ bool LOG_shared_variables = false;
 class CERR_Out : public filebuf
 {
 public:
-   CERR_Out() : print_sema_held(false) {}
+   CERR_Out() {}
 
    virtual int overflow(int c);
 
    filebuf * use()   { used = true;   return this; }
-
-   bool print_sema_held;
 
    static bool used;   // set when CERR is constructed
 
@@ -66,20 +64,7 @@ bool CERR_Out::used = false;
 int
 CERR_Out::overflow(int c)
 {
-   if (!print_sema_held)
-      {
-        Svar_DB::start_print(LOC);
-        print_sema_held = true;
-      }
-
    cerr << (char)c;
-
-   if (c == '\n')
-      {
-        Svar_DB::end_print(LOC);
-        print_sema_held = false;
-      }
-
    return 0;
 }
 

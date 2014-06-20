@@ -854,52 +854,6 @@ Svar_DB::print(ostream & out)
        << endl;
 }
 //-----------------------------------------------------------------------------
-bool Svar_DB::print_sema_acquired = false;
-
-#ifdef PRINT_SEMA_WANTED
-
-void
-Svar_DB::start_print(const char * loc)
-{
-   if (print_sema_acquired)   return;
-   print_sema_acquired = true;
-
-   if (!the_Svar_DB.DB_memory)   return;   // no shaed memory
-
-timeval now;
-   gettimeofday(&now, 0);
-
-   // if print_sema has been acquired by somebody and is held for
-   // more than 10 seconds, then we assume that the current owner has
-   // crashed and we do not wait for it (our end_print() will release it
-   // then).
-   //
-   if ((now.tv_sec - the_Svar_DB.DB_memory->print_sema_when) > 10)   // 10 secs
-      {
-        int count;
-        sem_getvalue(&the_Svar_DB.DB_memory->print_sema, &count);
-        if (count <= 0)   return;
-      }
-
-   sem_wait(&the_Svar_DB.DB_memory->print_sema);
-
-   the_Svar_DB.DB_memory->print_sema_when = now.tv_sec;
-}
-//-----------------------------------------------------------------------------
-void
-Svar_DB::end_print(const char * loc)
-{
-   if (!print_sema_acquired)   return;
-   print_sema_acquired = false;
-
-   if (the_Svar_DB.DB_memory)
-      {
-        sem_post(&the_Svar_DB.DB_memory->print_sema);
-      }
-}
-
-#endif // PRINT_SEMA_WANTED
-//-----------------------------------------------------------------------------
 void
 Svar_DB_memory::retract_all(const AP_num3 & id)
 {

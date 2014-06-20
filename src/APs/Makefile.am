@@ -1,5 +1,5 @@
 
-bin_PROGRAMS = AP100 AP210 APnnn
+bin_PROGRAMS = AP100 AP210 APnnn APserver
 
 common_files = APmain.cc APmain.hh	\
 		../CDR_string.hh ../Svar_signals.hh	\
@@ -11,9 +11,12 @@ AP100_SOURCES = AP100.cc $(common_files)
 AP210_SOURCES = AP210.cc $(common_files)
 APnnn_SOURCES = APnnn.cc $(common_files)
 
-AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100
-AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210
-APnnn_CXXFLAGS = -I .. -g -O2 -DAP_NUM=0
+APserver_SOURCES = APserver.cc
+
+AP100_CXXFLAGS    = -I .. -g -O2 -DAP_NUM=100
+AP210_CXXFLAGS    = -I .. -g -O2 -DAP_NUM=210
+APnnn_CXXFLAGS    = -I .. -g -O2 -DAP_NUM=0
+APserver_CXXFLAGS = -I .. -g -O2
 
 AM_CXXFLAGS = $(CXX_RDYNAMIC)
 
