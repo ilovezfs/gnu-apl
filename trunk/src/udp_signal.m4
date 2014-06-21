@@ -437,7 +437,7 @@ define(`m4_signal',
 include(protocol.def)dnl
         default: cerr << "UdpSocket::recv() failed: unknown id "
                       << id.get_value() << endl;
-                 errno = EBADRQC;
+                 errno = EINVAL;
                  return 0;
       }
 
@@ -460,7 +460,7 @@ define(`m4_signal',
 include(protocol.def)dnl
         default: cerr << "UdpSocket::decode() failed: unknown id "
                       << id.get_value() << endl;
-                 errno = EBADRQC;
+                 errno = EINVAL;
                  return 0;
       }
 
