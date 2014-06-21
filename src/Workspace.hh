@@ -211,6 +211,9 @@ public:
    /// save this workspace
    static void save_WS(ostream & out, vector<UCS_string> & lib_ws);
 
+   /// backup an existing file \b filename, return true on error
+   static bool backup_existing_file(const char * filename);
+
    /// dump this workspace
    static void dump_WS(ostream & out, vector<UCS_string> & lib_ws);
 
