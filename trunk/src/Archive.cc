@@ -439,7 +439,7 @@ char cc[80];
        << "\" tag=\"" << cc << "\"";
    emit_token_val(tloc.tok);
 
-   out << ">" << endl;
+   out << "/>" << endl;
 }
 //-----------------------------------------------------------------------------
 void
@@ -447,34 +447,33 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
 {
    switch(tok.get_ValueType())
       {
-        case TV_NONE:  out << "/";
+        case TV_NONE:  break;
+
+        case TV_CHAR:  out << " char=\"" << int(tok.get_char_val()) << "\"";
                        break;
 
-        case TV_CHAR:  out << " char=\"" << int(tok.get_char_val()) << "\"/";
+        case TV_INT:   out << " int=\"" << tok.get_int_val() << "\"";
                        break;
 
-        case TV_INT:   out << " int=\"" << tok.get_int_val() << "\"/";
-                       break;
-
-        case TV_FLT:   out << " float=\"" << tok.get_flt_val() << "\"/";
+        case TV_FLT:   out << " float=\"" << tok.get_flt_val() << "\"";
                        break;
 
         case TV_CPX:   out << " real=\"" << tok.get_cpx_real()
-                           << "\" imag=\"" << tok.get_cpx_imag() << "\"/";
+                           << "\" imag=\"" << tok.get_cpx_imag() << "\"";
                        break;
 
         case TV_SYM:   {
                          Symbol * sym = tok.get_sym_ptr();
                          const UCS_string name = sym->get_name();
-                         out << " sym=\"" << name << "\"/";
+                         out << " sym=\"" << name << "\"";
                        }
                        break;
 
-        case TV_LIN:   out << " line=\"" << tok.get_fun_line() << "\"/";
+        case TV_LIN:   out << " line=\"" << tok.get_fun_line() << "\"";
                        break;
 
         case TV_VAL:   { const int vid = find_vid(*tok.get_apl_val());
-                         out << " vid=\"" << vid << "\"/";
+                         out << " vid=\"" << vid << "\"";
                        }
                        break;
 
@@ -486,8 +485,8 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                                if (i)   out << ",";
                                const Value & val = *idx.values[i].get();
                                if (&val)   out << "vid_" << find_vid(val);
-                               else       out << "-";
-                                out << "\"/>";
+                               else        out << "-";
+                                out << "\"";
                              }
                        }
                        break;
@@ -504,7 +503,7 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                               const int sym_depth = sym->get_ufun_depth(ufun);
                               out << " ufun-name=\"" << fname
                                   << "\" symbol-level=\"" << sym_depth
-                                  << "\"/>" << endl;
+                                  << "\"" << endl;
                             }
                          else        // primitive or quad function
                             {
@@ -513,7 +512,7 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                               out << " fun-id=\"" << cc;
                             }
                        }
-                       out << "\"/";
+                       out << "\"";
                        break;
 
         default:       FIXME;
