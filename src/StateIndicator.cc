@@ -351,6 +351,7 @@ StateIndicator::jump(Value_P value)
    if (value->element_count() == 0)     // →''
       {
         // →'' in immediate execution means resume (retry) suspended function
+        //
         if (get_executable()->get_parse_mode() == PM_STATEMENT_LIST)
            return Token(TOK_BRANCH, int64_t(Function_Retry));
 
