@@ -1250,7 +1250,17 @@ Prefix::reduce_END_GOTO_B_()
    // at0() is either TOK_END or TOK_ENDL.
    //
 const bool end_of_line = at0().get_tag() == TOK_ENDL;
+const bool trace = at0().get_Class() == TC_END &&
+                  (at0().get_int_val() & 1) != 0;
+
 Value_P line = at2().get_apl_val();
+   if (trace && line->element_count() > 0)
+      {
+        const int64_t line_num = line->get_line_number(Workspace::get_CT());
+        Token bra(TOK_BRANCH, line_num);
+        si.statement_result(bra, true);
+      }
+
 
 const Token result = si.jump(line);
 
@@ -1310,6 +1320,14 @@ Prefix::reduce_END_GOTO__()
    Assert1(prefix_len == 2);
 
    if (size() != 2)   syntax_error(LOC);
+
+const bool trace = at0().get_Class() == TC_END &&
+                  (at0().get_int_val() & 1) != 0;
+   if (trace)
+      {
+        Token bra(TOK_ESCAPE);
+        si.statement_result(bra, true);
+      }
 
    // the statement is → which could mean TOK_ESCAPE (normal →) or
    //  TOK_STOP_LINE from S∆←line
