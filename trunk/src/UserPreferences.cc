@@ -932,6 +932,10 @@ int file_profile = 0;   // the current profile in the preferences file
             {
               Input::readline_history_path = UTF8_string(arg);
             }
+         else if (yes_no && !strcasecmp(opt, "BACKUP_BEFORE_SAVE"))
+            {
+              backup_before_save = yes;
+            }
        }
 
    fclose(f);

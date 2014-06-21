@@ -45,7 +45,8 @@ struct UserPreferences
      append_summary(false),
      wait_ms(0),
      randomize_testfiles(false),
-     user_profile(0)
+     user_profile(0),
+     backup_before_save(false)
    {}
 
    /// read a preference file and update parameters set there
@@ -122,7 +123,11 @@ struct UserPreferences
    /// the profile to be used (in the preferences file)
    int user_profile;
 
+   /// something to be executed at startup (--LX)
    UTF8_string latent_expression;
+
+   /// backup on )SAVE
+   bool backup_before_save;
 };
 
 extern UserPreferences uprefs;

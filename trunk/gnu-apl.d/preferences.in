@@ -273,3 +273,10 @@
 READLINE_HISTORY_LEN  500
 READLINE_HISTORY_PATH .apl.history
 
+
+###############################################################################
+#
+# CREATE BACKUP BEFORE )SAVE or )DUMP WOKRSPACE
+#
+BACKUP_BEFORE_SAVE yes
+

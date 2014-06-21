@@ -35,6 +35,7 @@ using namespace std;
 #include "Quad_FX.hh"
 #include "Quad_TF.hh"
 #include "UserFunction.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 // Workspace::the_workspace is defined in StaticObjects.cc
@@ -654,30 +655,37 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
 
    // dont save if workspace names differ and file exists
    //
-   {
-     if (access(filename.c_str(), F_OK) == 0)   // file exists
-        {
-          if (wname.compare(the_workspace.WS_name) != 0)   // names differ
-             {
-               COUT << "NOT SAVED: THIS WS IS "
-                    << the_workspace.WS_name << endl;
-               UCS_string & t4 = more_error();
-               t4.clear();
-               t4.append_utf8("the workspace was not saved because:\n"
+const bool file_exists = access(filename.c_str(), W_OK) == 0;
+   if (file_exists)
+      {
+        if (wname.compare(the_workspace.WS_name) != 0)   // names differ
+           {
+             COUT << "NOT SAVED: THIS WS IS "
+                  << the_workspace.WS_name << endl;
+
+             UCS_string & t4 = more_error();
+             t4.clear();
+             t4.append_utf8("the workspace was not saved because:\n"
                       "   the workspace name '");
-               t4.append(the_workspace.WS_name);
-               t4.append_utf8("' of )WSID\n   does not match the name '");
-               t4.append(wname);
-               t4.append_utf8("' used in the )SAVE command\n"
+             t4.append(the_workspace.WS_name);
+             t4.append_utf8("' of )WSID\n   does not match the name '");
+             t4.append(wname);
+             t4.append_utf8("' used in the )SAVE command\n"
                       "   and the workspace file\n   ");
-               t4.append_utf8(filename.c_str());
-               t4.append_utf8("\n   already exists. Use )WSID ");
-               t4.append(wname);
-               t4.append_utf8(" first."); 
-               return;
-             }
-        }
-   }
+             t4.append_utf8(filename.c_str());
+             t4.append_utf8("\n   already exists. Use )WSID ");
+             t4.append(wname);
+             t4.append_utf8(" first."); 
+             return;
+           }
+      }
+
+   if (uprefs.backup_before_save && backup_existing_file(filename.c_str()))
+      {
+        COUT << "NOT SAVED: COULD NOT CREATE BACKUP FILE "
+             << filename << endl;
+        return;
+      }
 
    // at this point it is OK to rename and save the workspace
    //
@@ -712,6 +720,56 @@ XML_Saving_Archive ar(outf);
      if (name_from_WSID)   out << " " << the_workspace.WS_name;
      out << endl;
    }
+}
+//-----------------------------------------------------------------------------
+bool
+Workspace::backup_existing_file(const char * filename)
+{
+   // 1. if file 'filename' does not exist then no backup is needed.
+   //
+   if (access(filename, F_OK) != 0)   return false;   // OK
+
+UTF8_string backup_filename = filename;
+   backup_filename.append_str(".bak");
+
+   // 2. if backup file exists then remove it...
+   //
+   if (access(backup_filename.c_str(), F_OK) == 0)   // backup exists
+      {
+        const int err = unlink(backup_filename.c_str());
+        if (err)
+           {
+             CERR << "Could not remove backup file " << backup_filename
+                  << ": " << strerror(errno) << endl;
+             return true;   // error
+           }
+
+         if (access(backup_filename.c_str(), F_OK) == 0)   // still exists
+            {
+             CERR << "Could not remove backup file " << backup_filename << endl;
+             return true;   // error
+            }
+      }
+
+   // 3. rename file to file.bak
+   //
+const int err = rename(filename, backup_filename.c_str());
+   if (err)   // rename failed
+      {
+        CERR << "Could not rename file " << filename
+             << " to " << backup_filename
+             << ": " << strerror(errno) << endl;
+        return true;   // error
+      }
+
+   if (access(filename, F_OK) == 0)   // file still exists
+      {
+        CERR << "Could not rename file " << filename
+             << " to " << backup_filename << endl;
+        return true;   // error
+      }
+
+   return false; // OK
 }
 //-----------------------------------------------------------------------------
 void
@@ -767,8 +825,15 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
       {
         COUT << "NOT DUMPED: THIS WS IS " << wname << endl;
         more_error() = UCS_string(
-        "the workspace was not dumped because 'CLEAR WS' is a special \n"
+        "the workspace was not dumped because 'CLEAR WS' is a special\n"
         "workspace name that cannot be dumped. Use )WSID <name> first.");
+        return;
+      }
+
+   if (uprefs.backup_before_save && backup_existing_file(filename.c_str()))
+      {
+        COUT << "NOT DUMPED: COULD NOT CREATE BACKUP FILE "
+             << filename << endl;
         return;
       }
 
