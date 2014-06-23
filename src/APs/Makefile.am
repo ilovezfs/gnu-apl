@@ -1,10 +1,11 @@
 
 bin_PROGRAMS = AP100 AP210 APnnn APserver
 
-common_files = APmain.cc APmain.hh	\
-		../CDR_string.hh ../Svar_signals.hh	\
-                ../UdpSocket.cc ../UdpSocket.hh		\
-		../Svar_DB.cc ../Svar_DB.hh		\
+common_files = APmain.cc APmain.hh				\
+		../CDR_string.hh ../Svar_signals.hh		\
+                ../UdpSocket.cc ../UdpSocket.hh			\
+		../Svar_DB.cc ../Svar_DB.hh			\
+		../Svar_DB_memory.cc ../Svar_DB_memory.hh	\
                 ../Backtrace.cc ../Backtrace.hh
 
 AP100_SOURCES = AP100.cc $(common_files)

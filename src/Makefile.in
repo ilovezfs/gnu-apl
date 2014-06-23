@@ -92,9 +92,10 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
 	RealCell.$(OBJEXT) Shape.$(OBJEXT) SkalarFunction.$(OBJEXT) \
 	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
-	Svar_DB.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
-	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
-	Tokenizer.$(OBJEXT) UCS_string.$(OBJEXT) UdpSocket.$(OBJEXT) \
+	Svar_DB.$(OBJEXT) Svar_DB_memory.$(OBJEXT) Symbol.$(OBJEXT) \
+	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
+	IO_Files.$(OBJEXT) Token.$(OBJEXT) Tokenizer.$(OBJEXT) \
+	UCS_string.$(OBJEXT) UdpSocket.$(OBJEXT) \
 	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
 	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
 	Workspace.$(OBJEXT)
@@ -384,6 +385,7 @@ SkalarFunction.cc				SkalarFunction.hh	\
 StateIndicator.cc				StateIndicator.hh	\
 StaticObjects.cc							\
 Svar_DB.cc					Svar_DB.hh		\
+Svar_DB_memory.cc				Svar_DB_memory.hh	\
 udp_signal.m4		Svar_signals.def	Svar_signals.hh		\
 Symbol.cc					Symbol.hh		\
 SymbolTable.cc					SymbolTable.hh		\
@@ -559,6 +561,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StateIndicator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StaticObjects.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Svar_DB.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Svar_DB_memory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Symbol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SymbolTable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SystemVariable.Po@am__quote@

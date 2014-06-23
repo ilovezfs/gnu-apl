@@ -1463,27 +1463,61 @@ bool
 Command::parse_from_to(UCS_string & from, UCS_string & to,
                        const UCS_string & user_arg)
 {
+   // parse user_arg which is one of the following:
+   //
+   // 1.   (empty)
+   // 2.   FROMTO
+   // 3a.  FROM -
+   // 3b.       - TO
+   // 3c.  FROM - TO
+   //
    from.clear();
    to.clear();
 
 int s = 0;
 bool got_minus = false;
-     while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
-     if (s == user_arg.size())   return false;   // empty argument: OK
 
-     while (s < user_arg.size()   &&
-                user_arg[s] > ' ' &&
-                user_arg[s] != '-')  from.append(user_arg[s++]);
-     while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
+   // skip spaces before from
+   //
+   while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
 
-     if (s < user_arg.size() && user_arg[s] == '-') { ++s;   got_minus = true; }
+   if (s == user_arg.size())   return false;   // case 1.: OK
 
-     while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
-     while (s < user_arg.size() && user_arg[s] > ' ')  to.append(user_arg[s++]);
-     while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
+   // copy left of - to from
+   //
+   while (s < user_arg.size()   &&
+              user_arg[s] > ' ' &&
+              user_arg[s] != '-')  from.append(user_arg[s++]);
 
-const bool got_rest = (s < user_arg.size());
-   return  got_rest || !got_minus;
+   // skip spaces after from
+   //
+   while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
+
+   if (s < user_arg.size() && user_arg[s] == '-') { ++s;   got_minus = true; }
+
+   // skip spaces before to
+   //
+   while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
+
+   // copy right of - to from
+   //
+   while (s < user_arg.size() && user_arg[s] > ' ')  to.append(user_arg[s++]);
+
+   // skip spaces after to
+   //
+   while (s < user_arg.size() && user_arg[s] <= ' ') ++s;
+
+   if (s < user_arg.size())   return true;   // error: non-blank after to
+
+   if (!got_minus)   to = from;   // case 2.
+
+   if (from.size() == 0 && to.size() == 0) return true;   // error: single -
+
+   // "increment" TO so that we can compare ITEM < TO
+   //
+   if (to.size())   to.last() = (Unicode)(to.last() + 1);
+   
+   return false;   // OK
 }
 //-----------------------------------------------------------------------------
 bool
