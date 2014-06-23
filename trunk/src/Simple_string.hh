@@ -280,19 +280,20 @@ public:
    static T no_upper (T t) { return t; }
 
    /// compare strings
-   int compare(const Simple_string & other, T (*upper)(T) = no_upper) const
+   Comp_result compare(const Simple_string & other,
+                       T (*upper)(T) = no_upper) const
       {
         const unsigned int common_len = items_valid < other.items_valid
                                       ? items_valid : other.items_valid;
         for (unsigned int c = 0; c < common_len; ++c)
             {
-              if (upper(items[c]) < upper(other.items[c]))   return -1;
-              if (items[c] > other.items[c])   return  1;
+              if (upper(items[c]) < upper(other.items[c]))   return COMP_LT;
+              if (upper(items[c]) > upper(other.items[c]))   return COMP_GT;
             }
 
-        if (items_valid < other.items_valid)   return -1;
-        if (items_valid > other.items_valid)   return  1;
-        return 0;
+        if (items_valid < other.items_valid)   return COMP_LT;
+        if (items_valid > other.items_valid)   return COMP_GT;
+        return COMP_EQ;
       }
 
 protected:

@@ -215,12 +215,19 @@ int symbol_count = 0;
                ++symbol_count;
 
                // check range
-               if (from.size() &&
-                   from.compare(sym->get_name(),
-                                UCS_string::upper) > 0)   continue;
-               if (to.size() &&
-                   to.compare(sym->get_name(),
-                              UCS_string:: upper) < 0)       continue;
+               //
+               if (from.size() && sym->get_name().lexical_before(from))
+                  {
+                    // CERR << "'" << sym->get_name() << "' comes before '"
+                    //       << from << "'" << endl;
+                    continue;
+                  }
+               if (to.size() && to.lexical_before(sym->get_name()))
+                  {
+                    // CERR << "'" << to << "' comes before '"
+                    //      << sym->get_name() << "'" << endl;
+                    continue;
+                  }
 
                if (sym->value_stack.size() == 0)
                   {

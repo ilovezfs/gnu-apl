@@ -86,6 +86,7 @@ SkalarFunction.cc				SkalarFunction.hh	\
 StateIndicator.cc				StateIndicator.hh	\
 StaticObjects.cc							\
 Svar_DB.cc					Svar_DB.hh		\
+Svar_DB_memory.cc				Svar_DB_memory.hh	\
 udp_signal.m4		Svar_signals.def	Svar_signals.hh		\
 Symbol.cc					Symbol.hh		\
 SymbolTable.cc					SymbolTable.hh		\

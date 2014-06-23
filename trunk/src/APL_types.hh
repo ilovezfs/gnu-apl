@@ -402,10 +402,45 @@ enum Symbol_Event
    SEV_ASSIGNED = 4,
    SEV_ERASED   = 5,
 };
+//-----------------------------------------------------------------------------
+/// Auxiliary processor numbers
+enum AP_num
+{
+  NO_AP         = -1,     ///< invalid AP
+  AP_NULL       = 0,      ///< invalid AP for structs using memset(0)
+  AP_GENERAL    = 0,      ///< AP for generic offers
+  AP_FIRST_USER = 1001,   ///< the first AP for APL interpreters
+};
+
 //////////////////////////////////////////////////////////////
 // C structs           i                                    //
 //////////////////////////////////////////////////////////////
 
+/// three AP numbers that uniquely identify a processor
+struct AP_num3
+{
+   /// constructor: invalid AP_num3
+   AP_num3() {}
+
+   /// constructor: processor, parent, and grand-parent
+   AP_num3(AP_num pr, AP_num pa, AP_num gp)
+   : proc(pr),
+     parent(pa),
+     grand(gp)
+   {}
+
+   /// ture if \b this AP_num3 is equal to \b other
+   bool operator==(const AP_num3 & other) const
+      { return proc   == other.proc   &&
+               parent == other.parent &&
+               grand  == other.grand; }
+
+   AP_num proc;     ///< the processor
+   AP_num parent;   ///< the parent of the processor
+   AP_num grand;    ///< the parent of the parent
+};
+
+//-----------------------------------------------------------------------------
 /// two Function_PCs indication a token range in a user defined function body
 struct Function_PC2
 {

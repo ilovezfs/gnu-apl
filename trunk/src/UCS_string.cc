@@ -691,7 +691,7 @@ const size_t len = result.back().size();
 Unicode
 UCS_string::upper(Unicode uni)
 {
-   return (uni < 'a' || uni > 'z') ? uni : Unicode(uni - ' ');
+   return (uni < 'a' || uni > 'z') ? uni : Unicode(uni - 32);
 }
 //-----------------------------------------------------------------------------
 int
@@ -763,6 +763,21 @@ const int fill_len = os.width() - ucs.size();;
       }
 
    return os;
+}
+//-----------------------------------------------------------------------------
+bool
+UCS_string::lexical_before(const UCS_string other) const
+{
+   loop(u, size())
+      {
+        if (u >= other.size())   return false;   // other is a prefix of this
+        if ((*this)[u] < other[u])   return true;
+        if ((*this)[u] > other[u])   return false;
+      }
+
+   // at this point the common part of this and other is equal, If other
+   // is longer then this is a prefix of other (and this comes before other)
+   return other.size() > size();
 }
 //-----------------------------------------------------------------------------
 UCS_string

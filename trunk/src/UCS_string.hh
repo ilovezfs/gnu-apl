@@ -241,6 +241,9 @@ public:
    /// return true if \b this string contains \b uni
    bool contains(Unicode uni);
 
+   /// case-sensitive comparison: return true iff \b this comes before \b other
+   bool lexical_before(const UCS_string other) const;
+
    /// convert a signed integer value to an UCS_string (like sprintf())
    static UCS_string from_int(int64_t value);
 
