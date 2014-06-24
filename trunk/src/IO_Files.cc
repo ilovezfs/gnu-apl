@@ -63,7 +63,8 @@ IO_Files::get_file_line()
 
         if (s == 0)   // end of file reached: do some global checks
            {
-             if (InputFile::current_file() && InputFile::current_file()->with_LX)
+             if (InputFile::current_file() &&
+                 InputFile::current_file()->with_LX)
                 {
                   InputFile::current_file()->with_LX = false;
                   UCS_string LX = Workspace::get_LX();
@@ -107,6 +108,21 @@ IO_Files::get_file_line()
       }
 
    return 0;
+}
+//-----------------------------------------------------------------------------
+void
+IO_Files::next_file()
+{
+   if (InputFile::current_file() &&
+       InputFile::current_file()->file)
+      {
+        end_of_current_file();
+      }
+   else
+      {
+        CERR << "]NEXTFILE: no file" << endl;
+      }
+   open_next_file();
 }
 //-----------------------------------------------------------------------------
 bool

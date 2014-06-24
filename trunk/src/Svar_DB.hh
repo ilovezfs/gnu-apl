@@ -26,6 +26,7 @@
 #include "Svar_DB_memory.hh"
 
 #include <stdint.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -41,6 +42,15 @@ public:
 
    ~Svar_DB_memory_P();
 
+   /// connect to APserver
+   static void connect_to_APserver(const char * bin_path);
+
+   static void disconnect()
+      {
+        if (DB_tcp != NO_TCP_SOCKET)
+           { ::close(DB_tcp);   DB_tcp = NO_TCP_SOCKET; }
+      }
+
    static bool is_connected()
       { return memory_p != 0; }
 
@@ -51,10 +61,15 @@ public:
       { Assert(!read_only && memory_p); return memory_p; }
 
    static Svar_DB_memory * memory_p;
+
+   static Svar_DB_memory cache;
+
 protected:
    bool read_only;
 
-   static TCP_socket tcp;
+   static TCP_socket DB_tcp;
+
+   static uint16_t APserver_port;
 
 private:
    /// don't copy...
@@ -86,11 +101,10 @@ public:
    ~Svar_DB();
 
    /// open (and possibly initialize) the shared variable database
-   static void init(const char * progname, bool logit, bool do_svars)
-      { the_Svar_DB._init(progname, logit, do_svars); }
+   static void init(const char * progname, bool logit, bool do_svars);
 
    /// open (and possibly initialize) the shared variable database
-   void _init(const char * progname, bool logit, bool do_svars);
+   void open_shared_memory(const char * progname, bool logit, bool do_svars);
 
    /// match a new offer against the DB. Return: 0 on error, 1 if the
    /// new offer was inserted into the DB (sicne no match was found), or
@@ -264,10 +278,6 @@ public:
 
    /// print the database
    static void print(ostream & out);
-
-protected:
-   /// the database in the shared memory
-   static Svar_DB the_Svar_DB;
 };
 
 #endif // __SVAR_DB_HH_DEFINED__

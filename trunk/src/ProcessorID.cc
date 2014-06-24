@@ -99,6 +99,15 @@ ProcessorID::init(bool log_startup)
 
    new (&APnnn_socket) UdpClientSocket(LOC, APnnn_port, 0);
 
+   if (log_startup)
+      {
+        CERR << "Processor ID was completely initialized: "
+             << id.proc << ":" << id.parent << ":" << id.grand << endl
+             << "APnnn_port is: " << APnnn_port << endl
+             << "doing_SV is:   " << doing_SV << endl;
+
+      }
+
    return false;   // no error
 }
 //-----------------------------------------------------------------------------

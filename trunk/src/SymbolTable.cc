@@ -256,6 +256,12 @@ int symbol_count = 0;
 
    if (which == LIST_NONE)   // )SYMBOLS: display total symbol count
       {
+        // this could be:
+        //
+        // 1. )SYMBOLS or   (show symbol count)
+        // 2. )SYMBOLS N    (set symbol count, ignored by GNU APL)
+        //
+        if (from_to.size())   return;   // case 2
         out << "IS " << symbol_count << endl;
         return;
       }

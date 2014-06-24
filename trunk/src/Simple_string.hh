@@ -276,19 +276,15 @@ public:
         extend(new_alloc_size);
       }
 
-   /// (do not) turn T into uppercase T
-   static T no_upper (T t) { return t; }
-
    /// compare strings
-   Comp_result compare(const Simple_string & other,
-                       T (*upper)(T) = no_upper) const
+   Comp_result compare(const Simple_string & other) const
       {
         const unsigned int common_len = items_valid < other.items_valid
                                       ? items_valid : other.items_valid;
         for (unsigned int c = 0; c < common_len; ++c)
             {
-              if (upper(items[c]) < upper(other.items[c]))   return COMP_LT;
-              if (upper(items[c]) > upper(other.items[c]))   return COMP_GT;
+              if (items[c] < other.items[c])   return COMP_LT;
+              if (items[c] > other.items[c])   return COMP_GT;
             }
 
         if (items_valid < other.items_valid)   return COMP_LT;

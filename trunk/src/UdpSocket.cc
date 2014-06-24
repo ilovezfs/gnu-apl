@@ -133,7 +133,7 @@ sockaddr_in remote;
                    << "socket was created at: " << loc << endl
                    << "local address:  ";
               print_addr(cerr,  local_ip, local_port);
-              cerr << "remote address: " << endl;
+              cerr << endl << "remote address: ";
               print_addr(cerr,  remote_ip, remote_port);
               cerr << endl;
 

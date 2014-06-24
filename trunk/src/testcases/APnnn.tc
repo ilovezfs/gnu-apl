@@ -7,11 +7,15 @@ CLEAR WS
       ⎕AI
 1010 ⁰ ⁰ ⁰
 
+      ⍝ check that we have the correct --id
+      ⍝
+      ⍎(1010≠↑⎕AI)/']NEXTFILE ⋆⋆⋆ This testcase requires --id 1010 ⋆⋆⋆'
+
       )ERASE SYNC
 ∇SYNC B;C;Q
     Q←B ⎕SVO 'VAR444' ◊ I←0
 L:  C←⎕SVO 'VAR444' ◊ →(2=C)/OK ◊ 0 0⍴⎕DL 0.1 ◊ →(10≠I←I+1)/L          
-    'SYNC FAILED:' ◊ C ◊ →0
+    'SYNC FAILED:' ◊ C ◊ ⍎')OFF'
 OK: ⎕SVE←0 ◊ 0 0⍴⎕SVE ◊ 0 0⍴⎕DL 0.1 ◊ 'SYNC OK'
 ∇
 

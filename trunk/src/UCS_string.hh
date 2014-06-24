@@ -159,9 +159,6 @@ public:
         return true;
       }
 
-   /// return uppercase char for uni (if uni is an ASCII char)
-   static Unicode upper(Unicode uni);
-
    /// return integer value for a string starting with optional whitespaces,
    /// followed by digits.
    int atoi() const;
