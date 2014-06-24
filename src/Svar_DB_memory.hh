@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+#include "APL_types.hh"
+
 /// The coupling level of a shared variable
 enum SV_Coupling
 {

@@ -65,7 +65,7 @@ const char * end = strchr(file_and_args, ' ');
 }
 //-----------------------------------------------------------------------------
 void
-Quad_SVx::start_AP(AP_num proc, bool startup)
+Quad_SVx::start_AP(AP_num ap, bool startup)
 {
 const char * dirs[] = { "", "/APs" };
    enum { dircount = sizeof(dirs) / sizeof(*dirs) };
@@ -93,7 +93,7 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
             {
               snprintf(filename, PATH_MAX,
                        "%s%s/AP%u --id %u --par %u --gra %u --auto%s --ppid %u",
-                       LibPaths::get_APL_bin_path(), dirs[d], proc, proc,
+                       LibPaths::get_APL_bin_path(), dirs[d], ap, ap,
                        own_ID, par_ID, verbose, getpid());
             }
 
@@ -120,7 +120,7 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
          return;
        }
 
-   CERR << "No binary found for AP " << proc << " (interpreter path = "
+   CERR << "No binary found for AP " << ap << " (interpreter path = "
         << LibPaths::get_APL_bin_path() << ")" << endl;
 }
 //=============================================================================

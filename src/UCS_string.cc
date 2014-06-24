@@ -688,12 +688,6 @@ const size_t len = result.back().size();
    return max_len;
 }
 //-----------------------------------------------------------------------------
-Unicode
-UCS_string::upper(Unicode uni)
-{
-   return (uni < 'a' || uni > 'z') ? uni : Unicode(uni - 32);
-}
-//-----------------------------------------------------------------------------
 int
 UCS_string::atoi() const
 {

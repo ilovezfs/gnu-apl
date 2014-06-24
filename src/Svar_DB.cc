@@ -36,10 +36,17 @@
 #include "Svar_signals.hh"
 #include "UdpSocket.hh"
 
+// #define USE_APserver
+
 extern ostream CERR;
 extern ostream & get_CERR();
 
-Svar_DB Svar_DB::the_Svar_DB;
+#ifndef USE_APserver
+
+Svar_DB shared_memory_Svar_DB;
+
+void Svar_DB::init(const char * progname, bool logit, bool do_svars)
+   { shared_memory_Svar_DB.open_shared_memory(progname, logit, do_svars); }
 
 const char * SHM_NAME = "/apl-svars";
 
@@ -48,6 +55,14 @@ const char * SHM_NAME = "/apl-svars";
 # define shm_unlink(name) (-1)
 #endif
 
+#endif // (dont) USE_APserver
+
+uint16_t Svar_DB_memory_P::APserver_port = 40000;
+
+TCP_socket Svar_DB_memory_P::DB_tcp = NO_TCP_SOCKET;
+
+Svar_DB_memory Svar_DB_memory_P::cache;
+
 //=============================================================================
 
 Svar_DB_memory * Svar_DB_memory_P::memory_p = 0;
@@ -55,17 +70,138 @@ Svar_DB_memory * Svar_DB_memory_P::memory_p = 0;
 Svar_DB_memory_P::Svar_DB_memory_P(bool ronly)
    : read_only(ronly)
 {
+   if (!is_connected() || DB_tcp == NO_TCP_SOCKET)   return;
+
+char command = ronly ? 'r' : 'u';
+   ::send(DB_tcp, &command, 1, 0);
+
+const ssize_t len = ::recv(DB_tcp, &cache, sizeof(cache), MSG_WAITALL);
+   if (len != sizeof(cache))
+      {
+        CERR << "recv() failed in Svar_DB_memory_P constructor: got "
+             << len << " expecting " << sizeof(cache) << endl;
+        ::close(DB_tcp);
+        DB_tcp = NO_TCP_SOCKET;
+      }
 }
 //-----------------------------------------------------------------------------
 Svar_DB_memory_P::~Svar_DB_memory_P()
 {
-   if (read_only)   return;
+   if (read_only)                                    return;
+   if (!is_connected() || DB_tcp == NO_TCP_SOCKET)   return;
 
-   // commit changes to APserver
+const ssize_t len = ::send(DB_tcp, &cache, sizeof(cache), MSG_WAITALL);
+   if (len != sizeof(cache))
+      {
+        CERR << "send() failed in Svar_DB_memory_P destructor: sent "
+             << len << " expecting " << sizeof(cache) << endl;
+        ::close(DB_tcp);
+        DB_tcp = NO_TCP_SOCKET;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Svar_DB_memory_P::connect_to_APserver(const char * bin_path)
+{
+   DB_tcp = (TCP_socket)(socket(AF_INET, SOCK_STREAM, 0));
+   if (DB_tcp == NO_TCP_SOCKET)
+      {
+        get_CERR() << "*** socket(AF_INET, SOCK_STREAM, 0) failed at "
+                   << LOC << endl;
+        return;
+      }
+
+   // We try to connect to the TCP port number APnnn_port (of the APserver)
+   // on localhost. If that fails then no APserver is running; we fork one
+   // and try again.
+   //
+   for (bool retry = false; ; retry = true)
+       {
+         sockaddr_in addr;
+         memset(&addr, 0, sizeof(sockaddr_in));
+         addr.sin_family = AF_INET;
+         addr.sin_port = htons(APserver_port);
+         addr.sin_addr.s_addr = htonl(UdpSocket::IP_LOCALHOST);
+
+         if (::connect(DB_tcp, (sockaddr *)&addr,
+                       sizeof(addr)) == 0)   break;   // success
+
+         if (retry)
+            {
+              get_CERR() << "::connect() to existing APserver failed: "
+                   << strerror(errno) << endl;
+
+              ::close(DB_tcp);
+              DB_tcp = NO_TCP_SOCKET;
+
+              return;
+           }
+
+         // fork an APserver
+         //
+         get_CERR() << "forking new APserver listening on TCP port "
+              << APserver_port << endl;
+
+         const pid_t pid = fork();
+         if (pid)
+            {
+              // give child a little time to start up...
+              //
+              usleep(20000);
+            }
+         else   // child: run as APserver
+            {
+              ::close(DB_tcp);
+              DB_tcp = NO_TCP_SOCKET;
+
+              char arg0[FILENAME_MAX + 20];
+              snprintf(arg0, sizeof(arg0), "%s/APserver", bin_path);
+              char arg1[20];
+              snprintf(arg1, sizeof(arg1), "%d", APserver_port);
+              char * argv[] = { arg0, arg1, 0 };
+              char * envp[] = { 0 };
+              execve(arg0, argv, envp);
+
+              // execve() failed, try APs subdir...
+              //
+              snprintf(arg0, sizeof(arg0), "%s/APs/APserver", bin_path);
+              execve(arg0, argv, envp);
+
+              get_CERR() << "execve() failed" << endl;
+              exit(99);
+            }
+       }
+
+   // at this point DB_tcp is != NO_TCP_SOCKET and connected.
+   //
+   usleep(20000);
+   get_CERR() << "connected to APserver, DB_tcp is " << DB_tcp << endl;
 }
 //=============================================================================
+#ifdef USE_APserver
+
 void
-Svar_DB::_init(const char * progname, bool logit, bool do_svars)
+Svar_DB::init(const char * progname, bool logit, bool do_svars)
+{
+char * path = strdup(progname);
+   if (char * slash = strrchr(path, '/'))   *slash = 0;
+   Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
+   Svar_DB_memory_P::connect(path);
+   if (Svar_DB_memory_P::is_connected())
+      {
+        CERR << "using Svar_DB on APserver!" << endl;
+      }
+   else
+      {
+        CERR << "*** using local Svar_DB cache" << endl;
+        memset(&Svar_DB_memory_P::cache, 0, sizeof(Svar_DB_memory_P::cache));
+      }
+}
+
+#else // dont USE_APserver
+
+void
+Svar_DB::open_shared_memory(const char * progname, bool logit, bool do_svars)
 {
    if (do_svars)
       {
@@ -160,6 +296,7 @@ Svar_DB_memory_P db(false);
         db->remove_stale();
       }
 }
+#endif // (dont) USE_APserver
 //-----------------------------------------------------------------------------
 Svar_DB::~Svar_DB()
 {
@@ -178,6 +315,9 @@ Svar_DB_memory_P db(false);
          if (svar.offering.pid == our_pid)    svar.remove_offering();
          if (svar.get_coupling() == NO_COUPLING)   svar.clear();
        }
+
+   Svar_DB_memory_P::disconnect();
+
 }
 //-----------------------------------------------------------------------------
 void

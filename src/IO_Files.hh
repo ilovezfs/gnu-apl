@@ -106,6 +106,9 @@ public:
    /// open the next test file 
    static void open_next_file();
 
+   /// close current testcase file (prematurely) and opem mext one
+   static void next_file();
+
    /// return the current test report
    static ofstream & get_current_testreport()
       { return current_testreport; }

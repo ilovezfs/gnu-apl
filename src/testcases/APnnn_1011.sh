@@ -1,6 +1,9 @@
 #!/bin/bash
 
-cd /home/eedjsa/projects/juergen/apl-1.3/src/
+if [ -d /home/eedjsa/projects/juergen/apl-1.3/src/ ]
+then
+    cd /home/eedjsa/projects/juergen/apl-1.3/src/
+fi
 
 LOG1=testcases/APnnn_1011.tc2.log1
 LOG2=testcases/APnnn_1011.tc2.log2
