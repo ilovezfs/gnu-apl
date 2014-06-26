@@ -103,8 +103,11 @@ protected:
    /// show US keyboard layout
    static void cmd_KEYB();
 
-   /// list content of workspace and wslib directories
-   static void cmd_LIB(ostream & out, const UCS_string & args);
+   /// list content of workspace and wslib directories: )LIB [N]
+   static void cmd_LIB1(ostream & out, const UCS_string & args);
+
+   /// list content of workspace and wslib directories: ]LIB [N]
+   static void cmd_LIB2(ostream & out, const UCS_string & args);
 
    /// show list of commands
    static void cmd_LOG(ostream & out, const UCS_string & arg);

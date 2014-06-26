@@ -149,88 +149,7 @@ ValueStackItem & vs = value_stack.back();
              return;
 
         case NC_SHARED_VAR:
-             {
-               CDR_string cdr;
-               CDR::to_CDR(cdr, *new_value);
-               if (cdr.size() > MAX_SVAR_SIZE)   LIMIT_ERROR_SVAR;
-               string data((const char *)cdr.get_items(), cdr.size());
-
-               // wait for shared variable to be ready
-               //
-               offered_SVAR * svar =  Svar_DB::find_var(get_SV_key());
-               if (svar == 0)
-                  {
-                    Log(LOG_shared_variables)
-                       CERR << " Svar_DB::find_var() failed." << endl;
-
-                    Workspace::more_error() =
-                       UCS_string("Svar_DB corrupt or erased?");
-                    VALUE_ERROR;
-                  }
-
-               for (int w = 0; ; ++w)
-                   {
-                     if (svar->may_set(w))   // ready for writing
-                        {
-                          if (w)
-                             {
-                               Log(LOG_shared_variables)
-                                  CERR << " - OK." << endl;
-                             }
-                          break;
-                         }
-
-                     if (w == 0)
-                        {
-                          Log(LOG_shared_variables)
-                             {
-                               CERR << "Shared variable ";
-                               svar->print_name(CERR);
-                               CERR << " is blocked on set. Waiting ...";
-                             }
-                        }
-                     else if (w%25 == 0)
-                        {
-                          Log(LOG_shared_variables)   CERR << ".";
-                        }
-
-                     usleep(10000);   // wait 10 ms
-                   }
-
-               // update shared var state (BEFORE sending request to peer)
-               svar->set_state(false, loc);
-               {
-                 UdpClientSocket sock(loc, svar->data_owner_port());
-                 ASSIGN_VALUE_c request(sock, get_SV_key(), data);
-
-                 DynArray(uint8_t, buffer, Signal_base::get_class_size());
-                 const Signal_base * response =
-                                     Signal_base::recv(sock, &buffer[0], 10000);
-
-                 if (response == 0)
-                    {
-                      cerr << "TIMEOUT on signal ASSIGN_VALUE_c" << endl;
-                      VALUE_ERROR;
-                    }
-
-                 const ErrorCode ec =
-                                 ErrorCode(response->get__ASSIGNED__error());
-                 if (ec)
-                    {
-                      Log(LOG_shared_variables)
-                         {
-                           Error e(ec,
-                                  response->get__ASSIGNED__error_loc().c_str());
-                           cerr << Error::error_name(ec) << " assigning "
-                                << get_name() << ", detected at "
-                                << response->get__ASSIGNED__error_loc()
-                                << endl;
-                         }
-
-                      throw_apl_error(ec, loc);
-                    }
-               }
-             }
+             assign_shared_variable(new_value, loc);
              if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;
 
@@ -704,107 +623,8 @@ Symbol::resolve(Token & tok, bool left_sym)
              return;
 
         case NC_SHARED_VAR:
-             {
-               if (left_sym)   return;   // leave symbol as is
-
-               const SV_key key = get_SV_key();
-
-               // wait for shared variable to be ready
-               //
-               offered_SVAR * svar =  Svar_DB::find_var(key);
-               if (svar == 0)
-                  {
-                    Log(LOG_shared_variables)
-                       CERR << " Svar_DB::find_var() failed." << endl;
-
-                    Workspace::more_error() =
-                       UCS_string("Svar_DB corrupt or erased?");
-                    VALUE_ERROR;
-                  }
-
-
-               for (int w = 0; ; ++w)
-                   {
-                     if (svar->may_use(w))   // ready for reading
-                        {
-                          if (w)
-                             {
-                               Log(LOG_shared_variables)
-                                  cerr << " - OK." << endl;
-                             }
-                          break;
-                        }
-
-                     if (w == 0)
-                        {
-                          Log(LOG_shared_variables)
-                             {
-                               cerr << "apl" << ProcessorID::get_id().proc
-                                    << ": Shared variable ";
-                               svar->print_name(cerr);
-                               cerr << " is blocked on use. Waiting ...";
-                             }
-                        }
-                     else if (w%25 == 0)
-                        {
-                          Log(LOG_shared_variables)   cerr << ".";
-                        }
-
-                     usleep(10000);   // wait 10 ms
-                   }
-
-               UdpClientSocket sock(LOC, svar->data_owner_port());
-
-               GET_VALUE_c request(sock, get_SV_key());
-               DynArray(uint8_t, buffer, Signal_base::get_class_size());
-               const Signal_base * response =
-                                   Signal_base::recv(sock, &buffer[0], 10000);
-
-               if (response == 0)
-                  {
-                    cerr << "TIMEOUT on signal GET_VALUE" << endl;
-                    VALUE_ERROR;
-                  }
-
-               const ErrorCode err(ErrorCode(response->get__VALUE_IS__error()));
-               if (err)
-                  {
-                    Log(LOG_shared_variables)
-                       {
-                         cerr << Error::error_name(err) << " referencing "
-                              << get_name() << ", detected at "
-                              << response->get__VALUE_IS__error_loc() << endl;
-                       }
-
-                    throw_apl_error(err, 
-                                  response->get__VALUE_IS__error_loc().c_str());
-                  }
-
-               CDR_string cdr;
-               const string & data = response->get__VALUE_IS__value();
-               loop(d, data.size())   cdr.append(data[d]);
-               Value_P value = CDR::from_CDR(cdr, LOC);
-
-               if (!value)     VALUE_ERROR;
-
-               // update shared var state (AFTER sending request to peer)
-               {
-                 offered_SVAR * svar =  Svar_DB::find_var(get_SV_key());
-                 if (svar == 0)
-                    {
-                      Log(LOG_shared_variables)
-                         CERR << " Svar_DB::find_var() failed." << endl;
-
-                      Workspace::more_error() =
-                         UCS_string("Svar_DB corrupt or erased?");
-                      VALUE_ERROR;
-                    }
-
-                 svar->set_state(true, LOC);
-               }
-               value->check_value(LOC);
-               new (&tok) Token(TOK_APL_VALUE1, value);
-             }
+             if (left_sym)   return;   // leave symbol as is
+             resolve_shared_variable(tok);
              return;
 
         default:
@@ -1271,5 +1091,179 @@ ostream &
 operator <<(ostream & out, const Symbol & sym)
 {
    return sym.print(out);
+}
+//-----------------------------------------------------------------------------
+void
+Symbol::assign_shared_variable(Value_P new_value, const char * loc)
+{
+   // put new_value into a CDR string
+   //
+CDR_string cdr;
+   CDR::to_CDR(cdr, *new_value);
+   if (cdr.size() > MAX_SVAR_SIZE)   LIMIT_ERROR_SVAR;
+
+string data((const char *)cdr.get_items(), cdr.size());
+
+   // wait for shared variable to be ready
+   //
+const int data_port = Svar_DB::data_owner_port(get_SV_key());
+   if (data_port == -1)
+      {
+        Log(LOG_shared_variables)
+           CERR << "Svar key " << HEX(get_SV_key()) << " not found." << endl;
+
+        Workspace::more_error() = UCS_string("Svar_DB corrupt or erased?");
+        VALUE_ERROR;
+      }
+
+   for (int w = 0; ; ++w)
+       {
+         if (Svar_DB::may_set(get_SV_key(), w))   // ready for writing
+            {
+              if (w)
+                 {
+                   Log(LOG_shared_variables)
+                      CERR << " - OK." << endl;
+                 }
+              break;
+            }
+
+         if (w == 0)
+            {
+              Log(LOG_shared_variables)
+                 {
+                   CERR << "Shared variable ";
+                   for (const uint32_t * varname =
+                                         Svar_DB::get_varname(get_SV_key());
+                        varname && *varname; ++varname)
+                       CERR << (Unicode)(*varname++);
+                   CERR << " is blocked on set. Waiting ...";
+                 }
+            }
+         else if (w%25 == 0)
+            {
+              Log(LOG_shared_variables)   CERR << ".";
+            }
+
+         usleep(10000);   // wait 10 ms
+       }
+
+   // update shared var state (BEFORE sending request to peer)
+   //
+   Svar_DB::set_state(get_SV_key(), false, loc);
+
+UdpClientSocket sock(loc, data_port);
+   ASSIGN_VALUE_c request(sock, get_SV_key(), data);
+
+DynArray(uint8_t, buffer, Signal_base::get_class_size());
+const Signal_base * response = Signal_base::recv(sock, &buffer[0], 10000);
+
+   if (response == 0)
+      {
+        cerr << "TIMEOUT on signal ASSIGN_VALUE_c" << endl;
+        VALUE_ERROR;
+      }
+
+     const ErrorCode ec = ErrorCode(response->get__ASSIGNED__error());
+     if (ec)
+        {
+          Log(LOG_shared_variables)
+             {
+               Error e(ec, response->get__ASSIGNED__error_loc().c_str());
+               cerr << Error::error_name(ec) << " assigning "
+                    << get_name() << ", detected at "
+                    << response->get__ASSIGNED__error_loc()
+                    << endl;
+             }
+
+          throw_apl_error(ec, loc);
+        }
+}
+//-----------------------------------------------------------------------------
+void
+Symbol::resolve_shared_variable(Token & tok)
+{
+   // wait for shared variable to be ready
+   //
+const int data_port = Svar_DB::data_owner_port(get_SV_key());
+   if (data_port == 0)
+      {
+        Log(LOG_shared_variables)
+           CERR << "Svar key " << HEX(get_SV_key()) << " not found." << endl;
+
+        Workspace::more_error() = UCS_string("Svar_DB corrupt or erased?");
+        VALUE_ERROR;
+      }
+
+   for (int w = 0; ; ++w)
+       {
+         if (Svar_DB::may_use(get_SV_key(), w))   // ready for reading
+            {
+              if (w)
+                 {
+                   Log(LOG_shared_variables)   cerr << " - OK." << endl;
+                 }
+              break;
+            }
+
+         if (w == 0)
+            {
+              Log(LOG_shared_variables)
+                 {
+                   CERR << "apl" << ProcessorID::get_id().proc
+                                    << ": Shared variable ";
+                   for (const uint32_t * varname =
+                                         Svar_DB::get_varname(get_SV_key());
+                        varname && *varname; ++varname)
+                       CERR << (Unicode)(*varname++);
+                   CERR << " is blocked on use. Waiting ...";
+                 }
+            }
+         else if (w%25 == 0)
+            {
+              Log(LOG_shared_variables)   cerr << ".";
+            }
+
+         usleep(10000);   // wait 10 ms
+       }
+
+UdpClientSocket sock(LOC, data_port);
+GET_VALUE_c request(sock, get_SV_key());
+
+DynArray(uint8_t, buffer, Signal_base::get_class_size());
+const Signal_base * response = Signal_base::recv(sock, &buffer[0], 10000);
+
+   if (response == 0)
+      {
+        cerr << "TIMEOUT on signal GET_VALUE" << endl;
+        VALUE_ERROR;
+      }
+
+const ErrorCode err(ErrorCode(response->get__VALUE_IS__error()));
+   if (err)
+      {
+        Log(LOG_shared_variables)
+           {
+             cerr << Error::error_name(err) << " referencing "
+                  << get_name() << ", detected at "
+                  << response->get__VALUE_IS__error_loc() << endl;
+           }
+
+        throw_apl_error(err, response->get__VALUE_IS__error_loc().c_str());
+      }
+
+CDR_string cdr;
+const string & data = response->get__VALUE_IS__value();
+   loop(d, data.size())   cdr.append(data[d]);
+
+Value_P value = CDR::from_CDR(cdr, LOC);
+   if (!value)     VALUE_ERROR;
+
+   // update shared var state (AFTER sending request to peer)
+   //
+   Svar_DB::set_state(get_SV_key(), true, LOC);
+
+   value->check_value(LOC);
+   new (&tok) Token(TOK_APL_VALUE1, value);
 }
 //-----------------------------------------------------------------------------

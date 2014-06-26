@@ -101,6 +101,9 @@ public:
    /// set \b token according to the current NC/sym_val of \b this \b Symbol
    virtual void resolve(Token & token, bool left);
 
+   /// set \b token according to the current NC/sym_val of \b this shared var
+   void resolve_shared_variable(Token & token);
+
    /// resolve a variable name for an assignment
    Token resolve_lv(const char * loc);
 
@@ -136,6 +139,9 @@ public:
 
    /// Assign \b value to \b this \b Symbol.
    virtual void assign(Value_P value, const char * loc);
+
+   /// Assign \b value to \b this \b Symbol (which is a shared variable)
+   void assign_shared_variable(Value_P value, const char * loc);
 
    /// Indexed (multi-dimensional) assign \b value to \b this \b Symbol.
    virtual void assign_indexed(IndexExpr & index, Value_P value);

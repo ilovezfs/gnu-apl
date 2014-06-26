@@ -268,6 +268,15 @@ public:
    /// convert double \b value to an UCS_string with \b quad_pp significant
    /// digits in fixed point format
    static UCS_string from_double_fixed_pp(double value, unsigned int quad_pp);
+
+   /// sort a small number of UCS_strings (filenames, variables, or functions)
+   /// using a simple but quadratic time algotithm
+   static void sort_names(const UCS_string ** names, int count);
+
+   /// compute column widths so that names align nicely
+   static void compute_column_width(vector<int> & result,
+                                    const UCS_string ** names, int name_count,
+                                    int tab_size, int quad_PW);
 };
 //-----------------------------------------------------------------------------
 /// a singly linked list of UCS_strings.

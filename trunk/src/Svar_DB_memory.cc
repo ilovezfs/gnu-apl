@@ -174,6 +174,8 @@ offered_SVAR::remove_stale(int & count)
 SV_Coupling
 offered_SVAR::retract()
 {
+   if (this == 0)   return NO_COUPLING;
+
 const SV_Coupling old_coupling = get_coupling();
 const uint16_t port1 = offering.port;
 const uint16_t port2 = accepting.port;
@@ -214,6 +216,8 @@ const uint16_t port2 = accepting.port;
 uint16_t
 offered_SVAR::data_owner_port()   const
 {
+   if (this == 0)   return -1;
+
    if (get_coupling() != SV_COUPLED)   return offering.port;
 
    if (accepting.id.proc <= offering.id.proc)   return accepting.port;
@@ -254,6 +258,8 @@ int ret = 0;
 Svar_Control
 offered_SVAR::get_control() const
 {
+   if (this == 0)   return NO_SVAR_CONTROL;
+
 int ctl = offering.get_control() | accepting.get_control();
 
    if (ProcessorID::get_id() == accepting.id)   ctl = mirror(ctl);
@@ -263,6 +269,8 @@ int ctl = offering.get_control() | accepting.get_control();
 void
 offered_SVAR::set_control(Svar_Control ctl)
 {
+   if (this == 0)   return;
+
    Log(LOG_shared_variables)
       {
         CERR << "set_control(" << ctl << ") on ";
@@ -296,12 +304,16 @@ offered_SVAR::set_control(Svar_Control ctl)
 Svar_state
 offered_SVAR::get_state() const
 {
+   if (this == 0)   return SVS_NOT_SHARED;
+
    return state;
 }
 //-----------------------------------------------------------------------------
 void
 offered_SVAR::set_state(bool used, const char * loc)
 {
+   if (this == 0)   return;
+
 usleep(50000);
 
    Log(LOG_shared_variables)
@@ -376,6 +388,13 @@ uint16_t peer_port = 0;
 Svar_partner
 offered_SVAR::get_peer() const
 {
+   if (this == 0)
+      {
+          Svar_partner peer;
+          peer.clear();
+          return peer;
+      }
+
    if (ProcessorID::get_id() == offering.id)    return accepting;
    if (ProcessorID::get_id() == accepting.id)   return offering;
 
@@ -389,6 +408,8 @@ Svar_partner peer;
 bool
 offered_SVAR::may_use(int attempt) const
 {
+   if (this == 0)   return false;
+
    // control restriction as seen by the offering partner
    //
 const int control = offering.get_control() | accepting.get_control();
@@ -425,6 +446,8 @@ const int restriction = control & state;
 bool
 offered_SVAR::may_set(int attempt) const
 {
+   if (this == 0)   return false;
+
    // control restriction as seen by the offering partner
    //
 const int control = offering.get_control() | accepting.get_control();
@@ -701,66 +724,63 @@ Svar_DB_memory::retract_all(const AP_num3 & id)
 SV_Coupling
 Svar_DB_memory::retract_var(SV_key key)
 {
-offered_SVAR * svar = find_var(key);
-   return svar ? svar->retract() : NO_COUPLING;
+   return find_var(key)->retract();
+}
+//-----------------------------------------------------------------------------
+int
+Svar_DB_memory::data_owner_port(SV_key key) const
+{
+   return find_var(key)->data_owner_port();
 }
 //-----------------------------------------------------------------------------
 SV_Coupling
 Svar_DB_memory::get_coupling(SV_key key) const
 {
-const offered_SVAR * svar = find_var(key);
-   if (svar)   return svar->get_coupling();
-   else        return NO_COUPLING;
+   return find_var(key)->get_coupling();
 }
 //-----------------------------------------------------------------------------
 Svar_Control
 Svar_DB_memory::get_control(SV_key key) const
 {
-const offered_SVAR * svar = find_var(key);
-   if (svar)   return svar->get_control();
-   else        return NO_SVAR_CONTROL;
+   return find_var(key)->get_control();
 }
 //-----------------------------------------------------------------------------
 Svar_Control
 Svar_DB_memory::set_control(SV_key key, Svar_Control control)
 {
 offered_SVAR * svar = find_var(key);
-   if (svar)
-      {
-        svar->set_control(control);
-        return svar->get_control();
-      }
-
-   return NO_SVAR_CONTROL;
+   svar->set_control(control);
+   return svar->get_control();
 }
 //-----------------------------------------------------------------------------
 Svar_state
 Svar_DB_memory::get_state(SV_key key) const
 {
-const offered_SVAR * svar = find_var(key);
-   if (svar)   return svar->get_state();
-   else        return SVS_NOT_SHARED;
+   return find_var(key)->get_state();
+}
+//-----------------------------------------------------------------------------
+bool
+Svar_DB_memory::may_set(SV_key key, int attempt) const
+{
+   return find_var(key)->may_set(attempt);
+}
+//-----------------------------------------------------------------------------
+bool
+Svar_DB_memory::may_use(SV_key key, int attempt) const
+{
+   return find_var(key)->may_use(attempt);
 }
 //-----------------------------------------------------------------------------
 void
 Svar_DB_memory::set_state(SV_key key, bool used, const char * loc)
 {
-offered_SVAR * svar = find_var(key);
-   if (svar)   svar->set_state(used, loc);
+   find_var(key)->set_state(used, loc);
 }
 //-----------------------------------------------------------------------------
 Svar_partner
 Svar_DB_memory::get_peer(SV_key key)
 {
-const offered_SVAR * svar = find_var(key);
-   if (svar == 0)
-      {
-          Svar_partner peer;
-          peer.clear();
-          return peer;
-      }
-
-   return svar->get_peer();
+   return find_var(key)->get_peer();
 }
 //-----------------------------------------------------------------------------
 Svar_event
@@ -895,10 +915,11 @@ Svar_DB_memory::add_event(Svar_event event, AP_num3 proc, SV_key key)
    if (key == 0)   return;   // no key
 
 offered_SVAR * svar = find_var(key);
-   if (svar == 0)   return;
-
-   if (proc == svar->offering.id)         svar->offering.flags |= OSV_EVENT;
-   else if (proc == svar->accepting.id)   svar->accepting.flags |= OSV_EVENT;
+   if (svar)
+      {
+        if (proc == svar->offering.id)       svar->offering.flags  |= OSV_EVENT;
+        else if (proc == svar->accepting.id) svar->accepting.flags |= OSV_EVENT;
+      }
 }
 //-----------------------------------------------------------------------------
 SV_key
@@ -917,6 +938,34 @@ const offered_SVAR * svar1 = find_var(key);
        }
 
    return 0;   // not found
+}
+//-----------------------------------------------------------------------------
+bool
+Svar_DB_memory::valid_var(SV_key key) const
+{
+   if (key == 0)   return false;
+
+   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+       {
+         const offered_SVAR * svar = offered_vars + o;
+         if (key == svar->key)   return true;
+       }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
+const uint32_t *
+Svar_DB_memory::get_varname(SV_key key) const
+{
+   if (key == 0)   return 0;
+
+   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+       {
+         const offered_SVAR & svar = offered_vars[o];
+         if (key == svar.key)   return svar.varname;
+       }
+
+   return 0;
 }
 //-----------------------------------------------------------------------------
 offered_SVAR *
