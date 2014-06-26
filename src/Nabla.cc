@@ -707,6 +707,8 @@ Nabla::execute_edit()
    //
    if (current_line.is_header_line())
       {
+        if (current_text.size() == 0)   // empty line
+           return 0;
 
         UserFunction_header header(current_text);
         bool bad_header = header.get_error() != E_NO_ERROR;

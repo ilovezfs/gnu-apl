@@ -1543,10 +1543,14 @@ UCS_string text;
 void
 XML_Loading_Archive::read_Shared_Variable(int d, Symbol & symbol)
 {
-const SV_key key = find_int_attr("key", false, 10);
+// const SV_key key = find_int_attr("key", false, 10);
    if (d != 0)   symbol.push();
 
-   symbol.share_var(key);
+   CERR << "WARNING: workspace was )SAVEd with a shared variable "
+        << symbol.get_name() << endl
+        << " (shared variables are not restored by )LOAD or )COPY)" << endl;
+
+   // symbol.share_var(key);
 }
 //-----------------------------------------------------------------------------
 void

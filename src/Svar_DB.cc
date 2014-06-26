@@ -36,8 +36,6 @@
 #include "Svar_signals.hh"
 #include "UdpSocket.hh"
 
-/// #define USE_APserver
-
 extern ostream CERR;
 extern ostream & get_CERR();
 
