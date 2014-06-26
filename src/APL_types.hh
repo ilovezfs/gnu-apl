@@ -412,6 +412,8 @@ enum AP_num
   AP_FIRST_USER = 1001,   ///< the first AP for APL interpreters
 };
 
+   enum { Default_APserver_tcp_port = 16366 };
+
 //////////////////////////////////////////////////////////////
 // C structs           i                                    //
 //////////////////////////////////////////////////////////////

@@ -108,6 +108,17 @@ ProcessorID::init(bool log_startup)
 
       }
 
+   // maybe let APserver know our IDs
+   //
+const int sock = Svar_DB_memory_P::get_DB_tcp();
+   if (sock != NO_TCP_SOCKET)
+      {
+        const char cmd = 'i';
+        ::send(sock, &cmd, 1, 0);
+        AP_num ids[3] = { id.proc, id.parent, id.grand };
+        ::send(sock, ids, sizeof(ids), 0);
+      }
+
    return false;   // no error
 }
 //-----------------------------------------------------------------------------

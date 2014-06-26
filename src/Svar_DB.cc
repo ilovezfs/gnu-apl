@@ -36,7 +36,7 @@
 #include "Svar_signals.hh"
 #include "UdpSocket.hh"
 
-// #define USE_APserver
+/// #define USE_APserver
 
 extern ostream CERR;
 extern ostream & get_CERR();
@@ -57,11 +57,12 @@ const char * SHM_NAME = "/apl-svars";
 
 #endif // (dont) USE_APserver
 
-uint16_t Svar_DB_memory_P::APserver_port = 40000;
+uint16_t Svar_DB_memory_P::APserver_port = Default_APserver_tcp_port;
 
 TCP_socket Svar_DB_memory_P::DB_tcp = NO_TCP_SOCKET;
 
 Svar_DB_memory Svar_DB_memory_P::cache;
+offered_SVAR   offered_SVAR_P::cache;
 
 //=============================================================================
 
@@ -70,34 +71,23 @@ Svar_DB_memory * Svar_DB_memory_P::memory_p = 0;
 Svar_DB_memory_P::Svar_DB_memory_P(bool ronly)
    : read_only(ronly)
 {
-   if (!is_connected() || DB_tcp == NO_TCP_SOCKET)   return;
+   if (!APserver_available())   return;
 
-char command = ronly ? 'r' : 'u';
-   ::send(DB_tcp, &command, 1, 0);
+const char command = ronly ? 'a' : 'A';
+ssize_t len = ::send(DB_tcp, &command, 1, 0);
+   if (len != 1)   DB_tcp_error("send() command", len, 1);
 
-const ssize_t len = ::recv(DB_tcp, &cache, sizeof(cache), MSG_WAITALL);
-   if (len != sizeof(cache))
-      {
-        CERR << "recv() failed in Svar_DB_memory_P constructor: got "
-             << len << " expecting " << sizeof(cache) << endl;
-        ::close(DB_tcp);
-        DB_tcp = NO_TCP_SOCKET;
-      }
+   len = ::recv(DB_tcp, &cache, sizeof(cache), MSG_WAITALL);
+   if (len != sizeof(cache))   DB_tcp_error("recv() db", len, sizeof(cache));
 }
 //-----------------------------------------------------------------------------
 Svar_DB_memory_P::~Svar_DB_memory_P()
 {
-   if (read_only)                                    return;
-   if (!is_connected() || DB_tcp == NO_TCP_SOCKET)   return;
+   if (read_only)               return;
+   if (!APserver_available())   return;
 
-const ssize_t len = ::send(DB_tcp, &cache, sizeof(cache), MSG_WAITALL);
-   if (len != sizeof(cache))
-      {
-        CERR << "send() failed in Svar_DB_memory_P destructor: sent "
-             << len << " expecting " << sizeof(cache) << endl;
-        ::close(DB_tcp);
-        DB_tcp = NO_TCP_SOCKET;
-      }
+const ssize_t len = ::send(DB_tcp, &cache, sizeof(cache), 0);
+   if (len != sizeof(cache))   DB_tcp_error("send() db", len, sizeof(cache));
 }
 //-----------------------------------------------------------------------------
 void
@@ -156,9 +146,10 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path)
 
               char arg0[FILENAME_MAX + 20];
               snprintf(arg0, sizeof(arg0), "%s/APserver", bin_path);
-              char arg1[20];
-              snprintf(arg1, sizeof(arg1), "%d", APserver_port);
-              char * argv[] = { arg0, arg1, 0 };
+              char arg1[] = { "--port" };
+              char arg2[20];
+              snprintf(arg2, sizeof(arg2), "%d", APserver_port);
+              char * argv[] = { arg0, arg1, arg2, 0 };
               char * envp[] = { 0 };
               execve(arg0, argv, envp);
 
@@ -177,7 +168,60 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path)
    usleep(20000);
    get_CERR() << "connected to APserver, DB_tcp is " << DB_tcp << endl;
 }
+//-----------------------------------------------------------------------------
+void
+Svar_DB_memory_P::DB_tcp_error(const char * op, int got, int expected)
+{
+   CERR << "⋆⋆⋆ " << op << " failed: got " << got << " when expecting "
+        << expected << " (" << strerror(errno) << ")" << endl;
+
+   ::close(DB_tcp);
+   DB_tcp = NO_TCP_SOCKET;
+}
 //=============================================================================
+
+offered_SVAR * offered_SVAR_P::offered_svar_p = 0;
+
+offered_SVAR_P::offered_SVAR_P(bool ronly, SV_key key)
+   : read_only(ronly)
+{
+   if (!Svar_DB_memory_P::APserver_available())   return;
+
+   offered_svar_p = 0;
+
+const int sock = Svar_DB_memory_P::get_DB_tcp();
+const char command = ronly ? 'r' : 'R';
+ssize_t len = ::send(sock, &command, 1, 0);
+   if (len != 1)   Svar_DB_memory_P::DB_tcp_error("send() command", len, 1);
+
+   len = ::send(sock, &key, sizeof(key), 0);
+   if (len != sizeof(key))
+      Svar_DB_memory_P::DB_tcp_error("send() command", len, sizeof(key));
+
+   len = ::recv(sock, &cache, sizeof(cache), MSG_WAITALL);
+   if (len != sizeof(cache))
+      Svar_DB_memory_P::DB_tcp_error("recv() db", len, sizeof(cache));
+
+   offered_svar_p = &cache;
+}
+//-----------------------------------------------------------------------------
+offered_SVAR_P::~offered_SVAR_P()
+{
+   if (read_only)                                 return;
+   if (!Svar_DB_memory_P::APserver_available())   return;
+
+const ssize_t len = ::send(Svar_DB_memory_P::get_DB_tcp(),
+                           &cache, sizeof(cache), 0);
+
+   if (len != sizeof(cache))
+      {
+        CERR << "send() failed in offered_SVAR_P destructor: sent "
+             << len << " expecting " << sizeof(cache) << endl;
+        Svar_DB_memory_P::DB_tcp_error("send()", len, sizeof(cache));
+      }
+}
+//=============================================================================
+
 #ifdef USE_APserver
 
 void
@@ -186,7 +230,7 @@ Svar_DB::init(const char * progname, bool logit, bool do_svars)
 char * path = strdup(progname);
    if (char * slash = strrchr(path, '/'))   *slash = 0;
    Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
-   Svar_DB_memory_P::connect(path);
+   Svar_DB_memory_P::connect_to_APserver(path);
    if (Svar_DB_memory_P::is_connected())
       {
         CERR << "using Svar_DB on APserver!" << endl;

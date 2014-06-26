@@ -134,9 +134,16 @@ print_vars(ostream & out)
        {
          Coupled_var & cv = coupled_vars[c];
          CERR << "   key: 0x" << hex << cv.key << dec << " ";
-         offered_SVAR * svar = Svar_DB::find_var(cv.key);
-         if (svar)   svar->print_name(CERR) << endl;
-         else     CERR << "(unknown var)" << endl;
+         const uint32_t * varname = Svar_DB::get_varname(cv.key);
+         if (varname)
+            {
+              while (*varname)   CERR << (Unicode)(*varname++);
+            }
+         else
+            {
+              CERR << "(unknown var)";
+            }
+         CERR << endl;
        }
 }
 //-----------------------------------------------------------------------------
@@ -300,19 +307,20 @@ Svar_partner this_proc;
                  if (verbose)   CERR << AP_NAME << " got NEW_VARIABLE" << endl;
                  {
                    const SV_key key = signal->get__NEW_VARIABLE__key();
-                   offered_SVAR * svar = Svar_DB::find_var(key);
-                  if (svar == 0)
+                   const uint32_t * varname = Svar_DB::get_varname(key);
+                  if (varname == 0)
                      {
                        CERR << "Could not find svar for key "
                             << key << " at " << LOC << endl;
                        continue;
                      }
 
-                   if (! is_valid_varname(svar->varname))
+                   if (! is_valid_varname(varname))
                       {
-                       CERR << "Bad varname ";
-                       svar->print_name(CERR) << " at " << LOC << endl;
-                       continue;
+                        CERR << "Bad varname: ";
+                        while (*varname)   CERR << (Unicode)(*varname++);
+                        CERR << " at " << LOC << endl;
+                        continue;
                       }
 
                    add_var(key);
@@ -323,18 +331,19 @@ Svar_partner this_proc;
                  if (verbose)   CERR << AP_NAME << " got MAKE_OFFER" << endl;
                  {
                    const SV_key key = signal->get__MAKE_OFFER__key();
-                   offered_SVAR * svar = Svar_DB::find_var(key);
-                  if (svar == 0)
+                   const uint32_t * varname = Svar_DB::get_varname(key);
+                  if (varname == 0)
                      {
                        CERR << "Could not find svar for key "
                             << key << " at " << LOC << endl;
                        continue;
                      }
 
-                   if (! is_valid_varname(svar->varname))
+                   if (! is_valid_varname(varname))
                       {
                        CERR << "Bad varname ";
-                       svar->print_name(CERR) << " at " << LOC << endl;
+                        while (*varname)   CERR << (Unicode)(*varname++);
+                        CERR << " at " << LOC << endl;
                        continue;
                       }
 
@@ -343,13 +352,11 @@ Svar_partner this_proc;
                    if (!make_counter_offer(key))   continue;   // APnnn
 
                    SV_Coupling coupling = NO_COUPLING;
-                   Svar_DB::match_or_make(svar->varname, svar->offering.id, 
-                                          this_proc, coupling);
+                   Svar_DB::match_or_make(key, this_proc, coupling);
 
                    add_var(key);
 
-                   svar->offering.flags &= ~OSV_OFFER_SENT;
-                   svar->set_state(true, LOC);
+                   Svar_DB::set_state(key, true, LOC);
                  }
                  continue;
 

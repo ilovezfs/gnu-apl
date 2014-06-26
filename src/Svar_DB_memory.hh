@@ -212,7 +212,8 @@ struct offered_SVAR
 
    /// return the coupling of the variable
    SV_Coupling get_coupling() const
-       { return SV_Coupling(offering.alive() + accepting.alive()); }
+       { return this ? SV_Coupling(offering.alive() + accepting.alive())
+                     : NO_COUPLING; }
 
    /// return the control bits of this variable
    Svar_Control get_control() const;
@@ -299,6 +300,10 @@ struct Svar_DB_memory
    /// see Svar_DB::get_coupling(), sema is acquired
    SV_Coupling get_coupling(SV_key key) const;
 
+   /// return the partner that stores the data (the partner with the
+   /// smallest ID), or -1 if no variable with key \b key exists
+   int data_owner_port(SV_key key) const;
+
    /// see Svar_DB::get_control(), sema is acquired
    Svar_Control get_control(SV_key key) const;
 
@@ -310,6 +315,12 @@ struct Svar_DB_memory
 
    /// see Svar_DB::set_state(), sema is acquired
    void set_state(SV_key key, bool used, const char * loc);
+
+   /// return true iff the calling partner may set the current value
+   bool may_set(SV_key key, int attempt) const;
+
+   /// return true iff the calling partner may use the current value
+   bool may_use(SV_key key, int attempt) const;
 
    /// see Svar_DB::get_processors(), sema is acquired
    void get_processors(int to_proc, vector<int32_t> & processors);
@@ -347,6 +358,12 @@ struct Svar_DB_memory
    /// Svar_DB is full
    offered_SVAR * create_offer(const uint32_t * UCS_varname,
                                const AP_num3 & to, const Svar_partner & from);
+
+   /// return true iff variable with key \b key exists
+   bool valid_var(SV_key key) const;
+
+   /// return pointer to varname or 0 if key does not exist
+   const uint32_t * get_varname(SV_key key) const;
 
    /// find the variable named \b varname and offered or accepted by \b proc
    offered_SVAR * find_var(SV_key key) const;

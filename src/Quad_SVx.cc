@@ -282,12 +282,19 @@ bool got_event = false;
           Log(LOG_shared_variables)
              {
                const uint64_t key = resp->get__GOT_EVENT__key();
-               const offered_SVAR * svar = Svar_DB::find_var(SV_key(key));
+               const uint32_t * varname = Svar_DB::get_varname(key);
+
                CERR << "⎕SVE got event '"
                     << event_name(Svar_event(resp->get__GOT_EVENT__event()))
                     << "' from shared variable ";
-               if (svar)   svar->print_name(CERR);
-               else        CERR << "unknown key " << key;
+               if (varname)
+                  {
+                    while (*varname)   CERR << (Unicode)(*varname++);
+                  }
+               else
+                  {
+                    CERR << "unknown key " << key;
+                  }
                CERR << endl;
              }
         }

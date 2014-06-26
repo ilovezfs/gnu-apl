@@ -266,57 +266,50 @@ int symbol_count = 0;
         return;
       }
 
-const int qpw = Workspace::get_PrintContext().get_PW();
-int col = 0;
-   while (list.size() > 0)
+const int count = list.size();
+vector<UCS_string> names;
+   loop(l, count)
       {
-        // 1. find symbol sym with smallest name
-        //
-        int smallest = 0;
-        for (int j = 1; j < list.size(); ++j)
-            {
-              if (list[j]->compare(*list[smallest]) < 0)
-              smallest = j;
-            }
-        Symbol * sym = list[smallest];
-
-        // 2. compute column where printing would end.
-        //
-        int spaces = 0;
-        int end = col;
-        do ++spaces; while (++end & 3);   // spaces before next mod 4 position
-
-        int name_etc = sym->get_name().size();
-        if (which == LIST_NAMES)   name_etc += 2;   // append .NC
-        end += name_etc;
-
-        // print the symbol
-        //
-        if (end >= qpw)   // ⎕PW exceeded
-           {
-             out << endl;
-             col = 0;
-           }
-         else if (col)   // within ⎕PW and not start of line
-           {
-             UCS_string sp(spaces, UNI_ASCII_SPACE);
-             out << sp;
-             col += spaces;
-           }
-
-        sym->print(out);
+        UCS_string name = list[l]->get_name();
         if (which == LIST_NAMES)   // append .NC
-             out << "." << sym->value_stack.back().name_class;
-        col += name_etc;
-        
-
-        // 4. remove sym from list
-        //
-        list[smallest] = list.back();
-        list.pop_back();
+           {
+             name.append(UNI_ASCII_FULLSTOP);
+             name.append_number(list[l]->value_stack.back().name_class);
+           }
+        names.push_back(name);
       }
 
-   out << endl;
+DynArray(const UCS_string *, sorted_names, count);
+   loop(n, count)   sorted_names[n] = &names[n];
+   UCS_string::sort_names(sorted_names, count);
+
+   // figure column widths
+   //
+const int qpw = Workspace::get_PrintContext().get_PW();
+vector<int> col_width;
+   enum { tabsize = 4 };
+   UCS_string::compute_column_width(col_width, sorted_names, count,
+                                    tabsize, qpw);
+
+   loop(c, count)
+      {
+        const int col = c % col_width.size();
+        out << *sorted_names[c];
+        if (col == (col_width.size() - 1) || c == (count - 1))
+           {
+             // last column or last item: print newline
+             //
+             out << endl;
+           }
+        else
+           {
+             // intermediate column: print spaces
+             //
+             const int len = tabsize*col_width[col] - sorted_names[c]->size();
+             Assert(len > 0);
+             loop(l, len)   out << " ";
+           }
+      }
 }
 //-----------------------------------------------------------------------------
 void

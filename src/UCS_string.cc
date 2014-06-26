@@ -983,3 +983,114 @@ UCS_string::contains(Unicode uni)
    return false;
 }
 //----------------------------------------------------------------------------
+void
+UCS_string::sort_names(const UCS_string ** names, int count)
+{
+   if (count < 2)   return;
+
+   for (int h = 0; h < (count - 1); ++h)
+       {
+         // find smallest above (including) h
+         //
+         int smallest = h;
+         for (int j = h + 1; j < count; ++j)
+             {
+               if (names[smallest]->compare(*names[j]) == COMP_GT)
+                  {
+                    const UCS_string * tmp = names[smallest];
+                    names[smallest] = names[j];
+                    names[j] = tmp;
+                  }
+             }
+       }
+}
+//----------------------------------------------------------------------------
+void
+UCS_string::compute_column_width(vector<int> & result,
+                                 const UCS_string ** names, int name_count,
+                                 int tab_size, int quad_PW)
+{
+   if (name_count < 2)
+      {
+        result.clear();
+        if (name_count)   result.push_back(names[0]->size());
+        else              result.push_back(quad_PW);
+        return;
+      }
+
+   // compute block counts (one block having tab_size characters)
+   //
+const int max_blocks = (quad_PW + 1) / tab_size;
+DynArray(int, name_blocks, name_count);
+   loop(n, name_count)
+       {
+         name_blocks[n] = 1 + (1 + names[n]->size()) / tab_size;
+       }
+
+   // compute max number of column blocks based on first line blocks
+   //
+int max_col = -1;
+   {
+     int blocks = 0;
+     loop(n, name_count)
+         {
+           if ((blocks + name_blocks[n]) < max_blocks)   // name_blocks[n] fits
+              blocks += name_blocks[n];
+           else                                          // max_blocks exceeded
+             {
+               max_col = n - 1;
+               break;
+             }
+         }
+
+     if (max_col == -1)   // all blocks fit
+        {
+          result.clear();
+          loop(n, name_count)
+              {
+                result.push_back(name_blocks[n]);
+              }
+          return;
+        }
+   }
+
+   // decrease max_col until all names fit...
+   //
+   for (;max_col > 1; --max_col)
+      {
+        result.clear();
+        int free_blocks = max_blocks;
+        loop(n, name_count)   // try to fit blocks into result
+            {
+              const int col_n = n % max_col;
+              const int bn = name_blocks[n];
+              if (n < max_col)   // first row: append column
+                 {
+                   free_blocks -= bn;
+                   if (free_blocks < 0)   break;
+                   result.push_back(bn);
+                 }
+              else if (bn > result[col_n])   
+                 {
+                   free_blocks -= bn - result[col_n];
+                   if (free_blocks < 0)   break;
+                   result[col_n] = bn;
+                 }
+            }
+
+        if (free_blocks >= 0)   return;   // success
+      }
+
+   // single colums
+   //
+   result.clear();
+int max_nb = 0;
+   loop(n, name_count)
+      {
+        if (max_nb < name_blocks[n])   max_nb = name_blocks[n];
+      }
+   result.push_back(max_nb);
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------

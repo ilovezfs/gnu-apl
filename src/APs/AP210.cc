@@ -620,14 +620,14 @@ bool
 initialize(Coupled_var & var)
 {
    coupled_vars.push_back(var);
-const offered_SVAR * svar =  Svar_DB::find_var(var.key);
-   if (!svar)   return true;
+const uint32_t * varname = Svar_DB::get_varname(var.key);
+   if (!varname)   return true;
 
-   if (*svar->varname == 'C')
+   if (*varname == 'C')
       {
-        Svar_DB::set_control(svar->key, USE_BY_1);
+        Svar_DB::set_control(var.key, USE_BY_1);
       }
-   else if (*svar->varname == 'D')
+   else if (*varname == 'D')
       {
       }
    else                             return true;  // error
@@ -653,10 +653,10 @@ const CDR_header * header = (const CDR_header *)data.c_str();
 
 const int rank = header->rank;
 
-offered_SVAR * svar =  Svar_DB::find_var(var.key);
-   if (svar == 0)   { error_loc = LOC;   return E_VALUE_ERROR; }
+const uint32_t * varname = Svar_DB::get_varname(var.key);
+   if (!varname)   return E_VALUE_ERROR;
 
-   if (*svar->varname == 'D')   // e.g. DAT←value
+   if (*varname == 'D')   // e.g. DAT←value
       {
         delete var.data;
         var.data = new CDR_string((const uint8_t *)data.c_str(), data.size());
@@ -701,23 +701,23 @@ SVAR_context * ctx = var.context;
         // a sub-command was triggered by a write to C, so C is always written.
         // in addition D may have been read  or written.
         //
-        svar->set_state(false, LOC);
+        Svar_DB::set_state(var.key, false, LOC);
 
         if (ctx->state_D != SVS_NOT_SHARED)   // var D read or written
            {
-             offered_SVAR * svar_D =  Svar_DB::find_var(key_D);
-             if (svar_D == 0)   { error_loc = LOC;   return E_VALUE_ERROR; }
-             svar_D->set_state(ctx->state_D == SVS_IDLE, LOC);
+             if (!Svar_DB::valid_var(key_D)) { error_loc = LOC;
+                                               return E_VALUE_ERROR; }
+             Svar_DB::set_state(key_D, ctx->state_D == SVS_IDLE, LOC);
            }
       }
    else
       {
         const char * cmd = (const char *)(header + 1) + 4*rank;
         handle_cmd(cmd, data.size(), var, *var_D);
-offered_SVAR * svar_D =  Svar_DB::find_var(key_D);
-   if (svar_D == 0)   { error_loc = LOC;   return E_VALUE_ERROR; }
-   svar->set_state(false, LOC);
-   svar_D->set_state(false, LOC);
+        if (!Svar_DB::valid_var(key_D)) { error_loc = LOC;
+                                          return E_VALUE_ERROR; }
+   Svar_DB::set_state(var.key, false, LOC);
+   Svar_DB::set_state(key_D, false, LOC);
       }
 
    error_loc = "no_error";   return E_NO_ERROR;

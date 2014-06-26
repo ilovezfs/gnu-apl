@@ -25,6 +25,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <iostream>
+#include <iomanip>
 #include <vector>
 
 #include "SystemLimits.hh"
@@ -33,6 +35,8 @@
 #include "Svar_DB_memory.hh"
 
 #include <iostream>
+
+using namespace std;
 
 Svar_DB_memory db;
 
@@ -94,6 +98,21 @@ AP3_fd ap3_fd;
 }
 //-----------------------------------------------------------------------------
 static void
+check_op(const char * op, TCP_socket fd, int got, int expected)
+{
+   if (got != expected)
+      {
+        usleep(50000);
+        cerr << cerr << "*** " << op << " failed on fd " << fd
+             << " (got " << got << " expected " << expected
+             << "). closing fd." << endl;
+
+        close_fd(fd);
+        return;
+      }
+}
+//-----------------------------------------------------------------------------
+static void
 connection_readable(TCP_socket fd)
 {
 char command;
@@ -115,16 +134,8 @@ ssize_t len = ::recv(fd, &command, 1, 0);
 
                // read proc/parent/grand from socket
                AP_num buffer[3];
-               const ssize_t len = ::recv(fd, buffer, sizeof(buffer),
-                                          MSG_WAITALL);
-
-               if (len != sizeof(buffer))
-                  {
-                    cerr << prog << ": got " << len
-                         << " bytes on new connection (" << sizeof(buffer)
-                         << " expected) fd " << fd << endl;
-                    return;
-                  }
+               len = ::recv(fd, buffer, sizeof(buffer), MSG_WAITALL);
+               check_op("recv() identity", fd, len, sizeof(buffer));
 
                // find connected_procs entry for fd...
                //
@@ -148,68 +159,165 @@ ssize_t len = ::recv(fd, &command, 1, 0);
                connected_procs[idx].ap3.proc   = buffer[0];
                connected_procs[idx].ap3.parent = buffer[1];
                connected_procs[idx].ap3.grand  = buffer[2];
+
+               cerr << "done. Id is " << buffer[0] << ":" << buffer[1]
+                    << ":" << buffer[2] << endl;
              }
-             cerr << "done." << endl;
              return;
 
-        case 'r': cerr << "[" << fd << "] read - ";
-                  len = ::send(fd, &db, sizeof(db), 0);
-                  if (len != sizeof(db))
-                     {
-                       cerr << "*** send() failed on fd " << fd
-                            << " (got " << len << " expected " << sizeof(db)
-                            << "). closing fd." << endl;
-                       close_fd(fd);
-                       return;
-                     }
-                  cerr << "done." << endl;
-                  return;
+        case 'a':
+             {
+               cerr << "[" << fd << "] read all - ";
+               len = ::send(fd, &db, sizeof(db), 0);
+               check_op("send() all", fd, len, sizeof(db));
+               cerr << "done." << endl;
+             }
+             return;
 
-        case 'u': cerr << "[" << fd << "] update - ";
-                  len = ::send(fd, &db, sizeof(db), 0);
-                  if (len != sizeof(db))
-                     {
-                       cerr << "*** send() failed on fd " << fd
-                            << " (got " << len << " expected " << sizeof(db)
-                            << "). closing fd." << endl;
-                       close_fd(fd);
-                       return;
-                     }
+        case 'A':
+             {
+               cerr << "[" << fd << "] update all - ";
+               len = ::send(fd, &db, sizeof(db), 0);
+               check_op("send() all", fd, len, sizeof(db));
+               cerr << "sent - ";
 
-                  cerr << "sent - ";
-                  // get updated db back
-                  //
-                  len = ::recv(fd, &db, sizeof(db), 0);
-                  if (len != sizeof(db))
-                     {
-                       cerr << "*** recv() failed on fd " << fd
-                            << " (got " << len << " expected " << sizeof(db)
-                            << "). closing fd." << endl;
-                       close_fd(fd);
-                       return;
-                     }
-                  cerr << "done." << endl;
-                  return;
+               // send updated db back
+               //
+               len = ::recv(fd, &db, sizeof(db), 0);
+               check_op("recv()", fd, len, sizeof(db));
+               cerr << "done." << endl;
+             }
+             return;
+
+        case 'r':
+             {
+               cerr << "[" << fd << "] read record - ";
+               SV_key key;
+               len = ::recv(fd, &key, sizeof(key), MSG_WAITALL);
+               check_op("recv() key", fd, len, sizeof(key));
+
+               cerr << "key " << hex << uppercase << setfill('0')
+                    <<  key << setfill(' ') << dec << nouppercase << " - ";
+
+               offered_SVAR * svar = 0;
+               if (key)
+                  {
+                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+                        {
+                          if (key == db.offered_vars[o].key)
+                             {
+                               svar = db.offered_vars + o;
+                               break;
+                             }
+
+                        }
+                  }
+
+               if (svar)
+                  {
+                    len = ::send(fd, svar, sizeof(offered_SVAR), 0);
+                    check_op("send() record", fd, len, sizeof(offered_SVAR));
+                  }
+               else
+                  {
+                    offered_SVAR dummy;
+                    memset(&dummy, 0, sizeof(offered_SVAR));
+                    len = ::send(fd, &dummy, sizeof(offered_SVAR), 0);
+                    check_op("send() dummy", fd, len, sizeof(offered_SVAR));
+                  }
+
+               cerr << "record sent - done." << endl;
+             }
+             return;
+
+        case 'R':
+             {
+               cerr << "[" << fd << "] update record - ";
+               SV_key key;
+               len = ::recv(fd, &key, sizeof(key), MSG_WAITALL);
+               check_op("recv() key", fd, len, sizeof(key));
+
+               cerr << "key " << hex << uppercase << setfill('0')
+                    <<  key << setfill(' ') << dec << nouppercase << " - ";
+
+               offered_SVAR * svar = 0;
+               if (key)
+                  {
+                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+                        {
+                          if (key == db.offered_vars[o].key)
+                             {
+                               svar = db.offered_vars + o;
+                               break;
+                             }
+
+                        }
+                  }
+
+               if (svar)
+                  {
+                    len = ::send(fd, svar, sizeof(offered_SVAR), 0);
+                    check_op("send() record", fd, len, sizeof(offered_SVAR));
+
+                    cerr << "record sent - ";
+
+                    len = ::recv(fd, &db, sizeof(db), 0);
+                    check_op("recv()", fd, len, sizeof(db));
+
+                    cerr << "done." << endl;
+                  }
+               else
+                  {
+                    offered_SVAR dummy;
+                    memset(&dummy, 0, sizeof(offered_SVAR));
+                    len = ::send(fd, &dummy, sizeof(offered_SVAR), 0);
+                    check_op("send() dummy", fd, len, sizeof(offered_SVAR));
+                  }
+
+               cerr << "done." << endl;
+             }
+             return;
 
         default: cerr << "got unknown command'" << command
                       << "' on fd " << fd << endl;
                  close_fd(fd);
                  return;
+
       }
 }
 //-----------------------------------------------------------------------------
 int
 main(int argc, char * argv[])
 {
+int listen_port = Default_APserver_tcp_port;
    prog = argv[0];
+   for (int a = 1; a < argc; )
+       {
+         const char * opt = argv[a++];
+         const char * val = (a < argc) ? argv[a] : 0;
 
-   if (argc != 2)
+         if (!strcmp(opt, "--port"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   cerr << "--port without argument" << endl;
+                   return a;
+                 }
+
+            }
+         else
+            {
+              cerr << "unknown command line option " << opt << endl;
+              return a;
+            }
+       }
+
+   if (argc == 3)
       {
-       cerr << prog << ": missing port number" << endl;
-       return 1;
+        listen_port = atoi(argv[2]);
       }
 
-const int listen_port = atoi(argv[1]);
    cerr << prog << ": listening on TCP port " << listen_port << endl;
 
 const int listen_sock = socket(AF_INET, SOCK_STREAM, 0);

@@ -680,7 +680,133 @@ Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
 }
 //-----------------------------------------------------------------------------
 void 
-Command::cmd_LIB(ostream & out, const UCS_string & arg)
+Command::cmd_LIB1(ostream & out, const UCS_string & arg)
+{
+   // 1. open directory
+   //
+UTF8_string path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
+
+DIR * dir = opendir(path.c_str());
+   if (dir == 0)
+      {
+        out << "IMPROPER LIBRARY REFERENCE" << ": " << path << "/ : "
+            << strerror(errno) << endl;
+
+        char cc[200];
+          snprintf(cc, sizeof(cc),
+                   "path %s: could not be openend as directory: %s",
+                   path.c_str(), strerror(errno));
+        Workspace::more_error() = UCS_string(cc);
+        return;
+      }
+
+   // 2. collect .apl and .xml files
+   //
+vector<UCS_string> apl_files;
+vector<UCS_string> xml_files;
+
+   for (;;)
+       {
+         dirent * entry = readdir(dir);
+         if (entry == 0)   break;   // directory done
+
+         UCS_string filename(entry->d_name);
+         const int dlen = strlen(entry->d_name);
+         if (filename[dlen - 1] != 'l')   continue;   // not .apl or .xml
+         if (filename[dlen - 4] != '.')   continue;   // not .apl or .xml
+
+         if (filename[dlen - 3] == 'a' && filename[dlen - 2] == 'p')
+            {
+              filename.shrink(filename.size() - 4);   // skip extension
+              apl_files.push_back(filename);
+            }
+         else if (filename[dlen - 3] == 'x' && filename[dlen - 2] == 'm')
+            {
+              filename.shrink(filename.size() - 4);   // skip extension
+              xml_files.push_back(filename);
+            }
+       }
+   closedir(dir);
+
+   // 3. sort filenames alphabetically
+   //
+DynArray(const UCS_string *, apl_filenames, apl_files.size());
+   loop(a, apl_files.size())   apl_filenames[a] = &apl_files[a];
+   UCS_string::sort_names(apl_filenames, apl_files.size());
+
+DynArray(const UCS_string *, xml_filenames, xml_files.size());
+   loop(x, xml_files.size())   xml_filenames[x] = &xml_files[x];
+   UCS_string::sort_names(xml_filenames, xml_files.size());
+
+   // 4. merge APL and XML files, adding a + if both exist
+   //
+DynArray(const UCS_string *, filenames, apl_files.size() + xml_files.size());
+
+int count = 0;
+   for (int a = 0, x = 0;;)
+       {
+         if (a >= apl_files.size())   // end of apl_files reached
+            {
+              loop(xx, xml_files.size() - x)
+                  filenames[count++] = xml_filenames[x + xx];
+              break;
+            }
+
+         if (x >= xml_files.size())   // end of xml_files reached
+            {
+              loop(aa, apl_files.size() - a)
+                  filenames[count++] = apl_filenames[a + aa];
+              break;
+            }
+
+         // both APL and XML files. Compare them
+         //
+         const Comp_result comp = apl_filenames[a]->compare(*xml_filenames[x]);
+         if (comp == COMP_LT)        // APL filename smaller
+            {
+              filenames[count++] = apl_filenames[a++];
+            }
+         else if (comp == COMP_GT)   // XML filename smaller
+            {
+              filenames[count++] = xml_filenames[x++];
+            }
+         else                        // same
+            {
+              ((UCS_string *)(apl_filenames[a]))->append(UNI_ASCII_PLUS);
+              filenames[count++] = apl_filenames[a++];   ++x;
+            }
+       }
+        
+   // figure column widths
+   //
+   enum { tabsize = 4 };
+vector<int> col_width;
+   UCS_string::compute_column_width(col_width, filenames, count, tabsize,
+                                    Workspace::get_PrintContext().get_PW());
+
+   loop(c, count)
+      {
+        const int col = c % col_width.size();
+        out << *filenames[c];
+        if (col == (col_width.size() - 1) || c == (count - 1))
+           {
+             // last column or last item: print newline
+             //
+             out << endl;
+           }
+        else
+           {
+             // intermediate column: print spaces
+             //
+             const int len = tabsize*col_width[col] - filenames[c]->size();
+             Assert(len > 0);
+             loop(l, len)   out << " ";
+           }
+      }
+}
+//-----------------------------------------------------------------------------
+void 
+Command::cmd_LIB2(ostream & out, const UCS_string & arg)
 {
 UTF8_string path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
 
@@ -698,7 +824,9 @@ DIR * dir = opendir(path.c_str());
         return;
       }
 
-   const int print_width = Workspace::get_PrintContext().get_PW();
+   out << path << ":" << endl << endl;
+
+const int print_width = Workspace::get_PrintContext().get_PW();
    for (int col = 0;;)   // scan files in directory
        {
          dirent * entry = readdir(dir);

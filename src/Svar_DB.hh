@@ -34,7 +34,7 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 
-/// a pointer to the shared Svar_DB_memory.
+/// a pointer to the entire shared Svar_DB_memory.
 class Svar_DB_memory_P
 {
 public:
@@ -51,8 +51,16 @@ public:
            { ::close(DB_tcp);   DB_tcp = NO_TCP_SOCKET; }
       }
 
+   static bool APserver_available()
+      { return is_connected() && DB_tcp != NO_TCP_SOCKET; }
+
    static bool is_connected()
       { return memory_p != 0; }
+
+   static TCP_socket get_DB_tcp()
+      { return DB_tcp; }
+
+   static void DB_tcp_error(const char * op, int got, int expected);
 
    const Svar_DB_memory * operator->() const
       { Assert(memory_p); return memory_p; }
@@ -79,14 +87,53 @@ private:
    Svar_DB_memory_P & operator =(const Svar_DB_memory_P & other);
 };
 //-----------------------------------------------------------------------------
-#define READ_SVDB(open_act, closed_act)      \
-   if (Svar_DB_memory_P::is_connected())        \
-      { const Svar_DB_memory_P db(true); open_act }   \
+/// a pointer to one record (one shared variable) of the shared Svar_DB_memory
+class offered_SVAR_P
+{
+public:
+   offered_SVAR_P(bool read_only, SV_key key);
+
+   ~offered_SVAR_P();
+
+   const offered_SVAR * operator->() const
+      { return offered_svar_p; }
+
+   offered_SVAR * operator->()
+      { return offered_svar_p; }
+
+protected:
+   bool read_only;
+
+   static offered_SVAR * offered_svar_p;
+
+   static offered_SVAR cache;
+
+private:
+   /// don't copy...
+  offered_SVAR_P(const offered_SVAR_P & other);
+
+   /// don't copy...
+   offered_SVAR_P & operator =(const offered_SVAR_P & other);
+};
+//-----------------------------------------------------------------------------
+#define READ_SVDB(open_act, closed_act)                 \
+   if (Svar_DB_memory_P::is_connected())                \
+        { const Svar_DB_memory_P db(true); open_act }   \
    else { closed_act }
 
-#define UPD_SVDB(open_act, closed_act)       \
-   if (Svar_DB_memory_P::is_connected())         \
-      { Svar_DB_memory_P db(false); open_act }   \
+#define UPD_SVDB(open_act, closed_act)                  \
+   if (Svar_DB_memory_P::is_connected())                \
+        { Svar_DB_memory_P db(false); open_act }        \
+   else { closed_act }
+
+#define READ_RECORD(key, open_act, closed_act)               \
+   if (Svar_DB_memory_P::APserver_available())               \
+        { const offered_SVAR_P svar(true, key); open_act }   \
+   else { closed_act }
+
+#define UPD_RECORD(key, open_act, closed_act)                 \
+   if (Svar_DB_memory_P::APserver_available())                \
+        { const offered_SVAR_P svar(false, key); open_act }   \
    else { closed_act }
 
 /// a database in shared memory that contains all shared variables on
@@ -119,6 +166,15 @@ public:
         UPD_SVDB(svar = db->match_or_make(UCS_varname, to,
                   from, coupling); , svar = 0; )
         return svar;
+      }
+
+   /// match_or_make() called from APmain.cc
+   static void match_or_make(SV_key key, const Svar_partner & from,
+                             SV_Coupling & coupling)
+      {
+        offered_SVAR * svar = find_var(key);
+        match_or_make(svar->varname, svar->offering.id, from, coupling);
+        svar->offering.flags &= ~OSV_OFFER_SENT;
       }
 
    /// register processor in the database
@@ -195,6 +251,18 @@ public:
         READ_SVDB(return db->get_control(key); , return NO_SVAR_CONTROL; )
       }
 
+   /// return true iff variable with key \b key exists
+   static bool valid_var(SV_key key)
+      {
+        READ_SVDB(return db->valid_var(key); , return 0; )
+      }
+
+   /// return pointer to varname or 0 if key does not exist
+   static const uint32_t * get_varname(SV_key key)
+      {
+        READ_SVDB(return db->get_varname(key); , return 0; )
+      }
+
    /// find variable with key \b key
    static offered_SVAR * find_var(SV_key key)
       {
@@ -211,6 +279,21 @@ public:
    static Svar_state get_state(SV_key key)
       {
         READ_SVDB(return db->get_state(key); , return SVS_NOT_SHARED; )
+      }
+
+   static bool may_set(SV_key key, int attempt)
+      {
+        READ_SVDB(return db->may_set(key, attempt); , return true; )
+      }
+
+   static int data_owner_port(SV_key key)
+      {
+        READ_SVDB(return db->data_owner_port(key); , return -1; )
+      }
+
+   static bool may_use(SV_key key, int attempt)
+      {
+        READ_SVDB(return db->may_use(key, attempt); , return true; )
       }
 
    /// set the current state of this variable
