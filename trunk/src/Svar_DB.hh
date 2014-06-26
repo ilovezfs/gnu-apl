@@ -32,6 +32,8 @@
 
 using namespace std;
 
+/// #define USE_APserver
+
 //-----------------------------------------------------------------------------
 
 /// a pointer to the entire shared Svar_DB_memory.
