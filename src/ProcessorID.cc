@@ -36,7 +36,6 @@ Network_Profile ProcessorID::network_profile;
 
 uint16_t ProcessorID::APnnn_port = 0;
 UdpSocket ProcessorID::APnnn_socket(true, LOC);
-bool ProcessorID::doing_SV = true;
 
 //-----------------------------------------------------------------------------
 bool
@@ -44,17 +43,17 @@ ProcessorID::init(bool log_startup)
 {
    if (log_startup)
       {
-        CERR << "uprefs.do_svars:      " << uprefs.do_svars      << endl
-             << "uprefs.requested_id:  " << uprefs.requested_id  << endl
-             << "uprefs.requested_par: " << uprefs.requested_par << endl;
+        CERR << "uprefs.user_do_svars:   " << uprefs.user_do_svars   << endl
+             << "uprefs.system_do_svars: " << uprefs.system_do_svars << endl
+             << "uprefs.requested_id:    " << uprefs.requested_id    << endl
+             << "uprefs.requested_par:   " << uprefs.requested_par   << endl;
       }
 
-   doing_SV = uprefs.do_svars;
    id.proc = (AP_num)uprefs.requested_id;
    id.parent = uprefs.requested_par ? (AP_num)uprefs.requested_par : AP_NULL;
    id.grand = AP_NULL;
 
-   if (!doing_SV)
+   if (!uprefs.system_do_svars)
       {
         // shared variables are disabled, so Svar_DB is unavailable,
         // we use id.proc of 1000 if no ID is provided and otherwise
@@ -93,7 +92,7 @@ ProcessorID::init(bool log_startup)
         CERR << "*** Failed to start APnnn: processor " << id.proc
              << " will not accept incoming shared"
                 " variable offers. Expect surprises." << endl;
-        doing_SV = false;
+        uprefs.system_do_svars = false;
         return false;   // no error in order to continue.
       }
 
@@ -103,8 +102,8 @@ ProcessorID::init(bool log_startup)
       {
         CERR << "Processor ID was completely initialized: "
              << id.proc << ":" << id.parent << ":" << id.grand << endl
-             << "APnnn_port is: " << APnnn_port << endl
-             << "doing_SV is:   " << doing_SV << endl;
+             << "APnnn_port is:      " << APnnn_port << endl
+             << "system_do_svars is: " << uprefs.system_do_svars << endl;
 
       }
 

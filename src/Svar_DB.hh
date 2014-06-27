@@ -32,7 +32,7 @@
 
 using namespace std;
 
-/// #define USE_APserver
+// #define USE_APserver
 
 //-----------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ public:
    ~Svar_DB_memory_P();
 
    /// connect to APserver
-   static void connect_to_APserver(const char * bin_path);
+   static void connect_to_APserver(const char * bin_path, bool logit);
 
    static void disconnect()
       {
@@ -54,9 +54,9 @@ public:
       }
 
    static bool APserver_available()
-      { return is_connected() && DB_tcp != NO_TCP_SOCKET; }
+      { return has_memory() && DB_tcp != NO_TCP_SOCKET; }
 
-   static bool is_connected()
+   static bool has_memory()
       { return memory_p != 0; }
 
    static TCP_socket get_DB_tcp()
@@ -119,24 +119,42 @@ private:
 };
 //-----------------------------------------------------------------------------
 #define READ_SVDB(open_act, closed_act)                 \
-   if (Svar_DB_memory_P::is_connected())                \
+   if (Svar_DB_memory_P::has_memory())                  \
         { const Svar_DB_memory_P db(true); open_act }   \
    else { closed_act }
 
 #define UPD_SVDB(open_act, closed_act)                  \
-   if (Svar_DB_memory_P::is_connected())                \
+   if (Svar_DB_memory_P::has_memory())                  \
         { Svar_DB_memory_P db(false); open_act }        \
    else { closed_act }
 
-#define READ_RECORD(key, open_act, closed_act)               \
-   if (Svar_DB_memory_P::APserver_available())               \
-        { const offered_SVAR_P svar(true, key); open_act }   \
-   else { closed_act }
+#ifdef USE_APserver
 
-#define UPD_RECORD(key, open_act, closed_act)                 \
-   if (Svar_DB_memory_P::APserver_available())                \
-        { const offered_SVAR_P svar(false, key); open_act }   \
-   else { closed_act }
+# define READ_RECORD(key, open_act, closed_act)               \
+    if (Svar_DB_memory_P::has_memory())                       \
+         { const offered_SVAR_P svar(true, key); open_act }   \
+    else { closed_act }
+
+# define UPD_RECORD(key, open_act, closed_act)           \
+    if (Svar_DB_memory_P::has_memory())                  \
+         { offered_SVAR_P svar(false, key); open_act }   \
+    else { closed_act }
+
+#else // database in shared memory (no APserver)
+
+# define READ_RECORD(key, open_act, closed_act)               \
+    if (Svar_DB_memory_P::has_memory())                       \
+{ const Svar_DB_memory_P db(true);                            \
+  const offered_SVAR * svar = db->find_var(key); open_act }   \
+    else { closed_act }
+
+# define UPD_RECORD(key, open_act, closed_act)          \
+    if (Svar_DB_memory_P::has_memory())                 \
+{ Svar_DB_memory_P db(false);                           \
+  offered_SVAR * svar = db->find_var(key); open_act }   \
+    else { closed_act }
+
+#endif
 
 /// a database in shared memory that contains all shared variables on
 /// this machine
@@ -203,26 +221,20 @@ public:
    /// return true if \b id is not used by any registered proc, parent, or grand
    static bool is_unused_id(AP_num id)
       {
-        bool unused;
-        READ_SVDB(unused = db->is_unused_id(id); , unused = false; )
-        return unused;
+        READ_SVDB(return db->is_unused_id(id); , return false; )
       }
 
    /// return an id >= AP_FIRST_USER that is not mentioned in any registered
    /// processor (i,e, not proc, parent. or grand)
    static AP_num get_unused_id()
       {
-        AP_num unused;
-        READ_SVDB(unused = db->get_unused_id(); , unused = NO_AP; )
-        return unused;
+        READ_SVDB(return db->get_unused_id(); , return NO_AP; )
       }
 
    /// return the UDP port for communication with AP \b proc
    static uint16_t get_udp_port(AP_num proc, AP_num parent)
       {
-        uint16_t port = 0;
-        READ_SVDB(port = db->get_udp_port(proc, parent); , )
-        return port;
+        READ_SVDB(return db->get_udp_port(proc, parent); , return 0; )
       }
 
    /// unregister processor in the database
@@ -234,74 +246,19 @@ public:
    /// retract an offer, return previous coupling
    static SV_Coupling retract_var(SV_key key)
       {
-        SV_Coupling ret;
-        UPD_SVDB(ret = db->retract_var(key); , ret = NO_COUPLING; )
-        return ret;
-      }
-
-   /// return coupling of \b entry with \b key.
-   static SV_Coupling get_coupling(SV_key key)
-      {
-        SV_Coupling coupling;
-        READ_SVDB(coupling = db->get_coupling(key); , coupling = NO_COUPLING; )
-        return coupling;
-      }
-
-   /// return the current control vector of this variable
-   static Svar_Control get_control(SV_key key)
-      {
-        READ_SVDB(return db->get_control(key); , return NO_SVAR_CONTROL; )
-      }
-
-   /// return true iff variable with key \b key exists
-   static bool valid_var(SV_key key)
-      {
-        READ_SVDB(return db->valid_var(key); , return 0; )
+        UPD_RECORD(key, return svar->retract(); , return NO_COUPLING; )
       }
 
    /// return pointer to varname or 0 if key does not exist
    static const uint32_t * get_varname(SV_key key)
       {
-        READ_SVDB(return db->get_varname(key); , return 0; )
+        READ_RECORD(key, return svar->get_varname(); , return 0; )
       }
 
    /// find variable with key \b key
    static offered_SVAR * find_var(SV_key key)
       {
         UPD_SVDB(return db->find_var(key); , return 0; )
-      }
-
-   /// set the current control vector of this variable
-   static Svar_Control set_control(SV_key key, Svar_Control ctl)
-      {
-        UPD_SVDB(return db->set_control(key, ctl); , return NO_SVAR_CONTROL; )
-      }
-
-   /// return the current state of this variable
-   static Svar_state get_state(SV_key key)
-      {
-        READ_SVDB(return db->get_state(key); , return SVS_NOT_SHARED; )
-      }
-
-   static bool may_set(SV_key key, int attempt)
-      {
-        READ_SVDB(return db->may_set(key, attempt); , return true; )
-      }
-
-   static int data_owner_port(SV_key key)
-      {
-        READ_SVDB(return db->data_owner_port(key); , return -1; )
-      }
-
-   static bool may_use(SV_key key, int attempt)
-      {
-        READ_SVDB(return db->may_use(key, attempt); , return true; )
-      }
-
-   /// set the current state of this variable
-   static void set_state(SV_key key, bool used, const char * loc)
-      {
-        UPD_SVDB(db->set_state(key, used, loc); , )
       }
 
    /// add processors with pending offers to \b processors. Duplicates
@@ -318,11 +275,57 @@ public:
         READ_SVDB(db->get_variables(to_proc, from_proc, vars); , )
       }
 
+   /// return coupling of \b entry with \b key.
+   static SV_Coupling get_coupling(SV_key key)
+      {
+        READ_RECORD(key, return svar->get_coupling(); , return NO_COUPLING;)
+      }
+
+   /// return the current control vector of this variable
+   static Svar_Control get_control(SV_key key)
+      {
+        READ_RECORD(key, return svar->get_control(); , return NO_SVAR_CONTROL; )
+      }
+
+   /// set the current control vector of this variable
+   static Svar_Control set_control(SV_key key, Svar_Control ctl)
+      {
+        UPD_RECORD(key, svar->set_control(ctl); return svar->get_control(); ,
+                                                return NO_SVAR_CONTROL; )
+      }
+
+   /// return the current state of this variable
+   static Svar_state get_state(SV_key key)
+      {
+        READ_RECORD(key, return svar->get_state(); , return SVS_NOT_SHARED; )
+      }
+
+   static int data_owner_port(SV_key key)
+      {
+        READ_RECORD(key, return svar->data_owner_port(); , return -1; )
+      }
+
+   static bool may_set(SV_key key, int attempt)
+      {
+        READ_RECORD(key, return svar->may_set(attempt); , return true; )
+      }
+
+   static bool may_use(SV_key key, int attempt)
+      {
+        READ_RECORD(key, return svar->may_use(attempt); , return true; )
+      }
+
+   /// set the current state of this variable
+   static void set_state(SV_key key, bool used, const char * loc)
+      {
+        UPD_RECORD(key, svar->set_state(used, loc); , )
+      }
+
    /// return the share partner
    static Svar_partner get_peer(SV_key key)
       {
         Svar_partner peer;
-        UPD_SVDB(peer = db->get_peer(key); , peer.clear(); )
+        UPD_RECORD(key, peer = svar->get_peer(); , peer.clear(); )
         return peer;
       }
 
@@ -338,21 +341,13 @@ public:
    /// clear all events, return the current event bitmap.
    static Svar_event clear_all_events()
       {
-        UPD_SVDB(return db->clear_all_events(); , )
-        return SVE_NO_EVENTS;   // not reached; suppress -Wreturn-type warnings
-      }
-
-   /// clear the events of one variable
-   static void clear_event(SV_key key)
-      {
-        UPD_SVDB(db->clear_event(key); , )
+        UPD_SVDB(return db->clear_all_events(); , return SVE_NO_EVENTS; )
       }
 
    /// return events for processor \b proc
    static SV_key get_events(Svar_event & events, AP_num3 proc)
       {
-        READ_SVDB(return db->get_events(events, proc); ,
-                  return 0;)
+        READ_SVDB(return db->get_events(events, proc); , return 0;)
       }
 
    /// set an event for proc (and maybe also for key)

@@ -35,7 +35,8 @@ struct UserPreferences
      emacs_arg(0),
      do_not_echo(false),
      safe_mode(false),
-     do_svars(true),
+     user_do_svars(true),
+     system_do_svars(true),
      do_CONT(true),
      do_Color(true),
      requested_id(0),
@@ -90,8 +91,12 @@ struct UserPreferences
    /// true if --safe command line option was given
    bool safe_mode;
 
-   /// true if shared variables are enabled
-   bool do_svars;
+   /// true if shared variables are wanted by the user
+   bool user_do_svars;
+
+   /// true if shared variables are enabled by the system. This is initially
+   /// the same as user_do_svars, but can become false if something goes wrong
+   bool system_do_svars;
 
    /// load workspace CONTINUE on start-up
    bool do_CONT;

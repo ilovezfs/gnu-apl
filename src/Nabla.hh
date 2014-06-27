@@ -54,7 +54,7 @@ struct LineLabel
           { ln_major = -1;   ln_minor.clear(); }
 
    /// return true iff this line number is the header line [0]
-   bool is_header_line() const
+   bool is_header_line_number() const
       { return ln_major == 0 && ln_minor.size() == 0; }
 
    /// increase the line number
@@ -129,8 +129,14 @@ protected:
    /// delete function
    const char * execute_delete();
 
-   /// edit function
+   /// edit function line
    const char * execute_edit();
+
+   /// edit function header
+   const char * edit_header_line();
+
+   /// edit body line
+   const char * edit_body_line();
 
    /// restore function
    const char * execute_escape();

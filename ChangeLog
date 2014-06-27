@@ -84,3 +84,4 @@
  6858 several bugs fixed
  6970 ∆S and ∆T (stop/trace control)
  6995 make commands executable
+ 7229 last version with shared memory based shared variables

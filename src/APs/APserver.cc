@@ -39,6 +39,7 @@
 using namespace std;
 
 Svar_DB_memory db;
+int verbosity = 0;
 
 struct AP3_fd
 {
@@ -53,7 +54,7 @@ const char * prog = "????";
 extern ostream & get_CERR();
 ostream & get_CERR() { return cerr; }
 
-bool LOG_shared_variables = false;
+bool hang_on = false;   // dont exit after last connection was closed
 
 //-----------------------------------------------------------------------------
 static void
@@ -71,14 +72,17 @@ close_fd(TCP_socket fd)
 
    ::close(fd);
 
-   // exit if the last connection was removed
+   // maybe exit if the last connection was removed
    //
-   cerr << prog << ": closed fd " << fd << " ("
+   (verbosity > 0) && cerr << prog << ": closed fd " << fd << " ("
         << connected_procs.size() << " remaining)" << endl;
+
+   if (hang_on)   return;
 
    if (connected_procs.size() == 0)
       {
-        cerr << prog << ": exiting after last connection was closed" << endl;
+        (verbosity > 0) &&  cerr << prog
+                      << ": exiting after last connection was closed" << endl;
         exit(0);
       }
 }
@@ -86,7 +90,7 @@ close_fd(TCP_socket fd)
 static void
 new_connection(TCP_socket fd)
 {
-   cerr << prog << ": new connection: fd " << fd << endl;
+   (verbosity > 0) && cerr << prog << ": new connection: fd " << fd << endl;
 
 AP3_fd ap3_fd;
    ap3_fd.ap3.proc   = NO_AP;
@@ -103,7 +107,7 @@ check_op(const char * op, TCP_socket fd, int got, int expected)
    if (got != expected)
       {
         usleep(50000);
-        cerr << cerr << "*** " << op << " failed on fd " << fd
+        cerr << endl << "*** " << op << " failed on fd " << fd
              << " (got " << got << " expected " << expected
              << "). closing fd." << endl;
 
@@ -120,7 +124,7 @@ ssize_t len = ::recv(fd, &command, 1, 0);
 
    if (len <= 0)
       {
-         cerr << prog << "connection[" << fd
+         (verbosity > 0) && cerr << prog << "connection[" << fd
               << "] closed (recv_TCP() returned 0" << endl;
          close_fd(fd);
          return;
@@ -130,7 +134,7 @@ ssize_t len = ::recv(fd, &command, 1, 0);
       {
         case 'i':
              {
-               cerr << "[" << fd << "] identify - ";
+               (verbosity > 0) && cerr << "[" << fd << "] identify - ";
 
                // read proc/parent/grand from socket
                AP_num buffer[3];
@@ -160,44 +164,46 @@ ssize_t len = ::recv(fd, &command, 1, 0);
                connected_procs[idx].ap3.parent = buffer[1];
                connected_procs[idx].ap3.grand  = buffer[2];
 
-               cerr << "done. Id is " << buffer[0] << ":" << buffer[1]
+               (verbosity > 0) && cerr << "done. Id is "
+                                  << buffer[0] << ":" << buffer[1]
                     << ":" << buffer[2] << endl;
              }
              return;
 
         case 'a':
              {
-               cerr << "[" << fd << "] read all - ";
+               (verbosity > 0) && cerr << "[" << fd << "] read all - ";
                len = ::send(fd, &db, sizeof(db), 0);
                check_op("send() all", fd, len, sizeof(db));
-               cerr << "done." << endl;
+               (verbosity > 0) && cerr << "done." << endl;
              }
              return;
 
         case 'A':
              {
-               cerr << "[" << fd << "] update all - ";
+               (verbosity > 0) && cerr << "[" << fd << "] update all - ";
                len = ::send(fd, &db, sizeof(db), 0);
                check_op("send() all", fd, len, sizeof(db));
-               cerr << "sent - ";
+               (verbosity > 0) && cerr << "sent - ";
 
                // send updated db back
                //
                len = ::recv(fd, &db, sizeof(db), 0);
                check_op("recv()", fd, len, sizeof(db));
-               cerr << "done." << endl;
+               (verbosity > 0) && cerr << "done." << endl;
              }
              return;
 
         case 'r':
              {
-               cerr << "[" << fd << "] read record - ";
+               (verbosity > 0) && cerr << "[" << fd << "] read record - ";
                SV_key key;
                len = ::recv(fd, &key, sizeof(key), MSG_WAITALL);
                check_op("recv() key", fd, len, sizeof(key));
 
-               cerr << "key " << hex << uppercase << setfill('0')
-                    <<  key << setfill(' ') << dec << nouppercase << " - ";
+               (verbosity > 0) && cerr << "key " << hex << uppercase
+                                  << setfill('0') <<  key << setfill(' ')
+                                  << dec << nouppercase << " - ";
 
                offered_SVAR * svar = 0;
                if (key)
@@ -226,19 +232,20 @@ ssize_t len = ::recv(fd, &command, 1, 0);
                     check_op("send() dummy", fd, len, sizeof(offered_SVAR));
                   }
 
-               cerr << "record sent - done." << endl;
+               (verbosity > 0) && cerr << "record sent - done." << endl;
              }
              return;
 
         case 'R':
              {
-               cerr << "[" << fd << "] update record - ";
+               (verbosity > 0) && cerr << "[" << fd << "] update record - ";
                SV_key key;
                len = ::recv(fd, &key, sizeof(key), MSG_WAITALL);
                check_op("recv() key", fd, len, sizeof(key));
 
-               cerr << "key " << hex << uppercase << setfill('0')
-                    <<  key << setfill(' ') << dec << nouppercase << " - ";
+               (verbosity > 0) && cerr << "key " << hex << uppercase
+                                  << setfill('0') <<  key << setfill(' ')
+                                  << dec << nouppercase << " - ";
 
                offered_SVAR * svar = 0;
                if (key)
@@ -259,12 +266,12 @@ ssize_t len = ::recv(fd, &command, 1, 0);
                     len = ::send(fd, svar, sizeof(offered_SVAR), 0);
                     check_op("send() record", fd, len, sizeof(offered_SVAR));
 
-                    cerr << "record sent - ";
+                    (verbosity > 0) && cerr << "record sent - ";
 
-                    len = ::recv(fd, &db, sizeof(db), 0);
-                    check_op("recv()", fd, len, sizeof(db));
+                    len = ::recv(fd, svar, sizeof(offered_SVAR), 0);
+                    check_op("recv()", fd, len, sizeof(offered_SVAR));
 
-                    cerr << "done." << endl;
+                    (verbosity > 0) && cerr << "done." << endl;
                   }
                else
                   {
@@ -274,7 +281,7 @@ ssize_t len = ::recv(fd, &command, 1, 0);
                     check_op("send() dummy", fd, len, sizeof(offered_SVAR));
                   }
 
-               cerr << "done." << endl;
+               (verbosity > 0) && cerr << "done." << endl;
              }
              return;
 
@@ -296,7 +303,11 @@ int listen_port = Default_APserver_tcp_port;
          const char * opt = argv[a++];
          const char * val = (a < argc) ? argv[a] : 0;
 
-         if (!strcmp(opt, "--port"))
+         if (!strcmp(opt, "-H"))
+            {
+              hang_on = true;
+            }
+         else if (!strcmp(opt, "--port"))
             {
               ++a;
               if (!val)
@@ -305,6 +316,10 @@ int listen_port = Default_APserver_tcp_port;
                    return a;
                  }
 
+            }
+         else if (!strcmp(opt, "-v"))
+            {
+              ++verbosity;
             }
          else
             {
@@ -318,7 +333,8 @@ int listen_port = Default_APserver_tcp_port;
         listen_port = atoi(argv[2]);
       }
 
-   cerr << prog << ": listening on TCP port " << listen_port << endl;
+   (verbosity > 0) && cerr << prog << ": listening on TCP port "
+                      << listen_port << endl;
 
 const int listen_sock = socket(AF_INET, SOCK_STREAM, 0);
    {
@@ -350,7 +366,7 @@ sockaddr_in local;
 
 int max_fd = listen_sock;
 
-   cerr << prog << ": entering main loop..." << endl;
+   (verbosity > 0) && cerr << prog << ": entering main loop..." << endl;
    for (;;)
       {
         fd_set read_fds;

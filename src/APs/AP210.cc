@@ -705,8 +705,8 @@ SVAR_context * ctx = var.context;
 
         if (ctx->state_D != SVS_NOT_SHARED)   // var D read or written
            {
-             if (!Svar_DB::valid_var(key_D)) { error_loc = LOC;
-                                               return E_VALUE_ERROR; }
+             if (!Svar_DB::get_varname(key_D)) { error_loc = LOC;
+                                                 return E_VALUE_ERROR; }
              Svar_DB::set_state(key_D, ctx->state_D == SVS_IDLE, LOC);
            }
       }
@@ -714,8 +714,8 @@ SVAR_context * ctx = var.context;
       {
         const char * cmd = (const char *)(header + 1) + 4*rank;
         handle_cmd(cmd, data.size(), var, *var_D);
-        if (!Svar_DB::valid_var(key_D)) { error_loc = LOC;
-                                          return E_VALUE_ERROR; }
+        if (!Svar_DB::get_varname(key_D)) { error_loc = LOC;
+                                            return E_VALUE_ERROR; }
    Svar_DB::set_state(var.key, false, LOC);
    Svar_DB::set_state(key_D, false, LOC);
       }

@@ -150,9 +150,6 @@ protected:
 
    /// socket towards APnnn process
    static UdpSocket APnnn_socket;
-
-   /// true if shared variables are enabled
-   static bool doing_SV;
 };
 
 #endif

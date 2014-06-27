@@ -89,7 +89,7 @@ const ssize_t len = ::send(DB_tcp, &cache, sizeof(cache), 0);
 }
 //-----------------------------------------------------------------------------
 void
-Svar_DB_memory_P::connect_to_APserver(const char * bin_path)
+Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
 {
    DB_tcp = (TCP_socket)(socket(AF_INET, SOCK_STREAM, 0));
    if (DB_tcp == NO_TCP_SOCKET)
@@ -127,8 +127,8 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path)
 
          // fork an APserver
          //
-         get_CERR() << "forking new APserver listening on TCP port "
-              << APserver_port << endl;
+         logit && get_CERR() << "forking new APserver listening on TCP port "
+                             << APserver_port << endl;
 
          const pid_t pid = fork();
          if (pid)
@@ -164,7 +164,8 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path)
    // at this point DB_tcp is != NO_TCP_SOCKET and connected.
    //
    usleep(20000);
-   get_CERR() << "connected to APserver, DB_tcp is " << DB_tcp << endl;
+   logit && get_CERR() << "connected to APserver, DB_tcp is "
+                       << DB_tcp << endl;
 }
 //-----------------------------------------------------------------------------
 void
@@ -225,18 +226,33 @@ const ssize_t len = ::send(Svar_DB_memory_P::get_DB_tcp(),
 void
 Svar_DB::init(const char * progname, bool logit, bool do_svars)
 {
+   if (!do_svars)   // shared variables disable
+      {
+        // shared variables disable by the user. We init memory_p to be
+        // on the safe side, but complain only if logit is true
+        //
+        memset(&Svar_DB_memory_P::cache, 0, sizeof(Svar_DB_memory_P::cache));
+        Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
+
+        if (logit)
+           get_CERR() << "Not opening shared memory because command "
+                         "line option --noSV (or similar) was given." << endl;
+        return;
+      }
+
 char * path = strdup(progname);
    if (char * slash = strrchr(path, '/'))   *slash = 0;
    Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
-   Svar_DB_memory_P::connect_to_APserver(path);
-   if (Svar_DB_memory_P::is_connected())
+   Svar_DB_memory_P::connect_to_APserver(path, logit);
+   if (Svar_DB_memory_P::APserver_available())
       {
-        CERR << "using Svar_DB on APserver!" << endl;
+        if (logit)   CERR << "using Svar_DB on APserver!" << endl;
       }
    else
       {
         CERR << "*** using local Svar_DB cache" << endl;
         memset(&Svar_DB_memory_P::cache, 0, sizeof(Svar_DB_memory_P::cache));
+        Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
       }
 }
 
@@ -255,7 +271,7 @@ Svar_DB::open_shared_memory(const char * progname, bool logit, bool do_svars)
       {
         if (logit)
            get_CERR() << "Not opening shared memory because command "
-                         "line option --noSV was given." << endl;
+                         "line option --noSV (or similar) was given." << endl;
         return;
       }
 
@@ -342,7 +358,7 @@ Svar_DB_memory_P db(false);
 //-----------------------------------------------------------------------------
 Svar_DB::~Svar_DB()
 {
-   if (!Svar_DB_memory_P::is_connected())   return;
+   if (!Svar_DB_memory_P::has_memory())   return;
 
 const pid_t our_pid = getpid();
 
@@ -365,7 +381,7 @@ Svar_DB_memory_P db(false);
 void
 Svar_DB::print(ostream & out)
 {
-   if (!Svar_DB_memory_P::is_connected())
+   if (!Svar_DB_memory_P::has_memory())
       {
         out << "*** Svar_DB is not open!" << endl;
         return;
