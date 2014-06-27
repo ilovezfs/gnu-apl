@@ -217,6 +217,7 @@ if test "x$DEVELOP_WANTED" = "xyes"; then
    VALUE_HISTORY_WANTED=yes
    DYNAMIC_LOG_WANTED=yes
    ASSERT_LEVEL_WANTED=2
+   enable_dependency_tracking=yes
 fi
 
 # APL: max. rank ?

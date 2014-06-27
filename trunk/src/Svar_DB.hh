@@ -32,7 +32,7 @@
 
 using namespace std;
 
-// #define USE_APserver
+#define USE_APserver
 
 //-----------------------------------------------------------------------------
 
