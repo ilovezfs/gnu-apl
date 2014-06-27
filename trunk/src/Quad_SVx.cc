@@ -77,11 +77,14 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
    // on start-up of the interpreter (and then startup == true), or
    // after making an offer to an AP that is not yet running
    //
-   for (int d = 0; d < dircount; ++d)
-       {
-         char filename[PATH_MAX + 1];
          const char * verbose = "";
          Log(LOG_shared_variables)   verbose = " -v";
+
+char filename[PATH_MAX + 1];
+
+bool found_executable = false;
+   for (int d = 0; d < dircount; ++d)
+       {
          if (startup)
             {
               snprintf(filename, PATH_MAX,
@@ -97,31 +100,31 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
                        own_ID, par_ID, verbose, getpid());
             }
 
-         if (!is_executable(filename))   continue;
-
-         Log(LOG_shared_variables)
-            CERR << "found executable: " << filename << endl;
-
-         if (startup) Log(LOG_startup)
-                 get_CERR() << "Starting " << filename << endl;
-
-         FILE * fp = popen(filename, "r");
-         if (fp == 0)
-            {
-              CERR << "popen(" << filename << " failed: " << strerror(errno)
-                   << endl;
-              continue;
-            }
-
-         for (int cc; (cc = getc(fp)) != EOF;)   CERR << (char)cc;
-         CERR << endl;
-
-         pclose(fp);
-         return;
+         found_executable = is_executable(filename);
+         if (found_executable)   break;
        }
 
-   CERR << "No binary found for AP " << ap << " (interpreter path = "
-        << LibPaths::get_APL_bin_path() << ")" << endl;
+   if (!found_executable)
+      {
+        CERR << "No binary found for AP " << ap << " (interpreter path = "
+             << LibPaths::get_APL_bin_path() << ")" << endl;
+        return;
+      }
+
+   Log(LOG_startup)   get_CERR() << "Starting " << filename << endl;
+
+FILE * fp = popen(filename, "r");
+   if (fp == 0)
+      {
+        CERR << "popen(" << filename << " failed: " << strerror(errno)
+             << endl;
+        return;
+      }
+
+   for (int cc; (cc = getc(fp)) != EOF;)   CERR << (char)cc;
+   CERR << endl;
+
+   pclose(fp);
 }
 //=============================================================================
 Token

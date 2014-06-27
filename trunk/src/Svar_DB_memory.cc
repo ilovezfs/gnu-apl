@@ -721,68 +721,6 @@ Svar_DB_memory::retract_all(const AP_num3 & id)
        }
 }
 //-----------------------------------------------------------------------------
-SV_Coupling
-Svar_DB_memory::retract_var(SV_key key)
-{
-   return find_var(key)->retract();
-}
-//-----------------------------------------------------------------------------
-int
-Svar_DB_memory::data_owner_port(SV_key key) const
-{
-   return find_var(key)->data_owner_port();
-}
-//-----------------------------------------------------------------------------
-SV_Coupling
-Svar_DB_memory::get_coupling(SV_key key) const
-{
-   return find_var(key)->get_coupling();
-}
-//-----------------------------------------------------------------------------
-Svar_Control
-Svar_DB_memory::get_control(SV_key key) const
-{
-   return find_var(key)->get_control();
-}
-//-----------------------------------------------------------------------------
-Svar_Control
-Svar_DB_memory::set_control(SV_key key, Svar_Control control)
-{
-offered_SVAR * svar = find_var(key);
-   svar->set_control(control);
-   return svar->get_control();
-}
-//-----------------------------------------------------------------------------
-Svar_state
-Svar_DB_memory::get_state(SV_key key) const
-{
-   return find_var(key)->get_state();
-}
-//-----------------------------------------------------------------------------
-bool
-Svar_DB_memory::may_set(SV_key key, int attempt) const
-{
-   return find_var(key)->may_set(attempt);
-}
-//-----------------------------------------------------------------------------
-bool
-Svar_DB_memory::may_use(SV_key key, int attempt) const
-{
-   return find_var(key)->may_use(attempt);
-}
-//-----------------------------------------------------------------------------
-void
-Svar_DB_memory::set_state(SV_key key, bool used, const char * loc)
-{
-   find_var(key)->set_state(used, loc);
-}
-//-----------------------------------------------------------------------------
-Svar_partner
-Svar_DB_memory::get_peer(SV_key key)
-{
-   return find_var(key)->get_peer();
-}
-//-----------------------------------------------------------------------------
 Svar_event
 Svar_DB_memory::clear_all_events()
 {
@@ -818,53 +756,6 @@ const AP_num3 & caller_id = ProcessorID::get_id();
        }
 
    return ret;
-}
-//-----------------------------------------------------------------------------
-void
-Svar_DB_memory::clear_event(SV_key key)
-{
-offered_SVAR * svar = find_var(key);
-   if (svar == 0)   return;
-
-const AP_num3 & caller_id = ProcessorID::get_id();
-
-   if (caller_id == svar->offering.id)
-      {
-        if (!svar->offering.flags & OSV_EVENT)   return;   // no event set
-      }
-   else if (caller_id == svar->accepting.id)
-      {
-        if (!svar->accepting.flags & OSV_EVENT)   return;   // no event set
-      }
-   else
-      {
-         return;
-      }
-
-   // check if any events are remaining for the partner and clear its
-   // global event bits if not
-   //
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-       {
-         offered_SVAR & svar = offered_vars[o];
-         if (caller_id == svar.offering.id)
-            {
-              if (svar.offering.flags & OSV_EVENT)    return;   // bit remains
-            }
-         else if (caller_id == svar.accepting.id)
-            {
-              if (svar.accepting.flags & OSV_EVENT)   return;   // bit remains
-            }
-       }
-
-   // no events remaining: clear global event bits.
-   //
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         Svar_partner_events & slot = active_processors[a];
-
-         if (slot.partner.id == caller_id)   slot.events = SVE_NO_EVENTS;
-       }
 }
 //-----------------------------------------------------------------------------
 SV_key
@@ -938,34 +829,6 @@ const offered_SVAR * svar1 = find_var(key);
        }
 
    return 0;   // not found
-}
-//-----------------------------------------------------------------------------
-bool
-Svar_DB_memory::valid_var(SV_key key) const
-{
-   if (key == 0)   return false;
-
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-       {
-         const offered_SVAR * svar = offered_vars + o;
-         if (key == svar->key)   return true;
-       }
-
-   return false;
-}
-//-----------------------------------------------------------------------------
-const uint32_t *
-Svar_DB_memory::get_varname(SV_key key) const
-{
-   if (key == 0)   return 0;
-
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-       {
-         const offered_SVAR & svar = offered_vars[o];
-         if (key == svar.key)   return svar.varname;
-       }
-
-   return 0;
 }
 //-----------------------------------------------------------------------------
 offered_SVAR *

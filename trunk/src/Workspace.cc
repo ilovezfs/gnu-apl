@@ -663,19 +663,14 @@ const bool file_exists = access(filename.c_str(), W_OK) == 0;
              COUT << "NOT SAVED: THIS WS IS "
                   << the_workspace.WS_name << endl;
 
-             UCS_string & t4 = more_error();
-             t4.clear();
-             t4.append_utf8("the workspace was not saved because:\n"
-                      "   the workspace name '");
-             t4.append(the_workspace.WS_name);
-             t4.append_utf8("' of )WSID\n   does not match the name '");
-             t4.append(wname);
-             t4.append_utf8("' used in the )SAVE command\n"
-                      "   and the workspace file\n   ");
-             t4.append_utf8(filename.c_str());
-             t4.append_utf8("\n   already exists. Use )WSID ");
-             t4.append(wname);
-             t4.append_utf8(" first."); 
+             UTF8_ostream more;
+             more << "the workspace was not saved because:\n"
+                  << "   the workspace name '" << the_workspace.WS_name
+                  << "' of )WSID\n   does not match the name '" << wname
+                  << "' used in the )SAVE command\n"
+                  << "   and the workspace file\n   " << filename
+                  << "\n   already exists. Use )WSID " << wname << " first."; 
+             more_error() = UCS_string(more.get_data());
              return;
            }
       }

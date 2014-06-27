@@ -527,7 +527,8 @@ const char *
 Nabla::open_existing_function()
 {
    Log(LOG_nabla)
-      UERR << "opening existing function '" << fun_symbol->get_name() << "'" << endl;
+      UERR << "opening existing function '" << fun_symbol->get_name()
+           << "'" << endl;
 
    // this function must only be called when editing functions interactively
    //
@@ -703,40 +704,70 @@ Nabla::execute_edit()
 
    current_line = edit_from;
 
+   // if the user has specified a line label without a text then we are done
+   //
+   if (current_text.size() == 0)   return 0;
+
    // check that current_text is valid
    //
-   if (current_line.is_header_line())
+   if (current_line.is_header_line_number())   return edit_header_line();
+   else                                        return edit_body_line();
+}
+//-----------------------------------------------------------------------------
+const char *
+Nabla::edit_header_line()
+{
+   // parse the header and check that it is valid
+   //
+UserFunction_header header(current_text);
+   if (header.get_error() != E_NO_ERROR)
       {
-        if (current_text.size() == 0)   // empty line
-           return 0;
+        CERR << "BAD FUNCTION HEADER";
+        COUT << endl;
+        return 0;
+      }
 
-        UserFunction_header header(current_text);
-        bool bad_header = header.get_error() != E_NO_ERROR;
-
-        // check that the function name has not changed
+   // check if the function name has changed
+   //
+   Assert(fun_symbol);
+   Assert(header.FUN());
+const UCS_string & old_name = fun_symbol->get_name();
+const UCS_string & new_name = header.FUN()->get_name();
+   if (old_name != new_name)
+      {
+        // the name has changed. This is OK if the new name can be edited.
         //
-        bad_header = bad_header
-                   || (fun_symbol && header.FUN() &&
-                       fun_symbol->get_name() != header.FUN()->get_name());
-
-        if (bad_header)
+        // the old symbol shall not be ⎕FXed when closing the editor, so we
+        // can simply forget it and continue with the new function
+        //
+        // UserFunction_header::UserFunction_header() should have triggered
+        // the creation of header.FUN() so we can assume tht it exists. We
+        // need to check that it is not a variable or an existing function.
+        //
+        if (header.FUN()->get_nc() != NC_UNUSED_USER_NAME)
            {
              CERR << "BAD FUNCTION HEADER";
              COUT << endl;
              return 0;
            }
       }
-   else
+
+   lines[0].text = current_text;
+   current_line.next();
+   return 0;
+}
+//-----------------------------------------------------------------------------
+const char *
+Nabla::edit_body_line()
+{
+const Parser parser(PM_FUNCTION, LOC);
+Token_string in;
+ErrorCode ec = parser.parse(current_text, in);
+   if (ec)
       {
-        const Parser parser(PM_FUNCTION, LOC);
-        Token_string in;
-        ErrorCode ec = parser.parse(current_text, in);
-        if (ec)
-           {
-             CERR << "SYNTAX ERROR";
-             COUT << endl;
-             return 0;
-           }
+        CERR << "SYNTAX ERROR";
+        COUT << endl;
+        return 0;
       }
 
 const int idx_from = find_line(edit_from);
@@ -744,8 +775,6 @@ const int idx_from = find_line(edit_from);
    Assert(lines.size() > 0);
    if (idx_from == -1)   // new line
       {
-        if (!current_text.size())   return 0;   // no text: done
-
         // find the largest label before edit_from (if any)
         //
         int before_idx = -1;
@@ -757,15 +786,14 @@ const int idx_from = find_line(edit_from);
 
         FunLine fl(edit_from, current_text);
         lines.insert(lines.begin() + before_idx + 1, fl);
-        current_line.next();
-        return 0;
+      }
+   else
+      {
+        // replace line
+        //
+        lines[idx_from].text = current_text;
       }
 
-   // replace line
-   //
-   if (!current_text.size())   return 0;   // no text: done
-
-   lines[idx_from].text = current_text;
    current_line.next();
    return 0;
 }

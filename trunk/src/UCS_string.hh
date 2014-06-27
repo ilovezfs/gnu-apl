@@ -185,6 +185,9 @@ public:
    UCS_string operator +(const UCS_string & other) const
       { UCS_string ret(*this);   ret.append(other);   return ret; }
 
+   UCS_string & operator =(const char * c_string)
+      { *this = UCS_string(c_string);   return *this; }
+
    /// append \b other in quotes, doubling quoted in \b other
    void append_quoted(const UCS_string & other);
 

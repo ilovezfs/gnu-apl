@@ -444,19 +444,15 @@ Command::cmd_DROP(ostream & out, const vector<UCS_string> & lib_ws)
    //
    if (lib_ws.size() == 0)   // missing argument
       {
-        out << "BAD COMMAND" << endl;
-
-        UCS_string & t4 = Workspace::more_error();
-        t4 = UCS_string("missing workspace name in command )DROP");
+        out << "BAD COMMAND+" << endl;
+        Workspace::more_error() = "missing workspace name in command )DROP";
         return;
       }
 
    if (lib_ws.size() > 2)   // too many arguments
       {
-        out << "BAD COMMAND" << endl;
-        UCS_string & t4 = Workspace::more_error();
-
-        t4 = UCS_string("too many parameters in command )DROP");
+        out << "BAD COMMAND+" << endl;
+        Workspace::more_error() = "too many parameters in command )DROP";
         return;
       }
 
@@ -474,10 +470,9 @@ int result = unlink(filename.c_str());
    if (result)
       {
         out << wname << " NOT DROPPED: " << strerror(errno) << endl;
-        UCS_string & t4 = Workspace::more_error();
-        t4.clear();
-        t4.append_ascii("could not unlink file ");
-        t4.append_utf8(filename.c_str());
+        UTF8_ostream more;
+        more << "could not unlink file " << filename;
+        Workspace::more_error() = UCS_string(more.get_data());
       }
 }
 //-----------------------------------------------------------------------------
@@ -679,26 +674,65 @@ Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
 "===========================================================================\n" << endl;
 }
 //-----------------------------------------------------------------------------
+DIR *
+Command::open_LIB_dir(UTF8_string & path, ostream & out, const UCS_string & arg)
+{
+   // arg is '' or '0'-'9' or path from:
+   //
+   // 1.  )LIB          meaning )LIB 0
+   // 2.  )LIB 1
+   // 3.  )LIB directory-name
+   //
+   if (arg.size() == 0)   // case 1.
+      {
+        path = LibPaths::get_lib_dir(LIB0);
+      }
+   else if (arg.size() == 1 && Avec::is_digit((Unicode)arg[0]))   // case 2.
+      {
+        path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
+      }
+   else  // case 3.
+      {
+        path = UTF8_string(arg);
+      }
+
+   // follow symbolic links...
+   //
+   for (;;)
+       {
+         char buffer[FILENAME_MAX + 1];
+         const ssize_t len = readlink(path.c_str(), buffer, FILENAME_MAX);
+         if (len <= 0)   break;
+
+         buffer[len] = 0;
+         path = UTF8_string(buffer);
+       }
+
+DIR * dir = opendir(path.c_str());
+
+   if (dir == 0)
+      {
+        out << "IMPROPER LIBRARY REFERENCE '" << arg << "': "
+            << strerror(errno) << endl;
+
+        UTF8_ostream more;
+        more << "path '" << path << "' could not be openend as directory: "
+           << strerror(errno);
+        Workspace::more_error() = UCS_string(more.get_data());
+        return 0;
+      }
+
+   return dir;
+}
+//-----------------------------------------------------------------------------
 void 
 Command::cmd_LIB1(ostream & out, const UCS_string & arg)
 {
    // 1. open directory
    //
-UTF8_string path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
-
-DIR * dir = opendir(path.c_str());
-   if (dir == 0)
-      {
-        out << "IMPROPER LIBRARY REFERENCE" << ": " << path << "/ : "
-            << strerror(errno) << endl;
-
-        char cc[200];
-          snprintf(cc, sizeof(cc),
-                   "path %s: could not be openend as directory: %s",
-                   path.c_str(), strerror(errno));
-        Workspace::more_error() = UCS_string(cc);
-        return;
-      }
+UTF8_string path;
+DIR * dir = open_LIB_dir(path, out, arg);
+   if (dir == 0)   return;
 
    // 2. collect .apl and .xml files
    //
@@ -808,21 +842,11 @@ vector<int> col_width;
 void 
 Command::cmd_LIB2(ostream & out, const UCS_string & arg)
 {
-UTF8_string path = LibPaths::get_lib_dir((LibRef)(arg.atoi()));
-
-DIR * dir = opendir(path.c_str());
-   if (dir == 0)
-      {
-        out << "IMPROPER LIBRARY REFERENCE" << ": " << path << "/ : "
-            << strerror(errno) << endl;
-
-        char cc[200];
-          snprintf(cc, sizeof(cc),
-                   "path %s: could not be openend as directory: %s",
-                   path.c_str(), strerror(errno));
-        Workspace::more_error() = UCS_string(cc);
-        return;
-      }
+   // 1. open directory
+   //
+UTF8_string path;
+DIR * dir = open_LIB_dir(path, out, arg);
+   if (dir == 0)   return;
 
    out << path << ":" << endl << endl;
 

@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <dirent.h>
+
 #include "Value.icc"
 #include "Common.hh"
 #include "UTF8_string.hh"
@@ -102,6 +104,10 @@ protected:
 
    /// show US keyboard layout
    static void cmd_KEYB();
+
+   /// open directory arg and follow symlinks
+   static DIR * open_LIB_dir(UTF8_string & path, ostream & out,
+                            const UCS_string & arg);
 
    /// list content of workspace and wslib directories: )LIB [N]
    static void cmd_LIB1(ostream & out, const UCS_string & args);

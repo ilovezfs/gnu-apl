@@ -73,7 +73,7 @@ rlimit rl;
 static void
 init_2(const char * argv0, bool log_startup)
 {
-   Svar_DB::init(argv0, log_startup, uprefs.do_svars);
+   Svar_DB::init(argv0, log_startup, uprefs.system_do_svars);
    Input::init(true);
 }
 //-----------------------------------------------------------------------------
@@ -314,15 +314,15 @@ const char * argv0 = argv[0];
 
    if (uprefs.emacs_mode)
       {
-        UCS_string t4;
+        UCS_string info;
         if (uprefs.emacs_arg)
            {
-             t4 = NativeFunction::load_emacs_library(uprefs.emacs_arg);
+             info = NativeFunction::load_emacs_library(uprefs.emacs_arg);
            }
 
-        if (t4.size())   // problems loading library
+        if (info.size())   // problems loading library
            {
-             CERR << t4 << endl;
+             CERR << info << endl;
            }
         else
            {

@@ -289,7 +289,8 @@ int script_argc = argc;   // $0 of the apl script
             }
          else if (!strcmp(opt, "--noSV"))
             {
-              do_svars = false;
+              user_do_svars = false;
+              system_do_svars = false;
             }
          else if (!strcmp(opt, "-p"))
             {
@@ -319,7 +320,8 @@ int script_argc = argc;   // $0 of the apl script
          else if (!strcmp(opt, "--safe"))
             {
               safe_mode = true;
-              do_svars = false;
+              user_do_svars = false;
+              system_do_svars = false;
             }
          else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
             {
@@ -335,7 +337,8 @@ int script_argc = argc;   // $0 of the apl script
             }
          else if (!strcmp(opt, "--SV"))
             {
-              do_svars = true;
+              user_do_svars = true;
+              system_do_svars = true;
             }
          else if (!strcmp(opt, "-T"))
             {
@@ -841,7 +844,8 @@ int file_profile = 0;   // the current profile in the preferences file
             }
          else if (yes_no && !strcasecmp(opt, "SharedVars"))
             {
-              do_svars = yes;
+              user_do_svars = yes;
+              system_do_svars = yes;
             }
          else if (!strcasecmp(opt, "Logging"))
             {
