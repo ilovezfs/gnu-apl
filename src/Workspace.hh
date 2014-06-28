@@ -26,7 +26,7 @@
 #include "QuadFunction.hh"
 #include "Quad_RL.hh"
 #include "Quad_SVx.hh"
-#include "SkalarFunction.hh"
+#include "ScalarFunction.hh"
 #include "Symbol.hh"
 #include "SymbolTable.hh"
 #include "SystemVariable.hh"

@@ -103,7 +103,7 @@ UTF8_string creator("⎕FX");
 Token
 Quad_FX::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
-   if (!X->is_skalar_or_len1_vector())   AXIS_ERROR;
+   if (!X->is_scalar_or_len1_vector())   AXIS_ERROR;
    if (A->get_rank() > 1)                RANK_ERROR;
    if (!A->is_char_string())             DOMAIN_ERROR;
 
@@ -161,7 +161,7 @@ UCS_string text;
                        text.append(c.get_char_value());
                      }
                 }
-             else if (line->is_skalar())
+             else if (line->is_scalar())
                 {
                   const Cell & c1 = line->get_ravel(0);
                   if (!c1.is_character_cell())   DOMAIN_ERROR;
@@ -223,7 +223,7 @@ UCS_string function_name = B->get_UCS_ravel();
    if (function_name.size() == 0)   LENGTH_ERROR;
 
 NativeFunction * fun = NativeFunction::fix(so_name, function_name);
-   if (fun == 0)  return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));
+   if (fun == 0)  return Token(TOK_APL_VALUE1, IntScalar(0, LOC));
 
 Value_P Z = B;
    Z->check_value(LOC);

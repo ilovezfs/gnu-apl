@@ -28,7 +28,7 @@ Bif_OPER1_REDUCE1  Bif_OPER1_REDUCE1::fun;
 Token
 Bif_REDUCE::replicate(Value_P A, Value_P B, Axis axis)
 {
-   // turn skalar B into ,B
+   // turn scalar B into ,B
    //
 Shape shape_B = B->get_shape();
    if (shape_B.get_rank() == 0)
@@ -116,7 +116,7 @@ Bif_REDUCE::reduce(Function * LO, Value_P B, Axis axis)
    Assert1(LO);
    if (!LO->has_result())   DOMAIN_ERROR;
 
-   // if B is a skalar, then Z is B.
+   // if B is a scalar, then Z is B.
    //
    if (B->get_rank() == 0)      return Token(TOK_APL_VALUE1, B->clone(LOC));
 
@@ -147,7 +147,7 @@ Bif_REDUCE::reduce_n_wise(Value_P A, Function * LO, Value_P B, Axis axis)
 const APL_Integer A0 = A->get_ravel(0).get_int_value();
 const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
 
-   if (B->is_skalar())
+   if (B->is_scalar())
       {
         if (n_wise > 1)                               DOMAIN_ERROR;
       }

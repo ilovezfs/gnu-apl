@@ -83,7 +83,6 @@ AC_CHECK_LIB([blas],      [dcopy_])
 AC_CHECK_LIB([execinfo],  [backtrace])
 AC_CHECK_LIB([gomp],      [omp_set_num_threads])
 AC_CHECK_LIB([m],         [acosh])
-AC_CHECK_LIB([rt],        [shm_open])
 AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
@@ -101,16 +100,6 @@ if test "x$HAVE_rdtsc" = "xyes"; then
    AC_DEFINE_UNQUOTED([HAVE_RDTSC], [1], [CPU has rdtsc opcode])
 fi
 
-# check if shm_open() is in libc (like in OSX) or in a library above
-AC_MSG_CHECKING([whether shm_open() is in libc])
-AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM([[extern int shm_open(const char *, int, int);]],
-	[[return shm_open("", 0, 0);]]
-    )], [HAVE_shm_open=yes], [HAVE_shm_open=no])
-AC_MSG_RESULT([$HAVE_shm_open])
-if test "x$HAVE_shm_open" = "xyes"; then
-   AC_DEFINE_UNQUOTED([HAVE_shm_open], [1], [libc has shm_open()])
-fi
 
 # see if arg 3 of tputs is (*)(int) or (*)(char)
 #
@@ -217,7 +206,6 @@ if test "x$DEVELOP_WANTED" = "xyes"; then
    VALUE_HISTORY_WANTED=yes
    DYNAMIC_LOG_WANTED=yes
    ASSERT_LEVEL_WANTED=2
-   enable_dependency_tracking=yes
 fi
 
 # APL: max. rank ?
@@ -322,6 +310,9 @@ AC_DEFINE_UNQUOTED([VISIBLE_MARKERS_WANTED], [yes],
 fi
 # check if we are on i686 (to fix a strange rpmbuild problem
 AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])
+
+# always enable dependency tracking to avoid stale .o after SVN updates
+enable_dependency_tracking=yes
 
 # check if we want development options
 AM_CONDITIONAL([DEVELOP], [test x$DEVELOP_WANTED = xyes])

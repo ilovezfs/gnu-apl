@@ -162,7 +162,7 @@ sixbit(Unicode uni)
 }
 //-----------------------------------------------------------------------------
 Value_P
-IntSkalar(APL_Integer val, const char * loc)
+IntScalar(APL_Integer val, const char * loc)
 {
 Value_P Z(new Value(loc));
    new (Z->next_ravel())   IntCell(val);
@@ -170,7 +170,7 @@ Value_P Z(new Value(loc));
 }
 //-----------------------------------------------------------------------------
 Value_P
-FloatSkalar(APL_Float val, const char * loc)
+FloatScalar(APL_Float val, const char * loc)
 {
 Value_P Z(new Value(loc));
    new (Z->next_ravel())   FloatCell(val);

@@ -463,7 +463,7 @@ UCS_string fn = fun_name;
 
 PrintContext pctx = Workspace::get_PrintContext();
 const Value & val = *get_apl_val();
-   if (val.get_rank() == 0)   // skalar
+   if (val.get_rank() == 0)   // scalar
       {
         pctx.set_style(PR_APL_MIN);
       }

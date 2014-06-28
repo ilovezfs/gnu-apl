@@ -41,7 +41,7 @@ const unsigned int seed = reset_seed();
 void
 Quad_RL::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar_or_len1_vector())
+   if (!value->is_scalar_or_len1_vector())
       {
         if (value->get_rank() > 1)   RANK_ERROR;
         else                         LENGTH_ERROR;

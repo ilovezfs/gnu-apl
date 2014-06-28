@@ -185,7 +185,7 @@ const ShapeItem ec_B = B->element_count();
 const ShapeItem ec_X = X->element_count();
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();
-const int incr_B = (ec_B == 1) ? 0 : 1;   // maybe skalar extend B
+const int incr_B = (ec_B == 1) ? 0 : 1;   // maybe scalar extend B
 const Cell * cX = &X->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
 
@@ -220,14 +220,14 @@ Symbol::assign_indexed(IndexExpr & IX, Value_P B)   // A[IX;...] ← B
 Value_P A = get_apl_value();
    if (A->get_rank() != IX.value_count())   INDEX_ERROR;
 
-   // B must either be a skalar (and is then skalar extended to the size
+   // B must either be a scalar (and is then scalar extended to the size
    // of the updated area, or else have the shape of the concatenated index
    // items for example:
    //
    //  X:   X1    ; X2    ; X3
    //  ⍴B:  b1 b2   b3 b4   b5 b6
    //
-   if (1 && !B->is_skalar())
+   if (1 && !B->is_scalar())
       {
         // remove dimensions with len 1 from the shapes of X and B...
         // if we see an empty Xn then we return.
@@ -982,10 +982,10 @@ void
 Symbol::vector_assignment(Symbol * * symbols, int sym_count, Value_P values)
 {
    if (values->get_rank() > 1)   RANK_ERROR;
-   if (!values->is_skalar() &&
+   if (!values->is_scalar() &&
        values->element_count() != sym_count)   LENGTH_ERROR;
 
-const int incr = values->is_skalar() ? 0 : 1;
+const int incr = values->is_scalar() ? 0 : 1;
 const Cell * cV = &values->get_ravel(0);
    loop(s, sym_count)
       {
@@ -1001,7 +1001,7 @@ const Cell * cV = &values->get_ravel(0);
              sym->assign(val, LOC);
            }
 
-        cV += incr;   // skalar extend values
+        cV += incr;   // scalar extend values
       }
 }
 //-----------------------------------------------------------------------------

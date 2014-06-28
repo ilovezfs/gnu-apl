@@ -98,7 +98,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
 Token
 Quad_AT::eval_AB(Value_P A, Value_P B)
 {
-   // A should be an integer skalar 1, 2, 3, or 4
+   // A should be an integer scalar 1, 2, 3, or 4
    //
    if (A->get_rank() > 0)   RANK_ERROR;
 const APL_Integer mode = A->get_ravel(0).get_int_value();
@@ -236,7 +236,7 @@ Token
 Quad_CR::eval_AB(Value_P A, Value_P B)
 {
    if (A->get_rank() > 1)                    RANK_ERROR;
-   if (!A->is_skalar_or_len1_vector())       LENGTH_ERROR;
+   if (!A->is_scalar_or_len1_vector())       LENGTH_ERROR;
    if (!A->get_ravel(0).is_integer_cell())   DOMAIN_ERROR;
 
 const PrintContext pctx = Workspace::get_PrintContext(PST_NONE);
@@ -676,7 +676,7 @@ UCS_string prolog(name);
 
 UCS_string shape_rho;
    {
-     if (!value.is_skalar())
+     if (!value.is_scalar())
         {
           loop(r, value.get_rank())
               {
@@ -947,7 +947,7 @@ UCS_string epilog(name);
    //
    if (!short_format)   // may need epilog
       {
-        // if value is a skalar or a vector with != 1 elements then
+        // if value is a scalar or a vector with != 1 elements then
         // epilog is not needed.
         //
         if (value.get_rank() > 1 ||
@@ -962,7 +962,7 @@ Quad_DL::eval_B(Value_P B)
 {
 const APL_time_us start = now();
 
-   // B should be an integer or real skalar
+   // B should be an integer or real scalar
    //
    if (B->get_rank() > 0)                 RANK_ERROR;
    if (!B->get_ravel(0).is_real_cell())   DOMAIN_ERROR;
@@ -1557,7 +1557,7 @@ quad_INP & _arg = arg.u.u_quad_INP;
                   *esc[e] =
                       new UCS_string(cell.get_pointer_value()->get_UCS_ravel());
                 }
-             else                          // char skalar
+             else                          // char scalar
                 {
                   *esc[e] = new UCS_string(1, cell.get_char_value());
                 }
@@ -1927,7 +1927,7 @@ Value_P Z(new Value(shZ, LOC));
 Token
 Quad_SI::eval_AB(Value_P A, Value_P B)
 {
-   if (A->element_count() != 1)   // not skalar-like
+   if (A->element_count() != 1)   // not scalar-like
       {
         if (A->get_rank() > 1)   RANK_ERROR;
         else                     LENGTH_ERROR;
@@ -1946,7 +1946,7 @@ const StateIndicator * si = 0;
 
    Assert(si);
 
-   if (B->element_count() != 1)   // not skalar-like
+   if (B->element_count() != 1)   // not scalar-like
       {
         if (B->get_rank() > 1)   RANK_ERROR;
         else                     LENGTH_ERROR;
@@ -2005,7 +2005,7 @@ const APL_Integer b = B->get_ravel(0).get_int_value();
 Token
 Quad_SI::eval_B(Value_P B)
 {
-   if (B->element_count() != 1)   // not skalar-like
+   if (B->element_count() != 1)   // not scalar-like
       {
         if (B->get_rank() > 1)   RANK_ERROR;
         else                     LENGTH_ERROR;

@@ -82,7 +82,7 @@ Cell::init(const Cell & other)
 void
 Cell::init_from_value(Value_P value, const char * loc)
 {
-   if (value->is_skalar())
+   if (value->is_scalar())
       {
         init(value->get_ravel(0));
       }

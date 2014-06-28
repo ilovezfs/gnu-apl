@@ -255,7 +255,7 @@ const Value & format = *A->get_ravel(a++).get_pointer_value();
 
 printf_done:
 
-Value_P Z(new Value(LOC));   // skalar result
+Value_P Z(new Value(LOC));   // scalar result
    new (Z->next_ravel())   IntCell(out_len);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -371,7 +371,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
         //
         case -4: // clear all probes (ignores B, returns 0)
              Probe::init_all();
-             return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));
+             return Token(TOK_APL_VALUE1, IntScalar(0, LOC));
 
         case -2: // return CPU frequency
              {
@@ -417,10 +417,10 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                //
                if (probe < 0)   probe = Probe::PROBE_COUNT + probe;
                if (probe >= Probe::PROBE_COUNT)   // too high
-                  return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
+                  return Token(TOK_APL_VALUE1, IntScalar(-1, LOC));
 
                const int len = Probe::get_length(probe);
-               if (len < 0)   return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
+               if (len < 0)   return Token(TOK_APL_VALUE1, IntScalar(-1, LOC));
 
                 Value_P Z(new Value(len, LOC));
                 loop(m, len)
@@ -467,7 +467,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 UTF8_string path(*B.get());
                 errno = 0;
                 FILE * f = fopen(path.c_str(), "r");
-                if (f == 0)   return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
+                if (f == 0)   return Token(TOK_APL_VALUE1, IntScalar(-1, LOC));
 
                 file_entry fe(f, fileno(f));
                 fe.fe_may_read = true;
@@ -640,7 +640,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (f == 0)
                    {
                      if (errno)   goto out_errno;   // errno may be set or not
-                     return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
+                     return Token(TOK_APL_VALUE1, IntScalar(-1, LOC));
                    }
 
                 file_entry fe(f, fileno(f));
@@ -738,7 +738,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                 errno = 0;
                 FILE * f = fopen(path.c_str(), m);
-                if (f == 0)   return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
+                if (f == 0)   return Token(TOK_APL_VALUE1, IntScalar(-1, LOC));
 
                 file_entry fe(f, fileno(f));
                 fe.fe_may_read = read;
@@ -892,7 +892,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (f == 0)
                    {
                      if (errno)   goto out_errno;   // errno may be set or not
-                     return Token(TOK_APL_VALUE1, IntSkalar(-1, LOC));
+                     return Token(TOK_APL_VALUE1, IntScalar(-1, LOC));
                    }
 
                 file_entry fe(f, fileno(f));

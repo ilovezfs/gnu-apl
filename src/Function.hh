@@ -134,7 +134,7 @@ public:
 
    typedef ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const;
 
-   /// if this function is an associative skalar function then return
+   /// if this function is an associative scalar function then return
    /// its associative cell function, otherwise 0.
    virtual assoc_f2 get_assoc() const
       { return 0; }

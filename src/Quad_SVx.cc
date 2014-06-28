@@ -150,7 +150,7 @@ Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
         // construct control value
         //
         int ctl = 0;
-        if (A->is_skalar())
+        if (A->is_scalar())
            {
              const bool val = A->get_ravel(0).get_near_bool(qct);
               ctl = val ? ALL_SVAR_CONTROLS : NO_SVAR_CONTROL;
@@ -221,7 +221,7 @@ Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
 Quad_SVE::Quad_SVE()
    : NL_SystemVariable(ID_Quad_SVE)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -230,7 +230,7 @@ Quad_SVE::assign(Value_P value, const char * loc)
    // ⎕SVE←X merely remembers the timer expiration time. The timer is only
    // started if ⎕SVE is referenced (in Quad_SVE::get_apl_value())
    //
-   if (!value->is_skalar())   RANK_ERROR;
+   if (!value->is_scalar())   RANK_ERROR;
 
 const APL_time_us duration = 1000000 * value->get_ravel(0).get_real_value();
    if (duration < 0)   DOMAIN_ERROR;
@@ -260,7 +260,7 @@ const APL_time_us wait = timer_end - current_time;
    if (wait <= 0)
       {
         Svar_DB::clear_all_events();
-        return IntSkalar(0, LOC);
+        return IntScalar(0, LOC);
       }
 
    // At this point the timer is still running.
@@ -312,13 +312,13 @@ bool got_event = false;
 
    // if no event has occurred (timeout) then return 0
    //
-  if (!got_event)   return IntSkalar(0, LOC);
+  if (!got_event)   return IntScalar(0, LOC);
 
    // we have got an event; return remaining time.
    //
 const APL_Float remaining = timer_end - now();
 
-   if (remaining < 0)   return IntSkalar(0, LOC);
+   if (remaining < 0)   return IntScalar(0, LOC);
 
 Value_P Z(new Value(LOC));
    new (&Z->get_ravel(0))   FloatCell(0.000001 * remaining);
@@ -347,7 +347,7 @@ Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
 
    loop(z, var_count)
       {
-        ShapeItem a = A->is_skalar() ? 0 : z;
+        ShapeItem a = A->is_scalar() ? 0 : z;
         uint32_t vname[MAX_SVAR_NAMELEN + 1];
         const int vlen = surrogates[z].size();
         if (vlen > MAX_SVAR_NAMELEN)   DOMAIN_ERROR;

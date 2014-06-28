@@ -81,7 +81,7 @@ RealCell.cc					RealCell.hh		\
 Shape.cc					Shape.hh		\
 						SharedValuePointer.hh	\
 						Simple_string.hh	\
-SkalarFunction.cc				SkalarFunction.hh	\
+ScalarFunction.cc				ScalarFunction.hh	\
 						Source.hh		\
 StateIndicator.cc				StateIndicator.hh	\
 StaticObjects.cc							\

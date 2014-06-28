@@ -17388,51 +17388,6 @@ _ACEOF
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for shm_open in -lrt" >&5
-$as_echo_n "checking for shm_open in -lrt... " >&6; }
-if ${ac_cv_lib_rt_shm_open+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lrt  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char shm_open ();
-int
-main ()
-{
-return shm_open ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_rt_shm_open=yes
-else
-  ac_cv_lib_rt_shm_open=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_shm_open" >&5
-$as_echo "$ac_cv_lib_rt_shm_open" >&6; }
-if test "x$ac_cv_lib_rt_shm_open" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBRT 1
-_ACEOF
-
-  LIBS="-lrt $LIBS"
-
-fi
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sem_init in -lpthread" >&5
 $as_echo_n "checking for sem_init in -lpthread... " >&6; }
 if ${ac_cv_lib_pthread_sem_init+:} false; then :
@@ -17602,36 +17557,6 @@ _ACEOF
 
 fi
 
-# check if shm_open() is in libc (like in OSX) or in a library above
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether shm_open() is in libc" >&5
-$as_echo_n "checking whether shm_open() is in libc... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-extern int shm_open(const char *, int, int);
-int
-main ()
-{
-return shm_open("", 0, 0);
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  HAVE_shm_open=yes
-else
-  HAVE_shm_open=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_shm_open" >&5
-$as_echo "$HAVE_shm_open" >&6; }
-if test "x$HAVE_shm_open" = "xyes"; then
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_shm_open 1
-_ACEOF
-
-fi
 
 # see if arg 3 of tputs is (*)(int) or (*)(char)
 #
@@ -17811,7 +17736,6 @@ _ACEOF
    VALUE_HISTORY_WANTED=yes
    DYNAMIC_LOG_WANTED=yes
    ASSERT_LEVEL_WANTED=2
-   enable_dependency_tracking=yes
 fi
 
 # APL: max. rank ?
@@ -17945,6 +17869,9 @@ else
   ON_i686_FALSE=
 fi
 
+
+# always enable dependency tracking to avoid stale .o after SVN updates
+enable_dependency_tracking=yes
 
 # check if we want development options
  if test x$DEVELOP_WANTED = xyes; then

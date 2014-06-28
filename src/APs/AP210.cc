@@ -263,7 +263,7 @@ const CDR_string & cdr = *ctx.var_C.data;
         return;
       }
 
-   if (cdr.get_rank() > 1)   // not a skalar or vector
+   if (cdr.get_rank() > 1)   // not a scalar or vector
       {
         CERR << "Bad CDR rank (" << cdr.get_rank() << endl;
         set_ACK(ctx.var_C, -32);   // C rank error

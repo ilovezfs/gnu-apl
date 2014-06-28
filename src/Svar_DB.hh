@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,8 +31,6 @@
 #include <iostream>
 
 using namespace std;
-
-#define USE_APserver
 
 //-----------------------------------------------------------------------------
 
@@ -128,8 +126,6 @@ private:
         { Svar_DB_memory_P db(false); open_act }        \
    else { closed_act }
 
-#ifdef USE_APserver
-
 # define READ_RECORD(key, open_act, closed_act)               \
     if (Svar_DB_memory_P::has_memory())                       \
          { const offered_SVAR_P svar(true, key); open_act }   \
@@ -139,22 +135,6 @@ private:
     if (Svar_DB_memory_P::has_memory())                  \
          { offered_SVAR_P svar(false, key); open_act }   \
     else { closed_act }
-
-#else // database in shared memory (no APserver)
-
-# define READ_RECORD(key, open_act, closed_act)               \
-    if (Svar_DB_memory_P::has_memory())                       \
-{ const Svar_DB_memory_P db(true);                            \
-  const offered_SVAR * svar = db->find_var(key); open_act }   \
-    else { closed_act }
-
-# define UPD_RECORD(key, open_act, closed_act)          \
-    if (Svar_DB_memory_P::has_memory())                 \
-{ Svar_DB_memory_P db(false);                           \
-  offered_SVAR * svar = db->find_var(key); open_act }   \
-    else { closed_act }
-
-#endif
 
 /// a database in shared memory that contains all shared variables on
 /// this machine

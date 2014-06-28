@@ -189,7 +189,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(FloatSkalar(DEFAULT_Quad_CT, LOC), LOC);
+        Symbol::push();   Symbol::assign(FloatScalar(DEFAULT_Quad_CT, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -341,7 +341,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(IntSkalar(DEFAULT_Quad_PP, LOC), LOC);
+        Symbol::push();   Symbol::assign(IntScalar(DEFAULT_Quad_PP, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -398,7 +398,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(IntSkalar(0, LOC), LOC);
+        Symbol::push();   Symbol::assign(IntScalar(0, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -435,7 +435,7 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(IntSkalar(DEFAULT_Quad_PW, LOC), LOC);
+        Symbol::push();   Symbol::assign(IntScalar(DEFAULT_Quad_PW, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------

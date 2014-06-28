@@ -391,10 +391,10 @@ const uint8_t * ravel = data + 16 + 4*rank;
               const Rank sub_rank = sub_data[13];
               const uint8_t * sub_ravel = sub_data + 16 + 4*sub_rank;
 
-              // if the sub-item is a non-nested skalar then we append it to
+              // if the sub-item is a non-nested scalar then we append it to
               // ret directly; otherwise we append a pointer to it,
               //
-              if (sub_rank == 0)   // skalar
+              if (sub_rank == 0)   // scalar
                  {
                    if (sub_vtype == 0)        // bit
                       {
@@ -439,10 +439,10 @@ const uint8_t * ravel = data + 16 + 4*rank;
                         continue;   // next n
                       }
 
-                   // sub_vtype 6 (progression vector) can't be skalar
+                   // sub_vtype 6 (progression vector) can't be scalar
                  }
 
-              // at this point the sub-item is not a skalar
+              // at this point the sub-item is not a scalar
               //
               if (sub_vtype == 6)        // arithmetic progression vector
                  {

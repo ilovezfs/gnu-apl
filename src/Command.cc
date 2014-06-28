@@ -701,14 +701,22 @@ Command::open_LIB_dir(UTF8_string & path, ostream & out, const UCS_string & arg)
 
    // follow symbolic links...
    //
-   for (;;)
+   loop(depth, 20)
        {
          char buffer[FILENAME_MAX + 1];
          const ssize_t len = readlink(path.c_str(), buffer, FILENAME_MAX);
-         if (len <= 0)   break;
+         if (len <= 0)   break;   // not a symlink
 
          buffer[len] = 0;
-         path = UTF8_string(buffer);
+         if (buffer[0] == '/')   // absolute path
+            {
+              path = UTF8_string(buffer);
+            }
+          else                   // relative path
+            {
+              path.append((UTF8)'/');
+              path.append(UTF8_string(buffer));
+            }
        }
 
 DIR * dir = opendir(path.c_str());
@@ -862,7 +870,8 @@ const int print_width = Workspace::get_PrintContext().get_PW();
          const int dlen = strlen(entry->d_name);
 
 #ifdef _DIRENT_HAVE_D_TYPE
-         if (entry->d_type != DT_REG)   continue; // not a regular file
+         if (entry->d_type != DT_REG &&
+             entry->d_type != DT_LNK)            continue; // not a regular file
 #else
          if (dlen == 1 && entry->d_name[0] == '.')   continue;
          if (dlen == 2 && entry->d_name[0] == '.'
