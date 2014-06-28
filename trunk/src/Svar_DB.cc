@@ -23,8 +23,6 @@
 #include <signal.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 #include <sys/time.h>
 
 #include <iomanip>
@@ -38,22 +36,6 @@
 
 extern ostream CERR;
 extern ostream & get_CERR();
-
-#ifndef USE_APserver
-
-Svar_DB shared_memory_Svar_DB;
-
-void Svar_DB::init(const char * progname, bool logit, bool do_svars)
-   { shared_memory_Svar_DB.open_shared_memory(progname, logit, do_svars); }
-
-const char * SHM_NAME = "/apl-svars";
-
-#ifndef HAVE_shm_open
-# define shm_open(name, oflag, mode) (-1)
-# define shm_unlink(name) (-1)
-#endif
-
-#endif // (dont) USE_APserver
 
 uint16_t Svar_DB_memory_P::APserver_port = Default_APserver_tcp_port;
 
@@ -220,9 +202,6 @@ const ssize_t len = ::send(Svar_DB_memory_P::get_DB_tcp(),
       }
 }
 //=============================================================================
-
-#ifdef USE_APserver
-
 void
 Svar_DB::init(const char * progname, bool logit, bool do_svars)
 {
@@ -255,106 +234,6 @@ char * path = strdup(progname);
         Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
       }
 }
-
-#else // dont USE_APserver
-
-void
-Svar_DB::open_shared_memory(const char * progname, bool logit, bool do_svars)
-{
-   if (do_svars)
-      {
-        if (logit)
-           get_CERR() << "Opening shared memory (pid "
-                      << getpid() << ", " << progname << ")... " << endl;
-      }
-   else
-      {
-        if (logit)
-           get_CERR() << "Not opening shared memory because command "
-                         "line option --noSV (or similar) was given." << endl;
-        return;
-      }
-
-   // in order for CGI scripts to work (which often uses a user with
-   // low permissions), we allow RW (i.e. mask only X) for everybody.
-   //
-   umask(S_IXUSR | S_IXGRP | S_IXOTH);
-
-const int fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
-   if (fd == -1)
-      {
-         get_CERR() << "shm_open(" << SHM_NAME << ") failed: "
-              << strerror(errno) << endl;
-        return;   // error
-      }
-
-   // check if initialized. If not, doit
-   //
-struct stat st;
-   if (fstat(fd, &st))
-      {
-        get_CERR() << "fstat() failed: " << strerror(errno) << endl;
-        close(fd);
-        shm_unlink(SHM_NAME);
-        return;   // error
-      }
-
-   // if shared memory is already initialized then it should be
-   // sizeof(Svar_DB_memory), possibly rounded up to page_size
-   //
-bool existing = false;
-   if (st.st_size)   // already initialized
-      {
-        const int page_size = ::getpagesize();
-        const int min_size = sizeof(Svar_DB_memory);
-        const int max_size = ((min_size + page_size - 1)/page_size)*page_size;
-
-        if (min_size <= st.st_size && st.st_size <= max_size)
-           {
-             existing = true;
-             goto mapit;
-           }
-
-        get_CERR() << "bad size of shared memory: is " << int(st.st_size)
-             << ", expected " << sizeof(Svar_DB_memory) << endl;
-        close(fd);
-        shm_unlink(SHM_NAME);
-        return;   // error
-      }
-
-   // initialize shared memory
-   //
-   if (ftruncate(fd, sizeof(Svar_DB_memory)))
-      {
-        get_CERR() << "ftruncate() failed: " << strerror(errno) << endl;
-        close(fd);
-        shm_unlink(SHM_NAME);
-      }
-
-mapit:
-
-const size_t length = sizeof(Svar_DB_memory);
-void * vp = mmap(0, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-   if (vp == MAP_FAILED)
-      {
-        get_CERR() << "mmap() failed: " << strerror(errno) << endl;
-        close(fd);
-        shm_unlink(SHM_NAME);
-      }
-
-   Svar_DB_memory_P::memory_p = (Svar_DB_memory *)vp;
-
-   // close() does not unmap() so we can free the file descriptor here
-   close(fd);
-
-Svar_DB_memory_P db(false);
-   //
-   if (existing)   // existing (initialized) shared memory
-      {
-        db->remove_stale();
-      }
-}
-#endif // (dont) USE_APserver
 //-----------------------------------------------------------------------------
 Svar_DB::~Svar_DB()
 {

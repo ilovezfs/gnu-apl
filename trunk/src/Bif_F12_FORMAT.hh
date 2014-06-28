@@ -80,12 +80,12 @@ struct Format_sub
 //-----------------------------------------------------------------------------
 /** System function format
  */
-class Bif_F12_FORMAT : public NonskalarFunction
+class Bif_F12_FORMAT : public NonscalarFunction
 {
 public:
    /// constructor
    Bif_F12_FORMAT()
-   : NonskalarFunction(TOK_F12_FORMAT)
+   : NonscalarFunction(TOK_F12_FORMAT)
    {}
 
    static Bif_F12_FORMAT    fun;   ///< Built-in function

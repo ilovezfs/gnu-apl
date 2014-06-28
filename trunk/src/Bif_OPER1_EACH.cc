@@ -42,10 +42,10 @@ Function * LO = _LO.get_function();
         Shape shape_Z;
 
         if (A->is_empty())          shape_Z = A->get_shape();
-        else if (!A->is_skalar())   DOMAIN_ERROR;
+        else if (!A->is_scalar())   DOMAIN_ERROR;
 
         if (B->is_empty())          shape_Z = B->get_shape();
-        else if (!B->is_skalar())   DOMAIN_ERROR;
+        else if (!B->is_scalar())   DOMAIN_ERROR;
 
         Value_P Z1 = LO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
 
@@ -65,7 +65,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    if (A->nz_element_count() == 1)
       {
-        if (B->is_skalar_or_len1_vector())   return LO->eval_AB(A, B);
+        if (B->is_scalar_or_len1_vector())   return LO->eval_AB(A, B);
 
         _arg.count = B->element_count();
 
@@ -131,7 +131,7 @@ loop_z:
           Value_P vZ = result.get_apl_val();
 
           if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
-          else if (vZ->is_simple_skalar())
+          else if (vZ->is_simple_scalar())
                            arg.Z->next_ravel()->init(vZ->get_ravel(0));
           else             new (arg.Z->next_ravel())   PointerCell(vZ);
 
@@ -182,7 +182,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
        Value_P vZ = token.get_apl_val();
 
        if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
-       else if (vZ->is_simple_skalar())
+       else if (vZ->is_simple_scalar())
                         arg.Z->next_ravel()->init(vZ->get_ravel(0));
        else             new (arg.Z->next_ravel())   PointerCell(vZ);
       }
@@ -268,7 +268,7 @@ loop_z:
              Value_P vZ = result.get_apl_val();
 
              if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
-             else if (vZ->is_simple_skalar())
+             else if (vZ->is_simple_scalar())
                               arg.Z->next_ravel()->init(vZ->get_ravel(0));
              else             new (arg.Z->next_ravel())   PointerCell(vZ);
 
@@ -320,7 +320,7 @@ loop_z:
              Value_P vZ = result.get_apl_val();
 
              if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
-             else if (vZ->is_simple_skalar())
+             else if (vZ->is_simple_scalar())
                               arg.Z->next_ravel()->init(vZ->get_ravel(0));
              else             new (arg.Z->next_ravel())   PointerCell(vZ);
 
@@ -361,7 +361,7 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
         Value_P vZ = token.get_apl_val();
 
         if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
-        else if (vZ->is_simple_skalar())
+        else if (vZ->is_simple_scalar())
                          arg.Z->next_ravel()->init(vZ->get_ravel(0));
         else             new (arg.Z->next_ravel())   PointerCell(vZ);
       }

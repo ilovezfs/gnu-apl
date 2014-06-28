@@ -183,7 +183,7 @@ Bif_F12_INDEX_OF::eval_B(Value_P B)
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
-   if (!B->is_skalar_or_len1_vector())
+   if (!B->is_scalar_or_len1_vector())
       {
         if (B->get_rank() > 1)   RANK_ERROR;
         else                    LENGTH_ERROR;
@@ -210,7 +210,7 @@ const APL_Integer qio = Workspace::get_IO();
 
    // Index of
    //
-   if (!A->is_skalar_or_vector())   RANK_ERROR;
+   if (!A->is_scalar_or_vector())   RANK_ERROR;
 
 const uint64_t len_A  = A->element_count();
 const uint64_t len_BZ = B->element_count();
@@ -255,7 +255,7 @@ const ShapeItem count = B->element_count();
 }
 //-----------------------------------------------------------------------------
 Value_P
-Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
+Bif_COMMA::prepend_scalar(const Cell & cell_A, Axis axis, Value_P B)
 {
    if (B->is_empty())
       {
@@ -273,7 +273,7 @@ Bif_COMMA::prepend_skalar(const Cell & cell_A, Axis axis, Value_P B)
         return Z;
       }
 
-   if (B->is_skalar())
+   if (B->is_scalar())
       {
         Value_P Z(new Value(2, LOC));
         Z->get_ravel(0).init(cell_A);
@@ -307,7 +307,7 @@ const Cell * cB = &B->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 Value_P
-Bif_COMMA::append_skalar(Value_P A, Axis axis, const Cell & cell_B)
+Bif_COMMA::append_scalar(Value_P A, Axis axis, const Cell & cell_B)
 {
    if (A->is_empty())
       {
@@ -325,7 +325,7 @@ Bif_COMMA::append_skalar(Value_P A, Axis axis, const Cell & cell_B)
         return Z;
       }
 
-   // A->is_skalar() is handled by prepend_skalar()
+   // A->is_scalar() is handled by prepend_scalar()
 
    if (axis >= A->get_rank())   INDEX_ERROR;
 
@@ -353,18 +353,18 @@ const Cell * cA = &A->get_ravel(0);
 Token
 Bif_COMMA::catenate(Value_P A, Axis axis, Value_P B)
 {
-   if (A->is_skalar())
+   if (A->is_scalar())
       {
         const Cell & cell_A = A->get_ravel(0);
-        Value_P Z = prepend_skalar(cell_A, axis, B);
+        Value_P Z = prepend_scalar(cell_A, axis, B);
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-   if (B->is_skalar())
+   if (B->is_scalar())
       {
         const Cell & cell_B = B->get_ravel(0);
-        Value_P Z = append_skalar(A, axis, cell_B);
+        Value_P Z = append_scalar(A, axis, cell_B);
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
@@ -514,13 +514,13 @@ const uint32_t slice_b = shape_A3.l() * B->get_shape_item(axis);
 Token
 Bif_COMMA::laminate(Value_P A, Axis axis, Value_P B)
 {
-   // shapes of A and B must be the same, unless one of them is a skalar.
+   // shapes of A and B must be the same, unless one of them is a scalar.
    //
-   if (!A->is_skalar() && !B->is_skalar())
+   if (!A->is_scalar() && !B->is_scalar())
       A->get_shape().check_same(B->get_shape(),
                                 E_INDEX_ERROR, E_LENGTH_ERROR, LOC);
 
-const Shape shape_Z = A->is_skalar() ? B->get_shape().insert_axis(axis, 2)
+const Shape shape_Z = A->is_scalar() ? B->get_shape().insert_axis(axis, 2)
                                     : A->get_shape().insert_axis(axis, 2);
 
 Value_P Z(new Value(shape_Z, LOC));
@@ -531,9 +531,9 @@ const Shape3 shape_Z3(shape_Z, axis);
 const Cell * cA = &A->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
 
-   if (A->is_skalar())
+   if (A->is_scalar())
       {
-        if (B->is_skalar())
+        if (B->is_scalar())
            {
               Z->next_ravel()->init(*cA);
               Z->next_ravel()->init(*cB);
@@ -549,7 +549,7 @@ const Cell * cB = &B->get_ravel(0);
       }
    else
       {
-        if (B->is_skalar())
+        if (B->is_scalar())
            {
              loop(h, shape_Z3.h())
                  {
@@ -581,7 +581,7 @@ const APL_Integer qio = Workspace::get_IO();
 
    if (!X)   SYNTAX_ERROR;
 
-   // I must be a (integer or real) skalar or simple integer vector
+   // I must be a (integer or real) scalar or simple integer vector
    //
    if (X->get_rank() > 1)   INDEX_ERROR;
 
@@ -589,7 +589,7 @@ const APL_Integer qio = Workspace::get_IO();
    //
    // 1) I is empty:             append a new last axis of length 1
    // 2) I is a fraction:        append a new axis before I
-   // 3a) I is integer skalar:   return B
+   // 3a) I is integer scalar:   return B
    // 3b) I is integer vector:   combine axes
 
    // case 1:   ,['']B or ,[⍳0]B : append new first or last axis of length 1.
@@ -616,7 +616,7 @@ const APL_Integer qio = Workspace::get_IO();
 
    // case 3a: ,[n]B : return B (combine single axis doesn't change anything)
    //
-   if (X->is_skalar_or_len1_vector())   // single int: return B->
+   if (X->is_scalar_or_len1_vector())   // single int: return B->
       {
         Token result(TOK_APL_VALUE1, B->clone(LOC));
         return result;
@@ -679,7 +679,7 @@ Bif_F12_COMMA::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
    // catenate or laminate
    //
-   if (!X->is_skalar_or_len1_vector())   AXIS_ERROR;
+   if (!X->is_scalar_or_len1_vector())   AXIS_ERROR;
 
 const Cell & cX = X->get_ravel(0);
 
@@ -700,8 +700,8 @@ Bif_F12_COMMA1::eval_B(Value_P B)
 {
    // turn B into a matrix
    //
-ShapeItem c1 = 1;   // assume B is skalar
-ShapeItem c2 = 1;   // assume B is skalar;
+ShapeItem c1 = 1;   // assume B is scalar
+ShapeItem c2 = 1;   // assume B is scalar;
 
    if (B->get_rank() >= 1)
       {
@@ -735,7 +735,7 @@ Bif_F12_COMMA1::eval_AXB(Value_P A, Value_P X, Value_P B)
 Token
 Bif_F12_DOMINO::eval_B(Value_P B)
 {
-   if (B->is_skalar())
+   if (B->is_scalar())
       {
         Value_P Z(new Value(LOC));
 
@@ -895,7 +895,7 @@ Value_P Z(new Value(shape_Z, LOC));
 Token
 Bif_ROTATE::reverse(Value_P B, Axis axis)
 {
-   if (B->is_skalar())
+   if (B->is_scalar())
       {
         Token result(TOK_APL_VALUE1, B->clone(LOC));
         return result;
@@ -925,12 +925,12 @@ Token
 Bif_ROTATE::rotate(Value_P A, Value_P B, Axis axis)
 {
 const APL_Float qct = Workspace::get_CT();
-int32_t gsh = 0;   // global shift (skalar A); 0 means local shift (A) used.
+int32_t gsh = 0;   // global shift (scalar A); 0 means local shift (A) used.
 
 const Shape3 shape_B3(B->get_shape(), axis);
 const Shape shape_A2(shape_B3.h(), shape_B3.l());
 
-   if (A->is_skalar_or_len1_vector())
+   if (A->is_scalar_or_len1_vector())
       {
         gsh = A->get_ravel(0).get_near_int(qct);
         if (gsh == 0)   // nothing to do.
@@ -1015,11 +1015,11 @@ Value_P Z = transpose(shape_A, B);
 Token
 Bif_F12_TRANSPOSE::eval_AB(Value_P A, Value_P B)
 {
-   // A should be a skalar or vector.
+   // A should be a scalar or vector.
    //
    if (A->get_rank() > 1)   RANK_ERROR;
 
-   if (B->is_skalar())   // B is a skalar (so A should be empty)
+   if (B->is_scalar())   // B is a scalar (so A should be empty)
       {
         if (A->element_count() != 0)   LENGTH_ERROR;
         Value_P Z = B->clone(LOC);
@@ -1198,7 +1198,7 @@ Bif_F12_DECODE::eval_AB(Value_P A, Value_P B)
    // ρρZ is: (0⌈¯1+ρρA) + (0⌈¯1+ρρB)
    //
 Shape shape_A1;
-   if (!A->is_skalar())
+   if (!A->is_scalar())
       shape_A1 = A->get_shape().without_axis(A->get_rank() - 1);
 
 Shape shape_B1(B->get_shape());
@@ -1276,7 +1276,7 @@ uint32_t len = len_A == 1 ? len_B : len_A;
 Token
 Bif_F12_ENCODE::eval_AB(Value_P A, Value_P B)
 {
-   if (A->is_skalar())   return Bif_F12_STILE::fun.eval_AB(A, B);
+   if (A->is_scalar())   return Bif_F12_STILE::fun.eval_AB(A, B);
 
 const ShapeItem ec_A = A->element_count();
 const ShapeItem ec_B = B->element_count();
@@ -1501,7 +1501,7 @@ Bif_F12_PARTITION::eval_AXB(Value_P A, Value_P X, Value_P B)
 Token
 Bif_F12_PARTITION::eval_B(Value_P B)
 {
-   if (B->is_simple_skalar())
+   if (B->is_simple_scalar())
       {
         Token result(TOK_APL_VALUE1, B->clone(LOC));
         return result;
@@ -1594,7 +1594,7 @@ Bif_F12_PARTITION::partition(Value_P A, Value_P B, Axis axis)
    if (A->get_rank() > 1)    RANK_ERROR;
    if (B->get_rank() == 0)   RANK_ERROR;
 
-   if (A->is_skalar())
+   if (A->is_scalar())
       {
         APL_Integer val = A->get_ravel(0).get_int_value();
         if (val == 0)
@@ -1744,13 +1744,13 @@ const ShapeItem llen = it_shape.get_volume();
               Value_P vB = B_item.get_pointer_value();
               Bif_F12_TAKE::fill(it_shape, &Z->get_ravel(h*llen), vB);
             }
-         else if (B_item.is_character_cell())   // simple char skalar
+         else if (B_item.is_character_cell())   // simple char scalar
             {
               Z->get_ravel(h*llen).init(B_item);
               for (ShapeItem c = 1; c < llen; ++c)
                   Z->get_ravel(h*llen + c).init(c_filler);
             }
-         else   // simple skalar
+         else   // simple scalar
             {
               Z->get_ravel(h*llen).init(B_item);
               for (ShapeItem c = 1; c < llen; ++c)
@@ -1869,11 +1869,11 @@ PermutedArrayIterator it_Z(shape_Z, perm);
                       {
                         src = &B_item;
                       }
-                   else if (B_item.is_character_cell())   // simple char skalar
+                   else if (B_item.is_character_cell())   // simple char scalar
                       {
                         src = &c_filler;
                       }
-                   else                                // simple numeric skalar
+                   else                                // simple numeric scalar
                       {
                         src = &n_filler;
                       }
@@ -1893,22 +1893,22 @@ PermutedArrayIterator it_Z(shape_Z, perm);
 Shape
 Bif_F12_PICK::item_shape(Value_P B)
 {
-   // all items are skalars or arrays of the same rank R.
+   // all items are scalars or arrays of the same rank R.
    // return the shape with rank R and the (per-dimension) max. of
    // each shape item
    //
 const ShapeItem len_B = B->nz_element_count();
 
-Shape ret;   // of the first non-skalar in B
+Shape ret;   // of the first non-scalar in B
 
    loop(b, len_B)
        {
          const Cell & cell = B->get_ravel(b);
-         if (!cell.is_pointer_cell())   continue;   // simple skalar
+         if (!cell.is_pointer_cell())   continue;   // simple scalar
 
          Value_P v = cell.get_pointer_value();
 
-         if (ret.get_rank() == 0)   // first non-skalar
+         if (ret.get_rank() == 0)   // first non-scalar
             {
               ret = v->get_shape();
               continue;
@@ -1975,7 +1975,7 @@ ShapeItem c = 0;
               c += weight.get_shape_item(r) * ar;
             }
       }
-   else   // A is a skalar, so B must be a vector.
+   else   // A is a scalar, so B must be a vector.
       {
         if (B->get_rank() != 1)         RANK_ERROR;
         const APL_Integer a = cA->get_near_int(qct) - qio;
@@ -2222,7 +2222,7 @@ Token result = Bif_F12_PICK::fun.eval_XB(X, cT);
 Token
 Bif_F12_TAKE::eval_AB(Value_P A, Value_P B)
 {
-   // A must be an integer skalar or vector
+   // A must be an integer scalar or vector
    //
    if (A->get_rank() > 1)   RANK_ERROR;
 
@@ -2231,7 +2231,7 @@ Shape ravel_A1(ravel_A);
    if (ravel_A1.get_rank() == 0)   ravel_A1.add_shape_item(1);   // A ← ,A
    if (ravel_A1.get_rank() > MAX_RANK)     LENGTH_ERROR;
 
-   if (B->is_skalar())
+   if (B->is_scalar())
       {
         if (ravel_A.get_rank() == 0)
            {
@@ -2352,9 +2352,9 @@ Bif_F12_DROP::eval_AB(Value_P A, Value_P B)
 Shape ravel_A(A, Workspace::get_CT(), 0);
    if (A->get_rank() > 1)   RANK_ERROR;
 
-   if (B->is_skalar())
+   if (B->is_scalar())
       {
-        // if B is a skalar then the result rank shall be the length of A->
+        // if B is a scalar then the result rank shall be the length of A->
         // the result may be empty (shape 0 0 ... 0) if we drop something
         // or non-empty (shape 1 1 ... 1) if we drop nothing.
         //
@@ -2439,7 +2439,7 @@ bool seen[MAX_RANK];
 Token
 Bif_SORT::sort(Value_P B, bool ascending)
 {
-   if (B->is_skalar())   RANK_ERROR;
+   if (B->is_scalar())   RANK_ERROR;
 
 const ShapeItem len_BZ = B->get_shape_item(0);
    if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
@@ -2465,16 +2465,16 @@ const Cell * base = &B->get_ravel(0);
 Token
 Bif_SORT::sort_collating(Value_P A, Value_P B, bool ascending)
 {
-   if (A->is_skalar())   RANK_ERROR;
+   if (A->is_scalar())   RANK_ERROR;
    if (A->NOTCHAR())     DOMAIN_ERROR;
 
 const APL_Integer qio = Workspace::get_IO();
    if (B->NOTCHAR())     DOMAIN_ERROR;
-   if (B->is_skalar())   return Token(TOK_APL_VALUE1, IntSkalar(qio, LOC));
+   if (B->is_scalar())   return Token(TOK_APL_VALUE1, IntScalar(qio, LOC));
 
 const ShapeItem len_BZ = B->get_shape_item(0);
    if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
-   if (len_BZ == 1)   return Token(TOK_APL_VALUE1, IntSkalar(qio, LOC));
+   if (len_BZ == 1)   return Token(TOK_APL_VALUE1, IntScalar(qio, LOC));
 
 Value_P B1(new Value(B->get_shape(), LOC));
 const ShapeItem ec_B = B->element_count();
@@ -2560,15 +2560,15 @@ Bif_F12_EQUIV::eval_AB(Value_P A, Value_P B)
 const APL_Float qct = Workspace::get_CT();
 const ShapeItem count = A->nz_element_count();  // compare at least prototype
 
-   if (!A->same_shape(*B))   return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));   // no match
+   if (!A->same_shape(*B))   return Token(TOK_APL_VALUE1, IntScalar(0, LOC));   // no match
 
    loop(c, count)
        if (!A->get_ravel(c).equal(B->get_ravel(c), qct))
           {
-            return Token(TOK_APL_VALUE1, IntSkalar(0, LOC));   // no match
+            return Token(TOK_APL_VALUE1, IntScalar(0, LOC));   // no match
           }
 
-   return Token(TOK_APL_VALUE1, IntSkalar(1, LOC));   // match
+   return Token(TOK_APL_VALUE1, IntScalar(1, LOC));   // match
 }
 //-----------------------------------------------------------------------------
 Token

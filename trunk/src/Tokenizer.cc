@@ -418,7 +418,7 @@ bool got_end = false;
 
    if (!got_end)   throw_parse_error(E_NO_STRING_END, LOC, loc);
 
-   if (string_value.size() == 1)   // skalar
+   if (string_value.size() == 1)   // scalar
       {
         tos.append(Token(TOK_CHARACTER, string_value[0]));
       }

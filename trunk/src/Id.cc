@@ -27,7 +27,7 @@
 #include "Quad_FX.hh"
 #include "Quad_SVx.hh"
 #include "Quad_TF.hh"
-#include "SkalarFunction.hh"
+#include "ScalarFunction.hh"
 #include "UCS_string.hh"
 #include "Workspace.hh"
 

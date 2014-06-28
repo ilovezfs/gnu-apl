@@ -29,7 +29,7 @@
 class Shape
 {
 public:
-   /// constructor: shape of a skalar.
+   /// constructor: shape of a scalar.
    Shape()
    : rho_rho(0),
      volume(1)
@@ -108,13 +108,13 @@ public:
    ShapeItem get_last_shape_item() const
    { Assert(rho_rho > 0);   return rho[rho_rho - 1]; }
 
-   /// return the length of the last dimension, or 1 for skalars
+   /// return the length of the last dimension, or 1 for scalars
    ShapeItem get_cols() const
    { return rho_rho ?  rho[rho_rho - 1] : 1; }
 
-   /// return the product of all but the the last dimension, or 1 for skalars
+   /// return the product of all but the the last dimension, or 1 for scalars
    ShapeItem get_rows() const
-      { if (rho_rho == 0)   return 1;   // skalar
+      { if (rho_rho == 0)   return 1;   // scalar
         ShapeItem count = 1;
         loop(r, rho_rho - 1)   count *= rho[r];
         return count; }
@@ -160,7 +160,7 @@ public:
         return ret;
       }
 
-   /// return the number of elements (1 for skalars, else product of shapes)
+   /// return the number of elements (1 for scalars, else product of shapes)
    ShapeItem get_volume() const
       { return volume; }
 

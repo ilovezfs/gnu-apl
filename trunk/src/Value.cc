@@ -298,15 +298,15 @@ const ShapeItem value_count = new_value->nz_element_count();
 const Cell * src = &new_value->get_ravel(0);
 Cell * C = &get_ravel(0);
 
-const int src_incr = new_value->is_skalar() ? 0 : 1;
+const int src_incr = new_value->is_scalar() ? 0 : 1;
 
-   if (is_skalar())
+   if (is_scalar())
       {
         if (!C->is_lval_cell())   LEFT_SYNTAX_ERROR;
         Cell * dest = C->get_lval_value();   // can be 0!
         if (dest)   dest->release(LOC);   // free sub-values etc (if any)
 
-        if (new_value->is_skalar())
+        if (new_value->is_scalar())
            {
              dest->init(new_value->get_ravel(0));
            }
@@ -317,7 +317,7 @@ const int src_incr = new_value->is_skalar() ? 0 : 1;
         return;
       }
 
-   if (!new_value->is_skalar() && value_count != dest_count)   LENGTH_ERROR;
+   if (!new_value->is_scalar() && value_count != dest_count)   LENGTH_ERROR;
 
    loop(d, dest_count)
       {
@@ -706,7 +706,7 @@ const Cell * C = &get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 bool
-Value::is_char_skalar() const
+Value::is_char_scalar() const
 {
    if (get_rank() != 0)   return false;
 
@@ -771,7 +771,7 @@ Value::is_int_vector(APL_Float qct) const
 }
 //-----------------------------------------------------------------------------
 bool
-Value::is_int_skalar(APL_Float qct) const
+Value::is_int_scalar(APL_Float qct) const
 {
    if (get_rank() != 0)   return false;
 
@@ -831,13 +831,13 @@ const Cell * C = &get_ravel(0);
          ++C;
        }
 
-   return true;   // all items are skalars or vectors
+   return true;   // all items are scalars or vectors
 }
 //-----------------------------------------------------------------------------
 Depth
 Value::compute_depth() const
 {
-   if (is_skalar())
+   if (is_scalar())
       {
         if (get_ravel(0).is_pointer_cell())
            {
@@ -1044,7 +1044,7 @@ Value::get_single_axis(Rank max_axis) const
 const APL_Float   qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
-   if (!is_skalar_or_len1_vector())     AXIS_ERROR;
+   if (!is_scalar_or_len1_vector())     AXIS_ERROR;
 
    if (!get_ravel(0).is_near_int(qct))   AXIS_ERROR;
 
@@ -1111,8 +1111,8 @@ const ShapeItem len_B = B->element_count();
              << "with shape " << B->get_shape() << endl;
       }
 
-   Assert(A->is_skalar_or_vector());
-   Assert(B->is_skalar_or_vector());
+   Assert(A->is_scalar_or_vector());
+   Assert(B->is_scalar_or_vector());
 
 Value_P Z(new Value(len_A + len_B, LOC));
 
@@ -1135,14 +1135,14 @@ Value::glue_strand_closed(Token & result, Value_P A, Value_P B,
              << " to non-strand " << endl << *B << endl;
       }
 
-   Assert(A->is_skalar_or_vector());
+   Assert(A->is_scalar_or_vector());
 
 const ShapeItem len_A = A->element_count();
 Value_P Z(new Value(len_A + 1, LOC));
 
    loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a));
 
-   if (B->is_simple_skalar())
+   if (B->is_simple_scalar())
       {
         Z->next_ravel()->init(B->get_ravel(0));
       }
@@ -1167,12 +1167,12 @@ Value::glue_closed_strand(Token & result, Value_P A, Value_P B,
              << " to strand " << endl << *B << endl;
       }
 
-   Assert(B->is_skalar_or_vector());
+   Assert(B->is_scalar_or_vector());
 
 const ShapeItem len_B = B->element_count();
 Value_P Z(new Value(len_B + 1, LOC));
 
-   if (A->is_simple_skalar())
+   if (A->is_simple_scalar())
       {
         Z->next_ravel()->init(A->get_ravel(0));
       }
@@ -1200,7 +1200,7 @@ Value::glue_closed_closed(Token & result, Value_P A, Value_P B,
       }
 
 Value_P Z(new Value(2, LOC));
-   if (A->is_simple_skalar())
+   if (A->is_simple_scalar())
       {
         Z->next_ravel()->init(A->get_ravel(0));
       }
@@ -1209,7 +1209,7 @@ Value_P Z(new Value(2, LOC));
         new (Z->next_ravel()) PointerCell(A);
       }
 
-   if (B->is_simple_skalar())
+   if (B->is_simple_scalar())
       {
         Z->next_ravel()->init(B->get_ravel(0));
       }
@@ -1427,7 +1427,7 @@ ostream &
 Value::print(ostream & out) const
 {
 PrintContext pctx = Workspace::get_PrintContext();
-   if (get_rank() == 0)   // skalar
+   if (get_rank() == 0)   // scalar
       {
         pctx.set_style(PR_APL_MIN);
       }
@@ -1461,7 +1461,7 @@ ostream &
 Value::print1(ostream & out, PrintContext pctx) const
 {
 int style = pctx.get_style();
-   if (get_rank() < 2)   // skalar or vector
+   if (get_rank() < 2)   // scalar or vector
       {
         style = PR_APL_MIN;
       }

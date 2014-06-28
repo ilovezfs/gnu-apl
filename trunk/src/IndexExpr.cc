@@ -83,7 +83,7 @@ const APL_Float   qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
 Value_P I = values[0];
-   if (!I->is_skalar_or_len1_vector())     INDEX_ERROR;
+   if (!I->is_scalar_or_len1_vector())     INDEX_ERROR;
 
    if (!I->get_ravel(0).is_near_int(qct))   INDEX_ERROR;
 

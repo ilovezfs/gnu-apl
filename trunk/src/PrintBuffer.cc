@@ -46,7 +46,7 @@ const bool framed = outer_style & (PST_CS_MASK | PST_CS_OUTER);
 PrintContext pctx(_pctx);
    pctx.set_style(PrintStyle(outer_style &~ PST_CS_OUTER));
 
-   if (value.is_skalar())
+   if (value.is_scalar())
       {
         PrintContext pctx1(pctx);
         if (value.get_ravel(0).need_scaling(pctx))   pctx1.set_scaled();

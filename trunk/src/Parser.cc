@@ -430,8 +430,8 @@ Parser::remove_nongrouping_parantheses(Token_string & tos)
 
                // case 2. We have tos[t] = ( X ) ...
                //
-               // (X) : "not grouping" if X is a skalar. 
-               // If X is non-skalar, enclose it
+               // (X) : "not grouping" if X is a scalar. 
+               // If X is non-scalar, enclose it
                //
                progress = true;
                move_1(tos[t + 2], tos[t + 1], LOC);
@@ -536,7 +536,7 @@ Parser::create_value(Token_string & tos, int pos, int count) const
         tos.print(CERR);
       }
 
-   if (count == 1)   create_skalar_value(tos[pos]);
+   if (count == 1)   create_scalar_value(tos[pos]);
    else              create_vector_value(tos, pos, count);
 
    Log(LOG_create_value)
@@ -548,51 +548,51 @@ Parser::create_value(Token_string & tos, int pos, int count) const
 }
 //-----------------------------------------------------------------------------
 void
-Parser::create_skalar_value(Token & output) const
+Parser::create_scalar_value(Token & output) const
 {
    switch(output.get_tag())
       {
         case TOK_CHARACTER:
              {
-               Value_P skalar(new Value(LOC));
+               Value_P scalar(new Value(LOC));
 
-               new (&skalar->get_ravel(0))  CharCell(output.get_char_val());
-               skalar->check_value(LOC);
-               Token tok(TOK_APL_VALUE3, skalar);
+               new (&scalar->get_ravel(0))  CharCell(output.get_char_val());
+               scalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, scalar);
                move_1(output, tok, LOC);
              }
              return;
 
         case TOK_INTEGER:
              {
-               Value_P skalar(new Value(LOC));
+               Value_P scalar(new Value(LOC));
 
-               new (&skalar->get_ravel(0))   IntCell(output.get_int_val());
-               skalar->check_value(LOC);
-               Token tok(TOK_APL_VALUE3, skalar);
+               new (&scalar->get_ravel(0))   IntCell(output.get_int_val());
+               scalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, scalar);
                move_1(output, tok, LOC);
              }
              return;
 
         case TOK_REAL:
              {
-               Value_P skalar(new Value(LOC));
+               Value_P scalar(new Value(LOC));
 
-               new (&skalar->get_ravel(0))  FloatCell(output.get_flt_val());
-               skalar->check_value(LOC);
-               Token tok(TOK_APL_VALUE3, skalar);
+               new (&scalar->get_ravel(0))  FloatCell(output.get_flt_val());
+               scalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, scalar);
                move_1(output, tok, LOC);
              }
              return;
 
         case TOK_COMPLEX:
              {
-               Value_P skalar(new Value(LOC));
+               Value_P scalar(new Value(LOC));
 
-               new (&skalar->get_ravel(0))   ComplexCell(output.get_cpx_real(),
+               new (&scalar->get_ravel(0))   ComplexCell(output.get_cpx_real(),
                                                          output.get_cpx_imag());
-               skalar->check_value(LOC);
-               Token tok(TOK_APL_VALUE3, skalar);
+               scalar->check_value(LOC);
+               Token tok(TOK_APL_VALUE3, scalar);
                move_1(output, tok, LOC);
              }
              return;

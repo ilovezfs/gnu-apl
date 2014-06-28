@@ -30,7 +30,7 @@ Bif_OPER1_SCAN1    Bif_OPER1_SCAN1::fun;
 Token
 Bif_SCAN::expand(Value_P A, Value_P B, Axis axis)
 {
-   // turn skalar B into ,B
+   // turn scalar B into ,B
    //
 Shape shape_B = B->get_shape();
    if (shape_B.get_rank() == 0)
@@ -78,7 +78,7 @@ const bool lval = cB->is_lval_cell();
 ShapeItem inc_1 = shape_Z3.l();   // increment after result l items
 ShapeItem inc_2 = 0;              // increment after result m*l items
 
-   if (B->is_skalar() || (shape_B.get_shape_item(axis) == 1
+   if (B->is_scalar() || (shape_B.get_shape_item(axis) == 1
                       && (shape_Z3.l() != 1)))
       {
          inc_1 = 0;
@@ -145,7 +145,7 @@ ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
 
    if (assoc_f2)
       {
-        // LO is an associative primitive skalar function.
+        // LO is an associative primitive scalar function.
         //
         const Cell * cB = &B->get_ravel(0);
         loop(h, shape_Z3.h())

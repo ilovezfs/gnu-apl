@@ -36,7 +36,7 @@ Quad_TF  Quad_TF::fun;
 Token
 Quad_TF::eval_AB(Value_P A, Value_P B)
 {
-   // A should be an integer skalar or 1-element_vector with value 1 or 2
+   // A should be an integer scalar or 1-element_vector with value 1 or 2
    //
    if (A->get_rank() > 0)         RANK_ERROR;
    if (A->element_count() != 1)   LENGTH_ERROR;
@@ -479,7 +479,7 @@ Token_string tos;
 bool
 Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
 {
-   // dont print anything if shape is a skalar or non-empty vector
+   // dont print anything if shape is a scalar or non-empty vector
    //
    if (shape.get_volume() != 0 && shape.get_rank() <= 1)   return false;
 

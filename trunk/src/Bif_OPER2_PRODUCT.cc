@@ -203,7 +203,7 @@ Function * RO = _RO.get_function();
 
 Shape shape_A1;
 ShapeItem len_A = 1;
-   if (!A->is_skalar())
+   if (!A->is_scalar())
       {
         len_A = A->get_last_shape_item();
         shape_A1 = A->get_shape().without_axis(A->get_rank() - 1);
@@ -211,7 +211,7 @@ ShapeItem len_A = 1;
 
 Shape shape_B1;
 ShapeItem len_B = 1;
-   if (!B->is_skalar())
+   if (!B->is_scalar())
       {
         len_B = B->get_shape_item(0);
         shape_B1 = B->get_shape().without_axis(0);
@@ -251,7 +251,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
          v->get_ravel(0).init(A->get_ravel(0 + i*len_A));
          loop(a, len_A)
             {
-              const ShapeItem src = (A->is_skalar()) ? 0 : a + i*len_A;
+              const ShapeItem src = (A->is_scalar()) ? 0 : a + i*len_A;
               v->get_ravel(a).init(A->get_ravel(src));
             }
          v->set_default(*A.get());
@@ -267,7 +267,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
          Value_P v(new Value(len_B, LOC));
          loop(b, len_B)
             {
-              const ShapeItem src = (B->is_skalar()) ? 0 : b*_arg.items_B + i;
+              const ShapeItem src = (B->is_scalar()) ? 0 : b*_arg.items_B + i;
               v->get_ravel(b).init(B->get_ravel(src));
             }
 

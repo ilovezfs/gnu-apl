@@ -90,7 +90,7 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	PrimitiveOperator.$(OBJEXT) PrintBuffer.$(OBJEXT) \
 	QuadFunction.$(OBJEXT) ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) \
 	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
-	RealCell.$(OBJEXT) Shape.$(OBJEXT) SkalarFunction.$(OBJEXT) \
+	RealCell.$(OBJEXT) Shape.$(OBJEXT) ScalarFunction.$(OBJEXT) \
 	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
 	Svar_DB.$(OBJEXT) Svar_DB_memory.$(OBJEXT) Symbol.$(OBJEXT) \
 	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
@@ -382,7 +382,7 @@ RealCell.cc					RealCell.hh		\
 Shape.cc					Shape.hh		\
 						SharedValuePointer.hh	\
 						Simple_string.hh	\
-SkalarFunction.cc				SkalarFunction.hh	\
+ScalarFunction.cc				ScalarFunction.hh	\
 						Source.hh		\
 StateIndicator.cc				StateIndicator.hh	\
 StaticObjects.cc							\
@@ -558,8 +558,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Quad_SVx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Quad_TF.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RealCell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ScalarFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Shape.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SkalarFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StateIndicator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StaticObjects.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Svar_DB.Po@am__quote@

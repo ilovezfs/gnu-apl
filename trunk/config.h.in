@@ -75,9 +75,6 @@
 /* Define if you have libreadline */
 #undef HAVE_LIBREADLINE
 
-/* Define to 1 if you have the `rt' library (-lrt). */
-#undef HAVE_LIBRT
-
 /* Define to 1 if you have the `socket' library (-lsocket). */
 #undef HAVE_LIBSOCKET
 
@@ -143,9 +140,6 @@
 
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
-
-/* libc has shm_open() */
-#undef HAVE_shm_open
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */

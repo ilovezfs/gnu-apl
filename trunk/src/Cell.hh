@@ -32,10 +32,10 @@ class Value;
 /**
  **   Base class for one item of an APL ravel. The item is one of the following:
  **
- **  A character skalar
- **  An integer skalar
- **  A floating point skalar
- **  A complex number skalar
+ **  A character scalar
+ **  An integer scalar
+ **  A floating point scalar
+ **  A complex number scalar
  **  An APL array
  **
  **   The kind of item is defined by its class, which is derived from Cell.
@@ -55,11 +55,11 @@ public:
    /// deep copy of cell \b other into \b this cell
    void init(const Cell & other);
 
-   /// init this Cell from value. If value is a skalar then its first element
+   /// init this Cell from value. If value is a scalar then its first element
    /// is used (and value is erased). Otherwise a PointerCell is created.
    void init_from_value(Value_P value, const char * loc);
 
-   /// return pointer value of a PointerCell or create a skalar with a
+   /// return pointer value of a PointerCell or create a scalar with a
    /// copy of this cell.
    Value_P to_value(const char * loc) const;
 

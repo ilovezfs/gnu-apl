@@ -69,25 +69,25 @@ protected:
    static const IntCell n_filler;
 };
 //-----------------------------------------------------------------------------
-/** The various non-skalar functions
+/** The various non-scalar functions
  */
-class NonskalarFunction : public PrimitiveFunction
+class NonscalarFunction : public PrimitiveFunction
 {
 public:
    /// Constructor
-   NonskalarFunction(TokenTag tag)
+   NonscalarFunction(TokenTag tag)
    : PrimitiveFunction(tag)
    {}
 };
 //-----------------------------------------------------------------------------
 /** System function zilde (⍬)
  */
-class Bif_F0_ZILDE : public NonskalarFunction
+class Bif_F0_ZILDE : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F0_ZILDE()
-   : NonskalarFunction(TOK_F0_ZILDE)
+   : NonscalarFunction(TOK_F0_ZILDE)
    {}
 
    static Bif_F0_ZILDE fun;   ///< Built-in function
@@ -102,12 +102,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function execute
  */
-class Bif_F1_EXECUTE : public NonskalarFunction
+class Bif_F1_EXECUTE : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F1_EXECUTE()
-   : NonskalarFunction(TOK_F1_EXECUTE)
+   : NonscalarFunction(TOK_F1_EXECUTE)
    {}
 
    static Bif_F1_EXECUTE    fun;   ///< Built-in function
@@ -125,12 +125,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function index (⌷)
  */
-class Bif_F2_INDEX : public NonskalarFunction
+class Bif_F2_INDEX : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F2_INDEX()
-   : NonskalarFunction(TOK_F2_INDEX)
+   : NonscalarFunction(TOK_F2_INDEX)
    {}
 
    /// Overloaded Function::eval_AB()
@@ -145,12 +145,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions partition and enclose
  */
-class Bif_F12_PARTITION : public NonskalarFunction
+class Bif_F12_PARTITION : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_PARTITION()
-   : NonskalarFunction(TOK_F12_PARTITION)
+   : NonscalarFunction(TOK_F12_PARTITION)
    {}
 
    /// Overloaded Function::eval_B()
@@ -187,12 +187,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions pick and disclose
  */
-class Bif_F12_PICK : public NonskalarFunction
+class Bif_F12_PICK : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_PICK()
-   : NonskalarFunction(TOK_F12_PICK)
+   : NonscalarFunction(TOK_F12_PICK)
    {}
 
    /// Overloaded Function::eval_B()
@@ -217,12 +217,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** Comma related functions (catenate, laminate, and ravel.)
  */
-class Bif_COMMA : public NonskalarFunction
+class Bif_COMMA : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_COMMA(TokenTag tag)
-   : NonskalarFunction(tag)
+   : NonscalarFunction(tag)
    {}
 
    /// ravel along axis, with axis being the first (⍪( or last (,) axis of B
@@ -237,11 +237,11 @@ public:
    /// Laminate A and B
    static Token laminate(Value_P A, Axis axis, Value_P B);
 
-   /// Prepend skalar cell_A to B along axis
-   static Value_P prepend_skalar(const Cell & cell_A, Axis axis, Value_P B);
+   /// Prepend scalar cell_A to B along axis
+   static Value_P prepend_scalar(const Cell & cell_A, Axis axis, Value_P B);
 
-   /// Prepend skalar cell_B to A along axis
-   static Value_P append_skalar(Value_P A, Axis axis, const Cell & cell_B);
+   /// Prepend scalar cell_B to A along axis
+   static Value_P append_scalar(Value_P A, Axis axis, const Cell & cell_B);
 };
 //-----------------------------------------------------------------------------
 /** primitive functions catenate, laminate, and ravel along last axis
@@ -301,12 +301,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions take and first
  */
-class Bif_F12_TAKE : public NonskalarFunction
+class Bif_F12_TAKE : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_TAKE()
-   : NonskalarFunction(TOK_F12_TAKE)
+   : NonscalarFunction(TOK_F12_TAKE)
    {}
 
    /// Overloaded Function::eval_B()
@@ -336,12 +336,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function drop
  */
-class Bif_F12_DROP : public NonskalarFunction
+class Bif_F12_DROP : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_DROP()
-   : NonskalarFunction(TOK_F12_DROP)
+   : NonscalarFunction(TOK_F12_DROP)
    {}
 
    /// Overloaded Function::eval_AB()
@@ -356,12 +356,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions member and enlist
  */
-class Bif_F12_ELEMENT : public NonskalarFunction
+class Bif_F12_ELEMENT : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_ELEMENT()
-   : NonskalarFunction(TOK_F12_ELEMENT)
+   : NonscalarFunction(TOK_F12_ELEMENT)
    {}
 
    /// Overloaded Function::eval_B()
@@ -376,12 +376,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions match and depth
  */
-class Bif_F12_EQUIV : public NonskalarFunction
+class Bif_F12_EQUIV : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_EQUIV()
-   : NonskalarFunction(TOK_F12_EQUIV)
+   : NonscalarFunction(TOK_F12_EQUIV)
    {}
 
    /// Overloaded Function::eval_B()
@@ -402,12 +402,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function encode
  */
-class Bif_F12_ENCODE : public NonskalarFunction
+class Bif_F12_ENCODE : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_ENCODE()
-   : NonskalarFunction(TOK_F12_ENCODE)
+   : NonscalarFunction(TOK_F12_ENCODE)
    {}
 
    /// Overloaded Function::eval_AB()
@@ -429,12 +429,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function decode
  */
-class Bif_F12_DECODE : public NonskalarFunction
+class Bif_F12_DECODE : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_DECODE()
-   : NonskalarFunction(TOK_F12_DECODE)
+   : NonscalarFunction(TOK_F12_DECODE)
    {}
 
    /// Overloaded Function::eval_AB()
@@ -449,12 +449,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions matrix divide and matrix invert
  */
-class Bif_F12_DOMINO : public NonskalarFunction
+class Bif_F12_DOMINO : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_DOMINO()
-   : NonskalarFunction(TOK_F12_DOMINO)
+   : NonscalarFunction(TOK_F12_DOMINO)
    {}
 
    /// Overloaded Function::eval_B()
@@ -481,12 +481,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions rotate and reverse
  */
-class Bif_ROTATE : public NonskalarFunction
+class Bif_ROTATE : public NonscalarFunction
 {
 public:
    /// Constructor.
    Bif_ROTATE(TokenTag tag)
-   : NonskalarFunction(tag)
+   : NonscalarFunction(tag)
    {}
 
 protected:
@@ -555,12 +555,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function transpose
  */
-class Bif_F12_TRANSPOSE : public NonskalarFunction
+class Bif_F12_TRANSPOSE : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_TRANSPOSE()
-   : NonskalarFunction(TOK_F12_TRANSPOSE)
+   : NonscalarFunction(TOK_F12_TRANSPOSE)
    {}
 
    /// Overloaded Function::eval_B()
@@ -591,12 +591,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions grade up and grade down
  */
-class Bif_SORT : public NonskalarFunction
+class Bif_SORT : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_SORT(TokenTag tag)
-   : NonskalarFunction(tag)
+   : NonscalarFunction(tag)
    {}
 
 protected:
@@ -664,12 +664,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function index of (⍳)
  */
-class Bif_F12_INDEX_OF : public NonskalarFunction
+class Bif_F12_INDEX_OF : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_INDEX_OF()
-   : NonskalarFunction(TOK_F12_INDEX_OF)
+   : NonscalarFunction(TOK_F12_INDEX_OF)
    {}
 
    /// Overloaded Function::eval_B()
@@ -685,12 +685,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** primitive functions reshape and shape
  */
-class Bif_F12_RHO : public NonskalarFunction
+class Bif_F12_RHO : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_RHO()
-   : NonskalarFunction(TOK_F12_RHO)
+   : NonscalarFunction(TOK_F12_RHO)
    {}
 
    /// Overloaded Function::eval_B()
@@ -708,12 +708,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function unique
  */
-class Bif_F12_UNION : public NonskalarFunction
+class Bif_F12_UNION : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_UNION()
-   : NonskalarFunction(TOK_F12_UNION)
+   : NonscalarFunction(TOK_F12_UNION)
    {}
 
    /// Overloaded Function::eval_AB()
@@ -732,12 +732,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function intersection
  */
-class Bif_F2_INTER : public NonskalarFunction
+class Bif_F2_INTER : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F2_INTER()
-   : NonskalarFunction(TOK_F2_INTER)
+   : NonscalarFunction(TOK_F2_INTER)
    {}
 
    /// Overloaded Function::eval_AB()
@@ -749,12 +749,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function left (⊣)
  */
-class Bif_F2_LEFT : public NonskalarFunction
+class Bif_F2_LEFT : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F2_LEFT()
-   : NonskalarFunction(TOK_F2_LEFT)
+   : NonscalarFunction(TOK_F2_LEFT)
    {}
 
    /// Overloaded Function::eval_AB()
@@ -767,12 +767,12 @@ protected:
 //-----------------------------------------------------------------------------
 /** System function right (⊢)
  */
-class Bif_F2_RIGHT : public NonskalarFunction
+class Bif_F2_RIGHT : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F2_RIGHT()
-   : NonskalarFunction(TOK_F2_RIGHT)
+   : NonscalarFunction(TOK_F2_RIGHT)
    {}
 
    /// Overloaded Function::eval_AB()

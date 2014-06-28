@@ -122,12 +122,12 @@ Bif_F12_FORMAT::eval_AB(Value_P A, Value_P B)
 {
 Value_P Z;
 
-   if (A->is_char_vector() || A->is_char_skalar())
+   if (A->is_char_vector() || A->is_char_scalar())
       {
         Z = format_by_example(A, B);
       }
    else if (A->is_int_vector(Workspace::get_CT())
-              || A->is_int_skalar(Workspace::get_CT()))
+              || A->is_int_scalar(Workspace::get_CT()))
       {
         Z = format_by_specification(A, B);
       }
@@ -232,7 +232,7 @@ vector<Format_LIFER> col_items;
       }
 
 Shape shape_Z(B->get_shape());
-   if (B->is_skalar())   shape_Z.add_shape_item(1);
+   if (B->is_scalar())   shape_Z.add_shape_item(1);
    shape_Z.set_last_shape_item(format.size());
 
 Value_P Z(new Value(shape_Z, LOC));
@@ -848,7 +848,7 @@ const ShapeItem rows_B = shape_B.get_rows();
 const ShapeItem cols_B = shape_B.get_cols();
 
    if (A->get_rank() > 1)   RANK_ERROR;
-const ShapeItem len_A = A->is_skalar() ? 1 : A->get_shape_item(0);
+const ShapeItem len_A = A->is_scalar() ? 1 : A->get_shape_item(0);
 
    if (len_A != 1 && len_A != 2 && len_A != 2*cols_B)
       LENGTH_ERROR;

@@ -81,8 +81,8 @@ protected:
    /// Create one APL value from \b len values.
    void create_value(Token_string & token, int pos, int len) const;
 
-   /// Create one skalar APL value from a token.
-   void create_skalar_value(Token & tok) const;
+   /// Create one scalar APL value from a token.
+   void create_scalar_value(Token & tok) const;
 
    /// Create one vector APL value from \b value_count single values.
    void create_vector_value(Token_string & token, int pos, int len) const;

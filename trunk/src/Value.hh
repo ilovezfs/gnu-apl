@@ -48,10 +48,10 @@ class Value_P;
 class Value : public DynamicObject
 {
 public:
-   /// construct a skalar value (i.e. a values with rank 0).
+   /// construct a scalar value (i.e. a values with rank 0).
    Value(const char * loc);
 
-   /// construct a skalar value (i.e. a value with rank 0) from a cell
+   /// construct a scalar value (i.e. a value with rank 0) from a cell
    Value(const Cell & cell, const char * loc);
 
    /// construct a true vector (i.e. a value with rank 1) with shape \b sh
@@ -105,11 +105,11 @@ public:
    ShapeItem get_last_shape_item() const
       { return shape.get_last_shape_item(); }
 
-   /// return the length of the last dimension, or 1 for skalars
+   /// return the length of the last dimension, or 1 for scalars
    ShapeItem get_cols() const
       { return shape.get_cols(); }
 
-   /// return the product of all but the the last dimension, or 1 for skalars
+   /// return the product of all but the the last dimension, or 1 for scalars
    ShapeItem get_rows() const
       { return shape.get_rows(); }
 
@@ -155,7 +155,7 @@ public:
    void set_default_Zero()
       { if (is_empty())   new (&ravel[0]) IntCell(0); }
 
-   /// Return the number of skalars in this value (enlist).
+   /// Return the number of scalars in this value (enlist).
    ShapeItem get_enlist_count() const;
 
    /// return \b true iff \b this value is simple (i.e. not nested).
@@ -167,7 +167,7 @@ public:
    /// compute the depth of this value.
    Depth compute_depth() const;
 
-   /// store the skalars in this value into dest...
+   /// store the scalars in this value into dest...
    void enlist(Cell * & dest, bool left) const;
 
    /// compute the cell types contained in the top level of \b this value
@@ -232,13 +232,13 @@ public:
    static void glue_closed_closed(Token & result, Value_P A, Value_P B,
                                   const char * loc);
 
-   /// return \b true iff \b this value is a skalar.
-   bool is_skalar() const
+   /// return \b true iff \b this value is a scalar.
+   bool is_scalar() const
       { return shape.get_rank() == 0; }
 
-   /// return \b true iff \b this value is a simple (i.e. depth 0) skalar.
-   bool is_simple_skalar() const
-      { return is_skalar() && !(get_ravel(0).is_pointer_cell() || is_lval()); }
+   /// return \b true iff \b this value is a simple (i.e. depth 0) scalar.
+   bool is_simple_scalar() const
+      { return is_scalar() && !(get_ravel(0).is_pointer_cell() || is_lval()); }
 
    /// return \b true iff this value is an lval (selective assignment)
    /// i.e. return true if at least one leaf value is an lval.
@@ -248,25 +248,25 @@ public:
    bool is_empty() const
       { return shape.is_empty(); }
 
-   /// return \b true iff \b this value is a numeric skalar.
-   bool is_numeric_skalar() const
-      { return  is_skalar() && get_ravel(0).is_numeric(); }
+   /// return \b true iff \b this value is a numeric scalar.
+   bool is_numeric_scalar() const
+      { return  is_scalar() && get_ravel(0).is_numeric(); }
 
-   /// return \b true iff \b this value is a character skalar
-   bool is_character_skalar() const
-      { return  is_skalar() && get_ravel(0).is_character_cell(); }
+   /// return \b true iff \b this value is a character scalar
+   bool is_character_scalar() const
+      { return  is_scalar() && get_ravel(0).is_character_cell(); }
 
-   /// return \b true iff \b this value is a skalar or vector
-   bool is_skalar_or_vector() const
+   /// return \b true iff \b this value is a scalar or vector
+   bool is_scalar_or_vector() const
       { return  get_rank() < 2; }
 
    /// return \b true iff \b this value is a vector.
    bool is_vector() const
       { return  get_rank() == 1; }
 
-   /// return \b true iff \b this value is a skalar or vector of length 1.
-   bool is_skalar_or_len1_vector() const
-      { return is_skalar() || (is_vector() && (get_shape_item(0) == 1)); }
+   /// return \b true iff \b this value is a scalar or vector of length 1.
+   bool is_scalar_or_len1_vector() const
+      { return is_scalar() || (is_vector() && (get_shape_item(0) == 1)); }
 
    /// return \b true iff \b this value is a simple character vector.
    bool is_char_vector() const;
@@ -277,7 +277,7 @@ public:
 
    /// return \b true iff \b this value is a simple character scalar or vector.
    bool is_char_string() const
-      { return is_char_skalar() || is_char_vector(); }
+      { return is_char_scalar() || is_char_vector(); }
 
    /// return true iff more ravel items (as per shape) need to be initialized.
    /// (the prototype of empty values may still be missing)
@@ -288,8 +288,8 @@ public:
    Cell * next_ravel()
       { return more() ? &ravel[valid_ravel_items++] : 0; }
 
-   /// return \b true iff \b this value is a simple character skalar.
-   bool is_char_skalar() const;
+   /// return \b true iff \b this value is a simple character scalar.
+   bool is_char_scalar() const;
 
    /// return the NOTCHAR property of the value. NOTCHAR is false for simple
    /// char arrays and true if any element is numeric or nested. The NOTCHAR
@@ -304,8 +304,8 @@ public:
    /// return \b true iff \b this value is a simple integer vector.
    bool is_int_vector(APL_Float qct) const;
 
-   /// return \b true iff \b this value is a simple integer skalar.
-   bool is_int_skalar(APL_Float qct) const;
+   /// return \b true iff \b this value is a simple integer scalar.
+   bool is_int_scalar(APL_Float qct) const;
 
    /// return true, if this value has complex cells, false iff it has only
    /// real cells. Throw domain error for other cells (char, nested etc.)

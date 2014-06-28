@@ -236,11 +236,11 @@ struct RANK_ALXB
 {
   Function * LO;                         ///< user defined function
   ShapeItem h;                           ///< current high index
-  bool repeat_A;                         ///< skalar-extend A
+  bool repeat_A;                         ///< scalar-extend A
   char _sh_A_low [ sizeof(Shape) ];      ///< low dimensions of A
   ShapeItem ec_A_low;                    ///< items in _sh_B_low
   const Cell * cA;                       ///< current A cell
-  bool repeat_B;                         ///< skalar-extend B
+  bool repeat_B;                         ///< scalar-extend B
   char _sh_B_low [ sizeof(Shape) ];      ///< low dimensions of B
   char _sh_B_high[ sizeof(Shape) ];      ///< high dimensions of B
   ShapeItem ec_B_low;                    ///< items in _sh_B_low

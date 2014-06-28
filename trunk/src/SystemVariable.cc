@@ -200,13 +200,13 @@ Cell * C = &Z->get_ravel(0);
 Quad_CT::Quad_CT()
    : SystemVariable(ID_Quad_CT)
 {
-   Symbol::assign(FloatSkalar(DEFAULT_Quad_CT, LOC), LOC);
+   Symbol::assign(FloatScalar(DEFAULT_Quad_CT, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
 Quad_CT::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar_or_len1_vector())
+   if (!value->is_scalar_or_len1_vector())
       {
         if (value->get_rank() > 1)   RANK_ERROR;
         else                         LENGTH_ERROR;
@@ -224,7 +224,7 @@ APL_Float val = cell.get_real_value();
    //
    if (val > MAX_Quad_CT)
       {
-        Symbol::assign(FloatSkalar(MAX_Quad_CT, LOC), LOC);
+        Symbol::assign(FloatScalar(MAX_Quad_CT, LOC), LOC);
       }
    else
       {
@@ -354,7 +354,7 @@ Value_P QFC(new Value(6, LOC));
 void
 Quad_FC::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar_or_vector())   RANK_ERROR;
+   if (!value->is_scalar_or_vector())   RANK_ERROR;
 
 ShapeItem value_len = value->element_count();
    if (value_len > 6)   value_len = 6;
@@ -396,7 +396,7 @@ Quad_FC::assign_indexed(IndexExpr & IX, Value_P value)
 void
 Quad_FC::assign_indexed(Value_P X, Value_P value)
 {
-   // we don't do skalar extension but require indices to match the value.
+   // we don't do scalar extension but require indices to match the value.
    //
 ShapeItem ec = X->element_count();
    if (ec != value->element_count())   INDEX_ERROR;
@@ -434,28 +434,28 @@ Value_P new_val(new Value(ucs, LOC));
 Quad_IO::Quad_IO()
    : SystemVariable(ID_Quad_IO)
 {
-   Symbol::assign(IntSkalar(1, LOC), LOC);
+   Symbol::assign(IntScalar(1, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
 Quad_IO::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar_or_len1_vector())
+   if (!value->is_scalar_or_len1_vector())
       {
         if (value->get_rank() > 1)   RANK_ERROR;
         else                         LENGTH_ERROR;
       }
 
    if (value->get_ravel(0).get_near_bool(0.1))
-      Symbol::assign(IntSkalar(1, LOC), LOC);
+      Symbol::assign(IntScalar(1, LOC), LOC);
    else
-      Symbol::assign(IntSkalar(0, LOC), LOC);
+      Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //=============================================================================
 Quad_L::Quad_L()
  : NL_SystemVariable(ID_Quad_L)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -487,7 +487,7 @@ StateIndicator * si = Workspace::SI_top_error();
 Quad_LC::Quad_LC()
    : RO_SystemVariable(ID_Quad_LC)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -546,7 +546,7 @@ Value_P value(new Value(LOC));
 void
 Quad_PP::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar_or_len1_vector())
+   if (!value->is_scalar_or_len1_vector())
       {
         if (value->get_rank() > 1)   RANK_ERROR;
         else                         LENGTH_ERROR;
@@ -558,7 +558,7 @@ APL_Integer val = cell.get_near_int(0.1);
 
    if (val > MAX_Quad_PP)   val = MAX_Quad_PP;
 
-   Symbol::assign(IntSkalar(val, LOC), LOC);
+   Symbol::assign(IntScalar(val, LOC), LOC);
 }
 //=============================================================================
 Quad_PR::Quad_PR()
@@ -580,13 +580,13 @@ UCS_string ucs = value->get_UCS_ravel();
 Quad_PS::Quad_PS()
    : SystemVariable(ID_Quad_PS)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
 Quad_PS::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar_or_len1_vector())
+   if (!value->is_scalar_or_len1_vector())
       {
         if (value->get_rank() > 1)   RANK_ERROR;
         else                         LENGTH_ERROR;
@@ -599,7 +599,7 @@ const APL_Integer val = cell.get_near_int(0.1);
         case 0:
         case 1:
         case 2:
-        case 3:  Symbol::assign(IntSkalar(val, LOC), LOC);   return;
+        case 3:  Symbol::assign(IntScalar(val, LOC), LOC);   return;
         default: DOMAIN_ERROR;
       }
 }
@@ -607,7 +607,7 @@ const APL_Integer val = cell.get_near_int(0.1);
 Quad_PT::Quad_PT()
    : RO_SystemVariable(ID_Quad_PT)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -623,13 +623,13 @@ Value_P Z(new Value(LOC));
 Quad_PW::Quad_PW()
    : SystemVariable(ID_Quad_PW)
 {
-   Symbol::assign(IntSkalar(DEFAULT_Quad_PW, LOC), LOC);
+   Symbol::assign(IntScalar(DEFAULT_Quad_PW, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
 Quad_PW::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar_or_len1_vector())
+   if (!value->is_scalar_or_len1_vector())
       {
         if (value->get_rank() > 1)   RANK_ERROR;
         else                         LENGTH_ERROR;
@@ -768,7 +768,7 @@ Value_P Z(new Value(in, LOC));
 Quad_R::Quad_R()
  : NL_SystemVariable(ID_Quad_R)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -808,7 +808,7 @@ Quad_SYL::assign(Value_P value, const char * loc)
    // this assign is called from the constructor in order to trigger the
    // creation of a symbol for Quad_SYL.
    //
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -840,8 +840,8 @@ Quad_SYL::assign_indexed(Value_P X, Value_P B)
 {
 const APL_Float qct = Workspace::get_CT();
 
-   if (!(X->is_int_skalar(qct) || X->is_int_vector(qct)))   INDEX_ERROR;
-   if (!(B->is_int_skalar(qct) || B->is_int_vector(qct)))   DOMAIN_ERROR;
+   if (!(X->is_int_scalar(qct) || X->is_int_vector(qct)))   INDEX_ERROR;
+   if (!(B->is_int_scalar(qct) || B->is_int_vector(qct)))   DOMAIN_ERROR;
    if (X->element_count() != B->element_count())            LENGTH_ERROR;
 
 const ShapeItem ec = X->element_count();
@@ -922,7 +922,7 @@ Value_P QCT(new Value(3, LOC));
 Quad_TS::Quad_TS()
    : RO_SystemVariable(ID_Quad_TS)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -990,7 +990,7 @@ Value_P value(new Value(LOC));
 void
 Quad_TZ::assign(Value_P value, const char * loc)
 {
-   if (!value->is_skalar())   RANK_ERROR;
+   if (!value->is_scalar())   RANK_ERROR;
 
    // ignore values outside [-12 ... 14], DOMAIN ERROR for bad types.
 
@@ -1054,7 +1054,7 @@ Value_P Z(new Value(LOC));
 Quad_WA::Quad_WA()
    : RO_SystemVariable(ID_Quad_WA)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -1124,7 +1124,7 @@ uint64_t proc_mem = 0;            // memory as reported proc/mem_info
 Quad_X::Quad_X()
  : NL_SystemVariable(ID_Quad_X)
 {
-   Symbol::assign(IntSkalar(0, LOC), LOC);
+   Symbol::assign(IntScalar(0, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void
