@@ -507,7 +507,9 @@ const int layout = arg.atoi();
 "║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⍝ ║ .⍀ ║ /⌿ ║  SHIFT   ║\n"
 "╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝\n"
    << endl;
+        break;
 
+        case 1:
    out << "US Keyboard Layout 1:" <<     "\n"
                                         "\n"
 "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗\n"
@@ -524,8 +526,7 @@ const int layout = arg.atoi();
 "║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⍝ ║ .⍀ ║ /⌿ ║  SHIFT   ║\n"
 "╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝\n"
    << endl;
-
-        case 1:
+        break;
 
         default: out << "*** unknown keyboard layout " << layout << endl;
       }
