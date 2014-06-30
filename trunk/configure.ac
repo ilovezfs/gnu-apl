@@ -188,6 +188,7 @@ AC_CONFIG_FILES([Makefile
                  src/testcases/Makefile
                  src/workspaces/Makefile
 		 support-files/Makefile
+		 support-files/WASD/Makefile
                  tools/Makefile
                  workspaces/Makefile
                  wslib3/Makefile
