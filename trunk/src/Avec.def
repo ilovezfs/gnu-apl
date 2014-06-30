@@ -269,7 +269,7 @@ char_df1(Quad_COLON         , 0x2360 , END          , NO_SPACE ,  --) /* ⍠ */
 char_df1(UTACK_DIAERESIS    , 0x2361 , END          , NO_SPACE ,  --) /* ⍡ */
 char_def(DEL_DIAERESIS      , 0x2362 , END          , NO_SPACE , 0AB) /* ⍢ */
 char_df1(STAR_DIAERESIS     , 0x2363 , END          , NO_SPACE ,  --) /* ⍣ */
-char_def(JOT_DIARESIS       , 0x2364 , OPER1_RANK   , NO_SPACE ,  94) /* ⍤ */
+char_def(JOT_DIARESIS       , 0x2364 , OPER2_RANK   , NO_SPACE ,  94) /* ⍤ */
 char_df1(CIRCLE_DIARESIS    , 0x2365 , END          , NO_SPACE ,  --) /* ⍥ */
 char_df1(DOWN_SHOE_STILE    , 0x2366 , END          , NO_SPACE ,  --) /* ⍦ */
 char_df1(LEFT_SHOE_STILE    , 0x2367 , END          , NO_SPACE ,  --) /* ⍧ */

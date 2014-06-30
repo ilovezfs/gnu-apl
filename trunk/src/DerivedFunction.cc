@@ -44,6 +44,16 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Token & rfun,
      }
 }
 //-----------------------------------------------------------------------------
+DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Value_P X,
+                                 Token & rval, const char * loc)
+   : Function(ID_USER_SYMBOL, TOK_FUN2),
+     left_fun(lfun),
+     oper(dyop),
+     right_fun(rval),
+     axis(X)
+{
+}
+//-----------------------------------------------------------------------------
 DerivedFunction::DerivedFunction(Token & lfun, Function * monop,
                                  const char * loc)
    : Function(ID_USER_SYMBOL, TOK_FUN2),
@@ -128,12 +138,13 @@ DerivedFunction::eval_AB(Value_P A, Value_P B)
 
    if (right_fun.get_tag() != TOK_VOID)   // dyadic operator
       {
-        return oper->eval_ALRB(A, left_fun, right_fun, B);
+        if (!axis)   return oper->eval_ALRB(A, left_fun, right_fun, B);
+        else         return oper->eval_ALRXB(A, left_fun, right_fun, axis, B);
       }
    else                                   // monadic operator
       {
-        if (!!axis)     return oper->eval_ALXB(A, left_fun, axis, B);
-        else            return oper->eval_ALB(A, left_fun, B);
+        if (!axis)   return oper->eval_ALB(A, left_fun, B);
+        else         return oper->eval_ALXB(A, left_fun, axis, B);
       }
 }
 //-----------------------------------------------------------------------------

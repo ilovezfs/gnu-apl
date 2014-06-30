@@ -73,7 +73,7 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	Assert.$(OBJEXT) Avec.$(OBJEXT) Backtrace.$(OBJEXT) \
 	Bif_F12_FORMAT.$(OBJEXT) Bif_OPER1_COMMUTE.$(OBJEXT) \
 	Bif_OPER1_EACH.$(OBJEXT) Bif_OPER2_PRODUCT.$(OBJEXT) \
-	Bif_OPER1_RANK.$(OBJEXT) Bif_OPER1_REDUCE.$(OBJEXT) \
+	Bif_OPER2_RANK.$(OBJEXT) Bif_OPER1_REDUCE.$(OBJEXT) \
 	Bif_OPER1_SCAN.$(OBJEXT) CDR.$(OBJEXT) Cell.$(OBJEXT) \
 	CharCell.$(OBJEXT) CollatingCache.$(OBJEXT) Command.$(OBJEXT) \
 	Common.$(OBJEXT) ComplexCell.$(OBJEXT) Cores.$(OBJEXT) \
@@ -325,7 +325,7 @@ Bif_F12_FORMAT.cc				Bif_F12_FORMAT.hh	\
 Bif_OPER1_COMMUTE.cc				Bif_OPER1_COMMUTE.hh	\
 Bif_OPER1_EACH.cc				Bif_OPER1_EACH.hh	\
 Bif_OPER2_PRODUCT.cc				Bif_OPER2_PRODUCT.hh	\
-Bif_OPER1_RANK.cc				Bif_OPER1_RANK.hh	\
+Bif_OPER2_RANK.cc				Bif_OPER2_RANK.hh	\
 Bif_OPER1_REDUCE.cc				Bif_OPER1_REDUCE.hh	\
 Bif_OPER1_SCAN.cc				Bif_OPER1_SCAN.hh	\
 CDR.cc						CDR.hh			\
@@ -509,10 +509,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_F12_FORMAT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_COMMUTE.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_EACH.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_RANK.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_REDUCE.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_SCAN.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER2_PRODUCT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER2_RANK.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CDR.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CharCell.Po@am__quote@
@@ -957,6 +957,11 @@ makefile.h: Makefile
 	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> $@
 	@echo "#define Makefile__localedir  \"${localedir}\""   >> $@
 	@echo                                                   >> $@
+
+.PHONY:	patch
+patch:
+	mkdir -p patches
+	svn diff > patches/`date +patch_%F-%R.diff`
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

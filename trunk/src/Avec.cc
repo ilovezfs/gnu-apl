@@ -261,6 +261,7 @@ Avec::map_alternative_char(Unicode alt_av)
         case 0x22BC: return AV_NAND;             //  map ⊽ to ⍲
         case 0x22BD: return AV_NOR;              //  map ⊼ to ⍱
         case 0x22C4: return AV_DIAMOND;          //  map ⋄ to ◊
+        case 0x2377: return AV_EPSILON_UBAR;     //  map ⍷ to ⋸
         case 0x25AF: return AV_Quad_Quad;        //  map ▯ to ⎕
         case 0x25E6: return AV_RING_OPERATOR;    //  map ◦ to ∘
         case 0x26AA: return AV_CIRCLE;           //  map ⚪ to ○

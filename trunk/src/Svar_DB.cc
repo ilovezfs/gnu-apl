@@ -81,6 +81,22 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
         return;
       }
 
+   // bind local port to 127.0.0.1
+   //
+   {
+     sockaddr_in local;
+     memset(&local, 0, sizeof(sockaddr_in));
+     local.sin_family = AF_INET;
+     local.sin_addr.s_addr = htonl(0x7F000001);
+
+     if (::bind(DB_tcp, (const sockaddr *)&local, sizeof(sockaddr_in)))
+        {
+          get_CERR() << "bind(127.0.0.1) failed:" << strerror(errno) << endl;
+          return;
+        }
+
+   }
+
    // We try to connect to the TCP port number APnnn_port (of the APserver)
    // on localhost. If that fails then no APserver is running; we fork one
    // and try again.
@@ -91,10 +107,22 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
          memset(&addr, 0, sizeof(sockaddr_in));
          addr.sin_family = AF_INET;
          addr.sin_port = htons(APserver_port);
-         addr.sin_addr.s_addr = htonl(UdpSocket::IP_LOCALHOST);
+         addr.sin_addr.s_addr = htonl(0x7F000001);
 
          if (::connect(DB_tcp, (sockaddr *)&addr,
                        sizeof(addr)) == 0)   break;   // success
+
+         if (logit)
+            {
+              get_CERR() << "connecting to 127.0.0.1 port " << APserver_port
+                         << "." << endl;
+
+              if (retry)   get_CERR() <<
+                 "    (this is supposed to succeed.)" << endl;
+              else         get_CERR() <<
+                 "    (this is expected to fail, unless APserver"
+                 " was started manually)" << endl;
+            }
 
          if (retry)
             {
@@ -146,8 +174,7 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
    // at this point DB_tcp is != NO_TCP_SOCKET and connected.
    //
    usleep(20000);
-   logit && get_CERR() << "connected to APserver, DB_tcp is "
-                       << DB_tcp << endl;
+   logit && get_CERR() << "connected to APserver, DB_tcp is " << DB_tcp << endl;
 }
 //-----------------------------------------------------------------------------
 void

@@ -34,6 +34,7 @@
 #include "Quad_SVx.hh"
 #include "Svar_DB.hh"
 #include "Svar_signals.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 extern char **environ;
@@ -67,6 +68,28 @@ const char * end = strchr(file_and_args, ' ');
 void
 Quad_SVx::start_AP(AP_num ap, bool startup)
 {
+   if (!uprefs.system_do_svars)   // something went wrong
+      {
+        if (uprefs.user_do_svars)   // user wanted APs
+           {
+             // user wanted APs, but something went wrong
+             //
+             CERR << "*** Not starting AP << ap because the connecton to "
+                     " APserver has failed earlier." << endl;
+           }
+        else                        // user gave --noSV
+           {
+             if (!startup)          // and then used ⎕SVxxx
+                {
+                  CERR << "*** Not starting AP " << ap
+                       << " because --noSV (or equivalent) was given." << endl
+                       << " That conflicts with the use of ⎕SVxxx functions "
+                          "and variables." << endl;
+                }
+           }
+        ATTENTION;
+      }
+
 const char * dirs[] = { "", "/APs" };
    enum { dircount = sizeof(dirs) / sizeof(*dirs) };
 

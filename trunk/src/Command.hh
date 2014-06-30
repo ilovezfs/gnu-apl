@@ -103,7 +103,7 @@ protected:
    static void cmd_IN(ostream & out, vector<UCS_string> & args, bool protect);
 
    /// show US keyboard layout
-   static void cmd_KEYB();
+   static void cmd_KEYB(ostream & out, const UCS_string & arg);
 
    /// open directory arg and follow symlinks
    static DIR * open_LIB_dir(UTF8_string & path, ostream & out,

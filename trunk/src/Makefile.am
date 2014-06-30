@@ -24,7 +24,7 @@ Bif_F12_FORMAT.cc				Bif_F12_FORMAT.hh	\
 Bif_OPER1_COMMUTE.cc				Bif_OPER1_COMMUTE.hh	\
 Bif_OPER1_EACH.cc				Bif_OPER1_EACH.hh	\
 Bif_OPER2_PRODUCT.cc				Bif_OPER2_PRODUCT.hh	\
-Bif_OPER1_RANK.cc				Bif_OPER1_RANK.hh	\
+Bif_OPER2_RANK.cc				Bif_OPER2_RANK.hh	\
 Bif_OPER1_REDUCE.cc				Bif_OPER1_REDUCE.hh	\
 Bif_OPER1_SCAN.cc				Bif_OPER1_SCAN.hh	\
 CDR.cc						CDR.hh			\
@@ -152,4 +152,9 @@ makefile.h: Makefile
 	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> $@
 	@echo "#define Makefile__localedir  \"${localedir}\""   >> $@
 	@echo                                                   >> $@
+
+.PHONY:	patch
+patch:
+	mkdir -p patches
+	svn diff > patches/`date +patch_%F-%R.diff`
 

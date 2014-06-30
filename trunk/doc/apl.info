@@ -122,7 +122,7 @@ APL understands the following command line options:
 
      show ./configure options used and exit.
 
-   • ‘--[no]COLOR’
+   • ‘--[no]Color’
 
      start with ]COLOR ON [OFF].
 

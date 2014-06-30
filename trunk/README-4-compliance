@@ -1,11 +1,11 @@
 
-The following features are not planned to be supported
+The following features are NOT planned to be supported
 ------------------------------------------------------
 
 * ⎕NLT
 
 
-The following features may be added (if requested):
+The following features MAY be added (if requested):
 ---------------------------------------------------
 
 * more shared variables / auxiliary processors
@@ -28,6 +28,8 @@ The following issues are known and maybe fixed mid-term:
 --------------------------------------------------------
 
 * shared variable improvements
+
+* UNIX sockets instead of (or in addition to)TCP/UDP for shared variables
 
 * improvements on ⍤ operator
 

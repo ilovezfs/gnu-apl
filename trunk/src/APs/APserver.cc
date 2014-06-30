@@ -333,9 +333,6 @@ int listen_port = Default_APserver_tcp_port;
         listen_port = atoi(argv[2]);
       }
 
-   (verbosity > 0) && cerr << prog << ": listening on TCP port "
-                      << listen_port << endl;
-
 const int listen_sock = socket(AF_INET, SOCK_STREAM, 0);
    {
      int yes = 1;
@@ -350,7 +347,7 @@ sockaddr_in local;
 
    if (::bind(listen_sock, (const sockaddr *)&local, sizeof(sockaddr_in)))
       {
-        cerr << prog << ": ::bind("
+        cerr << prog << ": ::bind(127.0.0.1 port"
              << listen_port << ") failed:" << strerror(errno) << endl;
         return 3;
       }
@@ -361,6 +358,9 @@ sockaddr_in local;
              << listen_sock << ") failed:" << strerror(errno) << endl;
         return 3;
       }
+
+   (verbosity > 0) && cerr << prog << ": listening on TCP port "
+                           << listen_port << endl;
 
    memset(&db, 0, sizeof(db));
 

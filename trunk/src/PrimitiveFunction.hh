@@ -195,20 +195,28 @@ public:
    : NonscalarFunction(TOK_F12_PICK)
    {}
 
-   /// Overloaded Function::eval_B()
-   virtual Token eval_B(Value_P B);
-
    /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
+   /// Overloaded Function::eval_B()
+   virtual Token eval_B(Value_P B)
+      { return disclose(B, false); }
+
+   static Token disclose(Value_P B, bool rank_tolerant);
+
    /// Overloaded Function::eval_XB()
-   virtual Token eval_XB(Value_P X, Value_P B);
+   virtual Token eval_XB(Value_P X, Value_P B)
+      { const Shape axes_X = X->to_shape();
+        return disclose_with_axis(axes_X, B, false); }
+
+   static Token disclose_with_axis(const Shape & axes_X, Value_P B,
+                                   bool rank_tolerant);
 
    static Bif_F12_PICK fun;   ///< Built-in function
 
 protected:
    /// the shape of the items being disclosed
-   Shape item_shape(Value_P B);
+   static Shape item_shape(Value_P B, bool rank_tolerant);
 
    /// Pick from B according to cA and len_A
    static Value_P pick(const Cell * cA, ShapeItem len_A, Value_P B, 
