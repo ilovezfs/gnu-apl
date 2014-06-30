@@ -1,4 +1,6 @@
 
+SUBDIRS = WASD
+
 dist_noinst_DATA =			\
 		apl.loadkeys		\
 		apl.vim			\

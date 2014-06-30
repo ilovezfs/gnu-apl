@@ -17719,7 +17719,7 @@ fi
 
 fi
 
-ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile gnu-apl.d/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile tools/Makefile workspaces/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile"
+ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile gnu-apl.d/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile support-files/WASD/Makefile tools/Makefile workspaces/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile"
 
 
 # APL: development configuration desired ? Set this before other xxx_WANTED
@@ -19014,6 +19014,7 @@ do
     "src/testcases/Makefile") CONFIG_FILES="$CONFIG_FILES src/testcases/Makefile" ;;
     "src/workspaces/Makefile") CONFIG_FILES="$CONFIG_FILES src/workspaces/Makefile" ;;
     "support-files/Makefile") CONFIG_FILES="$CONFIG_FILES support-files/Makefile" ;;
+    "support-files/WASD/Makefile") CONFIG_FILES="$CONFIG_FILES support-files/WASD/Makefile" ;;
     "tools/Makefile") CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
     "workspaces/Makefile") CONFIG_FILES="$CONFIG_FILES workspaces/Makefile" ;;
     "wslib3/Makefile") CONFIG_FILES="$CONFIG_FILES wslib3/Makefile" ;;

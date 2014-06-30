@@ -380,10 +380,15 @@ replace the methods for setting up your keyboard that were discussed above.
 However, it has the common APL symbols engraved on its keycaps in addition to
 the normal ASCII characters. There are not many vendors around that sell APL
 keyboards (it took a while for the author to find one). Therefore it may be
-worthwhile to mention two:
+worthwhile to mention a few:
 
 a. www.dyalog.com (send an email to sales@dyalog.com to get a quote).
 b. www.unicomp.com seems to have APL keyboards every now and then.
+c. www.wasdkeyboards.com
 
 An inquiry sent to a. was answered promptly; an inquiry sent to b. never.
+
+Blake McBride has contributed a few files and installation instructions
+for c. (WASD keyboards) which are contained in the support-files/WASD
+directory.
 
