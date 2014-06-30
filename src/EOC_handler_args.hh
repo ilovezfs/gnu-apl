@@ -207,60 +207,41 @@ struct EACH_LB
   int how;           ///< how to continue in finish_eval_LB()
 };
 
-/// arguments of the EOC handler for f⍤[X] B
-struct RANK_LXB
+/// arguments of the EOC handler for (A) f⍤[X] B
+struct RANK_LyXB
 {
-  Function * LO;                         ///< user defined function
-  ShapeItem h;                           ///< current high index
-  char _sh_B_low [ sizeof(Shape) ];      ///< low dimensions of B
-  char _sh_B_high[ sizeof(Shape) ];      ///< high dimensions of B
-  ShapeItem ec_B_low;                    ///< items in _sh_B_low
-  const Cell * cB;                       ///< current B cell
-  Value_P * ZZ ;                         ///< current ZZ value
-  char _sh_Z_max_low[ sizeof(Shape) ];   ///< max. low dimensions of Z
-  ShapeItem ec_high;                     ///< max. high index
-  int how;                               ///< how to finish_eval_LXB()
+  Function * LO;                     ///< user defined function
+  ShapeItem h;                       ///< current high index
+  char _sh_chunk_B[sizeof(Shape)];   ///< low dimensions of B
+  char _sh_frame  [sizeof(Shape)];   ///< high dimensions of B
+  ShapeItem ec_chunk_B;              ///< items in _sh_chunk_B
+  const Cell * cB;                   ///< current B cell
+  ShapeItem ec_frame;                ///< max. high index
+  int how;                           ///< how to finish_eval_LXB()
+  Axis axes_valid;                   ///< LO[X] rather than LO
+  char _axes  [sizeof(Shape)];       ///< axes for ⍤[X]
 
-  /// return sh_B_low
-  Shape & get_sh_B_low()       { return *(Shape *)&_sh_B_low;     }
+  /// return sh_chunk_B
+  Shape & get_sh_chunk_B()       { return *(Shape *)&_sh_chunk_B;  }
 
-  /// return sh_B_high
-  Shape & get_sh_B_high()      { return *(Shape *)&_sh_B_high;    }
+  /// return sh_frame
+  Shape & get_sh_frame()         { return *(Shape *)&_sh_frame;    }
 
-  /// return sh_Z_max_low
-  Shape & get_sh_Z_max_low()   { return *(Shape *)&_sh_Z_max_low; }
+  /// return sh_axes
+  Shape & get_axes()             { return *(Shape *)&_axes;    }
 };
 
 /// arguments of the EOC handler for A f⍤[X] B
-struct RANK_ALXB
+struct RANK_ALyXB : public RANK_LyXB
 {
-  Function * LO;                         ///< user defined function
-  ShapeItem h;                           ///< current high index
-  bool repeat_A;                         ///< scalar-extend A
-  char _sh_A_low [ sizeof(Shape) ];      ///< low dimensions of A
-  ShapeItem ec_A_low;                    ///< items in _sh_B_low
-  const Cell * cA;                       ///< current A cell
-  bool repeat_B;                         ///< scalar-extend B
-  char _sh_B_low [ sizeof(Shape) ];      ///< low dimensions of B
-  char _sh_B_high[ sizeof(Shape) ];      ///< high dimensions of B
-  ShapeItem ec_B_low;                    ///< items in _sh_B_low
-  const Cell * cB;                       ///< current B cell
-  Value_P * ZZ;                          ///< current ZZ value
-  char _sh_Z_max_low[sizeof(Shape)];     ///< max. low dimensions of Z
-  ShapeItem ec_high;                     ///< max. high index
-  int how;                               ///< how to finish_eval_LXB()
+  bool repeat_A;                     ///< scalar-extend A
+  bool repeat_B;                     ///< scalar-extend B
+  char _sh_chunk_A[sizeof(Shape)];   ///< low dimensions of A
+  ShapeItem ec_chunk_A;              ///< items in _sh_chunk_B
+  const Cell * cA;                   ///< current A cell
 
-  /// return sh_A_low
-  Shape & get_sh_A_low()       { return *(Shape *)&_sh_A_low;     }
-
-  /// return sh_B_low
-  Shape & get_sh_B_low()       { return *(Shape *)&_sh_B_low;     }
-
-  /// return sh_B_high
-  Shape & get_sh_B_high()      { return *(Shape *)&_sh_B_high;    }
-
-  /// return sh_Z_max_low
-  Shape & get_sh_Z_max_low()   { return *(Shape *)&_sh_Z_max_low; }
+  /// return sh_chunk_A
+  Shape & get_sh_chunk_A()       { return *(Shape *)&_sh_chunk_A;     }
 };
 
 /// the second argument for an EOC_HANDLER. The actual type depends on the
@@ -333,8 +314,8 @@ public:
         REDUCTION  u_REDUCTION;
         EACH_ALB   u_EACH_ALB;
         EACH_LB    u_EACH_LB;
-        RANK_LXB   u_RANK_LXB;
-        RANK_ALXB  u_RANK_ALXB;
+        RANK_LyXB   u_RANK_LyXB;
+        RANK_ALyXB  u_RANK_ALyXB;
       } u;
 };
 

@@ -156,7 +156,7 @@ APL understands the following command line options:
 show ./configure options used and exit.
 
 @item
-@option{--[no]COLOR}
+@option{--[no]Color}
 
 start with ]COLOR ON [OFF].
 

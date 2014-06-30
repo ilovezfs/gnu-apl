@@ -38,6 +38,10 @@ public:
    /// Constructor (dyadic operator)
    DerivedFunction(Token & lf, Function * dyop, Token & rf, const char * loc);
 
+   /// Constructor (dyadic operator with axis: fun ⍤[] rval)
+   DerivedFunction(Token & lf, Function * dyop, Value_P X, Token & rval,
+                   const char * loc);
+
    /// Constructor (monadic operator, no axis)
    DerivedFunction(Token & lfun, Function * monop, const char * loc);
 
@@ -78,7 +82,7 @@ protected:
    /// the monadic operator (to the right of the function)
    Function * oper;
 
-   /// the function on the right of the operator (if any)
+   /// the function on the right of the (dyadic) operator (if any)
    Token right_fun;
 
    /// the axis for \b mon_oper, or 0 if no axis

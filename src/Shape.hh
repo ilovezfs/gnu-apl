@@ -142,9 +142,17 @@ public:
       { if (rho_rho >= MAX_RANK)   LIMIT_ERROR_RANK;
         rho[rho_rho++] = len;   volume *= len; }
 
-   /// possibly increase rank by appending axes of length 1
-   void expand_rank(Rank rk)
-      { while (rho_rho < rk)   add_shape_item(1); };
+   /// possibly increase rank by prepending axes of length 1
+   void expand_rank(Rank new_rk)
+      { if (rho_rho < new_rk)
+            {
+              const int diff = new_rk - rho_rho;
+              loop(r, rho_rho)   rho[new_rk - r - 1] = rho[rho_rho - r - 1];
+              loop(r, diff)      rho[r] = 1;
+              rho_rho = new_rk;
+            }
+       }
+            
 
    /// possibly expand rank and increase axes so that B fits into this shape
    void expand(const Shape & B);

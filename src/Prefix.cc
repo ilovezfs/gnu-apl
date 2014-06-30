@@ -925,6 +925,29 @@ Prefix::reduce_N_D_N_()
 }
 //-----------------------------------------------------------------------------
 void
+Prefix::reduce_F_D_C_B()
+{
+   // we have f ⍤ [X] y_B with y_B glued beforehand. Unglue it.
+   //
+Value_P v_idx = at2().get_axes();
+DerivedFunction * derived = Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (derived) DerivedFunction(at0(), at1().get_function(),
+                                 v_idx, at3(), LOC);
+
+   pop_and_discard();   // pop F
+   pop_and_discard();   // pop D
+   pop_and_discard();   // pop C
+
+Token tok(TOK_FUN2, derived);
+Token_loc tl(tok, Function_PC_0);
+   push(tl);
+
+   // at this point, F D C B was replaced by derived B
+
+   action = RA_CONTINUE;
+}
+//-----------------------------------------------------------------------------
+void
 Prefix::reduce_A_C__()
 {
 Value_P A = at0().get_apl_val();

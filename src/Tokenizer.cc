@@ -24,7 +24,7 @@
 #include "Bif_OPER1_COMMUTE.hh"
 #include "Bif_OPER1_EACH.hh"
 #include "Bif_OPER2_PRODUCT.hh"
-#include "Bif_OPER1_RANK.hh"
+#include "Bif_OPER2_RANK.hh"
 #include "Bif_OPER1_REDUCE.hh"
 #include "Bif_OPER1_SCAN.hh"
 #include "CharCell.hh"
@@ -330,7 +330,7 @@ Token tok = Avec::uni_to_token(uni, LOC);
 
         sys(OPER1_EACH,    OPER1_EACH)
         sys(OPER1_COMMUTE, OPER1_COMMUTE)
-        sys(OPER1_RANK,    OPER1_RANK)
+        sys(OPER2_RANK,    OPER2_RANK)
         sys(OPER1_REDUCE,  OPER1_REDUCE)
         sys(OPER1_REDUCE1, OPER1_REDUCE1)
         sys(OPER1_SCAN,    OPER1_SCAN)

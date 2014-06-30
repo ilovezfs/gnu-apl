@@ -1709,10 +1709,10 @@ Cell * vv = &V->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F12_PICK::eval_B(Value_P B)
+Bif_F12_PICK::disclose(Value_P B, bool rank_tolerant)
 {
 const ShapeItem len_B = B->element_count();
-const Shape it_shape = item_shape(B);
+const Shape it_shape = item_shape(B, rank_tolerant);
 const Shape shape_Z = B->get_shape() + it_shape;
 
 Value_P Z(new Value(shape_Z, LOC));
@@ -1764,18 +1764,15 @@ const ShapeItem llen = it_shape.get_volume();
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F12_PICK::eval_XB(Value_P X, Value_P B)
+Bif_F12_PICK::disclose_with_axis(const Shape & axes_X, Value_P B,
+                                 bool rank_tolerant)
 {
    // disclose with axis
 
    // all items of B must have the same rank. it_shape is the smallest
    // shape that can contain each item of B.
    //
-const Shape it_shape = item_shape(B);
-
-   // init axes_X with the axes in the ravel of X, normalized to ⎕IO = 0
-   //
-const Shape axes_X = X->to_shape();
+const Shape it_shape = item_shape(B, rank_tolerant);
 
    // the number of items in X must be the number of axes in it_shape
    if (it_shape.get_rank() != axes_X.get_rank())   AXIS_ERROR;
@@ -1891,9 +1888,9 @@ PermutedArrayIterator it_Z(shape_Z, perm);
 }
 //-----------------------------------------------------------------------------
 Shape
-Bif_F12_PICK::item_shape(Value_P B)
+Bif_F12_PICK::item_shape(Value_P B, bool rank_tolerant)
 {
-   // all items are scalars or arrays of the same rank R.
+   // all items of B are scalars or (nested) arrays of the same rank R.
    // return the shape with rank R and the (per-dimension) max. of
    // each shape item
    //
@@ -1914,11 +1911,20 @@ Shape ret;   // of the first non-scalar in B
               continue;
             }
 
-         // the items of B must have the same rank.
+         // the items of B must have the same rank, unless we are rank_tolerant
          //
-         if (ret.get_rank() != v->get_rank())   RANK_ERROR;
+         if (ret.get_rank() != v->get_rank())
+            {
+              if (!rank_tolerant)   RANK_ERROR;
 
-         loop(r, ret.get_rank())
+              if (ret.get_rank() < v->get_rank())
+                 ret.expand_rank(v->get_rank());
+
+              // if ret.get_rank() > v->get_rank() then we are OK because
+              // only the dimensions present in v are expanded below.
+            }
+
+         loop(r, v->get_rank())
              {
                if (ret.get_shape_item(r) < v->get_shape_item(r))
                   {

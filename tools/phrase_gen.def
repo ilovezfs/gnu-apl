@@ -57,6 +57,7 @@ phrase(BS_OP_RO + 3,     F    , D    , N    ,    )
 phrase(BS_OP_RO + 3,     N    , D    , B    ,    )
 phrase(BS_OP_RO + 3,     N    , D    , G    ,    )
 phrase(BS_OP_RO + 3,     N    , D    , N    ,    )
+phrase(BS_OP_RO + 3,     F    , D    , C    , B  )
 
 // indexed reference and assignment
 phrase(BS_ANY_BRA + 2,   A    , C    ,      ,    )
