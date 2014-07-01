@@ -43,9 +43,12 @@ LibPaths::LibDir LibPaths::lib_dirs[LIB_MAX];
 const void * unused = 0;
 
 //-----------------------------------------------------------------------------
-void LibPaths::init(const char * argv0)
+void
+LibPaths::init(const char * argv0, bool logit)
 {
-   compute_bin_path(argv0);
+   logit && CERR << "\ninitializing paths from argv[0] = " << argv0 << endl;
+
+   compute_bin_path(argv0, logit);
    search_APL_lib_root();
 
    loop(d, LIB_MAX)
@@ -56,7 +59,8 @@ void LibPaths::init(const char * argv0)
       }
 }
 //-----------------------------------------------------------------------------
-void LibPaths::compute_bin_path(const char * argv0)
+void
+LibPaths::compute_bin_path(const char * argv0, bool logit)
 {
    // compute APL_bin_path from argv0
    //
@@ -71,6 +75,9 @@ void LibPaths::compute_bin_path(const char * argv0)
 
          if (path)
             {
+              logit && CERR << "initializing paths from  $PATH = "
+                            << path << endl;
+
               // we must not modify path, so we copy it to path1 and
               // replace the semicolons in path1 by 0. That converts
               // p1;p2; ... into a sequence of 0-terminated strings
@@ -97,27 +104,34 @@ void LibPaths::compute_bin_path(const char * argv0)
                          Assert(slash);   // due to %s/%s above
                          *slash = 0;
                          APL_bin_name = slash + 1;
-                         return;
+                         goto done;
                        }
 
                     if (semi == 0)   break;
                     next = semi + 1;
                   }
             }
+           else
+            {
+              logit && CERR << "initializing paths from $PATH failed because "
+                               "it was not set" << endl;
+            }
       }
 
    unused = realpath(argv0, APL_bin_path);
    APL_bin_path[PATH_MAX] = 0;
-char * slash =   strrchr(APL_bin_path, '/');
-   if (slash)   { *slash = 0;   APL_bin_name = slash + 1; }
-   else         { APL_bin_name = APL_bin_path;            }
+   {
+     char * slash =   strrchr(APL_bin_path, '/');
+     if (slash)   { *slash = 0;   APL_bin_name = slash + 1; }
+     else         { APL_bin_name = APL_bin_path;            }
+   }
 
    // if we have a PWD and it is a prefix of APL_bin_path then replace PWD
    // by './'
    //
-const char * PWD = getenv("PWD");
-   if (PWD)   // we have a pwd
+   if (const char * PWD = getenv("PWD"))   // we have a pwd
       {
+        logit && CERR << "initializing paths from  $PWD = " << PWD << endl;
         const int PWD_len = strlen(PWD);
         if (!strncmp(PWD, APL_bin_path, PWD_len) && PWD_len > 1)
            {
@@ -125,6 +139,15 @@ const char * PWD = getenv("PWD");
              APL_bin_path[0] = '.';
            }
       }
+   else
+      {
+        logit && CERR << "initializing paths from $PWD failed because "
+                         "it was not set" << endl;
+      }
+
+done:
+   logit && CERR << "APL_bin_path is: " << APL_bin_path << endl
+                 << "APL_bin_name is: " << APL_bin_name << endl;
 }
 //-----------------------------------------------------------------------------
 bool

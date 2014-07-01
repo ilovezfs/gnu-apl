@@ -100,7 +100,7 @@ World
       ⍝
       ⎕←FSTAT←FILE_IO[18] Handle ◊ 0 8 8 8 ⊤ FSTAT[3]
 ⁰ ⁰ ⁰ 1 ⁰ ⁰ 0 22 ⁰ ⁰ ⁰ ⁰ ⁰
-64 6 6 ⁰
+64 6 ⁰ ⁰
 
       ⍝ close the file
       ⍝

@@ -72,7 +72,7 @@ public:
       };
 
    /// initialize library paths based on the location of the APL binary
-   static void init(const char * argv0);
+   static void init(const char * argv0, bool logit);
 
    /// return the path (directory) of the APL interpreter binary
    static const char * get_APL_bin_path()   { return APL_bin_path; }
@@ -106,7 +106,7 @@ protected:
                                     const char * ext1, const char * ext2);
 
    /// compute the location of the apl binary
-   static void compute_bin_path(const char * argv0);
+   static void compute_bin_path(const char * argv0, bool logit);
 
    /// set library root, searching from APL_bin_path
    static void search_APL_lib_root();
