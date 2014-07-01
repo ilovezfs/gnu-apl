@@ -109,6 +109,12 @@ protected:
    static DIR * open_LIB_dir(UTF8_string & path, ostream & out,
                             const UCS_string & arg);
 
+   /// list library: common helper
+   static void lib_common(ostream & out, const UCS_string & args, int variant);
+
+   /// return true if entry is a directory
+   static bool is_directory(dirent * entry, const UTF8_string & path);
+
    /// list content of workspace and wslib directories: )LIB [N]
    static void cmd_LIB1(ostream & out, const UCS_string & args);
 

@@ -62,6 +62,12 @@ rlimit rl;
    getrlimit(RLIMIT_AS, &rl);
    total_memory = rl.rlim_cur;
 
+   if (log_startup)
+      CERR << "sizeof(Svar_DB_memory) is " << sizeof(Svar_DB_memory) << endl
+           << "sizeof(offered_SVAR) is " << sizeof(offered_SVAR) << endl
+           << "sizeof(Svar_partner_events) is " << sizeof(Svar_partner_events)
+           << endl;
+
    Output::init();
    Avec::init();
    LibPaths::init(argv0);

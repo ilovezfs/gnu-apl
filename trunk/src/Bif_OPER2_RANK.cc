@@ -541,3 +541,46 @@ const APL_Float qct = Workspace::get_CT();
    if (rank_B < 0)      rank_B = 0;
 }
 //-----------------------------------------------------------------------------
+void
+Bif_OPER2_RANK::split_y123_B(const Value & y123_B, Value_P & y123, Value_P & B)
+{
+   // The ISO standard and NARS define the reduction pattern for the RANK
+   // operator ⍤ as:
+   //
+   // Z ← A f ⍤ y B		(ISO)
+   // Z ←   f ⍤ y B		(ISO)
+   // Z ← A f ⍤ [X] y B		(NARS)
+   // Z ←   f ⍤ [X] y B		(NARS)
+   //
+   // GNU APL may bind y to B at tokenization time if y and B are constants
+   // This function tries to "unbind" its argument y123_B into the original
+   // components y123 (= y in the standard) and B. The tokenization time
+   // binding is shown as y123:B
+   //
+   //    Usage               ⍴ y123_B    ≡ y123_B       Result:   j123       B
+   //--------------------------------------------------------------------------
+   // 1.  (f ⍤ y123:B)        1-3         ≤ 1                      y123:B     0
+   // 2.   f ⍤ (y123):B       ≥ 1         ≥ 2                      y123       B
+   // 3.   f ⍤ y123:(B)       ≥ 2         ≥ 2                      y123       B
+   // 4a.  f ⍤ y123:B         ≥ 4                                  y1
+   //
+const ShapeItem length = y123_B.element_count();
+   if (length == 0)   LENGTH_ERROR;
+
+   // case 2. is the only one with nested first element
+   //
+   if (y123_B.get_ravel(0).is_pointer_cell())
+      {
+      }
+
+   // case 2. ruled out, so the first 1, 2, or 3 cells are j123.
+   // see how many (at most)
+   //
+
+   if (length == 1)   // 1. or 2. with empty B
+      {
+      }
+
+
+}
+//-----------------------------------------------------------------------------

@@ -491,8 +491,8 @@ const int layout = arg.atoi();
       {
         case 0:
 
-   out << "US Keyboard Layout:" <<      "\n"
-                                        "\n"
+   out << "US Keyboard Layout:\n"
+                              "\n"
 "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗\n"
 "║ ~  ║ !⌶ ║ @⍫ ║ #⍒ ║ $⍋ ║ %⌽ ║ ^⍉ ║ &⊖ ║ *⍟ ║ (⍱ ║ )⍲ ║ _! ║ +⌹ ║         ║\n"
 "║ `◊ ║ 1¨ ║ 2¯ ║ 3< ║ 4≤ ║ 5= ║ 6≥ ║ 7> ║ 8≠ ║ 9∨ ║ 0∧ ║ -× ║ =÷ ║ BACKSP  ║\n"
@@ -510,8 +510,8 @@ const int layout = arg.atoi();
         break;
 
         case 1:
-   out << "US Keyboard Layout 1:" <<     "\n"
-                                        "\n"
+   out << "US Keyboard Layout 1:\n"
+                                "\n"
 "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗\n"
 "║ ~  ║ !⌶ ║ @⍫ ║ #⍒ ║ $⍋ ║ %⌽ ║ ^⍉ ║ &⊖ ║ *⍟ ║ (⍱ ║ )⍲ ║ _! ║ +⌹ ║         ║\n"
 "║ `◊ ║ 1¨ ║ 2¯ ║ 3< ║ 4≤ ║ 5= ║ 6≥ ║ 7> ║ 8≠ ║ 9∨ ║ 0∧ ║ -× ║ =÷ ║ BACKSP  ║\n"
@@ -762,8 +762,25 @@ DIR * dir = opendir(path.c_str());
    return dir;
 }
 //-----------------------------------------------------------------------------
+bool
+Command::is_directory(dirent * entry, const UTF8_string & path)
+{
+#ifdef _DIRENT_HAVE_D_TYPE
+   return entry->d_type == DT_DIR;
+#endif
+
+UTF8_string filename = path;
+UTF8_string entry_name(entry->d_name);
+   filename.append('/');
+   filename.append(entry_name);
+
+DIR * dir = opendir(filename.c_str());
+   if (dir) closedir(dir);
+   return dir != 0;
+}
+//-----------------------------------------------------------------------------
 void 
-Command::cmd_LIB1(ostream & out, const UCS_string & arg)
+Command::lib_common(ostream & out, const UCS_string & arg, int variant)
 {
    // 1. open directory
    //
@@ -771,10 +788,11 @@ UTF8_string path;
 DIR * dir = open_LIB_dir(path, out, arg);
    if (dir == 0)   return;
 
-   // 2. collect .apl and .xml files
+   // 2. collect files and directories
    //
 vector<UCS_string> apl_files;
 vector<UCS_string> xml_files;
+vector<UCS_string> directories;
 
    for (;;)
        {
@@ -782,25 +800,46 @@ vector<UCS_string> xml_files;
          if (entry == 0)   break;   // directory done
 
          UCS_string filename(entry->d_name);
-         const int dlen = strlen(entry->d_name);
-         if (filename[dlen - 1] != 'l')   continue;   // not .apl or .xml
-         if (filename[dlen - 4] != '.')   continue;   // not .apl or .xml
-
-         if (filename[dlen - 3] == 'a' && filename[dlen - 2] == 'p')
+         if (is_directory(entry, path))
             {
-              filename.shrink(filename.size() - 4);   // skip extension
-              apl_files.push_back(filename);
+              if (filename[0] == '.') continue;
+              filename.append(UNI_ASCII_SLASH);
+              directories.push_back(filename);
+              continue;
             }
-         else if (filename[dlen - 3] == 'x' && filename[dlen - 2] == 'm')
+
+         const int dlen = strlen(entry->d_name);
+         if (variant == 1)
             {
-              filename.shrink(filename.size() - 4);   // skip extension
-              xml_files.push_back(filename);
+              if (filename[dlen - 1] != 'l')   continue;   // not .apl or .xml
+              if (filename[dlen - 4] != '.')   continue;   // not .apl or .xml
+
+              if (filename[dlen - 3] == 'a' && filename[dlen - 2] == 'p')
+                {
+                   filename.shrink(filename.size() - 4);   // skip extension
+                   apl_files.push_back(filename);
+                 }
+              else if (filename[dlen - 3] == 'x' && filename[dlen - 2] == 'm')
+                 {
+                   filename.shrink(filename.size() - 4);   // skip extension
+                   xml_files.push_back(filename);
+                 }
+            }
+         else
+            {
+              if (filename[0] == '.')   continue;         // skip dot files ...
+              if (filename[dlen - 1] == '~')   continue;  // and editor backups
+              apl_files.push_back(filename);
             }
        }
    closedir(dir);
 
-   // 3. sort filenames alphabetically
+   // 3. sort directories and filenames alphabetically
    //
+DynArray(const UCS_string *, directory_names, directories.size());
+   loop(a, directories.size())   directory_names[a] = &directories[a];
+   UCS_string::sort_names(directory_names, directories.size());
+
 DynArray(const UCS_string *, apl_filenames, apl_files.size());
    loop(a, apl_files.size())   apl_filenames[a] = &apl_files[a];
    UCS_string::sort_names(apl_filenames, apl_files.size());
@@ -809,11 +848,16 @@ DynArray(const UCS_string *, xml_filenames, xml_files.size());
    loop(x, xml_files.size())   xml_filenames[x] = &xml_files[x];
    UCS_string::sort_names(xml_filenames, xml_files.size());
 
-   // 4. merge APL and XML files, adding a + if both exist
+   // 4. list directories first, then files
    //
-DynArray(const UCS_string *, filenames, apl_files.size() + xml_files.size());
+DynArray(const UCS_string *, filenames, apl_files.size() + xml_files.size()
+                                        + directories.size()
+         );
 
 int count = 0;
+   loop(dd, directories.size())
+       filenames[count++] = directory_names[dd];
+
    for (int a = 0, x = 0;;)
        {
          if (a >= apl_files.size())   // end of apl_files reached
@@ -877,50 +921,15 @@ vector<int> col_width;
 }
 //-----------------------------------------------------------------------------
 void 
+Command::cmd_LIB1(ostream & out, const UCS_string & arg)
+{
+   Command::lib_common(out, arg, 1);
+}
+//-----------------------------------------------------------------------------
+void 
 Command::cmd_LIB2(ostream & out, const UCS_string & arg)
 {
-   // 1. open directory
-   //
-UTF8_string path;
-DIR * dir = open_LIB_dir(path, out, arg);
-   if (dir == 0)   return;
-
-   out << path << ":" << endl << endl;
-
-const int print_width = Workspace::get_PrintContext().get_PW();
-   for (int col = 0;;)   // scan files in directory
-       {
-         dirent * entry = readdir(dir);
-         if (entry == 0)   break;   // directory done
-
-         const int dlen = strlen(entry->d_name);
-
-#ifdef _DIRENT_HAVE_D_TYPE
-         if (entry->d_type != DT_REG &&
-             entry->d_type != DT_LNK)            continue; // not a regular file
-#else
-         if (dlen == 1 && entry->d_name[0] == '.')   continue;
-         if (dlen == 2 && entry->d_name[0] == '.'
-                       && entry->d_name[1] == '.')   continue;
-#endif
-
-         int next_col = ((col + 9)/9)*9;
-         if (col && (next_col + dlen) > print_width)
-            {
-              out << endl;
-              col = 0;
-            }
-
-         if (col)
-            {
-              do  out << " ";   while (++col % 9);
-            }
-          out << entry->d_name;
-          col += dlen;
-       }
-
-   out << endl;
-   closedir(dir);
+   Command::lib_common(out, arg, 2);
 }
 //-----------------------------------------------------------------------------
 void 
