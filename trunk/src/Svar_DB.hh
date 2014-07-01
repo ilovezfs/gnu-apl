@@ -148,7 +148,7 @@ public:
    ~Svar_DB();
 
    /// open (and possibly initialize) the shared variable database
-   static void init(const char * progname, bool logit, bool do_svars);
+   static void init(const char * bin_path, bool logit, bool do_svars);
 
    /// open (and possibly initialize) the shared variable database
    void open_shared_memory(const char * progname, bool logit, bool do_svars);

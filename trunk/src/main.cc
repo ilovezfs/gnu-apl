@@ -70,16 +70,17 @@ rlimit rl;
 
    Output::init();
    Avec::init();
-   LibPaths::init(argv0);
+   LibPaths::init(argv0, log_startup);
    Value::init();
    VH_entry::init();
 }
 //-----------------------------------------------------------------------------
 /// initialize subsystems that  depend on argv[]
 static void
-init_2(const char * argv0, bool log_startup)
+init_2(bool log_startup)
 {
-   Svar_DB::init(argv0, log_startup, uprefs.system_do_svars);
+   Svar_DB::init(LibPaths::get_APL_bin_path(),
+                 log_startup, uprefs.system_do_svars);
    Input::init(true);
 }
 //-----------------------------------------------------------------------------
@@ -386,7 +387,7 @@ const char * argv0 = argv[0];
 
    if (uprefs.wait_ms)   usleep(1000*uprefs.wait_ms);
 
-   init_2(argv0, log_startup);
+   init_2(log_startup);
 
    if (!uprefs.silent)   show_welcome(cout, argv0);
 

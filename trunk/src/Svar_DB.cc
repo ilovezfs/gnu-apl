@@ -163,10 +163,17 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
 
               // execve() failed, try APs subdir...
               //
+              if (logit)   get_CERR() << "execve(" << arg0;
               snprintf(arg0, sizeof(arg0), "%s/APs/APserver", bin_path);
+              if (logit)   get_CERR() << ") failed ("<< strerror(errno)
+                                      << "), trying execve(" << arg0 << ")"
+                                      << endl;
+
               execve(arg0, argv, envp);
 
-              get_CERR() << "execve() failed" << endl;
+              get_CERR() << "execve(" << arg0 
+                         << ") also failed ("<< strerror(errno)
+                         << ")" << endl;
               exit(99);
             }
        }
@@ -230,7 +237,7 @@ const ssize_t len = ::send(Svar_DB_memory_P::get_DB_tcp(),
 }
 //=============================================================================
 void
-Svar_DB::init(const char * progname, bool logit, bool do_svars)
+Svar_DB::init(const char * bin_path, bool logit, bool do_svars)
 {
    if (!do_svars)   // shared variables disable
       {
@@ -246,10 +253,8 @@ Svar_DB::init(const char * progname, bool logit, bool do_svars)
         return;
       }
 
-char * path = strdup(progname);
-   if (char * slash = strrchr(path, '/'))   *slash = 0;
    Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
-   Svar_DB_memory_P::connect_to_APserver(path, logit);
+   Svar_DB_memory_P::connect_to_APserver(bin_path, logit);
    if (Svar_DB_memory_P::APserver_available())
       {
         if (logit)   CERR << "using Svar_DB on APserver!" << endl;
