@@ -36,7 +36,10 @@ public:
    /// Return a random number.
    APL_Integer get_random();
 
-   unsigned int reset_seed()   { srandom(1);   random();   return 1; }
+   enum { INITIAL_SEED = 16807 };
+   /// reset the seed (eg. after )CEAR)
+   unsigned int reset_seed()
+      { srandom(INITIAL_SEED);   random();   return INITIAL_SEED; }
 
 protected:
    /// Overloaded Symbol::assign().

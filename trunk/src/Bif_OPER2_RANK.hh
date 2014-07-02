@@ -32,12 +32,6 @@ public:
    /// constructor
    Bif_OPER2_RANK() : PrimitiveOperator(TOK_OPER2_RANK) {}
 
-   /// overloaded Function::eval_ALB()
-   virtual Token eval_ALB(Value_P A, Token & LO, Value_P B);
-
-   /// overloaded Function::eval_ALXB()
-   virtual Token eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B);
-
    /// overloaded Function::eval_ALRB()
    virtual Token eval_ALRB(Value_P A, Token & LO, Token & RO_y, Value_P B);
 
@@ -49,19 +43,16 @@ public:
    static Token do_ALyXB(Value_P A, Rank rk_chunk_A, Function * LO,
                          const Shape * axes, Value_P B, Rank rk_chunk_B);
 
-   /// overloaded Function::eval_LB()
-   virtual Token eval_LB(Token & LO, Value_P B);
-
-   /// overloaded Function::eval_LXB()
-   virtual Token eval_LXB(Token & LO, Value_P X, Value_P B);
-
    /// overloaded Function::eval_LRB()
    virtual Token eval_LRB(Token & LO, Token & RO_y, Value_P B);
 
-   /// the 'normalized' implementation of all eval_Lxxx*( functions
-   Token do_LyXB(Function * LO, const Shape * axes, Value_P B, Rank rk_chunk_B);
+   /// overloaded Function::eval_LRXB()
+   virtual Token eval_LRXB(Token & LO, Token & RO_y, Value_P X, Value_P B);
 
-   static void split_y123_B(const Value & y123_B, Value_P & y123, Value_P & B);
+   /// the 'normalized' implementation of all eval_Lxxx*( functions
+   Token do_LyXB(Function * LO, const Shape * axes, Value_P B, Rank rk_chunkB);
+
+   static void split_y123_B(Value_P y123_B, Value_P & y123, Value_P & B);
 
    static Bif_OPER2_RANK fun;      ///< Built-in function
 
@@ -73,10 +64,10 @@ protected:
    static bool eoc_LyXB(Token & token, EOC_arg & arg);
 
    /// convert 1- 2- or 3-element vector y123 to chunk-rank of B
-   static void y123_to_B(int count, Value_P y123,  Rank & rk_B);
+   static void y123_to_B(Value_P y123, Rank & rk_B);
 
    /// convert 1- 2- or 3-element vector y123 to chunk-ranks of A and B
-   static void y123_to_AB(int count, Value_P y123, Rank & rk_A, Rank & rk_B);
+   static void y123_to_AB(Value_P y123, Rank & rk_A, Rank & rk_B);
 
    /// helper for eval_LXB. returns true if the final token was computed, and
    /// false if finish_LyXB shall be called again

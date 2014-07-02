@@ -120,6 +120,10 @@ public:
       { return put; }
 
    /// return the leftmost token (e.g. A in A←B)
+   const Token & _at0() const
+      { Assert1(size() > 0);   return content[put - 1].tok; }
+
+   /// return the leftmost token (e.g. A in A←B)
    const Token & at0() const
       { Assert1(size() > 0);   return content[put - 1].tok; }
 

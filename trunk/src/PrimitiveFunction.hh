@@ -358,7 +358,7 @@ public:
    /// Overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_DROP      fun;   ///< Built-in function
+   static Bif_F12_DROP fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -765,6 +765,10 @@ public:
    : NonscalarFunction(TOK_F2_LEFT)
    {}
 
+   /// Overloaded Function::eval_B()
+   virtual Token eval_B(Value_P B)
+      { return Token(TOK_APL_VALUE2, B->clone(LOC)); }
+
    /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return Token(TOK_APL_VALUE1, A->clone(LOC)); }
@@ -782,6 +786,10 @@ public:
    Bif_F2_RIGHT()
    : NonscalarFunction(TOK_F2_RIGHT)
    {}
+
+   /// Overloaded Function::eval_B()
+   virtual Token eval_B(Value_P B)
+      { return Token(TOK_APL_VALUE1, B->clone(LOC)); }
 
    /// Overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)

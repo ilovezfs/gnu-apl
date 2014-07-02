@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Bif_OPER2_RANK.hh"
 #include "Common.hh"
 #include "DerivedFunction.hh"
 #include "Executable.hh"
@@ -886,7 +887,46 @@ Prefix::reduce_B_D_N_()
 void
 Prefix::reduce_F_D_B_()
 {
-   reduce_F_D_G_();   // same as G2
+   // same as G2, except for ⍤
+   //
+   if (at1().get_function()->get_Id() != ID_OPER2_RANK)   reduce_F_D_G_();
+
+   // we have f ⍤ y_B with y_B glued beforehand. Unglue it.
+   //
+Value_P y123;
+Value_P B;
+   Bif_OPER2_RANK::split_y123_B(at2().get_apl_val(), y123, B);
+Token new_y123(TOK_APL_VALUE1, y123);
+
+DerivedFunction * derived = Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (derived) DerivedFunction(at0(), at1().get_function(), new_y123, LOC);
+
+Token result = Token(TOK_FUN2, derived);
+
+   if (!B)   // only y123, no B (e.g. (f ⍤[X] 1 2 3)
+      {
+        pop_args_push_result(result);
+      }
+   else      // a new B split off from the original B
+      {
+        // save locations of ⍤ and B
+        //
+        Function_PC pc_D = at(1).pc;
+        Function_PC pc_B = at(3).pc;
+
+        pop_and_discard();   // pop F
+        pop_and_discard();   // pop C
+        pop_and_discard();   // pop B (old)
+
+        Token new_B(TOK_APL_VALUE1, B);
+        Token_loc tl_B(new_B, pc_B);
+        Token_loc tl_derived(result, pc_D);
+        push(tl_B);
+        push(tl_derived);
+      }
+
+   action = RA_CONTINUE;
+
 }
 //-----------------------------------------------------------------------------
 void
@@ -929,20 +969,40 @@ Prefix::reduce_F_D_C_B()
 {
    // we have f ⍤ [X] y_B with y_B glued beforehand. Unglue it.
    //
+Value_P y123;
+Value_P B;
+   Bif_OPER2_RANK::split_y123_B(at3().get_apl_val(), y123, B);
+Token new_y123(TOK_APL_VALUE1, y123);
+
 Value_P v_idx = at2().get_axes();
 DerivedFunction * derived = Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(),
-                                 v_idx, at3(), LOC);
+                                 v_idx, new_y123, LOC);
 
-   pop_and_discard();   // pop F
-   pop_and_discard();   // pop D
-   pop_and_discard();   // pop C
+Token result = Token(TOK_FUN2, derived);
 
-Token tok(TOK_FUN2, derived);
-Token_loc tl(tok, Function_PC_0);
-   push(tl);
+   if (!B)   // only y123, no B (e.g. (f ⍤[X] 1 2 3)
+      {
+        pop_args_push_result(result);
+      }
+   else      // a new B split off from the original B
+      {
+        // save locations of ⍤ and B
+        //
+        Function_PC pc_D = at(1).pc;
+        Function_PC pc_B = at(3).pc;
 
-   // at this point, F D C B was replaced by derived B
+        pop_and_discard();   // pop F
+        pop_and_discard();   // pop D
+        pop_and_discard();   // pop C
+        pop_and_discard();   // pop B (old)
+
+        Token new_B(TOK_APL_VALUE1, B);
+        Token_loc tl_B(new_B, pc_B);
+        Token_loc tl_derived(result, pc_D);
+        push(tl_B);   
+        push(tl_derived);   
+      }
 
    action = RA_CONTINUE;
 }
