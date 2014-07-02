@@ -31,64 +31,29 @@ Bif_OPER2_RANK     Bif_OPER2_RANK::fun;
 
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_RANK::eval_LB(Token & LO, Value_P y123_B)
-{
-   // B is expected to be "glued" by the prefix parser, which should result
-   // in a 2, 3, or 4 element vector:
-   //
-   //  y1        ⊂B,    or
-   //  y1 y2     ⊂B,    or
-   //  y1 y2 y3  ⊂B
-   //
-   if (y123_B->get_rank() != 1)       RANK_ERROR;
-
-const int y_len = y123_B->element_count() - 1;
-
-   if (y_len < 1)   LENGTH_ERROR;
-   if (y_len > 3)   LENGTH_ERROR;
-
-Value_P B  = y123_B->get_ravel(y_len).get_pointer_value();
-Rank rk_chunk_B = B->get_rank();
-
-   y123_to_B(y_len, y123_B, rk_chunk_B);
-
-   return do_LyXB(LO.get_function(), 0, B, rk_chunk_B);
-}
-//-----------------------------------------------------------------------------
-Token
-Bif_OPER2_RANK::eval_LXB(Token & LO, Value_P X, Value_P B)
-{
-   // B is expected to be "glued" by the prefix parser, which should result
-   // in a 2, 3, or 4 element vector:
-   //
-   //  y1        ⊂B,    or
-   //  y1 y2     ⊂B,    or
-   //  y1 y2 y3  ⊂B
-   //
-   if (B->get_rank() != 1)       RANK_ERROR;
-
-const int y_len = B->element_count() - 1;
-
-   if (y_len < 1)   LENGTH_ERROR;
-   if (y_len > 3)   LENGTH_ERROR;
-
-Value_P arg  = B->get_ravel(y_len).get_pointer_value();
-Rank rk_chunk_B = arg->get_rank();
-
-   y123_to_B(y_len, B, rk_chunk_B);
-
-Shape sh_X(X, Workspace::get_CT(), Workspace::get_IO());
-   return do_LyXB(LO.get_function(), &sh_X, arg, rk_chunk_B);
-}
-//-----------------------------------------------------------------------------
-Token
 Bif_OPER2_RANK::eval_LRB(Token & LO, Token & y, Value_P B)
 {
+   if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
+      B = B->get_ravel(0).get_pointer_value();
+
+Rank rk_chunk_B = B->get_rank();
+   y123_to_B(y.get_apl_val(), rk_chunk_B);
+
+   return do_LyXB(LO.get_function(), 0, B, rk_chunk_B);
+}
+//-----------------------------------------------------------------------------
+Token
+Bif_OPER2_RANK::eval_LRXB(Token & LO, Token & y, Value_P X, Value_P B)
+{
+   if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
+      B = B->get_ravel(0).get_pointer_value();
+
 Rank rk_chunk_B = B->get_rank();
 
-Value_P vy = y.get_apl_val();
-   y123_to_B(vy->element_count(), vy, rk_chunk_B);
-   return do_LyXB(LO.get_function(), 0, B, rk_chunk_B);
+   y123_to_B(y.get_apl_val(), rk_chunk_B);
+
+Shape sh_X(X, Workspace::get_CT(), Workspace::get_IO());
+   return do_LyXB(LO.get_function(), &sh_X, B, rk_chunk_B);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -131,7 +96,7 @@ loop_h:
    {
      Value_P BB(new Value(_arg.get_sh_chunk_B(), LOC));
      Assert1(_arg.ec_chunk_B == _arg.get_sh_chunk_B().get_volume());
-     loop(l, _arg.ec_chunk_B)   BB->get_ravel(l).init(*_arg.cB++);
+     loop(l, _arg.ec_chunk_B)   BB->next_ravel()->init(*_arg.cB++);
      BB->check_value(LOC);
 
      Token result = _arg.LO->eval_B(BB);
@@ -191,80 +156,29 @@ Value_P ZZ = token.get_apl_val();
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_RANK::eval_ALB(Value_P A, Token & LO, Value_P B)
+Bif_OPER2_RANK::eval_ALRB(Value_P A, Token & LO, Token & y, Value_P B)
 {
-   // B is expected to be "glued" by the prefix parser, which should result
-   // in a 2, 3, or 4 element vector:
-   //
-   //  y1        ⊂B,    or
-   //  y1 y2     ⊂B,    or
-   //  y1 y2 y3  ⊂B
-   //
-   if (B->get_rank() != 1)       RANK_ERROR;
+   if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
+      B = B->get_ravel(0).get_pointer_value();
 
-const int y_len = B->element_count() - 1;
-
-   if (y_len < 1)   LENGTH_ERROR;
-   if (y_len > 3)   LENGTH_ERROR;
-
-Value_P arg  = B->get_ravel(y_len).get_pointer_value();
-Rank rk_chunk_A = A->get_rank();
-Rank rk_chunk_B = arg->get_rank();
-
-   y123_to_AB(y_len, B, rk_chunk_A, rk_chunk_B);
-
-   return do_ALyXB(A, rk_chunk_A, LO.get_function(), 0, arg, rk_chunk_B);
-}
-//-----------------------------------------------------------------------------
-Token
-Bif_OPER2_RANK::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
-{
-   // B is expected to be "glued" by the prefix parser, which should result
-   // in a 2, 3, or 4 element vector:
-   //
-   //  y1        ⊂B,    or
-   //  y1 y2     ⊂B,    or
-   //  y1 y2 y3  ⊂B
-   //
-   if (B->get_rank() != 1)       RANK_ERROR;
-
-const int y_len = B->element_count() - 1;
-
-   if (y_len < 1)   LENGTH_ERROR;
-   if (y_len > 3)   LENGTH_ERROR;
-
-Value_P arg  = B->get_ravel(y_len).get_pointer_value();
-Rank rk_chunk_A = A->get_rank();
-Rank rk_chunk_B = arg->get_rank();
-
-   y123_to_AB(y_len, B, rk_chunk_A, rk_chunk_B);
-
-Shape sh_X(X, Workspace::get_CT(), Workspace::get_IO());
-   return do_ALyXB(A, rk_chunk_A, LO.get_function(), &sh_X, arg, rk_chunk_B);
-}
-//-----------------------------------------------------------------------------
-Token
-Bif_OPER2_RANK::eval_ALRB(Value_P A, Token & LO, Token & RO_y, Value_P B)
-{
 Rank rk_chunk_A = A->get_rank();
 Rank rk_chunk_B = B->get_rank();
+   y123_to_AB(y.get_apl_val(), rk_chunk_A, rk_chunk_B);
 
-Value_P vy = RO_y.get_apl_val();
-   y123_to_AB(vy->element_count(), vy, rk_chunk_A, rk_chunk_B);
    return do_ALyXB(A, rk_chunk_A, LO.get_function(), 0, B, rk_chunk_B);
-
-return TOK_VOID;
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_RANK::eval_ALRXB(Value_P A, Token & LO, Token & RO_y,
+Bif_OPER2_RANK::eval_ALRXB(Value_P A, Token & LO, Token & y,
                            Value_P X, Value_P B)
 {
+   if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
+      B = B->get_ravel(0).get_pointer_value();
+
 Rank rk_chunk_A = A->get_rank();
 Rank rk_chunk_B = B->get_rank();
 
-Value_P vRO_y = RO_y.get_apl_val();
-   y123_to_AB(vRO_y->element_count(), vRO_y, rk_chunk_A, rk_chunk_B);
+   y123_to_AB(y.get_apl_val(), rk_chunk_A, rk_chunk_B);
 
 Shape sh_X(X, Workspace::get_CT(), Workspace::get_IO());
    return do_ALyXB(A, rk_chunk_A, LO.get_function(), &sh_X, B, rk_chunk_B);
@@ -434,7 +348,7 @@ Value_P ZZ = token.get_apl_val();
 }
 //-----------------------------------------------------------------------------
 void
-Bif_OPER2_RANK::y123_to_B(int count, Value_P y123, Rank & rank_B)
+Bif_OPER2_RANK::y123_to_B(Value_P y123, Rank & rank_B)
 {
    // y123_to_AB() splits the ranks of A and B into a (higher-dimensions)
    // "frame" and a (lower-dimensions) "chunk" as specified by y123.
@@ -461,7 +375,7 @@ const Rank rk_B = rank_B;
 
 const APL_Float qct = Workspace::get_CT();
 
-   switch(count)
+   switch(y123->element_count())
       {
         case 1: rank_B = y123->get_ravel(0).get_near_int(qct);   break;
 
@@ -484,8 +398,7 @@ const APL_Float qct = Workspace::get_CT();
 }
 //-----------------------------------------------------------------------------
 void
-Bif_OPER2_RANK::y123_to_AB(int count, Value_P y123,
-                           Rank & rank_A, Rank & rank_B)
+Bif_OPER2_RANK::y123_to_AB(Value_P y123, Rank & rank_A, Rank & rank_B)
 {
    // y123_to_AB() splits the ranks of A and B into a (higher-dimensions)
    // "frame" and a (lower-dimensions) "chunk" as specified by y123.
@@ -514,7 +427,7 @@ const Rank rk_B = rank_B;
 
 const APL_Float qct = Workspace::get_CT();
 
-   switch(count)
+   switch(y123->element_count())
       {
         case 1:  rank_A = y123->get_ravel(0).get_near_int(qct);
                  rank_B = rank_A;                            break;
@@ -542,7 +455,7 @@ const APL_Float qct = Workspace::get_CT();
 }
 //-----------------------------------------------------------------------------
 void
-Bif_OPER2_RANK::split_y123_B(const Value & y123_B, Value_P & y123, Value_P & B)
+Bif_OPER2_RANK::split_y123_B(Value_P y123_B, Value_P & y123, Value_P & B)
 {
    // The ISO standard and NARS define the reduction pattern for the RANK
    // operator ⍤ as:
@@ -557,30 +470,88 @@ Bif_OPER2_RANK::split_y123_B(const Value & y123_B, Value_P & y123, Value_P & B)
    // components y123 (= y in the standard) and B. The tokenization time
    // binding is shown as y123:B
    //
-   //    Usage               ⍴ y123_B    ≡ y123_B       Result:   j123       B
-   //--------------------------------------------------------------------------
-   // 1.  (f ⍤ y123:B)        1-3         ≤ 1                      y123:B     0
-   // 2.   f ⍤ (y123):B       ≥ 1         ≥ 2                      y123       B
-   // 3.   f ⍤ y123:(B)       ≥ 2         ≥ 2                      y123       B
-   // 4a.  f ⍤ y123:B         ≥ 4                                  y1
+   //    Usage               y123   : B        Result:   j123       B
+   //-------------------------------------------------------------------------
+   // 1.   f ⍤ (y123):B...   nested   any                y123       B
+   // 2.  (f ⍤ y123:⍬)       simple   empty              y123       -
+   // 3.   f ⍤ y123:(B)      simple   nested skalar      y123       B
+   // 4a.  f ⍤ y123:B...     simple   any                y123       B...
    //
-const ShapeItem length = y123_B.element_count();
+
+   // y123_B shall be a skalar or vector
+   //
+   if (y123_B->get_rank() > 1)   RANK_ERROR;
+
+const ShapeItem length = y123_B->element_count();
    if (length == 0)   LENGTH_ERROR;
 
-   // case 2. is the only one with nested first element
+   // check for case 1 (the only one with nested first element)
    //
-   if (y123_B.get_ravel(0).is_pointer_cell())
+   if (y123_B->get_ravel(0).is_pointer_cell())   // (y123)
       {
+         y123 = y123_B->get_ravel(0).get_pointer_value();
+         if (length == 1)        // empty B
+            {
+            }
+         else if (length == 2)   // skalar B
+            {
+              const Cell & B0 = y123_B->get_ravel(1);
+              if (B0.is_pointer_cell())   // (B)
+                 {
+                   B = B0.get_pointer_value();
+                 }
+              else
+                 {
+                   B = Value_P(new Value(LOC));
+                   B->next_ravel()->init(B0);
+                 }
+            }
+         else                    // vector B
+            {
+              B = Value_P(new Value(length - 1, LOC));
+              loop(l, length - 1)
+                  B->next_ravel()->init(y123_B->get_ravel(l + 1));
+            }
+         return;
       }
 
-   // case 2. ruled out, so the first 1, 2, or 3 cells are j123.
+   // case 1. ruled out, so the first 1, 2, or 3 cells are j123.
    // see how many (at most)
    //
-
-   if (length == 1)   // 1. or 2. with empty B
+const APL_Float qct = Workspace::get_CT();
+int y123_len = 0;
+   loop(yy, 3)
       {
+        if (yy >= length)   break;
+        if (y123_B->get_ravel(yy).is_near_int(qct))   ++y123_len;
+        else                                          break;
+      }
+   if (y123_len == 0)   LENGTH_ERROR;   // at least y1 is needed
+
+   // cases 2.-4. start with integers of length 1, 2, or 3
+   //
+   if (length == y123_len)   // case 2: y123:⍬
+      {
+        y123 = y123_B;
+        return;
       }
 
+   if (length == (y123_len + 1) &&
+       y123_B->get_ravel(y123_len).is_pointer_cell())   // case 3. y123:⊂B
+      {
+        y123 = Value_P(new Value(y123_len, LOC));
+        loop(yy, y123_len)   y123->next_ravel()->init(y123_B->get_ravel(yy));
+        B = y123_B->get_ravel(y123_len).get_pointer_value();
+        return;
+      }
 
+   // case 4: y123:B...
+   //
+   y123 = Value_P(new Value(y123_len, LOC));
+   loop(yy, y123_len)   y123->next_ravel()->init(y123_B->get_ravel(yy));
+
+   B = Value_P(new Value(length - y123_len, LOC));
+   loop(bb, (length - y123_len))
+       B->next_ravel()->init(y123_B->get_ravel(bb + y123_len));
 }
 //-----------------------------------------------------------------------------
