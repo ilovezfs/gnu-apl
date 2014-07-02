@@ -31,7 +31,7 @@ The following issues are known and maybe fixed mid-term:
 
 * UNIX sockets instead of (or in addition to)TCP/UDP for shared variables
 
-* improvements on ⍤ operator
+* properly localizing ⎕RL
 
 The following extensions are provided:
 --------------------------------------

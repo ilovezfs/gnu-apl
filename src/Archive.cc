@@ -1608,7 +1608,7 @@ Symbol * symbol = Workspace::lookup_existing_symbol(name_ucs);
    //
 const bool is_protected = symbol && protection;
 const bool is_selected = name_ucs.contained_in(allowed_objects);
-const bool no_copy = is_protected || (have_allowed_objects && !is_selected);
+bool no_copy = is_protected || (have_allowed_objects && !is_selected);
 
    if (reading_vids)
       {
@@ -1632,6 +1632,28 @@ const bool no_copy = is_protected || (have_allowed_objects && !is_selected);
            }
         skip_to_tag("/Symbol");
         return;
+      }
+
+   // in a )COPY without dedicated objects only
+   // ⎕CT, ⎕FC, ⎕IO, ⎕LX, ⎕PP, ⎕PR, and ⎕RL shall be copied
+   // shall be copied.
+   //
+   if (!have_allowed_objects       &&   // no dedicated object list
+        copying                    &&   // )COPY
+        Avec::is_quad(name_ucs[0]) &&   // ⎕xx
+        name_ucs.size() == 3       &&
+        ! (
+            ( name_ucs[1] == 'C' && name_ucs[2] == 'T' ) ||
+            ( name_ucs[1] == 'F' && name_ucs[2] == 'C' ) ||
+            ( name_ucs[1] == 'I' && name_ucs[2] == 'O' ) ||
+            ( name_ucs[1] == 'L' && name_ucs[2] == 'X' ) ||
+            ( name_ucs[1] == 'P' && name_ucs[2] == 'P' ) ||
+            ( name_ucs[1] == 'P' && name_ucs[2] == 'R' ) ||
+            ( name_ucs[1] == 'R' && name_ucs[2] == 'L' )
+          ))
+      {
+        Log(LOG_archive)   CERR << name_ucs << "not copied" << endl;
+        no_copy = true;
       }
 
    if (copying)
