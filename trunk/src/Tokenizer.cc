@@ -306,6 +306,7 @@ Token tok = Avec::uni_to_token(uni, LOC);
         sys(F2_LEFT,       F2_LEFT)
         sys(F12_LOGA,      F12_LOGA)
         sys(F12_MINUS,     F12_MINUS)
+        sys(F12_NEQUIV,    F12_NEQUIV)
         sys(F12_PARTITION, F12_PARTITION)
         sys(F12_PICK,      F12_PICK)
         sys(F12_PLUS,      F12_PLUS)

@@ -54,6 +54,7 @@ Bif_F12_TAKE      Bif_F12_TAKE::fun;         // ↑
 Bif_F12_DROP      Bif_F12_DROP::fun;         // ↓
 Bif_F12_ELEMENT   Bif_F12_ELEMENT::fun;      // ∈
 Bif_F12_EQUIV     Bif_F12_EQUIV::fun;        // ≡
+Bif_F12_NEQUIV    Bif_F12_NEQUIV::fun;       // ≢
 Bif_F12_ENCODE    Bif_F12_ENCODE::fun;       // ⊤
 Bif_F12_DECODE    Bif_F12_DECODE::fun;       // ⊥
 Bif_F12_DOMINO    Bif_F12_DOMINO::fun;       // ⌹
@@ -2543,7 +2544,7 @@ CollatingCacheEntry entry(uni, A->get_shape());
    cache.push_back(entry);
    return cache.size() - 1;
 }
-//-----------------------------------------------------------------------------
+//=============================================================================
 Token
 Bif_F12_EQUIV::eval_B(Value_P B)
 {
@@ -2576,7 +2577,37 @@ const ShapeItem count = A->nz_element_count();  // compare at least prototype
 
    return Token(TOK_APL_VALUE1, IntScalar(1, LOC));   // match
 }
+//=============================================================================
+Token
+Bif_F12_NEQUIV::eval_B(Value_P B)
+{
+   // Tally
+   //
+const ShapeItem len = B->is_scalar() ? 1 : B->get_shape().get_shape_item(0);
+
+   return Token(TOK_APL_VALUE1, IntScalar(len, LOC));   // match
+}
 //-----------------------------------------------------------------------------
+Token
+Bif_F12_NEQUIV::eval_AB(Value_P A, Value_P B)
+{
+   // match
+   //
+
+const APL_Float qct = Workspace::get_CT();
+const ShapeItem count = A->nz_element_count();  // compare at least prototype
+
+   if (!A->same_shape(*B))   return Token(TOK_APL_VALUE1, IntScalar(1, LOC));   // no match
+
+   loop(c, count)
+       if (!A->get_ravel(c).equal(B->get_ravel(c), qct))
+          {
+            return Token(TOK_APL_VALUE1, IntScalar(1, LOC));   // no match
+          }
+
+   return Token(TOK_APL_VALUE1, IntScalar(0, LOC));   // match
+}
+//=============================================================================
 Token
 Bif_F1_EXECUTE::eval_B(Value_P B)
 {
