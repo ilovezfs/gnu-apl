@@ -1652,7 +1652,7 @@ bool no_copy = is_protected || (have_allowed_objects && !is_selected);
             ( name_ucs[1] == 'R' && name_ucs[2] == 'L' )
           ))
       {
-        Log(LOG_archive)   CERR << name_ucs << "not copied" << endl;
+        Log(LOG_archive)   CERR << name_ucs << " not copied at " << LOC << endl;
         no_copy = true;
       }
 

@@ -57,6 +57,9 @@ const struct _header_pattern
 /// left lambda argument
 #define __a  TOK_ALPHA
 
+/// left lambda operator argument
+#define __au  TOK_ALPHA_U
+
 /// a niladic function
 #define __F0 TOK_SYMBOL
 
@@ -69,8 +72,14 @@ const struct _header_pattern
 /// a monadic operator
 #define __OP1 TOK_L_PARENT, TOK_SYMBOL, TOK_SYMBOL, TOK_R_PARENT
 
+/// a monadic operator in lambda
+#define __op1 TOK_L_PARENT, TOK_ALPHA_U, TOK_SYMBOL, TOK_R_PARENT
+
 /// a dyadic operator
 #define __OP2 TOK_L_PARENT, TOK_SYMBOL, TOK_SYMBOL, TOK_SYMBOL, TOK_R_PARENT
+
+/// a dyadic operator in lambda
+#define __op2 TOK_L_PARENT, TOK_ALPHA_U, TOK_SYMBOL, TOK_OMEGA_U, TOK_R_PARENT
 
 /// an axis
 #define __x   TOK_L_BRACK,  TOK_CHI, TOK_R_BRACK
@@ -83,6 +92,9 @@ const struct _header_pattern
 
 /// right lambda argument
 #define __b  TOK_OMEGA
+
+/// left lambda operator argument
+#define __ou  TOK_OMEGA_U
 
    // niladic
    //
@@ -106,9 +118,9 @@ const struct _header_pattern
 
  { SIG_Z_F1_B         , 3,  4, { __z,      __F1,       __b, } },
  { SIG_Z_F1_X_B       , 4,  7, { __z,      __F1,  __x, __b, } },
- { SIG_Z_LO_OP1_B     , 4,  7, { __z,      __OP1,      __b, } },
- { SIG_Z_LO_OP1_X_B   , 5, 10, { __z,      __OP1, __x, __b, } },
- { SIG_Z_LO_OP2_RO_B  , 5,  8, { __z,      __OP2,      __b, } },
+ { SIG_Z_LO_OP1_B     , 4,  7, { __z,      __op1,      __b, } },
+ { SIG_Z_LO_OP1_X_B   , 5, 10, { __z,      __op1, __x, __b, } },
+ { SIG_Z_LO_OP2_RO_B  , 5,  8, { __z,      __op2,      __b, } },
 
    // dyadic
    //
@@ -126,9 +138,9 @@ const struct _header_pattern
 
  { SIG_Z_A_F2_B       , 4,  5, { __z, __a, __F2,       __b } },
  { SIG_Z_A_F2_X_B     , 5,  8, { __z, __a, __F2,  __x, __b } },
- { SIG_Z_A_LO_OP1_B   , 5,  8, { __z, __a, __OP1,      __b } },
- { SIG_Z_A_LO_OP1_X_B , 6, 11, { __z, __a, __OP1, __x, __b } },
- { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __z, __a, __OP2,      __b } },
+ { SIG_Z_A_LO_OP1_B   , 5,  8, { __z, __a, __op1,      __b } },
+ { SIG_Z_A_LO_OP1_X_B , 6, 11, { __z, __a, __op1, __x, __b } },
+ { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __z, __a, __op2,      __b } },
 };
 
 /// the number of signatures
@@ -277,12 +289,12 @@ UserFunction_header::UserFunction_header(Fun_signature sig,
     sym_X(0),
     sym_B(0)
 {
-                       sym_Z = &Workspace::get_v_LAMBDA();
-   if (sig & SIG_A)    sym_A = &Workspace::get_v_ALPHA();
-   if (sig & SIG_LO)   sym_X = &Workspace::get_v_ALPHA_U();
-   if (sig & SIG_RO)   sym_X = &Workspace::get_v_OMEGA_U();
-   if (sig & SIG_B)    sym_B = &Workspace::get_v_OMEGA();
-   if (sig & SIG_X)    sym_X = &Workspace::get_v_CHI();
+                       sym_Z  = &Workspace::get_v_LAMBDA();
+   if (sig & SIG_A)    sym_A  = &Workspace::get_v_ALPHA();
+   if (sig & SIG_LO)   sym_LO = &Workspace::get_v_ALPHA_U();
+   if (sig & SIG_RO)   sym_RO = &Workspace::get_v_OMEGA_U();
+   if (sig & SIG_B)    sym_B  = &Workspace::get_v_OMEGA();
+   if (sig & SIG_X)    sym_X  = &Workspace::get_v_CHI();
 
    if (sig & SIG_FUN)   // named lambda
       {
