@@ -1488,8 +1488,7 @@ UCS_string var_or_fun;
 }
 //-----------------------------------------------------------------------------
 void
-Command::transfer_context::function_2TF(const vector<UCS_string>
-                                           & objects) const
+Command::transfer_context::function_2TF(const vector<UCS_string> & objects)const
 {
 int idx = 1;
 UCS_string fun_name;
@@ -1598,8 +1597,9 @@ Command::transfer_context::add(const UTF8 * str, int len)
 {
 
 #if 0
-   // helper to print uni_to_cp_map using cp_to_uni_map. The print-out can be
-   // triggered by )IN file.atf and then sorted with GNU/Linux command 'sort'.
+   // helper to print the uni_to_cp_map when given a cp_to_uni_map.
+   // The print-out can be triggered by )IN file.atf and then sorted
+   // with the GNU/Linux command 'sort'.
    //
    loop(q, 128)
        fprintf(stderr, "  { 0x%4.4X, %u },\n", cp_to_uni_map[q], q + 128);

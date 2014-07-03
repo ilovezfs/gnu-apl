@@ -403,9 +403,25 @@ public:
 protected:
    /// return the depth of B
    Token depth(Value_P B);
+};
+//-----------------------------------------------------------------------------
+/** primitive function natch (≢)
+ */
+class Bif_F12_NEQUIV : public NonscalarFunction
+{
+public:
+   /// Constructor
+   Bif_F12_NEQUIV()
+   : NonscalarFunction(TOK_F12_NEQUIV)
+   {}
 
-   /// return 1 if A === B
-   Token match(Value_P A, Value_P B);
+   /// Overloaded Function::eval_B()
+   virtual Token eval_B(Value_P B);
+
+   /// Overloaded Function::eval_AB()
+   virtual Token eval_AB(Value_P A, Value_P B);
+
+   static Bif_F12_NEQUIV fun;   ///< Built-in function
 };
 //-----------------------------------------------------------------------------
 /** System function encode

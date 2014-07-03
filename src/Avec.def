@@ -211,6 +211,7 @@ char_def(DOTTED_DEL         , 0x2235 , END          , NO_SPACE ,  D2) /* ∵ */
 char_def(TILDE_OPERATOR     , 0x223C , F12_WITHOUT  , NO_SPACE ,  84) /* ∼ */
 char_def(NOT_EQUAL          , 0x2260 , F2_UNEQ      , NO_SPACE ,  F4) /* ≠ */
 char_def(EQUIVALENT         , 0x2261 , F12_EQUIV    , NO_SPACE ,  CF) /* ≡ */
+char_def(NEQUIVALENT        , 0x2262 , F12_NEQUIV   , NO_SPACE ,  A3) /* ≢ */
 char_def(LESS_OR_EQUAL      , 0x2264 , F2_LEQ       , NO_SPACE ,  F3) /* ≤ */
 char_def(MORE_OR_EQUAL      , 0x2265 , F2_MEQ       , NO_SPACE ,  F2) /* ≥ */
 char_def(BETWEEN            , 0x226C , END          , NO_SPACE , 085) /* ≬ */
@@ -253,7 +254,6 @@ char_def(UP_VANE            , 0x234F , END          , NO_SPACE , 09B) /* ⍏ */
 char_def(Quad_UP_ARROW      , 0x2350 , END          , NO_SPACE , 0A0) /* ⍐ */
 char_def(UP_TACK_OVERBAR    , 0x2351 , END          , NO_SPACE , 0A1) /* ⍑ */
 char_def(SORT_DECENDING     , 0x2352 , F12_SORT_DES , NO_SPACE ,  FC) /* ⍒ */
-char_def(Quad_DEL           , 0x2354 , END          , NO_SPACE , 0A3) /* ⍔ */
 char_def(FORMAT             , 0x2355 , F12_FORMAT   , NO_SPACE ,  AE) /* ⍕ */
 char_def(DOWN_VANE          , 0x2356 , END          , NO_SPACE , 0A4) /* ⍖ */
 char_def(Quad_DOWN_ARROW    , 0x2357 , END          , NO_SPACE , 0A5) /* ⍗ */

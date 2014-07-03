@@ -128,6 +128,7 @@ id_def( NL            , ---               ,          , qf )
   /**  ⎕NLT removed                              **/
 id_def( NO_VALUE      , ---               , = 0x4E06 , pp )
 id_def( F2_NOR        , NOR               ,          , av )
+id_def( F12_NEQUIV    , NEQUIVALENT       ,          , av )
 
 id_def( OFF           , ---               , = 0x4F01 , pp )
 id_def( F2_OR         , OR                ,          , av )
