@@ -1,5 +1,5 @@
-if ! HAVE_ANDROID
-EXTRA_DIRS = APs emacs_mode workspaces
+if ! WANT_ANDROID
+EXTRA_DIRS = APs emacs_mode sql workspaces
 else
 EXTRA_DIRS =
 endif

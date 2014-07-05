@@ -1,0 +1,10 @@
+
+the SQL interface for GNU APL was written by Elias Mårtenson
+
+The latest version can be fetched from its git repository like this:
+
+git clone https://github.com/lokedhs/apl-sqlite 
+
+The version shipped with GNU APL was downloaded around July-4-2014
+
+

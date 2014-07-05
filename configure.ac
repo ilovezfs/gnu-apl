@@ -4,6 +4,7 @@
 AC_PREREQ([2.65])
 AC_INIT([GNU APL], [1.3], [bug-apl@gnu.org])
 AC_USE_SYSTEM_EXTENSIONS
+
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_MACRO_DIR([m4])
@@ -87,6 +88,10 @@ AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
 
+m4_include([m4/ax_lib_sqlite3.m4])            AX_LIB_SQLITE3([])
+
+m4_include([m4/ax_lib_postgresql.m4])         AX_LIB_POSTGRESQL([])
+
 # check if rdtsc (read CPU cycle counter is available.
 # This is expected only on Intel CPUs
 AC_MSG_CHECKING([whether CPU has rdtsc (read cycle counter) opcode])
@@ -129,22 +134,19 @@ if test "x$DynArrays" = "xyes"; then
                       [Define to 1 if the compiler supports dynamic arrays])
 fi
 
+AC_MSG_CHECKING([if we are compiling for Android])
+user_wants_android=no
 AC_ARG_WITH( [android],
              [AS_HELP_STRING([--with-android],
-             [Enable when cross-compiling for Android])]
-             [],
-             [with_android=yes])
+                             [enable when compiling for Android])],
+             [user_wants_android=yes])
 
-echo "with_android = ,$with_android,"
-if test "x$with_android" = xyes ; then
-   AC_DEFINE([HAVE_ANDROID], [1], [Define if compiling for Android])
+if test "x$user_wants_android" = xyes ; then
+   AC_DEFINE([WANT_ANDROID], [1], [Define if compiling for Android])
 fi
 
-AM_CONDITIONAL(HAVE_ANDROID, test "x$with_android" = xyes)
-
-# see if the compiler knoes -rdynamic
-#
-
+AM_CONDITIONAL(WANT_ANDROID, test "x$user_wants_android" = xyes)
+AC_MSG_RESULT([$user_wants_android])
 
 # enable readline support if libreadline is present and the user
 # has not disabled it.
@@ -185,6 +187,7 @@ AC_CONFIG_FILES([Makefile
                  src/APs/Makefile
                  src/emacs_mode/Makefile
                  src/native/Makefile
+                 src/sql/Makefile
                  src/testcases/Makefile
                  src/workspaces/Makefile
 		 support-files/Makefile
@@ -316,7 +319,9 @@ AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])
 enable_dependency_tracking=yes
 
 # check if we want development options
-AM_CONDITIONAL([DEVELOP], [test x$DEVELOP_WANTED = xyes])
+AM_CONDITIONAL([DEVELOP],  [test x$DEVELOP_WANTED   = xyes])
+AM_CONDITIONAL([SQLITE3],  [test x$found_sqlite     = xyes])
+AM_CONDITIONAL([POSTGRES], [test x$found_postgresql = xyes])
 
 AC_OUTPUT
 
