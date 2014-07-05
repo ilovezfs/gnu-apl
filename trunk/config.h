@@ -16,9 +16,6 @@
 /* define to enable gprof profiling */
 #define GPROF_WANTED -pg
 
-/* Define if compiling for Android */
-/* #undef HAVE_ANDROID */
-
 /* Define to 1 if you have the <curses.h> header file. */
 /* #undef HAVE_CURSES_H */
 
@@ -94,11 +91,17 @@
 /* Define to 1 if you have the <omp.h> header file. */
 #define HAVE_OMP_H 1
 
+/* Define to 1 if PostgreSQL libraries are available */
+#define HAVE_POSTGRESQL 1
+
 /* Define to 1 if you have the `pow' function. */
 #define HAVE_POW 1
 
 /* CPU has rdtsc opcode */
 #define HAVE_RDTSC 1
+
+/* Have the SQLITE3 library */
+#define HAVE_SQLITE3 /**/
 
 /* Define to 1 if you have the `sqrt' function. */
 #define HAVE_SQRT 1
@@ -215,6 +218,9 @@
 
 /* define to have visible markers (DONT!) */
 /* #undef VISIBLE_MARKERS_WANTED */
+
+/* Define if compiling for Android */
+/* #undef WANT_ANDROID */
 
 /* Define to 1 if on MINIX. */
 /* #undef _MINIX */
