@@ -5,6 +5,12 @@ AC_PREREQ([2.65])
 AC_INIT([GNU APL], [1.3], [bug-apl@gnu.org])
 AC_USE_SYSTEM_EXTENSIONS
 
+# always enable dependency tracking regardless of the user's choice.
+# This avoids stale .o files after SVN updates. enable_dependency_tracking
+# needs to be set early in order to be recognised!
+#
+enable_dependency_tracking=yes
+
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_MACRO_DIR([m4])
@@ -88,9 +94,29 @@ AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
 
+# check if SQLite3 is installed
 m4_include([m4/ax_lib_sqlite3.m4])            AX_LIB_SQLITE3([])
 
+# check if PostgreSQL is installed
 m4_include([m4/ax_lib_postgresql.m4])         AX_LIB_POSTGRESQL([])
+
+# check if PostgreSQL is usable (if present)
+if test "x$found_postgresql" = "xyes" ; then
+	AC_MSG_CHECKING([for PostgreSQL usability])
+	saved_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $POSTGRESQL_CFLAGS"
+	AC_COMPILE_IFELSE(
+		[AC_LANG_PROGRAM([[@%:@include <libpq-fe.h>]],
+		[[PGconn *db = PQconnectdbParams( 0, 0, 1 );]])],
+		[USABLE_PostgreSQL=yes],
+		[USABLE_PostgreSQL=no])
+
+CPPFLAGS="$saved_CPPFLAGS"
+AC_MSG_RESULT(["$USABLE_PostgreSQL"])
+if test "x$USABLE_PostgreSQL" = "xyes"; then
+   AC_DEFINE_UNQUOTED([USABLE_PostgreSQL], [1], [PostgreSQL code compiles])
+fi
+fi
 
 # check if rdtsc (read CPU cycle counter is available.
 # This is expected only on Intel CPUs
@@ -315,13 +341,10 @@ fi
 # check if we are on i686 (to fix a strange rpmbuild problem
 AM_CONDITIONAL([ON_i686], [test `uname -m` = i686])
 
-# always enable dependency tracking to avoid stale .o after SVN updates
-enable_dependency_tracking=yes
-
 # check if we want development options
-AM_CONDITIONAL([DEVELOP],  [test x$DEVELOP_WANTED   = xyes])
-AM_CONDITIONAL([SQLITE3],  [test x$found_sqlite     = xyes])
-AM_CONDITIONAL([POSTGRES], [test x$found_postgresql = xyes])
+AM_CONDITIONAL([DEVELOP],  [test x$DEVELOP_WANTED    = xyes])
+AM_CONDITIONAL([SQLITE3],  [test x$found_sqlite      = xyes])
+AM_CONDITIONAL([POSTGRES], [test x$USABLE_PostgreSQL = xyes])
 
 AC_OUTPUT
 

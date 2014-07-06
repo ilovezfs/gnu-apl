@@ -1529,69 +1529,6 @@ Function * fun1 = sym1->get_function();
       }
 }
 //-----------------------------------------------------------------------------
-/// map characters 128...255 of the IBM character set for workstations
-/// (lrm fig. 68) to Unicode characters,
-const int cp_to_uni_map[128] = // see lrm fig 68.
-{
-  0x00C7, 0x00FC, 0x00E9, 0x00E2, 0x00E4, 0x00E0, 0x00E5, 0x00E7,
-  0x00EA, 0x00EB, 0x00E8, 0x00EF, 0x00EE, 0x00EC, 0x00C4, 0x00C5,
-  0x2395, 0x235E, 0x2339, 0x00F4, 0x00F6, 0x00F2, 0x00FB, 0x00F9,
-  0x22A4, 0x00D6, 0x00DC, 0x00F8, 0x00A3, 0x22A5, 0x2376, 0x2336,
-  0x00E1, 0x00ED, 0x00F3, 0x00FA, 0x00F1, 0x00D1, 0x00AA, 0x00BA,
-  0x00BF, 0x2308, 0x00AC, 0x00BD, 0x222A, 0x00A1, 0x2355, 0x234E,
-  0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x235F, 0x2206, 0x2207,
-  0x2192, 0x2563, 0x2551, 0x2557, 0x255D, 0x2190, 0x230A, 0x2510,
-  0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x2191, 0x2193,
-  0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2261,
-  0x2378, 0x22F8, 0x2235, 0x2337, 0x2342, 0x233B, 0x22A2, 0x22A3,
-  0x25CA, 0x2518, 0x250C, 0x2588, 0x2584, 0x00A6, 0x00CC, 0x2580,
-  0x237A, 0x2379, 0x2282, 0x2283, 0x235D, 0x2372, 0x2374, 0x2371,
-  0x233D, 0x2296, 0x25CB, 0x2228, 0x2373, 0x2349, 0x2208, 0x2229,
-  0x233F, 0x2340, 0x2265, 0x2264, 0x2260, 0x00D7, 0x00F7, 0x2359,
-  0x2218, 0x2375, 0x236B, 0x234B, 0x2352, 0x00AF, 0x00A8, 0x00A0
-};
-
-/// the inverse mapping of \b cp_to_uni_map
-const struct _uni_to_cp_map
-{
-  int uni;   ///< the Unicode
-  int cp;    ///< the IBM char for uni
-} uni_to_cp_map[128] = ///< the mapping
-{
-  { 0x00A0, 255 }, { 0x00A1, 173 }, { 0x00A3, 156 }, { 0x00A6, 221 },
-  { 0x00A8, 254 }, { 0x00AA, 166 }, { 0x00AC, 170 }, { 0x00AF, 253 },
-  { 0x00BA, 167 }, { 0x00BD, 171 }, { 0x00BF, 168 }, { 0x00C4, 142 },
-  { 0x00C5, 143 }, { 0x00C7, 128 }, { 0x00CC, 222 }, { 0x00D1, 165 },
-  { 0x00D6, 153 }, { 0x00D7, 245 }, { 0x00DC, 154 }, { 0x00E0, 133 },
-  { 0x00E1, 160 }, { 0x00E2, 131 }, { 0x00E4, 132 }, { 0x00E5, 134 },
-  { 0x00E7, 135 }, { 0x00E8, 138 }, { 0x00E9, 130 }, { 0x00EA, 136 },
-  { 0x00EB, 137 }, { 0x00EC, 141 }, { 0x00ED, 161 }, { 0x00EE, 140 },
-  { 0x00EF, 139 }, { 0x00F1, 164 }, { 0x00F2, 149 }, { 0x00F3, 162 },
-  { 0x00F4, 147 }, { 0x00F6, 148 }, { 0x00F7, 246 }, { 0x00F8, 155 },
-  { 0x00F9, 151 }, { 0x00FA, 163 }, { 0x00FB, 150 }, { 0x00FC, 129 },
-  { 0x2190, 189 }, { 0x2191, 198 }, { 0x2192, 184 }, { 0x2193, 199 },
-  { 0x2206, 182 }, { 0x2207, 183 }, { 0x2208, 238 }, { 0x2218, 248 },
-  { 0x2228, 235 }, { 0x2229, 239 }, { 0x222A, 172 }, { 0x2235, 210 },
-  { 0x2260, 244 }, { 0x2261, 207 }, { 0x2264, 243 }, { 0x2265, 242 },
-  { 0x2282, 226 }, { 0x2283, 227 }, { 0x2296, 233 }, { 0x22A2, 214 },
-  { 0x22A3, 215 }, { 0x22A4, 152 }, { 0x22A5, 157 }, { 0x22F8, 209 },
-  { 0x2308, 169 }, { 0x230A, 190 }, { 0x2336, 159 }, { 0x2337, 211 },
-  { 0x2339, 146 }, { 0x233B, 213 }, { 0x233D, 232 }, { 0x233F, 240 },
-  { 0x2340, 241 }, { 0x2342, 212 }, { 0x2349, 237 }, { 0x234B, 251 },
-  { 0x234E, 175 }, { 0x2352, 252 }, { 0x2355, 174 }, { 0x2359, 247 },
-  { 0x235D, 228 }, { 0x235E, 145 }, { 0x235F, 181 }, { 0x236B, 250 },
-  { 0x2371, 231 }, { 0x2372, 229 }, { 0x2373, 236 }, { 0x2374, 230 },
-  { 0x2375, 249 }, { 0x2376, 158 }, { 0x2378, 208 }, { 0x2379, 225 },
-  { 0x237A, 224 }, { 0x2395, 144 }, { 0x2500, 196 }, { 0x2502, 179 },
-  { 0x250C, 218 }, { 0x2510, 191 }, { 0x2514, 192 }, { 0x2518, 217 },
-  { 0x251C, 195 }, { 0x2524, 180 }, { 0x252C, 194 }, { 0x2534, 193 },
-  { 0x253C, 197 }, { 0x2550, 205 }, { 0x2551, 186 }, { 0x2554, 201 },
-  { 0x2557, 187 }, { 0x255A, 200 }, { 0x255D, 188 }, { 0x2560, 204 },
-  { 0x2563, 185 }, { 0x2566, 203 }, { 0x2569, 202 }, { 0x256C, 206 },
-  { 0x2580, 223 }, { 0x2584, 220 }, { 0x2588, 219 }, { 0x2591, 176 },
-  { 0x2592, 177 }, { 0x2593, 178 }, { 0x25CA, 216 }, { 0x25CB, 234 }
-};
-
 void
 Command::transfer_context::add(const UTF8 * str, int len)
 {
@@ -1606,56 +1543,19 @@ Command::transfer_context::add(const UTF8 * str, int len)
    exit(0);
 #endif
 
+const Unicode * cp_to_uni_map = Avec::IBM_quad_AV();
    loop(l, len)
       {
         const UTF8 utf = str[l];
         switch(utf)
            {
-             case 0         ... ('*' - 1):   // < '*'
-             case ('*' + 1) ... ('^' - 1):   // < '^'
-             case ('^' + 1) ... ('~' - 1):   // < '~'
-             case ('~' + 1):                 // i.e. ASCII except * ^ ~
-                  data.append(Unicode(utf));         break;
-
              case '^': data.append(UNI_AND);              break;   // ~ → ∼
              case '*': data.append(UNI_STAR_OPERATOR);    break;   // * → ⋆
              case '~': data.append(UNI_TILDE_OPERATOR);   break;   // ~ → ∼
              
-             default:  data.append(Unicode(cp_to_uni_map[utf - 128]));
+             default:  data.append(Unicode(cp_to_uni_map[utf]));
            }
       }
-}
-//-----------------------------------------------------------------------------
-static int compare_uni(const void * u1, const void * u2)
-{
-   return ((const _uni_to_cp_map *)u1)->uni - ((const _uni_to_cp_map *)u2)->uni;
-}
-
-unsigned char
-Command::unicode_to_cp(Unicode uni)
-{
-   if (uni <= 0x80)                return uni;
-   if (uni == UNI_STAR_OPERATOR)   return '*';   // ⋆ → *
-   if (uni == UNI_AND)             return '^';   // ∧ → ^
-   if (uni == UNI_TILDE_OPERATOR)  return 126;   // ∼ → ~
-
-const _uni_to_cp_map __uni = { uni, 0 };
-
-   // search in uni_to_cp_map table
-   //
-const void * where = bsearch(&__uni, uni_to_cp_map, 128, sizeof(_uni_to_cp_map),
-                             compare_uni);
-
-   if (where == 0)
-      {
-        // the workspace being )OUT'ed can contain characters that are not
-        // in IBM's APL character set. We replace such characters by 0xB0
-        //
-        return 0xB0;
-      }
-
-   Assert(where);
-   return ((const _uni_to_cp_map *)where)->cp;
 }
 //-----------------------------------------------------------------------------
 bool

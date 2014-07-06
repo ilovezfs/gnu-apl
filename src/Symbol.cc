@@ -884,7 +884,7 @@ UCS_string data;
         loop(uu, 71)
            {
              unsigned char cc = ' ';
-             if (u < data.size()) cc = Command::unicode_to_cp(data[u++]);
+             if (u < data.size()) cc = Avec::unicode_to_cp(data[u++]);
              buffer[1 + uu] = cc;
            }
 

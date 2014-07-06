@@ -181,6 +181,9 @@
 /* Define the type of arg3 in tputs(i, 0, (*)(arg3)) */
 #undef TPUTS_arg3
 
+/* PostgreSQL code compiles */
+#undef USABLE_PostgreSQL
+
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE

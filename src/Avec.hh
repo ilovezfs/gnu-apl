@@ -114,7 +114,30 @@ public:
    /// Find \b return position of \b alt_av, or Invalid_AV if not found
    static CHT_Index map_alternative_char(Unicode alt_av);
 
+   /// a pointer to 256 Unicode characters that are exactly the APL2 character
+   /// set (⎕AV) shown in lrm Appendix A page 470. The ⎕AV of GNU APL is
+   /// similar, but contains characters like ≢ that are not in IBM's ⎕AV
+   /// IBM's ⎕AV is used in the )IN command
+   static const Unicode * IBM_quad_AV();
+
+   /// search uni in \b inverse_ibm_av and return its position in
+   /// the IBM ⎕AV (= its code in .ATF files). Return 0xB0 if not found.
+   static unsigned char unicode_to_cp(Unicode uni);
+
 protected:
+   /// a Unicode and its position in the ⎕AV of IBM APL2
+   struct Unicode_to_IBM_codepoint
+      {
+         uint32_t uni;   ///< the Unicode
+         uint32_t cp;    ///< the IBM char for uni
+      };
+
+   /// Unicode_to_IBM_codepoint table sorted by Unicode (for bsearch())
+   static Unicode_to_IBM_codepoint inverse_ibm_av[];
+
+   /// recompute \b inverse_ibm_av from \b ibm_av and print it
+   static void print_inverse_IBM_quad_AV();
+
    /// print an error position on cerr, and then Assert(0);
    static void show_error_pos(int i, int line, bool cond, int def_line);
 
@@ -124,6 +147,9 @@ protected:
    /// check that all characters in the UTF-8 encoded file are known
    /// (through char_def() or char_df1() macros)
    static void check_file(const char * filename);
+
+   /// compare the unicodes of two entries ua and u2 in \b inverse_IBM_quad_AV
+   static int compare_uni(const void * u1, const void * u2);
 };
 
 #endif // __AVEC_HH_DEFINED__
