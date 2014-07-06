@@ -369,6 +369,15 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
         // what < 0 are "hacker functions" that should no be used by
         // normal mortals.
         //
+        case -5: // return ⎕AV of IBM APL2
+             {
+               Value_P Z(new Value(256, LOC));
+               const Unicode * ibm = Avec::IBM_quad_AV();
+               loop(c, 256)   new (Z->next_ravel()) CharCell(ibm[c]);
+               Z->check_value(LOC);
+               return Token(TOK_APL_VALUE1, Z);
+             }
+
         case -4: // clear all probes (ignores B, returns 0)
              Probe::init_all();
              return Token(TOK_APL_VALUE1, IntScalar(0, LOC));
@@ -381,7 +390,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                const uint64_t to = cycle_counter();
 
                Value_P Z(new Value(LOC));
-               new (&Z->get_ravel(0))   IntCell(10*(to - from));
+               new (Z->next_ravel())   IntCell(10*(to - from));
                Z->check_value(LOC);
                return Token(TOK_APL_VALUE1, Z);
              }

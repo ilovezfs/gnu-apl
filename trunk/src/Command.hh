@@ -56,9 +56,6 @@ public:
    /// or a path containing . or / chars
    static bool is_lib_ref(const UCS_string & lib);
 
-   /// convert Unicode uni to IBM codepage for )OUT command
-   static unsigned char unicode_to_cp(Unicode uni);
-
    /// clean-up and exit from APL interpreter
    static void cmd_OFF(int exit_val);
 

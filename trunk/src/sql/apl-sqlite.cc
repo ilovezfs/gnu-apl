@@ -38,7 +38,7 @@
 # include "SqliteProvider.hh"
 #endif
 
-#ifdef HAVE_POSTGRESQL
+#ifdef USABLE_PostgreSQL
 # include "PostgresConnection.hh"
 # include "PostgresProvider.hh"
 #endif
@@ -61,10 +61,17 @@ static void init_provider_map( void )
 {
 #ifdef HAVE_SQLITE3
     add_provider( new SqliteProvider() );
+#else
+# warning "SQLite3 unavailable since ./configure could not detect it"
 #endif
 
-#ifdef HAVE_POSTGRESQL
+#ifdef USABLE_PostgreSQL
     add_provider( new PostgresProvider() );
+#else
+# warning "PostgreSQL unavailable since ./configure could not detect it."
+# if HAVE_POSTGRESQL
+#  warning "The PostgreSQL library seems to be installed, but the header file(s) are missing"
+# endif
 #endif
 }
 
