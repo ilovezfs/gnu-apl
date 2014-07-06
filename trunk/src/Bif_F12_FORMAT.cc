@@ -126,8 +126,8 @@ Value_P Z;
       {
         Z = format_by_example(A, B);
       }
-   else if (A->is_int_vector(Workspace::get_CT())
-              || A->is_int_scalar(Workspace::get_CT()))
+   else if (A->is_int_vector(Workspace::get_CT()) ||
+            A->is_int_scalar(Workspace::get_CT()))
       {
         Z = format_by_specification(A, B);
       }
@@ -744,15 +744,15 @@ Unicode fill_char = UNI_ASCII_SPACE;
       {
         loop(f, format.size())
            {
-             const Unicode fc = format[f];
-              if (fc == UNI_ASCII_0 || fc == UNI_ASCII_9)
+             const Unicode format_char = format[f];
+              if (format_char == UNI_ASCII_0 || format_char == UNI_ASCII_9)
                  {
                    fill_pos = f;
                    fill_char = UNI_ASCII_0;
                    break;
                  }
 
-              if (fc == UNI_ASCII_8)
+              if (format_char == UNI_ASCII_8)
                  {
                    fill_pos = f;
                    fill_char = Workspace::get_FC(2);
@@ -767,15 +767,23 @@ Unicode fill_char = UNI_ASCII_SPACE;
 UCS_string ucs;
 size_t d = data.size();
 
+   // d  runs downwards from data.size()   to 0
+   // f1 runs upwards  from 0              to  format.size()
+   // f  runs downwards from format.size() to 0
+   //
    loop(f1, format.size())
       {
         const size_t f = format.size() - f1 - 1;
-        const Unicode fc = format[f];
-         if (fc == UNI_ASCII_COMMA)
+        const Unicode format_char = format[f];
+         if (format_char == UNI_ASCII_COMMA)
             {
-              ucs.append(Workspace::get_FC(1));   //  == ⎕FC[2] when ⎕IO is 1
+              // Workspace::get_FC(1) is ⎕FC[2] when ⎕IO is 1
+              //
+              if (d)   ucs.append(Workspace::get_FC(1));
+              else if (f >= fill_pos)   ucs.append(fill_char);
+              else                      break;
             }
-         else if (Avec::is_digit(fc))
+         else if (Avec::is_digit(format_char))
             {
               if (d)                    ucs.append(data[--d]);
               else if (f >= fill_pos)   ucs.append(fill_char);
@@ -784,7 +792,7 @@ size_t d = data.size();
          else
             {
               CERR << "Offending format char [" << f << "] : '"
-                   << fc << "' at " << LOC << endl;
+                   << format_char << "' at " << LOC << endl;
               break;
             }
       }
@@ -808,12 +816,12 @@ int d = 0;
 
    loop(f, format.size())
       {
-        const Unicode fc = format[f];
-         if (fc == UNI_ASCII_COMMA)
+        const Unicode format_char = format[f];
+         if (format_char == UNI_ASCII_COMMA)
             {
               ucs.append(Workspace::get_FC(1));
             }
-         else if (Avec::is_digit(fc))
+         else if (Avec::is_digit(format_char))
             {
               if (d < data.size())   ucs.append(data[d++]);
               else                   break;
@@ -821,7 +829,7 @@ int d = 0;
          else
             {
               CERR << "Offending format char [" << f << "] : '"
-                   << fc << "' at " << LOC << endl;
+                   << format_char << "' at " << LOC << endl;
             }
       }
 
