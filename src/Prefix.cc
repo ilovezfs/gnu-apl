@@ -889,7 +889,7 @@ Prefix::reduce_F_D_B_()
 {
    // same as G2, except for ⍤
    //
-   if (at1().get_function()->get_Id() != ID_OPER2_RANK)   reduce_F_D_G_();
+   if (at1().get_function()->get_Id() != ID_OPER2_RANK)  return reduce_F_D_G_();
 
    // we have f ⍤ y_B with y_B glued beforehand. Unglue it.
    //
