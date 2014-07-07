@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -307,7 +308,8 @@ list_functions(ostream & out)
 "   Functions provided by this library.\n"
 "   Assumes 'lib_file_io.so'  ⎕FX  'FUN'\n"
 "\n"
-"   Legend: e - error code\n"
+"   Legend: d - table of dirent structs\n"
+"           e - error code\n"
 "           i - integer\n"
 "           h - file handle (integer)\n"
 "           s - string\n"
@@ -350,9 +352,10 @@ list_functions(ostream & out)
 "   Zi ← Ac FUN[23] Bh    fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8\n"
 "   Zh ← As FUN[24] Bs    popen(Bs, As) command Bs mode As\n"
 "   Zh ←    FUN[24] Bs    popen(Bs, \"r\") command Bs\n"
-"\n"
 "   Ze ←    FUN[25] Bh    pclose(Bh)\n"
 "   Zs ←    FUN[26] Bs    return entire file Bs as byte vector\n"
+"   Zs ← As FUN[27] Bs    rename file As to Bs\n"
+"   Zd ←    FUN[28] Bs    return content of directory Bs\n"
 "\n";
 
    return Token(TOK_APL_VALUE1, Str0(LOC));
@@ -706,16 +709,87 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
+
+         case 28:   // read directory Bs
+              {
+                errno = 0;
+                UTF8_string path(*B.get());
+                DIR * dir = opendir(path.c_str());
+                if (dir == 0)   goto out_errno;
+
+                vector<struct dirent> entries;
+                for (;;)
+                    {
+                      dirent * entry = readdir(dir);
+                      if (entry == 0)   break;   // directory done
+
+                       // skip . and ..
+                       //
+                       const int entry_len = strlen(entry->d_name);
+                       if (entry->d_name[0] == '.')
+                          {
+                            if (entry_len == 1 ||
+                                (entry_len == 2 && entry->d_name[1] == '.'))
+                               continue;
+                          }
+
+                      entries.push_back(*entry);
+                    }
+                closedir(dir);
+
+                // the number of columns varies, depending on the OS
+                //
+                ShapeItem cols = 2;   // d_name and d_ino
+#ifdef _DIRENT_HAVE_D_OFF
+                 ++ cols;
+#endif
+
+#ifdef _DIRENT_HAVE_D_RECLEN
+                 ++ cols;
+#endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+                 ++ cols;
+#endif
+
+                CERR << "directory " << path << " has " << entries.size()
+                     << " entries" << endl;
+
+                const Shape shape_Z(entries.size(), cols);
+                Value_P Z(new Value(shape_Z, LOC));
+
+                loop(e, entries.size())
+                   {
+                     const dirent & dent = entries[e];
+                     UCS_string filename(dent.d_name);
+                     Value_P Z_name(new Value(filename, LOC));
+                     new (Z->next_ravel())   PointerCell(Z_name);
+                     new (Z->next_ravel())   IntCell(dent.d_ino);
+
+#ifdef _DIRENT_HAVE_D_OFF
+                      new (Z->next_ravel())   IntCell(dent.d_off);
+#endif
+
+#ifdef _DIRENT_HAVE_D_RECLEN
+                      new (Z->next_ravel())   IntCell(dent.d_reclen);
+#endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+                     new (Z->next_ravel())   IntCell(dent.d_type);
+#endif
+                   }
+
+                Z->set_default_Spc();
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
       }
 
    CERR << "Bad eval_XB() function number: " << function_number << endl;
    DOMAIN_ERROR;
 
 out_errno:
-Value_P Z(Value_P(new Value(LOC)));
-   new (&Z->get_ravel(0))   IntCell(errno);
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+   return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
@@ -914,16 +988,23 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 return Token(TOK_APL_VALUE1, Z);
               }
 
+         case 27:   // rename(As, Bs)
+              {
+                UTF8_string old_name(*A.get());
+                UTF8_string new_name(*B.get());
+                errno = 0;
+                const int result = rename(old_name.c_str(), new_name.c_str());
+                if (result && errno)   goto out_errno;   // errno should be set
+
+               return Token(TOK_APL_VALUE1, IntScalar(result, LOC));
+              }
       }
 
    CERR << "eval_AXB() function number: " << function_number << endl;
    DOMAIN_ERROR;
 
 out_errno:
-Value_P Z(Value_P(new Value(LOC)));
-   new (&Z->get_ravel(0))   IntCell(errno);
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+   return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
 }
 //-----------------------------------------------------------------------------
 
