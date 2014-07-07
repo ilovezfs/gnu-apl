@@ -1,21 +1,21 @@
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   This file is part of GNU APL, a free implementation of the
+   ISO/IEC Standard 13751, "Programming Language APL, Extended"
+ 
+   Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+ 
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+ 
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+ 
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -286,9 +286,6 @@ public:
    /// return the name of the ID of the signal
    virtual const char * get_sigName() const = 0;
 
-   /// return the max. size of a signal
-   inline static size_t get_class_size();
-
    /// get function for an item that is not defined for the signal
    void bad_get(const char * signal, const char * member) const
       {
@@ -301,39 +298,32 @@ expa(`sig_bad', `', $@)')
 include(protocol.def)dnl
 
    /// receive a signal (UDP)
-   inline static Signal_base * recv(UdpSocket & sock, void * class_buffer,
+   inline static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
                                     uint16_t & from_port, uint32_t & from_ip,
                                     uint32_t timeout_ms = 0);
 
    /// receive a signal (UDP) ignore sender's IP and port
-   static Signal_base * recv(UdpSocket & sock, void * class_buffer,
-                             uint32_t timeout_ms = 0)
+   static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
+                                 uint32_t timeout_ms = 0)
       {
          uint16_t from_port = 0;
          uint32_t from_ip = 0;
-         return recv(sock, class_buffer, from_port, from_ip, timeout_ms);
+         return recv_UDP(sock, class_buffer, from_port, from_ip, timeout_ms);
       }
 
    /// receive a signal (TCP)
-   static Signal_base * recv_TCP(int s, void * class_buffer)
-      {
-        const int expected = get_class_size();
-        const int received = ::recv(s, class_buffer, expected,  MSG_WAITALL);
-        return (expected == received) ? (Signal_base *)class_buffer : 0;
-      }
-
-   /// decode a received signal (TCP)
-   inline static Signal_base * decode(const uint8_t * buffer, size_t len,
-                                      bool debug);
+   inline static Signal_base * recv_TCP(int tcp_sock, char * buffer,
+                                        int bufsize, char * & del,
+                                        ostream * debug);
 
 protected:
    /// send this signal on sock (UDP)
-   int send_UDP(const UdpSocket & sock) const
+   int send_UDP(const UdpSocket & udp_sock) const
        {
          string buffer;
          store(buffer);
-         const int len = sock.send(buffer);
-         if (ostream * out = sock.get_debug())   print(*out << "--> ");
+         const int len = udp_sock.send(buffer);
+         if (ostream * out = udp_sock.get_debug())   print(*out << "--> ");
          return len;
        }
 
@@ -404,21 +394,19 @@ expa(`sig_memb', `', $@)dnl
 };')
 include(protocol.def)dnl
 //----------------------------------------------------------------------------
-size_t
-Signal_base::get_class_size()
+
+// a union big enough for all signal classes
+struct _all_signal_classes_
 {
-   // a union big enough for all signal classes
-   struct _all_classes_
-      {
 define(`m4_signal', `        char u_$1[sizeof($1_c)];')
 include(protocol.def)dnl
-      };
+};
 
-   return sizeof(_all_classes_);
-}
+enum { MAX_SIGNAL_CLASS_SIZE = sizeof(_all_signal_classes_) };
+
 //----------------------------------------------------------------------------
 Signal_base *
-Signal_base::recv(UdpSocket & sock, void * class_buffer,
+Signal_base::recv_UDP(UdpSocket & sock, void * class_buffer,
                   uint16_t & from_port, uint32_t & from_ip,
                   uint32_t timeout_ms)
 {
@@ -447,9 +435,53 @@ include(protocol.def)dnl
 }
 //----------------------------------------------------------------------------
 Signal_base *
-Signal_base::decode(const uint8_t * buffer, size_t len, bool debug)
+Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
+                                 char * & del, ostream * debug)
 {
-const uint8_t * b = buffer;
+uint32_t siglen = 0;
+   {
+     const ssize_t rx_bytes = ::recv(tcp_sock, buffer,
+                                     sizeof(uint32_t), MSG_WAITALL);
+     if (rx_bytes !=  sizeof(uint32_t))
+        {
+          debug && *debug << "*** no signal length in recv_TCP()" << endl;
+          return 0;
+        }
+      debug && *debug << "rx_bytes is " << rx_bytes
+                      << " when reading siglen in in recv_TCP()" << endl;
+   }
+
+   siglen = ntohl(*(uint32_t *)buffer);
+   debug && *debug << "signal length is " << siglen << " in recv_TCP()" << endl;
+
+   // skip MAX_SIGNAL_CLASS_SIZE bytes at the beginning of buffer
+   //
+char * rx_buf = buffer + MAX_SIGNAL_CLASS_SIZE;
+   bufsize -= MAX_SIGNAL_CLASS_SIZE;
+
+   if (siglen > bufsize)
+      {
+        // the buffer provided is too small: allocate a bigger one
+        //
+        del = new char[siglen];
+        if (del == 0)
+           {
+             cerr << "*** new(" << siglen <<") failed in recv_TCP()" << endl;
+             return 0;
+           }
+        rx_buf = del;
+      }
+
+const ssize_t rx_bytes = ::recv(tcp_sock, rx_buf, siglen, MSG_WAITALL);
+   if (rx_bytes != siglen)
+      {
+             cerr << "*** got " << rx_bytes <<" when expecting " << siglen
+                  << endl;
+             return 0;
+      }
+   debug && *debug << "rx_bytes is " << rx_bytes << " in recv_TCP()" << endl;
+
+const uint8_t * b = (const uint8_t *)rx_buf;
 Sig_item_u16 id(b);
 
 Signal_base * ret = 0;
@@ -458,13 +490,13 @@ Signal_base * ret = 0;
 define(`m4_signal',
        `        case sid_`'$1: ret = new $1`'_c(b);   break;')
 include(protocol.def)dnl
-        default: cerr << "UdpSocket::decode() failed: unknown id "
+        default: cerr << "Signal_base::decode() failed: unknown id "
                       << id.get_value() << endl;
                  errno = EINVAL;
                  return 0;
       }
 
-   if (debug)   ret->print(cerr << "<-- ");
+   debug && ret->print(*debug << "<-- ");
 
    return ret;   // invalid id
 }

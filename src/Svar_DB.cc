@@ -20,6 +20,7 @@
 
 #include <errno.h>
 #include <fcntl.h>           /* For O_* constants */
+#include <netinet/tcp.h>
 #include <signal.h>
 #include <string.h>
 #include <stdio.h>
@@ -53,12 +54,18 @@ Svar_DB_memory_P::Svar_DB_memory_P(bool ronly)
 {
    if (!APserver_available())   return;
 
-const char command = ronly ? 'a' : 'A';
-ssize_t len = ::send(DB_tcp, &command, 1, 0);
-   if (len != 1)   DB_tcp_error("send() command", len, 1);
+   if (ronly)   { READ_SVAR_DB_c request(DB_tcp);   }
+   else         { UPDATE_SVAR_DB_c request(DB_tcp); }
 
-   len = ::recv(DB_tcp, &cache, sizeof(cache), MSG_WAITALL);
-   if (len != sizeof(cache))   DB_tcp_error("recv() db", len, sizeof(cache));
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_DB_memory)];
+ostream * log = (LOG_startup || LOG_Svar_DB_signals) ? & cerr : 0;
+Signal_base * response = Signal_base::recv_TCP(DB_tcp, buffer, sizeof(buffer),
+                                               del, log);
+   if (response)   memcpy(&cache, response->get__SVAR_DB_IS__db().data(),
+                          sizeof(Svar_DB_memory));
+   else   CERR << "Svar_DB_memory_P() failed at " << LOC << endl;
+   if (del)   delete del;
 }
 //-----------------------------------------------------------------------------
 Svar_DB_memory_P::~Svar_DB_memory_P()
@@ -66,8 +73,8 @@ Svar_DB_memory_P::~Svar_DB_memory_P()
    if (read_only)               return;
    if (!APserver_available())   return;
 
-const ssize_t len = ::send(DB_tcp, &cache, sizeof(cache), 0);
-   if (len != sizeof(cache))   DB_tcp_error("send() db", len, sizeof(cache));
+std::string data((const char *)&cache, sizeof(cache));
+SVAR_DB_IS_c updated(DB_tcp, data);
 }
 //-----------------------------------------------------------------------------
 void
@@ -80,6 +87,12 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
                    << LOC << endl;
         return;
       }
+
+   // disable nagle
+   {
+     const int ndelay = 1;
+     setsockopt(DB_tcp, SOL_TCP, TCP_NODELAY, &ndelay, sizeof(int));
+   }
 
    // bind local port to 127.0.0.1
    //
@@ -202,22 +215,31 @@ offered_SVAR_P::offered_SVAR_P(bool ronly, SV_key key)
 {
    if (!Svar_DB_memory_P::APserver_available())   return;
 
+const int sock = Svar_DB_memory_P::get_DB_tcp();
    offered_svar_p = 0;
 
-const int sock = Svar_DB_memory_P::get_DB_tcp();
-const char command = ronly ? 'r' : 'R';
-ssize_t len = ::send(sock, &command, 1, 0);
-   if (len != 1)   Svar_DB_memory_P::DB_tcp_error("send() command", len, 1);
+   if (ronly)
+      {
+        READ_SVAR_RECORD_c request(sock, key);
+      }
+   else
+      {
+        UPDATE_SVAR_RECORD_c request(sock, key);
+      }
 
-   len = ::send(sock, &key, sizeof(key), 0);
-   if (len != sizeof(key))
-      Svar_DB_memory_P::DB_tcp_error("send() command", len, sizeof(key));
-
-   len = ::recv(sock, &cache, sizeof(cache), MSG_WAITALL);
-   if (len != sizeof(cache))
-      Svar_DB_memory_P::DB_tcp_error("recv() db", len, sizeof(cache));
-
-   offered_svar_p = &cache;
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(offered_SVAR)];
+ostream * log = (LOG_startup || LOG_Svar_DB_signals) ? & cerr : 0;
+Signal_base * response = Signal_base::recv_TCP(sock, buffer, sizeof(buffer),
+                                               del, log);
+   if (response)
+      {
+        memcpy(&cache, response->get__SVAR_RECORD_IS__record().data(),
+               sizeof(offered_SVAR));
+        offered_svar_p = &cache;
+      }
+   else   CERR << "offered_SVAR_P() failed at " << LOC << endl;
+   if (del)   delete del;
 }
 //-----------------------------------------------------------------------------
 offered_SVAR_P::~offered_SVAR_P()
@@ -225,15 +247,8 @@ offered_SVAR_P::~offered_SVAR_P()
    if (read_only)                                 return;
    if (!Svar_DB_memory_P::APserver_available())   return;
 
-const ssize_t len = ::send(Svar_DB_memory_P::get_DB_tcp(),
-                           &cache, sizeof(cache), 0);
-
-   if (len != sizeof(cache))
-      {
-        CERR << "send() failed in offered_SVAR_P destructor: sent "
-             << len << " expecting " << sizeof(cache) << endl;
-        Svar_DB_memory_P::DB_tcp_error("send()", len, sizeof(cache));
-      }
+std::string data((const char *)&cache, sizeof(cache));
+SVAR_RECORD_IS_c updated(Svar_DB_memory_P::get_DB_tcp(), data);
 }
 //=============================================================================
 void

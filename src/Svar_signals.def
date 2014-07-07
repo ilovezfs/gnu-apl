@@ -1,21 +1,21 @@
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+dnl  This file is part of GNU APL, a free implementation of the
+dnl  ISO/IEC Standard 13751, "Programming Language APL, Extended"
+dnl
+dnl  Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+dnl
+dnl  This program is free software: you can redistribute it and/or modify
+dnl  it under the terms of the GNU General Public License as published by
+dnl  the Free Software Foundation, either version 3 of the License, or
+dnl  (at your option) any later version.
+dnl
+dnl  This program is distributed in the hope that it will be useful,
+dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl  GNU General Public License for more details.
+dnl
+dnl  You should have received a copy of the GNU General Public License
+dnl  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -41,4 +41,34 @@ m4_signal(START_EVENT_REPORTING,    u16, event_port)
 m4_signal(STOP_EVENT_REPORTING)
 m4_signal(GOT_EVENT,       x64,    key,     u32,    event)
 m4_signal(NEW_EVENT,       x64,    key,     u32,    event)
+
+
+/// read/update entire SVAR database from APserver
+///
+///		apl/APnnn	--> READ_SVAR_DB		APserver
+///				<-- SVAR_DB_IS
+///
+///				--> UPDATE_SVAR_DB
+///				<-- SVAR_DB_IS
+///				--> SVAR_DB_IS
+m4_signal(READ_SVAR_DB)
+m4_signal(UPDATE_SVAR_DB)
+m4_signal(SVAR_DB_IS,      string, db)
+
+/// read/update SVAR database record from APserver
+///
+///		apl/APnnn	--> READ_SVAR_RECORD		APserver
+///				<-- SVAR_RECORD_IS
+///
+///				--> UPDATE_SVAR_RECORD
+///				<-- SVAR_RECORD_IS
+///				--> SVAR_RECORD_IS
+m4_signal(READ_SVAR_RECORD,     x64,    key)
+m4_signal(UPDATE_SVAR_RECORD,   x64,    key)
+m4_signal(SVAR_RECORD_IS,       string, record)
+
+/// identify processor ID on a TCP connection to APserver
+m4_signal(MY_PID_IS,		u32,    pid,
+				u32,    parent,
+				u32,    grand)
 

@@ -1155,8 +1155,8 @@ const int data_port = Svar_DB::data_owner_port(get_SV_key());
 UdpClientSocket sock(loc, data_port);
    ASSIGN_VALUE_c request(sock, get_SV_key(), data);
 
-DynArray(uint8_t, buffer, Signal_base::get_class_size());
-const Signal_base * response = Signal_base::recv(sock, &buffer[0], 10000);
+uint8_t buffer[MAX_SIGNAL_CLASS_SIZE];
+const Signal_base * response = Signal_base::recv_UDP(sock, buffer, 10000);
 
    if (response == 0)
       {
@@ -1230,8 +1230,8 @@ const int data_port = Svar_DB::data_owner_port(get_SV_key());
 UdpClientSocket sock(LOC, data_port);
 GET_VALUE_c request(sock, get_SV_key());
 
-DynArray(uint8_t, buffer, Signal_base::get_class_size());
-const Signal_base * response = Signal_base::recv(sock, &buffer[0], 10000);
+uint8_t buffer[MAX_SIGNAL_CLASS_SIZE];
+const Signal_base * response = Signal_base::recv_UDP(sock, buffer, 10000);
 
    if (response == 0)
       {

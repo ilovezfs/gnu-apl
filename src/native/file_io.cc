@@ -752,9 +752,6 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                  ++ cols;
 #endif
 
-                CERR << "directory " << path << " has " << entries.size()
-                     << " entries" << endl;
-
                 const Shape shape_Z(entries.size(), cols);
                 Value_P Z(new Value(shape_Z, LOC));
 

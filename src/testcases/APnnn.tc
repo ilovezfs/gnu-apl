@@ -14,14 +14,14 @@ CLEAR WS
       )ERASE SYNC
 ∇SYNC B;C;Q
     Q←B ⎕SVO 'VAR444' ◊ I←0
-L:  C←⎕SVO 'VAR444' ◊ →(2=C)/OK ◊ 0 0⍴⎕DL 0.1 ◊ →(10≠I←I+1)/L          
+L:  C←⎕SVO 'VAR444' ◊ →(2=C)/OK ◊ 0 0⍴⎕DL 0.4 ◊ →(10≠I←I+1)/L          
     'SYNC FAILED:' ◊ C ◊ ⍎')OFF'
 OK: ⎕SVE←0 ◊ 0 0⍴⎕SVE ◊ 0 0⍴⎕DL 0.1 ◊ 'SYNC OK'
 ∇
 
       ⍝ 0. start another interpreter with ID 1011
       ⍝
-      100 ⎕SVO 'OS' ◊ 0 0⍴⎕DL 0.2
+      100 ⎕SVO 'OS' ◊ 0 0⍴⎕DL 1
 ⁰
 
       OS←'testcases/APnnn_1011.sh'

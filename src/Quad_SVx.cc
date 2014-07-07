@@ -298,20 +298,20 @@ bool got_event = false;
        START_EVENT_REPORTING_c start(event_sock, event_sock.get_local_port());
      }
 
-     DynArray(uint8_t, buf, Signal_base::get_class_size());
-     const Signal_base * resp = Signal_base::recv(event_sock, &buf[0],
-                                                  wait / 1000);
+     uint8_t buf[MAX_SVARS_OFFERED];
+     const Signal_base * response = Signal_base::recv_UDP(event_sock, buf,
+                                                          wait / 1000);
 
-     if (resp)   // got event
+     if (response)   // got event
         {
           got_event = true;
           Log(LOG_shared_variables)
              {
-               const uint64_t key = resp->get__GOT_EVENT__key();
+               const uint64_t key = response->get__GOT_EVENT__key();
                const uint32_t * varname = Svar_DB::get_varname(key);
 
                CERR << "⎕SVE got event '"
-                    << event_name(Svar_event(resp->get__GOT_EVENT__event()))
+                    << event_name(Svar_event(response->get__GOT_EVENT__event()))
                     << "' from shared variable ";
                if (varname)
                   {
