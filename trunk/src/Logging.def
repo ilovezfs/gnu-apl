@@ -58,6 +58,7 @@ log_def(0, argc_argv                   , "command line arguments (argc/argv)  ")
 log_def(0, startup                     , "interpreter start-up messages       ")
 log_def(0, optimization                , "optimization messages               ")
 log_def(0, archive                     , ")LOAD and )SAVE details             ")
+log_def(0, Svar_DB_signals             , "Svar_DB signals                     ")
 
 #undef log_def
 

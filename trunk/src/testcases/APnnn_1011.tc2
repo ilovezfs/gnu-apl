@@ -6,9 +6,9 @@
 
 ∇SYNC B;C;Q
     Q←B ⎕SVO 'VAR444' ◊ I←0
-L:  C←⎕SVO 'VAR444' ◊ →(2=C)/OK ◊ 0⍴⎕DL 0.1 ◊ →(10≠I←I+1)/L 
+L:  C←⎕SVO 'VAR444' ◊ →(2=C)/OK ◊ 0⍴⎕DL 0.2 ◊ →(10≠I←I+1)/L 
     'SYNC FAILED:' ◊ C ◊ →0
-OK: ⎕SVE←0 ◊ 0⍴⎕SVE ◊ 0⍴⎕DL 0.1 ◊ 'SYNC OK'
+OK: ⎕SVE←0 ◊ 0⍴⎕SVE ◊ 0⍴⎕DL 0.2 ◊ 'SYNC OK'
 ∇
 
       ⍝ offer VAR444 to AP 1010 and wait for sharing to complete

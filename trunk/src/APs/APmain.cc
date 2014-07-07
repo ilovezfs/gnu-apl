@@ -40,8 +40,12 @@
 #include "Svar_signals.hh"
 
 #ifdef DYNAMIC_LOG_WANTED
+extern bool LOG_startup;
 extern bool LOG_shared_variables;
+extern bool LOG_Svar_DB_signals;
+bool LOG_startup = false;
 bool LOG_shared_variables = false;
+bool LOG_Svar_DB_signals = false;
 #else
 #endif
 
@@ -281,8 +285,8 @@ Svar_partner this_proc;
 
    for (bool goon = true; goon;)
        {
-         DynArray(uint8_t, buff, Signal_base::get_class_size());
-         const Signal_base * signal = Signal_base::recv(sock, &buff[0], 10000);
+         uint8_t buff[MAX_SIGNAL_CLASS_SIZE];
+         const Signal_base * signal = Signal_base::recv_UDP(sock, buff, 10000);
          if (signal == 0)   // no signal for 10 seconds
             {
               // if our parent has died, then we are done

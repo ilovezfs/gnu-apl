@@ -1,21 +1,21 @@
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   This file is part of GNU APL, a free implementation of the
+   ISO/IEC Standard 13751, "Programming Language APL, Extended"
+ 
+   Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+ 
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+ 
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+ 
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -216,23 +216,6 @@ protected:
 enum Signal_id
 {
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -257,6 +240,34 @@ enum Signal_id
    sid_GOT_EVENT,
    sid_NEW_EVENT,
 
+
+/// read/update entire SVAR database from APserver
+///
+///		apl/APnnn	--> READ_SVAR_DB		APserver
+///				<-- SVAR_DB_IS
+///
+///				--> UPDATE_SVAR_DB
+///				<-- SVAR_DB_IS
+///				--> SVAR_DB_IS
+   sid_READ_SVAR_DB,
+   sid_UPDATE_SVAR_DB,
+   sid_SVAR_DB_IS,
+
+/// read/update SVAR database record from APserver
+///
+///		apl/APnnn	--> READ_SVAR_RECORD		APserver
+///				<-- SVAR_RECORD_IS
+///
+///				--> UPDATE_SVAR_RECORD
+///				<-- SVAR_RECORD_IS
+///				--> SVAR_RECORD_IS
+   sid_READ_SVAR_RECORD,
+   sid_UPDATE_SVAR_RECORD,
+   sid_SVAR_RECORD_IS,
+
+/// identify processor ID on a TCP connection to APserver
+   sid_MY_PID_IS,
+
    sid_MAX,
 };
 //----------------------------------------------------------------------------
@@ -276,9 +287,6 @@ public:
    /// return the name of the ID of the signal
    virtual const char * get_sigName() const = 0;
 
-   /// return the max. size of a signal
-   inline static size_t get_class_size();
-
    /// get function for an item that is not defined for the signal
    void bad_get(const char * signal, const char * member) const
       {
@@ -288,23 +296,6 @@ public:
       }
 
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -381,40 +372,82 @@ public:
 
 
 
+/// read/update entire SVAR database from APserver
+///
+///		apl/APnnn	--> READ_SVAR_DB		APserver
+///				<-- SVAR_DB_IS
+///
+///				--> UPDATE_SVAR_DB
+///				<-- SVAR_DB_IS
+///				--> SVAR_DB_IS
+   /// access functions for signal READ_SVAR_DB...
+
+   /// access functions for signal UPDATE_SVAR_DB...
+
+   /// access functions for signal SVAR_DB_IS...
+   virtual string get__SVAR_DB_IS__db() const   ///< dito
+      { bad_get("SVAR_DB_IS", "db"); return 0; }
+
+
+/// read/update SVAR database record from APserver
+///
+///		apl/APnnn	--> READ_SVAR_RECORD		APserver
+///				<-- SVAR_RECORD_IS
+///
+///				--> UPDATE_SVAR_RECORD
+///				<-- SVAR_RECORD_IS
+///				--> SVAR_RECORD_IS
+   /// access functions for signal READ_SVAR_RECORD...
+   virtual uint64_t get__READ_SVAR_RECORD__key() const   ///< dito
+      { bad_get("READ_SVAR_RECORD", "key"); return 0; }
+
+   /// access functions for signal UPDATE_SVAR_RECORD...
+   virtual uint64_t get__UPDATE_SVAR_RECORD__key() const   ///< dito
+      { bad_get("UPDATE_SVAR_RECORD", "key"); return 0; }
+
+   /// access functions for signal SVAR_RECORD_IS...
+   virtual string get__SVAR_RECORD_IS__record() const   ///< dito
+      { bad_get("SVAR_RECORD_IS", "record"); return 0; }
+
+
+/// identify processor ID on a TCP connection to APserver
+   /// access functions for signal MY_PID_IS...
+   virtual uint32_t get__MY_PID_IS__pid() const   ///< dito
+      { bad_get("MY_PID_IS", "pid"); return 0; }
+   virtual uint32_t get__MY_PID_IS__parent() const   ///< dito
+      { bad_get("MY_PID_IS", "parent"); return 0; }
+   virtual uint32_t get__MY_PID_IS__grand() const   ///< dito
+      { bad_get("MY_PID_IS", "grand"); return 0; }
+
+
+
    /// receive a signal (UDP)
-   inline static Signal_base * recv(UdpSocket & sock, void * class_buffer,
+   inline static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
                                     uint16_t & from_port, uint32_t & from_ip,
                                     uint32_t timeout_ms = 0);
 
    /// receive a signal (UDP) ignore sender's IP and port
-   static Signal_base * recv(UdpSocket & sock, void * class_buffer,
-                             uint32_t timeout_ms = 0)
+   static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
+                                 uint32_t timeout_ms = 0)
       {
          uint16_t from_port = 0;
          uint32_t from_ip = 0;
-         return recv(sock, class_buffer, from_port, from_ip, timeout_ms);
+         return recv_UDP(sock, class_buffer, from_port, from_ip, timeout_ms);
       }
 
    /// receive a signal (TCP)
-   static Signal_base * recv_TCP(int s, void * class_buffer)
-      {
-        const int expected = get_class_size();
-        const int received = ::recv(s, class_buffer, expected,  MSG_WAITALL);
-        return (expected == received) ? (Signal_base *)class_buffer : 0;
-      }
-
-   /// decode a received signal (TCP)
-   inline static Signal_base * decode(const uint8_t * buffer, size_t len,
-                                      bool debug);
+   inline static Signal_base * recv_TCP(int tcp_sock, char * buffer,
+                                        int bufsize, char * & del,
+                                        ostream * debug);
 
 protected:
    /// send this signal on sock (UDP)
-   int send_UDP(const UdpSocket & sock) const
+   int send_UDP(const UdpSocket & udp_sock) const
        {
          string buffer;
          store(buffer);
-         const int len = sock.send(buffer);
-         if (ostream * out = sock.get_debug())   print(*out << "--> ");
+         const int len = udp_sock.send(buffer);
+         if (ostream * out = udp_sock.get_debug())   print(*out << "--> ");
          return len;
        }
 
@@ -432,23 +465,6 @@ protected:
 };
 
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -1204,32 +1220,400 @@ protected:
    Sig_item_u32 event;   ///< event
 };
 
+
+/// read/update entire SVAR database from APserver
+///
+///		apl/APnnn	--> READ_SVAR_DB		APserver
+///				<-- SVAR_DB_IS
+///
+///				--> UPDATE_SVAR_DB
+///				<-- SVAR_DB_IS
+///				--> SVAR_DB_IS
 //----------------------------------------------------------------------------
-size_t
-Signal_base::get_class_size()
+/// a class for READ_SVAR_DB
+class READ_SVAR_DB_c : public Signal_base
 {
-   // a union big enough for all signal classes
-   struct _all_classes_
+public:
+   /// contructor that creates the signal and sends it on UDP socket ctx
+   READ_SVAR_DB_c(const UdpSocket & ctx)
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   READ_SVAR_DB_c(int s)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   READ_SVAR_DB_c(const uint8_t * & buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 id(sid_READ_SVAR_DB);
+         id.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
       {
+        out << "READ_SVAR_DB(";
+
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_READ_SVAR_DB; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "READ_SVAR_DB"; }
+
+
+protected:
+};
+//----------------------------------------------------------------------------
+/// a class for UPDATE_SVAR_DB
+class UPDATE_SVAR_DB_c : public Signal_base
+{
+public:
+   /// contructor that creates the signal and sends it on UDP socket ctx
+   UPDATE_SVAR_DB_c(const UdpSocket & ctx)
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   UPDATE_SVAR_DB_c(int s)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   UPDATE_SVAR_DB_c(const uint8_t * & buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 id(sid_UPDATE_SVAR_DB);
+         id.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "UPDATE_SVAR_DB(";
+
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_UPDATE_SVAR_DB; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "UPDATE_SVAR_DB"; }
+
+
+protected:
+};
+//----------------------------------------------------------------------------
+/// a class for SVAR_DB_IS
+class SVAR_DB_IS_c : public Signal_base
+{
+public:
+   /// contructor that creates the signal and sends it on UDP socket ctx
+   SVAR_DB_IS_c(const UdpSocket & ctx,
+                Sig_item_string _db)
+   : db(_db)
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   SVAR_DB_IS_c(int s,
+                Sig_item_string _db)
+   : db(_db)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   SVAR_DB_IS_c(const uint8_t * & buffer)
+   : db(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 id(sid_SVAR_DB_IS);
+         id.store(buffer);
+        db.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "SVAR_DB_IS(";
+        db.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_SVAR_DB_IS; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "SVAR_DB_IS"; }
+
+  /// return item db of this signal 
+   virtual string get__SVAR_DB_IS__db() const { return db.get_value(); }
+
+
+protected:
+   Sig_item_string db;   ///< db
+};
+
+/// read/update SVAR database record from APserver
+///
+///		apl/APnnn	--> READ_SVAR_RECORD		APserver
+///				<-- SVAR_RECORD_IS
+///
+///				--> UPDATE_SVAR_RECORD
+///				<-- SVAR_RECORD_IS
+///				--> SVAR_RECORD_IS
+//----------------------------------------------------------------------------
+/// a class for READ_SVAR_RECORD
+class READ_SVAR_RECORD_c : public Signal_base
+{
+public:
+   /// contructor that creates the signal and sends it on UDP socket ctx
+   READ_SVAR_RECORD_c(const UdpSocket & ctx,
+                Sig_item_x64 _key)
+   : key(_key)
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   READ_SVAR_RECORD_c(int s,
+                Sig_item_x64 _key)
+   : key(_key)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   READ_SVAR_RECORD_c(const uint8_t * & buffer)
+   : key(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 id(sid_READ_SVAR_RECORD);
+         id.store(buffer);
+        key.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "READ_SVAR_RECORD(";
+        key.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_READ_SVAR_RECORD; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "READ_SVAR_RECORD"; }
+
+  /// return item key of this signal 
+   virtual uint64_t get__READ_SVAR_RECORD__key() const { return key.get_value(); }
+
+
+protected:
+   Sig_item_x64 key;   ///< key
+};
+//----------------------------------------------------------------------------
+/// a class for UPDATE_SVAR_RECORD
+class UPDATE_SVAR_RECORD_c : public Signal_base
+{
+public:
+   /// contructor that creates the signal and sends it on UDP socket ctx
+   UPDATE_SVAR_RECORD_c(const UdpSocket & ctx,
+                Sig_item_x64 _key)
+   : key(_key)
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   UPDATE_SVAR_RECORD_c(int s,
+                Sig_item_x64 _key)
+   : key(_key)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   UPDATE_SVAR_RECORD_c(const uint8_t * & buffer)
+   : key(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 id(sid_UPDATE_SVAR_RECORD);
+         id.store(buffer);
+        key.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "UPDATE_SVAR_RECORD(";
+        key.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_UPDATE_SVAR_RECORD; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "UPDATE_SVAR_RECORD"; }
+
+  /// return item key of this signal 
+   virtual uint64_t get__UPDATE_SVAR_RECORD__key() const { return key.get_value(); }
+
+
+protected:
+   Sig_item_x64 key;   ///< key
+};
+//----------------------------------------------------------------------------
+/// a class for SVAR_RECORD_IS
+class SVAR_RECORD_IS_c : public Signal_base
+{
+public:
+   /// contructor that creates the signal and sends it on UDP socket ctx
+   SVAR_RECORD_IS_c(const UdpSocket & ctx,
+                Sig_item_string _record)
+   : record(_record)
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   SVAR_RECORD_IS_c(int s,
+                Sig_item_string _record)
+   : record(_record)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   SVAR_RECORD_IS_c(const uint8_t * & buffer)
+   : record(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 id(sid_SVAR_RECORD_IS);
+         id.store(buffer);
+        record.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "SVAR_RECORD_IS(";
+        record.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_SVAR_RECORD_IS; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "SVAR_RECORD_IS"; }
+
+  /// return item record of this signal 
+   virtual string get__SVAR_RECORD_IS__record() const { return record.get_value(); }
+
+
+protected:
+   Sig_item_string record;   ///< record
+};
+
+/// identify processor ID on a TCP connection to APserver
+//----------------------------------------------------------------------------
+/// a class for MY_PID_IS
+class MY_PID_IS_c : public Signal_base
+{
+public:
+   /// contructor that creates the signal and sends it on UDP socket ctx
+   MY_PID_IS_c(const UdpSocket & ctx,
+                Sig_item_u32 _pid,
+                Sig_item_u32 _parent,
+                Sig_item_u32 _grand)
+   : pid(_pid),
+     parent(_parent),
+     grand(_grand)
+   { send_UDP(ctx); }
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   MY_PID_IS_c(int s,
+                Sig_item_u32 _pid,
+                Sig_item_u32 _parent,
+                Sig_item_u32 _grand)
+   : pid(_pid),
+     parent(_parent),
+     grand(_grand)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   MY_PID_IS_c(const uint8_t * & buffer)
+   : pid(buffer),
+     parent(buffer),
+     grand(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 id(sid_MY_PID_IS);
+         id.store(buffer);
+        pid.store(buffer);
+        parent.store(buffer);
+        grand.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "MY_PID_IS(";
+        pid.print(out);   out << ", ";
+        parent.print(out);   out << ", ";
+        grand.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_MY_PID_IS; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "MY_PID_IS"; }
+
+  /// return item pid of this signal 
+   virtual uint32_t get__MY_PID_IS__pid() const { return pid.get_value(); }
+
+  /// return item parent of this signal 
+   virtual uint32_t get__MY_PID_IS__parent() const { return parent.get_value(); }
+
+  /// return item grand of this signal 
+   virtual uint32_t get__MY_PID_IS__grand() const { return grand.get_value(); }
+
+
+protected:
+   Sig_item_u32 pid;   ///< pid
+   Sig_item_u32 parent;   ///< parent
+   Sig_item_u32 grand;   ///< grand
+};
+
+//----------------------------------------------------------------------------
+
+// a union big enough for all signal classes
+struct _all_signal_classes_
+{
 
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -1254,13 +1638,41 @@ Signal_base::get_class_size()
         char u_GOT_EVENT[sizeof(GOT_EVENT_c)];
         char u_NEW_EVENT[sizeof(NEW_EVENT_c)];
 
-      };
 
-   return sizeof(_all_classes_);
-}
+/// read/update entire SVAR database from APserver
+///
+///		apl/APnnn	--> READ_SVAR_DB		APserver
+///				<-- SVAR_DB_IS
+///
+///				--> UPDATE_SVAR_DB
+///				<-- SVAR_DB_IS
+///				--> SVAR_DB_IS
+        char u_READ_SVAR_DB[sizeof(READ_SVAR_DB_c)];
+        char u_UPDATE_SVAR_DB[sizeof(UPDATE_SVAR_DB_c)];
+        char u_SVAR_DB_IS[sizeof(SVAR_DB_IS_c)];
+
+/// read/update SVAR database record from APserver
+///
+///		apl/APnnn	--> READ_SVAR_RECORD		APserver
+///				<-- SVAR_RECORD_IS
+///
+///				--> UPDATE_SVAR_RECORD
+///				<-- SVAR_RECORD_IS
+///				--> SVAR_RECORD_IS
+        char u_READ_SVAR_RECORD[sizeof(READ_SVAR_RECORD_c)];
+        char u_UPDATE_SVAR_RECORD[sizeof(UPDATE_SVAR_RECORD_c)];
+        char u_SVAR_RECORD_IS[sizeof(SVAR_RECORD_IS_c)];
+
+/// identify processor ID on a TCP connection to APserver
+        char u_MY_PID_IS[sizeof(MY_PID_IS_c)];
+
+};
+
+enum { MAX_SIGNAL_CLASS_SIZE = sizeof(_all_signal_classes_) };
+
 //----------------------------------------------------------------------------
 Signal_base *
-Signal_base::recv(UdpSocket & sock, void * class_buffer,
+Signal_base::recv_UDP(UdpSocket & sock, void * class_buffer,
                   uint16_t & from_port, uint32_t & from_ip,
                   uint32_t timeout_ms)
 {
@@ -1276,23 +1688,6 @@ Signal_base * ret = 0;
       {
 
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -1317,6 +1712,34 @@ Signal_base * ret = 0;
         case sid_GOT_EVENT: ret = new (class_buffer) GOT_EVENT_c(b);   break;
         case sid_NEW_EVENT: ret = new (class_buffer) NEW_EVENT_c(b);   break;
 
+
+/// read/update entire SVAR database from APserver
+///
+///		apl/APnnn	--> READ_SVAR_DB		APserver
+///				<-- SVAR_DB_IS
+///
+///				--> UPDATE_SVAR_DB
+///				<-- SVAR_DB_IS
+///				--> SVAR_DB_IS
+        case sid_READ_SVAR_DB: ret = new (class_buffer) READ_SVAR_DB_c(b);   break;
+        case sid_UPDATE_SVAR_DB: ret = new (class_buffer) UPDATE_SVAR_DB_c(b);   break;
+        case sid_SVAR_DB_IS: ret = new (class_buffer) SVAR_DB_IS_c(b);   break;
+
+/// read/update SVAR database record from APserver
+///
+///		apl/APnnn	--> READ_SVAR_RECORD		APserver
+///				<-- SVAR_RECORD_IS
+///
+///				--> UPDATE_SVAR_RECORD
+///				<-- SVAR_RECORD_IS
+///				--> SVAR_RECORD_IS
+        case sid_READ_SVAR_RECORD: ret = new (class_buffer) READ_SVAR_RECORD_c(b);   break;
+        case sid_UPDATE_SVAR_RECORD: ret = new (class_buffer) UPDATE_SVAR_RECORD_c(b);   break;
+        case sid_SVAR_RECORD_IS: ret = new (class_buffer) SVAR_RECORD_IS_c(b);   break;
+
+/// identify processor ID on a TCP connection to APserver
+        case sid_MY_PID_IS: ret = new (class_buffer) MY_PID_IS_c(b);   break;
+
         default: cerr << "UdpSocket::recv() failed: unknown id "
                       << id.get_value() << endl;
                  errno = EINVAL;
@@ -1329,9 +1752,53 @@ Signal_base * ret = 0;
 }
 //----------------------------------------------------------------------------
 Signal_base *
-Signal_base::decode(const uint8_t * buffer, size_t len, bool debug)
+Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
+                                 char * & del, ostream * debug)
 {
-const uint8_t * b = buffer;
+uint32_t siglen = 0;
+   {
+     const ssize_t rx_bytes = ::recv(tcp_sock, buffer,
+                                     sizeof(uint32_t), MSG_WAITALL);
+     if (rx_bytes !=  sizeof(uint32_t))
+        {
+          debug && *debug << "*** no signal length in recv_TCP()" << endl;
+          return 0;
+        }
+      debug && *debug << "rx_bytes is " << rx_bytes
+                      << " when reading siglen in in recv_TCP()" << endl;
+   }
+
+   siglen = ntohl(*(uint32_t *)buffer);
+   debug && *debug << "signal length is " << siglen << " in recv_TCP()" << endl;
+
+   // skip MAX_SIGNAL_CLASS_SIZE bytes at the beginning of buffer
+   //
+char * rx_buf = buffer + MAX_SIGNAL_CLASS_SIZE;
+   bufsize -= MAX_SIGNAL_CLASS_SIZE;
+
+   if (siglen > bufsize)
+      {
+        // the buffer provided is too small: allocate a bigger one
+        //
+        del = new char[siglen];
+        if (del == 0)
+           {
+             cerr << "*** new(" << siglen <<") failed in recv_TCP()" << endl;
+             return 0;
+           }
+        rx_buf = del;
+      }
+
+const ssize_t rx_bytes = ::recv(tcp_sock, rx_buf, siglen, MSG_WAITALL);
+   if (rx_bytes != siglen)
+      {
+             cerr << "*** got " << rx_bytes <<" when expecting " << siglen
+                  << endl;
+             return 0;
+      }
+   debug && *debug << "rx_bytes is " << rx_bytes << " in recv_TCP()" << endl;
+
+const uint8_t * b = (const uint8_t *)rx_buf;
 Sig_item_u16 id(b);
 
 Signal_base * ret = 0;
@@ -1339,23 +1806,6 @@ Signal_base * ret = 0;
       {
 
 /*
-    This file is part of GNU APL, a free implementation of the
-    ISO/IEC Standard 13751, "Programming Language APL, Extended"
-
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -1380,13 +1830,41 @@ Signal_base * ret = 0;
         case sid_GOT_EVENT: ret = new GOT_EVENT_c(b);   break;
         case sid_NEW_EVENT: ret = new NEW_EVENT_c(b);   break;
 
-        default: cerr << "UdpSocket::decode() failed: unknown id "
+
+/// read/update entire SVAR database from APserver
+///
+///		apl/APnnn	--> READ_SVAR_DB		APserver
+///				<-- SVAR_DB_IS
+///
+///				--> UPDATE_SVAR_DB
+///				<-- SVAR_DB_IS
+///				--> SVAR_DB_IS
+        case sid_READ_SVAR_DB: ret = new READ_SVAR_DB_c(b);   break;
+        case sid_UPDATE_SVAR_DB: ret = new UPDATE_SVAR_DB_c(b);   break;
+        case sid_SVAR_DB_IS: ret = new SVAR_DB_IS_c(b);   break;
+
+/// read/update SVAR database record from APserver
+///
+///		apl/APnnn	--> READ_SVAR_RECORD		APserver
+///				<-- SVAR_RECORD_IS
+///
+///				--> UPDATE_SVAR_RECORD
+///				<-- SVAR_RECORD_IS
+///				--> SVAR_RECORD_IS
+        case sid_READ_SVAR_RECORD: ret = new READ_SVAR_RECORD_c(b);   break;
+        case sid_UPDATE_SVAR_RECORD: ret = new UPDATE_SVAR_RECORD_c(b);   break;
+        case sid_SVAR_RECORD_IS: ret = new SVAR_RECORD_IS_c(b);   break;
+
+/// identify processor ID on a TCP connection to APserver
+        case sid_MY_PID_IS: ret = new MY_PID_IS_c(b);   break;
+
+        default: cerr << "Signal_base::decode() failed: unknown id "
                       << id.get_value() << endl;
                  errno = EINVAL;
                  return 0;
       }
 
-   if (debug)   ret->print(cerr << "<-- ");
+   debug && ret->print(*debug << "<-- ");
 
    return ret;   // invalid id
 }

@@ -10,7 +10,7 @@ CLEAR WS
       VARS←2 4⍴'C210D210'
 
       ⍝ Offer C210 and D210 to AP210
-      (210 ⎕SVO VARS)∈¨1 (1 2) ◊ 0⍴⎕DL 0.2
+      (210 ⎕SVO VARS)∈¨1 (1 2) ◊ 0⍴⎕DL 1
 1 1
 
       ⍝ check status after coupling

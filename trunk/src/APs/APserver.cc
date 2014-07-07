@@ -20,6 +20,7 @@
 
 #include <errno.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -30,6 +31,7 @@
 #include <vector>
 
 #include "SystemLimits.hh"
+#include "Svar_signals.hh"
 
 #define __COMMON_HH_DEFINED__ // to avoid #error in APL_types.hh
 #include "Svar_DB_memory.hh"
@@ -102,28 +104,186 @@ AP3_fd ap3_fd;
 }
 //-----------------------------------------------------------------------------
 static void
-check_op(const char * op, TCP_socket fd, int got, int expected, int line)
+do_signal(TCP_socket fd, Signal_base * request)
 {
-   if (got != expected)
-      {
-        usleep(50000);
-        cerr << endl << "*** " << prog << "[" << line << "]: "
-             << op << " failed on fd " << fd
-             << " (got " << got << " expected " << expected
-             << "). closing fd." << endl;
+usleep(50000);
 
-        close_fd(fd);
-        return;
+   switch(request->get_sigID())
+      {
+        case sid_READ_SVAR_DB:
+             {
+               (verbosity > 0) && cerr << "[" << fd << "] read all - ";
+
+               string data((const char *)&db, sizeof(db));
+               { SVAR_DB_IS_c response(fd, data); }
+             }
+             return;
+
+        case sid_UPDATE_SVAR_DB:
+             {
+               (verbosity > 0) && cerr << "[" << fd << "] update all - ";
+               string data((const char *)&db, sizeof(db));
+               { SVAR_DB_IS_c response(fd, data); }
+
+               char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_DB_memory)];
+               char * del = 0;
+               ostream * debug = verbosity ? &cerr : 0;
+               Signal_base * update = Signal_base::recv_TCP(fd, buffer,
+                                                    sizeof(buffer), del, debug);
+               if (update)   memcpy(&db, update->get__SVAR_DB_IS__db().data(),
+                                    sizeof(Svar_DB_memory));
+               else   cerr << "recv_TCP() failed at line " << __LINE__ << endl;
+
+               if (del)   delete del;
+             }
+             return;
+
+        case sid_READ_SVAR_RECORD:
+             {
+               (verbosity > 0) && cerr << "[" << fd << "] read record - ";
+               SV_key key = request->get__READ_SVAR_RECORD__key();
+
+               (verbosity > 0) && cerr << "key " << hex << uppercase
+                                  << setfill('0') <<  key << setfill(' ')
+                                  << dec << nouppercase << " - ";
+
+               offered_SVAR * svar = 0;
+               if (key)
+                  {
+                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+                        {
+                          if (key == db.offered_vars[o].key)
+                             {
+                               svar = db.offered_vars + o;
+                               break;
+                             }
+
+                        }
+                  }
+
+               if (svar)
+                  {
+                    string data((const char *)svar, sizeof(offered_SVAR));
+                    { SVAR_RECORD_IS_c(fd, data); }
+                  }
+               else
+                  {
+                    char dummy[sizeof(offered_SVAR)];
+                    memset(&dummy, 0, sizeof(offered_SVAR));
+                    string data((const char *)&dummy, sizeof(offered_SVAR));
+                    { SVAR_RECORD_IS_c(fd, data); }
+                  }
+
+               (verbosity > 0) && cerr << "record sent - done." << endl;
+             }
+             return;
+
+        case sid_UPDATE_SVAR_RECORD:
+             {
+               (verbosity > 0) && cerr << "[" << fd << "] update record - ";
+               SV_key key = request->get__UPDATE_SVAR_RECORD__key();
+
+               (verbosity > 0) && cerr << "key " << hex << uppercase
+                                  << setfill('0') <<  key << setfill(' ')
+                                  << dec << nouppercase << " - ";
+
+               offered_SVAR * svar = 0;
+               if (key)
+                  {
+                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+                        {
+                          if (key == db.offered_vars[o].key)
+                             {
+                               svar = db.offered_vars + o;
+                               break;
+                             }
+                        }
+                  }
+
+               if (svar)
+                  {
+                    string data((const char *)svar, sizeof(offered_SVAR));
+                    { SVAR_RECORD_IS_c(fd, data); }
+                    (verbosity > 0) && cerr << " record sent - ";
+
+                    char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(offered_SVAR)];
+                    char * del = 0;
+                    ostream * debug = verbosity ? &cerr : 0;
+                    Signal_base * update = Signal_base::recv_TCP(fd, buffer,
+                                                    sizeof(buffer), del, debug);
+                    if (update)
+                       {
+                         memcpy(svar,
+                                update->get__SVAR_RECORD_IS__record().data(),
+                                         sizeof(offered_SVAR));
+                         (verbosity > 0) && cerr <<
+                                   "  update record received - done " << endl;
+                       }
+                    else   cerr << "recv_TCP() failed at line " << __LINE__
+                                << endl;
+
+               if (del)   delete del;
+                  }
+               else
+                  {
+                    char dummy[sizeof(offered_SVAR)];
+                    memset(&dummy, 0, sizeof(offered_SVAR));
+                    string data((const char *)&dummy, sizeof(offered_SVAR));
+                    { SVAR_RECORD_IS_c(fd, data); }
+                    (verbosity > 0) && cerr << "dummy record sent - done "
+                                            << endl;
+                  }
+             }
+             return;
+
+        case sid_MY_PID_IS:
+             {
+               (verbosity > 0) && cerr << "[" << fd << "] identify - ";
+
+               // find connected_procs entry for fd...
+               //
+               AP3_fd * ap_fd = 0;
+               for (int j = 0; j < connected_procs.size(); ++j)
+                   {
+                     if (connected_procs[j].fd == fd)
+                        {
+                          ap_fd = &connected_procs[j];
+                          break;
+                        }
+                   }
+
+               if (ap_fd == 0)   // not found
+                  {
+                    cerr << prog << ": could not find fd " << fd
+                         << " in connected_procs" << endl;
+                    close_fd(fd);
+                    return;
+                  }
+               ap_fd->ap3.proc   = (AP_num)(request->get__MY_PID_IS__pid());
+               ap_fd->ap3.parent = (AP_num)(request->get__MY_PID_IS__parent());
+               ap_fd->ap3.grand  = (AP_num)(request->get__MY_PID_IS__grand());
+
+               (verbosity > 0) && cerr << "done. Id is "
+                                  << ap_fd->ap3.proc << ":" << ap_fd->ap3.parent
+                    << ":" << ap_fd->ap3.grand << endl;
+             }
+             return;
+
+        default: break;
       }
+
+   cerr << "got unknown signal ID " << request->get_sigID() << endl;
 }
 //-----------------------------------------------------------------------------
 static void
 connection_readable(TCP_socket fd)
 {
-char command;
-ssize_t len = ::recv(fd, &command, 1, 0);
-
-   if (len <= 0)
+char buffer[50000];
+char * del = 0;
+ostream * debug = verbosity ? &cerr : 0;
+Signal_base * request = Signal_base::recv_TCP(fd, buffer, sizeof(buffer),
+                                              del, debug);
+   if (request == 0)
       {
          (verbosity > 0) && cerr << prog << "connection[" << fd
               << "] closed (recv_TCP() returned 0" << endl;
@@ -131,167 +291,9 @@ ssize_t len = ::recv(fd, &command, 1, 0);
          return;
       }
 
-   switch(command)
-      {
-        case 'i':
-             {
-               (verbosity > 0) && cerr << "[" << fd << "] identify - ";
+   do_signal(fd, request);
 
-               // read proc/parent/grand from socket
-               AP_num buffer[3];
-               len = ::recv(fd, buffer, sizeof(buffer), MSG_WAITALL);
-               check_op("recv() identity", fd, len, sizeof(buffer), __LINE__);
-
-               // find connected_procs entry for fd...
-               //
-               int idx = -1;
-               for (int j = 0; j < connected_procs.size(); ++j)
-                   {
-                     if (connected_procs[j].fd == fd)
-                        {
-                          idx = j;
-                          break;
-                        }
-                   }
-
-               if (idx == -1)   // not found
-                  {
-                    cerr << prog << ": could not find fd " << fd
-                         << " in connected_procs" << endl;
-                    close_fd(fd);
-                    return;
-                  }
-               connected_procs[idx].ap3.proc   = buffer[0];
-               connected_procs[idx].ap3.parent = buffer[1];
-               connected_procs[idx].ap3.grand  = buffer[2];
-
-               (verbosity > 0) && cerr << "done. Id is "
-                                  << buffer[0] << ":" << buffer[1]
-                    << ":" << buffer[2] << endl;
-             }
-             return;
-
-        case 'a':
-             {
-               (verbosity > 0) && cerr << "[" << fd << "] read all - ";
-               len = ::send(fd, &db, sizeof(db), 0);
-               check_op("send() all", fd, len, sizeof(db), __LINE__);
-               (verbosity > 0) && cerr << "done." << endl;
-             }
-             return;
-
-        case 'A':
-             {
-               (verbosity > 0) && cerr << "[" << fd << "] update all - ";
-               len = ::send(fd, &db, sizeof(db), 0);
-               check_op("send() all", fd, len, sizeof(db), __LINE__);
-               (verbosity > 0) && cerr << "sent - ";
-
-               // send updated db back
-               //
-               len = ::recv(fd, &db, sizeof(db), MSG_WAITALL);
-               check_op("recv()", fd, len, sizeof(db), __LINE__);
-               (verbosity > 0) && cerr << "done." << endl;
-             }
-             return;
-
-        case 'r':
-             {
-               (verbosity > 0) && cerr << "[" << fd << "] read record - ";
-               SV_key key;
-               len = ::recv(fd, &key, sizeof(key), MSG_WAITALL);
-               check_op("recv() key", fd, len, sizeof(key), __LINE__);
-
-               (verbosity > 0) && cerr << "key " << hex << uppercase
-                                  << setfill('0') <<  key << setfill(' ')
-                                  << dec << nouppercase << " - ";
-
-               offered_SVAR * svar = 0;
-               if (key)
-                  {
-                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-                        {
-                          if (key == db.offered_vars[o].key)
-                             {
-                               svar = db.offered_vars + o;
-                               break;
-                             }
-
-                        }
-                  }
-
-               if (svar)
-                  {
-                    len = ::send(fd, svar, sizeof(offered_SVAR), 0);
-                    check_op("send() record", fd, len, sizeof(offered_SVAR), __LINE__);
-                  }
-               else
-                  {
-                    offered_SVAR dummy;
-                    memset(&dummy, 0, sizeof(offered_SVAR));
-                    len = ::send(fd, &dummy, sizeof(offered_SVAR), 0);
-                    check_op("send() dummy", fd, len, sizeof(offered_SVAR), __LINE__);
-                  }
-
-               (verbosity > 0) && cerr << "record sent - done." << endl;
-             }
-             return;
-
-        case 'R':
-             {
-               (verbosity > 0) && cerr << "[" << fd << "] update record - ";
-               SV_key key;
-               len = ::recv(fd, &key, sizeof(key), MSG_WAITALL);
-               check_op("recv() key", fd, len, sizeof(key), __LINE__);
-
-               (verbosity > 0) && cerr << "key " << hex << uppercase
-                                  << setfill('0') <<  key << setfill(' ')
-                                  << dec << nouppercase << " - ";
-
-               offered_SVAR * svar = 0;
-               if (key)
-                  {
-                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-                        {
-                          if (key == db.offered_vars[o].key)
-                             {
-                               svar = db.offered_vars + o;
-                               break;
-                             }
-
-                        }
-                  }
-
-               if (svar)
-                  {
-                    len = ::send(fd, svar, sizeof(offered_SVAR), 0);
-                    check_op("send() record", fd, len, sizeof(offered_SVAR), __LINE__);
-
-                    (verbosity > 0) && cerr << "record sent - ";
-
-                    len = ::recv(fd, svar, sizeof(offered_SVAR), MSG_WAITALL);
-                    check_op("recv()", fd, len, sizeof(offered_SVAR), __LINE__);
-
-                    (verbosity > 0) && cerr << "done." << endl;
-                  }
-               else
-                  {
-                    offered_SVAR dummy;
-                    memset(&dummy, 0, sizeof(offered_SVAR));
-                    len = ::send(fd, &dummy, sizeof(offered_SVAR), 0);
-                    check_op("send() dummy", fd, len, sizeof(offered_SVAR), __LINE__);
-                  }
-
-               (verbosity > 0) && cerr << "done." << endl;
-             }
-             return;
-
-        default: cerr << "got unknown command'" << command
-                      << "' on fd " << fd << endl;
-                 close_fd(fd);
-                 return;
-
-      }
+   if (del)   delete del;
 }
 //-----------------------------------------------------------------------------
 int
@@ -399,6 +401,13 @@ int max_fd = listen_sock;
              socklen_t from_len = sizeof(sockaddr_in);
              const int new_fd = ::accept(listen_sock, (sockaddr *)&from,
                                          &from_len);
+
+             // disable nagle
+             {
+               const int ndelay = 1;
+               setsockopt(new_fd, SOL_TCP, TCP_NODELAY, &ndelay, sizeof(int));
+             }
+
              if (new_fd == -1)
                 {
                   cerr << prog << ": ::accept() failed: "
