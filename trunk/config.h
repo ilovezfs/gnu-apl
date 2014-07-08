@@ -76,6 +76,9 @@
 /* Define to 1 if you have the `socket' library (-lsocket). */
 /* #undef HAVE_LIBSOCKET */
 
+/* Define to 1 if you have the <linux/un.h> header file. */
+#define HAVE_LINUX_UN_H 1
+
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
