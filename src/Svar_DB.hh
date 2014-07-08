@@ -43,7 +43,8 @@ public:
    ~Svar_DB_memory_P();
 
    /// connect to APserver
-   static void connect_to_APserver(const char * bin_path, bool logit);
+   static void connect_to_APserver(const char * bin_path, const char * prog,
+                                   bool logit);
 
    static void disconnect()
       {
@@ -148,7 +149,8 @@ public:
    ~Svar_DB();
 
    /// open (and possibly initialize) the shared variable database
-   static void init(const char * bin_path, bool logit, bool do_svars);
+   static void init(const char * bin_path, const char * prog,
+                    bool logit, bool do_svars);
 
    /// open (and possibly initialize) the shared variable database
    void open_shared_memory(const char * progname, bool logit, bool do_svars);

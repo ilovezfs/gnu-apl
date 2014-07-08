@@ -26,6 +26,11 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#include "config.h"   // for HAVE_ macros
+#ifdef HAVE_LINUX_UN_H
+#include <linux/un.h>
+#endif
+
 #include <iomanip>
 
 #include "Backtrace.hh"
@@ -34,6 +39,7 @@
 #include "Svar_DB.hh"
 #include "Svar_signals.hh"
 #include "UdpSocket.hh"
+#include "UserPreferences.hh"
 
 extern ostream CERR;
 extern ostream & get_CERR();
@@ -78,37 +84,84 @@ SVAR_DB_IS_c updated(DB_tcp, data);
 }
 //-----------------------------------------------------------------------------
 void
-Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
+Svar_DB_memory_P::connect_to_APserver(const char * bin_dir, const char * prog,
+                                      bool logit)
 {
-   DB_tcp = (TCP_socket)(socket(AF_INET, SOCK_STREAM, 0));
-   if (DB_tcp == NO_TCP_SOCKET)
-      {
-        get_CERR() << "*** socket(AF_INET, SOCK_STREAM, 0) failed at "
-                   << LOC << endl;
-        return;
-      }
+const char * server_sockname = Svar_DB_memory::get_APserver_unix_socket_name();
+const char * client_sockname = Svar_DB_memory::get_APclient_unix_socket_name();
+char peer[100];
 
-   // disable nagle
-   {
-     const int ndelay = 1;
-     setsockopt(DB_tcp, SOL_TCP, TCP_NODELAY, &ndelay, sizeof(int));
-   }
-
-   // bind local port to 127.0.0.1
+   // we use AF_UNIX sockets if the platform supports it and unix_socket_name
+   // is provided. Otherwise fall back to TCP.
    //
-   {
-     sockaddr_in local;
-     memset(&local, 0, sizeof(sockaddr_in));
-     local.sin_family = AF_INET;
-     local.sin_addr.s_addr = htonl(0x7F000001);
+#if HAVE_LINUX_UN_H
+   if (server_sockname)
+      {
+        logit && get_CERR() << prog
+                            << ": Using AF_UNIX socket towards APserver..."
+                            << endl;
+        DB_tcp = (TCP_socket)(socket(AF_UNIX, SOCK_STREAM, 0));
+        if (DB_tcp == NO_TCP_SOCKET)
+           {
+             get_CERR() << prog
+                        << ": socket(AF_UNIX, SOCK_STREAM, 0) failed at "
+                        << LOC << endl;
+             return;
+           }
 
-     if (::bind(DB_tcp, (const sockaddr *)&local, sizeof(sockaddr_in)))
+        // bind local port apl-pid
+        //
+        sockaddr_un local;
+        memset(&local, 0, sizeof(sockaddr_un));
+        local.sun_family = AF_UNIX;
+        strcpy(local.sun_path + ABSTRACT_OFFSET, client_sockname);
+
+        if (::bind(DB_tcp, (const sockaddr *)&local, sizeof(sockaddr_un)))
+           {
+             get_CERR() << prog << ": bind(" << client_sockname
+                        << ") failed: " << strerror(errno) << endl;
+             return;
+           }
+
+        logit && get_CERR() << prog << ": bind(" << client_sockname
+                            << ") succeeded" << endl;
+        snprintf(peer, sizeof(peer), "%s", server_sockname);
+      }
+   else // use TCP
+#endif
+      {
+        server_sockname = 0;
+        logit && get_CERR() << "Using TCP socket towards APserver..."
+                            << endl;
+        DB_tcp = (TCP_socket)(socket(AF_INET, SOCK_STREAM, 0));
+        if (DB_tcp == NO_TCP_SOCKET)
+           {
+             get_CERR() << "*** socket(AF_INET, SOCK_STREAM, 0) failed at "
+                        << LOC << endl;
+             return;
+           }
+
+        // disable nagle
         {
-          get_CERR() << "bind(127.0.0.1) failed:" << strerror(errno) << endl;
-          return;
+          const int ndelay = 1;
+          setsockopt(DB_tcp, 6, TCP_NODELAY, &ndelay, sizeof(int));
         }
 
-   }
+        // bind local port to 127.0.0.1
+        //
+        sockaddr_in local;
+        memset(&local, 0, sizeof(sockaddr_in));
+        local.sin_family = AF_INET;
+        local.sin_addr.s_addr = htonl(0x7F000001);
+
+        if (::bind(DB_tcp, (const sockaddr *)&local, sizeof(sockaddr_in)))
+           {
+             get_CERR() << "bind(127.0.0.1) failed:" << strerror(errno) << endl;
+             return;
+           }
+
+        snprintf(peer, sizeof(peer), "127.0.0.1 TCP port %d", APserver_port);
+      }
 
    // We try to connect to the TCP port number APnnn_port (of the APserver)
    // on localhost. If that fails then no APserver is running; we fork one
@@ -116,19 +169,33 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
    //
    for (bool retry = false; ; retry = true)
        {
-         sockaddr_in addr;
-         memset(&addr, 0, sizeof(sockaddr_in));
-         addr.sin_family = AF_INET;
-         addr.sin_port = htons(APserver_port);
-         addr.sin_addr.s_addr = htonl(0x7F000001);
+        if (server_sockname)
+           {
+#if HAVE_LINUX_UN_H
+             sockaddr_un remote;
+             memset(&remote, 0, sizeof(sockaddr_un));
+             remote.sun_family = AF_UNIX;
+             strcpy(remote.sun_path + ABSTRACT_OFFSET, server_sockname);
 
-         if (::connect(DB_tcp, (sockaddr *)&addr,
-                       sizeof(addr)) == 0)   break;   // success
+             if (::connect(DB_tcp, (sockaddr *)&remote,
+                           sizeof(remote)) == 0)   break;   // success
+#endif
+           }
+        else   // TCP
+           {
+             sockaddr_in remote;
+             memset(&remote, 0, sizeof(sockaddr_in));
+             remote.sin_family = AF_INET;
+             remote.sin_port = htons(APserver_port);
+             remote.sin_addr.s_addr = htonl(0x7F000001);
+
+             if (::connect(DB_tcp, (sockaddr *)&remote,
+                           sizeof(remote)) == 0)   break;   // success
+           }
 
          if (logit)
             {
-              get_CERR() << "connecting to 127.0.0.1 port " << APserver_port
-                         << "." << endl;
+              get_CERR() << "connecting to " << peer << endl;
 
               if (retry)   get_CERR() <<
                  "    (this is supposed to succeed.)" << endl;
@@ -150,8 +217,8 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
 
          // fork an APserver
          //
-         logit && get_CERR() << "forking new APserver listening on TCP port "
-                             << APserver_port << endl;
+         logit && get_CERR() << "forking new APserver listening on "
+                             << peer << endl;
 
          const pid_t pid = fork();
          if (pid)
@@ -166,10 +233,19 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
               DB_tcp = NO_TCP_SOCKET;
 
               char arg0[FILENAME_MAX + 20];
-              snprintf(arg0, sizeof(arg0), "%s/APserver", bin_path);
-              char arg1[] = { "--port" };
-              char arg2[20];
-              snprintf(arg2, sizeof(arg2), "%d", APserver_port);
+              snprintf(arg0, sizeof(arg0), "%s/APserver", bin_dir);
+              char arg1[20];
+              char arg2[100];
+              if (server_sockname)
+                 {
+                    strcpy(arg1, "--path");
+                    strcpy(arg2, server_sockname);
+                 }
+              else
+                 {
+                    strcpy(arg1, "--port");
+                    snprintf(arg2, sizeof(arg2), "%d", APserver_port);
+                 }
               char * argv[] = { arg0, arg1, arg2, 0 };
               char * envp[] = { 0 };
               execve(arg0, argv, envp);
@@ -177,7 +253,7 @@ Svar_DB_memory_P::connect_to_APserver(const char * bin_path, bool logit)
               // execve() failed, try APs subdir...
               //
               if (logit)   get_CERR() << "execve(" << arg0;
-              snprintf(arg0, sizeof(arg0), "%s/APs/APserver", bin_path);
+              snprintf(arg0, sizeof(arg0), "%s/APs/APserver", bin_dir);
               if (logit)   get_CERR() << ") failed ("<< strerror(errno)
                                       << "), trying execve(" << arg0 << ")"
                                       << endl;
@@ -252,7 +328,8 @@ SVAR_RECORD_IS_c updated(Svar_DB_memory_P::get_DB_tcp(), data);
 }
 //=============================================================================
 void
-Svar_DB::init(const char * bin_path, bool logit, bool do_svars)
+Svar_DB::init(const char * bin_dir, const char * prog,
+              bool logit, bool do_svars)
 {
    if (!do_svars)   // shared variables disable
       {
@@ -269,7 +346,7 @@ Svar_DB::init(const char * bin_path, bool logit, bool do_svars)
       }
 
    Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
-   Svar_DB_memory_P::connect_to_APserver(bin_path, logit);
+   Svar_DB_memory_P::connect_to_APserver(bin_dir, prog, logit);
    if (Svar_DB_memory_P::APserver_available())
       {
         if (logit)   CERR << "using Svar_DB on APserver!" << endl;

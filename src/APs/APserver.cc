@@ -306,19 +306,21 @@ int
 open_UNIX_socket(const char * listen_name)
 {
 const int listen_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+   {
+     int yes = 1;
+     setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+   }
 
 struct sockaddr_un local;
 
    memset(&local, 0, sizeof(sockaddr_un));
    local.sun_family = AF_UNIX;
 
-   // abstract socket: sun_path[0] = 0 and sun_path is the name
-   //
-   memcpy(local.sun_path + 1, listen_name, strlen(listen_name));
+   strcpy(local.sun_path + ABSTRACT_OFFSET, listen_name);
 
    if (::bind(listen_sock, (const sockaddr *)&local, sizeof(sockaddr_un)))
       {
-        cerr << prog << ": ::bind(127.0.0.1 port"
+        cerr << prog << ": ::bind("
              << listen_name << ") failed:" << strerror(errno) << endl;
         return -13;
       }
@@ -382,7 +384,7 @@ int
 main(int argc, char * argv[])
 {
 int listen_port = Default_APserver_tcp_port;
-const char * listen_name = 0;
+const char * listen_name = Svar_DB_memory::get_APserver_unix_socket_name();
 bool got_path = false;
 bool got_port = false;
 
@@ -441,8 +443,8 @@ bool got_port = false;
            << "sizeof(Svar_partner_events) is " << sizeof(Svar_partner_events)
            << endl;
 
-const int listen_sock = listen_name ? open_UNIX_socket(listen_name)
-                                    : open_TCP_socket(listen_port);
+const int listen_sock = got_path ? open_UNIX_socket(listen_name)
+                                 : open_TCP_socket(listen_port);
    if (listen_sock < 0)   return 20;
 
    memset(&db, 0, sizeof(db));
@@ -484,7 +486,7 @@ int max_fd = listen_sock;
              // disable nagle
              {
                const int ndelay = 1;
-               setsockopt(new_fd, SOL_TCP, TCP_NODELAY, &ndelay, sizeof(int));
+               setsockopt(new_fd, 6, TCP_NODELAY, &ndelay, sizeof(int));
              }
 
              if (new_fd == -1)

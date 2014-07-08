@@ -80,6 +80,7 @@ static void
 init_2(bool log_startup)
 {
    Svar_DB::init(LibPaths::get_APL_bin_path(),
+                 LibPaths::get_APL_bin_name(),
                  log_startup, uprefs.system_do_svars);
    Input::init(true);
 }
