@@ -26,6 +26,11 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "config.h"   // for HAVE_ macros
+#ifdef HAVE_LINUX_UN_H
+#include <linux/un.h>
+#endif
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -296,47 +301,51 @@ Signal_base * request = Signal_base::recv_TCP(fd, buffer, sizeof(buffer),
    if (del)   delete del;
 }
 //-----------------------------------------------------------------------------
+#ifdef HAVE_LINUX_UN_H
 int
-main(int argc, char * argv[])
+open_UNIX_socket(const char * listen_name)
 {
-int listen_port = Default_APserver_tcp_port;
-   prog = argv[0];
-   for (int a = 1; a < argc; )
-       {
-         const char * opt = argv[a++];
-         const char * val = (a < argc) ? argv[a] : 0;
+const int listen_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
-         if (!strcmp(opt, "-H"))
-            {
-              hang_on = true;
-            }
-         else if (!strcmp(opt, "--port"))
-            {
-              ++a;
-              if (!val)
-                 {
-                   cerr << "--port without argument" << endl;
-                   return a;
-                 }
-               listen_port = atoi(val);
-            }
-         else if (!strcmp(opt, "-v"))
-            {
-              ++verbosity;
-            }
-         else
-            {
-              cerr << "unknown command line option " << opt << endl;
-              return a;
-            }
-       }
+struct sockaddr_un local;
 
-   if (verbosity > 0)
-      cerr << "sizeof(Svar_DB_memory) is " << sizeof(Svar_DB_memory) << endl
-           << "sizeof(offered_SVAR) is " << sizeof(offered_SVAR) << endl
-           << "sizeof(Svar_partner_events) is " << sizeof(Svar_partner_events)
-           << endl;
+   memset(&local, 0, sizeof(sockaddr_un));
+   local.sun_family = AF_UNIX;
 
+   // abstract socket: sun_path[0] = 0 and sun_path is the name
+   //
+   memcpy(local.sun_path + 1, listen_name, strlen(listen_name));
+
+   if (::bind(listen_sock, (const sockaddr *)&local, sizeof(sockaddr_un)))
+      {
+        cerr << prog << ": ::bind(127.0.0.1 port"
+             << listen_name << ") failed:" << strerror(errno) << endl;
+        return -13;
+      }
+
+   if (::listen(listen_sock, 10))
+      {
+        cerr << prog << ": ::listen(\""
+             << listen_name << "\") failed:" << strerror(errno) << endl;
+        return -14;
+      }
+
+   (verbosity > 0) && cerr << prog << ": listening on abstract AF_UNIX socket '"
+                           << listen_name << "'" << endl;
+
+   return listen_sock;
+}
+#else
+int
+open_UNIX_socket(const char * listen_name)
+{
+   cerr << "*** this platform does not support address family AF_UNIX!";
+}
+#endif
+//-----------------------------------------------------------------------------
+int
+open_TCP_socket(int listen_port)
+{
 const int listen_sock = socket(AF_INET, SOCK_STREAM, 0);
    {
      int yes = 1;
@@ -353,18 +362,88 @@ sockaddr_in local;
       {
         cerr << prog << ": ::bind(127.0.0.1 port"
              << listen_port << ") failed:" << strerror(errno) << endl;
-        return 3;
+        return -13;
       }
 
    if (::listen(listen_sock, 10))
       {
         cerr << prog << ": ::listen(fd "
              << listen_sock << ") failed:" << strerror(errno) << endl;
-        return 3;
+        return -14;
       }
 
    (verbosity > 0) && cerr << prog << ": listening on TCP port "
                            << listen_port << endl;
+
+   return listen_sock;
+}
+//-----------------------------------------------------------------------------
+int
+main(int argc, char * argv[])
+{
+int listen_port = Default_APserver_tcp_port;
+const char * listen_name = 0;
+bool got_path = false;
+bool got_port = false;
+
+   prog = argv[0];
+   for (int a = 1; a < argc; )
+       {
+         const char * opt = argv[a++];
+         const char * val = (a < argc) ? argv[a] : 0;
+
+         if (!strcmp(opt, "-H"))
+            {
+              hang_on = true;
+            }
+         else if (!strcmp(opt, "--path"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   cerr << "--path without argument" << endl;
+                   return a;
+                 }
+               listen_name = val;
+               got_path = true;
+            }
+         else if (!strcmp(opt, "--port"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   cerr << "--port without argument" << endl;
+                   return a;
+                 }
+               listen_port = atoi(val);
+               got_port = true;
+            }
+         else if (!strcmp(opt, "-v"))
+            {
+              ++verbosity;
+            }
+         else
+            {
+              cerr << "unknown command line option " << opt << endl;
+              return a;
+            }
+       }
+
+   if (got_path && got_port)
+      {
+        cerr << "cannot specify both --path and --port " << endl;
+        return argc;
+      }
+
+   if (verbosity > 0)
+      cerr << "sizeof(Svar_DB_memory) is " << sizeof(Svar_DB_memory) << endl
+           << "sizeof(offered_SVAR) is " << sizeof(offered_SVAR) << endl
+           << "sizeof(Svar_partner_events) is " << sizeof(Svar_partner_events)
+           << endl;
+
+const int listen_sock = listen_name ? open_UNIX_socket(listen_name)
+                                    : open_TCP_socket(listen_port);
+   if (listen_sock < 0)   return 20;
 
    memset(&db, 0, sizeof(db));
 

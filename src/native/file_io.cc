@@ -312,6 +312,7 @@ list_functions(ostream & out)
 "           e - error code\n"
 "           i - integer\n"
 "           h - file handle (integer)\n"
+"           n - names (nested vector of strings)\n"
 "           s - string\n"
 "           A1, A2, ...  nested vector with elements A1, A2, ...\n"
 "\n"
@@ -356,6 +357,7 @@ list_functions(ostream & out)
 "   Zs ←    FUN[26] Bs    return entire file Bs as byte vector\n"
 "   Zs ← As FUN[27] Bs    rename file As to Bs\n"
 "   Zd ←    FUN[28] Bs    return content of directory Bs\n"
+"   Zn ←    FUN[29] Bs    return file names in directory Bs\n"
 "\n";
 
    return Token(TOK_APL_VALUE1, Str0(LOC));
@@ -711,6 +713,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
               }
 
          case 28:   // read directory Bs
+         case 29:   // read file names in directory Bs
               {
                 errno = 0;
                 UTF8_string path(*B.get());
@@ -737,43 +740,48 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                     }
                 closedir(dir);
 
-                // the number of columns varies, depending on the OS
-                //
-                ShapeItem cols = 2;   // d_name and d_ino
-#ifdef _DIRENT_HAVE_D_OFF
-                 ++ cols;
-#endif
+                Shape shape_Z(entries.size());
+                if (function_number == 28)   // 5 by N matrix
+                   {
+                     shape_Z.add_shape_item(5);
+                   }
 
-#ifdef _DIRENT_HAVE_D_RECLEN
-                 ++ cols;
-#endif
-
-#ifdef _DIRENT_HAVE_D_TYPE
-                 ++ cols;
-#endif
-
-                const Shape shape_Z(entries.size(), cols);
                 Value_P Z(new Value(shape_Z, LOC));
 
                 loop(e, entries.size())
                    {
                      const dirent & dent = entries[e];
+                     if (function_number == 28)   // full dirent
+                        {
+                          // all platforms support inode number
+                          //
+                          new (Z->next_ravel())   IntCell(dent.d_ino);
+
+
+#ifdef _DIRENT_HAVE_D_OFF
+                          new (Z->next_ravel())   IntCell(dent.d_off);
+#else
+                          new (Z->next_ravel())   IntCell(-1);
+#endif
+
+
+#ifdef _DIRENT_HAVE_D_RECLEN
+                          new (Z->next_ravel())   IntCell(dent.d_reclen);
+#else
+                          new (Z->next_ravel())   IntCell(-1);
+#endif
+
+
+#ifdef _DIRENT_HAVE_D_TYPE
+                         new (Z->next_ravel())   IntCell(dent.d_type);
+#else
+                          new (Z->next_ravel())   IntCell(-1);
+#endif
+                        }   // function_number == 28
+
                      UCS_string filename(dent.d_name);
                      Value_P Z_name(new Value(filename, LOC));
                      new (Z->next_ravel())   PointerCell(Z_name);
-                     new (Z->next_ravel())   IntCell(dent.d_ino);
-
-#ifdef _DIRENT_HAVE_D_OFF
-                      new (Z->next_ravel())   IntCell(dent.d_off);
-#endif
-
-#ifdef _DIRENT_HAVE_D_RECLEN
-                      new (Z->next_ravel())   IntCell(dent.d_reclen);
-#endif
-
-#ifdef _DIRENT_HAVE_D_TYPE
-                     new (Z->next_ravel())   IntCell(dent.d_type);
-#endif
                    }
 
                 Z->set_default_Spc();
