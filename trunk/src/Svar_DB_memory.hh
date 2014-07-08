@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "APL_types.hh"
+#include "config.h"   // for HAVE_ macros
 
 /// The coupling level of a shared variable
 enum SV_Coupling
@@ -344,6 +345,22 @@ struct Svar_DB_memory
 
    /// processors registered in this database
    Svar_partner_events active_processors[MAX_ACTIVE_PROCS];
+
+   /// return the name of the unix socket (that should be) used by
+   /// APserver (if the platform supports it) or 0 (if not).
+#define ABSTRACT_OFFSET 1
+   static const char * get_APserver_unix_socket_name()
+      {
+#ifdef HAVE_LINUX_UN_H
+        return "/tmp/GNU-APL/APserver";
+#else
+        return       0;
+#endif
+      }
+
+   /// return the name of the unix socket (that should be) used by
+   /// client of APserver (if the platform supports it) or 0 (if not).
+   static const char * get_APclient_unix_socket_name();
 };
 //-----------------------------------------------------------------------------
 

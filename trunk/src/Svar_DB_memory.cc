@@ -1018,3 +1018,15 @@ Svar_DB_memory::create_offer(const uint32_t * UCS_varname,
    return 0;   // table full
 }
 //-----------------------------------------------------------------------------
+const char *
+Svar_DB_memory::get_APclient_unix_socket_name()
+{
+#ifdef HAVE_LINUX_UN_H
+static char cc[100];
+   snprintf(cc, sizeof(cc), "/tmp/GNU-APL/APclient-%u", getpid());
+   return cc;
+#else
+   return 0;
+#endif
+}
+//-----------------------------------------------------------------------------

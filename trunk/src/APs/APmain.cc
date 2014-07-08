@@ -220,8 +220,17 @@ bool need_help = false;
 bool auto_started = false;
 
    prog = argv[0];
+char bin_path[FILENAME_MAX];
+   strncpy(bin_path, prog, sizeof(bin_path));
 
-   Svar_DB::init(prog, false, true);
+char * slash = strrchr(bin_path, '/');
+   if (slash)
+      {
+        prog = slash + 1;
+        *slash = 0;
+      }
+
+   Svar_DB::init(bin_path, prog, false, true);
 
    if (strrchr(prog, '/'))   prog = strrchr(prog, '/') + 1;
    snprintf(pref, sizeof(pref) - 1, "%s(%u) ", prog, getpid());
