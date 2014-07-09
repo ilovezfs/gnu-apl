@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -35,15 +36,21 @@
 #include <iomanip>
 #include <vector>
 
+#define __COMMON_HH_DEFINED__ // to avoid #error in APL_types.hh
+#define AP_NUM simple AP_NUM
+
+#include "APL_types.hh"
+#include "ProcessorID.hh"
+
 #include "SystemLimits.hh"
 #include "Svar_signals.hh"
 
-#define __COMMON_HH_DEFINED__ // to avoid #error in APL_types.hh
 #include "Svar_DB_memory.hh"
 
 #include <iostream>
 
 using namespace std;
+ostream & CERR = cerr;
 
 Svar_DB_memory db;
 int verbosity = 0;
@@ -54,6 +61,8 @@ struct AP3_fd
    TCP_socket fd;
 };
 
+AP_num3 ProcessorID::id;   // not used
+
 vector<AP3_fd> connected_procs;
 
 const char * prog = "????";
@@ -63,6 +72,27 @@ ostream & get_CERR() { return cerr; }
 
 bool hang_on = false;   // dont exit after last connection was closed
 
+static void print_db(ostream & out);
+
+//-----------------------------------------------------------------------------
+static struct sigaction old_control_C_action;
+static struct sigaction new_control_C_action;
+
+static void
+control_C(int)
+{
+   cerr << "\nAPserver terminated by SIGINT" << endl;
+   exit(0);
+}
+//-----------------------------------------------------------------------------
+static struct sigaction old_control_BSL_action;
+static struct sigaction new_control_BSL_action;
+
+static void
+control_BSL(int)
+{
+   print_db(cerr << "\r");
+}
 //-----------------------------------------------------------------------------
 static void
 close_fd(TCP_socket fd)
@@ -388,6 +418,15 @@ const char * listen_name = Svar_DB_memory::get_APserver_unix_socket_name();
 bool got_path = false;
 bool got_port = false;
 
+   memset(&new_control_C_action, 0, sizeof(struct sigaction));
+   memset(&new_control_BSL_action, 0, sizeof(struct sigaction));
+
+   new_control_C_action.sa_handler = &control_C;
+   new_control_BSL_action.sa_handler = &control_BSL;
+
+   sigaction(SIGINT, &new_control_C_action, &old_control_C_action);
+   sigaction(SIGQUIT, &new_control_BSL_action, &old_control_BSL_action);
+
    prog = argv[0];
    for (int a = 1; a < argc; )
        {
@@ -469,6 +508,8 @@ int max_fd = listen_sock;
         const int count = select(max_fd + 1, &read_fds, 0, 0, 0);
         if (count <= 0)
            {
+             if (errno == EINTR)   continue;
+
              cerr << prog << ": count <= 0 in select(): "
                   << strerror(errno) << endl;
              return 3;
@@ -509,6 +550,121 @@ int max_fd = listen_sock;
               if (FD_ISSET(fd, &read_fds))   connection_readable(fd);
             }
       }
+}
+//-----------------------------------------------------------------------------
+void print_db(ostream & out)
+{
+  // print active processors
+   //
+   out << "┌───────────┬─────┬─────┬──┐" << endl
+       << "│ Proc, par │ PID │ Port│Fl│" << endl
+       << "╞═══════════╪═════╪═════╪══╡" << endl;
+   for (int p = 0; p < MAX_ACTIVE_PROCS; ++p)
+       {
+         const Svar_partner_events & sp = db.active_processors[p];
+           if (sp.partner.id.proc)
+              {
+                out << "│";   sp.partner.print(CERR) << "│" << endl;
+              }
+       }
+   out << "╘═══════════╧═════╧═════╧══╛" << endl;
+
+   // print shared variables
+   out <<
+"╔═════╤═╦═══════════╤═════╤═════╤══╦═══════════╤═════╤═════╤══╦════╤══════════╗\n"
+"║     │ ║ Offering  │     │     │  ║ Accepting │     │     │  ║OAOA│          ║\n"
+"║ Seq │C║ Proc,par  │ PID │ Port│Fl║ Proc,par  │ PID │ Port│Fl║SSUU│ Varname  ║\n"
+"╠═════╪═╬═══════════╪═════╪═════╪══╬═══════════╪═════╪═════╪══╬════╪══════════╣\n";
+   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+       {
+         const offered_SVAR & svar = db.offered_vars[o];
+         if (svar.valid())   svar.print(out);
+       }
+
+   out <<
+"╚═════╧═╩═══════════╧═════╧═════╧══╩═══════════╧═════╧═════╧══╩════╧══════════╝\n"
+       << endl;
+
+}
+//-----------------------------------------------------------------------------
+ostream &
+Svar_partner::print(ostream & out) const
+{
+   out << setw(5) << id.proc;
+   if (id.parent)   out << "," << left << setw(5) << id.parent << right;
+   else             out << "      ";
+
+   out << "│" << setw(5) << pid
+       << "│" << setw(5) << port << "│"
+       << hex << uppercase << setfill('0') << setw(2) << flags
+       << dec << nouppercase << setfill(' ');
+
+   return out;
+}
+//-----------------------------------------------------------------------------
+void
+offered_SVAR::print(ostream & out) const
+{
+const Svar_state st = get_state();
+   out << "║" << setw(5) << (key & 0xFFFF) << "│" << get_coupling() << "║";
+   offering.print(out)  << "║";
+   accepting.print(out) << "║";
+   if (st & SET_BY_OFF)   out << "1";    else   out << "0";
+   if (st & SET_BY_ACC)   out << "1";    else   out << "0";
+   if (st & USE_BY_OFF)   out << "1";    else   out << "0";
+   if (st & USE_BY_ACC)   out << "1│";   else   out << "0│";
+   print_name(out, varname, 10) << "║" << endl;
+}
+//-----------------------------------------------------------------------------
+ostream &
+offered_SVAR::print_name(ostream & out, const uint32_t * name, int len)
+{
+   while (*name)
+       {
+         uint32_t uni = *name++;
+         if (uni < 0x80)
+           {
+             out << char(uni);
+           }
+        else if (uni < 0x800)
+           {
+             const uint8_t b1 = uni & 0x3F;   uni >>= 6;
+             out << char(uni | 0xC0)
+                 << char(b1  | 0x80);
+           }
+        else if (uni < 0x10000)
+           {
+             const uint8_t b2 = uni & 0x3F;   uni >>= 6;
+             const uint8_t b1 = uni & 0x3F;   uni >>= 6;
+             out << char(uni | 0xE0)
+                 << char(b1  | 0x80)
+                 << char(b2  | 0x80);
+           }
+        else if (uni < 0x110000)
+           {
+             const uint8_t b3 = uni & 0x3F;   uni >>= 6;
+             const uint8_t b2 = uni & 0x3F;   uni >>= 6;
+             const uint8_t b1 = uni & 0x3F;   uni >>= 6;
+             out << char(uni | 0xE0)
+                 << char(b1  | 0x80)
+                 << char(b2  | 0x80)
+                 << char(b3  | 0x80);
+          }
+
+        --len;
+       }
+
+   while (len-- > 0)   out << " ";
+
+   return out;
+}
+//-----------------------------------------------------------------------------
+Svar_state
+offered_SVAR::get_state() const
+{
+   if (this == 0)   return SVS_NOT_SHARED;
+
+   return state;
 }
 //-----------------------------------------------------------------------------
 

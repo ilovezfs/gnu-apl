@@ -132,6 +132,12 @@ public:
    int64_t get_int_val() const
       { Assert(get_ValueType() == TV_INT);   return value.int_val; }
 
+   /// return the error code value of this token
+   ErrorCode get_ErrorCode() const
+      { Assert1(get_tag() == TOK_ERROR);
+        Assert1(get_ValueType() == TV_INT);
+        return (ErrorCode)(value.int_val); }
+
    /// set the integer value of this token
    void set_int_val(int64_t val)
       { Assert(get_ValueType() == TV_INT);   value.int_val = val; }

@@ -55,6 +55,9 @@ public:
    /// return the name of this function, or ◊ or ⍎
    virtual const UCS_string & get_name() const = 0;
 
+   virtual bool cannot_suspend() const
+      { return false; }
+
    /// return the result symbol iff this is a user defined function or
    /// operator that returns a value
    virtual Symbol * get_sym_Z() const

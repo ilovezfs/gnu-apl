@@ -341,7 +341,25 @@ Executable * statements = 0;
                          goto check_EOC;
                        }
                   }
-            
+
+              // if suspend is not allowed then pop all SI entries that
+              // don't allow suspend
+              //
+              if (Workspace::SI_top()->get_executable()->cannot_suspend())
+                 {
+                    Error error = Workspace::SI_top()->get_error();
+                    while (Workspace::SI_top()->get_executable()
+                                              ->cannot_suspend())
+                       {
+                         Workspace::pop_SI(LOC);
+                       }
+
+                   if (Workspace::SI_top())
+                      {
+                        Workspace::SI_top()->get_error() = error;
+                      }
+                 }
+
               Workspace::get_error()->print(CERR);
               if (Workspace::SI_top()->get_level() == 0)
                  {

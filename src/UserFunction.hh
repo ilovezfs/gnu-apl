@@ -252,6 +252,10 @@ public:
    virtual const int * get_exec_properties() const
       { return exec_properties; } 
 
+   /// ovewrloaded Executable::cannot_suspend
+   virtual bool cannot_suspend() const
+      { return exec_properties[1] != 0; }
+
    /// set execution properties (as per A ⎕FX)
    void set_exec_properties(const int * props)
       { loop(i, 4)   exec_properties[i] = props[i]; }
