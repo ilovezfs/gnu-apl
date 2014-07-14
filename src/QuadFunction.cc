@@ -1461,7 +1461,7 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
         if (ufun)
            {
              // lrm p 282: When ⎕ES is executed from within a defined function
-             //  and B is not empty, the event action is generated as though
+             // and B is not empty, the event action is generated as though
              // the function were primitive.
              //
              error.error_message_2 = UCS_string(6, UNI_ASCII_SPACE);

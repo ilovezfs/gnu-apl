@@ -358,6 +358,8 @@ list_functions(ostream & out)
 "   Zs ← As FUN[27] Bs    rename file As to Bs\n"
 "   Zd ←    FUN[28] Bs    return content of directory Bs\n"
 "   Zn ←    FUN[29] Bs    return file names in directory Bs\n"
+"   Zs ←    FUN 30        getcwd()\n"
+"   Zn ← As FUN[31] Bs    access(As, Bs) As ∈ 'RWXF'\n"
 "\n";
 
    return Token(TOK_APL_VALUE1, Str0(LOC));
@@ -407,9 +409,30 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                Z->check_value(LOC);
                return Token(TOK_APL_VALUE1, Z);
              }
+
+        case 30:   // getcwd()
+             {
+               char buffer[PATH_MAX + 1];
+               char * success = getcwd(buffer, PATH_MAX);
+               if (!success)   goto out_errno;
+
+               buffer[PATH_MAX] = 0;
+               UCS_string cwd(buffer);
+
+               Value_P Z(new Value(cwd, LOC));
+               Z->set_default_Spc();
+               Z->check_value(LOC);
+               return Token(TOK_APL_VALUE1, Z);
+             }
+
+
+        default: break;
       }
 
    return list_functions(COUT);
+
+out_errno:
+   return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
@@ -444,6 +467,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                 return Token(TOK_APL_VALUE1, Z);
              }
              
+        default: break;
       }
 
    return list_functions(COUT);
@@ -788,6 +812,8 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
+
+        default: break;
       }
 
    CERR << "Bad eval_XB() function number: " << function_number << endl;
@@ -1003,6 +1029,32 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                return Token(TOK_APL_VALUE1, IntScalar(result, LOC));
               }
+
+         case 31:   // access
+              {
+                UTF8_string permissions(*A.get());
+                UTF8_string path(*B.get());
+                int perms = 0;
+                loop(a, permissions.size())
+                    {
+                      int p = permissions[a] & 0xFF;
+                      if      (p == 'R')   perms |= R_OK;
+                      else if (p == 'r')   perms |= R_OK;
+                      else if (p == 'W')   perms |= W_OK;
+                      else if (p == 'w')   perms |= W_OK;
+                      else if (p == 'X')   perms |= X_OK;
+                      else if (p == 'x')   perms |= X_OK;
+                      else if (p == 'F')   perms |= F_OK;
+                      else if (p == 'f')   perms |= F_OK;
+                      else DOMAIN_ERROR;
+                    }
+
+                 const int ok = access(path.c_str(), perms);
+                 if (ok) return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
+                 goto out_errno;
+              }
+
+        default: break;
       }
 
    CERR << "eval_AXB() function number: " << function_number << endl;
