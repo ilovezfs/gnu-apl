@@ -22,6 +22,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -34,6 +35,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <vector>
 
 #define __COMMON_HH_DEFINED__ // to avoid #error in APL_types.hh
@@ -45,25 +47,47 @@
 #include "SystemLimits.hh"
 #include "Svar_signals.hh"
 
-#include "Svar_DB_memory.hh"
+#include "Svar_DB_server.hh"
 
 #include <iostream>
 
 using namespace std;
-ostream & CERR = cerr;
 
-Svar_DB_memory db;
+Svar_DB_server db;
 int verbosity = 0;
 
+#define Log(x) if (verbosity > 0)
+bool LOG_shared_variables = false;
+
+AP_num3 ProcessorID::id;
+
+//-----------------------------------------------------------------------------
+/// one connected processors
 struct AP3_fd
 {
-   AP_num3 ap3;
+   AP_num3    ap3;
    TCP_socket fd;
+   string     progname;
+};
+/// a database containing all connected processors
+vector<AP3_fd> connected_procs;
+//-----------------------------------------------------------------------------
+struct key_value
+{
+   key_value(SV_key k)
+   : key(k)
+   {}
+
+   /// the key for the variable
+  SV_key key;
+
+   /// the value of the variable
+  string var_value;
 };
 
-AP_num3 ProcessorID::id;   // not used
-
-vector<AP3_fd> connected_procs;
+/// the current value of all shared variables
+vector<key_value> var_values;
+//-----------------------------------------------------------------------------
 
 const char * prog = "????";
 
@@ -74,6 +98,11 @@ bool hang_on = false;   // dont exit after last connection was closed
 
 static void print_db(ostream & out);
 
+//-----------------------------------------------------------------------------
+const char * prog_name()
+{
+   return "APserver";
+}
 //-----------------------------------------------------------------------------
 static struct sigaction old_control_C_action;
 static struct sigaction new_control_C_action;
@@ -97,17 +126,48 @@ control_BSL(int)
 static void
 close_fd(TCP_socket fd)
 {
+   // the AP on fd has closed its TCP connection which means it has died
+   // clean up the databases.
+   //
+AP_num3 removed_AP;
+bool found_fd = false;
+
    for (int j = 0; j < connected_procs.size(); ++j)
        {
          const TCP_socket fd_j = connected_procs[j].fd;
          if (fd == fd_j)
             {
+              found_fd = true;
+              removed_AP = connected_procs[j].ap3;
               connected_procs.erase(connected_procs.begin() + j);
+              (verbosity > 0) && cerr << "erased fd " << fd << " (Id "
+                                      << removed_AP.proc << ":"
+                                      << removed_AP.parent << ":"
+                                      << removed_AP.grand
+                                      << ") from connected_procs" << endl;
               break;
             }
        }
 
    ::close(fd);
+
+   if (!found_fd)   // should not happen
+      {
+         cerr << "*** internal error in APserver: (dis-)connected fd not found"
+              << endl;
+         return;
+      }
+
+   // retract offers
+   //
+   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+       {
+         Svar_record & svar = db.offered_vars[o];
+
+         if (svar.accepting.id == removed_AP)      svar.remove_accepting();
+         if (svar.offering.id == removed_AP)       svar.remove_offering();
+         if (svar.get_coupling() == NO_COUPLING)   svar.clear();
+       }
 
    // maybe exit if the last connection was removed
    //
@@ -130,9 +190,7 @@ new_connection(TCP_socket fd)
    (verbosity > 0) && cerr << prog << ": new connection: fd " << fd << endl;
 
 AP3_fd ap3_fd;
-   ap3_fd.ap3.proc   = NO_AP;
-   ap3_fd.ap3.parent = AP_NULL;
-   ap3_fd.ap3.grand  = AP_NULL;
+   ap3_fd.ap3.proc   = AP_NULL;
    ap3_fd.fd         = fd;
 
    connected_procs.push_back(ap3_fd);
@@ -141,48 +199,29 @@ AP3_fd ap3_fd;
 static void
 do_signal(TCP_socket fd, Signal_base * request)
 {
-usleep(50000);
+   // set ProcessorID::id to the ID of the other end of fd, so that we
+   // impersonate that processor
+   //
+AP3_fd * ap_fd = 0;
+   for (int j = 0; j < connected_procs.size(); ++j)
+       {
+         if (connected_procs[j].fd == fd)
+            {
+              ap_fd = &connected_procs[j];
+              break;
+            }
+       }
+
+   if (ap_fd)   ProcessorID::set_id(ap_fd->ap3);
+   else         ProcessorID::clear_id();
 
    switch(request->get_sigID())
       {
-        case sid_READ_SVAR_DB:
-             {
-               (verbosity > 0) && cerr << "[" << fd << "] read all - ";
-
-               string data((const char *)&db, sizeof(db));
-               { SVAR_DB_IS_c response(fd, data); }
-             }
-             return;
-
-        case sid_UPDATE_SVAR_DB:
-             {
-               (verbosity > 0) && cerr << "[" << fd << "] update all - ";
-               string data((const char *)&db, sizeof(db));
-               { SVAR_DB_IS_c response(fd, data); }
-
-               char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_DB_memory)];
-               char * del = 0;
-               ostream * debug = verbosity ? &cerr : 0;
-               Signal_base * update = Signal_base::recv_TCP(fd, buffer,
-                                                    sizeof(buffer), del, debug);
-               if (update)   memcpy(&db, update->get__SVAR_DB_IS__db().data(),
-                                    sizeof(Svar_DB_memory));
-               else   cerr << "recv_TCP() failed at line " << __LINE__ << endl;
-
-               if (del)   delete del;
-             }
-             return;
-
         case sid_READ_SVAR_RECORD:
              {
-               (verbosity > 0) && cerr << "[" << fd << "] read record - ";
-               SV_key key = request->get__READ_SVAR_RECORD__key();
+               const SV_key key = request->get__READ_SVAR_RECORD__key();
 
-               (verbosity > 0) && cerr << "key " << hex << uppercase
-                                  << setfill('0') <<  key << setfill(' ')
-                                  << dec << nouppercase << " - ";
-
-               offered_SVAR * svar = 0;
+               Svar_record * svar = 0;
                if (key)
                   {
                     for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
@@ -198,31 +237,23 @@ usleep(50000);
 
                if (svar)
                   {
-                    string data((const char *)svar, sizeof(offered_SVAR));
+                    string data((const char *)svar, sizeof(Svar_record));
                     { SVAR_RECORD_IS_c(fd, data); }
                   }
                else
                   {
-                    char dummy[sizeof(offered_SVAR)];
-                    memset(&dummy, 0, sizeof(offered_SVAR));
-                    string data((const char *)&dummy, sizeof(offered_SVAR));
+                    char dummy[sizeof(Svar_record)];
+                    memset(&dummy, 0, sizeof(Svar_record));
+                    string data((const char *)&dummy, sizeof(Svar_record));
                     { SVAR_RECORD_IS_c(fd, data); }
                   }
-
-               (verbosity > 0) && cerr << "record sent - done." << endl;
              }
              return;
 
         case sid_UPDATE_SVAR_RECORD:
              {
-               (verbosity > 0) && cerr << "[" << fd << "] update record - ";
-               SV_key key = request->get__UPDATE_SVAR_RECORD__key();
-
-               (verbosity > 0) && cerr << "key " << hex << uppercase
-                                  << setfill('0') <<  key << setfill(' ')
-                                  << dec << nouppercase << " - ";
-
-               offered_SVAR * svar = 0;
+               const SV_key key = request->get__UPDATE_SVAR_RECORD__key();
+               Svar_record * svar = 0;
                if (key)
                   {
                     for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
@@ -237,11 +268,10 @@ usleep(50000);
 
                if (svar)
                   {
-                    string data((const char *)svar, sizeof(offered_SVAR));
+                    string data((const char *)svar, sizeof(Svar_record));
                     { SVAR_RECORD_IS_c(fd, data); }
-                    (verbosity > 0) && cerr << " record sent - ";
 
-                    char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(offered_SVAR)];
+                    char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_record)];
                     char * del = 0;
                     ostream * debug = verbosity ? &cerr : 0;
                     Signal_base * update = Signal_base::recv_TCP(fd, buffer,
@@ -250,43 +280,28 @@ usleep(50000);
                        {
                          memcpy(svar,
                                 update->get__SVAR_RECORD_IS__record().data(),
-                                         sizeof(offered_SVAR));
-                         (verbosity > 0) && cerr <<
-                                   "  update record received - done " << endl;
+                                         sizeof(Svar_record));
                        }
                     else   cerr << "recv_TCP() failed at line " << __LINE__
                                 << endl;
 
-               if (del)   delete del;
+                    if (del)   delete del;
                   }
                else
                   {
-                    char dummy[sizeof(offered_SVAR)];
-                    memset(&dummy, 0, sizeof(offered_SVAR));
-                    string data((const char *)&dummy, sizeof(offered_SVAR));
+cerr << "*** no svar ***" << endl;
+                    char dummy[sizeof(Svar_record)];
+                    memset(&dummy, 0, sizeof(Svar_record));
+                    string data((const char *)&dummy, sizeof(Svar_record));
                     { SVAR_RECORD_IS_c(fd, data); }
-                    (verbosity > 0) && cerr << "dummy record sent - done "
-                                            << endl;
                   }
              }
              return;
 
-        case sid_MY_PID_IS:
+        case sid_REGISTER_PROCESSOR:
              {
-               (verbosity > 0) && cerr << "[" << fd << "] identify - ";
-
                // find connected_procs entry for fd...
                //
-               AP3_fd * ap_fd = 0;
-               for (int j = 0; j < connected_procs.size(); ++j)
-                   {
-                     if (connected_procs[j].fd == fd)
-                        {
-                          ap_fd = &connected_procs[j];
-                          break;
-                        }
-                   }
-
                if (ap_fd == 0)   // not found
                   {
                     cerr << prog << ": could not find fd " << fd
@@ -294,13 +309,232 @@ usleep(50000);
                     close_fd(fd);
                     return;
                   }
-               ap_fd->ap3.proc   = (AP_num)(request->get__MY_PID_IS__pid());
-               ap_fd->ap3.parent = (AP_num)(request->get__MY_PID_IS__parent());
-               ap_fd->ap3.grand  = (AP_num)(request->get__MY_PID_IS__grand());
 
-               (verbosity > 0) && cerr << "done. Id is "
-                                  << ap_fd->ap3.proc << ":" << ap_fd->ap3.parent
-                    << ":" << ap_fd->ap3.grand << endl;
+               const int proc   = request->get__REGISTER_PROCESSOR__proc();
+               const int parent = request->get__REGISTER_PROCESSOR__parent();
+               const int grand  = request->get__REGISTER_PROCESSOR__grand();
+               const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
+               ap_fd->ap3 = ap3;
+               ap_fd->progname = request->get__REGISTER_PROCESSOR__progname();
+               Svar_partner partner;
+               partner.clear();
+               partner.id = ap3;
+               partner.pid  = request->get__REGISTER_PROCESSOR__pid();
+               partner.port = request->get__REGISTER_PROCESSOR__port();
+               db.register_processor(partner);
+             }
+             return;
+
+        case sid_UNREGISTER_PROCESSOR:
+             {
+               const int proc   = request->get__UNREGISTER_PROCESSOR__proc();
+               const int parent = request->get__UNREGISTER_PROCESSOR__parent();
+               const int grand  = request->get__UNREGISTER_PROCESSOR__grand();
+               const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
+               db.unregister_processor(ap3);
+             }
+             return;
+
+        case sid_MATCH_OR_MAKE:
+             {
+               uint32_t varname[MAX_SVAR_NAMELEN];
+               memcpy(varname,
+                      request->get__MATCH_OR_MAKE__varname().data(),
+                      sizeof(varname));
+               const int to_proc   = request->get__MATCH_OR_MAKE__to_proc();
+               const int to_parent = request->get__MATCH_OR_MAKE__to_parent();
+               const int to_grand  = request->get__MATCH_OR_MAKE__to_grand();
+               const int fr_proc   = request->get__MATCH_OR_MAKE__from_proc();
+               const int fr_parent = request->get__MATCH_OR_MAKE__from_parent();
+               const int fr_grand  = request->get__MATCH_OR_MAKE__from_grand();
+               const int from_pid  = request->get__MATCH_OR_MAKE__from_pid();
+               const int from_port = request->get__MATCH_OR_MAKE__from_port();
+               const int from_flags= request->get__MATCH_OR_MAKE__from_flags();
+
+               SV_Coupling coupling = NO_COUPLING;
+
+               const AP_num3 to((AP_num)to_proc,
+                                (AP_num)to_parent,
+                                (AP_num)to_grand);
+
+               const AP_num3 fr((AP_num)fr_proc,
+                                (AP_num)fr_parent,
+                                (AP_num)fr_grand);
+
+               Svar_partner from;
+               from.id = fr;
+               from.pid = from_pid;
+               from.port = from_port;
+               from.flags = from_flags;
+               SV_key key = db.match_or_make(varname, to, from, coupling);
+               MATCH_OR_MAKE_RESULT_c(fd, key, coupling);
+             }
+             return;
+
+        case sid_GET_EVENTS:
+             {
+               Svar_event events = SVE_NO_EVENTS;
+               const int proc   = request->get__GET_EVENTS__proc();
+               const int parent = request->get__GET_EVENTS__parent();
+               const int grand  = request->get__GET_EVENTS__grand();
+               const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
+               const SV_key key = db.get_events(events, ap3);
+               EVENTS_ARE_c(fd, key, events);
+             }
+             return;
+
+        case sid_CLEAR_ALL_EVENTS:
+             {
+               const int proc   = request->get__CLEAR_ALL_EVENTS__proc();
+               const int parent = request->get__CLEAR_ALL_EVENTS__parent();
+               const int grand  = request->get__CLEAR_ALL_EVENTS__grand();
+               const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
+               const Svar_event events = db.clear_all_events(ap3);
+               EVENTS_ARE_c(fd, 0, events);
+             }
+             return;
+
+        case sid_ADD_EVENT:
+             {
+               const SV_key key = request->get__ADD_EVENT__key();
+               const int proc   = request->get__ADD_EVENT__proc();
+               const int parent = request->get__ADD_EVENT__parent();
+               const int grand  = request->get__ADD_EVENT__grand();
+               const int event  = request->get__ADD_EVENT__event();
+               const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
+              db.add_event(key, ap3, (Svar_event)event);
+             }
+             return;
+
+        case sid_GET_UDP_PORT:
+             {
+               const int proc     = request->get__GET_UDP_PORT__proc();
+               const int parent   = request->get__GET_UDP_PORT__parent();
+               const uint16_t port = db.get_udp_port((AP_num)proc,
+                                                     (AP_num)parent);
+               UDP_PORT_IS_c(fd, port);
+             }
+             return;
+
+        case sid_IS_REGISTERED_ID:
+             {
+               const int proc   = request->get__IS_REGISTERED_ID__proc();
+               const int parent = request->get__IS_REGISTERED_ID__parent();
+               const int grand  = request->get__IS_REGISTERED_ID__grand();
+               const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
+               int is_registered = 0;
+               for (int p = 0; p < connected_procs.size(); ++p)
+                   {
+                     const AP3_fd & pro = connected_procs[p];
+                     if (pro.ap3 == ap3)
+                        {
+                          is_registered = 1;
+                          break;
+                        }
+                   }
+               YES_NO_c(fd, is_registered);
+             }
+             return;
+
+        case sid_FIND_OFFERING_ID:
+             {
+               const SV_key key = request->get__FIND_OFFERING_ID__key();
+               const AP_num3 offering_id = db.find_offering_id(key);
+               OFFERING_ID_IS_c(fd, offering_id.proc,
+                                    offering_id.parent,
+                                    offering_id.grand);
+             }
+             return;
+
+        case sid_GET_OFFERING_PROCS:
+             {
+               const AP_num to_proc = (AP_num)
+                            request->get__GET_OFFERING_PROCS__offered_to_proc();
+               vector<AP_num> processors;
+               db.get_offering_processors(to_proc, processors);
+               string sprocs((const char *)processors.data(),
+                             processors.size()*sizeof(AP_num));
+               OFFERING_PROCS_ARE_c(fd, sprocs);
+             }
+             return;
+
+
+        case sid_GET_OFFERED_VARS:
+             {
+               const AP_num to_proc = (AP_num)
+                            request->get__GET_OFFERED_VARS__offered_to_proc();
+               const AP_num from_proc = (AP_num)
+                            request->get__GET_OFFERED_VARS__accepted_by_proc();
+               vector<uint32_t> varnames;
+               db.get_offered_variables(to_proc, from_proc, varnames);
+               string svars((const char *)varnames.data(),
+                            varnames.size()*sizeof(uint32_t));
+               OFFERING_PROCS_ARE_c(fd, svars);
+             }
+             return;
+
+        case sid_FIND_PAIRING_KEY:
+             {
+               const SV_key key = request->get__FIND_PAIRING_KEY__key();
+               const SV_key pairing_key = db.find_pairing_key(key);
+               PAIRING_KEY_IS_c(fd, pairing_key);
+             }
+             return;
+
+        case sid_PRINT_SVAR_DB:
+             {
+               ostringstream out;
+               print_db(out);
+               SVAR_DB_PRINTED_c(fd, out.str());
+             }
+             return;
+
+        case sid_ASSIGN_WSWS_VAR:
+             {
+               const SV_key key = request->get__ASSIGN_WSWS_VAR__key();
+               bool existing = false;
+               for (int vv = 0; vv < var_values.size(); ++vv)
+                   {
+                     if (var_values[vv].key == key)
+                        {
+                          existing = true;
+                          var_values[vv].var_value =
+                                    request->get__ASSIGN_WSWS_VAR__cdr_value();
+                          break;
+                        }
+                   }
+
+               if (!existing)   // new variable
+                  {
+                    // in order to avoid unnecessary copying of the new_value
+                    // we first append key with an empty string and then
+                    // update its var_value
+                    //
+                    const key_value kv(key);
+                    var_values.push_back(kv);
+                    var_values[var_values.size() - 1].var_value =
+                                    request->get__ASSIGN_WSWS_VAR__cdr_value();
+                  }
+
+             }
+             return;
+
+        case sid_READ_WSWS_VAR:
+             {
+               const SV_key key = request->get__READ_WSWS_VAR__key();
+
+               bool existing = false;
+               for (int vv = 0; vv < var_values.size(); ++vv)
+                   {
+                     if (var_values[vv].key == key)
+                        {
+                          existing = true;
+                          WSWS_VALUE_IS_c(fd, var_values[vv].var_value);
+                          return;
+                        }
+                   }
+               string empty;
+               WSWS_VALUE_IS_c(fd, empty);
              }
              return;
 
@@ -320,8 +554,8 @@ Signal_base * request = Signal_base::recv_TCP(fd, buffer, sizeof(buffer),
                                               del, debug);
    if (request == 0)
       {
-         (verbosity > 0) && cerr << prog << "connection[" << fd
-              << "] closed (recv_TCP() returned 0" << endl;
+         (verbosity > 0) && cerr << prog << ": connection[" << fd
+                                 << "] closed by peer" << endl;
          close_fd(fd);
          return;
       }
@@ -414,7 +648,7 @@ int
 main(int argc, char * argv[])
 {
 int listen_port = Default_APserver_tcp_port;
-const char * listen_name = Svar_DB_memory::get_APserver_unix_socket_name();
+const char * listen_name = Svar_record::get_APserver_unix_socket_name();
 bool got_path = false;
 bool got_port = false;
 
@@ -462,6 +696,7 @@ bool got_port = false;
          else if (!strcmp(opt, "-v"))
             {
               ++verbosity;
+              LOG_shared_variables = true;
             }
          else
             {
@@ -477,9 +712,9 @@ bool got_port = false;
       }
 
    if (verbosity > 0)
-      cerr << "sizeof(Svar_DB_memory) is " << sizeof(Svar_DB_memory) << endl
-           << "sizeof(offered_SVAR) is " << sizeof(offered_SVAR) << endl
-           << "sizeof(Svar_partner_events) is " << sizeof(Svar_partner_events)
+      cerr << "sizeof(Svar_DB_server) is " << sizeof(Svar_DB_server) << endl
+           << "sizeof(Svar_record) is    " << sizeof(Svar_record) << endl
+           << "sizeof(Svar_partner) is   " << sizeof(Svar_partner)
            << endl;
 
 const int listen_sock = got_path ? open_UNIX_socket(listen_name)
@@ -556,18 +791,34 @@ void print_db(ostream & out)
 {
   // print active processors
    //
-   out << "┌───────────┬─────┬─────┬──┐" << endl
-       << "│ Proc, par │ PID │ Port│Fl│" << endl
-       << "╞═══════════╪═════╪═════╪══╡" << endl;
-   for (int p = 0; p < MAX_ACTIVE_PROCS; ++p)
+   out << "┌──────────────────────┬──────┬──────────────────────┐" << endl
+       << "│ Proceccsor           │   fd │ Program              │" << endl
+       << "╞══════════════════════╪══════╪══════════════════════╡" << endl;
+   for (int p = 0; p < connected_procs.size(); ++p)
        {
-         const Svar_partner_events & sp = db.active_processors[p];
-           if (sp.partner.id.proc)
+         const AP3_fd & pro = connected_procs[p];
+         char cc[200];
+         if (pro.ap3.grand)
               {
-                out << "│";   sp.partner.print(CERR) << "│" << endl;
+                snprintf(cc, sizeof(cc), "%u.%u.%u",
+                         pro.ap3.proc, pro.ap3.parent, pro.ap3.grand);
               }
+         else if (pro.ap3.parent)
+              {
+                snprintf(cc, sizeof(cc), "%u.%u", pro.ap3.proc, pro.ap3.parent);
+              }
+         else
+              {
+                snprintf(cc, sizeof(cc), "%u", pro.ap3.proc);
+              }
+         cc[sizeof(cc) - 1] = 0;
+               
+         out << "│ "  << left  << setw(20) << cc
+             << " │ " << right << setw(4) << pro.fd
+             << " │ " << left  << setw(20) << pro.progname
+             << " │"  << right << endl;
        }
-   out << "╘═══════════╧═════╧═════╧══╛" << endl;
+   out << "╘══════════════════════╧══════╧══════════════════════╛" << endl;
 
    // print shared variables
    out <<
@@ -577,7 +828,7 @@ void print_db(ostream & out)
 "╠═════╪═╬═══════════╪═════╪═════╪══╬═══════════╪═════╪═════╪══╬════╪══════════╣\n";
    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
        {
-         const offered_SVAR & svar = db.offered_vars[o];
+         const Svar_record & svar = db.offered_vars[o];
          if (svar.valid())   svar.print(out);
        }
 
@@ -587,84 +838,40 @@ void print_db(ostream & out)
 
 }
 //-----------------------------------------------------------------------------
-ostream &
-Svar_partner::print(ostream & out) const
+ostream & operator << (ostream & out, const AP_num3 & ap3)
 {
-   out << setw(5) << id.proc;
-   if (id.parent)   out << "," << left << setw(5) << id.parent << right;
-   else             out << "      ";
-
-   out << "│" << setw(5) << pid
-       << "│" << setw(5) << port << "│"
-       << hex << uppercase << setfill('0') << setw(2) << flags
-       << dec << nouppercase << setfill(' ');
-
-   return out;
-}
-//-----------------------------------------------------------------------------
-void
-offered_SVAR::print(ostream & out) const
-{
-const Svar_state st = get_state();
-   out << "║" << setw(5) << (key & 0xFFFF) << "│" << get_coupling() << "║";
-   offering.print(out)  << "║";
-   accepting.print(out) << "║";
-   if (st & SET_BY_OFF)   out << "1";    else   out << "0";
-   if (st & SET_BY_ACC)   out << "1";    else   out << "0";
-   if (st & USE_BY_OFF)   out << "1";    else   out << "0";
-   if (st & USE_BY_ACC)   out << "1│";   else   out << "0│";
-   print_name(out, varname, 10) << "║" << endl;
+   return out << ap3.proc << "." << ap3.parent << "." << ap3.grand;
 }
 //-----------------------------------------------------------------------------
 ostream &
-offered_SVAR::print_name(ostream & out, const uint32_t * name, int len)
+operator << (ostream & os, Unicode uni)
 {
-   while (*name)
-       {
-         uint32_t uni = *name++;
-         if (uni < 0x80)
-           {
-             out << char(uni);
-           }
-        else if (uni < 0x800)
-           {
-             const uint8_t b1 = uni & 0x3F;   uni >>= 6;
-             out << char(uni | 0xC0)
-                 << char(b1  | 0x80);
-           }
-        else if (uni < 0x10000)
-           {
-             const uint8_t b2 = uni & 0x3F;   uni >>= 6;
-             const uint8_t b1 = uni & 0x3F;   uni >>= 6;
-             out << char(uni | 0xE0)
-                 << char(b1  | 0x80)
-                 << char(b2  | 0x80);
-           }
-        else if (uni < 0x110000)
-           {
-             const uint8_t b3 = uni & 0x3F;   uni >>= 6;
-             const uint8_t b2 = uni & 0x3F;   uni >>= 6;
-             const uint8_t b1 = uni & 0x3F;   uni >>= 6;
-             out << char(uni | 0xE0)
-                 << char(b1  | 0x80)
-                 << char(b2  | 0x80)
-                 << char(b3  | 0x80);
-          }
+   if (uni < 0x80)      return os << (char)uni;
 
-        --len;
-       }
+   if (uni < 0x800)     return os << (char)(0xC0 | (uni >> 6))
+                                  << (char)(0x80 | (uni & 0x3F));
 
-   while (len-- > 0)   out << " ";
+   if (uni < 0x10000)    return os << (char)(0xE0 | (uni >> 12))
+                                   << (char)(0x80 | (uni >>  6 & 0x3F))
+                                   << (char)(0x80 | (uni       & 0x3F));
 
-   return out;
-}
-//-----------------------------------------------------------------------------
-Svar_state
-offered_SVAR::get_state() const
-{
-   if (this == 0)   return SVS_NOT_SHARED;
+   if (uni < 0x200000)   return os << (char)(0xF0 | (uni >> 18))
+                                   << (char)(0x80 | (uni >> 12 & 0x3F))
+                                   << (char)(0x80 | (uni >>  6 & 0x3F))
+                                   << (char)(0x80 | (uni       & 0x3F));
 
-   return state;
+   if (uni < 0x4000000)  return os << (char)(0xF8 | (uni >> 24))
+                                   << (char)(0x80 | (uni >> 18 & 0x3F))
+                                   << (char)(0x80 | (uni >> 12 & 0x3F))
+                                   << (char)(0x80 | (uni >>  6 & 0x3F))
+                                   << (char)(0x80 | (uni       & 0x3F));
+
+   return os << (char)(0xFC | (uni >> 30))
+             << (char)(0x80 | (uni >> 24 & 0x3F))
+             << (char)(0x80 | (uni >> 18 & 0x3F))
+             << (char)(0x80 | (uni >> 12 & 0x3F))
+             << (char)(0x80 | (uni >>  6 & 0x3F))
+             << (char)(0x80 | (uni       & 0x3F));
 }
 //-----------------------------------------------------------------------------
 

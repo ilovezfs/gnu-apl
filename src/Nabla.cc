@@ -108,7 +108,7 @@ int control_D_count = 0;
             }
 
          const UTF8_string utf(line);
-         const UCS_string ucs(utf);
+         UCS_string ucs(utf);
          if (const char * loc = parse_oper(ucs, false))
             {
               UERR << "??? " << loc << endl;
@@ -302,13 +302,32 @@ UserFunction_header hdr(fun_header);
 }
 //-----------------------------------------------------------------------------
 const char *
-Nabla::parse_oper(const UCS_string & oper, bool initial)
+Nabla::parse_oper(UCS_string & oper, bool initial)
 {
    Log(LOG_nabla)
       UERR << "parsing oper '" << oper << "'" << endl;
 
+   // skip trailing spaces
+   //
+   while (oper.size() > 0 && oper.last() < ' ')   oper.pop();
+   if (oper.size() > 0 && oper.last() == UNI_NABLA)
+      {
+        do_close = true;
+        oper.pop();
+        while (oper.size() > 0 && oper.last() < ' ')   oper.pop();
+      }
+   else if (oper.size() > 0 && oper.last() == UNI_DEL_TILDE)
+      {
+        do_close = true;
+        locked = true;
+        oper.pop();
+        while (oper.size() > 0 && oper.last() < ' ')   oper.pop();
+      }
+
    current_text.clear();
    ecmd = ECMD_NOP;
+
+   if (oper.size() == 0 && do_close)   return 0;
 
 UCS_string::iterator c(oper.begin());
 Unicode cc = c.next();
@@ -321,19 +340,6 @@ Unicode cc = c.next();
    // [→]                                           (escape)
    // [n]                                           (goto)
    // text                                          (override text)
-
-   if (cc == UNI_NABLA)       // initial ∇
-      {
-        do_close = true;
-        return 0;
-      }
-
-   if (cc == UNI_DEL_TILDE)   // initial ⍫
-      {
-        locked = true;
-        do_close = true;
-        return 0;
-      }
 
    if (cc != UNI_ASCII_L_BRACK)
       {

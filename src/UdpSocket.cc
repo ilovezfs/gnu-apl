@@ -59,6 +59,8 @@
 
 using namespace std;
 
+extern const char * prog_name();
+
 //----------------------------------------------------------------------------
 UdpSocket::UdpSocket(bool _is_server, const char * _loc)
   : loc(_loc),
@@ -129,7 +131,8 @@ sockaddr_in remote;
             {
               if (errno == EINTR)   continue;   // signal received
 
-              cerr << "UdpSocket::sendto() failed: " << strerror(errno) << endl
+              cerr << "*** " << prog_name() << ": UdpSocket::sendto() failed: "
+                   << strerror(errno) << endl
                    << "socket was created at: " << loc << endl
                    << "local address:  ";
               print_addr(cerr,  local_ip, local_port);

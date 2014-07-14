@@ -36,6 +36,11 @@
 using namespace std;
 
 //-----------------------------------------------------------------------------
+const char * prog_name()
+{
+   return "AP100";
+}
+//-----------------------------------------------------------------------------
 struct SVAR_context
 {
    SVAR_context()
@@ -74,7 +79,7 @@ const char * cmd = 0;
 const CDR_string & cdr = *var.data;
    if (cdr.size() < 20)   // less than min. size of CDR header
       {
-        CERR << "CDR record too short (" << cdr.size()
+        get_CERR() << "CDR record too short (" << cdr.size()
              << " bytes)" << endl;
         set_ACK(var, 444);
         return;
@@ -83,14 +88,14 @@ const CDR_string & cdr = *var.data;
 
    if (cdr[13] != 1)   // not a vector
       {
-        CERR << "Bad CDR rank (" << int(cdr[13]) << endl;
+        get_CERR() << "Bad CDR rank (" << int(cdr[13]) << endl;
         set_ACK(var, 445);
         return;
       }
 
          if (cdr[12] != 4)   // not a char vector
             {
-              CERR << "Bad CDR record type (" << int(cdr[12]) << endl;
+              get_CERR() << "Bad CDR record type (" << int(cdr[12]) << endl;
               set_ACK(var, 446);
               return;
             }
@@ -98,12 +103,12 @@ const CDR_string & cdr = *var.data;
          cmd = string((const char *)cdr.get_items() + 20,
                       cdr.size() - 20).c_str();
 
-         if (verbose)   CERR << pref << " got command " << cmd << endl;
+         if (verbose)   get_CERR() << pref << " got command " << cmd << endl;
 
          fp = popen(cmd, "r");
          if (fp == 0)   // bad command
             {
-              CERR << pref << " popen() failed" << endl;
+              get_CERR() << pref << " popen() failed" << endl;
               set_ACK(var, 1);  // 1 := INVALID COMMAND
               return;
             }
@@ -112,12 +117,12 @@ const CDR_string & cdr = *var.data;
              {
                const int cc = fgetc(fp);
                if (cc == EOF)   break;
-               CERR << char(cc);
+               get_CERR() << char(cc);
              }
 
-         CERR << flush;
+         get_CERR() << flush;
          const int result = pclose(fp);
-         if (verbose)   CERR << pref << " finished command with exit code "
+         if (verbose)   get_CERR() << pref << " finished command with exit code "
                              << result << endl;
 
          set_ACK(var, WEXITSTATUS(result));

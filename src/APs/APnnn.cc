@@ -48,6 +48,11 @@ struct SVAR_context
    Coupled_var & var_shared;
 };
 //-----------------------------------------------------------------------------
+const char * prog_name()
+{
+   return "APnnn";
+}
+//-----------------------------------------------------------------------------
 bool
 is_valid_varname(const uint32_t * varname)
 {
@@ -69,7 +74,7 @@ make_counter_offer(SV_key key)
    // APnnn makes no counter offers.
    // Instead it creates an offer mismatch event
    //
-   got_event(SVE_OFFER_MISMATCH, key);
+   Svar_DB::add_event(key, ProcessorID::get_id(), SVE_OFFER_MISMATCH);
 
    return false;   // no counter offer
 }

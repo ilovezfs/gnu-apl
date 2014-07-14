@@ -23,7 +23,7 @@
 #include "../../config.h"
 #include "../Svar_DB.hh"
 
-extern ostream CERR;
+extern ostream & get_CERR();
 
 using namespace std;
 

@@ -72,34 +72,36 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = AP100-APmain.$(OBJEXT) AP100-UdpSocket.$(OBJEXT) \
-	AP100-Svar_DB.$(OBJEXT) AP100-Svar_DB_memory.$(OBJEXT) \
-	AP100-Backtrace.$(OBJEXT)
+am__objects_1 = AP100-APmain.$(OBJEXT) AP100-Backtrace.$(OBJEXT) \
+	AP100-Svar_DB.$(OBJEXT) AP100-Svar_record.$(OBJEXT) \
+	AP100-UdpSocket.$(OBJEXT)
 am_AP100_OBJECTS = AP100-AP100.$(OBJEXT) $(am__objects_1)
 AP100_OBJECTS = $(am_AP100_OBJECTS)
 AP100_LDADD = $(LDADD)
 AP100_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AP100_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am__objects_2 = AP210-APmain.$(OBJEXT) AP210-UdpSocket.$(OBJEXT) \
-	AP210-Svar_DB.$(OBJEXT) AP210-Svar_DB_memory.$(OBJEXT) \
-	AP210-Backtrace.$(OBJEXT)
+am__objects_2 = AP210-APmain.$(OBJEXT) AP210-Backtrace.$(OBJEXT) \
+	AP210-Svar_DB.$(OBJEXT) AP210-Svar_record.$(OBJEXT) \
+	AP210-UdpSocket.$(OBJEXT)
 am_AP210_OBJECTS = AP210-AP210.$(OBJEXT) $(am__objects_2)
 AP210_OBJECTS = $(am_AP210_OBJECTS)
 AP210_LDADD = $(LDADD)
 AP210_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AP210_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am__objects_3 = APnnn-APmain.$(OBJEXT) APnnn-UdpSocket.$(OBJEXT) \
-	APnnn-Svar_DB.$(OBJEXT) APnnn-Svar_DB_memory.$(OBJEXT) \
-	APnnn-Backtrace.$(OBJEXT)
+am__objects_3 = APnnn-APmain.$(OBJEXT) APnnn-Backtrace.$(OBJEXT) \
+	APnnn-Svar_DB.$(OBJEXT) APnnn-Svar_record.$(OBJEXT) \
+	APnnn-UdpSocket.$(OBJEXT)
 am_APnnn_OBJECTS = APnnn-APnnn.$(OBJEXT) $(am__objects_3)
 APnnn_OBJECTS = $(am_APnnn_OBJECTS)
 APnnn_LDADD = $(LDADD)
 APnnn_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(APnnn_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_APserver_OBJECTS = APserver-APserver.$(OBJEXT)
+am_APserver_OBJECTS = APserver-APserver.$(OBJEXT) \
+	APserver-Svar_DB_server.$(OBJEXT) \
+	APserver-Svar_record.$(OBJEXT) APserver-UdpSocket.$(OBJEXT)
 APserver_OBJECTS = $(am_APserver_OBJECTS)
 APserver_LDADD = $(LDADD)
 APserver_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -283,17 +285,21 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-common_files = APmain.cc APmain.hh				\
-		../CDR_string.hh ../Svar_signals.hh		\
-                ../UdpSocket.cc ../UdpSocket.hh			\
-		../Svar_DB.cc ../Svar_DB.hh			\
-		../Svar_DB_memory.cc ../Svar_DB_memory.hh	\
-                ../Backtrace.cc ../Backtrace.hh
+common_files = APmain.cc APmain.hh			\
+                ../Backtrace.cc ../Backtrace.hh		\
+		../CDR_string.hh ../Svar_signals.hh	\
+		../Svar_DB.cc ../Svar_DB.hh		\
+		../Svar_record.cc ../Svar_record.hh	\
+                ../UdpSocket.cc ../UdpSocket.hh
 
 AP100_SOURCES = AP100.cc $(common_files)
 AP210_SOURCES = AP210.cc $(common_files)
 APnnn_SOURCES = APnnn.cc $(common_files)
-APserver_SOURCES = APserver.cc
+APserver_SOURCES = APserver.cc				\
+		Svar_DB_server.cc Svar_DB_server.hh	\
+		../Svar_record.cc ../Svar_record.hh	\
+                ../UdpSocket.cc ../UdpSocket.hh
+
 AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100
 AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210
 APnnn_CXXFLAGS = -I .. -g -O2 -DAP_NUM=0
@@ -403,21 +409,24 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP100-APmain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP100-Backtrace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP100-Svar_DB.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP100-Svar_DB_memory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP100-Svar_record.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP100-UdpSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP210-AP210.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP210-APmain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP210-Backtrace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP210-Svar_DB.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP210-Svar_DB_memory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP210-Svar_record.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AP210-UdpSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-APmain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-APnnn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-Backtrace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-Svar_DB.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-Svar_DB_memory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-Svar_record.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APnnn-UdpSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APserver-APserver.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APserver-Svar_DB_server.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APserver-Svar_record.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APserver-UdpSocket.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -468,19 +477,19 @@ AP100-APmain.obj: APmain.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-APmain.obj `if test -f 'APmain.cc'; then $(CYGPATH_W) 'APmain.cc'; else $(CYGPATH_W) '$(srcdir)/APmain.cc'; fi`
 
-AP100-UdpSocket.o: ../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-UdpSocket.o -MD -MP -MF $(DEPDIR)/AP100-UdpSocket.Tpo -c -o AP100-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-UdpSocket.Tpo $(DEPDIR)/AP100-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP100-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
+AP100-Backtrace.o: ../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Backtrace.o -MD -MP -MF $(DEPDIR)/AP100-Backtrace.Tpo -c -o AP100-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Backtrace.Tpo $(DEPDIR)/AP100-Backtrace.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP100-Backtrace.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
 
-AP100-UdpSocket.obj: ../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-UdpSocket.obj -MD -MP -MF $(DEPDIR)/AP100-UdpSocket.Tpo -c -o AP100-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-UdpSocket.Tpo $(DEPDIR)/AP100-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP100-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
+AP100-Backtrace.obj: ../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Backtrace.obj -MD -MP -MF $(DEPDIR)/AP100-Backtrace.Tpo -c -o AP100-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Backtrace.Tpo $(DEPDIR)/AP100-Backtrace.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP100-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
 
 AP100-Svar_DB.o: ../Svar_DB.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Svar_DB.o -MD -MP -MF $(DEPDIR)/AP100-Svar_DB.Tpo -c -o AP100-Svar_DB.o `test -f '../Svar_DB.cc' || echo '$(srcdir)/'`../Svar_DB.cc
@@ -496,33 +505,33 @@ AP100-Svar_DB.obj: ../Svar_DB.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Svar_DB.obj `if test -f '../Svar_DB.cc'; then $(CYGPATH_W) '../Svar_DB.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB.cc'; fi`
 
-AP100-Svar_DB_memory.o: ../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Svar_DB_memory.o -MD -MP -MF $(DEPDIR)/AP100-Svar_DB_memory.Tpo -c -o AP100-Svar_DB_memory.o `test -f '../Svar_DB_memory.cc' || echo '$(srcdir)/'`../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Svar_DB_memory.Tpo $(DEPDIR)/AP100-Svar_DB_memory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_DB_memory.cc' object='AP100-Svar_DB_memory.o' libtool=no @AMDEPBACKSLASH@
+AP100-Svar_record.o: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Svar_record.o -MD -MP -MF $(DEPDIR)/AP100-Svar_record.Tpo -c -o AP100-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Svar_record.Tpo $(DEPDIR)/AP100-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='AP100-Svar_record.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Svar_DB_memory.o `test -f '../Svar_DB_memory.cc' || echo '$(srcdir)/'`../Svar_DB_memory.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
 
-AP100-Svar_DB_memory.obj: ../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Svar_DB_memory.obj -MD -MP -MF $(DEPDIR)/AP100-Svar_DB_memory.Tpo -c -o AP100-Svar_DB_memory.obj `if test -f '../Svar_DB_memory.cc'; then $(CYGPATH_W) '../Svar_DB_memory.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB_memory.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Svar_DB_memory.Tpo $(DEPDIR)/AP100-Svar_DB_memory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_DB_memory.cc' object='AP100-Svar_DB_memory.obj' libtool=no @AMDEPBACKSLASH@
+AP100-Svar_record.obj: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Svar_record.obj -MD -MP -MF $(DEPDIR)/AP100-Svar_record.Tpo -c -o AP100-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Svar_record.Tpo $(DEPDIR)/AP100-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='AP100-Svar_record.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Svar_DB_memory.obj `if test -f '../Svar_DB_memory.cc'; then $(CYGPATH_W) '../Svar_DB_memory.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB_memory.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
 
-AP100-Backtrace.o: ../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Backtrace.o -MD -MP -MF $(DEPDIR)/AP100-Backtrace.Tpo -c -o AP100-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Backtrace.Tpo $(DEPDIR)/AP100-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP100-Backtrace.o' libtool=no @AMDEPBACKSLASH@
+AP100-UdpSocket.o: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-UdpSocket.o -MD -MP -MF $(DEPDIR)/AP100-UdpSocket.Tpo -c -o AP100-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-UdpSocket.Tpo $(DEPDIR)/AP100-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP100-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
 
-AP100-Backtrace.obj: ../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-Backtrace.obj -MD -MP -MF $(DEPDIR)/AP100-Backtrace.Tpo -c -o AP100-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-Backtrace.Tpo $(DEPDIR)/AP100-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP100-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
+AP100-UdpSocket.obj: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -MT AP100-UdpSocket.obj -MD -MP -MF $(DEPDIR)/AP100-UdpSocket.Tpo -c -o AP100-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP100-UdpSocket.Tpo $(DEPDIR)/AP100-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP100-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP100_CXXFLAGS) $(CXXFLAGS) -c -o AP100-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
 
 AP210-AP210.o: AP210.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-AP210.o -MD -MP -MF $(DEPDIR)/AP210-AP210.Tpo -c -o AP210-AP210.o `test -f 'AP210.cc' || echo '$(srcdir)/'`AP210.cc
@@ -552,19 +561,19 @@ AP210-APmain.obj: APmain.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-APmain.obj `if test -f 'APmain.cc'; then $(CYGPATH_W) 'APmain.cc'; else $(CYGPATH_W) '$(srcdir)/APmain.cc'; fi`
 
-AP210-UdpSocket.o: ../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-UdpSocket.o -MD -MP -MF $(DEPDIR)/AP210-UdpSocket.Tpo -c -o AP210-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-UdpSocket.Tpo $(DEPDIR)/AP210-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP210-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
+AP210-Backtrace.o: ../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Backtrace.o -MD -MP -MF $(DEPDIR)/AP210-Backtrace.Tpo -c -o AP210-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Backtrace.Tpo $(DEPDIR)/AP210-Backtrace.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP210-Backtrace.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
 
-AP210-UdpSocket.obj: ../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-UdpSocket.obj -MD -MP -MF $(DEPDIR)/AP210-UdpSocket.Tpo -c -o AP210-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-UdpSocket.Tpo $(DEPDIR)/AP210-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP210-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
+AP210-Backtrace.obj: ../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Backtrace.obj -MD -MP -MF $(DEPDIR)/AP210-Backtrace.Tpo -c -o AP210-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Backtrace.Tpo $(DEPDIR)/AP210-Backtrace.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP210-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
 
 AP210-Svar_DB.o: ../Svar_DB.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Svar_DB.o -MD -MP -MF $(DEPDIR)/AP210-Svar_DB.Tpo -c -o AP210-Svar_DB.o `test -f '../Svar_DB.cc' || echo '$(srcdir)/'`../Svar_DB.cc
@@ -580,33 +589,33 @@ AP210-Svar_DB.obj: ../Svar_DB.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Svar_DB.obj `if test -f '../Svar_DB.cc'; then $(CYGPATH_W) '../Svar_DB.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB.cc'; fi`
 
-AP210-Svar_DB_memory.o: ../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Svar_DB_memory.o -MD -MP -MF $(DEPDIR)/AP210-Svar_DB_memory.Tpo -c -o AP210-Svar_DB_memory.o `test -f '../Svar_DB_memory.cc' || echo '$(srcdir)/'`../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Svar_DB_memory.Tpo $(DEPDIR)/AP210-Svar_DB_memory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_DB_memory.cc' object='AP210-Svar_DB_memory.o' libtool=no @AMDEPBACKSLASH@
+AP210-Svar_record.o: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Svar_record.o -MD -MP -MF $(DEPDIR)/AP210-Svar_record.Tpo -c -o AP210-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Svar_record.Tpo $(DEPDIR)/AP210-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='AP210-Svar_record.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Svar_DB_memory.o `test -f '../Svar_DB_memory.cc' || echo '$(srcdir)/'`../Svar_DB_memory.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
 
-AP210-Svar_DB_memory.obj: ../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Svar_DB_memory.obj -MD -MP -MF $(DEPDIR)/AP210-Svar_DB_memory.Tpo -c -o AP210-Svar_DB_memory.obj `if test -f '../Svar_DB_memory.cc'; then $(CYGPATH_W) '../Svar_DB_memory.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB_memory.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Svar_DB_memory.Tpo $(DEPDIR)/AP210-Svar_DB_memory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_DB_memory.cc' object='AP210-Svar_DB_memory.obj' libtool=no @AMDEPBACKSLASH@
+AP210-Svar_record.obj: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Svar_record.obj -MD -MP -MF $(DEPDIR)/AP210-Svar_record.Tpo -c -o AP210-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Svar_record.Tpo $(DEPDIR)/AP210-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='AP210-Svar_record.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Svar_DB_memory.obj `if test -f '../Svar_DB_memory.cc'; then $(CYGPATH_W) '../Svar_DB_memory.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB_memory.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
 
-AP210-Backtrace.o: ../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Backtrace.o -MD -MP -MF $(DEPDIR)/AP210-Backtrace.Tpo -c -o AP210-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Backtrace.Tpo $(DEPDIR)/AP210-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP210-Backtrace.o' libtool=no @AMDEPBACKSLASH@
+AP210-UdpSocket.o: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-UdpSocket.o -MD -MP -MF $(DEPDIR)/AP210-UdpSocket.Tpo -c -o AP210-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-UdpSocket.Tpo $(DEPDIR)/AP210-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP210-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
 
-AP210-Backtrace.obj: ../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-Backtrace.obj -MD -MP -MF $(DEPDIR)/AP210-Backtrace.Tpo -c -o AP210-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-Backtrace.Tpo $(DEPDIR)/AP210-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='AP210-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
+AP210-UdpSocket.obj: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -MT AP210-UdpSocket.obj -MD -MP -MF $(DEPDIR)/AP210-UdpSocket.Tpo -c -o AP210-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/AP210-UdpSocket.Tpo $(DEPDIR)/AP210-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='AP210-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AP210_CXXFLAGS) $(CXXFLAGS) -c -o AP210-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
 
 APnnn-APnnn.o: APnnn.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-APnnn.o -MD -MP -MF $(DEPDIR)/APnnn-APnnn.Tpo -c -o APnnn-APnnn.o `test -f 'APnnn.cc' || echo '$(srcdir)/'`APnnn.cc
@@ -636,19 +645,19 @@ APnnn-APmain.obj: APmain.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-APmain.obj `if test -f 'APmain.cc'; then $(CYGPATH_W) 'APmain.cc'; else $(CYGPATH_W) '$(srcdir)/APmain.cc'; fi`
 
-APnnn-UdpSocket.o: ../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-UdpSocket.o -MD -MP -MF $(DEPDIR)/APnnn-UdpSocket.Tpo -c -o APnnn-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-UdpSocket.Tpo $(DEPDIR)/APnnn-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='APnnn-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
+APnnn-Backtrace.o: ../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Backtrace.o -MD -MP -MF $(DEPDIR)/APnnn-Backtrace.Tpo -c -o APnnn-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Backtrace.Tpo $(DEPDIR)/APnnn-Backtrace.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='APnnn-Backtrace.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
 
-APnnn-UdpSocket.obj: ../UdpSocket.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-UdpSocket.obj -MD -MP -MF $(DEPDIR)/APnnn-UdpSocket.Tpo -c -o APnnn-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-UdpSocket.Tpo $(DEPDIR)/APnnn-UdpSocket.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='APnnn-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
+APnnn-Backtrace.obj: ../Backtrace.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Backtrace.obj -MD -MP -MF $(DEPDIR)/APnnn-Backtrace.Tpo -c -o APnnn-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Backtrace.Tpo $(DEPDIR)/APnnn-Backtrace.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='APnnn-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
 
 APnnn-Svar_DB.o: ../Svar_DB.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Svar_DB.o -MD -MP -MF $(DEPDIR)/APnnn-Svar_DB.Tpo -c -o APnnn-Svar_DB.o `test -f '../Svar_DB.cc' || echo '$(srcdir)/'`../Svar_DB.cc
@@ -664,33 +673,33 @@ APnnn-Svar_DB.obj: ../Svar_DB.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Svar_DB.obj `if test -f '../Svar_DB.cc'; then $(CYGPATH_W) '../Svar_DB.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB.cc'; fi`
 
-APnnn-Svar_DB_memory.o: ../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Svar_DB_memory.o -MD -MP -MF $(DEPDIR)/APnnn-Svar_DB_memory.Tpo -c -o APnnn-Svar_DB_memory.o `test -f '../Svar_DB_memory.cc' || echo '$(srcdir)/'`../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Svar_DB_memory.Tpo $(DEPDIR)/APnnn-Svar_DB_memory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_DB_memory.cc' object='APnnn-Svar_DB_memory.o' libtool=no @AMDEPBACKSLASH@
+APnnn-Svar_record.o: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Svar_record.o -MD -MP -MF $(DEPDIR)/APnnn-Svar_record.Tpo -c -o APnnn-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Svar_record.Tpo $(DEPDIR)/APnnn-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='APnnn-Svar_record.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Svar_DB_memory.o `test -f '../Svar_DB_memory.cc' || echo '$(srcdir)/'`../Svar_DB_memory.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
 
-APnnn-Svar_DB_memory.obj: ../Svar_DB_memory.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Svar_DB_memory.obj -MD -MP -MF $(DEPDIR)/APnnn-Svar_DB_memory.Tpo -c -o APnnn-Svar_DB_memory.obj `if test -f '../Svar_DB_memory.cc'; then $(CYGPATH_W) '../Svar_DB_memory.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB_memory.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Svar_DB_memory.Tpo $(DEPDIR)/APnnn-Svar_DB_memory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_DB_memory.cc' object='APnnn-Svar_DB_memory.obj' libtool=no @AMDEPBACKSLASH@
+APnnn-Svar_record.obj: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Svar_record.obj -MD -MP -MF $(DEPDIR)/APnnn-Svar_record.Tpo -c -o APnnn-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Svar_record.Tpo $(DEPDIR)/APnnn-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='APnnn-Svar_record.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Svar_DB_memory.obj `if test -f '../Svar_DB_memory.cc'; then $(CYGPATH_W) '../Svar_DB_memory.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_DB_memory.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
 
-APnnn-Backtrace.o: ../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Backtrace.o -MD -MP -MF $(DEPDIR)/APnnn-Backtrace.Tpo -c -o APnnn-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Backtrace.Tpo $(DEPDIR)/APnnn-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='APnnn-Backtrace.o' libtool=no @AMDEPBACKSLASH@
+APnnn-UdpSocket.o: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-UdpSocket.o -MD -MP -MF $(DEPDIR)/APnnn-UdpSocket.Tpo -c -o APnnn-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-UdpSocket.Tpo $(DEPDIR)/APnnn-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='APnnn-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Backtrace.o `test -f '../Backtrace.cc' || echo '$(srcdir)/'`../Backtrace.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
 
-APnnn-Backtrace.obj: ../Backtrace.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-Backtrace.obj -MD -MP -MF $(DEPDIR)/APnnn-Backtrace.Tpo -c -o APnnn-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-Backtrace.Tpo $(DEPDIR)/APnnn-Backtrace.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Backtrace.cc' object='APnnn-Backtrace.obj' libtool=no @AMDEPBACKSLASH@
+APnnn-UdpSocket.obj: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -MT APnnn-UdpSocket.obj -MD -MP -MF $(DEPDIR)/APnnn-UdpSocket.Tpo -c -o APnnn-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APnnn-UdpSocket.Tpo $(DEPDIR)/APnnn-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='APnnn-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-Backtrace.obj `if test -f '../Backtrace.cc'; then $(CYGPATH_W) '../Backtrace.cc'; else $(CYGPATH_W) '$(srcdir)/../Backtrace.cc'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APnnn_CXXFLAGS) $(CXXFLAGS) -c -o APnnn-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
 
 APserver-APserver.o: APserver.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-APserver.o -MD -MP -MF $(DEPDIR)/APserver-APserver.Tpo -c -o APserver-APserver.o `test -f 'APserver.cc' || echo '$(srcdir)/'`APserver.cc
@@ -705,6 +714,48 @@ APserver-APserver.obj: APserver.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='APserver.cc' object='APserver-APserver.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-APserver.obj `if test -f 'APserver.cc'; then $(CYGPATH_W) 'APserver.cc'; else $(CYGPATH_W) '$(srcdir)/APserver.cc'; fi`
+
+APserver-Svar_DB_server.o: Svar_DB_server.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-Svar_DB_server.o -MD -MP -MF $(DEPDIR)/APserver-Svar_DB_server.Tpo -c -o APserver-Svar_DB_server.o `test -f 'Svar_DB_server.cc' || echo '$(srcdir)/'`Svar_DB_server.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-Svar_DB_server.Tpo $(DEPDIR)/APserver-Svar_DB_server.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Svar_DB_server.cc' object='APserver-Svar_DB_server.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-Svar_DB_server.o `test -f 'Svar_DB_server.cc' || echo '$(srcdir)/'`Svar_DB_server.cc
+
+APserver-Svar_DB_server.obj: Svar_DB_server.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-Svar_DB_server.obj -MD -MP -MF $(DEPDIR)/APserver-Svar_DB_server.Tpo -c -o APserver-Svar_DB_server.obj `if test -f 'Svar_DB_server.cc'; then $(CYGPATH_W) 'Svar_DB_server.cc'; else $(CYGPATH_W) '$(srcdir)/Svar_DB_server.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-Svar_DB_server.Tpo $(DEPDIR)/APserver-Svar_DB_server.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Svar_DB_server.cc' object='APserver-Svar_DB_server.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-Svar_DB_server.obj `if test -f 'Svar_DB_server.cc'; then $(CYGPATH_W) 'Svar_DB_server.cc'; else $(CYGPATH_W) '$(srcdir)/Svar_DB_server.cc'; fi`
+
+APserver-Svar_record.o: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-Svar_record.o -MD -MP -MF $(DEPDIR)/APserver-Svar_record.Tpo -c -o APserver-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-Svar_record.Tpo $(DEPDIR)/APserver-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='APserver-Svar_record.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-Svar_record.o `test -f '../Svar_record.cc' || echo '$(srcdir)/'`../Svar_record.cc
+
+APserver-Svar_record.obj: ../Svar_record.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-Svar_record.obj -MD -MP -MF $(DEPDIR)/APserver-Svar_record.Tpo -c -o APserver-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-Svar_record.Tpo $(DEPDIR)/APserver-Svar_record.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Svar_record.cc' object='APserver-Svar_record.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-Svar_record.obj `if test -f '../Svar_record.cc'; then $(CYGPATH_W) '../Svar_record.cc'; else $(CYGPATH_W) '$(srcdir)/../Svar_record.cc'; fi`
+
+APserver-UdpSocket.o: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-UdpSocket.o -MD -MP -MF $(DEPDIR)/APserver-UdpSocket.Tpo -c -o APserver-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-UdpSocket.Tpo $(DEPDIR)/APserver-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='APserver-UdpSocket.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-UdpSocket.o `test -f '../UdpSocket.cc' || echo '$(srcdir)/'`../UdpSocket.cc
+
+APserver-UdpSocket.obj: ../UdpSocket.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -MT APserver-UdpSocket.obj -MD -MP -MF $(DEPDIR)/APserver-UdpSocket.Tpo -c -o APserver-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/APserver-UdpSocket.Tpo $(DEPDIR)/APserver-UdpSocket.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../UdpSocket.cc' object='APserver-UdpSocket.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(APserver_CXXFLAGS) $(CXXFLAGS) -c -o APserver-UdpSocket.obj `if test -f '../UdpSocket.cc'; then $(CYGPATH_W) '../UdpSocket.cc'; else $(CYGPATH_W) '$(srcdir)/../UdpSocket.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

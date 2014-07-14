@@ -1106,8 +1106,9 @@ string data((const char *)cdr.get_items(), cdr.size());
 
    // wait for shared variable to be ready
    //
-const int data_port = Svar_DB::data_owner_port(get_SV_key());
-   if (data_port == -1)
+bool ws_to_ws = false;
+const int data_port = Svar_DB::data_owner_port(get_SV_key(), ws_to_ws);
+   if (data_port == -1 && !ws_to_ws)
       {
         Log(LOG_shared_variables)
            CERR << "Svar key " << HEX(get_SV_key()) << " not found." << endl;
@@ -1148,6 +1149,19 @@ const int data_port = Svar_DB::data_owner_port(get_SV_key());
          usleep(10000);   // wait 10 ms
        }
 
+   if (ws_to_ws)
+      {
+        // variable shared between workspaces. It is stored on APserver
+        //
+        const TCP_socket tcp = Svar_DB::get_DB_tcp();
+
+        // update shared var state (BEFORE sending request to peer)
+        //
+        Svar_DB::set_state(get_SV_key(), false, loc);
+        ASSIGN_WSWS_VAR_c(tcp, get_SV_key(), data);
+        return;
+      }
+
    // update shared var state (BEFORE sending request to peer)
    //
    Svar_DB::set_state(get_SV_key(), false, loc);
@@ -1160,19 +1174,19 @@ const Signal_base * response = Signal_base::recv_UDP(sock, buffer, 10000);
 
    if (response == 0)
       {
-        cerr << "TIMEOUT on signal ASSIGN_VALUE_c" << endl;
+        cerr << "TIMEOUT on signal ASSIGN_VALUE port " << data_port << endl;
         VALUE_ERROR;
       }
 
-     const ErrorCode ec = ErrorCode(response->get__ASSIGNED__error());
+     const ErrorCode ec = ErrorCode(response->get__SVAR_ASSIGNED__error());
      if (ec)
         {
           Log(LOG_shared_variables)
              {
-               Error e(ec, response->get__ASSIGNED__error_loc().c_str());
+               Error e(ec, response->get__SVAR_ASSIGNED__error_loc().c_str());
                cerr << Error::error_name(ec) << " assigning "
                     << get_name() << ", detected at "
-                    << response->get__ASSIGNED__error_loc()
+                    << response->get__SVAR_ASSIGNED__error_loc()
                     << endl;
              }
 
@@ -1185,8 +1199,9 @@ Symbol::resolve_shared_variable(Token & tok)
 {
    // wait for shared variable to be ready
    //
-const int data_port = Svar_DB::data_owner_port(get_SV_key());
-   if (data_port == 0)
+bool ws_to_ws = false;
+const int data_port = Svar_DB::data_owner_port(get_SV_key(), ws_to_ws);
+   if (data_port == 0 && !ws_to_ws)
       {
         Log(LOG_shared_variables)
            CERR << "Svar key " << HEX(get_SV_key()) << " not found." << endl;
@@ -1227,15 +1242,58 @@ const int data_port = Svar_DB::data_owner_port(get_SV_key());
          usleep(10000);   // wait 10 ms
        }
 
+   if (ws_to_ws)
+      {
+        // variable shared between workspaces. It is stored on APserver
+        //
+        const TCP_socket tcp = Svar_DB::get_DB_tcp();
+        READ_WSWS_VAR_c(tcp, get_SV_key());
+
+        char * del = 0;
+        char buffer[MAX_SIGNAL_CLASS_SIZE + 40000];
+        const Signal_base * response =
+              Signal_base::recv_TCP(tcp, buffer, sizeof(buffer), del, 0);
+
+        // update shared var state (AFTER having read the value)
+        //
+        Svar_DB::set_state(get_SV_key(), true, LOC);
+
+        if (response == 0)
+           {
+             if (del)   delete del;
+             CERR << "no response to signal READ_WSWS_VAR" << endl;
+             VALUE_ERROR;
+           }
+
+        const string & data = response->get__WSWS_VALUE_IS__cdr_value();
+        if (data.size() == 0)
+           {
+             if (del)   delete del;
+             CERR << "no data in signal WSWS_VALUE_IS" << endl;
+             VALUE_ERROR;
+           }
+
+        CDR_string cdr;
+        loop(d, data.size())   cdr.append(data[d]);
+        if (del)   delete del;
+
+        Value_P value = CDR::from_CDR(cdr, LOC);
+        if (!value)     VALUE_ERROR;
+
+        value->check_value(LOC);
+        new (&tok) Token(TOK_APL_VALUE1, value);
+        return;
+      }
+
 UdpClientSocket sock(LOC, data_port);
 GET_VALUE_c request(sock, get_SV_key());
 
-uint8_t buffer[MAX_SIGNAL_CLASS_SIZE];
+uint8_t buffer[MAX_SIGNAL_CLASS_SIZE + 40000];
 const Signal_base * response = Signal_base::recv_UDP(sock, buffer, 10000);
 
    if (response == 0)
       {
-        cerr << "TIMEOUT on signal GET_VALUE" << endl;
+        CERR << "TIMEOUT on signal GET_VALUE (port " << data_port << endl;
         VALUE_ERROR;
       }
 
@@ -1252,8 +1310,8 @@ const ErrorCode err(ErrorCode(response->get__VALUE_IS__error()));
         throw_apl_error(err, response->get__VALUE_IS__error_loc().c_str());
       }
 
+const string & data = response->get__VALUE_IS__cdr_value();
 CDR_string cdr;
-const string & data = response->get__VALUE_IS__value();
    loop(d, data.size())   cdr.append(data[d]);
 
 Value_P value = CDR::from_CDR(cdr, LOC);

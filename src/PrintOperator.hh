@@ -29,6 +29,7 @@
 #include "TokenEnums.hh"
 #include "Unicode.hh"
 
+struct AP_num3;
 class Cell;
 class DynamicObject;
 struct Format_sub;
@@ -46,6 +47,7 @@ class UCS_string;
 class UTF8_string;
 class Value;
 
+ostream & operator << (ostream &, const AP_num3 &);
 ostream & operator << (ostream &, const Format_sub &);
 ostream & operator << (ostream &, const Function &);
 ostream & operator << (ostream &, const Function_PC2 &);

@@ -3,7 +3,7 @@
 
       ⍝ share variable OS with AP100 and allow ⎕SVO to complete
       100 ⎕SVO 'OS' ◊ 0⍴⎕DL 1
-1
+⁰
 
       ⍝ make sure that OS is coupled
       ⎕SVO 'OS'

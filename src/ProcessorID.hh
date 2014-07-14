@@ -34,6 +34,11 @@ public:
    /// return the current ID (proc, parent, and grandparent)
    static const AP_num3 & get_id()        { return id; }
 
+   static void set_id(AP_num3 ap3)       { id = ap3; }
+
+   static void clear_id()
+      { id.proc = id.parent = id.grand = AP_NULL; }
+
    /// set the current ID
    static void set_own_ID(AP_num ap)      { id.proc = ap; }
 

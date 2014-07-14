@@ -30,6 +30,8 @@
 #include "Svar_signals.hh"
 #include "UserPreferences.hh"
 
+extern const char * prog_name();
+
 AP_num3 ProcessorID::id(NO_AP, AP_NULL, AP_NULL);
 
 Network_Profile ProcessorID::network_profile;
@@ -66,16 +68,22 @@ ProcessorID::init(bool log_startup)
 
    if (id.proc == 0)
       {
-        // no --id option in argv: use first free user ID
+        // no --id option in argv: use first free user ID. We poll IDs starting
+        // at 1000 and stop at the first ID that is not registered.
         //
-        id.proc = Svar_DB::get_unused_id();
+        for (AP_num proc = AP_FIRST_USER; ; proc = AP_num(proc + 1))
+            {
+              id.proc = proc;
+              if (!Svar_DB::is_registered_id(AP_num(id.proc)))   break;
+            }
+
         if (log_startup)   CERR << "id.proc: " << id.proc << " at " LOC << endl;
       }
    else
       {
         // --id option provided in argv: check that it is not in use
         //
-        if (!Svar_DB::is_unused_id(AP_num(id.proc)))
+        if (Svar_DB::is_registered_id(AP_num(id.proc)))
            {
              CERR << "*** Another APL interpreter with --id "
                   << id.proc <<  " is already running" << endl;
@@ -109,10 +117,12 @@ ProcessorID::init(bool log_startup)
 
    // if we have an APserver then let it know our IDs
    //
-const int sock = Svar_DB_memory_P::get_DB_tcp();
+const int sock = Svar_DB::get_DB_tcp();
    if (sock != NO_TCP_SOCKET)
       {
-        MY_PID_IS_c(sock, id.proc, id.parent, id.grand);
+        string progname(prog_name());
+        REGISTER_PROCESSOR_c request(sock, id.proc, id.parent, id.grand,
+                             getpid(), APnnn_port, progname);
       }
 
    return false;   // no error

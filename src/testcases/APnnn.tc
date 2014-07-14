@@ -41,7 +41,7 @@ SYNC OK
 
       ⍝ 1. wait for AP 1011 to set control vector
       ⍝
-      ⎕SVE←1.3 ◊ ⎕SVE
+      ⎕SVE←1.9 ◊ ⎕SVE
 1.⁰
 
       ⍝ 2. set control vector

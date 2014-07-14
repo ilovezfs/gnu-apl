@@ -41,54 +41,20 @@
 #include "UdpSocket.hh"
 #include "UserPreferences.hh"
 
-extern ostream CERR;
 extern ostream & get_CERR();
 
-uint16_t Svar_DB_memory_P::APserver_port = Default_APserver_tcp_port;
+uint16_t Svar_DB::APserver_port = Default_APserver_tcp_port;
 
-TCP_socket Svar_DB_memory_P::DB_tcp = NO_TCP_SOCKET;
+TCP_socket Svar_DB::DB_tcp = NO_TCP_SOCKET;
 
-Svar_DB_memory Svar_DB_memory_P::cache;
-offered_SVAR   offered_SVAR_P::cache;
+Svar_record Svar_record_P::cache;
 
 //=============================================================================
-
-Svar_DB_memory * Svar_DB_memory_P::memory_p = 0;
-
-Svar_DB_memory_P::Svar_DB_memory_P(bool ronly)
-   : read_only(ronly)
-{
-   if (!APserver_available())   return;
-
-   if (ronly)   { READ_SVAR_DB_c request(DB_tcp);   }
-   else         { UPDATE_SVAR_DB_c request(DB_tcp); }
-
-char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_DB_memory)];
-ostream * log = (LOG_startup || LOG_Svar_DB_signals) ? & cerr : 0;
-Signal_base * response = Signal_base::recv_TCP(DB_tcp, buffer, sizeof(buffer),
-                                               del, log);
-   if (response)   memcpy(&cache, response->get__SVAR_DB_IS__db().data(),
-                          sizeof(Svar_DB_memory));
-   else   CERR << "Svar_DB_memory_P() failed at " << LOC << endl;
-   if (del)   delete del;
-}
-//-----------------------------------------------------------------------------
-Svar_DB_memory_P::~Svar_DB_memory_P()
-{
-   if (read_only)               return;
-   if (!APserver_available())   return;
-
-std::string data((const char *)&cache, sizeof(cache));
-SVAR_DB_IS_c updated(DB_tcp, data);
-}
-//-----------------------------------------------------------------------------
 void
-Svar_DB_memory_P::connect_to_APserver(const char * bin_dir, const char * prog,
+Svar_DB::connect_to_APserver(const char * bin_dir, const char * prog,
                                       bool logit)
 {
-const char * server_sockname = Svar_DB_memory::get_APserver_unix_socket_name();
-const char * client_sockname = Svar_DB_memory::get_APclient_unix_socket_name();
+const char * server_sockname = Svar_record::get_APserver_unix_socket_name();
 char peer[100];
 
    // we use AF_UNIX sockets if the platform supports it and unix_socket_name
@@ -109,22 +75,6 @@ char peer[100];
              return;
            }
 
-        // bind local port apl-pid
-        //
-        sockaddr_un local;
-        memset(&local, 0, sizeof(sockaddr_un));
-        local.sun_family = AF_UNIX;
-        strcpy(local.sun_path + ABSTRACT_OFFSET, client_sockname);
-
-        if (::bind(DB_tcp, (const sockaddr *)&local, sizeof(sockaddr_un)))
-           {
-             get_CERR() << prog << ": bind(" << client_sockname
-                        << ") failed: " << strerror(errno) << endl;
-             return;
-           }
-
-        logit && get_CERR() << prog << ": bind(" << client_sockname
-                            << ") succeeded" << endl;
         snprintf(peer, sizeof(peer), "%s", server_sockname);
       }
    else // use TCP
@@ -274,9 +224,9 @@ char peer[100];
 }
 //-----------------------------------------------------------------------------
 void
-Svar_DB_memory_P::DB_tcp_error(const char * op, int got, int expected)
+Svar_DB::DB_tcp_error(const char * op, int got, int expected)
 {
-   CERR << "⋆⋆⋆ " << op << " failed: got " << got << " when expecting "
+   get_CERR() << "⋆⋆⋆ " << op << " failed: got " << got << " when expecting "
         << expected << " (" << strerror(errno) << ")" << endl;
 
    ::close(DB_tcp);
@@ -284,14 +234,14 @@ Svar_DB_memory_P::DB_tcp_error(const char * op, int got, int expected)
 }
 //=============================================================================
 
-offered_SVAR * offered_SVAR_P::offered_svar_p = 0;
+Svar_record * Svar_record_P::offered_svar_p = 0;
 
-offered_SVAR_P::offered_SVAR_P(bool ronly, SV_key key)
+Svar_record_P::Svar_record_P(bool ronly, SV_key key)
    : read_only(ronly)
 {
-   if (!Svar_DB_memory_P::APserver_available())   return;
+   if (!Svar_DB::APserver_available())   return;
 
-const int sock = Svar_DB_memory_P::get_DB_tcp();
+const int sock = Svar_DB::get_DB_tcp();
    offered_svar_p = 0;
 
    if (ronly)
@@ -304,124 +254,295 @@ const int sock = Svar_DB_memory_P::get_DB_tcp();
       }
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(offered_SVAR)];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_record)];
 ostream * log = (LOG_startup || LOG_Svar_DB_signals) ? & cerr : 0;
 Signal_base * response = Signal_base::recv_TCP(sock, buffer, sizeof(buffer),
                                                del, log);
    if (response)
       {
         memcpy(&cache, response->get__SVAR_RECORD_IS__record().data(),
-               sizeof(offered_SVAR));
+               sizeof(Svar_record));
         offered_svar_p = &cache;
       }
-   else   CERR << "offered_SVAR_P() failed at " << LOC << endl;
+   else   get_CERR() << "Svar_record_P() failed at " << LOC << endl;
    if (del)   delete del;
 }
 //-----------------------------------------------------------------------------
-offered_SVAR_P::~offered_SVAR_P()
+Svar_record_P::~Svar_record_P()
 {
-   if (read_only)                                 return;
-   if (!Svar_DB_memory_P::APserver_available())   return;
+   if (read_only)                        return;
+   if (!Svar_DB::APserver_available())   return;
 
 std::string data((const char *)&cache, sizeof(cache));
-SVAR_RECORD_IS_c updated(Svar_DB_memory_P::get_DB_tcp(), data);
+SVAR_RECORD_IS_c updated(Svar_DB::get_DB_tcp(), data);
 }
 //=============================================================================
 void
 Svar_DB::init(const char * bin_dir, const char * prog,
               bool logit, bool do_svars)
 {
-   if (!do_svars)   // shared variables disable
+   if (!do_svars)   // shared variables disabled
       {
-        // shared variables disable by the user. We init memory_p to be
-        // on the safe side, but complain only if logit is true
-        //
-        memset(&Svar_DB_memory_P::cache, 0, sizeof(Svar_DB_memory_P::cache));
-        Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
-
         if (logit)
            get_CERR() << "Not opening shared memory because command "
                          "line option --noSV (or similar) was given." << endl;
         return;
       }
 
-   Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
-   Svar_DB_memory_P::connect_to_APserver(bin_dir, prog, logit);
-   if (Svar_DB_memory_P::APserver_available())
+   connect_to_APserver(bin_dir, prog, logit);
+   if (APserver_available())
       {
-        if (logit)   CERR << "using Svar_DB on APserver!" << endl;
-      }
-   else
-      {
-        CERR << "*** using local Svar_DB cache" << endl;
-        memset(&Svar_DB_memory_P::cache, 0, sizeof(Svar_DB_memory_P::cache));
-        Svar_DB_memory_P::memory_p = &Svar_DB_memory_P::cache;
+        if (logit)   get_CERR() << "using Svar_DB on APserver!" << endl;
       }
 }
 //-----------------------------------------------------------------------------
-Svar_DB::~Svar_DB()
+#if 1
+SV_key
+Svar_DB::match_or_make(const uint32_t * UCS_varname, const AP_num3 & to,
+                       const Svar_partner & from, SV_Coupling & coupling)
 {
-   if (!Svar_DB_memory_P::has_memory())   return;
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)   return 0;
 
-const pid_t our_pid = getpid();
 
-   // remove all variables offered by this process.
-   //
-Svar_DB_memory_P db(false);
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-       {
-         offered_SVAR & svar = db->offered_vars[o];
+string vname((const char *)UCS_varname, MAX_SVAR_NAMELEN*sizeof(uint32_t));
 
-         if (svar.accepting.pid == our_pid)   svar.remove_accepting();
-         if (svar.offering.pid == our_pid)    svar.remove_offering();
-         if (svar.get_coupling() == NO_COUPLING)   svar.clear();
-       }
+MATCH_OR_MAKE_c request(tcp, vname,
+                             to.proc,      to.parent,      to.grand,
+                             from.id.proc, from.id.parent, from.id.grand,
+                             from.pid,     from.port,      from.flags);
 
-   Svar_DB_memory_P::disconnect();
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
 
+   if (response)
+      {
+        coupling = (SV_Coupling)response->get__MATCH_OR_MAKE_RESULT__coupling();
+        return response->get__MATCH_OR_MAKE_RESULT__key();
+      }
+   else
+      {
+        coupling = NO_COUPLING;
+        return 0;
+      }
+}
+#endif
+//-----------------------------------------------------------------------------
+SV_key
+Svar_DB::get_events(Svar_event & events, AP_num3 id)
+{
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)
+      {
+        events = SVE_NO_EVENTS;
+        return 0;
+      }
+
+GET_EVENTS_c request(tcp, id.proc, id.parent, id.grand);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)
+      {
+        events = (Svar_event)response->get__EVENTS_ARE__events();
+        return response->get__EVENTS_ARE__key();
+      }
+   else
+      {
+        events = SVE_NO_EVENTS;
+        return 0;
+      }
+}
+//-----------------------------------------------------------------------------
+Svar_event
+Svar_DB::clear_all_events(AP_num3 id)
+{
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)
+      {
+        return SVE_NO_EVENTS;
+      }
+
+CLEAR_ALL_EVENTS_c request(tcp, id.proc, id.parent, id.grand);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)
+      {
+        return (Svar_event)(response->get__EVENTS_ARE__events());
+      }
+   else
+      {
+        return SVE_NO_EVENTS;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Svar_DB::add_event(SV_key key, AP_num3 id, Svar_event event)
+{
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)   return;
+
+ADD_EVENT_c request(tcp, key, id.proc, id.parent, id.grand, event);
+}
+//-----------------------------------------------------------------------------
+AP_num3
+Svar_DB::find_offering_id(SV_key key)
+{
+AP_num3 offering_id;
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)   return offering_id;
+
+FIND_OFFERING_ID_c request(tcp, key);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)
+      {
+         offering_id.proc   = (AP_num)(response->get__OFFERING_ID_IS__proc());
+         offering_id.parent = (AP_num)(response->get__OFFERING_ID_IS__parent());
+         offering_id.grand  = (AP_num)(response->get__OFFERING_ID_IS__grand());
+      }
+       
+   return offering_id;
+}
+//-----------------------------------------------------------------------------
+void
+Svar_DB::get_offering_processors(AP_num to_proc, vector<AP_num> & processors)
+{
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)   return;
+
+GET_OFFERING_PROCS_c request(tcp, to_proc);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)
+      {
+        const string & op = response->get__OFFERING_PROCS_ARE__offering_procs();
+        const AP_num * procs = (const AP_num *)(op.data());
+        const size_t count = op.size() / sizeof(AP_num);
+
+        loop(c, count)   processors.push_back(*procs++);
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Svar_DB::get_offered_variables(AP_num to_proc, AP_num from_proc,
+                               vector<uint32_t> & varnames)
+{
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)   return;
+
+GET_OFFERED_VARS_c request(tcp, to_proc, from_proc);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)
+      {
+        const string & ov = response->get__OFFERED_VARS_ARE__offered_vars();
+        const uint32_t * names = (const uint32_t *)(ov.data());
+        const size_t count = ov.size() / sizeof(uint32_t);
+
+        loop(c, count)   varnames.push_back(*names++);
+      }
+}
+//-----------------------------------------------------------------------------
+bool
+Svar_DB::is_registered_id(const AP_num3 & id)
+{
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)   return 0;
+
+IS_REGISTERED_ID_c request(tcp, id.proc, id.parent, id.grand);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)   return response->get__YES_NO__yes();
+   return false;
+}
+//-----------------------------------------------------------------------------
+uint16_t
+Svar_DB::get_udp_port(AP_num proc, AP_num parent)
+{
+const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
+   if (tcp == NO_TCP_SOCKET)   return 0;
+
+GET_UDP_PORT_c request(tcp, proc, parent);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)   return response->get__UDP_PORT_IS__port();
+   return 0;
+}
+//-----------------------------------------------------------------------------
+TCP_socket
+Svar_DB::get_Svar_DB_tcp(const char * calling_function)
+{
+const TCP_socket tcp = Svar_DB::get_DB_tcp();
+   if (tcp == NO_TCP_SOCKET)
+      {
+        get_CERR() << "Svar_DB not connected in Svar_DB::"
+             << calling_function << "()" << endl;
+      }
+
+   return tcp;
+}
+//-----------------------------------------------------------------------------
+SV_key
+Svar_DB::find_pairing_key(SV_key key)
+{
+const TCP_socket tcp = Svar_DB::get_DB_tcp();
+   if (tcp == NO_TCP_SOCKET)   return 0;
+
+FIND_PAIRING_KEY_c request(tcp, key);
+
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
+
+   if (response)   return response->get__PAIRING_KEY_IS__pairing_key();
+   return 0;
 }
 //-----------------------------------------------------------------------------
 void
 Svar_DB::print(ostream & out)
 {
-   if (!Svar_DB_memory_P::has_memory())
-      {
-        out << "*** Svar_DB is not open!" << endl;
-        return;
-      }
+const TCP_socket tcp = Svar_DB::get_DB_tcp();
+   if (tcp == NO_TCP_SOCKET)   return;
 
-const Svar_DB_memory_P db(true);
+PRINT_SVAR_DB_c request(tcp);
 
-   // print active processors
-   //
-   out << "┌───────────┬─────┬─────┬──┐" << endl
-       << "│ Proc, par │ PID │ Port│Fl│" << endl
-       << "╞═══════════╪═════╪═════╪══╡" << endl;
-   for (int p = 0; p < MAX_ACTIVE_PROCS; ++p)
-       {
-         const Svar_partner_events & sp = db->active_processors[p];
-           if (sp.partner.id.proc)
-              {
-                out << "│";   sp.partner.print(CERR) << "│" << endl;
-              }
-       }
-   out << "╘═══════════╧═════╧═════╧══╛" << endl;
+char * del = 0;
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 4000];
+Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
+                                               del, 0);
 
-   // print shared variables
-   out <<
-"╔═════╤═╦═══════════╤═════╤═════╤══╦═══════════╤═════╤═════╤══╦════╤══════════╗\n"
-"║     │ ║ Offering  │     │     │  ║ Accepting │     │     │  ║OAOA│          ║\n"
-"║ Seq │C║ Proc,par  │ PID │ Port│Fl║ Proc,par  │ PID │ Port│Fl║SSUU│ Varname  ║\n"
-"╠═════╪═╬═══════════╪═════╪═════╪══╬═══════════╪═════╪═════╪══╬════╪══════════╣\n";
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-       {
-         const offered_SVAR & svar = db->offered_vars[o];
-         if (svar.valid())   svar.print(out);
-       }
-
-   out <<
-"╚═════╧═╩═══════════╧═════╧═════╧══╩═══════════╧═════╧═════╧══╩════╧══════════╝\n"
-       << endl;
+   if (response)   out << response->get__SVAR_DB_PRINTED__printout();
 }
 //-----------------------------------------------------------------------------
 
