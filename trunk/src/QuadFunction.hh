@@ -145,10 +145,7 @@ protected:
    static bool eoc_B_done(Token & token, EOC_arg & arg);
 
    /// end of context handler for ⎕EA
-   static bool eoc_A_done(Token & token, EOC_arg & arg);
-
-   /// update ⎕EM
-   static void update_EM(Value_P A, Value_P B, bool A_failed);
+   static bool eoc_A_and_B_done(Token & token, EOC_arg & arg);
 };
 //-----------------------------------------------------------------------------
 /**
