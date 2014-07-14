@@ -6,7 +6,9 @@ man1_MANS = apl.1
 # apl.info in HTML format
 #
 apl.html:   apl.texi
-	makeinfo --html apl.texi -o $@ --no-split
+	if [ -x `which makeinfo` ];				\
+		then makeinfo --html apl.texi -o $@ --no-split;	\
+	else	touch $@; fi
 
 dist_doc_DATA =			\
 	apl.1			\

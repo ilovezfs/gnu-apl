@@ -2,6 +2,8 @@
 Before you can build GNU APL, make sure that the following
 libraries/packages have been installed:
 
+gcc/g++		from a GNU mirror (directory: gcc, file: gcc-?.?.?.tar.gz)
+make		from a GNU mirror (directory: gcc, file: make-?.?.tar.gz)
 (lib-)lapack    from http://www.netlib.org/lapack/
 (lib-)readline  from a GNU mirror (directory: bash, file: readline-?.?.tar.gz)
 gettext         from a GNU mirror (directory: gettext)
@@ -14,8 +16,9 @@ for Unicode support). You can try ./configure with --without-readline then.
 
 If you are using Ubuntu, then the following commands may do the trick:
 
+    apt-get install g++
     apt-get install liblapack-dev
-    apt-get install libreadline5-dev
+    apt-get install libreadline-dev
     apt-get install gettext
 
 GNU APL MAY compile without liblapack; in this case the matrix divide and
@@ -28,7 +31,7 @@ On Linux Mint 16 (and possibly some other GNU/Linux distributions) you may
 need to install package ncurses-dev in order to uses curses functions,
 for example:
 
-    apt-get install ncurses-dev
+    apt-get install libncurses-dev
 
 On Linux Mint 14.1, GNU APL compiled out-of--the-box.
 

@@ -606,6 +606,7 @@ int
 open_UNIX_socket(const char * listen_name)
 {
    cerr << "*** this platform does not support address family AF_UNIX!";
+   return -1;
 }
 #endif
 //-----------------------------------------------------------------------------
