@@ -63,17 +63,17 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
    _arg.dB = 1;
 
 
-   if (A->nz_element_count() == 1)
-      {
-        if (B->is_scalar_or_len1_vector())   return LO->eval_AB(A, B);
+   if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
 
+   if (A->is_scalar())
+      {
         _arg.count = B->element_count();
 
         _arg.dA = 0;
         if (LO->has_result())
            arg.Z = Value_P(new Value(B->get_shape(), LOC));
       }
-   else if (B->nz_element_count() == 1)
+   else if (B->is_scalar())
       {
         _arg.dB = 0;
         _arg.count = A->element_count();
@@ -206,6 +206,8 @@ Bif_OPER1_EACH::eval_LB(Token & _LO, Value_P B)
 
 Function * LO = _LO.get_function();
    Assert1(LO);
+
+   if (B->is_scalar())   return LO->eval_B(B);
 
    if (B->is_empty())
       {
