@@ -790,7 +790,9 @@ uninstall-man: uninstall-man1
 # apl.info in HTML format
 #
 apl.html:   apl.texi
-	makeinfo --html apl.texi -o $@ --no-split
+	if [ -x `which makeinfo` ];				\
+		then makeinfo --html apl.texi -o $@ --no-split;	\
+	else	touch $@; fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
