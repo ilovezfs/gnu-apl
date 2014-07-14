@@ -788,10 +788,10 @@ byte vector → hex or byte vector → base64 conversions.
 
 Besides the classical commands like )LOAD or )SAVE there are a number of
 debug commands that start with ] rather than ).  Regular commands start
-with ) and print their output on stdout.  Debug commands start with) and
-print their output on stderr.  Normally you cannot easily distinguish
-between stdout and stderr, but another feature, colored output, uses
-different colors for stdout and stdout.
+with ) and print their output on stdout.  Debug commands start with ]
+and print their output on stderr.  Normally you cannot easily
+distinguish between stdout and stderr, but another feature, colored
+output, uses different colors for stdout and stderr.
 
    Type )HELP or ]HELP in the interpreter for a list of all commands
 available.
@@ -2337,11 +2337,11 @@ Tag Table:
 Node: Top416
 Node: Chapter 11347
 Node: Chapter 214446
-Node: Chapter 337275
-Node: Chapter 438881
-Node: Chapter 540004
-Node: Section 5.140507
-Node: Section 5.265815
+Node: Chapter 337276
+Node: Chapter 438882
+Node: Chapter 540005
+Node: Section 5.140508
+Node: Section 5.265816
 
 End Tag Table
 

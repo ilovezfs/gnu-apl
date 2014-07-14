@@ -54,6 +54,11 @@
 static const char * build_tag[] = { BUILDTAG, 0 };
 
 //-----------------------------------------------------------------------------
+const char * prog_name()
+{
+   return "apl";
+}
+//-----------------------------------------------------------------------------
 /// initialize subsystems that are independent of argv[]
 static void
 init_1(const char * argv0, bool log_startup)
@@ -63,9 +68,8 @@ rlimit rl;
    total_memory = rl.rlim_cur;
 
    if (log_startup)
-      CERR << "sizeof(Svar_DB_memory) is " << sizeof(Svar_DB_memory) << endl
-           << "sizeof(offered_SVAR) is " << sizeof(offered_SVAR) << endl
-           << "sizeof(Svar_partner_events) is " << sizeof(Svar_partner_events)
+      CERR << "sizeof(Svar_record) is    " << sizeof(Svar_record) << endl
+           << "sizeof(Svar_partner) is   " << sizeof(Svar_partner)
            << endl;
 
    Output::init();

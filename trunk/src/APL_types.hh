@@ -421,14 +421,11 @@ enum AP_num
 /// three AP numbers that uniquely identify a processor
 struct AP_num3
 {
-   /// constructor: invalid AP_num3
-   AP_num3() {}
-
    /// constructor: processor, parent, and grand-parent
-   AP_num3(AP_num pr, AP_num pa, AP_num gp)
-   : proc(pr),
-     parent(pa),
-     grand(gp)
+   AP_num3(AP_num pro = NO_AP, AP_num par = AP_NULL, AP_num gra = AP_NULL)
+   : proc(pro),
+     parent(par),
+     grand(gra)
    {}
 
    /// ture if \b this AP_num3 is equal to \b other
@@ -441,7 +438,6 @@ struct AP_num3
    AP_num parent;   ///< the parent of the processor
    AP_num grand;    ///< the parent of the parent
 };
-
 //-----------------------------------------------------------------------------
 /// two Function_PCs indication a token range in a user defined function body
 struct Function_PC2

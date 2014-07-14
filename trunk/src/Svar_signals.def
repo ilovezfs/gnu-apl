@@ -31,29 +31,13 @@ m4_signal(RETRACT_OFFER,    x64,    key)
 /// SVAR←X and X←SVAR
 m4_signal(GET_VALUE,        x64,    key)
 m4_signal(VALUE_IS,         x64,    key,       u32,    error,
-                            string, error_loc, string, value)
-m4_signal(ASSIGN_VALUE,     x64,    key,       string, value)
-m4_signal(ASSIGNED,         x64,    key,       u32,    error,
+                            string, error_loc, string, cdr_value)
+m4_signal(ASSIGN_VALUE,     x64,    key,       string, cdr_value)
+m4_signal(SVAR_ASSIGNED,    x64,    key,       u32,    error,
                             string, error_loc)
 
 /// ⎕SVE
-m4_signal(START_EVENT_REPORTING,    u16, event_port)
-m4_signal(STOP_EVENT_REPORTING)
-m4_signal(GOT_EVENT,       x64,    key,     u32,    event)
 m4_signal(NEW_EVENT,       x64,    key,     u32,    event)
-
-
-/// read/update entire SVAR database from APserver
-///
-///		apl/APnnn	--> READ_SVAR_DB		APserver
-///				<-- SVAR_DB_IS
-///
-///				--> UPDATE_SVAR_DB
-///				<-- SVAR_DB_IS
-///				--> SVAR_DB_IS
-m4_signal(READ_SVAR_DB)
-m4_signal(UPDATE_SVAR_DB)
-m4_signal(SVAR_DB_IS,      string, db)
 
 /// read/update SVAR database record from APserver
 ///
@@ -67,8 +51,96 @@ m4_signal(READ_SVAR_RECORD,     x64,    key)
 m4_signal(UPDATE_SVAR_RECORD,   x64,    key)
 m4_signal(SVAR_RECORD_IS,       string, record)
 
-/// identify processor ID on a TCP connection to APserver
-m4_signal(MY_PID_IS,		u32,    pid,
+/// return YES_NO telling if ID is registered
+m4_signal(IS_REGISTERED_ID,	u32,    proc,
 				u32,    parent,
 				u32,    grand)
+
+m4_signal(YES_NO,	        u8,    yes)
+
+/// register processor proc in the database
+m4_signal(REGISTER_PROCESSOR,	u32,    proc,
+				u32,    parent,
+				u32,    grand,
+				u32,    pid,
+				u16,    port,
+				string, progname)
+
+/// unregister processor proc in the database
+m4_signal(UNREGISTER_PROCESSOR,	u32,    proc,
+				u32,    parent,
+				u32,    grand,
+                                string, progname)
+
+/// match offered shared variable or create a new offer
+m4_signal(MATCH_OR_MAKE,        string, varname,
+                                u32,    to_proc,
+                                u32,    to_parent,
+                                u32,    to_grand,
+                                u32,    from_proc,
+                                u32,    from_parent,
+                                u32,    from_grand,
+				u32,    from_pid,
+				u16,    from_port,
+				u16,    from_flags)
+
+
+m4_signal(MATCH_OR_MAKE_RESULT, x64,    key,
+                                u8,     coupling)
+
+
+m4_signal(FIND_OFFERING_ID,     x64,    key)
+m4_signal(OFFERING_ID_IS,       u32,    proc,
+                                u32,    parent,
+                                u32,    grand)
+
+/// get offering processors  (⎕SVQ)
+m4_signal(GET_OFFERING_PROCS,   u32,    offered_to_proc)
+
+m4_signal(OFFERING_PROCS_ARE,   string, offering_procs)
+
+/// get offered variables  (⎕SVQ)
+m4_signal(GET_OFFERED_VARS,     u32,    offered_to_proc,
+                                u32,    accepted_by_proc)
+
+m4_signal(OFFERED_VARS_ARE,     string, offered_vars)
+
+/// find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
+m4_signal(FIND_PAIRING_KEY,	x64,    key)
+
+m4_signal(PAIRING_KEY_IS,	x64,    pairing_key)
+
+/// get events for one processor (first shared var with an event)
+m4_signal(GET_EVENTS,           u32,    proc,
+                                u32,    parent,
+                                u32,    grand)
+
+/// clear all events for one processor
+m4_signal(CLEAR_ALL_EVENTS,     u32,    proc,
+                                u32,    parent,
+                                u32,    grand)
+
+
+m4_signal(EVENTS_ARE,           x64,    key,
+                                u32,    events)
+
+m4_signal(ADD_EVENT,	        x64,    key,
+				u32,    proc,
+                                u32,    parent,
+                                u32,    grand,
+				u32,    event)
+
+m4_signal(GET_UDP_PORT,	        u32,    proc,
+				u32,    parent)
+
+m4_signal(UDP_PORT_IS,	        u16,    port)
+
+m4_signal(ASSIGN_WSWS_VAR,	x64,    key,
+                                string, cdr_value)
+m4_signal(READ_WSWS_VAR,	x64,    key)
+m4_signal(WSWS_VALUE_IS,	string, cdr_value)
+
+/// print the entire database (for command ]SVARS)
+m4_signal(PRINT_SVAR_DB)
+m4_signal(SVAR_DB_PRINTED,      string, printout)
 

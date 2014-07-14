@@ -860,9 +860,9 @@ conversions.
 Besides the classical commands like )LOAD or )SAVE there are a number of
 debug commands that start with ] rather than ).
 Regular commands start with ) and print their output on stdout.
-Debug commands start with) and print their output on stderr. Normally
+Debug commands start with ] and print their output on stderr. Normally
 you cannot easily distinguish between stdout and stderr, but another
-feature, colored output, uses different colors for stdout and stdout.
+feature, colored output, uses different colors for stdout and stderr.
 
 Type )HELP or ]HELP in the interpreter for a list of all commands available.
 

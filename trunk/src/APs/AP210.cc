@@ -85,6 +85,11 @@ struct SVAR_context
 };
 
 //-----------------------------------------------------------------------------
+const char * prog_name()
+{
+   return "AP210";
+}
+//-----------------------------------------------------------------------------
 int
 set_ACK(Coupled_var & var, int exco)
 {
@@ -257,15 +262,15 @@ const CDR_string & cdr = *ctx.var_C.data;
 
    if (cdr.check())
       {
-        CERR << "Bad CDR record:" << endl;
-        cdr.debug(CERR, LOC);
+        get_CERR() << "Bad CDR record:" << endl;
+        cdr.debug(get_CERR(), LOC);
         set_ACK(ctx.var_C, -47);
         return;
       }
 
    if (cdr.get_rank() > 1)   // not a scalar or vector
       {
-        CERR << "Bad CDR rank (" << cdr.get_rank() << endl;
+        get_CERR() << "Bad CDR rank (" << cdr.get_rank() << endl;
         set_ACK(ctx.var_C, -32);   // C rank error
         return;
       }
@@ -314,25 +319,25 @@ const int nelm = cdr.header().get_nelm();
    switch(op)
       {
         case 0:  // read fixed-len record
-                 CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                 get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                  set_ACK(ctx.var_C, -47);    // -47 := INVALID SUBCOMMAND
                  return;
                  break;
 
         case 1:  // write fixed-len record
-                 CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                 get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                  set_ACK(ctx.var_C, -47);    // -47 := INVALID SUBCOMMAND
                  return;
                  break;
 
         case 2:  // read direct
-                 CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                 get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                  set_ACK(ctx.var_C, -47);    // -47 := INVALID SUBCOMMAND
                  return;
                  break;
 
         case 3:  // write direct
-                 CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                 get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                  set_ACK(ctx.var_C, -47);    // -47 := INVALID SUBCOMMAND
                  return;
                  break;
@@ -340,7 +345,7 @@ const int nelm = cdr.header().get_nelm();
         case 4:  // read variable (APL object or line)
                  if (ctx.write)
                     {
-                      CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                      get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                       set_ACK(ctx.var_C, -47);    // -47 INVALID SUBCOMMAND
                       return;
                     }
@@ -357,7 +362,7 @@ const int nelm = cdr.header().get_nelm();
         case 5:  // write variable (APL object or line)
                  if (!ctx.write)
                     {
-                      CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                      get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                       set_ACK(ctx.var_C, -47);    // -47 INVALID SUBCOMMAND
                       return;
                     }
@@ -371,13 +376,13 @@ const int nelm = cdr.header().get_nelm();
                  break;
 
         case 6:  // read variable (APL object or line) without CR/LF
-                 CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                 get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                  set_ACK(ctx.var_C, -47);    // -47 := INVALID SUBCOMMAND
                  return;
                        break;
 
         default: set_ACK(ctx.var_C, -47);    // -47 := INVALID SUBCOMMAND
-                 CERR << " INVALID SUBCOMMAND at " << LOC << endl;
+                 get_CERR() << " INVALID SUBCOMMAND at " << LOC << endl;
                  return;
       }
 }
@@ -585,37 +590,6 @@ is_valid_varname(const uint32_t * varname)
    return false;
 }
 //-----------------------------------------------------------------------------
-/// return true iff ctl/dat is CTL/DAT, or Cxxx/Dxxx (or vice versa)
-static bool
-compare_other(const uint32_t * ctl, const uint32_t * dat)
-{
-   if (*ctl == 'D' && *dat == 'C')   // maybe vice versa: change roles
-      return compare_other(dat, ctl);
-
-   if (*ctl++ != 'C')   return false;   // not CTL or Cxxx
-   if (*dat++ != 'D')   return false;   // not DAT or Dxxx
-
-   // check CTL vs. DAT
-   //
-   if (ctl[0] == 'T' && ctl[1] == 'L' && ctl[2] == 0)
-      {
-        if (dat[0] != 'A')   return false;
-        if (dat[1] != 'T')   return false;
-        if (dat[2] == 0)     return true;
-
-        // continue since CTL might match DTL as well
-      }
-
-   for (; ; ++ctl, ++dat)
-       {
-         if (*ctl != *dat)   return false;
-         if (*ctl == 0)      return true;
-       }
-
-   /* not reached */
-   return false;
-}
-//-----------------------------------------------------------------------------
 bool
 initialize(Coupled_var & var)
 {
@@ -668,7 +642,7 @@ const uint32_t * varname = Svar_DB::get_varname(var.key);
    if (rank > 1)
       { error_loc = LOC;   return E_RANK_ERROR; }
 
-SV_key key_D = Svar_DB::pairing_key(var.key, compare_other);
+SV_key key_D = Svar_DB::find_pairing_key(var.key);
    if (key_D == 0)   { error_loc = LOC;   return E_VALUE_ERROR; }
 Coupled_var * var_D = 0;
    for (int c = 0; c < coupled_vars.size(); ++c)
@@ -681,9 +655,9 @@ Coupled_var * var_D = 0;
        }
    if (var_D == 0)
       {
-        CERR << "key_D = " << (key_D & 0xFFFF) << endl;
+        get_CERR() << "key_D = " << (key_D & 0xFFFF) << endl;
         for (int c = 0; c < coupled_vars.size(); ++c)
-            CERR << "key = " << (coupled_vars[c].key & 0xFFFF) << endl;
+            get_CERR() << "key = " << (coupled_vars[c].key & 0xFFFF) << endl;
 
         error_loc = LOC;   return E_VALUE_ERROR;
       }

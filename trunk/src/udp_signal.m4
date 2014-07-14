@@ -203,7 +203,22 @@ public:
    /// print the item
    ostream & print(ostream & out) const
       {
-        return out << "\"" << value << "\"";
+        bool printable = true;
+        for (int b = 0; b < value.size(); ++b)
+            {
+              const int v = value[b] & 0xFF;
+              if (v < ' ' || v > '~')   { printable = false;   break; }
+            }
+
+        if (printable)   return out << "\"" << value << "\"";
+
+        out << hex << setfill('0');
+        for (int b = 0; b < value.size(); ++b)
+            {
+              if (b > 16)   { out << "...";   break; }
+              out << " " << setw(2) << (value[b] & 0xFF);
+            }
+        return out << dec << setfill(' ');
       }
 
 protected:
@@ -367,8 +382,8 @@ public:
    /// store (aka. serialize) this signal into a buffer
    virtual void store(string & buffer) const
        {
-         const Sig_item_u16 id(sid_`'$1);
-         id.store(buffer);
+         const Sig_item_u16 signal_id(sid_`'$1);
+         signal_id.store(buffer);
 expa(`sig_store', `', $@)dnl
        }
 
@@ -415,16 +430,16 @@ size_t len = sock.recv(buffer, sizeof(buffer), from_port, from_ip, timeout_ms);
    if (len <= 0)   return 0;
 
 const uint8_t * b = buffer;
-Sig_item_u16 id(b);
+Sig_item_u16 signal_id(b);
 
 Signal_base * ret = 0;
-   switch(id.get_value())
+   switch(signal_id.get_value())
       {
 define(`m4_signal',
        `        case sid_`'$1: ret = new (class_buffer) $1`'_c(b);   break;')
 include(protocol.def)dnl
         default: cerr << "UdpSocket::recv() failed: unknown id "
-                      << id.get_value() << endl;
+                      << signal_id.get_value() << endl;
                  errno = EINVAL;
                  return 0;
       }
@@ -438,21 +453,31 @@ Signal_base *
 Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
                                  char * & del, ostream * debug)
 {
+   if (bufsize < 2*MAX_SIGNAL_CLASS_SIZE)
+      {
+         // a too small bufsize happens easily but is hard to debug!
+         //
+         cerr << "\n\n*** bufsize is " << bufsize
+              << " but MUST be at least " << 2*MAX_SIGNAL_CLASS_SIZE
+              << " in recv_TCP() !!!" << endl;
+
+         return 0;
+      }
 uint32_t siglen = 0;
    {
      const ssize_t rx_bytes = ::recv(tcp_sock, buffer,
                                      sizeof(uint32_t), MSG_WAITALL);
-     if (rx_bytes !=  sizeof(uint32_t))
+     if (rx_bytes != sizeof(uint32_t))
         {
-          debug && *debug << "*** no signal length in recv_TCP()" << endl;
+          // connection was closed by the peer
           return 0;
         }
-      debug && *debug << "rx_bytes is " << rx_bytes
-                      << " when reading siglen in in recv_TCP()" << endl;
+//    debug && *debug << "rx_bytes is " << rx_bytes
+//                    << " when reading siglen in in recv_TCP()" << endl;
    }
 
    siglen = ntohl(*(uint32_t *)buffer);
-   debug && *debug << "signal length is " << siglen << " in recv_TCP()" << endl;
+// debug && *debug << "signal length is " << siglen << " in recv_TCP()" << endl;
 
    // skip MAX_SIGNAL_CLASS_SIZE bytes at the beginning of buffer
    //
@@ -479,19 +504,19 @@ const ssize_t rx_bytes = ::recv(tcp_sock, rx_buf, siglen, MSG_WAITALL);
                   << endl;
              return 0;
       }
-   debug && *debug << "rx_bytes is " << rx_bytes << " in recv_TCP()" << endl;
+// debug && *debug << "rx_bytes is " << rx_bytes << " in recv_TCP()" << endl;
 
 const uint8_t * b = (const uint8_t *)rx_buf;
-Sig_item_u16 id(b);
+Sig_item_u16 signal_id(b);
 
 Signal_base * ret = 0;
-   switch(id.get_value())
+   switch(signal_id.get_value())
       {
 define(`m4_signal',
        `        case sid_`'$1: ret = new $1`'_c(b);   break;')
 include(protocol.def)dnl
-        default: cerr << "Signal_base::decode() failed: unknown id "
-                      << id.get_value() << endl;
+        default: cerr << "Signal_base::recv_TCP() failed: unknown signal id "
+                      << signal_id.get_value() << endl;
                  errno = EINVAL;
                  return 0;
       }

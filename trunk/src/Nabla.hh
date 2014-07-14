@@ -118,7 +118,7 @@ protected:
     const char * start();
 
    /// parse an operation (something like [...], e.g. [⎕3])
-   const char * parse_oper(const UCS_string & oper, bool initial);
+   const char * parse_oper(UCS_string & oper, bool initial);
 
    /// execute an edit operation
    const char * execute_oper();

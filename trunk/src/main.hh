@@ -27,5 +27,7 @@ extern bool attention_raised;
 /// true if Control-C was hit twice within 500 ms
 extern bool interrupt_raised;
 
+extern const char * prog_name();
+
 //-----------------------------------------------------------------------------
 

@@ -275,67 +275,25 @@ const APL_time_us duration = 1000000 * value->get_ravel(0).get_real_value();
 Value_P
 Quad_SVE::get_apl_value() const
 {
-const APL_time_us current_time = now();
-const APL_time_us wait = timer_end - current_time;
+   for (;;)
+       {
+         Svar_event events = SVE_NO_EVENTS;
+         SV_key key = Svar_DB::get_events(events, ProcessorID::get_id());
 
-   // if timer has expired, return 0
-   //
-   if (wait <= 0)
-      {
-        Svar_DB::clear_all_events();
-        return IntScalar(0, LOC);
-      }
+          if (key || (events != SVE_NO_EVENTS))   break; // something happend
 
-   // At this point the timer is still running.
-   // we use a new UDP port for event reporting and communicate it to APnnn
-   //
-bool got_event = false;
-   {
-     UdpClientSocket event_sock(LOC, ProcessorID::get_APnnn_port());
-     Log(LOG_shared_variables)   event_sock.set_debug(CERR);
+         if (timer_end < now())   // timer expired: return 0
+            {
+              Svar_DB::clear_all_events(ProcessorID::get_id());
+              return IntScalar(0, LOC);
+            }
 
-     {
-       START_EVENT_REPORTING_c start(event_sock, event_sock.get_local_port());
-     }
-
-     uint8_t buf[MAX_SVARS_OFFERED];
-     const Signal_base * response = Signal_base::recv_UDP(event_sock, buf,
-                                                          wait / 1000);
-
-     if (response)   // got event
-        {
-          got_event = true;
-          Log(LOG_shared_variables)
-             {
-               const uint64_t key = response->get__GOT_EVENT__key();
-               const uint32_t * varname = Svar_DB::get_varname(key);
-
-               CERR << "⎕SVE got event '"
-                    << event_name(Svar_event(response->get__GOT_EVENT__event()))
-                    << "' from shared variable ";
-               if (varname)
-                  {
-                    while (*varname)   CERR << (Unicode)(*varname++);
-                  }
-               else
-                  {
-                    CERR << "unknown key " << key;
-                  }
-               CERR << endl;
-             }
-        }
-
-     STOP_EVENT_REPORTING_c stop(event_sock);
-     event_sock.udp_close();
-   }
+          usleep(50000);  // wait 50 ms
+       }
 
    // referencing ⎕SVE always clears all events
    //
-   Svar_DB::clear_all_events();
-
-   // if no event has occurred (timeout) then return 0
-   //
-  if (!got_event)   return IntScalar(0, LOC);
+   Svar_DB::clear_all_events(ProcessorID::get_id());
 
    // we have got an event; return remaining time.
    //
@@ -445,7 +403,7 @@ bool auto_started = false;
 
    if (to_ap && to_ap < AP_FIRST_USER)   // to_proc is an AP
       {
-        if (!Svar_DB::is_registered(to_proc))
+        if (!Svar_DB::is_registered_id(to_proc))
            {
              start_AP(to_ap, false);
              auto_started = true;
@@ -453,7 +411,7 @@ bool auto_started = false;
       }
    else                         // to_proc is an independent processor
       {
-        new (&to_proc)   AP_num3(to_ap, AP_NULL, AP_NULL);
+        new (&to_proc)   AP_num3(to_ap);
       }
 
 Svar_partner from;
@@ -462,7 +420,7 @@ Svar_partner from;
    from.pid = getpid();
    from.port = ProcessorID::get_APnnn_port();
 
-offered_SVAR * svar = Svar_DB::match_or_make(vname, to_proc, from, coupling);
+const SV_key key = Svar_DB::match_or_make(vname, to_proc, from, coupling);
 
    if (coupling == SV_COUPLED)
       {
@@ -473,7 +431,7 @@ offered_SVAR * svar = Svar_DB::match_or_make(vname, to_proc, from, coupling);
         //
         if (auto_started)   coupling = SV_OFFERED;
         
-        return svar->key;
+        return key;
       }
 
    // if something went wrong, complain.
@@ -487,17 +445,7 @@ offered_SVAR * svar = Svar_DB::match_or_make(vname, to_proc, from, coupling);
 
    Assert(coupling == SV_OFFERED);
 
-   // if the coupling partner was registered, then a signal exchange between
-   // APnnn and the partner is taking place. Wait a little until the signal
-   // exchange is finished, so that the next ⎕SVO will return SV_COUPLED.
-   //
-   for (int t = 0; t < 20; ++t)   // wait at most 20 milliseconds
-       {
-         if (!(svar->offering.flags & OSV_OFFER_SENT))   break;
-         usleep(1000);   // wait 1 ms
-       }
-
-   return svar->key;
+   return key;
 }
 //-----------------------------------------------------------------------------
 /**
@@ -575,7 +523,7 @@ Quad_SVQ::get_processors()
    //
    // 2. running processors that have offered variables in Svar_DB.
    //
-vector<int32_t> processors;
+vector<AP_num> processors;
 
    // case 1...
    //
@@ -618,7 +566,7 @@ const char * dirs[] = { "", "/APs" };
                 snprintf(expected, sizeof(expected), "AP%u", apnum);
                 if (strcmp(entry->d_name, expected))   continue;
 
-                processors.push_back(apnum);
+                processors.push_back((AP_num)apnum);
              }
 
          closedir(dir);
@@ -626,7 +574,7 @@ const char * dirs[] = { "", "/APs" };
 
    // case 2...
    //
-   Svar_DB::get_processors(ProcessorID::get_own_ID(), processors);
+   Svar_DB::get_offering_processors(ProcessorID::get_own_ID(), processors);
 
    // sort and remove duplicates
    //
@@ -667,29 +615,44 @@ Value_P Z(new Value(sorted.size(), LOC));
 Value_P
 Quad_SVQ::get_variables(AP_num proc)
 {
-vector<const uint32_t *> vars;
-   Svar_DB::get_variables(ProcessorID::get_own_ID(), proc, vars);
+vector<uint32_t> varnames;
+   Svar_DB::get_offered_variables(ProcessorID::get_own_ID(), proc, varnames);
 
-const int count = vars.size();
-vector<int> varlen;
+   // varnames is a sequence of 0-terminated Unicodes
+   //
+vector<int> var_lengths;   // including terminating 0
+int last_zero = -1;
+   loop(v, varnames.size())
+      {
+        if (varnames[v] == 0)
+           {
+             var_lengths.push_back(v + 1 - last_zero);
+             last_zero = v;
+           }
+        
+      }
+
+const int count = var_lengths.size();
 ShapeItem max_len = 0;
    loop(z, count)
-      {
-        int len = 0;
-        const uint32_t * vz = vars[z];
-        for (; *vz; ++vz)   ++len;
-        varlen.push_back(len);
-         if (max_len < len)   max_len = len;
-      }
+       if (max_len < (var_lengths[z] - 1))   max_len = var_lengths[z] - 1;
 
 const Shape shZ(count, max_len);
 Value_P Z(new Value(shZ, LOC));
+int v = 0;
 
    loop(z, count)
    loop(c, max_len)
       {
-        if (c < varlen[z])   new (Z->next_ravel()) CharCell(Unicode(vars[z][c]));
-        else                 new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
+        if (c < var_lengths[z])
+           {
+             if (varnames[v] == 0)   ++v;
+             new (Z->next_ravel()) CharCell(Unicode(varnames[v++]));
+           }
+        else
+           {
+             new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
+           }
       }
 
    Z->set_default_Spc();   // prototype: character
