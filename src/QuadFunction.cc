@@ -1036,7 +1036,7 @@ const UCS_string statement_B(*B.get());
         //
         StateIndicator * si = Workspace::SI_top();
 
-        si->set_eoc_handler(eoc_A_done);
+        si->set_eoc_handler(eoc_A_and_B_done);
         si->get_eoc_arg().A = A;
         si->get_eoc_arg().B = B;
 
@@ -1080,13 +1080,12 @@ StateIndicator * si = Workspace::SI_top();
 
    // in A ⎕EA B, ⍎B has failed...
    //
+   // "⎕EM and ⎕ET are set, execution of B is abandoned without an error
+   // message, and the expression represented by A is executed."
+   //
 Value_P A = arg.A;
 Value_P B = arg.B;
 const UCS_string statement_A(*A.get());
-
-   // ⍎A has failed. ⎕EM shows only B but should show A ⎕EA B instead.
-   //
-   update_EM(A, B, false);
 
 ExecuteList * fun = 0;
    try
@@ -1119,7 +1118,7 @@ ExecuteList * fun = 0;
      Value_P dummy_Z;
      EOC_arg arg(dummy_Z, B, A);
      StateIndicator * si1 = Workspace::SI_top();
-     si1->set_eoc_handler(eoc_A_done);
+     si1->set_eoc_handler(eoc_A_and_B_done);
      si1->get_eoc_arg() = arg;
    }
 
@@ -1127,12 +1126,13 @@ ExecuteList * fun = 0;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EA::eoc_A_done(Token & token, EOC_arg & arg)
+Quad_EA::eoc_A_and_B_done(Token & token, EOC_arg & arg)
 {
    // in A ⎕EA B, ⍎B has failed, and ⍎A was executed and may or
    // may not have failed.
    //
 StateIndicator * si = Workspace::SI_top();
+   Assert(si);
    si->set_safe_execution(false);
 
    if (token.get_tag() != TOK_ERROR)   // ⍎A succeeded
@@ -1149,37 +1149,20 @@ const UCS_string statement_A(*A.get());
    // here both ⍎B and ⍎A failed. ⎕EM shows only B, but should show
    // A ⎕EA B instead.
    //
-   update_EM(A, B, true);
 
    // display of errors was disabled since ⎕EM was incorrect.
    // now we have fixed ⎕EM and can display it.
    //
-   COUT << si->get_error().get_error_line_1() << endl
-        << si->get_error().get_error_line_2() << endl
-        << si->get_error().get_error_line_3() << endl;
+   si->get_error().print_em(UERR, LOC);
+   si->get_error().clear_error_line_1();
 
-   return false;
-}
-//-----------------------------------------------------------------------------
-void
-Quad_EA::update_EM(Value_P A, Value_P B, bool A_failed)
-{
 UCS_string ucs_2(6, UNI_ASCII_SPACE);
 int left_caret = 6;
 int right_caret;
 
-const UCS_string statement_A(*A.get());
 const UCS_string statement_B(*B.get());
 
-   if (A_failed)
-      {
-        right_caret = left_caret + statement_A.size() + 3;
-      }
-   else   // B failed
-      { //            '                        '       ⎕EA '
-        left_caret += statement_A.size() + 3;
-        right_caret = left_caret + statement_B.size() + 5;
-      }
+   right_caret = left_caret + statement_A.size() + 3;
 
    ucs_2.append(UNI_SINGLE_QUOTE);
    ucs_2.append(statement_A);
@@ -1197,8 +1180,12 @@ const UCS_string statement_B(*B.get());
    ucs_2.append(statement_B);
    ucs_2.append(UNI_SINGLE_QUOTE);
 
-StateIndicator * si = Workspace::SI_top();
-   si->get_error() .set_error_line_2(ucs_2, left_caret, right_caret);
+   si->get_error().set_error_line_2(ucs_2, left_caret, right_caret);
+
+   UERR << si->get_error().get_error_line_2() << endl
+        << si->get_error().get_error_line_3() << endl;
+
+   return false;
 }
 //=============================================================================
 Token
@@ -1429,14 +1416,14 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
 {
    // B is empty: no action
    //
-   if (B->element_count() == 0)   return Token(TOK_APL_VALUE1, Str0_0(LOC));
+   if (B->element_count() == 0)   return Token();
 
    error.init(get_error_code(B), error.throw_loc);
 
    if (error.error_code == E_NO_ERROR)   // B = 0 0: reset ⎕ET and ⎕EM.
       {
         Workspace::clear_error(LOC);
-        return Token(TOK_APL_VALUE1, Str0_0(LOC));
+        return Token();
       }
 
    if (error.error_code == E_ASSERTION_FAILED)   // B = 0 ASSERTION_FAILED
@@ -1445,7 +1432,7 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
       }
 
    // at this point we shall throw the error. Add some error details.
-
+   //
    // set up error message 1
    //
    if (A)                                 // A ⎕ES B
@@ -1467,9 +1454,28 @@ Quad_ES::event_simulate(const UCS_string * A, Value_P B, Error & error)
 
    error.show_locked = true;
 
-   if (Workspace::SI_top())
-      Workspace::SI_top()->update_error_info(error);
+   Assert(Workspace::SI_top());
+   if (StateIndicator * si = Workspace::SI_top()->get_parent())
+      {
+        const UserFunction * ufun = si->get_executable()->get_ufun();
+        if (ufun)
+           {
+             // lrm p 282: When ⎕ES is executed from within a defined function
+             //  and B is not empty, the event action is generated as though
+             // the function were primitive.
+             //
+             error.error_message_2 = UCS_string(6, UNI_ASCII_SPACE);
+             error.error_message_2.append(ufun->get_name());
+             error.left_caret = 6;
+             error.right_caret = -1;
+             Workspace::pop_SI(LOC);
+             Workspace::SI_top()->get_error() = error;
+             error.print_em(UERR, LOC);
+             return Token();
+           }
+      }
 
+   Workspace::SI_top()->update_error_info(error);
    return Token();
 }
 //-----------------------------------------------------------------------------
