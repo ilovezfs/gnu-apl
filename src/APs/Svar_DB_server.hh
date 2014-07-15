@@ -31,31 +31,8 @@
 struct Svar_DB_server
 {
    /// see Svar_DB::match_or_make()
-   SV_key match_or_make(const uint32_t * UCS_varname,
-                        const AP_num3 & to,
-                        const Svar_partner & from,
-                        SV_Coupling & coupling);
-
-   /// register partner \b p in this database
-   void register_processor(const Svar_partner & p);
-
-   /// return the registered processor \b proc
-   uint16_t get_udp_port_for_id(const AP_num3 & id) const;
-
-   /// return true if \b id is not used by any registered proc, parent, or grand
-   bool is_unused_id(AP_num id) const;
-
-   /// return the UDP port number for processor \b proc with parent \b parent
-   uint16_t get_udp_port(AP_num proc, AP_num parent) const;
-
-   /// remove \b p from this database
-   void unregister_processor(const AP_num3 & id);
-
-   /// remove stale variables using \b proc
-   void remove_stale();
-
-   /// see Svar_DB::retract_all()
-   void retract_all(const AP_num3 & id);
+   SV_key match_or_make(const uint32_t * UCS_varname, const AP_num3 & to,
+                        const Svar_partner & from);
 
    /// see Svar_DB::get_offering_processors()
    void get_offering_processors(AP_num to_proc, vector<AP_num> & processors);
@@ -104,9 +81,6 @@ struct Svar_DB_server
 
    /// the offered variables
    Svar_record offered_vars[MAX_SVARS_OFFERED];
-
-   /// processors registered in this database
-   Svar_partner active_processors[MAX_ACTIVE_PROCS];
 };
 //-----------------------------------------------------------------------------
 

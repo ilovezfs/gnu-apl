@@ -39,185 +39,14 @@
 
 extern ostream & get_CERR();
 
-//-----------------------------------------------------------------------------
-void
-Svar_DB_server::register_processor(const Svar_partner & p)
-{
-   // if processor is already (i.e. still) registered, update it.
-   //
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         Svar_partner & slot = active_processors[a];
+extern uint16_t get_udp_port_for_id(const AP_num3 & id);
+extern int get_tcp_fd_for_id(const AP_num3 & id);
 
-         if (slot.id == p.id)   // existing partner
-            {
-              Log(LOG_shared_variables)
-                 get_CERR() << "refreshing existing proc " << p.id.proc << endl;
-
-              slot = p;
-              slot.events = SVE_NO_EVENTS;
-              return;
-            }
-       }
-
-   // new processor: find empty slot and insert
-   //
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         Svar_partner & slot = active_processors[a];
-         if (slot.id.proc == AP_NULL)   // free slot
-            {
-              Log(LOG_shared_variables)
-                 {
-                   get_CERR() << "registered processor " << p.id.proc << endl;
-                 }
-              slot = p;
-              slot.events = SVE_NO_EVENTS;
-              return;
-            }
-       }
-
-   // table full.
-   //
-   get_CERR() << "*** table full in register_processor()" << endl;
-}
-//-----------------------------------------------------------------------------
-uint16_t
-Svar_DB_server::get_udp_port_for_id(const AP_num3 & id) const
-{
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         const Svar_partner & slot = active_processors[a];
-         if (slot.id == id)   return slot.port;
-       }
-
-   return 0;
-}
-//-----------------------------------------------------------------------------
-bool
-Svar_DB_server::is_unused_id(AP_num id) const
-{
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         const Svar_partner & slot = active_processors[a];
-         if (slot.id.proc   == id)   return false;
-         if (slot.id.parent == id)   return false;
-         if (slot.id.grand  == id)   return false;
-       }
-
-   // not used
-   //
-   return true;
-}
-//-----------------------------------------------------------------------------
-uint16_t
-Svar_DB_server::get_udp_port(AP_num proc, AP_num parent) const
-{
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         const Svar_partner & slot = active_processors[a];
-         if (slot.id.proc == proc &&
-             slot.id.parent == parent)   return slot.port;
-       }
-
-   return 0;
-}
-//-----------------------------------------------------------------------------
-void
-Svar_DB_server::unregister_processor(const AP_num3 & id)
-{
-   retract_all(id);
-
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         Svar_partner & slot = active_processors[a];
-         if (slot.id == id)   // found
-            {
-              Log(LOG_shared_variables)
-                 get_CERR() << "unregistered processor " << id.proc << endl;
-              slot.clear();
-              break;
-            }
-       }
-
-   // send DISCONNECT to dependent processors
-   //
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         const Svar_partner & slot = active_processors[a];
-         if (slot.id.parent == id.proc &&
-             slot.id.grand == id.parent)
-            {
-              Log(LOG_shared_variables)
-                 get_CERR() << "sending DISCONNECT to proc "
-                      << int(slot.id.proc)
-                   << endl;
-              UdpClientSocket sock(LOC, slot.port);
-              DISCONNECT_c signal(sock);
-            }
-       }
-}
-//-----------------------------------------------------------------------------
-void
-Svar_DB_server::remove_stale()
-{
-   // don't use CERR here since CERR may not yet have been initialized yet.
-   //
-int stale_procs = 0;
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         Svar_partner & sp = active_processors[a];
-         if (sp.pid_alive())   continue;
-         if (sp.pid == 0)      continue;
-
-         if (stale_procs == 0)
-            get_CERR() << "removing stale processors..." << endl;
-
-         get_CERR() << "   clearing stale pid " << sp.pid << endl;
-         sp.clear();
-         ++stale_procs;
-       }
-
-int stale_vars = 0;
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-       {
-         offered_vars[o].remove_stale(stale_vars);
-       }
-}
-//-----------------------------------------------------------------------------
-void
-Svar_DB_server::retract_all(const AP_num3 & id)
-{
-   Log(LOG_shared_variables)
-      get_CERR() << "retract_all(proc " << id.proc << ")" << endl;
-
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-       {
-         Svar_record & svar = offered_vars[o];
-         if (!svar.valid())         continue;
-
-         if (svar.offering.id == id)         svar.retract();
-         else if (svar.accepting.id == id)   svar.retract();
-       }
-}
 //-----------------------------------------------------------------------------
 Svar_event
 Svar_DB_server::clear_all_events(AP_num3 id)
 {
 int ret = SVE_NO_EVENTS;
-
-   // clear event bits of calling partner
-   //
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         Svar_partner & slot = active_processors[a];
-
-         if (slot.id == id)
-            {
-              ret = slot.events;
-              slot.events = SVE_NO_EVENTS;
-            }
-       }
 
    // clear event bit in all shared variables
    //
@@ -242,13 +71,6 @@ int ret = SVE_NO_EVENTS;
 SV_key
 Svar_DB_server::get_events(Svar_event & events, AP_num3 proc) const
 {
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         const Svar_partner & slot = active_processors[a];
-
-         if (slot.id == proc)   events = slot.events;
-       }
-
    // return the first key with an event for proc (if any)
    //
    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
@@ -270,18 +92,6 @@ Svar_DB_server::get_events(Svar_event & events, AP_num3 proc) const
 void
 Svar_DB_server::add_event(SV_key key, AP_num3 proc, Svar_event event)
 {
-   // set event bit for proc
-   //
-   for (int a = 0; a < MAX_ACTIVE_PROCS; ++a)
-       {
-         Svar_partner & slot = active_processors[a];
-
-         if (slot.id == proc)
-            {
-              slot.events = Svar_event(slot.events | event);
-            }
-       }
-
    if (key == 0)   return;   // no key
 
 Svar_record * svar = find_var(key);
@@ -441,24 +251,24 @@ Svar_DB_server::compare_ctl_dat_etc(const uint32_t * ctl, const uint32_t * dat)
 //-----------------------------------------------------------------------------
 SV_key
 Svar_DB_server::match_or_make(const uint32_t * UCS_varname, const AP_num3 & to,
-                              const Svar_partner & from, SV_Coupling & coupling)
+                              const Svar_partner & from)
 {
 // CERR << "got offer from ("; from.print(CERR); CERR << ") to " << to << " ";
 // Svar_record::print_name(CERR, UCS_varname) << endl;
 
 Svar_record * svar = match_pending_offer(UCS_varname, to, from);
-
-   Log(LOG_shared_variables)   if (svar)
-      {
-        get_CERR() << "found pending offer from " << svar->offering.id.proc << " ";
-        svar->print_name(get_CERR()) << " key 0x" << hex << svar->key << dec << endl;
-      }
-
    if (svar)
       {
-usleep(50000);
-        coupling = svar->get_coupling();
-        return svar->key;
+        Log(LOG_shared_variables)
+           {
+             get_CERR() << "found pending offer from "
+                        << svar->offering.id.proc << " ";
+             svar->print_name(get_CERR());
+             get_CERR() << " key 0x" << hex << svar->key << dec << endl;
+           }
+
+         usleep(50000);
+         return svar->key;
       }
 
 usleep(50000);
@@ -470,8 +280,6 @@ usleep(50000);
 //      Svar_DB::print(get_CERR());
       }
 
-   if (svar)   coupling = svar->get_coupling();
-   else        coupling = NO_COUPLING;
    return svar->key;
 }
 //-----------------------------------------------------------------------------
@@ -480,47 +288,45 @@ Svar_DB_server::match_pending_offer(const uint32_t * UCS_varname,
                                     const AP_num3 & to,
                                     const Svar_partner & from)
 {
+Svar_record * pending_offer = 0;
+
    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
        {
-         Svar_record * svar = offered_vars + o;
-         if (svar->get_coupling() != SV_OFFERED)                       continue;
-         if (!svar->match_name(UCS_varname))                           continue;
+         Svar_record & svar = offered_vars[o];
+         if (svar.get_coupling() != SV_OFFERED)                       continue;
+         if (!svar.match_name(UCS_varname))                           continue;
 
          // if both offers are general then they do not match
          //
          if (to.proc == AP_GENERAL &&
-             svar->accepting.id.proc == AP_GENERAL)                    continue;
+             svar.accepting.id.proc == AP_GENERAL)                    continue;
 
-         if (svar->accepting.id.proc == AP_GENERAL)   // existing general offer
+         if (svar.accepting.id.proc == AP_GENERAL)   // existing general offer
             {
-              if (!(svar->offering.id == to))                          continue;
+              if (!(svar.offering.id == to))                          continue;
             }
          else if (to.proc == AP_GENERAL)              // new offer is general
             {
-              if (svar->accepting.id.proc != from.id.proc)             continue;
+              if (svar.accepting.id.proc != from.id.proc)             continue;
             }
          else
             {
-              if (!(svar->offering.id == to))                          continue;
-              if (!(svar->accepting.id == from.id))                    continue;
+              if (!(svar.offering.id == to))                          continue;
+              if (!(svar.accepting.id == from.id))                    continue;
             }
 
-         // the two offer match. Fill in accepting side.
-         //
-         svar->accepting = from;
-
-         // inform both partners that the coupling is complete
-         //
-         {
-           UdpClientSocket sock(LOC, svar->offering.port);
-           OFFER_MATCHED_c signal(sock, svar->key);
-         }
-         {
-           UdpClientSocket sock(LOC, svar->accepting.port);
-           OFFER_MATCHED_c signal(sock, svar->key);
-         }
-         return svar;            // match found
+         // found pending offer
+         // 
+         pending_offer = &svar;
+         break;
        }
+
+   if (pending_offer)
+      {
+         pending_offer->accepting = from;
+         pending_offer->offering.events = SVE_OFFER_MATCHED;
+         return pending_offer;            // match found
+      }
 
    return 0;   // no match
 }

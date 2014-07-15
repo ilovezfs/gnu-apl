@@ -1049,9 +1049,10 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                       else DOMAIN_ERROR;
                     }
 
-                 const int ok = access(path.c_str(), perms);
-                 if (ok) return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
-                 goto out_errno;
+                 errno = 0;
+                 const int not_ok = access(path.c_str(), perms);
+                 if (not_ok)   goto out_errno;
+                 return Token(TOK_APL_VALUE1, IntScalar(0, LOC));
               }
 
         default: break;

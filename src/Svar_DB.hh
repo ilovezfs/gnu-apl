@@ -89,9 +89,7 @@ public:
    /// 2 if a pending offer was found. In the latter case, the pending offer
    /// was removed and its relevant data returned through the d_... args.
    static SV_key match_or_make(const uint32_t * UCS_varname,
-                               const AP_num3 & to,
-                               const Svar_partner & from,
-                               SV_Coupling & coupling);
+                               const AP_num3 & to, const Svar_partner & from);
 
    /// return true if \b id is registered in APserver
    static bool is_registered_id(const AP_num3 & id);

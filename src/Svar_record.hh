@@ -109,6 +109,25 @@ enum TCP_socket
 /// one of the two partners of a shared vaiable
 struct Svar_partner
 {
+   Svar_partner()
+   : id(NO_AP),
+     pid(0),
+     port(0),
+     tcp_fd(NO_TCP_SOCKET),
+     flags(0),
+     events(SVE_NO_EVENTS)
+   {}
+
+   Svar_partner(const AP_num3 _id, pid_t _pid, uint16_t _port,
+                TCP_socket _tcp_fd)
+   : id(_id),
+     pid(_pid),
+     port(_port),
+     tcp_fd(_tcp_fd),
+     flags(0),
+     events(SVE_NO_EVENTS)
+   {}
+
    /// whether the partner is still participating. This is int rather than bool
    /// so that we can add the alive()s of both partners in order to get the
    /// coupling. We use port rather than proc for this purpose, since proc
@@ -129,7 +148,8 @@ struct Svar_partner
    void set_control(Svar_Control ctl)
       { flags = ctl; }
 
-   /// return the control bits of this partner (as seen by the offering partner)
+   /// return the control bits of this partner (as seen by the offering
+   // partner)
    Svar_Control get_control() const
       { return (Svar_Control)flags; }
 
@@ -144,6 +164,9 @@ struct Svar_partner
 
    /// the UDP port for contacting \b id
    uint16_t port;
+
+   /// the TCP socket of the server towards the partner
+   TCP_socket tcp_fd;
 
    /// flags controlled by this partner. The numbers 1 and 2 in the SET_BY_1,
    /// SET_BY_2 bits refer to this partner as 1 and the other partner as 2.

@@ -80,6 +80,9 @@ public:
    /// return true if this socket is valid (usable)
    bool is_valid() const   { return udp_socket != -1; }
 
+   /// return the file descriptor of this endpoint
+   int get_fd() const   { return udp_socket; }
+
    /// enable debug printouts on \b out
    void set_debug(std::ostream & out)   { debug = &out; }
 

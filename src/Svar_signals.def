@@ -25,7 +25,6 @@ m4_signal(DISCONNECT)
 /// ⎕SVO, ⎕SVR
 m4_signal(NEW_VARIABLE,     x64,    key)
 m4_signal(MAKE_OFFER,       x64,    key)
-m4_signal(OFFER_MATCHED,    x64,    key)
 m4_signal(RETRACT_OFFER,    x64,    key)
 
 /// SVAR←X and X←SVAR
@@ -58,19 +57,13 @@ m4_signal(IS_REGISTERED_ID,	u32,    proc,
 
 m4_signal(YES_NO,	        u8,    yes)
 
-/// register processor proc in the database
+/// register processor proc in APserver
 m4_signal(REGISTER_PROCESSOR,	u32,    proc,
 				u32,    parent,
 				u32,    grand,
 				u32,    pid,
 				u16,    port,
 				string, progname)
-
-/// unregister processor proc in the database
-m4_signal(UNREGISTER_PROCESSOR,	u32,    proc,
-				u32,    parent,
-				u32,    grand,
-                                string, progname)
 
 /// match offered shared variable or create a new offer
 m4_signal(MATCH_OR_MAKE,        string, varname,
@@ -81,12 +74,9 @@ m4_signal(MATCH_OR_MAKE,        string, varname,
                                 u32,    from_parent,
                                 u32,    from_grand,
 				u32,    from_pid,
-				u16,    from_port,
-				u16,    from_flags)
+				u16,    from_port)
 
-
-m4_signal(MATCH_OR_MAKE_RESULT, x64,    key,
-                                u8,     coupling)
+m4_signal(MATCH_OR_MAKE_RESULT, x64,    key)
 
 
 m4_signal(FIND_OFFERING_ID,     x64,    key)
