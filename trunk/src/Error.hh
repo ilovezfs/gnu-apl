@@ -56,7 +56,7 @@ struct Error
    /// return ⎕EM[1;]. This is the first of 3 error lines. It contains the
    /// error name (like SYNTAX ERROR, DOMAIN ERROR, etc) and is subject
    /// to translation
-   const UCS_string & clear_error_line_1()
+   void clear_error_line_1()
       { error_message_1.clear(); }
 
    const UCS_string & get_error_line_1() const

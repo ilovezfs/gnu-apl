@@ -617,7 +617,7 @@ bool have_parenth = tf2_shape(ucs, value->get_shape());
              UCS_string ucs2(cell.get_imag_value(), scaled, pctx);
              ucs.append(ucs1);
              ucs.append(UNI_ASCII_J);
-             ucs.append(ucs1);
+             ucs.append(ucs2);
            }
         else if (cell.is_float_cell())
            {

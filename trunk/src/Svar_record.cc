@@ -90,7 +90,8 @@ Svar_partner::print(ostream & out) const
    else             out << "      ";
 
    out << "│" << setw(5) << pid
-       << "│" << setw(5) << port << "│"
+       << "│" << setw(5) << port
+       << "│" << setw(2) << tcp_fd << "│"
        << hex << uppercase << setfill('0') << setw(2) << flags
        << dec << nouppercase << setfill(' ');
 

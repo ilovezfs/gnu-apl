@@ -279,7 +279,7 @@ APL_Integer eq = 0;   // assume incompatible cell types ( == not equal)
 
    if (is_character_cell() == A->is_character_cell())   // compatible cell types
       {
-       eq = compare(*A) == COMP_EQ;
+       eq = equal(*A, Workspace::get_CT());
       }
 
    new (Z) IntCell(eq);
@@ -293,7 +293,7 @@ APL_Integer neq = 1;   // assume incompatible cell types ( == not equal)
 
    if (is_character_cell() == A->is_character_cell())   // compatible cell types
       {
-       neq = compare(*A) != COMP_EQ;
+       neq = !equal(*A, Workspace::get_CT());
       }
 
    new (Z) IntCell(neq);

@@ -299,7 +299,7 @@ Svar_DB::init(const char * bin_dir, const char * prog,
 #if 1
 SV_key
 Svar_DB::match_or_make(const uint32_t * UCS_varname, const AP_num3 & to,
-                       const Svar_partner & from, SV_Coupling & coupling)
+                       const Svar_partner & from)
 {
 const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
    if (tcp == NO_TCP_SOCKET)   return 0;
@@ -310,23 +310,15 @@ string vname((const char *)UCS_varname, MAX_SVAR_NAMELEN*sizeof(uint32_t));
 MATCH_OR_MAKE_c request(tcp, vname,
                              to.proc,      to.parent,      to.grand,
                              from.id.proc, from.id.parent, from.id.grand,
-                             from.pid,     from.port,      from.flags);
+                             from.pid,     from.port);
 
 char * del = 0;
 char buffer[2*MAX_SIGNAL_CLASS_SIZE];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
-   if (response)
-      {
-        coupling = (SV_Coupling)response->get__MATCH_OR_MAKE_RESULT__coupling();
-        return response->get__MATCH_OR_MAKE_RESULT__key();
-      }
-   else
-      {
-        coupling = NO_COUPLING;
-        return 0;
-      }
+   if (response)   return response->get__MATCH_OR_MAKE_RESULT__key();
+   else            return 0;
 }
 #endif
 //-----------------------------------------------------------------------------

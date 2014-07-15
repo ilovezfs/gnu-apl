@@ -240,7 +240,6 @@ enum Signal_id
 /// ⎕SVO, ⎕SVR
    sid_NEW_VARIABLE,
    sid_MAKE_OFFER,
-   sid_OFFER_MATCHED,
    sid_RETRACT_OFFER,
 
 /// SVAR←X and X←SVAR
@@ -269,15 +268,11 @@ enum Signal_id
 
    sid_YES_NO,
 
-/// register processor proc in the database
+/// register processor proc in APserver
    sid_REGISTER_PROCESSOR,
-
-/// unregister processor proc in the database
-   sid_UNREGISTER_PROCESSOR,
 
 /// match offered shared variable or create a new offer
    sid_MATCH_OR_MAKE,
-
 
    sid_MATCH_OR_MAKE_RESULT,
 
@@ -367,10 +362,6 @@ public:
    virtual uint64_t get__MAKE_OFFER__key() const   ///< dito
       { bad_get("MAKE_OFFER", "key"); return 0; }
 
-   /// access functions for signal OFFER_MATCHED...
-   virtual uint64_t get__OFFER_MATCHED__key() const   ///< dito
-      { bad_get("OFFER_MATCHED", "key"); return 0; }
-
    /// access functions for signal RETRACT_OFFER...
    virtual uint64_t get__RETRACT_OFFER__key() const   ///< dito
       { bad_get("RETRACT_OFFER", "key"); return 0; }
@@ -450,7 +441,7 @@ public:
       { bad_get("YES_NO", "yes"); return 0; }
 
 
-/// register processor proc in the database
+/// register processor proc in APserver
    /// access functions for signal REGISTER_PROCESSOR...
    virtual uint32_t get__REGISTER_PROCESSOR__proc() const   ///< dito
       { bad_get("REGISTER_PROCESSOR", "proc"); return 0; }
@@ -464,18 +455,6 @@ public:
       { bad_get("REGISTER_PROCESSOR", "port"); return 0; }
    virtual string get__REGISTER_PROCESSOR__progname() const   ///< dito
       { bad_get("REGISTER_PROCESSOR", "progname"); return 0; }
-
-
-/// unregister processor proc in the database
-   /// access functions for signal UNREGISTER_PROCESSOR...
-   virtual uint32_t get__UNREGISTER_PROCESSOR__proc() const   ///< dito
-      { bad_get("UNREGISTER_PROCESSOR", "proc"); return 0; }
-   virtual uint32_t get__UNREGISTER_PROCESSOR__parent() const   ///< dito
-      { bad_get("UNREGISTER_PROCESSOR", "parent"); return 0; }
-   virtual uint32_t get__UNREGISTER_PROCESSOR__grand() const   ///< dito
-      { bad_get("UNREGISTER_PROCESSOR", "grand"); return 0; }
-   virtual string get__UNREGISTER_PROCESSOR__progname() const   ///< dito
-      { bad_get("UNREGISTER_PROCESSOR", "progname"); return 0; }
 
 
 /// match offered shared variable or create a new offer
@@ -498,16 +477,11 @@ public:
       { bad_get("MATCH_OR_MAKE", "from_pid"); return 0; }
    virtual uint16_t get__MATCH_OR_MAKE__from_port() const   ///< dito
       { bad_get("MATCH_OR_MAKE", "from_port"); return 0; }
-   virtual uint16_t get__MATCH_OR_MAKE__from_flags() const   ///< dito
-      { bad_get("MATCH_OR_MAKE", "from_flags"); return 0; }
-
 
 
    /// access functions for signal MATCH_OR_MAKE_RESULT...
    virtual uint64_t get__MATCH_OR_MAKE_RESULT__key() const   ///< dito
       { bad_get("MATCH_OR_MAKE_RESULT", "key"); return 0; }
-   virtual uint8_t get__MATCH_OR_MAKE_RESULT__coupling() const   ///< dito
-      { bad_get("MATCH_OR_MAKE_RESULT", "coupling"); return 0; }
 
 
 
@@ -827,58 +801,6 @@ public:
 
   /// return item key of this signal 
    virtual uint64_t get__MAKE_OFFER__key() const { return key.get_value(); }
-
-
-protected:
-   Sig_item_x64 key;   ///< key
-};
-//----------------------------------------------------------------------------
-/// a class for OFFER_MATCHED
-class OFFER_MATCHED_c : public Signal_base
-{
-public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   OFFER_MATCHED_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
-
-   /// contructor that creates the signal and sends it on TCP socket s
-   OFFER_MATCHED_c(int s,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_TCP(s); }
-
-   /// construct (deserialize) this item from a (received) buffer
-   /// id has already been load()ed.
-   OFFER_MATCHED_c(const uint8_t * & buffer)
-   : key(buffer)
-   {}
-
-   /// store (aka. serialize) this signal into a buffer
-   virtual void store(string & buffer) const
-       {
-         const Sig_item_u16 signal_id(sid_OFFER_MATCHED);
-         signal_id.store(buffer);
-        key.store(buffer);
-       }
-
-   /// print this signal on out.
-   virtual ostream & print(ostream & out) const
-      {
-        out << "OFFER_MATCHED(";
-        key.print(out);
-        return out << ")" << endl;
-      }
-
-   /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_OFFER_MATCHED; }
-
-   /// the name of this signal
-   virtual const char * get_sigName() const   { return "OFFER_MATCHED"; }
-
-  /// return item key of this signal 
-   virtual uint64_t get__OFFER_MATCHED__key() const { return key.get_value(); }
 
 
 protected:
@@ -1572,7 +1494,7 @@ protected:
    Sig_item_u8 yes;   ///< yes
 };
 
-/// register processor proc in the database
+/// register processor proc in APserver
 //----------------------------------------------------------------------------
 /// a class for REGISTER_PROCESSOR
 class REGISTER_PROCESSOR_c : public Signal_base
@@ -1681,93 +1603,6 @@ protected:
    Sig_item_string progname;   ///< progname
 };
 
-/// unregister processor proc in the database
-//----------------------------------------------------------------------------
-/// a class for UNREGISTER_PROCESSOR
-class UNREGISTER_PROCESSOR_c : public Signal_base
-{
-public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   UNREGISTER_PROCESSOR_c(const UdpSocket & ctx,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand,
-                Sig_item_string _progname)
-   : proc(_proc),
-     parent(_parent),
-     grand(_grand),
-     progname(_progname)
-   { send_UDP(ctx); }
-
-   /// contructor that creates the signal and sends it on TCP socket s
-   UNREGISTER_PROCESSOR_c(int s,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand,
-                Sig_item_string _progname)
-   : proc(_proc),
-     parent(_parent),
-     grand(_grand),
-     progname(_progname)
-   { send_TCP(s); }
-
-   /// construct (deserialize) this item from a (received) buffer
-   /// id has already been load()ed.
-   UNREGISTER_PROCESSOR_c(const uint8_t * & buffer)
-   : proc(buffer),
-     parent(buffer),
-     grand(buffer),
-     progname(buffer)
-   {}
-
-   /// store (aka. serialize) this signal into a buffer
-   virtual void store(string & buffer) const
-       {
-         const Sig_item_u16 signal_id(sid_UNREGISTER_PROCESSOR);
-         signal_id.store(buffer);
-        proc.store(buffer);
-        parent.store(buffer);
-        grand.store(buffer);
-        progname.store(buffer);
-       }
-
-   /// print this signal on out.
-   virtual ostream & print(ostream & out) const
-      {
-        out << "UNREGISTER_PROCESSOR(";
-        proc.print(out);   out << ", ";
-        parent.print(out);   out << ", ";
-        grand.print(out);   out << ", ";
-        progname.print(out);
-        return out << ")" << endl;
-      }
-
-   /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_UNREGISTER_PROCESSOR; }
-
-   /// the name of this signal
-   virtual const char * get_sigName() const   { return "UNREGISTER_PROCESSOR"; }
-
-  /// return item proc of this signal 
-   virtual uint32_t get__UNREGISTER_PROCESSOR__proc() const { return proc.get_value(); }
-
-  /// return item parent of this signal 
-   virtual uint32_t get__UNREGISTER_PROCESSOR__parent() const { return parent.get_value(); }
-
-  /// return item grand of this signal 
-   virtual uint32_t get__UNREGISTER_PROCESSOR__grand() const { return grand.get_value(); }
-
-  /// return item progname of this signal 
-   virtual string get__UNREGISTER_PROCESSOR__progname() const { return progname.get_value(); }
-
-
-protected:
-   Sig_item_u32 proc;   ///< proc
-   Sig_item_u32 parent;   ///< parent
-   Sig_item_u32 grand;   ///< grand
-   Sig_item_string progname;   ///< progname
-};
-
 /// match offered shared variable or create a new offer
 //----------------------------------------------------------------------------
 /// a class for MATCH_OR_MAKE
@@ -1784,8 +1619,7 @@ public:
                 Sig_item_u32 _from_parent,
                 Sig_item_u32 _from_grand,
                 Sig_item_u32 _from_pid,
-                Sig_item_u16 _from_port,
-                Sig_item_u16 _from_flags)
+                Sig_item_u16 _from_port)
    : varname(_varname),
      to_proc(_to_proc),
      to_parent(_to_parent),
@@ -1794,8 +1628,7 @@ public:
      from_parent(_from_parent),
      from_grand(_from_grand),
      from_pid(_from_pid),
-     from_port(_from_port),
-     from_flags(_from_flags)
+     from_port(_from_port)
    { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
@@ -1808,8 +1641,7 @@ public:
                 Sig_item_u32 _from_parent,
                 Sig_item_u32 _from_grand,
                 Sig_item_u32 _from_pid,
-                Sig_item_u16 _from_port,
-                Sig_item_u16 _from_flags)
+                Sig_item_u16 _from_port)
    : varname(_varname),
      to_proc(_to_proc),
      to_parent(_to_parent),
@@ -1818,8 +1650,7 @@ public:
      from_parent(_from_parent),
      from_grand(_from_grand),
      from_pid(_from_pid),
-     from_port(_from_port),
-     from_flags(_from_flags)
+     from_port(_from_port)
    { send_TCP(s); }
 
    /// construct (deserialize) this item from a (received) buffer
@@ -1833,8 +1664,7 @@ public:
      from_parent(buffer),
      from_grand(buffer),
      from_pid(buffer),
-     from_port(buffer),
-     from_flags(buffer)
+     from_port(buffer)
    {}
 
    /// store (aka. serialize) this signal into a buffer
@@ -1851,7 +1681,6 @@ public:
         from_grand.store(buffer);
         from_pid.store(buffer);
         from_port.store(buffer);
-        from_flags.store(buffer);
        }
 
    /// print this signal on out.
@@ -1866,8 +1695,7 @@ public:
         from_parent.print(out);   out << ", ";
         from_grand.print(out);   out << ", ";
         from_pid.print(out);   out << ", ";
-        from_port.print(out);   out << ", ";
-        from_flags.print(out);
+        from_port.print(out);
         return out << ")" << endl;
       }
 
@@ -1904,9 +1732,6 @@ public:
   /// return item from_port of this signal 
    virtual uint16_t get__MATCH_OR_MAKE__from_port() const { return from_port.get_value(); }
 
-  /// return item from_flags of this signal 
-   virtual uint16_t get__MATCH_OR_MAKE__from_flags() const { return from_flags.get_value(); }
-
 
 protected:
    Sig_item_string varname;   ///< varname
@@ -1918,9 +1743,7 @@ protected:
    Sig_item_u32 from_grand;   ///< from_grand
    Sig_item_u32 from_pid;   ///< from_pid
    Sig_item_u16 from_port;   ///< from_port
-   Sig_item_u16 from_flags;   ///< from_flags
 };
-
 
 //----------------------------------------------------------------------------
 /// a class for MATCH_OR_MAKE_RESULT
@@ -1929,25 +1752,20 @@ class MATCH_OR_MAKE_RESULT_c : public Signal_base
 public:
    /// contructor that creates the signal and sends it on UDP socket ctx
    MATCH_OR_MAKE_RESULT_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_u8 _coupling)
-   : key(_key),
-     coupling(_coupling)
+                Sig_item_x64 _key)
+   : key(_key)
    { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    MATCH_OR_MAKE_RESULT_c(int s,
-                Sig_item_x64 _key,
-                Sig_item_u8 _coupling)
-   : key(_key),
-     coupling(_coupling)
+                Sig_item_x64 _key)
+   : key(_key)
    { send_TCP(s); }
 
    /// construct (deserialize) this item from a (received) buffer
    /// id has already been load()ed.
    MATCH_OR_MAKE_RESULT_c(const uint8_t * & buffer)
-   : key(buffer),
-     coupling(buffer)
+   : key(buffer)
    {}
 
    /// store (aka. serialize) this signal into a buffer
@@ -1956,15 +1774,13 @@ public:
          const Sig_item_u16 signal_id(sid_MATCH_OR_MAKE_RESULT);
          signal_id.store(buffer);
         key.store(buffer);
-        coupling.store(buffer);
        }
 
    /// print this signal on out.
    virtual ostream & print(ostream & out) const
       {
         out << "MATCH_OR_MAKE_RESULT(";
-        key.print(out);   out << ", ";
-        coupling.print(out);
+        key.print(out);
         return out << ")" << endl;
       }
 
@@ -1977,13 +1793,9 @@ public:
   /// return item key of this signal 
    virtual uint64_t get__MATCH_OR_MAKE_RESULT__key() const { return key.get_value(); }
 
-  /// return item coupling of this signal 
-   virtual uint8_t get__MATCH_OR_MAKE_RESULT__coupling() const { return coupling.get_value(); }
-
 
 protected:
    Sig_item_x64 key;   ///< key
-   Sig_item_u8 coupling;   ///< coupling
 };
 
 
@@ -3157,7 +2969,6 @@ struct _all_signal_classes_
 /// ⎕SVO, ⎕SVR
         char u_NEW_VARIABLE[sizeof(NEW_VARIABLE_c)];
         char u_MAKE_OFFER[sizeof(MAKE_OFFER_c)];
-        char u_OFFER_MATCHED[sizeof(OFFER_MATCHED_c)];
         char u_RETRACT_OFFER[sizeof(RETRACT_OFFER_c)];
 
 /// SVAR←X and X←SVAR
@@ -3186,15 +2997,11 @@ struct _all_signal_classes_
 
         char u_YES_NO[sizeof(YES_NO_c)];
 
-/// register processor proc in the database
+/// register processor proc in APserver
         char u_REGISTER_PROCESSOR[sizeof(REGISTER_PROCESSOR_c)];
-
-/// unregister processor proc in the database
-        char u_UNREGISTER_PROCESSOR[sizeof(UNREGISTER_PROCESSOR_c)];
 
 /// match offered shared variable or create a new offer
         char u_MATCH_OR_MAKE[sizeof(MATCH_OR_MAKE_c)];
-
 
         char u_MATCH_OR_MAKE_RESULT[sizeof(MATCH_OR_MAKE_RESULT_c)];
 
@@ -3271,7 +3078,6 @@ Signal_base * ret = 0;
 /// ⎕SVO, ⎕SVR
         case sid_NEW_VARIABLE: ret = new (class_buffer) NEW_VARIABLE_c(b);   break;
         case sid_MAKE_OFFER: ret = new (class_buffer) MAKE_OFFER_c(b);   break;
-        case sid_OFFER_MATCHED: ret = new (class_buffer) OFFER_MATCHED_c(b);   break;
         case sid_RETRACT_OFFER: ret = new (class_buffer) RETRACT_OFFER_c(b);   break;
 
 /// SVAR←X and X←SVAR
@@ -3300,15 +3106,11 @@ Signal_base * ret = 0;
 
         case sid_YES_NO: ret = new (class_buffer) YES_NO_c(b);   break;
 
-/// register processor proc in the database
+/// register processor proc in APserver
         case sid_REGISTER_PROCESSOR: ret = new (class_buffer) REGISTER_PROCESSOR_c(b);   break;
-
-/// unregister processor proc in the database
-        case sid_UNREGISTER_PROCESSOR: ret = new (class_buffer) UNREGISTER_PROCESSOR_c(b);   break;
 
 /// match offered shared variable or create a new offer
         case sid_MATCH_OR_MAKE: ret = new (class_buffer) MATCH_OR_MAKE_c(b);   break;
-
 
         case sid_MATCH_OR_MAKE_RESULT: ret = new (class_buffer) MATCH_OR_MAKE_RESULT_c(b);   break;
 
@@ -3439,7 +3241,6 @@ Signal_base * ret = 0;
 /// ⎕SVO, ⎕SVR
         case sid_NEW_VARIABLE: ret = new NEW_VARIABLE_c(b);   break;
         case sid_MAKE_OFFER: ret = new MAKE_OFFER_c(b);   break;
-        case sid_OFFER_MATCHED: ret = new OFFER_MATCHED_c(b);   break;
         case sid_RETRACT_OFFER: ret = new RETRACT_OFFER_c(b);   break;
 
 /// SVAR←X and X←SVAR
@@ -3468,15 +3269,11 @@ Signal_base * ret = 0;
 
         case sid_YES_NO: ret = new YES_NO_c(b);   break;
 
-/// register processor proc in the database
+/// register processor proc in APserver
         case sid_REGISTER_PROCESSOR: ret = new REGISTER_PROCESSOR_c(b);   break;
-
-/// unregister processor proc in the database
-        case sid_UNREGISTER_PROCESSOR: ret = new UNREGISTER_PROCESSOR_c(b);   break;
 
 /// match offered shared variable or create a new offer
         case sid_MATCH_OR_MAKE: ret = new MATCH_OR_MAKE_c(b);   break;
-
 
         case sid_MATCH_OR_MAKE_RESULT: ret = new MATCH_OR_MAKE_RESULT_c(b);   break;
 

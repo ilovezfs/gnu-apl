@@ -420,7 +420,8 @@ Svar_partner from;
    from.pid = getpid();
    from.port = ProcessorID::get_APnnn_port();
 
-const SV_key key = Svar_DB::match_or_make(vname, to_proc, from, coupling);
+const SV_key key = Svar_DB::match_or_make(vname, to_proc, from);
+   coupling = Svar_DB::get_coupling(key);
 
    if (coupling == SV_COUPLED)
       {

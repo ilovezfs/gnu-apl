@@ -67,6 +67,7 @@ struct AP3_fd
 {
    AP_num3    ap3;
    TCP_socket fd;
+   uint16_t   udp_port;
    string     progname;
 };
 /// a database containing all connected processors
@@ -98,6 +99,30 @@ bool hang_on = false;   // dont exit after last connection was closed
 
 static void print_db(ostream & out);
 
+//-----------------------------------------------------------------------------
+extern int get_tcp_fd_for_id(const AP_num3 & id);
+int
+get_tcp_fd_for_id(const AP_num3 & id)
+{
+   for (int j = 0; j < connected_procs.size(); ++j)
+       {
+         if (id == connected_procs[j].ap3)   return connected_procs[j].fd;
+       }
+
+   return NO_TCP_SOCKET;
+}
+//-----------------------------------------------------------------------------
+extern uint16_t get_udp_port_for_id(const AP_num3 & id);
+uint16_t
+get_udp_port_for_id(const AP_num3 & id)
+{
+   for (int j = 0; j < connected_procs.size(); ++j)
+       {
+         if (id == connected_procs[j].ap3)   return connected_procs[j].udp_port;
+       }
+
+   return 0;
+}
 //-----------------------------------------------------------------------------
 const char * prog_name()
 {
@@ -313,25 +338,11 @@ cerr << "*** no svar ***" << endl;
                const int proc   = request->get__REGISTER_PROCESSOR__proc();
                const int parent = request->get__REGISTER_PROCESSOR__parent();
                const int grand  = request->get__REGISTER_PROCESSOR__grand();
+               const uint16_t port = request->get__REGISTER_PROCESSOR__port();
                const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
                ap_fd->ap3 = ap3;
+               ap_fd->udp_port = port;
                ap_fd->progname = request->get__REGISTER_PROCESSOR__progname();
-               Svar_partner partner;
-               partner.clear();
-               partner.id = ap3;
-               partner.pid  = request->get__REGISTER_PROCESSOR__pid();
-               partner.port = request->get__REGISTER_PROCESSOR__port();
-               db.register_processor(partner);
-             }
-             return;
-
-        case sid_UNREGISTER_PROCESSOR:
-             {
-               const int proc   = request->get__UNREGISTER_PROCESSOR__proc();
-               const int parent = request->get__UNREGISTER_PROCESSOR__parent();
-               const int grand  = request->get__UNREGISTER_PROCESSOR__grand();
-               const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
-               db.unregister_processor(ap3);
              }
              return;
 
@@ -349,9 +360,6 @@ cerr << "*** no svar ***" << endl;
                const int fr_grand  = request->get__MATCH_OR_MAKE__from_grand();
                const int from_pid  = request->get__MATCH_OR_MAKE__from_pid();
                const int from_port = request->get__MATCH_OR_MAKE__from_port();
-               const int from_flags= request->get__MATCH_OR_MAKE__from_flags();
-
-               SV_Coupling coupling = NO_COUPLING;
 
                const AP_num3 to((AP_num)to_proc,
                                 (AP_num)to_parent,
@@ -361,13 +369,9 @@ cerr << "*** no svar ***" << endl;
                                 (AP_num)fr_parent,
                                 (AP_num)fr_grand);
 
-               Svar_partner from;
-               from.id = fr;
-               from.pid = from_pid;
-               from.port = from_port;
-               from.flags = from_flags;
-               SV_key key = db.match_or_make(varname, to, from, coupling);
-               MATCH_OR_MAKE_RESULT_c(fd, key, coupling);
+               Svar_partner from(fr, from_pid, from_port, fd);
+               SV_key key = db.match_or_make(varname, to, from);
+               MATCH_OR_MAKE_RESULT_c(fd, key);
              }
              return;
 
@@ -410,8 +414,8 @@ cerr << "*** no svar ***" << endl;
              {
                const int proc     = request->get__GET_UDP_PORT__proc();
                const int parent   = request->get__GET_UDP_PORT__parent();
-               const uint16_t port = db.get_udp_port((AP_num)proc,
-                                                     (AP_num)parent);
+               const AP_num3 ap3((AP_num)proc, (AP_num)parent, AP_NULL);
+               const uint16_t port = get_udp_port_for_id(ap3);
                UDP_PORT_IS_c(fd, port);
              }
              return;
@@ -793,7 +797,7 @@ void print_db(ostream & out)
   // print active processors
    //
    out << "┌──────────────────────┬──────┬──────────────────────┐" << endl
-       << "│ Proceccsor           │   fd │ Program              │" << endl
+       << "│ Proceccsor           │   Fd │ Program              │" << endl
        << "╞══════════════════════╪══════╪══════════════════════╡" << endl;
    for (int p = 0; p < connected_procs.size(); ++p)
        {
@@ -806,7 +810,8 @@ void print_db(ostream & out)
               }
          else if (pro.ap3.parent)
               {
-                snprintf(cc, sizeof(cc), "%u.%u", pro.ap3.proc, pro.ap3.parent);
+                snprintf(cc, sizeof(cc), "%u.%u", pro.ap3.proc,
+                         pro.ap3.parent);
               }
          else
               {
@@ -823,10 +828,10 @@ void print_db(ostream & out)
 
    // print shared variables
    out <<
-"╔═════╤═╦═══════════╤═════╤═════╤══╦═══════════╤═════╤═════╤══╦════╤══════════╗\n"
-"║     │ ║ Offering  │     │     │  ║ Accepting │     │     │  ║OAOA│          ║\n"
-"║ Seq │C║ Proc,par  │ PID │ Port│Fl║ Proc,par  │ PID │ Port│Fl║SSUU│ Varname  ║\n"
-"╠═════╪═╬═══════════╪═════╪═════╪══╬═══════════╪═════╪═════╪══╬════╪══════════╣\n";
+"╔═════╤═╦═══════════╤═════╤═════╤══╤══╦═══════════╤═════╤═════╤══╤══╦════╤══════════╗\n"
+"║     │ ║ Offering  │     │     │  │  ║ Accepting │     │     │  │  ║OAOA│          ║\n"
+"║ Seq │C║ Proc,par  │ PID │ Port│Fd│Fl║ Proc,par  │ PID │ Port│Fd│Fl║SSUU│ Varname  ║\n"
+"╠═════╪═╬═══════════╪═════╪═════╪══╪══╬═══════════╪═════╪═════╪══╪══╬════╪══════════╣\n";
    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
        {
          const Svar_record & svar = db.offered_vars[o];
@@ -834,7 +839,7 @@ void print_db(ostream & out)
        }
 
    out <<
-"╚═════╧═╩═══════════╧═════╧═════╧══╩═══════════╧═════╧═════╧══╩════╧══════════╝\n"
+"╚═════╧═╩═══════════╧═════╧═════╧══╧══╩═══════════╧═════╧═════╧══╧══╩════╧══════════╝\n"
        << endl;
 
 }

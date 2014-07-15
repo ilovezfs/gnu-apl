@@ -146,12 +146,6 @@ AP_num3 this_proc = ProcessorID::get_id();
                        << this_proc << endl;
 
 const TCP_socket tcp = Svar_DB::get_DB_tcp();
-string progname(prog_name());
-   { UNREGISTER_PROCESSOR_c request(tcp, this_proc.proc,
-                                         this_proc.parent,
-                                         this_proc.grand,
-                                         progname);
-   }
 
    if (verbose)   get_CERR() << pref << " done (got ^C)" << endl;
 
@@ -257,6 +251,9 @@ Svar_partner this_proc;
    this_proc.port = sock.get_local_port();
 
 const TCP_socket tcp = Svar_DB::get_DB_tcp();
+const int udp = sock.get_fd();
+const int nfds = 1 + (udp > tcp ? udp : tcp);
+
 string progname(prog_name());
 
       { REGISTER_PROCESSOR_c request(tcp, this_proc.id.proc,
@@ -271,8 +268,35 @@ string progname(prog_name());
 
    for (bool goon = true; goon;)
        {
-         uint8_t buff[MAX_SIGNAL_CLASS_SIZE];
-         const Signal_base * signal = Signal_base::recv_UDP(sock, buff, 10000);
+         fd_set readfds;
+         FD_ZERO(&readfds);
+         FD_SET(udp, &readfds);
+         FD_SET(tcp, &readfds);
+         errno = 0;
+         timeval tv = { 0, 10000 };
+         const int count = select(nfds, &readfds, 0, 0, &tv);
+         if (count < 0)
+            {
+              if (errno == EINTR)   continue;
+              cerr << "*** select() returned " << strerror(errno) << endl;
+              return 2;
+            }
+
+         uint8_t buff[MAX_SIGNAL_CLASS_SIZE + 40000];
+         const Signal_base * signal = 0;
+         char * del = 0;
+
+         if (FD_ISSET(tcp, &readfds))
+            {
+              signal = Signal_base::recv_TCP(tcp, (char *)buff, sizeof(buff),
+                                             del, 0);
+            }
+
+         if (FD_ISSET(udp, &readfds))
+            {
+              signal = Signal_base::recv_UDP(sock, buff, 10000);
+            }
+
          if (signal == 0)   // no signal for 10 seconds
             {
               // if our parent has died, then we are done
@@ -289,12 +313,14 @@ string progname(prog_name());
          switch(signal->get_sigID())
             {
             case sid_DISCONNECT:   // master (local APL interpreter) disconnect
-                 if (verbose)   get_CERR() << AP_NAME << " got DISCONNECT" << endl;
+                 if (verbose)   get_CERR() << AP_NAME
+                                           << " got DISCONNECT" << endl;
                  goon = false;
-                 continue;
+                 break;
 
             case sid_NEW_VARIABLE:     // a new (not yet matched) offer
-                 if (verbose)   get_CERR() << AP_NAME << " got NEW_VARIABLE" << endl;
+                 if (verbose)   get_CERR() << AP_NAME
+                                           << " got NEW_VARIABLE" << endl;
                  {
                    const SV_key key = signal->get__NEW_VARIABLE__key();
                    const uint32_t * varname = Svar_DB::get_varname(key);
@@ -302,7 +328,7 @@ string progname(prog_name());
                      {
                        get_CERR() << "Could not find svar for key "
                             << key << " at " << LOC << endl;
-                       continue;
+                       break;
                      }
 
                    if (! is_valid_varname(varname))
@@ -310,15 +336,16 @@ string progname(prog_name());
                         get_CERR() << "Bad varname: ";
                         while (*varname)   get_CERR() << (Unicode)(*varname++);
                         get_CERR() << " at " << LOC << endl;
-                        continue;
+                        break;
                       }
 
                    add_var(key);
                  }
-                 continue;
+                 break;
 
             case sid_MAKE_OFFER:        // a new offer from a peer
-                 if (verbose)   get_CERR() << AP_NAME << " got MAKE_OFFER" << endl;
+                 if (verbose)   get_CERR() << AP_NAME
+                                           << " got MAKE_OFFER" << endl;
                  {
                    const SV_key key = signal->get__MAKE_OFFER__key();
                    const uint32_t * varname = Svar_DB::get_varname(key);
@@ -326,7 +353,7 @@ string progname(prog_name());
                      {
                        get_CERR() << "Could not find svar for key "
                             << key << " at " << LOC << endl;
-                       continue;
+                       break;
                      }
 
                    if (! is_valid_varname(varname))
@@ -334,38 +361,26 @@ string progname(prog_name());
                        get_CERR() << "Bad varname ";
                         while (*varname)   get_CERR() << (Unicode)(*varname++);
                         get_CERR() << " at " << LOC << endl;
-                       continue;
+                       break;
                       }
 
                    // make a counter offer (APs 100 and 210) or not (APnnn)
                    //
-                   if (!make_counter_offer(key))   continue;   // APnnn
+                   if (!make_counter_offer(key))   break;   // APnnn
 
-                   SV_Coupling coupling = NO_COUPLING;
                    const AP_num3 offering_id = Svar_DB::find_offering_id(key);
 
-                   Svar_DB::match_or_make(varname, offering_id,
-                                          this_proc, coupling);
+                   Svar_DB::match_or_make(varname, offering_id, this_proc);
 
                    add_var(key);
 
                    Svar_DB::set_state(key, true, LOC);
                  }
-                 continue;
-
-            case sid_OFFER_MATCHED:     // our offer was matched
-                 if (verbose)   get_CERR() << AP_NAME << " got OFFER_MATCHED" << endl;
-                 {
-                   const SV_key key = signal->get__OFFER_MATCHED__key();
-
-                   add_var(key);
-                   Svar_DB::add_event(key, ProcessorID::get_id(),
-                                      SVE_OFFER_MATCHED);
-                 }
-                 continue;
+                 break;
 
             case sid_RETRACT_OFFER:     // ⎕SVR varname
-                 if (verbose)   get_CERR() << AP_NAME << " got RETRACT_OFFER" << endl;
+                 if (verbose)   get_CERR() << AP_NAME
+                                           << " got RETRACT_OFFER" << endl;
                  {
                    const SV_key key = signal->get__RETRACT_OFFER__key();
                    for (int c = 0; c < coupled_vars.size(); ++c)
@@ -388,10 +403,11 @@ string progname(prog_name());
                    Svar_DB::add_event(key, ProcessorID::get_id(),
                                       SVE_OFFER_RETRACT);
                  }
-                 continue;
+                 break;
 
             case sid_GET_VALUE:
-                 if (verbose)   get_CERR() << AP_NAME << " got GET_VALUE" << endl;
+                 if (verbose)   get_CERR() << AP_NAME
+                                           << " got GET_VALUE" << endl;
                  {
                    const SV_key key = signal->get__GET_VALUE__key();
                    APL_error_code error = E_VALUE_ERROR;
@@ -419,10 +435,11 @@ string progname(prog_name());
 
                    VALUE_IS_c response(sock, key, error, error_loc, data);
                  }
-                 continue;
+                 break;
 
             case sid_ASSIGN_VALUE:
-                 if (verbose)   get_CERR() << AP_NAME << " got ASSIGN_VALUE" << endl;
+                 if (verbose)   get_CERR() << AP_NAME
+                                           << " got ASSIGN_VALUE" << endl;
                  {
                    const SV_key key = signal->get__ASSIGN_VALUE__key();
                    APL_error_code error = E_VALUE_ERROR;
@@ -450,18 +467,14 @@ string progname(prog_name());
 
                    SVAR_ASSIGNED_c response(sock, key, error, error_loc);
                  }
-                 continue;
+                 break;
 
             default: get_CERR() << pref << ": bad signal ID "
                           << signal->get_sigID() << endl;
           }
-       }
 
-      { UNREGISTER_PROCESSOR_c request(tcp, this_proc.id.proc,
-                                            this_proc.id.parent,
-                                            this_proc.id.grand,
-                                            progname);
-      }
+         if (del)   delete del;
+       }
 
    return 0;
 }
