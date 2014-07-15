@@ -137,51 +137,7 @@ bool
 ComplexCell::equal(const Cell & A, APL_Float qct) const
 {
    if (!A.is_numeric())   return false;
-
-   // real part
-   //
-   {
-     const APL_Float valA = A.get_real_value();
-     const APL_Float valB =   get_real_value();
-
-     // if the signs of A and B differ then they are unequal (standard page 100)
-     // we treat exact 0.0 as having both signs
-     //
-     if (valA < 0.0 && valB > 0.0)   return false;
-     if (valA > 0.0 && valB < 0.0)   return false;
-
-     const APL_Float posA = valA < 0 ? -valA : valA;
-     const APL_Float posB = valB < 0 ? -valB : valB;
-     const APL_Float maxAB = posA > posB ? posA : posB;
-     const APL_Float maxCT = qct * maxAB;
-
-     if (posB < (posA - maxCT))   return false;
-     if (posB > (posA + maxCT))   return false;
-   }
-
-   // imag part
-   //
-   {
-     const APL_Float valA = A.get_imag_value();
-     const APL_Float valB =   get_imag_value();
-
-     // if the signs of A and B differ then they are unequal (standard page 100)
-     // we treat exact 0.0 as having both signs
-     //
-     if (valA < 0.0 && valB > 0.0)   return false;
-     if (valA > 0.0 && valB < 0.0)   return false;
-
-
-     const APL_Float posA = valA < 0 ? -valA : valA;
-     const APL_Float posB = valB < 0 ? -valB : valB;
-     const APL_Float maxAB = posA > posB ? posA : posB;
-     const APL_Float maxCT = qct * maxAB;
-
-     if (posB < (posA - maxCT))   return false;
-     if (posB > (posA + maxCT))   return false;
-   }
-
-   return true;
+   return tolerantly_equal(A.get_complex_value(), get_complex_value(), qct);
 }
 //-----------------------------------------------------------------------------
 void

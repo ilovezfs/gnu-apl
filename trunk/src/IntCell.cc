@@ -468,7 +468,7 @@ const APL_Float qct = Workspace::get_CT();
 
         // compute i_quot with respect to ⎕CT
         //
-        if (FloatCell::equal_within_quad_CT(i_quot + 1, f_quot, qct))  ++i_quot;
+        if (tolerantly_equal(i_quot + 1, f_quot, qct))  ++i_quot;
 
         APL_Float rest = value.ival - valA * i_quot;
         if (Cell::is_near_zero(rest, qct))

@@ -159,6 +159,44 @@ Cell::equal(const Cell & other, APL_Float qct) const
 }
 //-----------------------------------------------------------------------------
 bool
+Cell::tolerantly_equal(APL_Complex A, APL_Complex B, APL_Float C)
+{
+   if (A == B)                             return true;
+   if (A.real() < 0.0 && B.real() > 0.0)   return false;
+   if (A.real() > 0.0 && B.real() < 0.0)   return false;
+   if (A.imag() < 0.0 && B.imag() > 0.0)   return false;
+   if (A.imag() > 0.0 && B.imag() < 0.0)   return false;
+
+const APL_Float mag2_A  = A.real() * A.real() + A.imag() * A.imag();
+const APL_Float mag2_B  = B.real() * B.real() + B.imag() * B.imag();
+const APL_Float max_mag = sqrt((mag2_A > mag2_B) ? mag2_A : mag2_B);
+
+const APL_Complex A_B = A - B;
+const APL_Float dist2_A_B = A_B.real() * A_B.real() + A_B.imag() * A_B.imag();
+
+   return (dist2_A_B < C*max_mag);
+}
+//-----------------------------------------------------------------------------
+bool
+Cell::tolerantly_equal(APL_Float A, APL_Float B, APL_Float C)
+{
+   // if the signs of A and B differ then they are unequal (ISO standard
+   // page 19). We treat exact 0.0 as having both signs
+   //
+   if (A == B)               return true;
+   if (A < 0.0 && B > 0.0)   return false;
+   if (A > 0.0 && B < 0.0)   return false;
+
+APL_Float mag_A = A < 0 ? -A : A;
+APL_Float mag_B = B < 0 ? -B : B;
+APL_Float max_mag = (mag_A > mag_B) ? mag_A : mag_B;
+
+const APL_Float dist_A_B = (A > B) ? (A - B) : (B - A);
+
+   return (dist_A_B < C*max_mag);
+}
+//-----------------------------------------------------------------------------
+bool
 Cell::is_near_int(APL_Float value, APL_Float qct)
 {
    if (value > LARGE_INT)   return false;

@@ -126,9 +126,6 @@ public:
    /// replace normal chars by special chars specified in ⎕FC
    static void map_FC(UCS_string & ucs);
 
-   /// return true iff  ∣(A - B) is at most qct*max(∣A, ∣B)
-   static bool equal_within_quad_CT(APL_Float A, APL_Float B, APL_Float qct);
-
 protected:
    ///  Overloaded Cell::get_cell_type().
    virtual CellType get_cell_type() const

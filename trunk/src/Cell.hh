@@ -73,8 +73,14 @@ public:
    /// 2c. PointerCells sorted by rank, then shape, then ravel
    virtual bool greater(const Cell * other, bool ascending) const;
 
-   /// Return \b true if \b this cell is equal to \b other
+   /// return \b true if \b this cell is equal to \b other
    virtual bool equal(const Cell & other, APL_Float qct) const;
+
+   /// return \b true if A is tolerantly equal to B within C
+   static bool tolerantly_equal(APL_Float A, APL_Float B, APL_Float C);
+
+   /// return \b true if A is tolerantly equal to B within C
+   static bool tolerantly_equal(APL_Complex A, APL_Complex B, APL_Float C);
 
    /// Return the character value of a cell
    virtual Unicode get_char_value() const   { DOMAIN_ERROR; }

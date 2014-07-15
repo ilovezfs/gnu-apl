@@ -36,29 +36,7 @@ FloatCell::equal(const Cell & A, APL_Float qct) const
 {
    if (!A.is_numeric())       return false;
    if (A.is_complex_cell())   return A.equal(*this, qct);
-   return equal_within_quad_CT(A.get_real_value(), get_real_value(), qct);
-}
-//-----------------------------------------------------------------------------
-bool
-FloatCell::equal_within_quad_CT(APL_Float A, APL_Float B, APL_Float qct)
-{
-const APL_Float posA = A < 0 ? -A : A;
-const APL_Float posB = B < 0 ? -B : B;
-const APL_Float maxAB = posA > posB ? posA : posB;
-
-   // if the signs of A and B differ then they are unequal (standard page 100)
-   // we treat exact 0.0 as having both signs
-   //
-   if (A < 0.0 && B > 0.0)   return false;
-   if (A > 0.0 && B < 0.0)   return false;
-
-   // for large numbers we allow a larger ⎕CT
-   //
-   if (maxAB > 1.0)   qct *= maxAB;
-
-   if (posB < (posA - qct))   return false;
-   if (posB > (posA + qct))   return false;
-   return true;
+   return tolerantly_equal(A.get_real_value(), get_real_value(), qct);
 }
 //-----------------------------------------------------------------------------
 bool
