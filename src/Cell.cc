@@ -172,7 +172,8 @@ const APL_Float mag2_B  = B.real() * B.real() + B.imag() * B.imag();
 const APL_Float max_mag = sqrt((mag2_A > mag2_B) ? mag2_A : mag2_B);
 
 const APL_Complex A_B = A - B;
-const APL_Float dist2_A_B = A_B.real() * A_B.real() + A_B.imag() * A_B.imag();
+const APL_Float dist2_A_B = sqrt(A_B.real() * A_B.real()
+                               + A_B.imag() * A_B.imag());
 
    return (dist2_A_B < C*max_mag);
 }

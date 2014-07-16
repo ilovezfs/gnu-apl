@@ -47,4 +47,14 @@ private:
     void run_simple( const string &sql );
 };
 
+class SqliteStmtWrapper {
+public:
+    SqliteStmtWrapper( sqlite3_stmt *statement_in ) : statement( statement_in ) {}
+    virtual ~SqliteStmtWrapper() { sqlite3_finalize( statement ); }
+    sqlite3_stmt *get_statement( void ) { return statement; }
+
+private:
+    sqlite3_stmt *statement;
+};
+
 #endif

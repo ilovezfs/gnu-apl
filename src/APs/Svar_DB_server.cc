@@ -362,13 +362,6 @@ Svar_DB_server::create_offer(const uint32_t * UCS_varname,
 
          svar->accepting.id = to;
 
-         // inform from that there is a new variable
-         //
-         {
-           UdpClientSocket sock(LOC, from.port);
-           NEW_VARIABLE_c signal(sock, svar->key);
-         }
-
          // if to is registered then send a signal
          //
          const uint16_t port = get_udp_port_for_id(to);

@@ -796,9 +796,9 @@ void print_db(ostream & out)
 {
   // print active processors
    //
-   out << "┌──────────────────────┬──────┬──────────────────────┐" << endl
-       << "│ Proceccsor           │   Fd │ Program              │" << endl
-       << "╞══════════════════════╪══════╪══════════════════════╡" << endl;
+   out << "┌──────────────────────┬─────┬──────┬──────────────────────┐" << endl
+       << "│ Proceccsor           │ Port│   Fd │ Program              │" << endl
+       << "╞══════════════════════╪═════╪══════╪══════════════════════╡" << endl;
    for (int p = 0; p < connected_procs.size(); ++p)
        {
          const AP3_fd & pro = connected_procs[p];
@@ -820,18 +820,19 @@ void print_db(ostream & out)
          cc[sizeof(cc) - 1] = 0;
                
          out << "│ "  << left  << setw(20) << cc
-             << " │ " << right << setw(4) << pro.fd
+             << " │"  << right << setw(5) << pro.udp_port
+             << "│ " << right << setw(4) << pro.fd
              << " │ " << left  << setw(20) << pro.progname
              << " │"  << right << endl;
        }
-   out << "╘══════════════════════╧══════╧══════════════════════╛" << endl;
+   out << "╘══════════════════════╧═════╧══════╧══════════════════════╛" << endl;
 
    // print shared variables
    out <<
-"╔═════╤═╦═══════════╤═════╤═════╤══╤══╦═══════════╤═════╤═════╤══╤══╦════╤══════════╗\n"
-"║     │ ║ Offering  │     │     │  │  ║ Accepting │     │     │  │  ║OAOA│          ║\n"
-"║ Seq │C║ Proc,par  │ PID │ Port│Fd│Fl║ Proc,par  │ PID │ Port│Fd│Fl║SSUU│ Varname  ║\n"
-"╠═════╪═╬═══════════╪═════╪═════╪══╪══╬═══════════╪═════╪═════╪══╪══╬════╪══════════╣\n";
+"╔═════╤═╦═══════════╤═════╤══╤══╦═══════════╤═════╤══╤══╦════╤══════════╗\n"
+"║     │ ║ Offering  │     │  │  ║ Accepting │     │  │  ║OAOA│          ║\n"
+"║ Seq │C║ Proc,par  │ Port│Fd│Fl║ Proc,par  │ Port│Fd│Fl║SSUU│ Varname  ║\n"
+"╠═════╪═╬═══════════╪═════╪══╪══╬═══════════╪═════╪══╪══╬════╪══════════╣\n";
    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
        {
          const Svar_record & svar = db.offered_vars[o];
@@ -839,7 +840,7 @@ void print_db(ostream & out)
        }
 
    out <<
-"╚═════╧═╩═══════════╧═════╧═════╧══╧══╩═══════════╧═════╧═════╧══╧══╩════╧══════════╝\n"
+"╚═════╧═╩═══════════╧═════╧══╧══╩═══════════╧═════╧══╧══╩════╧══════════╝\n"
        << endl;
 
 }

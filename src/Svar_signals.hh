@@ -238,7 +238,6 @@ enum Signal_id
    sid_DISCONNECT,
 
 /// ⎕SVO, ⎕SVR
-   sid_NEW_VARIABLE,
    sid_MAKE_OFFER,
    sid_RETRACT_OFFER,
 
@@ -354,10 +353,6 @@ public:
 
 
 /// ⎕SVO, ⎕SVR
-   /// access functions for signal NEW_VARIABLE...
-   virtual uint64_t get__NEW_VARIABLE__key() const   ///< dito
-      { bad_get("NEW_VARIABLE", "key"); return 0; }
-
    /// access functions for signal MAKE_OFFER...
    virtual uint64_t get__MAKE_OFFER__key() const   ///< dito
       { bad_get("MAKE_OFFER", "key"); return 0; }
@@ -702,58 +697,6 @@ protected:
 };
 
 /// ⎕SVO, ⎕SVR
-//----------------------------------------------------------------------------
-/// a class for NEW_VARIABLE
-class NEW_VARIABLE_c : public Signal_base
-{
-public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   NEW_VARIABLE_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
-
-   /// contructor that creates the signal and sends it on TCP socket s
-   NEW_VARIABLE_c(int s,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_TCP(s); }
-
-   /// construct (deserialize) this item from a (received) buffer
-   /// id has already been load()ed.
-   NEW_VARIABLE_c(const uint8_t * & buffer)
-   : key(buffer)
-   {}
-
-   /// store (aka. serialize) this signal into a buffer
-   virtual void store(string & buffer) const
-       {
-         const Sig_item_u16 signal_id(sid_NEW_VARIABLE);
-         signal_id.store(buffer);
-        key.store(buffer);
-       }
-
-   /// print this signal on out.
-   virtual ostream & print(ostream & out) const
-      {
-        out << "NEW_VARIABLE(";
-        key.print(out);
-        return out << ")" << endl;
-      }
-
-   /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_NEW_VARIABLE; }
-
-   /// the name of this signal
-   virtual const char * get_sigName() const   { return "NEW_VARIABLE"; }
-
-  /// return item key of this signal 
-   virtual uint64_t get__NEW_VARIABLE__key() const { return key.get_value(); }
-
-
-protected:
-   Sig_item_x64 key;   ///< key
-};
 //----------------------------------------------------------------------------
 /// a class for MAKE_OFFER
 class MAKE_OFFER_c : public Signal_base
@@ -2967,7 +2910,6 @@ struct _all_signal_classes_
         char u_DISCONNECT[sizeof(DISCONNECT_c)];
 
 /// ⎕SVO, ⎕SVR
-        char u_NEW_VARIABLE[sizeof(NEW_VARIABLE_c)];
         char u_MAKE_OFFER[sizeof(MAKE_OFFER_c)];
         char u_RETRACT_OFFER[sizeof(RETRACT_OFFER_c)];
 
@@ -3076,7 +3018,6 @@ Signal_base * ret = 0;
         case sid_DISCONNECT: ret = new (class_buffer) DISCONNECT_c(b);   break;
 
 /// ⎕SVO, ⎕SVR
-        case sid_NEW_VARIABLE: ret = new (class_buffer) NEW_VARIABLE_c(b);   break;
         case sid_MAKE_OFFER: ret = new (class_buffer) MAKE_OFFER_c(b);   break;
         case sid_RETRACT_OFFER: ret = new (class_buffer) RETRACT_OFFER_c(b);   break;
 
@@ -3239,7 +3180,6 @@ Signal_base * ret = 0;
         case sid_DISCONNECT: ret = new DISCONNECT_c(b);   break;
 
 /// ⎕SVO, ⎕SVR
-        case sid_NEW_VARIABLE: ret = new NEW_VARIABLE_c(b);   break;
         case sid_MAKE_OFFER: ret = new MAKE_OFFER_c(b);   break;
         case sid_RETRACT_OFFER: ret = new RETRACT_OFFER_c(b);   break;
 

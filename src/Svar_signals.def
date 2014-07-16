@@ -23,7 +23,6 @@ dnl  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 m4_signal(DISCONNECT)
 
 /// ⎕SVO, ⎕SVR
-m4_signal(NEW_VARIABLE,     x64,    key)
 m4_signal(MAKE_OFFER,       x64,    key)
 m4_signal(RETRACT_OFFER,    x64,    key)
 

@@ -56,6 +56,7 @@ host_triplet = @host@
 @SQLITE3_TRUE@am__append_2 = $(SQLITE3_LDFLAGS)
 @SQLITE3_TRUE@am__append_3 = SqliteArgListBuilder.cc	SqliteArgListBuilder.hh	\
 @SQLITE3_TRUE@			SqliteConnection.cc	SqliteConnection.hh	\
+@SQLITE3_TRUE@			SqliteResultValue.cc	SqliteResultValue.hh	\
 @SQLITE3_TRUE@			SqliteProvider.cc	SqliteProvider.hh
 
 @POSTGRES_TRUE@am__append_4 = $(POSTGRESQL_CFLAGS)
@@ -111,19 +112,20 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(docdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 lib_sql_la_LIBADD =
 am__lib_sql_la_SOURCES_DIST = apl-sqlite.cc apl-sqlite.hh \
-	Connection.cc Connection.hh ResultValue.cc ResultValue.hh \
-	ArgListBuilder.hh Provider.hh SqliteArgListBuilder.cc \
-	SqliteArgListBuilder.hh SqliteConnection.cc \
-	SqliteConnection.hh SqliteProvider.cc SqliteProvider.hh \
+	Connection.cc Connection.hh ArgListBuilder.hh Provider.hh \
+	SqliteArgListBuilder.cc SqliteArgListBuilder.hh \
+	SqliteConnection.cc SqliteConnection.hh SqliteResultValue.cc \
+	SqliteResultValue.hh SqliteProvider.cc SqliteProvider.hh \
 	PostgresArgListBuilder.cc PostgresArgListBuilder.hh \
 	PostgresConnection.cc PostgresConnection.hh \
 	PostgresProvider.cc PostgresProvider.hh
 @SQLITE3_TRUE@am__objects_1 = SqliteArgListBuilder.lo \
-@SQLITE3_TRUE@	SqliteConnection.lo SqliteProvider.lo
+@SQLITE3_TRUE@	SqliteConnection.lo SqliteResultValue.lo \
+@SQLITE3_TRUE@	SqliteProvider.lo
 @POSTGRES_TRUE@am__objects_2 = PostgresArgListBuilder.lo \
 @POSTGRES_TRUE@	PostgresConnection.lo PostgresProvider.lo
-am_lib_sql_la_OBJECTS = apl-sqlite.lo Connection.lo ResultValue.lo \
-	$(am__objects_1) $(am__objects_2)
+am_lib_sql_la_OBJECTS = apl-sqlite.lo Connection.lo $(am__objects_1) \
+	$(am__objects_2)
 lib_sql_la_OBJECTS = $(am_lib_sql_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -307,8 +309,8 @@ pkglib_LTLIBRARIES = lib_sql.la
 AM_CXXFLAGS = -I .. -I ../.. $(am__append_1) $(am__append_4)
 AM_LDFLAGS = $(am__append_2) $(am__append_5)
 lib_sql_la_SOURCES = apl-sqlite.cc apl-sqlite.hh Connection.cc \
-	Connection.hh ResultValue.cc ResultValue.hh ArgListBuilder.hh \
-	Provider.hh $(am__append_3) $(am__append_6)
+	Connection.hh ArgListBuilder.hh Provider.hh $(am__append_3) \
+	$(am__append_6)
 all: all-am
 
 .SUFFIXES:
@@ -388,10 +390,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PostgresArgListBuilder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PostgresConnection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PostgresProvider.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ResultValue.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SqliteArgListBuilder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SqliteConnection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SqliteProvider.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SqliteResultValue.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-sqlite.Plo@am__quote@
 
 .cc.o:
