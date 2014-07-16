@@ -16,36 +16,76 @@
 ⍝
 ⍝    Disconnects from the database connection given as X.
 
-∇Z←X SQL∆Connect Y
-Z←X SQL[1] Y
+∇Z←L SQL∆Connect R
+⍝ Connect to database of type L using connection arguments R.
+⍝
+⍝ L must be a string indicating the database type. Current supported
+⍝ values are 'postgresql' and 'sqlite'.
+⍝
+⍝ R is the connection parameters which depends on the type of
+⍝ database.
+⍝
+⍝ This function returns a database handle that should be used when
+⍝ using other SQL functions. This value should be seen as an opaque
+⍝ handle. It is, however, guaranteed that the handle is a scalar
+⍝ value.
+  Z←L SQL[1] R
 ∇
 
-∇Z←SQL∆Disconnect Y
-Z←SQL[2] Y
+∇Z←SQL∆Disconnect R
+⍝ Disconnect from database R.
+⍝
+⍝ R is the database handle that should be disconnected. After this
+⍝ function has been called, no further operations are to be performed
+⍝ on this handle. Future calls to SQL∆Connect may reuse previously
+⍝ disconnected handles.
+  Z←SQL[2] R
 ∇
 
-∇Z←X SQL∆Select[db] Y
-Z←X SQL[3,db] Y
+∇Z←L SQL∆Select[db] R
+⍝ Execute a select statement and return the result table.
+⍝
+⍝ The axis parameter indicates the database handle.
+⍝
+⍝ L is a select statement to be executed. Positional parameters can be
+⍝ supplied by specifying a question mark "?" in the statemement.
+⍝
+⍝ R is an array containing the values for the positional parameters.
+⍝ If the array is of rank 2, the statement will be executed multiple
+⍝ times with each row being the values for each call.
+⍝
+⍝ The return value is a rank-2 array representing the result of the
+⍝ select statement. Null values are returned as ⍬ and empty strings
+⍝ are returned as ''.
+  Z←L SQL[3,db] R
 ∇
 
-∇Z←X SQL∆Exec[db] Y
-Z←X SQL[4,db] Y
+∇Z←L SQL∆Exec[db] R
+⍝ Execute an SQL statement that does not return a result.
+⍝
+⍝ This function is identical to SQL∆Select with the exception that it
+⍝ is used on statements which do not return a result table.
+  Z←L SQL[4,db] R
 ∇
 
-∇Z←SQL∆Begin Y
-Z←SQL[5] Y
+∇Z←SQL∆Begin R
+⍝ Begin a transaction.
+  Z←SQL[5] R
 ∇
 
-∇Z←SQL∆Commit Y
-Z←SQL[6] Y
+∇Z←SQL∆Commit R
+⍝ Commit a transaction.
+  Z←SQL[6] R
 ∇
 
-∇Z←SQL∆Rollback Y
-Z←SQL[7] Y
+∇Z←SQL∆Rollback R
+⍝ Rolls back the current transaction.
+  Z←SQL[7] R
 ∇
 
-∇Z←SQL∆Tables Y
-Z←SQL[8] Y
+∇Z←SQL∆Tables R
+⍝ Return an array containing the name of all tables.
+  Z←SQL[8] R
 ∇
 
 ∇Z←X (F SQL∆WithTransaction FINDDB) Y;result
@@ -69,33 +109,7 @@ rollback:
 end:
 ∇
 
-⍝
-⍝ Z←L (OP trycall) R
-⍝
-⍝ Call OP for each value in ARG until the function returns
-⍝ true and return the index to that value. If none of the
-⍝ arguments returned true, return ⎕IO+(⍴L)⌈⍴R
-⍝
-⍝ The retsult of this function is similar to (L OP¨ R)⍳1
-⍝ except that the function will only be called until the first
-⍝ found element.
-⍝
-∇Z←L (OP trycall) R;result;i
-  i ← 0
-next:
-    
-∇
-
-∇Z←SYMBOL sql∆∆tryload NAME
-  →(0≠⎕NC SYMBOL)/success
-
-
-success:
-  Z←1
-∇
-  
-
-∇sql∆∆load_library;result
+∇sql⍙load_library;result
   →(0≠⎕NC 'SQL')/skip
   result ← 'lib_sql.so' ⎕FX 'SQL'
   →('SQL'≡result)/skip
@@ -103,7 +117,7 @@ success:
 skip:
 ∇
 
-sql∆∆load_library
-)erase sql∆∆load_library
+sql⍙load_library
+)erase sql⍙load_library
 
 ⎕←'SQL lib loaded'
