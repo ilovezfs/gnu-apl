@@ -100,8 +100,8 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
    // on start-up of the interpreter (and then startup == true), or
    // after making an offer to an AP that is not yet running
    //
-         const char * verbose = "";
-         Log(LOG_shared_variables)   verbose = " -v";
+const char * verbose = "";
+   Log(LOG_shared_variables || LOG_startup)   verbose = " -v";
 
 char filename[PATH_MAX + 1];
 

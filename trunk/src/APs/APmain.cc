@@ -273,7 +273,7 @@ string progname(prog_name());
          FD_SET(udp, &readfds);
          FD_SET(tcp, &readfds);
          errno = 0;
-         timeval tv = { 0, 10000 };
+         timeval tv = { 1, 0 };
          const int count = select(nfds, &readfds, 0, 0, &tv);
          if (count < 0)
             {
@@ -291,8 +291,7 @@ string progname(prog_name());
               signal = Signal_base::recv_TCP(tcp, (char *)buff, sizeof(buff),
                                              del, 0);
             }
-
-         if (FD_ISSET(udp, &readfds))
+         else if (FD_ISSET(udp, &readfds))
             {
               signal = Signal_base::recv_UDP(sock, buff, 10000);
             }
@@ -310,37 +309,17 @@ string progname(prog_name());
               continue;
             }
 
+#if 0
+#if AP_NUM == 0
+cerr << "APnnn got " << signal->get_sigName() << endl;
+#endif
+#endif
          switch(signal->get_sigID())
             {
             case sid_DISCONNECT:   // master (local APL interpreter) disconnect
                  if (verbose)   get_CERR() << AP_NAME
                                            << " got DISCONNECT" << endl;
                  goon = false;
-                 break;
-
-            case sid_NEW_VARIABLE:     // a new (not yet matched) offer
-                 if (verbose)   get_CERR() << AP_NAME
-                                           << " got NEW_VARIABLE" << endl;
-                 {
-                   const SV_key key = signal->get__NEW_VARIABLE__key();
-                   const uint32_t * varname = Svar_DB::get_varname(key);
-                  if (varname == 0)
-                     {
-                       get_CERR() << "Could not find svar for key "
-                            << key << " at " << LOC << endl;
-                       break;
-                     }
-
-                   if (! is_valid_varname(varname))
-                      {
-                        get_CERR() << "Bad varname: ";
-                        while (*varname)   get_CERR() << (Unicode)(*varname++);
-                        get_CERR() << " at " << LOC << endl;
-                        break;
-                      }
-
-                   add_var(key);
-                 }
                  break;
 
             case sid_MAKE_OFFER:        // a new offer from a peer

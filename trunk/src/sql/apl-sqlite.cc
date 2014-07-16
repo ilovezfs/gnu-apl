@@ -30,10 +30,10 @@
 #include <string.h>
 
 #include "Connection.hh"
-#include "ResultValue.hh"
 #include "Provider.hh"
 
 #ifdef HAVE_SQLITE3
+# include "SqliteResultValue.hh"
 # include "SqliteConnection.hh"
 # include "SqliteProvider.hh"
 #endif

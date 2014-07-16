@@ -21,7 +21,7 @@
 #include "SqliteArgListBuilder.hh"
 
 #include <string.h>
-#include "ResultValue.hh"
+#include "SqliteResultValue.hh"
 
 void SqliteArgListBuilder::init_sql( void )
 {

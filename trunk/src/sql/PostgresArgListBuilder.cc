@@ -21,7 +21,6 @@
 #include "PostgresArgListBuilder.hh"
 
 #include <string.h>
-#include "ResultValue.hh"
 
 template<class T>
 PostgresBindArg<T>::~PostgresBindArg()

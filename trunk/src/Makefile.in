@@ -956,6 +956,10 @@ test1: all
 test2: all
 	./apl --id 1010 --TR -T testcases/*tc
 
+# run testcases related to APs
+testAP: all
+	./apl --id 1010 -T testcases/AP*tc
+
 perf: apl
 	./apl --id 1010 --TM 3 -T testcases/Performance.pt
 

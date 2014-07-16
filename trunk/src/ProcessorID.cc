@@ -92,6 +92,7 @@ ProcessorID::init(bool log_startup)
            }
       }
 
+#if 1
    Quad_SVx::start_AP(id.proc, true);
    APnnn_port = Svar_DB::get_udp_port(id.proc, id.parent);
    if (log_startup)  CERR << "APnnn_port: " << APnnn_port << " at " LOC << endl;
@@ -103,6 +104,9 @@ ProcessorID::init(bool log_startup)
         uprefs.system_do_svars = false;
         return false;   // no error in order to continue.
       }
+#else
+APnnn_port  = 42;
+#endif
 
    new (&APnnn_socket) UdpClientSocket(LOC, APnnn_port, 0);
 
