@@ -289,10 +289,16 @@ static Token show_tables( APL_Float qct, Value_P B )
     vector<string> tables;
     conn->fill_tables( tables );
 
-    Shape shape( tables.size () );
-    Value_P value = new Value( shape, LOC );
-    for( vector<string>::iterator i = tables.begin() ; i != tables.end() ; i++ ) {
-        new (value->next_ravel()) PointerCell( make_string_cell( *i, LOC ) );
+    Value_P value;
+    if( tables.size() == 0 ) {
+        value = Idx0( LOC );
+    }
+    else {
+        Shape shape( tables.size () );
+        value = new Value( shape, LOC );
+        for( vector<string>::iterator i = tables.begin() ; i != tables.end() ; i++ ) {
+            new (value->next_ravel()) PointerCell( make_string_cell( *i, LOC ) );
+        }
     }
 
     value->check_value( LOC );

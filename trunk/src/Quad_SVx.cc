@@ -51,6 +51,10 @@ Quad_SVS Quad_SVS::fun;
 
 APL_time_us Quad_SVE::timer_end = 0;
 
+TCP_socket get_TCP_for_key(SV_key key)
+{
+   return Svar_DB::get_DB_tcp();
+}
 //=============================================================================
 /**
     return true iff \b filename is an executable file
@@ -66,7 +70,7 @@ const char * end = strchr(file_and_args, ' ');
 }
 //-----------------------------------------------------------------------------
 void
-Quad_SVx::start_AP(AP_num ap, bool startup)
+Quad_SVx::start_AP(AP_num ap)
 {
    if (!uprefs.system_do_svars)   // something went wrong
       {
@@ -79,13 +83,10 @@ Quad_SVx::start_AP(AP_num ap, bool startup)
            }
         else                        // user gave --noSV
            {
-             if (!startup)          // and then used ⎕SVxxx
-                {
-                  CERR << "*** Not starting AP " << ap
-                       << " because --noSV (or equivalent) was given." << endl
-                       << " That conflicts with the use of ⎕SVxxx functions "
-                          "and variables." << endl;
-                }
+             CERR << "*** Not starting AP " << ap
+                  << " because --noSV (or equivalent) was given." << endl
+                  << " That conflicts with the use of ⎕SVxxx functions "
+                     "and variables." << endl;
            }
         ATTENTION;
       }
@@ -96,32 +97,18 @@ const char * dirs[] = { "", "/APs" };
 const AP_num own_ID = ProcessorID::get_own_ID();
 const AP_num par_ID = ProcessorID::get_parent_ID();
 
-   // start_AP() is called from two places:
-   // on start-up of the interpreter (and then startup == true), or
-   // after making an offer to an AP that is not yet running
-   //
 const char * verbose = "";
-   Log(LOG_shared_variables || LOG_startup)   verbose = " -v";
+   Log(LOG_shared_variables)   verbose = " -v";
 
 char filename[PATH_MAX + 1];
 
 bool found_executable = false;
    for (int d = 0; d < dircount; ++d)
        {
-         if (startup)
-            {
-              snprintf(filename, PATH_MAX,
-                        "%s%s/APnnn --id %u --par %u%s --ppid %u",
-                         LibPaths::get_APL_bin_path(), dirs[d],
-                         own_ID, par_ID, verbose, getpid());
-            }
-         else
-            {
-              snprintf(filename, PATH_MAX,
-                       "%s%s/AP%u --id %u --par %u --gra %u --auto%s --ppid %u",
-                       LibPaths::get_APL_bin_path(), dirs[d], ap, ap,
-                       own_ID, par_ID, verbose, getpid());
-            }
+         snprintf(filename, PATH_MAX,
+                  "%s%s/AP%u --id %u --par %u --gra %u --auto%s",
+                  LibPaths::get_APL_bin_path(), dirs[d], ap, ap,
+                  own_ID, par_ID, verbose);
 
          found_executable = is_executable(filename);
          if (found_executable)   break;
@@ -133,8 +120,6 @@ bool found_executable = false;
              << LibPaths::get_APL_bin_path() << ")" << endl;
         return;
       }
-
-   Log(LOG_startup)   get_CERR() << "Starting " << filename << endl;
 
 FILE * fp = popen(filename, "r");
    if (fp == 0)
@@ -148,6 +133,8 @@ FILE * fp = popen(filename, "r");
    CERR << endl;
 
    pclose(fp);
+
+   usleep(100000);   // give new AP time to register with APserver
 }
 //=============================================================================
 Token
@@ -199,7 +186,8 @@ Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
         if (sym == 0)   throw_symbol_error(vars[z], LOC);
 
         const SV_key key = sym->get_SV_key();
-        ctl = Svar_DB::set_control(key, Svar_Control(ctl));
+        Svar_DB::set_control(key, Svar_Control(ctl));
+        ctl = Svar_DB::get_control(key);
 
         new (Z->next_ravel())   IntCell(ctl & SET_BY_1 ? 1 : 0);
         new (Z->next_ravel())   IntCell(ctl & SET_BY_2 ? 1 : 0);
@@ -405,7 +393,7 @@ bool auto_started = false;
       {
         if (!Svar_DB::is_registered_id(to_proc))
            {
-             start_AP(to_ap, false);
+             start_AP(to_ap);
              auto_started = true;
            }
       }
@@ -414,11 +402,7 @@ bool auto_started = false;
         new (&to_proc)   AP_num3(to_ap);
       }
 
-Svar_partner from;
-   from.clear();
-   from.id = ProcessorID::get_id();
-   from.pid = getpid();
-   from.port = ProcessorID::get_APnnn_port();
+Svar_partner from(ProcessorID::get_id(), NO_TCP_SOCKET);
 
 const SV_key key = Svar_DB::match_or_make(vname, to_proc, from);
    coupling = Svar_DB::get_coupling(key);

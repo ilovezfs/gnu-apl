@@ -36,9 +36,6 @@ AP_num3 ProcessorID::id(NO_AP, AP_NULL, AP_NULL);
 
 Network_Profile ProcessorID::network_profile;
 
-uint16_t ProcessorID::APnnn_port = 0;
-UdpSocket ProcessorID::APnnn_socket(true, LOC);
-
 //-----------------------------------------------------------------------------
 bool
 ProcessorID::init(bool log_startup)
@@ -92,41 +89,22 @@ ProcessorID::init(bool log_startup)
            }
       }
 
-#if 1
-   Quad_SVx::start_AP(id.proc, true);
-   APnnn_port = Svar_DB::get_udp_port(id.proc, id.parent);
-   if (log_startup)  CERR << "APnnn_port: " << APnnn_port << " at " LOC << endl;
-   if (APnnn_port == 0)
-      {
-        CERR << "*** Failed to start APnnn: processor " << id.proc
-             << " will not accept incoming shared"
-                " variable offers. Expect surprises." << endl;
-        uprefs.system_do_svars = false;
-        return false;   // no error in order to continue.
-      }
-#else
-APnnn_port  = 42;
-#endif
-
-   new (&APnnn_socket) UdpClientSocket(LOC, APnnn_port, 0);
-
    if (log_startup)
       {
         CERR << "Processor ID was completely initialized: "
              << id.proc << ":" << id.parent << ":" << id.grand << endl
-             << "APnnn_port is:      " << APnnn_port << endl
              << "system_do_svars is: " << uprefs.system_do_svars << endl;
 
       }
 
    // if we have an APserver then let it know our IDs
    //
-const int sock = Svar_DB::get_DB_tcp();
+const TCP_socket sock = Svar_DB::get_DB_tcp();
    if (sock != NO_TCP_SOCKET)
       {
         string progname(prog_name());
         REGISTER_PROCESSOR_c request(sock, id.proc, id.parent, id.grand,
-                             getpid(), APnnn_port, progname);
+                             0, progname);
       }
 
    return false;   // no error
@@ -368,10 +346,6 @@ const char * loc = 0;
 void
 ProcessorID::disconnect()
 {
-   if (APnnn_socket.is_valid())
-      {
-        DISCONNECT_c signal(APnnn_socket);
-        APnnn_socket.udp_close();
-      }
+   Svar_DB::DB_tcp_error(0, 0, 0);
 }
 //-----------------------------------------------------------------------------

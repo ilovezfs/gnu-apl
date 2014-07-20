@@ -96,8 +96,8 @@ extern const char * event_name(Svar_event ev);
 
 /// SV_key uniquely identifies a shared variable. It is created when the
 /// variable is first offered and passed to the share partner when the offer
-/// is matched. The partner (offering or accepting) is identified by the AP_num
-/// of the partner (since pid and port may change when processes are forked).
+/// is matched. The partner (offering or accepting) is identified by the id
+/// of the partner.
 typedef uint64_t SV_key;
 
 //-----------------------------------------------------------------------------
@@ -111,38 +111,27 @@ struct Svar_partner
 {
    Svar_partner()
    : id(NO_AP),
-     pid(0),
-     port(0),
      tcp_fd(NO_TCP_SOCKET),
      flags(0),
-     events(SVE_NO_EVENTS)
+     events(SVE_NO_EVENTS),
+     active(false)
    {}
 
-   Svar_partner(const AP_num3 _id, pid_t _pid, uint16_t _port,
-                TCP_socket _tcp_fd)
+   Svar_partner(const AP_num3 _id, TCP_socket _tcp_fd)
    : id(_id),
-     pid(_pid),
-     port(_port),
      tcp_fd(_tcp_fd),
      flags(0),
-     events(SVE_NO_EVENTS)
+     events(SVE_NO_EVENTS),
+     active(true)
    {}
 
-   /// whether the partner is still participating. This is int rather than bool
-   /// so that we can add the alive()s of both partners in order to get the
-   /// coupling. We use port rather than proc for this purpose, since proc
-   /// can be 0 (general offers).
-   int alive() const   { return port ? 1 : 0; }
-
-   /// return true if the pid of this partner is alive (as per
-   /// /proc entry for the pid)
-   bool pid_alive() const   { return pid_alive(pid); }
-
-   /// return true if the process with pid p is alive (as per /proc entry p)
-   static bool pid_alive(pid_t p);
-
    /// clear this partner
-   void clear() { memset(this, 0, sizeof(*this)); }
+   void clear() { new (this) Svar_partner; }
+
+   /// return true if this partner is active. Note that this can be the case
+   /// even though tcp_fd is invalid.
+   bool is_active() const
+      { return active; }
 
    /// set the control bits of this partner (as seen by the offering partner)
    void set_control(Svar_Control ctl)
@@ -159,12 +148,6 @@ struct Svar_partner
    /// the processor
    AP_num3 id;
 
-   /// the PID of \b id
-   pid_t pid;
-
-   /// the UDP port for contacting \b id
-   uint16_t port;
-
    /// the TCP socket of the server towards the partner
    TCP_socket tcp_fd;
 
@@ -174,7 +157,15 @@ struct Svar_partner
 
    /// the events for the partner
    Svar_event events;
+
+protected:
+   /// true if this is a valid (connected) partner
+   bool active;
 };
+//-----------------------------------------------------------------------------
+
+extern TCP_socket get_TCP_for_key(SV_key key);
+
 //-----------------------------------------------------------------------------
 
 /// one  shared variable.
@@ -195,16 +186,12 @@ struct Svar_record
    /// remove offering partner
    void remove_offering();
 
-   /// remove an outdated variable, inform partners that are still alive.
-   /// increment count iff removed
-   void remove_stale(int & count);
-
    /// retract the offer made by the calling ID.
    SV_Coupling retract();
 
-   /// return the partner that stores the data (the partner with the
-   /// smallest ID) and the partner's id
-   uint16_t data_owner_port(bool & ws_to_ws) const;
+   /// return true iff this is a variable shared between APL interpreters
+   /// as opposed to shared with an AP.
+   bool is_ws_to_ws() const;
 
    /// complain about \b proc
    void bad_proc(const char * function, const AP_num3 & ap) const;
@@ -214,8 +201,11 @@ struct Svar_record
 
    /// return the coupling of the variable
    SV_Coupling get_coupling() const
-       { return this ? SV_Coupling(offering.alive() + accepting.alive())
-                     : NO_COUPLING; }
+       { if (this == 0)   return NO_COUPLING;
+         int ret = 0;   if (offering.is_active())   ++ret;
+                        if (accepting.is_active())   ++ret;
+         return (SV_Coupling)ret; }
+
 
    /// return the control bits of this variable
    Svar_Control get_control() const;
@@ -239,9 +229,6 @@ struct Svar_record
 
    /// return true iff the calling partner may set the current value
    bool may_set(int attempt);
-
-   /// return the share partner of this variable
-   Svar_partner get_peer() const;
 
    /// print the variable
    void print(ostream & out) const;
@@ -271,7 +258,7 @@ struct Svar_record
 #define ABSTRACT_OFFSET 1
    static const char * get_APserver_unix_socket_name()
       {
-#ifdef HAVE_LINUX_UN_H
+#ifdef HAVE_SYS_UN_H
         return "/tmp/GNU-APL/APserver";
 #else
         return       0;

@@ -19,23 +19,34 @@ dnl  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/// )OFF
-m4_signal(DISCONNECT)
-
 /// ⎕SVO, ⎕SVR
 m4_signal(MAKE_OFFER,       x64,    key)
 m4_signal(RETRACT_OFFER,    x64,    key)
+m4_signal(RETRACT_VAR,      x64,    key)
+
+m4_signal(SET_STATE,        x64,    key,
+                            u8,     new_state,
+                            string, loc)
+
+m4_signal(SET_CONTROL,      x64,    key,
+                            u8,     new_control)
 
 /// SVAR←X and X←SVAR
 m4_signal(GET_VALUE,        x64,    key)
-m4_signal(VALUE_IS,         x64,    key,       u32,    error,
-                            string, error_loc, string, cdr_value)
-m4_signal(ASSIGN_VALUE,     x64,    key,       string, cdr_value)
-m4_signal(SVAR_ASSIGNED,    x64,    key,       u32,    error,
+m4_signal(VALUE_IS,         x64,    key,
+                            u32,    error,
+                            string, error_loc,
+                            string, cdr_value)
+m4_signal(ASSIGN_VALUE,     x64,    key,
+                            string, cdr_value)
+m4_signal(SVAR_ASSIGNED,    x64,    key,
+                            u32,    error,
                             string, error_loc)
 
-/// ⎕SVE
-m4_signal(NEW_EVENT,       x64,    key,     u32,    event)
+m4_signal(MAY_USE,          x64,    key,
+                            i32,    attempt)
+m4_signal(MAY_SET,          x64,    key,
+                            i32,    attempt)
 
 /// read/update SVAR database record from APserver
 ///
@@ -60,8 +71,7 @@ m4_signal(YES_NO,	        u8,    yes)
 m4_signal(REGISTER_PROCESSOR,	u32,    proc,
 				u32,    parent,
 				u32,    grand,
-				u32,    pid,
-				u16,    port,
+				u8,     evconn,
 				string, progname)
 
 /// match offered shared variable or create a new offer
@@ -71,9 +81,7 @@ m4_signal(MATCH_OR_MAKE,        string, varname,
                                 u32,    to_grand,
                                 u32,    from_proc,
                                 u32,    from_parent,
-                                u32,    from_grand,
-				u32,    from_pid,
-				u16,    from_port)
+                                u32,    from_grand)
 
 m4_signal(MATCH_OR_MAKE_RESULT, x64,    key)
 
@@ -118,11 +126,6 @@ m4_signal(ADD_EVENT,	        x64,    key,
                                 u32,    parent,
                                 u32,    grand,
 				u32,    event)
-
-m4_signal(GET_UDP_PORT,	        u32,    proc,
-				u32,    parent)
-
-m4_signal(UDP_PORT_IS,	        u16,    port)
 
 m4_signal(ASSIGN_WSWS_VAR,	x64,    key,
                                 string, cdr_value)

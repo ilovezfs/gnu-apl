@@ -19,6 +19,7 @@
 */
 
 #include <errno.h>
+#include <limits.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <signal.h>
@@ -29,8 +30,8 @@
 #include <unistd.h>
 
 #include "config.h"   // for HAVE_ macros
-#ifdef HAVE_LINUX_UN_H
-#include <linux/un.h>
+#ifdef HAVE_SYS_UN_H
+#include <sys/un.h>
 #endif
 
 #include <iostream>
@@ -55,22 +56,28 @@ using namespace std;
 
 Svar_DB_server db;
 int verbosity = 0;
+ostream * debug = 0;
 
 #define Log(x) if (verbosity > 0)
 bool LOG_shared_variables = false;
 
+/// Stringify x.
+#define STR(x) #x
+/// The current location in the source file.
+#define LOC Loc(__FILE__, __LINE__)
+/// The location line l in file f.
+#define Loc(f, l) f ":" STR(l)
+
 AP_num3 ProcessorID::id;
 
 //-----------------------------------------------------------------------------
-/// one connected processors
-struct AP3_fd
+const char * prog_name()
 {
-   AP_num3    ap3;
-   TCP_socket fd;
-   uint16_t   udp_port;
-   string     progname;
-};
+   return "APserver";
+}
+//-----------------------------------------------------------------------------
 /// a database containing all connected processors
+extern vector<AP3_fd> connected_procs;
 vector<AP3_fd> connected_procs;
 //-----------------------------------------------------------------------------
 struct key_value
@@ -100,8 +107,8 @@ bool hang_on = false;   // dont exit after last connection was closed
 static void print_db(ostream & out);
 
 //-----------------------------------------------------------------------------
-extern int get_tcp_fd_for_id(const AP_num3 & id);
-int
+extern TCP_socket get_tcp_fd_for_id(const AP_num3 & id);
+TCP_socket
 get_tcp_fd_for_id(const AP_num3 & id)
 {
    for (int j = 0; j < connected_procs.size(); ++j)
@@ -112,21 +119,102 @@ get_tcp_fd_for_id(const AP_num3 & id)
    return NO_TCP_SOCKET;
 }
 //-----------------------------------------------------------------------------
-extern uint16_t get_udp_port_for_id(const AP_num3 & id);
-uint16_t
-get_udp_port_for_id(const AP_num3 & id)
+extern TCP_socket get_tcp_fd2_for_id(const AP_num3 & id);
+TCP_socket
+get_tcp_fd2_for_id(const AP_num3 & id)
 {
    for (int j = 0; j < connected_procs.size(); ++j)
        {
-         if (id == connected_procs[j].ap3)   return connected_procs[j].udp_port;
+         if (id == connected_procs[j].ap3 &&
+             connected_procs[j].fd2 != NO_TCP_SOCKET)
+            return connected_procs[j].fd2;
        }
 
-   return 0;
+   return NO_TCP_SOCKET;
 }
 //-----------------------------------------------------------------------------
-const char * prog_name()
+static
+AP_num3 fd_to_id(TCP_socket fd)
 {
-   return "APserver";
+   for (int j = 0; j < connected_procs.size(); ++j)
+       {
+         if (fd == connected_procs[j].fd)    return connected_procs[j].ap3;
+         if (fd == connected_procs[j].fd2)   return connected_procs[j].ap3;
+       }
+
+   return AP_num3();
+}
+//-----------------------------------------------------------------------------
+TCP_socket
+get_TCP_for_key(SV_key key)
+{
+Svar_record * svar = db.find_var(key, LOC);
+   if (!svar)   goto not_found;
+
+   for (int j = 0; j < connected_procs.size(); ++j)
+       {
+         if (connected_procs[j].fd2 == NO_TCP_SOCKET)   continue;
+
+         if (connected_procs[j].ap3 == svar->offering.id &&
+             svar->offering.tcp_fd != NO_TCP_SOCKET)
+            {
+              return connected_procs[j].fd2;
+            }
+
+         if (connected_procs[j].ap3 == svar->accepting.id &&
+             svar->accepting.tcp_fd != NO_TCP_SOCKET)
+            {
+              return connected_procs[j].fd2;
+            }
+       }
+
+not_found:
+   cerr << prog_name() << ": could not find TCP for key " << key << endl;
+   return NO_TCP_SOCKET;
+}
+//-----------------------------------------------------------------------------
+TCP_socket
+get_peer_fd(SV_key key, TCP_socket fd)
+{
+AP_num3 from_id = fd_to_id(fd);
+
+Svar_record * svar = db.find_var(key, LOC);
+   if (!svar)   return NO_TCP_SOCKET;
+
+AP_num3 peer_id;
+   if      (from_id == svar->offering.id)    peer_id = svar->accepting.id;
+   else if (from_id == svar->accepting.id)   peer_id = svar->offering.id;
+   else
+      {
+         cerr << "*** key " << (key & 0xFFFF)
+              << " has no fd " << fd << " at " << LOC << endl;
+         print_db(cerr);
+        return NO_TCP_SOCKET;
+      }
+
+   return get_tcp_fd_for_id(peer_id);
+}
+//-----------------------------------------------------------------------------
+TCP_socket
+get_peer_fd2(SV_key key, TCP_socket fd)
+{
+AP_num3 from_id = fd_to_id(fd);
+
+Svar_record * svar = db.find_var(key, LOC);
+   if (!svar)   return NO_TCP_SOCKET;
+
+AP_num3 peer_id;
+   if      (from_id == svar->offering.id)    peer_id = svar->accepting.id;
+   else if (from_id == svar->accepting.id)   peer_id = svar->offering.id;
+   else
+      {
+         cerr << "*** key " << (key & 0xFFFF)
+              << " has no fd " << fd << " at " << LOC << endl;
+         print_db(cerr);
+        return NO_TCP_SOCKET;
+      }
+
+   return get_tcp_fd2_for_id(peer_id);
 }
 //-----------------------------------------------------------------------------
 static struct sigaction old_control_C_action;
@@ -148,6 +236,67 @@ control_BSL(int)
    print_db(cerr << "\r");
 }
 //-----------------------------------------------------------------------------
+void
+maybe_start_AP(const AP_num3 & id)
+{
+   // currently APs are started by the APL interpeter and not by APserver.
+   //
+   return;
+
+   if (id.proc >= AP_FIRST_USER)   return;   // not  an AP
+
+   for (int j = 0; j < connected_procs.size(); ++j)
+       {
+         if (connected_procs[j].ap3 == id)   return;   // already running
+       }
+
+char AP_progname[PATH_MAX + 1];
+   snprintf(AP_progname, sizeof(AP_progname), "%s", prog);
+
+char * bslash = strrchr(AP_progname, '/');
+   if (bslash)
+      {
+        const int offset = bslash - AP_progname;
+        snprintf(bslash + 1, PATH_MAX - offset - 1, "AP%u", id.proc);
+      }
+   else
+      {
+        snprintf(AP_progname, PATH_MAX, "AP%u", id.proc);
+      }
+   
+   AP_progname[PATH_MAX] = 0;
+
+   debug && *debug << "*** starting " << AP_progname << endl;
+
+char popen_arg[PATH_MAX + 1];
+   if (debug)
+      {
+        snprintf(popen_arg, PATH_MAX,
+                 "%s --id %u --par %u --gra %u --auto -v",
+                 AP_progname, id.proc, id.parent, id.grand);
+      }
+   else
+      {
+        snprintf(popen_arg, PATH_MAX,
+                 "%s --id %u --par %u --gra %u --auto",
+                 AP_progname, id.proc, id.parent, id.grand);
+      }
+ 
+
+FILE * fp = popen(popen_arg, "r");
+   if (fp == 0)
+      {
+        cerr << "popen(" << popen_arg << ") failed: " << strerror(errno)
+             << endl;
+        return;
+      }
+
+   for (int cc; (cc = getc(fp)) != EOF;)   cerr << (char)cc;
+   cerr << endl;
+
+   pclose(fp);
+}
+//-----------------------------------------------------------------------------
 static void
 close_fd(TCP_socket fd)
 {
@@ -156,11 +305,11 @@ close_fd(TCP_socket fd)
    //
 AP_num3 removed_AP;
 bool found_fd = false;
+TCP_socket removed_fd2 = NO_TCP_SOCKET;
 
    for (int j = 0; j < connected_procs.size(); ++j)
        {
-         const TCP_socket fd_j = connected_procs[j].fd;
-         if (fd == fd_j)
+         if (fd == connected_procs[j].fd)
             {
               found_fd = true;
               removed_AP = connected_procs[j].ap3;
@@ -170,11 +319,26 @@ bool found_fd = false;
                                       << removed_AP.parent << ":"
                                       << removed_AP.grand
                                       << ") from connected_procs" << endl;
+              removed_fd2 = connected_procs[j].fd2;
+              break;
+            }
+         else if (fd == connected_procs[j].fd2)
+            {
+              found_fd = true;
+              removed_AP = connected_procs[j].ap3;
+              connected_procs.erase(connected_procs.begin() + j);
+              (verbosity > 0) && cerr << "erased fd " << fd << " (Id "
+                                      << removed_AP.proc << ":"
+                                      << removed_AP.parent << ":"
+                                      << removed_AP.grand
+                                      << ") from connected_procs" << endl;
+              removed_fd2 = connected_procs[j].fd;
               break;
             }
        }
 
    ::close(fd);
+   if (removed_fd2 != NO_TCP_SOCKET)   ::close(removed_fd2);
 
    if (!found_fd)   // should not happen
       {
@@ -183,16 +347,56 @@ bool found_fd = false;
          return;
       }
 
-   // retract offers
+   // retract offers made by the removed processor
    //
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < db.offered_vars.size(); ++o)
        {
          Svar_record & svar = db.offered_vars[o];
 
          if (svar.accepting.id == removed_AP)      svar.remove_accepting();
          if (svar.offering.id == removed_AP)       svar.remove_offering();
-         if (svar.get_coupling() == NO_COUPLING)   svar.clear();
+         if (svar.get_coupling() == NO_COUPLING)
+            {
+              db.offered_vars.erase(db.offered_vars.begin() + o);
+              --o;
+            }
        }
+
+   // disconnect dependent processors...
+   //
+   if (removed_AP.grand == 0)   // otherwise removed_AP is an AP
+      {
+        if (removed_AP.parent)   // removed_AP is proc.parent.0
+           {
+             for (int j = 0; j < connected_procs.size(); ++j)
+                 {
+                   if (connected_procs[j].ap3.parent == removed_AP.proc &&
+                       connected_procs[j].ap3.grand  == removed_AP.parent)
+                      {
+                        debug && *debug << "removing dependent processor "
+                             << connected_procs[j].ap3.proc << endl;
+
+                       if (connected_procs[j].fd != NO_TCP_SOCKET)
+                          close_fd(connected_procs[j].fd);
+                      }
+                 }
+           }
+        else                     // removed_AP is proc.0.0
+           {
+             for (int j = 0; j < connected_procs.size(); ++j)
+                 {
+                   if (connected_procs[j].ap3.parent == removed_AP.proc &&
+                       connected_procs[j].ap3.grand == 0)
+                      {
+                        debug && *debug << "removing dependent processor "
+                             << connected_procs[j].ap3.proc << endl;
+
+                       if (connected_procs[j].fd != NO_TCP_SOCKET)
+                          close_fd(connected_procs[j].fd);
+                      }
+                 }
+           }
+      }
 
    // maybe exit if the last connection was removed
    //
@@ -245,20 +449,7 @@ AP3_fd * ap_fd = 0;
         case sid_READ_SVAR_RECORD:
              {
                const SV_key key = request->get__READ_SVAR_RECORD__key();
-
-               Svar_record * svar = 0;
-               if (key)
-                  {
-                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-                        {
-                          if (key == db.offered_vars[o].key)
-                             {
-                               svar = db.offered_vars + o;
-                               break;
-                             }
-
-                        }
-                  }
+               const Svar_record * svar = db.find_var(key, LOC);
 
                if (svar)
                   {
@@ -278,18 +469,7 @@ AP3_fd * ap_fd = 0;
         case sid_UPDATE_SVAR_RECORD:
              {
                const SV_key key = request->get__UPDATE_SVAR_RECORD__key();
-               Svar_record * svar = 0;
-               if (key)
-                  {
-                    for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
-                        {
-                          if (key == db.offered_vars[o].key)
-                             {
-                               svar = db.offered_vars + o;
-                               break;
-                             }
-                        }
-                  }
+               Svar_record * svar = db.find_var(key, LOC);
 
                if (svar)
                   {
@@ -298,7 +478,6 @@ AP3_fd * ap_fd = 0;
 
                     char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_record)];
                     char * del = 0;
-                    ostream * debug = verbosity ? &cerr : 0;
                     Signal_base * update = Signal_base::recv_TCP(fd, buffer,
                                                     sizeof(buffer), del, debug);
                     if (update)
@@ -314,7 +493,8 @@ AP3_fd * ap_fd = 0;
                   }
                else
                   {
-cerr << "*** no svar ***" << endl;
+cerr << "*** no svar at " << LOC << " ***" << endl;
+exit(4);
                     char dummy[sizeof(Svar_record)];
                     memset(&dummy, 0, sizeof(Svar_record));
                     string data((const char *)&dummy, sizeof(Svar_record));
@@ -338,10 +518,26 @@ cerr << "*** no svar ***" << endl;
                const int proc   = request->get__REGISTER_PROCESSOR__proc();
                const int parent = request->get__REGISTER_PROCESSOR__parent();
                const int grand  = request->get__REGISTER_PROCESSOR__grand();
-               const uint16_t port = request->get__REGISTER_PROCESSOR__port();
+               const bool evconn =  request->get__REGISTER_PROCESSOR__evconn();
                const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
+
+               if (evconn)
+                  {
+                    for (int j = 0; j < connected_procs.size(); ++j)
+                        {
+                          AP3_fd & ap_fd1 = connected_procs[j];
+                          if (ap_fd1.ap3 == ap3)
+                             {
+                               ap_fd1.fd2 = fd;
+                               connected_procs.erase(connected_procs.begin()
+                                           + (ap_fd - &connected_procs[0]));
+                               return;
+                             }
+                        }
+
+                    cerr << "*** NOT FOUND at " << LOC << "***" << endl;
+                  }
                ap_fd->ap3 = ap3;
-               ap_fd->udp_port = port;
                ap_fd->progname = request->get__REGISTER_PROCESSOR__progname();
              }
              return;
@@ -358,8 +554,6 @@ cerr << "*** no svar ***" << endl;
                const int fr_proc   = request->get__MATCH_OR_MAKE__from_proc();
                const int fr_parent = request->get__MATCH_OR_MAKE__from_parent();
                const int fr_grand  = request->get__MATCH_OR_MAKE__from_grand();
-               const int from_pid  = request->get__MATCH_OR_MAKE__from_pid();
-               const int from_port = request->get__MATCH_OR_MAKE__from_port();
 
                const AP_num3 to((AP_num)to_proc,
                                 (AP_num)to_parent,
@@ -369,8 +563,11 @@ cerr << "*** no svar ***" << endl;
                                 (AP_num)fr_parent,
                                 (AP_num)fr_grand);
 
-               Svar_partner from(fr, from_pid, from_port, fd);
-               SV_key key = db.match_or_make(varname, to, from);
+               maybe_start_AP(to);
+
+               Svar_partner from(fr, fd);
+               TCP_socket tcp2 = get_tcp_fd2_for_id(from.id);
+               SV_key key = db.match_or_make(varname, to, from, tcp2);
                MATCH_OR_MAKE_RESULT_c(fd, key);
              }
              return;
@@ -407,16 +604,6 @@ cerr << "*** no svar ***" << endl;
                const int event  = request->get__ADD_EVENT__event();
                const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
               db.add_event(key, ap3, (Svar_event)event);
-             }
-             return;
-
-        case sid_GET_UDP_PORT:
-             {
-               const int proc     = request->get__GET_UDP_PORT__proc();
-               const int parent   = request->get__GET_UDP_PORT__parent();
-               const AP_num3 ap3((AP_num)proc, (AP_num)parent, AP_NULL);
-               const uint16_t port = get_udp_port_for_id(ap3);
-               UDP_PORT_IS_c(fd, port);
              }
              return;
 
@@ -496,6 +683,9 @@ cerr << "*** no svar ***" << endl;
         case sid_ASSIGN_WSWS_VAR:
              {
                const SV_key key = request->get__ASSIGN_WSWS_VAR__key();
+               debug && *debug << "writing var data for key 0x"
+                               << hex << key << dec << endl;
+
                bool existing = false;
                for (int vv = 0; vv < var_values.size(); ++vv)
                    {
@@ -516,16 +706,21 @@ cerr << "*** no svar ***" << endl;
                     //
                     const key_value kv(key);
                     var_values.push_back(kv);
-                    var_values[var_values.size() - 1].var_value =
+                    var_values.back().var_value =
                                     request->get__ASSIGN_WSWS_VAR__cdr_value();
                   }
 
+               Svar_record * svar = db.find_var(key, LOC);
+               if (svar) svar->set_state(false, "APserver 524");
+               else cerr << "*** key not in db" << endl;
              }
              return;
 
         case sid_READ_WSWS_VAR:
              {
                const SV_key key = request->get__READ_WSWS_VAR__key();
+               debug && *debug << "reading var data for key 0x"
+                               << hex << key << dec << endl;
 
                bool existing = false;
                for (int vv = 0; vv < var_values.size(); ++vv)
@@ -534,18 +729,162 @@ cerr << "*** no svar ***" << endl;
                         {
                           existing = true;
                           WSWS_VALUE_IS_c(fd, var_values[vv].var_value);
+
+                          Svar_record * svar = db.find_var(key, LOC);
+                          if (svar) svar->set_state(true, LOC);
+                          else cerr << "*** key not in db at " << LOC << endl;
                           return;
                         }
                    }
+               cerr << "*** data not in db at " << LOC << endl;
                string empty;
                WSWS_VALUE_IS_c(fd, empty);
+             }
+             return;
+
+        case sid_RETRACT_VAR:     // ⎕SVR varname
+             {
+               const SV_key key = request->get__RETRACT_VAR__key();
+               Svar_record * svar = db.find_var(key, LOC);
+               if (svar)
+                  {
+                    svar->retract();
+                    if (svar->get_coupling() != NO_COUPLING &&
+                        svar->offering.id.proc < AP_FIRST_USER)
+                       {
+                    const TCP_socket sock = get_TCP_for_key(key);
+
+                         RETRACT_OFFER_c(sock, key);
+                         return;
+                       }
+                  }
+               else cerr << "*** key not in db at " << LOC << endl;
+             }
+             return;
+
+        case sid_ASSIGN_VALUE:     // Svar←X for APs
+	     {
+               const SV_key key = request->get__ASSIGN_VALUE__key();
+               const TCP_socket ap_sock = get_peer_fd2(key, fd);
+               if (ap_sock == NO_TCP_SOCKET)
+                  {
+                    cerr << "NO tcp2 at " << LOC << endl;
+                    print_db(cerr);
+                      return;
+                  }
+
+               ASSIGN_VALUE_c(ap_sock, key,
+                              request->get__ASSIGN_VALUE__cdr_value());
+             }
+             return;
+
+        case sid_SVAR_ASSIGNED:     // Svar←X response from AP
+             {
+               const SV_key key = request->get__SVAR_ASSIGNED__key();
+               const TCP_socket apl = get_peer_fd(key, fd);
+               SVAR_ASSIGNED_c sva(apl, key,
+                                   request->get__SVAR_ASSIGNED__error(),
+                                   request->get__SVAR_ASSIGNED__error_loc());
+             }
+             return;
+
+        case sid_MAY_USE: 
+             {
+               const SV_key key  = request->get__MAY_USE__key();
+               const int attempt = request->get__MAY_USE__attempt();
+               bool allowed = true;
+               Svar_record * svar = db.find_var(key, LOC);
+               if (svar)   allowed = svar->may_use(attempt);
+
+               // it can be that the control vector allows reading but no value
+               // has been set yet. In that case we do not allow use of the
+               // variable
+               //
+               if (allowed && svar && svar->is_ws_to_ws())
+                  {
+                    bool have_value = false;
+                    for (int vv = 0; vv < var_values.size(); ++vv)
+                        {
+                          if (var_values[vv].key == key)
+                             {
+                               have_value = true;
+                               break;
+                             }
+                        }
+
+                    if (!have_value)   allowed = false;
+                  }
+
+               YES_NO_c(fd, allowed);
+             }
+             return;
+
+        case sid_MAY_SET: 
+             {
+               const SV_key key  = request->get__MAY_SET__key();
+               const int attempt = request->get__MAY_SET__attempt();
+               bool allowed = true;
+               Svar_record * svar = db.find_var(key, LOC);
+               if (svar)   allowed = svar->may_set(attempt);
+
+               YES_NO_c(fd, allowed);
+             }
+             return;
+
+        case sid_GET_VALUE:     // +Svar for APs
+             {
+               const SV_key key = request->get__GET_VALUE__key();
+               const TCP_socket ap_sock = get_peer_fd2(key, fd);
+               if (ap_sock == NO_TCP_SOCKET)
+                  {
+                    cerr << "NO tcp2 at " << LOC << endl;
+                    print_db(cerr);
+                      return;
+                  }
+
+               GET_VALUE_c(ap_sock, key);
+
+               char * del = 0;
+               char buffer[2*MAX_SIGNAL_CLASS_SIZE + 40000];
+               Signal_base * response = Signal_base::recv_TCP(ap_sock, buffer,
+                                                  sizeof(buffer), del, debug);
+               VALUE_IS_c vis(fd, response->get__VALUE_IS__key(),
+                                  response->get__VALUE_IS__error(),
+                                  response->get__VALUE_IS__error_loc(),
+                                  response->get__VALUE_IS__cdr_value());
+
+               if (del)   delete del;
+             }
+             return;
+
+        case sid_SET_STATE:
+             {
+               const SV_key key = request->get__SET_STATE__key();
+               Svar_record * svar = db.find_var(key, LOC);
+
+               if (svar) svar->set_state(request->get__SET_STATE__new_state(),
+                                   request->get__SET_STATE__loc().c_str());
+               else cerr << "*** key not in db at " << LOC << endl;
+             }
+             return;
+
+        case sid_SET_CONTROL:
+             {
+               const SV_key key = request->get__SET_CONTROL__key();
+               Svar_record * svar = db.find_var(key, LOC);
+
+               if (svar) svar->set_control((Svar_Control)request->
+                                            get__SET_CONTROL__new_control());
+               else cerr << "*** key not in db at " << LOC << endl;
              }
              return;
 
         default: break;
       }
 
-   cerr << "got unknown signal ID " << request->get_sigID() << endl;
+   cerr << prog_name() << ": got unexpected signal ID "
+        << request->get_sigID() << " ("
+        << request->get_sigName() << ")" << endl;
 }
 //-----------------------------------------------------------------------------
 static void
@@ -569,7 +908,7 @@ Signal_base * request = Signal_base::recv_TCP(fd, buffer, sizeof(buffer),
    if (del)   delete del;
 }
 //-----------------------------------------------------------------------------
-#ifdef HAVE_LINUX_UN_H
+#ifdef HAVE_SYS_UN_H
 int
 open_UNIX_socket(const char * listen_name)
 {
@@ -649,13 +988,31 @@ sockaddr_in local;
    return listen_sock;
 }
 //-----------------------------------------------------------------------------
+void
+usage()
+{
+   cerr <<
+"usage: " << prog << " [options]\n"
+"    options: \n"
+"    -h, --help             print this help\n"
+"    -H                     hang on (after last connection was closed)\n"
+"    -d                     same as -v --path default-unix-sockname\n"
+"    --path <unix-sock>     listen on unix-sock\n"
+"    --port <tcp-port>      listen on TCP port tcp-port\n"
+"    -v                     be verbose\n";
+
+}
+//-----------------------------------------------------------------------------
 int
 main(int argc, char * argv[])
 {
+   prog = argv[0];
+
 int listen_port = Default_APserver_tcp_port;
 const char * listen_name = Svar_record::get_APserver_unix_socket_name();
 bool got_path = false;
 bool got_port = false;
+int janitor = 0;
 
    memset(&new_control_C_action, 0, sizeof(struct sigaction));
    memset(&new_control_BSL_action, 0, sizeof(struct sigaction));
@@ -666,15 +1023,31 @@ bool got_port = false;
    sigaction(SIGINT, &new_control_C_action, &old_control_C_action);
    sigaction(SIGQUIT, &new_control_BSL_action, &old_control_BSL_action);
 
-   prog = argv[0];
    for (int a = 1; a < argc; )
        {
          const char * opt = argv[a++];
          const char * val = (a < argc) ? argv[a] : 0;
 
-         if (!strcmp(opt, "-H"))
+         if (!strcmp(opt, "-h"))
+            {
+              usage();
+              return 0;
+            }
+         if (!strcmp(opt, "--help"))
+            {
+              usage();
+              return 0;
+            }
+         else if (!strcmp(opt, "-H"))
             {
               hang_on = true;
+            }
+         else if (!strcmp(opt, "-d"))
+            {
+               got_path = true;
+              ++verbosity;
+              debug = &cerr;
+              LOG_shared_variables = true;
             }
          else if (!strcmp(opt, "--path"))
             {
@@ -701,6 +1074,7 @@ bool got_port = false;
          else if (!strcmp(opt, "-v"))
             {
               ++verbosity;
+              debug = &cerr;
               LOG_shared_variables = true;
             }
          else
@@ -736,17 +1110,27 @@ int max_fd = listen_sock;
         fd_set read_fds;
         FD_ZERO(&read_fds);
         FD_SET(listen_sock, &read_fds);
-        int max_fd = listen_sock;
         for (int j = 0; j < connected_procs.size(); ++j)
             {
-              const TCP_socket fd = connected_procs[j].fd;
-              if (max_fd < fd)   max_fd = fd;
-              FD_SET(fd, &read_fds);
+              TCP_socket fd = connected_procs[j].fd;
+              if (fd != NO_TCP_SOCKET)
+                 {
+                   if (max_fd < fd)   max_fd = fd;
+                   FD_SET(fd, &read_fds);
+                 }
+
+              fd = connected_procs[j].fd2;
+              if (fd != NO_TCP_SOCKET)
+                 {
+                   if (max_fd < fd)   max_fd = fd;
+                   FD_SET(fd, &read_fds);
+                 }
             }
 
         errno = 0;
-        const int count = select(max_fd + 1, &read_fds, 0, 0, 0);
-        if (count <= 0)
+        timeval timeout = { 1, 0 };   // one second
+        const int count = select(max_fd + 1, &read_fds, 0, 0, &timeout);
+        if (count < 0)
            {
              if (errno == EINTR)   continue;
 
@@ -755,6 +1139,30 @@ int max_fd = listen_sock;
              return 3;
            }
 
+        if (count == 0)   // timeout
+           {
+             continue;   // until we find a method to detect a closed socket
+
+             if (connected_procs.size() == 0)   continue;
+             ++janitor;
+             if (janitor >= connected_procs.size())   janitor = 0;
+
+             int jfd = connected_procs[janitor].fd;
+             if (jfd != NO_TCP_SOCKET)
+                {
+                  const ssize_t result = ::recv(jfd, 0, 0, MSG_DONTWAIT);
+                  cerr << "janitor got " << errno << " on fd " << jfd << endl;
+                }
+
+             jfd = connected_procs[janitor].fd2;
+             if (jfd != NO_TCP_SOCKET)
+                {
+                  const ssize_t result = ::recv(jfd, 0, 0, MSG_DONTWAIT);
+                  cerr << "janitor got " << errno << " on fd " << jfd << endl;
+                }
+             
+             continue;
+           }
         // something happened, check listen_sock first for new connections
         //
         if (FD_ISSET(listen_sock, &read_fds))
@@ -792,17 +1200,18 @@ int max_fd = listen_sock;
       }
 }
 //-----------------------------------------------------------------------------
-void print_db(ostream & out)
+void
+print_db(ostream & out)
 {
   // print active processors
    //
-   out << "┌──────────────────────┬─────┬──────┬──────────────────────┐" << endl
-       << "│ Proceccsor           │ Port│   Fd │ Program              │" << endl
-       << "╞══════════════════════╪═════╪══════╪══════════════════════╡" << endl;
+   out << "╔══════════════════════┬════════┬══════════════════─═══╗" << endl
+       << "║ Processor            │ fd fd2 │ Program              ║" << endl
+       << "╠══════════════════════╪════════╪══════════════════════╣" << endl;
    for (int p = 0; p < connected_procs.size(); ++p)
        {
          const AP3_fd & pro = connected_procs[p];
-         char cc[200];
+         char cc[100];
          if (pro.ap3.grand)
               {
                 snprintf(cc, sizeof(cc), "%u.%u.%u",
@@ -818,29 +1227,28 @@ void print_db(ostream & out)
                 snprintf(cc, sizeof(cc), "%u", pro.ap3.proc);
               }
          cc[sizeof(cc) - 1] = 0;
+         out << "║ "  << left  << setw(20) << cc;
                
-         out << "│ "  << left  << setw(20) << cc
-             << " │"  << right << setw(5) << pro.udp_port
-             << "│ " << right << setw(4) << pro.fd
+         out << " │" << right << setw(3) << pro.fd << " " << setw(3) << pro.fd2
              << " │ " << left  << setw(20) << pro.progname
-             << " │"  << right << endl;
+             << " ║"  << right << endl;
        }
-   out << "╘══════════════════════╧═════╧══════╧══════════════════════╛" << endl;
+   out << "╚══════════════════════╧════════╧══════════════════════╝" << endl;
 
    // print shared variables
    out <<
-"╔═════╤═╦═══════════╤═════╤══╤══╦═══════════╤═════╤══╤══╦════╤══════════╗\n"
-"║     │ ║ Offering  │     │  │  ║ Accepting │     │  │  ║OAOA│          ║\n"
-"║ Seq │C║ Proc,par  │ Port│Fd│Fl║ Proc,par  │ Port│Fd│Fl║SSUU│ Varname  ║\n"
-"╠═════╪═╬═══════════╪═════╪══╪══╬═══════════╪═════╪══╪══╬════╪══════════╣\n";
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+"╔═════╤═╦═══════════╤═══╤══╦═══════════╤═══╤══╦════╤══════════╗\n"
+"║     │ ║ Offering  │   │  ║ Accepting │   │  ║OAOA│          ║\n"
+"║ Seq │C║ Proc,par  │Fd2│Fl║ Proc,par  │Fd2│Fl║SSUU│ Varname  ║\n"
+"╠═════╪═╬═══════════╪═══╪══╬═══════════╪═══╪══╬════╪══════════╣\n";
+   for (int o = 0; o < db.offered_vars.size(); ++o)
        {
          const Svar_record & svar = db.offered_vars[o];
          if (svar.valid())   svar.print(out);
        }
 
    out <<
-"╚═════╧═╩═══════════╧═════╧══╧══╩═══════════╧═════╧══╧══╩════╧══════════╝\n"
+"╚═════╧═╩═══════════╧═══╧══╩═══════════╧═══╧══╩════╧══════════╝\n"
        << endl;
 
 }

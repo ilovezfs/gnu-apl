@@ -97,7 +97,6 @@ Token.cc		Token.def		Token.hh		\
 						TokenEnums.hh		\
 Tokenizer.cc					Tokenizer.hh		\
 UCS_string.cc					UCS_string.hh		\
-UdpSocket.cc					UdpSocket.hh		\
 						Unicode.hh		\
 UserFunction.cc					UserFunction.hh		\
 UserPreferences.cc				UserPreferences.hh	\

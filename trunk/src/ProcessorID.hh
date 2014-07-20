@@ -21,8 +21,6 @@
 #ifndef __PROCESSOR_ID_HH_DEFINED__
 #define __PROCESSOR_ID_HH_DEFINED__
 
-#include "UdpSocket.hh"
-
 using namespace std;
 
 #ifdef AP_NUM
@@ -121,12 +119,6 @@ public:
    /// return the processor ID of the parent of this apl interpreter
    static AP_num get_parent_ID()   { return id.parent; }
 
-   /// return the port number for communication with this AP
-   static uint16_t get_APnnn_port()   { return APnnn_port; }
-
-   /// return the local socket communication with this AP
-   static UdpSocket & get_own_socket()   { return APnnn_socket; }
-
    /// read the network profile file from its default location
    static int read_network_profile();
 
@@ -147,14 +139,8 @@ protected:
    /// the processor, parent, and grandparent of this apl interpreter
    static AP_num3 id;
 
-   /// the UDP port of APnnn
-   static uint16_t  APnnn_port;
-
    /// the network profile currently used
    static Network_Profile network_profile;
-
-   /// socket towards APnnn process
-   static UdpSocket APnnn_socket;
 };
 
 #endif

@@ -60,8 +60,6 @@ int event_port = 0;
 const char * prog = 0;
 char pref[FILENAME_MAX + 20];
 
-pid_t parent_pid = 0;
-
 /// coupled variables
 vector<Coupled_var> coupled_vars;
 
@@ -166,13 +164,20 @@ int usage()
 << "    --auto        automatically started (exit after last retract)"  << endl
 << "    --id num      run as processor num"  << endl
 << "    --par num     run as child of num"  << endl
-<< "    --ppid num    terminate if process num has died" << endl
 << "    --gra num     run as grandchild of num"  << endl
 << "    -h, --help    print this help" << endl
 << "    -v            verbose"         << endl
 <<                                        endl;
 
    return 1;
+}
+//-----------------------------------------------------------------------------
+TCP_socket tcp2 = NO_TCP_SOCKET;
+
+TCP_socket
+get_TCP_for_key(SV_key key)
+{
+   return tcp2;
 }
 //-----------------------------------------------------------------------------
 int
@@ -213,14 +218,12 @@ char * slash = strrchr(bin_path, '/');
                           { ProcessorID::set_own_ID(AP_num(atoi(val))); ++a; }
          else if (!strcmp(opt, "--par") && val)
                          { ProcessorID::set_parent_ID(AP_num(atoi(val))); ++a; }
-         else if (!strcmp(opt, "--ppid") && val)
-                        { parent_pid = atoi(val); ++a; }
          else if (!strcmp(opt, "--gra") && val)
                          { ProcessorID::set_grand_ID(AP_num(atoi(val))); ++a; }
          else
             {
-              get_CERR() << pref << ": Bad command line option "
-                   << argv[a] << endl;
+              get_CERR() << pref << ": Bad command line option '"
+                   << argv[a] << "'" << endl;
               need_help = true;
             }
        }
@@ -237,75 +240,60 @@ char * slash = strrchr(bin_path, '/');
    // register as e.g. AP210-port. We do this BEFORE closing stdout so that
    // caller of our parent waits until we have closed stdout
    //
-UdpServerSocket sock(LOC, 0);
-   if (verbose)  sock.set_debug(get_CERR());
 
    memset(&new_ctl_C_action, 0, sizeof(struct sigaction));
    new_ctl_C_action.sa_handler = &control_C;
    sigaction(SIGTERM, &new_ctl_C_action, &old_ctl_C_action);
 
-Svar_partner this_proc;
-   this_proc.clear();
-   this_proc.id = ProcessorID::get_id();
-   this_proc.pid = getpid();
-   this_proc.port = sock.get_local_port();
+Svar_partner this_proc(ProcessorID::get_id(), NO_TCP_SOCKET);
 
+   // tcp is the "normal" connection to APserver as server
+   // tcp2 is a special connection on which APserver (as client) can 
+   // send events to this process.
+   //
 const TCP_socket tcp = Svar_DB::get_DB_tcp();
-const int udp = sock.get_fd();
-const int nfds = 1 + (udp > tcp ? udp : tcp);
+
+   if (ProcessorID::get_id().proc < AP_FIRST_USER)
+      tcp2 = Svar_DB::connect_to_APserver(0, prog_name(), verbose);
+
+   if (tcp == NO_TCP_SOCKET || tcp2 == NO_TCP_SOCKET)
+      {
+        cerr << prog_name() << ":*** connection to APserver failed" << endl;
+        return 3;
+      }
+
+const int nfds = 1 + tcp2;
 
 string progname(prog_name());
 
       { REGISTER_PROCESSOR_c request(tcp, this_proc.id.proc,
                                           this_proc.id.parent,
                                           this_proc.id.grand,
-                                          this_proc.pid,
-                                          this_proc.port,
-                                          progname);
+                                          0, progname);
+      }
+
+   if (this_proc.id.proc < AP_FIRST_USER)
+      { progname += "-EV";
+         REGISTER_PROCESSOR_c request(tcp2, this_proc.id.proc,
+                                            this_proc.id.parent,
+                                            this_proc.id.grand,
+                                            1, progname);
       }
 
    fclose(stdout);   // cause getc() of caller to return EOF !
 
    for (bool goon = true; goon;)
        {
-         fd_set readfds;
-         FD_ZERO(&readfds);
-         FD_SET(udp, &readfds);
-         FD_SET(tcp, &readfds);
-         errno = 0;
-         timeval tv = { 1, 0 };
-         const int count = select(nfds, &readfds, 0, 0, &tv);
-         if (count < 0)
-            {
-              if (errno == EINTR)   continue;
-              cerr << "*** select() returned " << strerror(errno) << endl;
-              return 2;
-            }
-
          uint8_t buff[MAX_SIGNAL_CLASS_SIZE + 40000];
-         const Signal_base * signal = 0;
          char * del = 0;
-
-         if (FD_ISSET(tcp, &readfds))
-            {
-              signal = Signal_base::recv_TCP(tcp, (char *)buff, sizeof(buff),
-                                             del, 0);
-            }
-         else if (FD_ISSET(udp, &readfds))
-            {
-              signal = Signal_base::recv_UDP(sock, buff, 10000);
-            }
+         const Signal_base * signal = Signal_base::recv_TCP(tcp2, (char *)buff,
+                                                         sizeof(buff), del, 0);
 
          if (signal == 0)   // no signal for 10 seconds
             {
-              // if our parent has died, then we are done
-              //
-              if (parent_pid && !Svar_partner::pid_alive(parent_pid))
-                 {
-                   goon = false;
-                   if (verbose)   get_CERR() << AP_NAME
-                                       << " done (parent died)" << endl;
-                 }
+              goon = false;
+              if (verbose)   get_CERR() << AP_NAME
+                                        << " done (parent died)" << endl;
               continue;
             }
 
@@ -316,12 +304,6 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
 #endif
          switch(signal->get_sigID())
             {
-            case sid_DISCONNECT:   // master (local APL interpreter) disconnect
-                 if (verbose)   get_CERR() << AP_NAME
-                                           << " got DISCONNECT" << endl;
-                 goon = false;
-                 break;
-
             case sid_MAKE_OFFER:        // a new offer from a peer
                  if (verbose)   get_CERR() << AP_NAME
                                            << " got MAKE_OFFER" << endl;
@@ -358,8 +340,8 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
                  break;
 
             case sid_RETRACT_OFFER:     // ⎕SVR varname
-                 if (verbose)   get_CERR() << AP_NAME
-                                           << " got RETRACT_OFFER" << endl;
+                 verbose && get_CERR() << AP_NAME
+                                       << " got RETRACT_OFFER" << endl;
                  {
                    const SV_key key = signal->get__RETRACT_OFFER__key();
                    for (int c = 0; c < coupled_vars.size(); ++c)
@@ -412,13 +394,13 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
                         error_loc = LOC;   error = E_VALUE_ERROR;
                       }
 
-                   VALUE_IS_c response(sock, key, error, error_loc, data);
+                   VALUE_IS_c response(tcp2, key, error, error_loc, data);
                  }
                  break;
 
             case sid_ASSIGN_VALUE:
-                 if (verbose)   get_CERR() << AP_NAME
-                                           << " got ASSIGN_VALUE" << endl;
+                 verbose && get_CERR() << AP_NAME
+                                       << " got ASSIGN_VALUE" << endl;
                  {
                    const SV_key key = signal->get__ASSIGN_VALUE__key();
                    APL_error_code error = E_VALUE_ERROR;
@@ -444,12 +426,13 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
                         error_loc = LOC;   error = E_VALUE_ERROR;
                       }
 
-                   SVAR_ASSIGNED_c response(sock, key, error, error_loc);
+                   SVAR_ASSIGNED_c response(tcp, key, error, error_loc);
                  }
                  break;
 
             default: get_CERR() << pref << ": bad signal ID "
-                          << signal->get_sigID() << endl;
+                          << signal->get_sigID() << " ("
+                          << signal->get_sigName() << ")" << endl;
           }
 
          if (del)   delete del;

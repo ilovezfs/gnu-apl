@@ -27,7 +27,6 @@ extern ostream & get_CERR();
 
 using namespace std;
 
-class UdpSocket;
 class Signal_base;
 class CDR_string;
 

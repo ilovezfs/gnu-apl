@@ -26,6 +26,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include <iomanip>
 
@@ -63,25 +64,6 @@ event_name(Svar_event ev)
    return "(unknown event)";
 }
 //-----------------------------------------------------------------------------
-bool
-Svar_partner::pid_alive(pid_t pid)
-{
-   if (pid == 0)   return false;   // no pid
-
-const int kill_result = kill(pid, 0);
-   if (kill_result == 0)   return true;   // kill worked, hence pif exists
-
-   // if kill failed due to lack of permission then we don't clean up
-   //
-   if (errno == EPERM)   return true;
-
-   // if kill failed due to an invalid pid then clean it up
-   //
-   if (errno == ESRCH)   return false;
-
-   return true;   // should not come here; remain on the safe side
-}
-//-----------------------------------------------------------------------------
 ostream &
 Svar_partner::print(ostream & out) const
 {
@@ -89,8 +71,7 @@ Svar_partner::print(ostream & out) const
    if (id.parent)   out << "," << left << setw(5) << id.parent << right;
    else             out << "      ";
 
-   out << "│" << setw(5) << port
-       << "│" << setw(2) << tcp_fd << "│"
+   out << "│" << setw(3) << tcp_fd << "│"
        << hex << uppercase << setfill('0') << setw(2) << flags
        << dec << nouppercase << setfill(' ');
 
@@ -113,71 +94,12 @@ const AP_num3 offered_to = offering.id;
    accepting.id = offered_to;
 }
 //-----------------------------------------------------------------------------
-void
-Svar_record::remove_stale(int & count)
-{
-   if (get_coupling() == SV_COUPLED)   // fully coupled
-      {
-        if (!accepting.pid_alive())
-           {
-             Log(LOG_shared_variables)
-                {
-                  if (count == 0)
-                     get_CERR() << "removing stale variables..." << endl;
-
-                  get_CERR() << "remove stale accepting proc "
-                             << accepting.id.proc << endl;
-                }
-             remove_accepting();
-             ++count;
-           }
-      }
-
-   if (get_coupling() >= SV_OFFERED)   // fully coupled or offered
-      {
-        if (!offering.pid_alive())
-           {
-             Log(LOG_shared_variables)
-                {
-                  if (count == 0)
-                     get_CERR() << "removing stale variables..." << endl;
-
-                  get_CERR() << "remove stale offering proc "
-                             << offering.id.proc << endl;
-                }
-
-             if (get_coupling() == SV_COUPLED)   // fully coupled
-                {
-                  // the variable is fully coupled, therefore the accepting side
-                  // is still alive and should be informed
-                  //
-                  UdpClientSocket sock(LOC, accepting.port);
-                  RETRACT_OFFER_c signal(sock, key);
-
-                  offering = accepting;
-                  accepting.clear();
-
-                }
-             else
-                {
-                  // nobody left: just  clear the entry.
-                  //
-                  clear();
-                }
-
-             ++count;
-           }
-      }
-}
-//-----------------------------------------------------------------------------
 SV_Coupling
 Svar_record::retract()
 {
    if (this == 0)   return NO_COUPLING;
 
 const SV_Coupling old_coupling = get_coupling();
-const uint16_t port1 = offering.port;
-const uint16_t port2 = accepting.port;
 
    if (ProcessorID::get_id() == offering.id)         remove_offering();
    else if (ProcessorID::get_id() == accepting.id)   remove_accepting();
@@ -195,37 +117,18 @@ const uint16_t port2 = accepting.port;
         clear();
       }
 
-   // inform partners
-   //
-   if (port1)
-      {
-        UdpClientSocket sock(LOC, port1);
-        RETRACT_OFFER_c signal(sock, key);
-      }
-
-   if (port2)
-      {
-        UdpClientSocket sock(LOC, port2);
-        RETRACT_OFFER_c signal(sock, key);
-      }
-
    return old_coupling;
 }
 //-----------------------------------------------------------------------------
-uint16_t
-Svar_record::data_owner_port(bool & ws_to_ws)   const
+bool
+Svar_record::is_ws_to_ws()   const
 {
-   if (this == 0)   return -1;
+   if (this == 0)   return false;
 
-   if (get_coupling() != SV_COUPLED)
-      {
-        ws_to_ws = offering.id.proc >= 1000;
-        return offering.port;
-      }
+   if (get_coupling() != SV_COUPLED)   return offering.id.proc >= AP_FIRST_USER;
 
-   ws_to_ws =  offering.id.proc >= 1000 && accepting.id.proc >= 1000;
-   if (accepting.id.proc <= offering.id.proc)   return accepting.port;
-   else                                         return offering.port;
+   return offering.id.proc  >= AP_FIRST_USER &&
+          accepting.id.proc >= AP_FIRST_USER;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -385,26 +288,6 @@ Svar_partner * peer = 0;
       }
 }
 //-----------------------------------------------------------------------------
-Svar_partner
-Svar_record::get_peer() const
-{
-   if (this == 0)
-      {
-          Svar_partner peer;
-          peer.clear();
-          return peer;
-      }
-
-   if (ProcessorID::get_id() == offering.id)    return accepting;
-   if (ProcessorID::get_id() == accepting.id)   return offering;
-
-   bad_proc(__FUNCTION__, ProcessorID::get_id());
-
-Svar_partner peer;
-   peer.clear();
-   return peer;
-}
-//-----------------------------------------------------------------------------
 bool
 Svar_record::may_use(int attempt)
 {
@@ -419,7 +302,7 @@ const int restriction = control & state;
       {
         if ((restriction & USE_BY_OFF) == 0)   return true;   // no restriction
 
-        if (accepting.port && (attempt == 0))   // maybe send event to peer
+        if (accepting.is_active() && (attempt == 0))
            {
              accepting.events = (Svar_event)
                                 (accepting.events | SVE_USE_BY_OFF_FAILED);
@@ -431,7 +314,7 @@ const int restriction = control & state;
       {
         if ((restriction & USE_BY_ACC) == 0)   return true;   // no restriction
 
-        if (offering.port && (attempt == 0))   // maybe send event to peer
+        if (offering.is_active() && (attempt == 0))   // maybe send event to peer
            {
              offering.events = (Svar_event)
                                (offering.events | SVE_USE_BY_ACC_FAILED);
@@ -457,7 +340,7 @@ const int restriction = control & state;
       {
         if ((restriction & SET_BY_OFF) == 0)   return true;   // no restriction
 
-        if (accepting.port && (attempt == 0))   // maybe send event to peer
+        if (accepting.is_active() && (attempt == 0))   // maybe send event to peer
            {
              accepting.events = (Svar_event)
                                 (accepting.events | SVE_SET_BY_OFF_FAILED);
@@ -469,7 +352,7 @@ const int restriction = control & state;
       {
         if ((restriction & SET_BY_ACC) == 0)   return true;   // no restriction
 
-        if (offering.port && (attempt == 0))   // maybe send event to peer
+        if (offering.is_active() && (attempt == 0))   // maybe send event to peer
            {
              offering.events = (Svar_event)
                                (offering.events | SVE_SET_BY_ACC_FAILED);
