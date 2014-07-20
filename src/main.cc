@@ -137,9 +137,8 @@ signal_SEGV_handler(int)
    // count errors
    IO_Files::assert_error();
 
-   Command::cmd_OFF(3);
+     Command::cmd_OFF(3);
 }
-
 //-----------------------------------------------------------------------------
 static void
 signal_USR1_handler(int)

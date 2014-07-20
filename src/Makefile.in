@@ -97,10 +97,9 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	Svar_DB.$(OBJEXT) Svar_record.$(OBJEXT) Symbol.$(OBJEXT) \
 	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
 	IO_Files.$(OBJEXT) Token.$(OBJEXT) Tokenizer.$(OBJEXT) \
-	UCS_string.$(OBJEXT) UdpSocket.$(OBJEXT) \
-	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
-	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
-	Workspace.$(OBJEXT)
+	UCS_string.$(OBJEXT) UserFunction.$(OBJEXT) \
+	UserPreferences.$(OBJEXT) UTF8_string.$(OBJEXT) \
+	Value.$(OBJEXT) ValueHistory.$(OBJEXT) Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
@@ -407,7 +406,6 @@ Token.cc		Token.def		Token.hh		\
 						TokenEnums.hh		\
 Tokenizer.cc					Tokenizer.hh		\
 UCS_string.cc					UCS_string.hh		\
-UdpSocket.cc					UdpSocket.hh		\
 						Unicode.hh		\
 UserFunction.cc					UserFunction.hh		\
 UserPreferences.cc				UserPreferences.hh	\
@@ -580,7 +578,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Tokenizer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UCS_string.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UTF8_string.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UdpSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UserFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UserPreferences.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Value.Po@am__quote@

@@ -16558,7 +16558,7 @@ for ac_header in 	\
         string.h	\
 	strings.h	\
 	unistd.h	\
-	linux/un.h	\
+	sys/un.h	\
 	utmpx.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`

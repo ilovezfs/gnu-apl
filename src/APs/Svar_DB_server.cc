@@ -26,6 +26,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include <iomanip>
 
@@ -35,12 +36,12 @@
 #include "ProcessorID.hh"
 #include "Svar_DB_server.hh"
 #include "Svar_signals.hh"
-#include "UdpSocket.hh"
 
 extern ostream & get_CERR();
+extern TCP_socket get_tcp2_for_id();
 
 extern uint16_t get_udp_port_for_id(const AP_num3 & id);
-extern int get_tcp_fd_for_id(const AP_num3 & id);
+extern TCP_socket get_tcp_fd2_for_id(const AP_num3 & id);
 
 //-----------------------------------------------------------------------------
 Svar_event
@@ -50,7 +51,7 @@ int ret = SVE_NO_EVENTS;
 
    // clear event bit in all shared variables
    //
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < offered_vars.size(); ++o)
        {
          Svar_record & svar = offered_vars[o];
          if (id == svar.offering.id)
@@ -73,7 +74,7 @@ Svar_DB_server::get_events(Svar_event & events, AP_num3 proc) const
 {
    // return the first key with an event for proc (if any)
    //
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < offered_vars.size(); ++o)
        {
          const Svar_record & svar = offered_vars[o];
          if (proc == svar.offering.id)
@@ -94,7 +95,7 @@ Svar_DB_server::add_event(SV_key key, AP_num3 proc, Svar_event event)
 {
    if (key == 0)   return;   // no key
 
-Svar_record * svar = find_var(key);
+Svar_record * svar = find_var(key, LOC);
    if (svar)
       {
         if (proc == svar->offering.id)
@@ -113,10 +114,10 @@ Svar_record * svar = find_var(key);
 SV_key
 Svar_DB_server::find_pairing_key(SV_key key) const
 {
-const Svar_record * svar1 = find_var(key);
+const Svar_record * svar1 = find_var(key, LOC);
    if (svar1 == 0)   return 0;
 
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < offered_vars.size(); ++o)
        {
          const Svar_record & svar2 = offered_vars[o];
          if (!svar2.valid())     continue;
@@ -129,23 +130,29 @@ const Svar_record * svar1 = find_var(key);
 }
 //-----------------------------------------------------------------------------
 Svar_record *
-Svar_DB_server::find_var(SV_key key) const
+Svar_DB_server::find_var(SV_key key, const char * loc) const
 {
-   if (key == 0)   return 0;
+   if (key == 0)
+      {
+        cerr << "*** key 0 in find_var() called from " << loc << endl;
+        return 0;
+      }
 
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < offered_vars.size(); ++o)
        {
-         const Svar_record * svar = offered_vars + o;
-         if (key == svar->key)   return (Svar_record *)svar;
+         const Svar_record & svar = offered_vars[o];
+         if (key == svar.key)   return (Svar_record *)&svar;
        }
 
+   cerr << "*** key 0x" << hex << key << dec
+        << " not found in find_var() called from " << loc << endl;
    return 0;
 }
 //-----------------------------------------------------------------------------
 AP_num3
 Svar_DB_server::find_offering_id(SV_key key) const
 {
-Svar_record * svar = find_var(key);
+Svar_record * svar = find_var(key, LOC);
 
    if (svar)   return svar->offering.id;
 
@@ -161,7 +168,7 @@ vector<AP_num> procs;
 
    // return pending AND matched offers, general or to to_proc
    //
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < offered_vars.size(); ++o)
        {
          Svar_record & svar = offered_vars[o];
          if (!svar.valid())         continue;
@@ -195,7 +202,7 @@ Svar_DB_server::get_offered_variables(AP_num to_proc, AP_num from_proc,
 {
    // return pending variables but not matched offers, general or to to_proc
    //
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < offered_vars.size(); ++o)
        {
          const Svar_record & svar = offered_vars[o];
          if (!svar.valid())         continue;
@@ -251,12 +258,12 @@ Svar_DB_server::compare_ctl_dat_etc(const uint32_t * ctl, const uint32_t * dat)
 //-----------------------------------------------------------------------------
 SV_key
 Svar_DB_server::match_or_make(const uint32_t * UCS_varname, const AP_num3 & to,
-                              const Svar_partner & from)
+                              const Svar_partner & from, TCP_socket tcp2)
 {
 // CERR << "got offer from ("; from.print(CERR); CERR << ") to " << to << " ";
 // Svar_record::print_name(CERR, UCS_varname) << endl;
 
-Svar_record * svar = match_pending_offer(UCS_varname, to, from);
+Svar_record * svar = match_pending_offer(UCS_varname, to, from, tcp2);
    if (svar)
       {
         Log(LOG_shared_variables)
@@ -272,7 +279,7 @@ Svar_record * svar = match_pending_offer(UCS_varname, to, from);
       }
 
 usleep(50000);
-   svar = create_offer(UCS_varname, to, from);
+   svar = create_offer(UCS_varname, to, from, tcp2);
 
    Log(LOG_shared_variables)
       {
@@ -286,11 +293,11 @@ usleep(50000);
 Svar_record *
 Svar_DB_server::match_pending_offer(const uint32_t * UCS_varname,
                                     const AP_num3 & to,
-                                    const Svar_partner & from)
+                                    const Svar_partner & from, TCP_socket tcp2)
 {
 Svar_record * pending_offer = 0;
 
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+   for (int o = 0; o < offered_vars.size(); ++o)
        {
          Svar_record & svar = offered_vars[o];
          if (svar.get_coupling() != SV_OFFERED)                       continue;
@@ -324,6 +331,7 @@ Svar_record * pending_offer = 0;
    if (pending_offer)
       {
          pending_offer->accepting = from;
+         pending_offer->accepting.tcp_fd = tcp2;
          pending_offer->offering.events = SVE_OFFER_MATCHED;
          return pending_offer;            // match found
       }
@@ -332,48 +340,40 @@ Svar_record * pending_offer = 0;
 }
 //-----------------------------------------------------------------------------
 Svar_record *
-Svar_DB_server::create_offer(const uint32_t * UCS_varname,
-                             const AP_num3 & to, const Svar_partner & from)
+Svar_DB_server::create_offer(const uint32_t * UCS_varname, const AP_num3 & to,
+                             const Svar_partner & from, TCP_socket tcp2)
 {
    // at this point, no matching offer from 'to' was found. If the offer
    // is non-general (i.e. 'to' is a specific processor) then to should
    // get an offer mismatch event.
    //
+   offered_vars.push_back(Svar_record());
+Svar_record * svar = &offered_vars.back();
 
-   // find free entry and insert the offer
-   //
-   for (int o = 0; o < MAX_SVARS_OFFERED; ++o)
+SV_key key  = from.id.proc;   key <<= 16;
+       key |= ++seq;
+
+   svar->key = key;
+   for (int v = 0; v < (MAX_SVAR_NAMELEN + 1); ++v)
        {
-         Svar_record * svar = offered_vars + o;
-         if (svar->valid())   continue;
-
-         SV_key key  = from.pid;       key <<= 16;
-                key |= from.id.proc;   key <<= 16;
-                key |= ++seq;
-         svar->key = key;
-         for (int v = 0; v < (MAX_SVAR_NAMELEN + 1); ++v)
-             {
-              svar->varname[v] = UCS_varname[v];
-              if (UCS_varname[v] == 0)   break;
-             }
-
-         svar->varname[MAX_SVAR_NAMELEN] = 0;
-         svar->offering = from;
-
-         svar->accepting.id = to;
-
-         // if to is registered then send a signal
-         //
-         const uint16_t port = get_udp_port_for_id(to);
-         if (port)
-            {
-              UdpClientSocket sock(LOC, port);
-              MAKE_OFFER_c signal(sock, svar->key);
-            }
-
-         return svar;   // success
+         svar->varname[v] = UCS_varname[v];
+         if (UCS_varname[v] == 0)   break;
        }
 
-   return 0;   // table full
+   svar->varname[MAX_SVAR_NAMELEN] = 0;
+   svar->offering = from;
+   svar->offering.tcp_fd = tcp2;
+
+   svar->accepting.id = to;
+
+   // if to is registered then send a signal
+   //
+const TCP_socket peer = get_tcp_fd2_for_id(to);
+   if (peer != NO_TCP_SOCKET)
+      {
+        MAKE_OFFER_c signal(peer, svar->key);
+      }
+
+   return svar;   // success
 }
 //-----------------------------------------------------------------------------

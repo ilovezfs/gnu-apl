@@ -35,8 +35,8 @@ In a Makefile, you would use it, for example, like this:
             m4 -D protocol=udp_signal $< > $@
 
 to produce my_signal.hh from my_signal.def. After that, my_signal.hh
-can be used together with UdpSocket.cc and UdpSocket.hh in order to send
-the signals defined in udp_signal.def from one process to another process.
+can be used to send the signals defined in udp_signal.def from one process
+to another process.
 
 That is:
 
@@ -46,19 +46,19 @@ That is:
                             | udp_signal.m4
                             |
                             V
-                      my_signal.hh  UdpSocket.hh
-                            |            |
-                            |            |
-                            |  #include  |
-                            |            |
-                            V            V
+                      my_signal.hh
+                            |
+                            |
+                            |
+                            |
+                            V
                          my_client_program.cc
-                         my_server_program.cc  UdpSocket.cc
-                                   |               |
-                                   |               |
-                                   |    compile    |
-                                   |    & link     |
-                                   V               V
+                         my_server_program.cc
+                                   |
+                                   |
+                                   |    compile
+                                   |    & link
+                                   V
                                    my_client_program
                                    my_server_program
 
@@ -82,8 +82,6 @@ and then:
 #include <string>
 #include <iostream>
 #include <iomanip>
-
-#include "UdpSocket.hh"
 
 using namespace std;
 
@@ -312,35 +310,12 @@ define(`m4_signal', `   /// access functions for signal $1...
 expa(`sig_bad', `', $@)')
 include(protocol.def)dnl
 
-   /// receive a signal (UDP)
-   inline static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
-                                    uint16_t & from_port, uint32_t & from_ip,
-                                    uint32_t timeout_ms = 0);
-
-   /// receive a signal (UDP) ignore sender's IP and port
-   static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
-                                 uint32_t timeout_ms = 0)
-      {
-         uint16_t from_port = 0;
-         uint32_t from_ip = 0;
-         return recv_UDP(sock, class_buffer, from_port, from_ip, timeout_ms);
-      }
-
    /// receive a signal (TCP)
    inline static Signal_base * recv_TCP(int tcp_sock, char * buffer,
                                         int bufsize, char * & del,
                                         ostream * debug);
 
 protected:
-   /// send this signal on sock (UDP)
-   int send_UDP(const UdpSocket & udp_sock) const
-       {
-         string buffer;
-         store(buffer);
-         const int len = udp_sock.send(buffer);
-         if (ostream * out = udp_sock.get_debug())   print(*out << "--> ");
-         return len;
-       }
 
    int send_TCP(int tcp_sock) const
        {
@@ -360,11 +335,6 @@ define(`m4_signal',
 class $1_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   $1_c(const UdpSocket & ctx`'expa(`sig_args', `', $@))ifelse(`$#', `1', `', `
-   : expa(`sig_init', `,
-     ', $@)')
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    $1_c(int s`'expa(`sig_args', `', $@))ifelse(`$#', `1', `', `
@@ -421,35 +391,6 @@ enum { MAX_SIGNAL_CLASS_SIZE = sizeof(_all_signal_classes_) };
 
 //----------------------------------------------------------------------------
 Signal_base *
-Signal_base::recv_UDP(UdpSocket & sock, void * class_buffer,
-                  uint16_t & from_port, uint32_t & from_ip,
-                  uint32_t timeout_ms)
-{
-uint8_t buffer[10000];   // can be larger than *class_buffer due to strings!
-size_t len = sock.recv(buffer, sizeof(buffer), from_port, from_ip, timeout_ms);
-   if (len <= 0)   return 0;
-
-const uint8_t * b = buffer;
-Sig_item_u16 signal_id(b);
-
-Signal_base * ret = 0;
-   switch(signal_id.get_value())
-      {
-define(`m4_signal',
-       `        case sid_`'$1: ret = new (class_buffer) $1`'_c(b);   break;')
-include(protocol.def)dnl
-        default: cerr << "UdpSocket::recv() failed: unknown id "
-                      << signal_id.get_value() << endl;
-                 errno = EINVAL;
-                 return 0;
-      }
-
-   if (ostream * out = sock.get_debug())   ret->print(*out << "<-- ");
-
-   return ret;   // invalid id
-}
-//----------------------------------------------------------------------------
-Signal_base *
 Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
                                  char * & del, ostream * debug)
 {
@@ -465,18 +406,25 @@ Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
       }
 uint32_t siglen = 0;
    {
-     const ssize_t rx_bytes = ::recv(tcp_sock, buffer,
+      for (;;)
+          {
+            errno = 0;
+            const ssize_t rx_bytes = ::recv(tcp_sock, buffer,
                                      sizeof(uint32_t), MSG_WAITALL);
-     if (rx_bytes != sizeof(uint32_t))
-        {
-          // connection was closed by the peer
-          return 0;
-        }
+            if (errno == EINTR)   continue;
+            if (rx_bytes != sizeof(uint32_t))
+               {
+                 // connection was closed by the peer
+                 return 0;
+               }
+          }
 //    debug && *debug << "rx_bytes is " << rx_bytes
 //                    << " when reading siglen in in recv_TCP()" << endl;
    }
 
    siglen = ntohl(*(uint32_t *)buffer);
+   if (siglen == 0)   return 0;   // close
+
 // debug && *debug << "signal length is " << siglen << " in recv_TCP()" << endl;
 
    // skip MAX_SIGNAL_CLASS_SIZE bytes at the beginning of buffer
@@ -497,13 +445,20 @@ char * rx_buf = buffer + MAX_SIGNAL_CLASS_SIZE;
         rx_buf = del;
       }
 
-const ssize_t rx_bytes = ::recv(tcp_sock, rx_buf, siglen, MSG_WAITALL);
-   if (rx_bytes != siglen)
-      {
-             cerr << "*** got " << rx_bytes <<" when expecting " << siglen
-                  << endl;
-             return 0;
-      }
+      for (;;)
+          {
+            errno = 0;
+            const ssize_t rx_bytes = ::recv(tcp_sock, rx_buf,
+                                            siglen, MSG_WAITALL);
+            if (errno == EINTR)   continue;
+            if (rx_bytes != siglen)
+               {
+                      cerr << "*** got " << rx_bytes
+                           << " when expecting " << siglen << endl;
+                      return 0;
+               }
+          }
+
 // debug && *debug << "rx_bytes is " << rx_bytes << " in recv_TCP()" << endl;
 
 const uint8_t * b = (const uint8_t *)rx_buf;

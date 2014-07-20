@@ -58,7 +58,7 @@ AC_CHECK_HEADERS([	\
         string.h	\
 	strings.h	\
 	unistd.h	\
-	linux/un.h	\
+	sys/un.h	\
 	utmpx.h])
 
 # Checks for typedefs, structures, and compiler characteristics.

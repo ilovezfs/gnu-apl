@@ -146,7 +146,9 @@ CLEAR WS
       ⍝ Allow ⎕SVR debug output to finish
       0⍴⎕DL 0.2
 
-       )ERASE VARS
+      )ERASE VARS
+
+      ]SVARS
 
 ⍝ ==================================
 

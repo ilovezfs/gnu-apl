@@ -23,15 +23,14 @@
 
 #include "QuadFunction.hh"
 #include "SystemVariable.hh"
-#include "UdpSocket.hh"
 
 //-----------------------------------------------------------------------------
 /// some helper functions to start auxiliary processors
 class Quad_SVx
 {
 public:
-   /// start the multiplexer process for processor \b proc
-   static void start_AP(AP_num proc, bool startup);
+   /// start the auxiliary processor \b proc
+   static void start_AP(AP_num proc);
 
 protected:
    /// return true iff \b filename is executable by everybody
@@ -39,17 +38,6 @@ protected:
 
    /// disconnect from auxiliary processor proc if connected.
    static void disconnect(AP_num proc);
-
-   /// an auxiliary processor and its handler port
-   struct AP_handler
-      {
-        AP_num          ap;         ///< AP number
-        UdpClientSocket handler;    ///< handler port for the AP
-        int             varcount;   ///< reference count for offered variables
-      };
-
-   /// a list of APs connected to this APL interpreter
-   static vector<AP_handler> connected_APs;
 };
 //-----------------------------------------------------------------------------
 /**

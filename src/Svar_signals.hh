@@ -35,8 +35,8 @@ In a Makefile, you would use it, for example, like this:
             m4 -D Svar_signals=udp_signal $< > $@
 
 to produce my_signal.hh from my_signal.def. After that, my_signal.hh
-can be used together with UdpSocket.cc and UdpSocket.hh in order to send
-the signals defined in udp_signal.def from one process to another process.
+can be used to send the signals defined in udp_signal.def from one process
+to another process.
 
 That is:
 
@@ -46,19 +46,19 @@ That is:
                             | udp_signal.m4
                             |
                             V
-                      my_signal.hh  UdpSocket.hh
-                            |            |
-                            |            |
-                            |  #include  |
-                            |            |
-                            V            V
+                      my_signal.hh
+                            |
+                            |
+                            |
+                            |
+                            V
                          my_client_program.cc
-                         my_server_program.cc  UdpSocket.cc
-                                   |               |
-                                   |               |
-                                   |    compile    |
-                                   |    & link     |
-                                   V               V
+                         my_server_program.cc
+                                   |
+                                   |
+                                   |    compile
+                                   |    & link
+                                   V
                                    my_client_program
                                    my_server_program
 
@@ -82,8 +82,6 @@ and then:
 #include <string>
 #include <iostream>
 #include <iomanip>
-
-#include "UdpSocket.hh"
 
 using namespace std;
 
@@ -234,12 +232,14 @@ enum Signal_id
 */
 
 
-/// )OFF
-   sid_DISCONNECT,
-
 /// ⎕SVO, ⎕SVR
    sid_MAKE_OFFER,
    sid_RETRACT_OFFER,
+   sid_RETRACT_VAR,
+
+   sid_SET_STATE,
+
+   sid_SET_CONTROL,
 
 /// SVAR←X and X←SVAR
    sid_GET_VALUE,
@@ -247,8 +247,8 @@ enum Signal_id
    sid_ASSIGN_VALUE,
    sid_SVAR_ASSIGNED,
 
-/// ⎕SVE
-   sid_NEW_EVENT,
+   sid_MAY_USE,
+   sid_MAY_SET,
 
 /// read/update SVAR database record from APserver
 ///
@@ -305,10 +305,6 @@ enum Signal_id
 
    sid_ADD_EVENT,
 
-   sid_GET_UDP_PORT,
-
-   sid_UDP_PORT_IS,
-
    sid_ASSIGN_WSWS_VAR,
    sid_READ_WSWS_VAR,
    sid_WSWS_VALUE_IS,
@@ -348,10 +344,6 @@ public:
 */
 
 
-/// )OFF
-   /// access functions for signal DISCONNECT...
-
-
 /// ⎕SVO, ⎕SVR
    /// access functions for signal MAKE_OFFER...
    virtual uint64_t get__MAKE_OFFER__key() const   ///< dito
@@ -360,6 +352,26 @@ public:
    /// access functions for signal RETRACT_OFFER...
    virtual uint64_t get__RETRACT_OFFER__key() const   ///< dito
       { bad_get("RETRACT_OFFER", "key"); return 0; }
+
+   /// access functions for signal RETRACT_VAR...
+   virtual uint64_t get__RETRACT_VAR__key() const   ///< dito
+      { bad_get("RETRACT_VAR", "key"); return 0; }
+
+
+   /// access functions for signal SET_STATE...
+   virtual uint64_t get__SET_STATE__key() const   ///< dito
+      { bad_get("SET_STATE", "key"); return 0; }
+   virtual uint8_t get__SET_STATE__new_state() const   ///< dito
+      { bad_get("SET_STATE", "new_state"); return 0; }
+   virtual string get__SET_STATE__loc() const   ///< dito
+      { bad_get("SET_STATE", "loc"); return 0; }
+
+
+   /// access functions for signal SET_CONTROL...
+   virtual uint64_t get__SET_CONTROL__key() const   ///< dito
+      { bad_get("SET_CONTROL", "key"); return 0; }
+   virtual uint8_t get__SET_CONTROL__new_control() const   ///< dito
+      { bad_get("SET_CONTROL", "new_control"); return 0; }
 
 
 /// SVAR←X and X←SVAR
@@ -392,12 +404,17 @@ public:
       { bad_get("SVAR_ASSIGNED", "error_loc"); return 0; }
 
 
-/// ⎕SVE
-   /// access functions for signal NEW_EVENT...
-   virtual uint64_t get__NEW_EVENT__key() const   ///< dito
-      { bad_get("NEW_EVENT", "key"); return 0; }
-   virtual uint32_t get__NEW_EVENT__event() const   ///< dito
-      { bad_get("NEW_EVENT", "event"); return 0; }
+   /// access functions for signal MAY_USE...
+   virtual uint64_t get__MAY_USE__key() const   ///< dito
+      { bad_get("MAY_USE", "key"); return 0; }
+   virtual int32_t get__MAY_USE__attempt() const   ///< dito
+      { bad_get("MAY_USE", "attempt"); return 0; }
+
+   /// access functions for signal MAY_SET...
+   virtual uint64_t get__MAY_SET__key() const   ///< dito
+      { bad_get("MAY_SET", "key"); return 0; }
+   virtual int32_t get__MAY_SET__attempt() const   ///< dito
+      { bad_get("MAY_SET", "attempt"); return 0; }
 
 
 /// read/update SVAR database record from APserver
@@ -444,10 +461,8 @@ public:
       { bad_get("REGISTER_PROCESSOR", "parent"); return 0; }
    virtual uint32_t get__REGISTER_PROCESSOR__grand() const   ///< dito
       { bad_get("REGISTER_PROCESSOR", "grand"); return 0; }
-   virtual uint32_t get__REGISTER_PROCESSOR__pid() const   ///< dito
-      { bad_get("REGISTER_PROCESSOR", "pid"); return 0; }
-   virtual uint16_t get__REGISTER_PROCESSOR__port() const   ///< dito
-      { bad_get("REGISTER_PROCESSOR", "port"); return 0; }
+   virtual uint8_t get__REGISTER_PROCESSOR__evconn() const   ///< dito
+      { bad_get("REGISTER_PROCESSOR", "evconn"); return 0; }
    virtual string get__REGISTER_PROCESSOR__progname() const   ///< dito
       { bad_get("REGISTER_PROCESSOR", "progname"); return 0; }
 
@@ -468,10 +483,6 @@ public:
       { bad_get("MATCH_OR_MAKE", "from_parent"); return 0; }
    virtual uint32_t get__MATCH_OR_MAKE__from_grand() const   ///< dito
       { bad_get("MATCH_OR_MAKE", "from_grand"); return 0; }
-   virtual uint32_t get__MATCH_OR_MAKE__from_pid() const   ///< dito
-      { bad_get("MATCH_OR_MAKE", "from_pid"); return 0; }
-   virtual uint16_t get__MATCH_OR_MAKE__from_port() const   ///< dito
-      { bad_get("MATCH_OR_MAKE", "from_port"); return 0; }
 
 
    /// access functions for signal MATCH_OR_MAKE_RESULT...
@@ -569,18 +580,6 @@ public:
       { bad_get("ADD_EVENT", "event"); return 0; }
 
 
-   /// access functions for signal GET_UDP_PORT...
-   virtual uint32_t get__GET_UDP_PORT__proc() const   ///< dito
-      { bad_get("GET_UDP_PORT", "proc"); return 0; }
-   virtual uint32_t get__GET_UDP_PORT__parent() const   ///< dito
-      { bad_get("GET_UDP_PORT", "parent"); return 0; }
-
-
-   /// access functions for signal UDP_PORT_IS...
-   virtual uint16_t get__UDP_PORT_IS__port() const   ///< dito
-      { bad_get("UDP_PORT_IS", "port"); return 0; }
-
-
    /// access functions for signal ASSIGN_WSWS_VAR...
    virtual uint64_t get__ASSIGN_WSWS_VAR__key() const   ///< dito
       { bad_get("ASSIGN_WSWS_VAR", "key"); return 0; }
@@ -605,35 +604,12 @@ public:
 
 
 
-   /// receive a signal (UDP)
-   inline static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
-                                    uint16_t & from_port, uint32_t & from_ip,
-                                    uint32_t timeout_ms = 0);
-
-   /// receive a signal (UDP) ignore sender's IP and port
-   static Signal_base * recv_UDP(UdpSocket & sock, void * class_buffer,
-                                 uint32_t timeout_ms = 0)
-      {
-         uint16_t from_port = 0;
-         uint32_t from_ip = 0;
-         return recv_UDP(sock, class_buffer, from_port, from_ip, timeout_ms);
-      }
-
    /// receive a signal (TCP)
    inline static Signal_base * recv_TCP(int tcp_sock, char * buffer,
                                         int bufsize, char * & del,
                                         ostream * debug);
 
 protected:
-   /// send this signal on sock (UDP)
-   int send_UDP(const UdpSocket & udp_sock) const
-       {
-         string buffer;
-         store(buffer);
-         const int len = udp_sock.send(buffer);
-         if (ostream * out = udp_sock.get_debug())   print(*out << "--> ");
-         return len;
-       }
 
    int send_TCP(int tcp_sock) const
        {
@@ -652,61 +628,12 @@ protected:
 */
 
 
-/// )OFF
-//----------------------------------------------------------------------------
-/// a class for DISCONNECT
-class DISCONNECT_c : public Signal_base
-{
-public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   DISCONNECT_c(const UdpSocket & ctx)
-   { send_UDP(ctx); }
-
-   /// contructor that creates the signal and sends it on TCP socket s
-   DISCONNECT_c(int s)
-   { send_TCP(s); }
-
-   /// construct (deserialize) this item from a (received) buffer
-   /// id has already been load()ed.
-   DISCONNECT_c(const uint8_t * & buffer)
-   {}
-
-   /// store (aka. serialize) this signal into a buffer
-   virtual void store(string & buffer) const
-       {
-         const Sig_item_u16 signal_id(sid_DISCONNECT);
-         signal_id.store(buffer);
-       }
-
-   /// print this signal on out.
-   virtual ostream & print(ostream & out) const
-      {
-        out << "DISCONNECT(";
-
-        return out << ")" << endl;
-      }
-
-   /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_DISCONNECT; }
-
-   /// the name of this signal
-   virtual const char * get_sigName() const   { return "DISCONNECT"; }
-
-
-protected:
-};
-
 /// ⎕SVO, ⎕SVR
 //----------------------------------------------------------------------------
 /// a class for MAKE_OFFER
 class MAKE_OFFER_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   MAKE_OFFER_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    MAKE_OFFER_c(int s,
@@ -754,11 +681,6 @@ protected:
 class RETRACT_OFFER_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   RETRACT_OFFER_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    RETRACT_OFFER_c(int s,
@@ -801,6 +723,176 @@ public:
 protected:
    Sig_item_x64 key;   ///< key
 };
+//----------------------------------------------------------------------------
+/// a class for RETRACT_VAR
+class RETRACT_VAR_c : public Signal_base
+{
+public:
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   RETRACT_VAR_c(int s,
+                Sig_item_x64 _key)
+   : key(_key)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   RETRACT_VAR_c(const uint8_t * & buffer)
+   : key(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 signal_id(sid_RETRACT_VAR);
+         signal_id.store(buffer);
+        key.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "RETRACT_VAR(";
+        key.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_RETRACT_VAR; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "RETRACT_VAR"; }
+
+  /// return item key of this signal 
+   virtual uint64_t get__RETRACT_VAR__key() const { return key.get_value(); }
+
+
+protected:
+   Sig_item_x64 key;   ///< key
+};
+
+//----------------------------------------------------------------------------
+/// a class for SET_STATE
+class SET_STATE_c : public Signal_base
+{
+public:
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   SET_STATE_c(int s,
+                Sig_item_x64 _key,
+                Sig_item_u8 _new_state,
+                Sig_item_string _loc)
+   : key(_key),
+     new_state(_new_state),
+     loc(_loc)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   SET_STATE_c(const uint8_t * & buffer)
+   : key(buffer),
+     new_state(buffer),
+     loc(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 signal_id(sid_SET_STATE);
+         signal_id.store(buffer);
+        key.store(buffer);
+        new_state.store(buffer);
+        loc.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "SET_STATE(";
+        key.print(out);   out << ", ";
+        new_state.print(out);   out << ", ";
+        loc.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_SET_STATE; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "SET_STATE"; }
+
+  /// return item key of this signal 
+   virtual uint64_t get__SET_STATE__key() const { return key.get_value(); }
+
+  /// return item new_state of this signal 
+   virtual uint8_t get__SET_STATE__new_state() const { return new_state.get_value(); }
+
+  /// return item loc of this signal 
+   virtual string get__SET_STATE__loc() const { return loc.get_value(); }
+
+
+protected:
+   Sig_item_x64 key;   ///< key
+   Sig_item_u8 new_state;   ///< new_state
+   Sig_item_string loc;   ///< loc
+};
+
+//----------------------------------------------------------------------------
+/// a class for SET_CONTROL
+class SET_CONTROL_c : public Signal_base
+{
+public:
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   SET_CONTROL_c(int s,
+                Sig_item_x64 _key,
+                Sig_item_u8 _new_control)
+   : key(_key),
+     new_control(_new_control)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   SET_CONTROL_c(const uint8_t * & buffer)
+   : key(buffer),
+     new_control(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 signal_id(sid_SET_CONTROL);
+         signal_id.store(buffer);
+        key.store(buffer);
+        new_control.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "SET_CONTROL(";
+        key.print(out);   out << ", ";
+        new_control.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_SET_CONTROL; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "SET_CONTROL"; }
+
+  /// return item key of this signal 
+   virtual uint64_t get__SET_CONTROL__key() const { return key.get_value(); }
+
+  /// return item new_control of this signal 
+   virtual uint8_t get__SET_CONTROL__new_control() const { return new_control.get_value(); }
+
+
+protected:
+   Sig_item_x64 key;   ///< key
+   Sig_item_u8 new_control;   ///< new_control
+};
 
 /// SVAR←X and X←SVAR
 //----------------------------------------------------------------------------
@@ -808,11 +900,6 @@ protected:
 class GET_VALUE_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   GET_VALUE_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    GET_VALUE_c(int s,
@@ -860,17 +947,6 @@ protected:
 class VALUE_IS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   VALUE_IS_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_u32 _error,
-                Sig_item_string _error_loc,
-                Sig_item_string _cdr_value)
-   : key(_key),
-     error(_error),
-     error_loc(_error_loc),
-     cdr_value(_cdr_value)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    VALUE_IS_c(int s,
@@ -945,13 +1021,6 @@ protected:
 class ASSIGN_VALUE_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   ASSIGN_VALUE_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_string _cdr_value)
-   : key(_key),
-     cdr_value(_cdr_value)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    ASSIGN_VALUE_c(int s,
@@ -1008,15 +1077,6 @@ protected:
 class SVAR_ASSIGNED_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   SVAR_ASSIGNED_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_u32 _error,
-                Sig_item_string _error_loc)
-   : key(_key),
-     error(_error),
-     error_loc(_error_loc)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    SVAR_ASSIGNED_c(int s,
@@ -1078,69 +1138,117 @@ protected:
    Sig_item_string error_loc;   ///< error_loc
 };
 
-/// ⎕SVE
 //----------------------------------------------------------------------------
-/// a class for NEW_EVENT
-class NEW_EVENT_c : public Signal_base
+/// a class for MAY_USE
+class MAY_USE_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   NEW_EVENT_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_u32 _event)
-   : key(_key),
-     event(_event)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
-   NEW_EVENT_c(int s,
+   MAY_USE_c(int s,
                 Sig_item_x64 _key,
-                Sig_item_u32 _event)
+                Sig_item_i32 _attempt)
    : key(_key),
-     event(_event)
+     attempt(_attempt)
    { send_TCP(s); }
 
    /// construct (deserialize) this item from a (received) buffer
    /// id has already been load()ed.
-   NEW_EVENT_c(const uint8_t * & buffer)
+   MAY_USE_c(const uint8_t * & buffer)
    : key(buffer),
-     event(buffer)
+     attempt(buffer)
    {}
 
    /// store (aka. serialize) this signal into a buffer
    virtual void store(string & buffer) const
        {
-         const Sig_item_u16 signal_id(sid_NEW_EVENT);
+         const Sig_item_u16 signal_id(sid_MAY_USE);
          signal_id.store(buffer);
         key.store(buffer);
-        event.store(buffer);
+        attempt.store(buffer);
        }
 
    /// print this signal on out.
    virtual ostream & print(ostream & out) const
       {
-        out << "NEW_EVENT(";
+        out << "MAY_USE(";
         key.print(out);   out << ", ";
-        event.print(out);
+        attempt.print(out);
         return out << ")" << endl;
       }
 
    /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_NEW_EVENT; }
+   virtual Signal_id get_sigID() const   { return sid_MAY_USE; }
 
    /// the name of this signal
-   virtual const char * get_sigName() const   { return "NEW_EVENT"; }
+   virtual const char * get_sigName() const   { return "MAY_USE"; }
 
   /// return item key of this signal 
-   virtual uint64_t get__NEW_EVENT__key() const { return key.get_value(); }
+   virtual uint64_t get__MAY_USE__key() const { return key.get_value(); }
 
-  /// return item event of this signal 
-   virtual uint32_t get__NEW_EVENT__event() const { return event.get_value(); }
+  /// return item attempt of this signal 
+   virtual int32_t get__MAY_USE__attempt() const { return attempt.get_value(); }
 
 
 protected:
    Sig_item_x64 key;   ///< key
-   Sig_item_u32 event;   ///< event
+   Sig_item_i32 attempt;   ///< attempt
+};
+//----------------------------------------------------------------------------
+/// a class for MAY_SET
+class MAY_SET_c : public Signal_base
+{
+public:
+
+   /// contructor that creates the signal and sends it on TCP socket s
+   MAY_SET_c(int s,
+                Sig_item_x64 _key,
+                Sig_item_i32 _attempt)
+   : key(_key),
+     attempt(_attempt)
+   { send_TCP(s); }
+
+   /// construct (deserialize) this item from a (received) buffer
+   /// id has already been load()ed.
+   MAY_SET_c(const uint8_t * & buffer)
+   : key(buffer),
+     attempt(buffer)
+   {}
+
+   /// store (aka. serialize) this signal into a buffer
+   virtual void store(string & buffer) const
+       {
+         const Sig_item_u16 signal_id(sid_MAY_SET);
+         signal_id.store(buffer);
+        key.store(buffer);
+        attempt.store(buffer);
+       }
+
+   /// print this signal on out.
+   virtual ostream & print(ostream & out) const
+      {
+        out << "MAY_SET(";
+        key.print(out);   out << ", ";
+        attempt.print(out);
+        return out << ")" << endl;
+      }
+
+   /// a unique number for this signal
+   virtual Signal_id get_sigID() const   { return sid_MAY_SET; }
+
+   /// the name of this signal
+   virtual const char * get_sigName() const   { return "MAY_SET"; }
+
+  /// return item key of this signal 
+   virtual uint64_t get__MAY_SET__key() const { return key.get_value(); }
+
+  /// return item attempt of this signal 
+   virtual int32_t get__MAY_SET__attempt() const { return attempt.get_value(); }
+
+
+protected:
+   Sig_item_x64 key;   ///< key
+   Sig_item_i32 attempt;   ///< attempt
 };
 
 /// read/update SVAR database record from APserver
@@ -1156,11 +1264,6 @@ protected:
 class READ_SVAR_RECORD_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   READ_SVAR_RECORD_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    READ_SVAR_RECORD_c(int s,
@@ -1208,11 +1311,6 @@ protected:
 class UPDATE_SVAR_RECORD_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   UPDATE_SVAR_RECORD_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    UPDATE_SVAR_RECORD_c(int s,
@@ -1260,11 +1358,6 @@ protected:
 class SVAR_RECORD_IS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   SVAR_RECORD_IS_c(const UdpSocket & ctx,
-                Sig_item_string _record)
-   : record(_record)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    SVAR_RECORD_IS_c(int s,
@@ -1314,15 +1407,6 @@ protected:
 class IS_REGISTERED_ID_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   IS_REGISTERED_ID_c(const UdpSocket & ctx,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand)
-   : proc(_proc),
-     parent(_parent),
-     grand(_grand)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    IS_REGISTERED_ID_c(int s,
@@ -1389,11 +1473,6 @@ protected:
 class YES_NO_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   YES_NO_c(const UdpSocket & ctx,
-                Sig_item_u8 _yes)
-   : yes(_yes)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    YES_NO_c(int s,
@@ -1443,35 +1522,18 @@ protected:
 class REGISTER_PROCESSOR_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   REGISTER_PROCESSOR_c(const UdpSocket & ctx,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand,
-                Sig_item_u32 _pid,
-                Sig_item_u16 _port,
-                Sig_item_string _progname)
-   : proc(_proc),
-     parent(_parent),
-     grand(_grand),
-     pid(_pid),
-     port(_port),
-     progname(_progname)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    REGISTER_PROCESSOR_c(int s,
                 Sig_item_u32 _proc,
                 Sig_item_u32 _parent,
                 Sig_item_u32 _grand,
-                Sig_item_u32 _pid,
-                Sig_item_u16 _port,
+                Sig_item_u8 _evconn,
                 Sig_item_string _progname)
    : proc(_proc),
      parent(_parent),
      grand(_grand),
-     pid(_pid),
-     port(_port),
+     evconn(_evconn),
      progname(_progname)
    { send_TCP(s); }
 
@@ -1481,8 +1543,7 @@ public:
    : proc(buffer),
      parent(buffer),
      grand(buffer),
-     pid(buffer),
-     port(buffer),
+     evconn(buffer),
      progname(buffer)
    {}
 
@@ -1494,8 +1555,7 @@ public:
         proc.store(buffer);
         parent.store(buffer);
         grand.store(buffer);
-        pid.store(buffer);
-        port.store(buffer);
+        evconn.store(buffer);
         progname.store(buffer);
        }
 
@@ -1506,8 +1566,7 @@ public:
         proc.print(out);   out << ", ";
         parent.print(out);   out << ", ";
         grand.print(out);   out << ", ";
-        pid.print(out);   out << ", ";
-        port.print(out);   out << ", ";
+        evconn.print(out);   out << ", ";
         progname.print(out);
         return out << ")" << endl;
       }
@@ -1527,11 +1586,8 @@ public:
   /// return item grand of this signal 
    virtual uint32_t get__REGISTER_PROCESSOR__grand() const { return grand.get_value(); }
 
-  /// return item pid of this signal 
-   virtual uint32_t get__REGISTER_PROCESSOR__pid() const { return pid.get_value(); }
-
-  /// return item port of this signal 
-   virtual uint16_t get__REGISTER_PROCESSOR__port() const { return port.get_value(); }
+  /// return item evconn of this signal 
+   virtual uint8_t get__REGISTER_PROCESSOR__evconn() const { return evconn.get_value(); }
 
   /// return item progname of this signal 
    virtual string get__REGISTER_PROCESSOR__progname() const { return progname.get_value(); }
@@ -1541,8 +1597,7 @@ protected:
    Sig_item_u32 proc;   ///< proc
    Sig_item_u32 parent;   ///< parent
    Sig_item_u32 grand;   ///< grand
-   Sig_item_u32 pid;   ///< pid
-   Sig_item_u16 port;   ///< port
+   Sig_item_u8 evconn;   ///< evconn
    Sig_item_string progname;   ///< progname
 };
 
@@ -1552,27 +1607,6 @@ protected:
 class MATCH_OR_MAKE_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   MATCH_OR_MAKE_c(const UdpSocket & ctx,
-                Sig_item_string _varname,
-                Sig_item_u32 _to_proc,
-                Sig_item_u32 _to_parent,
-                Sig_item_u32 _to_grand,
-                Sig_item_u32 _from_proc,
-                Sig_item_u32 _from_parent,
-                Sig_item_u32 _from_grand,
-                Sig_item_u32 _from_pid,
-                Sig_item_u16 _from_port)
-   : varname(_varname),
-     to_proc(_to_proc),
-     to_parent(_to_parent),
-     to_grand(_to_grand),
-     from_proc(_from_proc),
-     from_parent(_from_parent),
-     from_grand(_from_grand),
-     from_pid(_from_pid),
-     from_port(_from_port)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    MATCH_OR_MAKE_c(int s,
@@ -1582,18 +1616,14 @@ public:
                 Sig_item_u32 _to_grand,
                 Sig_item_u32 _from_proc,
                 Sig_item_u32 _from_parent,
-                Sig_item_u32 _from_grand,
-                Sig_item_u32 _from_pid,
-                Sig_item_u16 _from_port)
+                Sig_item_u32 _from_grand)
    : varname(_varname),
      to_proc(_to_proc),
      to_parent(_to_parent),
      to_grand(_to_grand),
      from_proc(_from_proc),
      from_parent(_from_parent),
-     from_grand(_from_grand),
-     from_pid(_from_pid),
-     from_port(_from_port)
+     from_grand(_from_grand)
    { send_TCP(s); }
 
    /// construct (deserialize) this item from a (received) buffer
@@ -1605,9 +1635,7 @@ public:
      to_grand(buffer),
      from_proc(buffer),
      from_parent(buffer),
-     from_grand(buffer),
-     from_pid(buffer),
-     from_port(buffer)
+     from_grand(buffer)
    {}
 
    /// store (aka. serialize) this signal into a buffer
@@ -1622,8 +1650,6 @@ public:
         from_proc.store(buffer);
         from_parent.store(buffer);
         from_grand.store(buffer);
-        from_pid.store(buffer);
-        from_port.store(buffer);
        }
 
    /// print this signal on out.
@@ -1636,9 +1662,7 @@ public:
         to_grand.print(out);   out << ", ";
         from_proc.print(out);   out << ", ";
         from_parent.print(out);   out << ", ";
-        from_grand.print(out);   out << ", ";
-        from_pid.print(out);   out << ", ";
-        from_port.print(out);
+        from_grand.print(out);
         return out << ")" << endl;
       }
 
@@ -1669,12 +1693,6 @@ public:
   /// return item from_grand of this signal 
    virtual uint32_t get__MATCH_OR_MAKE__from_grand() const { return from_grand.get_value(); }
 
-  /// return item from_pid of this signal 
-   virtual uint32_t get__MATCH_OR_MAKE__from_pid() const { return from_pid.get_value(); }
-
-  /// return item from_port of this signal 
-   virtual uint16_t get__MATCH_OR_MAKE__from_port() const { return from_port.get_value(); }
-
 
 protected:
    Sig_item_string varname;   ///< varname
@@ -1684,8 +1702,6 @@ protected:
    Sig_item_u32 from_proc;   ///< from_proc
    Sig_item_u32 from_parent;   ///< from_parent
    Sig_item_u32 from_grand;   ///< from_grand
-   Sig_item_u32 from_pid;   ///< from_pid
-   Sig_item_u16 from_port;   ///< from_port
 };
 
 //----------------------------------------------------------------------------
@@ -1693,11 +1709,6 @@ protected:
 class MATCH_OR_MAKE_RESULT_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   MATCH_OR_MAKE_RESULT_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    MATCH_OR_MAKE_RESULT_c(int s,
@@ -1747,11 +1758,6 @@ protected:
 class FIND_OFFERING_ID_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   FIND_OFFERING_ID_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    FIND_OFFERING_ID_c(int s,
@@ -1799,15 +1805,6 @@ protected:
 class OFFERING_ID_IS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   OFFERING_ID_IS_c(const UdpSocket & ctx,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand)
-   : proc(_proc),
-     parent(_parent),
-     grand(_grand)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    OFFERING_ID_IS_c(int s,
@@ -1875,11 +1872,6 @@ protected:
 class GET_OFFERING_PROCS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   GET_OFFERING_PROCS_c(const UdpSocket & ctx,
-                Sig_item_u32 _offered_to_proc)
-   : offered_to_proc(_offered_to_proc)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    GET_OFFERING_PROCS_c(int s,
@@ -1928,11 +1920,6 @@ protected:
 class OFFERING_PROCS_ARE_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   OFFERING_PROCS_ARE_c(const UdpSocket & ctx,
-                Sig_item_string _offering_procs)
-   : offering_procs(_offering_procs)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    OFFERING_PROCS_ARE_c(int s,
@@ -1982,13 +1969,6 @@ protected:
 class GET_OFFERED_VARS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   GET_OFFERED_VARS_c(const UdpSocket & ctx,
-                Sig_item_u32 _offered_to_proc,
-                Sig_item_u32 _accepted_by_proc)
-   : offered_to_proc(_offered_to_proc),
-     accepted_by_proc(_accepted_by_proc)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    GET_OFFERED_VARS_c(int s,
@@ -2046,11 +2026,6 @@ protected:
 class OFFERED_VARS_ARE_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   OFFERED_VARS_ARE_c(const UdpSocket & ctx,
-                Sig_item_string _offered_vars)
-   : offered_vars(_offered_vars)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    OFFERED_VARS_ARE_c(int s,
@@ -2100,11 +2075,6 @@ protected:
 class FIND_PAIRING_KEY_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   FIND_PAIRING_KEY_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    FIND_PAIRING_KEY_c(int s,
@@ -2153,11 +2123,6 @@ protected:
 class PAIRING_KEY_IS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   PAIRING_KEY_IS_c(const UdpSocket & ctx,
-                Sig_item_x64 _pairing_key)
-   : pairing_key(_pairing_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    PAIRING_KEY_IS_c(int s,
@@ -2207,15 +2172,6 @@ protected:
 class GET_EVENTS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   GET_EVENTS_c(const UdpSocket & ctx,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand)
-   : proc(_proc),
-     parent(_parent),
-     grand(_grand)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    GET_EVENTS_c(int s,
@@ -2283,15 +2239,6 @@ protected:
 class CLEAR_ALL_EVENTS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   CLEAR_ALL_EVENTS_c(const UdpSocket & ctx,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand)
-   : proc(_proc),
-     parent(_parent),
-     grand(_grand)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    CLEAR_ALL_EVENTS_c(int s,
@@ -2359,13 +2306,6 @@ protected:
 class EVENTS_ARE_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   EVENTS_ARE_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_u32 _events)
-   : key(_key),
-     events(_events)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    EVENTS_ARE_c(int s,
@@ -2423,19 +2363,6 @@ protected:
 class ADD_EVENT_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   ADD_EVENT_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent,
-                Sig_item_u32 _grand,
-                Sig_item_u32 _event)
-   : key(_key),
-     proc(_proc),
-     parent(_parent),
-     grand(_grand),
-     event(_event)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    ADD_EVENT_c(int s,
@@ -2516,134 +2443,10 @@ protected:
 };
 
 //----------------------------------------------------------------------------
-/// a class for GET_UDP_PORT
-class GET_UDP_PORT_c : public Signal_base
-{
-public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   GET_UDP_PORT_c(const UdpSocket & ctx,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent)
-   : proc(_proc),
-     parent(_parent)
-   { send_UDP(ctx); }
-
-   /// contructor that creates the signal and sends it on TCP socket s
-   GET_UDP_PORT_c(int s,
-                Sig_item_u32 _proc,
-                Sig_item_u32 _parent)
-   : proc(_proc),
-     parent(_parent)
-   { send_TCP(s); }
-
-   /// construct (deserialize) this item from a (received) buffer
-   /// id has already been load()ed.
-   GET_UDP_PORT_c(const uint8_t * & buffer)
-   : proc(buffer),
-     parent(buffer)
-   {}
-
-   /// store (aka. serialize) this signal into a buffer
-   virtual void store(string & buffer) const
-       {
-         const Sig_item_u16 signal_id(sid_GET_UDP_PORT);
-         signal_id.store(buffer);
-        proc.store(buffer);
-        parent.store(buffer);
-       }
-
-   /// print this signal on out.
-   virtual ostream & print(ostream & out) const
-      {
-        out << "GET_UDP_PORT(";
-        proc.print(out);   out << ", ";
-        parent.print(out);
-        return out << ")" << endl;
-      }
-
-   /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_GET_UDP_PORT; }
-
-   /// the name of this signal
-   virtual const char * get_sigName() const   { return "GET_UDP_PORT"; }
-
-  /// return item proc of this signal 
-   virtual uint32_t get__GET_UDP_PORT__proc() const { return proc.get_value(); }
-
-  /// return item parent of this signal 
-   virtual uint32_t get__GET_UDP_PORT__parent() const { return parent.get_value(); }
-
-
-protected:
-   Sig_item_u32 proc;   ///< proc
-   Sig_item_u32 parent;   ///< parent
-};
-
-//----------------------------------------------------------------------------
-/// a class for UDP_PORT_IS
-class UDP_PORT_IS_c : public Signal_base
-{
-public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   UDP_PORT_IS_c(const UdpSocket & ctx,
-                Sig_item_u16 _port)
-   : port(_port)
-   { send_UDP(ctx); }
-
-   /// contructor that creates the signal and sends it on TCP socket s
-   UDP_PORT_IS_c(int s,
-                Sig_item_u16 _port)
-   : port(_port)
-   { send_TCP(s); }
-
-   /// construct (deserialize) this item from a (received) buffer
-   /// id has already been load()ed.
-   UDP_PORT_IS_c(const uint8_t * & buffer)
-   : port(buffer)
-   {}
-
-   /// store (aka. serialize) this signal into a buffer
-   virtual void store(string & buffer) const
-       {
-         const Sig_item_u16 signal_id(sid_UDP_PORT_IS);
-         signal_id.store(buffer);
-        port.store(buffer);
-       }
-
-   /// print this signal on out.
-   virtual ostream & print(ostream & out) const
-      {
-        out << "UDP_PORT_IS(";
-        port.print(out);
-        return out << ")" << endl;
-      }
-
-   /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_UDP_PORT_IS; }
-
-   /// the name of this signal
-   virtual const char * get_sigName() const   { return "UDP_PORT_IS"; }
-
-  /// return item port of this signal 
-   virtual uint16_t get__UDP_PORT_IS__port() const { return port.get_value(); }
-
-
-protected:
-   Sig_item_u16 port;   ///< port
-};
-
-//----------------------------------------------------------------------------
 /// a class for ASSIGN_WSWS_VAR
 class ASSIGN_WSWS_VAR_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   ASSIGN_WSWS_VAR_c(const UdpSocket & ctx,
-                Sig_item_x64 _key,
-                Sig_item_string _cdr_value)
-   : key(_key),
-     cdr_value(_cdr_value)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    ASSIGN_WSWS_VAR_c(int s,
@@ -2700,11 +2503,6 @@ protected:
 class READ_WSWS_VAR_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   READ_WSWS_VAR_c(const UdpSocket & ctx,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    READ_WSWS_VAR_c(int s,
@@ -2752,11 +2550,6 @@ protected:
 class WSWS_VALUE_IS_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   WSWS_VALUE_IS_c(const UdpSocket & ctx,
-                Sig_item_string _cdr_value)
-   : cdr_value(_cdr_value)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    WSWS_VALUE_IS_c(int s,
@@ -2806,9 +2599,6 @@ protected:
 class PRINT_SVAR_DB_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   PRINT_SVAR_DB_c(const UdpSocket & ctx)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    PRINT_SVAR_DB_c(int s)
@@ -2848,11 +2638,6 @@ protected:
 class SVAR_DB_PRINTED_c : public Signal_base
 {
 public:
-   /// contructor that creates the signal and sends it on UDP socket ctx
-   SVAR_DB_PRINTED_c(const UdpSocket & ctx,
-                Sig_item_string _printout)
-   : printout(_printout)
-   { send_UDP(ctx); }
 
    /// contructor that creates the signal and sends it on TCP socket s
    SVAR_DB_PRINTED_c(int s,
@@ -2906,12 +2691,14 @@ struct _all_signal_classes_
 */
 
 
-/// )OFF
-        char u_DISCONNECT[sizeof(DISCONNECT_c)];
-
 /// ⎕SVO, ⎕SVR
         char u_MAKE_OFFER[sizeof(MAKE_OFFER_c)];
         char u_RETRACT_OFFER[sizeof(RETRACT_OFFER_c)];
+        char u_RETRACT_VAR[sizeof(RETRACT_VAR_c)];
+
+        char u_SET_STATE[sizeof(SET_STATE_c)];
+
+        char u_SET_CONTROL[sizeof(SET_CONTROL_c)];
 
 /// SVAR←X and X←SVAR
         char u_GET_VALUE[sizeof(GET_VALUE_c)];
@@ -2919,8 +2706,8 @@ struct _all_signal_classes_
         char u_ASSIGN_VALUE[sizeof(ASSIGN_VALUE_c)];
         char u_SVAR_ASSIGNED[sizeof(SVAR_ASSIGNED_c)];
 
-/// ⎕SVE
-        char u_NEW_EVENT[sizeof(NEW_EVENT_c)];
+        char u_MAY_USE[sizeof(MAY_USE_c)];
+        char u_MAY_SET[sizeof(MAY_SET_c)];
 
 /// read/update SVAR database record from APserver
 ///
@@ -2977,10 +2764,6 @@ struct _all_signal_classes_
 
         char u_ADD_EVENT[sizeof(ADD_EVENT_c)];
 
-        char u_GET_UDP_PORT[sizeof(GET_UDP_PORT_c)];
-
-        char u_UDP_PORT_IS[sizeof(UDP_PORT_IS_c)];
-
         char u_ASSIGN_WSWS_VAR[sizeof(ASSIGN_WSWS_VAR_c)];
         char u_READ_WSWS_VAR[sizeof(READ_WSWS_VAR_c)];
         char u_WSWS_VALUE_IS[sizeof(WSWS_VALUE_IS_c)];
@@ -2993,120 +2776,6 @@ struct _all_signal_classes_
 
 enum { MAX_SIGNAL_CLASS_SIZE = sizeof(_all_signal_classes_) };
 
-//----------------------------------------------------------------------------
-Signal_base *
-Signal_base::recv_UDP(UdpSocket & sock, void * class_buffer,
-                  uint16_t & from_port, uint32_t & from_ip,
-                  uint32_t timeout_ms)
-{
-uint8_t buffer[10000];   // can be larger than *class_buffer due to strings!
-size_t len = sock.recv(buffer, sizeof(buffer), from_port, from_ip, timeout_ms);
-   if (len <= 0)   return 0;
-
-const uint8_t * b = buffer;
-Sig_item_u16 signal_id(b);
-
-Signal_base * ret = 0;
-   switch(signal_id.get_value())
-      {
-
-/*
-*/
-
-
-/// )OFF
-        case sid_DISCONNECT: ret = new (class_buffer) DISCONNECT_c(b);   break;
-
-/// ⎕SVO, ⎕SVR
-        case sid_MAKE_OFFER: ret = new (class_buffer) MAKE_OFFER_c(b);   break;
-        case sid_RETRACT_OFFER: ret = new (class_buffer) RETRACT_OFFER_c(b);   break;
-
-/// SVAR←X and X←SVAR
-        case sid_GET_VALUE: ret = new (class_buffer) GET_VALUE_c(b);   break;
-        case sid_VALUE_IS: ret = new (class_buffer) VALUE_IS_c(b);   break;
-        case sid_ASSIGN_VALUE: ret = new (class_buffer) ASSIGN_VALUE_c(b);   break;
-        case sid_SVAR_ASSIGNED: ret = new (class_buffer) SVAR_ASSIGNED_c(b);   break;
-
-/// ⎕SVE
-        case sid_NEW_EVENT: ret = new (class_buffer) NEW_EVENT_c(b);   break;
-
-/// read/update SVAR database record from APserver
-///
-///		apl/APnnn	--> READ_SVAR_RECORD		APserver
-///				<-- SVAR_RECORD_IS
-///
-///				--> UPDATE_SVAR_RECORD
-///				<-- SVAR_RECORD_IS
-///				--> SVAR_RECORD_IS
-        case sid_READ_SVAR_RECORD: ret = new (class_buffer) READ_SVAR_RECORD_c(b);   break;
-        case sid_UPDATE_SVAR_RECORD: ret = new (class_buffer) UPDATE_SVAR_RECORD_c(b);   break;
-        case sid_SVAR_RECORD_IS: ret = new (class_buffer) SVAR_RECORD_IS_c(b);   break;
-
-/// return YES_NO telling if ID is registered
-        case sid_IS_REGISTERED_ID: ret = new (class_buffer) IS_REGISTERED_ID_c(b);   break;
-
-        case sid_YES_NO: ret = new (class_buffer) YES_NO_c(b);   break;
-
-/// register processor proc in APserver
-        case sid_REGISTER_PROCESSOR: ret = new (class_buffer) REGISTER_PROCESSOR_c(b);   break;
-
-/// match offered shared variable or create a new offer
-        case sid_MATCH_OR_MAKE: ret = new (class_buffer) MATCH_OR_MAKE_c(b);   break;
-
-        case sid_MATCH_OR_MAKE_RESULT: ret = new (class_buffer) MATCH_OR_MAKE_RESULT_c(b);   break;
-
-
-        case sid_FIND_OFFERING_ID: ret = new (class_buffer) FIND_OFFERING_ID_c(b);   break;
-        case sid_OFFERING_ID_IS: ret = new (class_buffer) OFFERING_ID_IS_c(b);   break;
-
-/// get offering processors  (⎕SVQ)
-        case sid_GET_OFFERING_PROCS: ret = new (class_buffer) GET_OFFERING_PROCS_c(b);   break;
-
-        case sid_OFFERING_PROCS_ARE: ret = new (class_buffer) OFFERING_PROCS_ARE_c(b);   break;
-
-/// get offered variables  (⎕SVQ)
-        case sid_GET_OFFERED_VARS: ret = new (class_buffer) GET_OFFERED_VARS_c(b);   break;
-
-        case sid_OFFERED_VARS_ARE: ret = new (class_buffer) OFFERED_VARS_ARE_c(b);   break;
-
-/// find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
-        case sid_FIND_PAIRING_KEY: ret = new (class_buffer) FIND_PAIRING_KEY_c(b);   break;
-
-        case sid_PAIRING_KEY_IS: ret = new (class_buffer) PAIRING_KEY_IS_c(b);   break;
-
-/// get events for one processor (first shared var with an event)
-        case sid_GET_EVENTS: ret = new (class_buffer) GET_EVENTS_c(b);   break;
-
-/// clear all events for one processor
-        case sid_CLEAR_ALL_EVENTS: ret = new (class_buffer) CLEAR_ALL_EVENTS_c(b);   break;
-
-
-        case sid_EVENTS_ARE: ret = new (class_buffer) EVENTS_ARE_c(b);   break;
-
-        case sid_ADD_EVENT: ret = new (class_buffer) ADD_EVENT_c(b);   break;
-
-        case sid_GET_UDP_PORT: ret = new (class_buffer) GET_UDP_PORT_c(b);   break;
-
-        case sid_UDP_PORT_IS: ret = new (class_buffer) UDP_PORT_IS_c(b);   break;
-
-        case sid_ASSIGN_WSWS_VAR: ret = new (class_buffer) ASSIGN_WSWS_VAR_c(b);   break;
-        case sid_READ_WSWS_VAR: ret = new (class_buffer) READ_WSWS_VAR_c(b);   break;
-        case sid_WSWS_VALUE_IS: ret = new (class_buffer) WSWS_VALUE_IS_c(b);   break;
-
-/// print the entire database (for command ]SVARS)
-        case sid_PRINT_SVAR_DB: ret = new (class_buffer) PRINT_SVAR_DB_c(b);   break;
-        case sid_SVAR_DB_PRINTED: ret = new (class_buffer) SVAR_DB_PRINTED_c(b);   break;
-
-        default: cerr << "UdpSocket::recv() failed: unknown id "
-                      << signal_id.get_value() << endl;
-                 errno = EINVAL;
-                 return 0;
-      }
-
-   if (ostream * out = sock.get_debug())   ret->print(*out << "<-- ");
-
-   return ret;   // invalid id
-}
 //----------------------------------------------------------------------------
 Signal_base *
 Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
@@ -3136,6 +2805,8 @@ uint32_t siglen = 0;
    }
 
    siglen = ntohl(*(uint32_t *)buffer);
+   if (siglen == 0)   return 0;   // close
+
 // debug && *debug << "signal length is " << siglen << " in recv_TCP()" << endl;
 
    // skip MAX_SIGNAL_CLASS_SIZE bytes at the beginning of buffer
@@ -3176,12 +2847,14 @@ Signal_base * ret = 0;
 */
 
 
-/// )OFF
-        case sid_DISCONNECT: ret = new DISCONNECT_c(b);   break;
-
 /// ⎕SVO, ⎕SVR
         case sid_MAKE_OFFER: ret = new MAKE_OFFER_c(b);   break;
         case sid_RETRACT_OFFER: ret = new RETRACT_OFFER_c(b);   break;
+        case sid_RETRACT_VAR: ret = new RETRACT_VAR_c(b);   break;
+
+        case sid_SET_STATE: ret = new SET_STATE_c(b);   break;
+
+        case sid_SET_CONTROL: ret = new SET_CONTROL_c(b);   break;
 
 /// SVAR←X and X←SVAR
         case sid_GET_VALUE: ret = new GET_VALUE_c(b);   break;
@@ -3189,8 +2862,8 @@ Signal_base * ret = 0;
         case sid_ASSIGN_VALUE: ret = new ASSIGN_VALUE_c(b);   break;
         case sid_SVAR_ASSIGNED: ret = new SVAR_ASSIGNED_c(b);   break;
 
-/// ⎕SVE
-        case sid_NEW_EVENT: ret = new NEW_EVENT_c(b);   break;
+        case sid_MAY_USE: ret = new MAY_USE_c(b);   break;
+        case sid_MAY_SET: ret = new MAY_SET_c(b);   break;
 
 /// read/update SVAR database record from APserver
 ///
@@ -3246,10 +2919,6 @@ Signal_base * ret = 0;
         case sid_EVENTS_ARE: ret = new EVENTS_ARE_c(b);   break;
 
         case sid_ADD_EVENT: ret = new ADD_EVENT_c(b);   break;
-
-        case sid_GET_UDP_PORT: ret = new GET_UDP_PORT_c(b);   break;
-
-        case sid_UDP_PORT_IS: ret = new UDP_PORT_IS_c(b);   break;
 
         case sid_ASSIGN_WSWS_VAR: ret = new ASSIGN_WSWS_VAR_c(b);   break;
         case sid_READ_WSWS_VAR: ret = new READ_WSWS_VAR_c(b);   break;

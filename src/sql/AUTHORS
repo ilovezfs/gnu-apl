@@ -5,6 +5,7 @@ The latest version can be fetched from its git repository like this:
 
 git clone https://github.com/lokedhs/apl-sqlite 
 
-The version shipped with GNU APL was downloaded around July-16-2014
+The version shipped with GNU APL may not be the latest version available -
+it was downloaded around July-20-2014
 
 

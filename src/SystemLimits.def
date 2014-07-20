@@ -17,7 +17,7 @@ syl1("max. input line length"                 , MAX_INPUT_LEN     , 2000        
 syl1("max. symbol count"                      , MAX_SYMBOL_COUNT  , 65536               )
 syl1("max. shared variable name length"       , MAX_SVAR_NAMELEN  , 64                  )
 syl2("max. length of filenames (paths)"       , __FNMAX           , FILENAME_MAX        )
-syl1("max. number of shared variables"        , MAX_SVARS_OFFERED , 64                  )
+syl1("max. # of shared variables (obsolete)"  , MAX_SVARS_OFFERED , 64                  )
 syl1("max. number of APs"                     , MAX_ACTIVE_PROCS  , 16                  )
 syl1("max. operators per statement"           , MAX_FUN_OPER      , 16                  )
 syl3("largest integer"                        , LARGE_INT         ,  9200000000000000000LL)

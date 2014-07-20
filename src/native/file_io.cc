@@ -21,6 +21,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -376,6 +377,32 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
         // what < 0 are "hacker functions" that should no be used by
         // normal mortals.
         //
+        case -7: // throw a segfault
+             {
+               CERR << "NOTE: Triggering a segfault (keeping the current "
+                       "SIGSEGV handler)..." << endl;
+
+               const APL_Integer result = *(char *)4343;
+               CERR << "NOTE: Throwing a segfault failed." << endl;
+               return Token(TOK_APL_VALUE1, IntScalar(result, LOC));
+             }
+                  
+        case -6: // throw a segfault
+             {
+               CERR << "NOTE: Resetting SIGSEGV handler and triggering "
+                       "a segfault..." << endl;
+
+               // reset the SSEGV handler
+               //
+               struct sigaction action;
+               memset(&action, 0, sizeof(struct sigaction));
+               action.sa_handler = SIG_DFL;
+               sigaction(SIGSEGV, &action, 0);
+               const APL_Integer result = *(char *)4343;
+               CERR << "NOTE: Throwing a segfault failed." << endl;
+               return Token(TOK_APL_VALUE1, IntScalar(result, LOC));
+             }
+                  
         case -5: // return ⎕AV of IBM APL2
              {
                Value_P Z(new Value(256, LOC));

@@ -5,6 +5,6 @@ The latest version can be fetched from its git repository like this:
 
 git clone -b native https://github.com/lokedhs/gnu-apl-mode
 
-The version shipped with GNU APL was downloaded around March-21-2014
-
+The version shipped with GNU APL may not be the latest version available -
+it was downloaded around March-21-2014
 

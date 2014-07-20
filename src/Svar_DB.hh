@@ -67,11 +67,6 @@ private:
          { const Svar_record_P svar(true, key); open_act }   	\
     else { closed_act }
 
-# define UPD_RECORD(key, open_act, closed_act)           \
-    if (Svar_DB::APserver_available())          \
-         { Svar_record_P svar(false, key); open_act }   \
-    else { closed_act }
-
 /// access to a database in APserver that contains all shared variables on
 /// this machine
 class Svar_DB
@@ -97,14 +92,8 @@ public:
    /// get TCP socket to APserver, complain if not connected
    static TCP_socket get_Svar_DB_tcp(const char * calling_function);
 
-   /// return the UDP port for communication with AP \b proc
-   static uint16_t get_udp_port(AP_num proc, AP_num parent);
-
    /// retract an offer, return previous coupling
-   static SV_Coupling retract_var(SV_key key)
-      {
-        UPD_RECORD(key, return svar->retract(); , return NO_COUPLING; )
-      }
+   static void retract_var(SV_key key);
 
    /// return pointer to varname or 0 if key does not exist
    static const uint32_t * get_varname(SV_key key)
@@ -137,11 +126,7 @@ public:
       }
 
    /// set the current control vector of this variable
-   static Svar_Control set_control(SV_key key, Svar_Control ctl)
-      {
-        UPD_RECORD(key, svar->set_control(ctl); return svar->get_control(); ,
-                                                return NO_SVAR_CONTROL; )
-      }
+   static void set_control(SV_key key, Svar_Control ctl);
 
    /// return the current state of this variable
    static Svar_state get_state(SV_key key)
@@ -149,35 +134,19 @@ public:
         READ_RECORD(key, return svar->get_state(); , return SVS_NOT_SHARED; )
       }
 
-   static int data_owner_port(SV_key key, bool & ws_to_ws)
+   static bool is_ws_to_ws(SV_key key)
       {
-        ws_to_ws = false;
-        READ_RECORD(key, return svar->data_owner_port(ws_to_ws); , return -1; )
+        READ_RECORD(key, return svar->is_ws_to_ws(); , return false; )
       }
 
-   static bool may_set(SV_key key, int attempt)
-      {
-        UPD_RECORD(key, return svar->may_set(attempt); , return true; )
-      }
+   /// return true iff setting the shared variable is allowed
+   static bool may_set(SV_key key, int attempt);
 
-   static bool may_use(SV_key key, int attempt)
-      {
-        UPD_RECORD(key, return svar->may_use(attempt); , return true; )
-      }
+   /// return true iff reading the shared variable is allowed
+   static bool may_use(SV_key key, int attempt);
 
    /// set the current state of this variable
-   static void set_state(SV_key key, bool used, const char * loc)
-      {
-        UPD_RECORD(key, svar->set_state(used, loc); , )
-      }
-
-   /// return the share partner
-   static Svar_partner get_peer(SV_key key)
-      {
-        Svar_partner peer;
-        UPD_RECORD(key, peer = svar->get_peer(); , peer.clear(); )
-        return peer;
-      }
+   static void set_state(SV_key key, bool used, const char * loc);
 
    /// some shared variables names belong to a pair, like CTL and DAT in AP210.
    /// return the key of the other variable 
@@ -195,8 +164,9 @@ public:
    /// print the database
    static void print(ostream & out);
 
-   /// connect to APserver
-   static void connect_to_APserver(const char * bin_path, const char * prog,
+   /// return a socket that is connect to APserver
+   static TCP_socket connect_to_APserver(const char * bin_path,
+                                         const char * prog,
                                    bool logit);
 
    static void disconnect()
