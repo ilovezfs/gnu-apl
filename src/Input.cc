@@ -341,3 +341,22 @@ int b = 0;
    return (UTF8 *)buf;
 }
 //-----------------------------------------------------------------------------
+void
+Input::got_control_C()
+{
+#if HAVE_LIBREADLINE
+   if (use_readline)
+      {
+        readline_lib::rl_crlf();
+        readline_lib::rl_delete_text(0, readline_lib::rl_end);
+        readline_lib::rl_done = 1;
+      }
+   else
+      {
+        CIN << endl;
+      }
+#else
+      CIN << endl;
+#endif
+}
+//-----------------------------------------------------------------------------
