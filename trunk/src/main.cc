@@ -104,6 +104,8 @@ cleanup()
 APL_time_us interrupt_when = 0;
 bool interrupt_raised = false;
 bool attention_raised = false;
+uint64_t attention_count = 0;
+uint64_t interrupt_count = 0;
 
 static struct sigaction old_control_C_action;
 static struct sigaction new_control_C_action;
@@ -113,12 +115,16 @@ control_C(int)
 {
 APL_time_us when = now();
    attention_raised = true;
+   ++attention_count;
    if ((when - interrupt_when) < 500000)   // second ^C within 500 ms
       {
         interrupt_raised = true;
+        ++interrupt_count;
       }
 
    interrupt_when = when;
+
+   Input::got_control_C();
 }
 //-----------------------------------------------------------------------------
 static struct sigaction old_SEGV_action;
