@@ -48,7 +48,7 @@ public:
    /// constructor: UTF8_string from 0-terminated C string. The C-string
    /// must contain only ASCII characters (i.e. is NOT UTF8 encoded) !
    UTF8_string(const char * string)
-   : Simple_string<UTF8>((const UTF8 *)string, strlen(string))
+   : Simple_string<UTF8>((const UTF8 *)string, string ? strlen(string) : 0)
    {}
 
    /// constructor: copy of string, but at most len bytes

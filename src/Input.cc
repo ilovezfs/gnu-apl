@@ -305,6 +305,8 @@ const char * line;
         line = readline_lib::readline(0);
       }
 
+   if (line == 0)   return UCS_string();
+
 const UTF8_string uline(line);
    return UCS_string(uline);
 }
