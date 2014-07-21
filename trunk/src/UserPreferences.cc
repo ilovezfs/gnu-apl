@@ -85,6 +85,12 @@ char cc[4000];
 "    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
 "    --safe               safe mode (no shared vars, no native functions)\n"
 "    --silent             do not show the welcome message\n"
+"    --show_bin_dir       show binary directory and exit\n"
+"    --show_doc_dir       show documentation directory and exit\n"
+"    --show_etc_dir       show system configuration directory and exit\n"
+"    --show_lib_dir       show library directory and exit\n"
+"    --show_src_dir       show source directory and exit\n"
+"    --show_all_dirs      show all directories above and exit\n"
 "    --[no]SV             [do not] start APnnn (a shared variable server)\n"
 "    -T testcases ...     run testcases\n"
 "    --TM mode            test mode (for -T files):\n"
@@ -330,6 +336,40 @@ int script_argc = argc;   // $0 of the apl script
               do_Color = false;              // --noColor
               Input::use_readline = false;   // --rawCIN
               silent = true;                 // --silent
+            }
+         else if (!strcmp(opt, "--show_bin_dir"))
+            {
+              COUT << Makefile__bindir << endl;
+              exit(0);
+            }
+         else if (!strcmp(opt, "--show_doc_dir"))
+            {
+              COUT << Makefile__docdir << endl;
+              exit(0);
+            }
+         else if (!strcmp(opt, "--show_etc_dir"))
+            {
+              COUT << Makefile__sysconfdir << endl;
+              exit(0);
+            }
+         else if (!strcmp(opt, "--show_lib_dir"))
+            {
+              COUT << Makefile__pkglibdir << endl;
+              exit(0);
+            }
+         else if (!strcmp(opt, "--show_src_dir"))
+            {
+              COUT << Makefile__srcdir << endl;
+              exit(0);
+            }
+         else if (!strcmp(opt, "--show_all_dirs"))
+            {
+              COUT << "bindir: " << Makefile__bindir     << endl
+                   << "docdir: " << Makefile__docdir     << endl
+                   << "etcdir: " << Makefile__sysconfdir << endl
+                   << "libdir: " << Makefile__pkglibdir  << endl
+                   << "srcdir: " << Makefile__srcdir     << endl;
+              exit(0);
             }
          else if (!strcmp(opt, "--silent"))
             {
