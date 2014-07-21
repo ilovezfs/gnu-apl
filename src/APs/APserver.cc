@@ -1014,15 +1014,6 @@ bool got_path = false;
 bool got_port = false;
 int janitor = 0;
 
-   memset(&new_control_C_action, 0, sizeof(struct sigaction));
-   memset(&new_control_BSL_action, 0, sizeof(struct sigaction));
-
-   new_control_C_action.sa_handler = &control_C;
-   new_control_BSL_action.sa_handler = &control_BSL;
-
-   sigaction(SIGINT, &new_control_C_action, &old_control_C_action);
-   sigaction(SIGQUIT, &new_control_BSL_action, &old_control_BSL_action);
-
    for (int a = 1; a < argc; )
        {
          const char * opt = argv[a++];
@@ -1089,6 +1080,25 @@ int janitor = 0;
         cerr << "cannot specify both --path and --port " << endl;
         return argc;
       }
+
+   // enable ^C and ^\ when in debig mode
+   //
+   memset(&new_control_C_action, 0, sizeof(struct sigaction));
+   memset(&new_control_BSL_action, 0, sizeof(struct sigaction));
+
+   if (verbosity > 0)   // debug mode
+      {
+        new_control_C_action.sa_handler = &control_C;
+        new_control_BSL_action.sa_handler = &control_BSL;
+      }
+   else                 // default mode
+      {
+        new_control_C_action.sa_handler   = SIG_IGN;
+        new_control_BSL_action.sa_handler = SIG_IGN;
+      }
+
+   sigaction(SIGINT,  &new_control_C_action,   &old_control_C_action);
+   sigaction(SIGQUIT, &new_control_BSL_action, &old_control_BSL_action);
 
    if (verbosity > 0)
       cerr << "sizeof(Svar_DB_server) is " << sizeof(Svar_DB_server) << endl

@@ -161,6 +161,10 @@ signal_TERM_handler(int)
    raise(SIGTERM);
 }
 //-----------------------------------------------------------------------------
+static struct sigaction old_QUIT_action;
+static struct sigaction new_QUIT_action;
+
+//-----------------------------------------------------------------------------
 static struct sigaction old_HUP_action;
 static struct sigaction new_HUP_action;
 
@@ -307,18 +311,21 @@ const char * argv0 = argv[0];
    memset(&new_USR1_action,      0, sizeof(struct sigaction));
    memset(&new_SEGV_action,      0, sizeof(struct sigaction));
    memset(&new_TERM_action,      0, sizeof(struct sigaction));
+   memset(&new_QUIT_action,      0, sizeof(struct sigaction));
    memset(&new_HUP_action,       0, sizeof(struct sigaction));
 
    new_control_C_action.sa_handler = &control_C;
    new_USR1_action .sa_handler = &signal_USR1_handler;
    new_SEGV_action .sa_handler = &signal_SEGV_handler;
    new_TERM_action .sa_handler = &signal_TERM_handler;
+   new_QUIT_action .sa_handler = SIG_IGN;
    new_HUP_action  .sa_handler = &signal_HUP_handler;
 
    sigaction(SIGINT,  &new_control_C_action, &old_control_C_action);
    sigaction(SIGUSR1, &new_USR1_action,      &old_USR1_action);
    sigaction(SIGSEGV, &new_SEGV_action,      &old_SEGV_action);
    sigaction(SIGTERM, &new_TERM_action,      &old_TERM_action);
+   sigaction(SIGQUIT, &new_QUIT_action,      &old_QUIT_action);
    sigaction(SIGHUP,  &new_HUP_action,       &old_HUP_action);
 
    uprefs.parse_argv(argc, argv);

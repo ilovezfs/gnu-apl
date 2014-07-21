@@ -151,9 +151,12 @@ AM_MAKEFLAGS = -j 8
 makefile.h: Makefile
 	@echo "// some strings exported from Makefile"           > $@
 	@echo "//"                                              >> $@
+	@echo "#define Makefile__bindir     \"${bindir}\""      >> $@
+	@echo "#define Makefile__docdir     \"${docdir}\""      >> $@
 	@echo "#define Makefile__sysconfdir \"${sysconfdir}\""  >> $@
 	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> $@
 	@echo "#define Makefile__localedir  \"${localedir}\""   >> $@
+	@echo "#define Makefile__srcdir     \"${abs_srcdir}\""  >> $@
 	@echo                                                   >> $@
 
 .PHONY:	patch
@@ -161,3 +164,7 @@ patch:
 	mkdir -p patches
 	svn diff > patches/`date +patch_%F-%R.diff`
 
+.PHONY:	git_pull
+git_pull:
+	cd emacs_mode; git pull
+	cd sql;        git pull
