@@ -164,7 +164,20 @@ patch:
 	mkdir -p patches
 	svn diff > patches/`date +patch_%F-%R.diff`
 
-.PHONY:	git_pull
+.PHONY:	git-pull
 git_pull:
 	cd emacs_mode; git pull
 	cd sql;        git pull
+
+.PHONY:	help
+help:
+	@echo ""
+	@echo ""
+	@echo "in addition to standard targets (all, install, clean, ...) "
+	@echo "the following make targets may be supported (at this level):"
+	@echo ""
+	@echo "    make help                    - print this text"
+	@echo "    make git-pull                - pull sql and emacs subdirs"
+	@echo "    make update-svar_signals     - remake Svar_signals.hh"
+	@echo ""
+
