@@ -82,7 +82,7 @@ ul.no-bullet {list-style: none}
     </ul></li>
     <li><a name="toc-_005b_003f_005dSYL-_002d-System-limits" href="#g_t_005b_003f_005dSYL-_002d-System-limits">2.2 ⎕SYL - System limits</a>
     <ul class="no-bullet">
-      <li><a name="toc-_005b_003f_005dSYL1-2-3-4-5-6_003b_005d" href="#g_t_005b_003f_005dSYL1-2-3-4-5-6_003b_005d">2.2.1 ⎕SYL1 2 3 4 5 6;]</a></li>
+      <li><a name="toc-_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d" href="#g_t_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d">2.2.1 ⎕SYL[1 2 3 4 5 6;]</a></li>
       <li><a name="toc-_005b_003f_005dSYL_005b7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23_003b_005d" href="#g_t_005b_003f_005dSYL_005b7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23_003b_005d">2.2.2 ⎕SYL[7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23;]</a></li>
       <li><a name="toc-_005b_003f_005dSYL_005b24-25-26_003b_005d" href="#g_t_005b_003f_005dSYL_005b24-25-26_003b_005d">2.2.3 ⎕SYL[24 25 26;]</a></li>
       <li><a name="toc-_005b_003f_005dSYL_005b27_003b_005d" href="#g_t_005b_003f_005dSYL_005b27_003b_005d">2.2.4 ⎕SYL[27;]</a></li>
@@ -763,7 +763,6 @@ comes from function execve (see man execve).
  current number of values                                 54 
  current total ravel bytes                              9072 
  max. rank for APL values                                  8 
- max. rank for APL values                                  8 
  min. ⎕PW                                                 30 
  max. ⎕PW                                               1000 
  min. ⎕PP                                                  1 
@@ -772,7 +771,7 @@ comes from function execve (see man execve).
  max. symbol count                                     65536 
  max. shared variable name length                         64 
  max. length of filenames (paths)                       4096 
- max. number of shared variables                          64 
+ max. # of shared variables (obsolete)                    64 
  max. number of APs                                       16 
  max. operators per statement                             16 
  largest integer                         9000000000000000000 
@@ -789,8 +788,8 @@ in a SYNTAX ERROR. Indexed assignment to ⎕SYL will result in an
 INDEX ERROR unless the limit is writable. Some read-only limits can
 be changed at compile-time via ./configure
 </p>
-<a name="g_t_005b_003f_005dSYL1-2-3-4-5-6_003b_005d"></a>
-<h4 class="subsection">2.2.1 ⎕SYL1 2 3 4 5 6;]</h4>
+<a name="g_t_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d"></a>
+<h4 class="subsection">2.2.1 ⎕SYL[1 2 3 4 5 6;]</h4>
 
 <p>The first three limits are writable; their purpose is to stop execution
 if:

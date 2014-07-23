@@ -637,7 +637,6 @@ System variable ⎕SYL shows a number of system limits when referenced:
  current number of values                                 54
  current total ravel bytes                              9072
  max. rank for APL values                                  8
- max. rank for APL values                                  8
  min. ⎕PW                                                 30
  max. ⎕PW                                               1000
  min. ⎕PP                                                  1
@@ -646,7 +645,7 @@ System variable ⎕SYL shows a number of system limits when referenced:
  max. symbol count                                     65536
  max. shared variable name length                         64
  max. length of filenames (paths)                       4096
- max. number of shared variables                          64
+ max. # of shared variables (obsolete)                    64
  max. number of APs                                       16
  max. operators per statement                             16
  largest integer                         9000000000000000000
@@ -663,8 +662,8 @@ result in a SYNTAX ERROR. Indexed assignment to ⎕SYL will result in an
 INDEX ERROR unless the limit is writable.  Some read-only limits can be
 changed at compile-time via ./configure
 
-2.2.1 ⎕SYL1 2 3 4 5 6;]
------------------------
+2.2.1 ⎕SYL[1 2 3 4 5 6;]
+------------------------
 
 The first three limits are writable; their purpose is to stop execution
 if:
@@ -2337,11 +2336,11 @@ Tag Table:
 Node: Top416
 Node: Chapter 11347
 Node: Chapter 214446
-Node: Chapter 337276
-Node: Chapter 438882
-Node: Chapter 540005
-Node: Section 5.140508
-Node: Section 5.265816
+Node: Chapter 337217
+Node: Chapter 438823
+Node: Chapter 539946
+Node: Section 5.140449
+Node: Section 5.265757
 
 End Tag Table
 

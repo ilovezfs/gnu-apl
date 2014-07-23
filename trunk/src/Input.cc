@@ -381,8 +381,7 @@ Input::init_readline_control_C()
 {
 // CERR << "init_readline_control_C()" << endl;
 
-static char cmd[] = "set echo-control-characters off";
-   rl_parse_and_bind(strdup("set echo-control-characters off"));
+// rl_parse_and_bind(strdup("set echo-control-characters off"));
    rl_bind_key(CTRL('C'), &readline_control_C);
 
    // it seems to suffice if this this function is called once (i.e. after
