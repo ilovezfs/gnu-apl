@@ -101,12 +101,18 @@ public:
    /// read one line from input file with CR and LF removed
    static const UTF8 * read_file_line();
 
-   /// screen update after ^C
-   static void got_control_C();
-
 protected:
    /// read one line from the user (-terminal).
    static const unsigned char * get_user_line(const UCS_string * prompt);
+
+   static char * call_readline(const char *);
+
+   static void set_intr_char(int ch);
+
+   static  int init_readline_control_C();
+
+   static int readline_control_C(int count, int key);
 };
+
 
 #endif // __LINE_INPUT_HH_DEFINED__

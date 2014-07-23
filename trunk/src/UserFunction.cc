@@ -908,7 +908,7 @@ UCS_string & message_2 = error.error_message_2;
         if (!!val_A)
            {
              PrintContext pctx(PR_APL_FUN);
-             PrintBuffer pb(*val_A, pctx);
+             PrintBuffer pb(*val_A, pctx, 0);
              message_2.append(UCS_string(pb, 1, DEFAULT_Quad_PW));
              message_2.append(UNI_ASCII_SPACE);
            }
@@ -923,7 +923,7 @@ UCS_string & message_2 = error.error_message_2;
            {
              message_2.append(UNI_ASCII_SPACE);
              PrintContext pctx(PR_APL_FUN);
-             PrintBuffer pb(*val_B, pctx);
+             PrintBuffer pb(*val_B, pctx, 0);
              message_2.append(UCS_string(pb, 1, DEFAULT_Quad_PW));
            }
       }

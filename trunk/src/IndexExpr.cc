@@ -185,9 +185,10 @@ operator <<(ostream & out, const IndexExpr & idx)
              //
              PrintContext pctx = Workspace::get_PrintContext();
              pctx.set_style(PR_APL_MIN);
-             PrintBuffer pb(*idx.values[i], pctx);
+             PrintBuffer pb(*idx.values[i], pctx, 0);
 
-             UCS_string ucs(pb, idx.values[i]->get_rank(), Workspace::get_PrintContext().get_PW());
+             UCS_string ucs(pb, idx.values[i]->get_rank(),
+                            Workspace::get_PrintContext().get_PW());
              out << ucs;
            }
       }

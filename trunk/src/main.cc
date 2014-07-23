@@ -110,10 +110,13 @@ uint64_t interrupt_count = 0;
 static struct sigaction old_control_C_action;
 static struct sigaction new_control_C_action;
 
-static void
+void
 control_C(int)
 {
 APL_time_us when = now();
+
+   CIN << "^C";
+
    attention_raised = true;
    ++attention_count;
    if ((when - interrupt_when) < 500000)   // second ^C within 500 ms
@@ -123,8 +126,6 @@ APL_time_us when = now();
       }
 
    interrupt_when = when;
-
-   Input::got_control_C();
 }
 //-----------------------------------------------------------------------------
 static struct sigaction old_SEGV_action;

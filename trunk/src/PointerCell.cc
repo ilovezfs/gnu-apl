@@ -150,7 +150,8 @@ Value_P val = get_pointer_value();
                 {
                   PrintBuffer pb = val->get_ravel(e).
                         character_representation(pctx);
-                  ucs.append(UCS_string(pb, 0, Workspace::get_PrintContext().get_PW()));
+                  ucs.append(UCS_string(pb, 0,
+                             Workspace::get_PrintContext().get_PW()));
 
                   if (e < ec - 1)   ucs.append(UNI_ASCII_SPACE);
                 }
@@ -161,7 +162,7 @@ Value_P val = get_pointer_value();
         return PrintBuffer(ucs, ci);
       }
 
-PrintBuffer ret(*val, pctx);
+PrintBuffer ret(*val, pctx, 0);
    ret.get_info().flags &= ~CT_MASK;
    ret.get_info().flags |= CT_POINTER;
 
@@ -193,7 +194,7 @@ PrintBuffer ret(*val, pctx);
 
              if (sh.get_volume() == 1)   // one prototype
                 {
-                  ret = PrintBuffer(*proto, pctx);
+                  ret = PrintBuffer(*proto, pctx, 0);
                   ret.add_frame(PrintStyle(style), proto->get_rank(),
                                 proto->compute_depth());
                 }
@@ -209,7 +210,7 @@ PrintBuffer ret(*val, pctx);
                   new (c++) PointerCell(proto);
                   loop(rv, len - 1)   new (c++) PointerCell(proto->clone(LOC));
 
-                  ret = PrintBuffer(*proto_reshaped, pctx);
+                  ret = PrintBuffer(*proto_reshaped, pctx, 0);
                   ret.add_frame(PrintStyle(style), proto_reshaped->get_rank(),
                                 proto_reshaped->compute_depth());
                 }

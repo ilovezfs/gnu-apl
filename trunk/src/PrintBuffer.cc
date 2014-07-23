@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "Function.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
 #include "PrintBuffer.hh"
@@ -30,21 +31,33 @@
 
 //-----------------------------------------------------------------------------
 PrintBuffer::PrintBuffer()
+   : complete(true)
 {
 }
 //-----------------------------------------------------------------------------
 PrintBuffer::PrintBuffer(const UCS_string & ucs, const ColInfo & ci)
-   : col_info(ci)
+   : col_info(ci),
+     complete(true)
 {
    buffer.push_back(ucs);
 }
 //-----------------------------------------------------------------------------
-PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx)
+PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx,
+                         ostream * out)
+   : complete(false)
 {
+   // Note: if ostream is non-0 then this value may be inccomplete
+   // (as indicated by member complete if it is huge. This is to speed
+   // up printing if the value is discarded after having been printed
+
 const PrintStyle outer_style = _pctx.get_style();
 const bool framed = outer_style & (PST_CS_MASK | PST_CS_OUTER);
 PrintContext pctx(_pctx);
    pctx.set_style(PrintStyle(outer_style &~ PST_CS_OUTER));
+
+const ShapeItem ec = value.element_count();
+const uint64_t ii_count = interrupt_count;
+const bool huge = out && ec > 10000;
 
    if (value.is_scalar())
       {
@@ -61,248 +74,327 @@ PrintContext pctx(_pctx);
            }
 
         add_outer_frame(outer_style);
-        return;
+        goto maybe_print_it;
       }
 
-const ShapeItem ec = value.element_count();
-   if (ec == 0)   // empty value of any dimension
-      {
-         if (value.get_rank() == 1)   // vector: 1 line
-            {
-              if (pctx.get_style() == PR_APL_FUN)
-                 {
-                   if (value.get_ravel(0).is_character_cell())   // ''
-                      {
-                        UCS_string ucs("''");
-                        ColInfo ci;
-                        *this = PrintBuffer(ucs, ci);
-                        add_outer_frame(outer_style);
-                        return;
-                      }
-
-                   if (value.get_ravel(0).is_numeric())   // ⍬
-                      {
-                        UCS_string ucs("⍬");
-                        ColInfo ci;
-                        *this = PrintBuffer(ucs, ci);
-                        add_outer_frame(outer_style);
-                        return;
-                      }
-                 }
-
-              UCS_string ucs;   // empty
-              append_ucs(ucs);
-              add_outer_frame(outer_style);
-              return;   // 1 rows
-            }
-
-         const Shape sh = value.get_shape().without_axis(value.get_rank() - 1);
-         if (sh.get_volume() <= 1)   // empty vector
-            {
-              add_outer_frame(outer_style);
-              return;   // 0 rows
-            }
-
-         // value has > 0 rows. Compute how many lines we need.
-         //
-         ShapeItem lines = sh.get_volume();
-         loop(s, sh.get_rank())
-             lines += s * (sh.get_shape_item(sh.get_rank() - s - 1));
-
-         buffer.resize(lines);
-         add_outer_frame(outer_style);
-         return;
-      }
-
-const ShapeItem cols = value.get_last_shape_item();
-const ShapeItem rows = ec/cols;
-
-   if (pctx.get_style() == PR_APL_FUN)
-      {
-        UCS_string ucs;
-
-        if (value.is_char_vector())
-           {
-             ucs.append(UNI_SINGLE_QUOTE);
-             loop(e, ec)
-                {
-                  const Unicode uni = value.get_ravel(e).get_char_value();
-                  ucs.append(uni);
-                  if (uni == UNI_SINGLE_QUOTE)   ucs.append(uni);   // ' -> ''
-                }
-             ucs.append(UNI_SINGLE_QUOTE);
-           }
-        else
-           {
-             loop(e, ec)
-                {
-                  PrintBuffer pb = value.get_ravel(e)
-                                        .character_representation(pctx);
-                  if (e)   ucs.append(UNI_ASCII_SPACE);
-                  ucs.append(UCS_string(pb, 0, pctx.get_PW()));
-                }
-           }
-
-        ColInfo ci;
-        *this = PrintBuffer(ucs, ci);
-        add_outer_frame(outer_style);
-        return;
-      }
-
-   // 1. create a vector with a bool per column that tells if the
-   // column needs scaling (i.e. exponential format) or not
-   //
-vector<bool> scaling;
    {
-     scaling.reserve(cols);
-     loop(x, cols)
+     if (ec == 0)   // empty value of any dimension
         {
-          bool need_scaling = false;
-          loop(y, rows)
-             {
-               if (value.get_ravel(x + y*cols).need_scaling(pctx))
-                  {
-                    need_scaling = true;
-                    break;
-                  }
-             }
-          scaling.push_back(need_scaling);
-        }
-   }
-
-   // 2. create a matrix of items.
-   //    An item of the matrix is a top-level value (possibly nested),
-   //    therefore we have (⍴,value) items. Items are rectangular.
-   //
-typedef vector<PrintBuffer> PB_row;
-vector<PB_row> item_matrix;
-
-   item_matrix.reserve(rows);
-   loop(y, rows)
-      {
-        vector<PrintBuffer> item_row;
-        item_row.reserve(cols);
-        ShapeItem row_height = 0;
-
-        loop(x, cols)
-            {
-              PrintContext pctx1 = pctx;
-              if (scaling[x])   pctx1.set_scaled();
-              const Cell & cell = value.get_ravel(x + y*cols);
-              PrintBuffer item = cell.character_representation(pctx1);
-
-              if (row_height < item.get_height())
-                 row_height = item.get_height();
-
-              Assert(item.is_rectangular());
-              item_row.push_back(item);
-            }
-
-        // pad all items to the same height
-        loop(x, cols)
-           {
-             item_row[x].pad_height(UNI_iPAD_U6, row_height);
-             Assert(item_row[x].is_rectangular());
-           }
-        item_matrix.push_back(item_row);
-      }
-
-
-   // 3. align all columns (which pads them to the same width).
-   //
-   loop(x, cols)
-      {
-        ColInfo col_info_x;
-        loop(y, rows)   col_info_x.consider(item_matrix[y][x].get_info());
-
-        loop(y, rows)   item_matrix[y][x].align(col_info_x);
-
-      }
-
-   // 4. combine colums, then rows.
-   //
-int32_t last_spacing = 0;
-bool last_notchar = false;
-
-   loop(x, cols)
-      {
-        PrintBuffer pcol;
-
-        loop(y, rows)
-         {
-           // separator row(s)
-           if (y)
+           if (value.get_rank() == 1)   // vector: 1 line
               {
-                ShapeItem prod = 1;
-                loop(r, value.get_rank() - 2)
+                if (pctx.get_style() == PR_APL_FUN)
                    {
-                     prod *= value.get_shape_item(value.get_rank() - r - 2);
-                     if (y % prod == 0)
-                        pcol.append_ucs(UCS_string(pcol.get_width(0),
-                                                      UNI_iPAD_L0));
-                     else
-                        break;
+                     if (value.get_ravel(0).is_character_cell())   // ''
+                        {
+                          UCS_string ucs("''");
+                          ColInfo ci;
+                          *this = PrintBuffer(ucs, ci);
+                          add_outer_frame(outer_style);
+                          goto maybe_print_it;
+                        }
+
+                     if (value.get_ravel(0).is_numeric())   // ⍬
+                        {
+                          UCS_string ucs("⍬");
+                          ColInfo ci;
+                          *this = PrintBuffer(ucs, ci);
+                          add_outer_frame(outer_style);
+                          goto maybe_print_it;
+                        }
                    }
+
+                UCS_string ucs;   // empty
+                append_ucs(ucs);
+                add_outer_frame(outer_style);
+                goto maybe_print_it;   // 1 rows
               }
 
-             const PB_row & row = item_matrix[y];
-             const PrintBuffer & item = row[x];
-             if (y)   pcol.add_row(item);
-             else     pcol = item;
-         }
+           const Shape sh = value.get_shape().without_axis(value.get_rank()-1);
+           if (sh.get_volume() <= 1)   // empty vector
+              {
+                add_outer_frame(outer_style);
+                goto maybe_print_it;   // 0 rows
+              }
 
-        bool not_char = false;   // determined by get_col_spacing()
-	const int32_t col_spacing = value.get_col_spacing(not_char, x, framed);
+           // value has > 0 rows. Compute how many lines we need.
+           //
+           ShapeItem lines = sh.get_volume();
+           loop(s, sh.get_rank())
+               lines += s * (sh.get_shape_item(sh.get_rank() - s - 1));
 
-        const int32_t max_spacing = (col_spacing > last_spacing) 
-                                  ?  col_spacing : last_spacing;
-        int32_t no_char_spacing = 0;
+           buffer.resize(lines);
+           add_outer_frame(outer_style);
+           goto maybe_print_it;
+        }
 
-        if (x == 0)
+     const ShapeItem cols = value.get_last_shape_item();
+     const ShapeItem rows = ec/cols;
+
+     if (pctx.get_style() == PR_APL_FUN)
+        {
+          UCS_string ucs;
+
+          if (value.is_char_vector())
+             {
+               ucs.append(UNI_SINGLE_QUOTE);
+               loop(e, ec)
+                  {
+                    const Unicode uni = value.get_ravel(e).get_char_value();
+                    ucs.append(uni);
+                    if (uni == UNI_SINGLE_QUOTE)   ucs.append(uni);   // ' -> ''
+                  }
+               ucs.append(UNI_SINGLE_QUOTE);
+             }
+          else
+             {
+               loop(e, ec)
+                  {
+                    PrintBuffer pb = value.get_ravel(e)
+                                          .character_representation(pctx);
+                    if (e)   ucs.append(UNI_ASCII_SPACE);
+                    ucs.append(UCS_string(pb, 0, pctx.get_PW()));
+                  }
+             }
+
+          ColInfo ci;
+          *this = PrintBuffer(ucs, ci);
+          add_outer_frame(outer_style);
+          goto maybe_print_it;
+        }
+
+     // 1. create a vector with a bool per column that tells if the
+     // column needs scaling (i.e. exponential format) or not
+     //
+     vector<bool> scaling;
+     {
+       scaling.reserve(cols);
+       loop(x, cols)
+          {
+            bool need_scaling = false;
+            loop(y, rows)
+               {
+                 if (huge && (ii_count != interrupt_count))   goto interrupted;
+                 if (value.get_ravel(x + y*cols).need_scaling(pctx))
+                    {
+                      need_scaling = true;
+                      break;
+                    }
+               }
+            scaling.push_back(need_scaling);
+          }
+     }
+
+     // 2. create a matrix of items.
+     //    An item of the matrix is a top-level value (possibly nested),
+     //    therefore we have (⍴,value) items. Items are rectangular.
+     //
+     typedef vector<PrintBuffer> PB_row;
+     vector<PB_row> item_matrix;
+
+     item_matrix.reserve(rows);
+     loop(y, rows)
+        {
+          vector<PrintBuffer> item_row;
+          item_row.reserve(cols);
+          ShapeItem row_height = 0;
+
+          loop(x, cols)
+              {
+                if (huge && (ii_count != interrupt_count))   goto interrupted;
+
+                PrintContext pctx1 = pctx;
+                if (scaling[x])   pctx1.set_scaled();
+                const Cell & cell = value.get_ravel(x + y*cols);
+                PrintBuffer item = cell.character_representation(pctx1);
+
+                if (row_height < item.get_height())
+                   row_height = item.get_height();
+
+                Assert(item.is_rectangular());
+                item_row.push_back(item);
+              }
+
+          // pad all items to the same height
+          loop(x, cols)
+             {
+                if (huge && (ii_count != interrupt_count))   goto interrupted;
+
+               item_row[x].pad_height(UNI_iPAD_U6, row_height);
+               Assert(item_row[x].is_rectangular());
+             }
+          item_matrix.push_back(item_row);
+        }
+
+
+     // 3. align all columns (which pads them to the same width).
+     //
+     loop(x, cols)
+        {
+          ColInfo col_info_x;
+          loop(y, rows)
+              {
+                if (huge && (ii_count != interrupt_count))   goto interrupted;
+                col_info_x.consider(item_matrix[y][x].get_info());
+              }
+
+          loop(y, rows)
+              {
+                if (huge && (ii_count != interrupt_count))   goto interrupted;
+                item_matrix[y][x].align(col_info_x);
+              }
+        }
+
+     // 4. combine colums, then rows.
+     //
+     int last_spacing = 0;
+     bool last_notchar = false;
+
+     loop(x, cols)
+        {
+          PrintBuffer pcol;
+
+          loop(y, rows)
            {
-              *this = pcol;
+             if (huge && (ii_count != interrupt_count))   goto interrupted;
+
+             // separator row(s)
+             //
+             if (y)
+                {
+                  ShapeItem prod = 1;
+                  loop(r, value.get_rank() - 2)
+                     {
+                       prod *= value.get_shape_item(value.get_rank() - r - 2);
+                       if (y % prod == 0)
+                          pcol.append_ucs(UCS_string(pcol.get_width(0),
+                                                        UNI_iPAD_L0));
+                       else
+                          break;
+                     }
+                }
+
+               const PB_row & row = item_matrix[y];
+               const PrintBuffer & item = row[x];
+               if (y)   pcol.add_row(item);
+               else     pcol = item;
            }
-        else
+
+          bool not_char = false;   // determined by get_col_spacing()
+	  const int col_spacing = value.get_col_spacing(not_char, x, framed);
+
+          const int32_t max_spacing = (col_spacing > last_spacing) 
+                                    ?  col_spacing : last_spacing;
+          int32_t no_char_spacing = 0;
+
+          if (huge && (ii_count != interrupt_count))   goto interrupted;
+
+          if (x == 0)
+             {
+                *this = pcol;
+             }
+          else
+             {
+                if (last_notchar)
+                   {
+                     pad_r(UNI_iPAD_U2, 1);
+                     ++no_char_spacing;
+                   }
+                else if (not_char)
+                   {
+                     pcol.pad_l(UNI_iPAD_U3, 1);
+                     ++no_char_spacing;
+                   }
+
+                // append the column. we want a total spacing of 'max_spacing'
+                // but we deduct the 'no_char_spacing' chars ² and ³
+                // that were appended already.
+                //
+                if (huge && (ii_count != interrupt_count))   goto interrupted;
+                add_column(UNI_iPAD_U7, max_spacing - no_char_spacing, pcol);
+             }
+
+          last_spacing = col_spacing;
+          last_notchar = not_char;
+        }
+
+     if (value.compute_depth() > 1 && !framed)
+        {
+          pad_l(UNI_iPAD_U8, 1);
+          pad_r(UNI_iPAD_U9, 1);
+        }
+
+     if (!is_rectangular())
+        {
+          Q1(get_height())
+          loop(h, get_height())   CERR << "w=" << get_width(h) << "*" << endl;
+          loop(h, get_height())   CERR << "*" << get_line(h) << "*" << endl;
+        }
+
+     Assert(is_rectangular());
+     add_outer_frame(outer_style);
+   }
+
+maybe_print_it:
+   if (huge)   // ergo: out
+      {
+         print_interruptible(*out, value.get_rank(), _pctx.get_PW());
+      }
+   else if (out)
+      {
+        UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
+        if (ucs.size() == 0)   return;
+        *out << ucs << endl;
+      }
+   complete = true;
+   return;
+
+interrupted:
+   attention_raised = false;
+   interrupt_raised = false;
+   *out << endl << "INTERRUPT" << endl;
+   return;
+}
+//-----------------------------------------------------------------------------
+void
+PrintBuffer::print_interruptible(ostream & out, Rank rank, int quad_PW)
+{
+   if (get_height() == 0)   return;      // empty PrintBuffer
+
+vector<int> breakpoints = compute_breakpoints(quad_PW);
+
+   // print rows, breaking at breakpoints
+   //
+   loop(row, get_height())
+       {
+         if (row)   out << UNI_ASCII_LF;   // end previous row
+
+         int col = 0;
+         loop(b, breakpoints.size())
+            {
+              const int chunk_len = breakpoints[b];
+              if (col)   out << "\n      ";
+              UCS_string trow(get_line(row), col, chunk_len);
+              trow.remove_trailing_padchars();
+
+              loop(t, trow.size())
+                  {
+                    const Unicode uni = trow[t];
+                    if (is_iPAD_char(uni))   out << " ";
+                    else                     out << uni;
+                  }
+              col += chunk_len;
+            }
+
+        if (interrupt_raised)
            {
-              if (last_notchar)
-                 {
-                   pad_r(UNI_iPAD_U2, 1);
-                   ++no_char_spacing;
-                 }
-              else if (not_char)
-                 {
-                   pcol.pad_l(UNI_iPAD_U3, 1);
-                   ++no_char_spacing;
-                 }
-
-              // append the column. we want a total spacing of 'max_spacing'
-              // but we deduct the 'no_char_spacing' chars ² and ³
-              // that were appended already.
-              //
-              add_column(UNI_iPAD_U7, max_spacing - no_char_spacing, pcol);
+             out << "INTERRUPT" << endl;
+             attention_raised = false;
+             interrupt_raised = false;
+             return;
            }
+       }
 
-        last_spacing = col_spacing;
-        last_notchar = not_char;
-      }
-
-   if (value.compute_depth() > 1 && !framed)
-      {
-        pad_l(UNI_iPAD_U8, 1);
-        pad_r(UNI_iPAD_U9, 1);
-      }
-
-   if (!is_rectangular())
-      {
-        Q1(get_height())
-        loop(h, get_height())   CERR << "w=" << get_width(h) << "*" << endl;
-        loop(h, get_height())   CERR << "*" << get_line(h) << "*" << endl;
-      }
-
-   Assert(is_rectangular());
-   add_outer_frame(outer_style);
-
-// debug("PrintBuffer::PrintBuffer(Value_P, ...)");
+   out << endl;
 }
 //-----------------------------------------------------------------------------
 UCS_string
@@ -529,6 +621,44 @@ UCS_string hori(get_width(0), HORI);
    set_char(get_width(0) - 1, get_height() - 1, SW);
 
    Assert(is_rectangular());
+}
+//-----------------------------------------------------------------------------
+vector<int>
+PrintBuffer::compute_breakpoints(int quad_PW) const
+{
+const int pb_width = get_width(0);
+vector<int> breakpoints;
+
+   for (int col = 0; col < pb_width;)
+       {
+         const int max_chunk_width = col ? quad_PW - 6 : quad_PW;
+
+         // find breakpoint
+         //
+         int chunk_len = max_chunk_width;
+         const int rest = pb_width - col;
+         if (chunk_len < rest)   // rest too large
+            {
+              // search backwards for break char
+              //
+              int pos = col + chunk_len;
+              if (pos > pb_width)   pos = pb_width;
+              while (--pos > col)
+                  {
+                    const Unicode uni = get_line(0)[pos];
+                    if (uni == UNI_iPAD_U2 || uni == UNI_iPAD_U3)
+                       {
+                          chunk_len = pos - col + 1;
+                          break;
+                       }
+                  }
+            }
+
+         breakpoints.push_back(chunk_len);
+         col += chunk_len;
+       }
+
+   return breakpoints;
 }
 //-----------------------------------------------------------------------------
 ostream &

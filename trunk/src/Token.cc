@@ -147,7 +147,7 @@ operator << (ostream & out, const Token & token)
         if (value->get_rank())   out << value->get_shape();
 
         const PrintContext pctx(PR_APL);
-        PrintBuffer pb(*value, pctx);
+        PrintBuffer pb(*value, pctx, 0);
         bool more = pb.get_height() > 1;
         if (pb.get_height() > 0)
            {
@@ -484,7 +484,7 @@ const Value & val = *get_apl_val();
         pctx.set_style((PrintStyle)(pctx.get_style() | PST_NO_FRACT_0));
       }
 
-PrintBuffer pb(val, pctx);
+PrintBuffer pb(val, pctx, 0);
 const UCS_string indent(fn.size(), UNI_ASCII_SPACE);
    loop(l, pb.get_height())
       {
@@ -541,7 +541,7 @@ UCS_string ucs;
         case TC_VALUE:
              {
                PrintContext pctx(style, 16, 80);
-               PrintBuffer pbuf(*get_apl_val(), pctx);
+               PrintBuffer pbuf(*get_apl_val(), pctx, 0);
                if (pbuf.get_height() == 0)   return ucs;
                return pbuf.l1();
              }

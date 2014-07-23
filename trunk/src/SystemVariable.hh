@@ -189,7 +189,8 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(FloatScalar(DEFAULT_Quad_CT, LOC), LOC);
+        Symbol::push();
+        Symbol::assign(FloatScalar(DEFAULT_Quad_CT, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -267,6 +268,13 @@ public:
 protected:
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
+
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();
+        Symbol::assign(IntScalar(1, LOC), LOC);
+      }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -341,7 +349,8 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(IntScalar(DEFAULT_Quad_PP, LOC), LOC);
+        Symbol::push();
+        Symbol::assign(IntScalar(DEFAULT_Quad_PP, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -365,7 +374,8 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(Spc(LOC), LOC);
+        Symbol::push();
+        Symbol::assign(Spc(LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -398,7 +408,8 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(IntScalar(0, LOC), LOC);
+        Symbol::push();
+        Symbol::assign(IntScalar(0, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -435,7 +446,8 @@ protected:
    // overloaded Symbol::push()
    virtual void push()
       {
-        Symbol::push();   Symbol::assign(IntScalar(DEFAULT_Quad_PW, LOC), LOC);
+        Symbol::push();
+        Symbol::assign(IntScalar(DEFAULT_Quad_PW, LOC), LOC);
       }
 };
 //-----------------------------------------------------------------------------
@@ -588,6 +600,25 @@ public:
 protected:
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
+
+   static int compute_offset();
+
+   // overloaded Symbol::push()
+   virtual void push()
+      {
+        Symbol::push();
+        offset_seconds = compute_offset();
+        if (offset_seconds % 3600 == 0)   // full hour
+           Symbol::assign(IntScalar(offset_seconds/3600, LOC), LOC);
+        else
+           Symbol::assign(FloatScalar(offset_seconds/3600, LOC), LOC);
+      }
+
+   virtual void pop()
+      {
+        Symbol::pop();
+        offset_seconds = 3600 * get_apl_value()->get_ravel(0).get_int_value();
+      }
 
    /// the offset from GMT of the current timezone (in seconds)
    int offset_seconds;

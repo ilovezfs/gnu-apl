@@ -287,39 +287,7 @@ UCS_string::UCS_string(const PrintBuffer & pb, Rank rank, int quad_PW)
 {
    if (pb.get_height() == 0)   return;      // empty PrintBuffer
 
-const int pb_width = pb.get_width(0);
-vector<int> breakpoints;
-
-   // compute breakpoints
-   //
-   for (int col = 0; col < pb_width;)
-       {
-         const int max_chunk_width = col ? quad_PW - 6 : quad_PW;
-
-         // find breakpoint
-         //
-         int chunk_len = max_chunk_width;
-         const int rest = pb_width - col;
-         if (chunk_len < rest)   // rest too large
-            {
-              // search backwards for break char
-              //
-              int pos = col + chunk_len;
-              if (pos > pb_width)   pos = pb_width;
-              while (--pos > col)
-                  {
-                    const Unicode uni = pb.get_line(0)[pos];
-                    if (uni == UNI_iPAD_U2 || uni == UNI_iPAD_U3)
-                       {
-                          chunk_len = pos - col + 1;
-                          break;
-                       }
-                  }
-            }
-
-         breakpoints.push_back(chunk_len);
-         col += chunk_len;
-       }
+vector<int> breakpoints = pb.compute_breakpoints(quad_PW);
 
    // print rows, breaking at breakpoints
    //
@@ -340,7 +308,10 @@ vector<int> breakpoints;
 
    // replacing pad chars with blanks.
    //
-   loop(u, size())   if (is_iPAD_char((*this)[u]))   (*this)[u] = UNI_ASCII_SPACE;
+   loop(u, size())
+       {
+         if (is_iPAD_char((*this)[u]))   (*this)[u] = UNI_ASCII_SPACE;
+       }
 }
 //-----------------------------------------------------------------------------
 void

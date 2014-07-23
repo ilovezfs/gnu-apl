@@ -709,7 +709,7 @@ Quad_QUOTE::assign(Value_P value, const char * loc)
            << prompt << "]" << endl;
 
 PrintContext pctx(PR_QUOTE_Quad);
-PrintBuffer pb(*value, pctx);
+PrintBuffer pb(*value, pctx, 0);
    if (pb.get_height() > 1)   // multi line output: flush and restart corking
       {
         loop(y, pb.get_height())
@@ -947,6 +947,19 @@ Value_P Z(new Value(7, LOC));
 Quad_TZ::Quad_TZ()
    : SystemVariable(ID_Quad_TZ)
 {
+   offset_seconds = compute_offset();
+
+   // ⎕TZ is the offset in hours between GMT and local time
+   //
+   if (offset_seconds % 3600 == 0)   // full hour
+      Symbol::assign(IntScalar(offset_seconds/3600, LOC), LOC);
+   else
+      Symbol::assign(FloatScalar(offset_seconds/3600, LOC), LOC);
+}
+//-----------------------------------------------------------------------------
+int
+Quad_TZ::compute_offset()
+{
    // the GNU/Linux timezone variable conflicts with function timezone() on
    // other systems. timezone.tz_minuteswest in gettimeofday() does not
    // sound reliable either.
@@ -972,19 +985,7 @@ int diff_minutes = local_minutes - gm_minutes;
    if (local_days < gm_days)        diff_minutes -= 24*60;   // local < gmean
    else if (local_days > gm_days)   diff_minutes += 24*60;   // local > gmean
 
-   offset_seconds = 60*diff_minutes;
-
-   // ⎕TZ is the offset in hours between GMT and local time
-   //
-Value_P value(new Value(LOC));
-   if (offset_seconds % 3600 == 0)   // full hour
-      new (&value->get_ravel(0))   IntCell(offset_seconds/3600);
-   else
-      new (&value->get_ravel(0))   FloatCell(offset_seconds/3600.0);
-
-   value->check_value(LOC);
-
-   Symbol::assign(value, LOC);
+   return 60*diff_minutes;
 }
 //-----------------------------------------------------------------------------
 void
