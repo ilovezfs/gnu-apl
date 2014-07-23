@@ -23,9 +23,16 @@ extern void cleanup();
 
 /// true if Control-C was hit
 extern bool attention_raised;
+extern uint64_t attention_count;
 
 /// true if Control-C was hit twice within 500 ms
 extern bool interrupt_raised;
+extern uint64_t interrupt_count;
+
+/// time when ^C was hit last
+extern APL_time_us interrupt_when;
+
+extern void control_C(int);
 
 extern const char * prog_name();
 

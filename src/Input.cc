@@ -19,6 +19,7 @@
 */
 
 #include <string.h>
+#include <termios.h>
 #include <unistd.h>
 
 #include "Command.hh"
@@ -29,6 +30,7 @@
 #include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
+#include <signal.h>
 #include "SystemVariable.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"
@@ -49,31 +51,31 @@ void (*end_input)() = 0;
 
 bool Input::use_readline = true;
 
-namespace readline_lib
-{
+#define _FUNCTION_DEF
 #include <readline/readline.h>
 #include <readline/history.h>
-};   // namespace readline_lib
 
 #else // ! HAVE_LIBREADLINE
 
 bool Input::use_readline = false;
 
-namespace readline_lib
-{
 static void add_history(const char * line) {}
 static void rl_initialize() {}
 static void stifle_history(int) {}
 static void read_history(const char *) {}
 static void rl_stuff_char(char) {}
 static char * readline(const char *) {}
-const char *  rl_readline_name = "GnuAPL";
+void rl_list_funmap_names() {}
+int rl_bind_key(int, int) {}
+int rl_parse_and_bind(const char *) {}
 
-};   // namespace readline_lib
+const char *  rl_readline_name = "GnuAPL";
+int rl_catch_signals = 1;
+void (*rl_startup_hook)() = 0;
 
 #endif //  HAVE_LIBREADLINE
 
-// a function to be used if readline_lib::readline() does not exist or
+// a function to be used if readline() does not exist or
 // is not wanted
 static char *
 no_readline(const UCS_string * prompt)
@@ -100,19 +102,20 @@ int len = strlen(buffer);
 }
 //-----------------------------------------------------------------------------
 void
-Input::init(bool read_history)
+Input::init(bool do_read_history)
 {
    if (use_readline)
       {
-        readline_lib::rl_readline_name = strdup("GnuAPL");
-        readline_lib::rl_initialize();
-        if (read_history)
+        rl_readline_name = strdup("GnuAPL");
+        rl_initialize();
+        if (do_read_history)
            {
-             readline_lib::stifle_history(readline_history_len);
-             readline_lib::read_history(readline_history_path.c_str());
+             stifle_history(readline_history_len);
+             read_history(readline_history_path.c_str());
            }
 
-//      readline_lib::rl_function_dumper(1);
+        rl_startup_hook = Input::init_readline_control_C;
+//      rl_function_dumper(1);
       }
 }
 //-----------------------------------------------------------------------------
@@ -120,7 +123,7 @@ int
 Input::readline_version()
 {
 #if HAVE_LIBREADLINE
-   return readline_lib::rl_readline_version;
+   return rl_readline_version;
 #else
    return 0;
 #endif
@@ -213,7 +216,7 @@ void
 Input::exit_readline()
 {
 #if HAVE_LIBREADLINE
-   readline_lib::write_history(readline_history_path.c_str());
+   write_history(readline_history_path.c_str());
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -231,11 +234,11 @@ char * line;
    else if (prompt)
       {
         UTF8_string prompt_utf(*prompt);
-        line = readline_lib::readline(prompt_utf.c_str());
+        line = call_readline(prompt_utf.c_str());
       }
    else
       {
-        line = readline_lib::readline(0);
+        line = call_readline(0);
       }
 
    if (end_input)   (*end_input)();
@@ -248,7 +251,7 @@ UTF8 * l = (UTF8 *)line;
       {
         while (*l && *l <= ' ')   ++l;   // skip leading whitespace
 
-        if (use_readline && *l)   readline_lib::add_history(line);
+        if (use_readline && *l)   add_history(line);
       }
 
    return l;
@@ -299,10 +302,10 @@ const char * line;
    else
       {
         loop(s, utf_prompt.size())
-            readline_lib::rl_stuff_char(utf_prompt[s] & 0x00FF);
+            rl_stuff_char(utf_prompt[s] & 0x00FF);
 
         cout << '\r';
-        line = readline_lib::readline(0);
+        line = call_readline(0);
       }
 
    if (line == 0)   return UCS_string();
@@ -343,22 +346,63 @@ int b = 0;
    return (UTF8 *)buf;
 }
 //-----------------------------------------------------------------------------
-void
-Input::got_control_C()
+char *
+Input::call_readline(const char * prompt)
 {
-#if HAVE_LIBREADLINE
-   if (use_readline)
-      {
-        readline_lib::rl_crlf();
-        readline_lib::rl_delete_text(0, readline_lib::rl_end);
-        readline_lib::rl_done = 1;
-      }
-   else
-      {
-        CIN << endl;
-      }
-#else
-      CIN << endl;
-#endif
+   // deinstall ^C handler...
+   //
+static struct sigaction control_C_action;
+   memset(&control_C_action, 0, sizeof(struct sigaction));
+   control_C_action.sa_handler = SIG_IGN;
+   sigaction(SIGINT,  &control_C_action, 0);
+
+   set_intr_char(0);   // none
+char * ret = readline(prompt);
+   set_intr_char(3);   // ^C
+
+   control_C_action.sa_handler = &control_C;
+   sigaction(SIGINT,  &control_C_action, 0);
+
+   return ret;
+}
+//-----------------------------------------------------------------------------
+void
+Input::set_intr_char(int ch)
+{
+struct termios tios;
+   tcgetattr(STDIN_FILENO, &tios);
+   tios.c_cc[VINTR] = ch;
+   tios.c_lflag &= ~ECHOCTL;
+   tcsetattr(STDIN_FILENO, TCSANOW, &tios);
+}
+//-----------------------------------------------------------------------------
+int
+Input::init_readline_control_C()
+{
+// CERR << "init_readline_control_C()" << endl;
+
+static char cmd[] = "set echo-control-characters off";
+   rl_parse_and_bind(strdup("set echo-control-characters off"));
+   rl_bind_key(CTRL('C'), &readline_control_C);
+
+   // it seems to suffice if this this function is called once (i.e. after
+   // first time where readline() is being called
+   //
+   rl_startup_hook = 0;
+   return 0;
+}
+//-----------------------------------------------------------------------------
+int
+Input::readline_control_C(int count, int key)
+{
+   control_C(SIGINT);
+   rl_crlf();
+   rl_delete_text(0, rl_end);
+   rl_done = 1;
+
+   attention_raised = false;
+   interrupt_raised = false;
+   interrupt_when = 0;
+   return 0;
 }
 //-----------------------------------------------------------------------------

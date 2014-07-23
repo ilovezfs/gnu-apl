@@ -1446,15 +1446,7 @@ PrintContext pctx = Workspace::get_PrintContext();
         pctx.set_style((PrintStyle)(pctx.get_style() | PST_NO_FRACT_0));
       }
 
-PrintBuffer pb(*this, pctx);
-
-//   pb.debug(CERR, "Value::print()");
-
-UCS_string ucs(pb, get_rank(), pctx.get_PW());
-
-   if (ucs.size() == 0)   return out;
-
-   return out << ucs << endl;
+PrintBuffer pb(*this, pctx, &out);   // constructor prints it
 }
 //-----------------------------------------------------------------------------
 ostream &
@@ -1472,15 +1464,8 @@ int style = pctx.get_style();
 
    pctx.set_style((PrintStyle)style);
 
-PrintBuffer pb(*this, pctx);
-
-//   pb.debug(CERR, "Value::print1()");
-
-UCS_string ucs(pb, get_rank(), pctx.get_PW());
-
-   if (ucs.size() == 0)   return out;
-
-   return out << ucs << endl;
+PrintBuffer pb(*this, pctx, &out);
+   return out;
 }
 //-----------------------------------------------------------------------------
 ostream &
@@ -1507,7 +1492,7 @@ void
 Value::debug(const char * info)
 {
 const PrintContext pctx = Workspace::get_PrintContext();
-PrintBuffer pb(*this, pctx);
+PrintBuffer pb(*this, pctx, 0);
    pb.debug(CERR, info);
 }
 //-----------------------------------------------------------------------------

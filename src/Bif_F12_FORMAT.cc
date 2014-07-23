@@ -150,7 +150,7 @@ Bif_F12_FORMAT::monadic_format(Value_P B)
 PrintContext pctx = Workspace::get_PrintContext();
    pctx.set_style(PrintStyle(pctx.get_style() | PST_NO_FRACT_0));
 
-const PrintBuffer pb(*B, pctx);
+const PrintBuffer pb(*B, pctx, 0);
 
 const ShapeItem width  = pb.get_width(0);
 const ShapeItem height = pb.get_height();

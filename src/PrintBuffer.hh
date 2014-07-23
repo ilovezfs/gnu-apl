@@ -87,7 +87,7 @@ public:
    PrintBuffer(const UCS_string & ucs, const ColInfo & ci);
 
    /// contructor: a PrintBuffer from an APL value
-   PrintBuffer(const Value & value, const PrintContext & pctx);
+   PrintBuffer(const Value & value, const PrintContext & pctx, ostream * out);
 
    /// return the number of rows
    size_t get_height() const
@@ -100,7 +100,10 @@ public:
    /// return line y
    UCS_string get_line(size_t y) const
       { Assert (y < get_height());   return buffer[y]; }
-   
+
+   /// print this buffer, interruptible with ^C
+   void print_interruptible(ostream & out, Rank rank, int quad_pw);
+
    /// return the last line, removing it from this PrintBuffer
    UCS_string remove_last_line();
 
@@ -124,16 +127,14 @@ public:
    /// append lines to reach height
    void pad_height(Unicode pad, ShapeItem height);
 
-   /// return the characters for style \b pst
-   static void get_frame_chars(PrintStyle pst, Unicode & HORI, Unicode & VERT,
-                       Unicode & NW, Unicode & NE, Unicode & SE, Unicode & SW);
-
-
    /// add a decorator frame around this buffer
    void add_frame(PrintStyle style, uint32_t rank, uint32_t depth);
 
    /// add an outer frame around this buffer
    void add_outer_frame(PrintStyle style);
+
+   /// compute horizontal breakpoints for printing this buffer within \b quad_PW
+   vector<int> compute_breakpoints(int quad_PW) const;
 
    /// print properties of \b this PrintBuffer
    ostream & debug(ostream & out, const char * title = 0) const;
@@ -162,6 +163,10 @@ public:
    /// return true iff all strings have the same size.
    bool is_rectangular() const;
 
+   /// return the characters for style \b pst
+   static void get_frame_chars(PrintStyle pst, Unicode & HORI, Unicode & VERT,
+                       Unicode & NW, Unicode & NE, Unicode & SE, Unicode & SW);
+
 protected:
    /// align this PrintBuffer to col
    void align(ColInfo & col);
@@ -183,6 +188,9 @@ protected:
 
    /// column properties
    ColInfo col_info;
+
+   /// true if completely constructed (as opposed to interrupted by ^C)
+   bool complete;
 };
 
 #endif // __PRINT_BUFFER_HH__DEFINED__

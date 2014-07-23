@@ -165,9 +165,9 @@ patch:
 	svn diff > patches/`date +patch_%F-%R.diff`
 
 .PHONY:	git-pull
-git_pull:
+git-pull:
 	cd emacs_mode; git pull
-	cd sql;        git pull
+	cd sql;        git pull; cp sql.apl ../../wslib5/sql.apl
 
 .PHONY:	help
 help:

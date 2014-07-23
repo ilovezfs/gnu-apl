@@ -565,7 +565,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
 
    // common code for ⎕CR variants that only differs by print style...
    //
-PrintBuffer pb(B, pctx);
+PrintBuffer pb(B, pctx, 0);
    Assert(pb.is_rectangular());
 
 const ShapeItem height = pb.get_height();
