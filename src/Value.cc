@@ -1447,6 +1447,7 @@ PrintContext pctx = Workspace::get_PrintContext();
       }
 
 PrintBuffer pb(*this, pctx, &out);   // constructor prints it
+   return out;
 }
 //-----------------------------------------------------------------------------
 ostream &
