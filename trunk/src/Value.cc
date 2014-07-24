@@ -1569,8 +1569,9 @@ Cell * c = &get_ravel(0);
 
    loop(e, ec)
       {
-        if (c->is_pointer_cell())   c->get_pointer_value()->to_proto();
-        else                        new (c) IntCell(0);
+        if (c->is_pointer_cell())          c->get_pointer_value()->to_proto();
+        else if (c->is_character_cell())   new (c) CharCell(UNI_ASCII_SPACE);
+        else                               new (c) IntCell(0);
         ++c;
       }
 }

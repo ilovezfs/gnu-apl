@@ -110,19 +110,17 @@ Value_P ret;
    return ret;
 }
 //-----------------------------------------------------------------------------
-void
+Cell *
 Cell::init_type(const Cell & other)
 {
+   // Note: this function changes the type of this cell, but the
+   // compiler may not notice that and use the declaration for this
+   // Cell. Using the return value avoids that.
+   //
    if (other.is_pointer_cell())
       {
-        Value_P B = other.get_pointer_value();
-        Value_P Z(new Value(B->get_shape(), LOC));
-
-        const ShapeItem len = B->nz_element_count();
-        loop(l, len)   Z->get_ravel(l).init_type(B->get_ravel(l));
-        Z->check_value(LOC);
-
-        new (this) PointerCell(Z);
+        new (this) PointerCell(other.get_pointer_value()->clone(LOC));
+        get_pointer_value()->to_proto();
       }
    else if (other.is_character_cell())
       {
@@ -132,6 +130,8 @@ Cell::init_type(const Cell & other)
       {
         new (this) IntCell(0);
       }
+
+   return this;
 }
 //-----------------------------------------------------------------------------
 void

@@ -2233,30 +2233,39 @@ Bif_F12_TAKE::eval_AB(Value_P A, Value_P B)
    //
    if (A->get_rank() > 1)   RANK_ERROR;
 
-Shape ravel_A(A, Workspace::get_CT(), 0);
+Shape ravel_A(A, Workspace::get_CT(), /* ⎕IO */ 0);
 Shape ravel_A1(ravel_A);
    if (ravel_A1.get_rank() == 0)   ravel_A1.add_shape_item(1);   // A ← ,A
    if (ravel_A1.get_rank() > MAX_RANK)     LENGTH_ERROR;
 
    if (B->is_scalar())
       {
-        if (ravel_A.get_rank() == 0)
+        // if B is a skalar then Z is a value with shape ∣ A and one of
+        // the corner elements being B
+        //
+        if (ravel_A.get_rank() == 0)   // '' ↑ B
            {
              Token result(TOK_APL_VALUE1, B->clone(LOC));
              return result;
            }
 
+        // Note: the declaration of proto_p below makes C++ believe that it is
+        // a cell (even though init_type() turns it into a derived celltype.
+        // Use proto_p instead of proto to avoid that!
+        //
         Cell proto;
-        proto.init_type(B->get_ravel(0));
-        const Shape ravel_A1_abs = ravel_A1.abs();
-        Value_P Z(new Value(ravel_A1_abs, LOC));
+        Cell * proto_p =  proto.init_type(B->get_ravel(0));
+        const Shape shape_Z = ravel_A1.abs();
+        Value_P Z(new Value(shape_Z, LOC));
         const ShapeItem ec_Z = Z->element_count();   // incl. proto
 
-        loop(z, ec_Z)   Z->next_ravel()->init(proto);
-        if (ec_Z == 0)   Z->get_ravel(0).init(proto);
+        loop(z, ec_Z)   Z->next_ravel()->init(*proto_p);
+        if (ec_Z == 0)   Z->get_ravel(0).init(*proto_p);
+
+        proto_p->release(LOC);
 
         // compute the position of the non-default element. It is the first
-        // item of the corresponfig dimension if the axis is positive, or the
+        // item of the corresponding dimension if the axis is positive, or the
         // last element if the axis is negative.
         //
         ShapeItem pos = 0;
@@ -2267,6 +2276,7 @@ Shape ravel_A1(ravel_A);
               if (len < 0)   { pos -= (1 + len) * weight;   weight *= -len; }
               else           {                              weight *=  len; }
             }
+        Z->get_ravel(pos).release(LOC);
         Z->get_ravel(pos).init(B->get_ravel(0));
 
         Z->check_value(LOC);

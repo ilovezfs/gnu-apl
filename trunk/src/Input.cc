@@ -22,6 +22,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+#define Function APL_Function   // make realine happy
 #include "Command.hh"
 #include "Common.hh"   // for HAVE_LIBREADLINE etc.
 #include "Input.hh"
@@ -34,6 +35,7 @@
 #include "SystemVariable.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"
+#undef Function
 
 int Input::readline_history_len = 500;
 UTF8_string Input::readline_history_path(".apl.history");
@@ -51,7 +53,6 @@ void (*end_input)() = 0;
 
 bool Input::use_readline = true;
 
-#define _FUNCTION_DEF
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -59,19 +60,24 @@ bool Input::use_readline = true;
 
 bool Input::use_readline = false;
 
-static void add_history(const char * line) {}
-static void rl_initialize() {}
-static void stifle_history(int) {}
-static void read_history(const char *) {}
-static void rl_stuff_char(char) {}
-static char * readline(const char *) {}
-void rl_list_funmap_names() {}
-int rl_bind_key(int, int) {}
-int rl_parse_and_bind(const char *) {}
+static void   add_history(const char *)    { }
+static void   read_history(const char *)   { }
 
-const char *  rl_readline_name = "GnuAPL";
-int rl_catch_signals = 1;
-void (*rl_startup_hook)() = 0;
+static void   rl_initialize()              { }
+static void   stifle_history(int)          { }
+static void   rl_stuff_char(char)          { }
+static void   rl_list_funmap_names()       { }
+
+static char * readline(const char *)       { return 0; }
+static int    rl_bind_key(int, int)        { return 0; }
+static int    rl_crlf()                    { return 0; }
+static int    rl_delete_text(int, int)     { return 0; }
+
+
+static const char * rl_readline_name = "GnuAPL";
+static int          rl_catch_signals = 0;
+static int          rl_done = 0;
+void              (*rl_startup_hook)() = 0;
 
 #endif //  HAVE_LIBREADLINE
 
@@ -114,7 +120,7 @@ Input::init(bool do_read_history)
              read_history(readline_history_path.c_str());
            }
 
-        rl_startup_hook = Input::init_readline_control_C;
+        rl_startup_hook = (rl_hook_func_t *)(Input::init_readline_control_C);
 //      rl_function_dumper(1);
       }
 }
@@ -381,7 +387,6 @@ Input::init_readline_control_C()
 {
 // CERR << "init_readline_control_C()" << endl;
 
-// rl_parse_and_bind(strdup("set echo-control-characters off"));
    rl_bind_key(CTRL('C'), &readline_control_C);
 
    // it seems to suffice if this this function is called once (i.e. after
