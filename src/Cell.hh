@@ -64,7 +64,7 @@ public:
    Value_P to_value(const char * loc) const;
 
    /// init \b this cell to be the type of \b other
-   void init_type(const Cell & other);
+   Cell * init_type(const Cell & other);
 
    /// Return \b true if \b this cell is greater than \b other, with:
    /// 1. PointerCell > NumericCell > CharCell
