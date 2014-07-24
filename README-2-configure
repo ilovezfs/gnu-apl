@@ -35,8 +35,43 @@ ASSERT_LEVEL_WANTED=n
     ./configure ASSERT_LEVEL_WANTED=2
 
 
+APSERVER_TRANSPORT
+APSERVER_PORT
+APSERVER_PATH
+   APserver is a program that is needed to support shared variables. APserver
+   is started automatically and has a communication channel to every APL
+   interpreter instance and to every AP started (manually or automatically
+   by an APL interpreter instance). The communication channel can be TCP,
+   abstract Unix domain sockets, or normal Unix domain sockets.
+
+   1. TCP communication is the default communication channel that is also
+      use when APSERVER_TRANSPORT is not ./configured. APserver listens on
+      port number 16366 by default; this can be changed via APSERVER_PORT
+      like this:
+
+      ./configure APSERVER_TRANSPORT=TCP   APSERVER_PORT=40000
+
+   2. Abstract Unix domain sockets are a GNU/linux specific variant that allows
+      allows for sockets without a corresponding file in the file system.
+      APserver listens on socket named "/tmp/GNU-APL/APserver" by default;
+      the name can be changed with APSERVER_PATH like this:
+
+      ./configure APSERVER_TRANSPORT=LINUX   APSERVER_PATH=my-APserver-path
+
+   3. Normal Unix domain sockets are a GNU/linux specific variant that requires
+      a file in the file system to work. The permissions of that file control
+      which programs can connect to APserver (BUT MAY ALSO PREVENT APserver
+      FROM OPERATING PROPERLY!). Due to the many different possibilities for
+      the ownership and permissions for the file, GNU APL does not create the
+      file but leaves that to the user. By default APserver listens on the
+      socket named "/tmp/GNU-APL/APserver" (and a file with that name
+      should exist before APL is started); the name can be changed with
+      APSERVER_PATH like this:
+
+      ./configure APSERVER_TRANSPORT=UNIX   APSERVER_PATH=my-APserver-path
+
 CORE_COUNT_WANTED
-   This exprimental option specifies the number of CPU cores to be used.
+   This experimental option specifies the number of CPU cores to be used.
    The value is a number, 'all', 'argv', or 'syl'. The interpreter has 
    sequential code and parallel code which is selected as follows:
 

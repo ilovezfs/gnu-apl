@@ -652,6 +652,9 @@ CIN_COLOR_WANTED
 CERR_COLOR_WANTED
 SHORT_VALUE_LENGTH_WANTED
 OPENMP
+APSERVER_PATH
+APSERVER_PORT
+APSERVER_TRANSPORT
 CORE_COUNT_WANTED
 ASSERT_LEVEL_WANTED
 VF_TRACING_WANTED
@@ -826,6 +829,9 @@ DYNAMIC_LOG_WANTED
 VF_TRACING_WANTED
 ASSERT_LEVEL_WANTED
 CORE_COUNT_WANTED
+APSERVER_TRANSPORT
+APSERVER_PORT
+APSERVER_PATH
 SHORT_VALUE_LENGTH_WANTED
 CERR_COLOR_WANTED
 CIN_COLOR_WANTED
@@ -1505,6 +1511,12 @@ Some influential environment variables:
               Assert level (see README-2-configure) default: 1)
   CORE_COUNT_WANTED
               Core count (see README-2-configure) default: 0)
+  APSERVER_TRANSPORT
+              APserver transport (see README-2-configure) default: TCP)
+  APSERVER_PORT
+              APserver transport (see README-2-configure) default: TCP)
+  APSERVER_PATH
+              APserver transport (see README-2-configure) default: TCP)
   SHORT_VALUE_LENGTH_WANTED
               Cellcount of short values (see README-2-configure) default: 12)
   CERR_COLOR_WANTED
@@ -18265,6 +18277,36 @@ if test "x$CORE_COUNT_WANTED" = "xsyl";  then CORE_COUNT_WANTED=-3; fi
 
 cat >>confdefs.h <<_ACEOF
 #define CORE_COUNT_WANTED $CORE_COUNT_WANTED
+_ACEOF
+
+
+# APL: APserver transport ?
+
+if test "x$APSERVER_TRANSPORT" = "x";        then APSERVER_TRANSPORT=0;  fi
+if test "x$APSERVER_TRANSPORT" = "xTCP";     then APSERVER_TRANSPORT=0;  fi
+if test "x$APSERVER_TRANSPORT" = "xLINUX";   then APSERVER_TRANSPORT=1;  fi
+if test "x$APSERVER_TRANSPORT" = "xUNIX";    then APSERVER_TRANSPORT=2;  fi
+
+cat >>confdefs.h <<_ACEOF
+#define APSERVER_TRANSPORT $APSERVER_TRANSPORT
+_ACEOF
+
+
+# APL: APserver TCP port ?
+
+if test "x$APSERVER_PORT" = "x";   then APSERVER_PORT=16366;  fi
+
+cat >>confdefs.h <<_ACEOF
+#define APSERVER_PORT $APSERVER_PORT
+_ACEOF
+
+
+# APL: APserver port name ?
+
+if test "x$APSERVER_PATH" = "x";   then APSERVER_PATH="/tmp/GNU-APL/APserver";  fi
+
+cat >>confdefs.h <<_ACEOF
+#define APSERVER_PATH "$APSERVER_PATH"
 _ACEOF
 
 

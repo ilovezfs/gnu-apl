@@ -29,6 +29,7 @@
 #include <memory>
 #include <stdint.h>
 
+#include "../config.h"
 #include "Unicode.hh"
 
 using namespace std;
@@ -412,8 +413,6 @@ enum AP_num
   AP_FIRST_USER = 1001,   ///< the first AP for APL interpreters
 };
 
-   enum { Default_APserver_tcp_port = 16366 };
-
 //////////////////////////////////////////////////////////////
 // C structs           i                                    //
 //////////////////////////////////////////////////////////////
@@ -451,6 +450,43 @@ struct Function_PC2
    Function_PC low;    ///< low PC  (including)
    Function_PC high;   ///< high PC (including)
 };
+//-----------------------------------------------------------------------------
+// dynamic arrays. Some platforms don't support them and we fix that here.
+
+#if HAVE_DYNAMIC_ARRAYS
+   //
+   // the platform supports dynamic arrays
+   //
+# define DynArray(Type, Name, Size) Type Name[Size];
+
+#else // not HAVE_DYNAMIC_ARRAYS
+   //
+   // the platform does not support dynamic arrays
+   //
+   template<typename Type>
+   class __DynArray
+      {
+        public:
+           __DynArray(ShapeItem len)
+              { data = new Type[len]; }
+
+           const Type & operator[](ShapeItem idx) const
+               { return data[idx]; }
+
+           Type & operator[](ShapeItem idx)
+               { return data[idx]; }
+
+           ~__DynArray()
+              { delete[] data; }
+
+        protected:
+           Type * data;
+      };
+
+# define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
+
+#endif // HAVE_DYNAMIC_ARRAYS
+
 //-----------------------------------------------------------------------------
 inline void
 copy_1(char & dst, char src, const char * loc)

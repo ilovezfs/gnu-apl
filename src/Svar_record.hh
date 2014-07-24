@@ -252,19 +252,13 @@ struct Svar_record
 
    /// state of this variable
    Svar_state state;
-
-   /// return the name of the unix socket (that should be) used by
-   /// APserver (if the platform supports it) or 0 (if not).
-#define ABSTRACT_OFFSET 1
-   static const char * get_APserver_unix_socket_name()
-      {
-#ifdef HAVE_SYS_UN_H
-        return "/tmp/GNU-APL/APserver";
-#else
-        return       0;
-#endif
-      }
 };
 //-----------------------------------------------------------------------------
+
+#if APSERVER_TRANSPORT == 1
+   enum {  ABSTRACT_OFFSET = 1 };
+#else
+   enum {  ABSTRACT_OFFSET = 0 };
+#endif
 
 #endif // __SVAR_RECORD_HH_DEFINED__

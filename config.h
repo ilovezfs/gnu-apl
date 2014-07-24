@@ -1,6 +1,15 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* APserver listen port name */
+#define APSERVER_PATH "/tmp/GNU-APL/APserver"
+
+/* APserver TCP listen port */
+#define APSERVER_PORT 16366
+
+/* APserver transport: TCP=0, LINUX=1, UNIX=2 */
+#define APSERVER_TRANSPORT 0
+
 /* assert level */
 #define ASSERT_LEVEL_WANTED 1
 
