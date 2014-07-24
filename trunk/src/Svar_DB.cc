@@ -27,6 +27,7 @@
 #include <sys/time.h>
 
 #include "config.h"   // for HAVE_ macros
+
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
@@ -42,7 +43,7 @@
 
 extern ostream & get_CERR();
 
-uint16_t Svar_DB::APserver_port = Default_APserver_tcp_port;
+uint16_t Svar_DB::APserver_port = APSERVER_PORT;
 
 TCP_socket Svar_DB::DB_tcp = NO_TCP_SOCKET;
 
@@ -54,14 +55,13 @@ Svar_DB::connect_to_APserver(const char * bin_dir, const char * prog,
                                       bool logit)
 {
 int sock = NO_TCP_SOCKET;
-const char * server_sockname = Svar_record::get_APserver_unix_socket_name();
+const char * server_sockname = APSERVER_PATH;
 char peer[100];
 
    // we use AF_UNIX sockets if the platform supports it and unix_socket_name
    // is provided. Otherwise fall back to TCP.
    //
-#if HAVE_SYS_UN_H
-   if (server_sockname)
+#if HAVE_SYS_UN_H && APSERVER_TRANSPORT != 0
       {
         logit && get_CERR() << prog
                             << ": Using AF_UNIX socket towards APserver..."
@@ -77,8 +77,7 @@ char peer[100];
 
         snprintf(peer, sizeof(peer), "%s", server_sockname);
       }
-   else // use TCP
-#endif
+#else // use TCP
       {
         server_sockname = 0;
         logit && get_CERR() << "Using TCP socket towards APserver..."
@@ -113,6 +112,7 @@ char peer[100];
 
         snprintf(peer, sizeof(peer), "127.0.0.1 TCP port %d", APserver_port);
       }
+#endif
 
    // We try to connect to the APserver. If that fails then no
    // APserver is running; we fork one and try again.

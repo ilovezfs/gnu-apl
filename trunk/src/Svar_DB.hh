@@ -32,6 +32,12 @@
 
 using namespace std;
 
+#if APSERVER_TRANSPORT == 1
+# define ABSTRACT_OFFSET 1
+#else
+# define ABSTRACT_OFFSET 0
+#endif
+
 //-----------------------------------------------------------------------------
 /// a pointer to one record (one shared variable) of the shared Svar_DB_memory
 class Svar_record_P

@@ -1,5 +1,14 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* APserver listen port name */
+#undef APSERVER_PATH
+
+/* APserver TCP listen port */
+#undef APSERVER_PORT
+
+/* APserver transport: TCP=0, LINUX=1, UNIX=2 */
+#undef APSERVER_TRANSPORT
+
 /* assert level */
 #undef ASSERT_LEVEL_WANTED
 

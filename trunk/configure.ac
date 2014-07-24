@@ -313,6 +313,30 @@ if test "x$CORE_COUNT_WANTED" = "xsyl";  then CORE_COUNT_WANTED=-3; fi
 AC_DEFINE_UNQUOTED([CORE_COUNT_WANTED], [$CORE_COUNT_WANTED],
                    [core count])
 
+# APL: APserver transport ?
+AC_ARG_VAR(APSERVER_TRANSPORT,
+   [ APserver transport (see README-2-configure) default: TCP) ])
+if test "x$APSERVER_TRANSPORT" = "x";        then APSERVER_TRANSPORT=0;  fi
+if test "x$APSERVER_TRANSPORT" = "xTCP";     then APSERVER_TRANSPORT=0;  fi
+if test "x$APSERVER_TRANSPORT" = "xLINUX";   then APSERVER_TRANSPORT=1;  fi
+if test "x$APSERVER_TRANSPORT" = "xUNIX";    then APSERVER_TRANSPORT=2;  fi
+AC_DEFINE_UNQUOTED([APSERVER_TRANSPORT], [$APSERVER_TRANSPORT],
+                   [APserver transport: TCP=0, LINUX=1, UNIX=2])
+
+# APL: APserver TCP port ?
+AC_ARG_VAR(APSERVER_PORT,
+   [ APserver transport (see README-2-configure) default: TCP) ])
+if test "x$APSERVER_PORT" = "x";   then APSERVER_PORT=16366;  fi
+AC_DEFINE_UNQUOTED([APSERVER_PORT], [$APSERVER_PORT],
+                   [APserver TCP listen port])
+
+# APL: APserver port name ?
+AC_ARG_VAR(APSERVER_PATH,
+   [ APserver transport (see README-2-configure) default: TCP) ])
+if test "x$APSERVER_PATH" = "x";   then APSERVER_PATH="/tmp/GNU-APL/APserver";  fi
+AC_DEFINE_UNQUOTED([APSERVER_PATH], ["$APSERVER_PATH"],
+                   [APserver listen port name])
+
 OPENMP=
 AS_IF(	[test "x$CORE_COUNT_WANTED" != "x0"],
 	[AC_SUBST([OPENMP], ["-fopenmp"])])

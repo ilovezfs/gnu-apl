@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define USE_POLL   /* use poll() instead of select() */
+
 #include <errno.h>
 #include <limits.h>
 #include <netinet/in.h>
@@ -28,6 +30,12 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
+#ifdef USE_POLL
+# include <poll.h>
+#else
+# include <sys/select.h>
+#endif
 
 #include "config.h"   // for HAVE_ macros
 #ifdef HAVE_SYS_UN_H
@@ -44,13 +52,9 @@
 
 #include "APL_types.hh"
 #include "ProcessorID.hh"
-
 #include "SystemLimits.hh"
 #include "Svar_signals.hh"
-
 #include "Svar_DB_server.hh"
-
-#include <iostream>
 
 using namespace std;
 
@@ -1008,8 +1012,8 @@ main(int argc, char * argv[])
 {
    prog = argv[0];
 
-int listen_port = Default_APserver_tcp_port;
-const char * listen_name = Svar_record::get_APserver_unix_socket_name();
+int listen_port = APSERVER_PORT;
+const char * listen_name = APSERVER_PATH;
 bool got_path = false;
 bool got_port = false;
 int janitor = 0;
@@ -1119,6 +1123,53 @@ int max_fd = listen_sock;
       {
         fd_set read_fds;
         FD_ZERO(&read_fds);
+        errno = 0;
+
+#ifdef USE_POLL // use poll()
+
+        DynArray(struct pollfd, fds, 2*connected_procs.size() + 1);
+        fds[0].fd = listen_sock;
+        fds[0].events = POLLIN | POLLPRI;
+        int fd_idx = 1;
+        for (int j = 0; j < connected_procs.size(); ++j)
+            {
+              TCP_socket fd = connected_procs[j].fd;
+              if (fd != NO_TCP_SOCKET)
+                 {
+                   fds[fd_idx].fd = fd;
+                   fds[fd_idx].events = POLLIN | POLLPRI;
+                   ++fd_idx;
+                 }
+
+              fd = connected_procs[j].fd2;
+              if (fd != NO_TCP_SOCKET)
+                 {
+                   fds[fd_idx].fd = fd;
+                   fds[fd_idx].events = POLLIN | POLLPRI;
+                   ++fd_idx;
+                 }
+            }
+
+         int ret = poll(fds, fd_idx, -1);
+         if (ret <= 0)
+            {
+             if (errno == EINTR)   continue;
+
+              cerr << prog << ": *** poll() returned unexpected "
+                   << ret << ": " << strerror(errno) << endl;
+              continue;
+            }
+
+         // emulate select()
+         //
+         for (int i = 0; i < fd_idx; ++i)
+             {
+               if (fds[i].revents & (POLLIN | POLLPRI | POLLERR | POLLHUP))
+                  FD_SET(fds[i].fd, &read_fds);
+             }
+
+#else // use select()
+
         FD_SET(listen_sock, &read_fds);
         for (int j = 0; j < connected_procs.size(); ++j)
             {
@@ -1137,8 +1188,8 @@ int max_fd = listen_sock;
                  }
             }
 
-        errno = 0;
         timeval timeout = { 1, 0 };   // one second
+
         const int count = select(max_fd + 1, &read_fds, 0, 0, &timeout);
         if (count < 0)
            {
@@ -1173,6 +1224,7 @@ int max_fd = listen_sock;
              
              continue;
            }
+#endif
         // something happened, check listen_sock first for new connections
         //
         if (FD_ISSET(listen_sock, &read_fds))

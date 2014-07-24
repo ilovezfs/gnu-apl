@@ -264,43 +264,6 @@ inline bool is_iPAD_char(Unicode uni)
             ((uni >= UNI_iPAD_U0) && (uni <= UNI_iPAD_L9)); }
 
 //-----------------------------------------------------------------------------
-// dynamic arrays. Some platforms don't support them and we fix that here.
-
-#if HAVE_DYNAMIC_ARRAYS
-   //
-   // the platform supports dynamic arrays
-   //
-# define DynArray(Type, Name, Size) Type Name[Size];
-
-#else // not HAVE_DYNAMIC_ARRAYS
-   //
-   // the platform does not support dynamic arrays
-   //
-   template<typename Type>
-   class __DynArray
-      {
-        public:
-           __DynArray(ShapeItem len)
-              { data = new Type[len]; }
-
-           const Type & operator[](ShapeItem idx) const
-               { return data[idx]; }
-
-           Type & operator[](ShapeItem idx)
-               { return data[idx]; }
-
-           ~__DynArray()
-              { delete[] data; }
-
-        protected:
-           Type * data;
-      };
-
-# define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
-
-#endif // HAVE_DYNAMIC_ARRAYS
-
-//-----------------------------------------------------------------------------
 
 /// Stringify x.
 #define STR(x) #x
