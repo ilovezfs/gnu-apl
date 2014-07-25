@@ -121,6 +121,15 @@ public:
    virtual bool need_scaling(const PrintContext &pctx) const
       { return false; }
 
+   static ErrorCode z0(Cell * Z)
+      { new (Z) IntCell(0);   return E_NO_ERROR; }
+
+   static ErrorCode z1(Cell * Z)
+      { new (Z) IntCell(1);   return E_NO_ERROR; }
+
+   static ErrorCode z_1(Cell * Z)
+      { new (Z) IntCell(-1);   return E_NO_ERROR; }
+
 protected:
    /// overloaded Cell::get_cell_type()
    virtual CellType get_cell_type() const

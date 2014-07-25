@@ -248,6 +248,8 @@ const double d_ret = floor(value.fval + qct);
 ErrorCode
 FloatCell::bif_exponential(Cell * Z) const
 {
+   // e to the B-th power
+   //
    new (Z) FloatCell(exp(value.fval));
    return E_NO_ERROR;
 }
@@ -353,31 +355,69 @@ const APL_Float qct = Workspace::get_CT();
 ErrorCode
 FloatCell::bif_power(Cell * Z, const Cell * A) const
 {
+   // some A to the real B-th power
+   //
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
+
+const APL_Float qct = Workspace::get_CT();
+   if (is_near_int(qct))
+      {
+        APL_Integer b = get_near_int(qct);
+        const bool invert_Z = b < 0;
+        if (invert_Z)   b = - b;
+
+        if (b <= 1)   // special cases A⋆1, A⋆0, and A⋆¯1
+           {
+             if (b == 0)   return IntCell::z1(Z);  // A⋆0 is 1
+
+             if (invert_Z)               return A->bif_reciprocal(Z);
+             if (A->is_real_cell())      return A->bif_conjugate(Z);
+             new (Z) ComplexCell(A->get_complex_value());
+             return E_NO_ERROR;
+           }
+      }
+
+   if (A->is_near_zero(qct))
+      {
+        if (get_real_value() < 0)   return E_DOMAIN_ERROR;
+        return IntCell::z0(Z);
+      }
+          
    if (A->is_real_cell())
       {
         if (A->get_real_value() < 0)
            {
-             const APL_Complex z = pow(A->get_complex_value(),get_real_value());
-             new (Z) ComplexCell(z);
-             Z->demote_complex_to_real(Workspace::get_CT());
+             if (is_near_int(qct))
+                {
+                  const APL_Integer b = get_near_int(qct);
+                  const APL_Float z = pow(A->get_real_value(), b);
+                  new (Z) FloatCell(z);
+                }
+             else
+                {
+                  const APL_Complex z = pow(A->get_complex_value(),
+                                            get_complex_value());
+                  new (Z) ComplexCell(z);
+                  Z->demote_complex_to_real(Workspace::get_CT());
+                }
            }
         else
            {
-             new (Z) FloatCell(pow(A->get_real_value(), get_real_value()));
+             new (Z) FloatCell(pow(A->get_real_value(),
+                               get_real_value()));
            }
         return E_NO_ERROR;
       }
 
-   if (A->is_complex_cell())
-      {
-        APL_Complex z = pow(A->get_complex_value(), get_real_value());
+   // complex A to the B-th power
+   //
+   {
+     APL_Complex z = pow(A->get_complex_value(), get_real_value());
 
-        new (Z) ComplexCell(z);
-        Z->demote_complex_to_real(Workspace::get_CT());
-        return E_NO_ERROR;
-      }
-
-   return E_DOMAIN_ERROR;
+     new (Z) ComplexCell(z);
+     Z->demote_complex_to_real(Workspace::get_CT());
+     return E_NO_ERROR;
+   }
 }
 //-----------------------------------------------------------------------------
 ErrorCode

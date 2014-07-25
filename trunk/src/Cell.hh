@@ -146,7 +146,8 @@ public:
    /// return the minimum number of data bytes to store this cell in
    /// CDR format. The actual number of data bytes can be bigger if other
    /// cells need more bytes,
-   virtual int CDR_size() const { NeverReach("CDR_size called on Cell base class"); }
+   virtual int CDR_size() const
+      { NeverReach("CDR_size called on Cell base class"); }
 
    /// Release content pointed to (complex, APL value)
    virtual void release(const char * loc) {}
