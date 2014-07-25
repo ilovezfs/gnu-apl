@@ -456,24 +456,53 @@ const APL_Float qct = Workspace::get_CT();
 ErrorCode
 ComplexCell::bif_power(Cell * Z, const Cell * A) const
 {
-   if (A->is_complex_cell())
+   // some A to the complex B-th power
+   //
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
+
+const APL_Float qct = Workspace::get_CT();
+   if (Cell::is_near_int(value.cpxp->real(), qct) &&
+       Cell::is_near_zero(value.cpxp->imag(), qct))
       {
-        APL_Complex z = pow(A->get_complex_value(), get_complex_value());
-        new (Z) ComplexCell(z);
-        Z->demote_complex_to_real(Workspace::get_CT());
+        APL_Integer b = get_near_int(qct);
+        const bool invert_Z = b < 0;
+        if (invert_Z)   b = - b;
+
+        if (b <= 1)   // special cases A⋆1, A⋆0, and A⋆¯1
+           {
+             if (b == 0)   return IntCell::z1(Z);  // A⋆0 is 1
+
+             if (invert_Z)               return A->bif_reciprocal(Z);
+             if (A->is_real_cell())      return A->bif_conjugate(Z);
+             new (Z) ComplexCell(A->get_complex_value());
+             return E_NO_ERROR;
+           }
       }
-   else if (A->is_numeric())   // real to the power of complex
+
+   if (A->is_near_zero(qct))
+      {
+        if (get_real_value() < 0)   return E_DOMAIN_ERROR;
+        return IntCell::z0(Z);
+      }
+
+   if (A->is_real_cell())
       {
         APL_Complex complex_A(A->get_real_value(), 0);
         APL_Complex z = pow(complex_A, get_complex_value());
         new (Z) ComplexCell(z);
         Z->demote_complex_to_real(Workspace::get_CT());
+        return E_NO_ERROR;
       }
-   else
-      {
-        return E_DOMAIN_ERROR;
-      }
-   return E_NO_ERROR;
+
+   // complex A to the complex B-th power
+   //
+   {
+     APL_Complex z = pow(A->get_complex_value(), get_complex_value());
+     new (Z) ComplexCell(z);
+     Z->demote_complex_to_real(Workspace::get_CT());
+
+     return E_NO_ERROR;
+   }
 }
 //-----------------------------------------------------------------------------
 ErrorCode

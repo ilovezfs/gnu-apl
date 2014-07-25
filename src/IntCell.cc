@@ -254,6 +254,8 @@ IntCell::bif_floor(Cell * Z) const
 ErrorCode
 IntCell::bif_exponential(Cell * Z) const
 {
+   // e to the B-th power
+   //
    new (Z) FloatCell(exp((APL_Float)value.ival));
    return E_NO_ERROR;
 }
@@ -385,45 +387,135 @@ IntCell::bif_multiply(Cell * Z, const Cell * A) const
 ErrorCode
 IntCell::bif_power(Cell * Z, const Cell * A) const
 {
+   // some A to the integer B-th power
+   //
    if (!A->is_numeric())   return E_DOMAIN_ERROR;
 
-const APL_Integer b = get_int_value();
-   
-   if (!A->is_integer_cell())
+APL_Integer b = get_int_value();
+const bool invert_Z = b < 0;
+   if (invert_Z)   b = - b;
+
+   // at this point, b ≥ 0
+   //
+   if (b <= 1)   // special cases A⋆1, A⋆0, and A⋆¯1
       {
-        FloatCell B(b);
-        B.bif_power(Z, A);
+        if (b == 0)   return z1(Z);  // A⋆0 is 1
+
+        if (invert_Z)               return A->bif_reciprocal(Z);
+        if (A->is_real_cell())      return A->bif_conjugate(Z);
+        new (Z) ComplexCell(A->get_complex_value());
         return E_NO_ERROR;
       }
 
-const APL_Integer a = A->get_int_value();
-
-   if (a == 0)   { new (Z) IntCell(0);   return E_NO_ERROR; }   // 0^N = 0
-   if (a == 1)   { new (Z) IntCell(1);   return E_NO_ERROR; }   // 1^N = 1
-   if (b == 0)   { new (Z) IntCell(1);   return E_NO_ERROR; }   // N^0 = 1
-   if (b == 1)   { new (Z) IntCell(a);   return E_NO_ERROR; }   // N^1 = N
-
-const APL_Float power = pow((APL_Float)a, (APL_Float)b);
-   if (power > LARGE_INT || b < 0)
+   if (A->is_integer_cell())
       {
-        new (Z) FloatCell(power);
+        APL_Integer a = A->get_int_value();
+        if (a == 0)
+           {
+             if (invert_Z)   return E_DOMAIN_ERROR;
+
+             return z0(Z);   // 0^b = 0
+           }
+        if (a == 1)    return z1(Z);   // 1^b = 1
+        if (a == -1)   // -1^b = 1 or -1
+           {
+              if (b & 1)   return z_1(Z);   // -1^(2N+2) = -1
+              else         return z1(Z);    // -1^(2N+1) =  1
+           }
+
+        // try to compute A⋆B as integers
+        //
+        const bool negate_Z = (a < 0) && (b & 1);
+        if (a < 0)   a = -a;
+
+        const APL_Integer MAX_a_2_n = 0x7FFFFFFFFFFFFFFF / a;
+
+        // z is an int small enough for int_64
+        // a⋆b = a⋆(bn +   bn-1   + ... + b0)  with   bj = 0 or 2⋆j
+        //     = a⋆bn  × a⋆bn-1 × ... × a⋆b0   with a⋆bj = 1 or a⋆2⋆j
+        //
+        bool overflow = false;
+        APL_Integer a_2_n = a;  // a^(2^n) = a^(2^(n-1)) × a^(2^(n-1))
+        APL_Integer zi = 1;
+        for (int b1 = b; b1; b1 >>= 1)
+           {
+             if (b1 & 1)
+                {
+                  if (zi >= 0x7FFFFFFFFFFFFFFFULL / a_2_n)
+                     {
+                       overflow = true;
+                       break;
+                     }
+                  zi *= a_2_n;
+                  if (b1 == 1)   break;
+                }
+
+             if (a_2_n >= 100000000ULL)
+                {
+                  overflow = true;
+                  break;
+                }
+
+             a_2_n *= a_2_n;
+           }
+
+        if (!overflow)
+           {
+             if (negate_Z)   zi = - zi;
+             if (invert_Z)
+                {
+                  if (zi == 0)   return E_DOMAIN_ERROR;
+                  new (Z) FloatCell(1.0 / zi);
+                }
+             else
+                {
+                  new (Z) IntCell(zi);
+                }
+             return E_NO_ERROR;
+           }
+
+        // A and B are integers, but Z is too big for integers
+        //
+        APL_Float z = pow((APL_Float)a, (APL_Float)b);
+
+        if (negate_Z)   z = - z;
+        if (invert_Z)   z = 1.0 / z;
+        new (Z) FloatCell(z);
         return E_NO_ERROR;
       }
 
-   // power is an int small enough for int_64
-   // a^b = a^(bn + bn-1 + ... + b0)         with   bj ∈ {0, 2^n}
-   //       a^(bn) × a^(bn-1) × ... × a^b0)  with a^bj ∈ {1, a(^2^n) = a^}
-
-APL_Integer a_2_n = a;  // a^(2^n) = a^(2^(n-1)) × a^(2^(n-1))
-APL_Integer ipow = 1;
-   for (int b1 = b; b1; b1 >>= 1)
+   if (A->is_float_cell())
       {
-        if (b1 & 1)   ipow *= a_2_n;
-        a_2_n *= a_2_n;
+        APL_Float a = A->get_real_value();
+        const bool negate_Z = (a < 0) && (b & 1);
+        if (a < 0)   a = -a;
+
+        APL_Float z = pow(a, (APL_Float)b);
+        if (negate_Z)   z = - z;
+        if (invert_Z)
+           {
+             if (z == 0.0)   return E_DOMAIN_ERROR;
+             z = 1.0 / z;
+           }
+        new (Z) FloatCell(z);
+        return E_NO_ERROR;
       }
 
-   new (Z) IntCell(ipow);
-   return E_NO_ERROR;
+   // complex A to the B-th power
+   //
+   {
+     APL_Complex a = A->get_complex_value();
+     if (a.imag() == 0 && a.real() < 0)   return E_DOMAIN_ERROR;
+
+     APL_Complex z = pow(a, (APL_Complex)b);
+     if (invert_Z)
+        {
+             if (z == 0.0)   return E_DOMAIN_ERROR;
+             z = 1.0 / z;
+        }
+        new (Z) ComplexCell(z);
+        return E_NO_ERROR;
+   }
 }
 //-----------------------------------------------------------------------------
 ErrorCode
