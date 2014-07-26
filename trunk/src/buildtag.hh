@@ -1,3 +1,3 @@
 #include "Common.hh"
-#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION " / 7671", "2014-07-26 14:59:17 UTC", "Linux 3.11.0-12-generic x86_64", "'--host=x86_64-pc-linux-gnu' '--build=x86_64-pc-linux-gnu' '--program-prefix=' '--disable-dependency-tracking' '--prefix=/usr' '--exec-prefix=/usr' '--bindir=/usr/bin' '--sbindir=/usr/sbin' '--sysconfdir=/etc' '--datadir=/usr/share' '--includedir=/usr/include' '--libdir=/usr/lib64' '--libexecdir=/usr/lib/x86_64-linux-gnu' '--localstatedir=/var' '--sharedstatedir=/usr/com' '--mandir=/usr/share/man' '--infodir=/usr/share/info' 'build_alias=x86_64-pc-linux-gnu' 'host_alias=x86_64-pc-linux-gnu' 'CFLAGS=-O2 -g' 'CXXFLAGS=-O2 -g'"
+#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION " / 7673", "2014-07-26 15:35:38 UTC", "Linux 3.11.0-12-generic x86_64", ""
 #define ARCHIVE_SVN  7326

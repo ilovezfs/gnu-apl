@@ -110,6 +110,7 @@ int len = strlen(buffer);
 void
 Input::init(bool do_read_history)
 {
+#if HAVE_LIBREADLINE
    if (use_readline)
       {
         rl_readline_name = strdup("GnuAPL");
@@ -123,6 +124,7 @@ Input::init(bool do_read_history)
         rl_startup_hook = (rl_hook_func_t *)(Input::init_readline_control_C);
 //      rl_function_dumper(1);
       }
+#endif
 }
 //-----------------------------------------------------------------------------
 int
@@ -385,6 +387,7 @@ struct termios tios;
 int
 Input::init_readline_control_C()
 {
+#if HAVE_LIBREADLINE
 // CERR << "init_readline_control_C()" << endl;
 
    rl_bind_key(CTRL('C'), &readline_control_C);
@@ -393,12 +396,15 @@ Input::init_readline_control_C()
    // first time where readline() is being called
    //
    rl_startup_hook = 0;
+#endif
+
    return 0;
 }
 //-----------------------------------------------------------------------------
 int
 Input::readline_control_C(int count, int key)
 {
+#if HAVE_LIBREADLINE
    control_C(SIGINT);
    rl_crlf();
    rl_delete_text(0, rl_end);
@@ -407,6 +413,8 @@ Input::readline_control_C(int count, int key)
    attention_raised = false;
    interrupt_raised = false;
    interrupt_when = 0;
+#endif
+
    return 0;
 }
 //-----------------------------------------------------------------------------
