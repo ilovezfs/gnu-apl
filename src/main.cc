@@ -284,7 +284,7 @@ const CoreCount cores_available = setup_cores(core_count_wanted);
 }
 //-----------------------------------------------------------------------------
 int
-init_apl(int argc, const char * _argv[])
+init_apl(int argc, const char * argv[])
 {
    {
      // make curses happy
@@ -293,17 +293,14 @@ init_apl(int argc, const char * _argv[])
      if (term == 0 || *term == 0)   setenv("TERM", "dumb", 1);
    }
 
-bool log_startup = false;
-const char ** argv = UserPreferences::expand_argv(argc, _argv, log_startup);
-   Quad_ARG::argc = argc;   // remember argc for ⎕ARG
-   Quad_ARG::argv = argv;   // remember argv for ⎕ARG
+   uprefs.expand_argv(argc, argv);
+const bool log_startup = uprefs.log_startup_wanted();
 
 #ifdef DYNAMIC_LOG_WANTED
    if (log_startup)   Log_control(LID_startup, true);
 #endif // DYNAMIC_LOG_WANTED
 
-const char * argv0 = argv[0];
-   init_1(argv0, log_startup);
+   init_1(argv[0], log_startup);
 
    uprefs.read_config_file(true,  log_startup);   // /etc/gnu-apl.d/preferences
    uprefs.read_config_file(false, log_startup);   // $HOME/.gnu_apl/preferences
@@ -335,7 +332,7 @@ const char * argv0 = argv[0];
    sigaction(SIGQUIT, &new_QUIT_action,      &old_QUIT_action);
    sigaction(SIGHUP,  &new_HUP_action,       &old_HUP_action);
 
-   uprefs.parse_argv(argc, argv);
+   uprefs.parse_argv(log_startup);
 
    if (uprefs.emacs_mode)
       {
@@ -407,7 +404,7 @@ const char * argv0 = argv[0];
 
    init_2(log_startup);
 
-   if (!uprefs.silent)   show_welcome(cout, argv0);
+   if (!uprefs.silent)   show_welcome(cout, argv[0]);
 
    if (log_startup)   CERR << "PID is " << getpid() << endl;
    Log(LOG_argc_argv || log_startup)   show_argv(argc, argv);

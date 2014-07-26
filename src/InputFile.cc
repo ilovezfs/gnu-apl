@@ -40,7 +40,13 @@ InputFile::open_current_file()
 {
    if (files_todo.size() && files_todo[0].file == 0)
       {
-        files_todo[0].file = fopen(current_filename(), "r");
+        if (!strcmp(current_filename(), "-"))
+           files_todo[0].file = stdin;
+        else if (!strcmp(current_filename(), "stdin"))
+           files_todo[0].file = stdin;
+        else
+             files_todo[0].file = fopen(current_filename(), "r");
+
         files_todo[0].line_no = 0;
       }
 }
@@ -50,9 +56,12 @@ InputFile::close_current_file()
 {
    if (files_todo.size() && files_todo[0].file)
       {
-        fclose(files_todo[0].file);
-        files_todo[0].file = 0;
-        files_todo[0].line_no = -1;
+        if (files_todo[0].file != stdin)
+           {
+             fclose(files_todo[0].file);
+             files_todo[0].file = 0;
+             files_todo[0].line_no = -1;
+           }
       }
 }
 //-----------------------------------------------------------------------------

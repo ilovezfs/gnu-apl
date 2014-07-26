@@ -42,6 +42,7 @@
 #include "StateIndicator.hh"
 #include "SystemVariable.hh"
 #include "UserFunction.hh"
+#include "UserPreferences.hh"
 #include "Value.icc"
 #include "Workspace.hh"
 
@@ -51,9 +52,6 @@ ShapeItem Quad_SYL::si_depth_limit = 0;
 ShapeItem Quad_SYL::value_count_limit = 0;
 ShapeItem Quad_SYL::ravel_count_limit = 0;
 ShapeItem Quad_SYL::print_length_limit = 0;
-
-int Quad_ARG::argc = 0;
-const char ** Quad_ARG::argv = 0;
 
 Unicode Quad_AV::qav[MAX_AV];
 
@@ -180,15 +178,17 @@ Quad_ARG::Quad_ARG()
 Value_P
 Quad_ARG::get_apl_value() const
 {
+const int argc = uprefs.expanded_argv.size();
+
 Value_P Z(new Value(argc, LOC));
 Cell * C = &Z->get_ravel(0);
 
-   loop(a, Quad_ARG::argc)
+   loop(a, argc)
       {
-        const char * arg = Quad_ARG::argv[a];
+        const char * arg = uprefs.expanded_argv[a];
         const int len = strlen(arg);
         Value_P val(new Value(len, LOC));
-        loop(l, len)   new (&val->get_ravel(l))   CharCell(Unicode(arg[l]));
+        loop(l, len)   new (val->next_ravel())   CharCell(Unicode(arg[l]));
 
         new (C++)   PointerCell(val);
       }

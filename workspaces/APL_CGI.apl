@@ -1,4 +1,4 @@
-#!/usr/bin/apl --script --
+#!/usr/bin/apl --script
 
 0 0⍴⍎')COPY 5 HTML.apl'
 

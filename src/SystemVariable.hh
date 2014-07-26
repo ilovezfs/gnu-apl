@@ -142,12 +142,6 @@ public:
    /// Constructor.
    Quad_ARG();
 
-   /// the argc of main()
-   static int argc;
-
-   /// the argv of main()
-   static const char ** argv;
-
 protected:
    /// overloaded Symbol::get_apl_value()
    virtual Value_P get_apl_value() const;
