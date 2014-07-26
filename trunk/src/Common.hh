@@ -57,8 +57,6 @@ enum { MAX_RANK = MAX_RANK_WANTED };
 
 using namespace std;
 
-extern const char * scriptname;
-
 /// echo of APL input (to stdout)
 extern ostream CIN;
 

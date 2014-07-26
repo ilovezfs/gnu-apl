@@ -76,9 +76,10 @@ ul.no-bullet {list-style: none}
     <li><a name="toc-APL-Scripting" href="#APL-Scripting">2.1 APL Scripting</a>
     <ul class="no-bullet">
       <li><a name="toc-redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter" href="#redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter">2.1.1 redirect the script file the stdin of the GNU APL interpreter</a></li>
-      <li><a name="toc-make-the-script-file-executable" href="#make-the-script-file-executable">2.1.2 make the script file executable</a></li>
-      <li><a name="toc-Helpful-features-for-scripting" href="#Helpful-features-for-scripting">2.1.3 Helpful features for scripting</a></li>
-      <li><a name="toc-Script-Example" href="#Script-Example">2.1.4 Script Example</a></li>
+      <li><a name="toc-Make-the-script-file-executable" href="#Make-the-script-file-executable">2.1.2 Make the script file executable</a></li>
+      <li><a name="toc-How-command-line-arguments-are-handled" href="#How-command-line-arguments-are-handled">2.1.3 How command line arguments are handled</a></li>
+      <li><a name="toc-Helpful-features-for-scripting" href="#Helpful-features-for-scripting">2.1.4 Helpful features for scripting</a></li>
+      <li><a name="toc-Script-Example" href="#Script-Example">2.1.5 Script Example</a></li>
     </ul></li>
     <li><a name="toc-_005b_003f_005dSYL-_002d-System-limits" href="#g_t_005b_003f_005dSYL-_002d-System-limits">2.2 ⎕SYL - System limits</a>
     <ul class="no-bullet">
@@ -581,7 +582,7 @@ absolute or relative path to the interpreter, followed by command line
 arguments passed on to the interpreter. In our case this could be, for
 example:
 </p>
-<pre class="verbatim">    #! /bin/apl --id 1010
+<pre class="verbatim">    #! /usr/bin/apl --id 1010
 </pre>
 <p>There are essentially two ways to run an APL script: redirecting the script
 file to stdin of the interpreter or making the script executable and indicate
@@ -591,30 +592,26 @@ apl).
 <a name="redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter"></a>
 <h4 class="subsection">2.1.1 redirect the script file the stdin of the GNU APL interpreter</h4>
 
-<p>A file, say script.apl, can be redirected to apl by redirection of the shell:
+<p>A file, say SCRIPT.apl, can be redirected to apl by redirection of the shell:
 </p>
-<pre class="verbatim">    apl &lt; script.apl
+<pre class="verbatim">    apl &lt; SCRIPT.apl
 </pre>
 <p>Alternatively, the command line option -f of apl can be used:
 </p>
-<pre class="verbatim">    apl -f script.apl
+<pre class="verbatim">    apl -f SCRIPT.apl
 </pre>
 <p>Both ways of redirecting the file are almost identical; in the first case
 redirection was performed by the shell running apl, while in the second case
 the redirecting of the file was performed by apl itself.
 </p>
-<a name="make-the-script-file-executable"></a>
-<h4 class="subsection">2.1.2 make the script file executable</h4>
+<a name="Make-the-script-file-executable"></a>
+<h4 class="subsection">2.1.2 Make the script file executable</h4>
 
 <p>Alternatively the script can be made executable, mentioning apl as the
-interpreter for the script (see also <samp>man execve</samp>). For this to
+interpreter for the script (see also <samp>'man 2 execve'</samp>). For this to
 work, the first line of the script must have a special format
 </p>
-<pre class="verbatim">    #! /bin/apl -f - --
-</pre>
-<p>or, more typically for scripts:
-</p>
-<pre class="verbatim">    #! /bin/apl --script --
+<pre class="verbatim">    #! /usr/bin/apl --script
 </pre>
 <p><samp>--script</samp> prevents: printing of a welcome banner, 
 echoing of stdin to stdout, automatic loading of a )CONTINUE workspaces,
@@ -624,16 +621,121 @@ echoing of stdin to stdout, automatic loading of a )CONTINUE workspaces,
 do not know in advance where the APL interpreter will be installed) then
 it must be in $PATH of the shell that runs the script).
 </p>
+<a name="How-command-line-arguments-are-handled"></a>
+<h4 class="subsection">2.1.3 How command line arguments are handled</h4>
+
+<p>As we have seen, GNU APL can be started directly (by entering the name
+of the GNU APL binary on the command line of a shell, or indirectly by
+entering the name of a script that provides the name of the GNU APL binary
+on the first line of the script. In the latter case, the shell uses function
+execve() to start APL, and one can provide additional arguments that are
+passed on to APL. We briefly discuss both cases:
+</p>
+<p>0. General Remark
+</p>
+<p>There is a convention in GNU APL that command line options (and
+possibly option arguments) that occur left of &rsquo;&mdash;-&rsquo; are options directed
+to (and understood by) the APL interpreter while options right of &rsquo;&mdash;-&rsquo; are
+passed to the APL application (and their exact format is defined by the
+application). The command line options that were used to start APL can be
+retrieved with ⎕ARG.
+</p>
+<p>Example 1: APL started directly
+</p>
+<p>We start APL with some command line options and display them with ⎕ARG.
+The command line options for the interpreter are &ndash;silent, &ndash;id, and 1010,
+while the options app1 and app2 are for the APL application:
+</p>
+<pre class="verbatim">$ apl --silent -l 37 -- app1 app2
+    ⊃⎕ARG
+apl     
+--silent
+-l      
+37      
+--      
+app1    
+app2    
+</pre>
+<p>Example 2: APL started indirectly
+</p>
+<p>Starting APL indirectly means that there is a script (a text file with execute
+permission) that contains APL code and has a special first line as described
+above. There are now two sets of command line options: those passed to the
+script and those on the first line of the scripts. When the script is started,
+possibly with command line arguments, then the command line arguments entered
+by the user are combined with the arguments on the first line of the script
+in a way that is described in &rsquo;man 2 execve&rsquo;.
+</p>
+<p>Assume the script file SCRIPT.apl contains this (the file is shipped
+with GNU APL):
+</p>
+<pre class="verbatim">#! /usr/bin/apl --id 1010 --script
+
+      ⊃⎕ARG      ⍝ show command line options
+      )OFF      ⍝ leave the interpreter
+
+</pre>
+<p>Assume further that the script is started like this:
+</p>
+<pre class="verbatim">$ ./SCRIPT.apl sarg1 sarg2
+</pre>
+<p>Then the following output, which shows the order of command line options
+as seen by ⎕ARG, is produced:
+</p>
+<pre class="verbatim">   ⊃⎕ARG
+/usr/bin/apl
+--script          
+./SCRIPT.apl      
+sarg1             
+sarg2 
+</pre>
+<p>This tells us that the different names are constructed by exeve() in the
+following order:
+</p>
+<p>1. Interpreter name (the first name in the script file, here: /usr/bin/apl)
+</p>
+<p>2. Optional Interpreter arguments (here: &mdash;-script)
+</p>
+<p>3. Script filename (here: ./SCRIPT.apl)
+</p>
+<p>4. Script arguments (here: sarg1 sarg2)
+</p>
+<p>CAUTION: as discussed in &rsquo;man 2 execve&rsquo; the interpretation of the optional
+interpreter arguments (2. above) is system specific and possibly not portable.
+For that reason the optional interpreter argument should not be missing (you
+can use &mdash;- to provide at least one argument) and also not more than one
+argument. On GNU/Linux systems the following first lines of the script are
+understood:
+</p>
+<pre class="verbatim">/usr/bin/apl
+/usr/bin/apl --
+/usr/bin/apl -s
+/usr/bin/apl --script
+/usr/bin/apl -s --
+/usr/bin/apl --script --
+</pre>
+<p>The recommended form is: /usr/bin/apl &mdash;-script
+</p>
+<p>Note that &rsquo;&mdash;-&rsquo; and options that follow it ARE NOT shown in ⎕ARG if they
+are given on the first line of the script, while &rsquo;&mdash;-&rsquo; and options that follow
+on the script command line ARE shown. There is no point in passing application
+options in the script file via the command line to apl; instead you can use
+them directly in the script.
+</p>
+<p>Using &rsquo;&mdash;-&rsquo; as last argument on the first line of the script file prevents any
+of the options given to the script to be interpreted as APL options; all
+such options are passed to the application via ⎕ARG.
+</p>
 <a name="Helpful-features-for-scripting"></a>
-<h4 class="subsection">2.1.3 Helpful features for scripting</h4>
+<h4 class="subsection">2.1.4 Helpful features for scripting</h4>
 
 <p>In order to be really useful for scripting, three more features have been added:
 </p>
 <p>The system variable ⎕ARG contains all command line arguments passed to the
-interpreter. In the first example above this would be a nested 3-element
+interpreter. In the initial example above this would be a nested 3-element
 vector:
 </p>
-<pre class="verbatim">    /bin/apl --id 1010
+<pre class="verbatim">    /usr/bin/apl --id 1010
 </pre>
 <p>A feature particularly useful for CGI scripting (where some information is
 passed to the APL script via environment variables) is the monadic system
@@ -684,7 +786,7 @@ END-OF-⎕INP
 <p>These features together allow you to write Web pages in APL!
 </p>
 <a name="Script-Example"></a>
-<h4 class="subsection">2.1.4 Script Example</h4>
+<h4 class="subsection">2.1.5 Script Example</h4>
 
 <p>Note that the two different ways of running an APL script have an impact on
 how ⎕ARG looks like. If stdin is redirected then there is only one (possibly
@@ -692,20 +794,22 @@ empty) set of command line options. Otherwise there are two set of command line
 options: command line options for the apl interpreter and command line options
 for the script.
 </p>
-<p>Consider the following simple script called script.apl in directory workspaces:
+<p>Consider the following simple script called SCRIPT.apl in directory workspaces:
 </p>
-<pre class="verbatim">#! /bin/apl --script --
+<pre class="verbatim">#! /usr/bin/apl --script
 
-⎕ARG    ⍝ show command line options
+⊃⎕ARG    ⍝ show command line options
 )OFF    ⍝ leave the interpreter
 </pre>
-<p>If script.apl is redirected to stdin of the APL interpreter:
+<p>If SCRIPT.apl is redirected to stdin of the APL interpreter:
 </p>
-<pre class="verbatim"> /bin/apl --silent &lt;  ../workspaces/script.apl
+<pre class="verbatim"> /usr/bin/apl --silent &lt;  ../workspaces/SCRIPT.apl
+
  or
- /bin/apl --silent -f ../workspaces/script.apl
+
+ /usr/bin/apl --silent -f ../workspaces/SCRIPT.apl
 </pre>
-<p>then the first line <samp>#! /bin/apl --script --</samp> of file script.apl 
+<p>then the first line <samp>#! /usr/bin/apl --script</samp> of file SCRIPT.apl 
 is merely a comment (GNU APL accepts both the traditional APL character
 ⍝ and the character # as start of a comment). The <samp>--script</samp> option
 is therefore ignored and the following mix of input and output is
@@ -713,7 +817,7 @@ shown on the screen. The input from the script is indented by the
 usual APL prompt of 6 blanks, while the output of the APL interpreter
 is not indented.
 </p>
-<pre class="verbatim">      #! /bin/apl --script --
+<pre class="verbatim">      #! /usr/bin/apl --script
       
       ⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -722,12 +826,12 @@ is not indented.
 </pre>
 <p>If we run the same script directly:
 </p>
-<pre class="verbatim">../workspaces/script.apl
+<pre class="verbatim">../workspaces/SCRIPT.apl
 </pre>
 <p>Then we get:
 </p>
 <pre class="verbatim">
- /bin/apl --script -- ../workspaces/script.apl 
+ /usr/bin/apl --script ../workspaces/SCRIPT.apl 
 
 </pre>
 <p>The <samp>--script</samp> implies <samp>--noCIN</samp> so that the
@@ -737,17 +841,17 @@ That is most likely what you want when writing a script.
 </p>
 <p>Also, the first line of the script is no longer ignored as a comment,
 but controls the command line argument (and thus ⎕ARG) of the interpreter.
-The additional command line argument <samp>../workspaces/script.apl</samp>
-comes from function execve (see man execve).
+The additional command line argument <samp>../workspaces/SCRIPT.apl</samp>
+comes from function execve (see &rsquo;man 2 execve&rsquo;).
 </p>
-<p>If we provide an argument, say SCRIPTARG, to script.apl:
+<p>If we provide an argument, say SCRIPTARG, to SCRIPT.apl:
 </p>
-<pre class="verbatim">../workspaces/script.apl SCRIPTARG
+<pre class="verbatim">../workspaces/SCRIPT.apl SCRIPTARG
 </pre>
 <p>then it shows up at the end of ⎕ARG:
 </p>
 <pre class="verbatim">
- /bin/apl --script -- ../workspaces/script.apl SCRIPTARG 
+ /usr/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG 
 
 </pre>
 <a name="g_t_005b_003f_005dSYL-_002d-System-limits"></a>

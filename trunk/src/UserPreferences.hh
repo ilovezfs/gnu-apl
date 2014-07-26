@@ -47,7 +47,8 @@ struct UserPreferences
      wait_ms(0),
      randomize_testfiles(false),
      user_profile(0),
-     backup_before_save(false)
+     backup_before_save(false),
+     script_argc(0)
    {}
 
    /// read a preference file and update parameters set there
@@ -70,11 +71,19 @@ struct UserPreferences
    static void show_version(ostream & out);
 
    /// parse command line parameters
-   void parse_argv(int argc, const char * argv[]);
+   void parse_argv(bool logit);
 
    /// expand lumped arguments
-   static const char ** expand_argv(int & argc, const char ** argv,
-                                    bool & log_startup);
+   void expand_argv(int argc, const char ** argv);
+
+   /// return true iff -l 37 was given
+   bool log_startup_wanted() const;
+
+   /// argv/argc at startup
+   vector<const char *>original_argv;
+
+   /// argv/argc after expand_argv
+   vector<const char *>expanded_argv;
 
    /// true if no banner/Goodbye is wanted.
    bool silent;
@@ -133,6 +142,13 @@ struct UserPreferences
 
    /// backup on )SAVE
    bool backup_before_save;
+
+   /// the argument number of the APL script name (if run from a script)
+   /// in expanded_argv, or 0 if apl is started directly.
+   int script_argc;
+
+protected:
+   static bool is_APL_script(const char * filename);
 };
 
 extern UserPreferences uprefs;

@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <fcntl.h>
 #include <limits.h>
 #include <string.h>
 #include <sys/time.h>
@@ -55,7 +56,7 @@ char cc[4000];
 "    options: \n"
 "    -h, --help           print this help\n"
 "    -d                   run in the background (i.e. as daemon)\n"
-"    -f file ...          read APL input from file(s)\n"
+"    -f file              read APL input from\n"
 "    --id proc            use processor ID proc (default: first unused > 1000)\n", prog);
    CERR << cc;
 
@@ -82,7 +83,7 @@ char cc[4000];
 "    --LX expr            execute APL expression expr first\n"
 "    -p N                 use profile N in preferences files\n"
 "    --par proc           use processor parent ID proc (default: no parent)\n"
-"    -s, --script         same as --silent --noCIN --noCONT --noColor -f -\n"
+"    -s, --script         same as --silent --noCIN --noCONT --noColor\n"
 "    --safe               safe mode (no shared vars, no native functions)\n"
 "    --silent             do not show the welcome message\n"
 "    --show_bin_dir       show binary directory and exit\n"
@@ -136,233 +137,294 @@ UserPreferences::show_GPL(ostream & out)
 "\n";
 }
 //-----------------------------------------------------------------------------
+bool
+UserPreferences::is_APL_script(const char * filename)
+{
+   /* according to man execve():
+
+       An interpreter script is  a  text  file  that  has  execute  permission
+       enabled and whose first line is of the form:
+
+           #! interpreter [optional-arg]
+
+    */
+
+   if (access(filename, X_OK))   return false;
+int fd = open(filename, O_RDONLY);
+   if (fd == -1)   return false;
+
+char buf[2];
+const size_t len = read(fd, buf, sizeof(buf));
+   close(fd);
+
+   if (len != 2)   return false;
+   if (buf[0] != '#')   return false;
+   if (buf[1] != '!')   return false;
+   return true;;
+}
+//-----------------------------------------------------------------------------
+bool
+UserPreferences::log_startup_wanted() const
+{
+   for (int a = 2; a < expanded_argv.size(); ++a)
+       {
+         if (!strcmp(expanded_argv[a - 1], "-l") &&
+               atoi(expanded_argv[a]) == LID_startup)   return true;
+       }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
 void
-UserPreferences::parse_argv(int argc, const char * argv[])
+UserPreferences::parse_argv(bool logit)
 {
    // execve() puts the script name (and optional args at the end of argv.
    // For example, argv might look like this:
    //
-   // /usr/bin/apl -apl-options... -- ./scriptname -script-options
+   // /usr/bin/apl -apl-options... -- -script-options ./scriptname
    //
-   // If a script name is present then strip it off and remember its place.
-   //
-int script_argc = argc;   // $0 of the apl script
-   for (int a = argc - 2; a >= 0; --a)
+   for (int a = 1; a < expanded_argv.size(); )
        {
-         if (!strcmp(argv[a], "--"))   // found script name
+         if (a == script_argc)   { ++a;   continue; }   // skip scriptname
+
+         const char * opt = expanded_argv[a++];
+         const char * val = (a < expanded_argv.size()) ? expanded_argv[a] : 0;
+
+         // at this point, argv[a] is the string after opt, i.e. either the
+         // next option or an argument of the current option
+         //
+         if (!strcmp(opt, "--"))
             {
-              script_argc = a + 1;
-              argc = a;
-              InputFile fam(UTF8_string(argv[script_argc]), 0,
-                                        false, !do_not_echo, true, false);
-              InputFile::files_todo.push_back(fam);
-            }
-       }
-
-
-   for (int a = 1; a < argc; )
-       {
-         const char * opt = argv[a++];
-         const char * val = (a < argc) ? argv[a] : 0;
-
-         if (!strcmp(opt, "--"))   // end of arguments
-            {
-              a = argc;
               break;
             }
+
 #if CORE_COUNT_WANTED == -2
-         else if (!strcmp(opt, "--cc"))
+         if (!strcmp(opt, "--cc"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "--cc without core count" << endl;
-                   exit(2);
+                   exit(a);
                  }
               requested_cc = (CoreCount)atoi(val);
+              continue;
             }
 #endif
-         else if (!strcmp(opt, "--cfg"))
+         if (!strcmp(opt, "--cfg"))
             {
               show_configure_options();
               exit(0);
             }
-         else if (!strcmp(opt, "--Color"))
+
+         if (!strcmp(opt, "--Color"))
             {
               do_Color = true;
+              continue;
             }
-         else if (!strcmp(opt, "-d"))
+
+         if (!strcmp(opt, "-d"))
             {
               daemon = true;
+              continue;
             }
-         else if (!strcmp(opt, "--emacs"))
+
+         if (!strcmp(opt, "--emacs"))
             {
               emacs_mode = true;
+              continue;
             }
-         else if (!strcmp(opt, "--emacs_arg"))
+
+         if (!strcmp(opt, "--emacs_arg"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "--emacs_arg without argument" << endl;
-                   exit(3);
+                   exit(a);
                  }
 
               emacs_mode = true;
               emacs_arg = val;
+              continue;
             }
-         else if (!strcmp(opt, "-f"))
+
+         if (!strcmp(opt, "-f"))
             {
-              for (; a < argc; ++a)
-                  {
-                    if (!strcmp(argv[a], "--"))   // end of -f arguments
-                       {
-                         a = argc;
-                         break;
-
-                       }
-
-                    const char * filename = argv[a];
-                    if (!strcmp(argv[a], "-"))   // "-" shall mean  stdin
-                       {
-                         if (script_argc < argc)   filename = argv[script_argc];
-                         else                      filename = "-";
-                       }
-                    InputFile fam(UTF8_string(filename), 0, false,
+              ++a;
+              if (!val)
+                 {
+                   CERR << "-f without argument" << endl;
+                   exit(a);
+                 }
+              InputFile fam(UTF8_string(val), 0, false,
                                           !do_not_echo, true, false);
-                    InputFile::files_todo.push_back(fam);
-                  }
+              InputFile::files_todo.push_back(fam);
+              continue;
             }
-         else if (!strcmp(opt, "--gpl"))
+
+         if (!strcmp(opt, "--gpl"))
             {
               show_GPL(cout);
               exit(0);
             }
-         else if (!strcmp(opt, "-h") || !strcmp(opt, "--help"))
+
+         if (!strcmp(opt, "-h") || !strcmp(opt, "--help"))
             {
-              usage(argv[0]);
+              usage(expanded_argv[0]);
               exit(0);
             }
-         else if (!strcmp(opt, "--id"))
+
+         if (!strcmp(opt, "--id"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "--id without processor number" << endl;
-                   exit(4);
+                   exit(a);
                  }
 
               requested_id = atoi(val);
+              continue;
             }
-         else if (!strcmp(opt, "-l"))
+
+         if (!strcmp(opt, "-l"))
             {
               ++a;
+              if (val && atoi(val) == LID_startup)   logit = true;
 #ifdef DYNAMIC_LOG_WANTED
               if (val)   Log_control(LogId(atoi(val)), true);
               else
                  {
                    CERR << "-l without log facility" << endl;
-                   exit(5);
+                   exit(a);
                  }
 #else
    if (val && atoi(val) == LID_startup)   ;
    else  CERR << "the -l option was ignored (requires ./configure "
                    "DYNAMIC_LOG_WANTED=yes)" << endl;
 #endif // DYNAMIC_LOG_WANTED
+
+              continue;
             }
-         else if (!strcmp(opt, "--LX"))
+
+         if (!strcmp(opt, "--LX"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "--LX without APL expression" << endl;
-                   exit(6);
+                   exit(a);
                  }
 
-               latent_expression = UTF8_string(val);
+              latent_expression = UTF8_string(val);
+              continue;
             }
-         else if (!strcmp(opt, "--noCIN"))
+
+         if (!strcmp(opt, "--noCIN"))
             {
               do_not_echo = true;
+              continue;
             }
-         else if (!strcmp(opt, "--noColor"))
+
+         if (!strcmp(opt, "--noColor"))
             {
               do_Color = false;
+              continue;
             }
-         else if (!strcmp(opt, "--noCONT"))
+
+         if (!strcmp(opt, "--noCONT"))
             {
               do_CONT = false;
+              continue;
             }
-         else if (!strcmp(opt, "--noSV"))
+
+         if (!strcmp(opt, "--noSV"))
             {
               user_do_svars = false;
               system_do_svars = false;
+              continue;
             }
-         else if (!strcmp(opt, "-p"))
+
+         if (!strcmp(opt, "-p"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "-p without profile number" << endl;
-                   exit(7);
+                   exit(a);
                  }
 
-               user_profile = atoi(val);
+              user_profile = atoi(val);
+              continue;
             }
-         else if (!strcmp(opt, "--par"))
+
+         if (!strcmp(opt, "--par"))
             {
               ++a;
               if (!val)
                  {
                    CERR << "--par without processor number" << endl;
-                   exit(8);
+                   exit(a);
                  }
               requested_par = atoi(val);
+              continue;
             }
-         else if (!strcmp(opt, "--rawCIN"))
+
+         if (!strcmp(opt, "--rawCIN"))
             {
               Input::use_readline = false;
+              continue;
             }
-         else if (!strcmp(opt, "--safe"))
+
+         if (!strcmp(opt, "--safe"))
             {
               safe_mode = true;
               user_do_svars = false;
               system_do_svars = false;
+              continue;
             }
-         else if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
+         if (!strcmp(opt, "-s") || !strcmp(opt, "--script"))
             {
               do_CONT = false;               // --noCONT
               do_not_echo = true;            // -noCIN
               do_Color = false;              // --noColor
               Input::use_readline = false;   // --rawCIN
               silent = true;                 // --silent
+              continue;
             }
-         else if (!strcmp(opt, "--show_bin_dir"))
+
+         if (!strcmp(opt, "--show_bin_dir"))
             {
               COUT << Makefile__bindir << endl;
               exit(0);
             }
-         else if (!strcmp(opt, "--show_doc_dir"))
+
+         if (!strcmp(opt, "--show_doc_dir"))
             {
               COUT << Makefile__docdir << endl;
               exit(0);
             }
-         else if (!strcmp(opt, "--show_etc_dir"))
+
+         if (!strcmp(opt, "--show_etc_dir"))
             {
               COUT << Makefile__sysconfdir << endl;
               exit(0);
             }
-         else if (!strcmp(opt, "--show_lib_dir"))
+
+         if (!strcmp(opt, "--show_lib_dir"))
             {
               COUT << Makefile__pkglibdir << endl;
               exit(0);
             }
-         else if (!strcmp(opt, "--show_src_dir"))
+
+         if (!strcmp(opt, "--show_src_dir"))
             {
               COUT << Makefile__srcdir << endl;
               exit(0);
             }
-         else if (!strcmp(opt, "--show_all_dirs"))
+
+         if (!strcmp(opt, "--show_all_dirs"))
             {
               COUT << "bindir: " << Makefile__bindir     << endl
                    << "docdir: " << Makefile__docdir     << endl
@@ -371,31 +433,36 @@ int script_argc = argc;   // $0 of the apl script
                    << "srcdir: " << Makefile__srcdir     << endl;
               exit(0);
             }
-         else if (!strcmp(opt, "--silent"))
+
+         if (!strcmp(opt, "--silent"))
             {
               silent = true;
+              continue;
             }
-         else if (!strcmp(opt, "--SV"))
+
+         if (!strcmp(opt, "--SV"))
             {
               user_do_svars = true;
               system_do_svars = true;
+              continue;
             }
-         else if (!strcmp(opt, "-T"))
+
+         if (!strcmp(opt, "-T"))
             {
               do_CONT = false;
 
               // IO_Files::open_next_file() will exit if it sees "-"
               //
               IO_Files::need_total = true;
-              for (; a < argc; ++a)
+              for (; a < expanded_argv.size(); ++a)   // inner for
                   {
-                    if (!strcmp(argv[a], "--"))   // end of -T arguments
+                    if (!strcmp(expanded_argv[a], "--"))  // end of -T arguments
                        {
-                         a = argc;
-                         break;
+                         ++a;   // skip --
+                         break;           // inner for
 
                        }
-                    InputFile fam(UTF8_string(argv[a]), 0, true,
+                    InputFile fam(UTF8_string(expanded_argv[a]), 0, true,
                                           true, false, false);
                     InputFile::files_todo.push_back(fam);
                   }
@@ -411,53 +478,70 @@ int script_argc = argc;   // $0 of the apl script
                                          ios_base::trunc);
                       }
                  }
+              continue;
             }
-         else if (!strcmp(opt, "--TM"))
+
+         if (!strcmp(opt, "--TM"))
             {
               ++a;
-              if (val)
-                 {
-                   const int mode = atoi(val);
-                   IO_Files::test_mode = IO_Files::TestMode(mode);
-                 }
-              else
+              if (!val)
                  {
                    CERR << "--TM without test mode" << endl;
-                   exit(9);
+                   exit(a);;
                  }
+              const int mode = atoi(val);
+              IO_Files::test_mode = IO_Files::TestMode(mode);
+              continue;
             }
-         else if (!strcmp(opt, "--TR"))
+         if (!strcmp(opt, "--TR"))
             {
               randomize_testfiles = true;
+              continue;
             }
-         else if (!strcmp(opt, "--TS"))
+         if (!strcmp(opt, "--TS"))
             {
               append_summary = true;
+              continue;
             }
-         else if (!strcmp(opt, "-v") || !strcmp(opt, "--version"))
+         if (!strcmp(opt, "-v") || !strcmp(opt, "--version"))
             {
               show_version(cout);
               exit(0);
             }
-         else if (!strcmp(opt, "-w"))
+         if (!strcmp(opt, "-w"))
             {
               ++a;
-              if (val)   wait_ms = atoi(val);
-              else
+              if (!val)
                  {
                    CERR << "-w without milli(seconds)" << endl;
-                   exit(10);
+                   exit(a);
                  }
+              wait_ms = atoi(val);
+              continue;
             }
-         else
-            {
-              CERR << "unknown option '" << opt << "'" << endl;
-              usage(argv[0]);
-              exit(11);
-            }
+
+         CERR << "unknown option '" << opt << "'" << endl;
+         usage(expanded_argv[0]);
+         exit(a);
        }
 
+   if (logit)
+      {
+        CERR << InputFile::files_todo.size() << "files:";
+        loop(f, InputFile::files_todo.size())
+            CERR << "    " << InputFile::files_todo[f].filename << endl;
+      }
+
    if (randomize_testfiles)   InputFile::randomize_files();
+
+   // if running from a script then make the script the first input file
+   if (script_argc != 0)
+      {
+        InputFile fam(UTF8_string(expanded_argv[script_argc]), 0,
+                                        false, !do_not_echo, true, false);
+        InputFile::files_todo.insert(InputFile::files_todo.begin(), fam);
+
+      }
 
    // count number of testfiles
    //
@@ -465,163 +549,97 @@ int script_argc = argc;   // $0 of the apl script
 }
 //-----------------------------------------------------------------------------
 /**
-    When APL is started as a script. then several options might be grouped
-    into a single option (and one string argv[a] can contain several options
-    separated by spaces.
+    GNU APL can be started in a number of ways:
 
-    expand_argv() expands such grouped options into individual options.
+    1. directly - argc/argv have the usual meaning
 
-    expand_argv() also checks for -l LID_startup so that startup messages
-    emitted before parsing the command line options become visioble (provided
-    that dynamic logging is on).
+    2. as a script without arguments on the first script line, e.g.
+       /usr/bin/apl SCRIPT.apl [ scriptargs... ]
+
+    3. as a script with arguments on the first script line, e.g.
+       /usr/bin/apl 'line 1 arguments' SCRIPT.apl [ scriptargs... ]
+
+    4. On a non-GNU/linux OS; the saemantics of the first script line
+       is unknown.
+
+    To make this work, 2, should be avoided and 4. should use exactly one
+    argument. The following first script lines shall work (assuming GNU APL
+    lives in /usr/bin:
+
+    /usr/bin/apl --
+    /usr/bin/apl -s
+    /usr/bin/apl --script
+    /usr/bin/apl -s --             at least on GNU/linux
+    /usr/bin/apl --script --       at least on GNU/linux
+
+    expand_argv() does the following:
+
+    1. expand argv[1] into multiple arguments
+    2. maybe set script_argc
+
  **/
-const char **
-UserPreferences::expand_argv(int & argc, const char ** argv, bool & log_startup)
+void
+UserPreferences::expand_argv(int argc, const char ** argv)
 {
-bool need_expand = false;
-int end_of_arg = -1;   // position of --
-
-   // check for -l LID_startup
-   loop(a, argc - 1)
-      {
-        if (!strcmp(argv[a], "--"))   break;
-        if (!strcmp(argv[a], "-l") && atoi(argv[a + 1]) == LID_startup)
-           {
-             log_startup = true;
-             break;
-           }
-      }
-
-   // check if any argument contains spaces and remember the '--' option
-   //
    loop(a, argc)
-      {
-        if (end_of_arg != -1)   // '--' seen
-           {
-             scriptname = argv[a];
-             end_of_arg = -1;
-           }
-
-        // don't expand --LX arguments
-        //
-        if (!strcmp(argv[a], "--LX"))   { ++a;   continue; }
-
-        if (strchr(argv[a], ' '))     need_expand = true;
-        if (!strcmp(argv[a], "--"))   end_of_arg = a;
-      }
-
-   // if no argument had a space then return the original argv 
-   //
-   if (!need_expand)   return argv;
-
-vector<const char *>argvec;
-
-   end_of_arg = -1;
-   loop(a, argc)
-      {
-        if (end_of_arg != -1)   // '--' seen
-           {
-             scriptname = argv[a];
-             end_of_arg = -1;
-           }
-        end_of_arg = -1;
-
-        if (!strcmp(argv[a], "--LX"))   { ++a;   continue; }
-
-        if (strchr(argv[a], ' ') == 0)   // no space in this arg
-           {
-             argvec.push_back(argv[a]);
-             if (!strcmp(argv[a], "--"))   end_of_arg = a;
-             continue;
-           }
-
-        // arg has spaces, i.e. it may have multiple options
-        //
-        const char * arg = argv[a];
-
-        for (;;)
-            {
-              while (*arg == ' ')   ++arg;   // skip leading spaces
-              if (*arg == 0)        break;   // nothing left
-              if (*arg == '#')      break;   // comment
-
-              const char * sp = strchr(arg, ' ');
-              if (sp == 0)   sp = arg + strlen(arg);
-              const int new_len = sp - arg;   // excluding terminating 0
-              if (!strncmp(arg, "--", new_len))   end_of_arg = a;
-
-              char * new_arg = new char[new_len + 1];
-              memcpy(new_arg, arg, new_len);
-              new_arg[new_len] = 0;
-              argvec.push_back(new_arg);
-              arg = sp;
-            }
-      }
-
-   argc = argvec.size();
-
-   // the user may not be aware of how 'execve' calls an interpreter script
-   // and may not have given -f as the last option in the script file.
-   // In that situation argv is something like:
-   //
-   // "-f" "-other-options..." "script-name"
-   //
-   // instead of the expected:
-   //
-   // "-other-options..." "-f" "script-name"
-   //
-   // We fix this common mistake here. The downside is, or course, that option
-   // names cannot be script names. We ignore options -h and --help since
-   // they exit immediately.
-   //
-   for (int a = 1; a < (argc - 1); ++a)
        {
-         const char * opt = argvec[a];
-         const char * next = argvec[a + 1];
-         if (!strcmp(opt, "-f") && ( !strcmp(next, "--cc")        ||
-                                     !strcmp(next, "--cfg")       ||
-                                     !strcmp(next, "--Color")     ||
-                                     !strcmp(next, "-d")          ||
-                                     !strcmp(next, "--emacs")     ||
-                                     !strcmp(next, "--emacs_arg") ||
-                                     !strcmp(next, "--gpl")       ||
-                                     !strcmp(next, "-h")          ||
-                                     !strcmp(next, "--help")      ||
-                                     !strcmp(next, "--id")        ||
-                                     !strcmp(next, "-l")          ||
-                                     !strcmp(next, "--LX")        ||
-                                     !strcmp(next, "--noCIN")     ||
-                                     !strcmp(next, "--noColor")   ||
-                                     !strcmp(next, "--noCONT")    ||
-                                     !strcmp(next, "--noSV")      ||
-                                     !strcmp(next, "--par")       ||
-                                     !strcmp(next, "-p")          ||
-                                     !strcmp(next, "--rawCIN")    ||
-                                     !strcmp(next, "-s")          ||
-                                     !strcmp(next, "--safe")      ||
-                                     !strcmp(next, "--script")    ||
-                                     !strcmp(next, "--silent")    ||
-                                     !strcmp(next, "--SV")        ||
-                                     !strcmp(next, "-T")          ||
-                                     !strcmp(next, "--TM")        ||
-                                     !strcmp(next, "--TR")        ||
-                                     !strcmp(next, "-v")          ||
-                                     !strcmp(next, "--version")   ||
-                                     !strcmp(next, "-w")))
+         original_argv.push_back(argv[a]);
+         expanded_argv.push_back(argv[a]);
+       }
+
+   if (argc <= 1)   // no args at all
+      {
+        return;
+      }
+
+   if (is_APL_script(argv[1]))   // case 2: script without argument
+      {
+        script_argc = 1;
+        return;
+      }
+
+   if (!is_APL_script(argv[2]))   return;   // not run from a script
+
+   // at this point, argv[1] is the optional argument of the interpreter
+   // from the first line of the script, argv[2] is the name of the script,
+   // and argv[3] ... are the arguments given by the user when starting the
+   // script.
+   //
+   // expand argv[1], stopping at --
+   //
+const char * apl_args = argv[1];
+   script_argc = 2;
+   if (!strchr(apl_args, ' '))   return;   // single option
+
+   expanded_argv.erase(expanded_argv.begin() + 1);
+   --script_argc;
+   for (int index = 1;;)
+       {
+         while (*apl_args && *apl_args <= ' ')   ++apl_args;
+         if (*apl_args == 0)   break;
+
+         if (!strcmp(apl_args, "--"))        break;
+         if (!strncmp(apl_args, "-- ", 3))   break;
+
+         const char * arg_end = strchr(apl_args, ' ');
+         if (arg_end)   // more arguments
             {
-              // there is another known option after -f
-              //
-              for (int aa = a; aa < (argc - 2); ++aa)
-                 argvec[aa] = argvec[aa + 1];
-              argvec[argc - 2] = opt;   // put the -f before last
-              break;   // for a...
+              const int arg_len = arg_end - apl_args;
+              const char * arg = strndup(apl_args, arg_len);
+              expanded_argv.insert(expanded_argv.begin() + index++, arg);
+              ++script_argc;
+              apl_args += arg_len;
+            }
+         else           // last argument
+            {
+              const char * arg = strdup(apl_args);
+              expanded_argv.insert(expanded_argv.begin() + index++, arg);
+              ++script_argc;
+              break;
             }
        }
 
-const char ** ret = new const char *[argc + 1];
-   loop(a, argc)   ret[a] = argvec[a];
-   ret[argc] = 0;
-   return ret;
+   return;
 }
 //-----------------------------------------------------------------------------
 void

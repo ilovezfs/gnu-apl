@@ -506,7 +506,7 @@ arguments passed on to the interpreter. In our case this could be, for
 example:
 
 @verbatim
-    #! /bin/apl --id 1010
+    #! /usr/bin/apl --id 1010
 @end verbatim
 
 There are essentially two ways to run an APL script: redirecting the script
@@ -516,36 +516,30 @@ apl).
 
 @subsection redirect the script file the stdin of the GNU APL interpreter
 
-A file, say script.apl, can be redirected to apl by redirection of the shell:
+A file, say SCRIPT.apl, can be redirected to apl by redirection of the shell:
 
 @verbatim
-    apl < script.apl
+    apl < SCRIPT.apl
 @end verbatim
 
 Alternatively, the command line option -f of apl can be used:
 
 @verbatim
-    apl -f script.apl
+    apl -f SCRIPT.apl
 @end verbatim
 
 Both ways of redirecting the file are almost identical; in the first case
 redirection was performed by the shell running apl, while in the second case
 the redirecting of the file was performed by apl itself.
 
-@subsection make the script file executable
+@subsection Make the script file executable
 
 Alternatively the script can be made executable, mentioning apl as the
-interpreter for the script (see also @option{man execve}). For this to
+interpreter for the script (see also @option{'man 2 execve'}). For this to
 work, the first line of the script must have a special format
 
 @verbatim
-    #! /bin/apl -f - --
-@end verbatim
-
-or, more typically for scripts:
-
-@verbatim
-    #! /bin/apl --script --
+    #! /usr/bin/apl --script
 @end verbatim
 
 @option{--script} prevents: printing of a welcome banner, 
@@ -556,16 +550,130 @@ If the path to the interpreter is relative (which might be useful if you
 do not know in advance where the APL interpreter will be installed) then
 it must be in $PATH of the shell that runs the script).
 
+@subsection How command line arguments are handled
+
+As we have seen, GNU APL can be started directly (by entering the name
+of the GNU APL binary on the command line of a shell, or indirectly by
+entering the name of a script that provides the name of the GNU APL binary
+on the first line of the script. In the latter case, the shell uses function
+execve() to start APL, and one can provide additional arguments that are
+passed on to APL. We briefly discuss both cases:
+
+0. General Remark
+
+There is a convention in GNU APL that command line options (and
+possibly option arguments) that occur left of '----' are options directed
+to (and understood by) the APL interpreter while options right of '----' are
+passed to the APL application (and their exact format is defined by the
+application). The command line options that were used to start APL can be
+retrieved with ⎕ARG.
+
+Example 1: APL started directly
+
+We start APL with some command line options and display them with ⎕ARG.
+The command line options for the interpreter are --silent, --id, and 1010,
+while the options app1 and app2 are for the APL application:
+
+@verbatim
+$ apl --silent -l 37 -- app1 app2
+    ⊃⎕ARG
+apl     
+--silent
+-l      
+37      
+--      
+app1    
+app2    
+@end verbatim
+
+Example 2: APL started indirectly
+
+Starting APL indirectly means that there is a script (a text file with execute
+permission) that contains APL code and has a special first line as described
+above. There are now two sets of command line options: those passed to the
+script and those on the first line of the scripts. When the script is started,
+possibly with command line arguments, then the command line arguments entered
+by the user are combined with the arguments on the first line of the script
+in a way that is described in 'man 2 execve'.
+
+Assume the script file SCRIPT.apl contains this (the file is shipped
+with GNU APL):
+
+@verbatim
+#! /usr/bin/apl --id 1010 --script
+
+      ⊃⎕ARG      ⍝ show command line options
+      )OFF      ⍝ leave the interpreter
+
+@end verbatim
+
+Assume further that the script is started like this:
+
+@verbatim
+$ ./SCRIPT.apl sarg1 sarg2
+@end verbatim
+
+Then the following output, which shows the order of command line options
+as seen by ⎕ARG, is produced:
+
+@verbatim
+   ⊃⎕ARG
+/usr/bin/apl
+--script          
+./SCRIPT.apl      
+sarg1             
+sarg2 
+@end verbatim
+
+This tells us that the different names are constructed by exeve() in the
+following order:
+
+1. Interpreter name (the first name in the script file, here: /usr/bin/apl)
+
+2. Optional Interpreter arguments (here: ----script)
+
+3. Script filename (here: ./SCRIPT.apl)
+
+4. Script arguments (here: sarg1 sarg2)
+
+CAUTION: as discussed in 'man 2 execve' the interpretation of the optional
+interpreter arguments (2. above) is system specific and possibly not portable.
+For that reason the optional interpreter argument should not be missing (you
+can use ---- to provide at least one argument) and also not more than one
+argument. On GNU/Linux systems the following first lines of the script are
+understood:
+
+@verbatim
+/usr/bin/apl
+/usr/bin/apl --
+/usr/bin/apl -s
+/usr/bin/apl --script
+/usr/bin/apl -s --
+/usr/bin/apl --script --
+@end verbatim
+
+The recommended form is: /usr/bin/apl ----script
+
+Note that '----' and options that follow it ARE NOT shown in ⎕ARG if they
+are given on the first line of the script, while '----' and options that follow
+on the script command line ARE shown. There is no point in passing application
+options in the script file via the command line to apl; instead you can use
+them directly in the script.
+
+Using '----' as last argument on the first line of the script file prevents any
+of the options given to the script to be interpreted as APL options; all
+such options are passed to the application via ⎕ARG.
+
 @subsection Helpful features for scripting
 
 In order to be really useful for scripting, three more features have been added:
 
 The system variable ⎕ARG contains all command line arguments passed to the
-interpreter. In the first example above this would be a nested 3-element
+interpreter. In the initial example above this would be a nested 3-element
 vector:
 
 @verbatim
-    /bin/apl --id 1010
+    /usr/bin/apl --id 1010
 @end verbatim
 
 A feature particularly useful for CGI scripting (where some information is
@@ -630,24 +738,26 @@ empty) set of command line options. Otherwise there are two set of command line
 options: command line options for the apl interpreter and command line options
 for the script.
 
-Consider the following simple script called script.apl in directory workspaces:
+Consider the following simple script called SCRIPT.apl in directory workspaces:
 
 @verbatim
-#! /bin/apl --script --
+#! /usr/bin/apl --script
 
-⎕ARG    ⍝ show command line options
+⊃⎕ARG    ⍝ show command line options
 )OFF    ⍝ leave the interpreter
 @end verbatim
 
-If script.apl is redirected to stdin of the APL interpreter:
+If SCRIPT.apl is redirected to stdin of the APL interpreter:
 
 @verbatim
- /bin/apl --silent <  ../workspaces/script.apl
+ /usr/bin/apl --silent <  ../workspaces/SCRIPT.apl
+
  or
- /bin/apl --silent -f ../workspaces/script.apl
+
+ /usr/bin/apl --silent -f ../workspaces/SCRIPT.apl
 @end verbatim
 
-then the first line @option{#! /bin/apl --script --} of file script.apl 
+then the first line @option{#! /usr/bin/apl --script} of file SCRIPT.apl 
 is merely a comment (GNU APL accepts both the traditional APL character
 ⍝ and the character # as start of a comment). The @option{--script} option
 is therefore ignored and the following mix of input and output is
@@ -656,7 +766,7 @@ usual APL prompt of 6 blanks, while the output of the APL interpreter
 is not indented.
 
 @verbatim
-      #! /bin/apl --script --
+      #! /usr/bin/apl --script
       
       ⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -667,14 +777,14 @@ is not indented.
 If we run the same script directly:
 
 @verbatim
-../workspaces/script.apl
+../workspaces/SCRIPT.apl
 @end verbatim
 
 Then we get:
 
 @verbatim
 
- /bin/apl --script -- ../workspaces/script.apl 
+ /usr/bin/apl --script ../workspaces/SCRIPT.apl 
 
 @end verbatim
 
@@ -685,20 +795,20 @@ That is most likely what you want when writing a script.
 
 Also, the first line of the script is no longer ignored as a comment,
 but controls the command line argument (and thus ⎕ARG) of the interpreter.
-The additional command line argument @option{../workspaces/script.apl}
-comes from function execve (see man execve).
+The additional command line argument @option{../workspaces/SCRIPT.apl}
+comes from function execve (see 'man 2 execve').
 
-If we provide an argument, say SCRIPTARG, to script.apl:
+If we provide an argument, say SCRIPTARG, to SCRIPT.apl:
 
 @verbatim
-../workspaces/script.apl SCRIPTARG
+../workspaces/SCRIPT.apl SCRIPTARG
 @end verbatim
 
 then it shows up at the end of ⎕ARG:
 
 @verbatim
 
- /bin/apl --script -- ../workspaces/script.apl SCRIPTARG 
+ /usr/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG 
 
 @end verbatim
 
