@@ -289,6 +289,25 @@ UserFunction_header::UserFunction_header(Fun_signature sig,
     sym_X(0),
     sym_B(0)
 {
+   // make sure that sig is valid
+   //
+Fun_signature sig1 = (Fun_signature)(sig | SIG_FUN);
+bool valid_signature = false;
+   loop(p, PATTERN_COUNT)
+      {
+        if (header_patterns[p].signature == sig1)
+          {
+            valid_signature = true;
+            break;
+          }
+      }
+
+   if (!valid_signature)   
+      {
+         error = E_SYNTAX_ERROR;
+         return;
+      }
+
                        sym_Z  = &Workspace::get_v_LAMBDA();
    if (sig & SIG_A)    sym_A  = &Workspace::get_v_ALPHA();
    if (sig & SIG_LO)   sym_LO = &Workspace::get_v_ALPHA_U();
@@ -523,10 +542,17 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
     header(sig, fname),
     creator(UNI_LAMBDA)
 {
+   set_creation_time(now());
+
    exec_properties[0] = 0;
    exec_properties[1] = 0;
    exec_properties[2] = 0;
    exec_properties[3] = 0;
+
+   if (header.get_error() != E_NO_ERROR)   // bad header
+      {
+        DEFN_ERROR;
+      }
 
    if      (header.RO())   tag = TOK_OPER2;
    else if (header.LO())   tag = TOK_OPER1;
