@@ -77,16 +77,52 @@ Executable::clear_body()
         body[b].extract_apl_val(LOC);
       }
 
+   clear_lambdas();
    body.clear();
-
-   loop(u, unnamed_lambdas.size())
+}
+//-----------------------------------------------------------------------------
+void
+Executable::clear_lambdas()
+{
+   while (named_lambdas.size())
       {
-        const UserFunction * ufun = unnamed_lambdas[u];
-        delete ufun;
-        unnamed_lambdas[u] = 0;
+        // remove named lambda, unless it is bound to a symbol
+        const UserFunction * ufun = named_lambdas.back();
+        if (ufun == 0)   continue;
+
+        const Function * fun = ufun;
+
+        const UCS_string & ufun_name = ufun->get_name();
+        const Symbol * ufun_sym = Workspace::lookup_existing_symbol(ufun_name);
+
+        bool used = false;
+        if (ufun_sym)
+           {
+              loop(v, ufun_sym->value_stack_size())
+                 {
+                   const ValueStackItem vs = (*ufun_sym)[v];
+                   if ((vs.name_class == NC_FUNCTION ||
+                        vs.name_class == NC_OPERATOR) &&
+                        vs.sym_val.function == fun)
+                      {
+                        // the named lambda was assigned to ufun_name so we
+                        // should not delete it.
+                        //
+                        used = true;
+                        break;
+                      }
+                 }
+           }
+
+        if (!used)   delete named_lambdas.back();
+        named_lambdas.pop_back();
       }
 
-   unnamed_lambdas.clear();
+   while (unnamed_lambdas.size())
+      {
+        delete unnamed_lambdas.back();
+        unnamed_lambdas.pop_back();
+      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -207,14 +243,19 @@ StateIndicator & si = *Workspace::SI_top();
    FIXME;
 }
 //-----------------------------------------------------------------------------
-ostream &
-Executable::print(ostream & out) const
+void
+Executable::print_token(ostream & out) const
 {
    out << endl
        <<  "Function body [" << body.size() << " token]:" << endl;
 
    body.print(out);
-   return out;
+}
+//-----------------------------------------------------------------------------
+void
+Executable::print_text(ostream & out) const
+{
+   loop(l, text.size())   out << text[l] << endl;
 }
 //-----------------------------------------------------------------------------
 UCS_string
@@ -424,6 +465,11 @@ int count = 0;
 void
 Executable::setup_lambdas()
 {
+   // setup_lambdas() may be called multiple times for the same executable.
+   // remove old lambdas...
+   //
+   clear_lambdas();
+
    loop(b, body.size())
        {
          // body is in reverse order, so } comes before { (and optional ← NAME)
@@ -509,7 +555,6 @@ Executable::setup_lambdas()
                 forw_lambda_body.append(ret_void, LOC);
               }
 
-
          // at this point {} was copied from body to forw_lambda_body and
          // b is at the (now invalidated) { token.
          // check if lambda is named, i.e. Name ← { ... }
@@ -525,9 +570,6 @@ Executable::setup_lambdas()
               lambda_sym = body[b + 2].get_sym_ptr();
               lambda_name = lambda_sym->get_name();
               signature |= SIG_FUN;
-
-               body[b + 1].clear(LOC);
-               body[b + 2].clear(LOC);
             }
          else
             {
@@ -535,61 +577,9 @@ Executable::setup_lambdas()
               lambda_name.append_number(unnamed_lambdas.size() + 1);
             }
 
-         UCS_string lambda_text;
-         if (signature & SIG_Z)   lambda_text.append_utf8("λ←");
-
-         int lambda_skip = unnamed_lambdas.size() + named_lambdas.size();
-         int opening_curly = 0;
-         int closing_curly = 0;
-         int tidx = 0;
-         int tcol = 0;
-
-         for (;;)
-             {
-               // search for the lambda_skip'th { in the body text
-               //
-               Assert(tidx < text.size());
-               const UCS_string & line = text[tidx];
-
-               if (tcol >= line.size())   // end of line: wrap to next line
-                  {
-                    ++tidx;
-                    tcol = 0;
-                    continue;
-                  }
-
-               {
-                 const Unicode uni = line[tcol++];
-                 if      (uni == UNI_ASCII_L_CURLY)   ++opening_curly;
-                 else if (uni == UNI_ASCII_R_CURLY)   ++closing_curly;
-
-                 if (uni != UNI_ASCII_L_CURLY)   continue;   // not {
-               }
-
-               // found { (but maybe from a previous lambda
-               // or from a sub-lambds)
-               //
-               if (lambda_skip)   { --lambda_skip;   continue; }
-
-               if (tcol >= line.size())   SYNTAX_ERROR;
-               for (;;)
-                   {
-                     const Unicode uni = line[tcol++];
-                     if      (uni == UNI_ASCII_L_CURLY)   ++opening_curly;
-                     else if (uni == UNI_ASCII_R_CURLY)   ++closing_curly;
-
-                     // if uni was } then it could be:
-                     //
-                     // 1. a sub-{}      as in { {...} or
-                     // 2. a top-level-} as in { ,,, }
-                     // 
-                     // opening_curly == closing_curly distinguishes 1. and 2.
-                     //
-                     if (opening_curly == closing_curly)   break;
-                     lambda_text.append(uni);
-                   }
-               break;
-             }
+         const UCS_string lambda_text = extract_lambda_text(
+                                (Fun_signature)signature,
+                                unnamed_lambdas.size() + named_lambdas.size());
 
          UserFunction * ufun = new UserFunction(Fun_signature(signature),
                                                 lambda_name, lambda_text,
@@ -598,12 +588,13 @@ Executable::setup_lambdas()
          if (signature & SIG_FUN)   // named lambda
             {
               named_lambdas.push_back(ufun);
+              move_2(body[b], ufun->get_token(), LOC);
 
-              // replace the lambda by its name, but as committed value
-              // so that it doesn't print (similar to ⎕FX).
+              // UserFunction::UserFunction has bound the lambda body to
+              // the lambda name. However, we want that to happen when
+              // V←{ ...} is executed, not now. We therefore unbind it here
               //
-              Value_P val_name(new Value(lambda_name, LOC));
-              move_2(body[b], Token(TOK_APL_VALUE2, val_name), LOC);
+              lambda_sym->set_nc(NC_UNUSED_USER_NAME, 0);
             }
          else                       // unnamed lambda
             {
@@ -613,6 +604,63 @@ Executable::setup_lambdas()
        }
 
    Parser::remove_void_token(body);
+}
+//-----------------------------------------------------------------------------
+UCS_string
+Executable::extract_lambda_text(Fun_signature signature, int skip) const
+{
+UCS_string lambda_text;
+   if (signature & SIG_Z)   lambda_text.append_utf8("λ←");
+
+int level = 0;   // {/} nesting level
+bool copying = false;
+
+int tidx = 0;
+int tcol = 0;
+
+   // skip over the first skip lambdas and copy the next one to lambda_text
+   //
+   for (;;)
+       {
+         if (tidx >= text.size())
+            {
+              Q(copying)
+              Q(tidx)
+              FIXME;
+            }
+
+         const UCS_string & line = text[tidx];
+
+         if (tcol >= line.size())   // end of line: wrap to next line
+            {
+              ++tidx;
+
+              tcol = 0;
+              continue;
+            }
+
+         const Unicode uni = line[tcol++];
+         if (copying)   lambda_text.append(uni);
+
+         if (uni == UNI_ASCII_L_CURLY)
+            {
+              if (level++ == 0)   // top-level {
+                 {
+                   if (skip == 0)   copying = true;
+                 }
+            }
+         else if (uni == UNI_ASCII_R_CURLY)
+            {
+              if (--level == 0)   // top-level }
+                 {
+                   if (copying)   break;   // done
+                   --skip;
+                 }
+            }
+       }
+
+   lambda_text.pop();   // the last }
+   return lambda_text;
 }
 //=============================================================================
 ExecuteList *
@@ -660,6 +708,8 @@ ExecuteList * fun = new ExecuteList(data, loc);
         delete fun;
         return 0;
       }
+
+   fun->setup_lambdas();
 
    Log(LOG_UserFunction__fix)
       {

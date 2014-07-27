@@ -1033,8 +1033,8 @@ UserFunction::parse_body(int & error_line, const char * loc)
 
         const UCS_string & text = get_text(l);
         parse_body_line(Function_Line(l), text, trace_line, loc);
-        setup_lambdas();
       }
+      setup_lambdas();
 
    Log(LOG_UserFunction__fix)
       {
@@ -1245,8 +1245,9 @@ UserFunction::print_properties(ostream & out, int indent) const
 {
    header.print_properties(out, indent);
 UCS_string ind(indent, UNI_ASCII_SPACE);
-   out << ind << "Body Lines:     " << line_starts.size() << endl
-       << ind << "Creator:        " << get_creator()      << endl;
+   out << ind << "Body Lines:      " << line_starts.size() << endl
+       << ind << "Creator:         " << get_creator()      << endl
+       << ind << "Body: " << body << endl;
 }
 //-----------------------------------------------------------------------------
 const UCS_string &
