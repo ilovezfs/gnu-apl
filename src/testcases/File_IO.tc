@@ -3,6 +3,11 @@
 
       ⍝ 1. Fix native  function FILE_IO 
       ⍝
+
+      ⍝⍝⍝
+      ⍝⍝⍝ If this segfaults then re-install GNU APL !!!
+      ⍝⍝⍝
+
       'lib_file_io.so' ⎕FX 'FILE_IO'
 FILE_IO
 
