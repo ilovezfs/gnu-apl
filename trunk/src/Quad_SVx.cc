@@ -522,10 +522,18 @@ const char * dirs[] = { "", "/APs" };
                   dirs[d]);
          dirname[PATH_MAX] = 0;
          DIR * dir = opendir(dirname);
+
+         // the APs directory only exists below the src directory (i.e when
+         // apl is started locally without installing it. We do not complain
+         // if the APs directory does not exist.
+         //
          if (dir == 0)
             {
-              CERR << "Could not open " << dirname << " : "
-                   << strerror(errno) << endl;
+              if (*dirs[d] == 0)
+                 {
+                   CERR << "Could not open directory " << dirname << " : "
+                        << strerror(errno) << " at " << LOC << endl;
+                 }
               continue;
             }
 
