@@ -287,6 +287,26 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
 }
 //-----------------------------------------------------------------------------
 void
+Symbol::assign_named_lambda(Function * lambda, const char * loc)
+{
+ValueStackItem & vs = value_stack.back();
+
+   switch(vs.name_class)
+      {
+        case NC_UNUSED_USER_NAME:
+        case NC_FUNCTION:
+        case NC_OPERATOR:
+
+             vs.name_class = NC_FUNCTION;
+             vs.sym_val.function = lambda;
+             if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
+             return;
+
+        default: SYNTAX_ERROR;
+      }
+}
+//-----------------------------------------------------------------------------
+void
 Symbol::pop()
 {
    Assert(value_stack.size());

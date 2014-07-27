@@ -327,6 +327,7 @@ Prefix::reduce_statements()
       {
         CERR << endl << "changed to Prefix[si=" << si.get_level()
              << "]) ============================================" << endl;
+        CERR << "body " << (const void *)(&body) << endl;
       }
 
    if (size() > 0)   goto again;
@@ -1115,6 +1116,23 @@ Symbol * V = at0().get_sym_ptr();
    V->assign(B, LOC);
 
 Token result = Token(TOK_APL_VALUE2, B);
+   pop_args_push_result(result);
+
+   set_assign_state(ASS_none);
+   action = RA_CONTINUE;
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::reduce_V_ASS_F_()
+{
+   // named lambda: V ← { ... }
+   //
+Function * F = at2().get_function();
+Symbol * V = at0().get_sym_ptr();
+   V->assign_named_lambda(F, LOC);
+
+Value_P Z(new Value(V->get_name(), LOC));
+Token result = Token(TOK_APL_VALUE2, Z);
    pop_args_push_result(result);
 
    set_assign_state(ASS_none);

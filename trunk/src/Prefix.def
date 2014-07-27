@@ -48,20 +48,21 @@
    phrase 42:  OP1  SYM                 2
    phrase 43:  VAL  ←    VAL            3
    phrase 44:  SYM  ←    VAL            3
-   phrase 45:  ]                        1
-   phrase 46:  [ ;  PIDX                2
-   phrase 47:  [ ;  VAL  PIDX           3
-   phrase 48:  VAL  VAL                 2
-   phrase 49:  SYM  )    ←    VAL       4
-   phrase 50:  END  VOID                2
-   phrase 51:  END  VAL                 2
-   phrase 52:  END  →    VAL            3
-   phrase 53:  END  →                   2
-   phrase 54:  RET                      1
-   phrase 55:  RET  VOID                2
-   phrase 56:  RET  VAL                 2
-   phrase 57:  RET  →                   2
-   phrase 58:  RET  →    VAL            3
+   phrase 45:  SYM  ←    F              3
+   phrase 46:  ]                        1
+   phrase 47:  [ ;  PIDX                2
+   phrase 48:  [ ;  VAL  PIDX           3
+   phrase 49:  VAL  VAL                 2
+   phrase 50:  SYM  )    ←    VAL       4
+   phrase 51:  END  VOID                2
+   phrase 52:  END  VAL                 2
+   phrase 53:  END  →    VAL            3
+   phrase 54:  END  →                   2
+   phrase 55:  RET                      1
+   phrase 56:  RET  VOID                2
+   phrase 57:  RET  VAL                 2
+   phrase 58:  RET  →                   2
+   phrase 59:  RET  →    VAL            3
    --------------------------------------
 
    *** phrase table ***/
@@ -98,6 +99,7 @@
    void reduce_M_V__();              ///< reduce phrase M V  
    void reduce_A_ASS_B_();           ///< reduce phrase A ASS B 
    void reduce_V_ASS_B_();           ///< reduce phrase V ASS B 
+   void reduce_V_ASS_F_();           ///< reduce phrase V ASS F 
    void reduce_RBRA___();            ///< reduce phrase RBRA   
    void reduce_LBRA_I__();           ///< reduce phrase LBRA I  
    void reduce_LBRA_B_I_();          ///< reduce phrase LBRA B I 
@@ -113,7 +115,7 @@
    void reduce_RETC_GOTO__();        ///< reduce phrase RETC GOTO  
    void reduce_RETC_GOTO_B_();       ///< reduce phrase RETC GOTO B 
 
-   enum { PHRASE_COUNT   = 59,      ///< number of phrases
+   enum { PHRASE_COUNT   = 60,      ///< number of phrases
           PHRASE_MODU    = 273,     ///< hash table size
           MAX_PHRASE_LEN = 4 };     ///< max. number of token in a phrase
 
@@ -257,7 +259,7 @@ const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
   PH(              ,      0,    0,   0,  0, ___          )
-  PH(              ,      0,    0,   0,  0, ___          )
+  PH( V ASS F      ,   7214,   73,   0,  3, V_ASS_F_     )
   PH(              ,      0,    0,   0,  0, ___          )
   PH( V ASS B      ,  15406,   73,   0,  3, V_ASS_B_     )
   PH( A ASS B      ,  15407,   73,   0,  3, A_ASS_B_     )

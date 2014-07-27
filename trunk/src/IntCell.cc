@@ -428,8 +428,6 @@ const bool invert_Z = b < 0;
         const bool negate_Z = (a < 0) && (b & 1);
         if (a < 0)   a = -a;
 
-        const APL_Integer MAX_a_2_n = 0x7FFFFFFFFFFFFFFF / a;
-
         // z is an int small enough for int_64
         // a⋆b = a⋆(bn +   bn-1   + ... + b0)  with   bj = 0 or 2⋆j
         //     = a⋆bn  × a⋆bn-1 × ... × a⋆b0   with a⋆bj = 1 or a⋆2⋆j

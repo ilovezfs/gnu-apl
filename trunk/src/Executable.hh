@@ -49,6 +49,9 @@ public:
    /// delete values in body and remove lambdas
    void clear_body();
 
+   /// remove lambdas
+   void clear_lambdas();
+
    /// the parse mode for \b this Executable
    virtual ParseMode get_parse_mode() const = 0;
 
@@ -76,7 +79,14 @@ public:
       { return Function_Line_0; }
 
    /// print this user defined executable to \b out
-   virtual ostream & print(ostream & out) const;
+   virtual ostream & print(ostream & out) const
+      { print_token(out);   return out; }
+
+   /// print this user defined executable to \b out
+   void print_token(ostream & out) const;
+
+   /// print the text of this user defined executable to \b out
+   void print_text(ostream & out) const;
 
    /// execute the body of this executable
    Token execute_body() const;
@@ -110,7 +120,8 @@ public:
    void unmark_all_values() const;
 
    /// print all owners of \b value
-   int show_owners(const char * prefix, ostream & out, const Value & value) const;
+   int show_owners(const char * prefix, ostream & out,
+                   const Value & value) const;
 
    /// say where this SI entry was allocated
    const char * get_loc() const
@@ -119,6 +130,8 @@ public:
 protected:
    /// extract lambda expressions from body and store them in lambdas
    void setup_lambdas();
+
+   UCS_string extract_lambda_text(Fun_signature signature, int skip) const;
 
    /// where this SI entry was allocated
    const char * alloc_loc;
@@ -139,7 +152,10 @@ protected:
    /// due to the right-to-left execution of APL.
    Token_string body;
 
+   /// named lambdas ( V←{ ... } ) in the body
    vector<UserFunction *> named_lambdas;
+
+   /// unnamed lambdas ( { ... } ) in the body
    vector<UserFunction *> unnamed_lambdas;
 };
 //-----------------------------------------------------------------------------
