@@ -1,4 +1,4 @@
-#!/usr/local/bin/apl -f - --
+#! /usr/local/bin/apl --script
 
 'Running ScalarBenchmark'
 

@@ -527,7 +527,7 @@ UserPreferences::parse_argv(bool logit)
 
    if (logit)
       {
-        CERR << InputFile::files_todo.size() << "files:";
+        CERR << InputFile::files_todo.size() << " input files:" << endl;
         loop(f, InputFile::files_todo.size())
             CERR << "    " << InputFile::files_todo[f].filename << endl;
       }

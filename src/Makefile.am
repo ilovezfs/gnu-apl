@@ -166,8 +166,8 @@ patch:
 
 .PHONY:	git-pull
 git-pull:
-	cd emacs_mode; git pull
-	cd sql;        git pull; cp sql.apl ../../wslib5/sql.apl
+	make -C emacs_mode $@
+	make -C sql $@
 
 .PHONY:	help
 help:

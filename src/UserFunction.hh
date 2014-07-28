@@ -199,7 +199,7 @@ public:
    /// Destructor.
    ~UserFunction();
 
-   bool is_lambda() const
+   virtual bool is_lambda() const
       { return header.from_lambda; }
 
    /// overloaded Executable::get_ufun()

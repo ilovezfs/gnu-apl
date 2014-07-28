@@ -252,7 +252,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dist_apl5_DATA = HTML.apl	\
-			sql.apl
+			SQL.apl
 
 apl5dir = $(pkglibdir)/wslib5
 all: all-am

@@ -1,4 +1,5 @@
-⍝! apl
+⍝! /usr/local/bin/apl --script
+⍝
 ⍝ meta: a library for creating and checking meta functions in a library
 ⍝
 
