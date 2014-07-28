@@ -16,33 +16,39 @@
 ⍝
 ⍝    Disconnects from the database connection given as X.
 
-∇Z←L SQL∆Connect R
+∇Z←type SQL∆Connect arg
 ⍝ Connect to database of type L using connection arguments R.
 ⍝
 ⍝ L must be a string indicating the database type. Current supported
 ⍝ values are 'postgresql' and 'sqlite'.
 ⍝
 ⍝ R is the connection parameters which depends on the type of
-⍝ database.
+⍝ database:
+⍝
+⍝   - For type≡'sqlite': the argument is string pointing to the
+⍝     database file.
+⍝
+⍝   - For type≡'postgresql', the argument is a standard connect string
+⍝     as described in the PostgreSQL documentation.
 ⍝
 ⍝ This function returns a database handle that should be used when
 ⍝ using other SQL functions. This value should be seen as an opaque
 ⍝ handle. It is, however, guaranteed that the handle is a scalar
 ⍝ value.
-  Z←L SQL[1] R
+  Z←type SQL[1] arg
 ∇
 
-∇Z←SQL∆Disconnect R
+∇Z←SQL∆Disconnect db
 ⍝ Disconnect from database R.
 ⍝
 ⍝ R is the database handle that should be disconnected. After this
 ⍝ function has been called, no further operations are to be performed
 ⍝ on this handle. Future calls to SQL∆Connect may reuse previously
 ⍝ disconnected handles.
-  Z←SQL[2] R
+  Z←SQL[2] db
 ∇
 
-∇Z←L SQL∆Select[db] R
+∇Z←statement SQL∆Select[db] args
 ⍝ Execute a select statement and return the result table.
 ⍝
 ⍝ The axis parameter indicates the database handle.
@@ -57,35 +63,47 @@
 ⍝ The return value is a rank-2 array representing the result of the
 ⍝ select statement. Null values are returned as ⍬ and empty strings
 ⍝ are returned as ''.
-  Z←L SQL[3,db] R
+  Z←statement SQL[3,db] args
 ∇
 
-∇Z←L SQL∆Exec[db] R
+∇Z←statement SQL∆Exec[db] args
 ⍝ Execute an SQL statement that does not return a result.
 ⍝
 ⍝ This function is identical to SQL∆Select with the exception that it
 ⍝ is used on statements which do not return a result table.
-  Z←L SQL[4,db] R
+  Z←statement SQL[4,db] args
 ∇
 
-∇Z←SQL∆Begin R
+∇Z←SQL∆Begin db
 ⍝ Begin a transaction.
-  Z←SQL[5] R
+  Z←SQL[5] db
 ∇
 
-∇Z←SQL∆Commit R
+∇Z←SQL∆Commit db
 ⍝ Commit a transaction.
-  Z←SQL[6] R
+  Z←SQL[6] db
 ∇
 
-∇Z←SQL∆Rollback R
+∇Z←SQL∆Rollback db
 ⍝ Rolls back the current transaction.
-  Z←SQL[7] R
+  Z←SQL[7] db
 ∇
 
-∇Z←SQL∆Tables R
+∇Z←SQL∆Tables db
 ⍝ Return an array containing the name of all tables.
-  Z←SQL[8] R
+  Z←SQL[8] db
+∇
+
+∇Z←db SQL∆Columns table
+⍝ Return an array containing information about the columns in the
+⍝ given table. Currently, the column layout is as follows;
+⍝
+⍝   Name
+⍝   Type
+⍝
+⍝ More columns containing extra informaiton may be added in a future
+⍝ release.
+  Z←db SQL[9] table
 ∇
 
 ∇Z←X (F SQL∆WithTransaction FINDDB) Y;result
@@ -111,7 +129,7 @@ end:
 
 ∇sql⍙load_library;result
   →(0≠⎕NC 'SQL')/skip
-  result ← 'lib_sql.so' ⎕FX 'SQL'
+  result ← 'lib_sql' ⎕FX 'SQL'
   →('SQL'≡result)/skip
   ⎕ES 'Error loading native library'
 skip:

@@ -48,7 +48,7 @@
 #include <vector>
 
 #define __COMMON_HH_DEFINED__ // to avoid #error in APL_types.hh
-#define AP_NUM simple AP_NUM
+#define AP_NUM /* simple AP_NUM */
 
 #include "APL_types.hh"
 #include "ProcessorID.hh"
@@ -1039,9 +1039,13 @@ int janitor = 0;
             }
          else if (!strcmp(opt, "-d"))
             {
+              cerr << "APSERVER_TRANSPORT is: " << APSERVER_TRANSPORT << endl;
+
 #if APSERVER_TRANSPORT == 0   // TCP
+              cerr << "APSERVER_PORT is: " << APSERVER_PORT << endl;
                got_port = true;
 #else                         // AF_UNIX
+              cerr << "APSERVER_PATH is: " << APSERVER_PATH << endl;
                got_path = true;
 #endif
               ++verbosity;
