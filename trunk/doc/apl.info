@@ -457,7 +457,7 @@ absolute or relative path to the interpreter, followed by command line
 arguments passed on to the interpreter.  In our case this could be, for
 example:
 
-    #! /usr/bin/apl --id 1010
+    #! /usr/local/bin/apl --id 1010
 
    There are essentially two ways to run an APL script: redirecting the
 script file to stdin of the interpreter or making the script executable
@@ -487,7 +487,7 @@ Alternatively the script can be made executable, mentioning apl as the
 interpreter for the script (see also ‘'man 2 execve'’).  For this to
 work, the first line of the script must have a special format
 
-    #! /usr/bin/apl --script
+    #! /usr/local/bin/apl --script
 
    ‘--script’ prevents: printing of a welcome banner, echoing of stdin
 to stdout, automatic loading of a )CONTINUE workspaces, and prevents
@@ -546,7 +546,7 @@ that is described in ’man 2 execve’.
    Assume the script file SCRIPT.apl contains this (the file is shipped
 with GNU APL):
 
-#! /usr/bin/apl --id 1010 --script
+#! /usr/local/bin/apl --id 1010 --script
 
       ⊃⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -560,7 +560,7 @@ $ ./SCRIPT.apl sarg1 sarg2
 options as seen by ⎕ARG, is produced:
 
    ⊃⎕ARG
-/usr/bin/apl
+/usr/local/bin/apl
 --script
 ./SCRIPT.apl
 sarg1
@@ -570,7 +570,7 @@ sarg2
 the following order:
 
    1.  Interpreter name (the first name in the script file, here:
-/usr/bin/apl)
+/usr/local/bin/apl)
 
    2.  Optional Interpreter arguments (here: —-script)
 
@@ -585,14 +585,14 @@ argument should not be missing (you can use —- to provide at least one
 argument) and also not more than one argument.  On GNU/Linux systems the
 following first lines of the script are understood:
 
-/usr/bin/apl
-/usr/bin/apl --
-/usr/bin/apl -s
-/usr/bin/apl --script
-/usr/bin/apl -s --
-/usr/bin/apl --script --
+/usr/local/bin/apl
+/usr/local/bin/apl --
+/usr/local/bin/apl -s
+/usr/local/bin/apl --script
+/usr/local/bin/apl -s --
+/usr/local/bin/apl --script --
 
-   The recommended form is: /usr/bin/apl —-script
+   The recommended form is: /usr/local/bin/apl —-script
 
    Note that ’—-’ and options that follow it ARE NOT shown in ⎕ARG if
 they are given on the first line of the script, while ’—-’ and options
@@ -614,7 +614,7 @@ been added:
 to the interpreter.  In the initial example above this would be a nested
 3-element vector:
 
-    /usr/bin/apl --id 1010
+    /usr/local/bin/apl --id 1010
 
    A feature particularly useful for CGI scripting (where some
 information is passed to the APL script via environment variables) is
@@ -671,28 +671,28 @@ interpreter and command line options for the script.
    Consider the following simple script called SCRIPT.apl in directory
 workspaces:
 
-#! /usr/bin/apl --script
+#! /usr/local/bin/apl --script
 
 ⊃⎕ARG    ⍝ show command line options
 )OFF    ⍝ leave the interpreter
 
    If SCRIPT.apl is redirected to stdin of the APL interpreter:
 
- /usr/bin/apl --silent <  ../workspaces/SCRIPT.apl
+ /usr/local/bin/apl --silent <  ../workspaces/SCRIPT.apl
 
  or
 
- /usr/bin/apl --silent -f ../workspaces/SCRIPT.apl
+ /usr/local/bin/apl --silent -f ../workspaces/SCRIPT.apl
 
-   then the first line ‘#! /usr/bin/apl --script’ of file SCRIPT.apl is
-merely a comment (GNU APL accepts both the traditional APL character ⍝
-and the character # as start of a comment).  The ‘--script’ option is
-therefore ignored and the following mix of input and output is shown on
-the screen.  The input from the script is indented by the usual APL
-prompt of 6 blanks, while the output of the APL interpreter is not
+   then the first line ‘#! /usr/local/bin/apl --script’ of file
+SCRIPT.apl is merely a comment (GNU APL accepts both the traditional APL
+character ⍝ and the character # as start of a comment).  The ‘--script’
+option is therefore ignored and the following mix of input and output is
+shown on the screen.  The input from the script is indented by the usual
+APL prompt of 6 blanks, while the output of the APL interpreter is not
 indented.
 
-      #! /usr/bin/apl --script
+      #! /usr/local/bin/apl --script
 
       ⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -706,7 +706,7 @@ indented.
    Then we get:
 
 
- /usr/bin/apl --script ../workspaces/SCRIPT.apl
+ /usr/local/bin/apl --script ../workspaces/SCRIPT.apl
 
 
    The ‘--script’ implies ‘--noCIN’ so that the
@@ -727,7 +727,7 @@ execve’).
    then it shows up at the end of ⎕ARG:
 
 
- /usr/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG
+ /usr/local/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG
 
 
 2.2 ⎕SYL - System limits
@@ -2442,11 +2442,11 @@ Tag Table:
 Node: Top416
 Node: Chapter 11347
 Node: Chapter 214446
-Node: Chapter 340951
-Node: Chapter 442557
-Node: Chapter 543680
-Node: Section 5.144183
-Node: Section 5.269491
+Node: Chapter 341071
+Node: Chapter 442677
+Node: Chapter 543800
+Node: Section 5.144303
+Node: Section 5.269611
 
 End Tag Table
 

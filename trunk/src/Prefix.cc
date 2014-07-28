@@ -327,7 +327,6 @@ Prefix::reduce_statements()
       {
         CERR << endl << "changed to Prefix[si=" << si.get_level()
              << "]) ============================================" << endl;
-        CERR << "body " << (const void *)(&body) << endl;
       }
 
    if (size() > 0)   goto again;
@@ -1128,6 +1127,8 @@ Prefix::reduce_V_ASS_F_()
    // named lambda: V ← { ... }
    //
 Function * F = at2().get_function();
+   if (!F->is_lambda())   SYNTAX_ERROR;
+
 Symbol * V = at0().get_sym_ptr();
    V->assign_named_lambda(F, LOC);
 

@@ -22,6 +22,16 @@
 #include "PostgresConnection.hh"
 #include "PostgresArgListBuilder.hh"
 
+class PostgresAllocMemoryWrapper {
+public:
+    PostgresAllocMemoryWrapper( char *ptr_in ) : ptr( ptr_in ) {}
+    ~PostgresAllocMemoryWrapper() { PQfreemem( ptr ); }
+    char *value() { return ptr; }
+
+private:
+    char *ptr;
+};
+
 PostgresConnection::~PostgresConnection()
 {
     PQfinish( db );
@@ -84,6 +94,33 @@ void PostgresConnection::fill_tables( vector<string> &tables )
     int rows = PQntuples( result.get_result() );
     for( int row = 0 ; row < rows ; row++ ) {
         tables.push_back( PQgetvalue( result.get_result(), row, 0 ) );
+    }
+}
+
+void PostgresConnection::fill_cols( const string &table, vector<ColumnDescriptor> &cols )
+{
+    const char *s = table.c_str();
+    PostgresAllocMemoryWrapper escaped_table_name( PQescapeLiteral( db, s, strlen( s ) ) );
+
+    stringstream sql;
+    sql << "select column_name,data_type from information_schema.columns where table_name = "
+        << escaped_table_name.value();
+
+    PostgresResultWrapper result( PQexec( db, sql.str().c_str() ) );
+    ExecStatusType status = PQresultStatus( result.get_result() );
+    if( status != PGRES_TUPLES_OK ) {
+        stringstream out;
+        out << "Error getting list of columns: " << PQresultErrorMessage( result.get_result() );
+        Workspace::more_error() = out.str().c_str();
+        DOMAIN_ERROR;            
+    }
+
+    int rows = PQntuples( result.get_result() );
+    for( int row = 0 ; row < rows ; row++ ) {
+        char *colname = PQgetvalue( result.get_result(), row, 0 );
+        char *coltype = PQgetvalue( result.get_result(), row, 1 );
+        cols.push_back( ColumnDescriptor( const_cast<const char *>( colname ),
+                                          const_cast<const char *>( coltype ) ) );
     }
 }
 

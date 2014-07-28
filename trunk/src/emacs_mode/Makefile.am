@@ -24,3 +24,8 @@ libemacs_la_SOURCES =						\
 		util.cc			util.hh			\
 		VariablesCommand.cc	VariablesCommand.hh	\
 		VersionCommand.cc	VersionCommand.hh
+
+.PHONY: git-pull
+git-pull:
+	git pull
+

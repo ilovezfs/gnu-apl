@@ -80,12 +80,13 @@ static Token list_functions( ostream &out )
     out << "Available function numbers:" << endl
         << "name FN[1] args     - open database. Returns reference ID" << endl
         << "FN[2] ref           - close database" << endl
-        << "query FN[3,db] params  - send SQL query (remaining params are bind args)" << endl
-        << "query FN[4,db] params  - send SQL update (remaining params are bind args)" << endl
+        << "query FN[3,db] params  - send SQL query" << endl
+        << "query FN[4,db] params  - send SQL update" << endl
         << "FN[5] ref           - begin transaction" << endl
         << "FN[6] ref           - commit transaction" << endl
         << "FN[7] ref           - rollback transaction" << endl
-        << "FN[8] ref           - list tables" << endl;
+        << "FN[8] ref           - list tables" << endl
+        << "ref FN[9] table     - list columns for table" << endl;
     return Token(TOK_APL_VALUE1, Str0( LOC ) );
 }
 
@@ -305,6 +306,44 @@ static Token show_tables( APL_Float qct, Value_P B )
     return Token( TOK_APL_VALUE1, value );
 }
 
+static Token show_cols( APL_Float qct, Value_P A, Value_P B )
+{
+    Connection *conn = value_to_db_id( qct, A );
+    vector<ColumnDescriptor> cols;
+
+    if( !B->is_apl_char_vector() ) {
+        Workspace::more_error() = "Illegal table name";
+        VALUE_ERROR;
+    }
+
+    string name = to_string( B->get_UCS_ravel() );
+    conn->fill_cols( name, cols );
+
+    Value_P value;
+    if( cols.size() == 0 ) {
+        value = Idx0( LOC );
+    }
+    else {
+        Shape shape( cols.size(), 2 );
+        value = new Value( shape, LOC );
+        for( vector<ColumnDescriptor>::iterator i = cols.begin() ; i != cols.end() ; i++ ) {
+            new (value->next_ravel()) PointerCell( make_string_cell( i->get_name(), LOC ) );
+
+            Value_P type;
+            if( i->get_type().size() == 0 ) {
+                type = Str0( LOC );
+            }
+            else {
+                type = make_string_cell( i->get_type(), LOC );
+            }
+            new (value->next_ravel()) PointerCell( type );
+        }
+    }
+
+    value->check_value( LOC );
+    return Token( TOK_APL_VALUE1, value );
+}
+
 Fun_signature get_signature()
 {
     init_provider_map();
@@ -389,6 +428,9 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 
     case 4:
         return run_update( param_to_db( qct, X ), A, B );
+
+    case 9:
+        return show_cols( qct, A, B );
 
     default:
         Workspace::more_error() = "Illegal function number";

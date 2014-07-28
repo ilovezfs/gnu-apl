@@ -506,7 +506,7 @@ arguments passed on to the interpreter. In our case this could be, for
 example:
 
 @verbatim
-    #! /usr/bin/apl --id 1010
+    #! /usr/local/bin/apl --id 1010
 @end verbatim
 
 There are essentially two ways to run an APL script: redirecting the script
@@ -539,7 +539,7 @@ interpreter for the script (see also @option{'man 2 execve'}). For this to
 work, the first line of the script must have a special format
 
 @verbatim
-    #! /usr/bin/apl --script
+    #! /usr/local/bin/apl --script
 @end verbatim
 
 @option{--script} prevents: printing of a welcome banner, 
@@ -600,7 +600,7 @@ Assume the script file SCRIPT.apl contains this (the file is shipped
 with GNU APL):
 
 @verbatim
-#! /usr/bin/apl --id 1010 --script
+#! /usr/local/bin/apl --id 1010 --script
 
       ⊃⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -618,7 +618,7 @@ as seen by ⎕ARG, is produced:
 
 @verbatim
    ⊃⎕ARG
-/usr/bin/apl
+/usr/local/bin/apl
 --script          
 ./SCRIPT.apl      
 sarg1             
@@ -628,7 +628,7 @@ sarg2
 This tells us that the different names are constructed by exeve() in the
 following order:
 
-1. Interpreter name (the first name in the script file, here: /usr/bin/apl)
+1. Interpreter name (the first name in the script file, here: /usr/local/bin/apl)
 
 2. Optional Interpreter arguments (here: ----script)
 
@@ -644,15 +644,15 @@ argument. On GNU/Linux systems the following first lines of the script are
 understood:
 
 @verbatim
-/usr/bin/apl
-/usr/bin/apl --
-/usr/bin/apl -s
-/usr/bin/apl --script
-/usr/bin/apl -s --
-/usr/bin/apl --script --
+/usr/local/bin/apl
+/usr/local/bin/apl --
+/usr/local/bin/apl -s
+/usr/local/bin/apl --script
+/usr/local/bin/apl -s --
+/usr/local/bin/apl --script --
 @end verbatim
 
-The recommended form is: /usr/bin/apl ----script
+The recommended form is: /usr/local/bin/apl ----script
 
 Note that '----' and options that follow it ARE NOT shown in ⎕ARG if they
 are given on the first line of the script, while '----' and options that follow
@@ -673,7 +673,7 @@ interpreter. In the initial example above this would be a nested 3-element
 vector:
 
 @verbatim
-    /usr/bin/apl --id 1010
+    /usr/local/bin/apl --id 1010
 @end verbatim
 
 A feature particularly useful for CGI scripting (where some information is
@@ -741,7 +741,7 @@ for the script.
 Consider the following simple script called SCRIPT.apl in directory workspaces:
 
 @verbatim
-#! /usr/bin/apl --script
+#! /usr/local/bin/apl --script
 
 ⊃⎕ARG    ⍝ show command line options
 )OFF    ⍝ leave the interpreter
@@ -750,14 +750,14 @@ Consider the following simple script called SCRIPT.apl in directory workspaces:
 If SCRIPT.apl is redirected to stdin of the APL interpreter:
 
 @verbatim
- /usr/bin/apl --silent <  ../workspaces/SCRIPT.apl
+ /usr/local/bin/apl --silent <  ../workspaces/SCRIPT.apl
 
  or
 
- /usr/bin/apl --silent -f ../workspaces/SCRIPT.apl
+ /usr/local/bin/apl --silent -f ../workspaces/SCRIPT.apl
 @end verbatim
 
-then the first line @option{#! /usr/bin/apl --script} of file SCRIPT.apl 
+then the first line @option{#! /usr/local/bin/apl --script} of file SCRIPT.apl 
 is merely a comment (GNU APL accepts both the traditional APL character
 ⍝ and the character # as start of a comment). The @option{--script} option
 is therefore ignored and the following mix of input and output is
@@ -766,7 +766,7 @@ usual APL prompt of 6 blanks, while the output of the APL interpreter
 is not indented.
 
 @verbatim
-      #! /usr/bin/apl --script
+      #! /usr/local/bin/apl --script
       
       ⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -784,7 +784,7 @@ Then we get:
 
 @verbatim
 
- /usr/bin/apl --script ../workspaces/SCRIPT.apl 
+ /usr/local/bin/apl --script ../workspaces/SCRIPT.apl 
 
 @end verbatim
 
@@ -808,7 +808,7 @@ then it shows up at the end of ⎕ARG:
 
 @verbatim
 
- /usr/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG 
+ /usr/local/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG 
 
 @end verbatim
 

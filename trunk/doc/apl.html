@@ -582,7 +582,7 @@ absolute or relative path to the interpreter, followed by command line
 arguments passed on to the interpreter. In our case this could be, for
 example:
 </p>
-<pre class="verbatim">    #! /usr/bin/apl --id 1010
+<pre class="verbatim">    #! /usr/local/bin/apl --id 1010
 </pre>
 <p>There are essentially two ways to run an APL script: redirecting the script
 file to stdin of the interpreter or making the script executable and indicate
@@ -611,7 +611,7 @@ the redirecting of the file was performed by apl itself.
 interpreter for the script (see also <samp>'man 2 execve'</samp>). For this to
 work, the first line of the script must have a special format
 </p>
-<pre class="verbatim">    #! /usr/bin/apl --script
+<pre class="verbatim">    #! /usr/local/bin/apl --script
 </pre>
 <p><samp>--script</samp> prevents: printing of a welcome banner, 
 echoing of stdin to stdout, automatic loading of a )CONTINUE workspaces,
@@ -669,7 +669,7 @@ in a way that is described in &rsquo;man 2 execve&rsquo;.
 <p>Assume the script file SCRIPT.apl contains this (the file is shipped
 with GNU APL):
 </p>
-<pre class="verbatim">#! /usr/bin/apl --id 1010 --script
+<pre class="verbatim">#! /usr/local/bin/apl --id 1010 --script
 
       ⊃⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -683,7 +683,7 @@ with GNU APL):
 as seen by ⎕ARG, is produced:
 </p>
 <pre class="verbatim">   ⊃⎕ARG
-/usr/bin/apl
+/usr/local/bin/apl
 --script          
 ./SCRIPT.apl      
 sarg1             
@@ -692,7 +692,7 @@ sarg2
 <p>This tells us that the different names are constructed by exeve() in the
 following order:
 </p>
-<p>1. Interpreter name (the first name in the script file, here: /usr/bin/apl)
+<p>1. Interpreter name (the first name in the script file, here: /usr/local/bin/apl)
 </p>
 <p>2. Optional Interpreter arguments (here: &mdash;-script)
 </p>
@@ -707,14 +707,14 @@ can use &mdash;- to provide at least one argument) and also not more than one
 argument. On GNU/Linux systems the following first lines of the script are
 understood:
 </p>
-<pre class="verbatim">/usr/bin/apl
-/usr/bin/apl --
-/usr/bin/apl -s
-/usr/bin/apl --script
-/usr/bin/apl -s --
-/usr/bin/apl --script --
+<pre class="verbatim">/usr/local/bin/apl
+/usr/local/bin/apl --
+/usr/local/bin/apl -s
+/usr/local/bin/apl --script
+/usr/local/bin/apl -s --
+/usr/local/bin/apl --script --
 </pre>
-<p>The recommended form is: /usr/bin/apl &mdash;-script
+<p>The recommended form is: /usr/local/bin/apl &mdash;-script
 </p>
 <p>Note that &rsquo;&mdash;-&rsquo; and options that follow it ARE NOT shown in ⎕ARG if they
 are given on the first line of the script, while &rsquo;&mdash;-&rsquo; and options that follow
@@ -735,7 +735,7 @@ such options are passed to the application via ⎕ARG.
 interpreter. In the initial example above this would be a nested 3-element
 vector:
 </p>
-<pre class="verbatim">    /usr/bin/apl --id 1010
+<pre class="verbatim">    /usr/local/bin/apl --id 1010
 </pre>
 <p>A feature particularly useful for CGI scripting (where some information is
 passed to the APL script via environment variables) is the monadic system
@@ -796,20 +796,20 @@ for the script.
 </p>
 <p>Consider the following simple script called SCRIPT.apl in directory workspaces:
 </p>
-<pre class="verbatim">#! /usr/bin/apl --script
+<pre class="verbatim">#! /usr/local/bin/apl --script
 
 ⊃⎕ARG    ⍝ show command line options
 )OFF    ⍝ leave the interpreter
 </pre>
 <p>If SCRIPT.apl is redirected to stdin of the APL interpreter:
 </p>
-<pre class="verbatim"> /usr/bin/apl --silent &lt;  ../workspaces/SCRIPT.apl
+<pre class="verbatim"> /usr/local/bin/apl --silent &lt;  ../workspaces/SCRIPT.apl
 
  or
 
- /usr/bin/apl --silent -f ../workspaces/SCRIPT.apl
+ /usr/local/bin/apl --silent -f ../workspaces/SCRIPT.apl
 </pre>
-<p>then the first line <samp>#! /usr/bin/apl --script</samp> of file SCRIPT.apl 
+<p>then the first line <samp>#! /usr/local/bin/apl --script</samp> of file SCRIPT.apl 
 is merely a comment (GNU APL accepts both the traditional APL character
 ⍝ and the character # as start of a comment). The <samp>--script</samp> option
 is therefore ignored and the following mix of input and output is
@@ -817,7 +817,7 @@ shown on the screen. The input from the script is indented by the
 usual APL prompt of 6 blanks, while the output of the APL interpreter
 is not indented.
 </p>
-<pre class="verbatim">      #! /usr/bin/apl --script
+<pre class="verbatim">      #! /usr/local/bin/apl --script
       
       ⎕ARG      ⍝ show command line options
       )OFF      ⍝ leave the interpreter
@@ -831,7 +831,7 @@ is not indented.
 <p>Then we get:
 </p>
 <pre class="verbatim">
- /usr/bin/apl --script ../workspaces/SCRIPT.apl 
+ /usr/local/bin/apl --script ../workspaces/SCRIPT.apl 
 
 </pre>
 <p>The <samp>--script</samp> implies <samp>--noCIN</samp> so that the
@@ -851,7 +851,7 @@ comes from function execve (see &rsquo;man 2 execve&rsquo;).
 <p>then it shows up at the end of ⎕ARG:
 </p>
 <pre class="verbatim">
- /usr/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG 
+ /usr/local/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG 
 
 </pre>
 <a name="g_t_005b_003f_005dSYL-_002d-System-limits"></a>

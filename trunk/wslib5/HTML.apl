@@ -1,4 +1,4 @@
-⍝! apl --script
+⍝! /usr/local/bin/apl --script
 ⍝
 ⍝ HTML.apl
 ⍝

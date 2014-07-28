@@ -31,3 +31,11 @@ lib_sql_la_SOURCES +=	PostgresArgListBuilder.cc PostgresArgListBuilder.hh \
 endif
 
 
+.PHONY: git-pull
+git-pull:
+	cp -f Makefile Makefile.1
+	git reset --hard
+	git pull
+	mv -f Makefile.1 Makefile
+	cp sql.apl ../../wslib5/SQL.apl
+

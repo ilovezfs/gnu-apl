@@ -1039,7 +1039,11 @@ int janitor = 0;
             }
          else if (!strcmp(opt, "-d"))
             {
+#if APSERVER_TRANSPORT == 0   // TCP
+               got_port = true;
+#else                         // AF_UNIX
                got_path = true;
+#endif
               ++verbosity;
               debug = &cerr;
               LOG_shared_variables = true;
