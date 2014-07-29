@@ -231,7 +231,7 @@ have been corrected already.
 <DIV class="c4">
 <?apl HTML∆H2[''] 'Reporting Bugs' ?>
 
-GNU APL is made up of about 50,000 lines of C++ code. In a code of that
+GNU APL is made up of more than 60,000 lines of C++ code. In a code of that
 size, programming mistakes are inevitable. Even though mistakes are hardly
 avoidable, they can be <B>corrected</B> once they are found. In order to
 improve the quality of GNU APL, we would like to encourage you to report

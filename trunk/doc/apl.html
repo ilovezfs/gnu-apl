@@ -99,7 +99,7 @@ ul.no-bullet {list-style: none}
     <li><a name="toc-Complex-Numbers" href="#Complex-Numbers">2.7 Complex Numbers</a></li>
     <li><a name="toc-Native-Functions" href="#Native-Functions">2.8 Native Functions</a></li>
     <li><a name="toc-DUMP-Command" href="#DUMP-Command">2.9 DUMP Command</a></li>
-    <li><a name="toc-User_002ddefine-Command" href="#User_002ddefine-Command">2.10 User-define Command</a></li>
+    <li><a name="toc-User_002ddefined-Command" href="#User_002ddefined-Command">2.10 User-defined Command</a></li>
     <li><a name="toc-Direct-Functions-_0028Lambdas_0029" href="#Direct-Functions-_0028Lambdas_0029">2.11 Direct Functions (Lambdas)</a>
     <ul class="no-bullet">
       <li><a name="toc-Named-Lambdas" href="#Named-Lambdas">2.11.1 Named Lambdas</a></li>
@@ -436,7 +436,7 @@ started together with this interpreter time to initialize themselves.
 
 <p>end of options for the interpreter. There is a system variable ⎕ARG that
 returns all command line arguments of the interpreter
-(like argv in main(int argv, char * argv[]) in C). Option &mdash; can be used
+(like argv in main(int argv, char * argv[]) in C). Option &mdash;- can bed to separate command line opt used
 to separate command line options for the APL interpreter from command line
 options understood by APL applications.
 </p>
@@ -742,7 +742,7 @@ as seen by ⎕ARG, is produced:
 sarg1             
 sarg2 
 </pre>
-<p>This tells us that the different names are constructed by exeve() in the
+<p>This tells us that the different names are constructed by execve() in the
 following order:
 </p>
 <p>1. Interpreter name (the first name in the script file, here: /usr/local/bin/apl)
@@ -1219,8 +1219,8 @@ produces a file in GNU APL&rsquo;s script format (i.e. readable APL statements).
 Files written with )DUMP can be edited with normal text editors (vi, emacs),
 read back with &quot;apl -f&quot;, or made executable (see scripting).
 </p>
-<a name="User_002ddefine-Command"></a>
-<h3 class="section">2.10 User-define Command</h3>
+<a name="User_002ddefined-Command"></a>
+<h3 class="section">2.10 User-defined Command</h3>
 
 <p>There is a simple mechanism to define additional APL commands. This mechanism
 is intended to introduce new commands by APL libraries. Like system commands,
@@ -1317,7 +1317,7 @@ be passed as function arguments to operators.
 <h4 class="subsection">2.11.3 Limitations</h4>
 
 <p>There are a number of features related to lambdas that are present in other
-APL interpreter but that are NOT implemented in GNU APL. This includes
+APL interpreters but that are NOT implemented in GNU APL. This includes
 multiple statements, guards, lexical scoping, and probably more.
 </p>
 <a name="Axis-argument-in-user_002ddefined-functions"></a>
@@ -1342,8 +1342,8 @@ and operators.
 </p>
 <p>There are no constraints on the axis such as being integers. Therefore you
 can use an axis as a third function argument. Keep in mind, however, that
-doing so will make your APL code incompatible with other APL interpreters. Use this
-feature carefully!
+doing so will make your APL code incompatible with other APL interpreters.
+Use this feature carefully!
 </p>
 <hr>
 <a name="Chapter-3"></a>
@@ -1361,8 +1361,11 @@ an up-to-date descriptions of limitations.
 <a name="System-Limits"></a>
 <h3 class="section">3.1 System Limits</h3>
 
-<p>APL integers are 64-bit wide, thus ranging from
--9000000000000000000 to 9000000000000000000
+<p>APL integers are 64-bit wide, ranging from
+-9200000000000000000 to 9200000000000000000
+</p>
+<p>Due to rounding and similar, some integers can become slightly larger, but
+the above limits are guaranteed for some operations (e.g. + and -)
 </p>
 <p>APL floating point values are 64-bit wide, thus ranging from
 -8.98E307 to 8.98E307.

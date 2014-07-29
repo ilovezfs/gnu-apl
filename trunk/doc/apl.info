@@ -307,9 +307,10 @@ APL understands the following command line options:
 
      end of options for the interpreter.  There is a system variable
      ⎕ARG that returns all command line arguments of the interpreter
-     (like argv in main(int argv, char * argv[]) in C). Option — can be
-     used to separate command line options for the APL interpreter from
-     command line options understood by APL applications.
+     (like argv in main(int argv, char * argv[]) in C). Option —- can
+     bed to separate command line opt used to separate command line
+     options for the APL interpreter from command line options
+     understood by APL applications.
 
      Thus,
 
@@ -615,7 +616,7 @@ options as seen by ⎕ARG, is produced:
 sarg1
 sarg2
 
-   This tells us that the different names are constructed by exeve() in
+   This tells us that the different names are constructed by execve() in
 the following order:
 
    1.  Interpreter name (the first name in the script file, here:
@@ -1099,8 +1100,8 @@ APL statements).  Files written with )DUMP can be edited with normal
 text editors (vi, emacs), read back with "apl -f", or made executable
 (see scripting).
 
-2.10 User-define Command
-========================
+2.10 User-defined Command
+=========================
 
 There is a simple mechanism to define additional APL commands.  This
 mechanism is intended to introduce new commands by APL libraries.  Like
@@ -1200,7 +1201,7 @@ They can be passed as function arguments to operators.
 ------------------
 
 There are a number of features related to lambdas that are present in
-other APL interpreter but that are NOT implemented in GNU APL. This
+other APL interpreters but that are NOT implemented in GNU APL. This
 includes multiple statements, guards, lexical scoping, and probably
 more.
 
@@ -1243,8 +1244,12 @@ up-to-date descriptions of limitations.
 3.1 System Limits
 =================
 
-APL integers are 64-bit wide, thus ranging from -9000000000000000000 to
-9000000000000000000
+APL integers are 64-bit wide, ranging from -9200000000000000000 to
+9200000000000000000
+
+   Due to rounding and similar, some integers can become slightly
+larger, but the above limits are guaranteed for some operations (e.g.  +
+and -)
 
    APL floating point values are 64-bit wide, thus ranging from
 -8.98E307 to 8.98E307.
@@ -2490,12 +2495,12 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top416
 Node: Chapter 11347
-Node: Chapter 215963
-Node: Chapter 342588
-Node: Chapter 444194
-Node: Chapter 545317
-Node: Section 5.145820
-Node: Section 5.271128
+Node: Chapter 215999
+Node: Chapter 342628
+Node: Chapter 444376
+Node: Chapter 545499
+Node: Section 5.146002
+Node: Section 5.271310
 
 End Tag Table
 
