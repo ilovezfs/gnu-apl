@@ -1,4 +1,4 @@
-.TH APL 1 "2013 September 12" "apl" "GNU APL"
+.TH APL 1 "2014 July 28" "apl" "GNU APL"
 .SH "NAME"
 GNU APL - a free APL interpreter
 .SH SYNOPSIS
@@ -33,15 +33,23 @@ accepts the following command line options:
 .B --cfg
 show ./configure options used and exit.
 .TP
+.B --[n]Color
+start with ]COLOR ON [OFF].
+.TP
+.B --emacs
+run in (old) emacs mode.
+.TP
+.B --emacs
+run in (new) emacs mode with argument arg.
+.TP
 .B -d
 run the interpreter in the background (i.e. as daemon)
 .TP
 .B -f file
-read input from \fIfile\fP (after all -T files) rather than from the
-keyboard.  When the end of the file is reached, input is switched
-back to the keyboard.  If you want to terminate the APL
-interpreter after executing the file, use )OFF as last line in the
-file.
+read input from \fIfile\fP rather than from the keyboard. When the end of
+the file is reached, input is switched back to the keyboard. 
+If you want to terminate the APL interpreter after executing the file,
+then use )OFF as last line in the file.
 .TP
 .B-h, --help\
 print all command line options with a brief hint what they do.
@@ -52,6 +60,11 @@ then the first unused ID > 1000 is taken by this interpreter and
 the ID becomes used as long as the interpreter runs. Processor IDs
 are used by shared variables to identify share partners.
 .TP
+.B -l num
+turn logging facility num ON (if dynamic logging is configured).
+The logging facility for startup messages can be turned on even
+when dynamic logging is not configured.
+.TP
 .B --noCIN
 do not echo stdin to stdout. Almost a must for scripting (unless
 you troubleshoot a script).
@@ -59,8 +72,11 @@ you troubleshoot a script).
 .B --noCONT
 do not load a \fBCONTINUE\fP workspace on start-up.
 .TP
-.B --noSV
-do not start APnnn (a shared variable server) on start-up. This
+.B -p N
+use profile N in preference files
+.TP
+.B --[no]SV
+do [not] start APserver (a shared variable server) on start-up. This
 disables communication with other workspaces or auxiliary
 processors through shared variables.
 .TP
@@ -71,6 +87,30 @@ use processor parent ID \fIpproc\fP (default: no parent ID).
 this option is an abbreviation for
 .B --silent --noCIN --noCONT -f -
 (a typical combination of options for APL scripts).
+.TP
+.B --show_bin_dir
+display the binary directory (where, according to ./configure,
+.TP
+.B --show_doc_dir
+display the directory where, according to ./configure,
+documentation files for GNU APL are intalled)
+.TP
+.B --show_etc_dir
+display the system configuration directory where, according to ./configure,
+the preferences file for GNU APL is intalled
+.TP
+.B --show_lib_dir
+display the system configuration directory where, according to ./configure,
+shared library files and the workspaces shipped with GNU APL are intalled.
+.TP
+.B --show_src_dir
+display the source directory where, according to ./configure, GNU
+APL was compiled.  This can be used, for example, by native functions that
+are built outside the GNU APL source tree to find GNU APL header files
+needed to compile.
+.TP
+.B --show_all_dirs
+display all the directories above.
 .TP
 .B --silent
 suppress printing of the GNU APL welcome message. Useful for APL scripts.
@@ -111,6 +151,9 @@ like `\fB--TM 3\fR', but exit after the first failed testcase.
 The is useful for automatic regression tests, where no errors are
 expected.
 .TP
+.B --TR
+execute test case files in random order.
+.TP
 .B --TS
 Normally, when the interpreter is run with the `\fB-T\fR' option, then
 an existing summary.log file is overridden without notice.  This
@@ -129,21 +172,17 @@ themselves.
 end of options for the interpreter. There can be more options
 following; these options are ignored by the APL interpreter, but
 are visible in the APL system variable ⎕ARG (which plays the role
-of argv in main(int argv, char * argv[]) in C/C++). When APL is run as
-a script, then \fB--\fR MUST be present in the argument for the
-interpreter (see
-.BR execve (2)
-) or else the script file will not be found.
+of arguments argc/argv in main(int argc, char * argv[]) in C/C++). 
 
 .SH REPORTING BUGS
 
-Report bugs to <TO-BE-DEFINED>
+Report bugs to bug-apl@gnu.org
 .PP
 .IR "GNU APL"
 
 .SH AUTHOR
 .PP
-This manual page was written by Jürgen Sauermann, the initial
-author of GNU APL.
+This manual page was written by Jürgen Sauermann, the author
+and maintainer of GNU APL.
 
 

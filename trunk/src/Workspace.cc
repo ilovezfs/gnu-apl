@@ -849,7 +849,7 @@ ofstream outf(filename.c_str(), ofstream::out);
 
      outf << "#!" << LibPaths::get_APL_bin_path()
           << "/" << LibPaths::get_APL_bin_name()
-          << " --script --" << endl
+          << " --script" << endl
           << endl
           << " ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝" << endl
           << "⍝" << endl

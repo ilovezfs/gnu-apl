@@ -1,6 +1,13 @@
-⍝! /usr/local/bin/apl --script
+⍝! apl
 ⍝
 ⍝ meta: a library for creating and checking meta functions in a library
+⍝
+⍝ intended usage:
+⍝
+⍝ )COPY meta
+⍝ meta∆make_functions        create functions for your library
+⍝ ... answer questions
+⍝ meta∆remove_meta_helpers   remove functions provided by this library
 ⍝
 
 ⍝ return the meta functions to be provided by Package
@@ -35,8 +42,12 @@
  Q←⎕FX L0 L1
 ∇
 
-meta∆make_functions 'meta'
+∇meta∆remove_meta_helpers
+⊣ ⎕EX 'meta∆functions'
+⊣ ⎕EX 'meta∆make_function'
+⊣ ⎕EX 'meta∆make_functions'
+⊣ ⎕EX 'meta∆remove_meta_helpers'
+∇
 
       )FNS
-      )OFF
 

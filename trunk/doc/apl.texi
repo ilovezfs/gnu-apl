@@ -105,7 +105,6 @@ For the experienced, but impatient reader: it is the usual sequence
 On success, an executable file called 'apl' will have been produced
 in the sub-directory 'src'.
 
-
 File README contains further instructions about the installation GNU APL.
 
 @section Starting APL
@@ -138,7 +137,7 @@ APL interpreter binary is called apl and can be found in the shell's PATH):
 or (if the APL interpreter binary is /mypath/apl but not necessarily
 in the shell's PATH):
 
-#!/mypath/apl
+#! /mypath/apl
 
 The text file must, of course, have execute permission, and should be ASCII
 or, more likely, UTF-8 encoded. The APL characters in the script
@@ -170,20 +169,32 @@ via the -f option.
 @item
 @option{--emacs}
 
-run in emacs mode.
+run in (old) emacs mode.
+
+@item
+@option{--emacs_arg arg}
+
+run in (new) emacs mode with argument arg.
+
 
 @item
 @option{-f file}
 
-read input from file (after all -T files) rather than from the keyboard.
-When the end of the file is reached, input is switched back to the keyboards.
-If you want to terminate the APL interpreter after executing the file, use
-)OFF as last line in the file.
+read input from \fIfile\fP rather than from the keyboard. When the end of
+the file is reached, input is switched back to the keyboard. 
+If you want to terminate the APL interpreter after executing the file,
+then use )OFF as last line in the file.
+
 
 @item
 @option{--gpl}
 
 show GNU APL license (GPL) and exit.
+
+@option{--LX expr }
+
+execute expr first. This can be used, for example, to load some library
+ore workspace at startup.
 
 @item
 @option{-h}, @option{--help}
@@ -201,7 +212,9 @@ to identify share partners.
 @item
 @option{-l num}
 
-turn logging facility num ON (if dynamic logging is configured).
+turn logging facility num ON (if dynamic logging is configured). The logging
+facility for startup messages can be turned on even when dynamic logging is
+not configured.
 
 @item
 @option{--noCIN}
@@ -220,6 +233,11 @@ do not load a CONTINUE workspace on start-up.
 do [not] start APnnn (a shared variable server) on start-up. This disables
 communication with other workspaces or auxiliary processors through
 shared variables.
+
+@item
+@option{-p N}
+
+use profile number N in preferences files.
 
 @item
 @option{--par pproc}
@@ -247,6 +265,49 @@ suppress printing of the GNU APL welcome message. Useful for scripts.
 @option{--safe}
 
 disable shared variables and native functions
+
+
+@item
+@option{--show_bin_dir}
+
+display the binary directory (where, according to ./configure,  the programs
+apl, APserver, AP100, and AP210 are supposed to be intalled. Tben exit.
+
+@item
+@option{--show_doc_dir}
+
+display the directory where, according to ./configure,  documentation files
+for GNU APL are intalled. Tben exit.
+
+
+@item
+@option{--show_etc_dir}
+
+display the system configuration directory where, according to ./configure,
+the preferences file for GNU APL is intalled. Tben exit.
+
+
+@item
+@option{--show_lib_dir}
+
+display the library directory where, according to ./configure, shared
+library files and the workspaces shipped with GNU APL are intalled. Tben exit.
+
+
+@item
+@option{--show_src_dir}
+
+display the source directory where, according to ./configure, GNU APL
+was compiled. Tben exit. This can be used, for example, by native functions\
+that are built outside the GNU APL source tree to find GNU APL header files
+that are needed to compile the native function.
+
+
+@item
+@option{--show_all_dirs}
+
+display all the directories above. Tben exit.
+
 
 @item
 @option{-T testcases ...}
