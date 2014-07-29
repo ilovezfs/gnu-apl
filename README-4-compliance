@@ -29,9 +29,9 @@ The following issues are known and maybe fixed mid-term:
 
 * shared variable improvements
 
-* UNIX sockets instead of (or in addition to)TCP/UDP for shared variables
-
 * properly localizing ⎕RL
+
+* Power operator ⍣
 
 The following extensions are provided:
 --------------------------------------

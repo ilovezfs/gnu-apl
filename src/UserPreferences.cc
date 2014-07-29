@@ -56,7 +56,7 @@ char cc[4000];
 "    options: \n"
 "    -h, --help           print this help\n"
 "    -d                   run in the background (i.e. as daemon)\n"
-"    -f file              read APL input from\n"
+"    -f file              read APL input from file\n"
 "    --id proc            use processor ID proc (default: first unused > 1000)\n", prog);
    CERR << cc;
 

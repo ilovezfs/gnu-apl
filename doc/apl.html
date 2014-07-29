@@ -199,7 +199,6 @@ directory
 <p>On success, an executable file called &rsquo;apl&rsquo; will have been produced
 in the sub-directory &rsquo;src&rsquo;.
 </p>
-
 <p>File README contains further instructions about the installation GNU APL.
 </p>
 <a name="Starting-APL"></a>
@@ -233,7 +232,7 @@ APL interpreter binary is called apl and can be found in the shell&rsquo;s PATH)
 <p>or (if the APL interpreter binary is /mypath/apl but not necessarily
 in the shell&rsquo;s PATH):
 </p>
-<p>#!/mypath/apl
+<p>#! /mypath/apl
 </p>
 <p>The text file must, of course, have execute permission, and should be ASCII
 or, more likely, UTF-8 encoded. The APL characters in the script
@@ -262,18 +261,29 @@ via the -f option.
 </p>
 </li><li> <samp>--emacs</samp>
 
-<p>run in emacs mode.
+<p>run in (old) emacs mode.
 </p>
+</li><li> <samp>--emacs_arg arg</samp>
+
+<p>run in (new) emacs mode with argument arg.
+</p>
+
 </li><li> <samp>-f file</samp>
 
-<p>read input from file (after all -T files) rather than from the keyboard.
-When the end of the file is reached, input is switched back to the keyboards.
-If you want to terminate the APL interpreter after executing the file, use
-)OFF as last line in the file.
+<p>read input from \fIfile\fP rather than from the keyboard. When the end of
+the file is reached, input is switched back to the keyboard. 
+If you want to terminate the APL interpreter after executing the file,
+then use )OFF as last line in the file.
 </p>
+
 </li><li> <samp>--gpl</samp>
 
 <p>show GNU APL license (GPL) and exit.
+</p>
+<p><samp>--LX expr </samp>
+</p>
+<p>execute expr first. This can be used, for example, to load some library
+ore workspace at startup.
 </p>
 </li><li> <samp>-h</samp>, <samp>--help</samp>
 
@@ -288,7 +298,9 @@ to identify share partners.
 </p>
 </li><li> <samp>-l num</samp>
 
-<p>turn logging facility num ON (if dynamic logging is configured).
+<p>turn logging facility num ON (if dynamic logging is configured). The logging
+facility for startup messages can be turned on even when dynamic logging is
+not configured.
 </p>
 </li><li> <samp>--noCIN</samp>
 
@@ -304,6 +316,10 @@ troubleshoot a script).
 <p>do [not] start APnnn (a shared variable server) on start-up. This disables
 communication with other workspaces or auxiliary processors through
 shared variables.
+</p>
+</li><li> <samp>-p N</samp>
+
+<p>use profile number N in preferences files.
 </p>
 </li><li> <samp>--par pproc</samp>
 
@@ -327,6 +343,43 @@ which is a typical combination of options for APL scripts.
 
 <p>disable shared variables and native functions
 </p>
+
+</li><li> <samp>--show_bin_dir</samp>
+
+<p>display the binary directory (where, according to ./configure,  the programs
+apl, APserver, AP100, and AP210 are supposed to be intalled. Tben exit.
+</p>
+</li><li> <samp>--show_doc_dir</samp>
+
+<p>display the directory where, according to ./configure,  documentation files
+for GNU APL are intalled. Tben exit.
+</p>
+
+</li><li> <samp>--show_etc_dir</samp>
+
+<p>display the system configuration directory where, according to ./configure,
+the preferences file for GNU APL is intalled. Tben exit.
+</p>
+
+</li><li> <samp>--show_lib_dir</samp>
+
+<p>display the library directory where, according to ./configure, shared
+library files and the workspaces shipped with GNU APL are intalled. Tben exit.
+</p>
+
+</li><li> <samp>--show_src_dir</samp>
+
+<p>display the source directory where, according to ./configure, GNU APL
+was compiled. Tben exit. This can be used, for example, by native functions\
+that are built outside the GNU APL source tree to find GNU APL header files
+that are needed to compile the native function.
+</p>
+
+</li><li> <samp>--show_all_dirs</samp>
+
+<p>display all the directories above. Tben exit.
+</p>
+
 </li><li> <samp>-T testcases ...</samp>
 run testcases. Testcases are text files that contain both input to the APL
 interpreter and the expected response from the interpreter. The output from
