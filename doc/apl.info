@@ -21,7 +21,7 @@ described in ISO standard 13751, aka.  "Programming Language APL,
 Extended".
 
    This manual for GNU APL can be distributed under the terms of the GNU
-Free Documentation License, *Note Chapter 5::.
+Free Documentation License, *Note Chapter 6::.
 
    This manual does NOT describe APL itself; there exist a number of
 good books and texts about APL. We would like to refer the reader to the
@@ -39,7 +39,8 @@ ftp://rtfm.mit.edu/pub/usenet-by-group/comp.lang.apl/APL_language_FAQ
 * Chapter 2::    Non-standard Features
 * Chapter 3::    Limitations and Missing Features
 * Chapter 4::    Internationalization
-* Chapter 5::    Licenses for GNU APL and this Manual
+* Chapter 5::    Libraries Contributed by GNU APL Users
+* Chapter 6::    Licenses for GNU APL and this Manual
 
 
 File: apl.info,  Node: Chapter 1,  Next: Chapter 2,  Prev: Top,  Up: Top
@@ -1307,13 +1308,74 @@ or directory
    then something is wrong and you should check your LANG setting and
 installed locales.
 
-   As far as xterm is concerned, the xterm command line options -u8,
--lc, and -en might solve problems related to the terminal.
+   As far as xterm is concerned, the xterm command line options –u8,
+–lc, and –en might solve problems related to the terminal.
 
 
-File: apl.info,  Node: Chapter 5,  Prev: Chapter 4,  Up: Top
+File: apl.info,  Node: Chapter 5,  Next: Chapter 6,  Prev: Chapter 4,  Up: Top
 
-5 Licenses for this GNU APL Manual and for GNU APL
+5 Libraries Contributed by GNU APL Users
+****************************************
+
+Since the first release of GNU APL, a number of libraries, but also
+other developments, have been made by users of GNU APL. Below are links
+to these contributions.
+
+* Menu:
+
+* Section 5.1::  The GNU APL Community Webpage
+* Section 5.2::  Core Libraries
+
+
+File: apl.info,  Node: Section 5.1,  Next: Section 5.2,  Up: Chapter 5
+
+5.1 The GNU APL Community Webpage
+=================================
+
+The GNU APL project maintains a web page that lists contibutions made by
+GNU APL users:
+
+   <http://www.gnu.org/software/apl/Community.html>
+
+   The contributions listed there were collected from emails sent to
+bug-apl@gnu.org
+
+   Since the list was started long after bug-apl@gnu.org was created.
+It is therefore quite possible that your contribution is missing.  That
+does not mean that your contribution was not considered worthwil to be
+listed but more likely that it was overlooked.  Juse send an email to
+bug-apl@gnu.org to fix that.
+
+
+File: apl.info,  Node: Section 5.2,  Prev: Section 5.1,  Up: Chapter 5
+
+5.2 Core Libraries
+==================
+
+There is a small number of libraries that are considered "core" APL
+because, for example, the ISO standard requires their functionality, or
+because other APL interpreters normally support them.
+
+   These libraries are linked via the GNU APL Community web page.  In
+addition they are stored in the GNU APL SVN repository and also included
+in the GNU APL packages that follows their contribution.
+
+   Currently the following core libraries exist:
+
+   GNU APL emacs mode (for emacs users) by Elias Mårtenson
+
+   SQL interface (SQLite nad Postgres) by Elias Mårtenson
+
+   Component File System (as required by ISO 13751) by David B. Lamkins
+
+   Component File System (as required by ISO 13751) by Blake McBride
+
+   SQL
+
+
+File: apl.info,  Node: Chapter 6,  Prev: Chapter 5,  Up: Top
+
+6 Licenses for this GNU APL Manual and for GNU APL
 **************************************************
 
 This manual for GNU APL is licensed under the GNU Free Documentation
@@ -1324,13 +1386,13 @@ later (aka GPLv3+), *Note Section 4.2:: below.
 
 * Menu:
 
-* Section 5.1::  The GNU Free Documentation License
-* Section 5.2::  The GNU General Public License
+* Section 6.1::  The GNU Free Documentation License
+* Section 6.2::  The GNU General Public License
 
 
-File: apl.info,  Node: Section 5.1,  Next: Section 5.2,  Up: Chapter 5
+File: apl.info,  Node: Section 6.1,  Next: Section 6.2,  Up: Chapter 6
 
-5.1 The GNU Free Documentation License
+6.1 The GNU Free Documentation License
 ======================================
 
                      Version 1.3, 3 November 2008
@@ -1810,9 +1872,9 @@ software license, such as the GNU General Public License, to permit
 their use in free software.
 
 
-File: apl.info,  Node: Section 5.2,  Prev: Section 5.1,  Up: Chapter 5
+File: apl.info,  Node: Section 6.2,  Prev: Section 6.1,  Up: Chapter 6
 
-5.2 The GNU GENERAL PUBLIC LICENSE
+6.2 The GNU GENERAL PUBLIC LICENSE
 ==================================
 
 GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
@@ -2493,13 +2555,16 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
 Tag Table:
 Node: Top383
-Node: Chapter 11314
-Node: Chapter 215966
-Node: Chapter 342595
-Node: Chapter 444343
-Node: Chapter 545466
-Node: Section 5.145969
-Node: Section 5.271277
+Node: Chapter 11370
+Node: Chapter 216022
+Node: Chapter 342651
+Node: Chapter 444399
+Node: Chapter 545528
+Node: Section 5.145947
+Node: Section 5.246631
+Node: Chapter 647462
+Node: Section 6.147965
+Node: Section 6.273273
 
 End Tag Table
 

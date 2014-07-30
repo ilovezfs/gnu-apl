@@ -33,6 +33,8 @@ help:
 	@echo "    make RPM     - create (source and binary) RPMs"
 	@echo "    make DEB     - create debian packages"
 	@echo ""
+	@echo "    make SVNUP   - update from SVN and ./configure"
+	@echo ""
 	@echo "NOTE: The RPM and DEB targets may fail because they require" 
 	@echo "additional tools that may not be present on your machine."
 	@echo ""
@@ -68,6 +70,12 @@ DEB:	DIST
 	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_*.deb          ftp-upload/
 	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1.debian.tar.gz  ftp-upload/
 
+# update from SVN repository and ./configure
+#
+.PHONY:	SVNUP
+SVNUP:
+	svn update
+	./configure --disable-maintainer-mode
 
 # a shortcut to configure for troubleshooting
 #
@@ -95,7 +103,7 @@ EXPO:
 	svn update
 	cd src; source buildtag
 	svn -m "auto-commit by make EXPO" commit
-	./configure
+	./configure --disable-maintainer-mode
 	make
 	make dist
 	make DEB
@@ -107,7 +115,7 @@ EXPO:
 EXPO1:
 	tools/check_src
 	cd src; source buildtag
-	./configure
+	./configure --disable-maintainer-mode
 	make
 	make dist
 	make DEB
@@ -125,7 +133,10 @@ DIST:	dist Makefile.dist
 am--refresh:
 	echo "making am--refresh"
 
-ACLOCAL_AMFLAGS = -I m4
-
 EXTRA_DIST = config.rpath m4/ChangeLog
+
+.PHONY: git-pull
+git-pull:
+	make -C src $@
+	make -C wslib5 $@
 

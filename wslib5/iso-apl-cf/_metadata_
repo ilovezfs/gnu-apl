@@ -1,0 +1,117 @@
+# This is not an APL file. This is metadata for an APL package.
+#
+# The following information applies to the APL Package Manager release
+# named "Netochka".
+#
+# A package's metadata is a collection of keyword/value pairs.
+#
+# The metadata file defines keyword/value pairs. A keyword is the
+# first word on a line, followed by a ':' character. The keyword maybe
+# preceeded by spaces. There must be no whitespace between the word
+# and the ':' delimiter. The delimiter must be followed by at least
+# one space.
+#
+# The value is the remaining text on the line (following the keyword
+# and ':' character) after stripping leading and trailing spaces.
+#
+# A value may be extended across multiple lines. Each non-comment
+# line which contains non-empty text is appended to the value.
+# The platform-specific newline is preserved. The usual rule
+# about stripping leading and trailing blanks applies even on
+# continuation lines.
+#
+# Do not use tabs. Use spaces. (This limitation probably won't be
+# lifted. Tabs simply aren't worth the trouble from the standpoint of
+# presenting text in other contexts.)
+#
+# Use only the ISO-8859-1 character set. This is metatdata, not APL
+# code. Putting extended characters into this file will cause
+# problems, as the file may be processed through the APL's quad-AV.
+
+# ================================================================
+
+# The package's directory name, package_name, and package_prefix
+# may all be different.
+
+# A package name must contain only lowercase alphabetic characters
+# plus (optionally) '_' and '-'. The first character of a package name
+# must be alphabetic.
+#
+package_name: iso-apl-cf
+
+# The package manager confirms that prefixes won't collide when
+# loading multiple packages into the APL workspace. A prefix should be
+# composed entirely of alphabetic characters. Refer to API.md for
+# additional rules about the use of prefixes in APL programs to be
+# loaded by the package manager.
+#
+package_prefix: CF
+
+# The version is a sequence of up to four nonnegative integers. The
+# numbers are limited three, three, four and four significant digits.
+#
+package_version: 0 0 1 0
+
+# A package may depend upon other packages, identified by package
+# name. Use a separate entry for each package.
+#
+depends_on: 
+
+# This is the date of the package's creation. Use YYYY-MM-DD format.
+#
+date: 2014-07-06
+
+# Keywords can help to identify packages. Use one entry for each
+# keyword.
+#
+keyword: GNU APL
+keyword: ISO 13751 APL Extended
+keyword: Annex A
+keyword: component file
+keyword: transactions
+
+# Identify yourself.
+#
+author: David B. Lamkins
+email: david@lamkins.net
+organization: 
+
+# Additional authors should be identified by appending a sequential
+# numeric suffix for each author. For example:
+#
+# author-1: 
+# email-1: 
+# organization-1: 
+# author-2: 
+# email-2: 
+# ...
+
+# Specify the package's license.
+#
+license: GPLv3
+
+# Describe the package. Remember: You can split the description
+# across several lines. Empty lines are removed.
+#
+description: Provides a component file facility for GNU APL. The facility
+complies with Annex A of ISO 13751 "Programming Lanuage APL, Extended"
+and includes extensions for transactions and other common operations.
+
+# List documentation for the package. The file is a relative path; its
+# components are space-separated. The name is for display purposes.
+#
+document_file: 
+document_name: 
+
+# Additional documents should be identified by appending a sequential
+# numeric suffix. For example:
+#
+# document_file-1: 
+# document_name-1: 
+# document_file-2: 
+# document_name-2: 
+# ...
+
+# The home repository tells us the package's origin.
+#
+home_repository: https://github.com/TieDyedDevil/iso-apl-cf

@@ -1,10 +1,7 @@
 
-emacs mode for GNU APL was written by Elias Mårtenson
+emacs mode for GNU APL was written and is being maintained by Elias Mårtenson
 
 The latest version can be fetched from its git repository like this:
 
 git clone -b native https://github.com/lokedhs/gnu-apl-mode
-
-The version shipped with GNU APL may not be the latest version available -
-it was downloaded around March-21-2014
 

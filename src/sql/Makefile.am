@@ -1,4 +1,7 @@
 
+dist_noinst_DATA =	AUTHORS		\
+			LAST_GIT_PULL
+
 dist_doc_DATA = SQL.apl
 
 pkglib_LTLIBRARIES = lib_sql.la
@@ -36,6 +39,7 @@ git-pull:
 	cp -f Makefile Makefile.1
 	git reset --hard
 	git pull
+	@echo "Last GIT pull on `date '+%F %R'`" > LAST_GIT_PULL
 	mv -f Makefile.1 Makefile
-	cp sql.apl ../../wslib5/SQL.apl
+	cp SQL.apl ../../wslib5/SQL.apl
 

@@ -13,6 +13,7 @@ AC_USE_SYSTEM_EXTENSIONS
 enable_dependency_tracking=yes
 
 AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE([enable])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
@@ -224,7 +225,10 @@ AC_CONFIG_FILES([Makefile
                  workspaces/Makefile
                  wslib3/Makefile
                  wslib4/Makefile
-                 wslib5/Makefile])
+                 wslib5/Makefile
+                 wslib5/APLComponentFiles/Makefile
+                 wslib5/iso-apl-cf/Makefile
+                ])
 
 # APL: development configuration desired ? Set this before other xxx_WANTED
 # options so that the implied xxx_WANTED options set here can be overridden
