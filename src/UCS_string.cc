@@ -585,14 +585,14 @@ const UCS_string ucs(utf);
 void
 UCS_string::append_quoted(const UCS_string & other)
 {
-   append(UNI_SINGLE_QUOTE);
+   append(UNI_ASCII_DOUBLE_QUOTE);
    loop(s, other.size())
        {
           const Unicode uni = other[s];
+          if (uni == UNI_ASCII_DOUBLE_QUOTE)   append(UNI_ASCII_BACKSLASH);
           append(uni);
-          if (uni == UNI_SINGLE_QUOTE)   append(uni);
        }
-   append(UNI_SINGLE_QUOTE);
+   append(UNI_ASCII_DOUBLE_QUOTE);
 }
 //-----------------------------------------------------------------------------
 void
