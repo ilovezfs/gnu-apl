@@ -1,5 +1,5 @@
 
-ACLOCAL_AMFLAGS = -I
+ACLOCAL_AMFLAGS = -I m4
 
 APL_DIRS	= workspaces wslib3 wslib4 wslib5
 SUBDIRS		= doc gnu-apl.d src support-files tools $(APL_DIRS)
