@@ -1,4 +1,6 @@
 
+ACLOCAL_AMFLAGS = -I
+
 APL_DIRS	= workspaces wslib3 wslib4 wslib5
 SUBDIRS		= doc gnu-apl.d src support-files tools $(APL_DIRS)
 DIST_SUBDIRS	= $(SUBDIRS) rpm debian
