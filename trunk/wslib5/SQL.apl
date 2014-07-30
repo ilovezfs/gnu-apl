@@ -1,4 +1,4 @@
-#! /usr/local/bin/apl --script
+#!apl -f
 
 ⍝  This file contains helper definititions to make the SQL API more easy
 ⍝  to use. Example use:
@@ -96,12 +96,12 @@
 
 ∇Z←db SQL∆Columns table
 ⍝ Return an array containing information about the columns in the
-⍝ given table. Currently, the column layout is as follows;
+⍝ given table. Currently, the column layout is as follows:
 ⍝
 ⍝   Name
 ⍝   Type
 ⍝
-⍝ More columns containing extra informaiton may be added in a future
+⍝ More columns containing extra information may be added in a future
 ⍝ release.
   Z←db SQL[9] table
 ∇

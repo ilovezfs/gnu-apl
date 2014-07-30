@@ -1,5 +1,8 @@
 AM_CXXFLAGS = $(CXX_RDYNAMIC)
 
+dist_noinst_DATA =	AUTHORS		\
+			LAST_GIT_PULL
+
 pkglib_LTLIBRARIES =	libemacs.la
 
 libemacs_la_SOURCES =						\
@@ -28,4 +31,5 @@ libemacs_la_SOURCES =						\
 .PHONY: git-pull
 git-pull:
 	git pull
+	@echo "Last GIT pull on `date '+%F %R'`" > LAST_GIT_PULL
 

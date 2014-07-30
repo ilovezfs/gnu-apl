@@ -711,6 +711,9 @@ build_vendor
 build_cpu
 build
 LIBTOOL
+MAINT
+MAINTAINER_MODE_FALSE
+MAINTAINER_MODE_TRUE
 am__fastdepCC_FALSE
 am__fastdepCC_TRUE
 CCDEPMODE
@@ -796,6 +799,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_dependency_tracking
+enable_maintainer_mode
 enable_shared
 enable_static
 with_pic
@@ -1460,6 +1464,8 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
+  --disable-maintainer-mode  disable make rules and dependencies not useful
+			  (and sometimes confusing) to the casual installer
   --enable-shared[=PKGS]  build shared libraries [default=yes]
   --enable-static[=PKGS]  build static libraries [default=yes]
   --enable-fast-install[=PKGS]
@@ -4809,6 +4815,29 @@ else
   am__fastdepCC_FALSE=
 fi
 
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
+$as_echo_n "checking whether to enable maintainer-specific portions of Makefiles... " >&6; }
+    # Check whether --enable-maintainer-mode was given.
+if test "${enable_maintainer_mode+set}" = set; then :
+  enableval=$enable_maintainer_mode; USE_MAINTAINER_MODE=$enableval
+else
+  USE_MAINTAINER_MODE=yes
+fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $USE_MAINTAINER_MODE" >&5
+$as_echo "$USE_MAINTAINER_MODE" >&6; }
+   if test $USE_MAINTAINER_MODE = yes; then
+  MAINTAINER_MODE_TRUE=
+  MAINTAINER_MODE_FALSE='#'
+else
+  MAINTAINER_MODE_TRUE='#'
+  MAINTAINER_MODE_FALSE=
+fi
+
+  MAINT=$MAINTAINER_MODE_TRUE
 
 
 
@@ -18173,7 +18202,7 @@ fi
 
 fi
 
-ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile gnu-apl.d/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/sql/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile support-files/WASD/Makefile tools/Makefile workspaces/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile"
+ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile gnu-apl.d/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/sql/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile support-files/WASD/Makefile tools/Makefile workspaces/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile wslib5/APLComponentFiles/Makefile wslib5/iso-apl-cf/Makefile"
 
 
 # APL: development configuration desired ? Set this before other xxx_WANTED
@@ -18505,6 +18534,10 @@ else
   am__EXEEXT_FALSE=
 fi
 
+if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
+  as_fn_error $? "conditional \"MAINTAINER_MODE\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -19526,6 +19559,8 @@ do
     "wslib3/Makefile") CONFIG_FILES="$CONFIG_FILES wslib3/Makefile" ;;
     "wslib4/Makefile") CONFIG_FILES="$CONFIG_FILES wslib4/Makefile" ;;
     "wslib5/Makefile") CONFIG_FILES="$CONFIG_FILES wslib5/Makefile" ;;
+    "wslib5/APLComponentFiles/Makefile") CONFIG_FILES="$CONFIG_FILES wslib5/APLComponentFiles/Makefile" ;;
+    "wslib5/iso-apl-cf/Makefile") CONFIG_FILES="$CONFIG_FILES wslib5/iso-apl-cf/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

@@ -66,8 +66,8 @@ host_triplet = @host@
 @POSTGRES_TRUE@			PostgresProvider.cc       PostgresProvider.hh
 
 subdir = src/sql
-DIST_COMMON = $(dist_doc_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in AUTHORS
+DIST_COMMON = $(dist_doc_DATA) $(dist_noinst_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in AUTHORS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -156,7 +156,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-DATA = $(dist_doc_DATA)
+DATA = $(dist_doc_DATA) $(dist_noinst_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -216,6 +216,7 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MAX_RANK_WANTED = @MAX_RANK_WANTED@
@@ -307,6 +308,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+dist_noinst_DATA = AUTHORS		\
+			LAST_GIT_PULL
+
 dist_doc_DATA = SQL.apl
 pkglib_LTLIBRARIES = lib_sql.la
 AM_CXXFLAGS = -I .. -I ../.. $(am__append_1) $(am__append_4)
@@ -318,7 +322,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .cc .lo .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -343,9 +347,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 install-pkglibLTLIBRARIES: $(pkglib_LTLIBRARIES)
@@ -660,8 +664,9 @@ git-pull:
 	cp -f Makefile Makefile.1
 	git reset --hard
 	git pull
+	@echo "Last GIT pull on `date '+%F %R'`" > LAST_GIT_PULL
 	mv -f Makefile.1 Makefile
-	cp sql.apl ../../wslib5/SQL.apl
+	cp SQL.apl ../../wslib5/SQL.apl
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -220,6 +220,7 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MAX_RANK_WANTED = @MAX_RANK_WANTED@
@@ -331,7 +332,7 @@ all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -358,9 +359,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	$(am__cd) $(srcdir) && $(AUTOCONF)
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
@@ -371,7 +372,7 @@ config.h: stamp-h1
 stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
 	@rm -f stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status config.h
-$(srcdir)/config.h.in:  $(am__configure_deps) 
+$(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f stamp-h1
 	touch $@
@@ -900,6 +901,8 @@ help:
 	@echo "    make RPM     - create (source and binary) RPMs"
 	@echo "    make DEB     - create debian packages"
 	@echo ""
+	@echo "    make SVNUP   - update from SVN and ./configure"
+	@echo ""
 	@echo "NOTE: The RPM and DEB targets may fail because they require" 
 	@echo "additional tools that may not be present on your machine."
 	@echo ""
@@ -935,6 +938,13 @@ DEB:	DIST
 	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_*.deb          ftp-upload/
 	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1.debian.tar.gz  ftp-upload/
 
+# update from SVN repository and ./configure
+#
+.PHONY:	SVNUP
+SVNUP:
+	svn update
+	./configure --disable-maintainer-mode
+
 # a shortcut to configure for troubleshooting
 #
 .PHONY:	develop
@@ -961,7 +971,7 @@ EXPO:
 	svn update
 	cd src; source buildtag
 	svn -m "auto-commit by make EXPO" commit
-	./configure
+	./configure --disable-maintainer-mode
 	make
 	make dist
 	make DEB
@@ -973,7 +983,7 @@ EXPO:
 EXPO1:
 	tools/check_src
 	cd src; source buildtag
-	./configure
+	./configure --disable-maintainer-mode
 	make
 	make dist
 	make DEB
@@ -990,6 +1000,11 @@ DIST:	dist Makefile.dist
 
 am--refresh:
 	echo "making am--refresh"
+
+.PHONY: git-pull
+git-pull:
+	make -C src $@
+	make -C wslib5 $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

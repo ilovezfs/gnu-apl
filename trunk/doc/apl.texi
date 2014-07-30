@@ -48,7 +48,7 @@ This manual briefly documents GNU APL, an interpreter for APL as described
 in ISO standard 13751, aka. "Programming Language APL, Extended".
 
 This manual for GNU APL can be distributed under the terms of the
- GNU Free Documentation License, *Note Chapter 5::.
+ GNU Free Documentation License, *Note Chapter 6::.
 
 This manual does NOT describe APL itself; there exist a number of good books
 and texts about APL. We would like to refer the reader to the following:
@@ -66,7 +66,8 @@ and texts about APL. We would like to refer the reader to the following:
 * Chapter 2::    Non-standard Features
 * Chapter 3::    Limitations and Missing Features
 * Chapter 4::    Internationalization
-* Chapter 5::    Licenses for GNU APL and this Manual
+* Chapter 5::    Libraries Contributed by GNU APL Users
+* Chapter 6::    Licenses for GNU APL and this Manual
 @end menu
 
 @c ============================================================================
@@ -1379,11 +1380,65 @@ locale: Cannot set LC_ALL to default locale: No such file or directory
 then something is wrong and you should check your LANG setting and installed
 locales.
 
-As far as xterm is concerned, the xterm command line options -u8, -lc, and
--en might solve problems related to the terminal.
+As far as xterm is concerned, the xterm command line options --u8, --lc, and
+--en might solve problems related to the terminal.
 
 @c ----------------------------------------------------------------------------
 @node Chapter 5
+@chapter Libraries Contributed by GNU APL Users
+
+Since the first release of GNU APL, a number of libraries, but also other
+developments, have been made by users of GNU APL. Below are links to these
+contributions.
+
+@menu
+* Section 5.1::  The GNU APL Community Webpage
+* Section 5.2::  Core Libraries
+@end menu
+
+@node Section 5.1
+@section The GNU APL Community Webpage
+
+The GNU APL project maintains a web page that lists contibutions made by
+GNU APL users:
+
+@uref{http://www.gnu.org/software/apl/Community.html}
+
+The contributions listed there were collected from emails sent to
+bug-apl@@gnu.org
+
+Since the list was started long after bug-apl@@gnu.org was created. It is
+therefore quite possible that your contribution is missing. That does not
+mean that your contribution was not considered worthwil to be listed but
+more likely that it was overlooked. Juse send an email to bug-apl@@gnu.org
+to fix that.
+
+
+@node Section 5.2
+@section Core Libraries
+
+There is a small number of libraries that are considered "core" APL because,
+for example, the ISO standard requires their functionality, or because other
+APL interpreters normally support them.
+
+These libraries are linked via the GNU APL Community web page. In addition
+they are stored in the GNU APL SVN repository and also included in the
+GNU APL packages that follows their contribution.
+
+Currently the following core libraries exist:
+
+GNU APL emacs mode     (for emacs users)           by Elias Mårtenson
+
+SQL interface          (SQLite nad Postgres)       by Elias Mårtenson
+
+Component File System  (as required by ISO 13751)  by David B. Lamkins
+
+Component File System  (as required by ISO 13751)  by Blake McBride
+
+SQL
+
+@c ----------------------------------------------------------------------------
+@node Chapter 6
 @chapter Licenses for this GNU APL Manual and for GNU APL
 
 This manual for GNU APL is licensed under the GNU Free Documentation
@@ -1393,11 +1448,11 @@ GNU APL itself is licensed under the GNU Public License version 3 or later
 (aka GPLv3+), *Note Section 4.2:: below.
 
 @menu
-* Section 5.1::  The GNU Free Documentation License
-* Section 5.2::  The GNU General Public License
+* Section 6.1::  The GNU Free Documentation License
+* Section 6.2::  The GNU General Public License
 @end menu
 
-@node Section 5.1
+@node Section 6.1
 @section The GNU Free Documentation License
 
 @c The GNU Free Documentation License.
@@ -1899,7 +1954,7 @@ recommend releasing these examples in parallel under your choice of
 free software license, such as the GNU General Public License,
 to permit their use in free software.
 
-@node Section 5.2
+@node Section 6.2
 @section The GNU GENERAL PUBLIC LICENSE
 
                     GNU GENERAL PUBLIC LICENSE

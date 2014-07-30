@@ -74,6 +74,8 @@ make DESTDIR=%{buildroot} install
 %{_libdir}/apl/wslib3/*.apl
 %{_libdir}/apl/wslib4/*.apl
 %{_libdir}/apl/wslib5/*.apl
+%{_libdir}/apl/wslib5/APLComponentFiles/*
+%{_libdir}/apl/wslib5/iso-apl-cf/*
 
 %{_sysconfdir}/gnu-apl.d/preferences
 
