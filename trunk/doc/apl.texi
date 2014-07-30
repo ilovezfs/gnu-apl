@@ -16,8 +16,7 @@ Copyright @copyright{} 2013 Free Software Foundation, Inc.
 
 @dircategory GNU programming tools
 @direntry
-
-* APL: (apl). (Almost) full implementation of the "Programming Language APL, Extended" (aka. ISO 13751).
+* APL: (apl).                  the programming language APL - ISO 13751.
 
 @end direntry
 

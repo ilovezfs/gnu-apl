@@ -390,7 +390,7 @@ const APL_Float qct = Workspace::get_CT();
              if (is_near_int(qct))
                 {
                   const APL_Integer b = get_near_int(qct);
-                  const APL_Float z = pow(A->get_real_value(), b);
+                  const APL_Float z = pow(A->get_real_value(), (APL_Float)b);
                   new (Z) FloatCell(z);
                 }
              else
