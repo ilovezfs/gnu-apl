@@ -178,6 +178,15 @@ GPROF_WANTED=yes
 
     ./configure GPROF_WANTED=yes
 
+VISIBLE_MARKERS_WANTED=yes
+   GNU APL uses a handful of Unicode characters as internal pad characters
+   when formatting output. Normally these pad characters are in a private
+   Unicode range in order to minimize the chance that they are output on
+   purpose. Unfortunately that makes debugging of the output formatting
+   difficult. With VISIBLE_MARKERS_WANTED=yes, characters ⁰, ¹, ... are used
+   as internal pad (and these characters will display as spaces when displayed.
+
+    ./configure VISIBLE_MARKERS_WANTED=yes
 
 -------------------------------------------------------------------------------
 

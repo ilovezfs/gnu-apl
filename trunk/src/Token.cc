@@ -489,7 +489,7 @@ const UCS_string indent(fn.size(), UNI_ASCII_SPACE);
    loop(l, pb.get_height())
       {
         if (l)   out << indent;
-        out << pb.get_line(l) << endl;
+        out << pb.get_line(l).no_pad() << endl;
       }
 
    if (pb.get_height() == 0)   out << endl;

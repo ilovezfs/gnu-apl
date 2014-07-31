@@ -1,11 +1,12 @@
 
 dist_apl5iac_DATA =     AUTHORS		\
 			LAST_GIT_PULL	\
+			README.md	\
 			_control_.apl	\
-			perf.apl	\
-			test.apl	\
+			_metadata_	\
 			iso_cf.apl	\
-			_metadata_	
+			perf.apl	\
+			test.apl
 
 apl5iacdir = $(pkglibdir)/wslib5/iso-apl-cf
 
