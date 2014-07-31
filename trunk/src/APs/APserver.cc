@@ -1016,6 +1016,7 @@ int listen_port = APSERVER_PORT;
 const char * listen_name = APSERVER_PATH;
 bool got_path = false;
 bool got_port = false;
+bool auto_start = false;
 int janitor = 0;
 
    for (int a = 1; a < argc; )
@@ -1028,10 +1029,16 @@ int janitor = 0;
               usage();
               return 0;
             }
+
          if (!strcmp(opt, "--help"))
             {
               usage();
               return 0;
+            }
+
+         if (!strcmp(opt, "--auto"))
+            {
+              auto_start = true;
             }
          else if (!strcmp(opt, "-H"))
             {
@@ -1121,6 +1128,10 @@ int janitor = 0;
 const int listen_sock = got_path ? open_UNIX_socket(listen_name)
                                  : open_TCP_socket(listen_port);
    if (listen_sock < 0)   return 20;
+
+   fclose(stdout);                 // cause getc() of caller to return EOF !
+
+   if (auto_start && fork())   return 0;         // parent returns (daemonize)
 
    memset(&db, 0, sizeof(db));
 

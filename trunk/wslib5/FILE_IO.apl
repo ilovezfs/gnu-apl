@@ -51,11 +51,8 @@
  Ze ← FILE_IO[5] Bh             ⍝ errno (of last call on Bh)
 ∇
 
-∇Zi ← FIO∆fread_5000 Bh
- Zi ← FILE_IO[6] Bh             ⍝ fread(Zi, 1, 5000, Bh) 1 byte per Zi
-∇
-
 ∇Zi ← Ai FIO∆fread Bh
+ →(0≠⎕NC 'Ai')/↑⎕LC+1 ◊ Ai←5000 ⍝ read 5000 items unless Ai is defined
  Zi ← Ai FILE_IO[ 6] Bh         ⍝ fread(Zi, 1, Ai, Bh) 1 byte per Zi
 ∇
 
@@ -63,16 +60,13 @@
  Zi ← Ai FILE_IO[7] Bh          ⍝ fwrite(Ai, 1, ⍴Ai, Bh) 1 byte per Zi
 ∇
 
-∇Zi ← FIO∆fgets_5000 Bh
- Zi ← FILE_IO[8] Bh             ⍝ fgets(Zi, 5000, Bh) 1 byte per Zi
-∇
-
 ∇Zi ← Ai FIO∆fgets Bh
+ →(0≠⎕NC 'Ai')/↑⎕LC+1 ◊ Ai←5000 ⍝ read 5000 items unless Ai is defined
  Zi ← Ai FILE_IO[8] Bh          ⍝ fgets(Zi, Ai, Bh) 1 byte per Zi
 ∇
 
 ∇Zi ← FIO∆fgetc Bh
- Zi ← FILE_IO[ 9] Bh            ⍝ fgetc(Zi, Bh) 1 byte per Zi
+ Zi ← FILE_IO[9] Bh             ⍝ fgetc(Zi, Bh) 1 byte per Zi
 ∇
 
 ∇Zi ← FIO∆feof Bh
