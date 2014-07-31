@@ -52,7 +52,7 @@ Svar_record Svar_record_P::cache;
 
 //-----------------------------------------------------------------------------
 void
-Svar_DB::start_APserver(int sock, const char * server_sockname,
+Svar_DB::start_APserver(const char * server_sockname,
                         const char * bin_dir, bool logit)
 {
    // bin_dir is the directory where the apl interpreter binary lives.
@@ -242,7 +242,7 @@ char peer[100];
          logit && get_CERR() << "starting a new APserver listening on "
                              << peer << endl;
 
-         start_APserver(sock, server_sockname, bin_dir, logit);
+         start_APserver(server_sockname, bin_dir, logit);
        }
 
    // at this point sock is != NO_TCP_SOCKET and connected.

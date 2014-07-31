@@ -190,7 +190,7 @@ public:
 
 protected:
    /// start an APserver process
-   static void start_APserver(int sock, const char * server_sockname,
+   static void start_APserver(const char * server_sockname,
                               const char * bin_dir, bool logit);
 
    static TCP_socket DB_tcp;
