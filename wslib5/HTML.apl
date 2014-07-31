@@ -502,7 +502,7 @@
 ∇
 
 ∇Z←HTML⍙License
- Z←,⊂'LGPL (GNU Lesser General Public License)''
+ Z←,⊂'LGPL (GNU Lesser General Public License)'
 ∇
 
 ∇Z←HTML⍙BugEmail
