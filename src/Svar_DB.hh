@@ -172,8 +172,7 @@ public:
 
    /// return a socket that is connect to APserver
    static TCP_socket connect_to_APserver(const char * bin_path,
-                                         const char * prog,
-                                   bool logit);
+                                         const char * prog, bool logit);
 
    static void disconnect()
       {
@@ -190,6 +189,10 @@ public:
    static void DB_tcp_error(const char * op, int got, int expected);
 
 protected:
+   /// start an APserver process
+   static void start_APserver(int sock, const char * server_sockname,
+                              const char * bin_dir, bool logit);
+
    static TCP_socket DB_tcp;
 
    static uint16_t APserver_port;

@@ -20,6 +20,7 @@
 
 #include <errno.h>
 #include <fcntl.h>           /* For O_* constants */
+#include <limits.h>
 #include <netinet/tcp.h>
 #include <signal.h>
 #include <string.h>
@@ -49,7 +50,80 @@ TCP_socket Svar_DB::DB_tcp = NO_TCP_SOCKET;
 
 Svar_record Svar_record_P::cache;
 
-//=============================================================================
+//-----------------------------------------------------------------------------
+void
+Svar_DB::start_APserver(int sock, const char * server_sockname,
+                        const char * bin_dir, bool logit)
+{
+   // bin_dir is the directory where the apl interpreter binary lives.
+   // The APserver then lives in:
+   //
+   // bin_dir/      if apl was built and installed, or
+   // bin_dir/APs/  if apl was started from the src directory in the source tree
+   //
+   // set APserver_path to the case that applies.
+   //
+char APserver_path[PATH_MAX + 1];
+   snprintf(APserver_path, PATH_MAX, "%s/APserver", bin_dir);
+   APserver_path[PATH_MAX] = 0;
+   if (access(APserver_path, X_OK) != 0)   // no APserver
+      {
+        logit && get_CERR() << "    Executable " << APserver_path
+                 << " not found (this is OK when apl was started\n"
+                    "    from the src directory): " << strerror(errno) << endl;
+
+        snprintf(APserver_path, PATH_MAX, "%s/APs/APserver", bin_dir);
+        if (access(APserver_path, X_OK) != 0)   // no APs/APserver either
+           {
+             get_CERR() << "Executable " << APserver_path << " not found.\n"
+"This could means that 'apl' was not installed ('make install') or that it\n"
+"was started in a non-standard way. The expected location of APserver is \n"
+"either the same directory as the binary 'apl' or the subdirectory 'APs' of\n"
+"that directory (the directory should also be in $PATH)." << endl;
+
+             return;
+           }
+      }
+
+   logit && get_CERR() << "Found " << APserver_path << endl;
+
+char popen_args[PATH_MAX + 1];
+   {
+     if (server_sockname)
+        snprintf(popen_args, PATH_MAX,
+                 "%s --path %s --auto", APserver_path, server_sockname);
+     else
+        snprintf(popen_args, PATH_MAX,
+                 "%s --port %u --auto", APserver_path, APserver_port);
+   }
+
+   get_CERR() << "Starting " << popen_args << "..." << endl;
+
+FILE * fp = popen(popen_args, "r");
+   if (fp == 0)
+      {
+        get_CERR() << "popen(" << popen_args << " failed: " << strerror(errno)
+             << endl;
+        return;
+      }
+
+   for (int cc; (cc = getc(fp)) != EOF;)
+       {
+         logit && get_CERR() << (char)cc;
+       }
+
+   logit && get_CERR() << endl;
+
+const int APserver_result = pclose(fp);
+   if (APserver_result)
+      {
+         get_CERR() << "pclose(APserver) returned error:"
+                    << strerror(errno) << endl;
+      }
+
+   return;
+}
+//-----------------------------------------------------------------------------
 TCP_socket
 Svar_DB::connect_to_APserver(const char * bin_dir, const char * prog,
                                       bool logit)
@@ -163,56 +237,12 @@ char peer[100];
               return NO_TCP_SOCKET;
            }
 
-         // fork an APserver
+         // start an APserver
          //
-         logit && get_CERR() << "forking new APserver listening on "
+         logit && get_CERR() << "starting a new APserver listening on "
                              << peer << endl;
 
-         const pid_t pid = fork();
-         if (pid)
-            {
-              // give child a little time to start up...
-              //
-              usleep(20000);
-            }
-         else   // child: run as APserver
-            {
-              ::close(sock);
-              sock = NO_TCP_SOCKET;
-
-              char arg0[FILENAME_MAX + 20];
-              snprintf(arg0, sizeof(arg0), "%s/APserver", bin_dir);
-              char arg1[20];
-              char arg2[100];
-              if (server_sockname)
-                 {
-                    strcpy(arg1, "--path");
-                    strcpy(arg2, server_sockname);
-                 }
-              else
-                 {
-                    strcpy(arg1, "--port");
-                    snprintf(arg2, sizeof(arg2), "%d", APserver_port);
-                 }
-              char * argv[] = { arg0, arg1, arg2, 0 };
-              char * envp[] = { 0 };
-              execve(arg0, argv, envp);
-
-              // execve() failed, try APs subdir...
-              //
-              if (logit)   get_CERR() << "execve(" << arg0;
-              snprintf(arg0, sizeof(arg0), "%s/APs/APserver", bin_dir);
-              if (logit)   get_CERR() << ") failed ("<< strerror(errno)
-                                      << "), trying execve(" << arg0 << ")"
-                                      << endl;
-
-              execve(arg0, argv, envp);
-
-              get_CERR() << "execve(" << arg0 
-                         << ") also failed ("<< strerror(errno)
-                         << ")" << endl;
-              exit(99);
-            }
+         start_APserver(sock, server_sockname, bin_dir, logit);
        }
 
    // at this point sock is != NO_TCP_SOCKET and connected.
