@@ -70,7 +70,10 @@ phrase(BS_F_B + 2,       M    , V    ,    ,      )
 // (reference) and assignment
 phrase(BS_V_ASS + 3,     A    , ASS  , B    ,    )   // selective spec.
 phrase(BS_V_ASS + 3,     V    , ASS  , B    ,    )   // variable spec.
-phrase(BS_V_ASS + 3,     V    , ASS  , F    ,    )   // lambds: V ← { ... }
+phrase(BS_V_ASS + 3,     V    , ASS  , N    ,    )   // lambds: V ← { ... }
+phrase(BS_V_ASS + 3,     V    , ASS  , F    ,    )   // lambds: V ← { ... } ⍺ ⍵
+phrase(BS_V_ASS + 3,     V    , ASS  , M    ,    )   // lambds: V ← { ... } ⍶
+phrase(BS_V_ASS + 3,     V    , ASS  , D    ,    )   // lambds: V ← { ... } ⍶ ⍹
 
 // build index list
 phrase(BS_ANY + 1,       RBRA ,      ,      ,    )
