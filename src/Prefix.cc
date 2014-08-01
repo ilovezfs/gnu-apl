@@ -1141,6 +1141,30 @@ Token result = Token(TOK_APL_VALUE2, Z);
 }
 //-----------------------------------------------------------------------------
 void
+Prefix::reduce_V_ASS_N_()
+{
+   // named lambda: V ← { ... } niladic (same as reduce_V_ASS_F_)
+   //
+   reduce_V_ASS_F_();
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::reduce_V_ASS_M_()
+{
+   // named lambda: V ← { ... } monadic operator (same as reduce_V_ASS_F_)
+   //
+   reduce_V_ASS_F_();
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::reduce_V_ASS_D_()
+{
+   // named lambda: V ← { ... } dyadic operator (same as reduce_V_ASS_F_)
+   //
+   reduce_V_ASS_F_();
+}
+//-----------------------------------------------------------------------------
+void
 Prefix::reduce_RBRA___()
 {
    Assert1(prefix_len == 1);

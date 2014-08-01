@@ -1155,7 +1155,7 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <AD02> {
         type[group1]= "ALPHABETIC",
         symbols[Group1]= [               w,               W ],
-        symbols[Group2]= [           U2375,           U233D ]
+        symbols[Group2]= [           U2375,           U2379 ]
     };
     key <AD03> {
         type[group1]= "ALPHABETIC",
@@ -1175,7 +1175,7 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <AD06> {
         type[group1]= "ALPHABETIC",
         symbols[Group1]= [               y,               Y ],
-        symbols[Group2]= [           U2191 ]
+        symbols[Group2]= [           U2191, U00A5 ]
     };
     key <AD07> {
         type[group1]= "ALPHABETIC",
@@ -1210,7 +1210,7 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <AC01> {
         type[group1]= "ALPHABETIC",
         symbols[Group1]= [               a,               A ],
-        symbols[Group2]= [           U237A,           U2296 ]
+        symbols[Group2]= [           U237A,           U2376 ]
     };
     key <AC02> {
         type[group1]= "ALPHABETIC",
@@ -1235,7 +1235,7 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <AC06> {
         type[group1]= "ALPHABETIC",
         symbols[Group1]= [               h,               H ],
-        symbols[Group2]= [           U2206,           U234B ]
+        symbols[Group2]= [           U2206,           U2359 ]
     };
     key <AC07> {
         type[group1]= "ALPHABETIC",
@@ -1277,12 +1277,12 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <AB02> {
         type[group1]= "ALPHABETIC",
         symbols[Group1]= [               x,               X ],
-        symbols[Group2]= [           U2283 ]
+        symbols[Group2]= [           U2283, U03C7 ]
     };
     key <AB03> {
         type[group1]= "ALPHABETIC",
         symbols[Group1]= [               c,               C ],
-        symbols[Group2]= [           U2229,           U235D ]
+        symbols[Group2]= [           U2229,           U00A2 ]
     };
     key <AB04> {
         type[group1]= "ALPHABETIC",
@@ -1292,7 +1292,7 @@ xkb_symbols "pc+us+apl(sax):2+inet(evdev)+group(switch)" {
     key <AB05> {
         type[group1]= "ALPHABETIC",
         symbols[Group1]= [               b,               B ],
-        symbols[Group2]= [           U22A5,           U234E ]
+        symbols[Group2]= [           U22A5,           U00A3 ]
     };
     key <AB06> {
         type[group1]= "ALPHABETIC",

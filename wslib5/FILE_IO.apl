@@ -28,149 +28,187 @@
 
 
 ∇Zi ← FIO∆errno
- Zi ← FILE_IO[1] ''             ⍝ errno (of last call)
+ ⍝⍝ errno (of last call)
+ Zi ← FILE_IO[1] ''
 ∇
 
 ∇Zs ← FIO∆strerror Be
- Zs ← FILE_IO[2] Be             ⍝ strerror(Be)
+ ⍝⍝ strerror(Be)
+ Zs ← FILE_IO[2] Be
 ∇
 
 ∇Zh ← As FIO∆fopen Bs
- Zh ← FILE_IO[3] Bs             ⍝ fopen(Bs, As) filename Bs
+ ⍝⍝ fopen(Bs, As) filename Bs
+ Zh ← FILE_IO[3] Bs
 ∇
 
 ∇Zh ← FIO∆fopen_ro Bs
- Zh ← FILE_IO[3] Bs             ⍝ fopen(Bs, "r") filename Bs
+ ⍝⍝ fopen(Bs, "r") filename Bs
+ Zh ← FILE_IO[3] Bs
 ∇
 
 ∇Ze ← FIO∆fclose Bh
- Ze ← FILE_IO[4] Bh             ⍝ fclose(Bh)
+ ⍝⍝ fclose(Bh)
+ Ze ← FILE_IO[4] Bh
 ∇
 
 ∇Ze ← FIO∆file_errno Bh
- Ze ← FILE_IO[5] Bh             ⍝ errno (of last call on Bh)
+ ⍝⍝ errno (of last call on Bh)
+ Ze ← FILE_IO[5] Bh
 ∇
 
 ∇Zi ← Ai FIO∆fread Bh
- →(0≠⎕NC 'Ai')/↑⎕LC+1 ◊ Ai←5000 ⍝ read 5000 items unless Ai is defined
- Zi ← Ai FILE_IO[ 6] Bh         ⍝ fread(Zi, 1, Ai, Bh) 1 byte per Zi
+ ⍝⍝ fread(Zi, 1, Ai, Bh) 1 byte per Zi
+ ⍝⍝ read (at most) 5000 items if Ai is not defined
+ →(0≠⎕NC 'Ai')/↑⎕LC+1 ◊ Ai←5000
+ Zi ← Ai FILE_IO[ 6] Bh
 ∇
 
 ∇Zi ← Ai FIO∆fwrite Bh
- Zi ← Ai FILE_IO[7] Bh          ⍝ fwrite(Ai, 1, ⍴Ai, Bh) 1 byte per Zi
+ ⍝⍝ fwrite(Ai, 1, ⍴Ai, Bh) 1 byte per Zi
+ Zi ← Ai FILE_IO[7] Bh
 ∇
 
 ∇Zi ← Ai FIO∆fgets Bh
- →(0≠⎕NC 'Ai')/↑⎕LC+1 ◊ Ai←5000 ⍝ read 5000 items unless Ai is defined
- Zi ← Ai FILE_IO[8] Bh          ⍝ fgets(Zi, Ai, Bh) 1 byte per Zi
+ ⍝⍝ fgets(Zi, Ai, Bh) 1 byte per Zi
+ ⍝⍝ read (at most) 5000 items unless Ai is defined
+ →(0≠⎕NC 'Ai')/↑⎕LC+1 ◊ Ai←5000
+ Zi ← Ai FILE_IO[8] Bh
 ∇
 
 ∇Zi ← FIO∆fgetc Bh
- Zi ← FILE_IO[9] Bh             ⍝ fgetc(Zi, Bh) 1 byte per Zi
+ ⍝⍝ fgetc(Zi, Bh) 1 byte per Zi
+ Zi ← FILE_IO[9] Bh
 ∇
 
 ∇Zi ← FIO∆feof Bh
- Zi ← FILE_IO[10] Bh            ⍝ feof(Bh)
+ ⍝⍝ feof(Bh)
+ Zi ← FILE_IO[10] Bh
 ∇
 
 ∇Zi ← FIO∆ferror Bh
- Zi ← FILE_IO[11] Bh            ⍝ ferror(Bh)
+ ⍝⍝ ferror(Bh)
+ Zi ← FILE_IO[11] Bh
 ∇
 
 ∇Zi ← FIO∆ftell Bh
- Zi ← FILE_IO[12] Bh            ⍝ ftell(Bh)
+ ⍝⍝ ftell(Bh)
+ Zi ← FILE_IO[12] Bh
 ∇
 
 ∇Zi ← Ai FIO∆fseek_cur Bh
- Zi ← Ai FILE_IO[13] Bh         ⍝ fseek(Bh, Ai, SEEK_SET)
+ ⍝⍝ fseek(Bh, Ai, SEEK_SET)
+ Zi ← Ai FILE_IO[13] Bh
 ∇
 
 ∇Zi ← Ai FIO∆fseek_set Bh
- Zi ← Ai FILE_IO[14] Bh         ⍝ fseek(Bh, Ai, SEEK_CUR)
+ ⍝⍝ fseek(Bh, Ai, SEEK_CUR)
+ Zi ← Ai FILE_IO[14] Bh
 ∇
 
 ∇Zi ← Ai FIO∆fseek_end Bh
- Zi ← Ai FILE_IO[15] Bh         ⍝ fseek(Bh, Ai, SEEK_END)
+ ⍝⍝ fseek(Bh, Ai, SEEK_END)
+ Zi ← Ai FILE_IO[15] Bh
 ∇
 
 ∇Zi ← FIO∆fflush Bh
- Zi ← FILE_IO[16] Bh            ⍝ fflush(Bh)
+ ⍝⍝ fflush(Bh)
+ Zi ← FILE_IO[16] Bh
 ∇
 
 ∇Zi ← FIO∆fsync Bh
- Zi ← FILE_IO[17] Bh            ⍝ fsync(Bh)
+ ⍝⍝ fsync(Bh)
+ Zi ← FILE_IO[17] Bh
 ∇
 
 ∇Zi ← FIO∆fstat Bh
- Zi ← FILE_IO[18] Bh            ⍝ fstat(Bh)
+ ⍝⍝ fstat(Bh)
+ Zi ← FILE_IO[18] Bh
 ∇
 
 ∇Zi ← FIO∆unlink Bh
- Zi ← FILE_IO[19] Bh            ⍝ unlink(Bc)
+ ⍝⍝ unlink(Bc)
+ Zi ← FILE_IO[19] Bh
 ∇
 
 ∇Zi ← FIO∆mkdir_777 Bh
- Zi ← FILE_IO[20] Bh           ⍝ mkdir(Bc, 0777)
+ ⍝⍝ mkdir(Bc, 0777)
+ Zi ← FILE_IO[20] Bh
 ∇
 
 ∇Zi ← Ai FIO∆mkdir Bh
- Zi ← Ai FILE_IO[20] Bh         ⍝ mkdir(Bc, Ai)
+ ⍝⍝ mkdir(Bc, Ai)
+ Zi ← Ai FILE_IO[20] Bh
 ∇
 
 ∇Zi ← FIO∆rmdir Bh
- Zi ← FILE_IO[21] Bh            ⍝ rmdir(Bc)
+ ⍝⍝ rmdir(Bc)
+ Zi ← FILE_IO[21] Bh
 ∇
 
 ∇Zi ← FIO∆printf B
- Zi ← B FILE_IO[22] 1           ⍝ printf(A1, A2...) format A1
+ ⍝⍝ printf(A1, A2...) format A1
+ Zi ← B FILE_IO[22] 1
 ∇
 
 ∇Zi ← A  FIO∆fprintf_stderr B
- Zi ← B  FILE_IO[22] 2          ⍝ fprintf(stderr, A1, A2...) format A1
+ ⍝⍝ fprintf(stderr, A1, A2...) format A1
+ Zi ← B  FILE_IO[22] 2
 ∇
 
 ∇Zi ← A  FIO∆fprintf Bh
- Zi ← A  FILE_IO[22] Bh         ⍝ fprintf(Bh, A1, A2...) format A1
+ ⍝⍝ fprintf(Bh, A1, A2...) format A1
+ Zi ← A  FILE_IO[22] Bh
 ∇
 
 ∇Zi ← Ac FIO∆fwrite Bh
- Zi ← Ac FILE_IO[23] Bh         ⍝ fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8
+ ⍝⍝ fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8
+ Zi ← Ac FILE_IO[23] Bh
 ∇
 
 ∇Zh ← As FIO∆popen Bs
- Zh ← As FILE_IO[24] Bs         ⍝ popen(Bs, As) command Bs mode As
+ ⍝⍝ popen(Bs, As) command Bs mode As
+ Zh ← As FILE_IO[24] Bs
 ∇
 
 ∇Zh ← FIO∆popen_ro Bs
- Zh ← FILE_IO[24] Bs            ⍝ popen(Bs, "r") command Bs
+ ⍝⍝ popen(Bs, "r") command Bs
+ Zh ← FILE_IO[24] Bs
 ∇
 
 ∇Ze ← FIO∆pclose Bh
- Ze ← FILE_IO[25] Bh            ⍝ pclose(Bh)
+ ⍝⍝ pclose(Bh)
+ Ze ← FILE_IO[25] Bh
 ∇
 
 ∇Zs ← FIO∆read_file Bs
- Zs ← FILE_IO[26] Bs            ⍝ return entire file Bs as byte vector
+ ⍝⍝ return entire file Bs as byte vector
+ Zs ← FILE_IO[26] Bs
 ∇
 
 ∇Zs ← As FIO∆rename Bs
- Zs ← As FILE_IO[27] Bs         ⍝ rename file As to Bs
+ ⍝⍝ rename file As to Bs
+ Zs ← As FILE_IO[27] Bs
 ∇
 
 ∇Zd ← FIO∆read_directory Bs
- Zd ← FILE_IO[28] Bs            ⍝ return content of directory Bs
+ ⍝⍝ return content of directory Bs
+ Zd ← FILE_IO[28] Bs
 ∇
 
 ∇Zn ← FIO∆files_in_directory Bs
- Zn ← FILE_IO[29] Bs            ⍝ return file names in directory Bs
+ ⍝⍝ return file names in directory Bs
+ Zn ← FILE_IO[29] Bs
 ∇
 
 ∇Zs ← FIO∆getcwd
- Zs ← FILE_IO 30                ⍝ getcwd()
+ ⍝⍝ getcwd()
+ Zs ← FILE_IO 30
 ∇
 
 ∇Zn ← FIO∆access Bs
- Zn ← As FILE_IO[31] Bs         ⍝ access(As, Bs) As ∈ 'RWXF'
+ ⍝⍝ access(As, Bs) As ∈ 'RWXF'
+ Zn ← As FILE_IO[31] Bs
 ∇
 
 
