@@ -87,7 +87,7 @@ StateIndicator.cc				StateIndicator.hh	\
 StaticObjects.cc							\
 Svar_DB.cc					Svar_DB.hh		\
 Svar_record.cc					Svar_record.hh		\
-udp_signal.m4		Svar_signals.def	Svar_signals.hh		\
+tcp_signal.m4		Svar_signals.def	Svar_signals.hh		\
 Symbol.cc					Symbol.hh		\
 SymbolTable.cc					SymbolTable.hh		\
 			SystemLimits.def	SystemLimits.hh		\
@@ -108,14 +108,14 @@ Workspace.cc					Workspace.hh
 
 # normally we would say:
 #
-# Svar_signals.hh: Svar_signals.def udp_signal.m4
+# Svar_signals.hh: Svar_signals.def tcp_signal.m4
 #
 # but what if m4 is missing? So we explicitly 'make update-svar_signals'
-# when Svar_signals.def or udp_signal.m4 have changed (which rarely happens)
+# when Svar_signals.def or tcp_signal.m4 have changed (which rarely happens)
 #
 .PHONY:	update-svar_signals
 update-svar_signals:
-	m4 -D protocol=Svar_signals udp_signal.m4 > Svar_signals.hh
+	m4 -D protocol=Svar_signals tcp_signal.m4 > Svar_signals.hh
 
 AM_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(OPENMP)
 

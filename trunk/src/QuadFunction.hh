@@ -355,20 +355,22 @@ protected:
 class Stop_Trace : public QuadFunction
 {
 protected:
+   /// constructor
    Stop_Trace(TokenTag tag)
    : QuadFunction (tag)
    {}
 
-   // find UserFunction named \b fun_name
+   /// find UserFunction named \b fun_name
    UserFunction * locate_fun(const Value & fun_name);
 
-   // return integers in lines
+   /// return integers in lines
    Token reference(const vector<Function_Line> & lines, bool assigned);
 
-   // return assign lines in new_value to stop or trace vector in ufun
+   /// return assign lines in new_value to stop or trace vector in ufun
    void assign(UserFunction * ufun, const Value & new_value, bool stop);
 };
 //-----------------------------------------------------------------------------
+/// ⎕STOP
 class Quad_STOP : public Stop_Trace
 {
 public:
@@ -387,6 +389,7 @@ public:
    static Quad_STOP fun;
 };
 //-----------------------------------------------------------------------------
+/// ⎕TRACE
 class Quad_TRACE : public Stop_Trace
 {
 public:

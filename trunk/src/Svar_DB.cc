@@ -268,24 +268,13 @@ Svar_DB::DB_tcp_error(const char * op, int got, int expected)
 }
 //=============================================================================
 
-Svar_record * Svar_record_P::offered_svar_p = 0;
-
-Svar_record_P::Svar_record_P(bool ronly, SV_key key)
-   : read_only(ronly)
+Svar_record_P::Svar_record_P(SV_key key)
 {
    if (!Svar_DB::APserver_available())   return;
 
 const int sock = Svar_DB::get_DB_tcp();
-   offered_svar_p = 0;
 
-   if (ronly)
-      {
-        READ_SVAR_RECORD_c request(sock, key);
-      }
-   else
-      {
-        UPDATE_SVAR_RECORD_c request(sock, key);
-      }
+   { READ_SVAR_RECORD_c request(sock, key); }
 
 char * del = 0;
 char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_record)];
@@ -296,19 +285,9 @@ Signal_base * response = Signal_base::recv_TCP(sock, buffer, sizeof(buffer),
       {
         memcpy(&cache, response->get__SVAR_RECORD_IS__record().data(),
                sizeof(Svar_record));
-        offered_svar_p = &cache;
       }
    else   get_CERR() << "Svar_record_P() failed at " << LOC << endl;
    if (del)   delete del;
-}
-//-----------------------------------------------------------------------------
-Svar_record_P::~Svar_record_P()
-{
-   if (read_only)                        return;
-   if (!Svar_DB::APserver_available())   return;
-
-std::string data((const char *)&cache, sizeof(cache));
-SVAR_RECORD_IS_c updated(Svar_DB::get_DB_tcp(), data);
 }
 //=============================================================================
 void

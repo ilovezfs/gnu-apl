@@ -136,13 +136,19 @@ protected:
    /// a value and its parent (if value is a sub-value of a nested parent)
    struct _val_par
       {
+         /// constructor
          _val_par(const Value & v, const Value & par = *(Value *)0)
          : _val(v),
            _par(par)
-         {}                       ///< constructor
-         const Value & _val;      ///< the value
-         const Value & _par;      ///< the optional parent
+         {}
 
+         /// the value
+         const Value & _val;
+
+         /// the optional parent
+         const Value & _par;
+
+         /// compare with \b other
          void operator=(const _val_par & other)
             { new (this) _val_par(other._val, other._par); }
       };

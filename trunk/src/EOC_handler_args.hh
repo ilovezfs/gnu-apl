@@ -40,7 +40,7 @@ struct quad_EC
 /// arguments of the EOC handler for ⎕INP
 struct quad_INP
 {
-  UCS_string_list * lines;       /// the lines of the final result.
+  UCS_string_list * lines;       ///< the lines of the final result.
 
   UCS_string * end_marker;       ///< the end of the data read by ⎕INP
   UCS_string * esc1;             ///< start marker (escape from ⎕INP)
@@ -306,17 +306,17 @@ public:
    /// additional EOC handler specific arguments
    union EOC_arg_u
       {
-        quad_EA    u_quad_EA;
-        quad_EC    u_quad_EC;
-        quad_INP   u_quad_INP;
-        OUTER_PROD u_OUTER_PROD;
-        INNER_PROD u_INNER_PROD;
-        REDUCTION  u_REDUCTION;
-        EACH_ALB   u_EACH_ALB;
-        EACH_LB    u_EACH_LB;
-        RANK_LyXB   u_RANK_LyXB;
-        RANK_ALyXB  u_RANK_ALyXB;
-      } u;
+        quad_EA     u_quad_EA;         ///< space for ⎕EA context
+        quad_EC     u_quad_EC;         ///< space for ⎕EC context
+        quad_INP    u_quad_INP;        ///< space for ⎕INP context
+        OUTER_PROD  u_OUTER_PROD;      ///< space for ∘.g context
+        INNER_PROD  u_INNER_PROD;      ///< space for f.g context
+        REDUCTION   u_REDUCTION;       ///< space for f/ context
+        EACH_ALB    u_EACH_ALB;        ///< space for A¨B context
+        EACH_LB     u_EACH_LB;         ///< space for ¨B context
+        RANK_LyXB   u_RANK_LyXB;       ///< space for f⍤[X] B context
+        RANK_ALyXB  u_RANK_ALyXB;      ///< space for A f⍤[X] B context
+      } u; ///< a union big enough for all EOC args
 };
 
 /// the type of a function to be called at the end of a context.

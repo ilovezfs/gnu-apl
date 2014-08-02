@@ -105,12 +105,16 @@ protected:
    /// read one line from the user (-terminal).
    static const unsigned char * get_user_line(const UCS_string * prompt);
 
+   /// prepare readline and call it
    static char * call_readline(const char *);
 
+   /// set the ^C character to ch
    static void set_intr_char(int ch);
 
+   /// initialize the handler for ^C in readline
    static  int init_readline_control_C();
 
+   /// handle ^C in readline
    static int readline_control_C(int count, int key);
 };
 

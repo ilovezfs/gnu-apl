@@ -190,6 +190,7 @@ public:
    void extract_apl_val(const char * loc) const
       { if (is_apl_val())   ptr_clear(value._apl_val(), loc); }
 
+   /// clear this token, properly clearing Value token
    void clear(const char * loc)
       {
          if (is_apl_val())   ptr_clear(value._apl_val(), loc);
@@ -344,6 +345,7 @@ struct Token_loc
      pc(_pc)
    {}
 
+   /// copy this Token_loc to \b other
    void copy(const Token_loc & other, const char * loc)
       {
         pc = other.pc;

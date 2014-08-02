@@ -54,8 +54,10 @@ public:
    bool have_expo() const
       { return real_len > (int_len + fract_len); }
 
+   /// the total length
    int total_len() const
       { return real_len + imag_len; }
+
    /// some flags
    int flags;
 

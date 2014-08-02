@@ -684,7 +684,6 @@ Quad_QUOTE::Quad_QUOTE()
 Value_P dummy(new Value(UCS_string(LOC), LOC));
    dummy->set_complete();
    Symbol::assign(dummy, LOC);
-   dummy->set_forever();
 }
 //-----------------------------------------------------------------------------
 void

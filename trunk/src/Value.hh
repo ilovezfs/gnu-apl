@@ -179,6 +179,7 @@ public:
    /// compute the CellType contained in \b this value (recursively)
    CellType deep_cell_types() const;
 
+   /// recursive set of Cell types in this value
    CellType deep_cell_subtypes() const;
 
    /// print \b this value (line break at Workspace::get_PW())
@@ -347,35 +348,37 @@ public:
 #endif
 
    /// a macro defining SET_x(), CLEAR_x(), and IS_x() for flag x
-#define VF_flag(flag)                                                         \
-                                                                              \
-   void SET_ ## flag(const char * loc) const                                  \
-      { FLAG_INFO(loc, VF_ ## flag, #flag, true)                              \
-        flags |=  VF_ ## flag;                                                \
-        ADD_EVENT(this, VHE_SetFlag, VF_ ## flag, loc); }        \
-                                                                              \
-   void CLEAR_ ## flag(const char * loc) const                                \
-      { FLAG_INFO(loc, VF_ ## flag, #flag, false)                             \
-        flags &=  ~VF_ ## flag;                                               \
-        ADD_EVENT(this, VHE_ClearFlag, VF_ ## flag, loc); }      \
-                                                                              \
-   void SET_ ## flag() const     { flags |=  VF_ ## flag;                     \
-        ADD_EVENT(this, VHE_SetFlag, VF_ ## flag, LOC); }        \
-                                                                              \
-   void CLEAR_ ## flag() const   { flags &=  ~VF_ ## flag;                    \
-        ADD_EVENT(this, VHE_ClearFlag, VF_ ## flag, LOC); }      \
-                                                                              \
-   bool is_ ## flag() const      { return (flags & VF_ ## flag) != 0; }
+#define VF_flag(flg)							\
+									\
+   /** set Value flag flg **/						\
+   void SET_ ## flg(const char * loc) const				\
+      { FLAG_INFO(loc, VF_ ## flg, #flg, true)				\
+        flags |=  VF_ ## flg;						\
+        ADD_EVENT(this, VHE_SetFlag, VF_ ## flg, loc); }		\
+									\
+   /** clear Value flag flg **/						\
+   void CLEAR_ ## flg(const char * loc) const				\
+      { FLAG_INFO(loc, VF_ ## flg, #flg, false)				\
+        flags &=  ~VF_ ## flg;						\
+        ADD_EVENT(this, VHE_ClearFlag, VF_ ## flg, loc); }		\
+									\
+   /** set Value flag flg **/						\
+   void SET_ ## flg() const     { flags |=  VF_ ## flg;			\
+        ADD_EVENT(this, VHE_SetFlag, VF_ ## flg, LOC); }		\
+									\
+   /** clear Value flag flg **/						\
+   void CLEAR_ ## flg() const   { flags &=  ~VF_ ## flg;		\
+        ADD_EVENT(this, VHE_ClearFlag, VF_ ## flg, LOC); }		\
+									\
+   /** true if Value flag flg is set **/						\
+   bool is_ ## flg() const      { return (flags & VF_ ## flg) != 0; }
 
-# define set_forever()  SET_forever(_LOC)
 # define set_complete() SET_complete(_LOC)
 # define set_temp()     SET_temp(_LOC)
 # define set_marked()   SET_marked(_LOC)
 
-# define clear_forever()  CLEAR_forever(_LOC)
 # define clear_marked()   CLEAR_marked(_LOC)
 
-   VF_flag(forever)
    VF_flag(complete)
    VF_flag(marked)
    VF_flag(temp)
@@ -441,7 +444,7 @@ public:
    /// one for each line
    void to_varnames(vector<UCS_string> & result, bool last) const;
 
-   // recursively replace all ravel elements with 0
+   /// recursively replace all ravel elements with 0
    void to_proto();
 
    /// print address, shape, and flags of this value
@@ -505,6 +508,9 @@ protected:
 #if 1 // enable/disable deleted values chain for faster memory allocation
 
 public:
+   /// allocate space for a new Value. For performance reasons, a pool of
+   /// deleted_values_MAX is kept and Value objects in that pool are reused
+   /// before calling new().
    static void * operator new(size_t sz)
       {
         if (deleted_values)   // we have deleted values: recycle one
@@ -518,6 +524,7 @@ public:
         return malloc(sz);
       }
 
+   /// free space for a new Value
    static void operator delete(void * ptr)
       {
         if (deleted_values_count < deleted_values_MAX)   // we have space

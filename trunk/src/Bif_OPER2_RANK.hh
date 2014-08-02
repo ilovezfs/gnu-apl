@@ -52,6 +52,7 @@ public:
    /// the 'normalized' implementation of all eval_Lxxx*( functions
    Token do_LyXB(Function * LO, const Shape * axes, Value_P B, Rank rk_chunkB);
 
+   /// split j B into j and B
    static void split_y123_B(Value_P y123_B, Value_P & y123, Value_P & B);
 
    static Bif_OPER2_RANK fun;      ///< Built-in function

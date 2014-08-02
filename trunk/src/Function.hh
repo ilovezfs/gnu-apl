@@ -135,6 +135,7 @@ public:
    /// Print \b this function.
    virtual ostream & print(ostream & out) const = 0;
 
+   /// an associative cell function
    typedef ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const;
 
    /// if this function is an associative scalar function then return

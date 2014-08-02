@@ -66,6 +66,7 @@ public:
    /// display bytes in this UTF string
    ostream & dump_hex(ostream & out, int max_bytes) const;
 
+   /// return this string as a C-string (appending a 0-byte)
    const char * c_str()
       {
         extend(items_valid + 1);
@@ -91,29 +92,37 @@ public:
    static Unicode getc(istream & in);
 };
 //=============================================================================
+/// A UTF8 string to be used as filebuf in UTF8_ostream
 class UTF8_filebuf : public filebuf
 {
 public:
+   /// return the data in this filebuf
    const UTF8_string & get_data()
       { return data; }
 
 protected:
+   /// insert \b c into this filebuf
    virtual int overflow(int c);
 
+   /// the data in this filebuf
    UTF8_string data;
 };
 //=============================================================================
+/// a UTF8 string that can be used as ostream
 class UTF8_ostream : public ostream
 {
 public:
+   /// An UTF8_string that can be used like an ostream to format data
    UTF8_ostream()
    : ostream(&utf8_filebuf)
    {}
 
+   /// return the data in this UTF8_string
    const UTF8_string & get_data()
       { return utf8_filebuf.get_data(); }
 
 protected:
+   /// the filebuf of this ostream
    UTF8_filebuf utf8_filebuf;
 };
 //=============================================================================

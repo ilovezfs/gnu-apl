@@ -202,6 +202,7 @@ public:
    virtual Token eval_B(Value_P B)
       { return disclose(B, false); }
 
+   /// ⊃B
    static Token disclose(Value_P B, bool rank_tolerant);
 
    /// Overloaded Function::eval_XB()
@@ -209,6 +210,7 @@ public:
       { const Shape axes_X = X->to_shape();
         return disclose_with_axis(axes_X, B, false); }
 
+   /// ⊃[X]B
    static Token disclose_with_axis(const Shape & axes_X, Value_P B,
                                    bool rank_tolerant);
 
@@ -335,6 +337,7 @@ public:
 
    static Bif_F12_TAKE      fun;   ///< Built-in function
 
+   /// ↑B
    static Value_P first(Value_P B);
 
 protected:
@@ -443,6 +446,7 @@ protected:
    void encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
                const Cell * cA, APL_Integer b);
 
+   /// encode b according to A
    void encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
                const Cell * cA, APL_Float b, double qct);
 
@@ -747,7 +751,7 @@ public:
    virtual Token eval_B(Value_P B)
       { return Token(TOK_APL_VALUE1, do_unique(B, false)); }
 
-   // return unique elements in B (sorted or not)
+   /// return unique elements in B (sorted or not)
    static Value_P do_unique(Value_P B, bool sorted);
 
    static Bif_F12_UNION      fun;   ///< Built-in function

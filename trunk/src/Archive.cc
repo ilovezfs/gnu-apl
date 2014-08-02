@@ -693,7 +693,6 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
        {
          const Value & val(*(const Value *)obj);
 
-         if (val.is_forever())   continue;   // e.g. ⍞
          if (val.is_marked())    continue;   // stale
 
          val.unmark();

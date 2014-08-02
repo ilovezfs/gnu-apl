@@ -121,12 +121,15 @@ public:
    virtual bool need_scaling(const PrintContext &pctx) const
       { return false; }
 
+   /// initialize Z to integer 0
    static ErrorCode z0(Cell * Z)
       { new (Z) IntCell(0);   return E_NO_ERROR; }
 
+   /// initialize Z to integer 1
    static ErrorCode z1(Cell * Z)
       { new (Z) IntCell(1);   return E_NO_ERROR; }
 
+   /// initialize Z to integer ¯1
    static ErrorCode z_1(Cell * Z)
       { new (Z) IntCell(-1);   return E_NO_ERROR; }
 

@@ -43,21 +43,19 @@ using namespace std;
 class Svar_record_P
 {
 public:
-   Svar_record_P(bool read_only, SV_key key);
+   /// constructor: fetch record with key \b key from APserver
+   Svar_record_P(SV_key key);
 
-   ~Svar_record_P();
-
+   /// return pointer to the record (overloaded -> operator)
    const Svar_record * operator->() const
-      { return offered_svar_p; }
+      { return &cache; }
 
+   /// return reference to the record (overloaded * operator)
    Svar_record * operator->()
-      { return offered_svar_p; }
+      { return &cache; }
 
 protected:
-   bool read_only;
-
-   static Svar_record * offered_svar_p;
-
+   /// the last fetched record
    static Svar_record cache;
 
 private:
@@ -68,9 +66,9 @@ private:
    Svar_record_P & operator =(const Svar_record_P & other);
 };
 //-----------------------------------------------------------------------------
-# define READ_RECORD(key, open_act, closed_act)             	\
-    if (Svar_DB::APserver_available())                 \
-         { const Svar_record_P svar(true, key); open_act }   	\
+# define READ_RECORD(key, open_act, closed_act)		\
+    if (Svar_DB::APserver_available())			\
+         { const Svar_record_P svar(key); open_act }	\
     else { closed_act }
 
 /// access to a database in APserver that contains all shared variables on
@@ -140,6 +138,8 @@ public:
         READ_RECORD(key, return svar->get_state(); , return SVS_NOT_SHARED; )
       }
 
+   /// true if key is shared between workspaces (as opposed to shared between
+   /// a workspace and an AP
    static bool is_ws_to_ws(SV_key key)
       {
         READ_RECORD(key, return svar->is_ws_to_ws(); , return false; )
@@ -174,18 +174,22 @@ public:
    static TCP_socket connect_to_APserver(const char * bin_path,
                                          const char * prog, bool logit);
 
+   /// close TCP connection to APserver
    static void disconnect()
       {
         if (DB_tcp != NO_TCP_SOCKET)
            { ::close(DB_tcp);   DB_tcp = NO_TCP_SOCKET; }
       }
 
+   /// return true if the connection to APserver is up
    static bool APserver_available()
       { return DB_tcp != NO_TCP_SOCKET; }
 
+   /// return the fd towards APserver
    static TCP_socket get_DB_tcp()
       { return DB_tcp; }
 
+   /// print TCP error information
    static void DB_tcp_error(const char * op, int got, int expected);
 
 protected:
@@ -193,8 +197,10 @@ protected:
    static void start_APserver(const char * server_sockname,
                               const char * bin_dir, bool logit);
 
+   /// the TCP connection to APserver, NO_TCP_SOCKET if invalid
    static TCP_socket DB_tcp;
 
+   /// The TCP port of APserver
    static uint16_t APserver_port;
 
 private:

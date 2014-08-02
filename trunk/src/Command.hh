@@ -130,16 +130,20 @@ protected:
    /// )OUT: export a workspace file
    static void cmd_OUT(ostream & out, vector<UCS_string> & args);
 
+   /// create a user defined command
    static void cmd_USERCMD(ostream & out, const UCS_string & arg,
                            vector<UCS_string> & args);
 
+   /// execute a user defined command
    static void do_USERCMD(ostream & out, UCS_string & line,
                           const UCS_string & line1, const UCS_string & cmd,
                           vector<UCS_string> & args, int uidx);
 
+   /// check if a command name conflicts with an existing command
    static bool check_name_conflict(ostream & out, const UCS_string & cnew,
                                    const UCS_string cold);
 
+   /// check if a command is being redefined
    static bool check_redefinition(ostream & out, const UCS_string & cnew,
                                   const UCS_string fnew, const int mnew);
 

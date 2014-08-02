@@ -114,7 +114,7 @@ public:
       { return current_testreport; }
 
 protected:
-   // dito (close files, print errors, summary etc).
+   /// dito (close files, print errors, summary etc).
    static bool end_of_current_file();
 
    /// how to handle test results
@@ -134,7 +134,7 @@ protected:
 
         /// exit() after the first error
         TM_EXIT_AFTER_ERROR      = 4,
-      } test_mode;   /// the desired test mode as per --TM n
+      } test_mode;   ///< the desired test mode as per --TM n
 
    /// write testcases summary file
    static void print_summary();

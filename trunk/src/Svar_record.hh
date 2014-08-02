@@ -109,6 +109,7 @@ enum TCP_socket
 /// one of the two partners of a shared vaiable
 struct Svar_partner
 {
+   /// constructor: unused share partner
    Svar_partner()
    : id(NO_AP),
      tcp_fd(NO_TCP_SOCKET),
@@ -117,6 +118,7 @@ struct Svar_partner
      active(false)
    {}
 
+   /// constructor: specific share partner
    Svar_partner(const AP_num3 _id, TCP_socket _tcp_fd)
    : id(_id),
      tcp_fd(_tcp_fd),

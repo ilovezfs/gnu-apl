@@ -47,6 +47,7 @@ enum LibRef
 class LibPaths
 {
 public:
+   /// one library directory
    struct LibDir
       {
         /// constructor: unspecified LibDir
@@ -101,6 +102,7 @@ public:
                                       bool existing, const char * ext1,
                                                      const char * ext2);
 protected:
+   /// maybe warn the user if two files that differ only by extension exist
    static void maybe_warn_ambiguous(int name_has_extension,
                                     const UTF8_string name,
                                     const char * ext1, const char * ext2);

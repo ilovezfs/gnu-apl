@@ -97,20 +97,23 @@ unsigned int lo, hi;
 #endif
 
 //-----------------------------------------------------------------------------
-/*
+/**
   Software probes. A probe is a measurement of CPU cycles executed between two
   points P1 and P2 in the source code.
  */
 class Probe
 {
 public:
+   /// some Proble related parameters
    enum { PROBE_COUNT = 100,   ///< the number of probes
           PROBE_LEN   = 20     ///< the number of measurements in each probe
         };
 
+   /// constructor
    Probe()
       { init(); }
 
+   /// initialize this probe
    void init()
       {
         idx = 0;
@@ -125,9 +128,11 @@ public:
         return 0;
       }
 
+   /// initialize all probes
    static void init_all()
       { loop(p, PROBE_COUNT)   init(p); }
 
+   /// start time measurement
    void start()
       {
          if (idx < PROBE_LEN)
@@ -152,6 +157,7 @@ public:
          *start_p = cycle_counter();
       }
 
+   /// stop time measurement
    void stop()
       {
         // the real end of the measurment
@@ -205,7 +211,7 @@ public:
         return probes[p].idx;
       }
 
-   static Probe & P0;    ///< start of vector probe
+   static Probe & P0;    ///< start of vector probes
    static Probe & P_1;   ///< individual probe 1
    static Probe & P_2;   ///< individual probe 2
    static Probe & P_3;   ///< individual probe 3
@@ -213,19 +219,30 @@ public:
    static Probe & P_5;   ///< individual probe 5
 
 protected:
+   /// one time measurement, measuring cCPU cycles spent between
+   /// ttw points in the source code
    struct measurement
       {
         int64_t cycles_from;   ///< the cycle counter at point 1
         int64_t cycles_to;     ///< the cycle counter at point 2
       };
 
+   /// all measurements
    measurement measurements[PROBE_LEN];
 
+   /// index into \b probes
    int idx;
+
+   /// start time
    int64_t * start_p;
+
+   /// end time
    int64_t * stop_p;
 
+   /// a dummy used when \b idx exceeds \b probes
    static int64_t dummy;
+
+   /// all probes
    static Probe probes[];
 };
 //-----------------------------------------------------------------------------
