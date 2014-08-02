@@ -135,9 +135,6 @@ public:
    /// add an outer frame around this buffer
    void add_outer_frame(PrintStyle style);
 
-   /// compute horizontal breakpoints for printing this buffer within \b quad_PW
-   vector<int> compute_breakpoints(int quad_PW) const;
-
    /// print properties of \b this PrintBuffer
    ostream & debug(ostream & out, const char * title = 0) const;
 

@@ -147,18 +147,18 @@
 ∇
 
 ∇Zi ← FIO∆printf B
- ⍝⍝ printf(A1, A2...) format A1
+ ⍝⍝ printf(B1, B2...) format B1
  Zi ← B FILE_IO[22] 1
 ∇
 
-∇Zi ← A  FIO∆fprintf_stderr B
- ⍝⍝ fprintf(stderr, A1, A2...) format A1
+∇Zi ← FIO∆fprintf_stderr B
+ ⍝⍝ fprintf(stderr, B1, B2...) format B1
  Zi ← B  FILE_IO[22] 2
 ∇
 
-∇Zi ← A  FIO∆fprintf Bh
- ⍝⍝ fprintf(Bh, A1, A2...) format A1
- Zi ← A  FILE_IO[22] Bh
+∇Zi ← Ah FIO∆fprintf B
+ ⍝⍝ fprintf(Ah, B1, B2...) format B1
+ Zi ← Ah FILE_IO[22] B
 ∇
 
 ∇Zi ← Ac FIO∆fwrite Bh

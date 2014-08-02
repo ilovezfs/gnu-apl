@@ -69,8 +69,8 @@ const bool huge = out && ec > 10000;
         // pad the value unless it is framed
         if (value.compute_depth() > 1 && !framed)
            {
-                pad_l(UNI_iPAD_U4, 1);
-                pad_r(UNI_iPAD_U5, 1);
+             pad_l(UNI_iPAD_U4, 1);
+             pad_r(UNI_iPAD_U5, 1);
            }
 
         add_outer_frame(outer_style);
@@ -185,7 +185,7 @@ const bool huge = out && ec > 10000;
      }
 
      // 2. create a matrix of items.
-     //    An item of the matrix is a top-level value (possibly nested),
+     //    An item of the matrix is a top-level cell (possibly nested),
      //    therefore we have (⍴,value) items. Items are rectangular.
      //
      typedef vector<PrintBuffer> PB_row;
@@ -249,6 +249,9 @@ const bool huge = out && ec > 10000;
      int last_spacing = 0;
      bool last_notchar = false;
 
+     vector<PrintBuffer> pcols;
+     pcols.reserve(cols);
+
      loop(x, cols)
         {
           PrintBuffer pcol;
@@ -261,15 +264,13 @@ const bool huge = out && ec > 10000;
              //
              if (y)
                 {
+                  const UCS_string sepa_row(pcol.get_width(0), UNI_iPAD_L0);
                   ShapeItem prod = 1;
                   loop(r, value.get_rank() - 2)
                      {
                        prod *= value.get_shape_item(value.get_rank() - r - 2);
-                       if (y % prod == 0)
-                          pcol.append_ucs(UCS_string(pcol.get_width(0),
-                                                        UNI_iPAD_L0));
-                       else
-                          break;
+                       if (y % prod == 0)   pcol.append_ucs(sepa_row);
+                       else                 break;
                      }
                 }
 
@@ -288,15 +289,11 @@ const bool huge = out && ec > 10000;
 
           if (huge && (ii_count != interrupt_count))   goto interrupted;
 
-          if (x == 0)
-             {
-                *this = pcol;
-             }
-          else
+          if (x)   // not first column
              {
                 if (last_notchar)
                    {
-                     pad_r(UNI_iPAD_U2, 1);
+                     pcols.back().pad_r(UNI_iPAD_U2, 1);
                      ++no_char_spacing;
                    }
                 else if (not_char)
@@ -305,17 +302,33 @@ const bool huge = out && ec > 10000;
                      ++no_char_spacing;
                    }
 
-                // append the column. we want a total spacing of 'max_spacing'
+                // we want a total spacing of 'max_spacing'
                 // but we deduct the 'no_char_spacing' chars ² and ³
-                // that were appended already.
+                // that were appended above.
                 //
-                if (huge && (ii_count != interrupt_count))   goto interrupted;
-                add_column(UNI_iPAD_U7, max_spacing - no_char_spacing, pcol);
+                const int u7_pad_len = max_spacing - no_char_spacing;
+                if (u7_pad_len)
+                   {
+                     pcols.back().pad_r(UNI_iPAD_U7, u7_pad_len);
+                   }
              }
+
+          pcols.push_back(pcol);
+
+          if (huge && (ii_count != interrupt_count))   goto interrupted;
 
           last_spacing = col_spacing;
           last_notchar = not_char;
         }
+
+     // combine columns
+     //
+     for (int dx = 1; dx < cols; dx += dx)
+     for (int xx = dx; xx < cols; xx += dx)
+         {
+           pcols[xx - dx].append_col(pcols[xx]);
+         }
+     *this = pcols[0];
 
      if (value.compute_depth() > 1 && !framed)
         {
@@ -337,7 +350,7 @@ const bool huge = out && ec > 10000;
 maybe_print_it:
    if (huge)   // ergo: out
       {
-         print_interruptible(*out, value.get_rank(), _pctx.get_PW());
+        print_interruptible(*out, value.get_rank(), _pctx.get_PW());
       }
    else if (out)
       {
@@ -360,38 +373,53 @@ PrintBuffer::print_interruptible(ostream & out, Rank rank, int quad_PW)
 {
    if (get_height() == 0)   return;      // empty PrintBuffer
 
-vector<int> breakpoints = compute_breakpoints(quad_PW);
+const int total_width = get_width(0);
+
+   // breakpoints can get rather large, so we reserve enough space
+vector<int> breakpoints;
+   breakpoints.reserve(2*total_width/quad_PW);
 
    // print rows, breaking at breakpoints
    //
    loop(row, get_height())
        {
-         if (row)   out << UNI_ASCII_LF;   // end previous row
-
+         if (row)   out << endl;   // end previous row
          int col = 0;
-         loop(b, breakpoints.size())
+         int b = 0;
+
+         while (col < total_width)
             {
-              const int chunk_len = breakpoints[b];
-              if (col)   out << "\n      ";
+              int chunk_len;
+              if (row == 0)   // first row: set up breakpoints
+                 {
+                   chunk_len = get_line(0).compute_chunk_length(quad_PW, col);
+                   breakpoints.push_back(chunk_len);
+                 }
+              else
+                 {
+                   chunk_len = breakpoints[b++];
+                 }
+
+              if (col)   out << endl << "      ";
               UCS_string trow(get_line(row), col, chunk_len);
               trow.remove_trailing_padchars();
 
               loop(t, trow.size())
                   {
-                    const Unicode uni = trow[t];
-                    if (is_iPAD_char(uni))   out << " ";
-                    else                     out << uni;
+                     const Unicode uni = trow[t];
+                     if (is_iPAD_char(uni))   out << " ";
+                     else                     out << uni;
                   }
               col += chunk_len;
-            }
 
-        if (interrupt_raised)
-           {
-             out << "INTERRUPT" << endl;
-             attention_raised = false;
-             interrupt_raised = false;
-             return;
-           }
+              if (interrupt_raised)
+                 {
+                   out << endl << "INTERRUPT" << endl;
+                   attention_raised = false;
+                   interrupt_raised = false;
+                   return;
+                 }
+            }
        }
 
    out << endl;
@@ -621,44 +649,6 @@ UCS_string hori(get_width(0), HORI);
    set_char(get_width(0) - 1, get_height() - 1, SW);
 
    Assert(is_rectangular());
-}
-//-----------------------------------------------------------------------------
-vector<int>
-PrintBuffer::compute_breakpoints(int quad_PW) const
-{
-const int pb_width = get_width(0);
-vector<int> breakpoints;
-
-   for (int col = 0; col < pb_width;)
-       {
-         const int max_chunk_width = col ? quad_PW - 6 : quad_PW;
-
-         // find breakpoint
-         //
-         int chunk_len = max_chunk_width;
-         const int rest = pb_width - col;
-         if (chunk_len < rest)   // rest too large
-            {
-              // search backwards for break char
-              //
-              int pos = col + chunk_len;
-              if (pos > pb_width)   pos = pb_width;
-              while (--pos > col)
-                  {
-                    const Unicode uni = get_line(0)[pos];
-                    if (uni == UNI_iPAD_U2 || uni == UNI_iPAD_U3)
-                       {
-                          chunk_len = pos - col + 1;
-                          break;
-                       }
-                  }
-            }
-
-         breakpoints.push_back(chunk_len);
-         col += chunk_len;
-       }
-
-   return breakpoints;
 }
 //-----------------------------------------------------------------------------
 ostream &

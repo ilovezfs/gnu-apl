@@ -287,7 +287,10 @@ UCS_string::UCS_string(const PrintBuffer & pb, Rank rank, int quad_PW)
 {
    if (pb.get_height() == 0)   return;      // empty PrintBuffer
 
-vector<int> breakpoints = pb.compute_breakpoints(quad_PW);
+const int total_width = pb.get_width(0);
+
+vector<int> breakpoints;
+   breakpoints.reserve(2*total_width/quad_PW);
 
    // print rows, breaking at breakpoints
    //
@@ -295,23 +298,59 @@ vector<int> breakpoints = pb.compute_breakpoints(quad_PW);
        {
          if (row)   append(UNI_ASCII_LF);   // end previous row
          int col = 0;
-         loop(b, breakpoints.size())
+         int b = 0;
+
+         while (col < total_width)
             {
-              const int chunk_len = breakpoints[b];
+              int chunk_len;
+              if (row == 0)   // first row: set up breakpoints
+                 {
+                   chunk_len = pb.get_line(0).compute_chunk_length(quad_PW,col);
+                   breakpoints.push_back(chunk_len);
+                 }
+              else
+                 {
+                   chunk_len = breakpoints[b++];
+                 }
+
               if (col)   append_utf8("\n      ");
               UCS_string trow(pb.get_line(row), col, chunk_len);
               trow.remove_trailing_padchars();
               append(trow);
+
               col += chunk_len;
             }
        }
 
-   // replacing pad chars with blanks.
+   // replace pad chars with blanks.
    //
    loop(u, size())
        {
          if (is_iPAD_char((*this)[u]))   (*this)[u] = UNI_ASCII_SPACE;
        }
+}
+//-----------------------------------------------------------------------------
+int
+UCS_string::compute_chunk_length(int quad_PW, int col) const
+{
+int chunk_len = quad_PW;
+
+   if (col)   chunk_len -= 6;   // subsequent line inden
+
+int pos = col + chunk_len;
+   if (pos >= size())   return size() - col;
+
+   while (--pos > col)
+      {
+         const Unicode uni = (*this)[pos];
+         if (uni == UNI_iPAD_U2 || uni == UNI_iPAD_U3)
+            {
+               chunk_len = pos - col + 1;
+               break;
+            }
+      }
+
+   return chunk_len;
 }
 //-----------------------------------------------------------------------------
 void
