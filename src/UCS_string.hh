@@ -84,6 +84,9 @@ public:
    /// constructor: UCS_string from simple character vector value.
    UCS_string(const Value & value);
 
+   /// compute the length of an output row
+   int compute_chunk_length(int quad_PW, int col) const;
+
    /// remove trailing pad characters
    void remove_trailing_padchars();
 

@@ -295,6 +295,22 @@ public:
         return COMP_EQ;
       }
 
+   /// exchange this and other (without copying the data)
+   void swap(Simple_string & other)
+      {
+        const int ia = items_allocated;
+        items_allocated = other.items_allocated;
+        other.items_allocated = ia;
+
+        const int iv = items_valid;
+        items_valid = other.items_valid;
+        other.valid = iv;
+
+        T * const it = items;
+        items = other.items;
+        other.items = it;
+      }
+
 protected:
    /// print properties
    ostream & debug(ostream & out)
