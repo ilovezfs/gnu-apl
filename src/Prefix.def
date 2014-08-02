@@ -140,9 +140,6 @@
       /// a hash table with all valid phrases (and many invalid entries)
       static const Phrase hash_table[PHRASE_MODU];
 
-#define PH(name, idx, prio, misc, len, fun) \
-   { #name, idx, prio, misc, len, &Prefix::reduce_ ## fun, #fun },
-
 #else  // PH defined
 
 const Prefix::Phrase Prefix::hash_table[PHRASE_MODU] =

@@ -212,11 +212,12 @@ public:
         items_valid += count;
       }
 
-   /// forget last element
-   void pop()
+    /// forget last element
+    void pop()
       { if (items_valid)   --items_valid; }
 
-  void drop_leading(int count)
+   /// remove the first element
+   void drop_leading(int count)
       {
         if (count <= 0)   return;
         if (count >= items_valid)   items_valid = 0;
@@ -227,9 +228,11 @@ public:
            }
       }
 
+   /// return a reference to the last item (size() MUSTbe checked beforehand)
    const T & last() const
       { return items[items_valid - 1]; }
 
+   /// return a reference to the last item (size() MUSTbe checked beforehand)
    T & last()
       { return items[items_valid - 1]; }
 

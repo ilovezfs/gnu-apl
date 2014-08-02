@@ -401,7 +401,7 @@ Value::mark_all_dynamic_values()
         dob != &all_values; dob = dob->get_prev())
        {
          Value * val = (Value *)dob;
-         if (!val->is_forever())   val->set_marked();
+         val->set_marked();
        }
 }
 //-----------------------------------------------------------------------------
@@ -572,7 +572,6 @@ Value::list_one(ostream & out, bool show_owners)
       {
         out << "   Flags =";
         char sep = ' ';
-        if (is_forever())    { out << sep << "FOREVER";    sep = '+'; }
         if (is_complete())   { out << sep << "COMPLETE";   sep = '+'; }
         if (is_marked())     { out << sep << "MARKED";     sep = '+'; }
         if (is_temp())       { out << sep << "TEMP";       sep = '+'; }
@@ -1477,7 +1476,6 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
        << ind << "Rank:    " << get_rank()  << endl
        << ind << "Shape:   " << get_shape() << endl
        << ind << "Flags:   " << get_flags();
-   if (is_forever())    out << " VF_forever";
    if (is_complete())   out << " VF_complete";
    if (is_marked())     out << " VF_marked";
    if (is_temp())       out << " VF_temp";
@@ -1778,7 +1776,6 @@ int count = 0;
         dob != &all_values; dob = dob->get_prev())
        {
          Value * val = (Value *)dob;
-         if (val->is_forever())   continue;
 
          // don't print values found in the previous round.
          //

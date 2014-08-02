@@ -19,52 +19,62 @@ dnl  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/// ⎕SVO, ⎕SVR
+/// ⎕SVO
 m4_signal(MAKE_OFFER,       x64,    key)
+/// ⎕SVR
 m4_signal(RETRACT_OFFER,    x64,    key)
+/// ⎕SVR
 m4_signal(RETRACT_VAR,      x64,    key)
 
+/// set state of shared var \b key
 m4_signal(SET_STATE,        x64,    key,
                             u8,     new_state,
                             string, loc)
 
+/// set control of shared var \b key
 m4_signal(SET_CONTROL,      x64,    key,
                             u8,     new_control)
 
-/// SVAR←X and X←SVAR
+/// X←SVAR
 m4_signal(GET_VALUE,        x64,    key)
+
+/// X←SVAR result
 m4_signal(VALUE_IS,         x64,    key,
                             u32,    error,
                             string, error_loc,
                             string, cdr_value)
+
+/// SVAR←X
 m4_signal(ASSIGN_VALUE,     x64,    key,
                             string, cdr_value)
+/// SVAR←X result
 m4_signal(SVAR_ASSIGNED,    x64,    key,
                             u32,    error,
                             string, error_loc)
 
+/// Can svar key be referenced ?
 m4_signal(MAY_USE,          x64,    key,
                             i32,    attempt)
+
+/// Can svar key be assigned ?
 m4_signal(MAY_SET,          x64,    key,
                             i32,    attempt)
 
-/// read/update SVAR database record from APserver
+/// read SVAR database record from APserver
 ///
 ///		apl/APnnn	--> READ_SVAR_RECORD		APserver
 ///				<-- SVAR_RECORD_IS
 ///
-///				--> UPDATE_SVAR_RECORD
-///				<-- SVAR_RECORD_IS
-///				--> SVAR_RECORD_IS
 m4_signal(READ_SVAR_RECORD,     x64,    key)
-m4_signal(UPDATE_SVAR_RECORD,   x64,    key)
+/// result (record) for read SVAR database record from APserver
 m4_signal(SVAR_RECORD_IS,       string, record)
 
-/// return YES_NO telling if ID is registered
+/// is ID registered ?
 m4_signal(IS_REGISTERED_ID,	u32,    proc,
 				u32,    parent,
 				u32,    grand)
 
+/// yes (1) or no (0)
 m4_signal(YES_NO,	        u8,    yes)
 
 /// register processor proc in APserver
@@ -83,10 +93,14 @@ m4_signal(MATCH_OR_MAKE,        string, varname,
                                 u32,    from_parent,
                                 u32,    from_grand)
 
+/// result for match or create
 m4_signal(MATCH_OR_MAKE_RESULT, x64,    key)
 
 
+/// find processor ID that offers \b key
 m4_signal(FIND_OFFERING_ID,     x64,    key)
+
+/// result of find processor ID that offers \b key
 m4_signal(OFFERING_ID_IS,       u32,    proc,
                                 u32,    parent,
                                 u32,    grand)
@@ -94,19 +108,23 @@ m4_signal(OFFERING_ID_IS,       u32,    proc,
 /// get offering processors  (⎕SVQ)
 m4_signal(GET_OFFERING_PROCS,   u32,    offered_to_proc)
 
+/// result of get offering processors  (⎕SVQ)
 m4_signal(OFFERING_PROCS_ARE,   string, offering_procs)
 
 /// get offered variables  (⎕SVQ)
 m4_signal(GET_OFFERED_VARS,     u32,    offered_to_proc,
                                 u32,    accepted_by_proc)
 
+/// result of get offered variables  (⎕SVQ)
 m4_signal(OFFERED_VARS_ARE,     string, offered_vars)
 
 /// find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
 m4_signal(FIND_PAIRING_KEY,	x64,    key)
 
+/// result of find pairing key
 m4_signal(PAIRING_KEY_IS,	x64,    pairing_key)
 
+/// result of find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
 /// get events for one processor (first shared var with an event)
 m4_signal(GET_EVENTS,           u32,    proc,
                                 u32,    parent,
@@ -118,21 +136,27 @@ m4_signal(CLEAR_ALL_EVENTS,     u32,    proc,
                                 u32,    grand)
 
 
+/// result of clear all events for one processor (first cleared svar
 m4_signal(EVENTS_ARE,           x64,    key,
                                 u32,    events)
 
+/// add an event  for \b key
 m4_signal(ADD_EVENT,	        x64,    key,
 				u32,    proc,
                                 u32,    parent,
                                 u32,    grand,
 				u32,    event)
 
+/// ws-ws SVAR←X
 m4_signal(ASSIGN_WSWS_VAR,	x64,    key,
                                 string, cdr_value)
+/// X←ws-ws SVAR
 m4_signal(READ_WSWS_VAR,	x64,    key)
+/// result of X←ws-ws SVAR
 m4_signal(WSWS_VALUE_IS,	string, cdr_value)
 
 /// print the entire database (for command ]SVARS)
 m4_signal(PRINT_SVAR_DB)
+/// print the entire database result
 m4_signal(SVAR_DB_PRINTED,      string, printout)
 

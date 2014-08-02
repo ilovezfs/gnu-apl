@@ -50,7 +50,7 @@ public:
         NCAT_OP2,   ///< dyadic operator
       };
 
-   // load shared lib for emacs mode, return error info on failure
+   /// load shared lib for emacs mode, return error info on failure
    static UCS_string load_emacs_library(const char * emacs_arg);
 
 protected:
@@ -158,31 +158,66 @@ protected:
    /// type of function (niladic / nomadic / moadic operator / dyadic operator)
    Fun_signature signature;
 
+   /// all native functions currently active
    static vector<NativeFunction *>valid_functions;
 
-   typedef Value_P Vr;
-   typedef Function & Fr;
+   typedef Value_P Vr;   ///< shortcut for Value_P
+
+   typedef Function & Fr;   ///< shortcut for Function &
+
 #define Th const NativeFunction *
 
+   /// pointer to function eval_() in shared library
    Token (*f_eval_)        (                                Th);
+
+   /// pointer to function eval_B() in shared library
    Token (*f_eval_B)       (                          Vr B, Th);
+
+   /// pointer to function eval_AB() in shared library
    Token (*f_eval_AB)      (Vr A,                     Vr B, Th);
+
+   /// pointer to function eval_LB() in shared library
    Token (*f_eval_LB)      (      Fr LO,              Vr B, Th);
+
+   /// pointer to function eval_ALB() in shared library
    Token (*f_eval_ALB)     (Vr A, Fr LO,              Vr B, Th);
+
+   /// pointer to function eval_LRB() in shared library
    Token (*f_eval_LRB)     (      Fr LO, Fr RO,       Vr B, Th);
+
+   /// pointer to function eval_ALRB() in shared library
    Token (*f_eval_ALRB)    (Vr A, Fr LO, Fr RO,       Vr B, Th);
+
+   /// pointer to function eval_XB() in shared library
    Token (*f_eval_XB)      (                    Vr X, Vr B, Th);
+
+   /// pointer to function eval_AXB() in shared library
    Token (*f_eval_AXB)     (Vr A,               Vr X, Vr B, Th);
+
+   /// pointer to function eval_LXB() in shared library
    Token (*f_eval_LXB)     (      Fr LO,        Vr X, Vr B, Th);
+
+   /// pointer to function eval_() in shared library
    Token (*f_eval_ALXB)    (Vr A, Fr LO,        Vr X, Vr B, Th);
+
+   /// pointer to function eval_LRXB() in shared library
    Token (*f_eval_LRXB)    (      Fr LO, Fr RO, Vr X, Vr B, Th);
+
+   /// pointer to function eval_ALRXB() in shared library
    Token (*f_eval_ALRXB)   (Vr A, Fr LO, Fr RO, Vr X, Vr B, Th);
 
+
+   /// pointer to function eval_fill_B() in shared library
    Token (*f_eval_fill_B)  (                          Vr B, Th);
+
+   /// pointer to function eval_fill_AB() in shared library
    Token (*f_eval_fill_AB) (Vr A,                     Vr B, Th);
+
+   /// pointer to function eval_identity_fun() in shared library
    Token (*f_eval_ident_Bx)(Vr B,                   Axis x, Th);
 #undef Th
 
+   /// callback before library is closed
    bool (*close_fun)(Cause cause, const NativeFunction * caller);
 };
 //-----------------------------------------------------------------------------

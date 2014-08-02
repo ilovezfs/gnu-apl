@@ -256,21 +256,22 @@ public:
 
    // access to system variables.
    //
-#define ro_sv_def(x) static x & get_v_ ## x() \
+#define ro_sv_def(x) /** return x **/ static x & get_v_ ## x() \
    { return the_workspace.v_ ## x; }
-#define rw_sv_def(x) static x & get_v_ ## x() \
+#define rw_sv_def(x) /** return ## x **/ static x & get_v_ ## x() \
    { return the_workspace.v_ ## x; }
    rw_sv_def(Quad_Quad)
    rw_sv_def(Quad_QUOTE)
 #include "SystemVariable.def"
 
 protected:
+   /// the name of the workspace
    UCS_string WS_name;
 
    // system variables.
    //
-#define ro_sv_def(x) x v_ ## x;
-#define rw_sv_def(x) x v_ ## x;
+#define ro_sv_def(x) /** x **/ x v_ ## x;
+#define rw_sv_def(x) /** x **/ x v_ ## x;
    rw_sv_def(Quad_Quad)
    rw_sv_def(Quad_QUOTE)
 #include "SystemVariable.def"

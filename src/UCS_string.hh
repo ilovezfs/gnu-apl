@@ -93,6 +93,7 @@ public:
    /// remove leading blanks, tabs, etc
    void remove_leading_whitespaces();
 
+   /// remove leading and trailing whitespaces
    void remove_leading_and_trailing_whitespaces()
       {
         remove_trailing_whitespaces();
@@ -185,6 +186,8 @@ public:
    UCS_string operator +(const UCS_string & other) const
       { UCS_string ret(*this);   ret.append(other);   return ret; }
 
+   /// set this string to the 0-terminated ASCII c_string (don't use for UTF8
+   /// encoded strings)
    UCS_string & operator =(const char * c_string)
       { *this = UCS_string(c_string);   return *this; }
 

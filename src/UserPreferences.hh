@@ -148,6 +148,8 @@ struct UserPreferences
    int script_argc;
 
 protected:
+   /// return true if file \b filename is an APL script (has execute permission
+   /// and starts with #!
    static bool is_APL_script(const char * filename);
 };
 

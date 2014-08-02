@@ -55,9 +55,12 @@ struct InputFile
    static int current_line_no()
       { return files_todo.size() ? files_todo[0].line_no : stdin_line_no; }
 
+   /// increment the line number of the current file
    static void increment_current_line_no()
       { if (files_todo.size()) ++files_todo[0].line_no; else ++stdin_line_no; }
 
+   /// return true iff input comes from a script (as opposed to running
+   /// interactively)
    static bool running_script()
       { return files_todo.size() > 0 && files_todo[0].is_script; }
 
@@ -76,10 +79,13 @@ struct InputFile
         return count;
       }
 
+   /// true if echo (of the input) is on for the current file
    static bool echo_current_file();
 
+   /// open current file unless already open
    static void open_current_file();
 
+   /// close the current file and perform some cleanup
    static void close_current_file();
 
    /// randomize the order of test_file_names
@@ -88,7 +94,7 @@ struct InputFile
    /// files that need to be processed
    static vector<InputFile> files_todo;
 
-   FILE       * file;       /// file descriptor
+   FILE       * file;       ///< file descriptor
    UTF8_string  filename;   ///< dito.
 
 protected:
@@ -98,6 +104,7 @@ protected:
    bool         with_LX;    ///< execute ⎕LX at the end
    int          line_no;    ///< line number in file
 
+   /// line number in stdin
    static int stdin_line_no;
 };
 

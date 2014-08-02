@@ -78,10 +78,11 @@ protected:
         Cell * cZ;         ///< result
         const Cell * cB;   ///< right argument
 
-        const Cell & B_at(ShapeItem z) const
-           { return cB[z]; }
-        Cell & Z_at(ShapeItem z) const
-           { return cZ[z]; }
+        /// return B[z]
+        const Cell & B_at(ShapeItem z) const   { return cB[z]; }
+
+        /// return Z[z]
+        Cell & Z_at(ShapeItem z) const   { return cZ[z]; }
       };
 
    /// a helper struct for a non-recursive implementation of
@@ -95,8 +96,13 @@ protected:
         const Cell * cB;   ///< right argument
         int inc_B;         ///< 0 (for scalar B) or 1
 
+        /// return A[z]
         const Cell & A_at(ShapeItem z) const   { return cA[z * inc_A]; }
+
+        /// return B[z]
         const Cell & B_at(ShapeItem z) const   { return cB[z * inc_B]; }
+
+        /// return Z[z]
         Cell & Z_at(ShapeItem z) const         { return cZ[z]; }
       };
 

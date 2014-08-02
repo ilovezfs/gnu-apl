@@ -56,11 +56,12 @@ struct Error
    /// return ⎕EM[1;]. This is the first of 3 error lines. It contains the
    /// error name (like SYNTAX ERROR, DOMAIN ERROR, etc) and is subject
    /// to translation
-   void clear_error_line_1()
-      { error_message_1.clear(); }
-
    const UCS_string & get_error_line_1() const
       { return error_message_1; }
+
+   /// clear error line 1
+   void clear_error_line_1()
+      { error_message_1.clear(); }
 
    /// return error_message_2. This is the second of 3 error lines.
    /// It contains the failed statement and is NOT subject to translation.
@@ -117,10 +118,12 @@ struct Error
    /// the right caret position (-1 if none) for the error display
    int right_caret;
 
+   /// return source file location where this error was printed (0 if not)
    const char * get_print_loc() const
       { return print_loc; }
 
 protected:
+   /// where this error was printed (0 if not)
    const char * print_loc;
 
 private:

@@ -73,6 +73,7 @@ public:
    /// return true iff the function returns a value
    int has_axis() const   { return sym_X != 0; }
 
+   /// return true if this defined function header is an operator
    bool is_operator() const   { return sym_LO != 0; }
 
    /// return the name of the function
@@ -158,7 +159,7 @@ protected:
    /// optional right operator function
    Symbol * sym_RO;
 
-   ///< optional right operator function axis
+   /// optional right operator function axis
    Symbol * sym_X;
 
    /// optional right function arg
@@ -234,7 +235,7 @@ public:
    virtual bool has_axis() const
       { return header.has_axis(); }
 
-   // pop all
+   /// pop all
    void pop_local_vars() const
       { header.pop_local_vars(); }
 
@@ -246,9 +247,11 @@ public:
    virtual bool is_operator() const
       { return header.is_operator(); }
 
+   /// add a label
    void add_label(Symbol * sym, Function_Line line)
       { header.add_label(sym, line); }
 
+   /// return the execution properties (dyadic ⎕FX) of this defined function
    virtual const int * get_exec_properties() const
       { return exec_properties; } 
 
@@ -319,6 +322,7 @@ public:
    /// compute lines 2 and 3 in \b error
    void set_locked_error_info(Error & error) const;
 
+   /// return the entity that has created the function
    const UTF8_string get_creator() const
       { return creator; }
 

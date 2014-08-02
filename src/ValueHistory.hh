@@ -28,30 +28,50 @@ using namespace std;
 
 class Value;
 
+/// a ringbuffer containing events that are related to the manipulation
+/// of values
 class VH_entry
 {
    friend void print_history(ostream & out, const Value * val,
                              const char * loc);
 
 public:
+   /// Constructor: empty (invalid) event
    VH_entry() {}
 
+   /// Constructor: event for \b val
    VH_entry(const Value * val, VH_event ev, int ia, const char * loc);
 
+   /// init the event history
    static void init();
 
+   /// ring buffer of events
    static VH_entry history[VALUEHISTORY_SIZE + 1];   // +1 for Solaris
+
+   /// next event in history (which is a ring buffer)
    static int idx;
 
 protected:
+   /// print the event
    void print(int & flags, ostream & out, const Value * val,
                const VH_entry * previous) const;
 
+   /// the Value to which this event belongs
    const Value * val;
-   VH_event      event;
-   int           iarg;
+
+   /// the event number
+   VH_event event;
+
+   /// integer arg (the meaning depends on event)
+   int iarg;
+
+   /// the caller (source location) of the VH_entry constructor
    const char  * loc;
+
+   /// the testcase file (if any) where the value was created
    const char  * testcase_file;
+
+   /// the line number in the testcase file
    int           testcase_line;
 };
 

@@ -29,6 +29,7 @@ class Value;
 
 #define ptr_clear(p, l) p.reset()
 
+/// a smart pointer to a Value
 class Value_P
 {
 public:
@@ -43,6 +44,7 @@ public:
    /// Constructor: from Value *
    inline Value_P(Value * val, const char * loc);
 
+   /// return he number of Value_P that point to \b value_p
    inline int use_count() const;
 
    /// Constructor: from other Value_P
@@ -54,42 +56,53 @@ public:
    /// Destructor
    inline ~Value_P();
 
+   /// decrement owner-count and reset pointer to 0
    inline void reset();
 
+   /// reset and add value event
    inline void clear(const char * loc);
 
+   /// return a const pointer to the Value (overloaded ->)
    const Value * operator->()  const
       { return value_p; }
 
+   /// return a pointer to the Value (overloaded ->)
    Value * operator->()
       { return value_p; }
 
+   /// return a const reference to the Value
    const Value & operator*()  const
       { return *value_p; }
 
+   /// return a const pointer to the Value
    const Value * get() const
       { return value_p; }
 
+   /// return a pointer to the Value
    Value * get()
       { return value_p; }
 
- bool operator!() const
+   /// return true if the pointer is invalid
+   bool operator!() const
       { return value_p == 0; }
 
 
+   /// return true if this Value_P points to the same Value as \b other
    bool operator ==(const Value_P & other) const
       { return value_p == other.value_p; }
 
+   /// return true if this Value_P points to a different Value than \b other
    bool operator !=(const Value_P & other) const
       { return value_p != other.value_p; }
 
 protected:
+   /// pointer to the value
    Value * value_p;
 };
 
 /// macro to facilitate Value_P in unions
-#define VALUE_P(x) char u_ ## x[sizeof(Value_P)]; \
-   Value_P & _ ## x() const { return *(Value_P *) & u_ ## x; }
+#define VALUE_P(x) /** space for a Value_P **/ char u_ ## x[sizeof(Value_P)]; \
+   /** return Value_P **/ Value_P & _ ## x() const { return *(Value_P *) & u_ ## x; }
 
 //-----------------------------------------------------------------------------
 

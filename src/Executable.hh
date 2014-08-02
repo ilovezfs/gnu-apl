@@ -40,6 +40,7 @@ public:
    /// constructor
    Executable(const UCS_string & ucs, const char * loc);
 
+   /// constructor for lambdas
    Executable(Fun_signature sig, const UCS_string & fname,
               const UCS_string & lambda_text, const char * loc);
 
@@ -58,6 +59,7 @@ public:
    /// return the name of this function, or ◊ or ⍎
    virtual const UCS_string & get_name() const = 0;
 
+   /// return true iff this Executable cannot be suspended
    virtual bool cannot_suspend() const
       { return false; }
 
@@ -131,6 +133,7 @@ protected:
    /// extract lambda expressions from body and store them in lambdas
    void setup_lambdas();
 
+   /// extract the skip'th { ... } from the function text
    UCS_string extract_lambda_text(Fun_signature signature, int skip) const;
 
    /// where this SI entry was allocated

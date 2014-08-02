@@ -318,6 +318,9 @@ Prefix::unmark_all_values() const
 }
 //-----------------------------------------------------------------------------
 
+#define PH(name, idx, prio, misc, len, fun) \
+   { #name, idx, prio, misc, len, &Prefix::reduce_ ## fun, #fun },
+
 #include "Prefix.def"   // the hash table
 
 Token

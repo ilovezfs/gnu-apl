@@ -470,43 +470,6 @@ AP3_fd * ap_fd = 0;
              }
              return;
 
-        case sid_UPDATE_SVAR_RECORD:
-             {
-               const SV_key key = request->get__UPDATE_SVAR_RECORD__key();
-               Svar_record * svar = db.find_var(key, LOC);
-
-               if (svar)
-                  {
-                    string data((const char *)svar, sizeof(Svar_record));
-                    { SVAR_RECORD_IS_c(fd, data); }
-
-                    char buffer[2*MAX_SIGNAL_CLASS_SIZE + sizeof(Svar_record)];
-                    char * del = 0;
-                    Signal_base * update = Signal_base::recv_TCP(fd, buffer,
-                                                    sizeof(buffer), del, debug);
-                    if (update)
-                       {
-                         memcpy(svar,
-                                update->get__SVAR_RECORD_IS__record().data(),
-                                         sizeof(Svar_record));
-                       }
-                    else   cerr << "recv_TCP() failed at line " << __LINE__
-                                << endl;
-
-                    if (del)   delete del;
-                  }
-               else
-                  {
-cerr << "*** no svar at " << LOC << " ***" << endl;
-exit(4);
-                    char dummy[sizeof(Svar_record)];
-                    memset(&dummy, 0, sizeof(Svar_record));
-                    string data((const char *)&dummy, sizeof(Svar_record));
-                    { SVAR_RECORD_IS_c(fd, data); }
-                  }
-             }
-             return;
-
         case sid_REGISTER_PROCESSOR:
              {
                // find connected_procs entry for fd...

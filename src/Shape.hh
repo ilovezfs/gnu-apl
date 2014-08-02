@@ -209,6 +209,7 @@ protected:
    /// the shape
    ShapeItem rho[MAX_RANK];
 
+   /// +/rho
    ShapeItem volume;
 };
 // ----------------------------------------------------------------------------

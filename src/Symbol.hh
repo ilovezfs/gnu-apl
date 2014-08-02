@@ -66,8 +66,8 @@ struct ValueStackItem
    /// the possible values of a symbol
    union _sym_val
       {
-        Function *    function;   ///< if \b Symbol is a function.
-        Function_Line label;      ///< if \b Symbol is a label.
+        Function *    function;   ///< if \b Symbol is a function
+        Function_Line label;      ///< if \b Symbol is a label
         SV_key        sv_key;     ///< if \b Symbol is a shared variable
       };
 
@@ -92,7 +92,7 @@ public:
    /// create a symbol with name \b ucs
    Symbol(const UCS_string & ucs, Id id);
 
-   /// List \b this \b Symbol ( for )VARS, )FNS ).
+   /// List \b this \b Symbol ( for )VARS, )FNS )
    ostream & list(ostream & out);
 
    /// write this symbol in )OUT format to file \b out
@@ -111,10 +111,10 @@ public:
    TokenClass resolve_class(bool left);
 
    /// set current NameClass of this Symbol to NC_UNUSED_USER_NAME and remove
-   /// any values associated with this symbol.
+   /// any values associated with this symbol
    virtual int expunge();
 
-   /// Set current NameClass of this Symbol to \b nc.
+   /// Set current NameClass of this Symbol to \b nc
    void set_nc(NameClass nc);
 
    /// share variable with \b proc
@@ -126,10 +126,10 @@ public:
    /// clear the value stack of \b this symbol
    void clear_vs();
 
-   /// Set current NameClass of this Symbol to \b nc and function fun.
+   /// Set current NameClass of this Symbol to \b nc and function fun
    void set_nc(NameClass nc, Function * fun);
 
-   /// Compare name of \b this value with \b other.
+   /// Compare name of \b this value with \b other
    int compare(const Symbol & other) const
        { return symbol.compare(other.symbol); }
 
@@ -137,40 +137,40 @@ public:
    /// (overloaded by RO_SystemVariable)
    virtual bool is_readonly() const   { return false; }
 
-   /// Assign \b value to \b this \b Symbol.
+   /// Assign \b value to \b this \b Symbol
    virtual void assign(Value_P value, const char * loc);
 
    /// Assign \b value to \b this \b Symbol (which is a shared variable)
    void assign_shared_variable(Value_P value, const char * loc);
 
-   /// Indexed (multi-dimensional) assign \b value to \b this \b Symbol.
+   /// Indexed (multi-dimensional) assign \b value to \b this \b Symbol
    virtual void assign_indexed(IndexExpr & index, Value_P value);
 
-   /// Indexed (one-dimensional) assign \b value to \b this \b Symbol.
+   /// Indexed (one-dimensional) assign \b value to \b this \b Symbol
    virtual void assign_indexed(Value_P index, Value_P value);
 
    /// assign lambda, eg. V←{ ... }
    virtual void assign_named_lambda(Function * lambda, const char * loc);
 
-   /// Print \b this \b Symbol to \b out.
+   /// Print \b this \b Symbol to \b out
    virtual ostream & print(ostream & out) const;
 
-   /// Print \b this \b Symbol and its stack to \b out.
+   /// Print \b this \b Symbol and its stack to \b out
    ostream & print_verbose(ostream & out) const;
 
-   /// Pop latest entry from the stack of \b this \b Symbol.
+   /// Pop latest entry from the stack of \b this \b Symbol
    virtual void pop();
 
-   /// Push an undefined entry onto the stack of \b this \b Symbol.
+   /// Push an undefined entry onto the stack of \b this \b Symbol
    virtual void push();
 
-   /// Push a label onto the stack of \b this \b Symbol.
+   /// Push a label onto the stack of \b this \b Symbol
    virtual void push_label(Function_Line label);
 
-   /// Push a function onto the stack of \b this \b Symbol.
+   /// Push a function onto the stack of \b this \b Symbol
    virtual void push_function(Function * function);
 
-   /// Push an APL value onto the stack of \b this \b Symbol.
+   /// Push an APL value onto the stack of \b this \b Symbol
    virtual void push_value(Value_P value);
 
    /// return the depth (global == 0) of \b ufun on the stack. Use largest depth
@@ -209,7 +209,7 @@ public:
    /// overloaded NamedObject::get_value()
    virtual Value_P get_value();
 
-   /// return a reason why this symbol cant become a defined function.
+   /// return a reason why this symbol cant become a defined function
    const char * cant_be_defined() const;
 
    /// overloaded NamedObject::get_symbol()
@@ -220,7 +220,7 @@ public:
    virtual const Symbol * get_symbol() const
       { return this; }
 
-   /// store the attributes (as per ⎕AT) of symbol at dest, ...
+   /// store the attributes (as per ⎕AT) of symbol at dest...
    virtual void get_attributes(int mode, Cell * dest) const;
 
    /// return the size of the value stack
@@ -243,6 +243,7 @@ public:
    ValueStackItem & operator [](int idx)
       { return value_stack[idx]; }
 
+   /// set a callback function for symbol events
    void set_monitor_callback(void (* callback)(const Symbol &, Symbol_Event ev))
       { monitor_callback = callback; }
 
@@ -256,7 +257,7 @@ public:
    /// \b symbols with values \b values
    static void vector_assignment(Symbol * * symbols, int count, Value_P values);
 
-   /// dump this symbol to out.
+   /// dump this symbol to out
    void dump(ostream & out) const;
 
 protected:
@@ -264,64 +265,77 @@ protected:
    bool equal(const UCS_string & ucs) const
       { return (symbol.compare(ucs) == 0); }
 
-   /// The next Symbol with the same hash value as \b this \b Symbol.
+   /// The next Symbol with the same hash value as \b this \b Symbol
    Symbol * next;
 
-   /// The name of \b this \b Symbol.
+   /// The name of \b this \b Symbol
    UCS_string symbol;
 
-   /// \b True if \b this \b Symbol is/was erased.
+   /// \b True if \b this \b Symbol is/was erased
    bool erased;
 
+   /// called on symbol events (if non-0)
    void (*monitor_callback)(const Symbol &, Symbol_Event sev);
 
-   /// The value stack of \b this \b Symbol.
+   /// the value stack of \b this \b Symbol
    vector<ValueStackItem> value_stack;
 };
 //-----------------------------------------------------------------------------
+/// lambda result λ
 class LAMBDA : public Symbol
 {
 public:
+   /// constructor
    LAMBDA()
    : Symbol(UCS_string(UNI_LAMBDA), ID_LAMBDA)
    {}
 };
 //-----------------------------------------------------------------------------
+/// lambda variable ⍺
 class ALPHA : public Symbol
 {
 public:
+   /// constructor
    ALPHA()
    : Symbol(UCS_string(UNI_ALPHA), ID_ALPHA)
    {}
 };
 //-----------------------------------------------------------------------------
+/// lambda variable ⍶
 class ALPHA_U : public Symbol
 {
 public:
+   /// constructor
    ALPHA_U()
    : Symbol(UCS_string(UNI_ALPHA_UNDERBAR), ID_ALPHA_U)
    {}
 };
 //-----------------------------------------------------------------------------
+/// lambda variable χ
 class CHI : public Symbol
 {
 public:
+   /// constructor
    CHI()
    : Symbol(UCS_string(UNI_CHI), ID_CHI)
    {}
 };
 //-----------------------------------------------------------------------------
+/// lambda variable ⍵
 class OMEGA : public Symbol
 {
 public:
+   /// constructor
    OMEGA()
    : Symbol(UCS_string(UNI_OMEGA), ID_OMEGA)
    {}
 };
 //-----------------------------------------------------------------------------
+/// lambda variable ⍹
 class OMEGA_U : public Symbol
 {
 public:
+   /// constructor
    OMEGA_U()
    : Symbol(UCS_string(UNI_OMEGA_UNDERBAR), ID_OMEGA_U)
    {}

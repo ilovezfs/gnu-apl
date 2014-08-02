@@ -541,14 +541,15 @@ public:
    /// maximum number of ravel bytes in APL printout
    static ShapeItem print_length_limit;
 
+   /// the system limits
    enum SYL_INDEX
       {
 #define syl3(n, e, v) syl1(n, e, v)
 #define syl2(n, e, v) syl1(n, e, v)
-#define syl1(_n, e, _v) SYL_ ## e,
+#define syl1(_n, e, _v) SYL_ ## e, ///< dito
 #include "SystemLimits.def"
 
-        SYL_MAX
+        SYL_MAX                      ///< max. system limit value (excluding)
       };
 
 protected:
@@ -595,6 +596,7 @@ protected:
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
 
+   /// compute the offset (in seconds) from GMT
    static int compute_offset();
 
    // overloaded Symbol::push()

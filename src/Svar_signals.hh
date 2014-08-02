@@ -2,7 +2,7 @@
    This file is part of GNU APL, a free implementation of the
    ISO/IEC Standard 13751, "Programming Language APL, Extended"
  
-   Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+   Copyright (C) 2008-2014  Dr. Jürgen Sauermann
  
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 Usage:
 
-    m4 -D Svar_signals=def_file < udp_signal.m4 > $@
+    m4 -D Svar_signals=def_file < tcp_signal.m4 > $@
 
 This reads a Svar_signals specification from file def_file.def and prints
 a header file on stdout that defines (the serialization of) signals according
@@ -31,11 +31,11 @@ to def_file.def.
 
 In a Makefile, you would use it, for example, like this:
 
-    my_signal.hh:  udp_signal.m4 my_signal.def
-            m4 -D Svar_signals=udp_signal $< > $@
+    my_signal.hh:  tcp_signal.m4 my_signal.def
+            m4 -D Svar_signals=tcp_signal $< > $@
 
 to produce my_signal.hh from my_signal.def. After that, my_signal.hh
-can be used to send the signals defined in udp_signal.def from one process
+can be used to send the signals defined in tcp_signal.def from one process
 to another process.
 
 That is:
@@ -43,7 +43,7 @@ That is:
                       my_signal.def
                             |
                             |
-                            | udp_signal.m4
+                            | tcp_signal.m4
                             |
                             V
                       my_signal.hh
@@ -232,39 +232,49 @@ enum Signal_id
 */
 
 
-/// ⎕SVO, ⎕SVR
+/// ⎕SVO
    sid_MAKE_OFFER,
+/// ⎕SVR
    sid_RETRACT_OFFER,
+/// ⎕SVR
    sid_RETRACT_VAR,
 
+/// set state of shared var \b key
    sid_SET_STATE,
 
+/// set control of shared var \b key
    sid_SET_CONTROL,
 
-/// SVAR←X and X←SVAR
+/// X←SVAR
    sid_GET_VALUE,
+
+/// X←SVAR result
    sid_VALUE_IS,
+
+/// SVAR←X
    sid_ASSIGN_VALUE,
+/// SVAR←X result
    sid_SVAR_ASSIGNED,
 
+/// Can svar key be referenced ?
    sid_MAY_USE,
+
+/// Can svar key be assigned ?
    sid_MAY_SET,
 
-/// read/update SVAR database record from APserver
+/// read SVAR database record from APserver
 ///
 ///		apl/APnnn	--> READ_SVAR_RECORD		APserver
 ///				<-- SVAR_RECORD_IS
 ///
-///				--> UPDATE_SVAR_RECORD
-///				<-- SVAR_RECORD_IS
-///				--> SVAR_RECORD_IS
    sid_READ_SVAR_RECORD,
-   sid_UPDATE_SVAR_RECORD,
+/// result (record) for read SVAR database record from APserver
    sid_SVAR_RECORD_IS,
 
-/// return YES_NO telling if ID is registered
+/// is ID registered ?
    sid_IS_REGISTERED_ID,
 
+/// yes (1) or no (0)
    sid_YES_NO,
 
 /// register processor proc in APserver
@@ -273,27 +283,35 @@ enum Signal_id
 /// match offered shared variable or create a new offer
    sid_MATCH_OR_MAKE,
 
+/// result for match or create
    sid_MATCH_OR_MAKE_RESULT,
 
 
+/// find processor ID that offers \b key
    sid_FIND_OFFERING_ID,
+
+/// result of find processor ID that offers \b key
    sid_OFFERING_ID_IS,
 
 /// get offering processors  (⎕SVQ)
    sid_GET_OFFERING_PROCS,
 
+/// result of get offering processors  (⎕SVQ)
    sid_OFFERING_PROCS_ARE,
 
 /// get offered variables  (⎕SVQ)
    sid_GET_OFFERED_VARS,
 
+/// result of get offered variables  (⎕SVQ)
    sid_OFFERED_VARS_ARE,
 
 /// find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
    sid_FIND_PAIRING_KEY,
 
+/// result of find pairing key
    sid_PAIRING_KEY_IS,
 
+/// result of find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
 /// get events for one processor (first shared var with an event)
    sid_GET_EVENTS,
 
@@ -301,16 +319,22 @@ enum Signal_id
    sid_CLEAR_ALL_EVENTS,
 
 
+/// result of clear all events for one processor (first cleared svar
    sid_EVENTS_ARE,
 
+/// add an event  for \b key
    sid_ADD_EVENT,
 
+/// ws-ws SVAR←X
    sid_ASSIGN_WSWS_VAR,
+/// X←ws-ws SVAR
    sid_READ_WSWS_VAR,
+/// result of X←ws-ws SVAR
    sid_WSWS_VALUE_IS,
 
 /// print the entire database (for command ]SVARS)
    sid_PRINT_SVAR_DB,
+/// print the entire database result
    sid_SVAR_DB_PRINTED,
 
    sid_MAX,
@@ -344,20 +368,23 @@ public:
 */
 
 
-/// ⎕SVO, ⎕SVR
+/// ⎕SVO
    /// access functions for signal MAKE_OFFER...
    virtual uint64_t get__MAKE_OFFER__key() const   ///< dito
       { bad_get("MAKE_OFFER", "key"); return 0; }
 
+/// ⎕SVR
    /// access functions for signal RETRACT_OFFER...
    virtual uint64_t get__RETRACT_OFFER__key() const   ///< dito
       { bad_get("RETRACT_OFFER", "key"); return 0; }
 
+/// ⎕SVR
    /// access functions for signal RETRACT_VAR...
    virtual uint64_t get__RETRACT_VAR__key() const   ///< dito
       { bad_get("RETRACT_VAR", "key"); return 0; }
 
 
+/// set state of shared var \b key
    /// access functions for signal SET_STATE...
    virtual uint64_t get__SET_STATE__key() const   ///< dito
       { bad_get("SET_STATE", "key"); return 0; }
@@ -367,6 +394,7 @@ public:
       { bad_get("SET_STATE", "loc"); return 0; }
 
 
+/// set control of shared var \b key
    /// access functions for signal SET_CONTROL...
    virtual uint64_t get__SET_CONTROL__key() const   ///< dito
       { bad_get("SET_CONTROL", "key"); return 0; }
@@ -374,11 +402,13 @@ public:
       { bad_get("SET_CONTROL", "new_control"); return 0; }
 
 
-/// SVAR←X and X←SVAR
+/// X←SVAR
    /// access functions for signal GET_VALUE...
    virtual uint64_t get__GET_VALUE__key() const   ///< dito
       { bad_get("GET_VALUE", "key"); return 0; }
 
+
+/// X←SVAR result
    /// access functions for signal VALUE_IS...
    virtual uint64_t get__VALUE_IS__key() const   ///< dito
       { bad_get("VALUE_IS", "key"); return 0; }
@@ -389,12 +419,15 @@ public:
    virtual string get__VALUE_IS__cdr_value() const   ///< dito
       { bad_get("VALUE_IS", "cdr_value"); return 0; }
 
+
+/// SVAR←X
    /// access functions for signal ASSIGN_VALUE...
    virtual uint64_t get__ASSIGN_VALUE__key() const   ///< dito
       { bad_get("ASSIGN_VALUE", "key"); return 0; }
    virtual string get__ASSIGN_VALUE__cdr_value() const   ///< dito
       { bad_get("ASSIGN_VALUE", "cdr_value"); return 0; }
 
+/// SVAR←X result
    /// access functions for signal SVAR_ASSIGNED...
    virtual uint64_t get__SVAR_ASSIGNED__key() const   ///< dito
       { bad_get("SVAR_ASSIGNED", "key"); return 0; }
@@ -404,12 +437,15 @@ public:
       { bad_get("SVAR_ASSIGNED", "error_loc"); return 0; }
 
 
+/// Can svar key be referenced ?
    /// access functions for signal MAY_USE...
    virtual uint64_t get__MAY_USE__key() const   ///< dito
       { bad_get("MAY_USE", "key"); return 0; }
    virtual int32_t get__MAY_USE__attempt() const   ///< dito
       { bad_get("MAY_USE", "attempt"); return 0; }
 
+
+/// Can svar key be assigned ?
    /// access functions for signal MAY_SET...
    virtual uint64_t get__MAY_SET__key() const   ///< dito
       { bad_get("MAY_SET", "key"); return 0; }
@@ -417,28 +453,22 @@ public:
       { bad_get("MAY_SET", "attempt"); return 0; }
 
 
-/// read/update SVAR database record from APserver
+/// read SVAR database record from APserver
 ///
 ///		apl/APnnn	--> READ_SVAR_RECORD		APserver
 ///				<-- SVAR_RECORD_IS
 ///
-///				--> UPDATE_SVAR_RECORD
-///				<-- SVAR_RECORD_IS
-///				--> SVAR_RECORD_IS
    /// access functions for signal READ_SVAR_RECORD...
    virtual uint64_t get__READ_SVAR_RECORD__key() const   ///< dito
       { bad_get("READ_SVAR_RECORD", "key"); return 0; }
 
-   /// access functions for signal UPDATE_SVAR_RECORD...
-   virtual uint64_t get__UPDATE_SVAR_RECORD__key() const   ///< dito
-      { bad_get("UPDATE_SVAR_RECORD", "key"); return 0; }
-
+/// result (record) for read SVAR database record from APserver
    /// access functions for signal SVAR_RECORD_IS...
    virtual string get__SVAR_RECORD_IS__record() const   ///< dito
       { bad_get("SVAR_RECORD_IS", "record"); return 0; }
 
 
-/// return YES_NO telling if ID is registered
+/// is ID registered ?
    /// access functions for signal IS_REGISTERED_ID...
    virtual uint32_t get__IS_REGISTERED_ID__proc() const   ///< dito
       { bad_get("IS_REGISTERED_ID", "proc"); return 0; }
@@ -448,6 +478,7 @@ public:
       { bad_get("IS_REGISTERED_ID", "grand"); return 0; }
 
 
+/// yes (1) or no (0)
    /// access functions for signal YES_NO...
    virtual uint8_t get__YES_NO__yes() const   ///< dito
       { bad_get("YES_NO", "yes"); return 0; }
@@ -485,16 +516,20 @@ public:
       { bad_get("MATCH_OR_MAKE", "from_grand"); return 0; }
 
 
+/// result for match or create
    /// access functions for signal MATCH_OR_MAKE_RESULT...
    virtual uint64_t get__MATCH_OR_MAKE_RESULT__key() const   ///< dito
       { bad_get("MATCH_OR_MAKE_RESULT", "key"); return 0; }
 
 
 
+/// find processor ID that offers \b key
    /// access functions for signal FIND_OFFERING_ID...
    virtual uint64_t get__FIND_OFFERING_ID__key() const   ///< dito
       { bad_get("FIND_OFFERING_ID", "key"); return 0; }
 
+
+/// result of find processor ID that offers \b key
    /// access functions for signal OFFERING_ID_IS...
    virtual uint32_t get__OFFERING_ID_IS__proc() const   ///< dito
       { bad_get("OFFERING_ID_IS", "proc"); return 0; }
@@ -510,6 +545,7 @@ public:
       { bad_get("GET_OFFERING_PROCS", "offered_to_proc"); return 0; }
 
 
+/// result of get offering processors  (⎕SVQ)
    /// access functions for signal OFFERING_PROCS_ARE...
    virtual string get__OFFERING_PROCS_ARE__offering_procs() const   ///< dito
       { bad_get("OFFERING_PROCS_ARE", "offering_procs"); return 0; }
@@ -523,6 +559,7 @@ public:
       { bad_get("GET_OFFERED_VARS", "accepted_by_proc"); return 0; }
 
 
+/// result of get offered variables  (⎕SVQ)
    /// access functions for signal OFFERED_VARS_ARE...
    virtual string get__OFFERED_VARS_ARE__offered_vars() const   ///< dito
       { bad_get("OFFERED_VARS_ARE", "offered_vars"); return 0; }
@@ -534,11 +571,13 @@ public:
       { bad_get("FIND_PAIRING_KEY", "key"); return 0; }
 
 
+/// result of find pairing key
    /// access functions for signal PAIRING_KEY_IS...
    virtual uint64_t get__PAIRING_KEY_IS__pairing_key() const   ///< dito
       { bad_get("PAIRING_KEY_IS", "pairing_key"); return 0; }
 
 
+/// result of find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
 /// get events for one processor (first shared var with an event)
    /// access functions for signal GET_EVENTS...
    virtual uint32_t get__GET_EVENTS__proc() const   ///< dito
@@ -560,6 +599,7 @@ public:
 
 
 
+/// result of clear all events for one processor (first cleared svar
    /// access functions for signal EVENTS_ARE...
    virtual uint64_t get__EVENTS_ARE__key() const   ///< dito
       { bad_get("EVENTS_ARE", "key"); return 0; }
@@ -567,6 +607,7 @@ public:
       { bad_get("EVENTS_ARE", "events"); return 0; }
 
 
+/// add an event  for \b key
    /// access functions for signal ADD_EVENT...
    virtual uint64_t get__ADD_EVENT__key() const   ///< dito
       { bad_get("ADD_EVENT", "key"); return 0; }
@@ -580,16 +621,19 @@ public:
       { bad_get("ADD_EVENT", "event"); return 0; }
 
 
+/// ws-ws SVAR←X
    /// access functions for signal ASSIGN_WSWS_VAR...
    virtual uint64_t get__ASSIGN_WSWS_VAR__key() const   ///< dito
       { bad_get("ASSIGN_WSWS_VAR", "key"); return 0; }
    virtual string get__ASSIGN_WSWS_VAR__cdr_value() const   ///< dito
       { bad_get("ASSIGN_WSWS_VAR", "cdr_value"); return 0; }
 
+/// X←ws-ws SVAR
    /// access functions for signal READ_WSWS_VAR...
    virtual uint64_t get__READ_WSWS_VAR__key() const   ///< dito
       { bad_get("READ_WSWS_VAR", "key"); return 0; }
 
+/// result of X←ws-ws SVAR
    /// access functions for signal WSWS_VALUE_IS...
    virtual string get__WSWS_VALUE_IS__cdr_value() const   ///< dito
       { bad_get("WSWS_VALUE_IS", "cdr_value"); return 0; }
@@ -598,6 +642,7 @@ public:
 /// print the entire database (for command ]SVARS)
    /// access functions for signal PRINT_SVAR_DB...
 
+/// print the entire database result
    /// access functions for signal SVAR_DB_PRINTED...
    virtual string get__SVAR_DB_PRINTED__printout() const   ///< dito
       { bad_get("SVAR_DB_PRINTED", "printout"); return 0; }
@@ -611,6 +656,7 @@ public:
 
 protected:
 
+   /// send this signal on TCP (or AF_UNIX) socket tcp_sock
    int send_TCP(int tcp_sock) const
        {
          string buffer;
@@ -628,7 +674,7 @@ protected:
 */
 
 
-/// ⎕SVO, ⎕SVR
+/// ⎕SVO
 //----------------------------------------------------------------------------
 /// a class for MAKE_OFFER
 class MAKE_OFFER_c : public Signal_base
@@ -676,6 +722,7 @@ public:
 protected:
    Sig_item_x64 key;   ///< key
 };
+/// ⎕SVR
 //----------------------------------------------------------------------------
 /// a class for RETRACT_OFFER
 class RETRACT_OFFER_c : public Signal_base
@@ -723,6 +770,7 @@ public:
 protected:
    Sig_item_x64 key;   ///< key
 };
+/// ⎕SVR
 //----------------------------------------------------------------------------
 /// a class for RETRACT_VAR
 class RETRACT_VAR_c : public Signal_base
@@ -771,6 +819,7 @@ protected:
    Sig_item_x64 key;   ///< key
 };
 
+/// set state of shared var \b key
 //----------------------------------------------------------------------------
 /// a class for SET_STATE
 class SET_STATE_c : public Signal_base
@@ -837,6 +886,7 @@ protected:
    Sig_item_string loc;   ///< loc
 };
 
+/// set control of shared var \b key
 //----------------------------------------------------------------------------
 /// a class for SET_CONTROL
 class SET_CONTROL_c : public Signal_base
@@ -894,7 +944,7 @@ protected:
    Sig_item_u8 new_control;   ///< new_control
 };
 
-/// SVAR←X and X←SVAR
+/// X←SVAR
 //----------------------------------------------------------------------------
 /// a class for GET_VALUE
 class GET_VALUE_c : public Signal_base
@@ -942,6 +992,8 @@ public:
 protected:
    Sig_item_x64 key;   ///< key
 };
+
+/// X←SVAR result
 //----------------------------------------------------------------------------
 /// a class for VALUE_IS
 class VALUE_IS_c : public Signal_base
@@ -1016,6 +1068,8 @@ protected:
    Sig_item_string error_loc;   ///< error_loc
    Sig_item_string cdr_value;   ///< cdr_value
 };
+
+/// SVAR←X
 //----------------------------------------------------------------------------
 /// a class for ASSIGN_VALUE
 class ASSIGN_VALUE_c : public Signal_base
@@ -1072,6 +1126,7 @@ protected:
    Sig_item_x64 key;   ///< key
    Sig_item_string cdr_value;   ///< cdr_value
 };
+/// SVAR←X result
 //----------------------------------------------------------------------------
 /// a class for SVAR_ASSIGNED
 class SVAR_ASSIGNED_c : public Signal_base
@@ -1138,6 +1193,7 @@ protected:
    Sig_item_string error_loc;   ///< error_loc
 };
 
+/// Can svar key be referenced ?
 //----------------------------------------------------------------------------
 /// a class for MAY_USE
 class MAY_USE_c : public Signal_base
@@ -1194,6 +1250,8 @@ protected:
    Sig_item_x64 key;   ///< key
    Sig_item_i32 attempt;   ///< attempt
 };
+
+/// Can svar key be assigned ?
 //----------------------------------------------------------------------------
 /// a class for MAY_SET
 class MAY_SET_c : public Signal_base
@@ -1251,14 +1309,11 @@ protected:
    Sig_item_i32 attempt;   ///< attempt
 };
 
-/// read/update SVAR database record from APserver
+/// read SVAR database record from APserver
 ///
 ///		apl/APnnn	--> READ_SVAR_RECORD		APserver
 ///				<-- SVAR_RECORD_IS
 ///
-///				--> UPDATE_SVAR_RECORD
-///				<-- SVAR_RECORD_IS
-///				--> SVAR_RECORD_IS
 //----------------------------------------------------------------------------
 /// a class for READ_SVAR_RECORD
 class READ_SVAR_RECORD_c : public Signal_base
@@ -1306,53 +1361,7 @@ public:
 protected:
    Sig_item_x64 key;   ///< key
 };
-//----------------------------------------------------------------------------
-/// a class for UPDATE_SVAR_RECORD
-class UPDATE_SVAR_RECORD_c : public Signal_base
-{
-public:
-
-   /// contructor that creates the signal and sends it on TCP socket s
-   UPDATE_SVAR_RECORD_c(int s,
-                Sig_item_x64 _key)
-   : key(_key)
-   { send_TCP(s); }
-
-   /// construct (deserialize) this item from a (received) buffer
-   /// id has already been load()ed.
-   UPDATE_SVAR_RECORD_c(const uint8_t * & buffer)
-   : key(buffer)
-   {}
-
-   /// store (aka. serialize) this signal into a buffer
-   virtual void store(string & buffer) const
-       {
-         const Sig_item_u16 signal_id(sid_UPDATE_SVAR_RECORD);
-         signal_id.store(buffer);
-        key.store(buffer);
-       }
-
-   /// print this signal on out.
-   virtual ostream & print(ostream & out) const
-      {
-        out << "UPDATE_SVAR_RECORD(";
-        key.print(out);
-        return out << ")" << endl;
-      }
-
-   /// a unique number for this signal
-   virtual Signal_id get_sigID() const   { return sid_UPDATE_SVAR_RECORD; }
-
-   /// the name of this signal
-   virtual const char * get_sigName() const   { return "UPDATE_SVAR_RECORD"; }
-
-  /// return item key of this signal 
-   virtual uint64_t get__UPDATE_SVAR_RECORD__key() const { return key.get_value(); }
-
-
-protected:
-   Sig_item_x64 key;   ///< key
-};
+/// result (record) for read SVAR database record from APserver
 //----------------------------------------------------------------------------
 /// a class for SVAR_RECORD_IS
 class SVAR_RECORD_IS_c : public Signal_base
@@ -1401,7 +1410,7 @@ protected:
    Sig_item_string record;   ///< record
 };
 
-/// return YES_NO telling if ID is registered
+/// is ID registered ?
 //----------------------------------------------------------------------------
 /// a class for IS_REGISTERED_ID
 class IS_REGISTERED_ID_c : public Signal_base
@@ -1468,6 +1477,7 @@ protected:
    Sig_item_u32 grand;   ///< grand
 };
 
+/// yes (1) or no (0)
 //----------------------------------------------------------------------------
 /// a class for YES_NO
 class YES_NO_c : public Signal_base
@@ -1704,6 +1714,7 @@ protected:
    Sig_item_u32 from_grand;   ///< from_grand
 };
 
+/// result for match or create
 //----------------------------------------------------------------------------
 /// a class for MATCH_OR_MAKE_RESULT
 class MATCH_OR_MAKE_RESULT_c : public Signal_base
@@ -1753,6 +1764,7 @@ protected:
 };
 
 
+/// find processor ID that offers \b key
 //----------------------------------------------------------------------------
 /// a class for FIND_OFFERING_ID
 class FIND_OFFERING_ID_c : public Signal_base
@@ -1800,6 +1812,8 @@ public:
 protected:
    Sig_item_x64 key;   ///< key
 };
+
+/// result of find processor ID that offers \b key
 //----------------------------------------------------------------------------
 /// a class for OFFERING_ID_IS
 class OFFERING_ID_IS_c : public Signal_base
@@ -1915,6 +1929,7 @@ protected:
    Sig_item_u32 offered_to_proc;   ///< offered_to_proc
 };
 
+/// result of get offering processors  (⎕SVQ)
 //----------------------------------------------------------------------------
 /// a class for OFFERING_PROCS_ARE
 class OFFERING_PROCS_ARE_c : public Signal_base
@@ -2021,6 +2036,7 @@ protected:
    Sig_item_u32 accepted_by_proc;   ///< accepted_by_proc
 };
 
+/// result of get offered variables  (⎕SVQ)
 //----------------------------------------------------------------------------
 /// a class for OFFERED_VARS_ARE
 class OFFERED_VARS_ARE_c : public Signal_base
@@ -2118,6 +2134,7 @@ protected:
    Sig_item_x64 key;   ///< key
 };
 
+/// result of find pairing key
 //----------------------------------------------------------------------------
 /// a class for PAIRING_KEY_IS
 class PAIRING_KEY_IS_c : public Signal_base
@@ -2166,6 +2183,7 @@ protected:
    Sig_item_x64 pairing_key;   ///< pairing_key
 };
 
+/// result of find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
 /// get events for one processor (first shared var with an event)
 //----------------------------------------------------------------------------
 /// a class for GET_EVENTS
@@ -2301,6 +2319,7 @@ protected:
 };
 
 
+/// result of clear all events for one processor (first cleared svar
 //----------------------------------------------------------------------------
 /// a class for EVENTS_ARE
 class EVENTS_ARE_c : public Signal_base
@@ -2358,6 +2377,7 @@ protected:
    Sig_item_u32 events;   ///< events
 };
 
+/// add an event  for \b key
 //----------------------------------------------------------------------------
 /// a class for ADD_EVENT
 class ADD_EVENT_c : public Signal_base
@@ -2442,6 +2462,7 @@ protected:
    Sig_item_u32 event;   ///< event
 };
 
+/// ws-ws SVAR←X
 //----------------------------------------------------------------------------
 /// a class for ASSIGN_WSWS_VAR
 class ASSIGN_WSWS_VAR_c : public Signal_base
@@ -2498,6 +2519,7 @@ protected:
    Sig_item_x64 key;   ///< key
    Sig_item_string cdr_value;   ///< cdr_value
 };
+/// X←ws-ws SVAR
 //----------------------------------------------------------------------------
 /// a class for READ_WSWS_VAR
 class READ_WSWS_VAR_c : public Signal_base
@@ -2545,6 +2567,7 @@ public:
 protected:
    Sig_item_x64 key;   ///< key
 };
+/// result of X←ws-ws SVAR
 //----------------------------------------------------------------------------
 /// a class for WSWS_VALUE_IS
 class WSWS_VALUE_IS_c : public Signal_base
@@ -2633,6 +2656,7 @@ public:
 
 protected:
 };
+/// print the entire database result
 //----------------------------------------------------------------------------
 /// a class for SVAR_DB_PRINTED
 class SVAR_DB_PRINTED_c : public Signal_base
@@ -2683,7 +2707,7 @@ protected:
 
 //----------------------------------------------------------------------------
 
-// a union big enough for all signal classes
+/// a union big enough for all signal classes
 struct _all_signal_classes_
 {
 
@@ -2691,39 +2715,49 @@ struct _all_signal_classes_
 */
 
 
-/// ⎕SVO, ⎕SVR
+/// ⎕SVO
         char u_MAKE_OFFER[sizeof(MAKE_OFFER_c)];
+/// ⎕SVR
         char u_RETRACT_OFFER[sizeof(RETRACT_OFFER_c)];
+/// ⎕SVR
         char u_RETRACT_VAR[sizeof(RETRACT_VAR_c)];
 
+/// set state of shared var \b key
         char u_SET_STATE[sizeof(SET_STATE_c)];
 
+/// set control of shared var \b key
         char u_SET_CONTROL[sizeof(SET_CONTROL_c)];
 
-/// SVAR←X and X←SVAR
+/// X←SVAR
         char u_GET_VALUE[sizeof(GET_VALUE_c)];
+
+/// X←SVAR result
         char u_VALUE_IS[sizeof(VALUE_IS_c)];
+
+/// SVAR←X
         char u_ASSIGN_VALUE[sizeof(ASSIGN_VALUE_c)];
+/// SVAR←X result
         char u_SVAR_ASSIGNED[sizeof(SVAR_ASSIGNED_c)];
 
+/// Can svar key be referenced ?
         char u_MAY_USE[sizeof(MAY_USE_c)];
+
+/// Can svar key be assigned ?
         char u_MAY_SET[sizeof(MAY_SET_c)];
 
-/// read/update SVAR database record from APserver
+/// read SVAR database record from APserver
 ///
 ///		apl/APnnn	--> READ_SVAR_RECORD		APserver
 ///				<-- SVAR_RECORD_IS
 ///
-///				--> UPDATE_SVAR_RECORD
-///				<-- SVAR_RECORD_IS
-///				--> SVAR_RECORD_IS
         char u_READ_SVAR_RECORD[sizeof(READ_SVAR_RECORD_c)];
-        char u_UPDATE_SVAR_RECORD[sizeof(UPDATE_SVAR_RECORD_c)];
+/// result (record) for read SVAR database record from APserver
         char u_SVAR_RECORD_IS[sizeof(SVAR_RECORD_IS_c)];
 
-/// return YES_NO telling if ID is registered
+/// is ID registered ?
         char u_IS_REGISTERED_ID[sizeof(IS_REGISTERED_ID_c)];
 
+/// yes (1) or no (0)
         char u_YES_NO[sizeof(YES_NO_c)];
 
 /// register processor proc in APserver
@@ -2732,27 +2766,35 @@ struct _all_signal_classes_
 /// match offered shared variable or create a new offer
         char u_MATCH_OR_MAKE[sizeof(MATCH_OR_MAKE_c)];
 
+/// result for match or create
         char u_MATCH_OR_MAKE_RESULT[sizeof(MATCH_OR_MAKE_RESULT_c)];
 
 
+/// find processor ID that offers \b key
         char u_FIND_OFFERING_ID[sizeof(FIND_OFFERING_ID_c)];
+
+/// result of find processor ID that offers \b key
         char u_OFFERING_ID_IS[sizeof(OFFERING_ID_IS_c)];
 
 /// get offering processors  (⎕SVQ)
         char u_GET_OFFERING_PROCS[sizeof(GET_OFFERING_PROCS_c)];
 
+/// result of get offering processors  (⎕SVQ)
         char u_OFFERING_PROCS_ARE[sizeof(OFFERING_PROCS_ARE_c)];
 
 /// get offered variables  (⎕SVQ)
         char u_GET_OFFERED_VARS[sizeof(GET_OFFERED_VARS_c)];
 
+/// result of get offered variables  (⎕SVQ)
         char u_OFFERED_VARS_ARE[sizeof(OFFERED_VARS_ARE_c)];
 
 /// find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
         char u_FIND_PAIRING_KEY[sizeof(FIND_PAIRING_KEY_c)];
 
+/// result of find pairing key
         char u_PAIRING_KEY_IS[sizeof(PAIRING_KEY_IS_c)];
 
+/// result of find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
 /// get events for one processor (first shared var with an event)
         char u_GET_EVENTS[sizeof(GET_EVENTS_c)];
 
@@ -2760,16 +2802,22 @@ struct _all_signal_classes_
         char u_CLEAR_ALL_EVENTS[sizeof(CLEAR_ALL_EVENTS_c)];
 
 
+/// result of clear all events for one processor (first cleared svar
         char u_EVENTS_ARE[sizeof(EVENTS_ARE_c)];
 
+/// add an event  for \b key
         char u_ADD_EVENT[sizeof(ADD_EVENT_c)];
 
+/// ws-ws SVAR←X
         char u_ASSIGN_WSWS_VAR[sizeof(ASSIGN_WSWS_VAR_c)];
+/// X←ws-ws SVAR
         char u_READ_WSWS_VAR[sizeof(READ_WSWS_VAR_c)];
+/// result of X←ws-ws SVAR
         char u_WSWS_VALUE_IS[sizeof(WSWS_VALUE_IS_c)];
 
 /// print the entire database (for command ]SVARS)
         char u_PRINT_SVAR_DB[sizeof(PRINT_SVAR_DB_c)];
+/// print the entire database result
         char u_SVAR_DB_PRINTED[sizeof(SVAR_DB_PRINTED_c)];
 
 };
@@ -2792,17 +2840,24 @@ Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
          return 0;
       }
 uint32_t siglen = 0;
-   {
-     const ssize_t rx_bytes = ::recv(tcp_sock, buffer,
+   for (;;)
+       {
+         errno = 0;
+         const ssize_t rx_bytes = ::recv(tcp_sock, buffer,
                                      sizeof(uint32_t), MSG_WAITALL);
-     if (rx_bytes != sizeof(uint32_t))
-        {
-          // connection was closed by the peer
-          return 0;
-        }
+
+         if (errno == EINTR)   continue;
+
+         if (rx_bytes != sizeof(uint32_t))
+            {
+                 // connection was closed by the peer
+                 return 0;
+            }
+
+         break;   // got  sizeof(uint32_t) length bytes
+       }
 //    debug && *debug << "rx_bytes is " << rx_bytes
 //                    << " when reading siglen in in recv_TCP()" << endl;
-   }
 
    siglen = ntohl(*(uint32_t *)buffer);
    if (siglen == 0)   return 0;   // close
@@ -2827,13 +2882,25 @@ char * rx_buf = buffer + MAX_SIGNAL_CLASS_SIZE;
         rx_buf = del;
       }
 
-const ssize_t rx_bytes = ::recv(tcp_sock, rx_buf, siglen, MSG_WAITALL);
-   if (rx_bytes != siglen)
-      {
-             cerr << "*** got " << rx_bytes <<" when expecting " << siglen
-                  << endl;
-             return 0;
-      }
+   for (;;)
+       {
+          errno = 0;
+          const ssize_t rx_bytes = ::recv(tcp_sock, rx_buf,
+                                            siglen, MSG_WAITALL);
+
+          if (errno == EINTR)   continue;
+
+          if (rx_bytes != siglen)
+             {
+               cerr << "*** got " << rx_bytes
+                    << " when expecting " << siglen << endl;
+               return 0;
+             }
+
+
+         break;   // got siglen bytes
+       }
+
 // debug && *debug << "rx_bytes is " << rx_bytes << " in recv_TCP()" << endl;
 
 const uint8_t * b = (const uint8_t *)rx_buf;
@@ -2847,39 +2914,49 @@ Signal_base * ret = 0;
 */
 
 
-/// ⎕SVO, ⎕SVR
+/// ⎕SVO
         case sid_MAKE_OFFER: ret = new MAKE_OFFER_c(b);   break;
+/// ⎕SVR
         case sid_RETRACT_OFFER: ret = new RETRACT_OFFER_c(b);   break;
+/// ⎕SVR
         case sid_RETRACT_VAR: ret = new RETRACT_VAR_c(b);   break;
 
+/// set state of shared var \b key
         case sid_SET_STATE: ret = new SET_STATE_c(b);   break;
 
+/// set control of shared var \b key
         case sid_SET_CONTROL: ret = new SET_CONTROL_c(b);   break;
 
-/// SVAR←X and X←SVAR
+/// X←SVAR
         case sid_GET_VALUE: ret = new GET_VALUE_c(b);   break;
+
+/// X←SVAR result
         case sid_VALUE_IS: ret = new VALUE_IS_c(b);   break;
+
+/// SVAR←X
         case sid_ASSIGN_VALUE: ret = new ASSIGN_VALUE_c(b);   break;
+/// SVAR←X result
         case sid_SVAR_ASSIGNED: ret = new SVAR_ASSIGNED_c(b);   break;
 
+/// Can svar key be referenced ?
         case sid_MAY_USE: ret = new MAY_USE_c(b);   break;
+
+/// Can svar key be assigned ?
         case sid_MAY_SET: ret = new MAY_SET_c(b);   break;
 
-/// read/update SVAR database record from APserver
+/// read SVAR database record from APserver
 ///
 ///		apl/APnnn	--> READ_SVAR_RECORD		APserver
 ///				<-- SVAR_RECORD_IS
 ///
-///				--> UPDATE_SVAR_RECORD
-///				<-- SVAR_RECORD_IS
-///				--> SVAR_RECORD_IS
         case sid_READ_SVAR_RECORD: ret = new READ_SVAR_RECORD_c(b);   break;
-        case sid_UPDATE_SVAR_RECORD: ret = new UPDATE_SVAR_RECORD_c(b);   break;
+/// result (record) for read SVAR database record from APserver
         case sid_SVAR_RECORD_IS: ret = new SVAR_RECORD_IS_c(b);   break;
 
-/// return YES_NO telling if ID is registered
+/// is ID registered ?
         case sid_IS_REGISTERED_ID: ret = new IS_REGISTERED_ID_c(b);   break;
 
+/// yes (1) or no (0)
         case sid_YES_NO: ret = new YES_NO_c(b);   break;
 
 /// register processor proc in APserver
@@ -2888,27 +2965,35 @@ Signal_base * ret = 0;
 /// match offered shared variable or create a new offer
         case sid_MATCH_OR_MAKE: ret = new MATCH_OR_MAKE_c(b);   break;
 
+/// result for match or create
         case sid_MATCH_OR_MAKE_RESULT: ret = new MATCH_OR_MAKE_RESULT_c(b);   break;
 
 
+/// find processor ID that offers \b key
         case sid_FIND_OFFERING_ID: ret = new FIND_OFFERING_ID_c(b);   break;
+
+/// result of find processor ID that offers \b key
         case sid_OFFERING_ID_IS: ret = new OFFERING_ID_IS_c(b);   break;
 
 /// get offering processors  (⎕SVQ)
         case sid_GET_OFFERING_PROCS: ret = new GET_OFFERING_PROCS_c(b);   break;
 
+/// result of get offering processors  (⎕SVQ)
         case sid_OFFERING_PROCS_ARE: ret = new OFFERING_PROCS_ARE_c(b);   break;
 
 /// get offered variables  (⎕SVQ)
         case sid_GET_OFFERED_VARS: ret = new GET_OFFERED_VARS_c(b);   break;
 
+/// result of get offered variables  (⎕SVQ)
         case sid_OFFERED_VARS_ARE: ret = new OFFERED_VARS_ARE_c(b);   break;
 
 /// find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
         case sid_FIND_PAIRING_KEY: ret = new FIND_PAIRING_KEY_c(b);   break;
 
+/// result of find pairing key
         case sid_PAIRING_KEY_IS: ret = new PAIRING_KEY_IS_c(b);   break;
 
+/// result of find pairing key (CTL vs. DAT or Cnnn vs. Dnnn) for AP210
 /// get events for one processor (first shared var with an event)
         case sid_GET_EVENTS: ret = new GET_EVENTS_c(b);   break;
 
@@ -2916,16 +3001,22 @@ Signal_base * ret = 0;
         case sid_CLEAR_ALL_EVENTS: ret = new CLEAR_ALL_EVENTS_c(b);   break;
 
 
+/// result of clear all events for one processor (first cleared svar
         case sid_EVENTS_ARE: ret = new EVENTS_ARE_c(b);   break;
 
+/// add an event  for \b key
         case sid_ADD_EVENT: ret = new ADD_EVENT_c(b);   break;
 
+/// ws-ws SVAR←X
         case sid_ASSIGN_WSWS_VAR: ret = new ASSIGN_WSWS_VAR_c(b);   break;
+/// X←ws-ws SVAR
         case sid_READ_WSWS_VAR: ret = new READ_WSWS_VAR_c(b);   break;
+/// result of X←ws-ws SVAR
         case sid_WSWS_VALUE_IS: ret = new WSWS_VALUE_IS_c(b);   break;
 
 /// print the entire database (for command ]SVARS)
         case sid_PRINT_SVAR_DB: ret = new PRINT_SVAR_DB_c(b);   break;
+/// print the entire database result
         case sid_SVAR_DB_PRINTED: ret = new SVAR_DB_PRINTED_c(b);   break;
 
         default: cerr << "Signal_base::recv_TCP() failed: unknown signal id "

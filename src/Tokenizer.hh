@@ -73,8 +73,13 @@ protected:
    /// the parsing mode of this parser
    const ParseMode pmode;
 
+   /// caller of this Tokenizer
    const char * loc;
+
+   /// the characters afer caret 1
    int rest_1;
+
+   /// the characters afer caret 2
    int rest_2;
 };
 
