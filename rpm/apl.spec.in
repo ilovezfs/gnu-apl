@@ -88,19 +88,24 @@ make DESTDIR=%{buildroot} install
 %doc README-5-WINDOWS
 %doc README-6-porting
 %doc README-7-more-info
-%doc support-files/apl.loadkeys
-%doc support-files/apl.vim
-%doc support-files/apl.xkb
-%doc support-files/apl.xkm
-%doc support-files/apl.xmodmap
-%doc support-files/apl.vim
-%doc support-files/keyboard.txt
 %doc support-files/
-%doc support-files/keyboard1.txt
-%doc support-files/apl.unicomp.xkb
-%doc support-files/apl.unicomp.xkb.txt
-%doc support-files/Unicomp1.jpg
-%doc support-files/Unicomp2.jpg
+%doc support-files/apl.vim
+%doc support-files/old-Keyboard/apl.loadkeys
+%doc support-files/old-Keyboard/apl.xkb
+%doc support-files/old-Keyboard/apl.xkm
+%doc support-files/old-Keyboard/apl.xmodmap
+%doc support-files/old-Keyboard/keyboard.txt
+%doc support-files/old-Keyboard/keyboard1.txt
+%doc support-files/Dyalog-Keyboard/apl.xmodmap
+%doc support-files/Dyalog-Keyboard/keyboard.txt
+%doc support-files/Dyalog-Keyboard/keyboard1.txt
+%doc support-files/Unicomp-Keyboard/apl.xkb
+%doc support-files/Unicomp-Keyboard/apl.xkb.txt
+%doc support-files/Unicomp-Keyboard/Unicomp1.jpg
+%doc support-files/Unicomp-Keyboard/Unicomp2.jpg
+%doc support-files/WASD-Keyboard/apl.xkb
+%doc support-files/WASD-Keyboard/apl.xkb.txt
+%doc support-files/WASD-Keyboard/wasd-inkscape-104-paths.svg.zip
 
 %{_docdir}/*
 %{_infodir}/*

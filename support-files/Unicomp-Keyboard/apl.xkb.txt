@@ -1,0 +1,79 @@
+
+Keyboard setup for the Unicomp APL keyboard
+by Blake McBride (blake1024@gmail.com)
+for use with xkbcomp and X11
+
+xkbcomp is the more modern keyboard configuration utility under X11.
+Unlike xmodmap, it allows significantly better control over key
+combinations.  And, it turns out, that the Unicomp APL keyboard is
+laid out in such a way that it is impossible to map it with xmodmap.
+xkbcomp is powerful enough to support the Unicomp APL keyboard
+completely.
+
+USAGE
+
+I would suggest creating a map of your pre-exiting keyboard setup
+first so that you can easily go back to it.  The following command
+will accomplish that:
+
+  xkbcomp  :0  normal.xkb
+
+Switching to the Unicomp APL keyboard configuration is done with:
+
+  xkbcomp  apl.unicomp.xkb  :0
+
+Switching back to your original keyboard config is done with:
+
+  xkbcomp  normal.xkb  :0
+
+Whenever you change configurations, you may have to restart your xterm
+or command prompt.  You shouldn't logout / login.  Logging out
+re-starts X11 and returns you back to your original configuration.
+
+ABOUT THE CONFIGURATION
+
+All keys should work as they originally did except when the Right-Alt
+key or the Right-Control is used.  Key combinations utilizing the
+Left-Alt or Left-Control keys are unaffected.
+
+All characters shown in black on the keyboard work like any normal
+keyboard.  The characters shown in orange are accessed with the use of
+the Right-Alt, Shift-Right-Alt, and Right-Control keys.  All keys, with
+one exception that is done on purpose, are mapped exactly as shown on
+the keyboard.
+
+The only exception is for the diamond character.  The Unicomp keyboard
+does not have that character but instead has another that is not used.
+The diamond is mapped to the key in the upper left of the keyboard with
+the black tilde and tick characters.  The diamond is mapped to the side
+of that key.
+
+Orange characters on the _top_ of each key are accessed with the
+Right-Alt and Shift-Right-Alt keys.  If there is only one orange
+character on the top of the key, it is accessed with the Right-Alt
+key.  If there are two orange characters on the top of the key, the
+bottom one is accessed with the Right-Alt key, and the top one is
+accessed with the Shift-Right-Alt keys.  Orange characters shown on
+the _side_ of the key are all accessed with the Right-Control key.
+
+TECHNICAL
+
+If you wish to remap any keys, you will see in the apl.unicomp.xkb
+file the use of the EIGHT_LEVEL type.  This allows for 8 different
+characters to be associated to each key.  The combinations, in order,
+are as follows:
+
+Normal
+Shift
+Right-Alt
+Shift-Right-Alt
+Right-Control
+Shift-Right-Control
+Right-Alt-Right-Control
+Shift-Right-Alt-Right-Control
+
+
+Before character mapping, the original xkb file was created with:
+
+setxkbmap -print us -option -option lv3:ralt_switch -option lv5:rwin_switch_lock | sed -e s/rwin_switch_lock/rctrl_switch/ | xkbcomp -xkb - startfrom.xkb
+

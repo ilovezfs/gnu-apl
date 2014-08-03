@@ -115,8 +115,10 @@ loop_h:
      if (result.get_Class() == TC_VALUE)
         {
           Value_P ZZ = result.get_apl_val();
-          if (ZZ->is_scalar())   arg.Z->next_ravel()->init(ZZ->get_ravel(0));
-          else                   new (arg.Z->next_ravel())   PointerCell(ZZ);
+          Cell * cZ = arg.Z->next_ravel();
+          if (cZ == 0)   cZ = &arg.Z->get_ravel(0);   // empty Z
+          if (ZZ->is_scalar())   cZ->init(ZZ->get_ravel(0));
+          else                   new (cZ)   PointerCell(ZZ);
           goto next_h;
        }
 

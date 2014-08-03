@@ -178,7 +178,7 @@ The normal (and fully supported) way to install GNU APL is this:
 
 GNU APL compiles under CYGWIN, (see
 <?apl  ('http://',xCYGWIN) HTML∆A xCYGWIN ?>),
-provided that the necessary libraries are installed. HTML∆A 32-bit <B>apl.exe</B>
+provided that the necessary libraries are installed. A 32-bit <B>apl.exe</B>
 that may run under CYGWIN lives in the download area. Use at your own risk and
 see <B>README-5-WINDOWS</B> for further information.
 
