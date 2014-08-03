@@ -54,12 +54,48 @@ GNU APL comes with a directory called "support-files". This directory
 contains various configuration files needed by the methods described below.
 
 Most of the problems in getting UTF8-encoded Unicodes working is on the input
-side (from the keyboard to GNU APL). The output side is most ofter already
+side (from the keyboard to GNU APL). The output side is most often already
 working (thanks to Unicode).
 
+2. Structure of the support-files directory
+===========================================
 
-2. xmodmap
-=========
+Initially there was only one keyboard layout assumed for GNU APL. At that
+time all support files for this keyboard layout (now called "old") were
+located in the support-files directory.
+
+Then a number of different keyboard layouts were contributed by GNU APL users.
+
+As of GNU APL 1.4 there is now one directory for every keyboard layout,
+currently Dyalog-Keyboard, old-Keyboard, Unicomp-Keyboard, and WASD-Keyboard.
+
+The file names mentioned in the following are generic (independent of a
+particular keyboard layout) whereas the support files provided lives in
+one or more of the keyboard layout directories. For example:
+
+    support-files/apl.xmodmap
+
+is the generic name (and no file with that name exist anymore) while
+
+    support-files/old-Keyboard/apl.xmodmap and
+    support-files/Dyalog-Keyboard/apl.xmodmap
+
+are the different instances of .xmodmap files for different keyboard layouts.
+
+If no support file exists for your actual combination of keyboard layout
+and method, then usually the support file of some other layout works or
+can be made working easily. If you adapt support files, feel free
+to mail the changed file to bug-apl@gnu.org so that we can include it.
+
+Note also that not all support files are fully tested - the layouts change
+from time to time and given the number of methods and the number of layouts
+there is no easy way to track these changes for all methods and layout
+
+The standard layout assumed for GNU APL is that of the APL keyboards shipped
+by Dyalog. The standard method assumed for GNU APL is xmodmap.
+
+3. xmodmap
+==========
 
 If your operating system runs X (which is the case for most "Desktop"
 variants of GNU/Linux) then in is quite simple to make your keyboard produce
@@ -81,17 +117,17 @@ After that your keyboard will produce APL characters when the "Alt" key is
 held down. The keyboard layout defined in file "apl.xmodmap" is roughly this:
 
 ╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗
-║ ~⍨ ║ !¡ ║ @€ ║ #£ ║ $⍧ ║ %  ║ ^  ║ &  ║ *⍂ ║ (⍱ ║ )⍲ ║ _≡ ║ +⌹ ║         ║
+║ ~  ║ !⌶ ║ @⍫ ║ #⍒ ║ $⍋ ║ %⌽ ║ ^⍉ ║ &⊖ ║ *⍟ ║ (⍱ ║ )⍲ ║ _! ║ +⌹ ║         ║
 ║ `◊ ║ 1¨ ║ 2¯ ║ 3< ║ 4≤ ║ 5= ║ 6≥ ║ 7> ║ 8≠ ║ 9∨ ║ 0∧ ║ -× ║ =÷ ║ BACKSP  ║
 ╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣
-║       ║ Q¿ ║ W⌽ ║ E⍷ ║ R  ║ T⍉ ║ Y¥ ║ U  ║ I⍸ ║ O⍥ ║ P⍟ ║ {  ║ }  ║  |⍀  ║
-║  TAB  ║ q? ║ w⍵ ║ e∈ ║ r⍴ ║ t∼ ║ y↑ ║ u↓ ║ i⍳ ║ o○ ║ p⋆ ║ [← ║ ]→ ║  \⍝  ║
+║       ║ Q  ║ W⍹ ║ E⋸ ║ R  ║ T⍨ ║ Y¥ ║ U  ║ I⍸ ║ O⍥ ║ P⍣ ║ {⍞ ║ }⍬ ║  |⊣  ║
+║  TAB  ║ q? ║ w⍵ ║ e∈ ║ r⍴ ║ t∼ ║ y↑ ║ u↓ ║ i⍳ ║ o○ ║ p⋆ ║ [← ║ ]→ ║  \⊢  ║
 ╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣
-║ (CAPS   ║ A⊖ ║ S  ║ D  ║ F⍫ ║ G⍒ ║ H⍋ ║ J⍤ ║ K⌺ ║ L⍞ ║ :  ║ "  ║         ║
-║  LOCK)  ║ a⍺ ║ s⌈ ║ d⌊ ║ f_ ║ g∇ ║ h∆ ║ j∘ ║ k' ║ l⎕ ║ ;⊢ ║ '⊣ ║ RETURN  ║
+║ (CAPS   ║ A⍶ ║ S  ║ D  ║ F  ║ G  ║ H⍙ ║ J⍤ ║ K  ║ L⌷ ║ :≡ ║ "≢ ║         ║
+║  LOCK)  ║ a⍺ ║ s⌈ ║ d⌊ ║ f_ ║ g∇ ║ h∆ ║ j∘ ║ k' ║ l⎕ ║ ;⍎ ║ '⍕ ║ RETURN  ║
 ╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣
-║             ║ Z  ║ X  ║ C⍝ ║ V  ║ B⍎ ║ N⍕ ║ M⌶ ║ <⍪ ║ >⍙ ║ ?⌿ ║          ║
-║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⌷ ║ .⍎ ║ /⍕ ║  SHIFT   ║
+║             ║ Z  ║ Xχ ║ C¢ ║ V  ║ B£ ║ N  ║ M  ║ <⍪ ║ >⍙ ║ ?⍠ ║          ║
+║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⍝ ║ .⍀ ║ /⌿ ║  SHIFT   ║
 ╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝
 
 The files support-files/keyboard.txt and support-files/keyboard1.txt contain
@@ -105,7 +141,7 @@ If you are Finnish then you may want to have a look here:
 http://www.oksman.eu/apl/gnu_apl_installation_with_finnish_keyboard_layout.txt
 
 
-3. setxkbmap/xkbcomp
+4. setxkbmap/xkbcomp
 ====================
 
 Another program that can be used to make your keyboard produce APL
@@ -142,7 +178,7 @@ can generate your own apl.xkm file (see man pages for setxkbmap and xkbcomp).
 
 See also Blake's notes in support-files/apl.unicomp.xkb.txt
 
-4. loadkeys
+5. loadkeys
 ===========
 
 If you are not running X then the above methods will complain about
@@ -160,7 +196,7 @@ be downloaded from:
     http://unifoundry.com
 
 
-5. Editing APL files
+6. Editing APL files
 ====================
 
 Instead of using APL interactively, you may, like the author, find it more
@@ -177,7 +213,7 @@ To further improve on that, there is a syntax file support-files/apl.vim
 that supports syntax coloring of vim.
 
 
-6. Emacs Mode
+7. Emacs Mode
 =============
 
 Unlike vim, which runs out-of-the-box with APL characters, emacs needs
@@ -189,7 +225,7 @@ emacs user:
     https://github.com/lokedhs/gnu-apl-mode 
 
 
-7. Vim Plugins
+8. Vim Plugins
 ==============
 
 If your favorite editor is vim, then you will like the following plugin
@@ -203,7 +239,7 @@ pick APL characters from a menu inside vim is here:
     http://apl-adventures.tumblr.com/post/76528148239/an-apl-character-picker-for-vim
 
 
-8. Keyboard Wrapper
+9. Keyboard Wrapper
 ===================
 
 If the methods described above cannot be used for whatever reason then
@@ -216,7 +252,7 @@ APL_keyboard_learn, and APL_keyboard, which are all located in the 'tools'
 subdirectory.
 
 
-8.1 APL_keyboard_show
+9.1 APL_keyboard_show
 ---------------------
 
 APL_keyboard_show is a simple program that displays the byte sequences
@@ -262,7 +298,7 @@ The alert reader will have noticed that in both cases UTF8 encoded characters
 were sent; they were just wrong for APL before running xmodmap.
 
 
-8.2 APL_keyboard_learn
+9.2 APL_keyboard_learn
 ----------------------
 
 The next program is APL_keyboard_learn which is derived from APL_keyboard_show.
@@ -295,12 +331,12 @@ third program, APL_keyboard. The order of the keys that you are asked for
 is defined in file APL_keyboard.orig.def (which is identical to
 APL_keyboard.def when GNU APL is installed).
 
-After running APL_keyboard_learn, you shoud do 'make' in the tools directory,
-in order tincorporate the newly created APL_keyboard.def into the program
+After running APL_keyboard_learn, you should do 'make' in the tools directory,
+in order incorporate the newly created APL_keyboard.def into the program
 APL_keyboard.
 
 
-8.3 APL_keyboard
+9.3 APL_keyboard
 ----------------
 
 The keyboard wrapper itself is APL_keyboard. The file APL_keyboard.def is
@@ -312,7 +348,7 @@ Once APL_keyboard is made, you can start GNU APL like this:
 $ APL_keyboard | apl
 
 
-9. Remote Login
+10. Remote Login
 ===============
 
 Suppose GNU APL runs on machine A and you connect to it by means of ssh or
@@ -332,7 +368,7 @@ or else output coloring of GNU APL may send incorrect ESC sequences for
 switching between colors (or use apl -noColor).
 
 
-10. Pitfalls and Troubleshooting
+11. Pitfalls and Troubleshooting
 ================================
 
 There are other pieces of software that may intercept the byte stream om its
@@ -366,7 +402,7 @@ If you need to troubleshoot APL characters, proceed as follows:
    the problem.
 
 
-11. APL Keyboards
+12. APL Keyboards
 =================
 
 If you are new to APL or use it only infrequently, then you will have

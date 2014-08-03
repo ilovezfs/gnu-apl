@@ -97,7 +97,7 @@ char popen_args[PATH_MAX + 1];
                  "%s --port %u --auto", APserver_path, APserver_port);
    }
 
-   get_CERR() << "Starting " << popen_args << "..." << endl;
+   logit && get_CERR() << "Starting " << popen_args << "..." << endl;
 
 FILE * fp = popen(popen_args, "r");
    if (fp == 0)

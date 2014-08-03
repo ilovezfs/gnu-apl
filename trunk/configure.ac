@@ -220,7 +220,10 @@ AC_CONFIG_FILES([Makefile
                  src/testcases/Makefile
                  src/workspaces/Makefile
 		 support-files/Makefile
-		 support-files/WASD/Makefile
+		 support-files/Dyalog-Keyboard/Makefile
+		 support-files/old-Keyboard/Makefile
+		 support-files/Unicomp-Keyboard/Makefile
+		 support-files/WASD-Keyboard/Makefile
                  tools/Makefile
                  workspaces/Makefile
                  wslib3/Makefile
