@@ -34,16 +34,30 @@ public:
    Quad_RL();
 
    /// Return a random number.
-   APL_Integer get_random();
+   uint64_t get_random();
 
    enum { INITIAL_SEED = 16807 };
+
+   // Xn+1 = a Xn + c
+#define Knuth_a 6364136223846793005
+#define Knuth_c 1442695040888963407
+
    /// reset the seed (eg. after )CEAR)
    unsigned int reset_seed()
-      { srandom(INITIAL_SEED);   random();   return INITIAL_SEED; }
+      { state = INITIAL_SEED;   return INITIAL_SEED; }
 
 protected:
-   /// Overloaded Symbol::assign().
+   /// overloaded Symbol::assign()
    virtual void assign(Value_P value, const char * loc);
+
+   /// overloaded Symbol::pop()
+   virtual void pop();
+
+   /// overloaded Symbol::push()
+   virtual void push();
+
+   /// state of the random number generator
+   static uint64_t state;
 };
 //-----------------------------------------------------------------------------
 #endif //  __QUAD_RL_HH_DEFINED__

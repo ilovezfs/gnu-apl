@@ -24,14 +24,12 @@ The following features are planned or will be investigated:
 
 * versioning of .so files
 
+
 The following issues are known and maybe fixed mid-term:
 --------------------------------------------------------
 
-* shared variable improvements
-
-* properly localizing ⎕RL
-
 * Power operator ⍣
+
 
 The following extensions are provided:
 --------------------------------------

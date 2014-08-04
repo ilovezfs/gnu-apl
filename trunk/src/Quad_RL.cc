@@ -24,6 +24,8 @@
 #include "Value.icc"
 #include "IntCell.hh"
 
+uint64_t Quad_RL::state = 0;
+
 //=============================================================================
 Quad_RL::Quad_RL()
    : SystemVariable(ID_Quad_RL)
@@ -54,16 +56,31 @@ const APL_Integer val = cell.get_int_value();
    Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------
-APL_Integer
+uint64_t
 Quad_RL::get_random()
 {
-const APL_Integer r1 = random();
-const APL_Integer seed = random();
+   state *= Knuth_a;
+   state += Knuth_c;
 
    Assert(value_stack.size());
    if (value_stack.back().name_class != NC_VARIABLE)   VALUE_ERROR;
 
-   new (&value_stack.back().apl_val->get_ravel(0))   IntCell(seed);
-   return seed << 32 | r1;
+   new (&value_stack.back().apl_val->get_ravel(0))   IntCell(state);
+   return state;
+}
+//-----------------------------------------------------------------------------
+void
+Quad_RL::push()
+{
+   // clone the current state
+   //
+   Symbol::push_value(IntScalar(state, LOC));
+}
+//-----------------------------------------------------------------------------
+void
+Quad_RL::pop()
+{
+   Symbol::pop();
+   state = value_stack.back().apl_val->get_ravel(0).get_int_value();
 }
 //=============================================================================

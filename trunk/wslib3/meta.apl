@@ -5,47 +5,41 @@
 ⍝ intended usage:
 ⍝
 ⍝ )COPY meta
-⍝ meta∆make_functions        create functions for your library
+⍝ meta∆make_function         create the function for your library
 ⍝ ... answer questions
 ⍝ meta∆remove_meta_helpers   remove functions provided by this library
 ⍝
 
 ⍝ return the meta functions to be provided by Package
 ⍝
-∇Z←meta∆functions Package;MP
- MP←Package,'⍙'   ⍝ the meta prefix
- Z← ,⊂MP,'Author'
- Z←Z,⊂MP,'Version'
- Z←Z,⊂MP,'Portability'
- Z←Z,⊂MP,'License'
- Z←Z,⊂MP,'BugEmail'
- Z←Z,⊂MP,'Requires'
- Z←Z,⊂MP,'Provides'
- Z←Z,⊂MP,'Download'
- Z←Z,⊂MP,'Documentation'
+∇Z←meta∆tags
+ Z←  ⊂ 'Author'
+ Z←Z,⊂ 'BugEmail'
+ Z←Z,⊂ 'Documentation'
+ Z←Z,⊂ 'Download'
+ Z←Z,⊂ 'License'
+ Z←Z,⊂ 'Portability'
+ Z←Z,⊂ 'Provides'
+ Z←Z,⊂ 'Requires'
+ Z←Z,⊂ 'Version'
 ∇
 
-⍝ create all meta functions to be provided by Package
+⍝ create the meta function for Package
 ⍝
-∇meta∆make_functions Package;Funs
- Funs←meta∆functions Package
- meta∆make_function ¨ Funs
-∇
+∇meta∆make_function Package;Tags;Vals;Fun;Qu
+ Qu←{ ((1=⍴⍵)/'(,') , '''' , ⍵ , '''' , (1=⍴⍵)/')' }
+ Tags ← meta∆tags ◊ LEN←4 + ⌈⌿⊃⍴¨Tags
+ Vals ← { (LEN↓⍞ ⊣ ⍞← LEN↑(⊃⍵),':') } ¨ Tags   ⍝ read tag values
 
-⍝ create one meta function, asking for its value
-⍝
-∇meta∆make_function Fun;Value;Q
- ⍞←Q←50↑' Value to be returned by ',Fun,':'
- Value←(⍴Q)↓⍞ ◊ ''
- L0←'Z←' , Fun
- L1←'Z←,⊂''', Value, ''''
- Q←⎕FX L0 L1
+ Fun ← ⊂'Z←',Package,'⍙metadata' 
+ Fun ← Fun , ⊂'Z←0 2⍴⍬'
+ ⊣ Tags { Fun ← Fun , ⊂'Z←Z⍪', (LEN ↑ Qu ⍺), ' ', Qu ⍵ } ¨ Vals
+ ⊣ ⎕FX Fun
 ∇
 
 ∇meta∆remove_meta_helpers
 ⊣ ⎕EX 'meta∆functions'
 ⊣ ⎕EX 'meta∆make_function'
-⊣ ⎕EX 'meta∆make_functions'
 ⊣ ⎕EX 'meta∆remove_meta_helpers'
 ∇
 

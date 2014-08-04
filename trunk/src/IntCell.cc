@@ -224,7 +224,7 @@ const APL_Integer qio = Workspace::get_IO();
 const APL_Integer set_size = value.ival;
    if (set_size < 0)   return E_DOMAIN_ERROR;
 
-const APL_Integer rnd = Workspace::get_RL();
+const uint64_t rnd = Workspace::get_RL();
    if (set_size == 0)   new (Z) FloatCell((1.0*rnd)/0x8000000000000000ULL);
    else                 new (Z) IntCell(qio + (rnd % set_size));
    return E_NO_ERROR;
