@@ -53,8 +53,27 @@ void (*end_input)() = 0;
 
 bool Input::use_readline = true;
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#  if defined(HAVE_READLINE_READLINE_H)
+#    include <readline/readline.h>
+#  elif defined(HAVE_READLINE_H)
+#    include <readline.h>
+#  else /* !defined(HAVE_READLINE_H) */
+extern char *readline ();
+#  endif /* !defined(HAVE_READLINE_H) */
+char *cmdline = NULL;
+
+#ifdef HAVE_READLINE_HISTORY
+#  if defined(HAVE_READLINE_HISTORY_H)
+#    include <readline/history.h>
+#  elif defined(HAVE_HISTORY_H)
+#    include <history.h>
+#  else /* !defined(HAVE_HISTORY_H) */
+extern void add_history ();
+extern int write_history ();
+extern int read_history ();
+#  endif /* defined(HAVE_READLINE_HISTORY_H) */
+/* no history */
+#endif /* HAVE_READLINE_HISTORY */
 
 #else // ! HAVE_LIBREADLINE
 
@@ -79,7 +98,7 @@ static int          rl_catch_signals = 0;
 static int          rl_done = 0;
 void              (*rl_startup_hook)() = 0;
 
-#endif //  HAVE_LIBREADLINE
+#endif //  don't HAVE_LIBREADLINE
 
 // a function to be used if readline() does not exist or
 // is not wanted
@@ -121,7 +140,10 @@ Input::init(bool do_read_history)
              read_history(readline_history_path.c_str());
            }
 
+#ifdef ADVANCED_readline
         rl_startup_hook = (rl_hook_func_t *)(Input::init_readline_control_C);
+#endif
+
 //      rl_function_dumper(1);
       }
 #endif
@@ -357,6 +379,8 @@ int b = 0;
 char *
 Input::call_readline(const char * prompt)
 {
+#ifdef ADVANCED_readline
+
    // deinstall ^C handler...
    //
 static struct sigaction control_C_action;
@@ -371,6 +395,12 @@ char * ret = readline(prompt);
    control_C_action.sa_handler = &control_C;
    sigaction(SIGINT,  &control_C_action, 0);
 
+#else
+
+char * ret = readline(prompt);
+
+#endif
+
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -383,6 +413,11 @@ struct termios tios;
    tios.c_lflag &= ~ECHOCTL;
    tcsetattr(STDIN_FILENO, TCSANOW, &tios);
 }
+
+#ifdef ADVANCED_readline
+
+// the functions below are not present in the readline lib shipped with OS-X
+
 //-----------------------------------------------------------------------------
 int
 Input::init_readline_control_C()
@@ -418,3 +453,4 @@ Input::readline_control_C(int count, int key)
    return 0;
 }
 //-----------------------------------------------------------------------------
+#endif

@@ -59,6 +59,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/ax_lib_readline.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
 	$(top_srcdir)/m4/ax_lib_postgresql.m4 \
 	$(top_srcdir)/configure.ac
@@ -100,6 +101,9 @@ LTLIBRARIES = $(pkglib_LTLIBRARIES)
 lib_file_io_la_LIBADD =
 am_lib_file_io_la_OBJECTS = file_io.lo
 lib_file_io_la_OBJECTS = $(am_lib_file_io_la_OBJECTS)
+lib_file_io_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(lib_file_io_la_LDFLAGS) $(LDFLAGS) -o $@
 lib_template_F0_la_LIBADD =
 am_lib_template_F0_la_OBJECTS = template_F0.lo
 lib_template_F0_la_OBJECTS = $(am_lib_template_F0_la_OBJECTS)
@@ -198,7 +202,6 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBREADLINE = @LIBREADLINE@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
@@ -304,6 +307,7 @@ pkglib_LTLIBRARIES = lib_file_io.la		\
 			lib_template_OP2.la	
 
 lib_file_io_la_SOURCES = file_io.cc
+lib_file_io_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 lib_template_F0_la_SOURCES = template_F0.cc template.hh
 lib_template_F12_la_SOURCES = template_F12.cc template.hh
 lib_template_OP1_la_SOURCES = template_OP1.cc template.hh
@@ -375,7 +379,7 @@ clean-pkglibLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 lib_file_io.la: $(lib_file_io_la_OBJECTS) $(lib_file_io_la_DEPENDENCIES) $(EXTRA_lib_file_io_la_DEPENDENCIES) 
-	$(CXXLINK) -rpath $(pkglibdir) $(lib_file_io_la_OBJECTS) $(lib_file_io_la_LIBADD) $(LIBS)
+	$(lib_file_io_la_LINK) -rpath $(pkglibdir) $(lib_file_io_la_OBJECTS) $(lib_file_io_la_LIBADD) $(LIBS)
 lib_template_F0.la: $(lib_template_F0_la_OBJECTS) $(lib_template_F0_la_DEPENDENCIES) $(EXTRA_lib_template_F0_la_DEPENDENCIES) 
 	$(CXXLINK) -rpath $(pkglibdir) $(lib_template_F0_la_OBJECTS) $(lib_template_F0_la_LIBADD) $(LIBS)
 lib_template_F12.la: $(lib_template_F12_la_OBJECTS) $(lib_template_F12_la_DEPENDENCIES) $(EXTRA_lib_template_F12_la_DEPENDENCIES) 

@@ -119,7 +119,7 @@ APL_time_us when = now();
 
    attention_raised = true;
    ++attention_count;
-   if ((when - interrupt_when) < 500000)   // second ^C within 500 ms
+   if ((when - interrupt_when) < 1000000)   // second ^C within 1 second
       {
         interrupt_raised = true;
         ++interrupt_count;

@@ -104,7 +104,7 @@ public:
       { return the_workspace.v_Quad_PR.current(); }
 
    /// return the Quad-RL.
-   static APL_Integer get_RL()
+   static uint64_t get_RL()
       { return the_workspace.v_Quad_RL.get_random(); }
 
    /// the number of SI entries

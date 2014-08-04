@@ -214,40 +214,16 @@
 
 ⍝ meta data for this library...
 ⍝
-
-∇Z←FIO⍙Author
- Z←,⊂'Jürgen Sauermann'
-∇
-
-∇Z←FIO⍙BugEmail
- Z←,⊂'bug-apl@gnu.org'
-∇
-
-∇Z←FIO⍙Documentation
- Z←,⊂''
-∇
-
-∇Z←FIO⍙Download
- Z←,⊂'http://svn.savannah.gnu.org/viewvc/trunk/wslib5/Makefile.in?root=apl'
-∇
-
-∇Z←FIO⍙License
- Z←,⊂'LGPL'
-∇
-
-∇Z←FIO⍙Portability
- Z←,⊂'L3'
-∇
-
-∇Z←FIO⍙Provides
- Z←,⊂'file-io'
-∇
-
-∇Z←FIO⍙Requires
- Z←,⊂''
-∇
-
-∇Z←FIO⍙Version
- Z←,⊂'1.0'
+∇Z←FIO⍙metadata
+ Z←0 2⍴⍬
+ Z←Z⍪'Author'      'Jürgen Sauermann'
+ Z←Z⍪'BugEmail'    'bug-apl@gnu.org'
+ Z←Z⍪'Documentation' ''
+ Z←Z⍪'Download'      'http://svn.savannah.gnu.org/viewvc/trunk/wslib5/Makefile.in?root=apl'
+ Z←Z⍪'License'       'LGPL'
+ Z←Z⍪'Portability'   'L3'
+ Z←Z⍪'Provides'      'file-io'
+ Z←Z⍪'Requires'      ''
+ Z←Z⍪'Version'       '1.0'
 ∇
 
