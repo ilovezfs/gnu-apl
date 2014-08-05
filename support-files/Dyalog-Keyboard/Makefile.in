@@ -222,6 +222,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dist_noinst_DATA = apl.xmodmap	\
+			apl.xkb		\
 			keyboard1.txt	\
 			keyboard.txt
 
