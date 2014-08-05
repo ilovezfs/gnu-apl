@@ -470,9 +470,19 @@ public:
 
    static Bif_F12_DECODE    fun;   ///< Built-in function
 protected:
-   /// Decode B according to Len_A and cA
-   void decode(Cell * cZ, ShapeItem len_A, const Cell * cA, ShapeItem len_B,
-               const Cell * cB, ShapeItem dB, double qct);
+   /// decode B according to len_A and cA (integer A, B and Z)
+   bool decode_int(Cell * cZ, ShapeItem len_A, const Cell * cA,
+                   ShapeItem len_B, const Cell * cB, ShapeItem dB);
+
+   /// decode B according to len_A and cA (real A and B)
+   void decode_real(Cell * cZ, ShapeItem len_A, const Cell * cA,
+                    ShapeItem len_B, const Cell * cB, ShapeItem dB,
+                    double qct);
+
+   /// decode B according to len_A and cA (complex A or B)
+   void decode_complex(Cell * cZ, ShapeItem len_A, const Cell * cA,
+                       ShapeItem len_B, const Cell * cB, ShapeItem dB,
+                       double qct);
 };
 //-----------------------------------------------------------------------------
 /** primitive functions matrix divide and matrix invert

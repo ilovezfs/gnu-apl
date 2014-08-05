@@ -1232,10 +1232,56 @@ const Cell * cA = &A->get_ravel(0);
 
    loop(h, h_len_A)
        {
+         // cA ... cA + len_A are used. See if they are complex.
+         //
+         bool complex_A = false;
+         bool integer_A = true;
+         loop(aa, l_len_A)
+             {
+                if (!cA[aa].is_near_real(qct))
+                   {
+                     complex_A = true;
+                     integer_A = false;
+                     break;
+                   }
+
+                if (!cA[aa].is_near_int(qct))   integer_A = false;
+             }
+
          loop(l, l_len_B)
              {
+                // cB, cB + l_len_B, ... are used. See if they are complex
+                //
+                bool complex_B = false;
+                bool integer_B = true;
+                loop(bb, h_len_B)
+                    {
+                      if (!B->get_ravel(l + bb*l_len_B).is_near_real(qct))
+                         {
+                           complex_B = true;
+                           integer_B = false;
+                           break;
+                         }
+
+                      if (!B->get_ravel(l + bb*l_len_B).is_near_int(qct))
+                         integer_B = false;
+                    }
+
                const Cell * cB = &B->get_ravel(l);
-               decode(Z->next_ravel(), l_len_A, cA, h_len_B, cB, l_len_B, qct);
+               if (integer_A && integer_B)
+                  {
+                    const bool overflow = decode_int(Z->next_ravel(), l_len_A,
+                                                 cA, h_len_B, cB, l_len_B);
+                     if (!overflow)   continue;
+                     // otherwise: compute as float
+                  }
+
+               if (complex_A || complex_B)
+                  decode_complex(Z->next_ravel(), l_len_A, cA,
+                                 h_len_B, cB, l_len_B, qct);
+               else
+                  decode_real(Z->next_ravel(), l_len_A, cA,
+                                 h_len_B, cB, l_len_B, qct);
              }
          cA += l_len_A;
        }
@@ -1245,17 +1291,76 @@ const Cell * cA = &A->get_ravel(0);
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
+bool
+Bif_F12_DECODE::decode_int(Cell * cZ, ShapeItem len_A, const Cell * cA,
+                       ShapeItem len_B, const Cell * cB, ShapeItem dB)
+{
+APL_Integer value = 0;
+APL_Float value_f = 0.0;
+
+APL_Integer weight = 1;
+APL_Float weight_f = 1.0;
+const ShapeItem len = (len_A == 1) ? len_B : len_A;
+
+   cA += len_A - 1;         // cA points to the lowest item in A
+   cB += dB*(len_B - 1);    // cB points to the lowest item in B
+   loop(l, len)
+      {
+        if (weight_f > LARGE_INT)   return true;
+        if (weight_f < SMALL_INT)   return true;
+
+        const APL_Integer vB = cB[0].get_near_int(0.2);
+        value += weight*vB;
+        value_f += weight_f*vB;
+        if (value_f > LARGE_INT)   return true;
+        if (value_f < SMALL_INT)   return true;
+
+        weight *= cA[0].get_near_int(0.2);
+        if (len_A != 1)   --cA;
+        if (len_B != 1)   cB -= dB;
+      }
+
+   new (cZ)   IntCell(value);
+
+   return false;   // no overflow
+}
+//-----------------------------------------------------------------------------
 void
-Bif_F12_DECODE::decode(Cell * cZ, ShapeItem len_A, const Cell * cA,
+Bif_F12_DECODE::decode_real(Cell * cZ, ShapeItem len_A, const Cell * cA,
+                       ShapeItem len_B, const Cell * cB, ShapeItem dB,
+                       double qct)
+{
+APL_Float value = 0.0;
+APL_Float weight = 1.0;
+const ShapeItem len = (len_A == 1) ? len_B : len_A;
+
+   cA += len_A - 1;         // cA points to the lowest item in A
+   cB += dB*(len_B - 1);    // cB points to the lowest item in B
+   loop(l, len)
+      {
+        value += weight*cB[0].get_real_value();
+        weight *= cA[0].get_real_value();
+        if (len_A != 1)   --cA;
+        if (len_B != 1)   cB -= dB;
+      }
+
+   if (Cell::is_near_int(value, qct))
+      new (cZ)   IntCell(value, qct);
+   else
+      new (cZ)   FloatCell(value);
+}
+//-----------------------------------------------------------------------------
+void
+Bif_F12_DECODE::decode_complex(Cell * cZ, ShapeItem len_A, const Cell * cA,
                        ShapeItem len_B, const Cell * cB, ShapeItem dB,
                        double qct)
 {
 APL_Complex value(0.0, 0.0);
 APL_Complex weight(1.0, 0.0);
-uint32_t len = len_A == 1 ? len_B : len_A;
+const ShapeItem len = (len_A == 1) ? len_B : len_A;
 
-   cA += len_A - 1;         // point to the lowest item in A
-   cB += dB*(len_B - 1);    // point to the lowest item in B
+   cA += len_A - 1;         // cA points to the lowest item in A
+   cB += dB*(len_B - 1);    // cB points to the lowest item in B
    loop(l, len)
       {
         value += weight*cB[0].get_complex_value();
