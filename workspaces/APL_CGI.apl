@@ -74,7 +74,7 @@ xGNU_PIC←HTML∆__src xHTTP_GNU, "graphics/gnu-head-sm.jpg"
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ some file names used in the BODY
 ⍝
-xAPL_VERSION←'apl-1.3'
+xAPL_VERSION←'apl-1.4'
 xTARFILE←xAPL_VERSION,  '.tar.gz'
 xRPMFILE←xAPL_VERSION,  '-0.i386.rpm'
 xSRPMFILE←xAPL_VERSION, '-0.src.rpm'

@@ -264,7 +264,7 @@ Backtrace::show(const char * file, int line)
    // CYGWIN, for example, has no execinfo.h and the functions declared there
    //
 #ifndef HAVE_EXECINFO_H
-   CERR << "Cannot show function call stack since execinfo.h seems not"
+   cerr << "Cannot show function call stack since execinfo.h seems not"
            " to exist on this OS (WINDOWs ?)." << endl;
    return;
 #else
