@@ -45,18 +45,12 @@ phrase(BS_A_F + 4,       A    , M    , C    , B  )
 // monadic operator
 phrase(BS_LO_OP + 3,     F    , C    , M    ,    )
 phrase(BS_LO_OP + 2,     F    , M    ,      ,    )
-phrase(BS_LO_OP + 2,     N    , M    ,      ,    )
 
 // dyadic operator
 phrase(BS_OP_RO + 3,     B    , D    , B    ,    )
 phrase(BS_OP_RO + 3,     B    , D    , G    ,    )
-phrase(BS_OP_RO + 3,     B    , D    , N    ,    )
 phrase(BS_OP_RO + 3,     F    , D    , B    ,    )
 phrase(BS_OP_RO + 3,     F    , D    , G    ,    )
-phrase(BS_OP_RO + 3,     F    , D    , N    ,    )
-phrase(BS_OP_RO + 3,     N    , D    , B    ,    )
-phrase(BS_OP_RO + 3,     N    , D    , G    ,    )
-phrase(BS_OP_RO + 3,     N    , D    , N    ,    )
 phrase(BS_OP_RO + 3,     F    , D    , C    , B  )
 
 // indexed reference and assignment

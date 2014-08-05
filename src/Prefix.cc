@@ -373,7 +373,7 @@ grow:
           Symbol * sym = tl.tok.get_sym_ptr();
           if (tl.tok.get_tag() == TOK_LSYMB2)
              {
-               // this is the last token (C) of a vector assignment
+               // this is the last token C of a vector assignment
                // (A B ... C)←. We return C and let the caller do the rest
                //
                sym->resolve(tl.tok, true);
@@ -841,12 +841,6 @@ Prefix::reduce_A_M_C_B()
 }
 //-----------------------------------------------------------------------------
 void
-Prefix::reduce_N_M__()
-{
-   reduce_F_M__();
-}
-//-----------------------------------------------------------------------------
-void
 Prefix::reduce_F_M__()
 {
 DerivedFunction * derived =
@@ -877,12 +871,6 @@ Prefix::reduce_B_D_B_()
 //-----------------------------------------------------------------------------
 void
 Prefix::reduce_B_D_G_()
-{
-   reduce_F_D_G_();   // same as F2
-}
-//-----------------------------------------------------------------------------
-void
-Prefix::reduce_B_D_N_()
 {
    reduce_F_D_G_();   // same as F2
 }
@@ -937,12 +925,6 @@ Token result = Token(TOK_FUN2, derived);
 }
 //-----------------------------------------------------------------------------
 void
-Prefix::reduce_N_D_B_()
-{
-   reduce_F_D_G_();   // same as G2
-}
-//-----------------------------------------------------------------------------
-void
 Prefix::reduce_F_D_G_()
 {
 DerivedFunction * derived =
@@ -951,24 +933,6 @@ DerivedFunction * derived =
 
    pop_args_push_result(Token(TOK_FUN2, derived));
    action = RA_CONTINUE;
-}
-//-----------------------------------------------------------------------------
-void
-Prefix::reduce_F_D_N_()
-{
-   reduce_F_D_G_();   // same as G2
-}
-//-----------------------------------------------------------------------------
-void
-Prefix::reduce_N_D_G_()
-{
-   reduce_F_D_G_();   // same as G2
-}
-//-----------------------------------------------------------------------------
-void
-Prefix::reduce_N_D_N_()
-{
-   reduce_F_D_G_();   // same as G2
 }
 //-----------------------------------------------------------------------------
 void
