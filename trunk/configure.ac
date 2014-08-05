@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([GNU APL], [1.3], [bug-apl@gnu.org])
+AC_INIT([GNU APL], [1.4], [bug-apl@gnu.org])
 AC_PREFIX_DEFAULT( /usr/local )
 AC_USE_SYSTEM_EXTENSIONS
 
