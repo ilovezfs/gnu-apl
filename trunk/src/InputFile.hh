@@ -43,6 +43,10 @@ struct InputFile
      line_no  (0)
    {}
 
+   /// set the current line number
+   void set_line_no(int num)
+      { line_no = num; }
+
    /// the current file
    static InputFile * current_file()
       { return files_todo.size() ? &files_todo[0] : 0; }
