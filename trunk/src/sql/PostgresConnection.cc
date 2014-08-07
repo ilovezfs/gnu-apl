@@ -32,6 +32,11 @@ private:
     char *ptr;
 };
 
+PostgresConnection::PostgresConnection( PGconn *db_in )
+    : db( db_in )
+{
+}
+
 PostgresConnection::~PostgresConnection()
 {
     PQfinish( db );

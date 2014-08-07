@@ -31,6 +31,11 @@ void SqliteConnection::raise_sqlite_error( const string &message )
     DOMAIN_ERROR;
 }
 
+SqliteConnection::SqliteConnection( sqlite3 *db_in )
+    : db( db_in )
+{
+}
+
 SqliteConnection::~SqliteConnection()
 {
     if( sqlite3_close( db ) != SQLITE_OK ) {
