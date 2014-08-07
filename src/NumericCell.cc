@@ -45,8 +45,6 @@ const APL_Float qct = Workspace::get_CT();
 void
 NumericCell::do_binomial(Cell * Z, APL_Integer a, APL_Integer b, bool negate)
 {
-double nom_f = 1.0;
-APL_Integer nom_i = 1;
 APL_Integer den_max = a;
 APL_Integer den_min = b - a;
 
@@ -59,6 +57,44 @@ APL_Integer den_min = b - a;
         den_min = a;
       }
 
+   /* special cases: a = 0, 1, 2, b-2, b-1, b
+     
+      / b \         / b \         / b \    .
+      |   | = 1,    |   | = b,    |   | = b*(b-1)/2
+     
+      \ 0 /         \ 1 /         \ 2 /
+    */
+   if (den_min <= 2)
+      {
+        if (den_min == 0)
+           {
+             if (negate)   new (Z) IntCell(-1);
+             else          new (Z) IntCell(1);
+           }
+        else if (den_min == 1)
+           {
+             if (negate)   new (Z) IntCell(-b);
+             else          new (Z) IntCell(b);
+           }
+        else    // a == 2 or b-2
+           {
+             // either b or b-1 must be even
+             if (b & 1)   // b-1 even
+                {
+                  if (negate)   new (Z) IntCell( - b * ((b-1)/2));
+                  else          new (Z) IntCell(   b * ((b-1)/2));
+                }
+             else         // b even
+                {
+                  if (negate)   new (Z) IntCell(- (b-1) * (b/2));
+                  else          new (Z) IntCell(  (b-1) * (b/2));
+                }
+           }
+        return;
+      }
+
+double nom_f = 1.0;
+APL_Integer nom_i = 1;
    // compute b! / den_max! == den_max+1 * den_max+2 * ... * b
    //
    for (APL_Integer n = b; n > den_max; --n)
@@ -67,21 +103,21 @@ APL_Integer den_min = b - a;
          nom_f *= n;
        }
 
-   if (nom_f > BIG_INT64_F)   // integer overflow
+   if (nom_f > SMALL_INT)   // integer overflow
       {
         for (APL_Integer n = den_min; n > 1; --n)
             nom_f /= n;
 
-        if (negate)   new(Z)   FloatCell(-nom_f);
-        else          new(Z)   FloatCell( nom_f);
+        if (negate)   new(Z)   FloatCell(- nom_f);
+        else          new(Z)   FloatCell(  nom_f);
       }
    else
       {
         for (APL_Integer n = den_min; n > 1; --n)
             nom_i /= n;
 
-        if (negate)   new(Z)   IntCell(-nom_i);
-        else          new(Z)   IntCell( nom_i);
+        if (negate)   new(Z)   IntCell(- nom_i);
+        else          new(Z)   IntCell(  nom_i);
       }
 }
 //-----------------------------------------------------------------------------
