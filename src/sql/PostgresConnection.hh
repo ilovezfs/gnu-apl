@@ -27,7 +27,7 @@
 
 class PostgresConnection : public Connection {
 public:
-    PostgresConnection( PGconn *db_in ) : db( db_in ) {}
+    PostgresConnection( PGconn *db_in );
     virtual ~PostgresConnection();
     virtual ArgListBuilder *make_prepared_query( const string &sql );
     virtual ArgListBuilder *make_prepared_update( const string &sql );

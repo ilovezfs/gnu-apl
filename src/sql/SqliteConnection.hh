@@ -27,7 +27,7 @@
 
 class SqliteConnection : public Connection {
 public:
-    SqliteConnection( sqlite3 *db_in ) : db( db_in ) {}
+    SqliteConnection( sqlite3 *db_in );
     virtual ~SqliteConnection();
     virtual ArgListBuilder *make_prepared_query( const string &sql );
     virtual ArgListBuilder *make_prepared_update( const string &sql );
