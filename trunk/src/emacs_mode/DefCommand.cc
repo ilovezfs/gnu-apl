@@ -44,18 +44,16 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
         Shape shape( content.size() );
         Value_P function_list_value( new Value( shape, LOC ) );
         for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-            string v;
+            Value_P v;
             if( i->size() == 0 ) {
-                v = " ";
+                v = Str0( LOC );
             }
             else {
-                v = *i;
+                v = make_string_cell( *i, LOC );
             }
-            new (function_list_value->next_ravel()) PointerCell( make_string_cell( v, LOC ) );
+            new (function_list_value->next_ravel()) PointerCell( v );
         }
         function_list_value->check_value( LOC );
-
-        Quad_FX quad_fx;
 
         if( args.size() > 1 ) {
             Shape tag_shape( 2 );
@@ -63,11 +61,11 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             new (tag->next_ravel()) IntCell( 0 );
             new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ) );
             function_list_value->check_value( LOC );
-            Token result = quad_fx.eval_AB( tag, function_list_value );
-            out << "function defined\n" << to_string(result.canonical( PST_CS_NONE));
+            Token result = Quad_FX::fun.eval_AB( tag, function_list_value );
+            out << "function defined\n" << to_string( result.canonical( PST_CS_NONE ) );
         }
         else {
-            Token result = quad_fx.eval_B( function_list_value );
+            Token result = Quad_FX::fun.eval_B( function_list_value );
             if( result.is_apl_val() ) {
                 Value_P value = result.get_apl_val();
                 if( value->is_int_scalar( 0 ) ) {
