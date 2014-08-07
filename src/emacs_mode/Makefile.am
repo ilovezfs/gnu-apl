@@ -17,11 +17,13 @@ libemacs_la_SOURCES =						\
 		network.cc		network.hh		\
 		NetworkCommand.hh				\
 		NetworkConnection.cc	NetworkConnection.hh	\
+		SendCommand.cc		SendCommand.hh		\
 		SicCommand.cc		SicCommand.hh		\
 		SiCommand.cc		SiCommand.hh		\
 		SystemFnCommand.cc	SystemFnCommand.hh	\
 		SystemVariableCommand.cc SystemVariableCommand.hh \
 		TcpListener.cc		TcpListener.hh		\
+		TempFileWrapper.cc	TempFileWrapper.hh		\
 		TraceData.cc		TraceData.hh		\
 		UnixSocketListener.cc	UnixSocketListener.hh	\
 		util.cc			util.hh			\

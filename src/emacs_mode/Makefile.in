@@ -98,10 +98,11 @@ LTLIBRARIES = $(pkglib_LTLIBRARIES)
 libemacs_la_LIBADD =
 am_libemacs_la_OBJECTS = DefCommand.lo emacs.lo FnCommand.lo \
 	FnTagCommand.lo FollowCommand.lo GetVarCommand.lo Listener.lo \
-	LockWrapper.lo network.lo NetworkConnection.lo SicCommand.lo \
-	SiCommand.lo SystemFnCommand.lo SystemVariableCommand.lo \
-	TcpListener.lo TraceData.lo UnixSocketListener.lo util.lo \
-	VariablesCommand.lo VersionCommand.lo
+	LockWrapper.lo network.lo NetworkConnection.lo SendCommand.lo \
+	SicCommand.lo SiCommand.lo SystemFnCommand.lo \
+	SystemVariableCommand.lo TcpListener.lo TempFileWrapper.lo \
+	TraceData.lo UnixSocketListener.lo util.lo VariablesCommand.lo \
+	VersionCommand.lo
 libemacs_la_OBJECTS = $(am_libemacs_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -300,11 +301,13 @@ libemacs_la_SOURCES = \
 		network.cc		network.hh		\
 		NetworkCommand.hh				\
 		NetworkConnection.cc	NetworkConnection.hh	\
+		SendCommand.cc		SendCommand.hh		\
 		SicCommand.cc		SicCommand.hh		\
 		SiCommand.cc		SiCommand.hh		\
 		SystemFnCommand.cc	SystemFnCommand.hh	\
 		SystemVariableCommand.cc SystemVariableCommand.hh \
 		TcpListener.cc		TcpListener.hh		\
+		TempFileWrapper.cc	TempFileWrapper.hh		\
 		TraceData.cc		TraceData.hh		\
 		UnixSocketListener.cc	UnixSocketListener.hh	\
 		util.cc			util.hh			\
@@ -394,11 +397,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Listener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LockWrapper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetworkConnection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SendCommand.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SiCommand.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SicCommand.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SystemFnCommand.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SystemVariableCommand.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TcpListener.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TempFileWrapper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TraceData.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnixSocketListener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VariablesCommand.Plo@am__quote@
