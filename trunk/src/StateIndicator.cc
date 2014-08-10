@@ -485,7 +485,9 @@ Value_P old_value = tok_X->get_apl_val();   // so that
 Function_Line
 StateIndicator::get_line() const
 {
-   return executable->get_line(Function_PC(get_PC() - 1));
+int pc = get_PC();
+   if (pc)   --pc;
+   return executable->get_line(Function_PC(pc));
 }
 //-----------------------------------------------------------------------------
 void
