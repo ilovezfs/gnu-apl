@@ -32,6 +32,9 @@ libemacs_la_SOURCES =						\
 
 .PHONY: git-pull
 git-pull:
-	git pull
+	rm -Rf tmp
+	svn export https://github.com/lokedhs/gnu-apl-mode/trunk/native tmp
+	mv -f tmp/*cc tmp/*hh .
+	rm -Rf tmp
 	@echo "Last GIT pull on `date '+%F %R'`" > LAST_GIT_PULL
 

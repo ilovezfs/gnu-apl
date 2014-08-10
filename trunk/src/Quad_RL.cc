@@ -52,7 +52,7 @@ Quad_RL::assign(Value_P value, const char * loc)
 const Cell & cell = value->get_ravel(0);
 const APL_Integer val = cell.get_int_value();
 
-   srandom(val);
+   state = val;
    Symbol::assign(value, LOC);
 }
 //-----------------------------------------------------------------------------

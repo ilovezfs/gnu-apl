@@ -36,10 +36,10 @@ endif
 
 .PHONY: git-pull
 git-pull:
-	cp -f Makefile Makefile.1
-	git reset --hard
-	git pull
+	rm -Rf tmp
+	svn export https://github.com/lokedhs/apl-sqlite/trunk tmp
+	mv -f tmp/*cc tmp/*hh tmp/SQL.apl .
+	rm -Rf tmp
 	@echo "Last GIT pull on `date '+%F %R'`" > LAST_GIT_PULL
-	mv -f Makefile.1 Makefile
 	cp SQL.apl ../../wslib5/SQL.apl
 
