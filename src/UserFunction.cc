@@ -197,6 +197,7 @@ int tos_idx = 0;
 Symbol * symbols[12];
    for (; tos_idx < 12; ++tos_idx)
       {
+         if (tos_idx >= tos.size())                   break;
          if (tos[tos_idx].get_tag() == TOK_SEMICOL)   break;
          if (tos[tos_idx].get_Class() == TC_SYMBOL)
             symbols[sym_count++] = tos[tos_idx].get_sym_ptr();
@@ -247,7 +248,7 @@ Fun_signature signature = SIG_NONE;
      function_name = sym_FUN->get_name();
    }
 
-   for (;;)
+   while (tos_idx < (tos.size() - 1))
       {
         if (tos[tos_idx++].get_tag() != TOK_SEMICOL)
            {
@@ -255,7 +256,6 @@ Fun_signature signature = SIG_NONE;
              return;
            }
 
-        if  (tos_idx >= tos.size())   break;   // local vars done
 
         const TokenTag tag = tos[tos_idx].get_tag();
         if (tag != TOK_SYMBOL && tag != TOK_Quad_CT
