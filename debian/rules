@@ -19,3 +19,10 @@ export DH_OPTIONS
 
 %:
 	dh  $@
+
+override_dh_fixperms:
+	dh_fixperms
+	# Fix lintian error by removing auto-generated file late in build
+	# E: apl: package-contains-info-dir-file usr/share/info/dir.gz
+	rm -f $(CURDIR)/debian/apl/usr/share/info/dir.gz
+
