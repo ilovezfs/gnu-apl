@@ -1012,7 +1012,7 @@ NumericCell::do_binomial(Cell * Z, APL_Integer K, APL_Integer N, bool negate)
    //
    if (K <= 7)
       {
-        APL_Integer z;
+        APL_Integer z = 0;
         if (K == 0)
            {
              z = 1;
