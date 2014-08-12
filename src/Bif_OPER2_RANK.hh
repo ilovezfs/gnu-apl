@@ -70,12 +70,10 @@ protected:
    /// convert 1- 2- or 3-element vector y123 to chunk-ranks of A and B
    static void y123_to_AB(Value_P y123, Rank & rk_A, Rank & rk_B);
 
-   /// helper for eval_LXB. returns true if the final token was computed, and
-   /// false if finish_LyXB shall be called again
+   /// helper for eval_LXB
    static Token finish_LyXB(EOC_arg & arg);
 
-   /// helper for eval_ALyB. returns true if the final token was computed, and
-   /// false if finish_ALyXB shall be called again
+   /// helper for eval_ALyB
    static Token finish_ALyXB(EOC_arg & arg);
 };
 //-----------------------------------------------------------------------------

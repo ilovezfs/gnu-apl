@@ -232,6 +232,13 @@ ComplexCell::bif_pi_times(Cell * Z) const
 }
 //-----------------------------------------------------------------------------
 ErrorCode
+ComplexCell::bif_pi_times_inverse(Cell * Z) const
+{
+   new (Z) ComplexCell(*value.cpxp / M_PI);
+   return E_NO_ERROR;
+}
+//-----------------------------------------------------------------------------
+ErrorCode
 ComplexCell::bif_ceiling(Cell * Z) const
 {
 const double r = value.cpxp->real();
@@ -528,6 +535,37 @@ ErrorCode
 ComplexCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
 const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+   return do_bif_circle_fun(Z, fun);
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+ComplexCell::bif_circle_fun_inverse(Cell * Z, const Cell * A) const
+{
+const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+
+   switch(fun)
+      {
+        case 1: case -1:
+        case 2: case -2:
+        case 3: case -3:
+        case 5: case -5:
+        case 6: case -6:
+        case 7: case -7:
+                return do_bif_circle_fun(Z, -fun);
+
+        case -10:  // +A is self-inverse
+                return do_bif_circle_fun(Z, fun);
+
+        default: return E_DOMAIN_ERROR;
+      }
+
+   // not reached
+   return E_DOMAIN_ERROR;
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+ComplexCell::do_bif_circle_fun(Cell * Z, int fun) const
+{
 const APL_Complex b = *value.cpxp;
 
    switch(fun)

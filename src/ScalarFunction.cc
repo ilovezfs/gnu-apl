@@ -49,7 +49,8 @@ Bif_F12_MINUS     Bif_F12_MINUS::fun;
 Bif_F12_ROLL      Bif_F12_ROLL::fun;
 Bif_F12_TIMES     Bif_F12_TIMES::fun;
 Bif_F12_DIVIDE    Bif_F12_DIVIDE::fun;
-Bif_F12_CIRCLE    Bif_F12_CIRCLE::fun;
+Bif_F12_CIRCLE    Bif_F12_CIRCLE::fun(false);
+Bif_F12_CIRCLE    Bif_F12_CIRCLE::fun_inverse(true);   // A inverted
 Bif_F12_RND_UP    Bif_F12_RND_UP::fun;
 Bif_F12_RND_DN    Bif_F12_RND_DN::fun;
 Bif_F12_STILE     Bif_F12_STILE::fun;
@@ -658,6 +659,95 @@ uint32_t len_Z = 0;
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
+}
+//=============================================================================
+// Inverse functions...
+
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_POWER::get_monadic_inverse() const
+{
+   return &Bif_F12_LOGA::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_POWER::get_dyadic_inverse() const
+{
+   return &Bif_F12_LOGA::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_LOGA::get_monadic_inverse() const
+{
+   return &Bif_F12_POWER::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_LOGA::get_dyadic_inverse() const
+{
+   return &Bif_F12_POWER::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_TIMES::get_monadic_inverse() const
+{
+   return &Bif_F12_DIVIDE::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_TIMES::get_dyadic_inverse() const
+{
+   return &Bif_F12_DIVIDE::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_DIVIDE::get_monadic_inverse() const
+{
+   return &Bif_F12_TIMES::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_DIVIDE::get_dyadic_inverse() const
+{
+   return &Bif_F12_TIMES::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_PLUS::get_monadic_inverse() const
+{
+   return &Bif_F12_MINUS::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_PLUS::get_dyadic_inverse() const
+{
+   return &Bif_F12_MINUS::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_MINUS::get_monadic_inverse() const
+{
+   return &Bif_F12_PLUS::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_MINUS::get_dyadic_inverse() const
+{
+   return &Bif_F12_PLUS::fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_CIRCLE::get_monadic_inverse() const
+{
+   if (this == &fun)   return &fun_inverse;
+   else                return &fun;
+}
+//-----------------------------------------------------------------------------
+Function *
+Bif_F12_CIRCLE::get_dyadic_inverse() const
+{
+   if (this == &fun)   return &fun_inverse;
+   else                return &fun;
 }
 //=============================================================================
 

@@ -89,6 +89,9 @@ public:
    virtual ErrorCode bif_pi_times(Cell * Z) const;
 
   /// Overloaded from the corresponding Cell:: function (see class Cell).
+   virtual ErrorCode bif_pi_times_inverse(Cell * Z) const;
+
+  /// Overloaded from the corresponding Cell:: function (see class Cell).
    virtual ErrorCode bif_reciprocal(Cell * Z) const;
 
   /// Overloaded from the corresponding Cell:: function (see class Cell).

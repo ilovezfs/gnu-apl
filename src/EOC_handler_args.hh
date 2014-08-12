@@ -244,6 +244,16 @@ struct RANK_ALyXB : public RANK_LyXB
   Shape & get_sh_chunk_A()       { return *(Shape *)&_sh_chunk_A;     }
 };
 
+struct POWER_ALRB
+{
+  int how;                           ///< how to finish_eval_ALRB()
+  double qct;                        ///< comparison tolerance
+  ShapeItem repeat_count;            ///< repeat count N for  form A f ⍣ N B
+  Function * LO;                     ///< function f for      form A f ⍣ g B
+  Function * RO;                     ///< condition fun g for form A f ⍣ g B
+  bool user_COND;                    ///< true if RO is user-defined
+};
+
 /// the second argument for an EOC_HANDLER. The actual type depends on the
 /// handler. An EOC_arg contains all information that is necessary for
 /// the EOC handler to compute the result token.
@@ -316,6 +326,7 @@ public:
         EACH_LB     u_EACH_LB;         ///< space for ¨B context
         RANK_LyXB   u_RANK_LyXB;       ///< space for f⍤[X] B context
         RANK_ALyXB  u_RANK_ALyXB;      ///< space for A f⍤[X] B context
+        POWER_ALRB  u_POWER_ALRB;      ///< space for A f⍣g B context
       } u; ///< a union big enough for all EOC args
 };
 
