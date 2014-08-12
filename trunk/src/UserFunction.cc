@@ -248,16 +248,7 @@ Fun_signature signature = SIG_NONE;
      function_name = sym_FUN->get_name();
    }
 
-   // the rest is expected to be local variables, like: ;C;D ...
-   // therefore their count must be even.
-   //
-   if ((tos.size() - tos_idx) & 1)
-      {
-        error_cause = "; without variable name";
-        return;
-      }
-
-   while (tos_idx < tos.size())
+   while (tos_idx < (tos.size() - 1))
       {
         if (tos[tos_idx++].get_tag() != TOK_SEMICOL)
            {
@@ -265,6 +256,12 @@ Fun_signature signature = SIG_NONE;
              return;
            }
 
+
+        if (tos_idx == tos.size())
+           {
+             error_cause = "trailing ; in function header";
+             return;
+           }
 
         const TokenTag tag = tos[tos_idx].get_tag();
         if (tag != TOK_SYMBOL && tag != TOK_Quad_CT

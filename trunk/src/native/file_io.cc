@@ -24,7 +24,9 @@
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
+#include <termios.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -377,6 +379,18 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
         // what < 0 are "hacker functions" that should no be used by
         // normal mortals.
         //
+        case -9: // screen height
+             {
+               struct winsize ws;
+               ioctl(STDIN_FILENO, TIOCGWINSZ, &ws);
+               return Token(TOK_APL_VALUE1, IntScalar(ws.ws_row, LOC));
+             }
+        case -8: // screen width
+             {
+               struct winsize ws;
+               ioctl(STDIN_FILENO, TIOCGWINSZ, &ws);
+               return Token(TOK_APL_VALUE1, IntScalar(ws.ws_col, LOC));
+             }
         case -7: // throw a segfault
              {
                CERR << "NOTE: Triggering a segfault (keeping the current "
