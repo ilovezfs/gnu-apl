@@ -65,11 +65,38 @@ const APL_Float qct = Workspace::get_CT();
 ErrorCode
 RealCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-   if (!A->is_near_int(qct))   return E_DOMAIN_ERROR;
-   if (!A->is_numeric())       return E_DOMAIN_ERROR;
+const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+   return do_bif_circle_fun(Z, fun);
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+RealCell::bif_circle_fun_inverse(Cell * Z, const Cell * A) const
+{
+const APL_Integer fun = A->get_near_int(Workspace::get_CT());
 
-const APL_Integer fun = A->get_near_int(qct);
+   switch(fun)
+      {
+        case 1: case -1:
+        case 2: case -2:
+        case 3: case -3:
+        case 5: case -5:
+        case 6: case -6:
+        case 7: case -7:
+                return do_bif_circle_fun(Z, -fun);
+
+        case -10:  // +A is self-inverse
+                return do_bif_circle_fun(Z, fun);
+
+        default: return E_DOMAIN_ERROR;
+      }
+
+   // not reached
+   return E_DOMAIN_ERROR;
+}
+//-----------------------------------------------------------------------------
+ErrorCode
+RealCell::do_bif_circle_fun(Cell * Z, int fun) const
+{
 const APL_Float b = get_real_value();
 
    switch(fun)

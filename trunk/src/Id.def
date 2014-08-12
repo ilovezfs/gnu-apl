@@ -145,6 +145,7 @@ id_def( PS            , ---               ,          , qv )
 id_def( PT            , ---               ,          , qv )
 id_def( OPER2_PRODUCT , ASCII_FULLSTOP    ,          , av )
 id_def( PW            , ---               ,          , qv )
+id_def( OPER2_POWER   , STAR_DIAERESIS    ,          , av )
 
 id_def( Quad_Quad     , Quad_Quad         , = 0x5101 , av )
 id_def( QUOTE1        , SINGLE_QUOTE      ,          , av )

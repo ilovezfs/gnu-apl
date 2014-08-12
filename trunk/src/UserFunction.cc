@@ -248,7 +248,16 @@ Fun_signature signature = SIG_NONE;
      function_name = sym_FUN->get_name();
    }
 
-   while (tos_idx < (tos.size() - 1))
+   // the rest is expected to be local variables, like: ;C;D ...
+   // therefore their count must be even.
+   //
+   if ((tos.size() - tos_idx) & 1)
+      {
+        error_cause = "; without variable name";
+        return;
+      }
+
+   while (tos_idx < tos.size())
       {
         if (tos[tos_idx++].get_tag() != TOK_SEMICOL)
            {

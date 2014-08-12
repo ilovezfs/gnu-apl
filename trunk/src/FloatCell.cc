@@ -220,6 +220,13 @@ FloatCell::bif_pi_times(Cell * Z) const
 }
 //-----------------------------------------------------------------------------
 ErrorCode
+FloatCell::bif_pi_times_inverse(Cell * Z) const
+{
+   new (Z) FloatCell(value.fval / M_PI);
+   return E_NO_ERROR;
+}
+//-----------------------------------------------------------------------------
+ErrorCode
 FloatCell::bif_ceiling(Cell * Z) const
 {
    // we want values slightly above an int to be rounded down rather than up

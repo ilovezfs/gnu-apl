@@ -84,6 +84,9 @@ public:
    virtual ErrorCode bif_pi_times(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
+   virtual ErrorCode bif_pi_times_inverse(Cell * Z) const;
+
+   /// overloaded from the corresponding Cell:: function (see class Cell).
    virtual ErrorCode bif_reciprocal(Cell * Z) const;
 
    /// overloaded from the corresponding Cell:: function (see class Cell).
@@ -122,6 +125,9 @@ public:
    /// overloaded from the corresponding Cell:: function (see class Cell).
    virtual ErrorCode bif_circle_fun(Cell * Z, const Cell * A) const;
 
+   /// overloaded from the corresponding Cell:: function (see class Cell).
+   virtual ErrorCode bif_circle_fun_inverse(Cell * Z, const Cell * A) const;
+
    /// overloaded Cell::release()
    virtual void release(const char * loc);
 
@@ -135,6 +141,9 @@ public:
    static APL_Complex gamma(APL_Float x, const APL_Float y);
 
 protected:
+   /// compute circle function \b fun
+   ErrorCode do_bif_circle_fun(Cell * Z, int fun) const;
+
    /// 1.0
    static APL_Complex ONE()       { return APL_Complex(1, 0); }
 

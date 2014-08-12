@@ -268,6 +268,10 @@ public:
    virtual ErrorCode bif_pi_times(Cell * Z) const
       { return E_DOMAIN_ERROR; }
 
+   /// store pi times the value of this Cell in Z
+   virtual ErrorCode bif_pi_times_inverse(Cell * Z) const
+      { return E_DOMAIN_ERROR; }
+
    /// store the reciprocal of the value of this Cell in Z
    virtual ErrorCode bif_reciprocal(Cell * Z) const
       { return E_DOMAIN_ERROR; }
@@ -356,6 +360,10 @@ public:
 
    /// store a circle function (according to A) of \b this cell in Z
    virtual ErrorCode bif_circle_fun(Cell * Z, const Cell * A) const
+      { return E_DOMAIN_ERROR; }
+
+   /// store a circle function (according to A) of \b this cell in Z
+   virtual ErrorCode bif_circle_fun_inverse(Cell * Z, const Cell * A) const
       { return E_DOMAIN_ERROR; }
 
    /// placement new

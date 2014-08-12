@@ -31,16 +31,22 @@
 class RealCell : public NumericCell
 {
 protected:
-   /// Overloaded Cell::is_real_cell().
+   /// overloaded Cell::is_real_cell().
    virtual bool is_real_cell() const { return true; }
 
-   /// Overloaded Cell::bif_circle_fun().
+   /// overloaded Cell::bif_circle_fun().
    virtual ErrorCode bif_circle_fun(Cell * Z, const Cell * A) const;
 
-   /// Overloaded Cell::bif_logarithm().
+   /// overloaded Cell::bif_circle_fun_inverse().
+   virtual ErrorCode bif_circle_fun_inverse(Cell * Z, const Cell * A) const;
+
+   /// compute circle function \b fun
+   ErrorCode do_bif_circle_fun(Cell * Z, int fun) const;
+
+   /// overloaded Cell::bif_logarithm().
    virtual ErrorCode bif_logarithm(Cell * Z, const Cell * A) const;
 
-   /// Overloaded Cell::get_classname().
+   /// overloaded Cell::get_classname().
    virtual const char * get_classname() const   { return "RealCell"; }
 };
 //-----------------------------------------------------------------------------

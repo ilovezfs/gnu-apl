@@ -421,6 +421,13 @@ IntCell::bif_pi_times(Cell * Z) const
 }
 //-----------------------------------------------------------------------------
 ErrorCode
+IntCell::bif_pi_times_inverse(Cell * Z) const
+{
+   new (Z) FloatCell(value.ival / M_PI);
+   return E_NO_ERROR;
+}
+//-----------------------------------------------------------------------------
+ErrorCode
 IntCell::bif_ceiling(Cell * Z) const
 {
    new (Z) IntCell(value.ival);

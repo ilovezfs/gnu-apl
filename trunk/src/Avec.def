@@ -240,7 +240,7 @@ char_def(BACKSLASH_BAR      , 0x2340 , OPER1_SCAN1  , NO_SPACE ,  F1) /* ⍀ */
 char_def(Quad_SLASH         , 0x2341 , END          , NO_SPACE , 08C) /* ⍁ */
 char_def(Quad_BACKSLASH     , 0x2342 , END          , NO_SPACE ,  D4) /* ⍂ */
 char_df1(Quad_LESS_THAN     , 0x2343 , END          , NO_SPACE ,  --) /* ⍃ */
-char_def(Quad_GREATER_THAN  , 0x2344 , END          , NO_SPACE , 08E) /* ⍄ */
+char_df1(Quad_GREATER_THAN  , 0x2344 , END          , NO_SPACE ,  --) /* ⍄ */
 char_def(LEFT_VANE          , 0x2345 , END          , NO_SPACE , 08F) /* ⍅ */
 char_def(RIGHT_VANE         , 0x2346 , END          , NO_SPACE , 093) /* ⍆ */
 char_def(Quad_LEFT_ARROW    , 0x2347 , END          , NO_SPACE , 095) /* ⍇ */
@@ -268,7 +268,7 @@ char_def(LOGARITHM          , 0x235F , F12_LOGA     , NO_SPACE ,  B5) /* ⍟ */
 char_df1(Quad_COLON         , 0x2360 , END          , NO_SPACE ,  --) /* ⍠ */
 char_df1(UTACK_DIAERESIS    , 0x2361 , END          , NO_SPACE ,  --) /* ⍡ */
 char_def(DEL_DIAERESIS      , 0x2362 , END          , NO_SPACE , 0AB) /* ⍢ */
-char_df1(STAR_DIAERESIS     , 0x2363 , END          , NO_SPACE ,  --) /* ⍣ */
+char_def(STAR_DIAERESIS     , 0x2363 , OPER2_POWER  , NO_SPACE ,  8E) /* ⍣ */
 char_def(JOT_DIARESIS       , 0x2364 , OPER2_RANK   , NO_SPACE ,  94) /* ⍤ */
 char_df1(CIRCLE_DIARESIS    , 0x2365 , END          , NO_SPACE ,  --) /* ⍥ */
 char_df1(DOWN_SHOE_STILE    , 0x2366 , END          , NO_SPACE ,  --) /* ⍦ */

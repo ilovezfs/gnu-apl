@@ -72,13 +72,14 @@ PROGRAMS = $(bin_PROGRAMS)
 am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	Assert.$(OBJEXT) Avec.$(OBJEXT) Backtrace.$(OBJEXT) \
 	Bif_F12_FORMAT.$(OBJEXT) Bif_OPER1_COMMUTE.$(OBJEXT) \
-	Bif_OPER1_EACH.$(OBJEXT) Bif_OPER2_PRODUCT.$(OBJEXT) \
-	Bif_OPER2_RANK.$(OBJEXT) Bif_OPER1_REDUCE.$(OBJEXT) \
-	Bif_OPER1_SCAN.$(OBJEXT) CDR.$(OBJEXT) Cell.$(OBJEXT) \
-	CharCell.$(OBJEXT) CollatingCache.$(OBJEXT) Command.$(OBJEXT) \
-	Common.$(OBJEXT) ComplexCell.$(OBJEXT) Cores.$(OBJEXT) \
-	DiffOut.$(OBJEXT) DynamicObject.$(OBJEXT) Error.$(OBJEXT) \
-	Executable.$(OBJEXT) FloatCell.$(OBJEXT) Function.$(OBJEXT) \
+	Bif_OPER1_EACH.$(OBJEXT) Bif_OPER2_POWER.$(OBJEXT) \
+	Bif_OPER2_PRODUCT.$(OBJEXT) Bif_OPER2_RANK.$(OBJEXT) \
+	Bif_OPER1_REDUCE.$(OBJEXT) Bif_OPER1_SCAN.$(OBJEXT) \
+	CDR.$(OBJEXT) Cell.$(OBJEXT) CharCell.$(OBJEXT) \
+	CollatingCache.$(OBJEXT) Command.$(OBJEXT) Common.$(OBJEXT) \
+	ComplexCell.$(OBJEXT) Cores.$(OBJEXT) DiffOut.$(OBJEXT) \
+	DynamicObject.$(OBJEXT) Error.$(OBJEXT) Executable.$(OBJEXT) \
+	FloatCell.$(OBJEXT) Function.$(OBJEXT) \
 	DerivedFunction.$(OBJEXT) Id.$(OBJEXT) IndexExpr.$(OBJEXT) \
 	IndexIterator.$(OBJEXT) Input.$(OBJEXT) InputFile.$(OBJEXT) \
 	IntCell.$(OBJEXT) LApack.$(OBJEXT) LibPaths.$(OBJEXT) \
@@ -333,6 +334,7 @@ Backtrace.cc					Backtrace.hh		\
 Bif_F12_FORMAT.cc				Bif_F12_FORMAT.hh	\
 Bif_OPER1_COMMUTE.cc				Bif_OPER1_COMMUTE.hh	\
 Bif_OPER1_EACH.cc				Bif_OPER1_EACH.hh	\
+Bif_OPER2_POWER.cc				Bif_OPER2_POWER.hh	\
 Bif_OPER2_PRODUCT.cc				Bif_OPER2_PRODUCT.hh	\
 Bif_OPER2_RANK.cc				Bif_OPER2_RANK.hh	\
 Bif_OPER1_REDUCE.cc				Bif_OPER1_REDUCE.hh	\
@@ -519,6 +521,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_EACH.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_REDUCE.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_SCAN.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER2_POWER.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER2_PRODUCT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER2_RANK.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CDR.Po@am__quote@
