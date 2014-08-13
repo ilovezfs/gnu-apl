@@ -79,13 +79,14 @@ const APL_Integer fun = A->get_near_int(Workspace::get_CT());
         case 1: case -1:
         case 2: case -2:
         case 3: case -3:
+        case 4: case -4:
         case 5: case -5:
         case 6: case -6:
         case 7: case -7:
                 return do_bif_circle_fun(Z, -fun);
 
-        case -10:  // +A is self-inverse
-                return do_bif_circle_fun(Z, fun);
+        case -10:  // +A (conjugate) is self-inverse
+                 return do_bif_circle_fun(Z, fun);
 
         default: return E_DOMAIN_ERROR;
       }
