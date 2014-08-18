@@ -278,5 +278,23 @@ READLINE_HISTORY_PATH .apl.history
 #
 # CREATE BACKUP BEFORE )SAVE or )DUMP WOKRSPACE
 #
-BACKUP_BEFORE_SAVE yes
+BACKUP_BEFORE_SAVE  yes
+
+###############################################################################
+#
+# GNU APL assumes a particular layout of your keyboard (and assumes that you
+# do your best to obtain that layout). That assumed layout is shown when you
+# give the ]KEYB command.
+#
+# If your keyboard layout differs from the assumed keyboard for some reason,
+# then the ]KEYB command will show the wrong layout. You can fix this by
+# providing your oen keyboard file which (when specified) is shown by the
+# ]KEYB command instead of the assumed layout.
+#
+# You can use one of the files called 'keyboard1.txt' somewhere below the
+# directory named 'support-files' as a starting point for your own layout
+# and uncomment the following setting:
+#
+# KEYBOARD_LAYOUT_FILE  @GNU_APL_ETC@/gnu-apl.d/keyboard1.txt
+#
 

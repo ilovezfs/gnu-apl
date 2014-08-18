@@ -91,14 +91,15 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	PrimitiveOperator.$(OBJEXT) PrintBuffer.$(OBJEXT) \
 	QuadFunction.$(OBJEXT) ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) \
 	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
-	RealCell.$(OBJEXT) Shape.$(OBJEXT) ScalarFunction.$(OBJEXT) \
-	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
-	Svar_DB.$(OBJEXT) Svar_record.$(OBJEXT) Symbol.$(OBJEXT) \
-	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
-	IO_Files.$(OBJEXT) Token.$(OBJEXT) Tokenizer.$(OBJEXT) \
-	UCS_string.$(OBJEXT) UserFunction.$(OBJEXT) \
-	UserPreferences.$(OBJEXT) UTF8_string.$(OBJEXT) \
-	Value.$(OBJEXT) ValueHistory.$(OBJEXT) Workspace.$(OBJEXT)
+	Performance.$(OBJEXT) RealCell.$(OBJEXT) Shape.$(OBJEXT) \
+	ScalarFunction.$(OBJEXT) StateIndicator.$(OBJEXT) \
+	StaticObjects.$(OBJEXT) Svar_DB.$(OBJEXT) \
+	Svar_record.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
+	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
+	Tokenizer.$(OBJEXT) UCS_string.$(OBJEXT) \
+	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
+	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
+	Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -389,6 +390,7 @@ Quad_FX.cc					Quad_FX.hh		\
 Quad_RL.cc					Quad_RL.hh		\
 Quad_SVx.cc					Quad_SVx.hh		\
 Quad_TF.cc					Quad_TF.hh		\
+Performance.cc		Performance.def		Performance.hh		\
 RealCell.cc					RealCell.hh		\
 Shape.cc					Shape.hh		\
 						SharedValuePointer.hh	\
@@ -557,6 +559,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NumericCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Output.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Performance.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PointerCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prefix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrimitiveFunction.Po@am__quote@

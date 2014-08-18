@@ -501,13 +501,32 @@ Command::cmd_ERASE(ostream & out, vector<UCS_string> & args)
 }
 //-----------------------------------------------------------------------------
 void 
-Command::cmd_KEYB(ostream & out, const UCS_string & arg)
+Command::cmd_KEYB(ostream & out)
 {
-const int layout = arg.atoi();
-
-   switch(layout)
+   // maybe print user-supplied keyboard layout file
+   //
+   if (uprefs.keyboard_layout_file.size())
       {
-        case 0:
+        FILE * layout = fopen(uprefs.keyboard_layout_file.c_str(), "r");
+        if (layout == 0)
+           {
+             out << "Could not open " << uprefs.keyboard_layout_file
+                 << ": " << strerror(errno) << endl
+                 << "Showing default layout instead" << endl;
+           }
+        else
+           {
+             out << "User-defined Keyboard Layout:\n";
+             for (;;)
+                 {
+                    const int cc = fgetc(layout);
+                    if (cc == EOF)   break;
+                    out << (char)cc;
+                 }
+             out << endl;
+             return;
+           }
+      }
 
    out << "US Keyboard Layout:\n"
                               "\n"
@@ -525,29 +544,22 @@ const int layout = arg.atoi();
 "║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⍝ ║ .⍀ ║ /⌿ ║  SHIFT   ║\n"
 "╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝\n"
    << endl;
-        break;
-
-        case 1:
-   out << "US Keyboard Layout 1:\n"
-                                "\n"
-"╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗\n"
-"║ ~  ║ !⌶ ║ @⍫ ║ #⍒ ║ $⍋ ║ %⌽ ║ ^⍉ ║ &⊖ ║ *⍟ ║ (⍱ ║ )⍲ ║ _! ║ +⌹ ║         ║\n"
-"║ `◊ ║ 1¨ ║ 2¯ ║ 3< ║ 4≤ ║ 5= ║ 6≥ ║ 7> ║ 8≠ ║ 9∨ ║ 0∧ ║ -× ║ =÷ ║ BACKSP  ║\n"
-"╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣\n"
-"║       ║ Q  ║ W⍹ ║ E⍷ ║ R  ║ T⍨ ║ Y¥ ║ U  ║ I⍸ ║ O⍥ ║ P⍣ ║ {⍞ ║ }⍬ ║  |⊣  ║\n"
-"║  TAB  ║ q? ║ w⍵ ║ e∈ ║ r⍴ ║ t∼ ║ y↑ ║ u↓ ║ i⍳ ║ o○ ║ p⋆ ║ [← ║ ]→ ║  \\⊢  ║\n"
-"╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣\n"
-"║ (CAPS   ║ A⍶ ║ S  ║ D  ║ F  ║ G  ║ H⍙ ║ J⍤ ║ K  ║ L⌷ ║ :≡ ║ \"≢ ║         ║\n"
-"║  LOCK)  ║ a⍺ ║ s⌈ ║ d⌊ ║ f_ ║ g∇ ║ h∆ ║ j∘ ║ k' ║ l⎕ ║ ;⍎ ║ '⍕ ║ RETURN  ║\n"
-"╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣\n"
-"║             ║ Z  ║ Xχ ║ C¢ ║ V  ║ B£ ║ N  ║ M  ║ <⍪ ║ >⍙ ║ ?⍠ ║          ║\n"
-"║  SHIFT      ║ z⊂ ║ x⊃ ║ c∩ ║ v∪ ║ b⊥ ║ n⊤ ║ m| ║ ,⍝ ║ .⍀ ║ /⌿ ║  SHIFT   ║\n"
-"╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝\n"
-   << endl;
-        break;
-
-        default: out << "*** unknown keyboard layout " << layout << endl;
+}
+//-----------------------------------------------------------------------------
+void 
+Command::cmd_PSTAT(ostream & out, const UCS_string & arg)
+{
+   if (arg.starts_iwith("CLEAR"))
+      {
+        out << "Performance counters cleared" << endl;
+        Performance::reset_all();
+        return;
       }
+
+Pfstat_ID iarg = PFS_ALL;
+   if (arg.size() > 0)   iarg = (Pfstat_ID)(arg.atoi());
+
+   Performance::print(iarg, out);
 }
 //-----------------------------------------------------------------------------
 void 

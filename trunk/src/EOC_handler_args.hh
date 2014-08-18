@@ -248,9 +248,9 @@ struct POWER_ALRB
 {
   int how;                           ///< how to finish_eval_ALRB()
   double qct;                        ///< comparison tolerance
-  ShapeItem repeat_count;            ///< repeat count N for  form A f ⍣ N B
-  Function * LO;                     ///< function f for      form A f ⍣ g B
-  Function * RO;                     ///< condition fun g for form A f ⍣ g B
+  ShapeItem repeat_count;            ///< repeat count N for  form  A f ⍣ N B
+  Function * WORK;                   ///< work function f for forms A f ⍣ N/g B
+  Function * COND;                   ///< condition fun g for form  A f ⍣ g B
   bool user_COND;                    ///< true if RO is user-defined
 };
 

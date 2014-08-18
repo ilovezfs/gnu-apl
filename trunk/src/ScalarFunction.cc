@@ -276,14 +276,24 @@ Probe::P_1.start();
                                     &cell_A, 0, &B1->get_ravel(0), inc_B1
                                  };
                           wl.todo.push_back(wli1);
-                        }
+                       }
                    }
                 else
                    {
-                     // neither A nor B are nested
+                     // neither A nor B are nested: execute fun
                      //
+#ifdef HAVE_RDTSC
+                     const uint64_t start = cycle_counter();
+#endif
                      const ErrorCode ec = (cell_B.*fun)(&cell_Z, &cell_A);
                      if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
+
+#ifdef HAVE_RDTSC
+                     if (CellFunctionStatistics
+                                      *stat = get_statistics_AB())
+                        stat->add_sample(cycle_counter() - start, z);
+#endif
+
                    }
 Probe::P_1.stop();
            }

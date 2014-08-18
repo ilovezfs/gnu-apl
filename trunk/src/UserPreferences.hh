@@ -147,6 +147,9 @@ struct UserPreferences
    /// in expanded_argv, or 0 if apl is started directly.
    int script_argc;
 
+   /// name of a user-provided keyboard layout file
+   UTF8_string keyboard_layout_file;
+
 protected:
    /// return true if file \b filename is an APL script (has execute permission
    /// and starts with #!

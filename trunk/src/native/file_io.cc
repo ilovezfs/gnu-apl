@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 
 #include "../Native_interface.hh"
+#include "../Performance.hh"
 
    // CONVENTION: all functions must have an axis argument (like X
    // in A fun[X] B); the axis argument is a function number that selects

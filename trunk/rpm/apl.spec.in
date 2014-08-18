@@ -79,6 +79,7 @@ make DESTDIR=%{buildroot} install
 %{_libdir}/apl/wslib5/iso-apl-cf/*
 
 %{_sysconfdir}/gnu-apl.d/preferences
+%{_sysconfdir}/gnu-apl.d/keyboard1.txt
 
 %doc AUTHORS
 %doc README
