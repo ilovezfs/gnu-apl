@@ -23,6 +23,7 @@
 
 #include "Common.hh"
 #include "Function.hh"
+#include "Performance.hh"
 #include "Value.icc"
 #include "Id.hh"
 
@@ -42,25 +43,41 @@ class PrimitiveFunction : public Function
 {
 public:
    /// Construct a PrimitiveFunction with \b TokenTag \b tag
-   PrimitiveFunction(TokenTag tag)
-   : Function(tag)
+   PrimitiveFunction(TokenTag tag,
+                     CellFunctionStatistics * stat_AB = 0, 
+                     CellFunctionStatistics * stat_B = 0)
+   : Function(tag),
+       statistics_AB(stat_AB),
+       statistics_B(stat_B)
    {}
 
-   /// Overloaded Function::has_result()
+   /// overloaded Function::has_result()
    virtual bool has_result() const   { return true; }
 
+   CellFunctionStatistics *
+   get_statistics_AB() const   { return statistics_AB; }
+
+   CellFunctionStatistics *
+   get_statistics_B() const   { return statistics_B; }
+
 protected:
-   /// Overloaded Function::print_properties()
+   /// overloaded Function::print_properties()
    virtual void print_properties(ostream & out, int indent) const;
 
-   /// Overloaded Function::eval_fill_AB()
+   /// overloaded Function::eval_fill_AB()
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_fill_B()
+   /// overloaded Function::eval_fill_B()
    virtual Token eval_fill_B(Value_P B);
 
    /// Print the name of \b this PrimitiveFunction to \b out
    virtual ostream & print(ostream & out) const;
+
+   /// performance statistics for eval_B()
+   CellFunctionStatistics * statistics_AB;
+
+   /// performance statistics for dyadic calls
+   CellFunctionStatistics * statistics_B;
 
    /// a cell containing ' '
    static const CharCell c_filler;
@@ -133,10 +150,10 @@ public:
    : NonscalarFunction(TOK_F2_INDEX)
    {}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    static Bif_F2_INDEX fun;   ///< Built-in function
@@ -153,17 +170,17 @@ public:
    : NonscalarFunction(TOK_F12_PARTITION)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return partition(A, B, B->get_rank() - 1); }
 
-   /// Overloaded Function::eval_XB()
+   /// overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    static Bif_F12_PARTITION fun;   ///< Built-in function
@@ -195,17 +212,17 @@ public:
    : NonscalarFunction(TOK_F12_PICK)
    {}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return disclose(B, false); }
 
    /// ⊃B
    static Token disclose(Value_P B, bool rank_tolerant);
 
-   /// Overloaded Function::eval_XB()
+   /// overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B)
       { const Shape axes_X = X->to_shape();
         return disclose_with_axis(axes_X, B, false); }
@@ -264,17 +281,17 @@ public:
    : Bif_COMMA(TOK_F12_COMMA)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_XB()
+   /// overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B)
       { return ravel_axis(X, B, B->get_rank()); }
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    static Bif_F12_COMMA fun;   ///< Built-in function
@@ -292,17 +309,17 @@ public:
    : Bif_COMMA(TOK_F12_COMMA1)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_XB()
+   /// overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B)
       { return ravel_axis(X, B, 0); }
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    static Bif_F12_COMMA1    fun;   ///< Built-in function
@@ -319,14 +336,14 @@ public:
    : NonscalarFunction(TOK_F12_TAKE)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return Token(TOK_APL_VALUE1, first(B));}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    /// Take from B according to ravel_A
@@ -355,10 +372,10 @@ public:
    : NonscalarFunction(TOK_F12_DROP)
    {}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    static Bif_F12_DROP fun;   ///< Built-in function
@@ -375,10 +392,10 @@ public:
    : NonscalarFunction(TOK_F12_ELEMENT)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_ELEMENT   fun;   ///< Built-in function
@@ -395,10 +412,10 @@ public:
    : NonscalarFunction(TOK_F12_EQUIV)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_EQUIV     fun;   ///< Built-in function
@@ -418,10 +435,10 @@ public:
    : NonscalarFunction(TOK_F12_NEQUIV)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_NEQUIV fun;   ///< Built-in function
@@ -437,7 +454,7 @@ public:
    : NonscalarFunction(TOK_F12_ENCODE)
    {}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_ENCODE fun;   ///< Built-in function
@@ -465,7 +482,7 @@ public:
    : NonscalarFunction(TOK_F12_DECODE)
    {}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_DECODE    fun;   ///< Built-in function
@@ -495,18 +512,18 @@ public:
    : NonscalarFunction(TOK_F12_DOMINO)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_DOMINO    fun;   ///< Built-in function
 
-   /// Overloaded Function::eval_fill_B()
+   /// overloaded Function::eval_fill_B()
    virtual Token eval_fill_B(Value_P B);
 
-   /// Overloaded Function::eval_fill_AB()
+   /// overloaded Function::eval_fill_AB()
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
 protected:
@@ -545,18 +562,18 @@ public:
    : Bif_ROTATE(TOK_F12_ROTATE)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return reverse(B, B->get_rank() - 1); }
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return rotate(A, B, B->get_rank() - 1); }
 
-   /// Overloaded Function::eval_XB()
+   /// overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    static Bif_F12_ROTATE fun;   ///< Built-in function
@@ -573,18 +590,18 @@ public:
    : Bif_ROTATE(TOK_F12_ROTATE1)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return reverse(B, 0); }
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return rotate(A, B, 0); }
 
-   /// Overloaded Function::eval_XB()
+   /// overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   /// Overloaded Function::eval_AXB()
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    static Bif_F12_ROTATE1   fun;   ///< Built-in function
@@ -601,10 +618,10 @@ public:
    : NonscalarFunction(TOK_F12_TRANSPOSE)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_TRANSPOSE fun;   ///< Built-in function
@@ -666,11 +683,11 @@ public:
    : Bif_SORT(TOK_F12_SORT_ASC)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return sort(B, true); }
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return sort_collating(A, B, true); }
 
@@ -688,11 +705,11 @@ public:
    : Bif_SORT(TOK_F12_SORT_DES)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return sort(B, false); }
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return sort_collating(A, B, false); }
 
@@ -710,10 +727,10 @@ public:
    : NonscalarFunction(TOK_F12_INDEX_OF)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F12_INDEX_OF fun;   ///< Built-in function
@@ -731,10 +748,10 @@ public:
    : NonscalarFunction(TOK_F12_RHO)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    /// Reshape B according to rank and shape
@@ -754,10 +771,10 @@ public:
    : NonscalarFunction(TOK_F12_UNION)
    {}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P, Value_P B);
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return Token(TOK_APL_VALUE1, do_unique(B, false)); }
 
@@ -778,7 +795,7 @@ public:
    : NonscalarFunction(TOK_F2_INTER)
    {}
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    static Bif_F2_INTER fun;   ///< Built-in function
@@ -795,11 +812,11 @@ public:
    : NonscalarFunction(TOK_F2_LEFT)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return Token(TOK_APL_VALUE2, B->clone(LOC)); }
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return Token(TOK_APL_VALUE1, A->clone(LOC)); }
 
@@ -817,11 +834,11 @@ public:
    : NonscalarFunction(TOK_F2_RIGHT)
    {}
 
-   /// Overloaded Function::eval_B()
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
       { return Token(TOK_APL_VALUE1, B->clone(LOC)); }
 
-   /// Overloaded Function::eval_AB()
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
       { return Token(TOK_APL_VALUE1, B->clone(LOC)); }
 

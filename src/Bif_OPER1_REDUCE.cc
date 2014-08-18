@@ -88,7 +88,8 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(r, rep)
                   loop(l, shape_B3.l())
                      {
-                       Z->next_ravel()->init(B->get_ravel(shape_B3.hml(h, bm, l)));
+                       const ShapeItem src = shape_B3.hml(h, bm, l);
+                       Z->next_ravel()->init(B->get_ravel(src));
                      }
                   if (shape_B3.m() > 1)   ++bm;
                 }
@@ -97,7 +98,8 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(r, -rep)
                   loop(l, shape_B3.l())
                      {
-                       Z->next_ravel()->init_type(B->get_ravel(shape_B3.hml(h, 0, l)));
+                       const ShapeItem src = shape_B3.hml(h, 0, l);
+                       Z->next_ravel()->init_type(B->get_ravel(src));
                      }
 
                   // cB is not incremented when fill item is used.

@@ -122,6 +122,10 @@ Cell::init_type(const Cell & other)
         new (this) PointerCell(other.get_pointer_value()->clone(LOC));
         get_pointer_value()->to_proto();
       }
+   else if (other.is_lval_cell())
+      {
+        FIXME;
+      }
    else if (other.is_character_cell())
       {
         new (this) CharCell(UNI_ASCII_SPACE);

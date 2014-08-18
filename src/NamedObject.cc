@@ -28,14 +28,25 @@
 NameClass
 NamedObject::get_nc() const
 {
-   if (id == ID_USER_SYMBOL)   // user defined object
+   if (id == ID_USER_SYMBOL ||   // this named object is a user defined object
+       id == ID_ALPHA       ||   // ⍺
+       id == ID_ALPHA_U     ||   // ⍶
+       id == ID_OMEGA       ||   // ⍵
+       id == ID_OMEGA_U     ||   // ⍹
+       id == ID_CHI)             // χ
       {
         const Symbol * sym = get_symbol();
         if (sym == 0)   return NC_UNUSED_USER_NAME;
+
         const ValueStackItem * tos = sym->top_of_stack();
         if (tos)   return tos->name_class;
+
         return NC_UNUSED_USER_NAME;
       }
+
+   if (id == ID_ALPHA)   return NC_VARIABLE;
+   if (id == ID_OMEGA)   return NC_VARIABLE;
+   if (id == ID_CHI)     return NC_VARIABLE;
 
    // Distinguished name.
    //

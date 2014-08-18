@@ -78,6 +78,7 @@ Quad_FX.cc					Quad_FX.hh		\
 Quad_RL.cc					Quad_RL.hh		\
 Quad_SVx.cc					Quad_SVx.hh		\
 Quad_TF.cc					Quad_TF.hh		\
+Performance.cc		Performance.def		Performance.hh		\
 RealCell.cc					RealCell.hh		\
 Shape.cc					Shape.hh		\
 						SharedValuePointer.hh	\

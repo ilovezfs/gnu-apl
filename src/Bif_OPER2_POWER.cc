@@ -32,7 +32,7 @@ Bif_OPER2_POWER::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 EOC_arg arg(0, B, A);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
    _arg.qct = Workspace::get_CT();
-   _arg.LO = LO.get_function();
+   _arg.WORK = LO.get_function();
    _arg.user_COND = false;
 
    // RO can be a function or a value (integer count)
@@ -61,23 +61,23 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
         if (_arg.repeat_count < 0)   // inverse
            {
-             Function * inverse = _arg.LO->get_dyadic_inverse();
+             Function * inverse = _arg.WORK->get_dyadic_inverse();
              if (inverse == 0)   DOMAIN_ERROR;   // no inverse
 
-             _arg.LO = inverse;
+             _arg.WORK = inverse;
              _arg.repeat_count = -_arg.repeat_count;
            }
 
         if (_arg.repeat_count == 1)
            {
-             return  _arg.LO->eval_AB(A, B);
+             return  _arg.WORK->eval_AB(A, B);
            }
       }
    else if (RO.get_ValueType() == TV_FUN)   // function
       {
-        _arg.how = 1;
-        _arg.RO = RO.get_function();
-        _arg.user_COND = _arg.RO->is_user_defined();
+        _arg.how = 2;
+        _arg.COND = RO.get_function();
+        _arg.user_COND = _arg.COND->is_user_defined();
       }
    else Assert(0);
 
@@ -93,22 +93,22 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
         for (;;)
             {
-              Token result = _arg.LO->eval_AB(arg.A, arg.B);
-              if (result.get_tag() == TOK_ERROR)   return result;
+              Token result_WORK = _arg.WORK->eval_AB(arg.A, arg.B);
+              if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
               --_arg.repeat_count;
 
-              if (result.get_Class() == TC_VALUE)   // LO was primitive
+              if (result_WORK.get_Class() == TC_VALUE)   // LO was primitive
                  {
-                   if (_arg.repeat_count == 0)   return result;
-                   arg.B = result.get_apl_val();
+                   if (_arg.repeat_count == 0)   return result_WORK;
+                   arg.B = result_WORK.get_apl_val();
                    continue;
                  }
 
-              Assert(result.get_tag() == TOK_SI_PUSHED);
+              Assert(result_WORK.get_tag() == TOK_SI_PUSHED);
 
               Workspace::SI_top()->set_eoc_handler(eoc_ALRB);
               Workspace::SI_top()->get_eoc_arg() = arg;
-              return result;   // continue in user defined function...
+              return result_WORK;   // continue in user defined function...
             }
 
         Assert(0 && "Not reached");
@@ -117,25 +117,27 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 again:
    if (_arg.how == 1)   // evaluate condition function RO
       {
-        Token result = _arg.RO->eval_AB(arg.A, arg.B);
-        if (result.get_tag() == TOK_ERROR)   return result;
+        Token result_COND = _arg.COND->eval_AB(arg.Z, arg.B);
+        if (result_COND.get_tag() == TOK_ERROR)   return result_COND;
 
-        if (result.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
+        if (result_COND.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
            {
               Workspace::SI_top()->set_eoc_handler(eoc_ALRB);
               Workspace::SI_top()->get_eoc_arg() = arg;
-              return result;   // continue in user defined function...
+              return result_COND;   // continue in user defined function...
            }
 
-        Assert(result.get_Class() == TC_VALUE);
-        Value_P COND = result.get_apl_val();
-        const bool goon = get_condition_value(*COND, _arg.qct);
-        if (!goon)
+        Assert(result_COND.get_Class() == TC_VALUE);
+        Value_P COND = result_COND.get_apl_val();
+        const bool stop = get_condition_value(*COND, _arg.qct);
+        if (stop)
            {
-             Value_P Z(arg.B);
+             Value_P Z(arg.Z);
              return Token(TOK_APL_VALUE1, Z);
            }
 
+        arg.B = arg.Z;
+        arg.Z.clear(LOC);
         _arg.how = 2;
       }
 
@@ -143,18 +145,18 @@ again:
    // Evaluate LO
    //
    {
-     Token result = _arg.LO->eval_AB(arg.A, arg.B);
-     if (result.get_tag() == TOK_ERROR)   return result;
+     Token result_WORK = _arg.WORK->eval_AB(arg.A, arg.B);
+     if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
 
-     if (result.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
+     if (result_WORK.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
         {
           Workspace::SI_top()->set_eoc_handler(eoc_ALRB);
           Workspace::SI_top()->get_eoc_arg() = arg;
-          return result;   // continue in user defined function...
+          return result_WORK;   // continue in user defined function...
         }
 
-     Assert(result.get_Class() == TC_VALUE);
-     arg.B = result.get_apl_val();
+     Assert(result_WORK.get_Class() == TC_VALUE);
+     arg.Z = result_WORK.get_apl_val();
    }
 
    // at this point, both the condition function RO and function LO were
@@ -193,15 +195,17 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
 how_1:
         Value_P cond =  token.get_apl_val();
-        const bool goon = get_condition_value(*cond, _arg.qct);
-
-        if (!goon)
+        const bool stop = get_condition_value(*cond, _arg.qct);
+        if (stop)
            {
-             Value_P Z(arg.B);
+             Value_P Z(arg.Z);
              Token TZ(TOK_APL_VALUE1, Z);
              move_1(token, TZ, LOC);
              return false;   // stop it
            }
+
+        arg.B = arg.Z;
+        arg.Z.clear(LOC);
 
         Workspace::pop_SI(LOC);
 
@@ -213,17 +217,17 @@ how_1:
 
    // user-defined WORK has returned
    //
-   arg.B = token.get_apl_val();
-   if (_arg.user_COND)   // user-defined COND
+   arg.Z = token.get_apl_val();
+   if (_arg.user_COND)   // if COND is user-defined
       {
         Workspace::pop_SI(LOC);
 
-        Token cond_token = _arg.RO->eval_AB(arg.A, arg.B);
-        if (cond_token.get_tag() == TOK_ERROR)   return false;
-        Assert(cond_token.get_tag() == TOK_SI_PUSHED);
+        Token result_COND = _arg.COND->eval_AB(arg.Z, arg.B);
+        if (result_COND.get_tag() == TOK_ERROR)   return false;
+        Assert(result_COND.get_tag() == TOK_SI_PUSHED);
 
         _arg.how = 1;
-        move_1(token, cond_token, LOC);
+        move_1(token, result_COND, LOC);
 
         Workspace::SI_top()->set_eoc_handler(eoc_ALRB);
         Workspace::SI_top()->get_eoc_arg() = arg;
@@ -232,8 +236,8 @@ how_1:
       }
    else                 // primitive condition
       {
-        Token cond_token = _arg.RO->eval_AB(arg.A, arg.B);
-        move_1(token, cond_token, LOC);
+        Token result_COND = _arg.COND->eval_AB(arg.Z, arg.B);
+        move_1(token, result_COND, LOC);
         if (token.get_tag() == TOK_ERROR)   return false;
 
         _arg.how = 1;
@@ -247,7 +251,7 @@ Bif_OPER2_POWER::eval_LRB(Token & LO, Token & RO, Value_P B)
 EOC_arg arg(0, B, 0);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
    _arg.qct = Workspace::get_CT();
-   _arg.LO = LO.get_function();
+   _arg.WORK = LO.get_function();
    _arg.user_COND = false;
 
    // RO can be a function or a value (integer count)
@@ -276,23 +280,23 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
         if (_arg.repeat_count < 0)   // inverse
            {
-             Function * inverse = _arg.LO->get_monadic_inverse();
+             Function * inverse = _arg.WORK->get_monadic_inverse();
              if (inverse == 0)   DOMAIN_ERROR;   // no inverse
 
-             _arg.LO = inverse;
+             _arg.WORK = inverse;
              _arg.repeat_count = -_arg.repeat_count;
            }
 
         if (_arg.repeat_count == 1)
            {
-             return  _arg.LO->eval_B(B);
+             return  _arg.WORK->eval_B(B);
            }
       }
    else if (RO.get_ValueType() == TV_FUN)   // function
       {
-        _arg.how = 1;
-        _arg.RO = RO.get_function();
-        _arg.user_COND = _arg.RO->is_user_defined();
+        _arg.how = 2;
+        _arg.COND = RO.get_function();
+        _arg.user_COND = _arg.COND->is_user_defined();
       }
    else Assert(0);
 
@@ -308,22 +312,22 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
         for (;;)
             {
-              Token result = _arg.LO->eval_B(arg.B);
-              if (result.get_tag() == TOK_ERROR)   return result;
+              Token result_WORK = _arg.WORK->eval_B(arg.B);
+              if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
               --_arg.repeat_count;
 
-              if (result.get_Class() == TC_VALUE)   // LO was primitive
+              if (result_WORK.get_Class() == TC_VALUE)   // LO was primitive
                  {
-                   if (_arg.repeat_count == 0)   return result;
-                   arg.B = result.get_apl_val();
+                   if (_arg.repeat_count == 0)   return result_WORK;
+                   arg.Z = result_WORK.get_apl_val();
                    continue;
                  }
 
-              Assert(result.get_tag() == TOK_SI_PUSHED);
+              Assert(result_WORK.get_tag() == TOK_SI_PUSHED);
 
               Workspace::SI_top()->set_eoc_handler(eoc_LRB);
               Workspace::SI_top()->get_eoc_arg() = arg;
-              return result;   // continue in user defined function...
+              return result_WORK;   // continue in user defined function...
             }
 
         Assert(0 && "Not reached");
@@ -332,24 +336,27 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 again:
    if (_arg.how == 1)   // evaluate condition function RO
       {
-        Token result = _arg.RO->eval_B(arg.B);
-        if (result.get_tag() == TOK_ERROR)   return result;
+        Token result_COND = _arg.COND->eval_AB(arg.Z, arg.B);
+        if (result_COND.get_tag() == TOK_ERROR)   return result_COND;
 
-        if (result.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
+        if (result_COND.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
            {
               Workspace::SI_top()->set_eoc_handler(eoc_LRB);
               Workspace::SI_top()->get_eoc_arg() = arg;
-              return result;   // continue in user defined function...
+              return result_COND;   // continue in user defined function...
            }
 
-        Assert(result.get_Class() == TC_VALUE);
-        Value_P COND = result.get_apl_val();
-        const bool goon = get_condition_value(*COND, _arg.qct);
-        if (!goon)
+        Assert(result_COND.get_Class() == TC_VALUE);
+        Value_P COND = result_COND.get_apl_val();
+        const bool stop = get_condition_value(*COND, _arg.qct);
+        if (stop)
            {
-             Value_P Z(arg.B);
+             Value_P Z(arg.Z);
              return Token(TOK_APL_VALUE1, Z);
            }
+
+        arg.B = arg.Z;
+        arg.Z.clear(LOC);
 
         _arg.how = 2;
       }
@@ -358,18 +365,18 @@ again:
    // Evaluate LO
    //
    {
-     Token result = _arg.LO->eval_B(arg.B);
-     if (result.get_tag() == TOK_ERROR)   return result;
+     Token result_WORK = _arg.WORK->eval_B(arg.B);
+     if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
 
-     if (result.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
+     if (result_WORK.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
         {
           Workspace::SI_top()->set_eoc_handler(eoc_LRB);
           Workspace::SI_top()->get_eoc_arg() = arg;
-          return result;   // continue in user defined function...
+          return result_WORK;   // continue in user defined function...
         }
 
-     Assert(result.get_Class() == TC_VALUE);
-     arg.B = result.get_apl_val();
+     Assert(result_WORK.get_Class() == TC_VALUE);
+     arg.Z = result_WORK.get_apl_val();
    }
 
    // at this point, both the condition function RO and function LO were
@@ -408,15 +415,17 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
 how_1:
         Value_P cond =  token.get_apl_val();
-        const bool goon = get_condition_value(*cond, _arg.qct);
-
-        if (!goon)
+        const bool stop = get_condition_value(*cond, _arg.qct);
+        if (stop)
            {
-             Value_P Z(arg.B);
+             Value_P Z(arg.Z);
              Token TZ(TOK_APL_VALUE1, Z);
              move_1(token, TZ, LOC);
              return false;   // stop it
            }
+
+        arg.B = arg.Z;
+        arg.Z.clear(LOC);
 
         Workspace::pop_SI(LOC);
 
@@ -428,17 +437,17 @@ how_1:
 
    // user-defined WORK has returned
    //
-   arg.B = token.get_apl_val();
-   if (_arg.user_COND)   // user-defined COND
+   arg.Z = token.get_apl_val();
+   if (_arg.user_COND)   // if COND is user-defined
       {
         Workspace::pop_SI(LOC);
 
-        Token cond_token = _arg.RO->eval_B(arg.B);
-        if (cond_token.get_tag() == TOK_ERROR)   return false;
-        Assert(cond_token.get_tag() == TOK_SI_PUSHED);
+        Token result_COND = _arg.COND->eval_AB(arg.Z, arg.B);
+        if (result_COND.get_tag() == TOK_ERROR)   return false;
+        Assert(result_COND.get_tag() == TOK_SI_PUSHED);
 
         _arg.how = 1;
-        move_1(token, cond_token, LOC);
+        move_1(token, result_COND, LOC);
 
         Workspace::SI_top()->set_eoc_handler(eoc_LRB);
         Workspace::SI_top()->get_eoc_arg() = arg;
@@ -447,8 +456,8 @@ how_1:
       }
    else                 // primitive condition
       {
-        Token cond_token = _arg.RO->eval_B(arg.B);
-        move_1(token, cond_token, LOC);
+        Token result_COND = _arg.COND->eval_AB(arg.Z, arg.B);
+        move_1(token, result_COND, LOC);
         if (token.get_tag() == TOK_ERROR)   return false;
 
         _arg.how = 1;

@@ -278,13 +278,15 @@ Value::get_cellrefs(const char * loc)
 {
 Value_P ret(new Value(get_shape(), loc));
 
-const ShapeItem ec = nz_element_count();
+const ShapeItem ec = element_count();
 
    loop(e, ec)
       {
         Cell & cell = get_ravel(e);
         new (ret->next_ravel())   LvalCell(&cell);
       }
+
+   if (ec == 0)   new (&ret->get_ravel(0))   LvalCell(0);
 
    ret->check_value(LOC);
    return ret;

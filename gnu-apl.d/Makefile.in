@@ -249,10 +249,11 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-dist_noinst_DATA = preferences.in
-dist_DATA = preferences
+dist_noinst_DATA = preferences.in keyboard1.txt
+dist_DATA = preferences keyboard1.txt
 distdir = ${sysconfdir}/gnu-apl.d
-sedcmd = "s|@GNU_APL_LIBS@|${pkglibdir}|"
+sedcmd1 = "s|@GNU_APL_LIBS@|${pkglibdir}|"
+sedcmd2 = "s|@GNU_APL_ETC@|${sysconfdir}|"
 all: all-am
 
 .SUFFIXES:
@@ -472,7 +473,7 @@ uninstall-am: uninstall-distDATA
 #
 preferences: preferences.in Makefile
 	echo ${sedcmd}
-	cat $< | sed -e ${sedcmd} > $@
+	cat $< | sed -e ${sedcmd1} | sed -e ${sedcmd2} > $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -998,6 +998,10 @@ int file_profile = 0;   // the current profile in the preferences file
             {
               backup_before_save = yes;
             }
+         else if (!strcasecmp(opt, "KEYBOARD_LAYOUT_FILE"))
+            {
+              keyboard_layout_file = UTF8_string(arg);;
+            }
        }
 
    fclose(f);

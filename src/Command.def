@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -58,10 +58,11 @@ cmd_def("]COLOR"    , Output::toggle_color(arg);            , [ON or OFF])
 cmd_def("]NEXTFILE" , IO_Files::next_file();                , )
 cmd_def("]EXPECT"   , IO_Files::expect_apl_errors(arg);     , error count)
 cmd_def("]HELP"     , cmd_HELP(out);                        , )
-cmd_def("]KEYB"     , cmd_KEYB(out, arg);                   , [layout number])
+cmd_def("]KEYB"     , cmd_KEYB(out);                        , )
 cmd_def("]LIB"      , cmd_LIB2(out, arg);                   , [lib or path])
 cmd_def("]LOG"      , cmd_LOG(out, arg);                    , [facility])
 cmd_def("]OWNERS"   , Value::list_all(out, true);           , )
+cmd_def("]PSTAT"    , cmd_PSTAT(out, arg);                  , )
 cmd_def("]SIS"      , Workspace::list_SI(out, SIM_SIS_dbg); , )
 cmd_def("]SI"       , Workspace::list_SI(out, SIM_SI_dbg);  , )
 cmd_def("]SVARS"    , Svar_DB::print(out);                  , )

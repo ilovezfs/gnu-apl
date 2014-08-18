@@ -31,6 +31,7 @@
 #include "CharCell.hh"
 #include "Common.hh"
 #include "DynamicObject.hh"
+#include "LvalCell.hh"
 #include "IntCell.hh"
 #include "Shape.hh"
 
@@ -145,7 +146,12 @@ public:
 
    /// set the prototype (according to B) if this value is empty.
    void set_default(const Value & B)
-      { if (is_empty())   ravel[0].init_type(B.get_ravel(0)); }
+      { if (is_empty())
+           {
+             if (B.get_ravel(0).is_lval_cell())   new (&ravel[0]) LvalCell(0);
+             else                           ravel[0].init_type(B.get_ravel(0));
+           }
+      }
 
    /// set the prototype to ' ' if this value is empty.
    void set_default_Spc()
