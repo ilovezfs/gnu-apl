@@ -309,7 +309,12 @@ ValueStackItem & vs = value_stack.back();
 void
 Symbol::pop()
 {
-   Assert(value_stack.size());
+   if (value_stack.size() == 0)
+      {
+       CERR << "Symbol is: '" << get_name() << "'" << endl;
+        Assert(0 && LOC);
+      }
+
 const ValueStackItem & vs = value_stack.back();
 
    if (vs.name_class == NC_VARIABLE)
