@@ -97,6 +97,23 @@ StateIndicator * del = SI_top();
    delete del;
 }
 //-----------------------------------------------------------------------------
+uint64_t
+Workspace::get_RL()
+{
+const uint64_t rand = the_workspace.v_Quad_RL.get_random();
+uint64_t result = 0;
+uint64_t bit1 = 0x0000000000000001ULL;
+uint64_t bit2 = 0x8000000000000000ULL;
+   loop(k, 64)
+       {
+         if (bit1 & rand)   result |= bit2;
+         bit1 <<= 1;
+         bit2 >>= 1;
+       }
+
+   return result;
+}
+//-----------------------------------------------------------------------------
 void
 Workspace::clear_error(const char * loc)
 {
