@@ -103,10 +103,6 @@ public:
    static const UCS_string get_PR()
       { return the_workspace.v_Quad_PR.current(); }
 
-   /// return the Quad-RL.
-   static uint64_t get_RL()
-      { return the_workspace.v_Quad_RL.get_random(); }
-
    /// the number of SI entries
    static int SI_entry_count()
       { return SI_top() ? (SI_top()->get_level() + 1) : 0; }
@@ -177,6 +173,9 @@ public:
 
    /// Remove the current SI-entry from the SI stack.
    static void pop_SI(const char * loc);
+
+   /// return the Quad-RL.
+   static uint64_t get_RL();
 
    /// clear ⎕EM and ⎕ET related errors (error entries on SI up to (including)
    /// the next user-defined function
