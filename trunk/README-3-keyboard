@@ -138,7 +138,7 @@ to fit your preferences.
 
 If you are Finnish then you may want to have a look here:
 
-http://www.oksman.eu/apl/gnu_apl_installation_with_finnish_keyboard_layout.txt
+  http://www.oksman.eu/apl/gnu_apl_installation_with_finnish_keyboard_layout.txt
 
 
 4. setxkbmap/xkbcomp
@@ -347,9 +347,17 @@ Once APL_keyboard is made, you can start GNU APL like this:
 
 $ APL_keyboard | apl
 
+10. aplwrap
+===========
 
-10. Remote Login
-===============
+There  is a cool GTK-based keyboard wrapper written by Chris Moller.
+You can reach it via the GNU APL Community web page:
+
+     http://www.gnu.org/software/apl/Community.html
+
+
+11. Remote Login
+================
 
 Suppose GNU APL runs on machine A and you connect to it by means of ssh or
 telnet from machine B. In that case the setup discussed above is only needed
@@ -368,7 +376,7 @@ or else output coloring of GNU APL may send incorrect ESC sequences for
 switching between colors (or use apl -noColor).
 
 
-11. Pitfalls and Troubleshooting
+12. Pitfalls and Troubleshooting
 ================================
 
 There are other pieces of software that may intercept the byte stream om its
@@ -402,7 +410,7 @@ If you need to troubleshoot APL characters, proceed as follows:
    the problem.
 
 
-12. APL Keyboards
+13. APL Keyboards
 =================
 
 If you are new to APL or use it only infrequently, then you will have
