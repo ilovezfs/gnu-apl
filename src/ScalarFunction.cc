@@ -583,7 +583,7 @@ uint32_t * idx_B = new uint32_t[set_size];
 
    loop(z, aa)
        {
-         const uint64_t rnd = Workspace::get_RL() % set_size;
+         const uint64_t rnd = Workspace::get_RL(set_size) % set_size;
          new (&Z->get_ravel(z)) IntCell(idx_B[rnd]);
          idx_B[rnd] = idx_B[set_size - 1];   // move last item in.
          --set_size;
