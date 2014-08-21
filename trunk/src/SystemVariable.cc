@@ -36,6 +36,7 @@
 #include "IndexExpr.hh"
 #include "Input.hh"
 #include "IntCell.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
 #include "ProcessorID.hh"
@@ -746,6 +747,8 @@ const UCS_string old_prompt(prompt);
 
 UCS_string in = Input::get_quad_cr_line(old_prompt);
    done(false, LOC);   // if get_quad_cr_line() has not called it
+
+   if (interrupt_raised)   INTERRUPT;
 
 const UCS_string qpr = Workspace::get_PR();
 

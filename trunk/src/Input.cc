@@ -335,7 +335,13 @@ const char * line;
             rl_stuff_char(utf_prompt[s] & 0x00FF);
 
         cout << '\r';
+
+        // call_readline() will reset the interrupt_raised flag.
+        // we set it again if an interrupt was signalled.
+        //
+        const uint64_t old_interrupt_count = interrupt_count;
         line = call_readline(0);
+        if (old_interrupt_count < interrupt_count)   interrupt_raised = true;
       }
 
    if (line == 0)   return UCS_string();
@@ -447,7 +453,6 @@ Input::readline_control_C(int count, int key)
 
    attention_raised = false;
    interrupt_raised = false;
-   interrupt_when = 0;
 #endif
 
    return 0;

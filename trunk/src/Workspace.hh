@@ -174,8 +174,8 @@ public:
    /// Remove the current SI-entry from the SI stack.
    static void pop_SI(const char * loc);
 
-   /// return the Quad-RL.
-   static uint64_t get_RL();
+   /// return the Quad-RL (to be taken % mod)
+   static uint64_t get_RL(uint64_t mod);
 
    /// clear ⎕EM and ⎕ET related errors (error entries on SI up to (including)
    /// the next user-defined function

@@ -98,20 +98,34 @@ StateIndicator * del = SI_top();
 }
 //-----------------------------------------------------------------------------
 uint64_t
-Workspace::get_RL()
+Workspace::get_RL(uint64_t mod)
 {
-const uint64_t rand = the_workspace.v_Quad_RL.get_random();
-uint64_t result = 0;
-uint64_t bit1 = 0x0000000000000001ULL;
-uint64_t bit2 = 0x8000000000000000ULL;
-   loop(k, 64)
-       {
-         if (bit1 & rand)   result |= bit2;
-         bit1 <<= 1;
-         bit2 >>= 1;
-       }
+   // we discard random numbers >= max_rand in order to avoid a bias
+   // towards small numbers
+   //
+const uint64_t max_rand = (0xFFFFFFFFFFFFFFFF / mod) * mod;
 
-   return result;
+
+   for (;;)
+       {
+         const uint64_t rand = the_workspace.v_Quad_RL.get_random();
+
+         // the lower bits of rand and not that random. Therefore we mirror
+         // rand to make the upper bits less random (since we % the lower
+         // bits later on).
+         //
+         uint64_t result = 0;
+         uint64_t bit1 = 0x0000000000000001ULL;
+         uint64_t bit2 = 0x8000000000000000ULL;
+         loop(k, 64)
+             {
+               if (bit1 & rand)   result |= bit2;
+               bit1 <<= 1;
+               bit2 >>= 1;
+             }
+
+            if (result < max_rand)   return result;
+       }
 }
 //-----------------------------------------------------------------------------
 void
