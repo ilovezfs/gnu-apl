@@ -2739,8 +2739,12 @@ Token
 Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
 {
    statement.remove_leading_and_trailing_whitespaces();
-   if (statement[0] == UNI_ASCII_R_PARENT ||
-       statement[0] == UNI_ASCII_R_BRACK)
+
+   // check for commands
+   //
+   if (statement.size() &&
+       (statement[0] == UNI_ASCII_R_PARENT ||
+        statement[0] == UNI_ASCII_R_BRACK))
       {
         UTF8_ostream out;
         const bool valid = Command::do_APL_command(out, statement);

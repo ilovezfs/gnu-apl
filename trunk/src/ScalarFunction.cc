@@ -97,8 +97,19 @@ Worklist<Worklist_item1> wl;
                 }
              else
                 {
+#ifdef HAVE_RDTSC
+                     const uint64_t start = cycle_counter();
+#endif
+
                   const ErrorCode ec = (cell_B.*fun)(&cell_Z);
                   if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
+
+#ifdef HAVE_RDTSC
+                     const uint64_t end = cycle_counter();
+                     CellFunctionStatistics * stat = get_statistics_B();
+                     if (stat) stat->add_sample(end - start, z);
+#endif
+
                 }
            }
       }
@@ -289,9 +300,9 @@ Probe::P_1.start();
                      if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
 
 #ifdef HAVE_RDTSC
-                     if (CellFunctionStatistics
-                                      *stat = get_statistics_AB())
-                        stat->add_sample(cycle_counter() - start, z);
+                     const uint64_t end = cycle_counter();
+                     CellFunctionStatistics * stat = get_statistics_AB();
+                     if (stat) stat->add_sample(end - start, z);
 #endif
 
                    }

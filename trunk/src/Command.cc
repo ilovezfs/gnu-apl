@@ -556,6 +556,22 @@ Command::cmd_PSTAT(ostream & out, const UCS_string & arg)
         return;
       }
 
+   if (arg.starts_iwith("SAVE"))
+      {
+        const char * filename = "./PerformanceData.def";
+        ofstream outf(filename, ofstream::out);
+        if (!outf.is_open())
+           {
+             out << "opening " << filename
+                 << " failed: " << strerror(errno) << endl;
+             return;
+           }
+
+        out << "Writing performance data to file " << filename << endl;
+        Performance::save_data(out, outf);
+        return;
+      }
+
 Pfstat_ID iarg = PFS_ALL;
    if (arg.size() > 0)   iarg = (Pfstat_ID)(arg.atoi());
 
