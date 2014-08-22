@@ -170,6 +170,8 @@ const int ret = setupterm(NULL, fileno(stdout), NULL);
       {
         use_curses = false;
       }
+
+   if (!isatty(fileno(stdout))) cout.setf(ios::unitbuf);
 }
 //-----------------------------------------------------------------------------
 int

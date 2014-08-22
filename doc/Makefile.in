@@ -270,7 +270,8 @@ man1_MANS = apl.1
 dist_doc_DATA = \
 	apl.1			\
 	apl.html		\
-	APL-on-Macintosh.pdf
+	APL-on-Macintosh.pdf	\
+	MacAplAlt.keylayout.xml
 
 all: all-am
 

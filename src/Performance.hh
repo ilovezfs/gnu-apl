@@ -36,32 +36,50 @@ enum Pfstat_ID
         PFS_MAX,
         PFS_ALL
 };
-
+//=============================================================================
 class Statistics
 {
 public:
+   /// constructor
    Statistics();
 
+   /// destructor
    ~Statistics();
 
+   /// print statistics
    virtual void print(ostream & out, int max_namelen) = 0;
-};
 
+   /// write statistics to file
+   virtual void save_data(ostream & outf, const char * id_name) = 0;
+};
+//=============================================================================
 class Statistics_record
 {
 public:
+   /// constructor
    Statistics_record()   { reset(); }
 
+   /// reset record to count 0, mean 0, variance 0
    void reset()   { count = 0;   data = 0;   data2 = 0; }
 
+   /// add one sample
    void add_sample(uint64_t val)
       { ++count;   data += val;   data2 += val*val; }
 
+   /// print count, data, and data2
    void print(ostream & out);
 
+   /// write count, data, and data2 to file
+   void save_record(ostream & outf);
+
 protected:
+   /// number of samples
    uint64_t count;
+
+   /// sum of sample values
    uint64_t data;
+
+   /// sum of squares of sample values
    double   data2;   // can grow quickly!
 };
 
@@ -89,7 +107,11 @@ public:
    const char * get_name() const
       { return name; }
 
+   /// overloaded Statistics::print()
    virtual void print(ostream & out, int max_namelen);
+
+   /// overloaded Statistics::save_data()
+   virtual void save_data(ostream & outf, const char * id_name);
 
 protected:
    const Pfstat_ID id;
@@ -110,6 +132,9 @@ public:
 
    // print all counters
    static void print(Pfstat_ID which, ostream & out);
+
+   // write all counters to .def file
+   static void save_data(ostream & out, ostream & out_file);
 
    // reset all counters
    static void reset_all();
