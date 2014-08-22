@@ -696,7 +696,7 @@ Quad_QUOTE::done(bool with_LF, const char * loc)
 
    if (prompt.size())
       {
-        if (with_LF)   COUT << UNI_ASCII_LF;
+        if (with_LF)   COUT << endl;
         prompt.clear();
       }
 }
@@ -716,12 +716,12 @@ PrintBuffer pb(*value, pctx, 0);
            {
              done(true, LOC);
              prompt = pb.get_line(y).no_pad();
-             COUT << prompt;
+             COUT << prompt << flush;
            }
       }
    else if (pb.get_height() > 0)
       {
-        COUT << pb.l1().no_pad();
+        COUT << pb.l1().no_pad() << flush;
         prompt.append(pb.l1());
       }
    else   // empty output
