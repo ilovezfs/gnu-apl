@@ -1,0 +1,132 @@
+#! /usr/local/bin/apl --script
+
+'Running ScalarBenchmark_1'
+
+ ⍝ expressions to be benchmarked
+ ⍝
+EXPR←⎕INP 'END-OF-EXPR'
++ Int
++ Real
++ Comp
+- Int
+- Real
+- Comp
+× Int
+× Real
+× Comp
+÷ Int1
+÷ Real1
+÷ Comp1
+∼ Bool
+! Int2
+⌈ Real
+⌊ Real
+⋆ Real
+⍟ Real
+○ Real
+∣ Real
+Int  + Int
+Real + Real
+Comp + Comp
+Int  - Int
+Real - Real
+Comp - Comp
+Int  × Int
+Real × Real
+Comp × Comp
+Int1  ÷ Int1
+Real1 ÷ Real1
+Comp1 ÷ Comp1
+Bool ∧ Bool1
+Bool ∨ Bool1
+Bool ⍲ Bool1
+Bool ⍱ Bool1
+Int  ⌈ Int
+Real ⌈ Real
+Int  ⌊ Int
+Real ⌊ Real
+Int  ! Int
+Real ! Real
+Comp ! Comp
+Int  ⋆ Int
+Real ⋆ Real
+Comp ⋆ Comp
+Int  ⍟ Int
+Real ⍟ Real
+Comp ⍟ Comp
+Int  < Int
+Real < Real
+Int  ≤ Int
+Real ≤ Real
+Int  = Int
+Real = Real
+Comp = Comp
+Int  ≠ Int
+Real ≠ Real
+Comp ≠ Comp
+Int  > Int
+Real > Real
+Int  ≥ Int
+Real ≥ Real
+1    ○ Real
+1    ○ Comp
+Int  ∣ Int
+Real ∣ Real
+Comp ∣ Comp
+3    ? 10
+END-OF-EXPR
+
+⍝ setup the mix of Int, real, and Complex
+⍝
+Ilen←400
+Rlen←200
+Clen←50
+
+⍝ setup some variables used in benchmark expressions:
+⍝ Int:  ¯2 ... 9
+⍝ Int1: nonzero Int
+⍝ Real: ¯10 to 10 or so
+⍝
+Int  ← 10 - ?Ilen⍴12
+Int1 ← (Int≠0)/Int
+Int2 ← (Int>0)/Int
+Bool ← Int>6
+Bool1← 1⌽Bool
+Real ← 10 - (3÷○1)×?Rlen⍴20
+Real1← (Real≠0)/Real
+Real2← (Real>0)/Real
+Comp ← Clen⍴Real + 0J1×1⌽Real
+Comp1← (Comp≠0)/Comp
+
+ ⍝ Int
+ ⍝ Real
+ ⍝ Comp
+ ⍝ Comp1
+ ⍝ Bool
+
+NAME←' ', ⎕UCS (64 +⍳26), 96+⍳26
+⍝ benchmark one expression
+⍝
+∇RUN B
+⍝ SHOW B
+ ⊣⍎B
+∇
+
+∇SHOW B;OP;NOP;NA;NB
+ OP←(B∈NAME)⍳0
+ NOP←B[OP]
+ NA←'' ◊ →(OP=1)/⎕LC+1 ◊ NA←⍎¯1↓OP↑B
+ NB←⍎OP↓B
+ NA,' ',NOP,' ',NB
+∇
+
+⍝ benchmark all expressions
+⍝
+RUN¨EXPR 
+
+  ⍝ done
+  ⍝
+]PSTAT SAVE
+]PSTAT
+)OFF
+

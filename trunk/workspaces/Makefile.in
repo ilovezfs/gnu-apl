@@ -251,7 +251,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dist_doc_DATA = APL_CGI.apl		\
 		SCRIPT.apl		\
-		ScalarBenchmark.apl
+		ScalarBenchmark.apl	\
+		ScalarBenchmark_1.apl
 
 all: all-am
 
