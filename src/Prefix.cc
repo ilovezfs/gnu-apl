@@ -710,7 +710,6 @@ Token result = at0().get_function()->eval_();
       }
 
    pop_args_push_result(result);
-   result.SET_temp();
    set_action(result);
 }
 //-----------------------------------------------------------------------------
@@ -742,7 +741,6 @@ Token result = at0().get_function()->eval_B(at1().get_apl_val());
       }
 
    pop_args_push_result(result);
-   result.SET_temp();
    set_action(result);
 }
 //-----------------------------------------------------------------------------
@@ -778,7 +776,6 @@ Token result = at0().get_function()->eval_XB(at1().get_apl_val(),
       }
 
    pop_args_push_result(result);
-   result.SET_temp();
    set_action(result);
 }
 //-----------------------------------------------------------------------------
@@ -798,7 +795,6 @@ Token result = at1().get_function()->eval_AB(at0().get_apl_val(),
       }
 
    pop_args_push_result(result);
-   result.SET_temp();
    set_action(result);
 }
 //-----------------------------------------------------------------------------
@@ -830,7 +826,6 @@ Token result = at1().get_function()->eval_AXB(at0().get_apl_val(),
       }
 
    pop_args_push_result(result);
-   result.SET_temp();
    set_action(result);
 }
 //-----------------------------------------------------------------------------
@@ -987,7 +982,6 @@ Value_P Z = A->index(at1());
 Token result = Token(TOK_APL_VALUE1, Z);
    pop_args_push_result(result);
 
-   at0().SET_temp();
    set_action(result);
 }
 //-----------------------------------------------------------------------------
@@ -1232,7 +1226,6 @@ Token result;
    Value::glue(result, at0(), at1(), LOC);
    pop_args_push_result(result);
 
-   at0().SET_temp();
    set_action(result);
 }
 //-----------------------------------------------------------------------------

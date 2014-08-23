@@ -112,7 +112,8 @@ Bif_F12_RHO::eval_B(Value_P B)
 {
 Value_P Z(new Value(B->get_rank(), LOC));
 
-   loop(r, B->get_rank())   new (&Z->get_ravel(r)) IntCell(B->get_shape_item(r));
+   loop(r, B->get_rank())
+       new (&Z->get_ravel(r)) IntCell(B->get_shape_item(r));
 
    Z->set_default_Zero();
    Z->check_value(LOC);
@@ -123,14 +124,39 @@ Token
 Bif_F12_RHO::eval_AB(Value_P A, Value_P B)
 {
 const Shape shape_Z(A, Workspace::get_CT(), 0);
+const ShapeItem len_Z = shape_Z.get_volume();
 
-   return do_reshape(shape_Z, B);
+   if (len_Z <= B->element_count()   &&
+       get_owner_count(B.get()) == 2 && 
+       this == Workspace::SI_top()->get_prefix().get_dyadic_fun())
+      {
+        // at this point Z is not greater than B and B has only 2 owners:
+        // the prefix (who will discard it after we return) and our Value_P B
+        //
+        // Since we will give up our ownership) and prefix will
+        //  pop_args_push_result() in reduce_A_F_B_(), B is no longer used
+        // and we can reshape it in place instead of copying B into a new Z.
+        //
+        Log(LOG_optimization) CERR << "optimizing A⍴B" << endl;
+
+        // release unused cells
+        //
+        const ShapeItem len_B = B->element_count();
+        ShapeItem rr = len_Z;
+        if (rr == 0)   rr = 1;
+        while (rr < len_B)   B->get_ravel(rr++).release(LOC);
+
+        B->set_shape(shape_Z);
+        return Token(TOK_APL_VALUE1, B);
+      }
+
+   return do_reshape(shape_Z, *B);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F12_RHO::do_reshape(const Shape & shape_Z, Value_P B)
+Bif_F12_RHO::do_reshape(const Shape & shape_Z, const Value & B)
 {
-const ShapeItem len_B = B->element_count();
+const ShapeItem len_B = B.element_count();
 const ShapeItem len_Z = shape_Z.get_volume();
 
    // check that shape_Z is positive
@@ -140,38 +166,18 @@ const ShapeItem len_Z = shape_Z.get_volume();
         if (shape_Z.get_shape_item(z) < 0)   DOMAIN_ERROR;
       }
 
-#if 0
-   // optimize if Z is not larger than B.
-   //
-   if (len_Z <= len_B && B->is_temp())
-      {
-        Log(LOG_optimization) CERR << "optimizing A⍴B" << endl;
-
-        // release unused cells
-        //
-        ShapeItem rr = len_Z;
-        if (rr == 0)   rr = 1;
-        while (rr < len_B)
-            B->get_ravel(rr++).release(LOC);
-
-        B->set_shape(shape_Z);
-        return Token(TOK_APL_VALUE1, B);
-      }
-#endif
-
 Value_P Z(new Value(shape_Z, LOC));
-
 
    if (len_B == 0)   // empty B: use prototype
       {
-        loop(z, len_Z)   Z->get_ravel(z).init_type(B->get_ravel(0));
+        loop(z, len_Z)   Z->get_ravel(z).init_type(B.get_ravel(0));
       }
    else
       {
-        loop(z, len_Z)   Z->get_ravel(z).init(B->get_ravel(z % len_B));
+        loop(z, len_Z)   Z->get_ravel(z).init(B.get_ravel(z % len_B));
       }
 
-   Z->set_default(*B.get());
+   Z->set_default(B);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -656,7 +662,9 @@ Token
 Bif_F12_COMMA::eval_B(Value_P B)
 {
 const Shape shape_Z(B->element_count());
-   if (B->is_temp())
+
+   if (get_owner_count(B.get()) == 2 && 
+       this == Workspace::SI_top()->get_prefix().get_monadic_fun())
       {
         Log(LOG_optimization) CERR << "optimizing ,B" << endl;
 
@@ -711,7 +719,8 @@ ShapeItem c2 = 1;   // assume B is scalar;
       }
 
 Shape shape_Z(c1, c2);
-   if (B->is_temp())
+   if (get_owner_count(B.get()) == 2 && 
+       this == Workspace::SI_top()->get_prefix().get_monadic_fun())
       {
         Log(LOG_optimization) CERR << "optimizing ,B" << endl;
 
@@ -2848,14 +2857,15 @@ Value_P Z(new Value(unique_A->nz_element_count()
 }
 //-----------------------------------------------------------------------------
 Value_P
-Bif_F12_UNION::do_unique(Value_P B, bool sorted)
+Bif_UNION_INTER::do_unique(Value_P B, bool sorted)
 {
    if (B->get_rank() > 1)   RANK_ERROR;
 
 const ShapeItem ec_B = B->element_count();
    if (ec_B <= 1)  // 0 or 1 element: return B
       {
-        if (B->is_temp())
+        if (get_owner_count(B.get()) == 2 && 
+            this == Workspace::SI_top()->get_prefix().get_monadic_fun())
            {
               Log(LOG_optimization) CERR << "optimizing ∪B" << endl;
               return B;
@@ -2926,8 +2936,8 @@ Value_P Z4 = B->index(Z3);
 Token
 Bif_F2_INTER::eval_AB(Value_P A, Value_P B)
 {
-Value_P unique_A = Bif_F12_UNION::do_unique(A, true);
-Value_P unique_B = Bif_F12_UNION::do_unique(B, true);
+Value_P unique_A = do_unique(A, true);
+Value_P unique_B = do_unique(B, true);
 
    // count equal elements
    //

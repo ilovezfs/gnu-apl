@@ -379,7 +379,7 @@ class Bif_F2_FIND : public ScalarFunction
 public:
    /// Constructor.
    Bif_F2_FIND()
-   : ScalarFunction(TOK_F2_FIND, &Performance::cfs_FIND_2, 0)
+   : ScalarFunction(TOK_F2_FIND, 0, 0)
    {}
 
    static Bif_F2_FIND       fun;         ///< Built-in function.
@@ -561,9 +561,7 @@ class Bif_F12_ROLL : public ScalarFunction
 public:
    /// Constructor.
    Bif_F12_ROLL()
-   : ScalarFunction(TOK_F12_ROLL,
-                    &Performance::cfs_ROLL_2,
-                    &Performance::cfs_ROLL_1)
+   : ScalarFunction(TOK_F12_ROLL, 0, &Performance::cfs_ROLL_1)
    {}
 
    static Bif_F12_ROLL      fun;        ///< Built-in function.
@@ -588,9 +586,7 @@ class Bif_F12_WITHOUT : public ScalarFunction
 public:
    /// Constructor.
    Bif_F12_WITHOUT()
-   : ScalarFunction(TOK_F12_WITHOUT,
-                    &Performance::cfs_WITHOUT_2,
-                    &Performance::cfs_WITHOUT_1)
+   : ScalarFunction(TOK_F12_WITHOUT, 0, &Performance::cfs_WITHOUT_1)
    {}
 
    static Bif_F12_WITHOUT   fun;     ///< Built-in function.

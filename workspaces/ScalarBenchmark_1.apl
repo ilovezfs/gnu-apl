@@ -73,13 +73,13 @@ Real ≥ Real
 Int  ∣ Int
 Real ∣ Real
 Comp ∣ Comp
-3    ? 10
+1 2 3 ⋸ Int
 END-OF-EXPR
 
 ⍝ setup the mix of Int, real, and Complex
 ⍝
-Ilen←400
-Rlen←200
+Ilen←4000
+Rlen←2000
 Clen←50
 
 ⍝ setup some variables used in benchmark expressions:
@@ -87,16 +87,16 @@ Clen←50
 ⍝ Int1: nonzero Int
 ⍝ Real: ¯10 to 10 or so
 ⍝
-Int  ← 10 - ?Ilen⍴12
-Int1 ← (Int≠0)/Int
-Int2 ← (Int>0)/Int
-Bool ← Int>6
-Bool1← 1⌽Bool
-Real ← 10 - (3÷○1)×?Rlen⍴20
-Real1← (Real≠0)/Real
-Real2← (Real>0)/Real
-Comp ← Clen⍴Real + 0J1×1⌽Real
-Comp1← (Comp≠0)/Comp
+Int  ← 10 - ? Ilen ⍴ 12
+Int1 ← Ilen ⍴ (Int≠0)/Int
+Int2 ← Ilen ⍴ (Int>0) / Int
+Bool ← 2 ∣ Int
+Bool1← 1 ⌽ Bool
+Real ← Rlen ⍴ Int + 3 ÷ ○1
+Real1← Rlen ⍴ (Real≠0)/Real
+Real2← Rlen ⍴ (Real>0)/Real
+Comp ← Clen ⍴ Real + 0J1×1⌽Real
+Comp1← Clen ⍴ (Comp≠0)/Comp
 
  ⍝ Int
  ⍝ Real
@@ -120,13 +120,17 @@ NAME←' ', ⎕UCS (64 +⍳26), 96+⍳26
  NA,' ',NOP,' ',NB
 ∇
 
-⍝ benchmark all expressions
-⍝
-RUN¨EXPR 
+  ⍝ benchmark all expressions. We first do a warm-up run to preload the caches
+  ⍝ a little and then measure the second run
+  ⍝
+  RUN¨EXPR 
+  ]PSTAT CLEAR
+  RUN¨EXPR 
 
   ⍝ done
   ⍝
-]PSTAT SAVE
-]PSTAT
-)OFF
+  ]PSTAT SAVE
+⍝ ]PSTAT 13
+  ]PSTAT
+  )OFF
 

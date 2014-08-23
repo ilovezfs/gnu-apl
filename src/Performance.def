@@ -21,7 +21,6 @@ perfo(AND_2,     "A ∧ B")
 perfo(OR_2,      "A ∨ B")
 perfo(NAND_2,    "A ⍲ B")
 perfo(NOR_2,     "A ⍱ B")
-perfo(WITHOUT_2, "A ∼ B")
 perfo(RND_UP_2,  "A ⌈ B")
 perfo(RND_DN_2,  "A ⌊ B")
 perfo(BINOM_2,   "A ! B")
@@ -35,8 +34,6 @@ perfo(GREATER_2, "A > B")
 perfo(MEQ_2,     "A ≥ B")
 perfo(CIRCLE_2,  "A ○ B")
 perfo(STILE_2,   "A ∣ B")
-perfo(ROLL_2,    "A ? B")
-perfo(FIND_2,    "A ⋸ B")
 
 #undef perfo
 
