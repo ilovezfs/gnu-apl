@@ -135,7 +135,7 @@ const ShapeItem m_len = B->get_shape_item(axis);
    if (m_len == 1)
       {
         const Shape shape_Z = B->get_shape().without_axis(axis);
-        return Bif_F12_RHO::do_reshape(shape_Z, B);
+        return Bif_F12_RHO::do_reshape(shape_Z, *B);
       }
 
 const Shape3 shape_Z3(B->get_shape(), axis);

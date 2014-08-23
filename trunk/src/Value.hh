@@ -380,14 +380,12 @@ public:
    bool is_ ## flg() const      { return (flags & VF_ ## flg) != 0; }
 
 # define set_complete() SET_complete(_LOC)
-# define set_temp()     SET_temp(_LOC)
 # define set_marked()   SET_marked(_LOC)
 
 # define clear_marked()   CLEAR_marked(_LOC)
 
    VF_flag(complete)
    VF_flag(marked)
-   VF_flag(temp)
 
    /// mark all values, except static values
    static void mark_all_dynamic_values();

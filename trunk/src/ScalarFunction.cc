@@ -31,31 +31,31 @@
 #include "Value.icc"
 #include "Workspace.hh"
 
-Bif_F2_LESS       Bif_F2_LESS::fun;
-Bif_F2_EQUAL      Bif_F2_EQUAL::fun;
-Bif_F2_FIND       Bif_F2_FIND::fun;
-Bif_F2_GREATER    Bif_F2_GREATER::fun;
-Bif_F2_AND        Bif_F2_AND::fun;
-Bif_F2_OR         Bif_F2_OR::fun;
-Bif_F2_LEQ        Bif_F2_LEQ::fun;
-Bif_F2_MEQ        Bif_F2_MEQ::fun;
-Bif_F2_UNEQ       Bif_F2_UNEQ::fun;
-Bif_F2_NOR        Bif_F2_NOR::fun;
-Bif_F2_NAND       Bif_F2_NAND::fun;
-Bif_F12_PLUS      Bif_F12_PLUS::fun;
-Bif_F12_POWER     Bif_F12_POWER::fun;
-Bif_F12_BINOM     Bif_F12_BINOM::fun;
-Bif_F12_MINUS     Bif_F12_MINUS::fun;
-Bif_F12_ROLL      Bif_F12_ROLL::fun;
-Bif_F12_TIMES     Bif_F12_TIMES::fun;
-Bif_F12_DIVIDE    Bif_F12_DIVIDE::fun;
-Bif_F12_CIRCLE    Bif_F12_CIRCLE::fun(false);
+Bif_F2_LESS       Bif_F2_LESS::fun;                    // <
+Bif_F2_EQUAL      Bif_F2_EQUAL::fun;                   // =
+Bif_F2_FIND       Bif_F2_FIND::fun;                    // ⋸ (almost scalar)
+Bif_F2_GREATER    Bif_F2_GREATER::fun;                 // >
+Bif_F2_AND        Bif_F2_AND::fun;                     // ∧
+Bif_F2_OR         Bif_F2_OR::fun;                      // ∨
+Bif_F2_LEQ        Bif_F2_LEQ::fun;                     // ≤
+Bif_F2_MEQ        Bif_F2_MEQ::fun;                     // ≥
+Bif_F2_UNEQ       Bif_F2_UNEQ::fun;                    // ≠
+Bif_F2_NOR        Bif_F2_NOR::fun;                     // ⍱
+Bif_F2_NAND       Bif_F2_NAND::fun;                    // ⍲
+Bif_F12_PLUS      Bif_F12_PLUS::fun;                   // +
+Bif_F12_POWER     Bif_F12_POWER::fun;                  // ⋆
+Bif_F12_BINOM     Bif_F12_BINOM::fun;                  // !
+Bif_F12_MINUS     Bif_F12_MINUS::fun;                  // -
+Bif_F12_ROLL      Bif_F12_ROLL::fun;                   // ? (monadic is scalar)
+Bif_F12_TIMES     Bif_F12_TIMES::fun;                  // ×
+Bif_F12_DIVIDE    Bif_F12_DIVIDE::fun;                 // ÷
+Bif_F12_CIRCLE    Bif_F12_CIRCLE::fun(false);          // ○
 Bif_F12_CIRCLE    Bif_F12_CIRCLE::fun_inverse(true);   // A inverted
-Bif_F12_RND_UP    Bif_F12_RND_UP::fun;
-Bif_F12_RND_DN    Bif_F12_RND_DN::fun;
-Bif_F12_STILE     Bif_F12_STILE::fun;
-Bif_F12_LOGA      Bif_F12_LOGA::fun;
-Bif_F12_WITHOUT   Bif_F12_WITHOUT::fun;
+Bif_F12_RND_UP    Bif_F12_RND_UP::fun;                 // ⌈
+Bif_F12_RND_DN    Bif_F12_RND_DN::fun;                 // ⌊
+Bif_F12_STILE     Bif_F12_STILE::fun;                  // ∣
+Bif_F12_LOGA      Bif_F12_LOGA::fun;                   // ⍟
+Bif_F12_WITHOUT   Bif_F12_WITHOUT::fun;                // ∼ (monadic is scalar)
 
 //-----------------------------------------------------------------------------
 Token
@@ -434,7 +434,7 @@ const ShapeItem len_X = X->element_count();
 //-----------------------------------------------------------------------------
 Token
 ScalarFunction::eval_scalar_AXB(Value_P A, bool * axis_in_X,
-                                 Value_P B, prim_f2 fun, bool reversed)
+                                Value_P B, prim_f2 fun, bool reversed)
 {
    // A is the value with the smaller rank.
    // B the value with the larger rank.

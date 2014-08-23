@@ -755,20 +755,34 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B);
 
    /// Reshape B according to rank and shape
-   static Token do_reshape(const Shape & shape, Value_P B);
+   static Token do_reshape(const Shape & shape, const Value & B);
 
    static Bif_F12_RHO fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
+// base class for Bif_F12_UNION and Bif_F2_INTER
+class Bif_UNION_INTER : public NonscalarFunction
+{
+public:
+   /// constructor
+   Bif_UNION_INTER(TokenTag tag)
+   : NonscalarFunction(tag)
+   {}
+
+protected:
+   /// return unique elements in B (sorted or not)
+   Value_P do_unique(Value_P B, bool sorted);
+};
+//-----------------------------------------------------------------------------
 /** System function unique
  */
-class Bif_F12_UNION : public NonscalarFunction
+class Bif_F12_UNION : public Bif_UNION_INTER
 {
 public:
    /// Constructor
    Bif_F12_UNION()
-   : NonscalarFunction(TOK_F12_UNION)
+   : Bif_UNION_INTER(TOK_F12_UNION)
    {}
 
    /// overloaded Function::eval_AB()
@@ -778,21 +792,19 @@ public:
    virtual Token eval_B(Value_P B)
       { return Token(TOK_APL_VALUE1, do_unique(B, false)); }
 
-   /// return unique elements in B (sorted or not)
-   static Value_P do_unique(Value_P B, bool sorted);
-
-   static Bif_F12_UNION      fun;   ///< Built-in function
+   /// Built-in function
+   static Bif_F12_UNION fun;
 protected:
 };
 //-----------------------------------------------------------------------------
 /** System function intersection
  */
-class Bif_F2_INTER : public NonscalarFunction
+class Bif_F2_INTER : public Bif_UNION_INTER
 {
 public:
    /// Constructor
    Bif_F2_INTER()
-   : NonscalarFunction(TOK_F2_INTER)
+   : Bif_UNION_INTER(TOK_F2_INTER)
    {}
 
    /// overloaded Function::eval_AB()

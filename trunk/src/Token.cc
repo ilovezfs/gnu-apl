@@ -230,12 +230,6 @@ operator << (ostream & out, const Token & token)
 }
 //-----------------------------------------------------------------------------
 void
-Token::SET_temp()
-{
-   if (is_apl_val() && !!value._apl_val())   value._apl_val()->SET_temp(); 
-}
-//-----------------------------------------------------------------------------
-void
 Token::ChangeTag(TokenTag new_tag)
 {
    Assert((tag & TV_MASK) == (new_tag & TV_MASK));

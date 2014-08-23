@@ -111,6 +111,14 @@ public:
    /// return the right argument of a failed primitive function (if any)
    Token * locate_R();
 
+   /// return the current monadic function (if any)
+   const Function * get_dyadic_fun()
+      { return at1().get_ValueType() == TV_FUN ? at1().get_function() : 0; }
+
+   /// return the current dyadic function (if any)
+   const Function * get_monadic_fun()
+      { return at1().get_ValueType() == TV_FUN ? at1().get_function() : 0; }
+
    /// execute one context (user defined function or operator, execute,
    /// or immediate execution)
    Token reduce_statements();
