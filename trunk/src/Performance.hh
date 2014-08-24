@@ -31,7 +31,8 @@ using namespace std;
 /// performance statistics IDs
 enum Pfstat_ID
 {
-#define perfo(id, name) PFS_ ## id,
+#define perfo_1(id, name) PFS_ ## id,
+#define perfo_2(id, name) PFS_ ## id,
 #include "Performance.def"
         PFS_MAX,
         PFS_ALL
@@ -83,6 +84,42 @@ protected:
    double   data2;   // can grow quickly!
 };
 
+//-----------------------------------------------------------------------------
+/// performance counters for a cell level function
+class FunctionStatistics : public Statistics
+{
+public:
+   FunctionStatistics(Pfstat_ID _id, const char * _name)
+   : id(_id),
+     name(_name)
+   { reset(); }
+
+   void reset()
+        {
+          data.reset();
+        }
+
+   void add_sample(uint64_t val)
+      {
+         data.add_sample(val);
+       }
+
+   const char * get_name() const
+      { return name; }
+
+   /// overloaded Statistics::print()
+   virtual void print(ostream & out, int max_namelen);
+
+   /// overloaded Statistics::save_data()
+   virtual void save_data(ostream & outf, const char * id_name);
+
+protected:
+   const Pfstat_ID id;
+   const char * name;
+
+   Statistics_record data;
+};
+//-----------------------------------------------------------------------------
 /// performance counters for a cell level function
 class CellFunctionStatistics : public Statistics
 {
@@ -139,7 +176,9 @@ public:
    // reset all counters
    static void reset_all();
 
-#define perfo(id, name)   \
+#define perfo_1(id, name)   \
+   static FunctionStatistics fs_ ## id;   ///< function statistics
+#define perfo_2(id, name)   \
    static CellFunctionStatistics cfs_ ## id;   ///< cell function statistics
 #include "Performance.def"
 };

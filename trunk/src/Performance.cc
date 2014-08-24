@@ -26,7 +26,9 @@
 #include "Performance.hh"
 #include "UCS_string.hh"
 
-#define perfo(id, name)   \
+#define perfo_1(id, name)   \
+FunctionStatistics Performance::fs_##id (PFS_##id, name);
+#define perfo_2(id, name)   \
 CellFunctionStatistics Performance::cfs_##id (PFS_##id, name);
 #include "Performance.def"
 
@@ -44,7 +46,8 @@ Performance::get_statistics(Pfstat_ID id)
 {
    switch(id)
       {
-#define perfo(id, _name)   case PFS_ ## id:   return &cfs_ ## id;
+#define perfo_1(id, _name)   case PFS_ ## id:   return &fs_ ## id;
+#define perfo_2(id, _name)   case PFS_ ## id:   return &cfs_ ## id;
 #include "Performance.def"
         default: return 0;
       }
@@ -60,7 +63,8 @@ Performance::print(Pfstat_ID which, ostream & out)
    //
 int max_len = 0;
 
-#define perfo(id, _name)                           \
+#define perfo_1(id, _name)
+#define perfo_2(id, _name)                           \
    { const char * name = cfs_ ## id.get_name();    \
      UTF8_string utf(name);  UCS_string ucs(utf);  \
      if (max_len < ucs.size())   max_len = ucs.size(); }
@@ -75,12 +79,7 @@ int max_len = 0;
 "║          ║     N    │     μ    │  σ÷μ % ║     N    │     μ    │  σ÷μ % ║\n"
 "╠══════════╬══════════╪══════════╪════════╬══════════╪══════════╪════════╣\n";
 
-   if (which == PFS_ALL)   // all
-      {
-#define perfo(id, _name)   cfs_##id.print(out, max_len);
-#include "Performance.def"
-      }
-   else
+   if (which != PFS_ALL)   // one statistics
       {
          Statistics * stat = get_statistics(which);
          if (!stat)
@@ -90,52 +89,43 @@ int max_len = 0;
             }
 
          stat->print(out, max_len);
+         out <<
+"╚══════════╩══════════╧══════════╧════════╩══════════╧══════════╧════════╝"
+             << endl;
+         return;
       }
 
+#define perfo_1(id, _name)
+#define perfo_2(id, _name)   cfs_##id.print(out, max_len);
+#include "Performance.def"
+
    out <<
-"╚══════════╩══════════╧══════════╧════════╩══════════╧══════════╧════════╝"
+"╬══════════╬══════════╪══════════╪════════╬══════════╧══════════╧════════╝"
+       << endl;
+
+#define perfo_1(id, _name)   fs_##id.print(out, max_len);
+#define perfo_2(id, _name)
+#include "Performance.def"
+
+   out <<
+"╚══════════╩══════════╧══════════╧════════╝"
        << endl;
 }
 //----------------------------------------------------------------------------
 void
 Performance::save_data(ostream & out, ostream & out_file)
 {
-#define perfo(id, _name)   cfs_##id.save_data(out_file, #id);
+#define perfo_1(id, _name)   fs_##id.save_data(out_file, #id);
+#define perfo_2(id, _name)   cfs_##id.save_data(out_file, #id);
 #include "Performance.def"
 }
 //----------------------------------------------------------------------------
 void
 Performance::reset_all()
 {
-#define perfo(id, _name)   cfs_##id.reset();
+#define perfo_1(id, _name)   fs_##id.reset();
+#define perfo_2(id, _name)   cfs_##id.reset();
 #include "Performance.def"
-}
-//----------------------------------------------------------------------------
-void
-CellFunctionStatistics::print(ostream & out, int max_namelen)
-{
-UTF8_string utf(name);
-UCS_string uname(utf);
-   out << "║ " << name;
-   loop(n, max_namelen - uname.size())   out << " ";
-   out << "    ║ ";
-
-   first.print(out);
-   out << " ║ ";
-   subsequent.print(out);
-   out << " ║" << endl;
-}
-//----------------------------------------------------------------------------
-void
-CellFunctionStatistics::save_data(ostream & outf, const char * id_name)
-{
-char cc[100];
-   snprintf(cc, sizeof(cc), "%s,", id_name);
-   outf << "perfo(cfs_" << left << setw(10) << cc << right;
-   first.save_record(outf);
-   outf << ",";
-   subsequent.save_record(outf);
-   outf << ")" << endl;
 }
 //----------------------------------------------------------------------------
 void
@@ -171,5 +161,55 @@ double sigma = 0;
         << setw(8) << mu << ", "
         << setw(8) << (uint64_t)(sigma + 0.5);
 }
+//============================================================================
+void
+FunctionStatistics::print(ostream & out, int max_namelen)
+{
+UTF8_string utf(name);
+UCS_string uname(utf);
+   out << "║ " << name;
+   loop(n, max_namelen - uname.size())   out << " ";
+   out << "    ║ ";
+
+   data.print(out);
+   out << " ║" << endl;
+}
 //----------------------------------------------------------------------------
+void
+FunctionStatistics::save_data(ostream & outf, const char * id_name)
+{
+char cc[100];
+   snprintf(cc, sizeof(cc), "%s,", id_name);
+   outf << "perfo_1(cfs_" << left << setw(10) << cc << right;
+   data.save_record(outf);
+   outf << ")" << endl;
+}
+//============================================================================
+void
+CellFunctionStatistics::print(ostream & out, int max_namelen)
+{
+UTF8_string utf(name);
+UCS_string uname(utf);
+   out << "║ " << name;
+   loop(n, max_namelen - uname.size())   out << " ";
+   out << "    ║ ";
+
+   first.print(out);
+   out << " ║ ";
+   subsequent.print(out);
+   out << " ║" << endl;
+}
+//----------------------------------------------------------------------------
+void
+CellFunctionStatistics::save_data(ostream & outf, const char * id_name)
+{
+char cc[100];
+   snprintf(cc, sizeof(cc), "%s,", id_name);
+   outf << "perfo_2(cfs_" << left << setw(10) << cc << right;
+   first.save_record(outf);
+   outf << ",";
+   subsequent.save_record(outf);
+   outf << ")" << endl;
+}
+//============================================================================
 

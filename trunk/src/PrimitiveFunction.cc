@@ -142,9 +142,14 @@ const ShapeItem len_Z = shape_Z.get_volume();
         // release unused cells
         //
         const ShapeItem len_B = B->element_count();
-        ShapeItem rr = len_Z;
-        if (rr == 0)   rr = 1;
-        while (rr < len_B)   B->get_ravel(rr++).release(LOC);
+        ShapeItem rest = len_Z;
+        if (rest == 0)
+           {
+             rest = 1;
+             B->get_ravel(0).init_type(B->get_ravel(0));
+           }
+
+        while (rest < len_B)   B->get_ravel(rest++).release(LOC);
 
         B->set_shape(shape_Z);
         return Token(TOK_APL_VALUE1, B);

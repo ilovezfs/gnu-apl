@@ -637,13 +637,15 @@ Symbol::resolve(Token & tok, bool left_sym)
              // if we resolve a variable. the value is considered grouped.
              {
                Token t(TOK_APL_VALUE1, get_apl_value()->clone(LOC));
+//             Token t(TOK_APL_VALUE1, get_apl_value());
                move_1(tok, t, LOC);
              }
              return;
 
         case NC_FUNCTION:
         case NC_OPERATOR:
-             move_2(tok, value_stack.back().sym_val.function->get_token(), LOC);
+             move_2(tok, value_stack.back().sym_val.function
+                                                    ->get_token(), LOC);
              return;
 
         case NC_SHARED_VAR:
