@@ -144,13 +144,19 @@ VALUE_CHECK_WANTED=yes
 
     ./configure VALUE_CHECK_WANTED=yes
 
-
 VALUE_HISTORY_WANTED=yes
     There is a macro called ADD_EVENT that records the history of APL values.
     This history helps finding faults in the interpreter, but
     decreases the performance of the interpreter. Example:
 
     ./configure VALUE_HISTORY_WANTED=yes
+
+
+PERFORMANCE_COUNTERS_WANTED=yes
+    GNU APL has some build-in counters for performace measurements. These counters
+    are normally disabled, but can be enabled via this option. Example:
+
+    ./configure PERFORMANCE_COUNTERS_WANTED=yes
 
 
 VF_TRACING_WANTED=yes
@@ -202,9 +208,10 @@ The typical setting for software development of the APL interpreter is:
 
 which is a shortcut for:
 
-    ./configure VALUE_CHECK_WANTED=yes   \
-                VALUE_HISTORY_WANTED=yes \
-                DYNAMIC_LOG_WANTED=yes   \
+    ./configure VALUE_CHECK_WANTED=yes          \
+                VALUE_HISTORY_WANTED=yes        \
+		PERFORMANCE_COUNTERS_WANTED=yes	\
+                DYNAMIC_LOG_WANTED=yes          \
                 ASSERT_LEVEL_WANTED=2
 
 After the first ./configure run (which creates the top level Makefile)

@@ -25,6 +25,7 @@ EXPR←⎕INP 'END-OF-EXPR'
 ⍟ Real
 ○ Real
 ∣ Real
+? Int2
 Int  + Int
 Real + Real
 Comp + Comp

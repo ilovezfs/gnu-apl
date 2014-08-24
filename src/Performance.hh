@@ -33,6 +33,7 @@ enum Pfstat_ID
 {
 #define perfo_1(id, name) PFS_ ## id,
 #define perfo_2(id, name) PFS_ ## id,
+#define perfo_3(id, name) PFS_ ## id,
 #include "Performance.def"
         PFS_MAX,
         PFS_ALL
@@ -42,16 +43,26 @@ class Statistics
 {
 public:
    /// constructor
-   Statistics();
+   Statistics(Pfstat_ID _id)
+  : id(_id)
+   {}
 
    /// destructor
    ~Statistics();
 
    /// print statistics
-   virtual void print(ostream & out, int max_namelen) = 0;
+   virtual void print(ostream & out) = 0;
 
    /// write statistics to file
    virtual void save_data(ostream & outf, const char * id_name) = 0;
+
+   const char * get_name() const
+      { return get_name(id); }
+
+   static const char * get_name(Pfstat_ID _id);
+
+protected:
+   const Pfstat_ID id;
 };
 //=============================================================================
 class Statistics_record
@@ -59,6 +70,13 @@ class Statistics_record
 public:
    /// constructor
    Statistics_record()   { reset(); }
+
+   /// constructor
+   Statistics_record(uint64_t cnt, uint64_t da, double da2)
+   : count(cnt),
+     data(da),
+     data2(da2)
+   {}
 
    /// reset record to count 0, mean 0, variance 0
    void reset()   { count = 0;   data = 0;   data2 = 0; }
@@ -73,6 +91,15 @@ public:
    /// write count, data, and data2 to file
    void save_record(ostream & outf);
 
+   uint64_t get_count() const
+      { return count; }
+
+   uint64_t get_sum() const
+      { return data; }
+
+   double get_sum2() const
+      { return data2; }
+
 protected:
    /// number of samples
    uint64_t count;
@@ -83,16 +110,19 @@ protected:
    /// sum of squares of sample values
    double   data2;   // can grow quickly!
 };
-
 //-----------------------------------------------------------------------------
 /// performance counters for a cell level function
 class FunctionStatistics : public Statistics
 {
 public:
-   FunctionStatistics(Pfstat_ID _id, const char * _name)
-   : id(_id),
-     name(_name)
+   FunctionStatistics(Pfstat_ID _id)
+   : Statistics(_id)
    { reset(); }
+
+   FunctionStatistics(Pfstat_ID _id, const Statistics_record & rec)
+   : Statistics(_id),
+     data(rec)
+   {}
 
    void reset()
         {
@@ -104,19 +134,16 @@ public:
          data.add_sample(val);
        }
 
-   const char * get_name() const
-      { return name; }
-
    /// overloaded Statistics::print()
-   virtual void print(ostream & out, int max_namelen);
+   virtual void print(ostream & out);
 
    /// overloaded Statistics::save_data()
    virtual void save_data(ostream & outf, const char * id_name);
 
-protected:
-   const Pfstat_ID id;
-   const char * name;
+   const Statistics_record & get_data() const
+      { return data; }
 
+protected:
    Statistics_record data;
 };
 //-----------------------------------------------------------------------------
@@ -124,9 +151,8 @@ protected:
 class CellFunctionStatistics : public Statistics
 {
 public:
-   CellFunctionStatistics(Pfstat_ID _id, const char * _name)
-   : id(_id),
-     name(_name)
+   CellFunctionStatistics(Pfstat_ID _id)
+   : Statistics(_id)
    { reset(); }
 
    void reset()
@@ -141,19 +167,19 @@ public:
          else          first.add_sample(val);
        }
 
-   const char * get_name() const
-      { return name; }
-
    /// overloaded Statistics::print()
-   virtual void print(ostream & out, int max_namelen);
+   virtual void print(ostream & out);
 
    /// overloaded Statistics::save_data()
    virtual void save_data(ostream & outf, const char * id_name);
 
-protected:
-   const Pfstat_ID id;
-   const char * name;
+   uint64_t get_sum() const
+      { return first.get_sum() + subsequent.get_sum(); }
 
+   double get_sum2() const
+      { return first.get_sum2() + subsequent.get_sum2(); }
+
+protected:
    Statistics_record first;
    Statistics_record subsequent;
 };
@@ -177,9 +203,11 @@ public:
    static void reset_all();
 
 #define perfo_1(id, name)   \
-   static FunctionStatistics fs_ ## id;   ///< function statistics
+   static CellFunctionStatistics cfs_ ## id;   ///< cell function statistics
 #define perfo_2(id, name)   \
    static CellFunctionStatistics cfs_ ## id;   ///< cell function statistics
+#define perfo_3(id, name)   \
+   static FunctionStatistics fs_ ## id;   ///< function statistics
 #include "Performance.def"
 };
 

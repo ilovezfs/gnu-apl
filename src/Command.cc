@@ -549,6 +549,26 @@ Command::cmd_KEYB(ostream & out)
 void 
 Command::cmd_PSTAT(ostream & out, const UCS_string & arg)
 {
+#ifndef PERFORMANCE_COUNTERS_WANTED
+   out << "\n"
+<< "Command ]PSTAT is not available, since performance counters were not\n"
+"configured for this APL interpreter. To enable performance counters (which\n"
+"will slightly decrease performance), recompile the interpreter as follows:"
+
+<< "\n\n"
+"   ./configure PERFORMANCE_COUNTERS_WANTED=yes (... "
+<< "other configure options"
+<< ")\n"
+"   make\n"
+"   make install (or try: src/apl)\n"
+"\n"
+
+<< "above the src directory."
+<< "\n";
+
+   return;
+#endif
+
    if (arg.starts_iwith("CLEAR"))
       {
         out << "Performance counters cleared" << endl;

@@ -202,6 +202,9 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* define to enable performance counters */
+#undef PERFORMANCE_COUNTERS_WANTED
+
 /* short value cellcount */
 #undef SHORT_VALUE_LENGTH_WANTED
 
