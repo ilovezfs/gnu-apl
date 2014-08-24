@@ -217,6 +217,7 @@ if test "x$DEVELOP_WANTED" = "xyes"; then
    AC_DEFINE_UNQUOTED([DEVELOP_WANTED], [yes],
                    [define to set options typical for software development])
    VALUE_CHECK_WANTED=yes
+   PERFORMANCE_COUNTERS_WANTED=yes
    VALUE_HISTORY_WANTED=yes
    DYNAMIC_LOG_WANTED=yes
    ASSERT_LEVEL_WANTED=2
@@ -236,6 +237,15 @@ AC_ARG_VAR(VALUE_CHECK_WANTED,
 if test "x$VALUE_CHECK_WANTED" = "xyes"; then
 AC_DEFINE_UNQUOTED([VALUE_CHECK_WANTED], [yes],
                    [ define to enable CHECK macro ])
+fi
+
+
+# APL: performance counters desired ?
+AC_ARG_VAR(PERFORMANCE_COUNTERS_WANTED,
+   [ enable performance counters (see README-2-configure) default: no ])
+if test "x$PERFORMANCE_COUNTERS_WANTED" = "xyes"; then
+AC_DEFINE_UNQUOTED([PERFORMANCE_COUNTERS_WANTED], [yes],
+                   [ define to enable performance counters ])
 fi
 
 

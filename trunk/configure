@@ -662,6 +662,7 @@ VF_TRACING_WANTED
 DYNAMIC_LOG_WANTED
 GPROF_WANTED
 VALUE_HISTORY_WANTED
+PERFORMANCE_COUNTERS_WANTED
 VALUE_CHECK_WANTED
 MAX_RANK_WANTED
 DEVELOP_WANTED
@@ -826,6 +827,7 @@ CXXCPP
 DEVELOP_WANTED
 MAX_RANK_WANTED
 VALUE_CHECK_WANTED
+PERFORMANCE_COUNTERS_WANTED
 VALUE_HISTORY_WANTED
 GPROF_WANTED
 DYNAMIC_LOG_WANTED
@@ -1502,6 +1504,8 @@ Some influential environment variables:
               the max. Rank of APL values (see README-2-configure) default: 8)
   VALUE_CHECK_WANTED
               enable CHECK() macro (see README-2-configure) default: no
+  PERFORMANCE_COUNTERS_WANTED
+              enable performance counters (see README-2-configure) default: no
   VALUE_HISTORY_WANTED
               enable CHECK() macro (see README-2-configure) default: no
   GPROF_WANTED
@@ -18381,6 +18385,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
    VALUE_CHECK_WANTED=yes
+   PERFORMANCE_COUNTERS_WANTED=yes
    VALUE_HISTORY_WANTED=yes
    DYNAMIC_LOG_WANTED=yes
    ASSERT_LEVEL_WANTED=2
@@ -18402,6 +18407,17 @@ if test "x$VALUE_CHECK_WANTED" = "xyes"; then
 
 cat >>confdefs.h <<_ACEOF
 #define VALUE_CHECK_WANTED yes
+_ACEOF
+
+fi
+
+
+# APL: performance counters desired ?
+
+if test "x$PERFORMANCE_COUNTERS_WANTED" = "xyes"; then
+
+cat >>confdefs.h <<_ACEOF
+#define PERFORMANCE_COUNTERS_WANTED yes
 _ACEOF
 
 fi

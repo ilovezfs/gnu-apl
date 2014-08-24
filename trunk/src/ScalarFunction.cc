@@ -61,6 +61,12 @@ Bif_F12_WITHOUT   Bif_F12_WITHOUT::fun;                // ∼ (monadic is scalar
 Token
 ScalarFunction::eval_scalar_B(Value_P B, prim_f1 fun)
 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
 const ShapeItem len_Z = B->element_count();
    if (len_Z == 0)   return eval_fill_B(B);
 
@@ -97,24 +103,35 @@ Worklist<Worklist_item1> wl;
                 }
              else
                 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
-                     const uint64_t start = cycle_counter();
+                  const uint64_t start_2 = cycle_counter();
+#endif
 #endif
 
                   const ErrorCode ec = (cell_B.*fun)(&cell_Z);
                   if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
 
+#ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
-                     const uint64_t end = cycle_counter();
-                     CellFunctionStatistics * stat = get_statistics_B();
-                     if (stat) stat->add_sample(end - start, z);
+                  const uint64_t end_2 = cycle_counter();
+                  CellFunctionStatistics * stat = get_statistics_B();
+                  if (stat) stat->add_sample(end_2 - start_2, z);
 #endif
-
+#endif
                 }
            }
       }
 
    Z->check_value(LOC);
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_SCALAR_B.add_sample(end_1 - start_1);
+#endif
+#endif
+
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
@@ -158,6 +175,12 @@ ScalarFunction::expand_pointers(Cell * cell_Z, const Cell * cell_A,
 Token
 ScalarFunction::eval_scalar_AB(Value_P A, Value_P B, prim_f2 fun)
 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
 const int inc_A = A->is_scalar_or_len1_vector() ? 0 : 1;
 const int inc_B = B->is_scalar_or_len1_vector() ? 0 : 1;
 const Shape * shape_Z = 0;
@@ -197,7 +220,6 @@ Worklist<Worklist_item2> wl;
         const Worklist_item2 job = wl.todo[todo_idx];
         loop(z, job.len_Z)
            {
-Probe::P_1.start();
              const Cell & cell_A = job.A_at(z);
              const Cell & cell_B = job.B_at(z);
              Cell & cell_Z       = job.Z_at(z);
@@ -293,25 +315,35 @@ Probe::P_1.start();
                    {
                      // neither A nor B are nested: execute fun
                      //
+#ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
-                     const uint64_t start = cycle_counter();
+                     const uint64_t start_2 = cycle_counter();
+#endif
 #endif
                      const ErrorCode ec = (cell_B.*fun)(&cell_Z, &cell_A);
                      if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
 
+#ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
-                     const uint64_t end = cycle_counter();
+                     const uint64_t end_2 = cycle_counter();
                      CellFunctionStatistics * stat = get_statistics_AB();
-                     if (stat) stat->add_sample(end - start, z);
+                     if (stat) stat->add_sample(end_2 - start_2, z);
 #endif
-
+#endif
                    }
-Probe::P_1.stop();
            }
       }
 
    Z->set_default(*B.get());
    Z->check_value(LOC);
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1);
+#endif
+#endif
+
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
@@ -406,6 +438,12 @@ const Cell & cell_FI0 = FI0->get_ravel(0);
 Token
 ScalarFunction::eval_scalar_AXB(Value_P A, Value_P X, Value_P B, prim_f2 fun)
 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
    if (A->is_scalar_or_len1_vector() || B->is_scalar_or_len1_vector() || !X)
       return eval_scalar_AB(A, B, fun);
 
@@ -428,11 +466,20 @@ const ShapeItem len_X = X->element_count();
          axis_in_X[i] = true;
        }
 
-   if (rank_A < rank_B)   return eval_scalar_AXB(A, axis_in_X, B, fun, false);
-   else                   return eval_scalar_AXB(B, axis_in_X, A, fun, true);
+Value_P Z = (rank_A < rank_B) ? eval_scalar_AXB(A, axis_in_X, B, fun, false)
+                              : eval_scalar_AXB(B, axis_in_X, A, fun, true);
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1);
+#endif
+#endif
+
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
-Token
+Value_P
 ScalarFunction::eval_scalar_AXB(Value_P A, bool * axis_in_X,
                                 Value_P B, prim_f2 fun, bool reversed)
 {
@@ -486,7 +533,7 @@ const Cell * cB = &B->get_ravel(0);
    Z->set_default(*B.get());
 
    Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+   return Z;
 }
 //=============================================================================
 Token
