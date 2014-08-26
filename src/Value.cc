@@ -1629,6 +1629,12 @@ const Cell & first = get_ravel(0);
 Value_P
 Value::clone(const char * loc) const
 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
 Value_P ret(new Value(get_shape(), loc));
 
 const Cell * src = &get_ravel(0);
@@ -1638,6 +1644,14 @@ const ShapeItem count = nz_element_count();
    loop(c, count)   dst++->init(*src++);
 
    ret->check_value(LOC);
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_clone_B.add_sample(end_1 - start_1, count);
+#endif
+#endif
+
    return ret;
 }
 //-----------------------------------------------------------------------------

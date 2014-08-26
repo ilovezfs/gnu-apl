@@ -123,6 +123,12 @@ Value_P Z(new Value(B->get_rank(), LOC));
 Token
 Bif_F12_RHO::eval_AB(Value_P A, Value_P B)
 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
 const Shape shape_Z(A, Workspace::get_CT(), 0);
 const ShapeItem len_Z = shape_Z.get_volume();
 
@@ -152,10 +158,27 @@ const ShapeItem len_Z = shape_Z.get_volume();
         while (rest < len_B)   B->get_ravel(rest++).release(LOC);
 
         B->set_shape(shape_Z);
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_RESHAPE_AB.add_sample(end_1 - start_1, B->nz_element_count());
+#endif
+#endif
+
         return Token(TOK_APL_VALUE1, B);
       }
 
-   return do_reshape(shape_Z, *B);
+Token ret = do_reshape(shape_Z, *B);
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_RESHAPE_AB.add_sample(end_1 - start_1, shape_Z.get_volume());
+#endif
+#endif
+
+   return ret;
 }
 //-----------------------------------------------------------------------------
 Token
