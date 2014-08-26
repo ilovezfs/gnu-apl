@@ -62,6 +62,8 @@ Statistics::get_name(Pfstat_ID id)
 #define perfo_2(id, name)   case PFS_ ## id:   return name;
 #define perfo_3(id, name)   case PFS_ ## id:   return name;
 #include "Performance.def"
+        case PFS_SCALAR_B_overhead:  return "  f B overhead";
+        case PFS_SCALAR_AB_overhead: return "A f B overhead";
         default: return "Unknown Pfstat_ID";
       }
 
@@ -74,12 +76,12 @@ Performance::print(Pfstat_ID which, ostream & out)
 {
    out <<
 "╔═════════════════════════════════════════════════════════════════════════════╗\n"
-"║                     Performance Statistics (CPU cycles)                     ║\n"
-"╠═══════════════╦══════════════════════════════╦══════════════════════════════╣\n"
-"║               ║          first pass          ║       subsequent passes      ║\n"
-"║   Function    ╟──────────┬──────────┬────────╫──────────┬──────────┬────────╢\n"
-"║               ║     N    │     μ    │  σ÷μ % ║     N    │     μ    │  σ÷μ % ║\n"
-"╠═══════════════╬══════════╪══════════╪════════╬══════════╪══════════╪════════╣\n";
+"║                      Performance Statistics (CPU cycles)                    ║\n"
+"╠═════════════════╦═════════════════════════════╦═════════════════════════════╣\n"
+"║                 ║         first pass          ║       subsequent passes     ║\n"
+"║      Cell       ╟──────────┬─────────┬────────╫──────────┬─────────┬────────╢\n"
+"║    Function     ║     N    │     μ   │  σ÷μ % ║     N    │     μ   │  σ÷μ % ║\n"
+"╠═════════════════╬══════════╪═════════╪════════╬══════════╪═════════╪════════╣\n";
 
    if (which != PFS_ALL)   // one statistics
       {
@@ -92,7 +94,7 @@ Performance::print(Pfstat_ID which, ostream & out)
 
          stat->print(out);
          out <<
-"╚═══════════════╩══════════╧══════════╧════════╩══════════╧══════════╧════════╝"
+"╚═════════════════╩═══════════╧════════╧════════╩══════════╧═════════╧════════╝"
              << endl;
          return;
       }
@@ -103,34 +105,48 @@ Performance::print(Pfstat_ID which, ostream & out)
 #include "Performance.def"
 
    out <<
-"╬═══════════════╬══════════╪══════════╪════════╬══════════╧══════════╧════════╝"
+"╚═════════════════╩══════════╧═════════╧════════╩══════════╧═════════╧════════╝\n"
+"╔═════════════════╦══════════╤═════════╤════════╦══════════╗\n"
+"║    Function     ║     N    │     μ   │  σ÷μ % ║ aver. ⍴, ║\n"
+"╟─────────────────╫──────────┼─────────┼────────╫──────────╢"
        << endl;
 
    // subtract cell statistics from function statistics
    //
 uint64_t data_B    = fs_SCALAR_B .get_data().get_sum ();
 double   data_B2   = fs_SCALAR_B .get_data().get_sum2();
+uint64_t lsum_B = 0;
+
 uint64_t data_AB   = fs_SCALAR_AB.get_data().get_sum ();
 double   data_AB2  = fs_SCALAR_AB.get_data().get_sum2();
+uint64_t lsum_AB = 0;
 
-#define perfo_1(id, _name) data_B -= cfs_##id.get_sum();       \
-                           data_B2 -= cfs_##id.get_sum2();
-#define perfo_2(id, _name) data_AB -= cfs_##id.get_sum();       \
-                           data_AB2 -= cfs_##id.get_sum2();
+#define perfo_1(id, _name) data_B   -= cfs_##id.get_sum();  \
+                           data_B2  -= cfs_##id.get_sum2(); \
+                           lsum_B   += cfs_##id.get_count();
+#define perfo_2(id, _name) data_AB  -= cfs_##id.get_sum();  \
+                           data_AB2 -= cfs_##id.get_sum2(); \
+                           lsum_AB   += cfs_##id.get_count();
 #define perfo_3(id, _name)
 #include "Performance.def"
 
 Statistics_record rec_B (fs_SCALAR_B.get_data().get_count(), data_B, data_B2);
-Statistics_record rec_AB(fs_SCALAR_AB.get_data().get_count(), data_AB, data_AB2);
+Statistics_record rec_AB(fs_SCALAR_AB.get_data().get_count(),data_AB,data_AB2);
 
-FunctionStatistics sca_B(PFS_SCALAR_B, rec_B);
-FunctionStatistics sca_AB(PFS_SCALAR_AB, rec_AB);
+FunctionStatistics sca_B(PFS_SCALAR_B_overhead, rec_B, lsum_B);
+FunctionStatistics sca_AB(PFS_SCALAR_AB_overhead, rec_AB, lsum_AB);
 
    sca_B.print(out);
    sca_AB.print(out);
 
+#define perfo_1(id, _name)
+#define perfo_2(id, _name)
+#define perfo_3(id, _name) fs_ ## id.print(out);
+
+#include "Performance.def"
+
    out <<
-"╚═══════════════╩══════════╧══════════╧════════╝"
+"╚═════════════════╩══════════╧═════════╧════════╩══════════╝"
        << endl;
 }
 //----------------------------------------------------------------------------
@@ -165,9 +181,9 @@ int sigma_percent = 0;
         sigma_percent = (int)((sigma/mu)*100);
       }
 
-   out << setw(8) << count << " │ "
-       << setw(8) << mu << " │ "
-       << setw(4) << sigma_percent << " %";
+   out << setw(8) << right << count << " │ "
+       << setw(7) << mu << " │ "
+       << setw(4) << sigma_percent << " %" << left;
 }
 //----------------------------------------------------------------------------
 void
@@ -192,10 +208,15 @@ FunctionStatistics::print(ostream & out)
 UTF8_string utf(get_name());
 UCS_string uname(utf);
    out << "║ " << utf;
-   loop(n, 10 - uname.size())   out << " ";
-   out << "    ║ ";
+   loop(n, 15 - uname.size())   out << " ";
+   out << " ║ ";
+
+uint64_t aver_len = 0;
+   if (data.get_count())   aver_len = len_sum / data.get_count();
 
    data.print(out);
+   out << " ║ ";
+   out << right << setw(8) << aver_len << left;
    out << " ║" << endl;
 }
 //----------------------------------------------------------------------------
@@ -215,7 +236,7 @@ CellFunctionStatistics::print(ostream & out)
 UTF8_string utf(get_name());
 UCS_string uname(utf);
    out << "║ " << uname;
-   loop(n, 10 - uname.size())   out << " ";
+   loop(n, 12 - uname.size())   out << " ";
    out << "    ║ ";
 
    first.print(out);

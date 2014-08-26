@@ -150,7 +150,7 @@ CinOut::overflow(int c)
    if (!InputFile::echo_current_file())   return 0;
 
    Output::set_color_mode(Output::COLM_INPUT);
-   cout << (char)c;
+   cerr << (char)c;
    return 0;
 }
 //-----------------------------------------------------------------------------

@@ -36,6 +36,8 @@ enum Pfstat_ID
 #define perfo_3(id, name) PFS_ ## id,
 #include "Performance.def"
         PFS_MAX,
+        PFS_SCALAR_B_overhead,
+        PFS_SCALAR_AB_overhead,
         PFS_ALL
 };
 //=============================================================================
@@ -108,7 +110,7 @@ protected:
    uint64_t data;
 
    /// sum of squares of sample values
-   double   data2;   // can grow quickly!
+   double data2;   // can grow quickly!
 };
 //-----------------------------------------------------------------------------
 /// performance counters for a cell level function
@@ -119,19 +121,23 @@ public:
    : Statistics(_id)
    { reset(); }
 
-   FunctionStatistics(Pfstat_ID _id, const Statistics_record & rec)
+   FunctionStatistics(Pfstat_ID _id, const Statistics_record & rec,
+                      uint64_t lsum)
    : Statistics(_id),
-     data(rec)
+     data(rec),
+     len_sum(lsum)
    {}
 
    void reset()
         {
           data.reset();
+          len_sum = 0;
         }
 
-   void add_sample(uint64_t val)
+   void add_sample(uint64_t val, uint64_t veclen)
       {
          data.add_sample(val);
+         len_sum += veclen;
        }
 
    /// overloaded Statistics::print()
@@ -145,6 +151,9 @@ public:
 
 protected:
    Statistics_record data;
+
+   /// sum of vector lengths
+   uint64_t len_sum;
 };
 //-----------------------------------------------------------------------------
 /// performance counters for a cell level function
@@ -179,10 +188,14 @@ public:
    double get_sum2() const
       { return first.get_sum2() + subsequent.get_sum2(); }
 
+   uint64_t get_count() const
+      { return first.get_count() + subsequent.get_count(); }
+
 protected:
    Statistics_record first;
    Statistics_record subsequent;
 };
+//=============================================================================
 /**
      Performance (cycle-) counters at different levels
  **/

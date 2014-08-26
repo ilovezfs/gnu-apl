@@ -2,7 +2,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* advanced realine functions compile */
-#define ADVANCED_readline 1
+/* #undef ADVANCED_readline */
 
 /* APserver listen port name */
 #define APSERVER_PATH "/tmp/GNU-APL/APserver"
@@ -86,7 +86,7 @@
 #define HAVE_LIBPTHREAD 1
 
 /* Define if you have a readline compatible library */
-#define HAVE_LIBREADLINE 1
+/* #undef HAVE_LIBREADLINE */
 
 /* Define to 1 if you have the `socket' library (-lsocket). */
 /* #undef HAVE_LIBSOCKET */
@@ -107,7 +107,7 @@
 #define HAVE_OMP_H 1
 
 /* Define to 1 if PostgreSQL libraries are available */
-#define HAVE_POSTGRESQL 1
+/* #undef HAVE_POSTGRESQL */
 
 /* Define to 1 if you have the `pow' function. */
 #define HAVE_POW 1
@@ -119,16 +119,16 @@
 /* #undef HAVE_READLINE_H */
 
 /* Define if your readline library has \`add_history' */
-#define HAVE_READLINE_HISTORY 1
+/* #undef HAVE_READLINE_HISTORY */
 
 /* Define to 1 if you have the <readline/history.h> header file. */
-#define HAVE_READLINE_HISTORY_H 1
+/* #undef HAVE_READLINE_HISTORY_H */
 
 /* Define to 1 if you have the <readline/readline.h> header file. */
-#define HAVE_READLINE_READLINE_H 1
+/* #undef HAVE_READLINE_READLINE_H */
 
 /* Have the SQLITE3 library */
-#define HAVE_SQLITE3 /**/
+/* #undef HAVE_SQLITE3 */
 
 /* Define to 1 if you have the `sqrt' function. */
 #define HAVE_SQRT 1
@@ -216,7 +216,7 @@
 #define TPUTS_arg3 char
 
 /* PostgreSQL code compiles */
-#define USABLE_PostgreSQL 1
+/* #undef USABLE_PostgreSQL */
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE

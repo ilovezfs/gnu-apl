@@ -94,9 +94,29 @@ static int    rl_delete_text(int, int)     { return 0; }
 
 
 static const char * rl_readline_name = "GnuAPL";
-static int          rl_catch_signals = 0;
 static int          rl_done = 0;
 void              (*rl_startup_hook)() = 0;
+
+static int readline_dummy()
+{
+int ret = 0;
+   ret += *rl_readline_name;
+   ret += rl_done;
+   (*rl_startup_hook)();
+   readline_dummy();
+   readline(0);
+   rl_bind_key(0, 0);
+   rl_crlf();
+   rl_delete_text(0, 0);
+   add_history(0);
+   read_history(0);
+
+   rl_initialize();
+   stifle_history(0);
+   rl_stuff_char(0);
+   rl_list_funmap_names();
+   return ret;
+}
 
 #endif //  don't HAVE_LIBREADLINE
 
@@ -107,8 +127,10 @@ no_readline(const UCS_string * prompt)
 {
    if (prompt)
       {
-        CIN << '\r' << *prompt << flush;
-        UTF8_string prompt_utf(*prompt);
+        UCS_string prompt_no_pad = prompt->no_pad();
+        CIN << '\r' << prompt_no_pad << flush;
+        UTF8_string prompt_utf(prompt_no_pad);
+
         loop(p, prompt_utf.size())
            {
              const int cc = prompt_utf[prompt_utf.size() - p - 1];

@@ -128,7 +128,7 @@ Worklist<Worklist_item1> wl;
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
 const uint64_t end_1 = cycle_counter();
-   Performance::fs_SCALAR_B.add_sample(end_1 - start_1);
+   Performance::fs_SCALAR_B.add_sample(end_1 - start_1, Z->nz_element_count());
 #endif
 #endif
 
@@ -340,7 +340,7 @@ Worklist<Worklist_item2> wl;
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
 const uint64_t end_1 = cycle_counter();
-   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1);
+   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1, Z->nz_element_count());
 #endif
 #endif
 
@@ -472,7 +472,7 @@ Value_P Z = (rank_A < rank_B) ? eval_scalar_AXB(A, axis_in_X, B, fun, false)
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
 const uint64_t end_1 = cycle_counter();
-   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1);
+   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1, Z->nz_element_count());
 #endif
 #endif
 
