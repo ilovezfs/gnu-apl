@@ -10,7 +10,7 @@ AC_USE_SYSTEM_EXTENSIONS
 # This avoids stale .o files after SVN updates. enable_dependency_tracking
 # needs to be set early in order to be recognised!
 #
-enable_dependency_tracking=no
+# enable_dependency_tracking=no
 
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_MAINTAINER_MODE([enable])
