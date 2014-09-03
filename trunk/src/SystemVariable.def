@@ -78,7 +78,9 @@ rw_sv_def(OMEGA_U )
   sf_def(Quad_SVQ)
   sf_def(Quad_SVR)
   sf_def(Quad_SVS)
+  sf_def(Quad_STOP)
   sf_def(Quad_TF)
+  sf_def(Quad_TRACE)
   sf_def(Quad_UCS)
 # undef sf_def
 #endif

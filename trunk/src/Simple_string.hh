@@ -216,7 +216,7 @@ public:
     void pop()
       { if (items_valid)   --items_valid; }
 
-   /// remove the first element
+   /// remove the first element(s)
    void drop_leading(int count)
       {
         if (count <= 0)   return;

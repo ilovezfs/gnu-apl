@@ -138,6 +138,13 @@ void throw_apl_error(ErrorCode code, const char * loc)
 #endif
 ;
 
+/// throw a tokenizer error 
+void throw_tokenize_error(ErrorCode code, const UCS_string & more_error_info)
+#ifdef __GNUC__
+    __attribute__ ((noreturn))
+#endif
+;
+
 /// throw a error with a parser location
 void throw_parse_error(ErrorCode code, const char * par_loc,
                        const char * loc)

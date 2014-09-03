@@ -137,6 +137,7 @@
 # UERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 38 6d    // ESC [0;35;48m
 # RESET-SEQUENCE         1b 5b 30 3b 33 38 3b 34 38 6d    // ESC [0;38;48m
 # CLEAR-EOL-SEQUENCE     1b 5b 4B                         // ESC [K
+# CLEAR-EOS-SEQUENCE     1b 5b 4A                         // ESC [J
 #
 # On a black background (still assuming VT100 so that the CLEAR-EOL-SEQUENCE
 # does not need to be re-defined), the following may be more suitable:

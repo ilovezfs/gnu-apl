@@ -101,7 +101,7 @@ public:
    static void diff_error();
 
    /// get one line from the current file, open the next file if necceessary
-   static const UTF8 * get_file_line() ;
+   static void get_file_line(UTF8_string & line, bool & eof);
 
    /// open the next test file 
    static void open_next_file();
@@ -112,6 +112,9 @@ public:
    /// return the current test report
    static ofstream & get_current_testreport()
       { return current_testreport; }
+
+   /// read one line from the current input file with CR and LF removed
+   static void read_file_line(UTF8_string & file_line, bool & eof);
 
 protected:
    /// dito (close files, print errors, summary etc).

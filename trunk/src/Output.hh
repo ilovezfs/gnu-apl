@@ -22,8 +22,11 @@
 #define __OUTPUT_HH_DEFINED__
 
 #include <stdio.h>
-#include <iostream>
+
 #include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <ostream>
 
 #include "Assert.hh"
 #include "UCS_string.hh"
@@ -135,6 +138,9 @@ public:
    /// escape sequences for clear to end of line
    static char clear_EOL[100];
 
+   /// escape sequences for clear to end of screen
+   static char clear_EOS[100];
+
    /// true if curses shall be used for output colors
    static bool use_curses;
 
@@ -155,5 +161,38 @@ protected:
    /// true if colors are currently enabled (by XTERM command)
    static bool colors_enabled;
 };
+
+/// a filebuf for stdin echo
+class CinOut : public filebuf
+{
+   /// overloaded filebuf::overflow
+   virtual int overflow(int c);
+};
+extern CinOut CIN_filebuf;
+
+/// an ostream for stdin echo and a few editing capabilities
+class CIN_ostream : public ostream
+{
+public:
+   CIN_ostream()
+   : ostream(&CIN_filebuf)
+   {}
+
+   /// set cursor to y:x (upper left corner is 0:0, negative y: from bottom)
+   void set_cursor(int y, int x);
+
+   /// clear to end of line
+   ostream & clear_EOL()
+      { return *this << Output::clear_EOL; }
+
+   /// clear to end of screen supported ?
+   bool can_clear_EOS() const
+      { return *Output::clear_EOS != 0; }
+
+   /// clear to end of line
+   ostream & clear_EOS()
+      { return *this << Output::clear_EOS; }
+};
+extern CIN_ostream CIN;
 
 #endif // __OUTPUT_HH_DEFINED__

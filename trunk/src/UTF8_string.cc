@@ -245,7 +245,14 @@ bool
 UTF8_string::starts_with(const char * path) const
 {
    if (path == 0)   return false;   // no path provided
-   return strncmp(path, (const char *)items, strlen(path)) == 0;
+
+const int path_len = strlen(path);
+   if (path_len > size())   return false;   // path_len longer than this string
+
+   // can't use strncmp() because this string may not be 0-terminated
+   //
+   loop(p, path_len)   if (items[p] != path[p])   return false;
+   return true;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -256,7 +263,10 @@ UTF8_string::ends_with(const char * ext) const
 const int ext_len = strlen(ext);
    if (ext_len > size())   return false;   // ext longer than this string
 
-   return strcmp(ext, (const char *)items + size() - ext_len) == 0;
+   // can't use strncmp() because this string may not be 0-terminated
+   //
+   loop(e, ext_len)   if (items[size() - ext_len + e] != ext[e])   return false;
+   return true;
 }
 //-----------------------------------------------------------------------------
 ostream &

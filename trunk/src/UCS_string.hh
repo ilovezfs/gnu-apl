@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -110,6 +110,10 @@ public:
    /// copy names etc. separated by whitespaces to \b dest
    void copy_black_list(vector<UCS_string> & dest) const;
 
+   /// \b this is a command with optional args. Remove leading and trailing
+   /// whitespaces, append args to rest, and remove args from this.
+   void split_ws(UCS_string & rest);
+
    /// return \b true iff \b this string is contained in \b list
    bool contained_in(const vector<UCS_string> & list) const;
 
@@ -128,6 +132,9 @@ public:
    /// return the last character in \b this string
    Unicode back() const
     { return size() ? (*this)[size() - 1] : Invalid_Unicode; }
+
+   /// return true if this string contains non-whitespace characters
+   bool has_black() const;
 
    /// return true if \b this starts with prefix (ASCII, case matters).
    bool starts_with(const char * prefix) const;
@@ -199,6 +206,9 @@ public:
 
    /// append number (in ASCII encoding like %d) to this string
    void append_number(ShapeItem num);
+
+   /// append number (in ASCII encoding like %d) to this string
+   void append_hex(ShapeItem num, bool uppercase);
 
    /// append number (in ASCII encoding like %lf) to this string
    void append_float(double num);

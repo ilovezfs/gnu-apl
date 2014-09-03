@@ -28,8 +28,8 @@
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "IndexIterator.hh"
-#include "Input.hh"
 #include "IntCell.hh"
+#include "LineInput.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
 #include "PrintOperator.hh"
@@ -1671,7 +1671,9 @@ quad_INP arg = _arg.u.u_quad_INP;
 
    for (;;)   // read lines until end reached.
        {
-         UCS_string line = Input::get_line();
+         bool eof = false;
+         UCS_string line;
+         InputMux::get_line(LIM_Quad_INP, 0, line, eof);
          arg.done = (line.substr_pos(*arg.end_marker) != -1);
 
          if (arg.esc1)   // start marker defined (dyadic ⎕INP)

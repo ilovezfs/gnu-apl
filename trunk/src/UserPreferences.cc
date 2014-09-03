@@ -939,6 +939,11 @@ int file_profile = 0;   // the current profile in the preferences file
               loop(p, count - 1)   Output::clear_EOL[p] = (char)(d[p] & 0xFF);
               Output::clear_EOL[count - 1] = 0;
             }
+         else if (!strcasecmp(opt, "CLEAR-EOS-SEQUENCE"))
+            {
+              loop(p, count - 1)   Output::clear_EOS[p] = (char)(d[p] & 0xFF);
+              Output::clear_EOS[count - 1] = 0;
+            }
          else if (!strcasecmp(opt, "CIN-FOREGROUND"))
             {
               Output::color_CIN_foreground = atoi(arg);

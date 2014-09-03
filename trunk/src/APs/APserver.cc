@@ -627,7 +627,7 @@ AP3_fd * ap_fd = 0;
                db.get_offered_variables(to_proc, from_proc, varnames);
                string svars((const char *)varnames.data(),
                             varnames.size()*sizeof(uint32_t));
-               OFFERING_PROCS_ARE_c(fd, svars);
+               OFFERED_VARS_ARE_c(fd, svars);
              }
              return;
 

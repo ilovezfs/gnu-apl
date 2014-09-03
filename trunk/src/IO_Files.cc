@@ -45,8 +45,8 @@ bool IO_Files::need_total = false;
 ofstream IO_Files::current_testreport;
 
 //-----------------------------------------------------------------------------
-const UTF8 *
-IO_Files::get_file_line()
+void
+IO_Files::get_file_line(UTF8_string & line, bool & eof)
 {
    while (InputFile::current_file())   // as long as we have input files
       {
@@ -59,9 +59,9 @@ IO_Files::get_file_line()
 
         // read a line with CR and LF removed.
         //
-        const UTF8 * s = Input::read_file_line();
-
-        if (s == 0)   // end of file reached: do some global checks
+        eof = false;
+        read_file_line(line, eof);
+        if (eof)   // end of file reached: do some global checks
            {
              if (InputFile::current_file() &&
                  InputFile::current_file()->with_LX)
@@ -71,22 +71,17 @@ IO_Files::get_file_line()
                   if (LX.size())   // ⎕LX pending
                      {
                        LX.append_utf8(" ⍝ ⎕LX");
-                       UTF8_string LX_utf8(LX);
-                       static UTF8 buf[2000];
-                       int len = LX_utf8.size();
-                       if (len > sizeof(buf) - 1)   len = sizeof(buf) - 1;
-                       memcpy(buf, LX_utf8.c_str(), len);
-                       buf[len] = 0;
-                       return buf;
+                       line = UTF8_string(LX);
+                       eof = false;
+                       return;
                      }
                 }
              if (end_of_current_file())   continue;   // try again.
               else                        break;      // done
            }
 
-        current_testreport << "----> " << s << endl;
-
-        return s;
+        current_testreport << "----> " << line.c_str() << endl;
+        return;
       }
 
    // arrive here when all testfiles have been read.
@@ -107,7 +102,35 @@ IO_Files::get_file_line()
           }
       }
 
-   return 0;
+   eof = true;
+}
+//-----------------------------------------------------------------------------
+void
+IO_Files::read_file_line(UTF8_string & file_line, bool & eof)
+{
+   for (;;)
+       {
+         int cc = fgetc(InputFile::current_file()->file);
+         if (cc == EOF)   // end of file
+            {
+              if (file_line.size())   break;   // EOF, but we have chars
+
+              eof = true;
+              return;
+            }
+
+         if (cc == '\n' || cc == 2)   // end of line or ^B
+            {
+              break;
+            }
+
+         if (cc == '\r')   continue;   // ignore carrige returns
+
+          file_line.append((UTF8)cc);
+       }
+
+   Log(LOG_test_execution)
+      CERR << "read_file_line() -> " << file_line << endl;
 }
 //-----------------------------------------------------------------------------
 void

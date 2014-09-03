@@ -21,7 +21,7 @@ B:
 ┗━━━━━━━━━━━━━━┛
 
 
-      ]FOO arg1 
+      ]FOO arg1
 A:
 ┏→━━━━━━━━━━━━┓
 ┃┏→━━━┓ ┏→━━━┓┃
@@ -33,7 +33,20 @@ B:
 ┃]FOO arg1┃
 ┗━━━━━━━━━┛
 
-   ]FOO 
+      ⍝ trailing spaces in arg are preserved in B (but not in  A)
+      ]FOO arg1 
+A:
+┏→━━━━━━━━━━━━┓
+┃┏→━━━┓ ┏→━━━┓┃
+┃┃]FOO┃ ┃arg1┃┃
+┃┗━━━━┛ ┗━━━━┛┃
+┗∊━━━━━━━━━━━━┛
+B:
+┏→━━━━━━━━━┓
+┃]FOO arg1 ┃
+┗━━━━━━━━━━┛
+
+   ]FOO
 A:
 ┏→━━━┓
 ┃]FOO┃
@@ -42,6 +55,17 @@ B:
 ┏→━━━┓
 ┃]FOO┃
 ┗━━━━┛
+
+   ⍝ trailing spaces in arg are preserved in B (but not in  A)
+   ]FOO 
+A:
+┏→━━━┓
+┃]FOO┃
+┗━━━━┛
+B:
+┏→━━━━┓
+┃]FOO ┃
+┗━━━━━┛
 
 ⍝ ==================================
 

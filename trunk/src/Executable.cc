@@ -136,6 +136,13 @@ Token_string in;
 const Parser parser(get_parse_mode(), loc);
    {
      ErrorCode ec = parser.parse(ucs_line, in);
+     if (ec == E_NO_TOKEN)
+        {
+          Error error(ec, LOC);
+          throw error;
+
+        }
+
      if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
    }
 

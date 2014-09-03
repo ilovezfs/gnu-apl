@@ -26,6 +26,7 @@
 #include <fstream>
 
 #include "Assert.hh"
+#include "LineInput.hh"
 #include "UCS_string.hh"
 
 using namespace std;
@@ -67,24 +68,14 @@ using namespace std;
  */
 class Input
 {
+   friend class LineInput;
+
 public:
    /// return the readline version used, 0 if readline was disabled
    static int readline_version();
 
-   /// get one line with trailing blanks removed
-   static UCS_string get_line();
-
-   /// get one line from \b filename with trailing blanks removed
-   static UTF8 * get_f_line(FILE * filename);
-
-   /// print prompt and return one line from the user
-   static UCS_string get_quad_cr_line(UCS_string prompt);
-
    /// Exit the readline library, editing the history file.
    static void exit_readline();
-
-   /// read one line from the user (-terminal) for the ∇-editor
-   static const char * get_user_line_nabla(const UCS_string * prompt);
 
    /// initialize readline library
    static void init(bool read_history);
@@ -98,12 +89,16 @@ public:
    /// location of the readline history
    static UTF8_string readline_history_path;
 
-   /// read one line from input file with CR and LF removed
-   static const UTF8 * read_file_line();
-
 protected:
+   /// get one line
+   static UCS_string get_line(LineInputMode mode);
+
+   /// print prompt and return one line from the user
+   static UCS_string get_quote_quad_line(UCS_string prompt, bool & eof);
+
    /// read one line from the user (-terminal).
-   static const unsigned char * get_user_line(const UCS_string * prompt);
+   static void get_user_line(LineInputMode mode, const UCS_string * prompt,
+                             UCS_string & user_line, bool & eof);
 
    /// prepare readline and call it
    static char * call_readline(const char *);
