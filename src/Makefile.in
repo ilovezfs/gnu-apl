@@ -111,23 +111,23 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	DerivedFunction.$(OBJEXT) Id.$(OBJEXT) IndexExpr.$(OBJEXT) \
 	IndexIterator.$(OBJEXT) Input.$(OBJEXT) InputFile.$(OBJEXT) \
 	IntCell.$(OBJEXT) LApack.$(OBJEXT) LibPaths.$(OBJEXT) \
-	Logging.$(OBJEXT) LvalCell.$(OBJEXT) main.$(OBJEXT) \
-	Malloc_hooks.$(OBJEXT) Nabla.$(OBJEXT) NamedObject.$(OBJEXT) \
-	NativeFunction.$(OBJEXT) NumericCell.$(OBJEXT) \
-	Output.$(OBJEXT) Parser.$(OBJEXT) Prefix.$(OBJEXT) \
-	PointerCell.$(OBJEXT) PrimitiveFunction.$(OBJEXT) \
-	PrimitiveOperator.$(OBJEXT) PrintBuffer.$(OBJEXT) \
-	QuadFunction.$(OBJEXT) ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) \
-	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
-	Performance.$(OBJEXT) RealCell.$(OBJEXT) Shape.$(OBJEXT) \
-	ScalarFunction.$(OBJEXT) StateIndicator.$(OBJEXT) \
-	StaticObjects.$(OBJEXT) Svar_DB.$(OBJEXT) \
-	Svar_record.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
-	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
-	Tokenizer.$(OBJEXT) UCS_string.$(OBJEXT) \
-	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
-	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
-	Workspace.$(OBJEXT)
+	LineInput.$(OBJEXT) Logging.$(OBJEXT) LvalCell.$(OBJEXT) \
+	main.$(OBJEXT) Malloc_hooks.$(OBJEXT) Nabla.$(OBJEXT) \
+	NamedObject.$(OBJEXT) NativeFunction.$(OBJEXT) \
+	NumericCell.$(OBJEXT) Output.$(OBJEXT) Parser.$(OBJEXT) \
+	Prefix.$(OBJEXT) PointerCell.$(OBJEXT) \
+	PrimitiveFunction.$(OBJEXT) PrimitiveOperator.$(OBJEXT) \
+	PrintBuffer.$(OBJEXT) QuadFunction.$(OBJEXT) \
+	ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) Quad_RL.$(OBJEXT) \
+	Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) Performance.$(OBJEXT) \
+	RealCell.$(OBJEXT) Shape.$(OBJEXT) ScalarFunction.$(OBJEXT) \
+	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
+	Svar_DB.$(OBJEXT) Svar_record.$(OBJEXT) Symbol.$(OBJEXT) \
+	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
+	IO_Files.$(OBJEXT) Token.$(OBJEXT) Tokenizer.$(OBJEXT) \
+	UCS_string.$(OBJEXT) UserFunction.$(OBJEXT) \
+	UserPreferences.$(OBJEXT) UTF8_string.$(OBJEXT) \
+	Value.$(OBJEXT) ValueHistory.$(OBJEXT) Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -450,6 +450,7 @@ InputFile.cc					InputFile.hh		\
 IntCell.cc					IntCell.hh		\
 LApack.cc								\
 LibPaths.cc					LibPaths.hh		\
+LineInput.cc					LineInput.hh		\
 Logging.cc	    Logging.def			Logging.hh		\
 LvalCell.cc					LvalCell.hh		\
 main.cc						main.hh			\
@@ -639,6 +640,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IntCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LApack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LibPaths.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LineInput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Logging.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LvalCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Malloc_hooks.Po@am__quote@
@@ -682,22 +684,25 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cc.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cc.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<

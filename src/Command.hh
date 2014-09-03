@@ -22,10 +22,47 @@
 
 #include "Value.icc"
 #include "Common.hh"
+#include "LibPaths.hh"
 #include "UTF8_string.hh"
 
 class Workspace;
 
+/// result of tab expansion
+enum ExpandResult
+{
+   ER_IGNORE,    ///< do nothing
+   ER_REPLACE,   ///< replace characters
+   ER_APPEND,    ///< append characters
+   ER_AGAIN,     ///< again (matches have been shown)
+};
+
+/// tab completion hints
+enum ExpandHint
+{
+   // o below indicates optional items
+   //
+   EH_NO_PARAM,       ///< no parameter
+
+   EH_oWSNAME,        ///< optional workspace name
+   EH_oLIB_WSNAME,    ///< library ref, workspace
+   EH_FILENAME,       ///< filename
+   EH_DIR_OR_LIB,     ///< directory path or library reference number
+   EH_DIR,            ///< directory path
+   EH_WSNAME,         ///< workspace name
+
+   EH_oFROM_oTO,      ///< optional from-to (character range)
+   EH_oON_OFF,        ///< optional ON or OFF
+   EH_SYMNAME,        ///< symbol name
+   EH_ON_OFF,         ///< ON or OFF
+   EH_LOG_NUM,        ///< log facility number
+   EH_SYMBOLS,        ///< symbol names...
+   EH_oCLEAR,         ///< optional CLEAR
+   EH_oCLEAR_SAVE,    ///< optional CLEAR or SAVE
+   EH_HOSTCMD,        ///< host command
+   EH_UCOMMAND,       ///< user-defined command
+   EH_COUNT,          ///< count
+   EH_BOXING,         ///< boxcxing parameter
+};
 //-----------------------------------------------------------------------------
 /*!
     Some command related functions, including the main input loop
@@ -55,6 +92,9 @@ public:
    /// return true if \b lib looks like a library reference (a 1-digit number
    /// or a path containing . or / chars
    static bool is_lib_ref(const UCS_string & lib);
+
+   /// perform tab expansion
+   static ExpandResult expand_tab(UCS_string & line, int & replace_count);
 
    /// clean-up and exit from APL interpreter
    static void cmd_OFF(int exit_val);
@@ -92,6 +132,9 @@ protected:
 
    /// show list of commands
    static void cmd_HELP(ostream & out);
+
+   /// show or clear input history
+   static void cmd_HISTORY(ostream & out, const UCS_string & arg);
 
    /// )HOST: execute OS command
    static void cmd_HOST(ostream & out, const UCS_string & arg);
@@ -207,6 +250,35 @@ protected:
 
    /// parse the argument of the ]LOG command and set logging accordingly
    static void log_control(const UCS_string & args);
+
+   /// perform tab expansion for command arguments
+   static ExpandResult expand_command_arg(UCS_string & user,
+                                          bool have_trailing_blank,
+                                          ExpandHint ehint,
+                                          const char * shint,
+                                          const UCS_string cmd,
+                                          const UCS_string arg);
+
+   static ExpandResult expand_filename(UCS_string & user,
+                                       bool have_trailing_blank,
+                                       ExpandHint ehint,
+                                       const char * shint,
+                                       const UCS_string cmd, UCS_string arg);
+
+   static ExpandResult expand_wsname(UCS_string & line, const UCS_string cmd,
+                                     LibRef lib, const UCS_string filename);
+
+   /// compute the lenght of the common part in all matches
+   static int compute_common_length(int len,
+                                    const vector<UCS_string> & matches);
+
+   /// read filenames in \b dir and append matching filenames to \b matches
+   static void read_matching_filenames(DIR * dir, UTF8_string dirname,
+                                       UTF8_string prefix, ExpandHint ehint,
+                                       vector<UCS_string> & matches);
+
+   static ExpandResult show_alternatives(UCS_string & user, int prefix_len,
+                                         vector<UCS_string>matches);
 
    /// format for ]BOXING
    static int boxing_format;

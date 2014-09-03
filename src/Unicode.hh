@@ -34,8 +34,19 @@ enum Unicode
 #define char_df1(n, u, t, f, p) UNI_ ## n = u,
 #include "Avec.def"
 
-  Unicode_0       = 0,            ///< End fo unicode string
-  Invalid_Unicode = 0x55AA55AA,   ///< An invalid Unicode.
+   Unicode_0       = 0,            ///< End of unicode string
+   Invalid_Unicode = 0x55AA55AA,   ///< An invalid Unicode.
+
+   // cursor control characters for line editing
+   //
+   UNI_EOF         = -1,
+   UNI_CursorUp    = -2,
+   UNI_CursorDown  = -3,
+   UNI_CursorRight = -4,
+   UNI_CursorLeft  = -5,
+   UNI_CursorEnd   = -6,
+   UNI_CursorHome  = -7,
+   UNI_InsertMode  = -8,
 
    /// internal pad characters - will be removed before printout
 #ifdef VISIBLE_MARKERS_WANTED

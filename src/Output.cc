@@ -20,7 +20,7 @@
 
 #include "../config.h"   // for HAVE_ macros from configure
 
-#if HAVE_CURSES_H && HAVE_CURSES_H
+#if HAVE_CURSES_H && (HAVE_LIBCURSES || HAVE_LIBNCURSES)
 
 # if defined(__sun) && defined(__SVR4)
 #  define NOMACROS
@@ -39,7 +39,7 @@
 #  undef tab
 # endif
 
-#else // not (HAVE_CURSES_H && HAVE_CURSES_H)
+#else // not (HAVE_CURSES_H &&  (HAVE_LIBCURSES || HAVE_LIBNCURSES))
 
 # define tputs(x, y, z)
 # define setupterm(x, y, z) -1
@@ -68,13 +68,6 @@ int Output::color_CERR_background = 8;
 int Output::color_UERR_foreground = 5;
 int Output::color_UERR_background = 8;
 
-/// a filebuf for stdin echo
-class CinOut : public filebuf
-{
-   /// overloaded filebuf::overflow
-   virtual int overflow(int c);
-} cin_filebuf;
-
 /// a filebuf for stderr output
 class ErrOut : public filebuf
 {
@@ -97,20 +90,22 @@ public:
    /// true iff the constructor for CERR was called
    static bool used;   // set when CERR is constructed
 
-} cerr_filebuf;   ///< a filebuf for CERR
+} CERR_filebuf;   ///< a filebuf for CERR
 
 bool ErrOut::used = false;
 
-DiffOut dout_filebuf(false);
-DiffOut uerr_filebuf(true);
+DiffOut DOUT_filebuf(false);
+DiffOut UERR_filebuf(true);
 
 // Android defines its own CIN, COUT, CERR, and UERR ostreams
 #ifndef WANT_ANDROID
 
-ostream CIN (&cin_filebuf);
-ostream COUT(&dout_filebuf);
-ostream CERR(cerr_filebuf.use());
-ostream UERR(&uerr_filebuf);
+CinOut CIN_filebuf;
+CIN_ostream CIN;
+
+ostream COUT(&DOUT_filebuf);
+ostream CERR(CERR_filebuf.use());
+ostream UERR(&UERR_filebuf);
 
 #endif
 
@@ -142,6 +137,9 @@ char Output::color_RESET[100] = CSI "0;30;48;2;255;255;255m";
 
 /// VT100 escape sequence to clear to end of line
 char Output::clear_EOL[100] = CSI "K";
+
+/// VT100 escape sequence to clear to end of screen
+char Output::clear_EOS[100] = CSI "J";
 
 //-----------------------------------------------------------------------------
 int
@@ -191,7 +189,7 @@ Output::putc_stdout(TPUTS_arg3 ch)
 void
 Output::reset_dout()
 {
-   dout_filebuf.reset();
+   DOUT_filebuf.reset();
 }
 //-----------------------------------------------------------------------------
 void
@@ -289,5 +287,21 @@ int a = 0;
    if (arg.starts_iwith("ON"))         colors_enabled = true;
    else if (arg.starts_iwith("OFF"))   colors_enabled = false;
    else                                colors_enabled = !colors_enabled;
+}
+//=============================================================================
+void
+CIN_ostream::set_cursor(int y, int x)
+{
+   if (y < 0)
+      {
+        // y < 0 means from bottom upwards
+        //
+        *this << "\x1B[30;" << (1 + x) << "H\x1B[99B";
+        if (y < -1)   *this << "\x1B[" << (-(y + 1)) << "A";
+      }
+   else
+      {
+        *this << "\x1B[" << (1 + y) << ";" << (1 + x) << 'H' << std::flush;
+      }
 }
 //-----------------------------------------------------------------------------

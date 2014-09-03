@@ -189,6 +189,21 @@ Error error(code, loc);
 }
 //-----------------------------------------------------------------------------
 void
+throw_tokenize_error(ErrorCode code, const UCS_string & more_error_info)
+{
+   Log(LOG_error_throw)
+      CERR << endl
+           << "throwing " << Error::error_name(code)
+           << " in  Tokenizer" << endl;
+
+   Workspace::more_error() = more_error_info;
+
+Error error(code, LOC);
+
+   throw error;
+}
+//-----------------------------------------------------------------------------
+void
 throw_parse_error(ErrorCode code, const char * par_loc, const char *loc)
 {
    Log(LOG_error_throw)

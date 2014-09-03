@@ -410,6 +410,24 @@ int count = 0;
    drop_leading(count);
 }
 //-----------------------------------------------------------------------------
+void
+UCS_string::split_ws(UCS_string & rest)
+{
+   remove_leading_and_trailing_whitespaces();
+
+   loop(clen, size())
+       {
+         if ((*this)[clen] <= UNI_ASCII_SPACE)   // whilespace: end of command
+            {
+              ShapeItem arg = clen;
+              while (arg < size() && (*this)[arg] <= UNI_ASCII_SPACE)   ++arg;
+              while (arg < size())   rest.append((*this)[arg++]);
+              shrink(clen);
+              return;
+            }
+       }
+}
+//-----------------------------------------------------------------------------
 /// constructor
 UCS_string::UCS_string(const Value & value)
    : Simple_string<Unicode>(0, 0)
@@ -486,6 +504,13 @@ const int start_positions = 1 + size() - sub.size();
       }
 
    return -1;   // not found
+}
+//-----------------------------------------------------------------------------
+bool 
+UCS_string::has_black() const
+{
+   loop(s, size())   if ((*this)[s] >= UNI_ASCII_SPACE)   return true;
+   return false;
 }
 //-----------------------------------------------------------------------------
 bool 
@@ -645,6 +670,19 @@ UCS_string::append_number(ShapeItem num)
 {
 char cc[40];
    snprintf(cc, sizeof(cc) - 1, "%lld", (long long)num);
+   loop(c, sizeof(cc))
+      {
+        if (cc[c])   append(Unicode(cc[c]));
+        else         break;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+UCS_string::append_hex(ShapeItem num, bool uppercase)
+{
+const char * format = uppercase ? "%llX" : "%llx";
+char cc[40];
+   snprintf(cc, sizeof(cc) - 1, format, (long long)num);
    loop(c, sizeof(cc))
       {
         if (cc[c])   append(Unicode(cc[c]));

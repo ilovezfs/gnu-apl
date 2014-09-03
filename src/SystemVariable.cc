@@ -34,8 +34,8 @@
 #include "Common.hh"
 #include "FloatCell.hh"
 #include "IndexExpr.hh"
-#include "Input.hh"
 #include "IntCell.hh"
+#include "LineInput.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
@@ -672,9 +672,12 @@ Quad_Quad::resolve(Token & token, bool left)
 
    COUT << UNI_Quad_Quad << ":" << endl;
 
-UCS_string in = Input::get_line();
+bool eof = false;
+UCS_string line;
+   InputMux::get_line(LIM_Quad_Quad, 0, line, eof);
+   line.remove_leading_and_trailing_whitespaces();
 
-   move_2(token, Bif_F1_EXECUTE::execute_statement(in), LOC);
+   move_2(token, Bif_F1_EXECUTE::execute_statement(line), LOC);
 }
 //=============================================================================
 Quad_QUOTE::Quad_QUOTE()
@@ -745,7 +748,9 @@ Quad_QUOTE::get_apl_value() const
    //
 const UCS_string old_prompt(prompt);
 
-UCS_string in = Input::get_quad_cr_line(old_prompt);
+bool eof = false;
+UCS_string line;
+   InputMux::get_line(LIM_Quote_Quad, &old_prompt, line, eof);
    done(false, LOC);   // if get_quad_cr_line() has not called it
 
    if (interrupt_raised)   INTERRUPT;
@@ -754,15 +759,15 @@ const UCS_string qpr = Workspace::get_PR();
 
    if (qpr.size() > 0)   // valid prompt replacement char
       {
-        loop(i, in.size())
+        loop(i, line.size())
            {
              if (i >= old_prompt.size())   break;
-             if (old_prompt[i] != in[i])   break;
-             in[i] = qpr[0];
+             if (old_prompt[i] != line[i])   break;
+             line[i] = qpr[0];
            }
       }
 
-Value_P Z(new Value(in, LOC));
+Value_P Z(new Value(line, LOC));
    Z->check_value(LOC);
    return Z;
 }

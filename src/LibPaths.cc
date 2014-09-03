@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -232,7 +233,6 @@ LibPaths::get_lib_dir(LibRef libref)
 
         case LibDir::CS_PREF_SYS:
         case LibDir::CS_PREF_HOME: return lib_dirs[libref].dir_path;
-
       }
 
 UTF8_string ret(APL_lib_root);
@@ -365,6 +365,19 @@ UTF8_string filename = get_lib_dir(lib);
         else if (ext2) filename.append_str(ext2);
         return filename;
       }
+}
+//-----------------------------------------------------------------------------
+bool
+LibPaths::is_present(LibRef lib)
+{
+   // try to open dir and return false if that fails
+   //
+UTF8_string path = LibPaths::get_lib_dir(lib);
+DIR * dir = opendir(path.c_str());
+   if (!dir)   return false;
+
+   closedir(dir);
+   return true;
 }
 //-----------------------------------------------------------------------------
 

@@ -383,7 +383,6 @@ const bool log_startup = uprefs.log_startup_wanted();
            }
       }
 
-
    if (uprefs.daemon)
       {
         const pid_t pid = fork();

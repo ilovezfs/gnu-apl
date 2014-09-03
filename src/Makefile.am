@@ -53,6 +53,7 @@ InputFile.cc					InputFile.hh		\
 IntCell.cc					IntCell.hh		\
 LApack.cc								\
 LibPaths.cc					LibPaths.hh		\
+LineInput.cc					LineInput.hh		\
 Logging.cc	    Logging.def			Logging.hh		\
 LvalCell.cc					LvalCell.hh		\
 main.cc						main.hh			\

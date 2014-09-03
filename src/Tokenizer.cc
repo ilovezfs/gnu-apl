@@ -94,7 +94,11 @@ Source<Unicode> src(input);
             {
               case TC_END:   // chars without APL meaning
                    rest_2 = src.rest();
-                   throw_parse_error(E_NO_TOKEN, LOC, loc);
+                   {
+                     UCS_string more("Tokenizer: No token for Unicode U+");
+                     more.append_hex(uni, true);
+                     throw_tokenize_error(E_NO_TOKEN, more);
+                   }
                    break;
 
               case TC_RETURN:
@@ -515,28 +519,30 @@ Tokenizer::tokenize_number(Source<Unicode> & src, Token_string & tos)
    // real 'R' real   // magnitude + angle in radian
 
 APL_Float real_flt   = 0.0;   // always valid
-APL_Integer real_int = 0.0;   // valid if real_floating is true
-const bool real_valid = tokenize_real(src, real_flt, real_int);
-bool real_floating = real_flt != real_int;
-
+APL_Integer real_int = 0;     // valid if need_float is false
+bool need_float = false;
+const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
    if (!real_valid)
       {
         rest_2 = src.rest();
         throw_parse_error(E_BAD_NUMBER, LOC, loc);
       }
-   else if (src.rest() && *src == UNI_ASCII_J)
+
+   if (src.rest() && *src == UNI_ASCII_J)
       {
         ++src;   // skip 'J'
 
-        APL_Float   imag_flt;   // always valid
-        APL_Integer imag_int;   // valid if real_floating is true
-        const bool imag_valid =  tokenize_real(src, imag_flt, imag_int);
+        APL_Float   imag_flt = 0.0;   // always valid
+        APL_Integer imag_int = 0;   // valid if need_float is false
+        bool need_float = false;
+        const bool imag_valid = tokenize_real(src, need_float,
+                                              imag_flt, imag_int);
 
         if (!imag_valid)
            {
              --src;
-             if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
-             else                 tos.append(Token(TOK_INTEGER, real_int));
+             if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
+             else              tos.append(Token(TOK_INTEGER, real_int));
              return;
            }
 
@@ -546,15 +552,17 @@ bool real_floating = real_flt != real_int;
       {
         ++src;   // skip 'D'
 
-        APL_Float   degrees_flt;  // always valid
-        APL_Integer degrees_int;  // valid if imag_floating is true
-        const bool imag_valid = tokenize_real(src, degrees_flt, degrees_int);
+        APL_Float   degrees_flt = 0;  // always valid
+        APL_Integer degrees_int = 0;  // valid if imag_floating is true
+        bool need_float = false;
+        const bool imag_valid = tokenize_real(src, need_float,
+                                              degrees_flt, degrees_int);
 
         if (!imag_valid)
            {
              --src;
-             if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
-             else                 tos.append(Token(TOK_INTEGER, real_int));
+             if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
+             else              tos.append(Token(TOK_INTEGER, real_int));
              return;
            }
 
@@ -570,13 +578,15 @@ bool real_floating = real_flt != real_int;
 
         APL_Float radian_flt;     // always valid
         APL_Integer radian_int;   // valid if imag_floating is true
-        const bool imag_valid = tokenize_real(src, radian_flt, radian_int);
+        bool need_float = false;
+        const bool imag_valid = tokenize_real(src, need_float,
+                                              radian_flt, radian_int);
 
         if (!imag_valid)
            {
              --src;
-             if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
-             else                 tos.append(Token(TOK_INTEGER, real_int));
+             if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
+             else              tos.append(Token(TOK_INTEGER, real_int));
              return;
            }
 
@@ -588,163 +598,209 @@ bool real_floating = real_flt != real_int;
       }
    else 
      {
-         if (real_floating)   tos.append(Token(TOK_REAL,    real_flt));
-         else                 tos.append(Token(TOK_INTEGER, real_int));
+         if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
+         else              tos.append(Token(TOK_INTEGER, real_int));
       }
 }
 //-----------------------------------------------------------------------------
 bool
-Tokenizer::tokenize_real(Source<Unicode> &src, APL_Float & flt_val,
-                         APL_Integer & int_val)
+Tokenizer::tokenize_real(Source<Unicode> & src, bool & need_float,
+                         APL_Float & flt_val, APL_Integer & int_val)
 {
-bool dot_seen = false;
-int E_pos = 0;   // position of 'e' in utf
-int minus_pos = 0;   // position of (exponent-) ¯ in utf
-bool digit_seen = false;
+   flt_val = 0.0;
+   int_val = 0;
+   need_float = false;
+   
+UTF8_string digits;
+UTF8_string fract_part;
+UTF8_string expo_part;
+bool negative = false;
+bool expo_negative = false;
 
-   // copy chars from src to utf
+   // leading sign
    //
-UTF8_string utf;
-
-   // a '¯' can occur in the mantissa and in the exponent. To make a '¯'
-   // unique, we handle a leading (i.e. mantissa) '¯' beforehand.
-   //
-   if (*src == UNI_OVERBAR)
+   if (src.rest() && *src == UNI_OVERBAR)
       {
-        utf.append('-');
+        negative = true;
         ++src;
       }
 
-   for (bool goon = true; goon && src.rest();)
-      {
-        const Unicode cc = src.get();
-        switch(cc)
-           {
-             case UNI_ASCII_0 ... UNI_ASCII_9:
-                  utf.append(cc);
-                  digit_seen = true;
-                  break;
-
-             case UNI_ASCII_FULLSTOP:
-                  if (dot_seen || E_pos)   return false;   // error
-                  utf.append('.');
-                  dot_seen = true;
-                  break;
-
-             case UNI_ASCII_E:
-             case UNI_ASCII_e:
-                  if (E_pos)   return false;   // a second e or E
-                  utf.append('e');
-                  E_pos = utf.size();
-                  break;
-
-             case UNI_OVERBAR:
-                  if (!E_pos)      return false;   // ¯ without E
-                  if (minus_pos)   return false;   // a second ¯ in exponent
-
-                  utf.append('-');
-                  minus_pos = utf.size();
-                  break;
-
-             default: --src;   goon = false;
-           }
-      }
-
-   // handle E or E¯ without exponent digits
+   // leading zeros in integer part
    //
-   if (utf.size() == E_pos)       return false;
-   if (utf.size() == minus_pos)   return false;
-   {
-     const int real_cnt = sscanf(utf.c_str(), "%lg", &flt_val);
-     long long int_val1;
-                          sscanf(utf.c_str(), "%lld", &int_val1);
-     int_val = int_val1;
-     if (digit_seen && (real_cnt > 0))   return true;   // valid real number
-   }
-
-
-   // invalid number: restore src
-   //
-   return false;
-}
-//-----------------------------------------------------------------------------
-#if 0
-int
-Tokenizer::scan_real(const char * strg, double & result,
-                     int E_pos, int minus_pos)
-{
-   // this function (which is currently not used) shall become a locale
-   // independent sscanf. Currently it gives slightly different results
-   // than sscanf (rounding errors?) and therefore breaks a few testcases.
-   // TODO!
-   //
-const bool negative = *strg == '-';
-int p = 0;
-int expo_f = 0;
-int expo_E = 0;
-
-   if (negative)   ++p;   // leading -
-
-   result = 0;
-
-   // the caller has filtered everything but 0-9 . - and e.
-   //
+   while (src.rest() && *src == '0')   ++src;
 
    // integer part
    //
-   for (;;)
+   while (src.rest() && *src >= '0' && *src <= '9')
       {
-        const char cc = strg[p++];
-        if (cc == 0)     goto done;
-        if (cc == '.')   goto fract;
-        if (cc == 'e')   goto expo;
-        result *= 10;
-        result += cc - '0';
+        digits.append(src.get());
       }
 
-fract:
-   for (;;)
+   // fractional part
+   //
+   if (src.rest() &&  *src == UNI_ASCII_FULLSTOP)   // fract part present
       {
-        const char cc = strg[p++];
-        if (cc == 0)     goto done;
-        if (cc == 'e')   goto expo;
-        result *= 10;
-        result += cc - '0';
-        --expo_f;
+        ++src;
+        while (src.rest() && *src >= '0' && *src <= '9')
+           {
+             fract_part.append(src.get());
+           }
       }
 
-expo:
-   {
-     if (minus_pos)   p = minus_pos;
-     else             p = E_pos;
-
-   for (;;)
+   // exponent part
+   //
+   if (src.rest() &&
+       (*src == UNI_ASCII_E || *src == UNI_ASCII_e))   // exponent present
       {
-        const char cc = strg[p++];
-        if (cc == 0)     break;
-        expo_E *= 10;
-        expo_E += cc - '0';
+        need_float = true;
+        ++src;   // skip e/E
+        if (src.rest() && *src == UNI_OVERBAR)
+           {
+             ++src;   // skip ¯
+             expo_negative = true;
+           }
+
+        while (src.rest() && *src >= '0' && *src <= '9')
+           {
+             expo_part.append(src.get());
+           }
       }
-   }
 
-done:
-     if (minus_pos)   expo_E = -expo_E;
-     expo_E += expo_f;
+int expo = 0;
+   loop(d, expo_part.size())   expo = 10*expo + (expo_part[d] - '0');
+   if (expo_negative)   expo = - expo;
+   expo += digits.size();
 
-     if (expo_E)
-        {
-          if (expo_E <= -308)
-             {
-               result = 0;
-               return 1;
-             }
-          result *= exp10(expo_E);
-        }
+   digits.append(fract_part);
 
-   if (negative)   result = -result;
-   return 1;
+   // at this point, digits is the fractional part ff... of 0.ff... ×10⋆expo
+   // discard leading fractional 0s and adjust expo accordingly
+   //
+   while (digits.size() && digits[0] == '0')
+      {
+        digits.drop_leading(1);   // discard '0'
+        --expo;
+      }
+
+   // at this point, digits is the fractional part ff... of 0.ff... ×10⋆expo
+   // from 0.1000... to 0.9999... Discard digits beyond integer precision.
+   //
+   // The largest 64-bit integer is 0x7FFFFFFFFFFFFFFF = 9223372036854775807
+   // which has 19 decimal digits. Discard all after first 20 digits and
+   // round according to the last digit.
+   //
+   if (digits.size() > 20)   digits.shrink(20);
+
+   if (digits.size() == 20)
+      {
+        bool carry = false;
+        if (digits.last() >= '5')   // round up
+           {
+             carry = true;
+             for (int j = digits.size() - 2; j >= 0; --j)
+                 {
+                   if (digits[j] == '9')   // propagate carry
+                      {
+                         digits[j] = '0';
+                      }
+                   else                    // eat carry
+                      {
+                         ++digits[j];
+                         carry = false;
+                         break;
+                      }
+                 }
+           }
+
+
+        // if carry survived then digits were 0.999... which was then rounded
+        // up to 1.000...
+        //
+        if (carry)
+           {
+             ++expo;   // 1.0 → 0.1
+             digits.shrink(1);
+             digits[0] = '1';
+           }
+        else
+           {
+             digits.pop();   // discard 20th digit.
+           }
+      }
+
+   // special cases: all digits 0 or very small number
+   //
+   if (digits.size() == 0)   return true;   // all digits were 0
+   if (expo <= -307)         return true;   // very small number
+
+   Assert(digits.size() <= 19);
+
+   if (expo > 19)   need_float = true;   /// large integer
+
+   // special case: integer between 9223372036854775807 and 9999999999999999999
+   //
+   if (expo == 19 && digits[0] == '9')
+      {
+        const char * maxint = "9223372036854775807";
+        loop(j, digits.size())
+            {
+               if (digits[j] < maxint[j])   break;
+               if (digits[j] == maxint[j])   continue;
+               need_float = true;
+               break;
+            }
+      }
+
+   if (digits.size() > expo)   need_float = true;
+
+   if (need_float)
+      {
+        if (digits.size() > 17)   digits.shrink(17);
+
+       int64_t v = 0;
+        loop(j, digits.size())
+          {
+            v = 10*v + (digits[j] - '0');
+            --expo;
+          }
+
+        flt_val = v;
+        if (expo > 0)
+           {
+             if (expo >= 256)   { expo -= 256;   flt_val *= 1E256; }
+             if (expo >= 128)   { expo -= 128;   flt_val *= 1E128; }
+             if (expo >=  64)   { expo -=  64;   flt_val *= 1E64;  }
+             if (expo >=  32)   { expo -=  32;   flt_val *= 1E32;  }
+             if (expo >=  16)   { expo -=  16;   flt_val *= 1E16;  }
+             if (expo >=   8)   { expo -=   8;   flt_val *= 1E8;   }
+             if (expo >=   4)   { expo -=   4;   flt_val *= 1E4;   }
+             if (expo >=   2)   { expo -=   2;   flt_val *= 1E2;   }
+             if (expo >=   1)   { expo -=   1;   flt_val *= 1E1;   }
+           }
+        else if (expo < 0)
+           {
+             if (expo <= -256)   { expo += 256;   flt_val /= 1E256; }
+             if (expo <= -128)   { expo += 128;   flt_val /= 1E128; }
+             if (expo <=  -64)   { expo +=  64;   flt_val /= 1E64;  }
+             if (expo <=  -32)   { expo +=  32;   flt_val /= 1E32;  }
+             if (expo <=  -16)   { expo +=  16;   flt_val /= 1E16;  }
+             if (expo <=   -8)   { expo +=   8;   flt_val /= 1E8;   }
+             if (expo <=   -4)   { expo +=   4;   flt_val /= 1E4;   }
+             if (expo <=   -2)   { expo +=   2;   flt_val /= 1E2;   }
+             if (expo <=   -1)   { expo +=   1;   flt_val /= 1E1;   }
+           }
+        if (negative)   flt_val = - flt_val;
+      }
+   else
+      {
+        int_val = 0;
+        loop(j, digits.size())   int_val = 10*int_val + (digits[j] - '0');
+        if (negative)   int_val = - int_val;
+        flt_val = int_val;
+      }
+
+   return true;
 }
-#endif
 //-----------------------------------------------------------------------------
 void
 Tokenizer::tokenize_symbol(Source<Unicode> & src, Token_string & tos)

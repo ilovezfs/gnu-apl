@@ -21,7 +21,6 @@
 #include "Avec.hh"
 #include "Common.hh"
 #include "DiffOut.hh"
-#include "Input.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
 #include "main.hh"
@@ -48,8 +47,10 @@ ofstream & rep = IO_Files::get_current_testreport();
    Assert(rep.is_open());
 
 const char * apl = aplout.c_str();
-const UTF8 * ref = Input::read_file_line();
-   if (ref == 0)   // nothing in current_testfile
+UTF8_string ref;
+bool eof = false;
+   IO_Files::read_file_line(ref, eof);
+   if (eof)   // nothing in current_testfile
       {
         rep << "extra: " << apl << endl;
         return 0;
@@ -57,11 +58,11 @@ const UTF8 * ref = Input::read_file_line();
 
    // print common part.
    //
-   if (different((const UTF8 *)apl, ref))   // different
+   if (different((const UTF8 *)apl, (const UTF8 *)ref.c_str()))   // different
       {
         IO_Files::diff_error();
         rep << "apl: ⋅⋅⋅" << apl << "⋅⋅⋅" << endl
-            << "ref: ⋅⋅⋅" << ref << "⋅⋅⋅" << endl;
+            << "ref: ⋅⋅⋅" << ref.c_str() << "⋅⋅⋅" << endl;
       }
    else                    // same
       {

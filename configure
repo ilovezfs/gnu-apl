@@ -4190,7 +4190,7 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
 # This avoids stale .o files after SVN updates. enable_dependency_tracking
 # needs to be set early in order to be recognised!
 #
-enable_dependency_tracking=yes
+enable_dependency_tracking=no
 
 am__api_version='1.14'
 

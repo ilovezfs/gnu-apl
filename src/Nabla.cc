@@ -21,8 +21,8 @@
 
 #include "Avec.hh"
 #include "Command.hh"
-#include "Input.hh"
 #include "InputFile.hh"
+#include "LineInput.hh"
 #include "Logging.hh"
 #include "Nabla.hh"
 #include "Output.hh"
@@ -93,9 +93,11 @@ int control_D_count = 0;
    while (!do_close)
        {
          const UCS_string prompt = current_line.print_prompt();
-         const char * line = Input::get_user_line_nabla(&prompt);
+         bool eof = false;
+         UCS_string line;
+         InputMux::get_line(LIM_Nabla, &prompt, line, eof);
 
-         if (line == 0)   // end-of-input (^D) pressed
+         if (eof)   // end-of-input (^D) pressed
             {
               ++control_D_count;
               if (control_D_count < 5)
@@ -107,9 +109,7 @@ int control_D_count = 0;
                Command::cmd_OFF(2);
             }
 
-         const UTF8_string utf(line);
-         UCS_string ucs(utf);
-         if (const char * loc = parse_oper(ucs, false))
+         if (const char * loc = parse_oper(line, false))
             {
               UERR << "??? " << loc << endl;
               continue;

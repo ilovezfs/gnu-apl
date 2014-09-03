@@ -28,6 +28,7 @@
 #include "Input.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
+#include "LineInput.hh"
 #include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
@@ -120,33 +121,6 @@ int ret = 0;
 
 #endif //  don't HAVE_LIBREADLINE
 
-// a function to be used if readline() does not exist or
-// is not wanted
-static char *
-no_readline(const UCS_string * prompt)
-{
-   if (prompt)
-      {
-        UCS_string prompt_no_pad = prompt->no_pad();
-        CIN << '\r' << prompt_no_pad << flush;
-        UTF8_string prompt_utf(prompt_no_pad);
-
-        loop(p, prompt_utf.size())
-           {
-             const int cc = prompt_utf[prompt_utf.size() - p - 1];
-             ungetc(cc & 0xFF, stdin);
-           }
-      }
-
-static char buffer[MAX_INPUT_LEN];   // returned as result
-const char * s = fgets(buffer, sizeof(buffer) - 1, stdin);
-   if (s == 0)   return 0;
-
-int len = strlen(buffer);
-   if (len && buffer[len - 1] == '\n')   buffer[--len] = 0;
-   if (len && buffer[len - 1] == '\r')   buffer[--len] = 0;
-   return buffer;
-}
 //-----------------------------------------------------------------------------
 void
 Input::init(bool do_read_history)
@@ -169,6 +143,8 @@ Input::init(bool do_read_history)
 //      rl_function_dumper(1);
       }
 #endif
+
+   if (!use_readline)   LineInput::init(do_read_history);
 }
 //-----------------------------------------------------------------------------
 int
@@ -182,86 +158,42 @@ Input::readline_version()
 }
 //-----------------------------------------------------------------------------
 UCS_string
-Input::get_line()
+Input::get_line(LineInputMode mode)
 {
-   Quad_QUOTE::done(true, LOC);
-   InputFile::increment_current_line_no();
-
-const char * input_type = "?";
-const UTF8 * buf = IO_Files::get_file_line();
-
-   if (buf)   // we got a line from a test file.
-      {
-        input_type = "-T";
-        CIN << Workspace::get_prompt() << buf << endl;
-      }
-
 const APL_time_us from = now();
-int control_D_count = 0;
-   while (buf == 0)
-      {
-        input_type = "U";
+UCS_string user_line;
+   for (int control_D_count = 0; ; ++control_D_count)
+       {
         Output::set_color_mode(Output::COLM_INPUT);
-        buf = get_user_line(&Workspace::get_prompt());
+        bool eof = false;
+        get_user_line(mode, &Workspace::get_prompt(), user_line, eof);
 
-        if (buf == 0)   // ^D or end of file
+        if (!eof)   break;
+
+        // ^D or end of file
+        if (control_D_count < 5)
            {
-             ++control_D_count;
-             if (control_D_count < 5)
-                {
-                  CIN << endl;
-                  COUT << "      ^D or end-of-input detected ("
-                       << control_D_count << "). Use )OFF to leave APL!"
-                       << endl;
-                }
+             CIN << endl;
+             COUT << "      ^D or end-of-input detected ("
+                  << control_D_count << "). Use )OFF to leave APL!"
+                  << endl;
+           }
 
-             if (control_D_count > 10 && (now() - from)/control_D_count < 10000)
-                {
-                  // we got 10 or more times buf == 0 at a rate of 10 ms or
-                  // faster. That looks like end-of-input rather than ^D
-                  // typed by the user. Abort the interpreter.
-                  //
-                  CIN << endl;
-                  COUT << "      *** end of input" << endl;
-                  Command::cmd_OFF(2);
-                }
+        if (control_D_count > 10 && (now() - from)/control_D_count < 10000)
+           {
+             // we got 10 or more times buf == 0 at a rate of 10 ms or
+             // faster. That looks like end-of-input rather than ^D
+             // typed by the user. Abort the interpreter.
+             //
+             CIN << endl;
+             COUT << "      *** end of input" << endl;
+             Command::cmd_OFF(2);
            }
       }
 
-size_t len = strlen((const char *)buf);
+   Log(LOG_get_line)   CERR << " '" << user_line << "'" << endl;
 
-   // strip trailing blanks.
-   //
-   while (len && (buf[len - 1] <= ' '))   --len;
-   if (len == 0)   return UCS_string();
-
-   // strip leading blanks.
-   //
-const UTF8 * buf1 = buf;
-   while (len && buf1[0] <= ' ')   { ++buf1;  --len; }
-
-UTF8_string utf(buf1, len);
-
-   Log(LOG_get_line)
-      CERR << input_type << " '" << utf << "'" << endl;
-
-   return UCS_string(utf);
-}
-//-----------------------------------------------------------------------------
-UTF8 *
-Input::get_f_line(FILE * file)
-{
-static char buffer[MAX_INPUT_LEN];
-
-const char * s = fgets(buffer, sizeof(buffer) - 1, file);
-   if (s == 0)   return 0;// end of file
-
-   buffer[sizeof(buffer) - 1] = 0;   // make strlen happy.
-size_t len = strlen(buffer);
-   if (buffer[len - 1] == '\n')   buffer[--len] = 0;
-   if (buffer[len - 1] == '\r')   buffer[--len] = 0;
-
-   return (UTF8 *)&buffer;
+   return user_line;
 }
 //-----------------------------------------------------------------------------
 void
@@ -270,20 +202,29 @@ Input::exit_readline()
 #if HAVE_LIBREADLINE
    write_history(readline_history_path.c_str());
 #endif
+
+   if (!use_readline)   LineInput::close();
 }
 //-----------------------------------------------------------------------------
-const unsigned char *
-Input::get_user_line(const UCS_string * prompt)
+void
+Input::get_user_line(LineInputMode mode, const UCS_string * prompt,
+                     UCS_string & user_line, bool & eof)
 {
    if (start_input)   (*start_input)();
 
 const APL_time_us from = now();
-char * line;
+const char * line;
    if (!use_readline)
       {
-        line = no_readline(prompt);
+        bool eof = false;
+        LineInput::no_readline(mode, prompt, user_line, eof);
+        Workspace::add_wait(now() - from);
+        if (end_input)   (*end_input)();
+        return;
       }
-   else if (prompt)
+
+   // use readline
+   if (prompt)
       {
         UTF8_string prompt_utf(*prompt);
         line = call_readline(prompt_utf.c_str());
@@ -293,63 +234,32 @@ char * line;
         line = call_readline(0);
       }
 
+   Workspace::add_wait(now() - from);
+
    if (end_input)   (*end_input)();
 
-const APL_time_us to = now();
-   Workspace::add_wait(to - from);
-
-UTF8 * l = (UTF8 *)line;
-   if (l)
+   if (line == 0)
       {
-        while (*l && *l <= ' ')   ++l;   // skip leading whitespace
-
-        if (use_readline && *l)   add_history(line);
+        user_line.clear();
+        eof = true;
+        return;
       }
 
-   return l;
-}
-//-----------------------------------------------------------------------------
-const char *
-Input::get_user_line_nabla(const UCS_string * prompt)
-{
-   InputFile::increment_current_line_no();
-
-const UTF8 * line = IO_Files::get_file_line();
-   if (line)   return (const char *)line;
-   return (const char *)get_user_line(prompt);
+UTF8_string user_line_utf(line);
+   user_line = UCS_string(user_line_utf);
 }
 //-----------------------------------------------------------------------------
 UCS_string
-Input::get_quad_cr_line(UCS_string ucs_prompt)
+Input::get_quote_quad_line(UCS_string ucs_prompt, bool & eof)
 {
-   if (InputFile::is_validating())
-      {
-        Quad_QUOTE::done(true, LOC);
-
-        const UTF8 * line = IO_Files::get_file_line();
-        if (line)
-           {
-             // for each leading backspace in line: remove last prompt char
-             while (line[0] == UNI_ASCII_BS && ucs_prompt.size() > 0)
-                {
-                  ++line;
-                  ucs_prompt.shrink(ucs_prompt.size() - 1);
-                }
-
-             UCS_string ret(ucs_prompt);
-             ret.append_utf8(line);
-             return ret;
-           }
-
-        // no more testcase lines: fall through to terminal input
-      }
-
 UTF8_string utf_prompt(ucs_prompt);
 
 const char * line;
    if (!use_readline)
       {
-        line = no_readline(&ucs_prompt);
+        UCS_string user_line;
+        LineInput::no_readline(LIM_Quote_Quad, 0, user_line, eof);
+        return user_line;
       }
    else
       {
@@ -366,42 +276,10 @@ const char * line;
         if (old_interrupt_count < interrupt_count)   interrupt_raised = true;
       }
 
-   if (line == 0)   return UCS_string();
+   if (line == 0)   { eof = true;   return UCS_string(); }
 
 const UTF8_string uline(line);
    return UCS_string(uline);
-}
-//-----------------------------------------------------------------------------
-const UTF8 *
-Input::read_file_line()
-{
-static char buf[2000];
-int b = 0;
-   for (;b < sizeof(buf) - 1; ++b)
-       {
-         int cc = fgetc(InputFile::current_file()->file);
-         if (cc == EOF)   // end of file
-            {
-              if (b == 0)   return 0;
-              break;
-            }
-
-         if (cc == '\n' || cc == 2)   // end of line or ^B
-            {
-              break;
-            }
-
-         if (cc == '\r')   continue;   // ignore carrige returns
-
-          buf[b] = cc;
-       }
-
-   buf[b] = 0;
-
-   Log(LOG_test_execution)
-      CERR << "read_file_line() -> " << buf << endl;
-
-   return (UTF8 *)buf;
 }
 //-----------------------------------------------------------------------------
 char *
