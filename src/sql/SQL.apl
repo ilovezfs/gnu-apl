@@ -106,8 +106,11 @@
   Z←db SQL[9] table
 ∇
 
-∇Z←X (F SQL∆WithTransaction FINDDB) Y;result
-  SQL∆Begin FINDDB
+∇Z←db (F SQL∆WithTransaction) R;result
+⍝⍝ Call function F inside a transaction. F will be called with
+⍝⍝ argument R. If an error occurs while F runs, the transaction will
+⍝⍝ be rolled back.
+  SQL∆Begin db
 
   →(0≠⎕NC 'X')/dyadic
   result ← '→rollback' ⎕EA 'F Y'
@@ -117,12 +120,12 @@ dyadic:
   result ← '→rollback' ⎕EA 'X F Y'
 
 commit:
-  SQL∆Commit FINDDB
+  SQL∆Commit db
   Z ← result
   →end
 
 rollback:
-  SQL∆Rollback FINDDB
+  SQL∆Rollback db
   ⎕ES "Transaction rolled back"
 end:
 ∇
@@ -132,15 +135,15 @@ end:
 ⍝
 
 ∇Z←SQL⍙metadata
-Z ← ,[0.5] 'Author' 'Elias Mårtenson'
-Z ← Z,[1] 'BugEmail' 'bug-apl@gnu.org'
-Z ← Z,[1] 'Documentation' ''
-Z ← Z,[1] 'Download' 'https://github.com/lokedhs/apl-sqlite'
-Z ← Z,[1] 'License' 'LGPL'
-Z ← Z,[1] 'Portability' 'L3'
-Z ← Z,[1] 'Provides' 'SQL'
-Z ← Z,[1] 'Requires' ''
-Z ← Z,[1] 'Version' '1.0'
+  Z ← ,[0.5] 'Author' 'Elias Mårtenson'
+  Z ← Z,[1] 'BugEmail' 'bug-apl@gnu.org'
+  Z ← Z,[1] 'Documentation' ''
+  Z ← Z,[1] 'Download' 'https://github.com/lokedhs/apl-sqlite'
+  Z ← Z,[1] 'License' 'LGPL'
+  Z ← Z,[1] 'Portability' 'L3'
+  Z ← Z,[1] 'Provides' 'SQL'
+  Z ← Z,[1] 'Requires' ''
+  Z ← Z,[1] 'Version' '1.0'
 ∇
 
 ⍝

@@ -59,16 +59,16 @@ RPM:	DIST
 #
 .PHONY:	DEB
 DEB:	DIST
-#	rm -Rf debian_tmp
-#	mkdir debian_tmp
-#	cp $(distdir).tar.gz \
-#           debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
-#	cd debian_tmp ; tar xf $(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
-#	cp doc/apl.1 debian_tmp/$(distdir)/debian/manpage.1
-#	cd debian_tmp/$(distdir) ; dpkg-buildpackage
-#	mkdir -p ftp-upload
-#	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_*.deb          ftp-upload/
-#	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1.debian.tar.gz  ftp-upload/
+	rm -Rf debian_tmp
+	mkdir debian_tmp
+	cp $(distdir).tar.gz \
+           debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
+	cd debian_tmp ; tar xf $(PACKAGE)_$(PACKAGE_VERSION).orig.tar.gz
+	cp doc/apl.1 debian_tmp/$(distdir)/debian/manpage.1
+	cd debian_tmp/$(distdir) ; dpkg-buildpackage
+	mkdir -p ftp-upload
+	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1_*.deb          ftp-upload/
+	cp debian_tmp/$(PACKAGE)_$(PACKAGE_VERSION)-1.debian.tar.gz  ftp-upload/
 
 # update from SVN repository and ./configure
 #

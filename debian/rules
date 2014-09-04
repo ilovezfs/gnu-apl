@@ -20,6 +20,9 @@ export DH_OPTIONS
 %:
 	dh  $@
 
+override_dh_auto_clean:
+	[ ! -d .deps ] || dh_auto_clean
+
 override_dh_fixperms:
 	dh_fixperms
 	# Fix lintian error by removing auto-generated file late in build
