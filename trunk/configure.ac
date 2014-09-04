@@ -13,7 +13,7 @@ AC_USE_SYSTEM_EXTENSIONS
 # enable_dependency_tracking=no
 
 AM_INIT_AUTOMAKE([subdir-objects])
-AM_MAINTAINER_MODE([enable])
+AM_MAINTAINER_MODE([disable])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
