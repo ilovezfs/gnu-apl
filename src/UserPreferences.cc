@@ -39,6 +39,12 @@ static const char * build_tag[] = { BUILDTAG, 0 };
 #include "UserPreferences.hh"
 #include "Value.icc"
 
+#if HAVE_LIBREADLINE
+bool UserPreferences::use_readline = true;
+#else
+bool UserPreferences::use_readline = false;
+#endif
+
 UserPreferences uprefs;
 
 //-----------------------------------------------------------------------------
@@ -373,7 +379,13 @@ UserPreferences::parse_argv(bool logit)
 
          if (!strcmp(opt, "--rawCIN"))
             {
-              Input::use_readline = false;
+              raw_cin = true;
+              continue;
+            }
+
+         if (!strcmp(opt, "--noRL"))
+            {
+              use_readline = false;
               continue;
             }
 
@@ -389,7 +401,7 @@ UserPreferences::parse_argv(bool logit)
               do_CONT = false;               // --noCONT
               do_not_echo = true;            // -noCIN
               do_Color = false;              // --noColor
-              Input::use_readline = false;   // --rawCIN
+              use_readline = false;          // --rawCIN
               silent = true;                 // --silent
               continue;
             }
@@ -993,11 +1005,11 @@ int file_profile = 0;   // the current profile in the preferences file
             }
          else if (!strcasecmp(opt, "READLINE_HISTORY_LEN"))
             {
-              Input::readline_history_len = atoi(arg);
+              line_history_len = atoi(arg);
             }
          else if (!strcasecmp(opt, "READLINE_HISTORY_PATH"))
             {
-              Input::readline_history_path = UTF8_string(arg);
+              line_history_path = UTF8_string(arg);
             }
          else if (yes_no && !strcasecmp(opt, "BACKUP_BEFORE_SAVE"))
             {

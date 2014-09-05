@@ -48,7 +48,10 @@ struct UserPreferences
      randomize_testfiles(false),
      user_profile(0),
      backup_before_save(false),
-     script_argc(0)
+     script_argc(0),
+     line_history_path(".apl.history"),
+     line_history_len(500),
+     raw_cin(false)
    {}
 
    /// read a preference file and update parameters set there
@@ -147,13 +150,26 @@ struct UserPreferences
    /// in expanded_argv, or 0 if apl is started directly.
    int script_argc;
 
+   /// location of the input line history
+   UTF8_string line_history_path;
+
+   /// number of lines in the input line history
+   int line_history_len;
+
    /// name of a user-provided keyboard layout file
    UTF8_string keyboard_layout_file;
+
+   /// send no ESC sequences on stderr
+   bool raw_cin;
+
+   /// true if readline lib is present and shall be used
+   static bool use_readline;
 
 protected:
    /// return true if file \b filename is an APL script (has execute permission
    /// and starts with #!
    static bool is_APL_script(const char * filename);
+
 };
 
 extern UserPreferences uprefs;

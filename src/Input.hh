@@ -68,8 +68,6 @@ using namespace std;
  */
 class Input
 {
-   friend class LineInput;
-
 public:
    /// return the readline version used, 0 if readline was disabled
    static int readline_version();
@@ -80,22 +78,10 @@ public:
    /// initialize readline library
    static void init(bool read_history);
 
-   /// true if readline lib is present and shall be used
-   static bool use_readline;
-
-   /// number of lines in the readline history
-   static int readline_history_len;
-
-   /// location of the readline history
-   static UTF8_string readline_history_path;
+   /// get one line
+   static void get_line(LineInputMode mode, UCS_string & user_line, bool & eof);
 
 protected:
-   /// get one line
-   static UCS_string get_line(LineInputMode mode);
-
-   /// print prompt and return one line from the user
-   static UCS_string get_quote_quad_line(UCS_string prompt, bool & eof);
-
    /// read one line from the user (-terminal).
    static void get_user_line(LineInputMode mode, const UCS_string * prompt,
                              UCS_string & user_line, bool & eof);

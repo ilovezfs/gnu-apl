@@ -30,7 +30,12 @@
 #include "LineInput.hh"
 #include "main.hh"
 #include "SystemVariable.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
+
+// hooks for external editors (emacs)
+extern void (*start_input)();
+extern void (*end_input)();
 
 LineInput * LineInput::the_line_input = 0;
 
@@ -212,6 +217,30 @@ int new_current_line = current_line + 1;
    return &lines[current_line = new_current_line];
 }
 //=============================================================================
+LineEditContext::LineEditContext(LineInputMode mode, int rows, int cols,
+                                 LineHistory & hist, const UCS_string & prmt)
+   : screen_rows(rows),
+     screen_cols(cols),
+     allocated_height(1),
+     uidx(0),
+     history(hist),
+     history_entered(false)
+{
+   if (mode == LIM_Quote_Quad)
+      {
+        // the prompt was printed by ⍞ already. Make it the beginning of
+        // user_line so that it can be edited.
+        //
+        user_line = prmt.no_pad();
+        uidx = user_line.size();
+      }
+   else
+      {
+        prompt = prmt.no_pad();
+        refresh_all();
+      }
+}
+//-----------------------------------------------------------------------------
 void
 LineEditContext::adjust_allocated_height()
 {
@@ -398,11 +427,11 @@ const UCS_string * ucs = history.down();
 }
 //=============================================================================
 LineInput::LineInput(bool do_read_history)
-   : history(Input::readline_history_len)
+   : history(uprefs.line_history_len)
 {
    initial_termios_errno = 0;
 
-   if (Input::use_readline)
+   if (UserPreferences::use_readline)
       {
         initial_termios_errno = -1;
         return;
@@ -412,7 +441,7 @@ LineInput::LineInput(bool do_read_history)
       initial_termios_errno = errno;
 
    if (do_read_history)
-      history.read_history(Input::readline_history_path.c_str());
+      history.read_history(uprefs.line_history_path.c_str());
 
    current_termios = initial_termios;
 
@@ -436,26 +465,27 @@ LineInput::~LineInput()
 {
    if (initial_termios_errno)   return;
 
-   history.save_history(Input::readline_history_path.c_str());
+   history.save_history(uprefs.line_history_path.c_str());
    tcsetattr(STDIN_FILENO, TCSANOW, &initial_termios);
 }
-//-----------------------------------------------------------------------------
+//=============================================================================
 void
 InputMux::get_line(LineInputMode mode, const UCS_string * prompt,
                    UCS_string & line, bool & eof)
 {
-   Quad_QUOTE::done(true, LOC);
+   if (InputFile::is_validating())   Quad_QUOTE::done(true, LOC);
+
    InputFile::increment_current_line_no();
 
-   // check if we have input from files...
+   // check if we have input from a files...
    {
-     UTF8_string utf;
-     bool eof = false;
-     IO_Files::get_file_line(utf, eof);
+     UTF8_string file_line;
+     bool file_eof = false;
+     IO_Files::get_file_line(file_line, file_eof);
 
-     if (!eof)
+     if (!file_eof)
         {
-          line = UCS_string(utf);
+          line = UCS_string(file_line);
 
           switch(mode)
              {
@@ -463,40 +493,103 @@ InputMux::get_line(LineInputMode mode, const UCS_string * prompt,
                case LIM_Quad_Quad:
                case LIM_Quad_INP:
                     CIN << Workspace::get_prompt() << line << endl;
-                    return;
+                    break;
 
                case LIM_Quote_Quad:
-                    {
-                      Assert(prompt);
-                      line = *prompt;
+                    Assert(prompt);
+                    line = *prompt;
 
-                      // for each leading backspace in line: discard last
-                      // prompt character. This is for testing the user
-                      // backspacing over the ⍞ prompt
-                      //
-                      while (line.size() && utf.size()
-                                         && utf[0] == UNI_ASCII_BS)
-                         {
-                           utf.drop_leading(1);
-                           line.pop();
-                         }
-                      line.append_utf8(utf.c_str());
-                      return;
-                    }
+                    // for each leading backspace in line: discard last
+                    // prompt character. This is for testing the user
+                    // backspacing over the ⍞ prompt
+                    //
+                    while (line.size()      &&
+                           file_line.size() &&
+                           file_line[0] == UNI_ASCII_BS)
+                          {
+                            file_line.drop_leading(1);
+                            line.pop();
+                          }
+                    line.append_utf8(file_line.c_str());
+                    break;
 
                case LIM_Nabla:
-                    return;
+                    break;
 
                default: FIXME;
-           }
-      }
+             }
+
+          return;
+        }
    }
 
    // no input from files: get line from terminal
    //
-   LineInput::get_terminal_line(mode, prompt, line, eof);
+   if (uprefs.raw_cin)
+      {
+        Quad_QUOTE::done(true, LOC);
+        char buffer[4000];
+        const char * s = fgets(buffer, sizeof(buffer) - 1, stdin);
+        if (s == 0)
+           {
+             eof = true;
+             return;
+           }
+         buffer[sizeof(buffer) - 1] = 0;
+
+         int slen = strlen(buffer);
+         if (buffer[slen - 1] == '\n')   buffer[--slen] = 0;
+         if (buffer[slen - 1] == '\r')   buffer[--slen] = 0;
+        UTF8_string line_utf(buffer);
+        line = UCS_string(line_utf);
+        return;
+      }
+
+   if (UserPreferences::use_readline)
+      {
+        Quad_QUOTE::done(true, LOC);
+        Input::get_line(mode, line, eof);
+        return;
+      }
+
+   Quad_QUOTE::done(mode != LIM_Quote_Quad, LOC);
+
+const APL_time_us from = now();
+   if (start_input)   (*start_input)();
+
+   for (int control_D_count = 0; ; ++control_D_count)
+       {
+         bool _eof = false;
+         LineInput::get_terminal_line(mode, prompt, line, _eof);
+         if (!_eof)   break;
+
+         // ^D or end of file
+         if (control_D_count < 5)
+            {
+              CIN << endl;
+              COUT << "      ^D or end-of-input detected ("
+                   << control_D_count << "). Use )OFF to leave APL!"
+                   << endl;
+           } 
+
+         if (control_D_count > 10 && (now() - from)/control_D_count < 10000)
+            {
+              // we got 10 or more times EOF (or possibly ^D) at a rate
+              // of 10 ms or faster. That looks like end-of-input rather
+              // than ^D typed by the user. Abort the interpreter.
+              //
+              CIN << endl;
+              COUT << "      *** end of input" << endl;
+              Command::cmd_OFF(2);
+            }
+      }
+
+   Log(LOG_get_line)   CERR << " '" << line << "'" << endl;
+
+   Workspace::add_wait(now() - from);
+   if (end_input)   (*end_input)();
 }
-//-----------------------------------------------------------------------------
+//=============================================================================
 void
 LineInput::get_terminal_line(LineInputMode mode, const UCS_string * prompt,
                             UCS_string & line, bool & eof)
@@ -509,27 +602,22 @@ LineInput::get_terminal_line(LineInputMode mode, const UCS_string * prompt,
         case LIM_Quad_Quad:
         case LIM_Quad_INP:
              {
-               line =Input::get_line(mode);
+               Output::set_color_mode(Output::COLM_INPUT);
+               no_readline(mode, Workspace::get_prompt(), line, eof);
                return;
              }
 
         case LIM_Quote_Quad:
              {
-               if (prompt)
-                  {
-                    line = Input::get_quote_quad_line(*prompt, eof);
-                  }
-               else
-                  {
-                    UCS_string no_prompt;
-                    line = Input::get_quote_quad_line(no_prompt, eof);
-                  }
+               Assert(prompt);
+               no_readline(LIM_Quote_Quad, *prompt, line, eof);
                return;
              }
 
         case LIM_Nabla:
              {
-               Input::get_user_line(LIM_Nabla, prompt, line, eof);
+               Assert(prompt);
+               no_readline(LIM_Nabla, *prompt, line, eof);
                return;
              }
 
@@ -540,7 +628,7 @@ LineInput::get_terminal_line(LineInputMode mode, const UCS_string * prompt,
 }
 //-----------------------------------------------------------------------------
 void
-LineInput::no_readline(LineInputMode mode, const UCS_string * prompt,
+LineInput::no_readline(LineInputMode mode, const UCS_string & prompt,
                        UCS_string & user_line, bool & eof)
 {
    the_line_input->current_termios.c_lflag &= ~ISIG;
@@ -548,10 +636,8 @@ LineInput::no_readline(LineInputMode mode, const UCS_string * prompt,
 
    user_line.clear();
 
-LineEditContext lec(24, Workspace::get_PrintContext().get_PW(),
-                    the_line_input->history);
-
-   if (prompt)   lec.set_prompt(*prompt);
+LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
+                    the_line_input->history, prompt);
 
    for (;;)
        {
@@ -593,6 +679,11 @@ LineEditContext lec(24, Workspace::get_PrintContext().get_PW(),
               case UNI_ASCII_ETX:   // ^C
                    lec.clear();
                    control_C(SIGINT);
+                   break;
+
+              case UNI_ASCII_EOT:   // ^D
+                   CERR << "^D";
+                   eof = true;
                    break;
 
               case UNI_ASCII_BS:

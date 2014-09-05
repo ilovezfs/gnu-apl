@@ -94,14 +94,8 @@ protected:
 class LineEditContext
 {
 public:
-   LineEditContext(int rows, int cols, LineHistory & hist)
-   : screen_rows(rows),
-     screen_cols(cols),
-     allocated_height(1),
-     uidx(0),
-     history(hist),
-     history_entered(false)
-   { }
+   LineEditContext(LineInputMode mode, int rows, int cols, LineHistory & hist,
+                   const UCS_string & prmt);
 
    /// clear (after ^C)
    void clear()
@@ -129,21 +123,12 @@ public:
    void refresh_wrapped_cursor()
       { if (on_bad_col(uidx))   set_cursor(); }
 
-   const UCS_string & get_prompt() const
-      { return prompt; }
-
    void move_idx(int new_idx)
       { uidx = new_idx;   set_cursor(); }
 
    void set_cursor()
       { const int offs = uidx + prompt.size();
         CIN.set_cursor(offs/screen_cols - allocated_height, offs%screen_cols);
-      }
-
-   void set_prompt(const UCS_string & prmt)
-      {
-        prompt = prmt.no_pad();
-        CIN << '\r' << prompt << flush;
       }
 
    /// adjust (increment) the allocated height (long lines)
@@ -240,7 +225,7 @@ public:
                                  UCS_string & line, bool & eof);
 
    /// get a line from from user
-   static void no_readline(LineInputMode mode, const UCS_string * prompt,
+   static void no_readline(LineInputMode mode, const UCS_string & prompt,
                            UCS_string & user_line, bool & eof);
 
    static void init(bool do_read_history)
