@@ -81,11 +81,11 @@ public:
    /// get one line
    static void get_line(LineInputMode mode, UCS_string & user_line, bool & eof);
 
-protected:
    /// read one line from the user (-terminal).
    static void get_user_line(LineInputMode mode, const UCS_string * prompt,
                              UCS_string & user_line, bool & eof);
 
+protected:
    /// prepare readline and call it
    static char * call_readline(const char *);
 

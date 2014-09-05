@@ -531,6 +531,16 @@ UCS_string::starts_with(const char * prefix) const
 }
 //-----------------------------------------------------------------------------
 bool 
+UCS_string::starts_with(const UCS_string & prefix) const
+{
+   if (prefix.size() > size())   return false;
+
+   loop(p, prefix.size())   if ((*this)[p] != prefix[p])   return false;
+
+   return true;
+}
+//-----------------------------------------------------------------------------
+bool 
 UCS_string::starts_iwith(const char * prefix) const
 {
    loop(s, size())
@@ -1048,6 +1058,26 @@ UCS_string::sort_names(const UCS_string ** names, int count)
                     const UCS_string * tmp = names[smallest];
                     names[smallest] = names[j];
                     names[j] = tmp;
+                  }
+             }
+       }
+}
+//----------------------------------------------------------------------------
+void
+UCS_string::sort_names(vector<UCS_string> names)
+{
+   if (names.size() < 2)   return;
+
+   for (int h = 0; h < (names.size() - 1); ++h)
+       {
+         // find smallest above (including) h
+         //
+         int smallest = h;
+         for (int j = h + 1; j < names.size(); ++j)
+             {
+               if (names[smallest].compare(names[j]) == COMP_GT)
+                  {
+                    names[smallest].swap(names[j]);
                   }
              }
        }

@@ -62,7 +62,8 @@ Command::process_line()
 {
 UCS_string line;
 bool eof = false;
-   InputMux::get_line(LIM_ImmediateExecution, 0, line, eof);
+   InputMux::get_line(LIM_ImmediateExecution, Workspace::get_prompt(),
+                      line, eof, 0);
    if (eof)
       {
         CERR << "EOF at " << LOC << endl;
@@ -1728,7 +1729,44 @@ const bool have_trailing_blank = replace_count && user.last() == ' ';
    //
    user.remove_leading_and_trailing_whitespaces();
       
-   if (user.size() == 0)   return ER_IGNORE;
+   if (user.size() == 0 || Avec::is_first_symbol_char(user[0]))
+      {
+        // nothing or user-defined name: expand names
+        //
+        const int symbol_count = Workspace::symbols_allocated();
+        DynArray(Symbol *, all_symbols, symbol_count);
+        Workspace::get_all_symbols(&all_symbols[0], symbol_count);
+
+        vector<UCS_string>matches;
+        loop(s, symbol_count)
+            {
+             const Symbol * sym = all_symbols[s];
+             if (sym->is_erased())   continue;
+
+              const UCS_string & sym_name = sym->get_name();
+              if (!sym_name.starts_with(user))   continue;
+              matches.push_back(sym_name);
+            }
+
+        if (matches.size() == 0)   return ER_IGNORE;   // no match
+        if (matches.size() > 1)   // multiple names match user input
+           {
+             const int user_len = user.size();
+             user.clear();
+             return show_alternatives(user, user_len, matches);
+           }
+
+        // unique match
+        //
+        if (user.size() < matches[0].size())
+           {
+             // the name is longer than user, so we expand it.
+             //
+             user = matches[0];
+             return ER_REPLACE;
+           }
+        return ER_IGNORE;
+      }
 
    if (user[0] == ')' || user[0] == ']')   // APL command
       {
@@ -1738,7 +1776,7 @@ const bool have_trailing_blank = replace_count && user.last() == ' ';
         UCS_string cmd = user;
         UCS_string arg;
         cmd.split_ws(arg);
-        
+
 #define cmd_def(cmd_str, code, arg, hint)  \
    { UCS_string ustr(cmd_str);             \
      if (ustr.starts_iwith(cmd))           \
@@ -1749,34 +1787,37 @@ const bool have_trailing_blank = replace_count && user.last() == ' ';
         //
         if (matches.size() == 0)   return ER_IGNORE;
 
+        // if we have multiple matches but the user has provided a command
+        // argument then some matches were wrong. For example:
+        //
+        // LIB 3 matches LIB and LIBS
+        //
+        // remove wrong matches
+        //
+        if (matches.size() > 1 && arg.size() > 0)
+           {
+             again:
+             if (matches.size() > 1)
+                {
+                  loop(m, matches.size())
+                     {
+                       if (matches[m].size() != cmd.size())   // wrong match
+                          {
+                             matches[m].swap(matches.back());
+                             matches.pop_back();
+                             goto again;
+                          }
+                     }
+                }
+           }
+
         // if multiple matches were found then either expand the common part
         // or list all matches
         //
         if (matches.size() > 1)   // multiple commands match cmd
            {
-            const int common_len = compute_common_length(cmd.size(), matches);
-            if (common_len == cmd.size())
-               {
-                 // cmd is already the common part of all matching commands.
-                 // display matching commands
-                 //
-                 CIN << endl;
-                 loop(m, matches.size())
-                     {
-                        CERR << matches[m] << " ";
-                     }
-                 CERR << endl;
-                 return ER_AGAIN;
-               }
-            else
-               {
-                 // cmd is a prefix of the common part of all matching commands.
-                 // expand to common part.
-                 //
-                 user = matches[0];
-                 user.shrink(common_len);
-                 return ER_REPLACE;
-               }
+             user.clear();
+             return show_alternatives(user, cmd.size(), matches);
            }
 
         // unique match
@@ -1843,6 +1884,8 @@ int qpos = -1;
         if (matches.size() == 0)   return ER_IGNORE;
         if (matches.size() > 1)
            {
+            UCS_string::sort_names(matches);
+
             const int common_len = compute_common_length(qxx.size(), matches);
             if (common_len == qxx.size())
                {

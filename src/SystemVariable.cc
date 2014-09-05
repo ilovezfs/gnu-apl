@@ -674,7 +674,7 @@ Quad_Quad::resolve(Token & token, bool left)
 
 bool eof = false;
 UCS_string line;
-   InputMux::get_line(LIM_Quad_Quad, 0, line, eof);
+   InputMux::get_line(LIM_Quad_Quad, Workspace::get_prompt(), line, eof, 0);
    line.remove_leading_and_trailing_whitespaces();
 
    move_2(token, Bif_F1_EXECUTE::execute_statement(line), LOC);
@@ -750,7 +750,7 @@ const UCS_string old_prompt(prompt);
 
 bool eof = false;
 UCS_string line;
-   InputMux::get_line(LIM_Quote_Quad, &old_prompt, line, eof);
+   InputMux::get_line(LIM_Quote_Quad, old_prompt, line, eof, 0);
    done(false, LOC);   // if get_quad_cr_line() has not called it
 
    if (interrupt_raised)   INTERRUPT;
