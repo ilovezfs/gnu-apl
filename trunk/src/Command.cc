@@ -63,7 +63,11 @@ Command::process_line()
 UCS_string line;
 bool eof = false;
    InputMux::get_line(LIM_ImmediateExecution, 0, line, eof);
-   if (eof)   return;
+   if (eof)
+      {
+        CERR << "EOF at " << LOC << endl;
+        return;
+      }
 
    process_line(line);
 }

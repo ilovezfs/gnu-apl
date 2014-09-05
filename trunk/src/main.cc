@@ -79,14 +79,16 @@ rlimit rl;
    VH_entry::init();
 }
 //-----------------------------------------------------------------------------
-/// initialize subsystems that  depend on argv[]
+/// initialize subsystems that depend on argv[]
 static void
 init_2(bool log_startup)
 {
    Svar_DB::init(LibPaths::get_APL_bin_path(),
                  LibPaths::get_APL_bin_name(),
                  log_startup, uprefs.system_do_svars);
-   Input::init(true);
+
+   if (UserPreferences::use_readline)   Input::init(true);
+   else                                 LineInput::init(true);
 }
 //-----------------------------------------------------------------------------
 /// the opposite of init()
@@ -96,7 +98,12 @@ cleanup()
    ProcessorID::disconnect();
 
    NativeFunction::cleanup();
-   Input::exit_readline();   // write history
+
+   // write line history
+   //
+   if (UserPreferences::use_readline)   Input::exit_readline();
+   else                                 LineInput::close();
+
    Output::reset_colors();
 }
 //-----------------------------------------------------------------------------

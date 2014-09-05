@@ -35,11 +35,9 @@
 #include <signal.h>
 #include "SystemVariable.hh"
 #include "UTF8_string.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
 #undef Function
-
-int Input::readline_history_len = 500;
-UTF8_string Input::readline_history_path(".apl.history");
 
 /// an optional function called before printing a prompt and reading input
 extern void (*start_input)();
@@ -51,8 +49,6 @@ void (*start_input)() = 0;
 void (*end_input)() = 0;
 
 #if HAVE_LIBREADLINE
-
-bool Input::use_readline = true;
 
 #  if defined(HAVE_READLINE_READLINE_H)
 #    include <readline/readline.h>
@@ -77,8 +73,6 @@ extern int read_history ();
 #endif /* HAVE_READLINE_HISTORY */
 
 #else // ! HAVE_LIBREADLINE
-
-bool Input::use_readline = false;
 
 static void   add_history(const char *)    { }
 static void   read_history(const char *)   { }
@@ -126,25 +120,20 @@ void
 Input::init(bool do_read_history)
 {
 #if HAVE_LIBREADLINE
-   if (use_readline)
+   rl_readline_name = strdup("GnuAPL");
+   rl_initialize();
+   if (do_read_history)
       {
-        rl_readline_name = strdup("GnuAPL");
-        rl_initialize();
-        if (do_read_history)
-           {
-             stifle_history(readline_history_len);
-             read_history(readline_history_path.c_str());
-           }
+        stifle_history(uprefs.line_history_len);
+        read_history(uprefs.line_history_path.c_str());
+      }
 
 #ifdef ADVANCED_readline
-        rl_startup_hook = (rl_hook_func_t *)(Input::init_readline_control_C);
+   rl_startup_hook = (rl_hook_func_t *)(Input::init_readline_control_C);
 #endif
 
-//      rl_function_dumper(1);
-      }
+// rl_function_dumper(1);
 #endif
-
-   if (!use_readline)   LineInput::init(do_read_history);
 }
 //-----------------------------------------------------------------------------
 int
@@ -157,16 +146,15 @@ Input::readline_version()
 #endif
 }
 //-----------------------------------------------------------------------------
-UCS_string
-Input::get_line(LineInputMode mode)
+void
+Input::get_line(LineInputMode mode, UCS_string & line, bool & eof)
 {
 const APL_time_us from = now();
-UCS_string user_line;
    for (int control_D_count = 0; ; ++control_D_count)
        {
         Output::set_color_mode(Output::COLM_INPUT);
         bool eof = false;
-        get_user_line(mode, &Workspace::get_prompt(), user_line, eof);
+        get_user_line(mode, &Workspace::get_prompt(), line, eof);
 
         if (!eof)   break;
 
@@ -191,19 +179,15 @@ UCS_string user_line;
            }
       }
 
-   Log(LOG_get_line)   CERR << " '" << user_line << "'" << endl;
-
-   return user_line;
+   Log(LOG_get_line)   CERR << " '" << line << "'" << endl;
 }
 //-----------------------------------------------------------------------------
 void
 Input::exit_readline()
 {
 #if HAVE_LIBREADLINE
-   write_history(readline_history_path.c_str());
+   write_history(uprefs.line_history_path.c_str());
 #endif
-
-   if (!use_readline)   LineInput::close();
 }
 //-----------------------------------------------------------------------------
 void
@@ -214,16 +198,7 @@ Input::get_user_line(LineInputMode mode, const UCS_string * prompt,
 
 const APL_time_us from = now();
 const char * line;
-   if (!use_readline)
-      {
-        bool eof = false;
-        LineInput::no_readline(mode, prompt, user_line, eof);
-        Workspace::add_wait(now() - from);
-        if (end_input)   (*end_input)();
-        return;
-      }
 
-   // use readline
    if (prompt)
       {
         UTF8_string prompt_utf(*prompt);
@@ -247,39 +222,6 @@ const char * line;
 
 UTF8_string user_line_utf(line);
    user_line = UCS_string(user_line_utf);
-}
-//-----------------------------------------------------------------------------
-UCS_string
-Input::get_quote_quad_line(UCS_string ucs_prompt, bool & eof)
-{
-UTF8_string utf_prompt(ucs_prompt);
-
-const char * line;
-   if (!use_readline)
-      {
-        UCS_string user_line;
-        LineInput::no_readline(LIM_Quote_Quad, 0, user_line, eof);
-        return user_line;
-      }
-   else
-      {
-        loop(s, utf_prompt.size())
-            rl_stuff_char(utf_prompt[s] & 0x00FF);
-
-        cout << '\r';
-
-        // call_readline() will reset the interrupt_raised flag.
-        // we set it again if an interrupt was signalled.
-        //
-        const uint64_t old_interrupt_count = interrupt_count;
-        line = call_readline(0);
-        if (old_interrupt_count < interrupt_count)   interrupt_raised = true;
-      }
-
-   if (line == 0)   { eof = true;   return UCS_string(); }
-
-const UTF8_string uline(line);
-   return UCS_string(uline);
 }
 //-----------------------------------------------------------------------------
 char *
