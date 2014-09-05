@@ -139,6 +139,9 @@ public:
    /// return true if \b this starts with prefix (ASCII, case matters).
    bool starts_with(const char * prefix) const;
 
+   /// return true if \b this starts with \b prefix (case sensitive).
+   bool starts_with(const UCS_string & prefix) const;
+
    /// return true if \b this starts with \b prefix (ASCII, case insensitive).
    bool starts_iwith(const char * prefix) const;
 
@@ -288,9 +291,13 @@ public:
    /// digits in fixed point format
    static UCS_string from_double_fixed_pp(double value, unsigned int quad_pp);
 
-   /// sort a small number of UCS_strings (filenames, variables, or functions)
-   /// using a simple but quadratic time algotithm
+   /// sort a (small) number of UCS_strings (filenames, variables, or functions)
+   /// using a simple but quadratic time algorithm
    static void sort_names(const UCS_string ** names, int count);
+
+   /// sort a (small) number of UCS_strings (filenames, variables, or functions)
+   /// using a simple but quadratic time algorithm
+   static void sort_names(vector<UCS_string> names);
 
    /// compute column widths so that names align nicely
    static void compute_column_width(vector<int> & result,

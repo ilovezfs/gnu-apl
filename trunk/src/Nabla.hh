@@ -37,7 +37,7 @@ struct LineLabel
    void print(ostream & out) const;
 
    /// print a prompt like [1.2] into buffer
-   UCS_string print_prompt() const;
+   UCS_string print_prompt(int min_size) const;
 
    /// true iff two line numbers are equal
    bool operator ==(const LineLabel & other) const;
@@ -77,6 +77,10 @@ public:
    /// edit the function specified in \b cmd (e.g. cmd = "∇FUN")
    static void edit_function(const UCS_string & cmd);
 
+   UCS_string get_label_and_text(int line, bool & is_current) const;
+   int get_line_count() const
+      { return lines.size(); }
+
 protected:
    /// constructor
    Nabla(const UCS_string & cmd);
@@ -100,6 +104,8 @@ protected:
 
         /// print the line
         void print(ostream & out) const;
+
+        UCS_string get_label_and_text() const;
 
         /// the label (like [1.2] of the line
         LineLabel label;

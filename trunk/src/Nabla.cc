@@ -29,6 +29,7 @@
 #include "PrintOperator.hh"
 #include "Symbol.hh"
 #include "UserFunction.hh"
+#include "UserPreferences.hh"
 #include "Workspace.hh"
 
 #define NABLA_ERROR throw_edit_error(LOC)
@@ -92,10 +93,18 @@ int control_D_count = 0;
    Log(LOG_nabla)   UERR << "Nabla(" << fun_header << ")..." << endl;
    while (!do_close)
        {
-         const UCS_string prompt = current_line.print_prompt();
+         const UCS_string prompt = current_line.print_prompt(0);
          bool eof = false;
          UCS_string line;
-         InputMux::get_line(LIM_Nabla, &prompt, line, eof);
+         if (uprefs.raw_cin || UserPreferences::use_readline)
+            {
+              InputMux::get_line(LIM_Nabla, prompt, line, eof, 0);
+            }
+         else
+            {
+              LineHistory lh(*this);
+              InputMux::get_line(LIM_Nabla, prompt, line, eof, &lh);
+            }
 
          if (eof)   // end-of-input (^D) pressed
             {
@@ -130,7 +139,31 @@ UCS_string fun_text;
       {
         fun_text.append(lines[l].text);
         fun_text.append(UNI_ASCII_LF);
+
+        if (!(uprefs.raw_cin || UserPreferences::use_readline))
+           {
+             // create a history entry that can be re-entered
+             //
+             UCS_string hist_entry;
+             if (l == 0)
+                {
+                  hist_entry.append_utf8("    ∇");
+                }
+              else
+                {
+                  hist_entry.append_utf8("[");
+                  hist_entry.append_number(l);
+                  hist_entry.append_utf8("]  ");
+                  while (hist_entry.size() < 6)
+                        hist_entry.append(UNI_ASCII_SPACE);
+                }
+              hist_entry.append(lines[l].text);
+
+             LineInput::add_history_line(hist_entry);
+           }
       }
+   if (!(uprefs.raw_cin || UserPreferences::use_readline))
+      LineInput::add_history_line(UCS_string("    ∇"));
 
 int error_line = 0;
 UCS_string creator(InputFile::current_filename());
@@ -850,7 +883,7 @@ UCS_string ucs("[");
 }
 //-----------------------------------------------------------------------------
 UCS_string
-LineLabel::print_prompt() const
+LineLabel::print_prompt(int min_size) const
 {
 UCS_string ret("[");
    ret.append_number(ln_major);
@@ -861,8 +894,8 @@ UCS_string ret("[");
         loop(s, ln_minor.size())   ret.append(Unicode(char(ln_minor[s])));
       }
 
-   ret.append(Unicode(']'));
-   ret.append(Unicode(' '));
+   ret.append_utf8("] ");
+   while (ret.size() < min_size)   ret.append(UNI_ASCII_SPACE);
    return ret;
 }
 //-----------------------------------------------------------------------------
@@ -906,6 +939,23 @@ operator <<(ostream & out, const LineLabel & lab)
 {
    lab.print(out);
    return out;
+}
+//-----------------------------------------------------------------------------
+UCS_string
+Nabla::FunLine::get_label_and_text() const
+{
+UCS_string ret = label.print_prompt(6);
+   ret.append(text);
+
+   return ret;
+}
+//-----------------------------------------------------------------------------
+UCS_string
+Nabla::get_label_and_text(int line, bool & is_current) const
+{
+const FunLine & fl = lines[line];
+   is_current = fl.label == current_line;
+   return fl.get_label_and_text();
 }
 //-----------------------------------------------------------------------------
 

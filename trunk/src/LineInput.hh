@@ -27,6 +27,8 @@
 #include "PrintOperator.hh"
 #include "UCS_string.hh"
 
+class Nabla;
+
 //-----------------------------------------------------------------------------
 /// kind of input
 enum LineInputMode
@@ -42,12 +44,11 @@ enum LineInputMode
 class LineHistory
 {
 public:
-   /// constuctor: empty line history
-   LineHistory(int maxl)
-   : current_line(0),
-     put(0),
-     max_lines(maxl)
-   { UCS_string u("xxx");   add_line(u); }
+   /// constructor: empty line history
+   LineHistory(int maxl);
+
+   /// constructor: line history from function being ∇-edited
+   LineHistory(const Nabla & nabla);
 
    /// read history from file
    void read_history(const char * filename);
@@ -94,8 +95,8 @@ protected:
 class LineEditContext
 {
 public:
-   LineEditContext(LineInputMode mode, int rows, int cols, LineHistory & hist,
-                   const UCS_string & prmt);
+   LineEditContext(LineInputMode mode, int rows, int cols,
+                   const LineHistory & hist, const UCS_string & prmt);
 
    /// clear (after ^C)
    void clear()
@@ -213,20 +214,23 @@ protected:
 class InputMux
 {
 public:
-   static void get_line(LineInputMode mode, const UCS_string * prompt,
-                        UCS_string & line, bool & eof);
+   static void get_line(LineInputMode mode, const UCS_string & prompt,
+                        UCS_string & line, bool & eof,
+                        const LineHistory * fun_lh);
 };
 //-----------------------------------------------------------------------------
 class LineInput
 {
 public:
    /// get a line from the user
-   static void get_terminal_line(LineInputMode mode, const UCS_string * prompt,
-                                 UCS_string & line, bool & eof);
+   static void get_terminal_line(LineInputMode mode, const UCS_string & prompt,
+                                 UCS_string & line, bool & eof,
+                                 const LineHistory * fun_lh);
 
    /// get a line from from user
    static void no_readline(LineInputMode mode, const UCS_string & prompt,
-                           UCS_string & user_line, bool & eof);
+                           UCS_string & user_line, bool & eof,
+                           const LineHistory * fun_lh);
 
    static void init(bool do_read_history)
       { the_line_input = new LineInput(do_read_history); }
@@ -241,6 +245,10 @@ public:
    /// print history to \b out
    static void print_history(ostream & out)
       {  the_line_input->history.print_history(out); }
+
+   /// add a line to the history
+   static void add_history_line(const UCS_string & line)
+      {  the_line_input->history.add_line(line); }
 
 protected:
    LineInput(bool do_read_history);

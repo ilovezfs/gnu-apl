@@ -1673,7 +1673,8 @@ quad_INP arg = _arg.u.u_quad_INP;
        {
          bool eof = false;
          UCS_string line;
-         InputMux::get_line(LIM_Quad_INP, 0, line, eof);
+         UCS_string prompt;
+         InputMux::get_line(LIM_Quad_INP, prompt, line, eof, 0);
          arg.done = (line.substr_pos(*arg.end_marker) != -1);
 
          if (arg.esc1)   // start marker defined (dyadic ⎕INP)

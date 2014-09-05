@@ -304,7 +304,7 @@ public:
 
         const int iv = items_valid;
         items_valid = other.items_valid;
-        other.valid = iv;
+        other.items_valid = iv;
 
         T * const it = items;
         items = other.items;

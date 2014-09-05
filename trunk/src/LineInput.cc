@@ -29,6 +29,7 @@
 #include "IO_Files.hh"
 #include "LineInput.hh"
 #include "main.hh"
+#include "Nabla.hh"
 #include "SystemVariable.hh"
 #include "UserPreferences.hh"
 #include "Workspace.hh"
@@ -87,6 +88,34 @@ ESCmap::is_equal(const char * seq, int seq_len) const
    return true;
 }
 //=============================================================================
+LineHistory::LineHistory(int maxl)
+   : current_line(0),
+     put(0),
+     max_lines(maxl)
+{
+   UCS_string u("xxx");
+   add_line(u);
+}
+//-----------------------------------------------------------------------------
+LineHistory::LineHistory(const Nabla & nabla)
+   : current_line(0),
+     put(0),
+     max_lines(1000)
+{
+   UCS_string u("xxx");
+   add_line(u);
+int cl = -1;
+   loop(l, nabla.get_line_count())
+       {
+         bool current = false;
+         const UCS_string lab_text = nabla.get_label_and_text(l, current);
+         add_line(lab_text);   // overrides current_line!
+         if (current)   cl = l;
+       }
+
+   if (cl != -1)   current_line = cl;
+}
+//-----------------------------------------------------------------------------
 void
 LineHistory::read_history(const char * filename)
 {
@@ -218,7 +247,8 @@ int new_current_line = current_line + 1;
 }
 //=============================================================================
 LineEditContext::LineEditContext(LineInputMode mode, int rows, int cols,
-                                 LineHistory & hist, const UCS_string & prmt)
+                                 const LineHistory & hist,
+                                 const UCS_string & prmt)
    : screen_rows(rows),
      screen_cols(cols),
      allocated_height(1),
@@ -396,9 +426,9 @@ void
 LineEditContext::cursor_up()
 {
 const UCS_string * ucs = history.up();
-   if (ucs == 0)   return;
+   if (ucs == 0)   return;   // no line above
 
-   if (!history_entered)
+   if (!history_entered)   // not yet in history: remember user_line
       {
         user_line_before_history = user_line;
         history_entered = true;
@@ -406,6 +436,7 @@ const UCS_string * ucs = history.up();
 
    user_line = *ucs;
    adjust_allocated_height();
+
    uidx = 0;
    refresh_from_cursor();
    move_idx(user_line.size());
@@ -415,12 +446,25 @@ void
 LineEditContext::cursor_down()
 {
 const UCS_string * ucs = history.down();
+   if (ucs == 0)   // no line above
+      {
+        // if inside history: restore user_line
+        //
+        if (history_entered)   user_line = user_line_before_history;
+        history_entered = false;
+        goto refresh;
+      }
 
-   if (ucs)                    user_line = *ucs;   // got history line
-   else if (history_entered)   user_line = user_line_before_history;
-   else                        return;
+   if (!history_entered)   // not yet in history: remember user_line
+      {
+        user_line_before_history = user_line;
+        history_entered = true;
+      }
 
-   // no need for adjust_allocated_height() because we were on this line before
+   user_line = *ucs;
+   adjust_allocated_height();
+
+refresh:
    uidx = 0;
    refresh_from_cursor();
    move_idx(user_line.size());
@@ -470,8 +514,8 @@ LineInput::~LineInput()
 }
 //=============================================================================
 void
-InputMux::get_line(LineInputMode mode, const UCS_string * prompt,
-                   UCS_string & line, bool & eof)
+InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
+                   UCS_string & line, bool & eof, const LineHistory * fun_lh)
 {
    if (InputFile::is_validating())   Quad_QUOTE::done(true, LOC);
 
@@ -492,12 +536,11 @@ InputMux::get_line(LineInputMode mode, const UCS_string * prompt,
                case LIM_ImmediateExecution:
                case LIM_Quad_Quad:
                case LIM_Quad_INP:
-                    CIN << Workspace::get_prompt() << line << endl;
+                    CIN << prompt << line << endl;
                     break;
 
                case LIM_Quote_Quad:
-                    Assert(prompt);
-                    line = *prompt;
+                    line = prompt;
 
                     // for each leading backspace in line: discard last
                     // prompt character. This is for testing the user
@@ -548,7 +591,7 @@ InputMux::get_line(LineInputMode mode, const UCS_string * prompt,
    if (UserPreferences::use_readline)
       {
         Quad_QUOTE::done(true, LOC);
-        Input::get_line(mode, line, eof);
+        Input::get_user_line(mode, &prompt, line, eof);
         return;
       }
 
@@ -560,7 +603,7 @@ const APL_time_us from = now();
    for (int control_D_count = 0; ; ++control_D_count)
        {
          bool _eof = false;
-         LineInput::get_terminal_line(mode, prompt, line, _eof);
+         LineInput::get_terminal_line(mode, prompt, line, _eof, fun_lh);
          if (!_eof)   break;
 
          // ^D or end of file
@@ -571,6 +614,8 @@ const APL_time_us from = now();
                    << control_D_count << "). Use )OFF to leave APL!"
                    << endl;
            } 
+
+         eof = true;
 
          if (control_D_count > 10 && (now() - from)/control_D_count < 10000)
             {
@@ -591,8 +636,9 @@ const APL_time_us from = now();
 }
 //=============================================================================
 void
-LineInput::get_terminal_line(LineInputMode mode, const UCS_string * prompt,
-                            UCS_string & line, bool & eof)
+LineInput::get_terminal_line(LineInputMode mode, const UCS_string & prompt,
+                             UCS_string & line, bool & eof,
+                             const LineHistory * fun_lh)
 {
    // no file input: get line interactively
    //
@@ -601,23 +647,16 @@ LineInput::get_terminal_line(LineInputMode mode, const UCS_string * prompt,
         case LIM_ImmediateExecution:
         case LIM_Quad_Quad:
         case LIM_Quad_INP:
-             {
-               Output::set_color_mode(Output::COLM_INPUT);
-               no_readline(mode, Workspace::get_prompt(), line, eof);
-               return;
-             }
-
         case LIM_Quote_Quad:
              {
-               Assert(prompt);
-               no_readline(LIM_Quote_Quad, *prompt, line, eof);
+               Output::set_color_mode(Output::COLM_INPUT);
+               no_readline(mode, prompt, line, eof, fun_lh);
                return;
              }
 
         case LIM_Nabla:
              {
-               Assert(prompt);
-               no_readline(LIM_Nabla, *prompt, line, eof);
+               no_readline(LIM_Nabla, prompt, line, eof, fun_lh);
                return;
              }
 
@@ -629,15 +668,17 @@ LineInput::get_terminal_line(LineInputMode mode, const UCS_string * prompt,
 //-----------------------------------------------------------------------------
 void
 LineInput::no_readline(LineInputMode mode, const UCS_string & prompt,
-                       UCS_string & user_line, bool & eof)
+                       UCS_string & user_line, bool & eof,
+                       const LineHistory * lh)
 {
    the_line_input->current_termios.c_lflag &= ~ISIG;
    tcsetattr(STDIN_FILENO, TCSANOW, &the_line_input->current_termios);
 
    user_line.clear();
 
+   if (lh == 0)   lh = &the_line_input->history;
 LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
-                    the_line_input->history, prompt);
+                    *lh, prompt);
 
    for (;;)
        {
@@ -716,7 +757,7 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
    tcsetattr(STDIN_FILENO, TCSANOW, &the_line_input->current_termios);
 
    user_line = lec.get_user_line();
-   the_line_input->history.add_line(user_line);
+   if (mode == LIM_ImmediateExecution)   add_history_line(user_line);
    CIN << endl;
 }
 //-----------------------------------------------------------------------------
