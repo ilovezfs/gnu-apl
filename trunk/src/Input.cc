@@ -155,7 +155,7 @@ Input::exit_readline()
 }
 //-----------------------------------------------------------------------------
 void
-Input::get_user_line(LineInputMode mode, const UCS_string * prompt,
+Input::get_user_line(LineInputMode mode, const UCS_string & prompt,
                      UCS_string & user_line, bool & eof)
 {
    Output::set_color_mode(Output::COLM_INPUT);
@@ -165,15 +165,8 @@ Input::get_user_line(LineInputMode mode, const UCS_string * prompt,
 const APL_time_us from = now();
 const char * line;
 
-   if (prompt)
-      {
-        UTF8_string prompt_utf(*prompt);
-        line = call_readline(prompt_utf.c_str());
-      }
-   else
-      {
-        line = call_readline(0);
-      }
+UTF8_string prompt_utf(prompt);
+   line = call_readline(prompt_utf.c_str());
 
    Workspace::add_wait(now() - from);
 

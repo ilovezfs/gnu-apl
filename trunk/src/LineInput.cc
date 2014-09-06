@@ -593,7 +593,7 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
    if (UserPreferences::use_readline)
       {
         Quad_QUOTE::done(true, LOC);
-        Input::get_user_line(mode, &prompt, line, eof);
+        Input::get_user_line(mode, prompt, line, eof);
         return;
       }
 
