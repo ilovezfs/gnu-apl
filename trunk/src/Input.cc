@@ -181,6 +181,17 @@ UTF8_string prompt_utf(prompt);
 
 UTF8_string user_line_utf(line);
    user_line = UCS_string(user_line_utf);
+
+   // store line in history unless it is blank
+   //
+   for (; *line; ++line)
+       {
+         if (*line > ' ')
+            {
+              add_history(line);
+              break;
+            }
+       }
 }
 //-----------------------------------------------------------------------------
 char *
