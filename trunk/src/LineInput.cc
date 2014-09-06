@@ -570,7 +570,8 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
    //
    if (uprefs.raw_cin)
       {
-        Quad_QUOTE::done(true, LOC);
+        Quad_QUOTE::done(mode != LIM_Quote_Quad, LOC);
+        CIN << '\r' << prompt;
         char buffer[4000];
         const char * s = fgets(buffer, sizeof(buffer) - 1, stdin);
         if (s == 0)
@@ -578,11 +579,12 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
              eof = true;
              return;
            }
-         buffer[sizeof(buffer) - 1] = 0;
+        buffer[sizeof(buffer) - 1] = 0;
 
-         int slen = strlen(buffer);
-         if (buffer[slen - 1] == '\n')   buffer[--slen] = 0;
-         if (buffer[slen - 1] == '\r')   buffer[--slen] = 0;
+        int slen = strlen(buffer);
+        if (buffer[slen - 1] == '\n')   buffer[--slen] = 0;
+        if (buffer[slen - 1] == '\r')   buffer[--slen] = 0;
+
         UTF8_string line_utf(buffer);
         line = UCS_string(line_utf);
         return;

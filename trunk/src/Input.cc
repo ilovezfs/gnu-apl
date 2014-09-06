@@ -147,42 +147,6 @@ Input::readline_version()
 }
 //-----------------------------------------------------------------------------
 void
-Input::get_line(LineInputMode mode, UCS_string & line, bool & eof)
-{
-const APL_time_us from = now();
-   for (int control_D_count = 0; ; ++control_D_count)
-       {
-        Output::set_color_mode(Output::COLM_INPUT);
-        bool eof = false;
-        get_user_line(mode, &Workspace::get_prompt(), line, eof);
-
-        if (!eof)   break;
-
-        // ^D or end of file
-        if (control_D_count < 5)
-           {
-             CIN << endl;
-             COUT << "      ^D or end-of-input detected ("
-                  << control_D_count << "). Use )OFF to leave APL!"
-                  << endl;
-           }
-
-        if (control_D_count > 10 && (now() - from)/control_D_count < 10000)
-           {
-             // we got 10 or more times buf == 0 at a rate of 10 ms or
-             // faster. That looks like end-of-input rather than ^D
-             // typed by the user. Abort the interpreter.
-             //
-             CIN << endl;
-             COUT << "      *** end of input" << endl;
-             Command::cmd_OFF(2);
-           }
-      }
-
-   Log(LOG_get_line)   CERR << " '" << line << "'" << endl;
-}
-//-----------------------------------------------------------------------------
-void
 Input::exit_readline()
 {
 #if HAVE_LIBREADLINE
@@ -194,6 +158,8 @@ void
 Input::get_user_line(LineInputMode mode, const UCS_string * prompt,
                      UCS_string & user_line, bool & eof)
 {
+   Output::set_color_mode(Output::COLM_INPUT);
+
    if (start_input)   (*start_input)();
 
 const APL_time_us from = now();

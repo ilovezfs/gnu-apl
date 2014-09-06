@@ -631,9 +631,7 @@ int tcol = 0;
        {
          if (tidx >= text.size())
             {
-              Q(copying)
-              Q(tidx)
-              FIXME;
+              Q(copying)   Q(tidx)   FIXME;
             }
 
          const UCS_string & line = text[tidx];
