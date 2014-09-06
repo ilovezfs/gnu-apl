@@ -267,8 +267,9 @@ LineEditContext::LineEditContext(LineInputMode mode, int rows, int cols,
    else
       {
         prompt = prmt.no_pad();
-        refresh_all();
       }
+
+   refresh_all();
 }
 //-----------------------------------------------------------------------------
 void
@@ -759,7 +760,8 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
    tcsetattr(STDIN_FILENO, TCSANOW, &the_line_input->current_termios);
 
    user_line = lec.get_user_line();
-   if (mode == LIM_ImmediateExecution)   add_history_line(user_line);
+   if (mode == LIM_ImmediateExecution &&
+       !InputFile::is_validating())   add_history_line(user_line);
    CIN << endl;
 }
 //-----------------------------------------------------------------------------
