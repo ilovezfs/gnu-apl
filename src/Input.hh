@@ -79,7 +79,7 @@ public:
    static void init(bool read_history);
 
    /// read one line from the user (-terminal).
-   static void get_user_line(LineInputMode mode, const UCS_string * prompt,
+   static void get_user_line(LineInputMode mode, const UCS_string & prompt,
                              UCS_string & user_line, bool & eof);
 
 protected:
