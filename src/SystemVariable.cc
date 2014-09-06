@@ -719,7 +719,7 @@ PrintBuffer pb(*value, pctx, 0);
            {
              done(true, LOC);
              prompt = pb.get_line(y).no_pad();
-             COUT << prompt << flush;
+             COUT << prompt;
            }
       }
    else if (pb.get_height() > 0)
@@ -731,6 +731,8 @@ PrintBuffer pb(*value, pctx, 0);
       {
         // nothing to do
       }
+
+   cout << flush;
 
    Log(LOG_cork)
       CERR << "Quad_QUOTE::assign() done, buffer = ["
