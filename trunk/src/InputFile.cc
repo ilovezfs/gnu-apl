@@ -26,7 +26,6 @@
 #include "../config.h"
 
 #include "Common.hh"
-#include "Input.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
 #include "UserPreferences.hh"

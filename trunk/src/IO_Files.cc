@@ -23,7 +23,6 @@
 #include "Common.hh"
 #include "Command.hh"
 #include "IndexExpr.hh"
-#include "Input.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
 #include "main.hh"

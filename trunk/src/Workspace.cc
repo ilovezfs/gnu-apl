@@ -26,7 +26,6 @@ using namespace std;
 
 #include "Archive.hh"
 #include "Command.hh"
-#include "Input.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
 #include "LibPaths.hh"

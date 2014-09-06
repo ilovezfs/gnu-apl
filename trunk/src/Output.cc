@@ -293,7 +293,6 @@ int a = 0;
 void
 CIN_ostream::set_cursor(int y, int x)
 {
-Q(uprefs.raw_cin)
    if (uprefs.raw_cin)   return;
 
    if (y < 0)

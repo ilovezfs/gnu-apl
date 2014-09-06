@@ -23,7 +23,6 @@
 #include "Command.hh"
 #include "Executable.hh"
 #include "IndexExpr.hh"
-#include "Input.hh"
 #include "Output.hh"
 #include "Prefix.hh"
 #include "StateIndicator.hh"

@@ -21,6 +21,8 @@
 #ifndef __INPUT_FILE_HH_DEFINED__
 #define __INPUT_FILE_HH_DEFINED__
 
+#include "UTF8_string.hh"
+
 /// an input file and its properties. the file can be an apl script(.asp) file
 /// or a testcase (.tc) file. The file names initially come from the command
 /// line, but can be extended by )COPY commands 
