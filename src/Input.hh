@@ -78,9 +78,6 @@ public:
    /// initialize readline library
    static void init(bool read_history);
 
-   /// get one line
-   static void get_line(LineInputMode mode, UCS_string & user_line, bool & eof);
-
    /// read one line from the user (-terminal).
    static void get_user_line(LineInputMode mode, const UCS_string * prompt,
                              UCS_string & user_line, bool & eof);
