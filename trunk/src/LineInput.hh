@@ -243,8 +243,10 @@ public:
    static void init(bool do_read_history)
       { the_line_input = new LineInput(do_read_history); }
 
-   static void close()
-      { delete the_line_input;   the_line_input = 0; }
+   static void close(bool no_write_hist)
+      { if (the_line_input && no_write_hist)
+            the_line_input->write_history = false;
+        delete the_line_input;   the_line_input = 0; }
 
    /// clear history
    static void clear_history(ostream & out)
@@ -277,6 +279,9 @@ protected:
 
    /// the first tcgetattr() errno (or 0 if none)
    int initial_termios_errno;
+
+   /// write history when done
+   bool write_history;
 
    /// get one character from user
    static Unicode get_uni();

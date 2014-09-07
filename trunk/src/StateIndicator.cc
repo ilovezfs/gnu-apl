@@ -48,7 +48,7 @@ StateIndicator::~StateIndicator()
    // flush the FIFO. Do that before delete executable so that values
    // copied directly from the body of the executable are not killed.
    //
-   current_stack.cleanup();
+   current_stack.clean_up();
 
    // if executable is a user defined function then pop its local vars.
    // otherwise delete the body token

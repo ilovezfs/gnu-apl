@@ -27,6 +27,7 @@
 #include <errno.h>
 
 #include "Error.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "Parser.hh"
 #include "StateIndicator.hh"

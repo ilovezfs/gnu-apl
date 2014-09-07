@@ -23,6 +23,7 @@
 #include "Error.hh"
 #include "FloatCell.hh"
 #include "IntCell.hh"
+#include "main.hh"
 #include "LvalCell.hh"
 #include "Output.hh"
 #include "PointerCell.hh"

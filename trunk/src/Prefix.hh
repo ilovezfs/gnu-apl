@@ -64,7 +64,7 @@ public:
    Prefix(StateIndicator & _si, const Token_string & _body);
 
    /// destructor
-   void cleanup();
+   void clean_up();
 
    /// max. number of lookahead token
    enum { MAX_CONTENT   = 3*MAX_REDUCTION_LEN,
@@ -205,7 +205,7 @@ public:
 
    /// reset statement to empty state (e.g. after →N)
    void reset(const char * loc)
-      { cleanup();   put = 0;   assign_state = ASS_none;
+      { clean_up();   put = 0;   assign_state = ASS_none;
         lookahead_high = Function_PC_invalid;
         saved_lookahead.tok.clear(LOC); }
 

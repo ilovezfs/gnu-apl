@@ -20,6 +20,7 @@
 
 #include "Bif_OPER2_PRODUCT.hh"
 #include "Bif_OPER1_REDUCE.hh"
+#include "main.hh"
 #include "Workspace.hh"
 
 Bif_JOT            Bif_JOT::fun;

@@ -185,8 +185,8 @@ void throw_define_error(const UCS_string & fun, const UCS_string & cmd,
 #define SYSTEM_ERROR        throw_apl_error(E_SYSTEM_ERROR,         LOC)
 #define TODO                throw_apl_error(E_NOT_YET_IMPLEMENTED,  LOC)
 #define FIXME               {  Backtrace::show(__FILE__, __LINE__); \
-                               exit(0); \
-                               throw_apl_error(E_THIS_IS_A_BUG,        LOC); }
+                               cleanup(false);   exit(0);           \
+                               throw_apl_error(E_THIS_IS_A_BUG,     LOC); }
 #define VALUE_ERROR         throw_apl_error(E_VALUE_ERROR,          LOC)
 #define VALENCE_ERROR       throw_apl_error(E_VALENCE_ERROR,        LOC)
 

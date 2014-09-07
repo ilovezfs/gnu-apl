@@ -44,9 +44,8 @@ Prefix::Prefix(StateIndicator & _si, const Token_string & _body)
 }
 //-----------------------------------------------------------------------------
 void
-Prefix::cleanup()
+Prefix::clean_up()
 {
-
    //
    // there is still an unresolved issue with double deletion of values
    // by this function and Prefix.cc:948 below (line->erase(LOC); in

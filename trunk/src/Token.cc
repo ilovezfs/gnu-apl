@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "IndexExpr.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "Symbol.hh"
@@ -446,6 +447,7 @@ UCS_string fn = fun_name;
              return;
 
         case TOK_VOID:
+        case TOK_NO_VALUE:
              out << endl;
              return;
 

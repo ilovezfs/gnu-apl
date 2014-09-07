@@ -479,7 +479,8 @@ refresh:
 }
 //=============================================================================
 LineInput::LineInput(bool do_read_history)
-   : history(uprefs.line_history_len)
+   : history(uprefs.line_history_len),
+     write_history(false)
 {
    initial_termios_errno = 0;
 
@@ -493,7 +494,10 @@ LineInput::LineInput(bool do_read_history)
       initial_termios_errno = errno;
 
    if (do_read_history)
-      history.read_history(uprefs.line_history_path.c_str());
+      {
+        history.read_history(uprefs.line_history_path.c_str());
+        write_history = true;
+      }
 
    current_termios = initial_termios;
 
@@ -517,7 +521,8 @@ LineInput::~LineInput()
 {
    if (initial_termios_errno)   return;
 
-   history.save_history(uprefs.line_history_path.c_str());
+   if (write_history)   history.save_history(uprefs.line_history_path.c_str());
+
    tcsetattr(STDIN_FILENO, TCSANOW, &initial_termios);
 }
 //=============================================================================
