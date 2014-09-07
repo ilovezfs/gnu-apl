@@ -985,7 +985,7 @@ SVNUP:
 #
 .PHONY:	develop
 develop:
-	./configure --enable-dependency-tracking DEVELOP_WANTED=yes
+	./configure --enable-maintainer-mode DEVELOP_WANTED=yes
 	make all
 
 # a shortcut to export changes to ../savannah-repo-apl (which is supposed to be
