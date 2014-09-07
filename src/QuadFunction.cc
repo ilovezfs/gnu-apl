@@ -1641,7 +1641,9 @@ quad_INP arg = _arg.u.u_quad_INP;
         // 
         if (result->is_char_string())
            {
-             arg.lines->string.append(result->get_UCS_ravel());   // append result
+             // simple char string: insert result
+             //
+             arg.lines->string.append(result->get_UCS_ravel());
            }
         else
            {
@@ -1659,12 +1661,14 @@ quad_INP arg = _arg.u.u_quad_INP;
              loop(r, matrix->get_rows() - 1)
                 {
                   UCS_string row(plen, UNI_ASCII_SPACE);
-                  loop(r, matrix->get_cols())   row.append(cm++->get_char_value());
+                  loop(r, matrix->get_cols())
+                      row.append(cm++->get_char_value());
+
                   arg.lines = new UCS_string_list(row, arg.lines);
                 }
            }
 
-        arg.lines->string.append(last->string);              // append last line
+        arg.lines->string.append(last->string);            // append last line
 
         delete last;
       }
@@ -1674,7 +1678,8 @@ quad_INP arg = _arg.u.u_quad_INP;
          bool eof = false;
          UCS_string line;
          UCS_string prompt;
-         InputMux::get_line(LIM_Quad_INP, prompt, line, eof, 0);
+         InputMux::get_line(LIM_Quad_INP, prompt, line, eof,
+                            LineHistory::quad_INP_history);
          arg.done = (line.substr_pos(*arg.end_marker) != -1);
 
          if (arg.esc1)   // start marker defined (dyadic ⎕INP)

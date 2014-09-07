@@ -40,6 +40,11 @@ extern void (*end_input)();
 
 LineInput * LineInput::the_line_input = 0;
 
+LineHistory LineHistory::quote_quad_history(10);
+LineHistory LineHistory::quad_quad_history(10);
+LineHistory LineHistory::quad_INP_history(2);
+
+//=============================================================================
 const char ESCmap::ESC_CursorUp[]    = { 0x1B, 0x5B, 0x41, 0 };
 const char ESCmap::ESC_CursorDown[]  = { 0x1B, 0x5B, 0x42, 0 };
 const char ESCmap::ESC_CursorRight[] = { 0x1B, 0x5B, 0x43, 0 };
@@ -107,10 +112,10 @@ LineHistory::LineHistory(const Nabla & nabla)
 int cl = -1;
    loop(l, nabla.get_line_count())
        {
-         bool current = false;
-         const UCS_string lab_text = nabla.get_label_and_text(l, current);
-         add_line(lab_text);   // overrides current_line!
-         if (current)   cl = l;
+         bool on_current = false;
+         const UCS_string lab_text = nabla.get_label_and_text(l, on_current);
+         add_line(lab_text);   // overrides this->current_line !
+         if (on_current)   cl = l + 1;   // + 1 due to "xxx" above
        }
 
    if (cl != -1)   current_line = cl;
@@ -247,8 +252,7 @@ int new_current_line = current_line + 1;
 }
 //=============================================================================
 LineEditContext::LineEditContext(LineInputMode mode, int rows, int cols,
-                                 const LineHistory & hist,
-                                 const UCS_string & prmt)
+                                 LineHistory & hist, const UCS_string & prmt)
    : screen_rows(rows),
      screen_cols(cols),
      allocated_height(1),
@@ -427,7 +431,10 @@ void
 LineEditContext::cursor_up()
 {
 const UCS_string * ucs = history.up();
-   if (ucs == 0)   return;   // no line above
+   if (ucs == 0)   // no line above
+      {
+        return;
+      }
 
    if (!history_entered)   // not yet in history: remember user_line
       {
@@ -447,7 +454,7 @@ void
 LineEditContext::cursor_down()
 {
 const UCS_string * ucs = history.down();
-   if (ucs == 0)   // no line above
+   if (ucs == 0)   // no line below
       {
         // if inside history: restore user_line
         //
@@ -516,7 +523,7 @@ LineInput::~LineInput()
 //=============================================================================
 void
 InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
-                   UCS_string & line, bool & eof, const LineHistory * fun_lh)
+                   UCS_string & line, bool & eof, LineHistory & hist)
 {
    if (InputFile::is_validating())   Quad_QUOTE::done(true, LOC);
 
@@ -606,7 +613,7 @@ const APL_time_us from = now();
    for (int control_D_count = 0; ; ++control_D_count)
        {
          bool _eof = false;
-         LineInput::get_terminal_line(mode, prompt, line, _eof, fun_lh);
+         LineInput::get_terminal_line(mode, prompt, line, _eof, hist);
          if (!_eof)   break;
 
          // ^D or end of file
@@ -641,25 +648,25 @@ const APL_time_us from = now();
 void
 LineInput::get_terminal_line(LineInputMode mode, const UCS_string & prompt,
                              UCS_string & line, bool & eof,
-                             const LineHistory * fun_lh)
+                             LineHistory & hist)
 {
    // no file input: get line interactively
    //
    switch(mode)
       {
         case LIM_ImmediateExecution:
+        case LIM_Quote_Quad:
         case LIM_Quad_Quad:
         case LIM_Quad_INP:
-        case LIM_Quote_Quad:
              {
                Output::set_color_mode(Output::COLM_INPUT);
-               no_readline(mode, prompt, line, eof, fun_lh);
+               no_readline(mode, prompt, line, eof, hist);
                return;
              }
 
         case LIM_Nabla:
              {
-               no_readline(LIM_Nabla, prompt, line, eof, fun_lh);
+               no_readline(LIM_Nabla, prompt, line, eof, hist);
                return;
              }
 
@@ -672,16 +679,15 @@ LineInput::get_terminal_line(LineInputMode mode, const UCS_string & prompt,
 void
 LineInput::no_readline(LineInputMode mode, const UCS_string & prompt,
                        UCS_string & user_line, bool & eof,
-                       const LineHistory * lh)
+                       LineHistory & hist)
 {
    the_line_input->current_termios.c_lflag &= ~ISIG;
    tcsetattr(STDIN_FILENO, TCSANOW, &the_line_input->current_termios);
 
    user_line.clear();
 
-   if (lh == 0)   lh = &the_line_input->history;
 LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
-                    *lh, prompt);
+                    hist, prompt);
 
    for (;;)
        {
@@ -760,8 +766,35 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
    tcsetattr(STDIN_FILENO, TCSANOW, &the_line_input->current_termios);
 
    user_line = lec.get_user_line();
-   if (mode == LIM_ImmediateExecution &&
-       !InputFile::is_validating())   add_history_line(user_line);
+
+   // maybe add history line
+   //
+bool add_hist = false;
+   switch(mode)
+      {
+        case LIM_ImmediateExecution:
+             add_hist = !InputFile::is_validating() && user_line.has_black();
+             break;
+
+        case LIM_Quote_Quad:
+        case LIM_Quad_Quad:
+             add_hist = !InputFile::is_validating();
+             break;
+
+        case LIM_Quad_INP:
+             add_hist = false;
+             break;
+
+        case LIM_Nabla:
+             // ∇-history is handled in a special way in Nabla.cc
+             // so we don't do it here.
+             //
+             add_hist = false;
+             break;
+      }
+ 
+   if (add_hist)   hist.add_line(user_line);
+
    CIN << endl;
 }
 //-----------------------------------------------------------------------------

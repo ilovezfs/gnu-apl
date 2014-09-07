@@ -98,12 +98,13 @@ int control_D_count = 0;
          UCS_string line;
          if (uprefs.raw_cin || UserPreferences::use_readline)
             {
-              InputMux::get_line(LIM_Nabla, prompt, line, eof, 0);
+              LineHistory lh(10);
+              InputMux::get_line(LIM_Nabla, prompt, line, eof, lh);
             }
          else
             {
               LineHistory lh(*this);
-              InputMux::get_line(LIM_Nabla, prompt, line, eof, &lh);
+              InputMux::get_line(LIM_Nabla, prompt, line, eof, lh);
             }
 
          if (eof)   // end-of-input (^D) pressed
