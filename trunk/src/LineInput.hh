@@ -34,9 +34,9 @@ class Nabla;
 enum LineInputMode
 {
    LIM_ImmediateExecution,
+   LIM_Quote_Quad,
    LIM_Quad_Quad,
    LIM_Quad_INP,
-   LIM_Quote_Quad,
    LIM_Nabla,
 };
 //-----------------------------------------------------------------------------
@@ -78,6 +78,15 @@ public:
    /// add one line to \b this history
    void add_line(const UCS_string & line);
 
+   /// the history for ⍞
+   static LineHistory quote_quad_history;
+
+   /// the history for ⎕
+   static LineHistory quad_quad_history;
+
+   /// the history for ⎕INP
+   static LineHistory quad_INP_history;
+
 protected:
    /// the current line (controlled by up()/down())
    int current_line;
@@ -96,7 +105,7 @@ class LineEditContext
 {
 public:
    LineEditContext(LineInputMode mode, int rows, int cols,
-                   const LineHistory & hist, const UCS_string & prmt);
+                   LineHistory & hist, const UCS_string & prmt);
 
    /// clear (after ^C)
    void clear()
@@ -215,8 +224,7 @@ class InputMux
 {
 public:
    static void get_line(LineInputMode mode, const UCS_string & prompt,
-                        UCS_string & line, bool & eof,
-                        const LineHistory * fun_lh);
+                        UCS_string & line, bool & eof, LineHistory & hist);
 };
 //-----------------------------------------------------------------------------
 class LineInput
@@ -225,12 +233,12 @@ public:
    /// get a line from the user
    static void get_terminal_line(LineInputMode mode, const UCS_string & prompt,
                                  UCS_string & line, bool & eof,
-                                 const LineHistory * fun_lh);
+                                 LineHistory & hist);
 
    /// get a line from from user
    static void no_readline(LineInputMode mode, const UCS_string & prompt,
                            UCS_string & user_line, bool & eof,
-                           const LineHistory * fun_lh);
+                           LineHistory & hist);
 
    static void init(bool do_read_history)
       { the_line_input = new LineInput(do_read_history); }
@@ -249,6 +257,9 @@ public:
    /// add a line to the history
    static void add_history_line(const UCS_string & line)
       {  the_line_input->history.add_line(line); }
+
+   static LineHistory & get_history()
+      { return the_line_input->history; }
 
 protected:
    LineInput(bool do_read_history);

@@ -101,6 +101,7 @@ make DESTDIR=%{buildroot} install
 %doc support-files/Dyalog-Keyboard/apl.xmodmap
 %doc support-files/Dyalog-Keyboard/keyboard.txt
 %doc support-files/Dyalog-Keyboard/keyboard1.txt
+%doc support-files/OS-X-Keyboard/MacAplAlt.keylayout
 %doc support-files/Unicomp-Keyboard/apl.xkb
 %doc support-files/Unicomp-Keyboard/apl.xkb.txt
 %doc support-files/Unicomp-Keyboard/Unicomp1.jpg

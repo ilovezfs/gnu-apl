@@ -197,6 +197,7 @@ AC_CONFIG_FILES([Makefile
 		 support-files/Makefile
 		 support-files/Dyalog-Keyboard/Makefile
 		 support-files/old-Keyboard/Makefile
+		 support-files/OS-X-Keyboard/Makefile
 		 support-files/Unicomp-Keyboard/Makefile
 		 support-files/WASD-Keyboard/Makefile
                  tools/Makefile

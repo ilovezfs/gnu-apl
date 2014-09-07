@@ -13,6 +13,5 @@ apl.html:   apl.texi
 dist_doc_DATA =			\
 	apl.1			\
 	apl.html		\
-	APL-on-Macintosh.pdf	\
-	MacAplAlt.keylayout.xml
+	APL-on-Macintosh.pdf
 
