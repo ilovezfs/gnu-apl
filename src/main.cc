@@ -93,18 +93,27 @@ init_2(bool log_startup)
 //-----------------------------------------------------------------------------
 /// the opposite of init()
 void
-cleanup()
+cleanup(bool soft)
 {
-   ProcessorID::disconnect();
+   if (soft)   // proper clean-up
+      {
+        ProcessorID::disconnect();
 
-   NativeFunction::cleanup();
+        NativeFunction::cleanup();
 
-   // write line history
-   //
-   if (UserPreferences::use_readline)   Input::exit_readline();
-   else                                 LineInput::close();
+        // write line history
+        //
+        if (UserPreferences::use_readline)   Input::exit_readline();
+        else                                 LineInput::close(true);
 
-   Output::reset_colors();
+        Output::reset_colors();
+      }
+   else        // minimal clean-up
+      {
+        if (UserPreferences::use_readline)   Input::exit_readline();
+        else                                 LineInput::close(false);
+        Output::reset_colors();
+      }
 }
 //-----------------------------------------------------------------------------
 
@@ -170,7 +179,7 @@ static struct sigaction new_TERM_action;
 static void
 signal_TERM_handler(int)
 {
-   cleanup();
+   cleanup(true);
    sigaction(SIGTERM, &old_TERM_action, 0);
    raise(SIGTERM);
 }
@@ -185,7 +194,7 @@ static struct sigaction new_HUP_action;
 static void
 signal_HUP_handler(int)
 {
-   cleanup();
+   cleanup(true);
    sigaction(SIGHUP, &old_HUP_action, 0);
    raise(SIGHUP);
 }

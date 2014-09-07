@@ -24,6 +24,7 @@
 #include "InputFile.hh"
 #include "LineInput.hh"
 #include "Logging.hh"
+#include "main.hh"
 #include "Nabla.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"

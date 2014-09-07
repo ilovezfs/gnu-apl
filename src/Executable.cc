@@ -20,6 +20,7 @@
 
 
 #include "Executable.hh"
+#include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "UCS_string.hh"

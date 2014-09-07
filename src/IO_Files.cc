@@ -95,7 +95,7 @@ IO_Files::get_file_line(UTF8_string & line, bool & eof)
             (test_mode == TM_EXIT_AFTER_LAST_IF_OK && !error_count()))
           {
             CERR << "Exiting (test_mode " << test_mode << ")" << endl;
-            cleanup();
+            cleanup(true);
             if (total_errors)   Command::cmd_OFF(1);
             else                Command::cmd_OFF(0);
           }

@@ -1055,7 +1055,7 @@ Command::cmd_MORE(ostream & out)
 void 
 Command::cmd_OFF(int exit_val)
 {
-   cleanup();
+   cleanup(true);
    COUT << endl;
    if (!uprefs.silent)   COUT << "Goodbye." << endl;
    exit(exit_val);

@@ -19,7 +19,7 @@
 */
 
 /// clean up
-extern void cleanup();
+extern void cleanup(bool soft);
 
 /// true if Control-C was hit
 extern bool attention_raised;
