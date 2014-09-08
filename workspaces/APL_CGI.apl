@@ -214,7 +214,7 @@ distribution with a different package manager.
 <?apl HTML∆H4[''] 'GNU APL Binary' ?>
 
 If you just want to quickly give GNU APL a try, and if you are very lucky
-(which includes having shared libraries libreadline.so.5 and liblapack.so.3gf
+(which includes having shared libraries like liblapack.so.3gf
 installed on your machine) then you may be able to start the compiled
 GNU APL binary <B>apl</B> in the directory <B>apl</B> rather than 
 installing the entire packet . The binary MAY run on a 32-bit i686 Ubuntu.

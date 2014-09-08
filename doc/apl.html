@@ -334,7 +334,9 @@ shared variables.
 </p>
 </li><li> <samp>--rawCIN</samp>
 
-<p>do not use the readline library (even if configured to use it).
+<p>do not emit ESC sequences. Normally ESC sequences are emitted for colored
+output and during line editiong. In scripts, however, ESC sequences usually
+not wanted and can be truend off with this option.
 </p>
 </li><li> <samp>-s</samp>, <samp>--script</samp>
 

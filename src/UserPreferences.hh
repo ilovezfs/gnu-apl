@@ -162,14 +162,10 @@ struct UserPreferences
    /// send no ESC sequences on stderr
    bool raw_cin;
 
-   /// true if readline lib is present and shall be used
-   static bool use_readline;
-
 protected:
    /// return true if file \b filename is an APL script (has execute permission
    /// and starts with #!
    static bool is_APL_script(const char * filename);
-
 };
 
 extern UserPreferences uprefs;

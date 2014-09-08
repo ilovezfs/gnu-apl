@@ -247,7 +247,9 @@ use processor parent ID pproc (default: no parent ID).
 @item
 @option{--rawCIN}
 
-do not use the readline library (even if configured to use it).
+do not emit ESC sequences. Normally ESC sequences are emitted for colored
+output and during line editiong. In scripts, however, ESC sequences usually
+not wanted and can be truend off with this option.
 
 @item
 @option{-s}, @option{--script}

@@ -88,7 +88,6 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/ax_lib_readline.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
 	$(top_srcdir)/m4/ax_lib_postgresql.m4 \
 	$(top_srcdir)/configure.ac
@@ -112,25 +111,25 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	DynamicObject.$(OBJEXT) Error.$(OBJEXT) Executable.$(OBJEXT) \
 	FloatCell.$(OBJEXT) Function.$(OBJEXT) \
 	DerivedFunction.$(OBJEXT) Id.$(OBJEXT) IndexExpr.$(OBJEXT) \
-	IndexIterator.$(OBJEXT) Input.$(OBJEXT) InputFile.$(OBJEXT) \
-	IntCell.$(OBJEXT) LApack.$(OBJEXT) LibPaths.$(OBJEXT) \
-	LineInput.$(OBJEXT) Logging.$(OBJEXT) LvalCell.$(OBJEXT) \
-	main.$(OBJEXT) Malloc_hooks.$(OBJEXT) Nabla.$(OBJEXT) \
-	NamedObject.$(OBJEXT) NativeFunction.$(OBJEXT) \
-	NumericCell.$(OBJEXT) Output.$(OBJEXT) Parser.$(OBJEXT) \
-	Prefix.$(OBJEXT) PointerCell.$(OBJEXT) \
-	PrimitiveFunction.$(OBJEXT) PrimitiveOperator.$(OBJEXT) \
-	PrintBuffer.$(OBJEXT) QuadFunction.$(OBJEXT) \
-	ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) Quad_RL.$(OBJEXT) \
-	Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) Performance.$(OBJEXT) \
-	RealCell.$(OBJEXT) Shape.$(OBJEXT) ScalarFunction.$(OBJEXT) \
-	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
-	Svar_DB.$(OBJEXT) Svar_record.$(OBJEXT) Symbol.$(OBJEXT) \
-	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
-	IO_Files.$(OBJEXT) Token.$(OBJEXT) Tokenizer.$(OBJEXT) \
-	UCS_string.$(OBJEXT) UserFunction.$(OBJEXT) \
-	UserPreferences.$(OBJEXT) UTF8_string.$(OBJEXT) \
-	Value.$(OBJEXT) ValueHistory.$(OBJEXT) Workspace.$(OBJEXT)
+	IndexIterator.$(OBJEXT) InputFile.$(OBJEXT) IntCell.$(OBJEXT) \
+	LApack.$(OBJEXT) LibPaths.$(OBJEXT) LineInput.$(OBJEXT) \
+	Logging.$(OBJEXT) LvalCell.$(OBJEXT) main.$(OBJEXT) \
+	Malloc_hooks.$(OBJEXT) Nabla.$(OBJEXT) NamedObject.$(OBJEXT) \
+	NativeFunction.$(OBJEXT) NumericCell.$(OBJEXT) \
+	Output.$(OBJEXT) Parser.$(OBJEXT) Prefix.$(OBJEXT) \
+	PointerCell.$(OBJEXT) PrimitiveFunction.$(OBJEXT) \
+	PrimitiveOperator.$(OBJEXT) PrintBuffer.$(OBJEXT) \
+	QuadFunction.$(OBJEXT) ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) \
+	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
+	Performance.$(OBJEXT) RealCell.$(OBJEXT) Shape.$(OBJEXT) \
+	ScalarFunction.$(OBJEXT) StateIndicator.$(OBJEXT) \
+	StaticObjects.$(OBJEXT) Svar_DB.$(OBJEXT) \
+	Svar_record.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
+	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
+	Tokenizer.$(OBJEXT) UCS_string.$(OBJEXT) \
+	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
+	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
+	Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -448,7 +447,6 @@ DerivedFunction.cc				DerivedFunction.hh	\
 Id.cc			Id.def			Id.hh			\
 IndexExpr.cc					IndexExpr.hh		\
 IndexIterator.cc				IndexIterator.hh	\
-Input.cc					Input.hh		\
 InputFile.cc					InputFile.hh		\
 IntCell.cc					IntCell.hh		\
 LApack.cc								\
@@ -510,7 +508,7 @@ Workspace.cc					Workspace.hh
 
 AM_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(OPENMP) \
 	$(am__append_1)
-apl_LDADD = $(LIBS) $(LIBREADLINE)
+apl_LDADD = $(LIBS)
 AM_MAKEFLAGS = -j 8
 all: all-recursive
 
@@ -638,7 +636,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Id.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IndexExpr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IndexIterator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Input.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InputFile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IntCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LApack.Po@am__quote@

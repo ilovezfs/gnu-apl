@@ -198,7 +198,10 @@ APL understands the following command line options:
 
    • ‘--rawCIN’
 
-     do not use the readline library (even if configured to use it).
+     do not emit ESC sequences.  Normally ESC sequences are emitted for
+     colored output and during line editiong.  In scripts, however, ESC
+     sequences usually not wanted and can be truend off with this
+     option.
 
    • ‘-s’, ‘--script’
 
@@ -2556,15 +2559,15 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top383
 Node: Chapter 11370
-Node: Chapter 216022
-Node: Chapter 342651
-Node: Chapter 444399
-Node: Chapter 545528
-Node: Section 5.145947
-Node: Section 5.246631
-Node: Chapter 647462
-Node: Section 6.147965
-Node: Section 6.273274
+Node: Chapter 216176
+Node: Chapter 342805
+Node: Chapter 444553
+Node: Chapter 545682
+Node: Section 5.146101
+Node: Section 5.246785
+Node: Chapter 647616
+Node: Section 6.148119
+Node: Section 6.273428
 
 End Tag Table
 
