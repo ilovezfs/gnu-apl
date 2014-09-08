@@ -1000,8 +1000,8 @@ int file_profile = 0;   // the current profile in the preferences file
                  }
 
               LibPaths::set_lib_dir((LibRef)lib_ref, arg,
-                                    sys ? LibPaths::LibDir::CS_PREF_SYS
-                                        : LibPaths::LibDir::CS_PREF_HOME);
+                                    sys ? LibPaths::LibDir::CSRC_PREF_SYS
+                                        : LibPaths::LibDir::CSRC_PREF_HOME);
             }
          else if (!strcasecmp(opt, "READLINE_HISTORY_LEN"))
             {

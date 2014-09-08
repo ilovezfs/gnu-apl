@@ -343,18 +343,19 @@ StateIndicator::jump(Value_P value)
    // perform a jump. We either remain in the current function (and then
    // return TOK_VOID), or we (want to) jump into back into the calling
    // function (and then return TOK_BRANCH.). The jump itself (if any)
-   // is executed in Command.cc.
+   // is executed in Prefix.cc.
    //
    if (value->get_rank() > 1)   DOMAIN_ERROR;
 
    if (value->element_count() == 0)     // →''
       {
-        // →'' in immediate execution means resume (retry) suspended function
+        // →⍬ in immediate execution means resume (retry) suspended function
+        // →⍬ on ⍎ or defined functions means do nothing
         //
         if (get_executable()->get_parse_mode() == PM_STATEMENT_LIST)
            return Token(TOK_BRANCH, int64_t(Function_Retry));
 
-        return Token(TOK_VOID);           // stay in context
+        return Token(TOK_NOBRANCH);           // stay in context
       }
 
 const Function_Line line = value->get_line_number(Workspace::get_CT());

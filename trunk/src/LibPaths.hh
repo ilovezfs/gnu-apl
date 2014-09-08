@@ -52,7 +52,7 @@ public:
       {
         /// constructor: unspecified LibDir
         LibDir()
-        : cfg_src(CS_NONE)
+        : cfg_src(CSRC_NONE)
         {}
 
         /// the path (name) of the lib directory
@@ -61,11 +61,12 @@ public:
         /// how a dir_path was computed
         enum CfgSrc
            {
-             CS_NONE      = 0,   ///< not at all
-             CS_ENV       = 1,   ///< lib root from env. variable APL_LIB_ROOT
-             CS_ARGV0     = 2,   ///< lib root from apl binary location
-             CS_PREF_SYS  = 3,   ///< path from preferences file below /etc/
-             CS_PREF_HOME = 4,   ///< path from preferences file below $HOME
+             CSRC_NONE      = 0,   ///< not at all
+             CSRC_ENV       = 1,   ///< lib root from env. variable APL_LIB_ROOT
+             CSRC_ARGV0     = 2,   ///< lib root from apl binary location
+             CSRC_PREF_SYS  = 3,   ///< path from preferences file below /etc/
+             CSRC_PREF_HOME = 4,   ///< path from preferences file below $HOME
+             CSRC_CMD       = 5,   ///< lib root from )LIBS command
            };
 
         /// how dir_path was computed

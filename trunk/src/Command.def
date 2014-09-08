@@ -33,7 +33,7 @@ cmd_def(")HELP"     , cmd_HELP(CERR);                       ,                   
 cmd_def(")HIST"     , cmd_HISTORY(out, arg);                , [CLEAR]                , EH_oCLEAR)
 cmd_def(")HOST"     , cmd_HOST(out, arg);                   , command                , EH_HOSTCMD)
 cmd_def(")IN"       , cmd_IN(out, args, false);             , filename [objects]     , EH_FILENAME)
-cmd_def(")LIBS"     , cmd_LIBS(out, args);                  , [new root]             , EH_DIR)
+cmd_def(")LIBS"     , cmd_LIBS(out, args);                  , [[lib] path]             , EH_oLIB_oPATH)
 cmd_def(")LIB"      , cmd_LIB1(out, arg);                   , [lib or path]          , EH_DIR_OR_LIB)
 cmd_def(")LOAD"     , Workspace::load_WS(out, args, line);  , [lib] ws-name          , EH_oLIB_WSNAME)
 cmd_def(")MORE"     , cmd_MORE(out);                        ,                        , EH_NO_PARAM)

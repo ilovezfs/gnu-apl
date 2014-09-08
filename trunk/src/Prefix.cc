@@ -1350,7 +1350,6 @@ Value_P line = at2().get_apl_val();
         si.statement_result(bra, true);
       }
 
-
 const Token result = si.jump(line);
 
    if (result.get_tag() == TOK_BRANCH)   // branch back into a function
@@ -1371,7 +1370,26 @@ const Token result = si.jump(line);
    //
    reset(LOC);
 
-   if (result.get_tag() == TOK_VOID)   // branch not taken, e.g. →''
+   if (result.get_tag() == TOK_NOBRANCH)   // branch not taken, e.g. →⍬
+      {
+        if (trace)
+           {
+             Token bra(TOK_NOBRANCH);
+             si.statement_result(bra, true);
+           }
+
+        action = RA_PUSH_NEXT;
+        if (attention_raised && end_of_line)
+           {
+             attention_raised = false;
+             interrupt_raised = false;
+             ATTENTION;
+           }
+
+        return;
+      }
+
+   if (result.get_tag() == TOK_VOID)   // branch taken, e.g. →N
       {
         action = RA_PUSH_NEXT;
         if (attention_raised && end_of_line)

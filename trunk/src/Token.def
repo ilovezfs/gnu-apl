@@ -201,7 +201,8 @@ TD(TOK_VARIABLE      , TC_VALUE     , TV_SYM  , ID_VARIABLE     )
 TD(TOK_APL_VALUE1    , TC_VALUE     , TV_VAL  , ID_APL_VALUE1   ) // grouped
 TD(TOK_APL_VALUE2    , TC_VALUE     , TV_VAL  , ID_APL_VALUE2   ) // assigned
 TD(TOK_APL_VALUE3    , TC_VALUE     , TV_VAL  , ID_APL_VALUE3   ) // strand
-TD(TOK_BRANCH        , TC_R_ARROW   , TV_INT  , ID_BRANCH       )
+TD(TOK_BRANCH        , TC_R_ARROW   , TV_INT  , ID_BRANCH       ) // →N
+TD(TOK_NOBRANCH      , TC_R_ARROW   , TV_NONE , ID_BRANCH       ) // →⍬
 TD(TOK_CHARACTER     , TC_VALUE     , TV_CHAR , ID_CHARACTER    )
 TD(TOK_INTEGER       , TC_VALUE     , TV_INT  , ID_INTEGER      )
 TD(TOK_REAL          , TC_VALUE     , TV_FLT  , ID_REAL         )
