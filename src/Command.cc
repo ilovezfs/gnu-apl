@@ -735,18 +735,36 @@ transfer_context tctx(protection);
 }
 //-----------------------------------------------------------------------------
 void 
-Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
+Command::cmd_LIBS(ostream & out, const vector<UCS_string> & args)
 {
    // Command is:
    //
-   // )LIB path           (set root to path)
+   // )LIB N path         (set libdir N to path)
+   // )LIB path           (set libroot to path)
    // )LIB                (display root and path states)
    //
-   if (lib_ref.size() > 0)   // set path
+   if (args.size() >= 2)   // set individual dir
       {
-        UTF8_string utf(lib_ref[0]);
+        const UCS_string & libref_ucs = args[0];
+        const int libref = libref_ucs.atoi();
+        if (libref_ucs.size() != 1 || libref < 0 || libref > 9)
+           {
+             CERR << "Invalid library referenc " << libref_ucs << "'" << endl;
+             return;
+           }
+
+        UTF8_string path(args[1]);
+        LibPaths::set_lib_dir((LibRef)libref, path.c_str(),
+                               LibPaths::LibDir::CSRC_CMD);
+        out << "LIBRARY REFERENCE " << libref << " SET TO " << path << endl;
+        return;
+      }
+
+   if (args.size() == 1)   // set root
+      {
+        UTF8_string utf(args[0]);
         LibPaths::set_APL_lib_root(utf.c_str());
-        out << "LIBRARY ROOT SET TO " << lib_ref[0] << endl;
+        out << "LIBRARY ROOT SET TO " << args[0] << endl;
         return;
       }
 
@@ -766,12 +784,13 @@ Command::cmd_LIBS(ostream & out, const vector<UCS_string> & lib_ref)
           out << " " << d << " ";
           switch(LibPaths::get_cfg_src((LibRef)d))
              {
-                case LibPaths::LibDir::CS_NONE:      out << "NONE" << endl;
+                case LibPaths::LibDir::CSRC_NONE:      out << "NONE" << endl;
                                                      continue;
-                case LibPaths::LibDir::CS_ENV:       out << "ENV   ";   break;
-                case LibPaths::LibDir::CS_ARGV0:     out << "BIN   ";   break;
-                case LibPaths::LibDir::CS_PREF_SYS:  out << "PSYS  ";   break;
-                case LibPaths::LibDir::CS_PREF_HOME: out << "PUSER ";   break;
+                case LibPaths::LibDir::CSRC_ENV:       out << "ENV   ";   break;
+                case LibPaths::LibDir::CSRC_ARGV0:     out << "BIN   ";   break;
+                case LibPaths::LibDir::CSRC_PREF_SYS:  out << "PSYS  ";   break;
+                case LibPaths::LibDir::CSRC_PREF_HOME: out << "PUSER ";   break;
+                case LibPaths::LibDir::CSRC_CMD:       out << "CMD   ";   break;
              }
 
         out << left << setw(52) << path.c_str();
@@ -1932,9 +1951,9 @@ Command::expand_command_arg(UCS_string & user, bool have_trailing_blank,
 
         case EH_oWSNAME:
         case EH_oLIB_WSNAME:
+        case EH_oLIB_oPATH:
         case EH_FILENAME:
         case EH_DIR_OR_LIB:
-        case EH_DIR:
         case EH_WSNAME:    return expand_filename(user, have_trailing_blank,
                                                   ehint, shint, cmd, arg);
 

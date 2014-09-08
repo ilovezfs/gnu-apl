@@ -45,9 +45,9 @@ enum ExpandHint
 
    EH_oWSNAME,        ///< optional workspace name
    EH_oLIB_WSNAME,    ///< library ref, workspace
+   EH_oLIB_oPATH,     ///< directory path
    EH_FILENAME,       ///< filename
    EH_DIR_OR_LIB,     ///< directory path or library reference number
-   EH_DIR,            ///< directory path
    EH_WSNAME,         ///< workspace name
 
    EH_oFROM_oTO,      ///< optional from-to (character range)

@@ -54,9 +54,9 @@ LibPaths::init(const char * argv0, bool logit)
 
    loop(d, LIB_MAX)
       {
-        if (root_from_env)        lib_dirs[d].cfg_src = LibDir::CS_ENV;
-        else if (root_from_pwd)   lib_dirs[d].cfg_src = LibDir::CS_ARGV0;
-        else                      lib_dirs[d].cfg_src = LibDir::CS_NONE;
+        if (root_from_env)        lib_dirs[d].cfg_src = LibDir::CSRC_ENV;
+        else if (root_from_pwd)   lib_dirs[d].cfg_src = LibDir::CSRC_ARGV0;
+        else                      lib_dirs[d].cfg_src = LibDir::CSRC_NONE;
       }
 }
 //-----------------------------------------------------------------------------
@@ -226,13 +226,14 @@ LibPaths::get_lib_dir(LibRef libref)
 {
    switch(lib_dirs[libref].cfg_src)
       {
-        case LibDir::CS_NONE: return UTF8_string();
+        case LibDir::CSRC_NONE:      return UTF8_string();
 
-        case LibDir::CS_ENV:
-        case LibDir::CS_ARGV0:     break;   // continue below
+        case LibDir::CSRC_ENV:
+        case LibDir::CSRC_ARGV0:     break;   // continue below
 
-        case LibDir::CS_PREF_SYS:
-        case LibDir::CS_PREF_HOME: return lib_dirs[libref].dir_path;
+        case LibDir::CSRC_PREF_SYS:
+        case LibDir::CSRC_PREF_HOME:
+        case LibDir::CSRC_CMD:     return lib_dirs[libref].dir_path;
       }
 
 UTF8_string ret(APL_lib_root);
