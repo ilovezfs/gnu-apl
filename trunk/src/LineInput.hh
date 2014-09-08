@@ -236,9 +236,9 @@ public:
                                  LineHistory & hist);
 
    /// get a line from from user
-   static void no_readline(LineInputMode mode, const UCS_string & prompt,
-                           UCS_string & user_line, bool & eof,
-                           LineHistory & hist);
+   static void edit_line(LineInputMode mode, const UCS_string & prompt,
+                         UCS_string & user_line, bool & eof,
+                         LineHistory & hist);
 
    static void init(bool do_read_history)
       { the_line_input = new LineInput(do_read_history); }

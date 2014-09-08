@@ -24,7 +24,6 @@
 #include "Assert.hh"
 #include "Command.hh"
 #include "Error.hh"
-#include "Input.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
 #include "LineInput.hh"
@@ -36,7 +35,10 @@
 
 // hooks for external editors (emacs)
 extern void (*start_input)();
+void (*start_input)() = 0;
+
 extern void (*end_input)();
+void (*end_input)() = 0;
 
 LineInput * LineInput::the_line_input = 0;
 
@@ -484,12 +486,6 @@ LineInput::LineInput(bool do_read_history)
 {
    initial_termios_errno = 0;
 
-   if (UserPreferences::use_readline)
-      {
-        initial_termios_errno = -1;
-        return;
-      }
-
    if (tcgetattr(STDIN_FILENO, &initial_termios))
       initial_termios_errno = errno;
 
@@ -603,13 +599,6 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
         return;
       }
 
-   if (UserPreferences::use_readline)
-      {
-        Quad_QUOTE::done(true, LOC);
-        Input::get_user_line(mode, prompt, line, eof);
-        return;
-      }
-
    Quad_QUOTE::done(mode != LIM_Quote_Quad, LOC);
 
 const APL_time_us from = now();
@@ -665,13 +654,13 @@ LineInput::get_terminal_line(LineInputMode mode, const UCS_string & prompt,
         case LIM_Quad_INP:
              {
                Output::set_color_mode(Output::COLM_INPUT);
-               no_readline(mode, prompt, line, eof, hist);
+               edit_line(mode, prompt, line, eof, hist);
                return;
              }
 
         case LIM_Nabla:
              {
-               no_readline(LIM_Nabla, prompt, line, eof, hist);
+               edit_line(LIM_Nabla, prompt, line, eof, hist);
                return;
              }
 
@@ -682,7 +671,7 @@ LineInput::get_terminal_line(LineInputMode mode, const UCS_string & prompt,
 }
 //-----------------------------------------------------------------------------
 void
-LineInput::no_readline(LineInputMode mode, const UCS_string & prompt,
+LineInput::edit_line(LineInputMode mode, const UCS_string & prompt,
                        UCS_string & user_line, bool & eof,
                        LineHistory & hist)
 {

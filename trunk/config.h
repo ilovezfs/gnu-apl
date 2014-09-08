@@ -1,9 +1,6 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* advanced realine functions compile */
-/* #undef ADVANCED_readline */
-
 /* APserver listen port name */
 #define APSERVER_PATH "/tmp/GNU-APL/APserver"
 
@@ -49,9 +46,6 @@
 /* Define to 1 if you have the `getpagesize' function. */
 #define HAVE_GETPAGESIZE 1
 
-/* Define to 1 if you have the <history.h> header file. */
-/* #undef HAVE_HISTORY_H */
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
@@ -85,9 +79,6 @@
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #define HAVE_LIBPTHREAD 1
 
-/* Define if you have a readline compatible library */
-/* #undef HAVE_LIBREADLINE */
-
 /* Define to 1 if you have the `socket' library (-lsocket). */
 /* #undef HAVE_LIBSOCKET */
 
@@ -114,18 +105,6 @@
 
 /* CPU has rdtsc opcode */
 #define HAVE_RDTSC 1
-
-/* Define to 1 if you have the <readline.h> header file. */
-/* #undef HAVE_READLINE_H */
-
-/* Define if your readline library has \`add_history' */
-/* #undef HAVE_READLINE_HISTORY */
-
-/* Define to 1 if you have the <readline/history.h> header file. */
-/* #undef HAVE_READLINE_HISTORY_H */
-
-/* Define to 1 if you have the <readline/readline.h> header file. */
-/* #undef HAVE_READLINE_READLINE_H */
 
 /* Have the SQLITE3 library */
 /* #undef HAVE_SQLITE3 */

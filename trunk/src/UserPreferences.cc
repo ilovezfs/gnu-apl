@@ -30,7 +30,6 @@
 static const char * build_tag[] = { BUILDTAG, 0 };
 
 #include "Common.hh"
-#include "Input.hh"
 #include "IO_Files.hh"
 #include "InputFile.hh"
 #include "LibPaths.hh"
@@ -38,12 +37,6 @@ static const char * build_tag[] = { BUILDTAG, 0 };
 #include "Output.hh"
 #include "UserPreferences.hh"
 #include "Value.icc"
-
-#if HAVE_LIBREADLINE
-bool UserPreferences::use_readline = true;
-#else
-bool UserPreferences::use_readline = false;
-#endif
 
 UserPreferences uprefs;
 
@@ -80,7 +73,7 @@ char cc[4000];
    snprintf(cc, sizeof(cc),
 "    --cfg                show ./configure options used and exit\n"
 "    --noCIN              do not echo input(for scripting)\n"
-"    --rawCIN             do not use the readline lib for input\n"
+"    --rawCIN             do not emit escape sequences\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
 "    --noCONT             do not load CONTINUE workspace on startup)\n"
 "    --emacs              run in (classical) emacs mode\n"
@@ -383,12 +376,6 @@ UserPreferences::parse_argv(bool logit)
               continue;
             }
 
-         if (!strcmp(opt, "--noRL"))
-            {
-              use_readline = false;
-              continue;
-            }
-
          if (!strcmp(opt, "--safe"))
             {
               safe_mode = true;
@@ -401,7 +388,6 @@ UserPreferences::parse_argv(bool logit)
               do_CONT = false;               // --noCONT
               do_not_echo = true;            // -noCIN
               do_Color = false;              // --noColor
-              use_readline = false;          // --rawCIN
               silent = true;                 // --silent
               continue;
             }
@@ -673,8 +659,7 @@ UserPreferences::show_version(ostream & out)
          out << *bt << endl;
        }
 
-   out << "  Readline:       " << HEX4(Input::readline_version()) << endl
-       << endl;
+   out << endl;
 
    Output::set_color_mode(Output::COLM_OUTPUT);
 }
@@ -697,13 +682,6 @@ UserPreferences::show_configure_options()
    "    DYNAMIC_LOG_WANTED=yes"
 #else
    "    DYNAMIC_LOG_WANTED=no (default)"
-#endif
-   << endl <<
-
-#ifdef HAVE_LIBREADLINE
-   "    libreadline is used (default)"
-#else
-   "    libreadline is not used (disabled or not present)"
 #endif
    << endl <<
 

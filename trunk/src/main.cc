@@ -30,9 +30,9 @@
 #include "buildtag.hh"
 #include "Command.hh"
 #include "Common.hh"
-#include "Input.hh"
 #include "IO_Files.hh"
 #include "LibPaths.hh"
+#include "LineInput.hh"
 #include "Logging.hh"
 #include "main.hh"
 #include "makefile.h"
@@ -87,8 +87,7 @@ init_2(bool log_startup)
                  LibPaths::get_APL_bin_name(),
                  log_startup, uprefs.system_do_svars);
 
-   if (UserPreferences::use_readline)   Input::init(true);
-   else                                 LineInput::init(true);
+   LineInput::init(true);
 }
 //-----------------------------------------------------------------------------
 /// the opposite of init()
@@ -103,15 +102,13 @@ cleanup(bool soft)
 
         // write line history
         //
-        if (UserPreferences::use_readline)   Input::exit_readline();
-        else                                 LineInput::close(true);
+        LineInput::close(true);
 
         Output::reset_colors();
       }
    else        // minimal clean-up
       {
-        if (UserPreferences::use_readline)   Input::exit_readline();
-        else                                 LineInput::close(false);
+        LineInput::close(false);
         Output::reset_colors();
       }
 }

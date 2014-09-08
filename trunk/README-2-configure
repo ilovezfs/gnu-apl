@@ -5,17 +5,6 @@ provided by ./configure (that are described in file INSTALL),
 the following GNU APL specific ./configure options are recognized:
 
 
---without-readline
-    GNU APL uses libreadline for reading APL characters from the keyboard.
-    This only works when Unicode characters are supported by libreadline.
-    On most systems that is the case; on some systems, for example FreeBSD,
-    it is not. If Unicode is not supported, then you can either install a
-    different libreadline, or ./configure GNU APL with --without-readline.
-    Most likely you will then --disable-nls as well. Example:
-
-    ./configure --without-readline --disable-nls
-
-
 ASSERT_LEVEL_WANTED=n
    There are numerous Assert() and Assert1 macros in the source code of the
    APL interpreter. These macros check more (Assert1) or less (Assert)

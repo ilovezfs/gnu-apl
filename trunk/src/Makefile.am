@@ -48,7 +48,6 @@ DerivedFunction.cc				DerivedFunction.hh	\
 Id.cc			Id.def			Id.hh			\
 IndexExpr.cc					IndexExpr.hh		\
 IndexIterator.cc				IndexIterator.hh	\
-Input.cc					Input.hh		\
 InputFile.cc					InputFile.hh		\
 IntCell.cc					IntCell.hh		\
 LApack.cc								\
@@ -127,7 +126,7 @@ if DEVELOP
    AM_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
 endif
 
-apl_LDADD = $(LIBS) $(LIBREADLINE)
+apl_LDADD = $(LIBS)
 
 apl.lines: apl
 	objdump -j .text -l -d $< > $@

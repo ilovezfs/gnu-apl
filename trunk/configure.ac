@@ -97,9 +97,6 @@ AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
 
-# check if readline is installed
-m4_include([m4/ax_lib_readline.m4])            AX_LIB_READLINE([])
-
 # check if SQLite3 is installed
 m4_include([m4/ax_lib_sqlite3.m4])            AX_LIB_SQLITE3([])
 

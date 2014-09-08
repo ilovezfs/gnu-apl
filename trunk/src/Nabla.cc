@@ -97,7 +97,7 @@ int control_D_count = 0;
          const UCS_string prompt = current_line.print_prompt(0);
          bool eof = false;
          UCS_string line;
-         if (uprefs.raw_cin || UserPreferences::use_readline)
+         if (uprefs.raw_cin)
             {
               LineHistory lh(10);
               InputMux::get_line(LIM_Nabla, prompt, line, eof, lh);
@@ -142,7 +142,7 @@ UCS_string fun_text;
         fun_text.append(lines[l].text);
         fun_text.append(UNI_ASCII_LF);
 
-        if (!(uprefs.raw_cin || UserPreferences::use_readline))
+        if (!uprefs.raw_cin)
            {
              // create a history entry that can be re-entered
              //
@@ -164,7 +164,7 @@ UCS_string fun_text;
              LineInput::add_history_line(hist_entry);
            }
       }
-   if (!(uprefs.raw_cin || UserPreferences::use_readline))
+   if (!uprefs.raw_cin)
       LineInput::add_history_line(UCS_string("    ∇"));
 
 int error_line = 0;
