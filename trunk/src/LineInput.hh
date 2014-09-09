@@ -65,8 +65,8 @@ public:
    /// start a new up/down sequence
    void next()
       { current_line = put;
-        if (current_line < 0)   current_line += lines.size();    // wrap
-        if (current_line >= lines.size())   current_line = 0;    // wrap
+        if (current_line < 0)   current_line += hist_lines.size();    // wrap
+        if (current_line >= hist_lines.size())   current_line = 0;    // wrap
       }
 
    /// move to next older entry
@@ -97,7 +97,7 @@ protected:
    /// the max. history size
    const int max_lines;
 
-   vector<UCS_string> lines;
+   vector<UCS_string> hist_lines;
 };
 //-----------------------------------------------------------------------------
 /// a context for one user-input line
@@ -159,16 +159,16 @@ public:
    void toggle_insert_mode()   { insert_mode = !insert_mode; }
 
    /// move cursor home
-   void cursor_home()   { move_idx(uidx = 0); }
+   void cursor_HOME()   { move_idx(uidx = 0); }
 
    /// move cursor to end
-   void cursor_end()   { move_idx(uidx = user_line.size()); }
+   void cursor_END()   { move_idx(uidx = user_line.size()); }
 
    /// move cursor left
-   void cursor_left()   { if (uidx > 0)   move_idx(--uidx); }
+   void cursor_LEFT()   { if (uidx > 0)   move_idx(--uidx); }
 
    /// move cursor right
-   void cursor_right()   { if (uidx < user_line.size())   move_idx(++uidx); }
+   void cursor_RIGHT()   { if (uidx < user_line.size())   move_idx(++uidx); }
 
    /// move cursor left and delete char
    void backspace()
@@ -178,10 +178,10 @@ public:
    void tab(LineInputMode mode);
 
    /// move backwards in history
-   void cursor_up();
+   void cursor_UP();
 
    /// move forward in history
-   void cursor_down();
+   void cursor_DOWN();
 
    /// return current user input
    const UCS_string & get_user_line() const
@@ -240,8 +240,8 @@ public:
                          UCS_string & user_line, bool & eof,
                          LineHistory & hist);
 
-   static void init(bool do_read_history)
-      { the_line_input = new LineInput(do_read_history); }
+   /// initialize the input subsystem
+   static void init(bool do_read_history);
 
    static void close(bool no_write_hist)
       { if (the_line_input && no_write_hist)
@@ -298,6 +298,9 @@ struct ESCmap
    /// return true if seq is the sequence of \b this ESCmap
    bool is_equal(const char * seq, int seq_len) const;
 
+   /// refresh the lengths (after keyboard strings have been updated)
+   static void refresh_lengths();
+
    /// the length of \b seqence
    int len;
 
@@ -306,33 +309,6 @@ struct ESCmap
 
    /// the (pseudo-) Unicode for the sequence
    Unicode uni;
-
-   /// max. length of an ESC sequence sent by a keyboard
-   enum { MAX_ESC_LEN = 20 };
-
-   /// default ESC sequence for Cursor Up key
-   static const char ESC_CursorUp   [MAX_ESC_LEN];
-
-   /// default ESC sequence for Cursor Down key
-   static const char ESC_CursorDown [MAX_ESC_LEN];
-
-   /// default ESC sequence for Cursor Right key
-   static const char ESC_CursorRight[MAX_ESC_LEN];
-
-   /// default ESC sequence for Cursor Left key
-   static const char ESC_CursorLeft [MAX_ESC_LEN];
-
-   /// default ESC sequence for End key
-   static const char ESC_CursorEnd  [MAX_ESC_LEN];
-
-   /// default ESC sequence for Home key
-   static const char ESC_CursorHome [MAX_ESC_LEN];
-
-   /// default ESC sequence for Insert key
-   static const char ESC_InsertMode [MAX_ESC_LEN];
-
-   /// default ESC sequence for Delete key
-   static const char ESC_Delete     [MAX_ESC_LEN];
 
    /// a mapping from keyboard escape sequences to Unicodes
    static ESCmap the_ESCmap[];

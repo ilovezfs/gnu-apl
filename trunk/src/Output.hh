@@ -80,6 +80,8 @@ public:
          COLM_UERROR,   ///< color for APL error output (UERR)
       };
 
+   enum { MAX_ESC_LEN = 100 };   ///< max. length of an ESC sequence
+
    /// set the color mode (if colors_enabled). Outputs the escape sequence
    /// for \b mode when the color mode changes
    static void set_color_mode(ColorMode mode);
@@ -94,22 +96,46 @@ public:
    static void toggle_color(const UCS_string & arg);
 
    /// initialize curses library
-   static void  init();
+   static void  init(bool logit);
 
    /// escape sequence for CIN colors
-   static char color_CIN[100];
+   static char color_CIN[MAX_ESC_LEN];
 
    /// escape sequence for COUT colors
-   static char color_COUT[100];
+   static char color_COUT[MAX_ESC_LEN];
 
    /// escape sequence for CERR colors
-   static char color_CERR[100];
+   static char color_CERR[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Up key
+   static char ESC_CursorUp[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Down key
+   static char ESC_CursorDown[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Right key
+   static char ESC_CursorRight[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Left key
+   static char ESC_CursorLeft[MAX_ESC_LEN];
+
+   /// default ESC sequence for End key
+   static char ESC_CursorEnd[MAX_ESC_LEN];
+
+   /// default ESC sequence for Home key
+   static char ESC_CursorHome[MAX_ESC_LEN];
+
+   /// default ESC sequence for Insert key
+   static char ESC_InsertMode[MAX_ESC_LEN];
+
+   /// default ESC sequence for Delete key
+   static char ESC_Delete[MAX_ESC_LEN];
 
    /// escape sequence for UERR colors
-   static char color_UERR[100];
+   static char color_UERR[MAX_ESC_LEN];
 
    /// escape sequence for resetting colors
-   static char color_RESET[100];
+   static char color_RESET[MAX_ESC_LEN];
 
    /// foreground color for CIN
    static int color_CIN_foreground;
@@ -135,15 +161,21 @@ public:
    /// background color for UERR
    static int color_UERR_background;
  
-   /// escape sequences for clear to end of line
-   static char clear_EOL[100];
+   /// escape sequence for clear to end of line
+   static char clear_EOL[MAX_ESC_LEN];
 
-   /// escape sequences for clear to end of screen
-   static char clear_EOS[100];
+   /// escape sequence for clear to end of screen
+   static char clear_EOS[MAX_ESC_LEN];
+
+   /// escape sequence for exiting attribute mode
+   static char exit_attr_mode[MAX_ESC_LEN];
 
    /// true if curses shall be used for output colors
    static bool use_curses;
 
+   /// read/append an ESC sequence in str and store it in \b dest
+   static int read_ESC_sequence(char * dest, int destlen, int append,
+                                const char * str, int p1 = 0, int p2 = 0);
 protected:
    /// true if colors were changed (and then reset_colors() shall reset
    /// them when leaving the interpreter

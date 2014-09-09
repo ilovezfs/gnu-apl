@@ -25,7 +25,7 @@
 /* define to enable gprof profiling */
 #define GPROF_WANTED -pg
 
-/* Define to 1 if you have the <curses.h> header file. */
+/* Define to 1 if <curses.h> is present */
 /* #undef HAVE_CURSES_H */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
@@ -52,7 +52,7 @@
 /* Define to 1 if you have the `blas' library (-lblas). */
 #define HAVE_LIBBLAS 1
 
-/* Define to 1 if you have the `curses' library (-lcurses). */
+/* Define to 1 if lib(n)curses is available */
 /* #undef HAVE_LIBCURSES */
 
 /* Define to 1 if you have the `dl' library (-ldl). */
@@ -69,9 +69,6 @@
 
 /* Define to 1 if you have the `m' library (-lm). */
 #define HAVE_LIBM 1
-
-/* Define to 1 if you have the `ncurses' library (-lncurses). */
-/* #undef HAVE_LIBNCURSES */
 
 /* Define to 1 if you have the `nsl' library (-lnsl). */
 #define HAVE_LIBNSL 1
@@ -93,6 +90,9 @@
 
 /* Define to 1 if you have the `munmap' function. */
 #define HAVE_MUNMAP 1
+
+/* Define to 1 if <ncurses.h> is present */
+/* #undef HAVE_NCURSES_H */
 
 /* Define to 1 if you have the <omp.h> header file. */
 #define HAVE_OMP_H 1
@@ -144,6 +144,9 @@
 
 /* Define to 1 if you have the <sys/un.h> header file. */
 #define HAVE_SYS_UN_H 1
+
+/* Define to 1 if <term.h> is present */
+/* #undef HAVE_TERM_H */
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
