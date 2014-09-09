@@ -47,25 +47,17 @@ LineHistory LineHistory::quad_quad_history(10);
 LineHistory LineHistory::quad_INP_history(2);
 
 //=============================================================================
-const char ESCmap::ESC_CursorUp[]    = { 0x1B, 0x5B, 0x41, 0 };
-const char ESCmap::ESC_CursorDown[]  = { 0x1B, 0x5B, 0x42, 0 };
-const char ESCmap::ESC_CursorRight[] = { 0x1B, 0x5B, 0x43, 0 };
-const char ESCmap::ESC_CursorLeft[]  = { 0x1B, 0x5B, 0x44, 0 };
-const char ESCmap::ESC_CursorEnd[]   = { 0x1B, 0x5B, 0x46, 0 };
-const char ESCmap::ESC_CursorHome[]  = { 0x1B, 0x5B, 0x48, 0 };
-const char ESCmap::ESC_InsertMode[]  = { 0x1B, 0x5B, 0x32, 0x7E, 0 };
-const char ESCmap::ESC_Delete[]      = { 0x1B, 0x5B, 0x33, 0x7E, 0 };
 
 ESCmap ESCmap::the_ESCmap[] =
 {
-  { 3, ESC_CursorUp,    UNI_CursorUp     },
-  { 3, ESC_CursorDown,  UNI_CursorDown   },
-  { 3, ESC_CursorRight, UNI_CursorRight  },
-  { 3, ESC_CursorLeft,  UNI_CursorLeft   },
-  { 3, ESC_CursorEnd,   UNI_CursorEnd    },
-  { 3, ESC_CursorHome,  UNI_CursorHome   },
-  { 4, ESC_InsertMode,  UNI_InsertMode   },
-  { 4, ESC_Delete,      UNI_ASCII_DELETE },
+  { 3, Output::ESC_CursorUp,    UNI_CursorUp     },
+  { 3, Output::ESC_CursorDown,  UNI_CursorDown   },
+  { 3, Output::ESC_CursorRight, UNI_CursorRight  },
+  { 3, Output::ESC_CursorLeft,  UNI_CursorLeft   },
+  { 3, Output::ESC_CursorEnd,   UNI_CursorEnd    },
+  { 3, Output::ESC_CursorHome,  UNI_CursorHome   },
+  { 4, Output::ESC_InsertMode,  UNI_InsertMode   },
+  { 4, Output::ESC_Delete,      UNI_ASCII_DELETE },
 };
 
 enum { ESCmap_entry_count = sizeof(ESCmap::the_ESCmap) / sizeof(ESCmap) };
@@ -81,6 +73,14 @@ ESCmap::has_prefix(const char * seq, int seq_len) const
       }
 
    return true;
+}
+//-----------------------------------------------------------------------------
+void
+ESCmap::refresh_lengths()
+{
+return;
+   loop(e, ESCmap_entry_count)
+     the_ESCmap[e].len = strlen(the_ESCmap[e].seqence);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -160,7 +160,7 @@ int count = 0;
 void
 LineHistory::save_history(const char * filename)
 {
-   if (lines.size() == 0)   return;
+   if (hist_lines.size() == 0)   return;
 
 ofstream outf(filename);
    if (!outf.is_open())
@@ -171,14 +171,14 @@ ofstream outf(filename);
       }
 
 int count = 0;
-   for (int p = put + 1; p < lines.size(); ++p)
+   for (int p = put + 1; p < hist_lines.size(); ++p)
       {
-        outf << lines[p] << endl;
+        outf << hist_lines[p] << endl;
         ++count;
       }
    for (int p = 0; p < put; ++p)
       {
-        outf << lines[p] << endl;
+        outf << hist_lines[p] << endl;
         ++count;
       }
 
@@ -191,7 +191,7 @@ LineHistory::clear_history(ostream & out)
 {
    current_line = 0;
    put = 0;
-   lines.resize(0);
+   hist_lines.resize(0);
 UCS_string u("xxx");
    add_line(u);
 }
@@ -199,13 +199,13 @@ UCS_string u("xxx");
 void
 LineHistory::print_history(ostream & out)
 {
-   for (int p = put + 1; p < lines.size(); ++p)
+   for (int p = put + 1; p < hist_lines.size(); ++p)
       {
-        out << "      " << lines[p] << endl;
+        out << "      " << hist_lines[p] << endl;
       }
    for (int p = 0; p < put; ++p)
       {
-        out << "      " << lines[p] << endl;
+        out << "      " << hist_lines[p] << endl;
       }
 }
 //-----------------------------------------------------------------------------
@@ -214,15 +214,15 @@ LineHistory::add_line(const UCS_string & line)
 {
    if (!line.has_black())   return;
 
-   if (lines.size() < max_lines)   // append
+   if (hist_lines.size() < max_lines)   // append
       {
-        lines.push_back(line);
+        hist_lines.push_back(line);
         put = 0;
       }
    else                            // override
       {
-        if (put >= lines.size())   put = 0;   // wrap
-        lines[put++] = line;
+        if (put >= hist_lines.size())   put = 0;   // wrap
+        hist_lines[put++] = line;
       }
 
    next();   // update current_line
@@ -231,26 +231,26 @@ LineHistory::add_line(const UCS_string & line)
 const UCS_string *
 LineHistory::up()
 {
-   if (lines.size() == 0)   return 0;
+   if (hist_lines.size() == 0)   return 0;
 
 int new_current_line = current_line - 1;
-    if (new_current_line < 0)   new_current_line += lines.size();   // wrap
+    if (new_current_line < 0)   new_current_line += hist_lines.size();   // wrap
     if (new_current_line == put)   return 0;
 
-   return &lines[current_line = new_current_line];
+   return &hist_lines[current_line = new_current_line];
 }
 //-----------------------------------------------------------------------------
 const UCS_string *
 LineHistory::down()
 {
-   if (lines.size() == 0)     return 0;
+   if (hist_lines.size() == 0)     return 0;
    if (current_line == put)   return 0;
 
 int new_current_line = current_line + 1;
-   if (new_current_line >= lines.size())   new_current_line = 0;   // wrap
+   if (new_current_line >= hist_lines.size())   new_current_line = 0;   // wrap
    if (new_current_line == put)   return 0;
 
-   return &lines[current_line = new_current_line];
+   return &hist_lines[current_line = new_current_line];
 }
 //=============================================================================
 LineEditContext::LineEditContext(LineInputMode mode, int rows, int cols,
@@ -430,7 +430,7 @@ UCS_string line = user_line;
 }
 //-----------------------------------------------------------------------------
 void
-LineEditContext::cursor_up()
+LineEditContext::cursor_UP()
 {
 const UCS_string * ucs = history.up();
    if (ucs == 0)   // no line above
@@ -453,7 +453,7 @@ const UCS_string * ucs = history.up();
 }
 //-----------------------------------------------------------------------------
 void
-LineEditContext::cursor_down()
+LineEditContext::cursor_DOWN()
 {
 const UCS_string * ucs = history.down();
    if (ucs == 0)   // no line below
@@ -520,6 +520,11 @@ LineInput::~LineInput()
    if (write_history)   history.save_history(uprefs.line_history_path.c_str());
 
    tcsetattr(STDIN_FILENO, TCSANOW, &initial_termios);
+}
+//-----------------------------------------------------------------------------
+void LineInput::init(bool do_read_history)
+{
+   the_line_input = new LineInput(do_read_history);
 }
 //=============================================================================
 void
@@ -693,27 +698,27 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
                    continue;
 
               case UNI_CursorHome:
-                   lec.cursor_home();
+                   lec.cursor_HOME();
                    continue;
 
               case UNI_CursorEnd:
-                   lec.cursor_end();
+                   lec.cursor_END();
                    continue;
 
               case UNI_CursorLeft:
-                   lec.cursor_left();
+                   lec.cursor_LEFT();
                    continue;
 
               case UNI_CursorRight:
-                   lec.cursor_right();
+                   lec.cursor_RIGHT();
                    continue;
 
               case UNI_CursorDown:
-                   lec.cursor_down();
+                   lec.cursor_DOWN();
                    continue;
 
               case UNI_CursorUp:
-                   lec.cursor_up();
+                   lec.cursor_UP();
                    continue;
 
               case UNI_EOF:  // end of file
@@ -834,8 +839,8 @@ const int b0 = fgetc(stdin);
       }
    else if (b0 == UNI_ASCII_ESC)
       {
-        char seq[ESCmap::MAX_ESC_LEN];   seq[0] = UNI_ASCII_ESC;
-        for (int s = 1; s < ESCmap::MAX_ESC_LEN; ++s)
+        char seq[Output::MAX_ESC_LEN];   seq[0] = UNI_ASCII_ESC;
+        for (int s = 1; s < Output::MAX_ESC_LEN; ++s)
             {
               const int bs = fgetc(stdin);
               if (bs == EOF)   return UNI_EOF;

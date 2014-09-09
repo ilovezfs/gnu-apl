@@ -72,7 +72,6 @@ rlimit rl;
            << "sizeof(Svar_partner) is   " << sizeof(Svar_partner)
            << endl;
 
-   Output::init();
    Avec::init();
    LibPaths::init(argv0, log_startup);
    Value::init();
@@ -83,6 +82,7 @@ rlimit rl;
 static void
 init_2(bool log_startup)
 {
+   Output::init(log_startup);
    Svar_DB::init(LibPaths::get_APL_bin_path(),
                  LibPaths::get_APL_bin_name(),
                  log_startup, uprefs.system_do_svars);

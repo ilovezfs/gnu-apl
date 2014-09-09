@@ -45,12 +45,35 @@ else
 fi
 AC_MSG_RESULT([$CAN_rdynamic])
 
+##############################################################################
 # Checks for header files.
 #
-AC_CHECK_HEADER([term.h], [], [], [
-# include <curses.h> ])
+
+# check for ncurses.h first and for curses.h if ncurses.h was not found
+
+AC_CHECK_HEADER(
+	[ncurses.h],
+	[AC_DEFINE_UNQUOTED(	[HAVE_NCURSES_H], [1],
+				[Define to 1 if <ncurses.h> is present])],
+	[AC_CHECK_HEADER(
+	[curses.h],
+	[AC_DEFINE_UNQUOTED(	[HAVE_CURSES_H], [1],
+				[Define to 1 if <curses.h> is present])])
+	])
+
+AC_CHECK_HEADER(
+	[term.h],
+	[AC_DEFINE_UNQUOTED(	[HAVE_TERM_H], [1],
+				[Define to 1 if <term.h> is present])],
+	[],
+	[	[ # if HAVE_NCURSES_H   ]
+		[ # include <ncurses.h> ]
+		[ # elif HAVE_CURSES_H  ]
+		[ # include <curses.h>  ]
+		[ # endif ]
+	])
+
 AC_CHECK_HEADERS([	\
-	curses.h	\
 	execinfo.h	\
 	fcntl.h		\
 	inttypes.h	\
@@ -84,7 +107,21 @@ AC_CHECK_FUNCS([floor memset munmap pow sqrt strchr strerror])
 #
 AC_CHECK_LIB([socket],    [socket])   # for Solaris
 AC_CHECK_LIB([nsl],       [yp_all])   # for Solaris
-AC_CHECK_LIB([curses],    [setupterm])
+
+# check for libncurses first and for libcurses if libncurses was not found
+#
+AC_CHECK_LIB(
+	[ncurses], [setupterm],
+	[	AC_DEFINE_UNQUOTED([HAVE_LIBCURSES], [1],
+				   [Define to 1 if lib(n)curses is available])
+	 	LIBS="-lncurses $LIBS"],
+	[
+    AC_CHECK_LIB(
+	[curses], [setupterm],
+	[	AC_DEFINE_UNQUOTED([HAVE_LIBCURSES], [1],
+				   [Define to 1 if lib(n)curses is available])
+		LIBS="-lcurses $LIBS"])
+	])
 
 AC_CHECK_LIB([lapack],    [dgelsy_])
 AC_CHECK_LIB([blas],      [dcopy_])
@@ -94,7 +131,6 @@ AC_CHECK_LIB([execinfo],  [backtrace])
 AC_CHECK_LIB([gomp],      [omp_set_num_threads])
 AC_CHECK_LIB([m],         [acosh])
 AC_CHECK_LIB([pthread],   [sem_init])
-AC_CHECK_LIB([ncurses],   [setupterm])
 AC_CHECK_LIB([dl],        [dlopen])
 
 # check if SQLite3 is installed
