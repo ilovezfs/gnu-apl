@@ -178,7 +178,7 @@ public:
 
    /// read/append an ESC sequence in str and store it in \b dest
    static int read_ESC_sequence(char * dest, int destlen, int append,
-                                const char * str, int p1 = 0, int p2 = 0);
+                                const char * capname, char * str, int p1);
 protected:
    /// true if colors were changed (and then reset_colors() shall reset
    /// them when leaving the interpreter
