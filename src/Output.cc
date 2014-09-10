@@ -214,42 +214,35 @@ Output::init(bool logit)
                    "configured in your preferences file(s))" << endl;
       }
 
-
-   if (use_curses)   return;
-
 int errors = 0;
+
+   if (use_curses)
+      {
 
 const int ret = setupterm(0, STDOUT_FILENO, 0);
    if (ret != 0)   ++errors;
 
    // read some ESC sequences
    //
-   errors += read_ESC_sequence(clear_EOL, MAX_ESC_LEN, 0,
-                               clr_eol);
-   errors += read_ESC_sequence(clear_EOS, MAX_ESC_LEN, 0,
-                               clr_eos);
-   errors += read_ESC_sequence(exit_attr_mode, MAX_ESC_LEN, 0,
-                               exit_attribute_mode);
+#define READ_SEQ(dest, app, cap, p1) \
+   errors += read_ESC_sequence(dest, MAX_ESC_LEN, app, #cap, cap, p1);
 
-   errors += read_ESC_sequence(color_CIN, MAX_ESC_LEN, 0,
-                               set_foreground, color_CIN_foreground);
-   errors += read_ESC_sequence(color_CIN, MAX_ESC_LEN, 1,
-                               set_background, color_CIN_background);
+        READ_SEQ(clear_EOL,      0, clr_eol, 0);
+        READ_SEQ(clear_EOS,      0, clr_eos, 0);
+        READ_SEQ(exit_attr_mode, 0, exit_attribute_mode, 0);
 
-   errors += read_ESC_sequence(color_COUT, MAX_ESC_LEN, 0,
-                               set_foreground, color_COUT_foreground);
-   errors += read_ESC_sequence(color_COUT, MAX_ESC_LEN, 1,
-                               set_background, color_COUT_background);
+        READ_SEQ(color_CIN, 0, set_foreground, color_CIN_foreground);
+        READ_SEQ(color_CIN, 1, set_background, color_CIN_background);
 
-   errors += read_ESC_sequence(color_CERR, MAX_ESC_LEN, 0,
-                               set_foreground, color_CERR_foreground);
-   errors += read_ESC_sequence(color_CERR, MAX_ESC_LEN, 1,
-                               set_background, color_CERR_background);
+        READ_SEQ(color_COUT, 0, set_foreground, color_COUT_foreground);
+        READ_SEQ(color_COUT, 1, set_background, color_COUT_background);
 
-   errors += read_ESC_sequence(color_UERR, MAX_ESC_LEN, 0,
-                               set_foreground, color_UERR_foreground);
-   errors += read_ESC_sequence(color_UERR, MAX_ESC_LEN, 1,
-                               set_background, color_UERR_background);
+        READ_SEQ(color_CERR, 0, set_foreground, color_CERR_foreground);
+        READ_SEQ(color_CERR, 1, set_background, color_CERR_background);
+
+        READ_SEQ(color_UERR, 0, set_foreground, color_UERR_foreground);
+        READ_SEQ(color_UERR, 1, set_background, color_UERR_background);
+      }
 
    // cursor keys. This does not work currently because the keys reported
    // by: key_up, key_down, etc are different from the hardwired VT100 keys
@@ -259,14 +252,14 @@ const int ret = setupterm(0, STDOUT_FILENO, 0);
    //
    if (keys_curses)
       {
-        errors += read_ESC_sequence(ESC_CursorUp,    MAX_ESC_LEN, 0, key_up);
-        errors += read_ESC_sequence(ESC_CursorDown,  MAX_ESC_LEN, 0, key_down);
-        errors += read_ESC_sequence(ESC_CursorLeft,  MAX_ESC_LEN, 0, key_left);
-        errors += read_ESC_sequence(ESC_CursorRight, MAX_ESC_LEN, 0, key_right);
-        errors += read_ESC_sequence(ESC_CursorEnd,   MAX_ESC_LEN, 0, key_end);
-        errors += read_ESC_sequence(ESC_CursorHome,  MAX_ESC_LEN, 0, key_home);
-        errors += read_ESC_sequence(ESC_InsertMode,  MAX_ESC_LEN, 0, key_ic);
-        errors += read_ESC_sequence(ESC_Delete,      MAX_ESC_LEN, 0, key_dc);
+        errors += READ_SEQ(ESC_CursorUp,    0, key_up,    0);
+        errors += READ_SEQ(ESC_CursorDown,  0, key_down,  0);
+        errors += READ_SEQ(ESC_CursorLeft,  0, key_left,  0);
+        errors += READ_SEQ(ESC_CursorRight, 0, key_right, 0);
+        errors += READ_SEQ(ESC_CursorEnd,   0, key_end,   0);
+        errors += READ_SEQ(ESC_CursorHome,  0, key_home,  0);
+        errors += READ_SEQ(ESC_InsertMode,  0, key_ic,    0);
+        errors += READ_SEQ(ESC_Delete,      0, key_dc,    0);
 
         ESCmap::refresh_lengths();
       }
@@ -283,18 +276,26 @@ const int ret = setupterm(0, STDOUT_FILENO, 0);
 //-----------------------------------------------------------------------------
 int
 Output::read_ESC_sequence(char * dest, int destlen, int append, 
-                          const char * str, int p1, int p2)
+                          const char * capname, char * str, int p1)
 {
 #if CURSES_USABLE
    if (str == 0)
       {
-        CERR << "capability not in terminal description" << endl;
+        const char * term = getenv("TERM");
+        CERR << "capability '" << capname
+             << "' is not contained in the description";
+        if (term)   CERR << " of terminal " << term;
+        CERR << endl;
         return 1;
       }
 
    if (str == (char *)-1)
       {
-        CERR << "capability not a string capability" << endl;
+        const char * term = getenv("TERM");
+        CERR << "capability '" << capname 
+             << "' is not a string capability";
+        CERR << endl;
+        if (term)   CERR << " of terminal " << term;
         return 1;
       }
 
@@ -305,7 +306,7 @@ Output::read_ESC_sequence(char * dest, int destlen, int append,
    if (!append)   *dest = 0;
 
 const int offset = strlen(dest);
-const char * seq = tparm(str, p1, p2, 0, 0, 0, 0, 0, 0, 0);
+const char * seq = tparm(str, p1, 0, 0, 0, 0, 0, 0, 0, 0);
 const int seq_len = strlen(seq);
 
    if (seq_len + offset >= (destlen - 1))
