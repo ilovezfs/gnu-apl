@@ -880,10 +880,21 @@ int file_profile = 0;   // the current profile in the preferences file
                    do_Color = true;
                    Output::use_curses = false;
                  }
-              if (!strcasecmp(arg, "CURSES"))
+              else if (!strcasecmp(arg, "CURSES"))
                  {
                    do_Color = true;
                    Output::use_curses = true;
+                 }
+            }
+         else if (!strcasecmp(opt, "Keyboard"))
+            {
+              if (!strcasecmp(arg, "NOCURSES"))
+                 {
+                   Output::keys_curses = false;
+                 }
+              else if (!strcasecmp(arg, "CURSES"))
+                 {
+                   Output::keys_curses = true;
                  }
             }
          else if (yes_no && !strcasecmp(opt, "Welcome"))
@@ -933,6 +944,54 @@ int file_profile = 0;   // the current profile in the preferences file
             {
               loop(p, count - 1)   Output::clear_EOS[p] = (char)(d[p] & 0xFF);
               Output::clear_EOS[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-CURSOR-UP"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_CursorUp[p] = (char)(d[p] & 0xFF);
+              Output::ESC_CursorUp[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-CURSOR-DOWN"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_CursorDown[p] = (char)(d[p] & 0xFF);
+              Output::ESC_CursorDown[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-CURSOR-RIGHT"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_CursorRight[p] = (char)(d[p] & 0xFF);
+              Output::ESC_CursorRight[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-CURSOR-LEFT"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_CursorLeft[p] = (char)(d[p] & 0xFF);
+              Output::ESC_CursorLeft[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-CURSOR-END"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_CursorEnd[p] = (char)(d[p] & 0xFF);
+              Output::ESC_CursorEnd[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-CURSOR-HOME"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_CursorHome[p] = (char)(d[p] & 0xFF);
+              Output::ESC_CursorHome[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-INSMODE"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_InsertMode[p] = (char)(d[p] & 0xFF);
+              Output::ESC_InsertMode[count - 1] = 0;
+            }
+         else if (!strcasecmp(opt, "KEY-DELETE"))
+            {
+              loop(p, count - 1)
+                  Output::ESC_Delete[p] = (char)(d[p] & 0xFF);
+              Output::ESC_Delete[count - 1] = 0;
             }
          else if (!strcasecmp(opt, "CIN-FOREGROUND"))
             {

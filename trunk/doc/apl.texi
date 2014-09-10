@@ -194,7 +194,7 @@ show GNU APL license (GPL) and exit.
 @option{--LX expr }
 
 execute expr first. This can be used, for example, to load some library
-ore workspace at startup.
+ore workspace at start-up.
 
 @item
 @option{-h}, @option{--help}
@@ -213,7 +213,7 @@ to identify share partners.
 @option{-l num}
 
 turn logging facility num ON (if dynamic logging is configured). The logging
-facility for startup messages can be turned on even when dynamic logging is
+facility for start-up messages can be turned on even when dynamic logging is
 not configured.
 
 @item
@@ -248,8 +248,8 @@ use processor parent ID pproc (default: no parent ID).
 @option{--rawCIN}
 
 do not emit ESC sequences. Normally ESC sequences are emitted for colored
-output and during line editiong. In scripts, however, ESC sequences usually
-not wanted and can be truend off with this option.
+output and during line editing. In scripts, however, ESC sequences usually
+not wanted and can be turned off with this option.
 
 @item
 @option{-s}, @option{--script}
@@ -273,34 +273,34 @@ disable shared variables and native functions
 @option{--show_bin_dir}
 
 display the binary directory (where, according to ./configure,  the programs
-apl, APserver, AP100, and AP210 are supposed to be intalled. Tben exit.
+apl, APserver, AP100, and AP210 are supposed to be installed. Then exit.
 
 @item
 @option{--show_doc_dir}
 
 display the directory where, according to ./configure,  documentation files
-for GNU APL are intalled. Tben exit.
+for GNU APL are installed. Then exit.
 
 
 @item
 @option{--show_etc_dir}
 
 display the system configuration directory where, according to ./configure,
-the preferences file for GNU APL is intalled. Tben exit.
+the preferences file for GNU APL is installed. Then exit.
 
 
 @item
 @option{--show_lib_dir}
 
 display the library directory where, according to ./configure, shared
-library files and the workspaces shipped with GNU APL are intalled. Tben exit.
+library files and the workspaces shipped with GNU APL are installed. Then exit.
 
 
 @item
 @option{--show_src_dir}
 
 display the source directory where, according to ./configure, GNU APL
-was compiled. Tben exit. This can be used, for example, by native functions\
+was compiled. Then exit. This can be used, for example, by native functions\
 that are built outside the GNU APL source tree to find GNU APL header files
 that are needed to compile the native function.
 
@@ -308,7 +308,7 @@ that are needed to compile the native function.
 @item
 @option{--show_all_dirs}
 
-display all the directories above. Tben exit.
+display all the directories above. Then exit.
 
 
 @item
@@ -1314,6 +1314,76 @@ There are no constraints on the axis such as being integers. Therefore you
 can use an axis as a third function argument. Keep in mind, however, that
 doing so will make your APL code incompatible with other APL interpreters.
 Use this feature carefully!
+
+@section ⎕SI
+
+⎕SI returns the current State Indicator, similar to the standard command
+)SI. This can be used, for example, to create debug functions similar to
+the assert() macro in C/C++:
+
+@verbatim
+
+∇Assert B;COND;LOC;VAR
+ →(1≡B)⍴0
+ ' '
+ COND←7↓,¯2 ⎕SI 4
+ LOC←,¯2 ⎕SI 3
+ '************************************************'
+ ' '
+ '*** Assertion (', COND, ') failed at ',LOC
+ ''
+
+ ⍝ show stack
+ ⍝
+ ' '
+ 'Stack:'
+ 7 ⎕CR ⊃¯1↓⎕SI 3
+ ' '
+ '************************************************</pre>'
+ →
+∇
+
+@end verbatim
+
+@section History and TAB completion
+
+Until GNU APL 1.4 / SVN 465, GNU APL used libreadline for interactive user
+input. libreadline did provide two useful features: tab expansion (the tab
+key would expand file names) and history (the cursor up/down keys would recall
+previously entered lines).
+
+Since SVN 465 libreadline was removed and the standard TAB expansion and
+history of libreadline were replaced by more context sensitive (i.e. APL
+aware) implementations:
+
+1. Instead of simply recalling the last line entered by the user, there are
+   now different histories for different input contexts:
+
+1a. The input history in immediate execution recalls the last line entered
+ in immediate execution (and not, for example, lines entered in function
+ editing mode or ⍞ input.
+
+1b. Likewise, ⍞ recalls the last line entered for ⍞-input
+
+1c. ⎕ recalls the last line entered for ⎕-input
+
+1d. In the ∇-editor, the other function lines of the function being edited
+can be recalled. This is far more handy than the ∇-editor commands for
+recalling function lines (and which are not fully supported in GNU APL).
+
+2. Instead of always TAB-completing file names, the tab character now
+  understands different TAB-completion contexts:
+
+2a. Input starting with . or / is completed as a filename like readline did.
+
+2b. Input starting with ) or ] is completed as command name name or, to some
+   extent, as command arguments.
+
+2c. Input starting with ⎕ is completed as a system function name or a
+    system variable name.
+
+2d. Input starting with letters, ∆, or ⍙ is completed as a user defined
+    function or variable name.
 
 @c ----------------------------------------------------------------------------
 @node Chapter 3

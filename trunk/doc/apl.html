@@ -107,6 +107,8 @@ ul.no-bullet {list-style: none}
       <li><a name="toc-Limitations" href="#Limitations">2.11.3 Limitations</a></li>
     </ul></li>
     <li><a name="toc-Axis-argument-in-user_002ddefined-functions" href="#Axis-argument-in-user_002ddefined-functions">2.12 Axis argument in user-defined functions</a></li>
+    <li><a name="toc-_005b_003f_005dSI" href="#g_t_005b_003f_005dSI">2.13 ⎕SI</a></li>
+    <li><a name="toc-History-and-TAB-completion" href="#History-and-TAB-completion">2.14 History and TAB completion</a></li>
   </ul></li>
   <li><a name="toc-Limitations-and-Missing-Features" href="#Chapter-3">3 Limitations and Missing Features</a>
   <ul class="no-bullet">
@@ -290,7 +292,7 @@ then use )OFF as last line in the file.
 <p><samp>--LX expr </samp>
 </p>
 <p>execute expr first. This can be used, for example, to load some library
-ore workspace at startup.
+ore workspace at start-up.
 </p>
 </li><li> <samp>-h</samp>, <samp>--help</samp>
 
@@ -306,7 +308,7 @@ to identify share partners.
 </li><li> <samp>-l num</samp>
 
 <p>turn logging facility num ON (if dynamic logging is configured). The logging
-facility for startup messages can be turned on even when dynamic logging is
+facility for start-up messages can be turned on even when dynamic logging is
 not configured.
 </p>
 </li><li> <samp>--noCIN</samp>
@@ -335,8 +337,8 @@ shared variables.
 </li><li> <samp>--rawCIN</samp>
 
 <p>do not emit ESC sequences. Normally ESC sequences are emitted for colored
-output and during line editiong. In scripts, however, ESC sequences usually
-not wanted and can be truend off with this option.
+output and during line editing. In scripts, however, ESC sequences usually
+not wanted and can be turned off with this option.
 </p>
 </li><li> <samp>-s</samp>, <samp>--script</samp>
 
@@ -356,37 +358,37 @@ which is a typical combination of options for APL scripts.
 </li><li> <samp>--show_bin_dir</samp>
 
 <p>display the binary directory (where, according to ./configure,  the programs
-apl, APserver, AP100, and AP210 are supposed to be intalled. Tben exit.
+apl, APserver, AP100, and AP210 are supposed to be installed. Then exit.
 </p>
 </li><li> <samp>--show_doc_dir</samp>
 
 <p>display the directory where, according to ./configure,  documentation files
-for GNU APL are intalled. Tben exit.
+for GNU APL are installed. Then exit.
 </p>
 
 </li><li> <samp>--show_etc_dir</samp>
 
 <p>display the system configuration directory where, according to ./configure,
-the preferences file for GNU APL is intalled. Tben exit.
+the preferences file for GNU APL is installed. Then exit.
 </p>
 
 </li><li> <samp>--show_lib_dir</samp>
 
 <p>display the library directory where, according to ./configure, shared
-library files and the workspaces shipped with GNU APL are intalled. Tben exit.
+library files and the workspaces shipped with GNU APL are installed. Then exit.
 </p>
 
 </li><li> <samp>--show_src_dir</samp>
 
 <p>display the source directory where, according to ./configure, GNU APL
-was compiled. Tben exit. This can be used, for example, by native functions\
+was compiled. Then exit. This can be used, for example, by native functions\
 that are built outside the GNU APL source tree to find GNU APL header files
 that are needed to compile the native function.
 </p>
 
 </li><li> <samp>--show_all_dirs</samp>
 
-<p>display all the directories above. Tben exit.
+<p>display all the directories above. Then exit.
 </p>
 
 </li><li> <samp>-T testcases ...</samp>
@@ -1353,6 +1355,76 @@ and operators.
 can use an axis as a third function argument. Keep in mind, however, that
 doing so will make your APL code incompatible with other APL interpreters.
 Use this feature carefully!
+</p>
+<a name="g_t_005b_003f_005dSI"></a>
+<h3 class="section">2.13 ⎕SI</h3>
+
+<p>⎕SI returns the current State Indicator, similar to the standard command
+)SI. This can be used, for example, to create debug functions similar to
+the assert() macro in C/C++:
+</p>
+<pre class="verbatim">
+∇Assert B;COND;LOC;VAR
+ →(1≡B)⍴0
+ ' '
+ COND←7↓,¯2 ⎕SI 4
+ LOC←,¯2 ⎕SI 3
+ '************************************************'
+ ' '
+ '*** Assertion (', COND, ') failed at ',LOC
+ ''
+
+ ⍝ show stack
+ ⍝
+ ' '
+ 'Stack:'
+ 7 ⎕CR ⊃¯1↓⎕SI 3
+ ' '
+ '************************************************&lt;/pre&gt;'
+ →
+∇
+
+</pre>
+<a name="History-and-TAB-completion"></a>
+<h3 class="section">2.14 History and TAB completion</h3>
+
+<p>Until GNU APL 1.4 / SVN 465, GNU APL used libreadline for interactive user
+input. libreadline did provide two useful features: tab expansion (the tab
+key would expand file names) and history (the cursor up/down keys would recall
+previously entered lines).
+</p>
+<p>Since SVN 465 libreadline was removed and the standard TAB expansion and
+history of libreadline were replaced by more context sensitive (i.e. APL
+aware) implementations:
+</p>
+<p>1. Instead of simply recalling the last line entered by the user, there are
+   now different histories for different input contexts:
+</p>
+<p>1a. The input history in immediate execution recalls the last line entered
+ in immediate execution (and not, for example, lines entered in function
+ editing mode or ⍞ input.
+</p>
+<p>1b. Likewise, ⍞ recalls the last line entered for ⍞-input
+</p>
+<p>1c. ⎕ recalls the last line entered for ⎕-input
+</p>
+<p>1d. In the ∇-editor, the other function lines of the function being edited
+can be recalled. This is far more handy than the ∇-editor commands for
+recalling function lines (and which are not fully supported in GNU APL).
+</p>
+<p>2. Instead of always TAB-completing file names, the tab character now
+  understands different TAB-completion contexts:
+</p>
+<p>2a. Input starting with . or / is completed as a filename like readline did.
+</p>
+<p>2b. Input starting with ) or ] is completed as command name name or, to some
+   extent, as command arguments.
+</p>
+<p>2c. Input starting with ⎕ is completed as a system function name or a
+    system variable name.
+</p>
+<p>2d. Input starting with letters, ∆, or ⍙ is completed as a user defined
+    function or variable name.
 </p>
 <hr>
 <a name="Chapter-3"></a>

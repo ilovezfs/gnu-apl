@@ -73,6 +73,7 @@
 #include "Svar_DB.hh"
 
 bool Output::use_curses = false;   // possibly overridden by uprefs
+bool Output::keys_curses = false;   // possibly overridden by uprefs
 bool Output::colors_enabled = false;
 bool Output::colors_changed = false;
 
@@ -135,7 +136,7 @@ ostream & get_CERR()
 Output::ColorMode Output::color_mode = COLM_UNDEF;
 
 /// CSI sequence for ANSI/VT100 escape sequences (ESC [)
-#define CSI "\x1b["
+#define CSI "\x1B["
 
 /// VT100 escape sequence to change to cin color
 char Output::color_CIN[MAX_ESC_LEN] = CSI "0;30;47m";
@@ -161,14 +162,15 @@ char Output::clear_EOS[MAX_ESC_LEN] = CSI "J";
 /// VT100 escape sequence to exit attribute mode
 char Output::exit_attr_mode[MAX_ESC_LEN] = CSI "m" "\x1B"  "(B";
 
-char Output::ESC_CursorUp[MAX_ESC_LEN]    = { 0x1B, 0x5B, 0x41, 0 };
-char Output::ESC_CursorDown[MAX_ESC_LEN]  = { 0x1B, 0x5B, 0x42, 0 };
-char Output::ESC_CursorRight[MAX_ESC_LEN] = { 0x1B, 0x5B, 0x43, 0 };
-char Output::ESC_CursorLeft[MAX_ESC_LEN]  = { 0x1B, 0x5B, 0x44, 0 };
-char Output::ESC_CursorEnd[MAX_ESC_LEN]   = { 0x1B, 0x5B, 0x46, 0 };
-char Output::ESC_CursorHome[MAX_ESC_LEN]  = { 0x1B, 0x5B, 0x48, 0 };
-char Output::ESC_InsertMode[MAX_ESC_LEN]  = CSI "2~";
-char Output::ESC_Delete[MAX_ESC_LEN]      = CSI "3~";
+/// the ESC sequences sent by the cursor keys...
+char Output::ESC_CursorUp[MAX_ESC_LEN]    = CSI "A";    ///< Key ↑
+char Output::ESC_CursorDown[MAX_ESC_LEN]  = CSI "B";    ///< Key ↓
+char Output::ESC_CursorRight[MAX_ESC_LEN] = CSI "C";    ///< Key →
+char Output::ESC_CursorLeft[MAX_ESC_LEN]  = CSI "D";    ///< Key ←
+char Output::ESC_CursorEnd[MAX_ESC_LEN]   = CSI "F";    ///< Key End
+char Output::ESC_CursorHome[MAX_ESC_LEN]  = CSI "D";    ///< Key Home
+char Output::ESC_InsertMode[MAX_ESC_LEN]  = CSI "2~";   ///< Key Ins
+char Output::ESC_Delete[MAX_ESC_LEN]      = CSI "3~";   ///< Key Del
 
 //-----------------------------------------------------------------------------
 int
@@ -196,14 +198,24 @@ Output::init(bool logit)
 
 #if CURSES_USABLE
 
-   if (!use_curses)
+   if (logit)
       {
-        if (logit)   CERR << "using ANSI terminal ESC sequences" << endl;
-        return;
+        if (use_curses)
+           CERR << "initializing output ESC sequences from libcurses" << endl;
+        else
+           CERR << "using ANSI terminal output ESC sequences (or those "
+                   "configured in your preferences file(s))" << endl;
+
+
+        if (keys_curses)
+           CERR << "initializing keyboard ESC sequences from libcurses" <<endl;
+        else
+           CERR << "using ANSI terminal input ESC sequences(or those "
+                   "configured in your preferences file(s))" << endl;
       }
 
-   if (logit)   CERR << "initializing ESC sequences from libcurses"
-                           << endl;
+
+   if (use_curses)   return;
 
 int errors = 0;
 
@@ -245,18 +257,19 @@ const int ret = setupterm(0, STDOUT_FILENO, 0);
    // The other group: cursor_up, cursor_down, etc is closer but cursor_down
    // is linefeed
    //
-#if 0
-   errors += read_ESC_sequence(ESC_CursorUp,    MAX_ESC_LEN, 0, key_up);
-   errors += read_ESC_sequence(ESC_CursorDown,  MAX_ESC_LEN, 0, key_down);
-   errors += read_ESC_sequence(ESC_CursorLeft,  MAX_ESC_LEN, 0, key_left);
-   errors += read_ESC_sequence(ESC_CursorRight, MAX_ESC_LEN, 0, key_right);
-   errors += read_ESC_sequence(ESC_CursorEnd,   MAX_ESC_LEN, 0, key_end);
-   errors += read_ESC_sequence(ESC_CursorHome,  MAX_ESC_LEN, 0, key_home);
-   errors += read_ESC_sequence(ESC_InsertMode,  MAX_ESC_LEN, 0, key_ic);
-   errors += read_ESC_sequence(ESC_Delete,      MAX_ESC_LEN, 0, key_dc);
+   if (keys_curses)
+      {
+        errors += read_ESC_sequence(ESC_CursorUp,    MAX_ESC_LEN, 0, key_up);
+        errors += read_ESC_sequence(ESC_CursorDown,  MAX_ESC_LEN, 0, key_down);
+        errors += read_ESC_sequence(ESC_CursorLeft,  MAX_ESC_LEN, 0, key_left);
+        errors += read_ESC_sequence(ESC_CursorRight, MAX_ESC_LEN, 0, key_right);
+        errors += read_ESC_sequence(ESC_CursorEnd,   MAX_ESC_LEN, 0, key_end);
+        errors += read_ESC_sequence(ESC_CursorHome,  MAX_ESC_LEN, 0, key_home);
+        errors += read_ESC_sequence(ESC_InsertMode,  MAX_ESC_LEN, 0, key_ic);
+        errors += read_ESC_sequence(ESC_Delete,      MAX_ESC_LEN, 0, key_dc);
 
-   ESCmap::refresh_lengths();
-#endif
+        ESCmap::refresh_lengths();
+      }
 
    if (errors)
       {
@@ -395,16 +408,42 @@ CIN_ostream::set_cursor(int y, int x)
 {
    if (uprefs.raw_cin)   return;
 
-   if (y < 0)
+#if CURSES_USABLE
+   if (Output::use_curses)
       {
-        // y < 0 means from bottom upwards
-        //
-        *this << "\x1B[30;" << (1 + x) << "H\x1B[99B";
-        if (y < -1)   *this << "\x1B[" << (-(y + 1)) << "A";
+        if (y < 0)
+           {
+             // y < 0 means from bottom upwards
+             //
+             *this << CSI << "30;" << (1 + x) << "H" << CSI << "99B";
+             if (y < -1)   *this <<tparm(parm_down_cursor,
+                                         -(y + 1), 0, 0, 0, 0, 0, 0, 0, 0);
+             *this << std::flush;
+           }
+        else
+           {
+             // y ≥ 0 is from top downwards. This is currently not used.
+             //
+             *this << tparm(cursor_address, y, x, 0, 0, 0, 0, 0, 0, 0)
+                   << std::flush;
+           }
       }
    else
+#endif
       {
-        *this << "\x1B[" << (1 + y) << ";" << (1 + x) << 'H' << std::flush;
+        if (y < 0)
+           {
+             // y < 0 means from bottom upwards
+             //
+             *this << CSI << "30;" << (1 + x) << 'H'
+                   << CSI << "99B" << std::flush;
+             if (y < -1)   *this << CSI << (-(y + 1)) << "A";
+           }
+        else
+           {
+             // y ≥ 0 is from top downwards. This is currently not used.
+             *this << CSI << (1 + y) << ";" << (1 + x) << 'H' << std::flush;
+           }
       }
 }
 //-----------------------------------------------------------------------------
