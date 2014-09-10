@@ -107,6 +107,8 @@ public:
    LineEditContext(LineInputMode mode, int rows, int cols,
                    LineHistory & hist, const UCS_string & prmt);
 
+   ~LineEditContext();
+
    /// clear (after ^C)
    void clear()
       { user_line.clear(); }
@@ -150,13 +152,14 @@ public:
    /// refresh screen from prompt (including) onwards
    void refresh_all();
 
-   /// insert uni at cursor position
-   void insert_char(Unicode uni);
-
    /// delete char at cursor position
    void delete_char();
 
-   void toggle_insert_mode()   { insert_mode = !insert_mode; }
+   /// insert uni at cursor position
+   void insert_char(Unicode uni);
+
+   /// toggle the insert mode
+   void toggle_ins_mode();
 
    /// move cursor home
    void cursor_HOME()   { move_idx(uidx = 0); }
@@ -171,11 +174,11 @@ public:
    void cursor_RIGHT()   { if (uidx < user_line.size())   move_idx(++uidx); }
 
    /// move cursor left and delete char
-   void backspace()
+   void backspc()
       { if (uidx > 0)   { move_idx(--uidx);   delete_char(); } }
 
    /// tab expansion
-   void tab(LineInputMode mode);
+   void tab_expansion(LineInputMode mode);
 
    /// move backwards in history
    void cursor_UP();
@@ -203,7 +206,8 @@ protected:
    /// current offset into user_line
    int uidx;
 
-   bool insert_mode;
+   /// true if input is in insert mode (as opposed to replace mode)
+   bool ins_mode;
 
    /// the line being edited
    UCS_string user_line;

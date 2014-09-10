@@ -107,30 +107,6 @@ public:
    /// escape sequence for CERR colors
    static char color_CERR[MAX_ESC_LEN];
 
-   /// default ESC sequence for Cursor Up key
-   static char ESC_CursorUp[MAX_ESC_LEN];
-
-   /// default ESC sequence for Cursor Down key
-   static char ESC_CursorDown[MAX_ESC_LEN];
-
-   /// default ESC sequence for Cursor Right key
-   static char ESC_CursorRight[MAX_ESC_LEN];
-
-   /// default ESC sequence for Cursor Left key
-   static char ESC_CursorLeft[MAX_ESC_LEN];
-
-   /// default ESC sequence for End key
-   static char ESC_CursorEnd[MAX_ESC_LEN];
-
-   /// default ESC sequence for Home key
-   static char ESC_CursorHome[MAX_ESC_LEN];
-
-   /// default ESC sequence for Insert key
-   static char ESC_InsertMode[MAX_ESC_LEN];
-
-   /// default ESC sequence for Delete key
-   static char ESC_Delete[MAX_ESC_LEN];
-
    /// escape sequence for UERR colors
    static char color_UERR[MAX_ESC_LEN];
 
@@ -167,11 +143,38 @@ public:
    /// escape sequence for clear to end of screen
    static char clear_EOS[MAX_ESC_LEN];
 
+   /// default ESC sequence for Cursor Up key
+   static char ESC_CursorUp[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Down key
+   static char ESC_CursorDown[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Right key
+   static char ESC_CursorRight[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Left key
+   static char ESC_CursorLeft[MAX_ESC_LEN];
+
+   /// default ESC sequence for End key
+   static char ESC_CursorEnd[MAX_ESC_LEN];
+
+   /// default ESC sequence for Home key
+   static char ESC_CursorHome[MAX_ESC_LEN];
+
+   /// default ESC sequence for Insert key
+   static char ESC_InsertMode[MAX_ESC_LEN];
+
+   /// default ESC sequence for Delete key
+   static char ESC_Delete[MAX_ESC_LEN];
+
    /// escape sequence for exiting attribute mode
    static char exit_attr_mode[MAX_ESC_LEN];
 
-   /// true if curses shall be used for output colors
+   /// true if curses shall be used for output ESC sequences
    static bool use_curses;
+
+   /// true if curses shall be used for input ESC sequences
+   static bool keys_curses;
 
    /// read/append an ESC sequence in str and store it in \b dest
    static int read_ESC_sequence(char * dest, int destlen, int append,

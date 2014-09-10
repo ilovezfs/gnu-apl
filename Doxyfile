@@ -1,4 +1,4 @@
-# Doxyfile 1.8.7
+# Doxyfile 1.8.6
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project.
@@ -269,12 +269,9 @@ OPTIMIZE_OUTPUT_VHDL   = NO
 # extension. Doxygen has a built-in mapping, but you can override or extend it
 # using this tag. The format is ext=language, where ext is a file extension, and
 # language is one of the parsers supported by doxygen: IDL, Java, Javascript,
-# C#, C, C++, D, PHP, Objective-C, Python, Fortran (fixed format Fortran:
-# FortranFixed, free formatted Fortran: FortranFree, unknown formatted Fortran:
-# Fortran. In the later case the parser tries to guess whether the code is fixed
-# or free formatted code, this is the default for Fortran type files), VHDL. For
-# instance to make doxygen treat .inc files as Fortran files (default is PHP),
-# and .f files as C (default is Fortran), use: inc=Fortran f=C.
+# C#, C, C++, D, PHP, Objective-C, Python, Fortran, VHDL. For instance to make
+# doxygen treat .inc files as Fortran files (default is PHP), and .f files as C
+# (default is Fortran), use: inc=Fortran f=C.
 #
 # Note For files without extension you can use no_extension as a placeholder.
 #
@@ -1242,8 +1239,7 @@ GENERATE_CHI           = NO
 CHM_INDEX_ENCODING     =
 
 # The BINARY_TOC flag controls whether a binary table of contents is generated (
-# YES) or a normal table of contents ( NO) in the .chm file. Furthermore it
-# enables the Previous and Next buttons.
+# YES) or a normal table of contents ( NO) in the .chm file.
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTMLHELP is set to YES.
 
@@ -1775,13 +1771,6 @@ MAN_OUTPUT             = man
 
 MAN_EXTENSION          = .3
 
-# The MAN_SUBDIR tag determines the name of the directory created within
-# MAN_OUTPUT in which the man pages are placed. If defaults to man followed by
-# MAN_EXTENSION with the initial . removed.
-# This tag requires that the tag GENERATE_MAN is set to YES.
-
-MAN_SUBDIR             =
-
 # If the MAN_LINKS tag is set to YES and doxygen generates man output, then it
 # will generate one additional man file for each entity documented in the real
 # man page(s). These additional files only source the real man page, but without
@@ -1808,6 +1797,18 @@ GENERATE_XML           = NO
 # This tag requires that the tag GENERATE_XML is set to YES.
 
 XML_OUTPUT             = xml
+
+# The XML_SCHEMA tag can be used to specify a XML schema, which can be used by a
+# validating XML parser to check the syntax of the XML files.
+# This tag requires that the tag GENERATE_XML is set to YES.
+
+XML_SCHEMA             =
+
+# The XML_DTD tag can be used to specify a XML DTD, which can be used by a
+# validating XML parser to check the syntax of the XML files.
+# This tag requires that the tag GENERATE_XML is set to YES.
+
+XML_DTD                =
 
 # If the XML_PROGRAMLISTING tag is set to YES doxygen will dump the program
 # listings (including syntax highlighting and cross-referencing information) to
@@ -2077,7 +2078,7 @@ DOT_NUM_THREADS        = 0
 # The default value is: Helvetica.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-# DOT_FONTNAME           =
+DOT_FONTNAME           = Helvetica
 
 # The DOT_FONTSIZE tag can be used to set the size (in points) of the font of
 # dot graphs.

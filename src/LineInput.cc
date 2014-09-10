@@ -138,7 +138,7 @@ FILE * hist = fopen(filename, "r");
 int count = 0;
    for (;;)
        {
-         char buffer[2000];
+         char buffer[4000];
          const char * s = fgets(buffer, sizeof(buffer) - 1, hist);
          if (s == 0)   break;   // end of file
          buffer[sizeof(buffer) - 1] = 0;
@@ -259,6 +259,7 @@ LineEditContext::LineEditContext(LineInputMode mode, int rows, int cols,
      screen_cols(cols),
      allocated_height(1),
      uidx(0),
+     ins_mode(true),
      history(hist),
      history_entered(false)
 {
@@ -276,6 +277,16 @@ LineEditContext::LineEditContext(LineInputMode mode, int rows, int cols,
       }
 
    refresh_all();
+}
+//-----------------------------------------------------------------------------
+LineEditContext::~LineEditContext()
+{
+   // restore block cursor
+   //
+   if (!Output::use_curses)
+      {
+        if (!ins_mode)   CIN << (char)0x1B << "[1 q" << flush;
+      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -360,27 +371,6 @@ const int saved_uidx = uidx;
 }
 //-----------------------------------------------------------------------------
 void
-LineEditContext::insert_char(Unicode uni)
-{
-   if (uidx >= user_line.size())
-      {
-        user_line.append(uni);
-        adjust_allocated_height();
-        refresh_wrapped_cursor();
-        CIN << uni;
-      }
-   else
-      {
-        user_line.insert(uidx, 1, uni);
-        adjust_allocated_height();
-        refresh_wrapped_cursor();
-        refresh_from_cursor();
-      }
-
-   move_idx(uidx + 1);
-}
-//-----------------------------------------------------------------------------
-void
 LineEditContext::delete_char()
 {
    if (uidx == (user_line.size() - 1))   // cursor on last char
@@ -398,7 +388,55 @@ LineEditContext::delete_char()
 }
 //-----------------------------------------------------------------------------
 void
-LineEditContext::tab(LineInputMode mode)
+LineEditContext::insert_char(Unicode uni)
+{
+   if (uidx >= user_line.size())   // append char
+      {
+        user_line.append(uni);
+        adjust_allocated_height();
+        refresh_wrapped_cursor();
+        CIN << uni;
+      }
+   else if (ins_mode)              // insert char
+      {
+        user_line.insert(uidx, 1, uni);
+        adjust_allocated_height();
+        refresh_wrapped_cursor();
+        refresh_from_cursor();
+      }
+   else                            // replace char
+      {
+        user_line[uidx] = uni;
+        adjust_allocated_height();
+        refresh_wrapped_cursor();
+        refresh_from_cursor();
+      }
+
+   move_idx(uidx + 1);
+}
+//-----------------------------------------------------------------------------
+void
+LineEditContext::toggle_ins_mode()
+{
+    ins_mode = ! ins_mode;
+
+   // CSI [0 q       : blinking block
+   // CSI [1 q       : blinking block
+   // CSI [2 q       : steady   block
+   // CSI [3 q       : blinking underline
+   // CSI [4 q       : steady   underline
+   // CSI [5 q       : blinking bar (doesn't work) 
+   // CSI [6 q       : steady   bar (doesn't work) 
+
+   if (!Output::use_curses)
+      {
+        if (ins_mode)   CIN << (char)0x1B << "[0 q" << flush;
+        else            CIN << (char)0x1B << "[3 q" << flush;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+LineEditContext::tab_expansion(LineInputMode mode)
 {
    if (mode != LIM_ImmediateExecution)   return;
 
@@ -587,7 +625,10 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
         Quad_QUOTE::done(mode != LIM_Quote_Quad, LOC);
         CIN << '\r' << prompt;
         char buffer[4000];
-        const char * s = fgets(buffer, sizeof(buffer) - 1, stdin);
+        const APL_time_us from = now();
+         const char * s = fgets(buffer, sizeof(buffer) - 1, stdin);
+        Workspace::add_wait(now() - from);
+ 
         if (s == 0)
            {
              eof = true;
@@ -694,7 +735,7 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
          switch(uni)
             {
               case UNI_InsertMode:
-                   lec.toggle_insert_mode();
+                   lec.toggle_ins_mode();
                    continue;
 
               case UNI_CursorHome:
@@ -736,11 +777,11 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
                    break;
 
               case UNI_ASCII_BS:
-                   lec.backspace();
+                   lec.backspc();
                    continue;
 
               case UNI_ASCII_HT:
-                   lec.tab(mode);
+                   lec.tab_expansion(mode);
                    continue;
 
               case UNI_ASCII_DELETE:
