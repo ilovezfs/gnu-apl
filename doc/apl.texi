@@ -230,7 +230,7 @@ do not load a CONTINUE workspace on start-up.
 @item
 @option{--[no]SV}
 
-do [not] start APnnn (a shared variable server) on start-up. This disables
+do [not] start APserver (a shared variable server) on start-up. This disables
 communication with other workspaces or auxiliary processors through
 shared variables.
 
@@ -1317,9 +1317,9 @@ Use this feature carefully!
 
 @section ⎕SI
 
-⎕SI returns the current State Indicator, similar to the standard command
-)SI. This can be used, for example, to create debug functions similar to
-the assert() macro in C/C++:
+⎕SI returns aspects of the current State Indicator, similar to the standard
+command )SI. This can be used, for example, to create debug functions similar
+to the assert() macro in C/C++:
 
 @verbatim
 
@@ -1344,6 +1344,38 @@ the assert() macro in C/C++:
 ∇
 
 @end verbatim
+
+⎕SI is a system function whose right argument specifies which aspect of
+the State indicator shall be returned:
+
+⎕SI 1: The name of the context. That is either the name of a user defined
+function, or ◊ for an immediate execution context, or ⍎ for an execute
+context.
+
+⎕SI 2: The line number (of a defined function) or 0 for immediate execution
+and execute.
+
+⎕SI 3: The function name and line number in square brackets, like foo[3]
+
+⎕SI 4: Either the statement text of the function line or the error text of
+ an error that has occurred on the line
+
+⎕SI 5: The program counter (= token number counted from the start of the
+function text
+
+⎕SI 6: the parse mode of the context (immediate execution, execute, or
+defined function).
+
+If no left argument is provided then the result of ⎕SI is a vector with
+one entry per State Indicator level (and hence ⍴⎕SI B is the depth of the SI).
+
+If a left argument A is provided then specifies a particular level of the SI
+instead of the entire SI. A should be an integer scalar. If A is positive
+then the level is counted from the oldest entry to the latest, while negative
+A count from the latest to the oldest level.
+
+For example, ¯1 ⎕SI refers to the currently executing context, ¯2 ⎕SI is
+the caller, and so on.
 
 @section History and TAB completion
 

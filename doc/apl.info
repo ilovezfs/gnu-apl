@@ -184,8 +184,8 @@ APL understands the following command line options:
 
    • ‘--[no]SV’
 
-     do [not] start APnnn (a shared variable server) on start-up.  This
-     disables communication with other workspaces or auxiliary
+     do [not] start APserver (a shared variable server) on start-up.
+     This disables communication with other workspaces or auxiliary
      processors through shared variables.
 
    • ‘-p N’
@@ -1237,9 +1237,9 @@ other APL interpreters.  Use this feature carefully!
 2.13 ⎕SI
 ========
 
-⎕SI returns the current State Indicator, similar to the standard command
-)SI. This can be used, for example, to create debug functions similar to
-the assert() macro in C/C++:
+⎕SI returns aspects of the current State Indicator, similar to the
+standard command )SI. This can be used, for example, to create debug
+functions similar to the assert() macro in C/C++:
 
 
 ∇Assert B;COND;LOC;VAR
@@ -1262,6 +1262,40 @@ the assert() macro in C/C++:
  →
 ∇
 
+
+   ⎕SI is a system function whose right argument specifies which aspect
+of the State indicator shall be returned:
+
+   ⎕SI 1: The name of the context.  That is either the name of a user
+defined function, or ◊ for an immediate execution context, or ⍎ for an
+execute context.
+
+   ⎕SI 2: The line number (of a defined function) or 0 for immediate
+execution and execute.
+
+   ⎕SI 3: The function name and line number in square brackets, like
+foo[3]
+
+   ⎕SI 4: Either the statement text of the function line or the error
+text of an error that has occurred on the line
+
+   ⎕SI 5: The program counter (= token number counted from the start of
+the function text
+
+   ⎕SI 6: the parse mode of the context (immediate execution, execute,
+or defined function).
+
+   If no left argument is provided then the result of ⎕SI is a vector
+with one entry per State Indicator level (and hence ⍴⎕SI B is the depth
+of the SI).
+
+   If a left argument A is provided then specifies a particular level of
+the SI instead of the entire SI. A should be an integer scalar.  If A is
+positive then the level is counted from the oldest entry to the latest,
+while negative A count from the latest to the oldest level.
+
+   For example, ¯1 ⎕SI refers to the currently executing context, ¯2 ⎕SI
+is the caller, and so on.
 
 2.14 History and TAB completion
 ===============================
@@ -2631,15 +2665,15 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top383
 Node: Chapter 11370
-Node: Chapter 216181
-Node: Chapter 345032
-Node: Chapter 446780
-Node: Chapter 547909
-Node: Section 5.148328
-Node: Section 5.249012
-Node: Chapter 649843
-Node: Section 6.150346
-Node: Section 6.275655
+Node: Chapter 216183
+Node: Chapter 346356
+Node: Chapter 448104
+Node: Chapter 549233
+Node: Section 5.149652
+Node: Section 5.250336
+Node: Chapter 651167
+Node: Section 6.151670
+Node: Section 6.276979
 
 End Tag Table
 
