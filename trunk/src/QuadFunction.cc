@@ -1977,9 +1977,13 @@ Value_P Z;
 const APL_Integer b = B->get_ravel(0).get_int_value();
    switch(b)
       {
-        case 1:  Z = Value_P(new Value(fun_name, LOC));             break;
+        case 1:  Z = Value_P(new Value(fun_name, LOC));
+                 break;
+
         case 2:  Z = Value_P(new Value(LOC));
-                new (&Z->get_ravel(0)) IntCell(fun_line);                break;
+                new (&Z->get_ravel(0)) IntCell(fun_line);
+                break;
+
         case 3:  {
                    UCS_string fun_and_line(fun_name);
                    fun_and_line.append(UNI_ASCII_L_BRACK);
@@ -2047,16 +2051,21 @@ ShapeItem z = 0;
          const UCS_string & fun_name = exec->get_name();
          const Function_Line fun_line = exec->get_line(PC);
 
-         switch(b)
+         switch (b)
            {
-             case 1:  new (cZ) PointerCell(Value_P(new Value(fun_name, LOC)));   break;
-             case 2:  new (cZ) IntCell(fun_line);                       break;
+             case 1:  new (cZ) PointerCell(Value_P(new Value(fun_name, LOC)));
+                      break;
+
+             case 2:  new (cZ) IntCell(fun_line);
+                      break;
+
              case 3:  {
                         UCS_string fun_and_line(fun_name);
                         fun_and_line.append(UNI_ASCII_L_BRACK);
                         fun_and_line.append_number(fun_line);
                         fun_and_line.append(UNI_ASCII_R_BRACK);
-                        new (cZ) PointerCell(Value_P(new Value(fun_and_line, LOC))); 
+                        new (cZ) PointerCell(
+                                       Value_P(new Value(fun_and_line, LOC))); 
                       }
                       break;
 

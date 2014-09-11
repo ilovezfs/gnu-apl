@@ -322,7 +322,7 @@ troubleshoot a script).
 </p>
 </li><li> <samp>--[no]SV</samp>
 
-<p>do [not] start APnnn (a shared variable server) on start-up. This disables
+<p>do [not] start APserver (a shared variable server) on start-up. This disables
 communication with other workspaces or auxiliary processors through
 shared variables.
 </p>
@@ -1359,9 +1359,9 @@ Use this feature carefully!
 <a name="g_t_005b_003f_005dSI"></a>
 <h3 class="section">2.13 ⎕SI</h3>
 
-<p>⎕SI returns the current State Indicator, similar to the standard command
-)SI. This can be used, for example, to create debug functions similar to
-the assert() macro in C/C++:
+<p>⎕SI returns aspects of the current State Indicator, similar to the standard
+command )SI. This can be used, for example, to create debug functions similar
+to the assert() macro in C/C++:
 </p>
 <pre class="verbatim">
 ∇Assert B;COND;LOC;VAR
@@ -1385,6 +1385,38 @@ the assert() macro in C/C++:
 ∇
 
 </pre>
+<p>⎕SI is a system function whose right argument specifies which aspect of
+the State indicator shall be returned:
+</p>
+<p>⎕SI 1: The name of the context. That is either the name of a user defined
+function, or ◊ for an immediate execution context, or ⍎ for an execute
+context.
+</p>
+<p>⎕SI 2: The line number (of a defined function) or 0 for immediate execution
+and execute.
+</p>
+<p>⎕SI 3: The function name and line number in square brackets, like foo[3]
+</p>
+<p>⎕SI 4: Either the statement text of the function line or the error text of
+ an error that has occurred on the line
+</p>
+<p>⎕SI 5: The program counter (= token number counted from the start of the
+function text
+</p>
+<p>⎕SI 6: the parse mode of the context (immediate execution, execute, or
+defined function).
+</p>
+<p>If no left argument is provided then the result of ⎕SI is a vector with
+one entry per State Indicator level (and hence ⍴⎕SI B is the depth of the SI).
+</p>
+<p>If a left argument A is provided then specifies a particular level of the SI
+instead of the entire SI. A should be an integer scalar. If A is positive
+then the level is counted from the oldest entry to the latest, while negative
+A count from the latest to the oldest level.
+</p>
+<p>For example, ¯1 ⎕SI refers to the currently executing context, ¯2 ⎕SI is
+the caller, and so on.
+</p>
 <a name="History-and-TAB-completion"></a>
 <h3 class="section">2.14 History and TAB completion</h3>
 
