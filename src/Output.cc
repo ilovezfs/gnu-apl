@@ -218,12 +218,11 @@ int errors = 0;
 
    if (use_curses)
       {
+        const int ret = setupterm(0, STDOUT_FILENO, 0);
+        if (ret != 0)   ++errors;
 
-const int ret = setupterm(0, STDOUT_FILENO, 0);
-   if (ret != 0)   ++errors;
-
-   // read some ESC sequences
-   //
+           // read some ESC sequences
+           //
 #define READ_SEQ(dest, app, cap, p1) \
    errors += read_ESC_sequence(dest, MAX_ESC_LEN, app, #cap, cap, p1);
 
@@ -252,14 +251,14 @@ const int ret = setupterm(0, STDOUT_FILENO, 0);
    //
    if (keys_curses)
       {
-        errors += READ_SEQ(ESC_CursorUp,    0, key_up,    0);
-        errors += READ_SEQ(ESC_CursorDown,  0, key_down,  0);
-        errors += READ_SEQ(ESC_CursorLeft,  0, key_left,  0);
-        errors += READ_SEQ(ESC_CursorRight, 0, key_right, 0);
-        errors += READ_SEQ(ESC_CursorEnd,   0, key_end,   0);
-        errors += READ_SEQ(ESC_CursorHome,  0, key_home,  0);
-        errors += READ_SEQ(ESC_InsertMode,  0, key_ic,    0);
-        errors += READ_SEQ(ESC_Delete,      0, key_dc,    0);
+        READ_SEQ(ESC_CursorUp,    0, key_up,    0);
+        READ_SEQ(ESC_CursorDown,  0, key_down,  0);
+        READ_SEQ(ESC_CursorLeft,  0, key_left,  0);
+        READ_SEQ(ESC_CursorRight, 0, key_right, 0);
+        READ_SEQ(ESC_CursorEnd,   0, key_end,   0);
+        READ_SEQ(ESC_CursorHome,  0, key_home,  0);
+        READ_SEQ(ESC_InsertMode,  0, key_ic,    0);
+        READ_SEQ(ESC_Delete,      0, key_dc,    0);
 
         ESCmap::refresh_lengths();
       }
