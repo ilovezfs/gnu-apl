@@ -150,57 +150,60 @@ IO_Files::next_file()
 bool
 IO_Files::end_of_current_file()
 {
-   // we expect )SI to be clear after a testcase has finished.
-   // Complain if it is not.
-   //
-   if (Workspace::SI_entry_count() > 1)
+   if (InputFile::is_validating())   // running a .tc file
       {
-        CERR << endl << ")SI not cleared at the end of "
-             << InputFile::current_filename() << ":" << endl;
-        Workspace::list_SI(CERR, SIM_SIS);
-        CERR << endl;
+        // we expect )SI to be clear after a testcase has finished and
+        // complain if it is not.
+        //
+        if (Workspace::SI_entry_count() > 1)
+           {
+             CERR << endl << ")SI not cleared at the end of "
+                  << InputFile::current_filename() << ":" << endl;
+             Workspace::list_SI(CERR, SIM_SIS);
+             CERR << endl;
 
+             if (current_testreport.is_open())
+                {
+                  current_testreport << endl
+                                     << ")SI not cleared at the end of "
+                                     << InputFile::current_filename()<< ":"
+                                     << endl;
+                  Workspace::list_SI(current_testreport, SIM_SIS);
+                  current_testreport << endl;
+                }
+             apl_error(LOC);
+           }
+
+        // check for stale values and indices
+        //
         if (current_testreport.is_open())
            {
-             current_testreport << endl
-                                << ")SI not cleared at the end of "
-                                << InputFile::current_filename()<< ":"
-                                << endl;
-             Workspace::list_SI(current_testreport, SIM_SIS);
-             current_testreport << endl;
-           }
-        apl_error(LOC);
-      }
+             if (Value::print_incomplete(current_testreport))
+                {
+                  current_testreport
+                     << " (automatic check for incomplete values failed)"
+                     << endl;
+                  apl_error(LOC);
+                }
 
-   // check for stale values and indices
-   //
-   if (current_testreport.is_open())
-      {
-        if (Value::print_incomplete(current_testreport))
-           {
-             current_testreport
-                << " (automatic check for incomplete values failed)"
-                << endl;
-             apl_error(LOC);
-           }
+             if (Value::print_stale(current_testreport))
+                {
+                  current_testreport
+                     << " (automatic check for stale values failed,"
+                        " offending Value erased)." << endl;
 
-        if (Value::print_stale(current_testreport))
-           {
-             current_testreport
-                << " (automatic check for stale values failed,"
-                   " offending Value erased)." << endl;
+                  apl_error(LOC);
+                  Value::erase_stale(LOC);
+                }
 
-             apl_error(LOC);
-             Value::erase_stale(LOC);
-           }
-
-        if (IndexExpr::print_stale(current_testreport))
-           {
-             current_testreport
-                << " (automatic check for stale indices failed,"
-                   " offending IndexExpr erased)." << endl;
-             apl_error(LOC);
-             IndexExpr::erase_stale(LOC);
+             if (IndexExpr::print_stale(current_testreport))
+                {
+                  current_testreport
+                     << " (automatic check for stale indices failed,"
+                        " offending IndexExpr erased)." << endl;
+                  apl_error(LOC);
+                  IndexExpr::erase_stale(LOC);
+                }
            }
       }
              
@@ -211,37 +214,41 @@ IO_Files::end_of_current_file()
       CERR << "closed testcase file " << InputFile::current_filename()
            << endl;
 
-   ofstream summary("testcases/summary.log", ios_base::app);
-   summary << error_count() << " ";
-
-   if (error_count())
+   if (InputFile::is_validating())   // running a .tc file
       {
-        total_errors += error_count();
-        summary << "(" << apl_errors    << " APL, ";
-        if (apl_errors)
-           summary << "    loc=" << last_apl_error_loc 
-                   << " .tc line="  << last_apl_error_line << endl
+        ofstream summary("testcases/summary.log", ios_base::app);
+        summary << error_count() << " ";
+
+        if (error_count())
+           {
+             total_errors += error_count();
+             summary << "(" << apl_errors    << " APL, ";
+             if (apl_errors)
+                summary << "    loc=" << last_apl_error_loc 
+                        << " .tc line="  << last_apl_error_line << endl
                    << "    ";
 
-        summary << assert_errors << " assert, "
-                << diff_errors   << " diff, "
-                << parse_errors  << " parse) ";
-      }
+             summary << assert_errors << " assert, "
+                     << diff_errors   << " diff, "
+                     << parse_errors  << " parse) ";
+           }
 
-   summary << InputFile::current_filename() << endl;
+        summary << InputFile::current_filename() << endl;
 
-   if ((test_mode == TM_STOP_AFTER_ERROR ||
-        test_mode == TM_EXIT_AFTER_ERROR) && error_count())
-      {
-        CERR << endl
-             << "Stopping test execution since an error has occurred"  << endl
-             << "The error count is " << error_count() << endl
-             << "Failed testcase is " << InputFile::current_filename()
-             << endl 
-             << endl;
+        if ((test_mode == TM_STOP_AFTER_ERROR ||
+             test_mode == TM_EXIT_AFTER_ERROR) && error_count())
+           {
+             CERR << endl
+                  << "Stopping test execution since an error has occurred"
+                  << endl
+                  << "The error count is " << error_count() << endl
+                  << "Failed testcase is " << InputFile::current_filename()
+                  << endl 
+                  << endl;
                   
-        InputFile::files_todo.resize(0);
-        return false;
+             InputFile::files_todo.resize(0);
+             return false;
+           }
       }
 
    InputFile::files_todo.erase(InputFile::files_todo.begin());

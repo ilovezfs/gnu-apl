@@ -720,6 +720,8 @@ UserPreferences::show_configure_options()
    "  (all)"
 #elif CORE_COUNT_WANTED == 0
    "  (default: (sequential))"
+#else
+   ""
 #endif
    << endl <<
 
@@ -1047,6 +1049,15 @@ int file_profile = 0;   // the current profile in the preferences file
          else if (!strcasecmp(opt, "READLINE_HISTORY_PATH"))
             {
               line_history_path = UTF8_string(arg);
+            }
+         else if (!strcasecmp(opt, "NABLA-TO-HISTORY"))
+            {
+              if      (!strcasecmp(arg, "Never"))      nabla_to_history = 0;
+              else if (!strcasecmp(arg, "Modified"))   nabla_to_history = 1;
+              else if (!strcasecmp(arg, "Always"))     nabla_to_history = 2;
+              else   CERR << "bad value " << arg << " for NABLA-TO-HISTORY"
+                        << " at line " << line << " of config file "
+                        << filename << " (ignored)" << endl;
             }
          else if (yes_no && !strcasecmp(opt, "BACKUP_BEFORE_SAVE"))
             {

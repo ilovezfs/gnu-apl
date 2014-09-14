@@ -201,6 +201,9 @@ protected:
    /// true iff this function existed before opening it
    bool function_existed;
 
+   /// true if the function was modified
+   bool modified;
+
    /// true iff this function shall be closed
    bool do_close;
 

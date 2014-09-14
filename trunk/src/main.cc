@@ -38,10 +38,10 @@
 #include "makefile.h"
 #include "Output.hh"
 #include "NativeFunction.hh"
+#include "Parallel.hh"
 #include "Prefix.hh"
 #include "ProcessorID.hh"
 #include "Quad_SVx.hh"
-#include "UserFunction.hh"
 #include "ValueHistory.hh"
 #include "Workspace.hh"
 #include "UserPreferences.hh"
@@ -88,6 +88,8 @@ init_2(bool log_startup)
                  log_startup, uprefs.system_do_svars);
 
    LineInput::init(true);
+
+   Parallel::init(log_startup || LOG_Parallel);
 }
 //-----------------------------------------------------------------------------
 /// the opposite of init()
@@ -260,42 +262,6 @@ const int left_pad = (80 - len)/2;
        }
 }
 //-----------------------------------------------------------------------------
-
-static void
-init_OMP()
-{
-#ifdef MULTICORE
-
-# ifdef STATIC_CORE_COUNT
-
-CoreCount core_count_wanted = STATIC_CORE_COUNT;
-
-# elif CORE_COUNT_WANTED == -1  // all available cores
-
-const CoreCount core_count_wanted = max_cores();
-
-# elif CORE_COUNT_WANTED == -2  // --cc option
-
-const CoreCount core_count_wanted = (uprefs.requested_cc == CCNT_UNKNOWN)
-                            ? max_cores()        // -cc option not given
-                            : uprefs.requested_cc;   // --cc option value
-
-# elif CORE_COUNT_WANTED == -3  // ⎕SYL, initially 1
-
-const CoreCount core_count_wanted = CCNT_MIN;
-
-#else
-
-const CoreCount core_count_wanted = CCNT_MIN;
-
-#endif
-
-   omp_set_dynamic(false);
-const CoreCount cores_available = setup_cores(core_count_wanted);
-
-#endif // MULTICORE
-}
-//-----------------------------------------------------------------------------
 int
 init_apl(int argc, const char * argv[])
 {
@@ -420,9 +386,6 @@ const bool log_startup = uprefs.log_startup_wanted();
 
    if (log_startup)   CERR << "PID is " << getpid() << endl;
    Log(LOG_argc_argv || log_startup)   show_argv(argc, argv);
-
-   // init OMP (will do nothing if OMP is not configured)
-   init_OMP();
 
    if (ProcessorID::init(log_startup))
       {

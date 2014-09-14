@@ -64,6 +64,17 @@ enum { ESCmap_entry_count = sizeof(ESCmap::the_ESCmap) / sizeof(ESCmap) };
 
 //=============================================================================
 bool
+ESCmap::need_more(const char * seq, int len)
+{
+   loop(e, ESCmap_entry_count)
+       {
+         if (ESCmap::the_ESCmap[e].has_prefix(seq, len))   return true;
+       }
+
+   return false;
+}
+//-----------------------------------------------------------------------------
+bool
 ESCmap::has_prefix(const char * seq, int seq_len) const
 {
    if (seq_len >= len)   return false;
@@ -226,6 +237,13 @@ LineHistory::add_line(const UCS_string & line)
       }
 
    next();   // update current_line
+}
+//-----------------------------------------------------------------------------
+void
+LineHistory::replace_line(const UCS_string & line)
+{
+   if (put > 0)   hist_lines[put - 1] = line;
+   else           hist_lines.back() = line;
 }
 //-----------------------------------------------------------------------------
 const UCS_string *
@@ -776,11 +794,11 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
                    eof = true;
                    break;
 
-              case UNI_ASCII_BS:
+              case UNI_ASCII_BS:    // ^H (backspace)
                    lec.backspc();
                    continue;
 
-              case UNI_ASCII_HT:
+              case UNI_ASCII_HT:    // ^I (tab)
                    lec.tab_expansion(mode);
                    continue;
 
@@ -841,6 +859,8 @@ bool add_hist = false;
 Unicode
 LineInput::get_uni()
 {
+again:
+
 const int b0 = fgetc(stdin);
    if (b0 == EOF)   return UNI_EOF;
 
@@ -876,9 +896,9 @@ const int b0 = fgetc(stdin);
             }
 
         return (Unicode)(bx | uni);
-
       }
-   else if (b0 == UNI_ASCII_ESC)
+
+   if (b0 == UNI_ASCII_ESC)
       {
         char seq[Output::MAX_ESC_LEN];   seq[0] = UNI_ASCII_ESC;
         for (int s = 1; s < Output::MAX_ESC_LEN; ++s)
@@ -897,17 +917,7 @@ const int b0 = fgetc(stdin);
 
               // check for prefix match
               //
-              bool is_prefix = false;
-              loop(e, ESCmap_entry_count)
-                  {
-                    if (ESCmap::the_ESCmap[e].has_prefix(seq, s))
-                       {
-                          is_prefix = true;
-                          break;   // loop(e)
-                       }
-                  }
-              
-              if (is_prefix)   continue;
+              if (ESCmap::need_more(seq, s))   continue;
 
               CERR << endl << "Unknown ESC sequence: ESC";
               loop(ss, s)   CERR << " " << HEX2(seq[ss + 1]);
@@ -915,6 +925,22 @@ const int b0 = fgetc(stdin);
 
               return Invalid_Unicode;
             }
+      }
+   else if (b0 < UNI_ASCII_SPACE)   // ^something (except ESC)
+      {
+        switch(b0)
+           {
+             case UNI_ASCII_SOH: return UNI_CursorHome;   // ^A
+             case UNI_ASCII_ETX: return UNI_ASCII_ETX;    // ^C
+             case UNI_ASCII_EOT: return UNI_ASCII_EOT;    // ^D
+             case UNI_ASCII_ENQ: return UNI_CursorEnd;    // ^E
+             case UNI_ASCII_BS:  return UNI_ASCII_BS;     // ^H
+             case UNI_ASCII_HT:  return UNI_ASCII_HT;     // ^I
+             case UNI_ASCII_LF:  return UNI_ASCII_LF;     // ^J
+             case UNI_ASCII_SO:  return UNI_CursorDown;   // ^N
+             case UNI_ASCII_DLE: return UNI_CursorUp;     // ^P
+             default: goto again;
+           }
       }
    else if (b0 == UNI_ASCII_DELETE)   return UNI_ASCII_BS;
 

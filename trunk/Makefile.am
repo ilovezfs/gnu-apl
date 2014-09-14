@@ -84,8 +84,17 @@ develop:
 	./configure --enable-maintainer-mode DEVELOP_WANTED=yes
 	make all
 
+# a shortcut to configure for troubleshooting
+#
+.PHONY:	parallel
+parallel:
+	./configure --enable-maintainer-mode \
+                    DEVELOP_WANTED=yes       \
+                    CORE_COUNT_WANTED=4
+	make all
+
 # a shortcut to export changes to ../savannah-repo-apl (which is supposed to be
-# a checkout of the GNU APL repository ar Savannah
+# a checkout of the GNU APL repository at Savannah
 #
 .PHONY:	SYNC
 SYNC:	DIST

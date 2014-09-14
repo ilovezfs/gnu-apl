@@ -108,7 +108,7 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	Bif_OPER1_REDUCE.$(OBJEXT) Bif_OPER1_SCAN.$(OBJEXT) \
 	CDR.$(OBJEXT) Cell.$(OBJEXT) CharCell.$(OBJEXT) \
 	CollatingCache.$(OBJEXT) Command.$(OBJEXT) Common.$(OBJEXT) \
-	ComplexCell.$(OBJEXT) Cores.$(OBJEXT) DiffOut.$(OBJEXT) \
+	ComplexCell.$(OBJEXT) DiffOut.$(OBJEXT) \
 	DynamicObject.$(OBJEXT) Error.$(OBJEXT) Executable.$(OBJEXT) \
 	FloatCell.$(OBJEXT) Function.$(OBJEXT) \
 	DerivedFunction.$(OBJEXT) Id.$(OBJEXT) IndexExpr.$(OBJEXT) \
@@ -122,15 +122,15 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	PrimitiveOperator.$(OBJEXT) PrintBuffer.$(OBJEXT) \
 	QuadFunction.$(OBJEXT) ProcessorID.$(OBJEXT) Quad_FX.$(OBJEXT) \
 	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
-	Performance.$(OBJEXT) RealCell.$(OBJEXT) Shape.$(OBJEXT) \
-	ScalarFunction.$(OBJEXT) StateIndicator.$(OBJEXT) \
-	StaticObjects.$(OBJEXT) Svar_DB.$(OBJEXT) \
-	Svar_record.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
-	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
-	Tokenizer.$(OBJEXT) UCS_string.$(OBJEXT) \
-	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
-	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
-	Workspace.$(OBJEXT)
+	Parallel.$(OBJEXT) Performance.$(OBJEXT) RealCell.$(OBJEXT) \
+	Shape.$(OBJEXT) ScalarFunction.$(OBJEXT) \
+	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
+	Svar_DB.$(OBJEXT) Svar_record.$(OBJEXT) Symbol.$(OBJEXT) \
+	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
+	IO_Files.$(OBJEXT) Token.$(OBJEXT) Tokenizer.$(OBJEXT) \
+	UCS_string.$(OBJEXT) UserFunction.$(OBJEXT) \
+	UserPreferences.$(OBJEXT) UTF8_string.$(OBJEXT) \
+	Value.$(OBJEXT) ValueHistory.$(OBJEXT) Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -435,7 +435,6 @@ CollatingCache.cc				CollatingCache.hh	\
 Command.cc		Command.def		Command.hh		\
 Common.cc					Common.hh		\
 ComplexCell.cc				    	ComplexCell.hh		\
-Cores.cc					Cores.hh		\
 DiffOut.cc					DiffOut.hh		\
 DynamicObject.cc				DynamicObject.hh	\
 						EOC_handler_args.hh	\
@@ -478,6 +477,7 @@ Quad_FX.cc					Quad_FX.hh		\
 Quad_RL.cc					Quad_RL.hh		\
 Quad_SVx.cc					Quad_SVx.hh		\
 Quad_TF.cc					Quad_TF.hh		\
+Parallel.cc					Parallel.hh		\
 Performance.cc		Performance.def		Performance.hh		\
 RealCell.cc					RealCell.hh		\
 Shape.cc					Shape.hh		\
@@ -625,7 +625,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ComplexCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cores.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DerivedFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DiffOut.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DynamicObject.Po@am__quote@
@@ -650,6 +649,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NativeFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NumericCell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Output.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parallel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Performance.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PointerCell.Po@am__quote@

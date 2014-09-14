@@ -1,4 +1,14 @@
 
+/*
+ macros:
+
+ syl1: constant (possibly ./configure-able)
+ syl2: variable (possibly change-able)
+ syl3: constant (not ./configure-able)
+
+ enum members __xx are not used elsewhere
+ */
+
 //   APL name in ⎕SYL                           enum member         value
 //-------------------------------------------   ------------------  ------------------
 syl2("SI depth limit          (0 = no limit)" , SI_DEPTH_LIMIT    , si_depth_limit      )
@@ -24,9 +34,9 @@ syl3("largest integer"                        , LARGE_INT         ,  92000000000
 syl3("smallest (negative) integer"            , SMALL_INT         , -9200000000000000000LL)
 syl1("largest numeric exponent"               , LARGEST_EXPO      , 308                 )
 syl1("max. shared variable size (bytes)"      , MAX_SVAR_SIZE     , 65000               )
-syl2("max. cores (per ./configure)"           , __CMAX1           , CORE_COUNT_WANTED   )
-syl2("max. cores (per max_cores())"           , __CMAX2           , max_cores()         )
-syl2("current cores (per core_count())"       , CURRENT_CORES     , core_count()        )
+syl2("CORE_COUNT_WANTED (per ./configure)"    , __CMAX1           , CORE_COUNT_WANTED   )
+syl2("cores available"                        , __CMAX2           , Parallel::get_total_CPU_count())
+syl2("cores used"                             , __CUSED           , Parallel::get_active_core_count())
 syl2("print length limit (0 = no limit)"      , PRINT_LIMIT       , print_length_limit  )
 
 #undef syl1

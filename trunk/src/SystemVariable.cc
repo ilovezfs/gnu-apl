@@ -38,6 +38,7 @@
 #include "LineInput.hh"
 #include "main.hh"
 #include "Output.hh"
+#include "Parallel.hh"
 #include "PointerCell.hh"
 #include "ProcessorID.hh"
 #include "StateIndicator.hh"
@@ -887,7 +888,7 @@ const APL_Integer qio = Workspace::get_IO();
 #if CORE_COUNT_WANTED == -3
         else if (x == SYL_CURRENT_CORES)   // number of cores
            {
-             setup_cores((CoreCount)b);
+             if Parallel::set_core_count((CoreCount)b)   DOMAIN_ERROR;
            }
 #endif
         else if (x == SYL_PRINT_LIMIT)   // print length limit

@@ -78,6 +78,9 @@ public:
    /// add one line to \b this history
    void add_line(const UCS_string & line);
 
+   /// replace the last line of \b this history
+   void replace_line(const UCS_string & line);
+
    /// the history for ⍞
    static LineHistory quote_quad_history;
 
@@ -264,6 +267,11 @@ public:
    static void add_history_line(const UCS_string & line)
       {  the_line_input->history.add_line(line); }
 
+   /// replace the last line of the history
+   static void replace_history_line(const UCS_string & line)
+      {  the_line_input->history.replace_line(line); }
+
+   /// return the history
    static LineHistory & get_history()
       { return the_line_input->history; }
 
@@ -304,6 +312,9 @@ struct ESCmap
 
    /// refresh the lengths (after keyboard strings have been updated)
    static void refresh_lengths();
+
+   /// return true if an entry has prefix \b seq of length len
+   static bool need_more(const char * seq, int len);
 
    /// the length of \b seqence
    int len;

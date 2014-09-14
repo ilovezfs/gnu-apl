@@ -23,6 +23,7 @@
 
 #include <vector>
 
+#include "Parallel.hh"
 #include "UTF8_string.hh"
 
 /// a structure that contains user preferences from different sources
@@ -51,6 +52,7 @@ struct UserPreferences
      script_argc(0),
      line_history_path(".apl.history"),
      line_history_len(500),
+     nabla_to_history(1),   // if function was modified
      raw_cin(false)
    {}
 
@@ -155,6 +157,9 @@ struct UserPreferences
 
    /// number of lines in the input line history
    int line_history_len;
+
+   /// when function body shall go into the history
+   int nabla_to_history;
 
    /// name of a user-provided keyboard layout file
    UTF8_string keyboard_layout_file;

@@ -327,20 +327,6 @@ const int seq_len = strlen(seq);
 #endif
 }
 //-----------------------------------------------------------------------------
-int
-Output::putc_stderr(TPUTS_arg3 ch)
-{
-   cerr << (char)ch;
-   return ch;
-}
-//-----------------------------------------------------------------------------
-int
-Output::putc_stdout(TPUTS_arg3 ch)
-{
-   cout << (char)ch;
-   return ch;
-}
-//-----------------------------------------------------------------------------
 void
 Output::reset_dout()
 {

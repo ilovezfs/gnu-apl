@@ -85,7 +85,7 @@
 # CIN  is the echo of the input typed by the user,
 # COUT is the normal output of the APL interpreter,
 # CERR is additional error information, in particular logging.
-# UERR is output of the APL interpreter cotaining error messages,
+# UERR is output of the APL interpreter containing error messages,
 #
 # CIN, COUT, and UERR appear on stdout while CERR appears on stderr.
 # Normally stdout and stderr are both displayed on the same terminal,
@@ -228,9 +228,9 @@
 #
 # SHARED VARIABLES
 #
-# shared variables ⎕SVO, ⎕SVR, ... fork a helper process (APnnn) to
+# shared variables ⎕SVO, ⎕SVR, ... fork a helper process (APserver) to
 # communicate with other APL processors. If you do not need these functions
-# then you can prevent starting of APnnn by setting SharedVars to Disabled.
+# then you can prevent starting of APserver by setting SharedVars to Disabled.
 # If SharedVars are disabled then GNU APL starts a little faster and, of
 # course, ⎕SVO and friends won't work.
 #
@@ -262,7 +262,7 @@
 
 ###############################################################################
 #
-# GNU APL uses library numbers from 0 to 0 in commands )LOAD, )SAVE, and )COPY,
+# GNU APL uses library numbers from 0 to 9 in commands )LOAD, )SAVE, and )COPY,
 # for example:
 #
 # )LOAD 1 workspace
@@ -291,17 +291,32 @@
 #
 # READLINE HISTORY PARAMETERS
 #
-# GNU APL normally uses GNU Readline for obtaining input from the user.
+# GNU APL provides a history of lines entered by the user in immediate
+# execution mode and ∇-edit mode.
+#
 # Below the number of history lines and the location of the history file 
 # can be configured.
 #
 READLINE_HISTORY_LEN  500
 READLINE_HISTORY_PATH .apl.history
 
+# The history can serve two purposes: to recall lines that were previously
+# and to list what was done (with command )HISTORY). For the latter purpose
+# it is normally convenient to show the new ⎕CR of a function that was edited
+# instead of the command that started the editor. The following parameter
+# controls whether the editor command (like ∇foo ) or the new ⎕CR of the
+# function shall be inserted into the history.
+# 
+# The default (modified) shows the editor command if the function was opened
+# but not changed and the new ⎕CR if the function was changed.
+#
+# NABLA-TO-HISTORY  Never
+  NABLA-TO-HISTORY  Modified (default)
+# NABLA-TO-HISTORY  Always
 
 ###############################################################################
 #
-# CREATE BACKUP BEFORE )SAVE or )DUMP WOKRSPACE
+# CREATE BACKUP BEFORE )SAVE or )DUMP WORKSPACE
 #
 BACKUP_BEFORE_SAVE  yes
 
@@ -313,7 +328,7 @@ BACKUP_BEFORE_SAVE  yes
 #
 # If your keyboard layout differs from the assumed keyboard for some reason,
 # then the ]KEYB command will show the wrong layout. You can fix this by
-# providing your oen keyboard file which (when specified) is shown by the
+# providing your own keyboard file which (when specified) is shown by the
 # ]KEYB command instead of the assumed layout.
 #
 # You can use one of the files called 'keyboard1.txt' somewhere below the
