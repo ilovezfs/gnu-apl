@@ -184,12 +184,6 @@ protected:
    /// them when leaving the interpreter
    static bool colors_changed;
 
-   /// print one byte on stdout
-   static int putc_stderr(TPUTS_arg3 ch);
-
-   /// print one byte on stderr
-   static int putc_stdout(TPUTS_arg3 ch);
-
    /// the current color mode
    static ColorMode color_mode;
 

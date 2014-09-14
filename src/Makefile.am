@@ -35,7 +35,6 @@ CollatingCache.cc				CollatingCache.hh	\
 Command.cc		Command.def		Command.hh		\
 Common.cc					Common.hh		\
 ComplexCell.cc				    	ComplexCell.hh		\
-Cores.cc					Cores.hh		\
 DiffOut.cc					DiffOut.hh		\
 DynamicObject.cc				DynamicObject.hh	\
 						EOC_handler_args.hh	\
@@ -78,6 +77,7 @@ Quad_FX.cc					Quad_FX.hh		\
 Quad_RL.cc					Quad_RL.hh		\
 Quad_SVx.cc					Quad_SVx.hh		\
 Quad_TF.cc					Quad_TF.hh		\
+Parallel.cc					Parallel.hh		\
 Performance.cc		Performance.def		Performance.hh		\
 RealCell.cc					RealCell.hh		\
 Shape.cc					Shape.hh		\

@@ -50,6 +50,7 @@ Nabla::Nabla(const UCS_string & cmd)
      edit_from(-1),
      edit_to(-1),
      function_existed(false),
+     modified(false),
      do_close(false),
      locked(false),
      current_line(1),
@@ -141,31 +142,37 @@ UCS_string fun_text;
       {
         fun_text.append(lines[l].text);
         fun_text.append(UNI_ASCII_LF);
-
-        if (!uprefs.raw_cin)
-           {
-             // create a history entry that can be re-entered
-             //
-             UCS_string hist_entry;
-             if (l == 0)
-                {
-                  hist_entry.append_utf8("    ∇");
-                }
-              else
-                {
-                  hist_entry.append_utf8("[");
-                  hist_entry.append_number(l);
-                  hist_entry.append_utf8("]  ");
-                  while (hist_entry.size() < 6)
-                        hist_entry.append(UNI_ASCII_SPACE);
-                }
-              hist_entry.append(lines[l].text);
-
-             LineInput::add_history_line(hist_entry);
-           }
       }
-   if (!uprefs.raw_cin)
-      LineInput::add_history_line(UCS_string("    ∇"));
+
+   // maybe copy function into the history
+   //
+   if (!uprefs.raw_cin &&
+       ((uprefs.nabla_to_history ==  /* always     */ 2) ||
+        ((uprefs.nabla_to_history == /* if changed */ 1) && modified)))
+      {
+        // create a history entry that can be re-entered and replace
+        // the last history line (which contained some ∇foo ...)
+        //
+        {
+          UCS_string line_0("    ∇");
+          line_0.append(lines[0].text);
+          LineInput::replace_history_line(line_0);
+
+        }
+
+        for (int l = 1; l < lines.size(); ++l)
+            {
+              UCS_string line_l("[");
+              line_l.append_number(l);
+              line_l.append_utf8("]  ");
+              while (line_l.size() < 6)   line_l.append(UNI_ASCII_SPACE);
+              line_l.append(lines[l].text);
+
+             LineInput::add_history_line(line_l);
+           }
+
+        LineInput::add_history_line(UCS_string("    ∇"));
+      }
 
 int error_line = 0;
 UCS_string creator(InputFile::current_filename());
@@ -274,6 +281,7 @@ UserFunction_header hdr(fun_header);
       {
         case NC_UNUSED_USER_NAME:   // open a new function
              function_existed = false;
+             modified = true;
              {
                // a new function must not have a command
                //
@@ -316,7 +324,6 @@ UserFunction_header hdr(fun_header);
 
    // at this point the (new or existing) function was successfully opened.
    // That means that at least the header is present (lines.size() > 0)
-
 
    // immediate close (only show command is allowed here),
    // e.g. ∇fun[⎕]∇
@@ -719,6 +726,8 @@ Nabla::execute_delete()
 const int idx_to = find_line(LineLabel(edit_to));
    if (idx_to == -1)   return "Bad line number N in [M∆N] ";
 
+   modified = true;
+
    if (edit_from == -1)   // delete single line
       {
         lines.erase(lines.begin() + idx_to);
@@ -782,7 +791,7 @@ const UCS_string & new_name = header.FUN()->get_name();
         // can simply forget it and continue with the new function
         //
         // UserFunction_header::UserFunction_header() should have triggered
-        // the creation of header.FUN() so we can assume tht it exists. We
+        // the creation of header.FUN() so we can assume that it exists. We
         // need to check that it is not a variable or an existing function.
         //
         if (header.FUN()->get_nc() != NC_UNUSED_USER_NAME)
@@ -792,6 +801,8 @@ const UCS_string & new_name = header.FUN()->get_name();
              return 0;
            }
       }
+
+   modified = true;
 
    lines[0].text = current_text;
    current_line.next();
@@ -810,6 +821,8 @@ ErrorCode ec = parser.parse(current_text, in);
         COUT << endl;
         return 0;
       }
+
+   modified = true;
 
 const int idx_from = find_line(edit_from);
 

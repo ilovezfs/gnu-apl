@@ -21,6 +21,7 @@
 #ifndef __SYSTEM_VARIABLE_HH_DEFINED__
 #define __SYSTEM_VARIABLE_HH_DEFINED__
 
+#include "Parallel.hh"
 #include "Symbol.hh"
 #include "Id.hh"
 

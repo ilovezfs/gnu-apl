@@ -24,6 +24,9 @@
 /* define to enable gprof profiling */
 #undef GPROF_WANTED
 
+/* Define to 1 if pthread_setaffinity_np() is available */
+#undef HAVE_AFFINITY_NP
+
 /* Define to 1 if <curses.h> is present */
 #undef HAVE_CURSES_H
 
@@ -60,9 +63,6 @@
 /* Define to 1 if you have the `execinfo' library (-lexecinfo). */
 #undef HAVE_LIBEXECINFO
 
-/* Define to 1 if you have the `gomp' library (-lgomp). */
-#undef HAVE_LIBGOMP
-
 /* Define to 1 if you have the `lapack' library (-llapack). */
 #undef HAVE_LIBLAPACK
 
@@ -92,9 +92,6 @@
 
 /* Define to 1 if <ncurses.h> is present */
 #undef HAVE_NCURSES_H
-
-/* Define to 1 if you have the <omp.h> header file. */
-#undef HAVE_OMP_H
 
 /* Define to 1 if PostgreSQL libraries are available */
 #undef HAVE_POSTGRESQL
@@ -192,9 +189,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* Define the type of arg3 in tputs(i, 0, (*)(arg3)) */
-#undef TPUTS_arg3
 
 /* PostgreSQL code compiles */
 #undef USABLE_PostgreSQL

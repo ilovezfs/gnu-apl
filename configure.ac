@@ -77,7 +77,6 @@ AC_CHECK_HEADERS([	\
 	execinfo.h	\
 	fcntl.h		\
 	inttypes.h	\
-	omp.h		\
 	stdint.h	\
 	stdlib.h	\
         string.h	\
@@ -128,7 +127,6 @@ AC_CHECK_LIB([blas],      [dcopy_])
 #AC_CHECK_LIB([gfortran], [_gfortran_transpose])
 
 AC_CHECK_LIB([execinfo],  [backtrace])
-AC_CHECK_LIB([gomp],      [omp_set_num_threads])
 AC_CHECK_LIB([m],         [acosh])
 AC_CHECK_LIB([pthread],   [sem_init])
 AC_CHECK_LIB([dl],        [dlopen])
@@ -171,17 +169,17 @@ if test "x$HAVE_rdtsc" = "xyes"; then
 fi
 
 
-# see if arg 3 of tputs is (*)(int) or (*)(char)
+# see if pthread_getaffinity_np() and pthread_setaffinity_np are available
 #
-AC_MSG_CHECKING([type of arg3 in tputs(0, 0, (*)(arg3))])
+AC_MSG_CHECKING([whether pthread_setaffinity_np is available])
 AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM([[#include <term.h>]
-                      [extern int arg3(int);]],
- 	             [[tputs(0, 0, arg3);]])],
-                     [TPUTS_arg3=int], [TPUTS_arg3=char])
-AC_MSG_RESULT([$TPUTS_arg3])
-AC_DEFINE_UNQUOTED([TPUTS_arg3], [$TPUTS_arg3],
-                   [Define the type of arg3 in tputs(i, 0, (*)(arg3))])
+    [AC_LANG_PROGRAM([[#include <pthread.h>]],
+ 	             [[pthread_setaffinity_np(0, 0, 0);]
+                      [pthread_getaffinity_np(0, 0, 0);]])],
+                     [HAVE_AFFINITY_NP=yes], [HAVE_AFFINITY_NP=no])
+AC_MSG_RESULT([$HAVE_AFFINITY_NP])
+AC_DEFINE_UNQUOTED([HAVE_AFFINITY_NP], [$HAVE_AFFINITY_NP],
+                   [Define to 1 if pthread_setaffinity_np() is available])
 
 
 # see if the compiler supports dynamic arrays
