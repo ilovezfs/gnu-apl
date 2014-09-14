@@ -235,8 +235,8 @@ Parallel::init(bool logit)
 bool
 Parallel::set_core_count(CoreCount count)
 {
-   if (count < 1)                       return true;
-   if (count > get_total_CPU_count())   return true;
+   if (count < CCNT_1)                             return true;
+   if ((CPU_count)count > get_total_CPU_count())   return true;
 
    active_core_count = count;
    reinit(LOG_Parallel);
@@ -280,7 +280,7 @@ void
 Parallel::init_CPUs(bool logit)
 {
 #ifndef HAVE_AFFINITY_NP
-# define pthread_getaffinity_np(_a, _b, c) CPU_SET(0, c), 0
+# define pthread_getaffinity_np(_a, _b, c) 0; (CPU_SET(0, c));
 #endif
 
    // first set up all_CPUs which contains the available cores

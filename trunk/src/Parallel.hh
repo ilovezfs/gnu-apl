@@ -46,12 +46,13 @@ enum CoreNumber
 /// the CPUs reported by the OS
 enum CPU_Number
 {
-   CPU_0
+   CPU_0 = 0
 };
 
 /// the number of CPUs available
 enum CPU_count
 {
+   CPU_CNT_1 = 1
 };
 //=============================================================================
 /**
