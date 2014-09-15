@@ -264,6 +264,7 @@ Avec::map_alternative_char(Unicode alt_av)
         case 0x2377: return AV_EPSILON_UBAR;     //  map ⍷ to ⋸
         case 0x25AF: return AV_Quad_Quad;        //  map ▯ to ⎕
         case 0x25E6: return AV_RING_OPERATOR;    //  map ◦ to ∘
+        case 0x2662: return AV_DIAMOND;          //  map ♢ to ◊
         case 0x26AA: return AV_CIRCLE;           //  map ⚪ to ○
         case 0x2A7D: return AV_LESS_OR_EQUAL;    //  map ⩽ to ≤
         case 0x2A7E: return AV_MORE_OR_EQUAL;    //  map ⩾ to ≥

@@ -164,6 +164,12 @@ public:
    /// toggle the insert mode
    void toggle_ins_mode();
 
+   /// cut from cursor to end of line
+   void cut_to_EOL();
+
+   /// paste to cursor position
+   void paste();
+
    /// move cursor home
    void cursor_HOME()   { move_idx(uidx = 0); }
 
@@ -221,7 +227,11 @@ protected:
    /// true if history was entered
    bool history_entered;
 
+   /// dito
    UCS_string user_line_before_history;
+
+   /// a biffer for ^K/^Y
+   static UCS_string cut_buffer;
 };
 //-----------------------------------------------------------------------------
 /** InputMux fetches one line from either an input file, or interactively
