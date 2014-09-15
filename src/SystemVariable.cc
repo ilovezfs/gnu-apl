@@ -888,7 +888,7 @@ const APL_Integer qio = Workspace::get_IO();
 #if CORE_COUNT_WANTED == -3
         else if (x == SYL_CURRENT_CORES)   // number of cores
            {
-             if Parallel::set_core_count((CoreCount)b)   DOMAIN_ERROR;
+             if (Parallel::set_core_count((CoreCount)b))   DOMAIN_ERROR;
            }
 #endif
         else if (x == SYL_PRINT_LIMIT)   // print length limit

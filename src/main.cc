@@ -104,13 +104,13 @@ cleanup(bool soft)
 
         // write line history
         //
-        LineInput::close(true);
+        LineInput::close(false);
 
         Output::reset_colors();
       }
    else        // minimal clean-up
       {
-        LineInput::close(false);
+        LineInput::close(true);
         Output::reset_colors();
       }
 }

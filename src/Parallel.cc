@@ -64,7 +64,7 @@ TaskTree::~TaskTree()
 void
 TaskTree::init(CoreCount count, bool logit)
 {
-   delete entries;
+   delete [] entries;
 
    Assert(count >= 1);
    task_count = count;
@@ -209,12 +209,12 @@ Thread_context::print_all(ostream & out)
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::print_mileages(ostream & out)
+Thread_context::print_mileages(ostream & out, const char * loc)
 {
    sem_wait(&Parallel::print_sema);
       out << "    mileages:";
       loop(e, thread_contexts_count)   out << " " << thread_contexts[e].mileage;
-      out << endl;
+      out << " at " << loc << endl;
    sem_post(&Parallel::print_sema);
 }
 //-----------------------------------------------------------------------------
@@ -251,6 +251,16 @@ Parallel::init(bool logit)
 bool
 Parallel::set_core_count(CoreCount count)
 {
+   // this function is called from ⎕SYL[26]←
+   //
+   if (active_core_count > 1)
+      {
+        CERR << "killing old pool..." << endl;
+        Thread_context::print_mileages(CERR, LOC);
+        kill_pool();
+        Thread_context::print_mileages(CERR, LOC);
+      }
+
    if (count < CCNT_1)                             return true;
    if ((CPU_count)count > get_total_CPU_count())   return true;
 
@@ -284,17 +294,15 @@ Parallel::reinit(bool logit)
 
    return;
 
+CERR << "locking pool... " << endl;
    lock_pool();
    usleep(100000);
-   Thread_context::print_mileages(CERR);
+   Thread_context::print_mileages(CERR, LOC);
 
+CERR << "unlocking pool... " << endl;
    unlock_pool();
    usleep(100000);
-   Thread_context::print_mileages(CERR);
-
-   kill_pool();
-   usleep(100000);
-   Thread_context::print_mileages(CERR);
+   Thread_context::print_mileages(CERR, LOC);
 }
 //-----------------------------------------------------------------------------
 void
@@ -345,18 +353,18 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
    active_core_count =
 
 #if CORE_COUNT_WANTED > 0
-      (CoreCount)CORE_COUNT_WANTED;   // parallel, as per ./configure
+      (CoreCount)CORE_COUNT_WANTED;          // parallel, as per ./configure
 #elif CORE_COUNT_WANTED == 0
-      CCNT_1;                         // sequential
+      CCNT_1;                                // sequential
 #elif CORE_COUNT_WANTED == -1
-      CCNT_1;                         // parallel. 1 core
+       (CoreCount)(get_total_CPU_count());   // parallel. all available cores
 #elif CORE_COUNT_WANTED == -2
-      uprefs.requested_cc;            // parallel, as per --cc option
+      uprefs.requested_cc;                   // parallel, --cc option
 #elif CORE_COUNT_WANTED == -3
-      Quad_SYL::active_core_count;    // parallel as per ⎕SYL (initially 1)
+      CCNT_1;                                // parallel ⎕SYL (initially 1)
 #else
 #warning "invalid ./configure value for option CORE_COUNT_WANTED, using 0"
-      CCNT_1;                         // sequential
+      CCNT_1;                                // sequential
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -366,7 +374,7 @@ Parallel::worker_main(void * arg)
 Thread_context & tctx = *(Thread_context *)arg;
 
    sem_wait(&print_sema);
-      CERR << "worker thread #" << tctx.get_N() << " started" << endl;
+      CERR << "worker #" << tctx.get_N() << " started" << endl;
    sem_post(&print_sema);
 
    sem_post(&pthread_create_sema);
@@ -417,7 +425,7 @@ Thread_context::PF_kill_pool(Thread_context & tctx)
    tctx.join();
 
    sem_wait(&Parallel::print_sema);
-      CERR << "worker thread #" << tctx.get_N() << " finished" << endl;
+      CERR << "worker #" << tctx.get_N() << " finished" << endl;
    sem_post(&Parallel::print_sema);
 
    pthread_exit(0);

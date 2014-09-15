@@ -204,7 +204,7 @@ public:
    static void print_all(ostream & out);
 
    /// print all mileages nodes
-   static void print_mileages(ostream & out);
+   static void print_mileages(ostream & out, const char * loc);
 
    /// print this TaskTree node
    void print(ostream & out) const;
@@ -294,12 +294,12 @@ public:
    /// unlock all pool members from pool_sema
    static void unlock_pool()
       { Thread_context::get_master().unlock_pool();
-        Thread_context::get_master().increment_mileage();
+        Thread_context::get_master().join();
       }
 
    static void kill_pool()
       { Thread_context::get_master().kill_pool();
-        Thread_context::get_master().increment_mileage();
+        Thread_context::get_master().join();
       }
 
    /// initialize (first)

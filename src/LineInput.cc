@@ -165,8 +165,6 @@ int count = 0;
          add_line(ucs);
        }
 
-   cerr << count << " history lines read from file " << filename << endl;
-
    next();
 }
 //-----------------------------------------------------------------------------
