@@ -260,8 +260,8 @@ public:
    /// initialize the input subsystem
    static void init(bool do_read_history);
 
-   static void close(bool no_write_hist)
-      { if (the_line_input && no_write_hist)
+   static void close(bool do_not_write_hist)
+      { if (the_line_input && do_not_write_hist)
             the_line_input->write_history = false;
         delete the_line_input;   the_line_input = 0; }
 
