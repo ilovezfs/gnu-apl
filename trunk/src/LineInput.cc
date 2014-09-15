@@ -46,6 +46,8 @@ LineHistory LineHistory::quote_quad_history(10);
 LineHistory LineHistory::quad_quad_history(10);
 LineHistory LineHistory::quad_INP_history(2);
 
+UCS_string LineEditContext::cut_buffer;
+
 //=============================================================================
 
 ESCmap ESCmap::the_ESCmap[] =
@@ -434,6 +436,37 @@ LineEditContext::insert_char(Unicode uni)
 }
 //-----------------------------------------------------------------------------
 void
+LineEditContext::cut_to_EOL()
+{
+   if (uidx >= user_line.size())   return;   // nothing to cut
+
+   cut_buffer = UCS_string(user_line, uidx, user_line.size() - uidx);
+   user_line.shrink(uidx);
+   refresh_from_cursor();
+}
+//-----------------------------------------------------------------------------
+void
+LineEditContext::paste()
+{
+   if (cut_buffer.size() == 0)   return;
+
+   if (uidx >= user_line.size())   // append cut buffer
+      {
+        user_line.append(cut_buffer);
+      }
+   else                            // insert cut buffer
+      {
+        const UCS_string rest(user_line, uidx, user_line.size() - uidx);
+        user_line.shrink(uidx);
+        user_line.append(cut_buffer);
+        user_line.append(rest);
+      }
+
+   refresh_from_cursor();
+   move_idx(uidx + cut_buffer.size());
+}
+//-----------------------------------------------------------------------------
+void
 LineEditContext::toggle_ins_mode()
 {
     ins_mode = ! ins_mode;
@@ -802,6 +835,10 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
                    lec.tab_expansion(mode);
                    continue;
 
+              case UNI_ASCII_VT:    // ^K
+                   lec.cut_to_EOL();
+                   continue;
+
               case UNI_ASCII_DELETE:
                    lec.delete_char();
                    continue;
@@ -811,6 +848,10 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
 
               case UNI_ASCII_LF:   // '\n': done
                    break;
+
+              case UNI_ASCII_EM:    // ^Y
+                   lec.paste();
+                   continue;
 
               default:  // regular APL character
                    lec.insert_char(uni);
@@ -930,15 +971,19 @@ const int b0 = fgetc(stdin);
       {
         switch(b0)
            {
-             case UNI_ASCII_SOH: return UNI_CursorHome;   // ^A
-             case UNI_ASCII_ETX: return UNI_ASCII_ETX;    // ^C
-             case UNI_ASCII_EOT: return UNI_ASCII_EOT;    // ^D
-             case UNI_ASCII_ENQ: return UNI_CursorEnd;    // ^E
-             case UNI_ASCII_BS:  return UNI_ASCII_BS;     // ^H
-             case UNI_ASCII_HT:  return UNI_ASCII_HT;     // ^I
-             case UNI_ASCII_LF:  return UNI_ASCII_LF;     // ^J
-             case UNI_ASCII_SO:  return UNI_CursorDown;   // ^N
-             case UNI_ASCII_DLE: return UNI_CursorUp;     // ^P
+             case UNI_ASCII_SOH: return UNI_CursorHome;    // ^A
+             case UNI_ASCII_STX: return UNI_CursorLeft;    // ^B
+             case UNI_ASCII_ETX: return UNI_ASCII_ETX;     // ^C
+             case UNI_ASCII_EOT: return UNI_ASCII_EOT;     // ^D
+             case UNI_ASCII_ENQ: return UNI_CursorEnd;     // ^E
+             case UNI_ASCII_ACK: return UNI_CursorRight;   // ^F
+             case UNI_ASCII_BS:  return UNI_ASCII_BS;      // ^H
+             case UNI_ASCII_HT:  return UNI_ASCII_HT;      // ^I
+             case UNI_ASCII_LF:  return UNI_ASCII_LF;      // ^J
+             case UNI_ASCII_VT:  return UNI_ASCII_VT;      // ^K
+             case UNI_ASCII_SO:  return UNI_CursorDown;    // ^N
+             case UNI_ASCII_DLE: return UNI_CursorUp;      // ^P
+             case UNI_ASCII_EM:  return UNI_ASCII_EM;      // ^Y
              default: goto again;
            }
       }

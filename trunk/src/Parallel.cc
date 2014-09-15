@@ -25,6 +25,7 @@
 #include "Common.hh"
 #include "Parallel.hh"
 #include "SystemVariable.hh"
+#include "UserPreferences.hh"
 
 TaskTree * TaskTree::entries = 0;
 CoreCount TaskTree::task_count = CCNT_0;
@@ -33,7 +34,7 @@ int TaskTree::log_task_count = 0;
 Thread_context * Thread_context::thread_contexts = 0;
 CoreCount Thread_context::thread_contexts_count = CCNT_0;
 Thread_context::PoolFunction * Thread_context::do_work
-                                             = &Thread_context::no_work;
+                                             = &Thread_context::PF_no_work;
 
 sem_t Parallel::print_sema;
 sem_t Parallel::pthread_create_sema;
@@ -158,6 +159,11 @@ Thread_context::bind_to_cpu(CPU_Number core, bool logit)
 #ifndef HAVE_AFFINITY_NP
    CPU = CPU_0;
    return;
+
+   // the code below is not reached; we #define pthread_setaffinity_np()
+   // so that is compiles...
+   //
+#define pthread_setaffinity_np(_a, _b, _c) 0
 #endif
 
    CPU = core;
@@ -171,16 +177,26 @@ Thread_context::bind_to_cpu(CPU_Number core, bool logit)
 
 cpu_set_t cpus;
    CPU_ZERO(&cpus);
-   CPU_SET(CPU, &cpus);
 
-#ifdef HAVE_AFFINITY_NP
+   if (Parallel::get_active_core_count() == CCNT_1)
+      {
+        // there is only one core in total (which is the master).
+        // restore its affinity to all cores.
+        //
+        loop(a, Parallel::get_total_CPU_count())
+            CPU_SET(Parallel::get_CPU(a), &cpus);
+      }
+   else
+      {
+        CPU_SET(CPU, &cpus);
+      }
+
 const int err = pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpus);
    if (err)
       {
         cerr << "pthread_setaffinity_np() failed with error "
              << err << endl;
       }
-#endif
 }
 //-----------------------------------------------------------------------------
 void
@@ -271,7 +287,12 @@ Parallel::reinit(bool logit)
    lock_pool();
    usleep(100000);
    Thread_context::print_mileages(CERR);
+
    unlock_pool();
+   usleep(100000);
+   Thread_context::print_mileages(CERR);
+
+   kill_pool();
    usleep(100000);
    Thread_context::print_mileages(CERR);
 }
@@ -357,15 +378,12 @@ Thread_context & tctx = *(Thread_context *)arg;
          tctx.join();
        }
 
-   sem_wait(&print_sema);
-      CERR << "worker thread #" << tctx.get_N() << " finished" << endl;
-   sem_post(&print_sema);
-
+   /* not reached */
    return 0;
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::no_work(Thread_context & tctx)
+Thread_context::PF_no_work(Thread_context & tctx)
 {
    sem_wait(&Parallel::print_sema);
       CERR << "*** function no_work() called by thread #"
@@ -374,7 +392,7 @@ Thread_context::no_work(Thread_context & tctx)
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::lock_unlock_pool(Thread_context & tctx)
+Thread_context::PF_lock_unlock_pool(Thread_context & tctx)
 {
    sem_wait(&Parallel::print_sema);
       CERR << "task #" << tctx.get_N()
@@ -392,9 +410,23 @@ Thread_context::lock_unlock_pool(Thread_context & tctx)
 }
 //-----------------------------------------------------------------------------
 void
+Thread_context::PF_kill_pool(Thread_context & tctx)
+{
+   // we do not return, so we join here
+   //
+   tctx.join();
+
+   sem_wait(&Parallel::print_sema);
+      CERR << "worker thread #" << tctx.get_N() << " finished" << endl;
+   sem_post(&Parallel::print_sema);
+
+   pthread_exit(0);
+}
+//-----------------------------------------------------------------------------
+void
 Thread_context::lock_pool()
 {
-   do_work = lock_unlock_pool;
+   do_work = PF_lock_unlock_pool;
    increment_mileage();
 }
 //-----------------------------------------------------------------------------
@@ -408,6 +440,13 @@ Thread_context::unlock_pool()
            << " unblocks pool_sema of #" << forked->get_N() << endl;
          sem_post(&forked->pool_sema);
        }
+}
+//-----------------------------------------------------------------------------
+void
+Thread_context::kill_pool()
+{
+   do_work = PF_kill_pool;
+   increment_mileage();
 }
 //-----------------------------------------------------------------------------
 

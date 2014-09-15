@@ -215,11 +215,17 @@ public:
    static Thread_context * get_context(CoreNumber n)
       { return thread_contexts + n; }
 
+   static Thread_context & get_master()
+      { return thread_contexts[CNUM_MASTER]; }
+
    /// lock all pool members on pool_sema
    void lock_pool();
 
    /// unlock all pool members from pool_sema
    void unlock_pool();
+
+   /// terminate all pool tasks
+   void kill_pool();
 
    /// a function that is executed by the pool (i.e. in parallel)
    typedef void PoolFunction(Thread_context & ctx);
@@ -228,10 +234,13 @@ public:
    static PoolFunction * do_work;
 
    /// a thread-function that should not be called
-   static PoolFunction no_work;
+   static PoolFunction PF_no_work;
 
-   /// block on the pool semaphore
-   static PoolFunction lock_unlock_pool;
+   /// block/unblock on the pool semaphore
+   static PoolFunction PF_lock_unlock_pool;
+
+   /// terminate this thread
+   static PoolFunction PF_kill_pool;
 
 protected:
    /// thread number (0 = interpreter, 1... worker threads
@@ -280,12 +289,17 @@ public:
 
    /// lock all pool members on pool_sema
    static void lock_pool()
-      { Thread_context::get_context(CNUM_MASTER)->lock_pool(); }
+      { Thread_context::get_master().lock_pool(); }
 
    /// unlock all pool members from pool_sema
    static void unlock_pool()
-      { Thread_context::get_context(CNUM_MASTER)->unlock_pool();
-        Thread_context::get_context(CNUM_MASTER)->increment_mileage();
+      { Thread_context::get_master().unlock_pool();
+        Thread_context::get_master().increment_mileage();
+      }
+
+   static void kill_pool()
+      { Thread_context::get_master().kill_pool();
+        Thread_context::get_master().increment_mileage();
       }
 
    /// initialize (first)
@@ -294,12 +308,15 @@ public:
    /// re-initialize (subsequent)
    static void reinit(bool logit);
 
-   // set new active core count, return true on error
+   /// set new active core count, return true on error
    static bool set_core_count(CoreCount count);
 
    static sem_t print_sema;
 
    static sem_t pthread_create_sema;
+
+   static CPU_Number get_CPU(int idx)
+      { return all_CPUs[idx]; }
 
 protected:
    /// the number of cores currently used
