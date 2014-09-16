@@ -109,21 +109,6 @@ protected:
         /// return Z[z]
         Cell & Z_at(ShapeItem z) const         { return cZ[z]; }
       };
-
-   /// a list of worklist_1_item or worklist_2_item
-   template<typename itype>
-   struct Worklist
-      {
-        Worklist()
-           {
-             sem_init(&todo_sema,      /* shared */ 0, /* value */ 1);
-             sem_init(&new_value_sema, /* shared */ 0, /* value */ 1);
-           }
-        vector<itype> todo;            ///< computations to be done
-        sem_t         todo_sema;       ///< protection for todo
-        sem_t         new_value_sema;  ///< protection for Value() constructors
-      };
-
 };
 //-----------------------------------------------------------------------------
 /** Scalar functions binomial and factorial.

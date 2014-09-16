@@ -146,7 +146,7 @@ UCS_string fun_text;
 
    // maybe copy function into the history
    //
-   if (!uprefs.raw_cin &&
+   if (!uprefs.raw_cin && !InputFile::running_script() &&
        ((uprefs.nabla_to_history ==  /* always     */ 2) ||
         ((uprefs.nabla_to_history == /* if changed */ 1) && modified)))
       {
