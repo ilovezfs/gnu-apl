@@ -40,6 +40,7 @@
 #include "Output.hh"
 #include "Parallel.hh"
 #include "PointerCell.hh"
+#include "Prefix.hh"
 #include "ProcessorID.hh"
 #include "StateIndicator.hh"
 #include "SystemVariable.hh"

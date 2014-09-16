@@ -67,7 +67,7 @@ public:
    void clean_up();
 
    /// max. number of lookahead token
-   enum { MAX_CONTENT   = 3*MAX_REDUCTION_LEN,
+   enum { MAX_CONTENT   = 10*MAX_REDUCTION_LEN,
           MAX_CONTENT_1 = MAX_CONTENT - 1 };
 
    /// print the state of this parser
