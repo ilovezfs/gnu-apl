@@ -38,6 +38,7 @@ syl2("CORE_COUNT_WANTED (per ./configure)"    , __CMAX1           , CORE_COUNT_W
 syl2("cores available"                        , __CMAX2           , Parallel::get_total_CPU_count())
 syl2("cores used"                             , CURRENT_CORES     , Parallel::get_active_core_count())
 syl2("print length limit (0 = no limit)"      , PRINT_LIMIT       , print_length_limit  )
+syl2("max. prefix lenght"                     , __MAXONT          , Prefix::MAX_CONTENT )
 
 #undef syl1
 #undef syl2
