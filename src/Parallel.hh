@@ -25,6 +25,8 @@
 #include <semaphore.h>
 #include <vector>
 
+#include "Cell.hh"
+
 using namespace std;
 
 /// the number of cores/tasks to be used
@@ -219,13 +221,13 @@ public:
       { return thread_contexts[CNUM_MASTER]; }
 
    /// lock all pool members on pool_sema
-   void lock_pool();
+   void M_lock_pool();
 
    /// unlock all pool members from pool_sema
-   void unlock_pool();
+   void unlock_forked();
 
    /// terminate all pool tasks
-   void kill_pool();
+   void M_kill_pool();
 
    /// a function that is executed by the pool (i.e. in parallel)
    typedef void PoolFunction(Thread_context & ctx);
@@ -273,11 +275,30 @@ protected:
    static CoreCount thread_contexts_count;
 };
 //=============================================================================
+struct Parallel_job
+{
+   ShapeItem len_Z;   ///< the number of result cells
+   Cell * cZ;         ///< result
+   const Cell * cA;   ///< left argument
+   int inc_A;         ///< 0 (for scalar A) or 1
+   const Cell * cB;   ///< right argument
+   int inc_B;         ///< 0 (for scalar B) or 1
+
+   /// return A[z]
+   const Cell & A_at(ShapeItem z) const   { return cA[z * inc_A]; }
+
+   /// return B[z]
+   const Cell & B_at(ShapeItem z) const   { return cB[z * inc_B]; }
+
+   /// return Z[z]
+   Cell & Z_at(ShapeItem z) const         { return cZ[z]; }
+};
+//=============================================================================
 class Parallel
 {
 public:
    /// true if parallel execution is enabled
-   static bool run_parallel;
+   static const bool run_parallel;
 
    /// number of currently used cores
    static CoreCount get_active_core_count()
@@ -289,18 +310,17 @@ public:
 
    /// lock all pool members on pool_sema
    static void lock_pool()
-      { Thread_context::get_master().lock_pool(); }
+      { if (active_core_count > 1)
+           Thread_context::get_master().M_lock_pool(); }
 
    /// unlock all pool members from pool_sema
    static void unlock_pool()
-      { Thread_context::get_master().unlock_pool();
-        Thread_context::get_master().join();
-      }
+      { if (active_core_count > 1)
+           Thread_context::get_master().unlock_forked(); }
 
    static void kill_pool()
-      { Thread_context::get_master().kill_pool();
-        Thread_context::get_master().join();
-      }
+      { if (active_core_count > 1)
+           Thread_context::get_master().M_kill_pool(); }
 
    /// initialize (first)
    static void init(bool logit);
@@ -318,6 +338,9 @@ public:
    static CPU_Number get_CPU(int idx)
       { return all_CPUs[idx]; }
 
+   /// the worklist
+   static vector<Parallel_job> parallel_jobs;
+
 protected:
    /// the number of cores currently used
    static CoreCount active_core_count;
@@ -330,6 +353,12 @@ protected:
 
    /// the core numbers (as per pthread_getaffinity_np())
    static vector<CPU_Number>all_CPUs;
+
+   /// a semaphore protecting worklist insertion
+   static sem_t todo_sema;
+
+   /// a semaphore protecting Value constructors
+   static sem_t new_value_sema;
 };
 //=============================================================================
 

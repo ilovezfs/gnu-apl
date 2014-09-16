@@ -994,7 +994,7 @@ develop:
 parallel:
 	./configure --enable-maintainer-mode \
                     DEVELOP_WANTED=yes       \
-                    CORE_COUNT_WANTED=4
+                    CORE_COUNT_WANTED=-3
 	make all
 
 # a shortcut to export changes to ../savannah-repo-apl (which is supposed to be

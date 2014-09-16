@@ -26,6 +26,7 @@
 #include "IndexExpr.hh"
 #include "IndexIterator.hh"
 #include "IntCell.hh"
+#include "Parallel.hh"
 #include "PointerCell.hh"
 #include "ScalarFunction.hh"
 #include "Value.icc"
@@ -77,15 +78,20 @@ Value_P Z(new Value(B->get_shape(), LOC));
    // Finished jobs are NOT removed from the list to avoid unnecessary
    // copying of worklist items.
    //
-const Worklist_item1 wli = { len_Z, &Z->get_ravel(0), &B->get_ravel(0) };
-Worklist<Worklist_item1> wl;
-   wl.todo.push_back(wli);
+   Parallel::parallel_jobs.resize(1);
+   {
+     Parallel_job & wli = Parallel::parallel_jobs.back();
+     wli.len_Z = len_Z;
+     wli.cZ    = &Z->get_ravel(0);
+     wli.cB    = &B->get_ravel(0);
+     wli.inc_B = 1;
+   }
 
-   loop(todo_idx, wl.todo.size())
+   loop(todo_idx, Parallel::parallel_jobs.size())
       {
-        // CAUTION: cannot use Worklist_item1 & because push_back() below
+        // CAUTION: cannot use Worklist_item1 & because resize() below
         // could invalidate it !
-        const Worklist_item1 job = wl.todo[todo_idx];
+        const Parallel_job job = Parallel::parallel_jobs[todo_idx];
         loop(z, job.len_Z)
            {
              const Cell & cell_B = job.B_at(z);
@@ -96,10 +102,14 @@ Worklist<Worklist_item1> wl;
                   Value_P B1 = cell_B.get_pointer_value();
                   Value_P Z1(new Value(B1->get_shape(), LOC));
                   new (&cell_Z) PointerCell(Z1);
-                  const Worklist_item1 wli1 = { B1->nz_element_count(),
-                                                &Z1->get_ravel(0),
-                                                &B1->get_ravel(0) };
-                  wl.todo.push_back(wli1);
+
+                  Parallel::parallel_jobs.resize(
+                                           Parallel::parallel_jobs.size() + 1);
+                  Parallel_job & wli = Parallel::parallel_jobs.back();
+                  wli.len_Z = B1->nz_element_count();
+                  wli.cZ    = &Z1->get_ravel(0);
+                  wli.cB    = &B1->get_ravel(0);
+                  wli.inc_B = 1;
                 }
              else
                 {
@@ -205,20 +215,31 @@ Value_P Z(new Value(*shape_Z, LOC));
    // Finished jobs are NOT removed from the list to avoid unnecessary
    // copying of worklist items.
    //
-const Worklist_item2 wli = { len_Z, &Z->get_ravel(0),
-                             &A->get_ravel(0), inc_A,
-                             &B->get_ravel(0), inc_B
-                           };
-Worklist<Worklist_item2> wl;
-   wl.todo.push_back(wli);
+   Parallel::parallel_jobs.resize(1);
+   {
+     Parallel_job & wli = Parallel::parallel_jobs.back();
 
-   loop(todo_idx, wl.todo.size())
+     wli.len_Z = len_Z;
+     wli.cZ    = &Z->get_ravel(0);
+     wli. cA   = &A->get_ravel(0);
+     wli.inc_A = inc_A;
+     wli.cB    = &B->get_ravel(0);
+     wli.inc_B = inc_B;
+   }
+
+   loop(todo_idx, Parallel::parallel_jobs.size())
       {
-        // CAUTION: cannot use Worklist_item2 & because push_back() below
-        // could invalidate it !
+        // CAUTION: cannot use Parallel_job & for 'job' below because
+        //          parallel_jobs.resize() below could invalidate it !
+        //          Use a copy of parallel_jobs.[todo_idx] instead
         //
-        const Worklist_item2 job = wl.todo[todo_idx];
-        loop(z, job.len_Z)
+        const Parallel_job job = Parallel::parallel_jobs[todo_idx];
+
+        if (0 && Parallel::run_parallel && Parallel::get_active_core_count() > 1)
+           {
+Q(Parallel::get_active_core_count())
+           }
+        else loop(z, job.len_Z)
            {
              const Cell & cell_A = job.A_at(z);
              const Cell & cell_B = job.B_at(z);
@@ -249,13 +270,17 @@ Worklist<Worklist_item2> wl;
 
                      Value_P Z1(new Value(*shape_Z1, LOC));
                      new (&cell_Z) PointerCell(Z1);
-                     const Worklist_item2 wli1 =
-                                 { len_Z1, &Z1->get_ravel(0),
-                                    &A1->get_ravel(0), inc_A1,
-                                    &B1->get_ravel(0), inc_B1
-                                 };
 
-                     wl.todo.push_back(wli1);
+                     Parallel::parallel_jobs.resize(
+                                           Parallel::parallel_jobs.size() + 1);
+                     Parallel_job & wli = Parallel::parallel_jobs.back();
+
+                     wli.len_Z = len_Z1;
+                     wli.cZ    = &Z1->get_ravel(0);
+                     wli. cA   = &A1->get_ravel(0);
+                     wli.inc_A = inc_A1;
+                     wli.cB    = &B1->get_ravel(0);
+                     wli.inc_B = inc_B1;
                    }
                 else
                    {
@@ -276,12 +301,17 @@ Worklist<Worklist_item2> wl;
                         {
                           Value_P Z1(new Value(A1->get_shape(), LOC));
                           new (&cell_Z) PointerCell(Z1);
-                          const Worklist_item2 wli1 =
-                                 { len_Z1, &Z1->get_ravel(0),
-                                    &A1->get_ravel(0), inc_A1, &cell_B, 0
-                                 };
 
-                          wl.todo.push_back(wli1);
+                          Parallel::parallel_jobs.resize(
+                                           Parallel::parallel_jobs.size() + 1);
+                          Parallel_job & wli = Parallel::parallel_jobs.back();
+
+                          wli.len_Z = len_Z1;
+                          wli.cZ    = &Z1->get_ravel(0);
+                          wli. cA   = &A1->get_ravel(0);
+                          wli.inc_A = inc_A1;
+                          wli.cB    = &cell_B;
+                          wli.inc_B = 0;
                         }
                    }
              else
@@ -304,11 +334,17 @@ Worklist<Worklist_item2> wl;
                         {
                           Value_P Z1(new Value(B1->get_shape(), LOC));
                           new (&cell_Z) PointerCell(Z1);
-                          const Worklist_item2 wli1 =
-                                 { len_Z1,      &Z1->get_ravel(0),
-                                    &cell_A, 0, &B1->get_ravel(0), inc_B1
-                                 };
-                          wl.todo.push_back(wli1);
+
+                          Parallel::parallel_jobs.resize(
+                                           Parallel::parallel_jobs.size() + 1);
+                          Parallel_job & wli = Parallel::parallel_jobs.back();
+
+                          wli.len_Z = len_Z1;
+                          wli.cZ    = &Z1->get_ravel(0);
+                          wli. cA   = &cell_A;
+                          wli.inc_A = 0;
+                          wli.cB    = &B1->get_ravel(0);
+                          wli.inc_B = inc_B1;
                        }
                    }
                 else

@@ -29,6 +29,7 @@
 #include "LineInput.hh"
 #include "main.hh"
 #include "Nabla.hh"
+#include "Parallel.hh"
 #include "SystemVariable.hh"
 #include "UserPreferences.hh"
 #include "Workspace.hh"
@@ -622,52 +623,56 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
 
    InputFile::increment_current_line_no();
 
-   // check if we have input from a files...
-   {
-     UTF8_string file_line;
-     bool file_eof = false;
-     IO_Files::get_file_line(file_line, file_eof);
+   // check if we have input from a file. We do NOT use the file if the input
+   // is for ⍞ unless we are in a .tc testcase file.
+   //
+   if (InputFile::is_validating() ||
+       (mode != LIM_Quad_Quad && (mode != LIM_Quote_Quad)))
+      {
+        UTF8_string file_line;
+        bool file_eof = false;
+        IO_Files::get_file_line(file_line, file_eof);
 
-     if (!file_eof)
-        {
-          line = UCS_string(file_line);
+        if (!file_eof)
+           {
+             line = UCS_string(file_line);
 
-          switch(mode)
-             {
-               case LIM_ImmediateExecution:
-               case LIM_Quad_Quad:
-               case LIM_Quad_INP:
-                    CIN << prompt << line << endl;
-                    break;
+             switch(mode)
+                {
+                  case LIM_ImmediateExecution:
+                  case LIM_Quad_Quad:
+                  case LIM_Quad_INP:
+                       CIN << prompt << line << endl;
+                       break;
 
-               case LIM_Quote_Quad:
-                    line = prompt;
+                  case LIM_Quote_Quad:
+                       line = prompt;
 
-                    // for each leading backspace in line: discard last
-                    // prompt character. This is for testing the user
-                    // backspacing over the ⍞ prompt
-                    //
-                    while (line.size()      &&
-                           file_line.size() &&
-                           file_line[0] == UNI_ASCII_BS)
-                          {
-                            file_line.drop_leading(1);
-                            line.pop();
-                          }
-                    line.append_utf8(file_line.c_str());
-                    break;
+                       // for each leading backspace in line: discard last
+                       // prompt character. This is for testing the user
+                       // backspacing over the ⍞ prompt
+                       //
+                       while (line.size()      &&
+                              file_line.size() &&
+                              file_line[0] == UNI_ASCII_BS)
+                             {
+                               file_line.drop_leading(1);
+                               line.pop();
+                             }
+                       line.append_utf8(file_line.c_str());
+                       break;
 
-               case LIM_Nabla:
-                    break;
+                  case LIM_Nabla:
+                       break;
 
-               default: FIXME;
+                  default: FIXME;
              }
 
           return;
         }
    }
 
-   // no input from files: get line from terminal
+   // no (more) input from files: get line from terminal
    //
    if (uprefs.raw_cin)
       {
@@ -699,6 +704,7 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
 const APL_time_us from = now();
    if (start_input)   (*start_input)();
 
+   Parallel::lock_pool();
    for (int control_D_count = 0; ; ++control_D_count)
        {
          bool _eof = false;
@@ -724,9 +730,11 @@ const APL_time_us from = now();
               //
               CIN << endl;
               COUT << "      *** end of input" << endl;
-              Command::cmd_OFF(2);
+              Parallel::kill_pool();
+              Command::cmd_OFF(2);   // exit()s
             }
       }
+   Parallel::unlock_pool();
 
    Log(LOG_get_line)   CERR << " '" << line << "'" << endl;
 

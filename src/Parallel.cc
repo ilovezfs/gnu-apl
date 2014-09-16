@@ -38,13 +38,16 @@ Thread_context::PoolFunction * Thread_context::do_work
 
 sem_t Parallel::print_sema;
 sem_t Parallel::pthread_create_sema;
+sem_t Parallel::todo_sema;
+sem_t Parallel::new_value_sema;
 vector<CPU_Number>Parallel::all_CPUs;
-CoreCount Parallel::active_core_count;
+CoreCount Parallel::active_core_count = CCNT_0;
+vector<Parallel_job> Parallel::parallel_jobs;
 
 #if CORE_COUNT_WANTED == 0
-const bool run_parallel = false;
+const bool Parallel::run_parallel = false;
 #else
-const bool run_parallel = true;
+const bool Parallel::run_parallel = true;
 #endif
 
 //=============================================================================
@@ -241,8 +244,10 @@ int semval = 42;
 void
 Parallel::init(bool logit)
 {
-   sem_init(&print_sema, 0, 1);
-   sem_init(&pthread_create_sema, 0, 0);
+   sem_init(&print_sema,          /* shared */ 0, /* value */ 1);
+   sem_init(&pthread_create_sema, /* shared */ 0, /* value */ 0);
+   sem_init(&todo_sema,           /* shared */ 0, /* value */ 1);
+   sem_init(&new_value_sema,      /* shared */ 0, /* value */ 1);
 
    init_CPUs(logit);
    reinit(logit);
@@ -253,16 +258,17 @@ Parallel::set_core_count(CoreCount count)
 {
    // this function is called from ⎕SYL[26]←
    //
+   if (count < CCNT_1)                             return true;   // error
+   if ((CPU_count)count > get_total_CPU_count())   return true;   // error
+
    if (active_core_count > 1)
       {
         CERR << "killing old pool..." << endl;
         Thread_context::print_mileages(CERR, LOC);
         kill_pool();
         Thread_context::print_mileages(CERR, LOC);
+        CERR << "killing old pool done." << endl;
       }
-
-   if (count < CCNT_1)                             return true;
-   if ((CPU_count)count > get_total_CPU_count())   return true;
 
    active_core_count = count;
    reinit(LOG_Parallel);
@@ -373,9 +379,12 @@ Parallel::worker_main(void * arg)
 {
 Thread_context & tctx = *(Thread_context *)arg;
 
-   sem_wait(&print_sema);
-      CERR << "worker #" << tctx.get_N() << " started" << endl;
-   sem_post(&print_sema);
+   Log(LOG_Parallel)
+      {
+        sem_wait(&print_sema);
+           CERR << "worker #" << tctx.get_N() << " started" << endl;
+        sem_post(&print_sema);
+      }
 
    sem_post(&pthread_create_sema);
 
@@ -402,59 +411,75 @@ Thread_context::PF_no_work(Thread_context & tctx)
 void
 Thread_context::PF_lock_unlock_pool(Thread_context & tctx)
 {
-   sem_wait(&Parallel::print_sema);
-      CERR << "task #" << tctx.get_N()
-           << " will now block on pool_sema" << endl;
-   sem_post(&Parallel::print_sema);
+   Log(LOG_Parallel)
+      {
+        sem_wait(&Parallel::print_sema);
+           CERR << "task #" << tctx.get_N()
+                << " will now block on its pool_sema" << endl;
+        sem_post(&Parallel::print_sema);
+      }
 
    sem_wait(&tctx.pool_sema);
 
-   sem_wait(&Parallel::print_sema);
-      CERR << "task #" << tctx.get_N()
-           << " was unblocked from pool_sema" << endl;
-   sem_post(&Parallel::print_sema);
+   Log(LOG_Parallel)
+      {
+        sem_wait(&Parallel::print_sema);
+           CERR << "task #" << tctx.get_N()
+                << " was unblocked from pool_sema" << endl;
+        sem_post(&Parallel::print_sema);
+      }
 
-   tctx.unlock_pool();
+   tctx.unlock_forked();
 }
 //-----------------------------------------------------------------------------
 void
 Thread_context::PF_kill_pool(Thread_context & tctx)
 {
-   // we do not return, so we join here
+   Log(LOG_Parallel)
+      {
+        sem_wait(&Parallel::print_sema);
+           CERR << "    worker #" << tctx.get_N() << " finished" << endl;
+        sem_post(&Parallel::print_sema);
+      }
+
+   // we do not return, so we join() here
    //
    tctx.join();
-
-   sem_wait(&Parallel::print_sema);
-      CERR << "worker #" << tctx.get_N() << " finished" << endl;
-   sem_post(&Parallel::print_sema);
-
    pthread_exit(0);
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::lock_pool()
+Thread_context::M_lock_pool()
 {
    do_work = PF_lock_unlock_pool;
    increment_mileage();
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::unlock_pool()
+Thread_context::unlock_forked()
 {
    loop(f, forked_threads_count)
        {
          Thread_context * forked = get_context(forked_threads[f]);
-         CERR << "task #" << get_N()
-           << " unblocks pool_sema of #" << forked->get_N() << endl;
+
+         Log(LOG_Parallel)
+            {
+              sem_wait(&Parallel::print_sema);
+                 CERR << "task #" << get_N() << " unblocks pool_sema of #"
+                      << forked->get_N() << endl;
+              sem_post(&Parallel::print_sema);
+            }
          sem_post(&forked->pool_sema);
        }
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::kill_pool()
+Thread_context::M_kill_pool()
 {
    do_work = PF_kill_pool;
    increment_mileage();
+
+   join();
 }
 //-----------------------------------------------------------------------------
 
