@@ -44,7 +44,7 @@ IndexExpr::IndexExpr(const IndexExpr & other, const char * loc)
    Assert(&other);
    loop(r, rank)
       {
-        if (!!values[r])  values[r] = other.values[r]->clone(loc);
+        if (!!other.values[r])  values[r] = other.values[r];
       }
 }
 //-----------------------------------------------------------------------------
