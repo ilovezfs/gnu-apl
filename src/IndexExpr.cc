@@ -34,6 +34,20 @@ IndexExpr::IndexExpr(Assign_state astate, const char * loc)
 {
 }
 //-----------------------------------------------------------------------------
+IndexExpr::IndexExpr(const IndexExpr & other, const char * loc)
+   : DynamicObject(loc),
+     quad_ct(other.quad_ct),
+     quad_io(other.quad_io),
+     rank(other.rank),
+     assign_state(other.assign_state)
+{
+   Assert(&other);
+   loop(r, rank)
+      {
+        if (!!values[r])  values[r] = other.values[r]->clone(loc);
+      }
+}
+//-----------------------------------------------------------------------------
 Value_P
 IndexExpr::extract_value(Rank rk)
 {

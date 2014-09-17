@@ -88,8 +88,12 @@ develop:
 #
 .PHONY:	parallel
 parallel:
-	./configure --enable-maintainer-mode \
-                    DEVELOP_WANTED=yes       \
+	./configure --enable-maintainer-mode		\
+                    VALUE_CHECK_WANTED=no		\
+                    VALUE_HISTORY_WANTED=no		\
+                    PERFORMANCE_COUNTERS_WANTED=no	\
+                    DYNAMIC_LOG_WANTED=no		\
+                    ASSERT_LEVEL_WANTED=0		\
                     CORE_COUNT_WANTED=-3
 	make all
 

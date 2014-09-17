@@ -448,6 +448,16 @@ Executable::unmark_all_values() const
         Value_P value = tok.get_apl_val();
         if (!!value)   value->unmark();
       }
+
+   loop (n, named_lambdas.size())
+      {
+        named_lambdas[n]->unmark_all_values();
+      }
+
+   loop (u, unnamed_lambdas.size())
+      {
+        unnamed_lambdas[u]->unmark_all_values();
+      }
 }
 //-----------------------------------------------------------------------------
 int

@@ -60,12 +60,12 @@ public:
    CellFunctionStatistics *
    get_statistics_B() const   { return statistics_B; }
 
+   /// overloaded Function::eval_fill_AB()
+   virtual Token eval_fill_AB(Value_P A, Value_P B);
+
 protected:
    /// overloaded Function::print_properties()
    virtual void print_properties(ostream & out, int indent) const;
-
-   /// overloaded Function::eval_fill_AB()
-   virtual Token eval_fill_AB(Value_P A, Value_P B);
 
    /// overloaded Function::eval_fill_B()
    virtual Token eval_fill_B(Value_P B);
@@ -826,7 +826,7 @@ public:
 
    /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
-      { return Token(TOK_APL_VALUE2, B->clone(LOC)); }
+      { return Token(TOK_APL_VALUE2, IntScalar(0, LOC)); }
 
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)

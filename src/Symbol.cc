@@ -942,19 +942,7 @@ Symbol::unmark_all_values() const
                      // ufun can be 0 for example if F is a function argument
                      // of a defined operator and F is a primitive function
                      //
-                     if (ufun == 0)   break;
-
-                     const Token_string & body = ufun->get_body();
-                     loop(b, body.size())
-                        {
-                          const Token & tok = body[b];
-                          if (tok.get_ValueType() == TV_VAL)
-                             {
-                               Value_P val = tok.get_apl_val();
-                               Assert(val);
-                               val->unmark();
-                             }
-                        }
+                     if (ufun)   ufun->unmark_all_values();
                    }
                    break;
 

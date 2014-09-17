@@ -33,8 +33,7 @@ int TaskTree::log_task_count = 0;
 
 Thread_context * Thread_context::thread_contexts = 0;
 CoreCount Thread_context::thread_contexts_count = CCNT_0;
-Thread_context::PoolFunction * Thread_context::do_work
-                                             = &Thread_context::PF_no_work;
+PoolFunction * Thread_context::do_work = &Thread_context::PF_no_work;
 
 sem_t Parallel::print_sema;
 sem_t Parallel::pthread_create_sema;
@@ -43,6 +42,7 @@ sem_t Parallel::new_value_sema;
 vector<CPU_Number>Parallel::all_CPUs;
 CoreCount Parallel::active_core_count = CCNT_0;
 vector<Parallel_job> Parallel::parallel_jobs;
+Parallel_job Parallel::current_job;
 
 #if CORE_COUNT_WANTED == 0
 const bool Parallel::run_parallel = false;
@@ -160,22 +160,17 @@ void
 Thread_context::bind_to_cpu(CPU_Number core, bool logit)
 {
 #ifndef HAVE_AFFINITY_NP
-   CPU = CPU_0;
-   return;
 
-   // the code below is not reached; we #define pthread_setaffinity_np()
-   // so that is compiles...
-   //
-#define pthread_setaffinity_np(_a, _b, _c) 0
-#endif
+   CPU = CPU_0;
+
+#else
 
    CPU = core;
 
    if (logit)
       {
-        sem_wait(&Parallel::print_sema);
-           CERR << "Binding thread #" << N << " to core " << core << endl;
-        sem_post(&Parallel::print_sema);
+        PRINT_LOCKED(CERR << "Binding thread #" << N
+                          << " to core " << core << endl;);
       }
 
 cpu_set_t cpus;
@@ -200,25 +195,25 @@ const int err = pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpus);
         cerr << "pthread_setaffinity_np() failed with error "
              << err << endl;
       }
+#endif
 }
 //-----------------------------------------------------------------------------
 void
 Thread_context::print_all(ostream & out)
 {
-   sem_wait(&Parallel::print_sema);
+   PRINT_LOCKED(
       out << "Thread_context size: " << thread_contexts_count << endl;
       loop(e, thread_contexts_count)   thread_contexts[e].print(out);
-   sem_post(&Parallel::print_sema);
+      out << endl)
 }
 //-----------------------------------------------------------------------------
 void
 Thread_context::print_mileages(ostream & out, const char * loc)
 {
-   sem_wait(&Parallel::print_sema);
+   PRINT_LOCKED(
       out << "    mileages:";
       loop(e, thread_contexts_count)   out << " " << thread_contexts[e].mileage;
-      out << " at " << loc << endl;
-   sem_post(&Parallel::print_sema);
+      out << " at " << loc << endl)
 }
 //-----------------------------------------------------------------------------
 void
@@ -315,8 +310,16 @@ void
 Parallel::init_CPUs(bool logit)
 {
 #ifndef HAVE_AFFINITY_NP
-# define pthread_getaffinity_np(_a, _b, c) 0; (CPU_SET(0, c));
-#endif
+
+   all_CPUs.push_back(CPU_0);
+   active_core_count = CCNT_1;
+   return;
+
+# if CORE_COUNT_WANTED != 0
+# error "CORE_COUNT_WANTED configured, but no pthread_getaffinity_np()"
+# endif
+
+#else
 
    // first set up all_CPUs which contains the available cores
    //
@@ -366,12 +369,17 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
        (CoreCount)(get_total_CPU_count());   // parallel. all available cores
 #elif CORE_COUNT_WANTED == -2
       uprefs.requested_cc;                   // parallel, --cc option
+      if (active_core_count < CCNT_1)   active_core_count = CCNT_1;
+      if (active_core_count > all_CPUs.size())
+         active_core_count = (CoreCount)(all_CPUs.size());
 #elif CORE_COUNT_WANTED == -3
       CCNT_1;                                // parallel ⎕SYL (initially 1)
 #else
 #warning "invalid ./configure value for option CORE_COUNT_WANTED, using 0"
       CCNT_1;                                // sequential
 #endif
+
+#endif // HAVE_AFFINITY_NP
 }
 //-----------------------------------------------------------------------------
 void *
@@ -381,18 +389,16 @@ Thread_context & tctx = *(Thread_context *)arg;
 
    Log(LOG_Parallel)
       {
-        sem_wait(&print_sema);
-           CERR << "worker #" << tctx.get_N() << " started" << endl;
-        sem_post(&print_sema);
+        PRINT_LOCKED(CERR << "worker #" << tctx.get_N() << " started" << endl)
       }
 
    sem_post(&pthread_create_sema);
 
    for (;;)
        {
-         tctx.fork();
+         tctx.PF_fork();
          Thread_context::do_work(tctx);
-         tctx.join();
+         tctx.PF_join();
        }
 
    /* not reached */
@@ -402,10 +408,8 @@ Thread_context & tctx = *(Thread_context *)arg;
 void
 Thread_context::PF_no_work(Thread_context & tctx)
 {
-   sem_wait(&Parallel::print_sema);
-      CERR << "*** function no_work() called by thread #"
-           << tctx.get_N() << endl;
-   sem_post(&Parallel::print_sema);
+   PRINT_LOCKED(CERR << "*** function no_work() called by thread #"
+                     << tctx.get_N() << endl)
 }
 //-----------------------------------------------------------------------------
 void
@@ -413,20 +417,16 @@ Thread_context::PF_lock_unlock_pool(Thread_context & tctx)
 {
    Log(LOG_Parallel)
       {
-        sem_wait(&Parallel::print_sema);
-           CERR << "task #" << tctx.get_N()
-                << " will now block on its pool_sema" << endl;
-        sem_post(&Parallel::print_sema);
+        PRINT_LOCKED(CERR << "task #" << tctx.get_N()
+                          << " will now block on its pool_sema" << endl)
       }
 
    sem_wait(&tctx.pool_sema);
 
    Log(LOG_Parallel)
       {
-        sem_wait(&Parallel::print_sema);
-           CERR << "task #" << tctx.get_N()
-                << " was unblocked from pool_sema" << endl;
-        sem_post(&Parallel::print_sema);
+        PRINT_LOCKED(CERR << "task #" << tctx.get_N()
+                          << " was unblocked from pool_sema" << endl)
       }
 
    tctx.unlock_forked();
@@ -437,14 +437,13 @@ Thread_context::PF_kill_pool(Thread_context & tctx)
 {
    Log(LOG_Parallel)
       {
-        sem_wait(&Parallel::print_sema);
-           CERR << "    worker #" << tctx.get_N() << " finished" << endl;
-        sem_post(&Parallel::print_sema);
+        PRINT_LOCKED(CERR << "    worker #" << tctx.get_N()
+                          << " will be killed" << endl)
       }
 
    // we do not return, so we join() here
    //
-   tctx.join();
+   tctx.PF_join();
    pthread_exit(0);
 }
 //-----------------------------------------------------------------------------
@@ -452,7 +451,7 @@ void
 Thread_context::M_lock_pool()
 {
    do_work = PF_lock_unlock_pool;
-   increment_mileage();
+   M_fork();
 }
 //-----------------------------------------------------------------------------
 void
@@ -464,10 +463,9 @@ Thread_context::unlock_forked()
 
          Log(LOG_Parallel)
             {
-              sem_wait(&Parallel::print_sema);
-                 CERR << "task #" << get_N() << " unblocks pool_sema of #"
-                      << forked->get_N() << endl;
-              sem_post(&Parallel::print_sema);
+              PRINT_LOCKED(CERR << "task #" << get_N()
+                                << " unblocks pool_sema of #"
+                                << forked->get_N() << endl)
             }
          sem_post(&forked->pool_sema);
        }
@@ -477,9 +475,8 @@ void
 Thread_context::M_kill_pool()
 {
    do_work = PF_kill_pool;
-   increment_mileage();
-
-   join();
+   M_fork();
+   M_join();
 }
 //-----------------------------------------------------------------------------
 

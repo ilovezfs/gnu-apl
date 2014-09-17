@@ -23,12 +23,10 @@
 
 #include <semaphore.h>
 
+#include "Parallel.hh"
 #include "PrimitiveFunction.hh"
 #include "Value.icc"
 #include "Id.hh"
-
-typedef ErrorCode (Cell::*prim_f1)(Cell *) const;
-typedef ErrorCode (Cell::*prim_f2)(Cell *, const Cell *) const;
 
 //-----------------------------------------------------------------------------
 /** Base class for scalar functions (functions whose monadic and/or dyadic
@@ -74,41 +72,8 @@ protected:
    /// Evaluate \b the identity function.
    Token eval_scalar_identity_fun(Value_P B, Axis axis, Value_P FI0);
 
-   /// a helper struct for a non-recursive implementation of
-   /// monaadic scalar functions with nested values.
-   struct Worklist_item1
-      {
-        ShapeItem len_Z;   ///< the number of result cells
-        Cell * cZ;         ///< result
-        const Cell * cB;   ///< right argument
-
-        /// return B[z]
-        const Cell & B_at(ShapeItem z) const   { return cB[z]; }
-
-        /// return Z[z]
-        Cell & Z_at(ShapeItem z) const   { return cZ[z]; }
-      };
-
-   /// a helper struct for a non-recursive implementation of
-   /// dyadic scalar functions with nested values.
-   struct Worklist_item2
-      {
-        ShapeItem len_Z;   ///< the number of result cells
-        Cell * cZ;         ///< result
-        const Cell * cA;   ///< left argument
-        int inc_A;         ///< 0 (for scalar A) or 1
-        const Cell * cB;   ///< right argument
-        int inc_B;         ///< 0 (for scalar B) or 1
-
-        /// return A[z]
-        const Cell & A_at(ShapeItem z) const   { return cA[z * inc_A]; }
-
-        /// return B[z]
-        const Cell & B_at(ShapeItem z) const   { return cB[z * inc_B]; }
-
-        /// return Z[z]
-        Cell & Z_at(ShapeItem z) const         { return cZ[z]; }
-      };
+   /// parallel eval_scalar_AB
+   static PoolFunction PF_eval_scalar_AB;
 };
 //-----------------------------------------------------------------------------
 /** Scalar functions binomial and factorial.
