@@ -435,6 +435,7 @@ Command::cmd_CHECK(ostream & out)
           char cc[200];
           snprintf(cc, sizeof(cc), "ERROR   - %d stale values", stale);
           out << cc << endl;
+          IO_Files::apl_error(LOC);
         }
      else out << "OK      - no stale values" << endl;
    }
@@ -445,6 +446,7 @@ Command::cmd_CHECK(ostream & out)
           char cc[200];
           snprintf(cc, sizeof(cc), "ERROR   - %d stale indices", stale);
           out << cc << endl;
+          IO_Files::apl_error(LOC);
         }
      else out << "OK      - no stale indices" << endl;
    }

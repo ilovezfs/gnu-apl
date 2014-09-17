@@ -27,6 +27,9 @@
 
 #include "Cell.hh"
 
+#define PRINT_LOCKED(x) \
+   { sem_wait(&Parallel::print_sema); x; sem_post(&Parallel::print_sema); }
+
 using namespace std;
 
 /// the number of cores/tasks to be used
@@ -135,7 +138,7 @@ protected:
    /// the task number of this entry (0 ... core_count-1)
    CoreNumber N;
 
-   /// the task that fork() this task and that is join()ed after work.
+   /// the task that fork()ed this task and that is join()ed after work.
    CoreNumber forker;
 
    /// the number of tasks that are fork()ed by this task
@@ -153,6 +156,12 @@ protected:
    static int log_task_count;
 };
 //=============================================================================
+/// the argument of a function that is executed by the pool (i.e. in parallel)
+class Thread_context;
+
+/// a function that is executed by the pool (i.e. in parallel)
+typedef void PoolFunction(Thread_context & ctx);
+
 class Thread_context
 {
 public:
@@ -162,38 +171,48 @@ public:
    CoreNumber get_N() const
        { return N; }
 
-   /// start parallel execution of work
-   void fork()
+   /// busy-wait until the thread that has forked us has reached new_mileage
+   static void wait_for_master_mileage(int new_mileage)
       {
-        // wait until our forker has moved forward
-        //
-        const int waiting_for_mileage = mileage + 1;
-        while (thread_contexts[join_thread].mileage != waiting_for_mileage)
-              /* busy wait */;
-
-        // fork our sub-threads
-        //
-        increment_mileage();
+        while (get_master().mileage != new_mileage)   /* busy wait */ ;
       }
-   /// end parallel execution of work
-   void join()
+
+   /// busy-wait until the threads that we forked have reached new_mileage
+   void wait_for_forked_mileage(int new_mileage) const
       {
-         // wait for the threads that we forked
-         //
          for (int f = 0; f < forked_threads_count; ++f)
              {
               // wait until sub thread f has moved forward
               //
                const CoreNumber sub = forked_threads[f];
                const Thread_context & sub_ctx = thread_contexts[sub];
-               const int waiting_for_mileage = mileage + 1;
-               while (sub_ctx.mileage != waiting_for_mileage)
-                     /* busy wait */ ;
+               while (sub_ctx.mileage != new_mileage)   /* busy wait */ ;
              }
+      }
 
-         // inform our forker (if any) that we are done
-         //
-         increment_mileage();
+   /// start parallel execution of work in a sub-tree. This is NOT done
+   /// in a recursive fashion but simply by waiting for the master to
+   /// increase its mileage
+   void PF_fork()
+      {
+        wait_for_master_mileage(mileage + 1);
+      }
+
+   /// start parallel execution of work at the master
+   static void M_fork()
+      {
+        get_master().increment_mileage();
+      }
+   /// end parallel execution of work
+   void PF_join()
+      {
+        wait_for_forked_mileage(mileage + 1);
+        increment_mileage();
+      }
+
+   void M_join()
+      {
+        wait_for_forked_mileage(mileage);
       }
 
    void increment_mileage()
@@ -228,9 +247,6 @@ public:
 
    /// terminate all pool tasks
    void M_kill_pool();
-
-   /// a function that is executed by the pool (i.e. in parallel)
-   typedef void PoolFunction(Thread_context & ctx);
 
    /// the next work to be done
    static PoolFunction * do_work;
@@ -275,23 +291,55 @@ protected:
    static CoreCount thread_contexts_count;
 };
 //=============================================================================
+class PrimitiveFunction;
+
+/**
+ The description of one flat parallel job
+ **/
 struct Parallel_job
 {
-   ShapeItem len_Z;   ///< the number of result cells
-   Cell * cZ;         ///< result
-   const Cell * cA;   ///< left argument
-   int inc_A;         ///< 0 (for scalar A) or 1
-   const Cell * cB;   ///< right argument
-   int inc_B;         ///< 0 (for scalar B) or 1
+   /// the length of the result
+   ShapeItem len_Z;
+
+   /// ravel of the result
+   Cell * cZ;
+
+   /// ravel of the left argument
+   const Cell * cA;
+
+   /// 0 (for scalar A) or 1
+   int inc_A;
+
+   /// ravel of the right argument
+   const Cell * cB;
+
+   /// 0 (for scalar B) or 1
+   int inc_B;
+
+   /// the APL function being computed
+   PrimitiveFunction * fun;
+
+   /// the monadic cell function to be computed
+   prim_f1 fun1;
+
+   /// the dyadic cell function to be computed
+   prim_f2 fun2;
+
+   /// an error detected during computation of, eg. fun1 or fun2
+   ErrorCode error;
 
    /// return A[z]
-   const Cell & A_at(ShapeItem z) const   { return cA[z * inc_A]; }
+   const Cell & A_at(ShapeItem z) const
+      { return cA[z * inc_A]; }
 
    /// return B[z]
-   const Cell & B_at(ShapeItem z) const   { return cB[z * inc_B]; }
+   const Cell & B_at(ShapeItem z) const
+      { return cB[z * inc_B]; }
 
    /// return Z[z]
-   Cell & Z_at(ShapeItem z) const         { return cZ[z]; }
+   Cell & Z_at(ShapeItem z) const
+      { return cZ[z]; }
+
 };
 //=============================================================================
 class Parallel
@@ -341,6 +389,15 @@ public:
    /// the worklist
    static vector<Parallel_job> parallel_jobs;
 
+   /// set current job. CAUTION: parallel_jobs may be modified by the
+   /// execution of current_job. Therefore we copy current_job from
+   /// parallel_jobs (and can then safely use current_job &).
+   static Parallel_job & set_current_job(ShapeItem todo_idx)
+      { current_job = parallel_jobs[todo_idx];   return current_job; }
+
+   static Parallel_job & get_current_job()
+      { return current_job; }
+
 protected:
    /// the number of cores currently used
    static CoreCount active_core_count;
@@ -353,6 +410,9 @@ protected:
 
    /// the core numbers (as per pthread_getaffinity_np())
    static vector<CPU_Number>all_CPUs;
+
+   /// the currently executed worklist item
+   static Parallel_job current_job;
 
    /// a semaphore protecting worklist insertion
    static sem_t todo_sema;

@@ -102,7 +102,8 @@ const ShapeItem length = shape.get_volume();
 
         try
            {
-             Cell * long_ravel =  new Cell[length];
+             Cell * long_ravel = (Cell *)(new char[length * sizeof(Cell)]);
+//           Cell * long_ravel =  new Cell[length];
              ravel = long_ravel;
            }
         catch (...)
@@ -1777,6 +1778,7 @@ int count = 0;
         const DynamicObject * dob = stale_dobs[s];
         Value * val = stale_vals[s];
         val->print_stale_info(out, dob);
+        ++count;
        }
 
    // mark all dynamic values, and then unmark those known in the workspace
@@ -1808,10 +1810,11 @@ int count = 0;
             {
               val->print_stale_info(out, dob);
               val->unmark();
+              ++count;
             }
        }
 
-   return count;
+   return 0;
 }
 //-----------------------------------------------------------------------------
 void

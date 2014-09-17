@@ -194,7 +194,11 @@ ErrOut::overflow(int c)
 void
 Output::init(bool logit)
 {
-   if (!isatty(fileno(stdout))) cout.setf(ios::unitbuf);
+   if (!isatty(fileno(stdout)))
+      {
+        cout.flush();
+        cout.setf(ios::unitbuf);
+      }
 
 #if CURSES_USABLE
 

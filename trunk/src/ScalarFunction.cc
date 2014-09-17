@@ -89,9 +89,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
 
    loop(todo_idx, Parallel::parallel_jobs.size())
       {
-        // CAUTION: cannot use Worklist_item1 & because resize() below
-        // could invalidate it !
-        const Parallel_job job = Parallel::parallel_jobs[todo_idx];
+        const Parallel_job & job = Parallel::set_current_job(todo_idx);
         loop(z, job.len_Z)
            {
              const Cell & cell_B = job.B_at(z);
@@ -229,17 +227,23 @@ Value_P Z(new Value(*shape_Z, LOC));
 
    loop(todo_idx, Parallel::parallel_jobs.size())
       {
-        // CAUTION: cannot use Parallel_job & for 'job' below because
-        //          parallel_jobs.resize() below could invalidate it !
-        //          Use a copy of parallel_jobs.[todo_idx] instead
-        //
-        const Parallel_job job = Parallel::parallel_jobs[todo_idx];
+        Parallel_job & job = Parallel::set_current_job(todo_idx);
 
-        if (0 && Parallel::run_parallel && Parallel::get_active_core_count() > 1)
+        if (Parallel::run_parallel &&
+            Parallel::get_active_core_count() > 1 &&
+            len_Z > 10)
            {
-Q(Parallel::get_active_core_count())
+            job.fun = this;
+            job.error = E_NO_ERROR;
+            job.fun2 = fun;
+            Thread_context::do_work = PF_eval_scalar_AB;
+            Thread_context::get_master().M_fork();   // start pool
+            PF_eval_scalar_AB(Thread_context::get_master());
+            Thread_context::get_master().M_join();
+            continue;   // next job
            }
-        else loop(z, job.len_Z)
+
+        loop(z, job.len_Z)
            {
              const Cell & cell_A = job.A_at(z);
              const Cell & cell_B = job.B_at(z);
@@ -381,6 +385,162 @@ const uint64_t end_1 = cycle_counter();
 #endif
 
    return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+void
+ScalarFunction::PF_eval_scalar_AB(Thread_context & tctx)
+{
+const int cores = Parallel::get_active_core_count();
+Parallel_job & job = Parallel::get_current_job();
+
+const ShapeItem slice_len = (job.len_Z + cores - 1) / cores;
+ShapeItem z = tctx.get_N() * slice_len;
+ShapeItem end_z = z + slice_len;
+   if (end_z > job.len_Z)   end_z = job.len_Z;
+
+   for (; z < end_z; ++z)
+       {
+             const Cell & cell_A = job.A_at(z);
+             const Cell & cell_B = job.B_at(z);
+             Cell & cell_Z       = job.Z_at(z);
+
+             if (cell_A.is_pointer_cell())
+                if (cell_B.is_pointer_cell())
+                   {
+TODO;
+                     // both A and B are nested
+                     //
+                     Value_P A1 = cell_A.get_pointer_value();
+                     Value_P B1 = cell_B.get_pointer_value();
+                     const int inc_A1 = A1->is_scalar_or_len1_vector() ? 0 : 1;
+                     const int inc_B1 = B1->is_scalar_or_len1_vector() ? 0 : 1;
+                     const Shape * shape_Z1 = &B1->get_shape();
+                     if      (A1->is_scalar())   shape_Z1 = &B1->get_shape();
+                     else if (B1->is_scalar())   shape_Z1 = &A1->get_shape();
+                     else if (inc_B1 == 0)       shape_Z1 = &A1->get_shape();
+
+                     if (inc_A1 && inc_B1 && !A1->same_shape(*B1))
+                        {
+                          if (!A1->same_rank(*B1))   RANK_ERROR;
+                          else                       LENGTH_ERROR;
+                        }
+
+                     const ShapeItem len_Z1 = shape_Z1->get_volume();
+                     if (len_Z1 == 0)
+                        {
+                          Token result =job.fun->eval_fill_AB(A1, B1);
+                          if (result.get_tag() == TOK_ERROR)
+                             {
+                               job.error = (ErrorCode)(result.get_int_val());
+                               return;
+                             }
+                        }
+
+                     Value_P Z1(new Value(*shape_Z1, LOC));
+                     new (&cell_Z) PointerCell(Z1);
+
+                     Parallel::parallel_jobs.resize(
+                                           Parallel::parallel_jobs.size() + 1);
+                     Parallel_job & wli = Parallel::parallel_jobs.back();
+
+                     wli.len_Z = len_Z1;
+                     wli.cZ    = &Z1->get_ravel(0);
+                     wli. cA   = &A1->get_ravel(0);
+                     wli.inc_A = inc_A1;
+                     wli.cB    = &B1->get_ravel(0);
+                     wli.inc_B = inc_B1;
+                   }
+                else
+                   {
+TODO;
+                     // A is nested, B is not
+                     //
+                     Value_P A1 = cell_A.get_pointer_value();
+                     const int inc_A1 = A1->is_scalar_or_len1_vector() ? 0 : 1;
+
+                     const ShapeItem len_Z1 = A1->get_shape().get_volume();
+                     if (len_Z1 == 0)
+                        {
+                          Value_P Z1= A1->clone(LOC);
+                          Z1->to_proto();
+                          Z1->check_value(LOC);
+                          new (&cell_Z) PointerCell(Z1);
+                        }
+                     else
+                        {
+                          Value_P Z1(new Value(A1->get_shape(), LOC));
+                          new (&cell_Z) PointerCell(Z1);
+
+                          Parallel::parallel_jobs.resize(
+                                           Parallel::parallel_jobs.size() + 1);
+                          Parallel_job & wli = Parallel::parallel_jobs.back();
+
+                          wli.len_Z = len_Z1;
+                          wli.cZ    = &Z1->get_ravel(0);
+                          wli. cA   = &A1->get_ravel(0);
+                          wli.inc_A = inc_A1;
+                          wli.cB    = &cell_B;
+                          wli.inc_B = 0;
+                        }
+                   }
+             else
+                if (cell_B.is_pointer_cell())
+                   {
+TODO;
+                     // A is not nested, B is nested
+                     //
+                     Value_P B1 = cell_B.get_pointer_value();
+                     const int inc_B1 = B1->is_scalar_or_len1_vector() ? 0 : 1;
+
+                     const ShapeItem len_Z1 = B1->get_shape().get_volume();
+                     if (len_Z1 == 0)
+                        {
+                          Value_P Z1= B1->clone(LOC);
+                          Z1->to_proto();
+                          Z1->check_value(LOC);
+                          new (&cell_Z) PointerCell(Z1);
+                        }
+                     else
+                        {
+                          Value_P Z1(new Value(B1->get_shape(), LOC));
+                          new (&cell_Z) PointerCell(Z1);
+
+                          Parallel::parallel_jobs.resize(
+                                           Parallel::parallel_jobs.size() + 1);
+                          Parallel_job & wli = Parallel::parallel_jobs.back();
+
+                          wli.len_Z = len_Z1;
+                          wli.cZ    = &Z1->get_ravel(0);
+                          wli. cA   = &cell_A;
+                          wli.inc_A = 0;
+                          wli.cB    = &B1->get_ravel(0);
+                          wli.inc_B = inc_B1;
+                       }
+                   }
+                else
+                   {
+                     // neither A nor B are nested: execute fun
+                     //
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+                     const uint64_t start_2 = cycle_counter();
+#endif
+#endif
+                     const ErrorCode ec = (cell_B.*job.fun2)(&cell_Z, &cell_A);
+                     if (ec != E_NO_ERROR)
+{
+PRINT_LOCKED(Q(LOC))
+}
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+                     const uint64_t end_2 = cycle_counter();
+                     CellFunctionStatistics * stat = job.fun->get_statistics_AB();
+                     if (stat) stat->add_sample(end_2 - start_2, z);
+#endif
+#endif
+                   }
+       }
 }
 //-----------------------------------------------------------------------------
 Token

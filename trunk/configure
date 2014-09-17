@@ -652,7 +652,6 @@ COUT_COLOR_WANTED
 CIN_COLOR_WANTED
 CERR_COLOR_WANTED
 SHORT_VALUE_LENGTH_WANTED
-OPENMP
 APSERVER_PATH
 APSERVER_PORT
 APSERVER_TRANSPORT
@@ -18275,8 +18274,9 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-pthread_setaffinity_np(0, 0, 0);
-                      pthread_getaffinity_np(0, 0, 0);
+cpu_set_t cpuset;
+                      pthread_setaffinity_np(0, sizeof(cpuset), &cpuset);
+                      pthread_getaffinity_np(0, sizeof(cpuset), &cpuset);
   ;
   return 0;
 }
@@ -18506,12 +18506,6 @@ cat >>confdefs.h <<_ACEOF
 #define APSERVER_PATH "$APSERVER_PATH"
 _ACEOF
 
-
-OPENMP=
-if test "x$CORE_COUNT_WANTED" != "x0"; then :
-  OPENMP="-fopenmp"
-
-fi
 
 # APL: desired cellcount of short values ?
 

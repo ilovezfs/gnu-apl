@@ -174,8 +174,9 @@ fi
 AC_MSG_CHECKING([whether pthread_setaffinity_np is available])
 AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[#include <pthread.h>]],
- 	             [[pthread_setaffinity_np(0, 0, 0);]
-                      [pthread_getaffinity_np(0, 0, 0);]])],
+ 	             [[cpu_set_t cpuset;]
+                      [pthread_setaffinity_np(0, sizeof(cpuset), &cpuset);]
+                      [pthread_getaffinity_np(0, sizeof(cpuset), &cpuset);]])],
                      [HAVE_AFFINITY_NP=yes], [HAVE_AFFINITY_NP=no])
 AC_MSG_RESULT([$HAVE_AFFINITY_NP])
 AC_DEFINE_UNQUOTED([HAVE_AFFINITY_NP], [$HAVE_AFFINITY_NP],
@@ -361,10 +362,6 @@ AC_ARG_VAR(APSERVER_PATH,
 if test "x$APSERVER_PATH" = "x";   then APSERVER_PATH="/tmp/GNU-APL/APserver";  fi
 AC_DEFINE_UNQUOTED([APSERVER_PATH], ["$APSERVER_PATH"],
                    [APserver listen port name])
-
-OPENMP=
-AS_IF(	[test "x$CORE_COUNT_WANTED" != "x0"],
-	[AC_SUBST([OPENMP], ["-fopenmp"])])
 
 # APL: desired cellcount of short values ?
 AC_ARG_VAR(SHORT_VALUE_LENGTH_WANTED,

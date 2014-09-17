@@ -418,4 +418,7 @@ private:
 };
 //-----------------------------------------------------------------------------
 
+typedef ErrorCode (Cell::*prim_f1)(Cell *) const;
+typedef ErrorCode (Cell::*prim_f2)(Cell *, const Cell *) const;
+
 #endif // __CELL_HH_DEFINED__

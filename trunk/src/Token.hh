@@ -186,10 +186,6 @@ public:
         return value._apl_val().use_count();
       }
 
-   /// clear the Value_P value (if any) this token, return the old pointer
-   void extract_apl_val(const char * loc) const
-      { if (is_apl_val())   ptr_clear(value._apl_val(), loc); }
-
    /// clear this token, properly clearing Value token
    void clear(const char * loc)
       {
@@ -221,6 +217,9 @@ public:
    /// return the Function * value of this token
    Function * get_function() const
       { if (!is_function())   SYNTAX_ERROR;   return value.function; }
+
+   /// clear the Value_P value (if any) this token, return the old pointer
+   void extract_apl_val(const char * loc) const;
 
    /// change the tag (within the same TokenValueType)
    void ChangeTag(TokenTag new_tag);

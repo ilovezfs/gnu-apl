@@ -35,6 +35,9 @@ public:
    /// constructor: empty (0-dimensional) IndexExpr
    IndexExpr(Assign_state ass_state, const char * loc);
 
+   /// copy other, cloning APL values
+   IndexExpr(const IndexExpr & other, const char * loc);
+
    /// The quad-ct for this index.
    APL_Float quad_ct;
 
