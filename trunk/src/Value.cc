@@ -1809,12 +1809,12 @@ int count = 0;
          if (val->is_marked())
             {
               val->print_stale_info(out, dob);
-              val->unmark();
               ++count;
+              val->unmark();
             }
        }
 
-   return 0;
+   return count;
 }
 //-----------------------------------------------------------------------------
 void

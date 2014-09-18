@@ -616,7 +616,6 @@ AP3_fd * ap_fd = 0;
              }
              return;
 
-
         case sid_GET_OFFERED_VARS:
              {
                const AP_num to_proc = (AP_num)
