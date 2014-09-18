@@ -46,30 +46,20 @@ Prefix::Prefix(StateIndicator & _si, const Token_string & _body)
 void
 Prefix::clean_up()
 {
-   //
-   // there is still an unresolved issue with double deletion of values
-   // by this function and Prefix.cc:948 below (line->erase(LOC); in
-   // function reduce_END_GOTO_B_(). Until resolved we do not erase here!
-   //
-   return;
-
-   if (size() == 0)   return;
-
-CERR << "Warning: discarding non-empty stack["
-     << si.get_level() << "]" << " with " << size() << " items " << endl;
-
-   while (size())
+   loop(s, size())
       {
-        Token_loc tl = pop();
-        if (tl.tok.get_Class() == TC_VALUE)
+        Token tok = at(s).tok;
+        if (tok.get_Class() == TC_VALUE)
            {
-             Value_P val = tl.tok.get_apl_val();
-             if (!val)   continue;
-
-CERR << "    Value is " << (const void *)val.get() << " " << *val << " at " LOC;
-// val->print_properties(CERR,  0);
+             tok.extract_apl_val(LOC);
+           }
+        else if (tok.get_ValueType() == TV_INDEX)
+           {
+             tok.get_index_val().extract_all();
            }
       }
+
+   put = 0;
 }
 //-----------------------------------------------------------------------------
 void

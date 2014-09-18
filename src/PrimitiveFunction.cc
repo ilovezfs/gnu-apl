@@ -152,7 +152,14 @@ const ShapeItem len_Z = shape_Z.get_volume();
         if (rest == 0)
            {
              rest = 1;
-             B->get_ravel(0).init_type(B->get_ravel(0));
+             if (B->get_ravel(0).is_pointer_cell())
+                {
+                  B->get_ravel(0).get_pointer_value()->to_proto();
+                }
+             else
+                {
+                   B->get_ravel(0).init_type(B->get_ravel(0));
+                }
            }
 
         while (rest < len_B)   B->get_ravel(rest++).release(LOC);

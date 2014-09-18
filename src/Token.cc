@@ -246,10 +246,6 @@ Token::ChangeTag(TokenTag new_tag)
 void Token::extract_apl_val(const char * loc) const
 {
    if (is_apl_val())   ptr_clear(value._apl_val(), loc);
-   else if (get_ValueType() == TV_INDEX)
-      {
-//      value.index_val->extract_all();
-      }
 }
 //-----------------------------------------------------------------------------
 ostream &
@@ -765,12 +761,6 @@ copy_1(Token & dst, const Token & src, const char * loc)
              ADD_EVENT(val, VHE_TokCopy1, -1, loc);
            }
       }
-   else if (src.get_ValueType() == TV_INDEX)
-      {
-//      new (&dst) Token(src.get_tag(),
-//                       *new IndexExpr(src.get_index_val(), loc));
-//      return;
-      }
 
    dst.copy_N(src);
 }
@@ -787,10 +777,6 @@ move_1(Token & dst, Token & src, const char * loc)
 	ADD_EVENT(val, VHE_TokMove1, src.value_use_count() - 1, loc);
         src.clear(loc);
       }
-   else if (src.get_ValueType() == TV_INDEX)
-      {
-        src.clear(loc);
-      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -803,10 +789,6 @@ move_2(Token & dst, const Token & src, const char * loc)
       {
         Value * val = src.get_apl_val_pointer();
         ADD_EVENT(val, VHE_TokMove2, src.value_use_count() - 1, loc);
-        ((Token &)src).clear(loc);
-      }
-   else if (src.get_ValueType() == TV_INDEX)
-      {
         ((Token &)src).clear(loc);
       }
 }

@@ -182,17 +182,30 @@ vector<AP_num> procs;
 
    // remove duplicates...
    //
-   for (;;)
+   while (procs.size())
        {
-          // find largest proc
+          // find smallest proc, append it to the result, and remove it
           //
-          AP_num largest = AP_NULL;
+          AP_num smallest = procs[0];
+          for (int p = 1; p < procs.size(); ++p)
+              {
+                if (smallest > procs[p])   smallest = procs[p];
+              }
+
+         // append to result
+         //
+         processors.push_back(smallest);
+
+         // remove smallest
+         //
           loop(p, procs.size())
               {
-                if (largest < procs[p])   largest = procs[p];
+                if (smallest == procs[p])
+                   {
+                     procs[p] = procs.back();
+                     procs.pop_back();
+                   }
               }
-         if (largest == AP_NULL)   break;
-         processors.push_back(largest);
        }
 }
 //-----------------------------------------------------------------------------
