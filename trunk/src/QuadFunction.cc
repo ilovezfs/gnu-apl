@@ -259,7 +259,8 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
         case  4:
         case  8: { // like 3/7, but enclose B so that the entire B is boxed
                    Value_P B1(new Value(LOC));
-                   new (&B1->get_ravel(0))   PointerCell(B.clone(LOC));
+                   new (&B1->get_ravel(0))
+                       PointerCell(B.clone(LOC), B1.getref());
                    Value_P Z = do_CR(a - 1, *B1.get(), pctx);
                    return Z;
                  }
@@ -302,7 +303,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                    loop(line, ucs_vec.size())
                       {
                         Value_P Z_line(new Value(ucs_vec[line], LOC));
-                        new (Z->next_ravel())   PointerCell(Z_line);
+                        new (Z->next_ravel())   PointerCell(Z_line, Z.getref());
                       }
                    Z->set_default_Spc();
                    Z->check_value(LOC);
@@ -576,10 +577,11 @@ Value_P Z(new Value(sh, LOC));
 
    // prototype
    //
-   Z->get_ravel(0).init(CharCell(UNI_ASCII_SPACE));
+   Z->get_ravel(0).init(CharCell(UNI_ASCII_SPACE), Z.getref());
 
    loop(y, height)
-   loop(x, width)   Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)));
+   loop(x, width)
+       Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)), Z.getref());
 
    return Z;
 }
@@ -1214,8 +1216,8 @@ ExecuteList * fun = 0;
         new (&Z1->get_ravel(1))   IntCell(Error::error_minor(E_SYNTAX_ERROR));
 
         new (&Z->get_ravel(0)) IntCell(0);        // return code = error
-        new (&Z->get_ravel(1)) PointerCell(Z1);   // ⎕ET value
-        new (&Z->get_ravel(2)) PointerCell(Z2);   // ⎕EM
+        new (&Z->get_ravel(1)) PointerCell(Z1, Z.getref());   // ⎕ET value
+        new (&Z->get_ravel(2)) PointerCell(Z2, Z.getref());   // ⎕EM
 
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
@@ -1323,8 +1325,8 @@ Value_P Z1(new Value(2, LOC));
    new (&Z1->get_ravel(1)) IntCell(Error::error_minor(ec));
 
    new (&Z->get_ravel(0)) IntCell(result_type);
-   new (&Z->get_ravel(1)) PointerCell(Z1);
-   new (&Z->get_ravel(2)) PointerCell(Z2);
+   new (&Z->get_ravel(1)) PointerCell(Z1, Z.getref());
+   new (&Z->get_ravel(2)) PointerCell(Z2, Z.getref());
 
    Z->check_value(LOC);
    move_2(result_B, Token(TOK_APL_VALUE1, Z), LOC);
@@ -1381,8 +1383,8 @@ Value_P Z(new Value(sh_Z, LOC));
 
         Value_P varval(new Value(ucs, LOC));
 
-        new (Z->next_ravel()) PointerCell(varname);
-        new (Z->next_ravel()) PointerCell(varval);
+        new (Z->next_ravel()) PointerCell(varname, Z.getref());
+        new (Z->next_ravel()) PointerCell(varval, Z.getref());
       }
 
    Z->set_default_Spc();
@@ -1759,7 +1761,7 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
         arg.lines = arg.lines->prev;
         Value_P ZZ(new Value(node->string, LOC));
         ZZ->check_value(LOC);
-        new (--cZ)   PointerCell(ZZ);
+        new (--cZ)   PointerCell(ZZ, Z.getref());
         delete node;
       }
 
@@ -1772,7 +1774,7 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
         Shape sh(0);   // length 0 vector
         Value_P ZZ(new Value(sh, LOC));
         ZZ->set_default_Spc();
-        new (&Z->get_ravel(0)) PointerCell(ZZ);
+        new (&Z->get_ravel(0)) PointerCell(ZZ, Z.getref());
       }
 
    Z->check_value(LOC);
@@ -2053,7 +2055,8 @@ ShapeItem z = 0;
 
          switch (b)
            {
-             case 1:  new (cZ) PointerCell(Value_P(new Value(fun_name, LOC)));
+             case 1:  new (cZ) PointerCell(
+                                Value_P(new Value(fun_name, LOC)), Z.getref());
                       break;
 
              case 2:  new (cZ) IntCell(fun_line);
@@ -2064,8 +2067,8 @@ ShapeItem z = 0;
                         fun_and_line.append(UNI_ASCII_L_BRACK);
                         fun_and_line.append_number(fun_line);
                         fun_and_line.append(UNI_ASCII_R_BRACK);
-                        new (cZ) PointerCell(
-                                       Value_P(new Value(fun_and_line, LOC))); 
+                        new (cZ) PointerCell(Value_P(
+                                    new Value(fun_and_line, LOC)), Z.getref()); 
                       }
                       break;
 
@@ -2073,12 +2076,14 @@ ShapeItem z = 0;
                          {
                            const UCS_string & text =
                                         si->get_error().get_error_line_2();
-                           new (cZ) PointerCell(Value_P(new Value(text, LOC))); 
+                           new (cZ) PointerCell(Value_P(
+                                            new Value(text, LOC)), Z.getref()); 
                          }
                       else
                          {
                            const UCS_string text = exec->statement_text(PC);
-                           new (cZ) PointerCell(Value_P(new Value(text, LOC))); 
+                           new (cZ) PointerCell(Value_P(
+                                            new Value(text, LOC)), Z.getref()); 
                          }
                       break;
 

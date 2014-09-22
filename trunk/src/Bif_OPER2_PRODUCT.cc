@@ -63,7 +63,7 @@ Value_P Z(new Value(A->get_shape() + B->get_shape(), LOC));
         Value_P Fill_B = Bif_F12_TAKE::first(B);
 
         Value_P Z1 = RO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
-        Z->get_ravel(0).init(Z1->get_ravel(0));
+        Z->get_ravel(0).init(Z1->get_ravel(0), Z.getref());
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
@@ -104,7 +104,7 @@ loop_a:
       }
    else
       {
-        arg.V1->get_ravel(0).init(*_arg.cA++);
+        arg.V1->get_ravel(0).init(*_arg.cA++, arg.V1.getref());
         arg.V1->set_complete();
         arg.RO_A = arg.V1;
       }
@@ -119,7 +119,7 @@ loop_b:
       }
    else
       {
-        arg.V2->get_ravel(0).init(*_arg.cB++);
+        arg.V2->get_ravel(0).init(*_arg.cB++, arg.V2.getref());
         arg.V2->set_complete();
         arg.RO_B = arg.V2;
       }
@@ -134,7 +134,7 @@ loop_b:
    if (result.get_Class() == TC_VALUE)
       {
         Value_P ZZ = result.get_apl_val();
-        arg.Z->next_ravel()->init_from_value(ZZ, LOC);
+        arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);
         goto next_a_b;
       }
 
@@ -178,7 +178,7 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    //
    {
      Value_P ZZ = token.get_apl_val();
-     arg.Z->next_ravel()->init_from_value(ZZ, LOC);   // erase()s token.get_apl_val()
+     arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);   // erase()s token.get_apl_val()
    }
 
    // pop the SI unless this is the last ravel element of Z to be computed
@@ -249,11 +249,11 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
    loop(i, _arg.items_A)
        {
          Value_P v(new Value(len_A, LOC));
-         v->get_ravel(0).init(A->get_ravel(0 + i*len_A));
+         v->get_ravel(0).init(A->get_ravel(0 + i*len_A), v.getref());
          loop(a, len_A)
             {
               const ShapeItem src = (A->is_scalar()) ? 0 : a + i*len_A;
-              v->get_ravel(a).init(A->get_ravel(src));
+              v->get_ravel(a).init(A->get_ravel(src), v.getref());
             }
          v->set_default(*A.get());
          v->check_value(LOC);
@@ -269,7 +269,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
          loop(b, len_B)
             {
               const ShapeItem src = (B->is_scalar()) ? 0 : b*_arg.items_B + i;
-              v->get_ravel(b).init(B->get_ravel(src));
+              v->get_ravel(b).init(B->get_ravel(src), v.getref());
             }
 
          v->set_default(*B.get());
@@ -346,7 +346,7 @@ how_1:
           Token LO(TOK_FUN1, _arg.LO);
           const Token T2 = Bif_OPER1_REDUCE::fun.eval_LB(LO, arg.V1);
           if (T2.get_tag() == TOK_ERROR)   return T2;
-          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(), LOC);
+          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(), arg.Z.getref(), LOC);
 
           ptr_clear(arg.V1, LOC);
 
@@ -397,7 +397,7 @@ loop_v:
 how_2:
    if (--_arg.v1 >= 0)   goto loop_v;
 
-   arg.Z->next_ravel()->init_from_value(arg.V2, LOC);
+   arg.Z->next_ravel()->init_from_value(arg.V2, arg.Z.getref(), LOC);
 
    ptr_clear(arg.V1, LOC);
 

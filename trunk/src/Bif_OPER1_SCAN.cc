@@ -93,18 +93,21 @@ ShapeItem inc_2 = 0;              // increment after result m*l items
            {
              if (rep_counts[m] == 1)   // copy items from B
                 {
-                  loop(l, shape_Z3.l())   Z->next_ravel()->init(cB[l]);
+                  loop(l, shape_Z3.l())
+                      Z->next_ravel()->init(cB[l], Z.getref());
                   cB += inc_1;
                 }
              else                      // init items
                 {
                   if (lval)
                      {
-                       loop(l, shape_Z3.l())   new (Z->next_ravel()) LvalCell(0);
+                       loop(l, shape_Z3.l())
+                           new (Z->next_ravel()) LvalCell(0);
                      }
                   else
                      {
-                       loop(l, shape_Z3.l())   Z->next_ravel()->init_type(fill[l]);
+                       loop(l, shape_Z3.l())
+                           Z->next_ravel()->init_type(fill[l], Z.getref());
                      }
                 }
            }
@@ -155,22 +158,22 @@ ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
               Cell * cZ = Z->next_ravel();
               if (m == 0)
                  {
-                   cZ->init(*cB++);
+                   cZ->init(*cB++, Z.getref());
                  }
               else
                  {
 
                    Value_P AA(new Value(LOC));
-                   AA->next_ravel()->init(cZ[-shape_Z3.l()]);
+                   AA->next_ravel()->init(cZ[-shape_Z3.l()], AA.getref());
 
                    Value_P BB(new Value(LOC));
-                   BB->next_ravel()->init(*cB++);
+                   BB->next_ravel()->init(*cB++, BB.getref());
 
                    Token tok = LO->eval_AB(AA, BB);
                    if (!tok.is_apl_val())   return tok;
 
                    Value_P ZZ = tok.get_apl_val();
-                   cZ->init(ZZ->get_ravel(0));
+                   cZ->init(ZZ->get_ravel(0), ZZ.getref());
                  }
             }
         return Token(TOK_APL_VALUE1, Z);

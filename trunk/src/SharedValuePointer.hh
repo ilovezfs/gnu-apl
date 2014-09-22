@@ -82,6 +82,10 @@ public:
    Value * get()
       { return value_p; }
 
+   /// return a pointer to the Value
+   Value & getref()
+      { return *value_p; }
+
    /// return true if the pointer is invalid
    bool operator!() const
       { return value_p == 0; }

@@ -173,12 +173,15 @@ public:
    /// Push an APL value onto the stack of \b this \b Symbol
    virtual void push_value(Value_P value);
 
-   /// return the depth (global == 0) of \b ufun on the stack. Use largest depth
-   /// if ufun is pushed multiple times
+   /// return the depth (global == 0) of \b ufun on the stack. Use the largest
+   /// depth if ufun is pushed multiple times
    int get_ufun_depth(const UserFunction * ufun);
 
-   /// Return the current APL value (or throw a VALUE_ERROR)
+   /// return the current APL value (or throw a VALUE_ERROR)
    virtual Value_P get_apl_value() const;
+
+   /// return the first Cell of this value without creating a value
+   const Cell * get_first_cell() const;
 
    /// return true, iff this Symbol can be assigned
    bool can_be_assigned() const;

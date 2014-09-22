@@ -196,7 +196,7 @@ protected:
    Token partition(Value_P A, Value_P B, Axis axis);
 
    /// Copy one partition to dest
-   static void copy_segment(Cell * dest, ShapeItem h,
+   static void copy_segment(Cell * dest, Value & dest_owner, ShapeItem h,
                             ShapeItem from, ShapeItem to,
                             ShapeItem m_len, ShapeItem l, ShapeItem len_l,
                             Value_P B);
@@ -350,7 +350,8 @@ public:
    static Token do_take(const Shape shape_Zi, Value_P B);
 
    /// Fill Z with B, pad as necessary
-   static void fill(const Shape & shape_Zi, Cell * Z, Value_P B);
+   static void fill(const Shape & shape_Zi, Cell * cZ, Value & Z_owner,
+                    Value_P B);
 
    static Bif_F12_TAKE      fun;   ///< Built-in function
 

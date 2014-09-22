@@ -20,29 +20,23 @@
 
 #include <sched.h>
 
-#include "../config.h"
-
 #include "Common.hh"
 #include "Parallel.hh"
 #include "SystemVariable.hh"
 #include "UserPreferences.hh"
 
-TaskTree * TaskTree::entries = 0;
-CoreCount TaskTree::task_count = CCNT_0;
-int TaskTree::log_task_count = 0;
-
 Thread_context * Thread_context::thread_contexts = 0;
 CoreCount Thread_context::thread_contexts_count = CCNT_0;
-PoolFunction * Thread_context::do_work = &Thread_context::PF_no_work;
+Thread_context::PoolFunction * Thread_context::do_work = &Thread_context::PF_no_work;
+volatile _Atomic_word Thread_context::busy_worker_count = 0;
+CoreCount Thread_context::active_core_count = CCNT_0;
 
 sem_t Parallel::print_sema;
 sem_t Parallel::pthread_create_sema;
-sem_t Parallel::todo_sema;
-sem_t Parallel::new_value_sema;
 vector<CPU_Number>Parallel::all_CPUs;
-CoreCount Parallel::active_core_count = CCNT_0;
-vector<Parallel_job> Parallel::parallel_jobs;
-Parallel_job Parallel::current_job;
+
+volatile _Atomic_word Parallel_job_list_base::parallel_jobs_lock = 0;
+const char * Parallel_job_list_base::started_loc = 0;
 
 #if CORE_COUNT_WANTED == 0
 const bool Parallel::run_parallel = false;
@@ -51,82 +45,10 @@ const bool Parallel::run_parallel = true;
 #endif
 
 //=============================================================================
-TaskTree::TaskTree()
-   : N(CNUM_INVALID),
-     forker(CNUM_INVALID),
-     forked_count(CCNT_0),
-     forked(0)
-{
-}
-//-----------------------------------------------------------------------------
-TaskTree::~TaskTree()
-{
-   delete forked;
-}
-//-----------------------------------------------------------------------------
-void
-TaskTree::init(CoreCount count, bool logit)
-{
-   delete [] entries;
-
-   Assert(count >= 1);
-   task_count = count;
-   log_task_count = 0;
-
-   while ((1 << log_task_count) < task_count)   ++ log_task_count;
-
-   entries = new TaskTree[task_count];
-   loop(c, task_count)   entries[c].init_entry((CoreNumber)c);
-
-   if (logit)   print_all(CERR);
-}
-//-----------------------------------------------------------------------------
-void
-TaskTree::init_entry(CoreNumber n)
-{
-   N = n;
-   if (task_count <= 1)   return;
-
-   forked = new CoreNumber[log_task_count];
-
-   for (int dist = (1 << (log_task_count - 1)); dist; dist >>= 1)
-       {
-         const int mask = dist - 1;
-         if (N & mask)   continue;
-
-         const int peer = N ^ dist;
-
-         if (peer >= task_count)   continue;
-         if (N & dist)             continue;
-
-         forked[forked_count] = (CoreNumber)peer;
-         forked_count = (CoreCount)(forked_count + 1);
-         entries[peer].forker = N;
-       }
-}
-//-----------------------------------------------------------------------------
-void
-TaskTree::print_all(ostream & out)
-{
-   out << "TaskTree size: " << task_count << endl;
-
-   loop(e, task_count)   entries[e].print(out);
-}
-//-----------------------------------------------------------------------------
-void
-TaskTree::print(ostream & out) const
-{
-   out << "Task #" << N << ": forked by: " << setw(2) << forker
-       << ", forking[" << forked_count << "]:";
-
-   loop(c, forked_count)   out << " " << forked[c];
-   out << endl;
-}
-//=============================================================================
 Thread_context::Thread_context()
    : N(CNUM_INVALID),
-     mileage(0),
-     thread(0)
+     thread(0),
+     job_count(0)
 {
 }
 //-----------------------------------------------------------------------------
@@ -134,13 +56,6 @@ void
 Thread_context::init_entry(CoreNumber n)
 {
    N = n;
-
-const TaskTree & tt = TaskTree::get_entry(N);
-
-   forked_threads_count = tt.get_forked_count();
-   forked_threads = tt.get_forked();
-   join_thread = tt.get_forker();
-
    sem_init(&pool_sema, 0, 0);
 }
 //-----------------------------------------------------------------------------
@@ -151,15 +66,14 @@ Thread_context::init(CoreCount count, bool logit)
 
    thread_contexts_count = count;
    thread_contexts = new Thread_context[thread_contexts_count];
-   loop(c, thread_contexts_count)   thread_contexts[c].init_entry((CoreNumber)c);
-
-   if (logit)   print_all(CERR);
+   loop(c, thread_contexts_count)
+       thread_contexts[c].init_entry((CoreNumber)c);
 }
 //-----------------------------------------------------------------------------
 void
 Thread_context::bind_to_cpu(CPU_Number core, bool logit)
 {
-#ifndef HAVE_AFFINITY_NP
+#ifndef PARALLEL_ENABLED
 
    CPU = CPU_0;
 
@@ -176,7 +90,7 @@ Thread_context::bind_to_cpu(CPU_Number core, bool logit)
 cpu_set_t cpus;
    CPU_ZERO(&cpus);
 
-   if (Parallel::get_active_core_count() == CCNT_1)
+   if (active_core_count == CCNT_1)
       {
         // there is only one core in total (which is the master).
         // restore its affinity to all cores.
@@ -195,7 +109,7 @@ const int err = pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpus);
         cerr << "pthread_setaffinity_np() failed with error "
              << err << endl;
       }
-#endif
+#endif // PARALLEL_ENABLED
 }
 //-----------------------------------------------------------------------------
 void
@@ -210,29 +124,23 @@ Thread_context::print_all(ostream & out)
 void
 Thread_context::print_mileages(ostream & out, const char * loc)
 {
-   PRINT_LOCKED(
-      out << "    mileages:";
-      loop(e, thread_contexts_count)   out << " " << thread_contexts[e].mileage;
-      out << " at " << loc << endl)
+   out << "    " << busy_worker_count << " of " << active_core_count
+       << " workers busy:";
+
+   loop(e, thread_contexts_count)   out << " " << thread_contexts[e].job_count;
+
+   out <<" at " << loc << endl;
 }
 //-----------------------------------------------------------------------------
 void
 Thread_context::print(ostream & out) const
 {
-   out << "Thread_context #" << N << ":" << endl
-       << "    join thread: " << join_thread << endl
-       << "    fork ";
-   if (forked_threads_count == 0)        out << "no threads";
-   else if (forked_threads_count == 1)   out << "thread:";
-   else    out << forked_threads_count << " threads:";
-
-   loop(c, forked_threads_count)   out << " #" << forked_threads[c];
+   out << "Thread_context #" << N << ":" << endl;
 
 int semval = 42;
    sem_getvalue((sem_t *)&pool_sema, &semval);
    out << endl
-       << "    mileage:   " << mileage << endl
-       << "    thread:    " << thread  << endl
+       << "    thread:    " << (void *)thread  << endl
        << "    pool sema: " << semval  << endl;
 }
 //=============================================================================
@@ -241,8 +149,6 @@ Parallel::init(bool logit)
 {
    sem_init(&print_sema,          /* shared */ 0, /* value */ 1);
    sem_init(&pthread_create_sema, /* shared */ 0, /* value */ 0);
-   sem_init(&todo_sema,           /* shared */ 0, /* value */ 1);
-   sem_init(&new_value_sema,      /* shared */ 0, /* value */ 1);
 
    init_CPUs(logit);
    reinit(logit);
@@ -256,16 +162,24 @@ Parallel::set_core_count(CoreCount count)
    if (count < CCNT_1)                             return true;   // error
    if ((CPU_count)count > get_total_CPU_count())   return true;   // error
 
-   if (active_core_count > 1)
+   if (Thread_context::get_active_core_count() > 1)
       {
-        CERR << "killing old pool..." << endl;
-        Thread_context::print_mileages(CERR, LOC);
+        Log(LOG_Parallel)
+           {
+             CERR << "killing old pool..." << endl;
+             Thread_context::print_mileages(CERR, LOC);
+           }
+
         kill_pool();
-        Thread_context::print_mileages(CERR, LOC);
-        CERR << "killing old pool done." << endl;
+
+        Log(LOG_Parallel)
+           {
+             Thread_context::print_mileages(CERR, LOC);
+             CERR << "killing old pool done." << endl;
+           }
       }
 
-   active_core_count = count;
+   Thread_context::set_active_core_count(count);
    reinit(LOG_Parallel);
    return false;   // no error
 }
@@ -273,12 +187,10 @@ Parallel::set_core_count(CoreCount count)
 void
 Parallel::reinit(bool logit)
 {
-   TaskTree::init(active_core_count, logit);
-
-   Thread_context::init(active_core_count, logit);
+   Thread_context::init(Thread_context::get_active_core_count(), logit);
 
    Thread_context::get_context(CNUM_MASTER)->thread = pthread_self();
-   for (int w = CNUM_WORKER1; w < active_core_count; ++w)
+   for (int w = CNUM_WORKER1; w < Thread_context::get_active_core_count(); ++w)
        {
          Thread_context * tctx = Thread_context::get_context((CoreNumber)w);
          pthread_create(&(tctx->thread), /* attr */ 0, worker_main, tctx);
@@ -289,30 +201,20 @@ Parallel::reinit(bool logit)
 
    // bind threads to cores
    //
-   loop(c, active_core_count)
+   loop(c, Thread_context::get_active_core_count())
        Thread_context::get_context((CoreNumber)c)
                        ->bind_to_cpu(all_CPUs[c], logit);
 
-   return;
-
-CERR << "locking pool... " << endl;
-   lock_pool();
-   usleep(100000);
-   Thread_context::print_mileages(CERR, LOC);
-
-CERR << "unlocking pool... " << endl;
-   unlock_pool();
-   usleep(100000);
-   Thread_context::print_mileages(CERR, LOC);
+   if (logit)   Thread_context::print_all(CERR);
 }
 //-----------------------------------------------------------------------------
 void
 Parallel::init_CPUs(bool logit)
 {
-#ifndef HAVE_AFFINITY_NP
+#ifndef PARALLEL_ENABLED
 
    all_CPUs.push_back(CPU_0);
-   active_core_count = CCNT_1;
+   Thread_context::set_active_core_count(CCNT_1);
    return;
 
 # if CORE_COUNT_WANTED != 0
@@ -332,7 +234,7 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
         CERR << "pthread_getaffinity_np() failed with error "
              << err << endl;
         all_CPUs.push_back(CPU_0);
-        active_core_count = CCNT_1;
+        Thread_context::set_active_core_count(CCNT_1);
         return;
       }
 
@@ -346,7 +248,7 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
         CERR << "*** no cores detected, assuming at least one! "
              << err << endl;
         all_CPUs.push_back(CPU_0);
-        active_core_count = CCNT_1;
+        Thread_context::set_active_core_count(CCNT_1);
         return;
       }
 
@@ -359,27 +261,27 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
 
    // then we determine the number of cores that shall be used
    //
-   active_core_count =
+   Thread_context::set_active_core_count(
 
 #if CORE_COUNT_WANTED > 0
-      (CoreCount)CORE_COUNT_WANTED;          // parallel, as per ./configure
+      (CoreCount)CORE_COUNT_WANTED);          // parallel, as per ./configure
 #elif CORE_COUNT_WANTED == 0
-      CCNT_1;                                // sequential
+      CCNT_1);                                // sequential
 #elif CORE_COUNT_WANTED == -1
-       (CoreCount)(get_total_CPU_count());   // parallel. all available cores
+       (CoreCount)(get_total_CPU_count()));   // parallel. all available cores
 #elif CORE_COUNT_WANTED == -2
-      uprefs.requested_cc;                   // parallel, --cc option
+      uprefs.requested_cc);                   // parallel, --cc option
       if (active_core_count < CCNT_1)   active_core_count = CCNT_1;
       if (active_core_count > all_CPUs.size())
          active_core_count = (CoreCount)(all_CPUs.size());
 #elif CORE_COUNT_WANTED == -3
-      CCNT_1;                                // parallel ⎕SYL (initially 1)
+      CCNT_1);                                // parallel ⎕SYL (initially 1)
 #else
 #warning "invalid ./configure value for option CORE_COUNT_WANTED, using 0"
-      CCNT_1;                                // sequential
+      CCNT_1);                                // sequential
 #endif
 
-#endif // HAVE_AFFINITY_NP
+#endif // PARALLEL_ENABLED
 }
 //-----------------------------------------------------------------------------
 void *
@@ -428,8 +330,6 @@ Thread_context::PF_lock_unlock_pool(Thread_context & tctx)
         PRINT_LOCKED(CERR << "task #" << tctx.get_N()
                           << " was unblocked from pool_sema" << endl)
       }
-
-   tctx.unlock_forked();
 }
 //-----------------------------------------------------------------------------
 void
@@ -455,28 +355,10 @@ Thread_context::M_lock_pool()
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::unlock_forked()
-{
-   loop(f, forked_threads_count)
-       {
-         Thread_context * forked = get_context(forked_threads[f]);
-
-         Log(LOG_Parallel)
-            {
-              PRINT_LOCKED(CERR << "task #" << get_N()
-                                << " unblocks pool_sema of #"
-                                << forked->get_N() << endl)
-            }
-         sem_post(&forked->pool_sema);
-       }
-}
-//-----------------------------------------------------------------------------
-void
 Thread_context::M_kill_pool()
 {
    do_work = PF_kill_pool;
    M_fork();
    M_join();
 }
-//-----------------------------------------------------------------------------
-
+//=============================================================================

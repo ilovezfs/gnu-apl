@@ -31,8 +31,9 @@
 #include "CharCell.hh"
 #include "Common.hh"
 #include "DynamicObject.hh"
-#include "LvalCell.hh"
 #include "IntCell.hh"
+#include "LvalCell.hh"
+#include "Parallel.hh"
 #include "Shape.hh"
 
 using namespace std;
@@ -40,6 +41,7 @@ using namespace std;
 class CDR_string;
 class IndexExpr;
 class Value_P;
+class Thread_context;
 
 //=============================================================================
 /**
@@ -149,7 +151,7 @@ public:
       { if (is_empty())
            {
              if (B.get_ravel(0).is_lval_cell())   new (&ravel[0]) LvalCell(0);
-             else                           ravel[0].init_type(B.get_ravel(0));
+             else                   ravel[0].init_type(B.get_ravel(0), *this);
            }
       }
 
@@ -174,7 +176,7 @@ public:
    Depth compute_depth() const;
 
    /// store the scalars in this value into dest...
-   void enlist(Cell * & dest, bool left) const;
+   void enlist(Cell * & dest, Value & dest_owner, bool left) const;
 
    /// compute the cell types contained in the top level of \b this value
    CellType flat_cell_types() const;
@@ -478,21 +480,42 @@ public:
    /// a "checksum" to detect deleted values
    const void * check_ptr;
 
+   /// set the value that contains this value
+   void set_containing_value(Value * containing);
+
+   Value * get_containing_value() const
+      { return containing_value; }
+
+   void add_subcount(ShapeItem count)
+      { nz_subcell_count += count; }
+
 protected:
    /// init the ravel of an APL value, return the ravel length
    inline void init_ravel();
 
+   /// parallel release of sub-values of this value
+   void release_parallel(const char * loc);
+
+   /// sequential release of sub-values of this value
+   void release_sequential(const char * loc);
+
+   /// parallel release of sub-values of this value
+   static Thread_context::PoolFunction PF_release_sub;
+
    /// the shape of \b this value (only the first \b rank values are valid.
    Shape shape;
 
-   /// release sub-values of this value
-   void release_sub(const char * loc);
+   // the value that has a PointerCell pointing to \b this value (if any)
+   Value * containing_value;
 
    /// valueFlags for this value.
    mutable uint16_t flags;
 
    /// number of initialized cells in the ravel
    ShapeItem valid_ravel_items;
+
+   /// the number of cells in nested sub-values
+   ShapeItem nz_subcell_count;
 
    /// The ravel of \b this value.
    Cell * ravel;

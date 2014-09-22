@@ -40,7 +40,7 @@ Cell::operator new(std::size_t s, void * pos)
 }
 //-----------------------------------------------------------------------------
 void
-Cell::init(const Cell & other)
+Cell::init(const Cell & other, Value & cell_owner)
 {
    Assert(&other);
    switch(other.get_cell_type())
@@ -68,7 +68,7 @@ Cell::init(const Cell & other)
              {
                Value_P Z = other.get_pointer_value()->clone(LOC);
 
-               new (this) PointerCell(Z);
+               new (this) PointerCell(Z, cell_owner);
              }
              return;
 
@@ -81,15 +81,15 @@ Cell::init(const Cell & other)
 }
 //-----------------------------------------------------------------------------
 void
-Cell::init_from_value(Value_P value, const char * loc)
+Cell::init_from_value(Value_P value, Value & cell_owner, const char * loc)
 {
    if (value->is_scalar())
       {
-        init(value->get_ravel(0));
+        init(value->get_ravel(0), cell_owner);
       }
    else
       {
-        new (this) PointerCell(value);
+        new (this) PointerCell(value, cell_owner);
       }
 }
 //-----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ Value_P ret;
    else
       {
         ret = Value_P(new Value(loc));
-        ret->get_ravel(0).init(*this);
+        ret->get_ravel(0).init(*this, ret.getref());
         ret->check_value(LOC);
       }
 
@@ -112,7 +112,7 @@ Value_P ret;
 }
 //-----------------------------------------------------------------------------
 Cell *
-Cell::init_type(const Cell & other)
+Cell::init_type(const Cell & other, Value & cell_owner)
 {
    // Note: this function changes the type of this cell, but the
    // compiler may not notice that and use the declaration for this
@@ -120,7 +120,8 @@ Cell::init_type(const Cell & other)
    //
    if (other.is_pointer_cell())
       {
-        new (this) PointerCell(other.get_pointer_value()->clone(LOC));
+        new (this) PointerCell(other.get_pointer_value()->clone(LOC),
+                               cell_owner);
         get_pointer_value()->to_proto();
       }
    else if (other.is_lval_cell())
@@ -145,7 +146,7 @@ Cell::copy(Value & val, const Cell * & src, ShapeItem count)
    loop(c, count)
       {
         Assert1(val.more());
-        val.next_ravel()->init(*src++);
+        val.next_ravel()->init(*src++, val);
       }
 }
 //-----------------------------------------------------------------------------

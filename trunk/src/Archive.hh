@@ -202,7 +202,7 @@ protected:
 
    /// read cell(s) starting at \b cell from string starting at \b first
    /// to number of cells read
-   void read_Cells(Cell * & cell, const UTF8 * & first);
+   void read_Cells(Cell * & cell, Value & cell_owner, const UTF8 * & first);
 
    /// read characters tagged with INI_PAD_U1 and INI_PAD_U2, until end of line
    void read_chars(UCS_string & ucs, const UTF8 * & first);

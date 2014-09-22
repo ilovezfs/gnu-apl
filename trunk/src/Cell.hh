@@ -53,18 +53,18 @@ public:
       { Assert(other.get_cell_type() == CT_BASE); }
 
    /// deep copy of cell \b other into \b this cell
-   void init(const Cell & other);
+   void init(const Cell & other, Value & cell_owner);
 
    /// init this Cell from value. If value is a scalar then its first element
    /// is used (and value is erased). Otherwise a PointerCell is created.
-   void init_from_value(Value_P value, const char * loc);
+   void init_from_value(Value_P value, Value & cell_owner, const char * loc);
 
    /// return pointer value of a PointerCell or create a scalar with a
    /// copy of this cell.
    Value_P to_value(const char * loc) const;
 
    /// init \b this cell to be the type of \b other
-   Cell * init_type(const Cell & other);
+   Cell * init_type(const Cell & other, Value & cell_owner);
 
    /// Return \b true if \b this cell is greater than \b other, with:
    /// 1. PointerCell > NumericCell > CharCell
@@ -195,16 +195,25 @@ public:
    /// The possible cell values
    union SomeValue
       {
-        Unicode       aval;    ///< A character
-        APL_Integer   ival;    ///< An integer
-        ErrorCode     eval;    ///< An error code
-        APL_Float     fval;    ///< A floating point number
-        APL_Complex  *cpxp;   ///< Pointer to a complex number
-        void         *vptr;   ///< A void pointer
+        Unicode       aval;    ///< a character
+        APL_Integer   ival;    ///< an integer
+        ErrorCode     eval;    ///< an error code
+        APL_Float     fval;    ///< a floating point number
+        APL_Float     cval_r;  ///< the real part of a complex number
+        void         *vptr;   ///< a void pointer
         Cell         *next;   ///< pointer to the next (unused) cell
         Cell         *lval;   ///< left value (for selective assignment)
-        VALUE_P(      valp)   ///< Pointer to a nested sub-array
+        VALUE_P(      valp)   ///< pointer to a nested sub-array
       };
+
+   union SomeValue2
+      {
+        APL_Float     cval_i;    ///< the imag part of a complex number
+        Value        *owner;     ///< the value containing a PointerCell
+      };
+
+   APL_Complex cval() const
+      { return APL_Complex(value.cval_r, value2.cval_i); }
 
    /// return the type of \b this cell
    virtual CellType get_cell_type() const
@@ -370,8 +379,9 @@ public:
    void * operator new(std::size_t, void *);
 
    /// copy (deep) count cells from src to dest)
-   static void copy(Cell * & dst, const Cell * & src, ShapeItem count)
-      { loop(c, count)   dst++->init(*src++); }
+   static void copy(Cell * & dst, const Cell * & src, ShapeItem count,
+                    Value & cell_owner)
+      { loop(c, count)   dst++->init(*src++, cell_owner); }
 
    /// copy (deep) count cells from src to val (which is under construction))
    static void copy(Value & val, const Cell * & src, ShapeItem count);
@@ -398,12 +408,15 @@ public:
                            const void * comp_arg);
 
 protected:
-   /// the value of \b this cell
+   /// the primary value of \b this cell
    SomeValue value;
+
+   /// the additional value of \b this cell
+   SomeValue2 value2;
 
    /// sort subtree starting at a[i] into a heap
    static void make_heap(const Cell ** a, ShapeItem heapsize, int64_t i,
-                         bool ascending, const void * comp_arg, greater_fun gf);
+                         bool ascending, const void * cmp_arg, greater_fun gf);
 
    /// sort a[] into a heap
    static void init_heap(const Cell ** a, ShapeItem heapsize, bool ascending,

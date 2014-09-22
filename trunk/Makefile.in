@@ -87,9 +87,6 @@ DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	config.rpath config.sub depcomp install-sh missing ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/depend.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
 	$(top_srcdir)/m4/ax_lib_postgresql.m4 \
 	$(top_srcdir)/configure.ac
@@ -995,7 +992,7 @@ parallel:
                     VALUE_CHECK_WANTED=no		\
                     VALUE_HISTORY_WANTED=no		\
                     PERFORMANCE_COUNTERS_WANTED=no	\
-                    DYNAMIC_LOG_WANTED=no		\
+                    DYNAMIC_LOG_WANTED=yes		\
                     ASSERT_LEVEL_WANTED=0		\
                     CORE_COUNT_WANTED=-3
 	make all

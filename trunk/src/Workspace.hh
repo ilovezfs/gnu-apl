@@ -63,14 +63,9 @@ public:
      top_SI(0)
    {}
 
-
    /// return the current Quad-CT
    static APL_Float get_CT()
       { return the_workspace.v_Quad_CT.current(); }
-
-   /// set the current Quad-CT
-   static void set_CT(APL_Float new_CT)
-      { the_workspace.v_Quad_FC.current(); }
 
    /// return element \b pos of the current Quad-FC (pos should be 0..5)
    static APL_Char get_FC(int p)

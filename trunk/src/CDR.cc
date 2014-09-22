@@ -268,7 +268,7 @@ const uint32_t nelm = val.element_count();
              if (cell.is_character_cell() || cell.is_numeric())
                 {
                   Value_P sub_val(new Value(LOC));
-                  sub_val->get_ravel(0).init(cell);
+                  sub_val->get_ravel(0).init(cell, sub_val.getref());
 
                   const CDR_type sub_type = sub_val->get_CDR_type();
                   const int sub_len = sub_val->total_size_brutto(sub_type);
@@ -473,7 +473,7 @@ const uint8_t * ravel = data + 16 + 4*rank;
               CDR_string sub_cdr(sub_data, sub_cdr_len);
               Value_P sub_val = from_CDR(sub_cdr, LOC);
               Assert(!!sub_val);
-              new (&ret->get_ravel(n))   PointerCell(sub_val);
+              new (&ret->get_ravel(n))   PointerCell(sub_val, ret.getref());
             }
       }
    else

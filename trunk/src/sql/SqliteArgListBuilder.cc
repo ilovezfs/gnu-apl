@@ -103,7 +103,7 @@ Value_P SqliteArgListBuilder::run_query( bool ignore_result )
         for( vector<ResultRow>::iterator row_iterator = results.begin() ; row_iterator != results.end() ; row_iterator++ ) {
             const vector<const ResultValue *> &row = row_iterator->get_values();
             for( vector<const ResultValue *>::const_iterator col_iterator = row.begin() ; col_iterator != row.end() ; col_iterator++ ) {
-                (*col_iterator)->update( db_result_value->next_ravel() );
+                (*col_iterator)->update( db_result_value->next_ravel(), db_result_value.getref() );
             }
         }
     }

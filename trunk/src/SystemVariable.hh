@@ -173,9 +173,10 @@ public:
    /// constructor
    Quad_CT();
 
-   /// return the current comparison tolerance
+   /// return the current comparison tolerance. MUST NOT CALL get_apl_value()
+   /// because it can be called from parallel Cell functions
    APL_Float current() const
-      { return get_apl_value()->get_ravel(0).get_real_value(); }
+      { return get_first_cell()->get_real_value(); }
 
 protected:
    /// overloaded Symbol::assign()
@@ -256,9 +257,10 @@ public:
    /// Constructor.
    Quad_IO();
 
-   /// Return the current index origin.
+   /// Return the current index origin. MUST NOT CALL get_apl_value()
+   /// because it can be called from parallel Cell functions
    APL_Integer current() const
-      { return get_apl_value()->get_ravel(0).get_int_value(); }
+      { return get_first_cell()->get_int_value(); }
 
 protected:
    /// overloaded Symbol::assign().
@@ -333,9 +335,10 @@ public:
    /// Constructor.
    Quad_PP();
 
-   /// Return the current print precision.
+   /// Return the current print precision. MUST NOT CALL get_apl_value()
+   /// because it can be called from parallel Cell functions
    APL_Integer current() const
-      { return get_apl_value()->get_ravel(0).get_int_value(); }
+      { return get_first_cell()->get_int_value(); }
 
 protected:
    /// overloaded Symbol::assign().
@@ -384,9 +387,10 @@ public:
    /// Constructor.
    Quad_PS();
 
-   /// Return the current print style.
+   /// Return the current print style. MUST NOT CALL get_apl_value()
+   /// because it can be called from parallel Cell functions
    PrintStyle current() const
-      { switch (get_apl_value()->get_ravel(0).get_int_value())
+      { switch (get_first_cell()->get_int_value())
            {
              case 0: return PR_APL;
              case 1: return PR_APL_FUN;
@@ -430,9 +434,10 @@ public:
    /// Constructor.
    Quad_PW();
 
-   /// return the current ⎕PW
+   /// return the current ⎕PW. MUST NOT CALL get_apl_value()
+   /// because it can be called from parallel Cell functions
    APL_Integer current() const
-      { return (get_apl_value()->get_ravel(0).get_int_value()); }
+      { return get_first_cell()->get_int_value(); }
 
 protected:
    /// overloaded Symbol::assign().

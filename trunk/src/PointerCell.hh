@@ -33,7 +33,7 @@ class PointerCell : public Cell
 {
 public:
    /// Construct an cell containing nested sub-array \b val.
-   PointerCell(Value_P val);
+   PointerCell(Value_P val, Value & cell_owner);
 
    /// Overloaded Cell::is_pointer_cell().
    virtual bool is_pointer_cell()   const   { return true; }

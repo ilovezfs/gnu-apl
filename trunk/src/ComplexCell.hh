@@ -38,9 +38,6 @@ public:
    /// Construct an complex number cell from real part \b r and imag part \b i.
    ComplexCell(APL_Float r, APL_Float i);
 
-   /// Destructor.
-   ~ComplexCell();
-
    /// overloaded Cell::is_complex_cell().
    virtual bool is_complex_cell() const   { return true; }
 
@@ -128,9 +125,6 @@ public:
    /// overloaded from the corresponding Cell:: function (see class Cell).
    virtual ErrorCode bif_circle_fun_inverse(Cell * Z, const Cell * A) const;
 
-   /// overloaded Cell::release()
-   virtual void release(const char * loc);
-
    /// the Quad_CR representation of this cell.
    virtual PrintBuffer character_representation(const PrintContext &pctx) const;
 
@@ -167,7 +161,7 @@ protected:
    virtual APL_Float get_imag_value() const;
 
    /// overloaded Cell::get_complex_value()
-   virtual APL_Complex get_complex_value() const   { return *value.cpxp; }
+   virtual APL_Complex get_complex_value() const   { return cval(); }
 
    /// overloaded Cell::get_near_bool()
    virtual bool get_near_bool(APL_Float qct)  const;
@@ -177,7 +171,7 @@ protected:
 
    /// overloaded Cell::get_checked_near_int()
    virtual APL_Integer get_checked_near_int()  const
-      { return APL_Integer(value.cpxp->real() + 0.3); }
+      { return APL_Integer(value.cval_r + 0.3); }
 
    /// overloaded Cell::is_near_int()
    virtual bool is_near_int(APL_Float qct) const;
@@ -190,7 +184,7 @@ protected:
 
    /// overloaded Cell::is_near_real()
    virtual bool is_near_real(APL_Float qct) const
-      { return (value.cpxp->imag() < qct) && (value.cpxp->imag() > -qct); }
+      { return (value2.cval_i < qct) && (value2.cval_i > -qct); }
 
    /// overloaded Cell::get_classname()
    virtual const char * get_classname() const   { return "ComplexCell"; }

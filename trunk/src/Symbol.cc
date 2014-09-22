@@ -174,7 +174,7 @@ const ShapeItem max_idx = A->element_count();
             {
               Cell & dest = A->get_ravel(a);
               dest.release(LOC);   // free sub-values etc (if any)
-              dest.init(src);
+              dest.init(src, A.getref());
             }
         if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
         return;
@@ -197,7 +197,7 @@ const Cell * cB = &B->get_ravel(0);
         if (idx >= max_idx)   INDEX_ERROR;
         Cell & dest = A->get_ravel(idx);
         dest.release(LOC);   // free sub-values etc (if any)
-        dest.init(*cB);
+        dest.init(*cB, A.getref());
 
          cB += incr_B;
       }
@@ -279,7 +279,7 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
         const ShapeItem offset_A = mult.next();
         Cell & dest = A->get_ravel(offset_A);
         dest.release(LOC);   // free sub-values etc (if any)
-        dest.init(*cB);
+        dest.init(*cB, A.getref());
         cB += incr_B;
      }
 
@@ -460,6 +460,14 @@ Symbol::get_apl_value() const
       throw_symbol_error(get_name(), LOC);
 
    return value_stack.back().apl_val;
+}
+//-----------------------------------------------------------------------------
+const Cell *
+Symbol::get_first_cell() const
+{
+   Assert(value_stack.size() > 0);
+   if (value_stack.back().name_class != NC_VARIABLE)   return 0;
+   return &value_stack.back().apl_val->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -1012,7 +1020,7 @@ const Cell * cV = &values->get_ravel(0);
         else
            {
              Value_P val(new Value(LOC));
-             val->get_ravel(0).init(*cV);
+             val->get_ravel(0).init(*cV, val.getref());
              sym->assign(val, LOC);
            }
 

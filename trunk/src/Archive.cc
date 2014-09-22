@@ -1231,7 +1231,8 @@ bool no_copy = false;   // assume the value is needed
 }
 //-----------------------------------------------------------------------------
 void
-XML_Loading_Archive::read_Cells(Cell * & C, const UTF8 * & first)
+XML_Loading_Archive::read_Cells(Cell * & C, Value & C_owner,
+                                const UTF8 * & first)
 {
    while (*first <= ' ')   ++first;
 
@@ -1295,7 +1296,7 @@ const Unicode type = UTF8_string::toUni(first, len);
                const int vid = strtol((const char *)first, &end, 10);
                Assert(vid >= 0);
                Assert(vid < values.size());
-               new (C++) PointerCell(values[vid]);
+               new (C++) PointerCell(values[vid], C_owner);
                first = (const UTF8 *)end;
              }
              break;
@@ -1404,7 +1405,7 @@ Cell * end = C + count;
 
    while (C < end)
       {
-        read_Cells(C, cells);
+        read_Cells(C, val.getref(), cells);
         while (*cells <= ' ')   ++cells;   // skip trailing whitespace
       }
 

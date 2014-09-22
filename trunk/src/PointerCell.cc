@@ -25,9 +25,17 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-PointerCell::PointerCell(Value_P val)
+PointerCell::PointerCell(Value_P sub_val, Value & cell_owner)
 {
-   new (&value._valp()) Value_P(val);
+   new (&value._valp()) Value_P(sub_val);
+   value2.owner = &cell_owner;
+
+   Assert(value2.owner != sub_val.get());   // typical cut-and-paste error
+   sub_val->set_containing_value(&cell_owner);
+
+const int count = sub_val->nz_element_count();
+   for (Value * v = &cell_owner; v; v = v->get_containing_value())
+       v->add_subcount(count);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -207,8 +215,10 @@ PrintBuffer ret(*val, pctx, 0);
                   // store proto in the first ravel item, and copies of proto in
                   // the subsequent ravel items
                   //
-                  new (c++) PointerCell(proto);
-                  loop(rv, len - 1)   new (c++) PointerCell(proto->clone(LOC));
+                  new (c++) PointerCell(proto, proto_reshaped.getref());
+                  loop(rv, len - 1)
+                      new (c++) PointerCell(proto->clone(LOC),
+                                            proto_reshaped.getref());
 
                   ret = PrintBuffer(*proto_reshaped, pctx, 0);
                   ret.add_frame(PrintStyle(style), proto_reshaped->get_rank(),

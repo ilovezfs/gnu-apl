@@ -36,7 +36,7 @@ syl1("largest numeric exponent"               , LARGEST_EXPO      , 308         
 syl1("max. shared variable size (bytes)"      , MAX_SVAR_SIZE     , 65000               )
 syl2("CORE_COUNT_WANTED (per ./configure)"    , __CMAX1           , CORE_COUNT_WANTED   )
 syl2("cores available"                        , __CMAX2           , Parallel::get_total_CPU_count())
-syl2("cores used"                             , CURRENT_CORES     , Parallel::get_active_core_count())
+syl2("cores used"                             , CURRENT_CORES     , Thread_context::get_active_core_count())
 syl2("print length limit (0 = no limit)"      , PRINT_LIMIT       , print_length_limit  )
 syl2("max. prefix length"                     , __MAXONT          , Prefix::MAX_CONTENT )
 

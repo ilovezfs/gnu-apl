@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <sys/types.h>
+
 #include "CDR_string.hh"
 #include "CharCell.hh"
 #include "Common.hh"
@@ -30,6 +32,7 @@
 #include "main.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
+#include "Parallel.hh"
 #include "PrintOperator.hh"
 #include "SystemVariable.hh"
 #include "UCS_string.hh"
@@ -40,6 +43,9 @@
 ShapeItem Value::value_count = 0;
 ShapeItem Value::total_ravel_count = 0;
 
+typedef Value * PJob_release;
+static Parallel_job_list<PJob_release> joblist;
+
 // the static Value instances are defined in StaticObjects.cc
 
 void * Value::deleted_values = 0;
@@ -47,9 +53,18 @@ int Value::deleted_values_count = 0;
 
 //-----------------------------------------------------------------------------
 void
+Value::set_containing_value(Value * containing)
+{
+   Assert(containing_value == 0);
+   containing_value = containing;
+}
+//-----------------------------------------------------------------------------
+void
 Value::init_ravel()
 {
    owner_count = 0;
+   containing_value = 0;
+   nz_subcell_count = 0;
 
    ++value_count;
    if (Quad_SYL::value_count_limit &&
@@ -241,7 +256,7 @@ Value::Value(const Cell & cell, const char * loc)
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
-   get_ravel(0).init(cell);
+   get_ravel(0).init(cell, *this);
    check_value(LOC);
 }
 //-----------------------------------------------------------------------------
@@ -250,9 +265,27 @@ Value::~Value()
    ADD_EVENT(this, VHE_Destruct, 0, LOC);
    unlink();
 
-   release_sub(LOC);
-
 const ShapeItem length = nz_element_count();
+
+#ifdef PARALLEL_ENABLED
+
+   if (Parallel::run_parallel &&
+       Thread_context::get_active_core_count() > 1 &&
+       length > 100)
+      {
+        release_parallel(LOC);
+      }
+   else
+      {
+        release_sequential(LOC);
+      }
+
+#else
+
+   release_sequential(LOC);
+
+#endif
+
    --value_count;
 
    if (ravel != short_value)
@@ -266,12 +299,56 @@ const ShapeItem length = nz_element_count();
 }
 //-----------------------------------------------------------------------------
 void
-Value::release_sub(const char * loc)
+Value::release_parallel(const char * loc)
+{
+const ShapeItem length = nz_element_count();
+
+   if (joblist.busy())
+      {
+        POOL_LOCK(joblist.parallel_jobs_lock,
+           PJob_release j = this;
+           joblist.add_job(j))
+           return;
+      }
+
+   joblist.start(this, LOC);
+
+   for (PJob_release * job = joblist.next_job(); job; job = joblist.next_job())
+       {
+         Thread_context::do_work = PF_release_sub;
+         Thread_context::M_fork();   // start pool
+         PF_release_sub(Thread_context::get_master());
+         Thread_context::M_join();
+       }
+}
+//-----------------------------------------------------------------------------
+void
+Value::release_sequential(const char * loc)
 {
 const ShapeItem length = nz_element_count();
 
 Cell * cZ = &get_ravel(0);
    loop(c, length)   cZ++->release(loc);
+}
+//-----------------------------------------------------------------------------
+void
+Value::PF_release_sub(Thread_context & tctx)
+{
+const int cores = Thread_context::get_active_core_count();
+const PJob_release & job = joblist.get_current_job();
+
+const ShapeItem slice_len = (job->nz_element_count() + cores - 1) / cores;
+ShapeItem z = tctx.get_N() * slice_len;
+ShapeItem end_z = z + slice_len;
+   if (end_z > job->nz_element_count())   end_z = job->nz_element_count();
+
+   for (; z < end_z; ++z)
+       {
+         if (job->get_ravel(z).is_pointer_cell())
+            POOL_LOCK(joblist.parallel_jobs_lock,
+               PJob_release j = job->get_ravel(z).get_pointer_value().get();
+               joblist.add_job(j))
+       }
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -311,11 +388,11 @@ const int src_incr = new_value->is_scalar() ? 0 : 1;
 
         if (new_value->is_scalar())
            {
-             dest->init(new_value->get_ravel(0));
+             dest->init(new_value->get_ravel(0), *this);
            }
         else
            {
-             new (dest)   PointerCell(new_value);
+             new (dest)   PointerCell(new_value, *this);
            }
         return;
       }
@@ -331,7 +408,7 @@ const int src_incr = new_value->is_scalar() ? 0 : 1;
 
         // erase the pointee when overriding a pointer-cell.
         //
-        if (dest)   dest->init(*src);
+        if (dest)   dest->init(*src, *this);
         src += src_incr;
       }
 }
@@ -427,7 +504,7 @@ Value::rollback(ShapeItem items, const char * loc)
 {
    ADD_EVENT(this, VHE_Unroll, 0, loc);
 
-   release_sub(loc);
+   release_sequential(loc);
 
    loop(i, items)
       {
@@ -642,7 +719,7 @@ ShapeItem count = ec;
 }
 //-----------------------------------------------------------------------------
 void
-Value::enlist(Cell * & dest, bool left) const
+Value::enlist(Cell * & dest, Value & dest_owner, bool left) const
 {
 ShapeItem ec = element_count();
 
@@ -651,7 +728,7 @@ ShapeItem ec = element_count();
          const Cell & cell = get_ravel(c);
          if (cell.is_pointer_cell())
             {
-              cell.get_pointer_value()->enlist(dest, left);
+              cell.get_pointer_value()->enlist(dest, dest_owner, left);
             }
          else if (left && cell.is_lval_cell())
             {
@@ -662,7 +739,7 @@ ShapeItem ec = element_count();
                  }
               else if (cp->is_pointer_cell())
                  {
-                   cp->get_pointer_value()->enlist(dest, left);
+                   cp->get_pointer_value()->enlist(dest, dest_owner, left);
                  }
               else 
                  {
@@ -675,7 +752,7 @@ ShapeItem ec = element_count();
             }
          else
             {
-              dest++->init(cell);
+              dest++->init(cell, dest_owner);
             }
        }
 }
@@ -985,7 +1062,7 @@ const ShapeItem ec_z = Z->element_count();
    // We go from lower indices to higher indices in IX, which
    // means from higher indices to lower indices in this and Z
    
-   loop(z, ec_z)   Z->get_ravel(z).init(get_ravel(mult.next()));
+   loop(z, ec_z)   Z->get_ravel(z).init(get_ravel(mult.next()), Z.getref());
 
    Assert(mult.done());
 
@@ -1017,7 +1094,7 @@ const Cell * cI = &X->get_ravel(0);
               INDEX_ERROR;
             }
 
-         Z->next_ravel()->init(get_ravel(idx));
+         Z->next_ravel()->init(get_ravel(idx), Z.getref());
       }
 
    Z->set_default(*this);
@@ -1117,8 +1194,8 @@ const ShapeItem len_B = B->element_count();
 
 Value_P Z(new Value(len_A + len_B, LOC));
 
-   loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a));
-   loop(b, len_B)   Z->next_ravel()->init(B->get_ravel(b));
+   loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a), Z.getref());
+   loop(b, len_B)   Z->next_ravel()->init(B->get_ravel(b), Z.getref());
 
    Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
@@ -1141,15 +1218,15 @@ Value::glue_strand_closed(Token & result, Value_P A, Value_P B,
 const ShapeItem len_A = A->element_count();
 Value_P Z(new Value(len_A + 1, LOC));
 
-   loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a));
+   loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a), Z.getref());
 
    if (B->is_simple_scalar())
       {
-        Z->next_ravel()->init(B->get_ravel(0));
+        Z->next_ravel()->init(B->get_ravel(0), Z.getref());
       }
    else
       {
-        new (Z->next_ravel()) PointerCell(B);
+        new (Z->next_ravel()) PointerCell(B, Z.getref());
       }
 
    Z->check_value(LOC);
@@ -1175,14 +1252,14 @@ Value_P Z(new Value(len_B + 1, LOC));
 
    if (A->is_simple_scalar())
       {
-        Z->next_ravel()->init(A->get_ravel(0));
+        Z->next_ravel()->init(A->get_ravel(0), Z.getref());
       }
    else
       {
-        new (Z->next_ravel()) PointerCell(A);
+        new (Z->next_ravel()) PointerCell(A, Z.getref());
       }
 
-   loop(b, len_B)   Z->next_ravel()->init(B->get_ravel(b));
+   loop(b, len_B)   Z->next_ravel()->init(B->get_ravel(b), Z.getref());
 
    Z->check_value(LOC);
    new (&result) Token(TOK_APL_VALUE3, Z);
@@ -1203,20 +1280,20 @@ Value::glue_closed_closed(Token & result, Value_P A, Value_P B,
 Value_P Z(new Value(2, LOC));
    if (A->is_simple_scalar())
       {
-        Z->next_ravel()->init(A->get_ravel(0));
+        Z->next_ravel()->init(A->get_ravel(0), Z.getref());
       }
    else
       {
-        new (Z->next_ravel()) PointerCell(A);
+        new (Z->next_ravel()) PointerCell(A, Z.getref());
       }
 
    if (B->is_simple_scalar())
       {
-        Z->next_ravel()->init(B->get_ravel(0));
+        Z->next_ravel()->init(B->get_ravel(0), Z.getref());
       }
    else
       {
-        new (Z->next_ravel()) PointerCell(B);
+        new (Z->next_ravel()) PointerCell(B, Z.getref());
       }
 
    Z->check_value(LOC);
@@ -1614,14 +1691,14 @@ const Cell & first = get_ravel(0);
         Value_P Z(new Value(B0->get_shape(), loc));
         const ShapeItem ec_Z =  Z->nz_element_count();
 
-        loop(z, ec_Z)   Z->get_ravel(z).init_type(B0->get_ravel(z));
+        loop(z, ec_Z)   Z->get_ravel(z).init_type(B0->get_ravel(z), Z.getref());
         return Z;
       }
    else
       {
         Value_P Z(new Value(loc));
 
-        Z->get_ravel(0).init_type(first);
+        Z->get_ravel(0).init_type(first, Z.getref());
         return Z;
       }
 
@@ -1642,7 +1719,7 @@ const Cell * src = &get_ravel(0);
 Cell * dst = &ret->get_ravel(0);
 const ShapeItem count = nz_element_count();
 
-   loop(c, count)   dst++->init(*src++);
+   loop(c, count)   dst++->init(*src++, ret.getref());
 
    ret->check_value(LOC);
 

@@ -62,7 +62,7 @@ public:
 
 protected:
    /// Apply a function to a nested sub array.
-   void expand_pointers(Cell * cell_Z, const Cell * cell_A,
+   void expand_pointers(Cell * cell_Z, Value & Z_owner, const Cell * cell_A,
                         const Cell * cell_B, prim_f2 fun);
 
    /// A helper function for eval_scalar_AXB().
@@ -73,7 +73,10 @@ protected:
    Token eval_scalar_identity_fun(Value_P B, Axis axis, Value_P FI0);
 
    /// parallel eval_scalar_AB
-   static PoolFunction PF_eval_scalar_AB;
+   static Thread_context::PoolFunction PF_eval_scalar_AB;
+
+   /// parallel eval_scalar_B
+   static Thread_context::PoolFunction PF_eval_scalar_B;
 };
 //-----------------------------------------------------------------------------
 /** Scalar functions binomial and factorial.

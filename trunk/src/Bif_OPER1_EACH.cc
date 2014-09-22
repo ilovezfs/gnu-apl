@@ -51,7 +51,7 @@ Function * LO = _LO.get_function();
         Value_P Z1 = LO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
 
         Value_P Z(new Value(shape_Z, LOC));
-        new (&Z->get_ravel(0)) PointerCell(Z1);
+        new (&Z->get_ravel(0)) PointerCell(Z1, Z.getref());
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
@@ -131,10 +131,12 @@ loop_z:
         {
           Value_P vZ = result.get_apl_val();
 
-          if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+          if (!_arg.sub)
+             arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
           else if (vZ->is_simple_scalar())
-                           arg.Z->next_ravel()->init(vZ->get_ravel(0));
-          else             new (arg.Z->next_ravel())   PointerCell(vZ);
+             arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+          else
+             new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
 
           goto next_z;   // next z
         }
@@ -182,10 +184,12 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
        Value_P vZ = token.get_apl_val();
 
-       if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+       if (!_arg.sub)
+          arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
        else if (vZ->is_simple_scalar())
-                        arg.Z->next_ravel()->init(vZ->get_ravel(0));
-       else             new (arg.Z->next_ravel())   PointerCell(vZ);
+          arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+       else
+          new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
       }
    else        // LO without result, maybe successful
       {
@@ -270,10 +274,12 @@ loop_z:
            {
              Value_P vZ = result.get_apl_val();
 
-             if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+             if (!_arg.sub)
+                arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
              else if (vZ->is_simple_scalar())
-                              arg.Z->next_ravel()->init(vZ->get_ravel(0));
-             else             new (arg.Z->next_ravel())   PointerCell(vZ);
+                arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+             else
+                new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
 
              goto next_z;
            }
@@ -297,7 +303,7 @@ loop_z:
            {
              LO_B = Value_P(new Value(LOC));
    
-             LO_B->get_ravel(0).init(*_arg.cB++);
+             LO_B->get_ravel(0).init(*_arg.cB++, LO_B.getref());
              LO_B->set_complete();
              _arg.sub = false;
            }
@@ -322,10 +328,12 @@ loop_z:
            {
              Value_P vZ = result.get_apl_val();
 
-             if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+             if (!_arg.sub)
+                arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
              else if (vZ->is_simple_scalar())
-                              arg.Z->next_ravel()->init(vZ->get_ravel(0));
-             else             new (arg.Z->next_ravel())   PointerCell(vZ);
+                arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+             else
+                new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
 
              goto next_z;
            }
@@ -363,10 +371,12 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 
         Value_P vZ = token.get_apl_val();
 
-        if (!_arg.sub)   arg.Z->next_ravel()->init_from_value(vZ, LOC);
+        if (!_arg.sub)
+           arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
         else if (vZ->is_simple_scalar())
-                         arg.Z->next_ravel()->init(vZ->get_ravel(0));
-        else             new (arg.Z->next_ravel())   PointerCell(vZ);
+           arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+        else
+           new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
       }
    else        // LO without result, maybe successful
       {

@@ -173,10 +173,14 @@ fi
 #
 AC_MSG_CHECKING([whether pthread_setaffinity_np is available])
 AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM([[#include <pthread.h>]],
+    [AC_LANG_PROGRAM([[#include <pthread.h>]
+                      [#include <ext/atomicity.h>]],
  	             [[cpu_set_t cpuset;]
                       [pthread_setaffinity_np(0, sizeof(cpuset), &cpuset);]
-                      [pthread_getaffinity_np(0, sizeof(cpuset), &cpuset);]])],
+                      [pthread_getaffinity_np(0, sizeof(cpuset), &cpuset);]
+                      [_Atomic_word count = 0;]
+                      [__gnu_cxx::__exchange_and_add_dispatch(&count, 1);]
+                      [__gnu_cxx::__atomic_add_dispatch(&count, 1);]])],
                      [HAVE_AFFINITY_NP=yes], [HAVE_AFFINITY_NP=no])
 AC_MSG_RESULT([$HAVE_AFFINITY_NP])
 AC_DEFINE_UNQUOTED([HAVE_AFFINITY_NP], [$HAVE_AFFINITY_NP],
