@@ -847,7 +847,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                      UCS_string filename(dent.d_name);
                      Value_P Z_name(new Value(filename, LOC));
-                     new (Z->next_ravel())   PointerCell(Z_name);
+                     new (Z->next_ravel())   PointerCell(Z_name, Z.getref());
                    }
 
                 Z->set_default_Spc();

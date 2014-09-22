@@ -193,7 +193,7 @@ Cell * C = &Z->get_ravel(0);
         Value_P val(new Value(len, LOC));
         loop(l, len)   new (val->next_ravel())   CharCell(Unicode(arg[l]));
 
-        new (C++)   PointerCell(val);
+        new (C++)   PointerCell(val, Z.getref());
       }
 
    Z->check_value(LOC);
@@ -913,7 +913,7 @@ Value_P Z( new Value(sh, LOC));
 #define syl2(n, e, v) syl1(n, e, v)
 #define syl3(n, e, v) syl1(n, e, v)
 #define syl1(n, _e, v) \
-  new (Z->next_ravel()) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC))); \
+  new (Z->next_ravel()) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC)), Z.getref()); \
   new (Z->next_ravel()) IntCell(v);
 #include "SystemLimits.def"
 

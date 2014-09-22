@@ -714,7 +714,7 @@ const APL_Float qct = Workspace::get_CT();
    //
    if (A->is_near_zero(qct))   // 0∣B is B
       {
-        Z->init(*this);
+        new (Z) IntCell(get_int_value());
         return E_NO_ERROR;
       }
 

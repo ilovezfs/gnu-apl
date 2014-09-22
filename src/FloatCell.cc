@@ -444,7 +444,7 @@ FloatCell::bif_residue(Cell * Z, const Cell * A) const
         //
         if (A->is_near_zero(0))
            {
-             Z->init(*this);
+             new (Z) FloatCell(get_real_value());
              return E_NO_ERROR;
            }
 

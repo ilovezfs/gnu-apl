@@ -26,18 +26,20 @@
 #include <string>
 #include <sqlite3.h>
 
+class Value;
+
 class ResultValue
 {
 public:
     virtual ~ResultValue() {}
-    virtual void update( Cell *cell ) const = 0;
+    virtual void update( Cell *cell, Value & cell_owner ) const = 0;
 };
 
 class IntResultValue : public ResultValue {
 public:
     IntResultValue( int value_in ) : value( value_in ) {}
     virtual ~IntResultValue() {}
-    virtual void update( Cell *cell ) const;
+    virtual void update( Cell *cell, Value & cell_owner ) const;
 
 private:
     int value;
@@ -47,7 +49,7 @@ class DoubleResultValue : public ResultValue {
 public:
     DoubleResultValue( double value_in ) : value( value_in ) {}
     virtual ~DoubleResultValue() {}
-    virtual void update( Cell *cell ) const;
+    virtual void update( Cell *cell, Value & cell_owner ) const;
 
 private:
     double value;
@@ -57,14 +59,14 @@ class NullResultValue : public ResultValue {
 public:
     NullResultValue() {};
     virtual ~NullResultValue() {}
-    virtual void update( Cell *cell ) const;
+    virtual void update( Cell *cell, Value & cell_owner ) const;
 };
 
 class StringResultValue : public ResultValue {
 public:
     StringResultValue( string value_in ) : value( value_in ) {}
     virtual ~StringResultValue() {}
-    virtual void update( Cell *cell ) const;
+    virtual void update( Cell *cell, Value & cell_owner ) const;
   
 private:
     string value;

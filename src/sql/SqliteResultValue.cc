@@ -27,29 +27,29 @@
 #include "CharCell.hh"
 #include "PointerCell.hh"
 
-void IntResultValue::update( Cell *cell ) const
+void IntResultValue::update( Cell *cell, Value & cell_owner ) const
 {
     new (cell) IntCell( value );
 }
 
-void DoubleResultValue::update( Cell *cell ) const
+void DoubleResultValue::update( Cell *cell, Value & cell_owner ) const
 {
     new (cell) FloatCell( value );
 }
 
-void StringResultValue::update( Cell *cell ) const
+void StringResultValue::update( Cell *cell, Value & cell_owner ) const
 {
     if( value.size() == 0 ) {
-        new (cell) PointerCell( Str0( LOC ) );
+        new (cell) PointerCell( Str0( LOC ), cell_owner );
     }
     else {
-        new (cell) PointerCell( make_string_cell( value, LOC ) );
+        new (cell) PointerCell( make_string_cell( value, LOC ), cell_owner );
     }
 }
 
-void NullResultValue::update( Cell *cell ) const
+void NullResultValue::update( Cell *cell, Value & cell_owner ) const
 {
-    new (cell) PointerCell( Idx0( LOC ) );
+    new (cell) PointerCell( Idx0( LOC ), cell_owner );
 }
 
 void ResultRow::add_values( sqlite3_stmt *statement )

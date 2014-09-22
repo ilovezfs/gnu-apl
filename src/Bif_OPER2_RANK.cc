@@ -97,7 +97,7 @@ loop_h:
    {
      Value_P BB(new Value(_arg.get_sh_chunk_B(), LOC));
      Assert1(_arg.ec_chunk_B == _arg.get_sh_chunk_B().get_volume());
-     loop(l, _arg.ec_chunk_B)   BB->next_ravel()->init(*_arg.cB++);
+     loop(l, _arg.ec_chunk_B)   BB->next_ravel()->init(*_arg.cB++, BB.getref());
      BB->check_value(LOC);
 
      Token result = _arg.LO->eval_B(BB);
@@ -117,9 +117,9 @@ loop_h:
         {
           Value_P ZZ = result.get_apl_val();
           Cell * cZ = arg.Z->next_ravel();
-          if (cZ == 0)   cZ = &arg.Z->get_ravel(0);   // empty Z
-          if (ZZ->is_scalar())   cZ->init(ZZ->get_ravel(0));
-          else                   new (cZ)   PointerCell(ZZ);
+          if (cZ == 0)           cZ = &arg.Z->get_ravel(0);   // empty Z
+          if (ZZ->is_scalar())   cZ->init(ZZ->get_ravel(0), arg.Z.getref());
+          else                   new (cZ)   PointerCell(ZZ, arg.Z.getref());
           goto next_h;
        }
 
@@ -147,8 +147,10 @@ RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
    // the user defined function has returned a value. Store it.
    //
 Value_P ZZ = token.get_apl_val();
-   if (ZZ->is_scalar())   arg.Z->next_ravel()->init(ZZ->get_ravel(0));
-   else                   new (arg.Z->next_ravel())   PointerCell(ZZ);
+   if (ZZ->is_scalar())
+      arg.Z->next_ravel()->init(ZZ->get_ravel(0), arg.Z.getref());
+   else
+      new (arg.Z->next_ravel())   PointerCell(ZZ, arg.Z.getref());
 
    if (_arg.h < (_arg.ec_frame - 1))   Workspace::pop_SI(LOC);
 
@@ -284,8 +286,8 @@ loop_h:
      Value_P AA(new Value(_arg.get_sh_chunk_A(), LOC));
      Value_P BB(new Value(_arg.get_sh_chunk_B(), LOC));
 
-     loop(l, _arg.ec_chunk_A)   AA->get_ravel(l).init(*_arg.cA++);
-     loop(l, _arg.ec_chunk_B)   BB->get_ravel(l).init(*_arg.cB++);
+     loop(l, _arg.ec_chunk_A)   AA->get_ravel(l).init(*_arg.cA++, AA.getref());
+     loop(l, _arg.ec_chunk_B)   BB->get_ravel(l).init(*_arg.cB++, BB.getref());
 
      if (_arg.repeat_A)   _arg.cA = &arg.A->get_ravel(0);
      if (_arg.repeat_B)   _arg.cB = &arg.B->get_ravel(0);
@@ -309,8 +311,10 @@ loop_h:
      if (result.get_Class() == TC_VALUE)
         {
           Value_P ZZ = result.get_apl_val();
-          if (ZZ->is_scalar())   arg.Z->next_ravel()->init(ZZ->get_ravel(0));
-          else                   new (arg.Z->next_ravel())   PointerCell(ZZ);
+          if (ZZ->is_scalar())
+             arg.Z->next_ravel()->init(ZZ->get_ravel(0), arg.Z.getref());
+          else
+             new (arg.Z->next_ravel())   PointerCell(ZZ, arg.Z.getref());
 
           goto next_h;
        }
@@ -339,8 +343,10 @@ RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
    // the user defined function has returned a value. Store it.
    //
 Value_P ZZ = token.get_apl_val();
-   if (ZZ->is_scalar())   arg.Z->next_ravel()->init(ZZ->get_ravel(0));
-   else                   new (arg.Z->next_ravel())   PointerCell(ZZ);
+   if (ZZ->is_scalar())
+      arg.Z->next_ravel()->init(ZZ->get_ravel(0), arg.Z.getref());
+   else
+      new (arg.Z->next_ravel())   PointerCell(ZZ, arg.Z.getref());
 
    if (_arg.h < (_arg.ec_frame - 1))   Workspace::pop_SI(LOC);
 
@@ -506,14 +512,14 @@ const ShapeItem length = y123_B->element_count();
               else
                  {
                    B = Value_P(new Value(LOC));
-                   B->next_ravel()->init(B0);
+                   B->next_ravel()->init(B0, B.getref());
                  }
             }
          else                    // vector B
             {
               B = Value_P(new Value(length - 1, LOC));
               loop(l, length - 1)
-                  B->next_ravel()->init(y123_B->get_ravel(l + 1));
+                  B->next_ravel()->init(y123_B->get_ravel(l + 1), B.getref());
             }
          return;
       }
@@ -543,7 +549,8 @@ int y123_len = 0;
        y123_B->get_ravel(y123_len).is_pointer_cell())   // case 3. y123:⊂B
       {
         y123 = Value_P(new Value(y123_len, LOC));
-        loop(yy, y123_len)   y123->next_ravel()->init(y123_B->get_ravel(yy));
+        loop(yy, y123_len)
+            y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref());
         B = y123_B->get_ravel(y123_len).get_pointer_value();
         return;
       }
@@ -551,10 +558,11 @@ int y123_len = 0;
    // case 4: y123:B...
    //
    y123 = Value_P(new Value(y123_len, LOC));
-   loop(yy, y123_len)   y123->next_ravel()->init(y123_B->get_ravel(yy));
+   loop(yy, y123_len)
+       y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref());
 
    B = Value_P(new Value(length - y123_len, LOC));
    loop(bb, (length - y123_len))
-       B->next_ravel()->init(y123_B->get_ravel(bb + y123_len));
+       B->next_ravel()->init(y123_B->get_ravel(bb + y123_len), B.getref());
 }
 //-----------------------------------------------------------------------------

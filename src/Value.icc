@@ -47,7 +47,11 @@ decrement_owner_count(Value * & v, const char * loc)
         Assert1(v->owner_count > 0);
          --v->owner_count;
 
-        if (v->owner_count == 0)   { delete v;   v = 0; }
+        if (v->owner_count == 0)
+           {
+             delete v;
+             v = 0;
+           }
       }
 }
 //-----------------------------------------------------------------------------

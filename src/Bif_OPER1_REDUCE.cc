@@ -89,7 +89,7 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(l, shape_B3.l())
                      {
                        const ShapeItem src = shape_B3.hml(h, bm, l);
-                       Z->next_ravel()->init(B->get_ravel(src));
+                       Z->next_ravel()->init(B->get_ravel(src), Z.getref());
                      }
                   if (shape_B3.m() > 1)   ++bm;
                 }
@@ -99,7 +99,7 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(l, shape_B3.l())
                      {
                        const ShapeItem src = shape_B3.hml(h, 0, l);
-                       Z->next_ravel()->init_type(B->get_ravel(src));
+                       Z->next_ravel()->init_type(B->get_ravel(src), Z.getref());
                      }
 
                   // cB is not incremented when fill item is used.
@@ -169,7 +169,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         Shape shape_B1 = B->get_shape().insert_axis(axis, 0);
         shape_B1.increment_shape_item(axis + 1);
         Value_P val(new Value(shape_B1, LOC));
-        val->get_ravel(0).init(B->get_ravel(0));   // prototype
+        val->get_ravel(0).init(B->get_ravel(0), val.getref());   // prototype
 
         Token result = LO->eval_identity_fun(val, axis);
         return result;
@@ -185,7 +185,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         Shape shape_Z = B->get_shape();
         shape_Z.set_shape_item(axis, 0);
         Value_P Z(new Value(shape_Z, LOC));
-        Z->get_ravel(0).init(B->get_ravel(0));
+        Z->get_ravel(0).init(B->get_ravel(0), Z.getref());
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
@@ -252,7 +252,7 @@ Value_P BB = token.get_apl_val();
         // then BB->clear_eoc() below is never reached and we have to do
         // it here.
         //
-        arg.Z->next_ravel()->init_from_value(BB, LOC);
+        arg.Z->next_ravel()->init_from_value(BB, arg.Z.getref(), LOC);
 
         if (_arg.frame.done())   // if last beam (final result complete)
            {
