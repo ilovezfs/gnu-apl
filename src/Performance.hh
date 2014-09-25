@@ -31,40 +31,36 @@ using namespace std;
 /// performance statistics IDs
 enum Pfstat_ID
 {
-#define perfo_1(id, name) PFS_ ## id,
-#define perfo_2(id, name) PFS_ ## id,
+        PFS_MIN1 = 0,
+        PFS_MIN1_1 = PFS_MIN1 - 1,
+#define perfo_1(id, name, _thr) PFS_ ## id,
+#define perfo_2(id, name, _thr)
+#define perfo_3(id, name)
+#include "Performance.def"
+        PFS_MAX1,
+        PFS_MAX1_1 = PFS_MAX1 - 1,
+
+        PFS_MIN2,
+        PFS_MIN2_1 = PFS_MIN2 - 1,
+#define perfo_1(id, name, _thr)
+#define perfo_2(id, name, _thr) PFS_ ## id,
+#define perfo_3(id, name)
+#include "Performance.def"
+        PFS_MAX2,
+        PFS_MAX2_1 = PFS_MAX2 - 1,
+
+        PFS_MIN3,
+        PFS_MIN3_1 = PFS_MIN3 - 1,
+#define perfo_1(id, name, _thr)
+#define perfo_2(id, name, _thr)
 #define perfo_3(id, name) PFS_ ## id,
 #include "Performance.def"
-        PFS_MAX,
+        PFS_MAX3,
+        PFS_MAX3_1 = PFS_MAX3 - 1,
+
         PFS_SCALAR_B_overhead,
         PFS_SCALAR_AB_overhead,
         PFS_ALL
-};
-//=============================================================================
-class Statistics
-{
-public:
-   /// constructor
-   Statistics(Pfstat_ID _id)
-  : id(_id)
-   {}
-
-   /// destructor
-   ~Statistics();
-
-   /// print statistics
-   virtual void print(ostream & out) = 0;
-
-   /// write statistics to file
-   virtual void save_data(ostream & outf, const char * id_name) = 0;
-
-   const char * get_name() const
-      { return get_name(id); }
-
-   static const char * get_name(Pfstat_ID _id);
-
-protected:
-   const Pfstat_ID id;
 };
 //=============================================================================
 class Statistics_record
@@ -88,7 +84,7 @@ public:
       { ++count;   data += val;   data2 += val*val; }
 
    /// print count, data, and data2
-   void print(ostream & out);
+   void print(ostream & out, int l_N = 8, int l_u = 7);
 
    /// write count, data, and data2 to file
    void save_record(ostream & outf);
@@ -112,8 +108,42 @@ protected:
    /// sum of squares of sample values
    double data2;   // can grow quickly!
 };
-//-----------------------------------------------------------------------------
-/// performance counters for a cell level function
+//=============================================================================
+class Statistics
+{
+public:
+   /// constructor
+   Statistics(Pfstat_ID _id)
+  : id(_id)
+   {}
+
+   /// destructor
+   ~Statistics();
+
+   /// print statistics
+   virtual void print(ostream & out) = 0;
+
+   /// write statistics to file
+   virtual void save_data(ostream & outf, const char * id_name) = 0;
+
+   virtual void reset() = 0;
+
+   virtual const Statistics_record * get_first_record() const
+      { return 0; }
+
+   virtual const Statistics_record * get_record() const
+      { return 0; }
+
+   const char * get_name() const
+      { return get_name(id); }
+
+   static const char * get_name(Pfstat_ID _id);
+
+protected:
+   const Pfstat_ID id;
+};
+//=============================================================================
+/// performance counters for a APL function
 class FunctionStatistics : public Statistics
 {
 public:
@@ -128,17 +158,12 @@ public:
      len_sum(lsum)
    {}
 
-   void reset()
+   /// overloaded Statistics::print()
+   virtual void reset()
         {
           data.reset();
           len_sum = 0;
         }
-
-   void add_sample(uint64_t val, uint64_t veclen)
-      {
-         data.add_sample(val);
-         len_sum += veclen;
-       }
 
    /// overloaded Statistics::print()
    virtual void print(ostream & out);
@@ -146,8 +171,17 @@ public:
    /// overloaded Statistics::save_data()
    virtual void save_data(ostream & outf, const char * id_name);
 
+   virtual const Statistics_record * get_record() const
+      { return  &data; }
+
    const Statistics_record & get_data() const
       { return data; }
+
+   void add_sample(uint64_t val, uint64_t veclen)
+      {
+         data.add_sample(val);
+         len_sum += veclen;
+       }
 
 protected:
    Statistics_record data;
@@ -164,7 +198,7 @@ public:
    : Statistics(_id)
    { reset(); }
 
-   void reset()
+   virtual void reset()
         {
           first.reset();
           subsequent.reset();
@@ -181,6 +215,12 @@ public:
 
    /// overloaded Statistics::save_data()
    virtual void save_data(ostream & outf, const char * id_name);
+
+   virtual const Statistics_record * get_first_record() const
+      { return  &first; }
+
+   virtual const Statistics_record * get_record() const
+      { return  &subsequent; }
 
    uint64_t get_sum() const
       { return first.get_sum() + subsequent.get_sum(); }
@@ -206,6 +246,9 @@ public:
    /// return statistics object for ID \b id
    static Statistics * get_statistics(Pfstat_ID id);
 
+   /// return statistics type of ID \b id
+   static int get_statistics_type(Pfstat_ID id);
+
    // print all counters
    static void print(Pfstat_ID which, ostream & out);
 
@@ -215,10 +258,18 @@ public:
    // reset all counters
    static void reset_all();
 
-#define perfo_1(id, name)   \
-   static CellFunctionStatistics cfs_ ## id;   ///< cell function statistics
-#define perfo_2(id, name)   \
-   static CellFunctionStatistics cfs_ ## id;   ///< cell function statistics
+#define perfo_1(id, name, thr)                 \
+   /** monadic cell function statistics **/    \
+   static CellFunctionStatistics cfs_ ## id;   \
+   /** monadic parallel executionthreshold **/ \
+   static const ShapeItem thresh_ ## id = thr;
+
+#define perfo_2(id, name, thr)                \
+   /** dyadic cell function statistics **/    \
+   static CellFunctionStatistics cfs_ ## id;  \
+   /** dyadic parallel executionthreshold **/ \
+   static const ShapeItem thresh_ ## id = thr;
+
 #define perfo_3(id, name)   \
    static FunctionStatistics fs_ ## id;   ///< function statistics
 #include "Performance.def"

@@ -115,11 +115,10 @@ operator << (ostream & out, const Function_PC2 & ft)
 }
 //-----------------------------------------------------------------------------
 ostream &
-print_flags (ostream & out, ValueFlags flags)
+print_flags(ostream & out, ValueFlags flags)
 {
    return out << ((flags & VF_marked)   ?  "M" : "-")
-              << ((flags & VF_complete) ?  "C" : "-")
-              << ((flags & VF_forever)  ?  "∞" : "-");
+              << ((flags & VF_complete) ?  "C" : "-");
 }
 //-----------------------------------------------------------------------------
 int

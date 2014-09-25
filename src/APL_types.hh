@@ -129,7 +129,6 @@ enum ListCategory
 enum ValueFlags
 {
   VF_NONE     = 0x0000,   ///< no flags
-  VF_forever  = 0x0004,   ///< value is fixed forever
   VF_complete = 0x0400,   ///< CHECK called
   VF_marked   = 0x0800,   ///< marked to detect stale
   VF_temp     = 0x1000,   ///< computed value
