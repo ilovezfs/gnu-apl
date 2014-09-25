@@ -40,6 +40,9 @@ public:
    /// tokenize UTF-8 string \b input into token string \b tos.
    ErrorCode tokenize(const UCS_string & input, Token_string & tos);
 
+   /// tokenize a primitive (1-character) function
+   static Token tokenize_function(Unicode uni);
+
 protected:
    /// tokenize UTF-8 string \b input into token string \b tos.
    void do_tokenize(const UCS_string & input, Token_string & tos);

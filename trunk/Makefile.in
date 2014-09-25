@@ -984,7 +984,7 @@ develop:
 	./configure --enable-maintainer-mode DEVELOP_WANTED=yes
 	make all
 
-# a shortcut to configure for troubleshooting
+# a shortcut to configure for parallel execution
 #
 .PHONY:	parallel
 parallel:
@@ -992,6 +992,19 @@ parallel:
                     VALUE_CHECK_WANTED=no		\
                     VALUE_HISTORY_WANTED=no		\
                     PERFORMANCE_COUNTERS_WANTED=no	\
+                    DYNAMIC_LOG_WANTED=yes		\
+                    ASSERT_LEVEL_WANTED=0		\
+                    CORE_COUNT_WANTED=-3
+	make all
+
+# dito, eith  performance counters
+#
+.PHONY:	parallel1
+parallel1:
+	./configure --enable-maintainer-mode		\
+                    VALUE_CHECK_WANTED=no		\
+                    VALUE_HISTORY_WANTED=no		\
+                    PERFORMANCE_COUNTERS_WANTED=yes	\
                     DYNAMIC_LOG_WANTED=yes		\
                     ASSERT_LEVEL_WANTED=0		\
                     CORE_COUNT_WANTED=-3

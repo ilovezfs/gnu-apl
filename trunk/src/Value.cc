@@ -55,7 +55,7 @@ int Value::deleted_values_count = 0;
 void
 Value::set_containing_value(Value * containing)
 {
-   Assert(containing_value == 0);
+// Assert(containing_value == 0);
    containing_value = containing;
 }
 //-----------------------------------------------------------------------------
@@ -269,11 +269,13 @@ const ShapeItem length = nz_element_count();
 
 #ifdef PARALLEL_ENABLED
 
-   if (Parallel::run_parallel &&
-       Thread_context::get_active_core_count() > 1 &&
-       length > 100)
+        if (  Parallel::run_parallel
+           && Thread_context::get_active_core_count() > 1
+//         && length > 100
+           )
       {
-        release_parallel(LOC);
+//      release_parallel(LOC);
+        release_sequential(LOC);
       }
    else
       {

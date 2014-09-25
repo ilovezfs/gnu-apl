@@ -32,6 +32,7 @@
 
 #include "../Native_interface.hh"
 #include "../Performance.hh"
+#include "../Tokenizer.hh"
 
    // CONVENTION: all functions must have an axis argument (like X
    // in A fun[X] B); the axis argument is a function number that selects
@@ -364,7 +365,13 @@ list_functions(ostream & out)
 "   Zn ←    FUN[29] Bs    return file names in directory Bs\n"
 "   Zs ←    FUN 30        getcwd()\n"
 "   Zn ← As FUN[31] Bs    access(As, Bs) As ∈ 'RWXF'\n"
-"\n";
+"\n"
+"           FUN[200] Bi    clear statistics with ID Bi\n"
+"   Zn ←    FUN[201] Bi    get statistics with ID Bi\n"
+"           FUN[202] Bs    get monadic parallel threshold for primitive Bs\n"
+"        Ai FUN[202] Bs    set monadic parallel threshold for primitive Bs\n"
+"           FUN[203] Bs    get dyadic parallel threshold for primitive Bs\n";
+"        Ai FUN[203] Bs    set dyadic parallel threshold for primitive Bs\n";
 
    return Token(TOK_APL_VALUE1, Str0(LOC));
 }
@@ -855,6 +862,73 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 return Token(TOK_APL_VALUE1, Z);
               }
 
+         case 200:   // clear statistics Bi
+         case 201:   // get statistics Bi
+              {
+                const Pfstat_ID b = (Pfstat_ID)B->get_ravel(0).get_int_value();
+                Statistics * stat = Performance::get_statistics(b);
+                if (stat == 0)   DOMAIN_ERROR;   // bad statistics ID
+
+                if (function_number == 200)   // reset statistics
+                   {
+                     stat->reset();
+                     return Token(TOK_APL_VALUE1, IntScalar(b, LOC));
+                   }
+
+                // get statistics
+                //
+                 const int t = Performance::get_statistics_type(b);
+                 UCS_string stat_name(stat->get_name());
+                 Value_P Z1(new Value(stat_name, LOC));
+                 if (t <= 2)   // cell function statistics
+                    {
+                       const Statistics_record * r1 = stat->get_first_record();
+                       const Statistics_record * rN = stat->get_record();
+                       Value_P Z(new Value(8, LOC));
+                       new (Z->next_ravel())   IntCell(t);
+                       new (Z->next_ravel())   PointerCell(Z1, Z.getref());
+                       new (Z->next_ravel())   IntCell(r1->get_count());
+                       new (Z->next_ravel())   IntCell(r1->get_sum());
+                       new (Z->next_ravel())   FloatCell(r1->get_sum2());
+                       new (Z->next_ravel())   IntCell(rN->get_count());
+                       new (Z->next_ravel())   IntCell(rN->get_sum());
+                       new (Z->next_ravel())   FloatCell(rN->get_sum2());
+                       return Token(TOK_APL_VALUE1, Z);
+                    }
+                 else           // function statistics
+                    {
+                       const Statistics_record * r = stat->get_record();
+                       Value_P Z(new Value(5, LOC));
+                       new (Z->next_ravel())   IntCell(t);
+                       new (Z->next_ravel())   PointerCell(Z1, Z.getref());
+                       new (Z->next_ravel())   IntCell(r->get_count());
+                       new (Z->next_ravel())   IntCell(r->get_sum());
+                       new (Z->next_ravel())   FloatCell(r->get_sum2());
+                       return Token(TOK_APL_VALUE1, Z);
+                    }
+              }
+
+         case 202:   // get monadic parallel threshold
+         case 203:   // get dyadicadic parallel threshold
+              {
+                const Unicode prim = B->get_ravel(0).get_char_value();
+                const Token tok = Tokenizer::tokenize_function(prim);
+                if (!tok.is_function())   DOMAIN_ERROR;
+                Function * fun = tok.get_function();
+                if (fun == 0)   DOMAIN_ERROR;
+                APL_Integer old_threshold;
+                if (function_number == 202)
+                   {
+                     old_threshold = fun->get_monadic_threshold();
+                   }
+                else
+                   {
+                     old_threshold = fun->get_dyadic_threshold();
+                   }
+
+                 return Token(TOK_APL_VALUE1, IntScalar(old_threshold, LOC));
+              }
+
         default: break;
       }
 
@@ -1095,6 +1169,30 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                  const int not_ok = access(path.c_str(), perms);
                  if (not_ok)   goto out_errno;
                  return Token(TOK_APL_VALUE1, IntScalar(0, LOC));
+              }
+
+         case 202:   // set monadic parallel threshold
+         case 203:   // set dyadicadic parallel threshold
+              {
+                const Unicode prim = B->get_ravel(0).get_char_value();
+                const Token tok = Tokenizer::tokenize_function(prim);
+                const APL_Integer threshold = A->get_ravel(0).get_int_value();
+                if (!tok.is_function())   DOMAIN_ERROR;
+                Function * fun = tok.get_function();
+                if (fun == 0)   DOMAIN_ERROR;
+                APL_Integer old_threshold;
+                if (function_number == 202)
+                   {
+                     old_threshold = fun->get_monadic_threshold();
+                     fun->set_monadic_threshold(threshold);
+                   }
+                else
+                   {
+                     old_threshold = fun->get_dyadic_threshold();
+                     fun->set_dyadic_threshold(threshold);
+                   }
+
+                 return Token(TOK_APL_VALUE1, IntScalar(old_threshold, LOC));
               }
 
         default: break;

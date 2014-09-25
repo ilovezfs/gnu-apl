@@ -211,6 +211,39 @@
  Zn ← As FILE_IO[31] Bs
 ∇
 
+∇FIO∆clear_statistics Bi
+ ⍝⍝ clear performance statistics with ID Bi
+ Zn ← FILE_IO[200] Bi
+∇
+
+∇Z ← FIO∆get_statistics Bi
+ ⍝⍝ read performance statistics with ID Bi
+ ⍝⍝ Z[1] statistics type
+ ⍝⍝ Z[2] statistics name
+ ⍝⍝ Z[3 4 5] first pass (or only statistics)
+ ⍝⍝ Z[6 7 8] optional subsequent pass statistics
+ Z ← FILE_IO[201] Bi
+∇
+
+∇Z ← FIO∆get_monadic_threshold Bc
+ ⍝⍝ read the monadic parallel execution threshold for primitive Bc
+ Z ← FILE_IO[202] Bc
+∇
+
+∇Z ← Ai FIO∆set_monadic_threshold Bc
+ ⍝⍝ set the monadic parallel execution threshold for primitive Bc
+ Z ← Ai FILE_IO[202] Bc
+∇
+
+∇Z ← FIO∆get_dyadic_threshold Bc
+ ⍝⍝ read the dyadic parallel execution threshold for primitive Bc
+ Z ← FILE_IO[203] Bc
+∇
+
+∇Z ← Ai FIO∆set_dyadic_threshold Bc
+ ⍝⍝ set the dyadic parallel execution threshold for primitive Bc
+ Z ← Ai FILE_IO[203] Bc
+∇
 
 ⍝ meta data for this library...
 ⍝

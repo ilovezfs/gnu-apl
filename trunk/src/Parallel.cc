@@ -39,9 +39,9 @@ volatile _Atomic_word Parallel_job_list_base::parallel_jobs_lock = 0;
 const char * Parallel_job_list_base::started_loc = 0;
 
 #if CORE_COUNT_WANTED == 0
-const bool Parallel::run_parallel = false;
+bool Parallel::run_parallel = false;
 #else
-const bool Parallel::run_parallel = true;
+bool Parallel::run_parallel = true;
 #endif
 
 //=============================================================================
@@ -159,8 +159,11 @@ Parallel::set_core_count(CoreCount count)
 {
    // this function is called from ⎕SYL[26]←
    //
-   if (count < CCNT_1)                             return true;   // error
+   if (count < CCNT_0)                             return true;   // error
    if ((CPU_count)count > get_total_CPU_count())   return true;   // error
+
+   run_parallel = count != CCNT_0;
+   if (count == CCNT_0)   count = CCNT_1;
 
    if (Thread_context::get_active_core_count() > 1)
       {

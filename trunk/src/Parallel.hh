@@ -309,7 +309,7 @@ public:
       }
 
    /// true if parallel execution is enabled
-   static const bool run_parallel;
+   static bool run_parallel;
 
    /// number of available cores
    static CPU_count get_total_CPU_count()

@@ -54,14 +54,14 @@ public:
    : NamedObject(Id(_tag >> 16)),
      creation_time(0.0),
      tag(_tag)
-   {}
+   { parallel_thresholds[0] = parallel_thresholds[1] = -1; }
 
    /// constructor for functions whose Id does not match their tag
    Function(Id id, TokenTag _tag)
    : NamedObject(id),
      creation_time(0.0),
      tag(_tag)
-   {}
+   { parallel_thresholds[0] = parallel_thresholds[1] = -1; }
 
    /// destructor
    virtual ~Function()
@@ -221,12 +221,31 @@ public:
    /// for user-defined functions)
    Fun_signature get_signature() const;
 
+   /// return break-even point for monadic parallel execution
+   ShapeItem get_monadic_threshold() const
+      { return parallel_thresholds[0]; }
+
+   /// set the break-even point for monadic parallel execution
+   void set_monadic_threshold(ShapeItem new_threshold)
+      { parallel_thresholds[0] = new_threshold; }
+
+   /// return break-even point for dyadic parallel execution
+   ShapeItem get_dyadic_threshold() const
+      { return parallel_thresholds[1]; }
+
+   /// set the break-even point for dyadic parallel execution
+   void set_dyadic_threshold(ShapeItem new_threshold)
+      { parallel_thresholds[1] = new_threshold; }
+
    /// when this function was created (0.0 for system functions)
    APL_time_us creation_time;
 
 protected:
    /// the tag for token pointing to \b this function
    TokenTag tag;
+
+   /// the thresholds for parallel execution
+   ShapeItem parallel_thresholds[2];
 };
 //-----------------------------------------------------------------------------
 

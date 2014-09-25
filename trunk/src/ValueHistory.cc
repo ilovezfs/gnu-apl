@@ -129,7 +129,6 @@ UCS_string ret;
 
   if (flags & VF_marked)   ret.append(UNI_ASCII_M);
   if (flags & VF_complete) ret.append(UNI_ASCII_C);
-  if (flags & VF_forever)  ret.append(UNI_INFINITY);
 
    while (ret.size() < 4)   ret.append(UNI_ASCII_SPACE);
    return ret;

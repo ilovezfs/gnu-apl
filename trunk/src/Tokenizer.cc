@@ -271,6 +271,13 @@ Tokenizer::tokenize_function(Source<Unicode> & src, Token_string & tos)
    Log(LOG_tokenize)   CERR << "tokenize_function(" << src << ")" << endl;
 
 const Unicode uni = src.get();
+const Token tok = tokenize_function(uni);
+   tos.append(Token(tok), LOC);
+}
+//-----------------------------------------------------------------------------
+Token
+Tokenizer::tokenize_function(Unicode uni)
+{
 Token tok = Avec::uni_to_token(uni, LOC);
 
 #define sys(t, f) \
@@ -350,7 +357,7 @@ Token tok = Avec::uni_to_token(uni, LOC);
       }
 
 #undef sys
-   tos.append(Token(tok), LOC);
+   return tok;
 }
 //-----------------------------------------------------------------------------
 void
