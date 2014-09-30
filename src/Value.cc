@@ -28,6 +28,7 @@
 #include "IndexExpr.hh"
 #include "IndexIterator.hh"
 #include "IntCell.hh"
+#include "IO_Files.hh"
 #include "LvalCell.hh"
 #include "main.hh"
 #include "Output.hh"
@@ -43,9 +44,6 @@
 ShapeItem Value::value_count = 0;
 ShapeItem Value::total_ravel_count = 0;
 
-typedef Value * PJob_release;
-static Parallel_job_list<PJob_release> joblist;
-
 // the static Value instances are defined in StaticObjects.cc
 
 void * Value::deleted_values = 0;
@@ -53,17 +51,10 @@ int Value::deleted_values_count = 0;
 
 //-----------------------------------------------------------------------------
 void
-Value::set_containing_value(Value * containing)
-{
-// Assert(containing_value == 0);
-   containing_value = containing;
-}
-//-----------------------------------------------------------------------------
-void
 Value::init_ravel()
 {
    owner_count = 0;
-   containing_value = 0;
+   pointer_cell_count = 0;
    nz_subcell_count = 0;
 
    ++value_count;
@@ -79,8 +70,8 @@ Value::init_ravel()
         new (ravel)   IntCell(42);
 
         Workspace::more_error() = UCS_string(
-        "the system limit on the APL value count (as set in ⎕SYL) was reached\n"
-        "(and to avoid lock-up, the limit in ⎕SYL was automatically cleared).");
+"the system limit on the APL value count (as set in ⎕SYL) was reached\n"
+"(and to avoid lock-up, the limit in ⎕SYL was automatically cleared).");
 
         // reset the limit so that we don't get stuck here.
         //
@@ -267,26 +258,12 @@ Value::~Value()
 
 const ShapeItem length = nz_element_count();
 
-#ifdef PARALLEL_ENABLED
-
-        if (  Parallel::run_parallel
-           && Thread_context::get_active_core_count() > 1
-//         && length > 100
-           )
+   if (get_pointer_cell_count() > 0)
       {
-//      release_parallel(LOC);
-        release_sequential(LOC);
+
+        Cell * cZ = &get_ravel(0);
+        loop(c, length)   cZ++->release(LOC);
       }
-   else
-      {
-        release_sequential(LOC);
-      }
-
-#else
-
-   release_sequential(LOC);
-
-#endif
 
    --value_count;
 
@@ -300,59 +277,6 @@ const ShapeItem length = nz_element_count();
    check_ptr = 0;
 }
 //-----------------------------------------------------------------------------
-void
-Value::release_parallel(const char * loc)
-{
-const ShapeItem length = nz_element_count();
-
-   if (joblist.busy())
-      {
-        POOL_LOCK(joblist.parallel_jobs_lock,
-           PJob_release j = this;
-           joblist.add_job(j))
-           return;
-      }
-
-   joblist.start(this, LOC);
-
-   for (PJob_release * job = joblist.next_job(); job; job = joblist.next_job())
-       {
-         Thread_context::do_work = PF_release_sub;
-         Thread_context::M_fork();   // start pool
-         PF_release_sub(Thread_context::get_master());
-         Thread_context::M_join();
-       }
-}
-//-----------------------------------------------------------------------------
-void
-Value::release_sequential(const char * loc)
-{
-const ShapeItem length = nz_element_count();
-
-Cell * cZ = &get_ravel(0);
-   loop(c, length)   cZ++->release(loc);
-}
-//-----------------------------------------------------------------------------
-void
-Value::PF_release_sub(Thread_context & tctx)
-{
-const int cores = Thread_context::get_active_core_count();
-const PJob_release & job = joblist.get_current_job();
-
-const ShapeItem slice_len = (job->nz_element_count() + cores - 1) / cores;
-ShapeItem z = tctx.get_N() * slice_len;
-ShapeItem end_z = z + slice_len;
-   if (end_z > job->nz_element_count())   end_z = job->nz_element_count();
-
-   for (; z < end_z; ++z)
-       {
-         if (job->get_ravel(z).is_pointer_cell())
-            POOL_LOCK(joblist.parallel_jobs_lock,
-               PJob_release j = job->get_ravel(z).get_pointer_value().get();
-               joblist.add_job(j))
-       }
-}
-//-----------------------------------------------------------------------------
 Value_P
 Value::get_cellrefs(const char * loc)
 {
@@ -363,10 +287,10 @@ const ShapeItem ec = element_count();
    loop(e, ec)
       {
         Cell & cell = get_ravel(e);
-        new (ret->next_ravel())   LvalCell(&cell);
+        new (ret->next_ravel())   LvalCell(&cell, this);
       }
 
-   if (ec == 0)   new (&ret->get_ravel(0))   LvalCell(0);
+   if (ec == 0)   new (&ret->get_ravel(0))   LvalCell(0, 0);
 
    ret->check_value(LOC);
    return ret;
@@ -380,25 +304,28 @@ const ShapeItem value_count = new_value->nz_element_count();
 const Cell * src = &new_value->get_ravel(0);
 Cell * C = &get_ravel(0);
 
+   // this:      a value containing LvalCells and possibly PointerCells.
+   // cellowner: the owner of the cells that this points to
+   //
+Value * cellowner = get_lval_cellowner();
 const int src_incr = new_value->is_scalar() ? 0 : 1;
 
-   if (is_scalar())
+   // if this is a scalar and new_value is not, then enclose new_value
+   //
+   if (is_scalar() && !new_value->is_scalar())
       {
         if (!C->is_lval_cell())   LEFT_SYNTAX_ERROR;
+
         Cell * dest = C->get_lval_value();   // can be 0!
         if (dest)   dest->release(LOC);   // free sub-values etc (if any)
 
-        if (new_value->is_scalar())
-           {
-             dest->init(new_value->get_ravel(0), *this);
-           }
-        else
-           {
-             new (dest)   PointerCell(new_value, *this);
-           }
+        new (dest)   PointerCell(new_value, *cellowner);
         return;
       }
 
+   // at this point both this and new_value should have the same number
+   // of elements
+   //
    if (!new_value->is_scalar() && value_count != dest_count)   LENGTH_ERROR;
 
    loop(d, dest_count)
@@ -415,22 +342,21 @@ const int src_incr = new_value->is_scalar() ? 0 : 1;
       }
 }
 //-----------------------------------------------------------------------------
-bool
-Value::is_lval() const
+Value *
+Value::get_lval_cellowner() const
 {
 const ShapeItem ec = nz_element_count();
 
    loop(e, ec)
       {
         const Cell & cell = get_ravel(e);
-        if (cell.is_lval_cell())   return true;
-        if (cell.is_pointer_cell() && cell.get_pointer_value()->is_lval())
-           return true;
+        if (cell.is_lval_cell())   return cell.get_cell_owner();
+        if (!cell.is_pointer_cell())   return 0;
+        return  cell.get_pointer_value()->get_lval_cellowner();
 
-        return false;
       }
 
-   return false;
+   return 0;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -506,13 +432,10 @@ Value::rollback(ShapeItem items, const char * loc)
 {
    ADD_EVENT(this, VHE_Unroll, 0, loc);
 
-   release_sequential(loc);
-
-   loop(i, items)
-      {
-        Cell & cell = get_ravel(i);
-        cell.release(LOC);
-      }
+   // this value has only items < nz_element_count() valid items.
+   // init the rest...
+   //
+   while (items < nz_element_count())   new (&get_ravel(items++)) IntCell(0);
 
    ((Value *)this)->alloc_loc = loc;
 }
@@ -745,12 +668,12 @@ ShapeItem ec = element_count();
                  }
               else 
                  {
-                   new (dest++) LvalCell(cell.get_lval_value());
+                   new (dest++) LvalCell(cell.get_lval_value(), &dest_owner);
                  }
             }
          else if (left)
             {
-              new (dest++) LvalCell((Cell *)&cell);
+              new (dest++) LvalCell((Cell *)&cell, &dest_owner);
             }
          else
             {

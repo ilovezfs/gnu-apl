@@ -193,6 +193,61 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    return false;   // stop it
 }
 //-----------------------------------------------------------------------------
+ErrorCode
+Bif_OPER2_PRODUCT::scalar_inner_product(Cell * cZ, const Cell * cA,
+                                        ShapeItem ZAh, prim_f2 LO,
+                                        ShapeItem LO_len, prim_f2 RO, 
+                                        const Cell * cB, ShapeItem ZBl)
+{
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
+  // the empty cases have been ruled out already in inner_product()
+
+const ShapeItem Z_len = ZAh * ZBl;
+Cell product;   // the result of LO, e.g. of × in +/×
+
+   loop(z, Z_len)   // z row = A row
+      {
+        const ShapeItem zah = z/ZBl;         // z row = A row
+        const ShapeItem zbl = z - zah*ZBl;   // z column = B column
+        const Cell * row_A = cA + zah * LO_len;
+        const Cell * col_B = cB + zbl;
+        loop(l, LO_len)
+           {
+             const ErrorCode ec = (col_B->*RO)(&product, row_A);
+             if (ec != E_NO_ERROR)   return ec;
+
+             if (l == 0)   // first element
+                {
+                  const ErrorCode ec = (col_B->*RO)(cZ + z, row_A);
+                  if (ec != E_NO_ERROR)   return ec;
+                }
+             else
+                {
+                  ErrorCode ec = (col_B->*RO)(&product, row_A);
+                  if (ec != E_NO_ERROR)   return ec;
+                  ec = (product.*LO)(cZ + z, cZ + z);
+                  if (ec != E_NO_ERROR)   return ec;
+                }
+            ++row_A;
+            col_B += ZBl;
+           }
+      }
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_INNER_PROD.add_sample(end_1 - start_1, Z_len);
+#endif
+#endif
+
+   return E_NO_ERROR;
+}
+//-----------------------------------------------------------------------------
 Token
 Bif_OPER2_PRODUCT::inner_product(Value_P A, Token & _LO, Token & _RO, Value_P B)
 {
@@ -218,7 +273,8 @@ ShapeItem len_B = 1;
         shape_B1 = B->get_shape().without_axis(0);
       }
 
-   // we do not check len_A == len_B since LO may accept different lengths
+   // we do not check len_A == len_B here, since a non-scalar LO may
+   // accept different lengths of its left and right arguments
 
 const ShapeItem items_A = shape_A1.get_volume();
 const ShapeItem items_B = shape_B1.get_volume();
@@ -233,6 +289,28 @@ const ShapeItem items_B = shape_B1.get_volume();
       }
 
 Value_P Z(new Value(shape_A1 + shape_B1, LOC));
+
+   // an important and most like;lly) special case is LO and RO being scalar
+   // functions. This case can be implemented in a far simpler fashion than
+   // the general case.
+   //
+   if (LO->get_scalar_f2() && RO->get_scalar_f2() &&
+       A->is_simple() && B->is_simple() && len_A)
+      {
+        if (len_A != len_B)   LENGTH_ERROR;
+        const ErrorCode ec = scalar_inner_product(&Z->get_ravel(0),
+                                                  &A->get_ravel(0), items_A,
+                                                  LO->get_scalar_f2(), len_A,
+                                                  RO->get_scalar_f2(),
+                                                  &B->get_ravel(0), items_B);
+        if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
+
+        Z->set_default(*B.get());
+ 
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
 EOC_arg arg(Z, B, A);
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
    arg.A = A;
@@ -346,7 +424,8 @@ how_1:
           Token LO(TOK_FUN1, _arg.LO);
           const Token T2 = Bif_OPER1_REDUCE::fun.eval_LB(LO, arg.V1);
           if (T2.get_tag() == TOK_ERROR)   return T2;
-          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(), arg.Z.getref(), LOC);
+          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(),
+                                               arg.Z.getref(), LOC);
 
           ptr_clear(arg.V1, LOC);
 
@@ -400,7 +479,6 @@ how_2:
    arg.Z->next_ravel()->init_from_value(arg.V2, arg.Z.getref(), LOC);
 
    ptr_clear(arg.V1, LOC);
-
    ptr_clear(arg.V2, LOC);
 
 next_a_b:

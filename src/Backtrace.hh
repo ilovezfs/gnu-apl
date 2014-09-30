@@ -64,4 +64,6 @@ protected:
    static vector<PC_src> pc_2_src;
 };
 
+#define BACKTRACE Backtrace::show(__FILE__, __LINE__);
+
 #endif // __BACKTRACE_HH_DEFINED__

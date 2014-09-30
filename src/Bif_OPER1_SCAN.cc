@@ -102,7 +102,7 @@ ShapeItem inc_2 = 0;              // increment after result m*l items
                   if (lval)
                      {
                        loop(l, shape_Z3.l())
-                           new (Z->next_ravel()) LvalCell(0);
+                           new (Z->next_ravel()) LvalCell(0, 0);
                      }
                   else
                      {

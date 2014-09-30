@@ -90,7 +90,7 @@ public:
         return 0;
       }
 
-   /// return  the number of function arguments (1 or 2) of an operator.
+   /// return the number of function arguments (1 or 2) of an operator.
    virtual int get_oper_valence() const   { return 0; }
 
    /// return 1 if the function returns a result, otherwise 0.
@@ -140,6 +140,9 @@ public:
 
    /// Print \b this function.
    virtual ostream & print(ostream & out) const = 0;
+
+   virtual prim_f2 get_scalar_f2() const
+      { return 0; }
 
    /// an associative cell function
    typedef ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const;

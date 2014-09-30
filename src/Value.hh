@@ -150,8 +150,10 @@ public:
    void set_default(const Value & B)
       { if (is_empty())
            {
-             if (B.get_ravel(0).is_lval_cell())   new (&ravel[0]) LvalCell(0);
-             else                   ravel[0].init_type(B.get_ravel(0), *this);
+             if (B.get_ravel(0).is_lval_cell())
+                new (&ravel[0]) LvalCell(0, 0);
+             else
+                ravel[0].init_type(B.get_ravel(0), *this);
            }
       }
 
@@ -247,11 +249,12 @@ public:
 
    /// return \b true iff \b this value is a simple (i.e. depth 0) scalar.
    bool is_simple_scalar() const
-      { return is_scalar() && !(get_ravel(0).is_pointer_cell() || is_lval()); }
+      { return is_scalar() &&
+              !(get_ravel(0).is_pointer_cell() || get_lval_cellowner()); }
 
    /// return \b true iff this value is an lval (selective assignment)
    /// i.e. return true if at least one leaf value is an lval.
-   bool is_lval() const;
+   Value * get_lval_cellowner() const;
 
    /// return \b true iff \b this value is empty (some dimension is 0).
    bool is_empty() const
@@ -480,11 +483,17 @@ public:
    /// a "checksum" to detect deleted values
    const void * check_ptr;
 
-   /// set the value that contains this value
-   void set_containing_value(Value * containing);
+   /// increment the PointerCell count
+   void increment_pointer_cell_count()
+      { ++pointer_cell_count; }
 
-   Value * get_containing_value() const
-      { return containing_value; }
+   /// decrement the PointerCell count
+   void decrement_pointer_cell_count()
+      { --pointer_cell_count; }
+
+   /// return the PointerCell count
+   ShapeItem get_pointer_cell_count() const
+      { return pointer_cell_count; }
 
    void add_subcount(ShapeItem count)
       { nz_subcell_count += count; }
@@ -493,20 +502,11 @@ protected:
    /// init the ravel of an APL value, return the ravel length
    inline void init_ravel();
 
-   /// parallel release of sub-values of this value
-   void release_parallel(const char * loc);
-
-   /// sequential release of sub-values of this value
-   void release_sequential(const char * loc);
-
-   /// parallel release of sub-values of this value
-   static Thread_context::PoolFunction PF_release_sub;
-
    /// the shape of \b this value (only the first \b rank values are valid.
    Shape shape;
 
    // the value that has a PointerCell pointing to \b this value (if any)
-   Value * containing_value;
+   ShapeItem pointer_cell_count;
 
    /// valueFlags for this value.
    mutable uint16_t flags;

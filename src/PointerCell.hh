@@ -32,42 +32,42 @@
 class PointerCell : public Cell
 {
 public:
-   /// Construct an cell containing nested sub-array \b val.
+   /// construct a cell containing nested sub-array \b val.
    PointerCell(Value_P val, Value & cell_owner);
 
-   /// Overloaded Cell::is_pointer_cell().
-   virtual bool is_pointer_cell()   const   { return true; }
+   /// overloaded Cell::is_pointer_cell()
+   virtual bool is_pointer_cell() const   { return true; }
 
-   /// Overloaded Cell::get_pointer_value().
+   /// overloaded Cell::get_pointer_value()
    virtual Value_P get_pointer_value()  const;
 
-   /// Overloaded Cell::greater().
+   /// overloaded Cell::greater()
    virtual bool greater(const Cell * other, bool ascending) const;
 
-   /// Overloaded Cell::equal().
+   /// overloaded Cell::equal()
    virtual bool equal(const Cell & other, APL_Float qct) const;
 
-   /// Overloaded Cell::release().
+   /// overloaded Cell::release()
    virtual void release(const char * loc);
 
-   /// the Quad_CR representation of this cell.
-   virtual PrintBuffer character_representation(const PrintContext &pctx) const;
+   /// the Quad_CR representation of this cell
+   virtual PrintBuffer character_representation(const PrintContext &pcx) const;
 
 protected:
-   ///  Overloaded Cell::get_cell_type()
+   ///  overloaded Cell::get_cell_type()
    virtual CellType get_cell_type() const
       { return CT_POINTER; }
 
-   ///  Overloaded Cell::deep_cell_types()
+   ///  overloaded Cell::deep_cell_types()
    CellType deep_cell_types() const;
 
-   ///  Overloaded Cell::deep_cell_types()
+   ///  overloaded Cell::deep_cell_types()
    CellType deep_cell_subtypes() const;
 
-   /// Overloaded Cell::get_classname().
+   /// overloaded Cell::get_classname()
    virtual const char * get_classname() const   { return "PointerCell"; }
 
-   /// Overloaded Cell::CDR_size() should not be called for pointer cells
+   /// overloaded Cell::CDR_size() should not be called for pointer cells
    virtual int CDR_size() const { NeverReach("CDR_size called on PointerCell base class"); }
 };
 //=============================================================================
