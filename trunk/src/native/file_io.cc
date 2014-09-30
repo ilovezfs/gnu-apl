@@ -370,7 +370,7 @@ list_functions(ostream & out)
 "   Zn ←    FUN[201] Bi    get statistics with ID Bi\n"
 "           FUN[202] Bs    get monadic parallel threshold for primitive Bs\n"
 "        Ai FUN[202] Bs    set monadic parallel threshold for primitive Bs\n"
-"           FUN[203] Bs    get dyadic parallel threshold for primitive Bs\n";
+"           FUN[203] Bs    get dyadic parallel threshold for primitive Bs\n"
 "        Ai FUN[203] Bs    set dyadic parallel threshold for primitive Bs\n";
 
    return Token(TOK_APL_VALUE1, Str0(LOC));

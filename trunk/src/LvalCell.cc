@@ -23,6 +23,12 @@
 #include "UTF8_string.hh"
 
 //-----------------------------------------------------------------------------
+LvalCell::LvalCell(Cell * cell, Value * cell_owner)
+{
+   value.lval = cell;
+   value2.owner = cell_owner;
+}
+//-----------------------------------------------------------------------------
 Cell *
 LvalCell::get_lval_value()  const
 {

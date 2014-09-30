@@ -31,11 +31,18 @@ PointerCell::PointerCell(Value_P sub_val, Value & cell_owner)
    value2.owner = &cell_owner;
 
    Assert(value2.owner != sub_val.get());   // typical cut-and-paste error
-   sub_val->set_containing_value(&cell_owner);
+   cell_owner.increment_pointer_cell_count();
+   cell_owner.add_subcount(sub_val->nz_element_count());
+}
+//-----------------------------------------------------------------------------
+void
+PointerCell::release(const char * loc)
+{
+   value2.owner->decrement_pointer_cell_count();
+   value2.owner->add_subcount(-get_pointer_value()->nz_element_count());
 
-const int count = sub_val->nz_element_count();
-   for (Value * v = &cell_owner; v; v = v->get_containing_value())
-       v->add_subcount(count);
+   ptr_clear(value._valp(), loc);
+   new (this) Cell;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -101,13 +108,6 @@ const Cell * C2 = &v2->get_ravel(0);
    // everthing equal
    //
    return this > other;
-}
-//-----------------------------------------------------------------------------
-void
-PointerCell::release(const char * loc)
-{
-   ptr_clear(value._valp(), loc);
-   new (this) Cell;
 }
 //-----------------------------------------------------------------------------
 Value_P

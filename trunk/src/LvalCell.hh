@@ -32,8 +32,7 @@ class LvalCell : public Cell
 {
 public:
    /// Construct an cell pointing to another cell
-   LvalCell(Cell * cell)
-      { value.lval = cell; }
+   LvalCell(Cell * cell, Value * cell_owner);
 
    /// Overloaded Cell::is_lval_cell().
    virtual bool is_lval_cell()  const   { return true; }

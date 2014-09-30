@@ -67,6 +67,12 @@ protected:
    /// EOC handler for inner_product with user defined RO
    static bool eoc_inner_product(Token & token, EOC_arg & arg);
 
+   /// inner product for scalar LO and RO
+   static ErrorCode scalar_inner_product(Cell * cZ, const Cell * cA,
+                                         ShapeItem ZAh, prim_f2 LO,
+                                         ShapeItem LO_len, prim_f2 RO,
+                                    const Cell * cB, ShapeItem ZBl);
+
    /// helper for RO. returns true if the final token was computed, and false
    /// if finish_outer_product shall be called again
    static Token finish_outer_product(EOC_arg & arg);

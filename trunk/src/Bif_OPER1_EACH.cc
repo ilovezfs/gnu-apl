@@ -63,8 +63,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
    _arg.LO = LO;
    _arg.dB = 1;
 
-
-   if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
+// if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
 
    if (A->is_scalar())
       {

@@ -103,6 +103,11 @@ public:
    /// Return the APL value of a cell (Asserts for non-lval cells)
    virtual Cell * get_lval_value() const   { LEFT_SYNTAX_ERROR; }
 
+   /// return the owner of this cell (PointerCell), or the owner of the cell
+   // pointed to (LvalCell). CAUTION: only valid for these cells!
+   Value * get_cell_owner() const
+      { return value2.owner; }
+
    /// the Quad_CR representation of this cell
    virtual PrintBuffer character_representation(const PrintContext &pctx) const
       { DOMAIN_ERROR; }

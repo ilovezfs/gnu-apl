@@ -272,16 +272,16 @@ Tokenizer::tokenize_function(Source<Unicode> & src, Token_string & tos)
 
 const Unicode uni = src.get();
 const Token tok = tokenize_function(uni);
-   tos.append(Token(tok), LOC);
+   tos.append(tok, LOC);
 }
 //-----------------------------------------------------------------------------
 Token
 Tokenizer::tokenize_function(Unicode uni)
 {
-Token tok = Avec::uni_to_token(uni, LOC);
+const Token tok = Avec::uni_to_token(uni, LOC);
 
 #define sys(t, f) \
-   case TOK_ ## t: new (&tok) Token(tok.get_tag(), &Bif_ ## f::fun);   break;
+   case TOK_ ## t: return Token(tok.get_tag(), &Bif_ ## f::fun);   break;
 
    switch(tok.get_tag())
       {
@@ -352,9 +352,14 @@ Token tok = Avec::uni_to_token(uni, LOC);
 
         sys(OPER2_PRODUCT, OPER2_PRODUCT)
 
-        default: CERR << endl << "Token = " << tok << endl;
-                 Assert(0 && "Missing Function");
+        default: break;
       }
+
+   // CAUTION: cannot print entire token here because Avec::uni_to_token()
+   // inits the token tag but not any token pointers!
+   //
+   CERR << endl << "Token = " << tok.get_tag() << endl;
+   Assert(0 && "Missing Function");
 
 #undef sys
    return tok;

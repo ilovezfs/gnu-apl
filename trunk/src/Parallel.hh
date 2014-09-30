@@ -50,15 +50,21 @@
 #include <ext/atomicity.h>
 
 inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
-   { return __gnu_cxx::__exchange_and_add_dispatch(
-                                        (_Atomic_word *)&counter, increment); }
+   { _GLIBCXX_READ_MEM_BARRIER;
+     const int ret = __gnu_cxx::__exchange_and_add_dispatch(
+                                        (_Atomic_word *)&counter, increment);
+     _GLIBCXX_WRITE_MEM_BARRIER;
+     return ret; }
 
 inline int atomic_read(volatile _Atomic_word & counter)
-   { return __gnu_cxx::__exchange_and_add_dispatch(
+   { _GLIBCXX_READ_MEM_BARRIER;
+     return __gnu_cxx::__exchange_and_add_dispatch(
                                         (_Atomic_word *)&counter, 0); }
 
 inline void atomic_add(volatile _Atomic_word & counter, int increment)
-   { __gnu_cxx::__atomic_add_dispatch((_Atomic_word *)&counter, increment); }
+   { __gnu_cxx::__atomic_add_dispatch((_Atomic_word *)&counter, increment);
+     _GLIBCXX_WRITE_MEM_BARRIER;
+   }
 
 #else
 

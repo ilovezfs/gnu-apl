@@ -1311,7 +1311,8 @@ const Unicode type = UTF8_string::toUni(first, len);
                Assert(*end == '[');   ++end;
                const ShapeItem offset = strtoll(end, &end, 16);
                Assert(*end == ']');   ++end;
-               new (C++) LvalCell(&values[vid]->get_ravel(offset));
+               new (C++) LvalCell(&values[vid]->get_ravel(offset),
+                                  values[vid].get());
                first = (const UTF8 *)end;
              }
              break;

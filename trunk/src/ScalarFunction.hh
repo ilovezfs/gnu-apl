@@ -52,6 +52,9 @@ public:
    /// Evaluate a scalar function dyadically.
    Token eval_scalar_AB(Value_P A, Value_P B, prim_f2 fun);
 
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const = 0;
+
    /// Evaluate a scalar function dyadically with axis.
    Token eval_scalar_AXB(Value_P A, Value_P X, Value_P B, prim_f2 fun);
 
@@ -107,6 +110,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_binomial); }
 
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_binomial; }
+
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_scalar_identity_fun(B, axis, IntScalar(1, LOC)); }
@@ -133,6 +140,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_less_than); }
+
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_less_than; }
 
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
@@ -161,6 +172,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_equal); }
 
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_equal; }
+
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_scalar_identity_fun(B, axis, IntScalar(1, LOC)); }
@@ -188,6 +203,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_greater_than); }
 
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_greater_than; }
+
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_scalar_identity_fun(B, axis, IntScalar(0, LOC)); }
@@ -214,6 +233,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_and); }
+
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_and; }
 
    /// return the associative cell function of this function
    virtual assoc_f2 get_assoc() const { return &Cell::bif_and; }
@@ -245,6 +268,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_or); }
 
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_or; }
+
    /// return the associative cell function of this function
    virtual assoc_f2 get_assoc() const { return &Cell::bif_or; }
 
@@ -275,6 +302,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_less_eq); }
 
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_less_eq; }
+
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_scalar_identity_fun(B, axis, IntScalar(1, LOC)); }
@@ -302,6 +333,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_greater_eq); }
 
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_greater_eq; }
+
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_scalar_identity_fun(B, axis, IntScalar(1, LOC)); }
@@ -328,6 +363,10 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_not_equal); }
 
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_not_equal; }
+
 protected:
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
@@ -345,7 +384,8 @@ class Bif_F2_FIND : public ScalarFunction
 public:
    /// Constructor.
    Bif_F2_FIND()
-   : ScalarFunction(TOK_F2_FIND, 0, 0, -1, -1)
+   : ScalarFunction(TOK_F2_FIND, &Performance::cfs_FIND_AB,     0,
+                                 Performance::thresh_FIND_AB, -1)
    {}
 
    static Bif_F2_FIND       fun;         ///< Built-in function.
@@ -353,6 +393,10 @@ public:
 protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return 0; }
 
    /// Return true iff A is contained in B.
    static bool contained(const Shape & shape_A, const Cell * cA,
@@ -377,6 +421,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_nor); }
 
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_nor; }
+
    /// overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
       { return eval_scalar_AXB(A, X, B, &Cell::bif_nor); }
@@ -399,6 +447,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_nand); }
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_nand; }
 
    /// overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)
@@ -428,6 +480,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_power); }
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_power; }
 
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
@@ -464,6 +520,10 @@ public:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_add); }
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_add; }
 
    /// return the associative cell function of this function
    virtual assoc_f2 get_assoc() const { return &Cell::bif_add; }
@@ -510,6 +570,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_subtract); }
 
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_subtract; }
+
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
       { return eval_scalar_identity_fun(B, axis, IntScalar(0, LOC)); }
@@ -546,6 +610,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
 
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return 0; }
+
    /// recursively check that all ravel elements of B are integers ≥ 0 and
    /// return \b true iff not.
    static bool check_B(const Value & B, const APL_Float qct);
@@ -572,6 +640,10 @@ protected:
    /// Compute A without B.
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
+
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return 0; }
 };
 //-----------------------------------------------------------------------------
 /** Scalar functions times and direction.
@@ -597,6 +669,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_multiply); }
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_multiply; }
 
    /// return the associative cell function of this function
    virtual assoc_f2 get_assoc() const { return &Cell::bif_multiply; }
@@ -639,6 +715,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_divide); }
+
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_divide; }
 
    /// overloaded Function::eval_identity_fun();
    virtual Token eval_identity_fun(Value_P B, Axis axis)
@@ -683,6 +763,11 @@ protected:
       { return (inverse) ? eval_scalar_AB(A, B, &Cell::bif_circle_fun_inverse)
                          : eval_scalar_AB(A, B, &Cell::bif_circle_fun); }
 
+   /// overloaded Function::get_scalar_f2
+   virtual prim_f2 get_scalar_f2() const
+      { return (inverse) ? &Cell::bif_circle_fun_inverse
+                         : &Cell::bif_circle_fun; }
+
    /// overloaded Function::get_monadic_inverse()
    virtual Function * get_monadic_inverse() const;
 
@@ -715,6 +800,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_maximum); }
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_maximum; }
 
    /// return the associative cell function of this function
    virtual assoc_f2 get_assoc() const { return &Cell::bif_maximum; }
@@ -752,6 +841,10 @@ protected:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_minimum); }
 
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_minimum; }
+
    /// return the associative cell function of this function
    virtual assoc_f2 get_assoc() const { return &Cell::bif_minimum; }
 
@@ -782,6 +875,10 @@ public:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_residue); }
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_residue; }
 
 protected:
    /// overloaded Function::eval_B().
@@ -820,6 +917,10 @@ protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
       { return eval_scalar_AB(A, B, &Cell::bif_logarithm); }
+
+   /// overloaded Function::get_scalar_f2()
+   virtual prim_f2 get_scalar_f2() const
+      { return &Cell::bif_logarithm; }
 
    /// overloaded Function::eval_AXB().
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B)

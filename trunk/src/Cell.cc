@@ -73,7 +73,8 @@ Cell::init(const Cell & other, Value & cell_owner)
              return;
 
         case CT_CELLREF:
-             new (this) LvalCell(other.get_lval_value());
+             new (this) LvalCell(other.get_lval_value(),
+                                 other.get_cell_owner());
              return;
       }
 

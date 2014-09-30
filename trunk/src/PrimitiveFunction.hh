@@ -237,9 +237,10 @@ protected:
    /// the shape of the items being disclosed
    static Shape item_shape(Value_P B, bool rank_tolerant);
 
-   /// Pick from B according to cA and len_A
+   /// Pick from B according to cA and len_A. \b cell_owner is non-zero
+   /// if a left-vlues is picked, (e.g (2 1⊃B)←'TR')
    static Value_P pick(const Cell * cA, ShapeItem len_A, Value_P B, 
-                       APL_Float qct, APL_Integer qio, bool lval);
+                       APL_Float qct, APL_Integer qio, Value * cell_owner);
 };
 //-----------------------------------------------------------------------------
 /** Comma related functions (catenate, laminate, and ravel.)

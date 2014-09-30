@@ -904,6 +904,12 @@ const Cell * cB = &B->get_ravel(0);
 Token
 Bif_F2_FIND::eval_AB(Value_P A, Value_P B)
 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
 const APL_Float qct = Workspace::get_CT();
 Value_P Z(new Value(B->get_shape(), LOC));
 
@@ -945,8 +951,14 @@ Shape shape_A;
 
 done:
    Z->set_default_Zero();
-
    Z->check_value(LOC);
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1, Z->nz_element_count());
+#endif
+#endif
    return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================

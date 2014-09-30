@@ -1607,7 +1607,7 @@ const ShapeItem len_Z = B->get_enlist_count();
 Value_P Z(new Value(len_Z, LOC));
 
 Cell * z = &Z->get_ravel(0);
-   B->enlist(z, Z.getref(), B->is_lval());
+   B->enlist(z, Z.getref(), B->get_lval_cellowner());
 
    Z->set_default(*B.get());
    Z->check_value(LOC);
@@ -2103,7 +2103,8 @@ const ShapeItem ec_A = A->element_count();
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
-Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B->is_lval());
+Value * B_cellowner = B->get_lval_cellowner();
+Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B_cellowner);
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -2111,11 +2112,11 @@ Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B->is_lval());
 //-----------------------------------------------------------------------------
 Value_P
 Bif_F12_PICK::pick(const Cell * cA, ShapeItem len_A, Value_P B,
-                   APL_Float qct, APL_Integer qio, bool lval)
+                   APL_Float qct, APL_Integer qio, Value * cell_owner)
 {
 ShapeItem c = 0;
 
-   if (cA->is_pointer_cell())   // B is an array
+   if (cA->is_pointer_cell())   // then B shall be a 1-dimensional array
       {
         Value_P A = cA->get_pointer_value();
         if (A->get_rank() > 1)   RANK_ERROR;
@@ -2150,18 +2151,20 @@ const Cell * cB = &B->get_ravel(c);
         if (cB->is_pointer_cell())
            {
              return pick(cA + 1, len_A - 1, cB->get_pointer_value(),
-                         qct, qio, lval);
+                         qct, qio, cell_owner);
            }
 
         if (cB->is_lval_cell())
            {
-             Assert(lval);
+             Assert(cell_owner);
              Cell & cell = *cB->get_lval_value();
              if (!cell.is_pointer_cell())   DOMAIN_ERROR;
 
              Value_P subval = cell.get_pointer_value();
              Value_P subrefs = subval->get_cellrefs(LOC);
-             return pick(cA + 1, len_A - 1, subrefs, qct, qio, lval);
+             Value * sub_cellowner = subrefs->get_lval_cellowner();
+             Assert(sub_cellowner);
+             return pick(cA + 1, len_A - 1, subrefs, qct, qio, sub_cellowner);
            }
 
         // at this point the depth implied by A is greater than the
@@ -2180,7 +2183,7 @@ const Cell * cB = &B->get_ravel(c);
 
    if (cB->is_lval_cell())   // e.g. (A⊃B) ← C
       {
-        Assert(lval);
+        Assert(cell_owner);
 
         Cell * cell = cB->get_lval_value();
         if (cell->is_pointer_cell())
@@ -2190,13 +2193,13 @@ const Cell * cB = &B->get_ravel(c);
            }
 
         Value_P Z(new Value(LOC));
-        new (Z->next_ravel())   LvalCell(cell);
+        new (Z->next_ravel())   LvalCell(cell, cell_owner);
         return Z;
       }
-   else if (lval)   // e.g. (A⊃C) ← B
+   else if (cell_owner)   // e.g. (A⊃C) ← B
       {
         Value_P Z(new Value(LOC));
-        new (Z->next_ravel()) LvalCell((Cell *)cB);
+        new (Z->next_ravel()) LvalCell((Cell *)cB, cell_owner);
         return Z;
       }
    else
@@ -2336,13 +2339,14 @@ const Cell & first_B = B->get_ravel(0);
       }
 
 Value_P v1 = first_B.get_pointer_value();
-   if (v1->is_lval())
+Value * v1_owner = v1->get_lval_cellowner();
+   if (v1_owner)   // B is a left valie
       {
         Value_P B1(new Value(LOC));
         new (&B1->get_ravel(0))   PointerCell(v1, B1.getref());
 
         Value_P Z(new Value(LOC));
-        new (&Z->get_ravel(0))   LvalCell(&B1->get_ravel(0));
+        new (&Z->get_ravel(0))   LvalCell(&B1->get_ravel(0), v1_owner);
 
         Z->check_value(LOC);
         return Z;
