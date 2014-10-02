@@ -1595,7 +1595,7 @@ quad_INP & _arg = arg.u.u_quad_INP;
    //
    // make sure that B is a non-empty string and extract it.
    //
-   if (B->get_rank() > 1)   RANK_ERROR;
+   if (B->get_rank() > 1)         RANK_ERROR;
    if (B->element_count() == 0)   LENGTH_ERROR;
 
    _arg.end_marker = new UCS_string(B->get_UCS_ravel());
@@ -1780,6 +1780,96 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
    Z->check_value(LOC);
    move_2(token, Token(TOK_APL_VALUE1, Z), LOC);
    return false;   // continue
+}
+//-----------------------------------------------------------------------------
+Token
+Quad_INP::eval_XB(Value_P X, Value_P B)
+{
+   if (X->element_count() != 1)
+      {
+        if (X->get_rank() > 1)   RANK_ERROR;
+        else                     LENGTH_ERROR;
+      }
+
+APL_Integer x = X->get_ravel(0).get_int_value();
+   if (x == 0)   return eval_B(B);
+   if (x > 1)    DOMAIN_ERROR;
+
+   // B is the end of document marker for a 'HERE document', similar
+   // to ENDCAT in cat << ENDCAT.
+   //
+   // make sure that B is a non-empty string and extract it.
+   //
+   if (B->get_rank() > 1)         RANK_ERROR;
+   if (B->element_count() == 0)   LENGTH_ERROR;
+
+UCS_string end_marker(B->get_UCS_ravel());
+
+vector<UCS_string> lines;
+Parser parser(PM_EXECUTE, LOC);
+
+   for (;;)
+      {
+         bool eof = false;
+         UCS_string line;
+         UCS_string prompt;
+         InputMux::get_line(LIM_Quad_INP, prompt, line, eof,
+                            LineHistory::quad_INP_history);
+         if (eof)   break;
+         const int end_pos = line.substr_pos(end_marker);
+         if (end_pos != -1)  break;
+
+         Token_string tos;
+         ErrorCode ec = parser.parse(line, tos);
+         if (ec != E_NO_ERROR)
+            {
+              throw_apl_error(ec, LOC);
+            }
+
+         if ((tos.size() & 1) == 0)   LENGTH_ERROR;
+
+         // expect APL values at even positions and , at odd positions
+         //
+         loop(t, tos.size())
+            {
+              Token & tok = tos[t];
+              if (t & 1)   // , or ⍪
+                 {
+                   if (tok.get_tag() != TOK_F12_COMMA &&
+                       tok.get_tag() != TOK_F12_COMMA1)   DOMAIN_ERROR;
+                 }
+              else         // value
+                 {
+                   if (tok.get_Class() != TC_VALUE)   DOMAIN_ERROR;
+                 }
+
+            }
+         lines.push_back(line);
+      }
+
+Value_P Z(new Value(lines.size(), LOC));
+   loop(z, lines.size())
+      {
+         Token_string tos;
+         parser.parse(lines[z], tos);
+         const ShapeItem val_count = (tos.size() + 1)/2;
+         Value_P ZZ(new Value(val_count, LOC));
+         loop(v, val_count)
+            {
+              new (ZZ->next_ravel()) PointerCell(tos[2*v].get_apl_val(),
+                                                 ZZ.getref());
+            }
+
+         new (Z->next_ravel()) PointerCell(ZZ, Z.getref());
+      }
+
+   if (lines.size() == 0)   // empty result
+      {
+        Value_P ZZ(new Value(UCS_string(), LOC));
+        new(&Z->get_ravel(0)) PointerCell(ZZ, Z.getref());
+      }
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================
 Token

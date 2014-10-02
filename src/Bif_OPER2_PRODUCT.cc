@@ -25,6 +25,7 @@
 
 Bif_JOT            Bif_JOT::fun;
 Bif_OPER2_PRODUCT  Bif_OPER2_PRODUCT::fun;
+Bif_OPER2_PRODUCT::PJob_product Bif_OPER2_PRODUCT::job;
 
 //-----------------------------------------------------------------------------
 Token
@@ -193,11 +194,8 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    return false;   // stop it
 }
 //-----------------------------------------------------------------------------
-ErrorCode
-Bif_OPER2_PRODUCT::scalar_inner_product(Cell * cZ, const Cell * cA,
-                                        ShapeItem ZAh, prim_f2 LO,
-                                        ShapeItem LO_len, prim_f2 RO, 
-                                        const Cell * cB, ShapeItem ZBl)
+void
+Bif_OPER2_PRODUCT::scalar_inner_product()
 {
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
@@ -207,35 +205,25 @@ const uint64_t start_1 = cycle_counter();
 
   // the empty cases have been ruled out already in inner_product()
 
-const ShapeItem Z_len = ZAh * ZBl;
-Cell product;   // the result of LO, e.g. of × in +/×
+const ShapeItem Z_len = job.ZAh * job.ZBl;
+   job.ec = E_NO_ERROR;
 
-   loop(z, Z_len)   // z row = A row
+   if (  Parallel::run_parallel
+      && Thread_context::get_active_core_count() > 1
+      && Z_len > fun.get_dyadic_threshold())
       {
-        const ShapeItem zah = z/ZBl;         // z row = A row
-        const ShapeItem zbl = z - zah*ZBl;   // z column = B column
-        const Cell * row_A = cA + zah * LO_len;
-        const Cell * col_B = cB + zbl;
-        loop(l, LO_len)
-           {
-             const ErrorCode ec = (col_B->*RO)(&product, row_A);
-             if (ec != E_NO_ERROR)   return ec;
-
-             if (l == 0)   // first element
-                {
-                  const ErrorCode ec = (col_B->*RO)(cZ + z, row_A);
-                  if (ec != E_NO_ERROR)   return ec;
-                }
-             else
-                {
-                  ErrorCode ec = (col_B->*RO)(&product, row_A);
-                  if (ec != E_NO_ERROR)   return ec;
-                  ec = (product.*LO)(cZ + z, cZ + z);
-                  if (ec != E_NO_ERROR)   return ec;
-                }
-            ++row_A;
-            col_B += ZBl;
-           }
+        job.cores = Thread_context::get_active_core_count();
+//CERR << "Parallel " << job.cores << endl;
+        Thread_context::do_work = PF_scalar_inner_product;
+        Thread_context::M_fork();   // start pool
+        PF_scalar_inner_product(Thread_context::get_master());
+        Thread_context::M_join();
+      }
+   else
+      {
+        job.cores = CCNT_1;
+//CERR << "sequential " << job.cores << endl;
+        PF_scalar_inner_product(Thread_context::get_master());
       }
 
 #ifdef PERFORMANCE_COUNTERS_WANTED
@@ -244,8 +232,47 @@ const uint64_t end_1 = cycle_counter();
    Performance::fs_INNER_PROD.add_sample(end_1 - start_1, Z_len);
 #endif
 #endif
+}
+//-----------------------------------------------------------------------------
+void
+Bif_OPER2_PRODUCT::PF_scalar_inner_product(Thread_context & tctx)
+{
+const ShapeItem Z_len = job.ZAh * job.ZBl;
 
-   return E_NO_ERROR;
+const ShapeItem slice_len = (Z_len + job.cores - 1)/job.cores;
+ShapeItem z = tctx.get_N() * slice_len;
+ShapeItem end_z = z + slice_len;
+   if (end_z > Z_len)   end_z = Z_len;
+
+Cell product;   // the result of LO, e.g. of × in +/×
+
+   for (; z < end_z; ++z)
+       {
+        const ShapeItem zah = z/job.ZBl;         // z row = A row
+        const ShapeItem zbl = z - zah*job.ZBl;   // z column = B column
+        const Cell * row_A = job.cA + zah * job.LO_len;
+        const Cell * col_B = job.cB + zbl;
+        loop(l, job.LO_len)
+           {
+             job.ec = (col_B->*job.RO)(&product, row_A);
+             if (job.ec != E_NO_ERROR)   return;
+
+             if (l == 0)   // first element
+                {
+                  job.ec = (col_B->*job.RO)(job.cZ + z, row_A);
+                  if (job.ec != E_NO_ERROR)   return;
+                }
+             else
+                {
+                  job.ec = (col_B->*job.RO)(&product, row_A);
+                  if (job.ec != E_NO_ERROR)   return;
+                  job.ec = (product.*job.LO)(job.cZ + z, job.cZ + z);
+                  if (job.ec != E_NO_ERROR)   return;
+                }
+            ++row_A;
+            col_B += job.ZBl;
+           }
+       }
 }
 //-----------------------------------------------------------------------------
 Token
@@ -297,13 +324,21 @@ Value_P Z(new Value(shape_A1 + shape_B1, LOC));
    if (LO->get_scalar_f2() && RO->get_scalar_f2() &&
        A->is_simple() && B->is_simple() && len_A)
       {
-        if (len_A != len_B)   LENGTH_ERROR;
-        const ErrorCode ec = scalar_inner_product(&Z->get_ravel(0),
-                                                  &A->get_ravel(0), items_A,
-                                                  LO->get_scalar_f2(), len_A,
-                                                  RO->get_scalar_f2(),
-                                                  &B->get_ravel(0), items_B);
-        if (ec != E_NO_ERROR)   throw_apl_error(ec, LOC);
+        if (len_A != len_B &&
+            !(A->is_scalar() || B->is_scalar()))   LENGTH_ERROR;
+
+        job.cZ     = &Z->get_ravel(0);
+        job.cA     = &A->get_ravel(0);
+        job.ZAh    = items_A;
+        job.LO     = LO->get_scalar_f2();
+        job.LO_len = len_A;
+        job.RO     = RO->get_scalar_f2();
+        job.cB     = &B->get_ravel(0);
+        job.ZBl    = items_B;
+        job.ec     = E_NO_ERROR;
+
+        scalar_inner_product();
+        if (job.ec != E_NO_ERROR)   throw_apl_error(job.ec, LOC);
 
         Z->set_default(*B.get());
  

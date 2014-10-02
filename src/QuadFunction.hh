@@ -245,6 +245,9 @@ protected:
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
 
+   /// overloaded Function::eval_XB().
+   virtual Token eval_XB(Value_P X, Value_P B);
+
    /// read input until end_marker seen; maybe ⍎ esc1...esc2.
    static bool eoc_INP(Token & token, EOC_arg & arg);
 };

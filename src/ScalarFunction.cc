@@ -575,7 +575,7 @@ const uint64_t end_1 = cycle_counter();
 void
 ScalarFunction::PF_eval_scalar_AB(Thread_context & tctx)
 {
-const int cores = Thread_context::get_active_core_count();
+const CoreCount cores = Thread_context::get_active_core_count();
 PJob_scalar_AB & job = joblist_AB.get_current_job();
 
 const ShapeItem slice_len = (job.len_Z + cores - 1) / cores;
