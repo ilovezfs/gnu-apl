@@ -30,6 +30,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
+#include "../Bif_OPER2_PRODUCT.hh"
 #include "../Native_interface.hh"
 #include "../Performance.hh"
 #include "../Tokenizer.hh"
@@ -911,10 +912,20 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 202:   // get monadic parallel threshold
          case 203:   // get dyadicadic parallel threshold
               {
-                const Unicode prim = B->get_ravel(0).get_char_value();
-                const Token tok = Tokenizer::tokenize_function(prim);
-                if (!tok.is_function())   DOMAIN_ERROR;
-                Function * fun = tok.get_function();
+                const Function * fun = 0;
+                if (B->element_count() == 3)   // dyadic operator
+                   {
+                     const Unicode oper = B->get_ravel(1).get_char_value();
+                     if (oper != UNI_ASCII_FULLSTOP)   DOMAIN_ERROR;
+                     fun = &Bif_OPER2_PRODUCT::fun;
+                   }
+                else
+                   {
+                     const Unicode prim = B->get_ravel(0).get_char_value();
+                     const Token tok = Tokenizer::tokenize_function(prim);
+                     if (!tok.is_function())   DOMAIN_ERROR;
+                     fun = tok.get_function();
+                   }
                 if (fun == 0)   DOMAIN_ERROR;
                 APL_Integer old_threshold;
                 if (function_number == 202)
@@ -1174,11 +1185,21 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 202:   // set monadic parallel threshold
          case 203:   // set dyadicadic parallel threshold
               {
-                const Unicode prim = B->get_ravel(0).get_char_value();
-                const Token tok = Tokenizer::tokenize_function(prim);
                 const APL_Integer threshold = A->get_ravel(0).get_int_value();
-                if (!tok.is_function())   DOMAIN_ERROR;
-                Function * fun = tok.get_function();
+                Function * fun = 0;
+                if (B->element_count() == 3)   // dyadic operator
+                   {
+                     const Unicode oper = B->get_ravel(1).get_char_value();
+                     if (oper != UNI_ASCII_FULLSTOP)   DOMAIN_ERROR;
+                     fun = &Bif_OPER2_PRODUCT::fun;
+                   }
+                else
+                   {
+                     const Unicode prim = B->get_ravel(0).get_char_value();
+                     const Token tok = Tokenizer::tokenize_function(prim);
+                     if (!tok.is_function())   DOMAIN_ERROR;
+                     fun = tok.get_function();
+                   }
                 if (fun == 0)   DOMAIN_ERROR;
                 APL_Integer old_threshold;
                 if (function_number == 202)
