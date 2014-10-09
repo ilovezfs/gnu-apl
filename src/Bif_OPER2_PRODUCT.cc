@@ -50,6 +50,63 @@ Function * RO = _RO.get_function();
       }
 }
 //-----------------------------------------------------------------------------
+void
+Bif_OPER2_PRODUCT::scalar_outer_product()
+{
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
+  // the empty cases have been ruled out already in inner_product()
+
+const ShapeItem Z_len = job.ZAh * job.ZBl;
+   job.ec = E_NO_ERROR;
+
+   if (  Parallel::run_parallel
+      && Thread_context::get_active_core_count() > 1
+      && Z_len > fun.get_dyadic_threshold())
+      {
+        job.cores = Thread_context::get_active_core_count();
+        Thread_context::do_work = PF_scalar_outer_product;
+        Thread_context::M_fork();   // start pool
+        PF_scalar_outer_product(Thread_context::get_master());
+        Thread_context::M_join();
+      }
+   else
+      {
+        job.cores = CCNT_1;
+        PF_scalar_outer_product(Thread_context::get_master());
+      }
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t end_1 = cycle_counter();
+   Performance::fs_OUTER_PROD.add_sample(end_1 - start_1, Z_len);
+#endif
+#endif
+}
+//-----------------------------------------------------------------------------
+void
+Bif_OPER2_PRODUCT::PF_scalar_outer_product(Thread_context & tctx)
+{
+const ShapeItem Z_len = job.ZAh * job.ZBl;
+
+const ShapeItem slice_len = (Z_len + job.cores - 1)/job.cores;
+ShapeItem z = tctx.get_N() * slice_len;
+ShapeItem end_z = z + slice_len;
+   if (end_z > Z_len)   end_z = Z_len;
+
+   for (; z < end_z; ++z)
+       {
+        const ShapeItem zah = z/job.ZBl;
+        const ShapeItem zbl = z - zah*job.ZBl;
+        job.ec = ((job.cB + zbl)->*job.RO)(job.cZ + z, job.cA + zah);
+        if (job.ec != E_NO_ERROR)   return;
+       }
+}
+//-----------------------------------------------------------------------------
 Token
 Bif_OPER2_PRODUCT::outer_product(Value_P A, Token & _RO, Value_P B)
 {
@@ -57,6 +114,29 @@ Function * RO = _RO.get_function();
    Assert(RO);
 
 Value_P Z(new Value(A->get_shape() + B->get_shape(), LOC));
+
+   // an important and the most likely) special case is RO being a scalar
+   // function. This case can be implemented in a far simpler fashion than
+   // the general case.
+   //
+   if (RO->get_scalar_f2() && A->is_simple() && B->is_simple())
+      {
+        job.cZ     = &Z->get_ravel(0);
+        job.cA     = &A->get_ravel(0);
+        job.ZAh    = A->element_count();
+        job.RO     = RO->get_scalar_f2();
+        job.cB     = &B->get_ravel(0);
+        job.ZBl    = B->element_count();
+        job.ec     = E_NO_ERROR;
+
+        scalar_outer_product();
+        if (job.ec != E_NO_ERROR)   throw_apl_error(job.ec, LOC);
+
+        Z->set_default(*B.get());
+ 
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
 
    if (Z->is_empty())
       {
@@ -213,7 +293,6 @@ const ShapeItem Z_len = job.ZAh * job.ZBl;
       && Z_len > fun.get_dyadic_threshold())
       {
         job.cores = Thread_context::get_active_core_count();
-//CERR << "Parallel " << job.cores << endl;
         Thread_context::do_work = PF_scalar_inner_product;
         Thread_context::M_fork();   // start pool
         PF_scalar_inner_product(Thread_context::get_master());
@@ -222,7 +301,6 @@ const ShapeItem Z_len = job.ZAh * job.ZBl;
    else
       {
         job.cores = CCNT_1;
-//CERR << "sequential " << job.cores << endl;
         PF_scalar_inner_product(Thread_context::get_master());
       }
 
@@ -250,8 +328,8 @@ Cell product;   // the result of LO, e.g. of × in +/×
        {
         const ShapeItem zah = z/job.ZBl;         // z row = A row
         const ShapeItem zbl = z - zah*job.ZBl;   // z column = B column
-        const Cell * row_A = job.cA + zah * job.LO_len;
-        const Cell * col_B = job.cB + zbl;
+        const Cell * row_A = job.cA + job.incA*(zah * job.LO_len);
+        const Cell * col_B = job.cB + job.incB*zbl;
         loop(l, job.LO_len)
            {
              job.ec = (col_B->*job.RO)(&product, row_A);
@@ -269,8 +347,8 @@ Cell product;   // the result of LO, e.g. of × in +/×
                   job.ec = (product.*job.LO)(job.cZ + z, job.cZ + z);
                   if (job.ec != E_NO_ERROR)   return;
                 }
-            ++row_A;
-            col_B += job.ZBl;
+            row_A += job.incA;
+            col_B += job.incB*job.ZBl;
            }
        }
 }
@@ -317,7 +395,7 @@ const ShapeItem items_B = shape_B1.get_volume();
 
 Value_P Z(new Value(shape_A1 + shape_B1, LOC));
 
-   // an important and most like;lly) special case is LO and RO being scalar
+   // an important and the most likely) special case is LO and RO being scalar
    // functions. This case can be implemented in a far simpler fashion than
    // the general case.
    //
@@ -329,11 +407,13 @@ Value_P Z(new Value(shape_A1 + shape_B1, LOC));
 
         job.cZ     = &Z->get_ravel(0);
         job.cA     = &A->get_ravel(0);
+        job.incA   = A->is_scalar() ? 0 : 1;
         job.ZAh    = items_A;
         job.LO     = LO->get_scalar_f2();
-        job.LO_len = len_A;
+        job.LO_len = A->is_scalar() ? len_B : len_A;
         job.RO     = RO->get_scalar_f2();
         job.cB     = &B->get_ravel(0);
+        job.incB   = B->is_scalar() ? 0 : 1;
         job.ZBl    = items_B;
         job.ec     = E_NO_ERROR;
 

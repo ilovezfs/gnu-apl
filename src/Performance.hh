@@ -35,7 +35,7 @@ enum Pfstat_ID
         PFS_MIN1_1 = PFS_MIN1 - 1,
 #define perfo_1(id, name, _thr) PFS_ ## id,
 #define perfo_2(id, name, _thr)
-#define perfo_3(id, name)
+#define perfo_3(id, name, _thr)
 #include "Performance.def"
         PFS_MAX1,
         PFS_MAX1_1 = PFS_MAX1 - 1,
@@ -44,7 +44,7 @@ enum Pfstat_ID
         PFS_MIN2_1 = PFS_MIN2 - 1,
 #define perfo_1(id, name, _thr)
 #define perfo_2(id, name, _thr) PFS_ ## id,
-#define perfo_3(id, name)
+#define perfo_3(id, name, _thr)
 #include "Performance.def"
         PFS_MAX2,
         PFS_MAX2_1 = PFS_MAX2 - 1,
@@ -53,7 +53,7 @@ enum Pfstat_ID
         PFS_MIN3_1 = PFS_MIN3 - 1,
 #define perfo_1(id, name, _thr)
 #define perfo_2(id, name, _thr)
-#define perfo_3(id, name) PFS_ ## id,
+#define perfo_3(id, name, _thr) PFS_ ## id,
 #include "Performance.def"
         PFS_MAX3,
         PFS_MAX3_1 = PFS_MAX3 - 1,
@@ -270,7 +270,7 @@ public:
    /** dyadic parallel executionthreshold **/ \
    static const ShapeItem thresh_ ## id = thr;
 
-#define perfo_3(id, name)   \
+#define perfo_3(id, name, thr) \
    static FunctionStatistics fs_ ## id;   ///< function statistics
 #include "Performance.def"
 };

@@ -463,7 +463,11 @@ Value_P Z(new Value(*shape_Z, LOC));
                              }
 
                           const ShapeItem len_Z1 = sh_Z1->get_volume();
-                          if (len_Z1 == 0)   return eval_fill_AB(A1, B1);
+                          if (len_Z1 == 0)
+                             {
+                               joblist_AB.cancel_jobs();
+                               return eval_fill_AB(A1, B1);
+                             }
 
                           POOL_LOCK(joblist_AB.parallel_jobs_lock,
                              Value_P Z1(new Value(*sh_Z1, LOC));
@@ -559,6 +563,7 @@ Value_P Z(new Value(*shape_Z, LOC));
            }
       }
 
+   joblist_AB.cancel_jobs();
    Z->set_default(*B.get());
    Z->check_value(LOC);
 

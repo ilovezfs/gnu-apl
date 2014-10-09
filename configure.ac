@@ -338,8 +338,11 @@ AC_ARG_VAR(CORE_COUNT_WANTED,
    [ Core count (see README-2-configure) default: 0) ])
 if test "x$CORE_COUNT_WANTED" = "x";     then CORE_COUNT_WANTED=0;  fi
 if test "x$CORE_COUNT_WANTED" = "xall";  then CORE_COUNT_WANTED=-1; fi
+if test "x$CORE_COUNT_WANTED" = "xALL";  then CORE_COUNT_WANTED=-1; fi
 if test "x$CORE_COUNT_WANTED" = "xargv"; then CORE_COUNT_WANTED=-2; fi
+if test "x$CORE_COUNT_WANTED" = "xARGV"; then CORE_COUNT_WANTED=-2; fi
 if test "x$CORE_COUNT_WANTED" = "xsyl";  then CORE_COUNT_WANTED=-3; fi
+if test "x$CORE_COUNT_WANTED" = "xSYL";  then CORE_COUNT_WANTED=-3; fi
 AC_DEFINE_UNQUOTED([CORE_COUNT_WANTED], [$CORE_COUNT_WANTED],
                    [core count])
 

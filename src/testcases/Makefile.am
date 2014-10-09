@@ -16,3 +16,6 @@ dist_noinst_DATA =				\
 	UserCommand.tc				\
 	Performance.pt
 
+tar:
+	tar cvzf testcases.tgz *.tc *.pt
+
