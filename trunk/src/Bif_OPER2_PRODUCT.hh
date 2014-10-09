@@ -67,15 +67,18 @@ protected:
    /// EOC handler for inner_product with user defined RO
    static bool eoc_inner_product(Token & token, EOC_arg & arg);
 
+   /// the context for an inner or outer product
    struct PJob_product
       {
         Cell * cZ;
         const Cell * cA;
+        int incA;
         ShapeItem ZAh;
         prim_f2 LO;
         ShapeItem LO_len;
         prim_f2 RO;
         const Cell * cB;
+        int incB;
         ShapeItem ZBl;
         ErrorCode ec;
         CoreCount cores;
@@ -84,9 +87,16 @@ protected:
    static PJob_product job;
 
    /// inner product for scalar LO and RO
-   static void scalar_inner_product();
+   static inline void scalar_inner_product();
 
+   /// outer product for scalar LO and RO
+   static inline void scalar_outer_product();
+
+   /// the main loop for an inner product with scalar functions
    static void PF_scalar_inner_product(Thread_context & tctx);
+
+   /// the main loop for an outer product with scalar functions
+   static void PF_scalar_outer_product(Thread_context & tctx);
 
    /// helper for RO. returns true if the final token was computed, and false
    /// if finish_outer_product shall be called again

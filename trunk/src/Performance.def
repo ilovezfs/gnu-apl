@@ -36,12 +36,12 @@ perfo_2(CIRCLE_AB,   "A ○ B", 0x7000000000000000ULL)
 perfo_2(STILE_AB,    "A ∣ B", 0x7000000000000000ULL)
 perfo_2(FIND_AB,     "A ⋸ B", 0x7000000000000000ULL)
 
-perfo_3(SCALAR_B,   "  scalar B")
-perfo_3(SCALAR_AB,  "A scalar B")
-perfo_3(clone_B,    "clone B")
-perfo_3(RESHAPE_AB, "A ⍴ B")
-perfo_3(INNER_PROD, "A f.g B")
-perfo_3(OUTER_PROD, "A ∘.g B")
+perfo_3(SCALAR_B,   "  scalar B", 0x7000000000000000ULL)
+perfo_3(SCALAR_AB,  "A scalar B", 0x7000000000000000ULL)
+perfo_3(clone_B,    "clone B",    0x7000000000000000ULL)
+perfo_3(RESHAPE_AB, "A ⍴ B",      0x7000000000000000ULL)
+perfo_3(INNER_PROD, "A f.g B",    0x7000000000000000ULL)
+perfo_3(OUTER_PROD, "A ∘.g B",    0x7000000000000000ULL)
 
 #undef perfo_1
 #undef perfo_2

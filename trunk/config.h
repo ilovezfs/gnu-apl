@@ -56,7 +56,7 @@
 #define HAVE_LIBBLAS 1
 
 /* Define to 1 if lib(n)curses is available */
-/* #undef HAVE_LIBCURSES */
+#define HAVE_LIBCURSES 1
 
 /* Define to 1 if you have the `dl' library (-ldl). */
 #define HAVE_LIBDL 1
@@ -92,7 +92,7 @@
 #define HAVE_MUNMAP 1
 
 /* Define to 1 if <ncurses.h> is present */
-/* #undef HAVE_NCURSES_H */
+#define HAVE_NCURSES_H 1
 
 /* Define to 1 if PostgreSQL libraries are available */
 /* #undef HAVE_POSTGRESQL */
@@ -143,7 +143,7 @@
 #define HAVE_SYS_UN_H 1
 
 /* Define to 1 if <term.h> is present */
-/* #undef HAVE_TERM_H */
+#define HAVE_TERM_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1

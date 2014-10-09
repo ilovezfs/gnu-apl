@@ -39,7 +39,7 @@
 
 ∇Zh ← As FIO∆fopen Bs
  ⍝⍝ fopen(Bs, As) filename Bs
- Zh ← FILE_IO[3] Bs
+ Zh ← As FILE_IO[3] Bs
 ∇
 
 ∇Zh ← FIO∆fopen_ro Bs

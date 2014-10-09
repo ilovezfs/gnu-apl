@@ -550,7 +550,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 return Token(TOK_APL_VALUE1, Z);
               }
 
-         case 3:   // fopen(Bs, \"r\") filename Bs
+         case 3:   // fopen(Bs, "r") filename Bs
               {
                 UTF8_string path(*B.get());
                 errno = 0;
@@ -966,6 +966,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
               {
                 UTF8_string path(*B.get());
                 UTF8_string mode(*A.get());
+
                 const char * m = mode.c_str();
                 bool read = false;
                 bool write = false;
@@ -1095,7 +1096,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
               }
               goto out_errno;
 
-         case 22:   // fprintf(Bc, Ai)
+         case 22:   // fprintf(Bh, A)
               {
                 errno = 0;
                 file_entry & fe = get_file(*B.get());

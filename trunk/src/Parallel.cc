@@ -196,7 +196,15 @@ Parallel::reinit(bool logit)
    for (int w = CNUM_WORKER1; w < Thread_context::get_active_core_count(); ++w)
        {
          Thread_context * tctx = Thread_context::get_context((CoreNumber)w);
-         pthread_create(&(tctx->thread), /* attr */ 0, worker_main, tctx);
+         const int result = pthread_create(&(tctx->thread), /* attr */ 0,
+                                             worker_main, tctx);
+         if (result)
+            {
+              CERR << "pthread_create() failed at " << LOC
+                   << " : " << strerror(result) << endl;
+              Thread_context::set_active_core_count(CCNT_1);
+              return;
+            }
 
          // wait until new thread has reached its work loop
          sem_wait(&pthread_create_sema);
