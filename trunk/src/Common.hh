@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -317,7 +317,11 @@ inline int operator ++(Function_Line & fl, int)
 {
    return ((int &)fl)++;
 }
-
+//=============================================================================
+inline void skip_spaces(const char * & p)
+{
+   while (*p && *p <= ' ')   ++p;
+}
 //=============================================================================
 inline Function_PC
 operator +(Function_PC pc, int offset)

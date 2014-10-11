@@ -385,7 +385,8 @@ dist_doc_DATA = README			\
 		README-4-compliance	\
 		README-5-WINDOWS	\
                 README-6-porting	\
-		README-7-more-info
+		README-7-more-info	\
+		README-8-parallel
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 dist_noinst_DATA = Doxyfile

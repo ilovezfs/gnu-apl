@@ -78,6 +78,7 @@ make DESTDIR=%{buildroot} install
 %{_libdir}/apl/wslib5/APLComponentFiles/*
 %{_libdir}/apl/wslib5/iso-apl-cf/*
 
+%{_sysconfdir}/gnu-apl.d/parallel_thresholds
 %{_sysconfdir}/gnu-apl.d/preferences
 %{_sysconfdir}/gnu-apl.d/keyboard1.txt
 
@@ -90,6 +91,7 @@ make DESTDIR=%{buildroot} install
 %doc README-5-WINDOWS
 %doc README-6-porting
 %doc README-7-more-info
+%doc README-8-parallel
 %doc support-files/
 %doc support-files/apl.vim
 %doc support-files/old-Keyboard/apl.loadkeys

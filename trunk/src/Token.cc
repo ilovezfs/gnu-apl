@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -333,7 +333,8 @@ Token::print_function(ostream & out) const
         case TOK_OPER1_REDUCE1:
         case TOK_OPER1_SCAN:
         case TOK_OPER1_SCAN1:
-        case TOK_OPER2_PRODUCT: return out << get_Id();
+        case TOK_OPER2_OUTER:
+        case TOK_OPER2_INNER: return out << get_Id();
 
         case TOK_FUN0:      return get_function()->print(out << "USER-F0 ");
         case TOK_FUN2:      return get_function()->print(out << "USER-F2 ");

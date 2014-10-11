@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,8 +23,9 @@
 #include "Bif_F12_FORMAT.hh"
 #include "Bif_OPER1_COMMUTE.hh"
 #include "Bif_OPER1_EACH.hh"
+#include "Bif_OPER2_INNER.hh"
+#include "Bif_OPER2_OUTER.hh"
 #include "Bif_OPER2_POWER.hh"
-#include "Bif_OPER2_PRODUCT.hh"
 #include "Bif_OPER2_RANK.hh"
 #include "Bif_OPER1_REDUCE.hh"
 #include "Bif_OPER1_SCAN.hh"
@@ -174,7 +175,7 @@ Source<Unicode> src(input);
                    break;
 
               case TC_OPER2:
-                   if (tok.get_tag() == TOK_OPER2_PRODUCT && src.rest())
+                   if (tok.get_tag() == TOK_OPER2_INNER && src.rest())
                       {
                         // tok is a dot. This could mean that . is either
                         //
@@ -196,6 +197,14 @@ Source<Unicode> src(input);
                       {
                         tokenize_function(src, tos);
                       }
+                   if (tos.size() >= 2 &&
+                       tos.last().get_tag() == TOK_OPER2_INNER &&
+                       tos[tos.size() - 2].get_tag() == TOK_JOT)
+                      {
+                        new (&tos.last()) Token(TOK_OPER2_OUTER,
+                                                &Bif_OPER2_OUTER::fun);
+                      }
+                       
                    break;
 
               case TC_R_ARROW:
@@ -350,7 +359,7 @@ const Token tok = Avec::uni_to_token(uni, LOC);
         sys(OPER1_SCAN,    OPER1_SCAN)
         sys(OPER1_SCAN1,   OPER1_SCAN1)
 
-        sys(OPER2_PRODUCT, OPER2_PRODUCT)
+        sys(OPER2_INNER,   OPER2_INNER)
 
         default: break;
       }

@@ -33,27 +33,27 @@ enum Pfstat_ID
 {
         PFS_MIN1 = 0,
         PFS_MIN1_1 = PFS_MIN1 - 1,
-#define perfo_1(id, name, _thr) PFS_ ## id,
-#define perfo_2(id, name, _thr)
-#define perfo_3(id, name, _thr)
+#define perfo_1( id,  ab, name, _thr) PFS_ ## id ## ab,
+#define perfo_2(_id, _ab, name, _thr)
+#define perfo_3(_id, _ab, name, _thr)
 #include "Performance.def"
         PFS_MAX1,
         PFS_MAX1_1 = PFS_MAX1 - 1,
 
         PFS_MIN2,
         PFS_MIN2_1 = PFS_MIN2 - 1,
-#define perfo_1(id, name, _thr)
-#define perfo_2(id, name, _thr) PFS_ ## id,
-#define perfo_3(id, name, _thr)
+#define perfo_1(_id, _ab, name, _thr)
+#define perfo_2( id,  ab, name, _thr) PFS_ ## id ## ab,
+#define perfo_3(_id, _ab, name, _thr)
 #include "Performance.def"
         PFS_MAX2,
         PFS_MAX2_1 = PFS_MAX2 - 1,
 
         PFS_MIN3,
         PFS_MIN3_1 = PFS_MIN3 - 1,
-#define perfo_1(id, name, _thr)
-#define perfo_2(id, name, _thr)
-#define perfo_3(id, name, _thr) PFS_ ## id,
+#define perfo_1(_id, _ab, name, _thr)
+#define perfo_2(_id, _ab, name, _thr)
+#define perfo_3( id,  ab, name, _thr) PFS_ ## id ## ab,
 #include "Performance.def"
         PFS_MAX3,
         PFS_MAX3_1 = PFS_MAX3 - 1,
@@ -258,20 +258,20 @@ public:
    // reset all counters
    static void reset_all();
 
-#define perfo_1(id, name, thr)                 \
+#define perfo_1(id, ab, name, thr)                 \
    /** monadic cell function statistics **/    \
-   static CellFunctionStatistics cfs_ ## id;   \
+   static CellFunctionStatistics cfs_ ## id ## ab;   \
    /** monadic parallel executionthreshold **/ \
-   static const ShapeItem thresh_ ## id = thr;
+   static const ShapeItem thresh_ ## id ## ab = thr;
 
-#define perfo_2(id, name, thr)                \
+#define perfo_2(id, ab, name, thr)                \
    /** dyadic cell function statistics **/    \
-   static CellFunctionStatistics cfs_ ## id;  \
+   static CellFunctionStatistics cfs_ ## id ## ab;  \
    /** dyadic parallel executionthreshold **/ \
-   static const ShapeItem thresh_ ## id = thr;
+   static const ShapeItem thresh_ ## id ## ab = thr;
 
-#define perfo_3(id, name, thr) \
-   static FunctionStatistics fs_ ## id;   ///< function statistics
+#define perfo_3(id, ab, name, thr) \
+   static FunctionStatistics fs_ ## id ## ab;   ///< function statistics
 #include "Performance.def"
 };
 

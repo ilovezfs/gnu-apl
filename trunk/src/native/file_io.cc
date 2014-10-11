@@ -30,7 +30,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include "../Bif_OPER2_PRODUCT.hh"
+#include "../Bif_OPER2_INNER.hh"
+#include "../Bif_OPER2_OUTER.hh"
 #include "../Native_interface.hh"
 #include "../Performance.hh"
 #include "../Tokenizer.hh"
@@ -915,9 +916,15 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const Function * fun = 0;
                 if (B->element_count() == 3)   // dyadic operator
                    {
+                     const Unicode lfun = B->get_ravel(0).get_char_value();
                      const Unicode oper = B->get_ravel(1).get_char_value();
-                     if (oper != UNI_ASCII_FULLSTOP)   DOMAIN_ERROR;
-                     fun = &Bif_OPER2_PRODUCT::fun;
+                     if (oper == UNI_ASCII_FULLSTOP)
+                        {
+                          if (lfun == UNI_RING_OPERATOR)   // ∘.g
+                             fun = &Bif_OPER2_OUTER::fun;
+                          else                             // f.g
+                             fun = &Bif_OPER2_INNER::fun;
+                        }
                    }
                 else
                    {
@@ -1192,7 +1199,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                    {
                      const Unicode oper = B->get_ravel(1).get_char_value();
                      if (oper != UNI_ASCII_FULLSTOP)   DOMAIN_ERROR;
-                     fun = &Bif_OPER2_PRODUCT::fun;
+                     fun = &Bif_OPER2_INNER::fun;
                    }
                 else
                    {

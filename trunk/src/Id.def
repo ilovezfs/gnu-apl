@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -102,6 +102,7 @@ id_def( INVALID       , ---               ,          , pp )
 id_def( IO            , ---               ,          , qv )
 id_def( INP           , ---               ,          , qf )
 id_def( F2_INTER      , INTERSECTION      ,          , av )
+id_def( OPER2_INNER   , ASCII_FULLSTOP    ,          , av )
 
 id_def( JOT           , RING_OPERATOR     , = 0x4A01 , av )
 
@@ -134,6 +135,7 @@ id_def( OFF           , ---               , = 0x4F01 , pp )
 id_def( F2_OR         , OR                ,          , av )
 id_def( OMEGA         , OMEGA             ,          , av )
 id_def( OMEGA_U       , OMEGA_UNDERBAR    ,          , av )
+id_def( OPER2_OUTER   , ASCII_FULLSTOP    ,          , av )
 
 id_def( F12_PARTITION , SUBSET            , = 0x5001 , av )
 id_def( F12_PICK      , SUPERSET          ,          , av )
@@ -143,8 +145,8 @@ id_def( PP            , ---               ,          , qv )
 id_def( PR            , ---               ,          , qv )
 id_def( PS            , ---               ,          , qv )
 id_def( PT            , ---               ,          , qv )
-id_def( OPER2_PRODUCT , ASCII_FULLSTOP    ,          , av )
-id_def( PW            , ---               ,          , qv )
+  /**  OPER2_PRODUCT removed                     **/
+id_def( PW            , ---               , = 0x5009 , qv )
 id_def( OPER2_POWER   , STAR_DIAERESIS    ,          , av )
 
 id_def( Quad_Quad     , Quad_Quad         , = 0x5101 , av )

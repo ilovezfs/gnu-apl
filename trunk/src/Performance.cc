@@ -27,9 +27,12 @@
 #include "PrintOperator.hh"
 #include "UCS_string.hh"
 
-#define perfo_1(id, _name, _thr) CellFunctionStatistics Performance::cfs_##id (PFS_##id);
-#define perfo_2(id, _name, _thr) CellFunctionStatistics Performance::cfs_##id (PFS_##id);
-#define perfo_3(id, _name, _thr) FunctionStatistics Performance::fs_##id (PFS_##id);
+#define perfo_1(id, ab, _name, _thr) \
+   CellFunctionStatistics Performance::cfs_ ## id ## ab(PFS_## id ## ab);
+#define perfo_2(id, ab, _name, _thr) \
+   CellFunctionStatistics Performance::cfs_ ## id ## ab(PFS_ ## id ## ab);
+#define perfo_3(id, ab, _name, _thr) \
+   FunctionStatistics Performance::fs_ ## id ## ab (PFS_ ## id ## ab);
 #include "Performance.def"
 
 //----------------------------------------------------------------------------
@@ -42,9 +45,9 @@ Performance::get_statistics(Pfstat_ID id)
 {
    switch(id)
       {
-#define perfo_1(id, _name, _thr)   case PFS_ ## id:   return &cfs_ ## id;
-#define perfo_2(id, _name, _thr)   case PFS_ ## id:   return &cfs_ ## id;
-#define perfo_3(id, _name, _thr)   case PFS_ ## id:   return &fs_ ## id;
+#define perfo_1(id, ab, _name, _thr)   case PFS_ ## id ## ab:   return &cfs_ ## id ## ab;
+#define perfo_2(id, ab, _name, _thr)   case PFS_ ## id ## ab:   return &cfs_ ## id ## ab;
+#define perfo_3(id, ab, name, _thr)    case PFS_ ## id ## ab:   return &fs_ ## id ## ab;
 #include "Performance.def"
         default: return 0;
       }
@@ -58,9 +61,9 @@ Performance::get_statistics_type(Pfstat_ID id)
 {
    switch(id)
       {
-#define perfo_1(id, _name, _thr)   case PFS_ ## id:   return 1;
-#define perfo_2(id, _name, _thr)   case PFS_ ## id:   return 2;
-#define perfo_3(id, _name, _thr)   case PFS_ ## id:   return 3;
+#define perfo_1(id, ab, _name, _thr)   case PFS_ ## id ## ab:   return 1;
+#define perfo_2(id, ab, _name, _thr)   case PFS_ ## id ## ab:   return 2;
+#define perfo_3(id, ab, _name, _thr)   case PFS_ ## id ## ab:   return 3;
 #include "Performance.def"
         default: return 0;
       }
@@ -74,9 +77,9 @@ Statistics::get_name(Pfstat_ID id)
 {
    switch(id)
       {
-#define perfo_1(id, name, _thr)   case PFS_ ## id:   return name;
-#define perfo_2(id, name, _thr)   case PFS_ ## id:   return name;
-#define perfo_3(id, name, _thr)   case PFS_ ## id:   return name;
+#define perfo_1(id, ab, name, _thr)   case PFS_ ## id ## ab:   return name;
+#define perfo_2(id, ab, name, _thr)   case PFS_ ## id ## ab:   return name;
+#define perfo_3(id, ab, name, _thr)   case PFS_ ## id ## ab:   return name;
 #include "Performance.def"
         case PFS_SCALAR_B_overhead:  return "  f B overhead";
         case PFS_SCALAR_AB_overhead: return "A f B overhead";
@@ -115,9 +118,9 @@ Performance::print(Pfstat_ID which, ostream & out)
          return;
       }
 
-#define perfo_1(id, _name, _thr)   cfs_##id.print(out);
-#define perfo_2(id, _name, _thr)   cfs_##id.print(out);
-#define perfo_3(id, _name, _thr)
+#define perfo_1(id, ab, _name, _thr)   cfs_ ## id ## ab.print(out);
+#define perfo_2(id, ab, _name, _thr)   cfs_ ## id ## ab.print(out);
+#define perfo_3(id, ab, _name, _thr)
 #include "Performance.def"
 
    out <<
@@ -137,13 +140,13 @@ uint64_t data_AB   = fs_SCALAR_AB.get_data().get_sum ();
 double   data_AB2  = fs_SCALAR_AB.get_data().get_sum2();
 uint64_t lsum_AB = 0;
 
-#define perfo_1(id, _name, _thr) data_B   -= cfs_##id.get_sum();  \
-                           data_B2  -= cfs_##id.get_sum2(); \
-                           lsum_B   += cfs_##id.get_count();
-#define perfo_2(id, _name, _thr) data_AB  -= cfs_##id.get_sum();  \
-                           data_AB2 -= cfs_##id.get_sum2(); \
-                           lsum_AB   += cfs_##id.get_count();
-#define perfo_3(id, _name, _thr)
+#define perfo_1(id, ab, _name, _thr) data_B   -= cfs_ ## id ## ab.get_sum();  \
+                           data_B2  -= cfs_ ## id ## ab.get_sum2(); \
+                           lsum_B   += cfs_ ## id ## ab.get_count();
+#define perfo_2(id, ab, _name, _thr) data_AB  -= cfs_ ## id ## ab.get_sum();  \
+                           data_AB2 -= cfs_ ## id ## ab.get_sum2(); \
+                           lsum_AB   += cfs_ ## id ## ab.get_count();
+#define perfo_3(id, ab, _name, _thr)
 #include "Performance.def"
 
 Statistics_record rec_B (fs_SCALAR_B.get_data().get_count(), data_B, data_B2);
@@ -155,9 +158,9 @@ FunctionStatistics sca_AB(PFS_SCALAR_AB_overhead, rec_AB, lsum_AB);
    sca_B.print(out);
    sca_AB.print(out);
 
-#define perfo_1(id, _name, _thr)
-#define perfo_2(id, _name, _thr)
-#define perfo_3(id, _name, _thr) fs_ ## id.print(out);
+#define perfo_1(id, ab, _name, _thr)
+#define perfo_2(id, ab, _name, _thr)
+#define perfo_3(id, ab, _name, _thr) fs_ ## id ## ab.print(out);
 
 #include "Performance.def"
 
@@ -169,18 +172,18 @@ FunctionStatistics sca_AB(PFS_SCALAR_AB_overhead, rec_AB, lsum_AB);
 void
 Performance::save_data(ostream & out, ostream & out_file)
 {
-#define perfo_1(id, _name, _thr)   cfs_##id.save_data(out_file, #id);
-#define perfo_2(id, _name, _thr)   cfs_##id.save_data(out_file, #id);
-#define perfo_3(id, _name, _thr)   fs_##id.save_data(out_file, #id);
+#define perfo_1(id, ab, _name, _thr)   cfs_ ## id ## ab.save_data(out_file, #id);
+#define perfo_2(id, ab, _name, _thr)   cfs_ ## id ## ab.save_data(out_file, #id);
+#define perfo_3(id, ab, _name, _thr)   fs_ ## id ## ab.save_data(out_file, #id);
 #include "Performance.def"
 }
 //----------------------------------------------------------------------------
 void
 Performance::reset_all()
 {
-#define perfo_1(id, _name, _thr)   cfs_##id.reset();
-#define perfo_2(id, _name, _thr)   cfs_##id.reset();
-#define perfo_3(id, _name, _thr)   fs_##id.reset();
+#define perfo_1(id, ab, _name, _thr)   cfs_ ## id ## ab.reset();
+#define perfo_2(id, ab, _name, _thr)   cfs_ ## id ## ab.reset();
+#define perfo_3(id, ab, _name, _thr)   fs_ ## id ## ab.reset();
 #include "Performance.def"
 }
 //----------------------------------------------------------------------------

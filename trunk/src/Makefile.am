@@ -24,7 +24,8 @@ Bif_F12_FORMAT.cc				Bif_F12_FORMAT.hh	\
 Bif_OPER1_COMMUTE.cc				Bif_OPER1_COMMUTE.hh	\
 Bif_OPER1_EACH.cc				Bif_OPER1_EACH.hh	\
 Bif_OPER2_POWER.cc				Bif_OPER2_POWER.hh	\
-Bif_OPER2_PRODUCT.cc				Bif_OPER2_PRODUCT.hh	\
+Bif_OPER2_INNER.cc				Bif_OPER2_INNER.hh	\
+Bif_OPER2_OUTER.cc				Bif_OPER2_OUTER.hh	\
 Bif_OPER2_RANK.cc				Bif_OPER2_RANK.hh	\
 Bif_OPER1_REDUCE.cc				Bif_OPER1_REDUCE.hh	\
 Bif_OPER1_SCAN.cc				Bif_OPER1_SCAN.hh	\
