@@ -56,8 +56,11 @@ struct UserPreferences
      raw_cin(false)
    {}
 
-   /// read a preference file and update parameters set there
+   /// read a \b preference file and update parameters set there
    void read_config_file(bool sys, bool log_startup);
+
+   /// read a \b parallel_thresholds file and update parameters set there
+   void read_threshold_file(bool sys, bool log_startup);
 
    /// print possible command line options and exit
    static void usage(const char * prog);
@@ -168,6 +171,13 @@ struct UserPreferences
    bool raw_cin;
 
 protected:
+   /// open a user-supplied config file (in $HOME or gnu-apl.d)
+   FILE * open_user_file(const char * fname, char * opened_filename,
+                         bool sys, bool log_startup);
+
+   static void set_threshold(Function & fun, int padic, int macn,
+                             ShapeItem threshold);
+
    /// return true if file \b filename is an APL script (has execute permission
    /// and starts with #!
    static bool is_APL_script(const char * filename);

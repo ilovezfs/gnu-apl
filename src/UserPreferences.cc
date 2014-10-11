@@ -29,12 +29,15 @@
 #include "buildtag.hh"
 static const char * build_tag[] = { BUILDTAG, 0 };
 
+#include "Bif_OPER2_INNER.hh"
+#include "Bif_OPER2_OUTER.hh"
 #include "Common.hh"
 #include "IO_Files.hh"
 #include "InputFile.hh"
 #include "LibPaths.hh"
 #include "makefile.h"
 #include "Output.hh"
+#include "ScalarFunction.hh"
 #include "UserPreferences.hh"
 #include "Value.icc"
 
@@ -257,7 +260,7 @@ UserPreferences::parse_argv(bool logit)
                    exit(a);
                  }
               InputFile fam(UTF8_string(val), 0, false,
-                                          !do_not_echo, true, false);
+                                        !do_not_echo, true, false);
               InputFile::files_todo.push_back(fam);
               continue;
             }
@@ -745,15 +748,14 @@ UserPreferences::show_configure_options()
    show_version(CERR);
 }
 //-----------------------------------------------------------------------------
-void
-UserPreferences::read_config_file(bool sys, bool log_startup)
+FILE *
+UserPreferences::open_user_file(const char * fname, char * filename,
+                                bool sys, bool log_startup)
 {
-char filename[PATH_MAX + 1];
-
    if (sys)   // eg. /etc/gnu-apl.d/preferences
       {
         snprintf(filename, PATH_MAX,
-                 "%s/gnu-apl.d/preferences", Makefile__sysconfdir);
+                 "%s/gnu-apl.d/%s", Makefile__sysconfdir, fname);
       }
    else       // try $HOME/.gnu_apl
       {
@@ -762,10 +764,10 @@ char filename[PATH_MAX + 1];
            {
              if (log_startup)
                 CERR << "environment variable 'HOME' is not defined!" << endl;
-             return;
+             return 0;
            }
 
-        snprintf(filename, PATH_MAX, "%s/.gnu-apl/preferences", HOME);
+        snprintf(filename, PATH_MAX, "%s/.gnu-apl/%s", HOME, fname);
         filename[PATH_MAX] = 0;
 
         // check that $HOME/.gnu-apl/preferences exist and fall back to
@@ -774,8 +776,7 @@ char filename[PATH_MAX + 1];
         if (access(filename, F_OK) != 0)   // file does not exit
            {
              snprintf(filename, PATH_MAX,
-                      "%s/.config/gnu-apl/preferences", HOME);
-             filename[PATH_MAX] = 0;
+                      "%s/.config/gnu-apl/%s", HOME, fname);
            }
       }
 
@@ -785,13 +786,24 @@ FILE * f = fopen(filename, "r");
    if (f == 0)
       {
          if (log_startup)
-            CERR << "config file " << filename
-                 << " is not present/readable" << endl;
-         return;
+            CERR << "Not reading config file " << filename
+                 << " (not found/readable)" << endl;
+         return 0;
       }
 
    if (log_startup)
       CERR << "Reading config file " << filename << " ..." << endl;
+
+   return f;
+}
+//-----------------------------------------------------------------------------
+void
+UserPreferences::read_config_file(bool sys, bool log_startup)
+{
+char filename[PATH_MAX + 1];
+
+FILE * f = open_user_file("preferences", filename, sys, log_startup);
+   if (f == 0)   return;
 
 int line = 0;
 int file_profile = 0;   // the current profile in the preferences file
@@ -843,7 +855,7 @@ int file_profile = 0;   // the current profile in the preferences file
                    << " of config file " << filename << " (ignored)" << endl;
               continue;
             }
-         d[0] = strtol(arg, 0, 16);
+         d[0] = strtoll(arg, 0, 16);
          const bool yes = !strcasecmp(arg, "YES"     )
                        || !strcasecmp(arg, "ENABLED" )
                        || !strcasecmp(arg, "ON"      );
@@ -1070,6 +1082,96 @@ int file_profile = 0;   // the current profile in the preferences file
        }
 
    fclose(f);
+}
+//-----------------------------------------------------------------------------
+
+namespace Bif_SCALAR      { Function & fun = *(Function *)0; };
+namespace Bif_clone       { Function & fun = *(Function *)0; };
+
+void
+UserPreferences::read_threshold_file(bool sys, bool log_startup)
+{
+char filename[PATH_MAX + 1];
+
+FILE * f = open_user_file("parallel_thresholds", filename, sys, log_startup);
+   if (f == 0)   return;
+
+int line = 0;
+   for (;;)
+       {
+         enum { BUFSIZE = 200 };
+         char buffer[BUFSIZE + 1];
+         const char * s = fgets(buffer, BUFSIZE, f);
+         if (s == 0)   break;   // end of file
+
+         buffer[BUFSIZE] = 0;
+         ++line;
+
+         // skip leading spaces
+         //
+         while (*s && *s <= ' ')   ++s;
+
+         if (*s == 0)     continue;   // empty line
+         if (*s == '#')   continue;   // comment line or #undef
+
+         // eg. perfo_2(F12_MINUS, _AB, "A - B",  25 )
+         //
+         const char * p = strstr(s, "perfo_");
+         if (p == 0)   continue;
+
+         p += 6;   // skip "perfo_"
+         const int macro_type = *p++ - '0';
+         if (macro_type < 1 || macro_type > 3)
+            {
+               CERR << "Bad macro in file " << filename
+                    << " line " << line << endl;
+               continue;
+            }
+
+         // macro arguments: (param, p_ab, p_txt, p_be)
+         //
+         {
+           const char * param = strchr(p, '(');
+           if (param == 0)   goto param_error;   skip_spaces(++param);
+
+           const char * p_ab = strchr(param, ',');
+           if (p_ab == 0)   goto param_error;   skip_spaces(++p_ab);
+           const int i_ab = p_ab[1] == 'A' ? 2 : 1;
+
+           const char * p_txt = strchr(p_ab, ',');
+           if (p_txt == 0)   goto param_error;   skip_spaces(++p_txt);
+
+           const char * p_be = strchr(p_txt, ',');
+           if (p_be == 0)   goto param_error;   skip_spaces(++p_be);
+
+           const ShapeItem value = strtoll(p_be, 0, 0);
+
+         enum { _B = 1, _AB = 2 };
+#define perfo_1(bif, ab, _name, th)   if (!strncmp(param, #bif, strlen(#bif))) \
+   set_threshold(Bif_ ## bif::fun, ab, i_ab, value);
+
+#define perfo_2(bif, ab, _name, thr)  perfo_1(bif, ab, _name, thr)
+#define perfo_3(bif, ab, _name, thr)  perfo_1(bif, ab, _name, thr)
+
+#include "Performance.def"
+         }
+         continue;
+
+         param_error:
+            CERR << "Bad macro format in file " << filename
+                 << " line " << line << endl;
+       }
+}
+//-----------------------------------------------------------------------------
+void
+UserPreferences::set_threshold(Function & fun, int ab, int i_ab,
+                               ShapeItem threshold)
+{
+   if (&fun == 0)    return;
+   if (ab != i_ab)   return;
+
+   if (ab == 1)   fun.set_monadic_threshold(threshold);
+   else           fun.set_dyadic_threshold(threshold);
 }
 //-----------------------------------------------------------------------------
 

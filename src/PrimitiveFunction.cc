@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -169,7 +169,8 @@ const ShapeItem len_Z = shape_Z.get_volume();
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
 const uint64_t end_1 = cycle_counter();
-   Performance::fs_RESHAPE_AB.add_sample(end_1 - start_1, B->nz_element_count());
+   Performance::fs_F12_RHO_AB.add_sample(end_1 - start_1,
+                                         B->nz_element_count());
 #endif
 #endif
 
@@ -181,7 +182,8 @@ Token ret = do_reshape(shape_Z, *B);
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
 const uint64_t end_1 = cycle_counter();
-   Performance::fs_RESHAPE_AB.add_sample(end_1 - start_1, shape_Z.get_volume());
+   Performance::fs_F12_RHO_AB.add_sample(end_1 - start_1,
+                                         shape_Z.get_volume());
 #endif
 #endif
 

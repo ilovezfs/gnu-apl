@@ -1,6 +1,8 @@
 
-dist_noinst_DATA = preferences.in keyboard1.txt
-dist_DATA = preferences keyboard1.txt
+dist_noinst_DATA = preferences.in keyboard1.txt parallel_thresholds
+
+dist_DATA = preferences keyboard1.txt parallel_thresholds
+
 distdir = ${sysconfdir}/gnu-apl.d
 
 sedcmd1 = "s|@GNU_APL_LIBS@|${pkglibdir}|"

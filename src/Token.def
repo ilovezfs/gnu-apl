@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -194,7 +194,8 @@ TD(TOK_OPER1_REDUCE1 , TC_OPER1     , TV_FUN  , ID_OPER1_REDUCE1)
 TD(TOK_OPER1_SCAN    , TC_OPER1     , TV_FUN  , ID_OPER1_SCAN   )
 TD(TOK_OPER1_SCAN1   , TC_OPER1     , TV_FUN  , ID_OPER1_SCAN1  )
 TD(TOK_OPER2_POWER   , TC_OPER2     , TV_FUN  , ID_OPER2_POWER  )
-TD(TOK_OPER2_PRODUCT , TC_OPER2     , TV_FUN  , ID_OPER2_PRODUCT)
+TD(TOK_OPER2_INNER   , TC_OPER2     , TV_FUN  , ID_OPER2_INNER  )
+TD(TOK_OPER2_OUTER   , TC_OPER2     , TV_FUN  , ID_OPER2_OUTER  )
 TD(TOK_OPER2_RANK    , TC_OPER2     , TV_FUN  , ID_OPER2_RANK   )
 
 TD(TOK_VARIABLE      , TC_VALUE     , TV_SYM  , ID_VARIABLE     )

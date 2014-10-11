@@ -72,6 +72,13 @@ rlimit rl;
            << "sizeof(Svar_partner) is   " << sizeof(Svar_partner)
            << endl;
 
+   getrlimit(RLIMIT_NPROC, &rl);
+   if (log_startup)
+      CERR << "increasing rlimit RLIMIT_NPROC from " <<  rl.rlim_cur
+           << " to infinity" << endl;
+   rl.rlim_cur = RLIM_INFINITY;
+   setrlimit(RLIMIT_NPROC, &rl);
+
    Avec::init();
    LibPaths::init(argv0, log_startup);
    Value::init();
@@ -283,6 +290,8 @@ const bool log_startup = uprefs.log_startup_wanted();
 
    uprefs.read_config_file(true,  log_startup);   // /etc/gnu-apl.d/preferences
    uprefs.read_config_file(false, log_startup);   // $HOME/.gnu_apl/preferences
+   uprefs.read_threshold_file(true,  log_startup);  // dito parallel_thresholds
+   uprefs.read_threshold_file(false, log_startup);  // dito parallel_thresholds
 
    // struct sigaction differs between GNU/Linux and other systems, which
    // causes direct bracket assignment to not compile on some machines.

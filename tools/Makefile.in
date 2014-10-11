@@ -80,7 +80,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = APL_keyboard$(EXEEXT) APL_keyboard_learn$(EXEEXT) \
-	APL_keyboard_show$(EXEEXT) phrase_gen$(EXEEXT)
+	APL_keyboard_show$(EXEEXT) phrase_gen$(EXEEXT) \
+	memory_benchmark$(EXEEXT)
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(dist_noinst_SCRIPTS) $(top_srcdir)/depcomp
@@ -109,6 +110,9 @@ APL_keyboard_learn_LDADD = $(LDADD)
 am_APL_keyboard_show_OBJECTS = APL_keyboard_show.$(OBJEXT)
 APL_keyboard_show_OBJECTS = $(am_APL_keyboard_show_OBJECTS)
 APL_keyboard_show_LDADD = $(LDADD)
+am_memory_benchmark_OBJECTS = memory_benchmark.$(OBJEXT)
+memory_benchmark_OBJECTS = $(am_memory_benchmark_OBJECTS)
+memory_benchmark_LDADD = $(LDADD)
 am_phrase_gen_OBJECTS = phrase_gen.$(OBJEXT)
 phrase_gen_OBJECTS = $(am_phrase_gen_OBJECTS)
 phrase_gen_LDADD = $(LDADD)
@@ -148,9 +152,11 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(APL_keyboard_SOURCES) $(APL_keyboard_learn_SOURCES) \
-	$(APL_keyboard_show_SOURCES) $(phrase_gen_SOURCES)
+	$(APL_keyboard_show_SOURCES) $(memory_benchmark_SOURCES) \
+	$(phrase_gen_SOURCES)
 DIST_SOURCES = $(APL_keyboard_SOURCES) $(APL_keyboard_learn_SOURCES) \
-	$(APL_keyboard_show_SOURCES) $(phrase_gen_SOURCES)
+	$(APL_keyboard_show_SOURCES) $(memory_benchmark_SOURCES) \
+	$(phrase_gen_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -329,6 +335,7 @@ APL_keyboard_show_SOURCES = APL_keyboard_show.cc
 APL_keyboard_learn_SOURCES = APL_keyboard_learn.cc  APL_keyboard.orig.def
 APL_keyboard_SOURCES = APL_keyboard.cc        APL_keyboard.def
 phrase_gen_SOURCES = phrase_gen.cc phrase_gen.def
+memory_benchmark_SOURCES = memory_benchmark.cc
 all: all-am
 
 .SUFFIXES:
@@ -385,6 +392,10 @@ APL_keyboard_show$(EXEEXT): $(APL_keyboard_show_OBJECTS) $(APL_keyboard_show_DEP
 	@rm -f APL_keyboard_show$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(APL_keyboard_show_OBJECTS) $(APL_keyboard_show_LDADD) $(LIBS)
 
+memory_benchmark$(EXEEXT): $(memory_benchmark_OBJECTS) $(memory_benchmark_DEPENDENCIES) $(EXTRA_memory_benchmark_DEPENDENCIES) 
+	@rm -f memory_benchmark$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(memory_benchmark_OBJECTS) $(memory_benchmark_LDADD) $(LIBS)
+
 phrase_gen$(EXEEXT): $(phrase_gen_OBJECTS) $(phrase_gen_DEPENDENCIES) $(EXTRA_phrase_gen_DEPENDENCIES) 
 	@rm -f phrase_gen$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(phrase_gen_OBJECTS) $(phrase_gen_LDADD) $(LIBS)
@@ -398,6 +409,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APL_keyboard.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APL_keyboard_learn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APL_keyboard_show.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memory_benchmark.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phrase_gen.Po@am__quote@
 
 .cc.o:

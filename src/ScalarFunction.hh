@@ -86,19 +86,19 @@ protected:
    static Thread_context::PoolFunction PF_eval_scalar_B;
 };
 
-#define PERF_A(x)   TOK_F2_ ## x,                       \
-                  & Performance::cfs_ ## x ## _AB, 0,   \
-                    Performance::thresh_ ## x ## _AB, -1
+#define PERF_A(x)   TOK_F2_ ## x,                           \
+                  & Performance::cfs_F2_    ## x ## _AB, 0, \
+                    Performance::thresh_F2_ ## x ## _AB, -1
 
 #define PERF_AB(x)  TOK_F12_ ## x,                    \
-                  & Performance::cfs_ ## x ## _AB,    \
-                  & Performance::cfs_ ## x ## _B,     \
-                    Performance::thresh_ ## x ## _AB, \
-                    Performance::thresh_ ## x ## _B
+                  & Performance::cfs_F12_ ## x ## _AB,    \
+                  & Performance::cfs_F12_ ## x ## _B,     \
+                    Performance::thresh_F12_ ## x ## _AB, \
+                    Performance::thresh_F12_ ## x ## _B
 
-#define PERF_B(x)   TOK_F12_ ## x,                    \
-                  0, & Performance::cfs_ ## x ## _B,  \
-                  -1,  Performance::thresh_ ## x ## _B
+#define PERF_B(x)   TOK_F12_ ## x,                          \
+                  0, & Performance::cfs_F12_    ## x ## _B, \
+                  -1,  Performance::thresh_F12_ ## x ## _B
 
 //-----------------------------------------------------------------------------
 /** Scalar functions binomial and factorial.

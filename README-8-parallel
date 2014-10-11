@@ -1,0 +1,241 @@
+
+GNU APL supports, to some extent, execution of APL programs on multiple
+CPU cores in parallel.
+
+1. Supported Platforms
+======================
+
+As of SVN 484 parallel execution in GNU APL requires the following:
+
+a.	POSIX thread (pthread) support
+
+b.	functions pthread_getaffinity_np() and pthread_setaffinity_np() to
+	set core affinities (i.e. which thread runs on which CPU core) of the
+	threads created by GNU APL for parallel execution.
+
+c.	an atomic fetch-and-add function
+
+While a. is normally available on all platforms supported by GNU APL, b. and
+c. may not be available. Recent Linux versions provide a., b., and c., Other
+platforms may be added later.
+
+2. ./configure Options
+======================
+
+Parallel execution is currently experimental and must be ./configure'd
+explicitly (see also README-2-configure). There are two ./configure options
+related to parallel execution:
+
+   CORE_COUNT_WANTED and
+   PERFORMANCE_COUNTERS_WANTED
+
+The first option, CORE_COUNT_WANTED, controls how many cores shall be used
+for parallel execution, while the second option, PERFORMANCE_COUNTERS_WANTED,
+enables performance counters in GNU APL. Performance counters are needed for
+fine-tuning the parallelism as explained in the following.
+
+There are also two top-level make targets called 'parallel' and 'parallel1'
+'make parallel' calls ./configure with CORE_COUNT_WANTED=syl while
+'make parallel1 calls ./configure with CORE_COUNT_WANTED=syl and
+PERFORMANCE_COUNTERS_WANTED=yes.
+
+3. Parallelized Functions
+=========================
+
+As of SVN 484 the following APL functions were parallelized:
+
+a. all monadic and dyadic scalar functions
+b. inner products of all dyadic scalar functions
+c. outer products of all dyadic scalar functions
+
+More APL functions may be parallelized later.
+
+
+4. Performance measurements and Fine-tuning
+===========================================
+
+The first benchmarks performed with the parallelized scalar functions have
+shown that 'light-weight' scalar functions such as + , -, or ⌈ may execute
+faster than their sequential counterparts on one platform but slower on another
+platform. The difference between platforms can be dramatic.
+
+For that reason there is a possibility to fine-tune the break-even points
+where parallel execution is performed in favor of sequential execution.
+There is a break-even point for every monadic and for every dyadic scalar
+function.
+
+
+4.1 Theory
+-----------
+
+The sequential execution time of a scalar function is:
+
+	A0 + (B0 × N) cycles,
+
+where A0 is the 'start-up time' for the function, B0 is the 'per-item time
+for the function, and N is the vector length. The actual shape does not matter
+for scalar functions, so adding 1 2 3 4 to itself takes the same time as
+adding 2 2⍴1 2 3 4 to itself.
+
+The sequential start-up time A0 is the same for all monadic scalar functions
+and for all dyadic scalar functions; the start-up time for dyadic functions
+is a little longer than for monadic scalar functions.
+
+Now let c be the number of cores. The parallel execution time on c cores
+is then:
+
+	Ac + (Bc × N) cycles,
+
+at least when N is a multiple of c. The difference when N is a not a multiple
+of c can be neglected. Again the parallel start-up time Ac is the same for
+all monadic scalar functions and for all dyadic scalar functions. And Ac ≥ A0;
+the difference (Ac - A0) is the additional start-up and join time for the
+thread pool computing the function in parallel.
+
+From the 4 numbers A0, B0, Ac, and Bc one can compute the break-even point BE,
+which is the vector length at which parallel execution becomes faster than
+sequential execution. The break-even point is:
+
+	BE ← (Ac - A0) ÷ (B0 - Bc)
+
+The break-even point only exists if Bc < B0, that is if the parallel per-item
+cost Bc is smaller than than the sequential per-item cost B0. On some
+architectures Bc = B0 ÷ c (and then (Ac - A0) is the only concern) but
+unfortunately for multi-core CPUs with a shared memory this is not the case.
+
+4.2 Measuring A0, Ac, B0, and Bc
+--------------------------------
+
+There is a workspace 'ScalarBenchmark.apl' shipped with GNU APL that measures
+the parameters A0, Ac, B0, and Bc and writes a file 'parallel_thresholds; that
+can be fed back to GNU APL in order to set the break-even points for all
+scalar functions. The workspace can also plot the results using aplplot.
+
+The workspace is used as  follows:
+
+a.	'make parallel1' as discussed above
+b.	adjust some parameters at the beginning of ScalarBenchmark.apl (number
+	of cores, plotting yes/no, and loop counts.
+c.	run, e.g.: src/apl -f workspaces/ScalarBenchmark.apl
+
+The last step c. creates a file 'parallel_thresholds' in the current directory.
+If that file is placed in one of the directories used for the 'preferences'
+file (/etc/gnu-apl.d/ or /usr/local/etc/gnu-apl.d/ depending on ./configure
+prefix, or $HOME/.gnu-apl.d, or $HOME/.config/gnu-apl.d) the GNU APL reads
+it on start-up and sets the break-even points for the scalar functions
+accordingly.
+
+The 'ScalarBenchmark.apl' first determines A0 and Ac using small vector
+lengths N. With today's CPUs the measurement results vary considerably,
+Therefore several iterations are performed for each vector length and the
+minimum of all iterations is taken. From these minimums the least-square
+regression line for all lengths is computed.
+
+Then 'ScalarBenchmark.apl' determines the per-item costs B0 and Bc using a
+fairly large vector length N.
+
+4.3 Example 1: Intel 4-core i5-4570 CPU using 3 cores on 64-bit linux
+---------------------------------------------------------------------
+
+We discuss only two dyadic functions, + and ⋆. + is 'light-weight' and ⋆
+is not. The summary shown by 'ScalarBenchmark.apl' for + and ⋆ is:
+
+-------------- + Mix_IRC -------------- 
+average sequential startup cost:      58 cycles
+average parallel startup cost:       690 cycles
+per item cost sequential:             61 cycles
+per item cost parallel:               95 cycles
+parallel break-even length:          not reached
+
+The good news is that the extra cost for parallel start-up and join of
+(690 - 58) = 632 cycles are fairly low. We had earlier made benchmarks with
+other parallel libraries which were semaphore based and showed start-up cost
+in the 10000-20000 cycle ballpark.
+
+The bad news is that the parallel per-item cost for + are higher than the
+sequential per-item cost and therefore there is no break-even point for +.
+The per-item cost of 61 cycles is rather close to the values of a separate
+benchmark that measured the main memory access times alone (see
+tools/memory_benchmark). Our best explanation for not reaching a break-even
+for + (on this machine) is that there are more extra cycles caused by
+main-memory access conflicts of the different cores than cycles saved
+by parallelizing +.
+
+For ⋆ the result is different because ⋆ is not as light-weight as +:
+
+-------------- ⋆ Mix_IRC -------------- 
+average sequential startup cost:      58 cycles
+average parallel startup cost:       690 cycles
+per item cost sequential:            147 cycles
+per item cost parallel:               91 cycles
+parallel break-even length:           12
+
+
+4.4 Example 2: Intel 2-core E6550 CPU using 2 cores on 32-bit linux
+-------------------------------------------------------------------
+
+On this older machine the results were rather different:
+
+-------------- Mix_IRC + Mix1_IRC -------------- 
+average sequential startup cost:    2027 cycles
+average parallel startup cost:      2340 cycles
+per item cost sequential:            362 cycles
+per item cost parallel:              210 cycles
+parallel break-even length:            3
+
+-------------- Mix_IRC ⋆ Mix_IRC -------------- 
+average sequential startup cost:    2027 cycles
+average parallel startup cost:      2340 cycles
+per item cost sequential:            647 cycles
+per item cost parallel:              340 cycles
+parallel break-even length:            2
+
+All functions were faster when executed parallel. The per-item cost were
+considerably higher (in part due to the 32-bit linux) but the parallel
+start-up penalty (2340 - 2027) = 313 was smaller.
+
+Note that the start up cost vary considerably between different runs of
+the same benchmark on the same machine. Therefore you should run several
+measurements before trusting the result.
+
+4.5 Other observations
+----------------------
+
+Another, somewhat unexpected observation made when looking at several
+benchmarks is that the optimal number of cores seems to be N-1 (i.e. not N)
+on an N-core CPU.
+
+The reason is that other regular operating system activities such
+as timer interrupts occur during the APL execution. The threads used by GNU
+APL get an almost even amount of work and the threads are running at 100%
+load unless the interpreter is blocked on user input. [This is a consequence
+of using a fetch-and-add function instead of semaphores for synchronizing the
+threads.]
+
+If all N cores of a CPU are used by APL then the CPU schedules its activities
+on one of the busy cores (and most likely the same core all the time).
+That core then takes more time than the others and the entire computation\
+of the APL function is delayed accordingly.
+
+If, however, only N-1 of N cores are used then the OS sees an idle core and
+will most likely perform its activities on that core. These effects are best
+visualized when using the plotting option of ScalarBenchmark.apl.
+
+5. Summary
+==========
+
+The above discussion shows that some speedup can be achieved by parallelizing
+scalar APL functions. However the speedup is not as significant as a naive
+observer might expect (i.e. B0÷Bc = c) and varies considerably between OS
+variants and hardware platforms.
+
+While the start-up cost of the current implementation in GNU APL look good
+compared to other approaches, the per-item cost are somewhat disappointing
+on some machines (and this is due to effects outside GNU APL). A corollary
+of this could be that APL operations with little computational complexity
+(such as A⍴B) will suffer as well and will not show good speedups when
+executed in parallel.
+
+In any case is it worthwhile to fine-tune the break-even points of the
+different scalar functions.
+

@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2013  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ char_def(ASCII_ASTERISK     , '*'    , F12_POWER    , NO_SPACE ,  2A)
 char_def(ASCII_PLUS         , '+'    , F12_PLUS     , NO_SPACE ,  2B)
 char_def(ASCII_COMMA        , ','    , F12_COMMA    , NO_SPACE ,  2C)
 char_def(ASCII_MINUS        , '-'    , F12_MINUS    , NO_SPACE ,  2D)
-char_def(ASCII_FULLSTOP     , '.'    , OPER2_PRODUCT, NO_SPACE ,  2E)
+char_def(ASCII_FULLSTOP     , '.'    , OPER2_INNER  , NO_SPACE ,  2E)
 char_def(ASCII_SLASH        , '/'    , OPER1_REDUCE , NO_SPACE ,  2F)
 char_def(ASCII_0            , '0'    , NUMERIC      , NUMERIC  ,  30)
 char_def(ASCII_1            , '1'    , NUMERIC      , NUMERIC  ,  31)

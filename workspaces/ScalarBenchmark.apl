@@ -1,8 +1,5 @@
 #! /usr/local/bin/apl --script
 
-]log 25
-]log 26
-
   ⍝ tunable parameters for this benchmark program
   ⍝
   DO_PLOT←0             ⍝ do/don't plot the results of start-up cost
@@ -18,49 +15,51 @@
  ⍝
 ∇Z←MON_EXPR
   Z←⍬
-  ⍝     A          OP    B          N CN          STAT
-  Z←Z,⊂ ''         '+'   'Mix_IRC'  1 'PLUS_B'    35
-  Z←Z,⊂ ''         '-'   'Mix_IRC'  1 'MINUS_B'   35
-  Z←Z,⊂ ''         '×'   'Mix_IRC'  1 'TIMES_B'   35
-  Z←Z,⊂ ''         '÷'   'Mix1_IRC' 1 'DIVIDE_B'  35
-  Z←Z,⊂ ''         '∼'   'Bool'     1 'WITHOUT_B' 35
-  Z←Z,⊂ ''         '⌈'   'Mix_IR'   1 'RND_UP_B'  35
-  Z←Z,⊂ ''         '⌊'   'Mix_IR'   1 'RND_DN_B'  35
-  Z←Z,⊂ ''         '!'   'Int2'     1 'BINOM_B'   35
-  Z←Z,⊂ ''         '⋆'   'Mix_IRC'  1 'POWER_B'   35
-  Z←Z,⊂ ''         '⍟'   'Mix1_IRC' 1 'LOGA_B'    35
-  Z←Z,⊂ ''         '○'   'Mix_IRC'  1 'CIRCLE_B'  35
-  Z←Z,⊂ ''         '∣'   'Mix_IR'   1 'STILE_B'   35
-  Z←Z,⊂ ''         '?'   'Int2'     1 'ROLL_B'    35
+  ⍝     A          OP    B          N CN              STAT
+  ⍝-------------------------------------------------------
+  Z←Z,⊂ ""         "+"   "Mix_IRC"  1 "F12_PLUS"      35
+  Z←Z,⊂ ""         "-"   "Mix_IRC"  1 "F12_MINUS"     35
+  Z←Z,⊂ ""         "×"   "Mix_IRC"  1 "F12_TIMES"     35
+  Z←Z,⊂ ""         "÷"   "Mix1_IRC" 1 "F12_DIVIDE"    35
+  Z←Z,⊂ ""         "∼"   "Bool"     1 "F12_WITHOUT"   35
+  Z←Z,⊂ ""         "⌈"   "Mix_IR"   1 "F12_RND_UP"    35
+  Z←Z,⊂ ""         "⌊"   "Mix_IR"   1 "F12_RND_DN"    35
+  Z←Z,⊂ ""         "!"   "Int2"     1 "F12_BINOM"     35
+  Z←Z,⊂ ""         "⋆"   "Mix_IRC"  1 "F12_POWER"     35
+  Z←Z,⊂ ""         "⍟"   "Mix1_IRC" 1 "F12_LOGA"      35
+  Z←Z,⊂ ""         "○"   "Mix_IRC"  1 "F12_CIRCLE"    35
+  Z←Z,⊂ ""         "∣"   "Mix_IR"   1 "F12_STILE"     35
+  Z←Z,⊂ ""         "?"   "Int2"     1 "F12_ROLL"      35
 ∇
 
 ∇Z←DYA_EXPR
   Z←⍬
-  ⍝     A          OP    B          N CN          STAT
-  Z←Z,⊂ 'Mix_IRC'  '+'   'Mix1_IRC' 2 'PLUS_AB'    36
-  Z←Z,⊂ 'Mix_IRC'  '-'   'Mix1_IRC' 2 'MINUS_AB'   36
-  Z←Z,⊂ 'Mix_IRC'  '×'   'Mix1_IRC' 2 'TIMES_AB'   36
-  Z←Z,⊂ 'Mix1_IRC' '÷'   'Mix1_IRC' 2 'DIVIDE_AB'  36
-  Z←Z,⊂ 'Bool'     '∧'   'Bool1'    2 'AND_AB'     36
-  Z←Z,⊂ 'Bool'     '∨'   'Bool1'    2 'OR_AB'      36
-  Z←Z,⊂ 'Bool'     '⍲'   'Bool1'    2 'NAND_AB'    36
-  Z←Z,⊂ 'Bool'     '⍱'   'Bool1'    2 'NOR_AB'     36
-  Z←Z,⊂ 'Mix_IR'   '⌈'   'Mix_IR'   2 'RND_UP_AB'  36
-  Z←Z,⊂ 'Mix_IR'   '⌊'   'Mix_IR'   2 'RND_DN_AB'  36
-  Z←Z,⊂ 'Mix_IRC'  '!'   'Mix_IRC'  2 'BINOM_AB'   36
-  Z←Z,⊂ 'Mix_IRC'  '⋆'   'Mix_IRC'  2 'POWER_AB'   36
-  Z←Z,⊂ 'Mix1_IRC' '⍟'   'Mix1_IRC' 2 'LOGA_AB'    36
-  Z←Z,⊂ 'Mix_IR '  '<'   'Mix_IR'   2 'LESS_AB'    36
-  Z←Z,⊂ 'Mix_IR '  '≤'   'Mix_IR'   2 'LEQ_AB'     36
-  Z←Z,⊂ 'Mix_IRC'  '='   'Mix_IRC'  2 'EQUAL_AB'   36
-  Z←Z,⊂ 'Mix_IRC'  '≠'   'Mix_IRC'  2 'UNEQ_AB'    36
-  Z←Z,⊂ 'Mix_IR'   '>'   'Mix_IR'   2 'GREATER_AB' 36
-  Z←Z,⊂ 'Mix_IR'   '≥'   'Mix_IR'   2 'MEQ_AB'     36
-  Z←Z,⊂ '1'        '○'   'Mix_IRC'  2 'CIRCLE_AB'  36
-  Z←Z,⊂ 'Mix_IRC'  '∣'   'Mix_IRC'  2 'STILE_AB'   36
-  Z←Z,⊂ '1 2 3'    '⋸'   'Int'      2 'FIND_AB'    36
-  Z←Z,⊂ 'Mat1_IRC' '+.×' 'Mat1_IRC' 3 'IPROD_AB'   39
-  Z←Z,⊂ 'Vec1_IRC' '∘.×' 'Vec1_IRC' 3 'OPROD_AB'   40
+  ⍝     A          OP    B          N CN              STAT
+  ⍝-------------------------------------------------------
+  Z←Z,⊂ "Mix_IRC"  "+"   "Mix1_IRC" 2 "F12_PLUS"      36
+  Z←Z,⊂ "Mix_IRC"  "-"   "Mix1_IRC" 2 "F12_MINUS"     36
+  Z←Z,⊂ "Mix_IRC"  "×"   "Mix1_IRC" 2 "F12_TIMES"     36
+  Z←Z,⊂ "Mix1_IRC" "÷"   "Mix1_IRC" 2 "F12_DIVIDE"    36
+  Z←Z,⊂ "Bool"     "∧"   "Bool1"    2 "F2_AND"        36
+  Z←Z,⊂ "Bool"     "∨"   "Bool1"    2 "F2_OR"         36
+  Z←Z,⊂ "Bool"     "⍲"   "Bool1"    2 "F2_NAND"       36
+  Z←Z,⊂ "Bool"     "⍱"   "Bool1"    2 "F2_NOR"        36
+  Z←Z,⊂ "Mix_IR"   "⌈"   "Mix_IR"   2 "F12_RND_UP"    36
+  Z←Z,⊂ "Mix_IR"   "⌊"   "Mix_IR"   2 "F12_RND_DN"    36
+  Z←Z,⊂ "Mix_IRC"  "!"   "Mix_IRC"  2 "F12_BINOM"     36
+  Z←Z,⊂ "Mix_IRC"  "⋆"   "Mix_IRC"  2 "F12_POWER"     36
+  Z←Z,⊂ "Mix1_IRC" "⍟"   "Mix1_IRC" 2 "F12_LOGA"      36
+  Z←Z,⊂ "Mix_IR "  "<"   "Mix_IR"   2 "F2_LESS"       36
+  Z←Z,⊂ "Mix_IR "  "≤"   "Mix_IR"   2 "F2_LEQ"        36
+  Z←Z,⊂ "Mix_IRC"  "="   "Mix_IRC"  2 "F2_EQUAL"      36
+  Z←Z,⊂ "Mix_IRC"  "≠"   "Mix_IRC"  2 "F2_UNEQ"       36
+  Z←Z,⊂ "Mix_IR"   ">"   "Mix_IR"   2 "F2_GREATER"    36
+  Z←Z,⊂ "Mix_IR"   "≥"   "Mix_IR"   2 "F2_MEQ"        36
+  Z←Z,⊂ "1"        "○"   "Mix_IRC"  2 "F12_CIRCLE"    36
+  Z←Z,⊂ "Mix_IRC"  "∣"   "Mix_IRC"  2 "F12_STILE"     36
+  Z←Z,⊂ "1 2 3"    "⋸"   "Int"      2 "F12_FIND"      36
+  Z←Z,⊂ "Mat1_IRC" "+.×" "Mat1_IRC" 3 "OPER2_INNER"   39
+  Z←Z,⊂ "Vec1_IRC" "∘.×" "Vec1_IRC" 3 "OPER2_OUTER"   40
 ∇
 
 ∇INIT_DATA LEN;N;Ilen;Rlen;Clen
@@ -131,11 +130,11 @@
   Z←A,' ',Z
 ∇
 
-∇Z←TITLE1 EXPR;A;OP;B
+∇Z←TITLE1 EXPR;A;OP;B;Z1
   (A OP B)←3↑EXPR
-  Z←OP, ' B'
-  →(0=⍴A)/0
-  Z←'A ',Z
+  Z←OP, ' B"'    ◊ Z1←'"'
+  →(0=⍴A)/1+↑⎕LC ◊ Z1←'"A '
+  Z←Z1,Z
 ∇
 
 ∇Z←X LSQRL Y;N;XY;XX;Zb;Za;SX;SXX;SY;SXY
@@ -251,17 +250,20 @@ LP: INIT_DATA LEN←LENGTHS[I]
   SUP_A BREAK_EVEN (⊂EXPR),Z
 ∇
 
-∇SUP BREAK_EVEN PERI;EXPR;OP;ICS;ICP;SUPS;SUPP;T1;T2;BE;FPA
+∇SUP BREAK_EVEN PERI;EXPR;OP;ICS;ICP;SUPS;SUPP;T1;T2;BE;OUT
   (SUPS SUPP)←SUP   ⍝ start-up cost
   (EXPR OP ICS ICP)←PERI ⍝ per-item cost
   T1←'parallel break-even length:     '
-  T2←'     not reached' ◊ T3←'0x7000000000000000ULL'
+  T2←'     not reached' ◊ T3←'8888888888888888888ULL'
   →(ICP ≥ ICS)⍴1+↑⎕LC ◊ T2←¯8↑BE←⍕⌈ (SUPP - SUPS) ÷ ICS - ICP ◊ T3←21↑BE
   SUMMARY←SUMMARY,(⊂T1,T2),⊂''
 
-  FPA←(⊂"perfo_%d(%s, \"%s\", %s)\n"), EXPR[4]   ⍝ %d
-  FPA←FPA,(EXPR[5]),(⊂TITLE1 EXPR),⊂T3
-  FPA FIO∆fprintf TH_FILE
+  OUT←'perfo_',(⍕EXPR[4])
+  OUT←OUT, 16↑'(',(⊃EXPR[5]),','
+  OUT←OUT, 6↑'_',((-1+0<⍴⊃EXPR[1])↑'AB'),','
+  OUT←OUT, 10↑(TITLE1 EXPR),','
+  OUT←OUT, T3,')',⎕UCS ,10
+  ⊣ OUT FIO∆fwrite TH_FILE
 ∇
 
   ⍝ ----------------------------------------------------
@@ -301,20 +303,21 @@ CORES_OK:
   SUMMARY←0⍴''
   TH_FILE←"w" FIO∆fopen "parallel_thresholds"
 
-  (⊂"\n") FIO∆fprintf TH_FILE
+  ⊣ "\n" FIO∆fwrite TH_FILE
 
   ⊣ (⊂MON_A) FIGURE_B ¨ MON_EXPR
 
-  (⊂"\n") FIO∆fprintf TH_FILE
+  ⊣ "\n" FIO∆fwrite TH_FILE
 
   ⊣ (⊂DYA_A) FIGURE_B ¨ DYA_EXPR
 
-  (⊂"\n") FIO∆fprintf TH_FILE
-  (⊂"#undef perfo_1\n") FIO∆fprintf TH_FILE
-  (⊂"#undef perfo_2\n") FIO∆fprintf TH_FILE
-  (⊂"#undef perfo_3\n") FIO∆fprintf TH_FILE
+  ⊣ "\n" FIO∆fwrite TH_FILE
+  ⊣ "#undef perfo_1\n" FIO∆fwrite TH_FILE
+  ⊣ "#undef perfo_2\n" FIO∆fwrite TH_FILE
+  ⊣ "#undef perfo_3\n" FIO∆fwrite TH_FILE
+  ⊣ "\n" FIO∆fwrite TH_FILE
 
-   FIO∆fclose TH_FILE
+  ⊣ FIO∆fclose TH_FILE
 
  ''
  78↑' ============================  SUMMARY  ',80⍴'='
@@ -325,5 +328,6 @@ CORES_OK:
 
   GO
 
+  ]PSTAT
   )OFF
 
