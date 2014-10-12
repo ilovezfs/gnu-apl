@@ -93,16 +93,7 @@ Statistics::get_name(Pfstat_ID id)
 void
 Performance::print(Pfstat_ID which, ostream & out)
 {
-   out <<
-"╔═════════════════════════════════════════════════════════════════════════════╗\n"
-"║                      Performance Statistics (CPU cycles)                    ║\n"
-"╠═════════════════╦═════════════════════════════╦═════════════════════════════╣\n"
-"║                 ║         first pass          ║       subsequent passes     ║\n"
-"║      Cell       ╟──────────┬─────────┬────────╫──────────┬─────────┬────────╢\n"
-"║    Function     ║     N    │     μ   │  σ÷μ % ║     N    │     μ   │  σ÷μ % ║\n"
-"╠═════════════════╬══════════╪═════════╪════════╬══════════╪═════════╪════════╣\n";
-
-   if (which != PFS_ALL)   // one statistics
+   if (which != PFS_ALL)   // individual statistics
       {
          Statistics * stat = get_statistics(which);
          if (!stat)
@@ -111,12 +102,38 @@ Performance::print(Pfstat_ID which, ostream & out)
               return;
             }
 
-         stat->print(out);
-         out <<
-"╚═════════════════╩═══════════╧════════╧════════╩══════════╧═════════╧════════╝"
-             << endl;
+         if (which < PFS_MAX2)   // cell function statistics
+            {
+              out <<
+"╔═════════════════╦══════════╤═════════╤════════╦══════════╤═════════╤════════╗"
+                  << endl;
+              stat->print(out);
+              out <<
+"╚═════════════════╩══════════╧═════════╧════════╩══════════╧═════════╧════════╝"
+                  << endl;
+            }
+         else
+            {
+              out <<
+"╔═════════════════╦══════════╤══════════╤══════════╤══════════╗" << endl;
+              stat->print(out);
+              out <<
+"╚═════════════════╩══════════╧══════════╧══════════╧══════════╝" << endl;
+            }
          return;
       }
+
+   // print all statistics
+   //
+   out <<
+"╔═════════════════════════════════════════════════════════════════════════════╗\n"
+"║                      Performance Statistics (CPU cycles)                    ║\n"
+"╠═════════════════╦═════════════════════════════╦═════════════════════════════╣\n"
+"║                 ║         first pass          ║       subsequent passes     ║\n"
+"║      Cell       ╟──────────┬─────────┬────────╫──────────┬─────────┬────────╢\n"
+"║    Function     ║        N │ ⌀cycles │  σ÷μ % ║        N │ ⌀cycles │  σ÷μ % ║\n"
+"╠═════════════════╬══════════╪═════════╪════════╬══════════╪═════════╪════════╣\n";
+
 
 #define perfo_1(id, ab, _name, _thr)   cfs_ ## id ## ab.print(out);
 #define perfo_2(id, ab, _name, _thr)   cfs_ ## id ## ab.print(out);
@@ -125,38 +142,58 @@ Performance::print(Pfstat_ID which, ostream & out)
 
    out <<
 "╚═════════════════╩══════════╧═════════╧════════╩══════════╧═════════╧════════╝\n"
-"╔═════════════════╦══════════╤════════════╤════════╦══════════╗\n"
-"║    Function     ║     N    │      μ     │  σ÷μ % ║ aver. ⍴, ║\n"
-"╟─────────────────╫──────────┼────────────┼────────╫──────────╢"
+"╔═════════════════╦══════════╤══════════╤══════════╤══════════╗\n"
+"║    Function     ║        N │  ⌀ VLEN  │ ⌀ cycles │ cyc÷VLEN ║\n"
+"╟─────────────────╫──────────┼──────────┼──────────┼──────────╢"
        << endl;
 
    // subtract cell statistics from function statistics
    //
-uint64_t data_B    = fs_SCALAR_B .get_data().get_sum ();
-double   data_B2   = fs_SCALAR_B .get_data().get_sum2();
-uint64_t lsum_B = 0;
+uint64_t cycles_B = fs_SCALAR_B .get_data().get_sum ();
+uint64_t count1_B = 0;
+uint64_t countN_B = 0;
 
-uint64_t data_AB   = fs_SCALAR_AB.get_data().get_sum ();
-double   data_AB2  = fs_SCALAR_AB.get_data().get_sum2();
-uint64_t lsum_AB = 0;
+uint64_t cycles_AB = fs_SCALAR_AB.get_data().get_sum ();
+uint64_t count1_AB = 0;
+uint64_t countN_AB = 0;
 
-#define perfo_1(id, ab, _name, _thr) data_B   -= cfs_ ## id ## ab.get_sum();  \
-                           data_B2  -= cfs_ ## id ## ab.get_sum2(); \
-                           lsum_B   += cfs_ ## id ## ab.get_count();
-#define perfo_2(id, ab, _name, _thr) data_AB  -= cfs_ ## id ## ab.get_sum();  \
-                           data_AB2 -= cfs_ ## id ## ab.get_sum2(); \
-                           lsum_AB   += cfs_ ## id ## ab.get_count();
+#define perfo_1(id, ab, _name, _thr)                                  \
+                           cycles_B   -= cfs_ ## id ## ab.get_sum();  \
+                           count1_B += cfs_ ## id ## ab.get_count1(); \
+                           countN_B += cfs_ ## id ## ab.get_countN();
+
+#define perfo_2(id, ab, _name, _thr)                                   \
+                           cycles_AB  -= cfs_ ## id ## ab.get_sum();   \
+                           count1_AB += cfs_ ## id ## ab.get_count1(); \
+                           countN_AB += cfs_ ## id ## ab.get_countN();
+
 #define perfo_3(id, ab, _name, _thr)
 #include "Performance.def"
 
-Statistics_record rec_B (fs_SCALAR_B.get_data().get_count(), data_B, data_B2);
-Statistics_record rec_AB(fs_SCALAR_AB.get_data().get_count(),data_AB,data_AB2);
+   {
+     const uint64_t vlen_B = count1_B ? (count1_B + countN_B)/count1_B : 1;
+     const uint64_t div1_B  = count1_B ? count1_B : 1;
+     const uint64_t div2_B  = count1_B ? vlen_B * count1_B : 1;
 
-FunctionStatistics sca_B(PFS_SCALAR_B_overhead, rec_B, lsum_B);
-FunctionStatistics sca_AB(PFS_SCALAR_AB_overhead, rec_AB, lsum_AB);
+     out << "║   f B overhead  ║ " << right
+         << setw(8) << fs_SCALAR_B.get_data().get_count()
+         << " │ " << setw(8) << vlen_B
+         << " │ " << setw(8) << cycles_B/div1_B
+         << " │ " << setw(8) << cycles_B/div2_B
+         << " ║"  << endl;
+   }
 
-   sca_B.print(out);
-   sca_AB.print(out);
+   {
+     const uint64_t vlen_AB = count1_AB ? (count1_AB + countN_AB)/count1_AB : 1;
+     const uint64_t div1_AB = count1_AB ? count1_AB : 1;
+     const uint64_t div2_AB = count1_AB ? vlen_AB * count1_AB : 1;
+     out << "║ A f B overhead  ║ "
+         << setw(8) << fs_SCALAR_AB.get_data().get_count()
+         << " │ " << setw(8) << vlen_AB
+         << " │ " << setw(8) << cycles_AB/div1_AB
+         << " │ " << setw(8) << cycles_AB/div2_AB
+         << " ║"  << left << endl;
+   }
 
 #define perfo_1(id, ab, _name, _thr)
 #define perfo_2(id, ab, _name, _thr)
@@ -165,7 +202,7 @@ FunctionStatistics sca_AB(PFS_SCALAR_AB_overhead, rec_AB, lsum_AB);
 #include "Performance.def"
 
    out <<
-"╚═════════════════╩══════════╧════════════╧════════╩══════════╝"
+"╚═════════════════╩══════════╧══════════╧══════════╧══════════╝"
        << endl;
 }
 //----------------------------------------------------------------------------
@@ -228,15 +265,14 @@ UTF8_string utf(get_name());
 UCS_string uname(utf);
    out << "║ " << utf;
    loop(n, 15 - uname.size())   out << " ";
-   out << " ║ ";
 
-uint64_t aver_len = 0;
-   if (data.get_count())   aver_len = len_sum / data.get_count();
+const uint64_t div = vec_lengths.get_average() ? vec_lengths.get_average() : 1;
 
-   data.print(out, 8, 10);
-   out << " ║ ";
-   out << right << setw(8) << aver_len << left;
-   out << " ║" << endl;
+   out << " ║ " << right << setw(8) << vec_lengths.get_count()
+       << " │ " << setw(8) << vec_lengths.get_average() 
+       << " │ " << setw(8) << vec_cycles.get_average()
+       << " │ " << setw(8) << (vec_cycles.get_average() / div)
+       << left << " ║" << endl;
 }
 //----------------------------------------------------------------------------
 void
@@ -245,7 +281,7 @@ FunctionStatistics::save_data(ostream & outf, const char * id_name)
 char cc[100];
    snprintf(cc, sizeof(cc), "%s,", id_name);
    outf << "prf_3 (PFS_" << left << setw(12) << cc << right;
-   data.save_record(outf);
+   vec_cycles.save_record(outf);
    outf << ")" << endl;
 }
 //============================================================================
@@ -256,11 +292,11 @@ UTF8_string utf(get_name());
 UCS_string uname(utf);
    out << "║ " << uname;
    loop(n, 12 - uname.size())   out << " ";
-   out << "    ║ ";
+   out << "    ║";
 
-   first.print(out);
-   out << " ║ ";
-   subsequent.print(out);
+   first.print(out, 9, 7);
+   out << " ║";
+   subsequent.print(out, 9, 7);
    out << " ║" << endl;
 }
 //----------------------------------------------------------------------------
