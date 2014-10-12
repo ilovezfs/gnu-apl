@@ -151,10 +151,9 @@
   ⍝ ----------------------------------------------------
   ⍝ Run one pass (one length), return average cycles
   ⍝
-∇Z←CCNT ONE_PASS EXPR;OP;STAT;I;ZZ;TH1;TH2;CYCLES;T0;T1
+∇Z←ONE_PASS EXPR;OP;STAT;I;ZZ;TH1;TH2;CYCLES;T0;T1
   OP←⊃EXPR[2]
   STAT←EXPR[6]
-  ⎕SYL[26;2] ← CCNT
   TH1← 1 FIO∆set_monadic_threshold OP
   TH2← 1 FIO∆set_dyadic_threshold  OP
 
@@ -194,13 +193,15 @@ DONE:
   'Benchmarking start-up cost for ', (TITLE EXPR), ' ...'
 
   I←1 ◊ ZS←0 2⍴0
+  ⎕SYL[26;2] ← 0   ⍝ sequential
 LS: INIT_DATA LEN←LENGTHS[I]
-  ZS←ZS⍪0 ONE_PASS EXPR
+  ZS←ZS⍪ONE_PASS EXPR
   →(LL≥I←I+1)⍴LS
 
   I←1 ◊ ZP←0 2⍴0
+  ⎕SYL[26;2] ← CORES   ⍝ parallel
 LP: INIT_DATA LEN←LENGTHS[I]
-  ZP←ZP⍪CORES ONE_PASS EXPR
+  ZP←ZP⍪ONE_PASS EXPR
   →(LL≥I←I+1)⍴LP
 
   (SA SB)←⌊ ZS[;1] LSQRL ZS[;2]
@@ -238,8 +239,10 @@ LP: INIT_DATA LEN←LENGTHS[I]
   SUMMARY←SUMMARY,⊂'average parallel startup cost:  ', (¯8↑⍕⌈POFF), ' cycles'
 
   INIT_DATA LEN_PI
-  (LEN SCYC)←0     ONE_PASS EXPR
-  (LEN PCYC)←CORES ONE_PASS EXPR
+  ⎕SYL[26;2] ← 0   ⍝ sequential
+  (LEN SCYC)←ONE_PASS EXPR
+  ⎕SYL[26;2] ← CORES   ⍝ parallel
+  (LEN PCYC)←ONE_PASS EXPR
   Z←⊂TITLE EXPR
   Z←Z, ⌈ (SCYC - SOFF) ÷ LEN
   Z←Z, ⌈ (PCYC - POFF) ÷ LEN

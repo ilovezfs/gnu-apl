@@ -84,7 +84,7 @@ public:
       { ++count;   data += val;   data2 += val*val; }
 
    /// print count, data, and data2
-   void print(ostream & out, int l_N = 8, int l_u = 7);
+   void print(ostream & out, int l_N, int l_u);
 
    /// write count, data, and data2 to file
    void save_record(ostream & outf);
@@ -94,6 +94,9 @@ public:
 
    uint64_t get_sum() const
       { return data; }
+
+   uint64_t get_average() const
+      { return count ? data/count : 0; }
 
    double get_sum2() const
       { return data2; }
@@ -151,18 +154,11 @@ public:
    : Statistics(_id)
    { reset(); }
 
-   FunctionStatistics(Pfstat_ID _id, const Statistics_record & rec,
-                      uint64_t lsum)
-   : Statistics(_id),
-     data(rec),
-     len_sum(lsum)
-   {}
-
    /// overloaded Statistics::print()
    virtual void reset()
         {
-          data.reset();
-          len_sum = 0;
+          vec_cycles.reset();
+          vec_lengths.reset();
         }
 
    /// overloaded Statistics::print()
@@ -172,22 +168,20 @@ public:
    virtual void save_data(ostream & outf, const char * id_name);
 
    virtual const Statistics_record * get_record() const
-      { return  &data; }
+      { return &vec_cycles; }
 
    const Statistics_record & get_data() const
-      { return data; }
+      { return vec_cycles; }
 
    void add_sample(uint64_t val, uint64_t veclen)
       {
-         data.add_sample(val);
-         len_sum += veclen;
+         vec_cycles.add_sample(val);
+         vec_lengths.add_sample(veclen);
        }
 
 protected:
-   Statistics_record data;
-
-   /// sum of vector lengths
-   uint64_t len_sum;
+   Statistics_record vec_lengths;
+   Statistics_record vec_cycles;
 };
 //-----------------------------------------------------------------------------
 /// performance counters for a cell level function
@@ -227,6 +221,12 @@ public:
 
    double get_sum2() const
       { return first.get_sum2() + subsequent.get_sum2(); }
+
+   uint64_t get_count1() const
+      { return first.get_count(); }
+
+   uint64_t get_countN() const
+      { return subsequent.get_count(); }
 
    uint64_t get_count() const
       { return first.get_count() + subsequent.get_count(); }
