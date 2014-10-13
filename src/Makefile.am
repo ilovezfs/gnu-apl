@@ -87,7 +87,6 @@ Shape.cc					Shape.hh		\
 ScalarFunction.cc				ScalarFunction.hh	\
 						Source.hh		\
 StateIndicator.cc				StateIndicator.hh	\
-StaticObjects.cc							\
 Svar_DB.cc					Svar_DB.hh		\
 Svar_record.cc					Svar_record.hh		\
 tcp_signal.m4		Svar_signals.def	Svar_signals.hh		\

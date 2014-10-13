@@ -24,6 +24,7 @@
 #include "Function.hh"
 #include "main.hh"
 #include "Output.hh"
+#include "Performance.hh"
 #include "PointerCell.hh"
 #include "PrintBuffer.hh"
 #include "PrintOperator.hh"
@@ -46,6 +47,12 @@ PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx,
                          ostream * out)
    : complete(false)
 {
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_1 = cycle_counter();
+#endif
+#endif
+
    // Note: if ostream is non-0 then this value may be inccomplete
    // (as indicated by member complete if it is huge. This is to speed
    // up printing if the value is discarded after having been printed
@@ -359,6 +366,16 @@ maybe_print_it:
         *out << ucs << endl;
       }
    complete = true;
+
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+   {
+     const uint64_t end_1 = cycle_counter();
+     Performance::fs_PrintBuffer_B.add_sample(end_1 - start_1, ec);
+   }
+#endif
+#endif
+
    return;
 
 interrupted:

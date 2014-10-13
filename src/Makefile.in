@@ -121,13 +121,13 @@ am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	Quad_RL.$(OBJEXT) Quad_SVx.$(OBJEXT) Quad_TF.$(OBJEXT) \
 	Parallel.$(OBJEXT) Performance.$(OBJEXT) RealCell.$(OBJEXT) \
 	Shape.$(OBJEXT) ScalarFunction.$(OBJEXT) \
-	StateIndicator.$(OBJEXT) StaticObjects.$(OBJEXT) \
-	Svar_DB.$(OBJEXT) Svar_record.$(OBJEXT) Symbol.$(OBJEXT) \
-	SymbolTable.$(OBJEXT) SystemVariable.$(OBJEXT) \
-	IO_Files.$(OBJEXT) Token.$(OBJEXT) Tokenizer.$(OBJEXT) \
-	UCS_string.$(OBJEXT) UserFunction.$(OBJEXT) \
-	UserPreferences.$(OBJEXT) UTF8_string.$(OBJEXT) \
-	Value.$(OBJEXT) ValueHistory.$(OBJEXT) Workspace.$(OBJEXT)
+	StateIndicator.$(OBJEXT) Svar_DB.$(OBJEXT) \
+	Svar_record.$(OBJEXT) Symbol.$(OBJEXT) SymbolTable.$(OBJEXT) \
+	SystemVariable.$(OBJEXT) IO_Files.$(OBJEXT) Token.$(OBJEXT) \
+	Tokenizer.$(OBJEXT) UCS_string.$(OBJEXT) \
+	UserFunction.$(OBJEXT) UserPreferences.$(OBJEXT) \
+	UTF8_string.$(OBJEXT) Value.$(OBJEXT) ValueHistory.$(OBJEXT) \
+	Workspace.$(OBJEXT)
 apl_OBJECTS = $(am_apl_OBJECTS)
 am__DEPENDENCIES_1 =
 apl_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -483,7 +483,6 @@ Shape.cc					Shape.hh		\
 ScalarFunction.cc				ScalarFunction.hh	\
 						Source.hh		\
 StateIndicator.cc				StateIndicator.hh	\
-StaticObjects.cc							\
 Svar_DB.cc					Svar_DB.hh		\
 Svar_record.cc					Svar_record.hh		\
 tcp_signal.m4		Svar_signals.def	Svar_signals.hh		\
@@ -665,7 +664,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ScalarFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Shape.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StateIndicator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StaticObjects.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Svar_DB.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Svar_record.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Symbol.Po@am__quote@

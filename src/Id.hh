@@ -29,7 +29,7 @@ class UCS_string;
 
 /*!
  An Identifier for each internal object (primitives, Quad-symbols, and more).
- The ID can be derived in four ways:
+ The ID can be derived in different ways:
 
  1. from the name of an ⎕AV element, e.g.  ID_F2_AND or ID_ASSIGN
  2. from a name,                     e.g.  ID_APL_VALUE or ID_CHARACTER
@@ -53,7 +53,7 @@ enum Id
 };
 
 /// return a pointer to the system function with Id \b id,
-/// or 0 if id is no function
+/// or 0 if id is not a system function
 const UCS_string & id_name(Id id);
 
 /// If \b id is the ID of primitive function, primitive operator, or
