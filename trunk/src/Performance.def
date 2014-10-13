@@ -39,9 +39,10 @@ perfo_2(F2_FIND        , _AB, "A ⋸ B",      8888888888888888888ULL)
 perfo_3(SCALAR         , _B,  "  scalar B", 8888888888888888888ULL)
 perfo_3(SCALAR         , _AB, "A scalar B", 8888888888888888888ULL)
 perfo_3(clone          , _B,  "clone B",    8888888888888888888ULL)
-perfo_3(F12_RHO        , _AB, "A ⍴ B",      8888888888888888888ULL)
 perfo_3(OPER2_INNER    , _AB, "A f.g B",    8888888888888888888ULL)
 perfo_3(OPER2_OUTER    , _AB, "A ∘.g B",    8888888888888888888ULL)
+perfo_3(F12_RHO        , _AB, "A ⍴ B",      8888888888888888888ULL)
+perfo_3(PrintBuffer    , _B,  "PrintBuffer(B)", -1)
 
 #undef perfo_1
 #undef perfo_2

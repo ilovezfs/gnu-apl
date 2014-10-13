@@ -115,10 +115,12 @@ Performance::print(Pfstat_ID which, ostream & out)
          else
             {
               out <<
-"╔═════════════════╦══════════╤══════════╤══════════╤══════════╗" << endl;
+"╔═════════════════╦════════════╤══════════╤══════════╤══════════╤══════════╗"
+                  << endl;
               stat->print(out);
               out <<
-"╚═════════════════╩══════════╧══════════╧══════════╧══════════╝" << endl;
+"╚═════════════════╩════════════╧══════════╧══════════╧══════════╧══════════╝"
+                   << endl;
             }
          return;
       }
@@ -142,9 +144,9 @@ Performance::print(Pfstat_ID which, ostream & out)
 
    out <<
 "╚═════════════════╩══════════╧═════════╧════════╩══════════╧═════════╧════════╝\n"
-"╔═════════════════╦══════════╤══════════╤══════════╤══════════╗\n"
-"║    Function     ║        N │  ⌀ VLEN  │ ⌀ cycles │ cyc÷VLEN ║\n"
-"╟─────────────────╫──────────┼──────────┼──────────┼──────────╢"
+"╔═════════════════╦════════════╤══════════╤══════════╤══════════╤══════════╗\n"
+"║    Function     ║            │        N │  ⌀ VLEN  │ ⌀ cycles │ cyc÷VLEN ║\n"
+"╟─────────────────╫────────────┼──────────┼──────────┼──────────┼──────────╢"
        << endl;
 
    // subtract cell statistics from function statistics
@@ -173,10 +175,11 @@ uint64_t countN_AB = 0;
    {
      const uint64_t vlen_B = count1_B ? (count1_B + countN_B)/count1_B : 1;
      const uint64_t div1_B  = count1_B ? count1_B : 1;
-     const uint64_t div2_B  = count1_B ? vlen_B * count1_B : 1;
+     const uint64_t div2_B  = count1_B + countN_B ? count1_B + countN_B : 1;
 
      out << "║   f B overhead  ║ " << right
-         << setw(8) << fs_SCALAR_B.get_data().get_count()
+         <<         setw(10) << cycles_B
+         << " │ " << setw(8) << fs_SCALAR_B.get_data().get_count()
          << " │ " << setw(8) << vlen_B
          << " │ " << setw(8) << cycles_B/div1_B
          << " │ " << setw(8) << cycles_B/div2_B
@@ -186,9 +189,10 @@ uint64_t countN_AB = 0;
    {
      const uint64_t vlen_AB = count1_AB ? (count1_AB + countN_AB)/count1_AB : 1;
      const uint64_t div1_AB = count1_AB ? count1_AB : 1;
-     const uint64_t div2_AB = count1_AB ? vlen_AB * count1_AB : 1;
+     const uint64_t div2_AB = count1_AB + countN_AB ? count1_AB + countN_AB : 1;
      out << "║ A f B overhead  ║ "
-         << setw(8) << fs_SCALAR_AB.get_data().get_count()
+         <<         setw(10) << cycles_AB
+         << " │ " << setw(8) << fs_SCALAR_AB.get_data().get_count()
          << " │ " << setw(8) << vlen_AB
          << " │ " << setw(8) << cycles_AB/div1_AB
          << " │ " << setw(8) << cycles_AB/div2_AB
@@ -202,7 +206,7 @@ uint64_t countN_AB = 0;
 #include "Performance.def"
 
    out <<
-"╚═════════════════╩══════════╧══════════╧══════════╧══════════╝"
+"╚═════════════════╩════════════╧══════════╧══════════╧══════════╧══════════╝"
        << endl;
 }
 //----------------------------------------------------------------------------
@@ -268,7 +272,9 @@ UCS_string uname(utf);
 
 const uint64_t div = vec_lengths.get_average() ? vec_lengths.get_average() : 1;
 
-   out << " ║ " << right << setw(8) << vec_lengths.get_count()
+   out << " ║ " << right
+       <<         setw(10) << vec_cycles.get_sum()
+       << " │ " << setw(8) << vec_lengths.get_count()
        << " │ " << setw(8) << vec_lengths.get_average() 
        << " │ " << setw(8) << vec_cycles.get_average()
        << " │ " << setw(8) << (vec_cycles.get_average() / div)

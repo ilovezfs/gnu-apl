@@ -130,6 +130,14 @@ const uint64_t start_1 = cycle_counter();
 #endif
 
 const Shape shape_Z(A, Workspace::get_CT(), 0);
+
+   // check that shape_Z is positive
+   //
+   loop(r, shape_Z.get_rank())
+      {
+        if (shape_Z.get_shape_item(r) < 0)   DOMAIN_ERROR;
+      }
+
 const ShapeItem len_Z = shape_Z.get_volume();
 
    if (len_Z <= B->element_count()   &&
@@ -195,13 +203,6 @@ Bif_F12_RHO::do_reshape(const Shape & shape_Z, const Value & B)
 {
 const ShapeItem len_B = B.element_count();
 const ShapeItem len_Z = shape_Z.get_volume();
-
-   // check that shape_Z is positive
-   //
-   loop(z, shape_Z.get_rank())
-      {
-        if (shape_Z.get_shape_item(z) < 0)   DOMAIN_ERROR;
-      }
 
 Value_P Z(new Value(shape_Z, LOC));
 

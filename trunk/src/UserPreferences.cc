@@ -1085,8 +1085,11 @@ int file_profile = 0;   // the current profile in the preferences file
 }
 //-----------------------------------------------------------------------------
 
+// dummy functions for operations that are not built-in APL functions
+//
 namespace Bif_SCALAR      { Function & fun = *(Function *)0; };
 namespace Bif_clone       { Function & fun = *(Function *)0; };
+namespace Bif_PrintBuffer { Function & fun = *(Function *)0; };
 
 void
 UserPreferences::read_threshold_file(bool sys, bool log_startup)
