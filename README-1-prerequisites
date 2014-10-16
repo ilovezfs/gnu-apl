@@ -4,15 +4,10 @@ libraries/packages have been installed:
 
 gcc/g++		from a GNU mirror (directory: gcc, file: gcc-?.?.?.tar.gz)
 make		from a GNU mirror (directory: gcc, file: make-?.?.tar.gz)
-(lib-)lapack    from http://www.netlib.org/lapack/
 
 If you are using Ubuntu, then the following commands may do the trick:
 
     apt-get install g++
-    apt-get install liblapack-dev
-
-GNU APL MAY compile without liblapack; in this case the matrix divide and
-matrix inverse function (aka Domino or ⌹) will report DOMAIN ERROR when called.
 
 On Linux Mint 16 (and possibly some other GNU/Linux distributions) you may
 need to install package ncurses-dev in order to uses curses functions,

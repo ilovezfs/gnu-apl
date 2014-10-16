@@ -44,7 +44,7 @@ for configure:
 setenv CC gcc46
 setenv CXX g++46
 setenv LDFLAGS '-L/usr/local/lib -L/usr/local/lib/gcc46 -R/usr/local/lib -R/usr/local/lib/gcc46'
-setenv LIBS ' -llapack -lblas  -lgfortran -lexecinfo ' 
+setenv LIBS ' -lexecinfo ' 
 
 Freebsd 9
 -------------------------------------------------------------------------------

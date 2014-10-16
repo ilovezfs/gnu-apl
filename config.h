@@ -52,9 +52,6 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
-/* Define to 1 if you have the `blas' library (-lblas). */
-#define HAVE_LIBBLAS 1
-
 /* Define to 1 if lib(n)curses is available */
 #define HAVE_LIBCURSES 1
 
@@ -63,9 +60,6 @@
 
 /* Define to 1 if you have the `execinfo' library (-lexecinfo). */
 /* #undef HAVE_LIBEXECINFO */
-
-/* Define to 1 if you have the `lapack' library (-llapack). */
-#define HAVE_LIBLAPACK 1
 
 /* Define to 1 if you have the `m' library (-lm). */
 #define HAVE_LIBM 1

@@ -112,7 +112,7 @@ APL_keyboard_show_OBJECTS = $(am_APL_keyboard_show_OBJECTS)
 APL_keyboard_show_LDADD = $(LDADD)
 am_memory_benchmark_OBJECTS = memory_benchmark.$(OBJEXT)
 memory_benchmark_OBJECTS = $(am_memory_benchmark_OBJECTS)
-memory_benchmark_LDADD = $(LDADD)
+memory_benchmark_DEPENDENCIES =
 am_phrase_gen_OBJECTS = phrase_gen.$(OBJEXT)
 phrase_gen_OBJECTS = $(am_phrase_gen_OBJECTS)
 phrase_gen_LDADD = $(LDADD)
@@ -336,6 +336,7 @@ APL_keyboard_learn_SOURCES = APL_keyboard_learn.cc  APL_keyboard.orig.def
 APL_keyboard_SOURCES = APL_keyboard.cc        APL_keyboard.def
 phrase_gen_SOURCES = phrase_gen.cc phrase_gen.def
 memory_benchmark_SOURCES = memory_benchmark.cc
+memory_benchmark_LDADD = -lpthread
 all: all-am
 
 .SUFFIXES:
