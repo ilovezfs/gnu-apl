@@ -446,7 +446,7 @@ IndexExpr.cc					IndexExpr.hh		\
 IndexIterator.cc				IndexIterator.hh	\
 InputFile.cc					InputFile.hh		\
 IntCell.cc					IntCell.hh		\
-LApack.cc								\
+LApack.cc					LApack.hh		\
 LibPaths.cc					LibPaths.hh		\
 LineInput.cc					LineInput.hh		\
 Logging.cc	    Logging.def			Logging.hh		\

@@ -3,10 +3,7 @@ You can run GNU APL on windows by means of CYGWIN:
 
 1. install CYGWIN (see http://www.cygwin.org)
 
-2. Install additional libraries (unless they are installed already)
-    libintl8		e.g. version 0.18.1.1-2
-    liblapack-devel	e.g. version 3.4.2.1
-    (other libraries may be missing - install them as needed)
+2. Install additional libraries as needed (look for error messages in 3. below)
 
 3. Follow the standard installation procedure for GNU APL in INSTALL,
   README-2-configure, and README-3-keyboard.
