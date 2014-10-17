@@ -58,8 +58,8 @@
   Z←Z,⊂ "1"        "○"   "Mix_IRC"  2 "F12_CIRCLE"    36
   Z←Z,⊂ "Mix_IRC"  "∣"   "Mix_IRC"  2 "F12_STILE"     36
   Z←Z,⊂ "1 2 3"    "⋸"   "Int"      2 "F12_FIND"      36
-  Z←Z,⊂ "Mat1_IRC" "+.×" "Mat1_IRC" 3 "OPER2_INNER"   39
-  Z←Z,⊂ "Vec1_IRC" "∘.×" "Vec1_IRC" 3 "OPER2_OUTER"   40
+  Z←Z,⊂ "Mat1_IRC" "+.×" "Mat1_IRC" 3 "OPER2_INNER"   38
+  Z←Z,⊂ "Vec1_IRC" "∘.×" "Vec1_IRC" 3 "OPER2_OUTER"   39
 ∇
 
 ∇INIT_DATA LEN;N;Ilen;Rlen;Clen

@@ -66,8 +66,9 @@
 #ifndef __GELSY_HH_DEFINED__
 #define __GELSY_HH_DEFINED__
 
-// #include <assert.h>
-#define assert(x)
+#ifndef assert
+# define assert(x)
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -123,6 +124,14 @@ inline double SIGN(double a, double b)
    // return abs(a) with the sign of b
    if (b < 0)  return -ABS(a);
    else        return  ABS(a);
+}
+
+template<typename T>
+inline void exchange(T & x, T & y)
+{
+const T tmp = x;
+  x = y;
+  y = tmp;
 }
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -228,7 +237,7 @@ public:
  
    void conjugate()
       {
-        if (sizeof(T) != sizeof(ZZ))   return;
+        if (!is_ZZ())   return;
         T * dj = data;
         loop(j, len)   DZ::conjugate(*dj++);
       }
@@ -317,6 +326,11 @@ public:
         return Vector<T>(data + c*dx, rows);
       }
 
+   const Vector<T> get_column(ShapeItem c) const
+      {
+        return Vector<T>(data + c*dx, rows);
+      }
+
    T & at(ShapeItem i, ShapeItem j)
       { assert(i < rows);   assert(j < cols); return *(data + i + j*dx); }
 
@@ -332,12 +346,7 @@ public:
         assert(c2 < cols);
         T * p1 = data + c1*dx;
         T * p2 = data + c2*dx;
-        loop(r, rows)
-            {
-              const T tmp = *p1;
-              *p1++ = *p2;
-              *p2++ = tmp;
-            }
+        loop(r, rows)   exchange(*p1++, *p2++);
       }
 
    ShapeItem get_dx() const   { return dx; }
@@ -369,6 +378,13 @@ public:
            }
       }
 
+   void scale(T factor)
+      {
+        T * dj = data;
+        const ShapeItem len = rows*cols;
+        loop(j, len)   *dj++ *= factor;
+      }
+
 protected:
    T * const data;
    const ShapeItem rows;
@@ -382,32 +398,29 @@ protected:
 #include <string.h>
 
 //=============================================================================
-template<typename T>
-void copy(ShapeItem len, const Vector<T> &x, Vector<T> &y)
-{
-   loop(j, len)   y.at(j) = x.at(j);
-}
-//=============================================================================
+
+   // numerical limnits
+   //
 #define dlamch_E 1.11022e-16
 #define dlamch_S 2.22507e-308
 #define dlamch_P 2.22045e-16
-//-----------------------------------------------------------------------------
-template<typename T>
-ShapeItem idamax(const Vector<double> & vec)
-{
-   if (vec.get_length() == 0)   return -1;
-   if (vec.get_length() == 1)   return 0;
+static const double small_number = dlamch_S / dlamch_P;
+static const double big_number   = 1.0 / small_number;
+static const double safe_min     =  dlamch_S / dlamch_E;
+static const double inv_safe_min = 1.0 / safe_min;
+static const double tol3z        = sqrt(dlamch_E);
 
+//-----------------------------------------------------------------------------
+inline ShapeItem max_pos(const double * vec, ShapeItem len)
+{
+   // return the offset of the largest element in vec
+   //
 ShapeItem imax = 0;
-double dmax = ABS(vec.at(0)); 
-   for (ShapeItem j = 1; j < vec.get_length(); ++j)
+double dmax = ABS(vec[0]); 
+   for (ShapeItem j = 1; j < len; ++j)
        {
-         const double dj = ABS(vec.at(j));
-         if (dj > dmax)
-            {
-              dmax = dj;
-              imax = j;
-            }
+         const double dj = ABS(vec[j]);
+         if (dmax < dj )   { dmax = dj;   imax = j; }
        }
 
    return imax;
@@ -418,7 +431,7 @@ T larfg(ShapeItem N, T & ALPHA, Vector<T> &x)
 {
    assert(N > 0);
 
-   if (N <= 1)   return 0.0;
+   if (N == 1)   return 0.0;
 
 double xnorm = x.norm();
 double alpha_r = REAL(ALPHA);
@@ -426,22 +439,19 @@ double alpha_i = IMAG(ALPHA);
 
    if (xnorm == 0.0 && alpha_i == 0.0)   return 0.0;
 
-const double safmin =  dlamch_S / dlamch_E;
-const double rsafmn = 1.0 / safmin;
-
 double beta = -SIGN(sqrt(alpha_r*alpha_r + alpha_i*alpha_i + xnorm*xnorm),
                     alpha_r);
 
 int kcnt = 0;
-   if (ABS(beta) < safmin)
+   if (ABS(beta) < safe_min)
        {
-         while (ABS(beta) < safmin)
+         while (ABS(beta) < safe_min)
             {
-                  ++kcnt;
-                  x.scale(rsafmn);
-                  beta *= rsafmn;
-                  alpha_r *= rsafmn;
-                  alpha_i *= rsafmn;
+              ++kcnt;
+              x.scale(inv_safe_min);
+              beta *= inv_safe_min;
+              alpha_r *= inv_safe_min;
+              alpha_i *= inv_safe_min;
             }
 
          xnorm = x.norm();
@@ -456,14 +466,14 @@ T tau;
 const T factor = 1.0 / (ALPHA - beta);
    x.scale(factor);
 
-   loop(k, kcnt)   beta *= safmin;
+   loop(k, kcnt)   beta *= safe_min;
    Sri<T>(ALPHA, beta);
 
    return tau;
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void trsm(int M, int N, Matrix<T> &a, Matrix<T> &b)
+void trsm(int M, int N, const Matrix<T> & A, Matrix<T> & B)
 {
    // only: SIDE   = 'Left'              - lside == true
    //       UPLO   = 'Upper'             - upper = true
@@ -475,22 +485,22 @@ void trsm(int M, int N, Matrix<T> &a, Matrix<T> &b)
        {
          for (ShapeItem k_0 = M - 1; k_0 >= 0; --k_0)
              {
-               T & B_kj = b.at(k_0, j_0);
+               T & B_kj = B.at(k_0, j_0);
                if (B_kj != 0.0)
                   {
-                    B_kj /= a.diag(k_0);
-                    loop(i_0, k_0)  b.at(i_0, j_0) -= B_kj * a.at(i_0, k_0);
+                    B_kj /= A.diag(k_0);
+                    loop(i_0, k_0)  B.at(i_0, j_0) -= B_kj * A.at(i_0, k_0);
                   }
              }
        }
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-int ila_lc(ShapeItem M, ShapeItem N, Matrix<T> &a)
+int ila_lc(ShapeItem M, ShapeItem N, const Matrix<T> & A)
 {
    for (ShapeItem col = N - 1; col > 0; --col)
        {
-         Vector<T> column = a.get_column(col);
+         const Vector<T> column = A.get_column(col);
          if (!column.is_zero(M))   return col + 1;
 
          /* the above is the same as:
@@ -508,21 +518,20 @@ int ila_lc(ShapeItem M, ShapeItem N, Matrix<T> &a)
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void gemv(int M, int N, Matrix<T> &a, Vector<T> &x, Vector<T> &y)
+inline void gemv(int M, int N, const Matrix<T> & A, const Vector<T> &x,
+                 Vector<T> &y)
 {
    loop(j, N)
        {
          T temp = 0;
-         loop(i, M)
-            {
-              temp += DZ::CONJ(a.at(i, j)) * x.at(i);
-            }
+         loop(i, M)   temp += DZ::CONJ(A.at(i, j)) * x.at(i);
          y.at(j) = temp;
        }
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void gerc(int M, int N, T ALPHA, Vector<T> &x, Vector<T> &y,  Matrix<T> &a)
+void gerc(int M, int N, T ALPHA, const Vector<T> &x, const Vector<T> &y,
+          Matrix<T> & A)
 {
    if (M == 0 || N == 0 || ALPHA == 0.0)   return;
 
@@ -533,13 +542,13 @@ void gerc(int M, int N, T ALPHA, Vector<T> &x, Vector<T> &y,  Matrix<T> &a)
            {
              DZ::conjugate(Y_j);
              Y_j *= ALPHA;
-             loop(i, M)   a.at(i, j) += Y_j * x.at(i);
+             loop(i, M)   A.at(i, j) += Y_j * x.at(i);
            }
       }
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void larf(Vector<T> &v, T tau, Matrix<T> &c, Vector<T> &work)
+void larf(Vector<T> & v, T tau, Matrix<T> & c)
 {
 const ShapeItem M = c.get_row_count();
 const ShapeItem N = c.get_column_count();
@@ -563,205 +572,100 @@ ShapeItem  lastc = 0;
 
    if (lastv)
       {
-        gemv<T>(lastv, lastc, c, v, work);
-        gerc<T>(lastv, lastc, -tau, v, work, c);
+        DynArray(T, gemv_data, N);
+        Vector<T> gemv_result(gemv_data, N);
+
+        gemv<T>(lastv, lastc, c, v, gemv_result);
+        gerc<T>(lastv, lastc, -tau, v, gemv_result, c);
       }
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void laqp2(int OFFSET, Matrix<T> &a, Vector<ShapeItem> &pivot, Vector<T> & tau,
-           Vector<double> &vn1, Vector<double> &vn2, Vector<T> &work)
+void laqp2(Matrix<T> & A, ShapeItem * pivot, T * tau, double * vn1)
 {
-const ShapeItem M = a.get_row_count();
-const ShapeItem N = a.get_column_count();
+const ShapeItem M = A.get_row_count();
+const ShapeItem N = A.get_column_count();
 
-const int mn = MIN(M - OFFSET, N);
-const double tol3z = sqrt(dlamch_E);
+double * vn2 = vn1 + N;
 
-   loop(i_0, mn)
+   loop(i_0, N)
       {
-        const ShapeItem i_1 = i_0 + 1;
+        T & tau_i = tau[i_0];
 
-        const ShapeItem offpi_1 = OFFSET + i_1;
-        const ShapeItem offpi_0 = offpi_1 - 1;
-
-        T & tau_i = tau.at(i_0);
-
-        // Determine ith pivot column and swap if necessary.
+        // Determine the i'th pivot column and swap if necessary.
         //
-        Vector<double> vn1_i = vn1.sub_off(i_0);
-        const int pvt_0 = i_0 + idamax<double>(vn1_i);
+        const int pvt_0 = i_0 + max_pos(vn1 + i_0, N - i_0);
 
         if (pvt_0 != i_0)
            {
-             a.exchange_columns(pvt_0, i_0);
-             int itemp = pivot.at(pvt_0);
-             pivot.at(pvt_0) = pivot.at(i_0);
-             pivot.at(i_0) = itemp;
-             vn1.at(pvt_0) = vn1.at(i_0);
-             vn2.at(pvt_0) = vn2.at(i_0);
+             A.exchange_columns(pvt_0, i_0);
+             exchange(pivot[pvt_0], pivot[i_0]);
+             vn1[pvt_0] = vn1[i_0];
+             vn2[pvt_0] = vn2[i_0];
            }
 
         // Generate elementary reflector H(i).
         //
         {
-          if (offpi_1 < M)
+          if (i_0 < (M - 1))
              {
-               Vector<T> x(&a.at(offpi_0 + 1, i_0), M - offpi_0 - 1);
+               Vector<T> x(&A.at(i_0 + 1, i_0), M - i_0 - 1);
                T & alpha = *(&x.at(0) - 1);   // one before x
-               tau_i = larfg<T>(M - offpi_0, alpha, x);
+               tau_i = larfg<T>(M - i_0, alpha, x);
              }
           else
              {
-               Vector<T> x(&a.at(M - 1, i_0), 1);
+               Vector<T> x(&A.at(M - 1, i_0), 1);
                T & alpha = x.at(0);           // at x
                tau_i = larfg<T>(1, alpha, x);
              }
         }
 
-        if (i_1 < N)
+        if (i_0 < (N - 1))
            {
              // Apply H(i)**H to A(offset+i:m,i+1:n) from the left.
              //
-             const T Aii = a.at(offpi_0, i_0);
-             a.at(offpi_0, i_0) = 1.0;
-                const int MM = M - offpi_0;
-                const int NN = N - i_1;
-                Vector<T> v(&a.at(offpi_0, i_0), MM);
-                Matrix<T> c = a.sub_yx(offpi_0, i_0 + 1);
-                Vector<T> work1 = work.sub_len(NN);
-                larf<T>(v, DZ::CONJ(tau_i), c, work1);
-             a.at(offpi_0, i_0) = Aii;
+             const T Aii = A.diag(i_0);   // save diag
+             A.diag(i_0) = 1.0;
+                Vector<T> v(&A.diag(i_0), M - i_0);
+                Matrix<T> c = A.sub_yx(i_0, i_0 + 1);
+                larf<T>(v, DZ::CONJ(tau_i), c);
+             A.diag(i_0) = Aii;           // restore diag
            }
 
         // Update partial column norms.
         //
         for (ShapeItem j_0 = i_0 + 1; j_0 < N; ++j_0)
             {
-              if (vn1.at(j_0) != 0)
+              if (vn1[j_0] != 0)
                  {
-                   double temp = ABS(a.at(offpi_0, j_0)) / vn1.at(j_0);
+                   double temp = ABS(A.at(i_0, j_0)) / vn1[j_0];
                    temp = 1.0 - temp*temp;
                    temp = MAX(temp, 0.0);
 
-                   double temp2 = vn1.at(j_0) / vn2.at(j_0);
+                   double temp2 = vn1[j_0] / vn2[j_0];
                    temp2 = temp * temp2 * temp2;
                    if (temp2 <= tol3z)
                       {
-                        if (offpi_1 < M)
+                        if (i_0 < (M - 1))
                            {
-                             Vector<T> x(&a.at(offpi_0 + 1, j_0), M-offpi_1);
-                             vn1.at(j_0) = x.norm();
-                             vn2.at(j_0) = vn1.at(j_0);
+                             Vector<T> x(&A.at(i_0 + 1, j_0), M - i_0 - 1);
+                             vn1[j_0] = x.norm();
+                             vn2[j_0] = vn1[j_0];
                            }
                         else
                            {
-                             vn1.at(j_0) = 0.0;
-                             vn2.at(j_0) = 0.0;
+                             vn1[j_0] = 0.0;
+                             vn2[j_0] = 0.0;
                            }
                       }
                    else
                       {
-                        vn1.at(j_0) *= sqrt(temp);
+                        vn1[j_0] *= sqrt(temp);
                       }
                  }
             }
       }
-}
-//-----------------------------------------------------------------------------
-template<typename T>
-void geqr2(int M, int N, Matrix<T> &a, Vector<T> &tau, Vector<T> &work)
-{
-   loop(i_0, N)
-      {
-        ShapeItem i_1 = i_0 + 1;
-        const int min_i1_m_1 = MIN(i_1 + 1, M);
-        const int min_i1_m_0 = min_i1_m_1 - 1;
-
-        T & tau_i = tau.at(i_0);
-
-        // Generate elementary reflector H(i) to annihilate A(i+1:m,i)
-        //
-        const int MM = M - i_0;
-        {
-          Vector<T> x(&a.at(min_i1_m_0, i_0), MM - 1);
-          T & alpha =  a.diag(i_0);
-          tau.at(i_0) = larfg<T>(MM, alpha, x);
-        }
-
-        if (i_1 < N)
-            {
-             // Apply H(i)**H to A(i:m,i+1:n) from the left
-             //
-             const int NN = N - i_1;
-             const T conj_tau = DZ::CONJ(tau.at(i_0));
-             const T alpha = a.diag(i_0);
-
-             a.diag(i_0) = 1.0;
-                Matrix<T> c = a.sub_yx(i_0, i_0 + 1);
-                Vector<T> v = c.get_column(0);
-                larf<T>(v, conj_tau, c, work);
-             a.diag(i_0) = alpha;
-           }
-      }
-}
-//-----------------------------------------------------------------------------
-template<typename T>
-void lascl(bool full, double CFROM, double CTO, int M, int N, Matrix<T> &a)
-{
-const double small_number = dlamch_S / dlamch_P;
-const double big_number = 1.0 / small_number;
-
-double cfromc = CFROM;
-double ctoc = CTO;
-
-double cfrom1 = cfromc*small_number;
-double cto1 = ctoc / big_number;
-double mul = 1.0;
-
-   for (bool done = false; !done;)
-       {
-         if (cto1 == ctoc)
-            {
-              // CTOC is either 0 or an inf.  In both cases, CTOC itself
-              // serves as the correct multiplication factor.
-              //
-              mul = ctoc;
-              done = true;
-              cfromc = 1.0;
-            }
-         else if (ABS(cfrom1) > ABS(ctoc) && ctoc != 0.0)
-            {
-              mul = small_number;
-              done = false;
-              cfromc = cfrom1;
-            }
-         else if (ABS(cto1) > ABS(cfromc))
-            {
-              mul = big_number;
-              done = false;
-              ctoc = cto1;
-            }
-         else
-            {
-               mul = ctoc / cfromc;
-               done = true;
-            }
-
-         if (full)   // entire matrix
-            {
-              loop(i, M)
-              loop(j, N)   a.at(i, j) *= mul;
-            }
-         else        // upper triangle matrix
-            {
-              loop(j, N)
-                 {
-                   const ShapeItem min_jM = MIN(j, M);
-                   loop(i, min_jM)   a.at(i, j) *- mul;
-                 }
-            }
-       }
 }
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -1008,8 +912,7 @@ const double tmp = sqrt(ABS_2(sine) + ABS_2(cosine));
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void unm2r(ShapeItem K, Matrix<T> &a, const Vector<T> &tau, Matrix<T> &c,
-           Vector<T> &work)
+void unm2r(ShapeItem K, Matrix<T> & A, const T * tau, Matrix<T> & c)
 {
 const ShapeItem M = c.get_row_count();
 const ShapeItem N = c.get_column_count();
@@ -1026,118 +929,57 @@ const ShapeItem N = c.get_column_count();
 
          // Apply H(i) or H(i)**H
          //
-         const T taui = DZ::CONJ(tau.at(i_0));
+         const T taui = DZ::CONJ(tau[i_0]);
 
-         const T Aii = a.diag(i_0);
-         a.diag(i_0) = 1.0;
-            Vector<T> v(&a.diag(i_0), MM);
+         const T Aii = A.diag(i_0);
+         A.diag(i_0) = 1.0;
+            Vector<T> v(&A.diag(i_0), MM);
             Matrix<T> c1 = c.sub_yx(i_0, 0);
-            Vector<T> work1 = work.sub_len(N);
-            larf<T>(v, taui, c1, work1);
-         a.diag(i_0) = Aii;
+            larf<T>(v, taui, c1);
+         A.diag(i_0) = Aii;
        }
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-void geqp3(Matrix<T> &a, Vector<ShapeItem> &pivot, Vector<T> &tau,
-           Vector<T> &work)
+void geqp3(Matrix<T> & A, ShapeItem * pivot, T * tau)
 {
-const ShapeItem M = a.get_row_count();
-const ShapeItem N = a.get_column_count();
+const ShapeItem M = A.get_row_count();
+const ShapeItem N = A.get_column_count();
 
-DynArray(double, rwork_data, 2*N);
-   memset(rwork_data, 0, sizeof(rwork_data));
-Vector<double> rwork(rwork_data, 2*N);
-
-   // Move initial columns up front.
+   // init column permutaion for pivoting
+   // so we simply create the identical permutation
    //
-ShapeItem nfxd_1 = 1;
-   loop(j_0, N)
-      {
-        const ShapeItem j_1 = j_0 + 1;
-        if (pivot.at(j_0) != 0)
-           {
-             if (j_1 != nfxd_1)
-                {
-                  const ShapeItem nfxd_0 = nfxd_1 - 1;
-                  a.exchange_columns(j_0, nfxd_0);
-                  pivot.at(j_0) = pivot.at(nfxd_0);
-                  pivot.at(nfxd_0) = j_1;
-                }
-            else
-                {
-                  pivot.at(j_0) = j_1;
-                }
-            ++nfxd_1;
-           }
-         else
-           {
-             pivot.at(j_0) = j_1;
-           }
-      }
-   --nfxd_1;
+   loop(j_0, N)   pivot[j_0] = j_0;
 
-const ShapeItem nfxd_0 = nfxd_1 - 1;
-
-   /* Factorize fixed columns
-      =======================
-     
-      Compute the QR factorization of fixed columns and update
-      remaining columns.
-    */
-
-   if (nfxd_1 > 0)
-      {
-        const int na_1 = MIN(M, nfxd_1);
-        geqr2<T>(M, na_1, a, tau, work);
-        if (na_1 < N)
-           {
-             Vector<T> tau1 = tau.sub_len(na_1);
-             Matrix<T> c = a.sub_yx(0, na_1 /* == na_0 + 1 */);
-             Vector<T> work1 = work.sub_len(N - na_1);
-             unm2r<T>(na_1, a, tau1, c, work1);
-           }
-      }
+   // (no fixed columns)
 
    // Factorize free columns
    // ======================
    //
-   if (nfxd_1 < N)
-      {
-        int sm_1 = M - nfxd_1;
-        int sn_1 = N - nfxd_1;
+   {
+     // Initialize partial column norms.
+     // the first N elements of WORK store the exact column norms.
+     //
+DynArray(double, vn12, 2*N);   // == vn1, vn2
 
-        // Initialize partial column norms.
-        // the first N elements of WORK store the exact column norms.
-        //
-        for (int j_0 = nfxd_0 + 1; j_0 < N; ++j_0)
-            {
-              Vector<T> x(&a.at(nfxd_1, j_0), sm_1);
-              rwork.at(N + j_0) = rwork.at(j_0) = x.norm();
-// fprintf(stdout, "norm %6.2lf\n", x.norm());
-            }
+     for (int j_0 = 0; j_0 < N; ++j_0)
+         {
+           Vector<T> x(&A.at(0, j_0), M);
+           vn12[N + j_0] = vn12[j_0] = x.norm();
+         }
 
-         // Use unblocked code to factor the last or only block
-         //
-         const ShapeItem j_0 = nfxd_1;
-
-         if (j_0 < N)
-            {
-              Matrix<T>         a1    = a.sub_yx(0, j_0);
-              Vector<double>    vn1   = rwork.sub_off_len(j_0,     N);
-              Vector<double>    vn2   = rwork.sub_off_len(j_0 + N, N);
-              Vector<T>         tau1  = tau.sub_off(j_0);
-              Vector<ShapeItem> piv1  = pivot.sub_off(j_0);
-              Vector<T>         work1 = work.sub_off_len(2*N, N - j_0);
-              laqp2<T>(j_0, a1, piv1, tau1, vn1, vn2, work1);
-            }
-      }
+     // Use unblocked code to factor the last or only block
+     //
+     laqp2<T>(A, pivot, tau, vn12);
+   }
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-int estimate_rank(int N, const Matrix<T> &a, double rcond)
+int estimate_rank(const Matrix<T> & A, double rcond)
 {
    // Determine RANK using incremental condition estimation...
+
+const ShapeItem N = A.get_column_count();
 
    // store minima in work_min[ 0 ... N]
    // store maxima in work_max == work_min[N ... 2N]
@@ -1148,7 +990,7 @@ T * work_max = work_min + N;
    work_min[0] = 1.0;
    work_max[0] = 1.0;
 
-double smax = ABS(a.at(0, 0));
+double smax = ABS(A.diag(0));
 double smin = smax;
 
    if (smax == 0.0)   return 0;
@@ -1161,14 +1003,14 @@ double smin = smax;
          T s2 = 0.0;
          T c1 = 0.0;
          T c2 = 0.0;
-         const T gamma = a.diag(RANK);
+         const T gamma = A.diag(RANK);
 
          T alpha_min = 0.0;
          T alpha_max = 0.0;
          for (int r = 0; r < RANK; ++r)
              {
-               alpha_min += DZ::CONJ(work_min[r] * a.at(r, RANK));
-               alpha_max += DZ::CONJ(work_max[r] * a.at(r, RANK));
+               alpha_min += DZ::CONJ(work_min[r] * A.at(r, RANK));
+               alpha_max += DZ::CONJ(work_max[r] * A.at(r, RANK));
              }
 
          laic1_min<T>(smin, alpha_min, gamma, sminpr, s1, c1);
@@ -1191,79 +1033,54 @@ double smin = smax;
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-int scaled_gelsy(Matrix<T> &a, Matrix<T> &b, double rcond)
+int scaled_gelsy(Matrix<T> & A, Matrix<T> & B, double rcond)
 {
    // gelsy is optimized for (and restricted to) the following conditions:
    //
    // 0 < N <= M  →  min_NM = N and max_MN = M
    // 0 < NRHS
    //
-const ShapeItem M    = a.get_row_count();
-const ShapeItem N    = a.get_column_count();
-const ShapeItem NRHS = b.get_column_count();
-
-const ShapeItem nb = M < 32 ? 32 : M;
-const ShapeItem l_work = MAX(3*N + nb*(N+1), 2*N + nb*NRHS);
-T * work_data = new T[l_work];
-   memset(work_data, 0, l_work + sizeof(T));
-
-Vector<T> work(work_data, l_work);
+const ShapeItem M    = A.get_row_count();
+const ShapeItem N    = A.get_column_count();
+const ShapeItem NRHS = B.get_column_count();
 
    // Compute QR factorization with column pivoting of A:
    // A * P = Q * R
    //
-DynArray(ShapeItem, pivot_data, N);
-   memset(pivot_data, 0, sizeof(pivot_data));
-Vector<ShapeItem> pivot(pivot_data, N);
-   {
-     Vector<T> tau   = work.sub_len(N);
-     Vector<T> work1 = work.sub_off(N);
+DynArray(ShapeItem, pivot, N);
+DynArray(T, tau, N);
 
-     geqp3<T>(a, pivot, tau, work1);
-   }
+   geqp3<T>(A, pivot, tau);
 
-   // complex workspace: MN + 2*N + NB*(N+1).
    // Details of Householder rotations stored in WORK(1:MN).
    //
    // Determine RANK using incremental condition estimation
    //
    {
-     const int RANK = estimate_rank(N, a, rcond);
-     if (RANK < N)
-        {
-           delete work_data;
-           return RANK;
-        }
+     const int RANK = estimate_rank(A, rcond);
+     if (RANK < N)   return RANK;
    }
 
    // from here on, RANK == N. We leave RANK in the comments but use N un
    // the code.
 
-   // workspace: 3*MN.
    // Logically partition R = [ R11 R12 ]
    //                         [  0  R22 ]
    // where R11 = R(1:RANK,1:RANK)
    // [R11,R12] = [ T11, 0 ] * Y
    //
 
-   // workspace: 2*MN.
    // Details of Householder rotations stored in WORK(MN+1:2*MN)
    // 
    // B(1:M, 1:NRHS) := Q**H * B(1:M,1:NRHS)
    // 
-   {
-     Vector<T> tau = work.sub_len(N);
-     Vector<T> work1 = work.sub_off_len(2*N, NRHS);
+   unm2r<T>(N, A, tau, B);
 
-     unm2r<T>(N, a, tau, b, work1);
-   }
-
-   // workspace: 2*MN + NB*NRHS.
    // B(1:RANK, 1:NRHS) := inv(T11) * B(1:RANK,1:NRHS)
    //
    {
-     Matrix<T> b1 = b.sub_len(b.get_dx(), NRHS);
-     trsm<T>(N, NRHS, a, b1);
+     Matrix<T> B1 = B.sub_len(B.get_dx(), NRHS);
+     trsm<T>(N, NRHS, A, B1);
    }
 
    // workspace: 2*MN+NRHS
@@ -1272,18 +1089,16 @@ Vector<ShapeItem> pivot(pivot_data, N);
    //
    loop(j_0, NRHS)
       {
-        loop(i_0, N)   work.at(pivot.at(i_0) - 1) = b.at(i_0, j_0);
-
-        Vector<T> col_j = b.get_column(j_0);
-        copy<T>(N, work, col_j);
+        DynArray(T, tmp, N);
+        loop(i_0, N)   tmp[pivot[i_0]] = B.at(i_0, j_0);
+        loop(i_0, N)   B.at(i_0, j_0) = tmp[i_0];
       }
 
-   delete work_data;
    return N;
 }
 //-----------------------------------------------------------------------------
 template<typename T>
-int gelsy(Matrix<T> &A, Matrix<T> &B, double rcond)
+int gelsy(Matrix<T> & A, Matrix<T> &B, double rcond)
 {
 const ShapeItem M    = A.get_row_count();
 const ShapeItem N    = A.get_column_count();
@@ -1293,46 +1108,27 @@ const ShapeItem NRHS = B.get_column_count();
    //
    Assert(M && N && NRHS && N <= M);
 
-   // For good precision, scale A and B so that their max. element lies
+   // For better precision, scale A and B so that their max. element lies
    // between small_number and big_number. Then call scaled_gelsy() and
-   // scale the result back by the same factor.
+   // scale the result back by the same factors.
    //
-const double small_number = dlamch_S / dlamch_P;
-const double big_number = 1.0 / small_number;
-
-const double norm_A = A.max_norm();
 double scale_A = 1.0;
+   {
+     const double norm_A = A.max_norm();
 
-   if (norm_A > 0.0 && norm_A < small_number)
-      {
-        lascl<T>(true, norm_A, small_number, M, N, A);
-        scale_A = small_number;
-      }
-   else if (norm_A > big_number)
-      {
-        lascl<T>(true, norm_A, big_number, M, N, A);
-        scale_A = big_number;
-      }
-   else if (norm_A == 0.0)
-      {
-        loop(j, NRHS)
-        loop(i, M)   B.at(i, j) = 0.0;
-        return 0;
-      }
+     if (norm_A == 0.0)                return 0;   // A is rank-deficient
+     else if (norm_A < small_number)   A.scale(scale_A = big_number);
+     else if (norm_A > big_number)     A.scale(scale_A = small_number);
+   }
 
-const double norm_B = B.max_norm();
 double scale_B = 1.0;
+   {
+     const double norm_B = B.max_norm();
 
-   if (norm_B > 0.0 && norm_B < small_number)
-      {
-        lascl<T>(true, norm_B, small_number, M, NRHS, B);
-        scale_B = small_number;
-      }
-   else if(norm_B > big_number)
-      {
-        lascl<T>(true, norm_B, big_number, M, NRHS, B);
-        scale_B = big_number;
-      }
+     if (norm_B == 0.0)                /* OK */ ;
+     else if (norm_B < small_number)   B.scale(scale_B = big_number);
+     else if (norm_B > big_number)     B.scale(scale_B = small_number);
+   }
 
    {
      const int RANK = scaled_gelsy(A, B, rcond);
@@ -1342,12 +1138,18 @@ double scale_B = 1.0;
    // Undo scaling
    //
    if (scale_A != 1.0)
-     {
-       lascl<T>(true,  norm_A,  scale_A, N, NRHS, B);
-       lascl<T>(false, scale_A, norm_A,  N, N,    A);
-     }
+      {
+        Matrix<T> A1 = A.sub_len(N, N);
+        Matrix<T> B1 = B.sub_len(N, NRHS);
+        B1.scale(1/scale_A);
+        A1.scale(scale_A);
+      }
 
-   if (scale_B != 1.0)   lascl<T>(true, scale_B, norm_B, N, NRHS, B);
+   if (scale_B != 1.0)
+      {
+        Matrix<T> B1 = B.sub_len(N, NRHS);
+        B1.scale(scale_B);
+      }
 
    return N;   // success
 }
