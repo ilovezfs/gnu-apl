@@ -864,7 +864,7 @@ Prefix::reduce_F_D_B_()
 {
    // same as G2, except for ⍤
    //
-   if (at1().get_function()->get_Id() != ID_OPER2_RANK)
+   if (at1().get_function()->get_Id() != ID::OPER2_RANK)
       {
          reduce_F_D_G_();
          return;

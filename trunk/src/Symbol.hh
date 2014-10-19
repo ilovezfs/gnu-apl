@@ -89,8 +89,11 @@ class Symbol : public NamedObject
    friend class SymbolTable;
 
 public:
+   /// create a system symbol with Id \b id
+   Symbol(ID::Id id);
+
    /// create a symbol with name \b ucs
-   Symbol(const UCS_string & ucs, Id id);
+   Symbol(const UCS_string & ucs, ID::Id id);
 
    /// List \b this \b Symbol ( for )VARS, )FNS )
    ostream & list(ostream & out);
@@ -131,7 +134,7 @@ public:
 
    /// Compare name of \b this value with \b other
    int compare(const Symbol & other) const
-       { return symbol.compare(other.symbol); }
+       { return name.compare(other.name); }
 
    /// return true iff this variable is read-only
    /// (overloaded by RO_SystemVariable)
@@ -204,7 +207,7 @@ public:
    virtual const Function * get_function() const;
 
    /// The name of \b this \b Symbol
-   virtual const UCS_string & get_name() const   { return symbol; }
+   virtual UCS_string get_name() const   { return name; }
 
    /// overloaded NamedObject::get_function()
    virtual Function * get_function();
@@ -266,13 +269,13 @@ public:
 protected:
    /// Compare the name of \b this \b Symbol with \b ucs
    bool equal(const UCS_string & ucs) const
-      { return (symbol.compare(ucs) == 0); }
+      { return (name.compare(ucs) == 0); }
 
    /// The next Symbol with the same hash value as \b this \b Symbol
    Symbol * next;
 
    /// The name of \b this \b Symbol
-   UCS_string symbol;
+   UCS_string name;
 
    /// \b True if \b this \b Symbol is/was erased
    bool erased;
@@ -290,7 +293,7 @@ class LAMBDA : public Symbol
 public:
    /// constructor
    LAMBDA()
-   : Symbol(UCS_string(UNI_LAMBDA), ID_LAMBDA)
+   : Symbol(ID::LAMBDA)
    {}
 };
 //-----------------------------------------------------------------------------
@@ -300,7 +303,7 @@ class ALPHA : public Symbol
 public:
    /// constructor
    ALPHA()
-   : Symbol(UCS_string(UNI_ALPHA), ID_ALPHA)
+   : Symbol(ID::ALPHA)
    {}
 };
 //-----------------------------------------------------------------------------
@@ -310,7 +313,7 @@ class ALPHA_U : public Symbol
 public:
    /// constructor
    ALPHA_U()
-   : Symbol(UCS_string(UNI_ALPHA_UNDERBAR), ID_ALPHA_U)
+   : Symbol(ID::ALPHA_U)
    {}
 };
 //-----------------------------------------------------------------------------
@@ -320,7 +323,7 @@ class CHI : public Symbol
 public:
    /// constructor
    CHI()
-   : Symbol(UCS_string(UNI_CHI), ID_CHI)
+   : Symbol(ID::CHI)
    {}
 };
 //-----------------------------------------------------------------------------
@@ -330,7 +333,7 @@ class OMEGA : public Symbol
 public:
    /// constructor
    OMEGA()
-   : Symbol(UCS_string(UNI_OMEGA), ID_OMEGA)
+   : Symbol(ID::OMEGA)
    {}
 };
 //-----------------------------------------------------------------------------
@@ -340,7 +343,7 @@ class OMEGA_U : public Symbol
 public:
    /// constructor
    OMEGA_U()
-   : Symbol(UCS_string(UNI_OMEGA_UNDERBAR), ID_OMEGA_U)
+   : Symbol(ID::OMEGA_U)
    {}
 };
 //-----------------------------------------------------------------------------

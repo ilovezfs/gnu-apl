@@ -40,10 +40,20 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-Symbol::Symbol(const UCS_string & ucs, Id id)
+Symbol::Symbol(ID::Id id)
    : NamedObject(id),
      next(0),
-     symbol(ucs),
+     name(UCS_string(UTF8_string(ID::name(id)))),
+     erased(false),
+     monitor_callback(0)
+{
+   push();
+}
+//-----------------------------------------------------------------------------
+Symbol::Symbol(const UCS_string & ucs, ID::Id id)
+   : NamedObject(id),
+     next(0),
+     name(ucs),
      erased(false),
      monitor_callback(0)
 {
@@ -53,7 +63,7 @@ Symbol::Symbol(const UCS_string & ucs, Id id)
 ostream &
 Symbol::print(ostream & out) const
 {
-   return out << symbol;
+   return out << name;
 }
 //-----------------------------------------------------------------------------
 ostream &
@@ -322,7 +332,7 @@ const ValueStackItem & vs = value_stack.back();
         Value_P ret = vs.apl_val;
         Log(LOG_SYMBOL_push_pop)
            {
-             CERR << "-pop-value " << symbol
+             CERR << "-pop-value " << name
                   << " flags " << ret->get_flags() << " ";
              if (value_stack.size() == 0)   CERR << " (last)";
              CERR << " addr " << (const void *)ret.get() << endl;
@@ -336,7 +346,7 @@ const ValueStackItem & vs = value_stack.back();
       {
         Log(LOG_SYMBOL_push_pop)
            {
-             CERR << "-pop " << symbol
+             CERR << "-pop " << name
                   << " name_class " << vs.name_class << " ";
              if (value_stack.size() == 0)   CERR << " (last)";
              CERR << endl;
@@ -351,7 +361,7 @@ Symbol::push()
 {
    Log(LOG_SYMBOL_push_pop)
       {
-        CERR << "+push " << symbol;
+        CERR << "+push " << name;
         if (value_stack.size() == 0)   CERR << " (initial)";
         CERR << endl;
       }
@@ -365,7 +375,7 @@ Symbol::push_label(Function_Line label)
 {
    Log(LOG_SYMBOL_push_pop)
       {
-        CERR << "+push_label " << symbol;
+        CERR << "+push_label " << name;
         if (value_stack.size() == 0)   CERR << " (initial)";
         CERR << endl;
       }
@@ -379,7 +389,7 @@ Symbol::push_function(Function * function)
 {
    Log(LOG_SYMBOL_push_pop)
       {
-        CERR << "+push_function " << symbol << " " << (const void *)function;
+        CERR << "+push_function " << name << " " << (const void *)function;
         if (value_stack.size() == 0)   CERR << " (initial)";
         CERR << endl;
       }
@@ -402,7 +412,7 @@ ValueStackItem vs;
 
    Log(LOG_SYMBOL_push_pop)
       {
-        CERR << "+push-value " << symbol << " flags ";
+        CERR << "+push-value " << name << " flags ";
         print_flags(CERR, get_value()->get_flags()) << " ";
         if (value_stack.size() == 0)   CERR << " (initial)";
         CERR << " addr " << (const void *)get_value().get() << endl;
@@ -444,7 +454,7 @@ const char *
 Symbol::cant_be_defined() const
 {
 // if (value_stack.size() > 1)         return "symbol was localized";
-   if (Workspace::is_called(symbol))   return "function is called";
+   if (Workspace::is_called(name))   return "function is called";
 
    if (value_stack.back().name_class == NC_UNUSED_USER_NAME)   return 0;   // OK
    if (value_stack.back().name_class == NC_FUNCTION)           return 0;   // OK
@@ -845,9 +855,9 @@ ostream &
 Symbol::list(ostream & out)
 {
    out << "   ";
-   loop(s, symbol.size())   out << symbol[s];
+   loop(s, name.size())   out << name[s];
 
-   for (int s = symbol.size(); s < 32; ++s)   out << " ";
+   for (int s = name.size(); s < 32; ++s)   out << " ";
 
    if (erased)   out << "   ERASED";
    Assert(value_stack.size());

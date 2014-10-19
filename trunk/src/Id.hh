@@ -42,36 +42,35 @@ class UCS_string;
   This is controlled by 5 corresponding macros: av() pp() qv() qf() resp. st()
  */
 
-enum Id
-{
-#define av(x, v) ID_      ## x v,
-#define pp(x, v) ID_      ## x v,
-#define qf(x, v) ID_Quad_ ## x v,
-#define qv(x, v) ID_Quad_ ## x v,
-#define st(x, v) ID_      ## x v,
-
-#define id_def(id, _uni, val, mac) mac(id, val)
-#include "Id.def"
-};
-
 //-----------------------------------------------------------------------------
 class ID
 {
 public:
+   enum Id
+   {
+#define av(x, v)          x v,
+#define pp(x, v)          x v,
+#define qf(x, v) Quad_ ## x v,
+#define qv(x, v) Quad_ ## x v,
+#define st(x, v)          x v,
+
+   #define id_def(id, _uni, val, mac) mac(id, val)
+   #include "Id.def"
+   };
+
+   /// return the printable name for id
   static const char * name(Id id);
+
+   /// If \b id is the ID of primitive function, primitive operator, or
+   /// quad function, then return a pointer to it. Otherwise return 0.
+   static Function * get_system_function(ID::Id id);
+
+   /// If \b id is the ID of a quad variable, then return a pointer to its
+   /// symbol. Otherwise return 0.
+   static Symbol * get_system_variable(ID::Id id);
+
 };
 //-----------------------------------------------------------------------------
-
-/// return a pointer to the system function with Id \b id,
-/// or 0 if id is not a system function
-const UCS_string & id_name(Id id);
-
-/// If \b id is the ID of primitive function, primitive operator, or
-/// quad function, then return a pointer to it. If not, return 0.
-Function * get_system_function(Id id);
-
-/// If \b id is the ID of a quad variable, then return a pointer to its symbol
-Symbol * get_system_variable(Id id);
 
 #endif // __ID_HH_DEFINED__
 

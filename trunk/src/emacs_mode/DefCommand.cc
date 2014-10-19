@@ -51,8 +51,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             else {
                 v = make_string_cell( *i, LOC );
             }
-            new (function_list_value->next_ravel()) PointerCell( v,
-                                                     function_list_value.getref() );
+            new (function_list_value->next_ravel()) PointerCell( v, function_list_value.getref() );
         }
         function_list_value->check_value( LOC );
 
@@ -60,7 +59,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             Shape tag_shape( 2 );
             Value_P tag( new Value( tag_shape, LOC ) );
             new (tag->next_ravel()) IntCell( 0 );
-            new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ) , tag.getref());
+            new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ), tag.getref());
             function_list_value->check_value( LOC );
             Token result = Quad_FX::fun.eval_AB( tag, function_list_value );
             out << "function defined\n" << to_string( result.canonical( PST_CS_NONE ) );
@@ -73,7 +72,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
                     out << "error\n"
                         << "parse error\n"
                         << "Error parsing expression\n"
-                        << value->get_ravel( 0 ).get_int_value();
+                        << value->get_ravel( 0 ).get_int_value() - Workspace::get_IO() + 1;
                 }
                 else if( value->is_char_string() ) {
                     out << "function defined\n"

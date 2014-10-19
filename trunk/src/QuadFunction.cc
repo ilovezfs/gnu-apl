@@ -1940,7 +1940,7 @@ int requested_NCs = 0;
 
    // 2, build a name table, starting with user defined names
    //
-vector<const UCS_string *> names;
+vector<UCS_string> names;
    {
      const uint32_t symbol_count = Workspace::symbols_allocated();
      DynArray(Symbol *, table, symbol_count);
@@ -1962,7 +1962,7 @@ vector<const UCS_string *> names;
                if (!first_chars.contains(first_char))   continue;
              }
 
-          names.push_back(&symbol->get_name());
+          names.push_back(symbol->get_name());
         }
    }
 
@@ -1971,17 +1971,17 @@ vector<const UCS_string *> names;
    if (first_chars.size() == 0 || first_chars.contains(UNI_Quad_Quad))
       {
 #define ro_sv_def(x) { Symbol * symbol = &Workspace::get_v_ ## x();           \
-                       const UCS_string & ucs = symbol->get_name();           \
+                       UCS_string ucs = symbol->get_name();           \
                        if (ucs[0] == UNI_Quad_Quad && requested_NCs & 1 << 5) \
-                       names.push_back(&ucs); }
+                       names.push_back(ucs); }
 
 #define rw_sv_def(x) { Symbol * symbol = &Workspace::get_v_ ## x();           \
-                       const UCS_string & ucs = symbol->get_name();           \
+                       UCS_string ucs = symbol->get_name();           \
                        if (ucs[0] == UNI_Quad_Quad && requested_NCs & 1 << 5) \
-                       names.push_back(&ucs); }
+                       names.push_back(ucs); }
 
 #define sf_def(x)    { if (requested_NCs & 1 << 6) \
-                          names.push_back(&(x::fun.get_name())); }
+                          names.push_back((x::fun.get_name())); }
 #include "SystemVariable.def"
       }
 
@@ -1991,8 +1991,8 @@ vector<const UCS_string *> names;
 ShapeItem longest = 0;
    loop(n, names.size())
       {
-        if (longest < names[n]->size())
-           longest = names[n]->size();
+        if (longest < names[n].size())
+           longest = names[n].size();
       }
 
 const Shape shZ(names.size(), longest);
@@ -2009,13 +2009,13 @@ Value_P Z(new Value(shZ, LOC));
         uint32_t smallest = count - 1;
         loop(t, count - 1)
            {
-             if (names[smallest]->compare(*names[t]) > 0)   smallest = t;
+             if (names[smallest].compare(names[t]) > 0)   smallest = t;
            }
         // copy name to result, padded with spaces.
         //
         loop(l, longest)
            {
-             const UCS_string & ucs = *names[smallest];
+             const UCS_string & ucs = names[smallest];
              new (Z->next_ravel())
                  CharCell(l < ucs.size() ? ucs[l] : UNI_ASCII_SPACE);
            }

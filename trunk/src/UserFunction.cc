@@ -478,7 +478,7 @@ UserFunction::UserFunction(const UCS_string txt,
                            int & error_line, const char * & error_cause,
                            bool keep_existing, const char * loc,
                            const UTF8_string & _creator)
-  : Function(ID_USER_SYMBOL, TOK_FUN2),
+  : Function(ID::USER_SYMBOL, TOK_FUN2),
     Executable(txt, loc),
     header(txt),
     creator(_creator)
@@ -544,7 +544,7 @@ Function * old_function = header.FUN()->get_function();
 //-----------------------------------------------------------------------------
 UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
                            const UCS_string & text, const Token_string & bdy)
-  : Function(ID_USER_SYMBOL, TOK_FUN0),
+  : Function(ID::USER_SYMBOL, TOK_FUN0),
     Executable(sig, fname, text, LOC),
     header(sig, fname),
     creator(UNI_LAMBDA)
@@ -1257,12 +1257,6 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
    out << ind << "Body Lines:      " << line_starts.size() << endl
        << ind << "Creator:         " << get_creator()      << endl
        << ind << "Body: " << body << endl;
-}
-//-----------------------------------------------------------------------------
-const UCS_string &
-UserFunction::get_name() const
-{
-   return header.get_name();
 }
 //-----------------------------------------------------------------------------
 UCS_string

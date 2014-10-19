@@ -28,12 +28,12 @@
 NameClass
 NamedObject::get_nc() const
 {
-   if (id == ID_USER_SYMBOL ||   // this named object is a user defined object
-       id == ID_ALPHA       ||   // ⍺
-       id == ID_ALPHA_U     ||   // ⍶
-       id == ID_OMEGA       ||   // ⍵
-       id == ID_OMEGA_U     ||   // ⍹
-       id == ID_CHI)             // χ
+   if (id == ID::USER_SYMBOL ||   // this named object is a user defined object
+       id == ID::ALPHA       ||   // ⍺
+       id == ID::ALPHA_U     ||   // ⍶
+       id == ID::OMEGA       ||   // ⍵
+       id == ID::OMEGA_U     ||   // ⍹
+       id == ID::CHI)             // χ
       {
         const Symbol * sym = get_symbol();
         if (sym == 0)   return NC_UNUSED_USER_NAME;
@@ -44,9 +44,9 @@ NamedObject::get_nc() const
         return NC_UNUSED_USER_NAME;
       }
 
-   if (id == ID_ALPHA)   return NC_VARIABLE;
-   if (id == ID_OMEGA)   return NC_VARIABLE;
-   if (id == ID_CHI)     return NC_VARIABLE;
+   if (id == ID::ALPHA)   return NC_VARIABLE;
+   if (id == ID::OMEGA)   return NC_VARIABLE;
+   if (id == ID::CHI)     return NC_VARIABLE;
 
    // Distinguished name.
    //

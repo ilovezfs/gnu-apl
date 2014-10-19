@@ -430,7 +430,7 @@ Workspace::is_called(const UCS_string & funname)
 Symbol * current_referent = lookup_existing_symbol(funname);
    if (current_referent == 0)   return false;   // no such symbol
 
-   Assert(current_referent->get_Id() == ID_USER_SYMBOL);
+   Assert(current_referent->get_Id() == ID::USER_SYMBOL);
 
 const NameClass nc = current_referent->get_nc();
    if (nc != NC_FUNCTION && nc != NC_OPERATOR)   return false;
@@ -482,8 +482,7 @@ Workspace::write_OUT(FILE * out, uint64_t & seq, const vector<UCS_string>
                    continue;
                  }
 
-              const Id obj_id = obj->get_Id();
-              if (obj_id == ID_USER_SYMBOL)   // user defined name
+              if (obj->get_Id() == ID::USER_SYMBOL)   // user defined name
                  {
                    const Symbol * sym = lookup_existing_symbol(objects[o]);
                    Assert(sym);
@@ -901,7 +900,7 @@ int variable_count = 0;
    // system variables
    //
 #define ro_sv_def(x)
-#define rw_sv_def(x) if (ID_ ## x != ID_Quad_SYL) { get_v_ ## x().dump(outf);   ++variable_count; }
+#define rw_sv_def(x) if (ID:: x != ID::Quad_SYL) { get_v_ ## x().dump(outf);   ++variable_count; }
 #include "SystemVariable.def"
 
    COUT << "DUMPED WORKSPACE '" << wname << "'" << endl

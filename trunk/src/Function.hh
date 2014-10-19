@@ -51,13 +51,13 @@ class Function : public NamedObject
 public:
    /// constructor for most functions
    Function(TokenTag _tag)
-   : NamedObject(Id(_tag >> 16)),
+   : NamedObject(ID::Id(_tag >> 16)),
      creation_time(0.0),
      tag(_tag)
    { parallel_thresholds[0] = parallel_thresholds[1] = -1; }
 
    /// constructor for functions whose Id does not match their tag
-   Function(Id id, TokenTag _tag)
+   Function(ID::Id id, TokenTag _tag)
    : NamedObject(id),
      creation_time(0.0),
      tag(_tag)

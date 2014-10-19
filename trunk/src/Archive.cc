@@ -1447,8 +1447,8 @@ const unsigned int vid = find_int_attr("vid", false, 10);
    //
    if (symbol.is_readonly())                     return;
    if (symbol.get_name().starts_iwith("⎕NLT"))   return;
-   if (symbol.get_Id() == ID_Quad_SVE)           return;
-   if (symbol.get_Id() == ID_Quad_SYL)           return;
+   if (symbol.get_Id() == ID::Quad_SVE)           return;
+   if (symbol.get_Id() == ID::Quad_SYL)           return;
 
    if (!values[vid])   return;   // value filtered out
 
@@ -1944,7 +1944,7 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                if (fun_name == 0)   // primitive or Quad function
                   {
                     const int fun_id = find_int_attr("fun-id", false, 16);
-                    Function * sysfun = get_system_function(Id(fun_id));
+                    Function * sysfun = ID::get_system_function(ID::Id(fun_id));
                     new (&tloc.tok) Token(tag, sysfun);
                   }
                else
