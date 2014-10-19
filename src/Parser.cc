@@ -453,10 +453,10 @@ Parser::degrade_scan_reduce(Token_string & tos)
 {
    loop(src, tos.size())
        {
-         if (tos[src].get_Id() == ID_OPER1_REDUCE  ||
-             tos[src].get_Id() == ID_OPER1_REDUCE1 ||
-             tos[src].get_Id() == ID_OPER1_SCAN    ||
-             tos[src].get_Id() == ID_OPER1_SCAN1)
+         if (tos[src].get_Id() == ID::OPER1_REDUCE  ||
+             tos[src].get_Id() == ID::OPER1_REDUCE1 ||
+             tos[src].get_Id() == ID::OPER1_SCAN    ||
+             tos[src].get_Id() == ID::OPER1_SCAN1)
             {
               const bool is_function = src == 0 ||
                          check_if_value(tos, src - 1);

@@ -49,7 +49,7 @@ PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx,
 {
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
-const uint64_t start_1 = cycle_counter();
+const uint64_t start_0 = cycle_counter();
 #endif
 #endif
 
@@ -383,8 +383,8 @@ maybe_print_it:
 #ifdef PERFORMANCE_COUNTERS_WANTED
 #ifdef HAVE_RDTSC
    {
-     const uint64_t end_1 = cycle_counter();
-     Performance::fs_PrintBuffer_B.add_sample(end_1 - start_1, ec);
+     const uint64_t end_0 = cycle_counter();
+     Performance::fs_PrintBuffer_B.add_sample(end_0 - start_0, ec);
    }
 #endif
 #endif

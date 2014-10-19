@@ -29,7 +29,7 @@
 //=============================================================================
 DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Token & rfun,
                                  const char * loc)
-   : Function(ID_USER_SYMBOL, TOK_FUN2),
+   : Function(ID::USER_SYMBOL, TOK_FUN2),
      left_fun(lfun),
      oper(dyop),
      right_fun(rfun),
@@ -46,7 +46,7 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Token & rfun,
 //-----------------------------------------------------------------------------
 DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Value_P X,
                                  Token & rval, const char * loc)
-   : Function(ID_USER_SYMBOL, TOK_FUN2),
+   : Function(ID::USER_SYMBOL, TOK_FUN2),
      left_fun(lfun),
      oper(dyop),
      right_fun(rval),
@@ -56,7 +56,7 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * dyop, Value_P X,
 //-----------------------------------------------------------------------------
 DerivedFunction::DerivedFunction(Token & lfun, Function * monop,
                                  const char * loc)
-   : Function(ID_USER_SYMBOL, TOK_FUN2),
+   : Function(ID::USER_SYMBOL, TOK_FUN2),
      left_fun(lfun),
      oper(monop),
      right_fun(TOK_VOID),
@@ -73,7 +73,7 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * monop,
 //-----------------------------------------------------------------------------
 DerivedFunction::DerivedFunction(Token & lfun, Function * monop,
                                  Value_P X, const char * loc)
-   : Function(ID_USER_SYMBOL, TOK_FUN2),
+   : Function(ID::USER_SYMBOL, TOK_FUN2),
      left_fun(lfun),
      oper(monop),
      right_fun(TOK_VOID),

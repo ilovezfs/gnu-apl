@@ -230,7 +230,7 @@ Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
 }
 //=============================================================================
 Quad_SVE::Quad_SVE()
-   : NL_SystemVariable(ID_Quad_SVE)
+   : NL_SystemVariable(ID::Quad_SVE)
 {
    Symbol::assign(IntScalar(0, LOC), LOC);
 }

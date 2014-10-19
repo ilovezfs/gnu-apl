@@ -57,7 +57,7 @@ public:
    virtual ParseMode get_parse_mode() const = 0;
 
    /// return the name of this function, or ◊ or ⍎
-   virtual const UCS_string & get_name() const = 0;
+   virtual UCS_string get_name() const = 0;
 
    /// return true iff this Executable cannot be suspended
    virtual bool cannot_suspend() const
@@ -184,8 +184,8 @@ protected:
    {}
 
    /// overloaded Executable::get_name()
-   virtual const UCS_string & get_name() const
-      { return id_name(ID_F1_EXECUTE); }
+   virtual UCS_string get_name() const
+      { return UCS_string(UTF8_string(ID::name(ID::F1_EXECUTE))); }
 };
 //-----------------------------------------------------------------------------
 /**
@@ -210,8 +210,8 @@ protected:
    {}
 
    /// overloaded Executable::get_name()
-   virtual const UCS_string & get_name() const
-      { return id_name(ID_DIAMOND); }
+   virtual UCS_string get_name() const
+      { return UCS_string(UTF8_string(ID::name(ID::DIAMOND))); }
 };
 //-----------------------------------------------------------------------------
 

@@ -100,7 +100,7 @@ Symbol * sp = symbol_table[hash];
              CERR << "Symbol " << sym_name << " has hash " << HEX(hash) << endl;
            }
 
-        Symbol * new_symbol = new Symbol(sym_name, ID_USER_SYMBOL);
+        Symbol * new_symbol = new Symbol(sym_name, ID::USER_SYMBOL);
         symbol_table[hash] =  new_symbol;
         return new_symbol;
       }
@@ -130,7 +130,7 @@ int pos = 0;
          if (sym->is_erased())   // override an erased symbol.
             {
               sym->set_erased(false);
-              sym->symbol = sym_name;
+              sym->name = sym_name;
 
               Log(LOG_SYMBOL_lookup_symbol)
                  {
@@ -145,7 +145,7 @@ int pos = 0;
               if (pos >= 255)
                  throw_apl_error(E_SYSTEM_LIMIT_SYMTAB, LOC);
 
-              sym->next = new Symbol(sym_name, ID_USER_SYMBOL);
+              sym->next = new Symbol(sym_name, ID::USER_SYMBOL);
 
               Log(LOG_SYMBOL_lookup_symbol)
                  {
@@ -391,7 +391,7 @@ SymbolTable::clear(ostream & out)
               if (sym->value_stack.size() != 1)
                 {
                   Q1(sym->value_stack.size())
-                  Q1(sym->symbol)
+                  Q1(sym->name)
                   Assert(0);
                 }
               sym->clear_vs();

@@ -62,13 +62,13 @@ class NamedObject
 {
 public:
    /// constructor from Id
-   NamedObject(Id i)
+   NamedObject(ID::Id i)
    : id(i)
    {}
 
    /// return the name of the named object
-   virtual const UCS_string & get_name() const
-      { return id_name(id); }
+   virtual UCS_string get_name() const
+      { return UCS_string(UTF8_string(ID::name(id))); }
 
    /// return the function for this Id (if any) or 0 if this Id does
    /// (currently) represent a function.
@@ -87,18 +87,18 @@ public:
    virtual const Symbol * get_symbol() const  { return 0; }
 
    /// return the Id of this object (ID_USER_SYMBOL for user defined objects)
-   Id get_Id() const
+   ID::Id get_Id() const
       { return id; }
 
    /// return true, iff this object is user-defined
    bool is_user_defined() const
-      { return id == ID_USER_SYMBOL; }
+      { return id == ID::USER_SYMBOL; }
 
    /// Get current \b NameClass of \b this name.
    NameClass get_nc() const;
 
    /// the object's id
-   const Id id;
+   const ID::Id id;
 };
 
 #endif // __NAMED_OBJECT_HH_DEFINED__

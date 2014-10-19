@@ -77,7 +77,7 @@ public:
    bool is_operator() const   { return sym_LO != 0; }
 
    /// return the name of the function
-   const UCS_string & get_name() const   { return function_name; }
+   UCS_string get_name() const   { return function_name; }
 
    /// return the Symbol for the function result
    Symbol * Z()   const   { return sym_Z; }
@@ -266,8 +266,9 @@ public:
    /// overloaded Executable::print()
    virtual ostream & print(ostream & out) const;
 
-   /// return the name of this function, or ◊ or ⍎
-   virtual const UCS_string & get_name() const;
+   /// return the name of this function
+   virtual UCS_string get_name() const
+      { return header.get_name(); }
 
    /// return e.g. 'FOO[10]' 
    UCS_string get_name_and_line(Function_PC pc) const;

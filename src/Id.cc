@@ -42,14 +42,14 @@
 
 //-----------------------------------------------------------------------------
 const char *
-ID::name(Id id)
+ID::name(ID::Id id)
 {
    switch(id)
       {
-#define pp(x, _u) case ID_ ## x:      return #x;
-#define qf(x, _u) case ID_Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
-#define qv(x, _u) case ID_Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
-#define st(x, u)  case ID_ ## x:      return u;
+#define pp(x, _u) case x:          return #x;
+#define qf(x, _u) case Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
+#define qv(x, _u) case Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
+#define st(x, u)  case x:          return u;
 
 #define id_def(id, uni, _val, mac)   mac(id, uni)
 #include "Id.def"
@@ -60,37 +60,19 @@ ID::name(Id id)
    return "Unknown-ID";
 }
 //-----------------------------------------------------------------------------
-const UCS_string &
-id_name(Id id)
-{
-   switch(id)
-      {
-#define pp(x) case ID_ ## x: return id_ ## x;
-#define qf(x) case ID_Quad_ ## x: return id_Quad_ ## x;
-#define qv(x) case ID_Quad_ ## x: return id_Quad_ ## x;
-#define st(x) case ID_ ## x: return id_ ## x;
-
-#define id_def(_id, _uni, _val, _mac) _mac(_id)
-#include "Id.def"
-      }
-
-   CERR << "Unknown Id " << HEX(id);
-   Assert(0 && "Bad Id");
-}
-//-----------------------------------------------------------------------------
 ostream &
-operator << (ostream & out, Id id)
+operator << (ostream & out, ID::Id id)
 {
-   return out << id_name(id);
+   return out << ID::name(id);
 }
 //-----------------------------------------------------------------------------
 Function *
-get_system_function(Id id)
+ID::get_system_function(ID::Id id)
 {
    switch(id)
       {
 #define pp(x)
-#define qf(x) case ID_Quad_ ## x: return &Quad_ ## x::fun;
+#define qf(x) case ID::Quad_ ## x: return &Quad_ ## x::fun;
 #define qv(x)
 #define st(x) 
 
@@ -104,13 +86,13 @@ get_system_function(Id id)
 }
 //-----------------------------------------------------------------------------
 Symbol *
-get_system_variable(Id id)
+ID::get_system_variable(ID::Id id)
 {
    switch(id)
       {
 #define pp(x)
 #define qf(x)
-#define qv(x) case ID_Quad_ ## x:return &Workspace::get_v_Quad_ ## x();
+#define qv(x) case ID::Quad_ ## x:return &Workspace::get_v_Quad_ ## x();
 #define st(x) 
 
 #define id_def(_id, _uni, _val, _mac) _mac(_id)

@@ -35,7 +35,7 @@ vector<NativeFunction *> NativeFunction::valid_functions;
 //-----------------------------------------------------------------------------
 NativeFunction::NativeFunction(const UCS_string & so_name,
                                const UCS_string & apl_name)
-   : Function(ID_USER_SYMBOL, TOK_FUN2),
+   : Function(ID::USER_SYMBOL, TOK_FUN2),
      handle(0),
      name(apl_name),
      original_so_path(so_name),
