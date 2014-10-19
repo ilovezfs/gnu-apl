@@ -180,6 +180,9 @@ protected:
    static void cmd_USERCMD(ostream & out, const UCS_string & arg,
                            vector<UCS_string> & args);
 
+   /// enable and disable colors
+   static void cmd_XTERM(ostream & out, const UCS_string & args);
+
    /// execute a user defined command
    static void do_USERCMD(ostream & out, UCS_string & line,
                           const UCS_string & line1, const UCS_string & cmd,

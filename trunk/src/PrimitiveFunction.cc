@@ -313,7 +313,8 @@ Bif_COMMA::prepend_scalar(const Cell & cell_A, Axis axis, Value_P B)
            }
         else
            {
-             loop(z, Z->element_count())   Z->next_ravel()->init(cell_A, Z.getref());
+             loop(z, Z->element_count())
+                 Z->next_ravel()->init(cell_A, Z.getref());
            }
         return Z;
       }

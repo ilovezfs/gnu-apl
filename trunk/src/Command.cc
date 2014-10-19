@@ -389,9 +389,43 @@ Executable * statements = 0;
 }
 //-----------------------------------------------------------------------------
 void 
+Command::cmd_XTERM(ostream & out, const UCS_string & arg)
+{
+   const char * term = getenv("TERM");
+   if (!strncmp(term, "dumb", 4) && arg.starts_iwith("ON"))
+      {
+        out << "impossible on dumb terminal" << endl;
+      }
+   else if (arg.starts_iwith("OFF") || arg.starts_iwith("ON"))
+      {
+        Output::toggle_color(arg);
+      }
+   else if (arg.size() == 0)
+      {
+        out << "]COLOR/XTERM ";
+        if (Output::color_enabled()) out << "ON"; else out << "OFF";
+        out << endl;
+      }
+   else
+      {
+        out << "BAD COMMAND" << endl;
+        return;
+      }
+}
+//-----------------------------------------------------------------------------
+void 
 Command::cmd_BOXING(ostream & out, const UCS_string & arg)
 {
 int format = arg.atoi();
+
+   if (arg.size() == 0)
+      {
+        
+        out << "]BOXING ";
+        if (boxing_format == -1) out << "OFF"; else out << boxing_format;
+        out << endl;
+        return;
+      }
 
    if (arg.starts_iwith("OFF"))   format = -1;
 
@@ -613,28 +647,27 @@ Command::cmd_HELP(ostream & out)
 {
    out << "Commands are:" << endl;
 #define cmd_def(cmd_str, _cod, arg, _hint) \
-   CERR << "      " cmd_str " " #arg << endl;
+   CERR << "      " cmd_str " " arg << endl;
 #include "Command.def"
-   out << endl;
 
-   if (user_commands.size())
-      {
-        out << "User defined commands:" << endl;
-        loop(u, user_commands.size())
-           {
-             out << "      " << user_commands[u].prefix << " → ";
-             if (user_commands[u].mode)   out << "A ";
-             out << user_commands[u].apl_function << " B"
-                 << " (mode " << user_commands[u].mode << ")" << endl;
-           }
-      }
+  if (user_commands.size() == 0)   return;
+
+   out << endl << "User defined commands:" << endl;
+   loop(u, user_commands.size())
+       {
+         out << "      " << user_commands[u].prefix << " [args]  calls:  ";
+         if (user_commands[u].mode)   out << "tokenized-args ";
+
+         out << user_commands[u].apl_function << " quoted-args" << endl;
+       }
 }
 //-----------------------------------------------------------------------------
 void 
 Command::cmd_HISTORY(ostream & out, const UCS_string & arg)
 {
-   if (arg.starts_iwith("CLEAR"))   LineInput::clear_history(out);
-   else                             LineInput::print_history(out);
+   if (arg.size() == 0)                  LineInput::print_history(out);
+   else if (arg.starts_iwith("CLEAR"))   LineInput::clear_history(out);
+   else                                  out << "BAD COMMAND" << endl;
 }
 //-----------------------------------------------------------------------------
 void
@@ -1172,16 +1205,24 @@ void
 Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
                      vector<UCS_string> & args)
 {
+   // ]USERCMD
    // ]USERCMD REMOVE-ALL
    // ]USERCMD REMOVE        ]existing-command
    // ]USERCMD ]new-command  APL-fun
    // ]USERCMD ]new-command  APL-fun  mode
    //
-   if (args.size() < 2)
+   if (args.size() == 0)
       {
-        out << "BAD COMMAND" << endl;
-        Workspace::more_error() =
-                   UCS_string("too few parameters in command ]USERCMD");
+        if (user_commands.size())
+           {
+             loop(u, user_commands.size())
+                {
+                  out << user_commands[u].prefix << " → ";
+                  if (user_commands[u].mode)   out << "A ";
+                  out << user_commands[u].apl_function << " B"
+                      << " (mode " << user_commands[u].mode << ")" << endl;
+                }
+           }
         return;
       }
 
@@ -1208,7 +1249,7 @@ Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
                 }
            }
 
-       out << "BAD COMMAND" << endl;
+       out << "BAD COMMAND+" << endl;
        Workspace::more_error() = UCS_string(
                 "user command in command ]USERCMD REMOVE does not exist");
        return;
@@ -1216,7 +1257,7 @@ Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
 
    if (args.size() > 3)
       {
-        out << "BAD COMMAND" << endl;
+        out << "BAD COMMAND+" << endl;
         Workspace::more_error() =
                    UCS_string("too many parameters in command ]USERCMD");
         return;
@@ -1225,9 +1266,9 @@ Command::cmd_USERCMD(ostream & out, const UCS_string & cmd,
 const int mode = (args.size() == 3) ? args[2].atoi() : 0;
    if (mode < 0 || mode > 1)
       {
-        out << "BAD COMMAND" << endl;
+        out << "BAD COMMAND+" << endl;
         Workspace::more_error() =
-                   UCS_string("unsupported mode in command ]USERCMD");
+           UCS_string("unsupported mode in command ]USERCMD (0 or 1 expected)");
         return;
       }
 
@@ -1240,7 +1281,7 @@ const int mode = (args.size() == 3) ? args[2].atoi() : 0;
         else          error = error || !Avec::is_symbol_char(args[0][c]);
         if (error)
            {
-             out << "BAD COMMAND" << endl;
+             out << "BAD COMMAND+" << endl;
              Workspace::more_error() =
                    UCS_string("bad user command name in command ]USERCMD");
              return;
@@ -1249,7 +1290,7 @@ const int mode = (args.size() == 3) ? args[2].atoi() : 0;
 
    // check conflicts with existing commands
    //
-#define cmd_def(cmd_str, _cod, arg, _hint) \
+#define cmd_def(cmd_str, _cod, _arg, _hint) \
    if (check_name_conflict(out, cmd_str, args[0]))   return;
 #include "Command.def"
    if (check_redefinition(out, args[0], args[1], mode))
@@ -1265,7 +1306,7 @@ const int mode = (args.size() == 3) ? args[2].atoi() : 0;
       {
         if (!Avec::is_symbol_char(args[1][c]))
            {
-             out << "BAD COMMAND" << endl;
+             out << "BAD COMMAND+" << endl;
              Workspace::more_error() =
                    UCS_string("bad APL function name in command ]USERCMD");
              return;
@@ -1801,7 +1842,7 @@ const bool have_trailing_blank = replace_count && user.last() == ' ';
 #define cmd_def(cmd_str, code, arg, hint)  \
    { UCS_string ustr(cmd_str);             \
      if (ustr.starts_iwith(cmd))           \
-        { matches.push_back(ustr); ehint = hint; shint = #arg; } }
+        { matches.push_back(ustr); ehint = hint; shint = arg; } }
 #include "Command.def"
 
         // if no match was found then ignore the TAB

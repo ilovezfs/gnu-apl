@@ -1084,13 +1084,6 @@ int file_profile = 0;   // the current profile in the preferences file
    fclose(f);
 }
 //-----------------------------------------------------------------------------
-
-// dummy functions for operations that are not built-in APL functions
-//
-namespace Bif_SCALAR      { Function & fun = *(Function *)0; };
-namespace Bif_clone       { Function & fun = *(Function *)0; };
-namespace Bif_PrintBuffer { Function & fun = *(Function *)0; };
-
 void
 UserPreferences::read_threshold_file(bool sys, bool log_startup)
 {
@@ -1155,6 +1148,7 @@ int line = 0;
 
 #define perfo_2(bif, ab, _name, thr)  perfo_1(bif, ab, _name, thr)
 #define perfo_3(bif, ab, _name, thr)  perfo_1(bif, ab, _name, thr)
+#define perfo_4(bif, ab, _name, thr)
 
 #include "Performance.def"
          }

@@ -179,6 +179,10 @@ public:
    /// read/append an ESC sequence in str and store it in \b dest
    static int read_ESC_sequence(char * dest, int destlen, int append,
                                 const char * capname, char * str, int p1);
+
+   // true if xterm/color is on
+   static bool color_enabled();
+
 protected:
    /// true if colors were changed (and then reset_colors() shall reset
    /// them when leaving the interpreter

@@ -63,8 +63,7 @@ class NamedObject
 public:
    /// constructor from Id
    NamedObject(Id i)
-   : id(i),
-     idname(id_name(i))
+   : id(i)
    {}
 
    /// return the name of the named object
@@ -100,9 +99,6 @@ public:
 
    /// the object's id
    const Id id;
-
-   /// the name of the id
-   const UCS_string & idname;
 };
 
 #endif // __NAMED_OBJECT_HH_DEFINED__

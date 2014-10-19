@@ -32,38 +32,39 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-/*
- NOTE:
-
- Workspace::Workspace() calls ⎕xx constructors.
- ⎕xx constructors call id_name()
- id_name() uses static ID strings defined below.
-
- Therefore the constructors of the static ID strings must be called before
- Workspace::Workspace() ! 
-
- See also 3.6.2 of "ISO standard Programming Languages — C++"
- */
-#define av(x, u) const UCS_string id_ ## x (UNI_ ## u);
-#define pp(x, u) const UCS_string id_ ## x (UTF8_string(#x));
-#define qf(x, u) const UCS_string id_Quad_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
-#define qv(x, u) const UCS_string id_Quad_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
+#define pp(x, _u) const UCS_string id_ ## x (UTF8_string(#x));
+#define qf(x, _u) const UCS_string id_Quad_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
+#define qv(x, _u) const UCS_string id_Quad_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
 #define st(x, u) const UCS_string id_ ## x (UTF8_string(u));
 
-#define id_def(_id, _uni, _val, _mac)   _mac(_id, _uni)
+#define id_def(id, uni, _val, mac)   mac(id, uni)
 #include "Id.def"
 
-// now Workspace can be constructed
-//
-Workspace Workspace::the_workspace;
+//-----------------------------------------------------------------------------
+const char *
+ID::name(Id id)
+{
+   switch(id)
+      {
+#define pp(x, _u) case ID_ ## x:      return #x;
+#define qf(x, _u) case ID_Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
+#define qv(x, _u) case ID_Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
+#define st(x, u)  case ID_ ## x:      return u;
 
+#define id_def(id, uni, _val, mac)   mac(id, uni)
+#include "Id.def"
+
+        default: break;
+      }
+
+   return "Unknown-ID";
+}
 //-----------------------------------------------------------------------------
 const UCS_string &
 id_name(Id id)
 {
    switch(id)
       {
-#define av(x) case ID_ ## x: return id_ ## x;
 #define pp(x) case ID_ ## x: return id_ ## x;
 #define qf(x) case ID_Quad_ ## x: return id_Quad_ ## x;
 #define qv(x) case ID_Quad_ ## x: return id_Quad_ ## x;
@@ -88,7 +89,6 @@ get_system_function(Id id)
 {
    switch(id)
       {
-#define av(x) case ID_ ## x: return &Bif_F12_ROLL::fun;
 #define pp(x)
 #define qf(x) case ID_Quad_ ## x: return &Quad_ ## x::fun;
 #define qv(x)
@@ -108,7 +108,6 @@ get_system_variable(Id id)
 {
    switch(id)
       {
-#define av(x)
 #define pp(x)
 #define qf(x)
 #define qv(x) case ID_Quad_ ## x:return &Workspace::get_v_Quad_ ## x();

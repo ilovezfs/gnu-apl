@@ -915,7 +915,6 @@ template<typename T>
 void unm2r(ShapeItem K, Matrix<T> & A, const T * tau, Matrix<T> & c)
 {
 const ShapeItem M = c.get_row_count();
-const ShapeItem N = c.get_column_count();
 
    // only SIDE == "Left" is implemented
    // only TRANS = 'T' or 'C' is implemented
@@ -1040,7 +1039,6 @@ int scaled_gelsy(Matrix<T> & A, Matrix<T> & B, double rcond)
    // 0 < N <= M  →  min_NM = N and max_MN = M
    // 0 < NRHS
    //
-const ShapeItem M    = A.get_row_count();
 const ShapeItem N    = A.get_column_count();
 const ShapeItem NRHS = B.get_column_count();
 

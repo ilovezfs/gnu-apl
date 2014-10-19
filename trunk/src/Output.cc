@@ -385,12 +385,15 @@ Output::set_color_mode(Output::ColorMode mode)
 void 
 Output::toggle_color(const UCS_string & arg)
 {
-int a = 0;
-   while (a < arg.size() && arg[a] < UNI_ASCII_SPACE)   ++a;
-
    if (arg.starts_iwith("ON"))         colors_enabled = true;
    else if (arg.starts_iwith("OFF"))   colors_enabled = false;
    else                                colors_enabled = !colors_enabled;
+}
+//-----------------------------------------------------------------------------
+bool
+Output::color_enabled()
+{
+   return Output::colors_enabled;
 }
 //=============================================================================
 void

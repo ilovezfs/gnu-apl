@@ -168,20 +168,20 @@ Token_string tos;
         Tokenizer tokenizer(PM_STATEMENT_LIST, LOC);
         if (tokenizer.tokenize(buf, tos) != E_NO_ERROR)
            {
-             CERR << "parse error 1 in )SYMBOL command." << endl;
+             CERR << "invalid token" << endl;
              return out;
            }
       }
 
    if (tos.size() == 0)   // empty argument
       {
-        CERR << "parse error 2 in )SYMBOL command" << endl;
+        CERR << "no symbol" << endl;
         return out;
       }
 
    if (tos[0].get_ValueType() != TV_SYM)
       {
-        CERR << "parse error 3 in )SYMBOL command" << endl;
+        CERR << "not a symbol" << endl;
         return out;
       }
 

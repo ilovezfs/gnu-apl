@@ -50,10 +50,10 @@ NamedObject::get_nc() const
 
    // Distinguished name.
    //
-   Assert(Avec::is_quad(idname[0]));
+   Assert(Avec::is_quad(get_name()[0]));
 
 int len;
-Token tok = Workspace::get_quad(idname, len);
+Token tok = Workspace::get_quad(get_name(), len);
    if (len == 1)   return NC_INVALID;
 
    if (tok.get_Class() == TC_SYMBOL)   return NC_VARIABLE;
