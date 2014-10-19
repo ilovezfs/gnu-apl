@@ -36,7 +36,7 @@ class SystemVariable : public Symbol
 public:
    /// Construct a \b SystemVariable with \b Id \b id
    SystemVariable(Id id)
-   : Symbol(id_name(id), id)
+   : Symbol(UCS_string(UTF8_string(ID::name(id))), id)
    {}
 
    /// overloaded Symbol::print().

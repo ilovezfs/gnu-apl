@@ -36,6 +36,7 @@ enum Pfstat_ID
 #define perfo_1( id,  ab, name, _thr) PFS_ ## id ## ab,
 #define perfo_2(_id, _ab, name, _thr)
 #define perfo_3(_id, _ab, name, _thr)
+#define perfo_4(_id, _ab, name, _thr)
 #include "Performance.def"
         PFS_MAX1,
         PFS_MAX1_1 = PFS_MAX1 - 1,
@@ -45,6 +46,7 @@ enum Pfstat_ID
 #define perfo_1(_id, _ab, name, _thr)
 #define perfo_2( id,  ab, name, _thr) PFS_ ## id ## ab,
 #define perfo_3(_id, _ab, name, _thr)
+#define perfo_4(_id, _ab, name, _thr)
 #include "Performance.def"
         PFS_MAX2,
         PFS_MAX2_1 = PFS_MAX2 - 1,
@@ -54,6 +56,7 @@ enum Pfstat_ID
 #define perfo_1(_id, _ab, name, _thr)
 #define perfo_2(_id, _ab, name, _thr)
 #define perfo_3( id,  ab, name, _thr) PFS_ ## id ## ab,
+#define perfo_4( id,  ab, name, _thr) PFS_ ## id ## ab,
 #include "Performance.def"
         PFS_MAX3,
         PFS_MAX3_1 = PFS_MAX3 - 1,
@@ -84,7 +87,7 @@ public:
       { ++count;   data += val;   data2 += val*val; }
 
    /// print count, data, and data2
-   void print(ostream & out, int l_N, int l_u);
+   void print(ostream & out);
 
    /// write count, data, and data2 to file
    void save_record(ostream & outf);
@@ -100,6 +103,9 @@ public:
 
    double get_sum2() const
       { return data2; }
+
+   /// print num as 5 characters (digits, dot, and multiplier (k, m, g, ...
+   static void print5(ostream & out, uint64_t num);
 
 protected:
    /// number of samples
@@ -127,7 +133,7 @@ public:
    virtual void print(ostream & out) = 0;
 
    /// write statistics to file
-   virtual void save_data(ostream & outf, const char * id_name) = 0;
+   virtual void save_data(ostream & outf, const char * perf_name) = 0;
 
    virtual void reset() = 0;
 
@@ -165,7 +171,7 @@ public:
    virtual void print(ostream & out);
 
    /// overloaded Statistics::save_data()
-   virtual void save_data(ostream & outf, const char * id_name);
+   virtual void save_data(ostream & outf, const char * perf_name);
 
    virtual const Statistics_record * get_record() const
       { return &vec_cycles; }
@@ -208,7 +214,7 @@ public:
    virtual void print(ostream & out);
 
    /// overloaded Statistics::save_data()
-   virtual void save_data(ostream & outf, const char * id_name);
+   virtual void save_data(ostream & outf, const char * perf_name);
 
    virtual const Statistics_record * get_first_record() const
       { return  &first; }
@@ -258,20 +264,26 @@ public:
    // reset all counters
    static void reset_all();
 
-#define perfo_1(id, ab, name, thr)                 \
-   /** monadic cell function statistics **/    \
+#define perfo_1(id, ab, name, thr)                   \
+   /** monadic cell function statistics **/          \
    static CellFunctionStatistics cfs_ ## id ## ab;   \
-   /** monadic parallel executionthreshold **/ \
+   /** monadic parallel executionthreshold **/       \
    static const ShapeItem thresh_ ## id ## ab = thr;
 
-#define perfo_2(id, ab, name, thr)                \
-   /** dyadic cell function statistics **/    \
-   static CellFunctionStatistics cfs_ ## id ## ab;  \
-   /** dyadic parallel executionthreshold **/ \
+#define perfo_2(id, ab, name, thr)                   \
+   /** dyadic cell function statistics **/           \
+   static CellFunctionStatistics cfs_ ## id ## ab;   \
+   /** dyadic parallel executionthreshold **/        \
    static const ShapeItem thresh_ ## id ## ab = thr;
 
-#define perfo_3(id, ab, name, thr) \
-   static FunctionStatistics fs_ ## id ## ab;   ///< function statistics
+#define perfo_3(id, ab, name, thr)                   \
+   /** function statistics **/                       \
+   static FunctionStatistics fs_ ## id ## ab;
+
+#define perfo_4(id, ab, name, thr)                   \
+   /** function statistics **/                       \
+   static FunctionStatistics fs_ ## id ## ab;
+
 #include "Performance.def"
 };
 

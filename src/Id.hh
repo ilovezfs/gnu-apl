@@ -23,6 +23,8 @@
 
 #include <iostream>
 
+#include "UTF8_string.hh"
+
 class Function;
 class Symbol;
 class UCS_string;
@@ -51,6 +53,14 @@ enum Id
 #define id_def(id, _uni, val, mac) mac(id, val)
 #include "Id.def"
 };
+
+//-----------------------------------------------------------------------------
+class ID
+{
+public:
+  static const char * name(Id id);
+};
+//-----------------------------------------------------------------------------
 
 /// return a pointer to the system function with Id \b id,
 /// or 0 if id is not a system function

@@ -195,6 +195,11 @@ const bool huge = out && ec > 10000;
      //    An item of the matrix is a top-level cell (possibly nested),
      //    therefore we have (⍴,value) items. Items are rectangular.
      //
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+const uint64_t start_2 = cycle_counter();
+#endif
+#endif
      typedef vector<PrintBuffer> PB_row;
      vector<PB_row> item_matrix;
 
@@ -232,6 +237,14 @@ const bool huge = out && ec > 10000;
           item_matrix.push_back(item_row);
         }
 
+#ifdef PERFORMANCE_COUNTERS_WANTED
+#ifdef HAVE_RDTSC
+   {
+     const uint64_t end_2 = cycle_counter();
+     Performance::fs_PrintBuffer2_B.add_sample(end_2 - start_2, ec);
+   }
+#endif
+#endif
 
      // 3. align all columns (which pads them to the same width).
      //

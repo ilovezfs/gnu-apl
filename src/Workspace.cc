@@ -37,7 +37,18 @@ using namespace std;
 #include "UserPreferences.hh"
 #include "Workspace.hh"
 
-// Workspace::the_workspace is defined in StaticObjects.cc
+/* define 'all_values' and 'all_index_exprs' here so that they will be
+   constructed BEFORE Workspace::the_workspace !
+
+   See also 3.6.2 of "ISO standard Programming Languages — C++"
+*/
+
+DynamicObject DynamicObject::all_values(LOC);
+DynamicObject DynamicObject::all_index_exprs(LOC);
+
+// now Workspace::the_workspace can be constructed
+//
+Workspace Workspace::the_workspace;
 
 //-----------------------------------------------------------------------------
 void
