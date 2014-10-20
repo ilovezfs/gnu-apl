@@ -32,26 +32,16 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-#define pp(x, _u) const UCS_string id_ ## x (UTF8_string(#x));
-#define qf(x, _u) const UCS_string id_Quad_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
-#define qv(x, _u) const UCS_string id_Quad_ ## x (UTF8_string("\xe2" "\x8e" "\x95" #x));
-#define st(x, u) const UCS_string id_ ## x (UTF8_string(u));
-
-#define id_def(id, uni, _val, mac)   mac(id, uni)
-#include "Id.def"
-
-//-----------------------------------------------------------------------------
 const char *
 ID::name(ID::Id id)
 {
    switch(id)
       {
-#define pp(x, _u) case x:          return #x;
-#define qf(x, _u) case Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
-#define qv(x, _u) case Quad_ ## x: return "\xe2" "\x8e" "\x95" #x;
-#define st(x, u)  case x:          return u;
+#define pp(i, _u, _v) case i:          return #i;
+#define qf(i,  u, _v)  case Quad_ ## i: return u;
+#define qv(i,  u, _v)  case Quad_ ## i: return u;
+#define st(i,  u, _v)  case i:          return u;
 
-#define id_def(id, uni, _val, mac)   mac(id, uni)
 #include "Id.def"
 
         default: break;
@@ -71,12 +61,11 @@ ID::get_system_function(ID::Id id)
 {
    switch(id)
       {
-#define pp(x)
-#define qf(x) case ID::Quad_ ## x: return &Quad_ ## x::fun;
-#define qv(x)
-#define st(x) 
+#define pp(i, _u, _v)
+#define qf(i, _u, _v) case ID::Quad_ ## i: return &Quad_ ## i::fun;
+#define qv(i, _u, _v)
+#define st(i, _u, _v) 
 
-#define id_def(_id, _uni, _val, _mac) _mac(_id)
 #include "Id.def"
 
         default: break;
@@ -90,12 +79,12 @@ ID::get_system_variable(ID::Id id)
 {
    switch(id)
       {
-#define pp(x)
-#define qf(x)
-#define qv(x) case ID::Quad_ ## x:return &Workspace::get_v_Quad_ ## x();
-#define st(x) 
+#define pp(_i, _u, _v)
+#define qf(_i, _u, _v)
+#define qv( i, _u, _v)   case ID::Quad_ ## i: \
+                              return &Workspace::get_v_Quad_ ## i();
+#define st(_i, _u, _v) 
 
-#define id_def(_id, _uni, _val, _mac) _mac(_id)
 #include "Id.def"
 
         default: break;

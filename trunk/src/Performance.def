@@ -43,7 +43,11 @@ perfo_3(OPER2_INNER    , _AB, "A f.g B",    8888888888888888888ULL)
 perfo_3(OPER2_OUTER    , _AB, "A ∘.g B",    8888888888888888888ULL)
 perfo_3(F12_RHO        , _AB, "A ⍴ B",      8888888888888888888ULL)
 perfo_4(PrintBuffer    , _B,  "PrintBuffer(B)", -1)
+perfo_4(PrintBuffer1   , _B,  "PrintBuffer1  ", -1)
 perfo_4(PrintBuffer2   , _B,  "PrintBuffer2  ", -1)
+perfo_4(PrintBuffer3   , _B,  "PrintBuffer3  ", -1)
+perfo_4(PrintBuffer4   , _B,  "PrintBuffer4  ", -1)
+perfo_4(PrintBuffer5   , _B,  "PrintBuffer5  ", -1)
 
 #undef perfo_1
 #undef perfo_2

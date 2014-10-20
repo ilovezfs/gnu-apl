@@ -91,6 +91,14 @@ public:
    /// contructor: a PrintBuffer from an APL value
    PrintBuffer(const Value & value, const PrintContext & pctx, ostream * out);
 
+   /// PrintBuffer from an APL value in function-style
+   void pb_for_function(const Value & value, PrintContext pctx,
+                        PrintStyle outer_style);
+
+   /// PrintBuffer from an empty APL value
+   void pb_empty(const Value & value, PrintContext pctx,
+                        PrintStyle outer_style);
+
    /// return the number of rows
    size_t get_height() const
       { return buffer.size(); }

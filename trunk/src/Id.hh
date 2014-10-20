@@ -48,13 +48,12 @@ class ID
 public:
    enum Id
    {
-#define av(x, v)          x v,
-#define pp(x, v)          x v,
-#define qf(x, v) Quad_ ## x v,
-#define qv(x, v) Quad_ ## x v,
-#define st(x, v)          x v,
+#define av(i, _u, v)          i v,
+#define pp(i, _u, v)          i v,
+#define qf(i, _u, v) Quad_ ## i v,
+#define qv(i, _u, v) Quad_ ## i v,
+#define st(i, _u, v)          i v,
 
-   #define id_def(id, _uni, val, mac) mac(id, val)
    #include "Id.def"
    };
 
