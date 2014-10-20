@@ -310,15 +310,15 @@ uint64_t num1 = 0;
            ++multiplier;
          }
 
-   if (num >= 100)       // e.g.  ' 345m', num1 is 345678
+   if (num >= 100)       // e.g.  '345 M', num1 is 345678
       {
-        out << " " << num << *multiplier;
+        out << num << " " << *multiplier;
       }
-   else if (num >= 10)   // e.g.  '34.5m', num1 is 34567
+   else if (num >= 10)   // e.g.  '34.5M', num1 is 34567
       {
         out << num << "." << ((num1/100)%10) << *multiplier;
       }
-   else                  // e.g.  '3.45m'', num1 is 3456
+   else                  // e.g.  '3.45M', num1 is 3456
       {
         out << num << "." << ((num1/10)%100) << *multiplier;
       }

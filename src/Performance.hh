@@ -25,6 +25,17 @@
 
 #include <iostream>
 
+#include "../config.h"
+
+#if defined(PERFORMANCE_COUNTERS_WANTED) && defined(HAVE_RDTSC)
+# define PERFORMANCE_START(counter) const uint64_t counter = cycle_counter();
+# define PERFORMANCE_END(statistics, counter, len) \
+   Performance::statistics.add_sample(cycle_counter() - counter, len);
+#else
+# define PERFORMANCE_START(counter)
+# define PERFORMANCE_END(statistics, counter, len)
+#endif
+
 using namespace std;
 
 //-----------------------------------------------------------------------------
