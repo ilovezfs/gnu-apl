@@ -44,7 +44,7 @@ pp( APL_VALUE2    , ---       ,          )
 pp( APL_VALUE3    , ---       ,          )
 st( ASSIGN        , "←"       ,          )
 qf( AT            , "⎕AT"     ,          )
-qv( AV            , "⎕V"      ,          )
+qv( AV            , "⎕AV"     ,          )
 st( ALPHA         , "⍺"       ,          )
 st( ALPHA_U       , "⍶"       ,          )
 
