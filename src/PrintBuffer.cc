@@ -122,7 +122,8 @@ const bool huge = out && ec > 10000;
      //    therefore we have (⍴,value) items. Items are rectangular.
      //
      PERFORMANCE_START(start_2)
-     DynArray(PrintBuffer, item_matrix, rows*cols);
+     DynArray(char, item_matrix1, sizeof(PrintBuffer)*rows*cols);
+     PrintBuffer * item_matrix = (PrintBuffer *)item_matrix1;
      loop(y, rows)
         {
           ShapeItem max_row_height = 0;
@@ -132,6 +133,7 @@ const bool huge = out && ec > 10000;
                 if (huge && (ii_count != interrupt_count))   goto interrupted;
 
                 PrintBuffer & item = item_matrix[y*cols + x];
+                new (&item) PrintBuffer;
                 PrintContext pctx1 = pctx;
                 if (scaling[x])   pctx1.set_scaled();
                 const Cell & cell = value.get_ravel(x + y*cols);
@@ -185,7 +187,8 @@ const bool huge = out && ec > 10000;
      int last_col_spacing = 0;    // the col_spacing of the previous column
      bool last_notchar = false;   // the notchar property of the previous column
 
-     DynArray(PrintBuffer, pcols, cols);
+     DynArray(char, pcols1, sizeof(PrintBuffer)*cols);
+     PrintBuffer * pcols = (PrintBuffer *)pcols1;
 
      loop(x, cols)
         {
@@ -193,6 +196,7 @@ const bool huge = out && ec > 10000;
           // PrintBuffer pcol. Insert separator rows as needed.
           //
           PrintBuffer & pcol = pcols[x];
+          new (&pcol) PrintBuffer;
 
           loop(y, rows)
               {

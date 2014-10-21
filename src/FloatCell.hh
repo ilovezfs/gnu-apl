@@ -41,7 +41,7 @@ public:
    virtual bool is_float_cell()     const   { return true; }
 
    /// Overloaded Cell::greater().
-   virtual bool greater(const Cell * other, bool ascending) const;
+   virtual bool greater(const Cell & other) const;
 
    /// Overloaded Cell::equal().
    virtual bool equal(const Cell & other, APL_Float qct) const;

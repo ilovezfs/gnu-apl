@@ -72,9 +72,14 @@ public:
    /// return the number of items to compare
    ShapeItem get_comp_len() const { return comp_len; }
 
-   /// compare cache items ia and ib. \b comp_arg is a CollatingCache pointer
-   static bool greater_vec(const Cell * ia, const Cell * ib, bool ascending,
-                           const void * comp_arg);
+   /// compare cache items ia and ib ascendingly.
+   /// \b comp_arg is a CollatingCache pointer
+   static bool greater_vec(const Cell * ia, const Cell * ib, const void * arg);
+
+   /// compare cache items ia and ib descendingly.
+   /// \b comp_arg is a CollatingCache pointer
+   static bool smaller_vec(const Cell * ia, const Cell * ib,
+                           const void * arg);
 protected:
    /// the rank of the collating sequence
    const Rank rank;

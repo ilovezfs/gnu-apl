@@ -49,7 +49,7 @@ protected:
       { return CT_CELLREF; }
 
    /// Overloaded Cell::greater().
-   virtual bool greater(const Cell * other, bool ascending) const
+   virtual bool greater(const Cell & other) const
       { DOMAIN_ERROR; }
 
    /// Overloaded Cell::get_classname().

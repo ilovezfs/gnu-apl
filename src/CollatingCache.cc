@@ -27,7 +27,7 @@
 //-----------------------------------------------------------------------------
 bool
 CollatingCache::greater_vec(const Cell * ca, const Cell * cb,
-                            bool ascending, const void * comp_arg)
+                            const void * comp_arg)
 {
 CollatingCache & cache = *(CollatingCache *)comp_arg;
 const Rank rank = cache.get_rank();
@@ -38,9 +38,31 @@ const Rank rank = cache.get_rank();
            {
              const APL_Integer a = ca[c].get_int_value();
              const APL_Integer b = cb[c].get_int_value();
-             const int d = cache[a].compare(cache[b], ascending, rank - r - 1);
+             const int d = cache[a].compare(cache[b], true, rank - r - 1);
 
               if (d)   return d > 0;
+           }
+      }
+
+   return ca > cb;
+}
+//-----------------------------------------------------------------------------
+bool
+CollatingCache::smaller_vec(const Cell * ca, const Cell * cb,
+                            const void * comp_arg)
+{
+CollatingCache & cache = *(CollatingCache *)comp_arg;
+const Rank rank = cache.get_rank();
+
+   loop(r, rank)
+      {
+        loop(c, cache.get_comp_len())
+           {
+             const APL_Integer a = ca[c].get_int_value();
+             const APL_Integer b = cb[c].get_int_value();
+             const int d = cache[a].compare(cache[b], true, rank - r - 1);
+
+              if (d)   return d < 0;
            }
       }
 

@@ -64,20 +64,20 @@ CharCell::get_cell_subtype() const
 }
 //-----------------------------------------------------------------------------
 bool
-CharCell::greater(const Cell * other, bool ascending) const
+CharCell::greater(const Cell & other) const
 {
    // char cells are smaller than all others
    //
-   if (other->get_cell_type() != CT_CHAR)   return !ascending;
+   if (other.get_cell_type() != CT_CHAR)   return false;
 
 const Unicode this_val  = get_char_value();
-const Unicode other_val = other->get_char_value();
+const Unicode other_val = other.get_char_value();
 
    // if both chars are the same, compare cell address
    //
-   if (this_val == other_val)   return this > other ? ascending : !ascending;
+   if (this_val == other_val)   return this > &other;
 
-   return this_val > other_val ? ascending : !ascending;
+   return this_val > other_val;
 }
 //-----------------------------------------------------------------------------
 bool

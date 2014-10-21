@@ -71,7 +71,7 @@ public:
    /// 2a. NumericCells sorted by get_real_value().
    /// 2b. CharCells sorted by get_char_value()
    /// 2c. PointerCells sorted by rank, then shape, then ravel
-   virtual bool greater(const Cell * other, bool ascending) const;
+   virtual bool greater(const Cell & other) const;
 
    /// return \b true if \b this cell is equal to \b other
    virtual bool equal(const Cell & other, APL_Float qct) const;
@@ -402,15 +402,13 @@ public:
    static APL_Integer near_int(APL_Float value, APL_Float qct);
 
    /// return \b ascending iff a > b
-   typedef bool (*greater_fun)(const Cell * a, const Cell * b, bool ascending,
-                             const void * comp_arg);
-   /// Sort a[]
-   static void heapsort(const Cell ** a, ShapeItem heapsize, bool ascending,
-                        const void * comp_arg, greater_fun gf);
+   typedef bool (*greater_fun)(const Cell * a, const Cell * b,
+                               const void * comp_arg);
+   /// compare comp_len items ascendingly
+   static bool greater_vec(const Cell * a, const Cell * b, const void * arg);
 
-   /// compare comp_len items
-   static bool greater_vec(const Cell * a, const Cell * b, bool ascending,
-                           const void * comp_arg);
+   /// compare comp_len items descendingly
+   static bool smaller_vec(const Cell * a, const Cell * b, const void * arg);
 
 protected:
    /// the primary value of \b this cell
@@ -418,14 +416,6 @@ protected:
 
    /// the additional value of \b this cell
    SomeValue2 value2;
-
-   /// sort subtree starting at a[i] into a heap
-   static void make_heap(const Cell ** a, ShapeItem heapsize, int64_t i,
-                         bool ascending, const void * cmp_arg, greater_fun gf);
-
-   /// sort a[] into a heap
-   static void init_heap(const Cell ** a, ShapeItem heapsize, bool ascending,
-                         const void * comp_arg, greater_fun gf);
 
 private:
    /// Cells that are allocated with new() shall always be contained in

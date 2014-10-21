@@ -29,6 +29,7 @@
 #include "Command.hh"
 #include "CollatingCache.hh"
 #include "FloatCell.hh"
+#include "Heapsort.hh"
 #include "Id.hh"
 #include "IndexExpr.hh"
 #include "IndexIterator.hh"
@@ -2626,7 +2627,10 @@ const ShapeItem comp_len = B->element_count()/len_BZ;
 DynArray(const Cell *, array, len_BZ);
    loop(bz, len_BZ)   array[bz] = &B->get_ravel(bz*comp_len);
 
-   Cell::heapsort(&array[0], len_BZ, ascending, &comp_len, &Cell::greater_vec);
+   if (ascending)
+      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len, &Cell::greater_vec);
+   else
+      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len, &Cell::smaller_vec);
 
 Value_P Z(new Value(len_BZ, LOC));
 
@@ -2668,8 +2672,12 @@ CollatingCache cc_cache(A->get_rank(), comp_len);
 DynArray(const Cell *, array, len_BZ);
    loop(bz, len_BZ)   array[bz] = &B1->get_ravel(bz*comp_len);
 
-   Cell::heapsort(&array[0], len_BZ, ascending, &cc_cache,
-                  &CollatingCache::greater_vec);
+   if (ascending)
+      Heapsort<const Cell *>::sort(&array[0], len_BZ, &cc_cache,
+                                   &CollatingCache::greater_vec);
+   else
+      Heapsort<const Cell *>::sort(&array[0], len_BZ, &cc_cache,
+                                   &CollatingCache::smaller_vec);
 
 Value_P Z(new Value(len_BZ, LOC));
 

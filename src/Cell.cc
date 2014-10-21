@@ -152,7 +152,7 @@ Cell::copy(Value & val, const Cell * & src, ShapeItem count)
 }
 //-----------------------------------------------------------------------------
 bool
-Cell::greater(const Cell * other, bool ascending) const
+Cell::greater(const Cell & other) const
 {
    CERR << "greater() called on object of class" << get_classname() << endl;
    Assert(0);
@@ -230,61 +230,8 @@ const double diff = value - result;
    else              return - APL_Integer(0.3 - result);
 }
 //-----------------------------------------------------------------------------
-void 
-Cell::make_heap(const Cell ** a, ShapeItem heapsize, int64_t i, bool ascending,
-                const void * comp_arg, greater_fun greater)
-{
-const int64_t l = 2*i + 1;   // left  child of i.
-const int64_t r = l + 1;     // right child of i.
-int64_t max = i;   // assume parent is the max.
-
-    if ((l < heapsize) && (*greater)(a[l], a[max], ascending, comp_arg))
-       max = l;   // left child is larger
-    if ((r < heapsize) && (*greater)(a[r], a[max], ascending, comp_arg))
-       max = r;   // right child is larger
-    if (max != i)   // parent was not the max: exchange it.
-    {
-        const Cell * t = a[max];   a[max] = a[i];   a[i] = t;
-        make_heap(a, heapsize, max, ascending, comp_arg, greater);
-    }
-}
-//-----------------------------------------------------------------------------
-void 
-Cell::init_heap(const Cell ** a, ShapeItem heapsize, bool ascending,
-                const void * comp_arg, greater_fun greater)
-{
-   for (int64_t p = heapsize/2 - 1; p >= 0; --p)
-       make_heap(a, heapsize, p, ascending, comp_arg, greater);
-
-   // here a is a heap, i.e. a[i >= a[2i+1], a[2i+2]
-}
-//-----------------------------------------------------------------------------
-void
-Cell::heapsort(const Cell ** a, ShapeItem heapsize, bool ascending,
-               const void * comp_arg, greater_fun greater)
-{
-   // Sort a[] into a heap.
-   //
-   init_heap(a, heapsize, ascending, comp_arg, greater);
-
-   // here a[] is a heap, with a[0] being the largest node.
-
-   for (int k = heapsize - 1; k > 0; k--)
-       {
-         // The root a[0] is the largest element (in a[0]..a[k]).
-         // Store the root, replace it by another element.
-         //
-         const Cell * t = a[k];   a[k] = a[0];   a[0] = t;
-
-         // Sort a[] into a heap again.
-         //
-         make_heap(a, k, 0, ascending, comp_arg, greater);
-       }
-}
-//-----------------------------------------------------------------------------
 bool
-Cell::greater_vec(const Cell * ca, const Cell * cb, bool ascending, 
-                  const void * comp_arg)
+Cell::greater_vec(const Cell * ca, const Cell * cb, const void * comp_arg)
 {
 const ShapeItem comp_len = *(const ShapeItem *)comp_arg;
 const APL_Float qct = Workspace::get_CT();
@@ -295,7 +242,7 @@ const APL_Float qct = Workspace::get_CT();
       {
         const bool equal = ca[0].equal(cb[0], qct);
         if (equal)   return ca > cb;
-        const bool result = ca[0].greater(&cb[0], ascending);
+        const bool result = ca[0].greater(cb[0]);
         return result;
       }
 
@@ -303,8 +250,35 @@ const APL_Float qct = Workspace::get_CT();
       {
         const bool equal = ca[c].equal(cb[c], qct);
         if (equal)   continue;
-        const bool result = ca[c].greater(cb + c, ascending);
+        const bool result = ca[c].greater(cb[c]);
         return result;
+      }
+
+   return ca > cb;   // a and b are equal: sort by position
+}
+//-----------------------------------------------------------------------------
+bool
+Cell::smaller_vec(const Cell * ca, const Cell * cb, const void * comp_arg)
+{
+const ShapeItem comp_len = *(const ShapeItem *)comp_arg;
+const APL_Float qct = Workspace::get_CT();
+
+   // most frequently comp_len is 1, so we optimize for this case.
+   //
+   if (comp_len == 1)
+      {
+        const bool equal = ca[0].equal(cb[0], qct);
+        if (equal)   return ca > cb;
+        const bool result = ca[0].greater(cb[0]);
+        return !result;
+      }
+
+   loop(c, comp_len)
+      {
+        const bool equal = ca[c].equal(cb[c], qct);
+        if (equal)   continue;
+        const bool result = ca[c].greater(cb[c]);
+        return !result;
       }
 
    return ca > cb;   // a and b are equal: sort by position
