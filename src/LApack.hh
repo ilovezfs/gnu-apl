@@ -72,18 +72,75 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <complex>
 
 using namespace std;
 typedef double DD;
-typedef std::complex<double> ZZ;
+
+class ZZ
+{
+public:
+   ZZ()
+   : _r(0),
+     _i(0)
+   {}
+
+   ZZ(double r)
+   : _r(r),
+     _i(0)
+   {}
+
+   ZZ(double r, double i)
+   : _r(r),
+     _i(i)
+   {}
+
+   double real() const       { return _r; }
+   void set_real(double x)   { _r = x; }
+
+   double imag() const    { return _i; }
+   void set_imag(double x)   { _i = x; }
+
+   void conjugate()   { _i = - _i; }
+
+   bool operator != (double dd) const   { return _r != dd || _i != 0; }
+   bool operator == (double dd) const   { return _r == dd && _i == 0; }
+
+   ZZ operator +(const ZZ & zz) const
+      { return ZZ(_r + zz._r, _i + zz._i); }
+
+   ZZ operator -(const ZZ & zz) const
+      { return ZZ(_r - zz._r, _i - zz._i); }
+
+   ZZ operator -() const
+      { return ZZ(-_r, -_i); }
+
+   ZZ operator *(const ZZ & zz) const
+      { return ZZ(_r * zz._r - _i * zz._i,
+                  _i * zz._r + _r * zz._i); }
+
+   ZZ operator /(double d) const
+      { return ZZ(_r/d, _i/d); }
+
+   ZZ operator /(const ZZ & zz) const
+      { 
+        const double denom = zz._r * zz._r + zz._i * zz._i;
+         return ZZ((_r * zz._r + _i * zz._i) / denom,
+                   (_i * zz._r - _r * zz._i) / denom);
+      }
+
+protected:
+  double _r;
+  double _i;
+};
 
 #define MAX(x, y) ((x) >= (y) ? (x) : (y))
 #define MIN(x, y) ((x) <= (y) ? (x) : (y))
 
-/// a single double or complex number
-namespace DZ
+/// a single double or complex number. This class contains wrappers to
+/// double or complex numbers so that they can be used in templates.
+class DZ
 {
+public:
    static bool is_ZZ(DD x)   { return false; }
    static bool is_ZZ(ZZ z)   { return true;  }
 
@@ -94,14 +151,22 @@ namespace DZ
 
    static void set_real(DD & y, DD x)   { y = x; }
    static void set_imag(DD & y, DD x)   { assert(x == 0.0); }
-   static void set_real(ZZ & y, DD x)   { y.real() = x; }
-   static void set_imag(ZZ & y, DD x)   { y.imag() = x; }
+   static void set_real(ZZ & y, DD x)   { y.set_real(x); }
+   static void set_imag(ZZ & y, DD x)   { y.set_imag(x); }
 
    static void conjugate(DD x)     { }
-   static void conjugate(ZZ & z)   { z.imag() = - z.imag(); }
+   static void conjugate(ZZ & z)   { z.conjugate(); }
 
-   static DD CONJ(DD x)   { return x; }
+   static DD CONJ(DD x)           { return x; }
    static ZZ CONJ(const ZZ & z)   { return ZZ(z.real(), -z.imag()); }
+
+   static DD inv(DD dd)           { return 1.0 / dd; }
+
+   static inline ZZ inv(const ZZ & zz)
+      {
+        const double denom = zz.real() * zz.real() + zz.imag() * zz.imag();
+        return ZZ(zz.real()/denom, - zz.imag()/denom);
+      }
 };
 
 template<typename T> double REAL(T x)        { return DZ::get_real(x);    }
@@ -215,7 +280,11 @@ public:
    void scale(T factor)
       {
         T * dj = data;
-        loop(j, len)   *dj++ *= factor;
+        loop(j, len)
+            {
+              *dj = *dj * factor;
+              ++dj;
+            }
       }
 
    void clear()
@@ -382,7 +451,11 @@ public:
       {
         T * dj = data;
         const ShapeItem len = rows*cols;
-        loop(j, len)   *dj++ *= factor;
+        loop(j, len)
+            {
+               *dj = *dj * factor;
+               ++dj;
+            }
       }
 
 protected:
@@ -449,7 +522,7 @@ int kcnt = 0;
             {
               ++kcnt;
               x.scale(inv_safe_min);
-              beta *= inv_safe_min;
+              beta = beta * inv_safe_min;
               alpha_r *= inv_safe_min;
               alpha_i *= inv_safe_min;
             }
@@ -463,7 +536,7 @@ int kcnt = 0;
 
 T tau;
    Sri<T>(tau, (beta - alpha_r)/beta, -alpha_i/beta);
-const T factor = 1.0 / (ALPHA - beta);
+const T factor = DZ::inv(ALPHA - beta);
    x.scale(factor);
 
    loop(k, kcnt)   beta *= safe_min;
@@ -488,8 +561,9 @@ void trsm(int M, int N, const Matrix<T> & A, Matrix<T> & B)
                T & B_kj = B.at(k_0, j_0);
                if (B_kj != 0.0)
                   {
-                    B_kj /= A.diag(k_0);
-                    loop(i_0, k_0)  B.at(i_0, j_0) -= B_kj * A.at(i_0, k_0);
+                    B_kj = B_kj / A.diag(k_0);
+                    loop(i_0, k_0)
+                        B.at(i_0, j_0) = B.at(i_0, j_0) - B_kj * A.at(i_0, k_0);
                   }
              }
        }
@@ -524,7 +598,7 @@ inline void gemv(int M, int N, const Matrix<T> & A, const Vector<T> &x,
    loop(j, N)
        {
          T temp = 0;
-         loop(i, M)   temp += DZ::CONJ(A.at(i, j)) * x.at(i);
+         loop(i, M)   temp = temp + DZ::CONJ(A.at(i, j)) * x.at(i);
          y.at(j) = temp;
        }
 }
@@ -541,8 +615,8 @@ void gerc(int M, int N, T ALPHA, const Vector<T> &x, const Vector<T> &y,
         if (Y_j != 0.0)
            {
              DZ::conjugate(Y_j);
-             Y_j *= ALPHA;
-             loop(i, M)   A.at(i, j) += Y_j * x.at(i);
+             Y_j = Y_j * ALPHA;
+             loop(i, M)   A.at(i, j) = A.at(i, j) + Y_j * x.at(i);
            }
       }
 }
@@ -572,8 +646,8 @@ ShapeItem  lastc = 0;
 
    if (lastv)
       {
-        DynArray(T, gemv_data, N);
-        Vector<T> gemv_result(gemv_data, N);
+        DynArray(double, gemv_data, 2*N);   // double instead of T for OSX
+        Vector<T> gemv_result((T *)gemv_data, N);
 
         gemv<T>(lastv, lastc, c, v, gemv_result);
         gerc<T>(lastv, lastc, -tau, v, gemv_result, c);
@@ -696,8 +770,8 @@ const double abs_estimate = ABS(SEST);
              C = GAMMA / s1;
 
              const double tmp = sqrt(ABS_2(S) + ABS_2(C));
-             S /= tmp;
-             C /= tmp;
+             S = S / tmp;
+             C = C / tmp;
              SESTPR = s1*tmp;
            }
         return;
@@ -807,8 +881,8 @@ const double abs_estimate = ABS(SEST);
         S = sine_s1;
         C = cosine_s1;
         const double tmp = sqrt(ABS_2(sine_s1) + ABS_2(cosine_s1));
-        S /= tmp;
-        C /= tmp;
+        S = S / tmp;
+        C = C / tmp;
         return;
       }
 
@@ -959,7 +1033,7 @@ const ShapeItem N = A.get_column_count();
      // Initialize partial column norms.
      // the first N elements of WORK store the exact column norms.
      //
-DynArray(double, vn12, 2*N);   // == vn1, vn2
+     DynArray(double, vn12, 2*N);   // == vn1, vn2
 
      for (int j_0 = 0; j_0 < N; ++j_0)
          {
@@ -983,7 +1057,8 @@ const ShapeItem N = A.get_column_count();
    // store minima in work_min[ 0 ... N]
    // store maxima in work_max == work_min[N ... 2N]
    //
-DynArray(T, work_min, 2*N);
+DynArray(double, work_1, 4*N);   // double instead of T for OSX
+T * work_min = (T *)work_1;
 T * work_max = work_min + N;
 
    work_min[0] = 1.0;
@@ -1008,8 +1083,8 @@ double smin = smax;
          T alpha_max = 0.0;
          for (int r = 0; r < RANK; ++r)
              {
-               alpha_min += DZ::CONJ(work_min[r] * A.at(r, RANK));
-               alpha_max += DZ::CONJ(work_max[r] * A.at(r, RANK));
+               alpha_min = alpha_min + DZ::CONJ(work_min[r] * A.at(r, RANK));
+               alpha_max = alpha_max + DZ::CONJ(work_max[r] * A.at(r, RANK));
              }
 
          laic1_min<T>(smin, alpha_min, gamma, sminpr, s1, c1);
@@ -1019,8 +1094,8 @@ double smin = smax;
 
          loop(cI, RANK)
               {
-                work_min[cI] *= s1;
-                work_max[cI] *= s2;
+                work_min[cI] = work_min[cI] * s1;
+                work_max[cI] = work_max[cI] * s2;
               }
          work_min[RANK] = c1;
          work_max[RANK] = c2;
@@ -1046,7 +1121,9 @@ const ShapeItem NRHS = B.get_column_count();
    // A * P = Q * R
    //
 DynArray(ShapeItem, pivot, N);
-DynArray(T, tau, N);
+
+DynArray(double, tau1, 2*N);   // double instead of T for OSX
+T * tau = (T *)tau1;
 
    geqp3<T>(A, pivot, tau);
 
@@ -1087,7 +1164,8 @@ DynArray(T, tau, N);
    //
    loop(j_0, NRHS)
       {
-        DynArray(T, tmp, N);
+        DynArray(double, tmp1, 2*N);   // double instead of T for OSX
+        T * tmp = (T *)tmp1;
         loop(i_0, N)   tmp[pivot[i_0]] = B.at(i_0, j_0);
         loop(i_0, N)   B.at(i_0, j_0) = tmp[i_0];
       }

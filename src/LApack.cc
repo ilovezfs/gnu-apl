@@ -47,19 +47,24 @@ const ShapeItem cols_B = shape_Z.get_cols();
        {
          if (need_complex)
             {
-              ZZ a[rows];
+              double  ad[2*rows];
+              ZZ * const a = (ZZ *)ad;
               loop(r, rows)
                   {
-                    a[r] = A->get_ravel(r*cols_A + c).get_complex_value();
+                    new (a + r) ZZ(A->get_ravel(r*cols_A + c).get_real_value(),
+                                   A->get_ravel(r*cols_A + c).get_imag_value());
                   }
 
-              ZZ b[B->element_count()];
+              double bd[2*B->element_count()];
+              ZZ * const b = (ZZ *)bd;
               ZZ * bb = b;
-              loop(rr, B->get_cols())
-              loop(cc, B->get_rows())
+              loop(rr, cols_B)
+              loop(cc, rows)
                  {
-                   *bb++ = B->get_ravel(rr + cc*B->get_cols())
-                                                  .get_complex_value();
+                   new (bb++) ZZ(B->get_ravel(rr + cc*cols_B)
+                                                  .get_real_value(),
+                                   B->get_ravel(rr + cc*cols_B)
+                                                  .get_imag_value());
                  }
 
               {
