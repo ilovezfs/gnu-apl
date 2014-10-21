@@ -160,11 +160,11 @@ AC_COMPILE_IFELSE(
 	[[unsigned int lo, hi;
           __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));]]
     )], [HAVE_rdtsc=yes], [HAVE_rdtsc=no])
-AC_MSG_RESULT([$HAVE_rdtsc])
 if test "x$HAVE_rdtsc" = "xyes"; then
    AC_DEFINE_UNQUOTED([HAVE_RDTSC], [1], [CPU has rdtsc opcode])
 fi
-
+AM_CONDITIONAL(HAVE_RDTSC, test "x$HAVE_rdtsc" = xyes)
+AC_MSG_RESULT([$HAVE_rdtsc])
 
 # see if pthread_getaffinity_np() and pthread_setaffinity_np are available
 #
@@ -185,6 +185,7 @@ AC_COMPILE_IFELSE(
                         [Define to 1 if pthread_setaffinity_np() is available])
     ],
     [HAVE_AFFINITY_NP=no])
+AM_CONDITIONAL(HAVE_AFFINITY_NP, test "x$HAVE_AFFINITY_NP" = xyes)
 AC_MSG_RESULT([$HAVE_AFFINITY_NP])
 
 # see if the compiler supports dynamic arrays
