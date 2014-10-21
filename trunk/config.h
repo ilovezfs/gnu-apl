@@ -26,7 +26,7 @@
 #define GPROF_WANTED -pg
 
 /* Define to 1 if pthread_setaffinity_np() is available */
-#define HAVE_AFFINITY_NP yes
+#define HAVE_AFFINITY_NP 1
 
 /* Define to 1 if <curses.h> is present */
 /* #undef HAVE_CURSES_H */
@@ -39,6 +39,9 @@
 
 /* Define to 1 if you have the <execinfo.h> header file. */
 #define HAVE_EXECINFO_H 1
+
+/* Define to 1 if you have the <ext/atomicity.h> header file. */
+#define HAVE_EXT_ATOMICITY_H 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #define HAVE_FCNTL_H 1

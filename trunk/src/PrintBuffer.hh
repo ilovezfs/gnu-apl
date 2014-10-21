@@ -114,10 +114,7 @@ public:
    /// print this buffer, interruptible with ^C
    void print_interruptible(ostream & out, Rank rank, int quad_pw);
 
-   /// return the last line, removing it from this PrintBuffer
-   UCS_string remove_last_line();
-
-   /// Return the number of columns.
+   /// return the number of columns.
    uint32_t get_width(uint32_t y) const
       { if (get_height() == 0)   return 0;
         Assert(y < get_height());   return buffer[y].size(); }

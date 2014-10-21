@@ -26,26 +26,28 @@
 // set PARALLEL_ENABLED if wanted and its prerequisites are satisfied
 //
 #if CORE_COUNT_WANTED == 0
-   // not wanted
+   // parallel not wanted
 # undef PARALLEL_ENABLED
 # define IF_PARALLEL(x)
 
-#elif ! defined(HAVE_AFFINITY_NP)
-   // wanted, but pthread_setaffinity_np() and friends are missing
-#warning "CORE_COUNT_WANTED configured, but pthread_setaffinity_np() missing"
-# undef PARALLEL_ENABLED
-# define IF_PARALLEL(x)
-
-#else
+#elif HAVE_AFFINITY_NP
+   // parallel wanted and pthread_setaffinity_np() supported
 
 # define PARALLEL_ENABLED 1
 # define IF_PARALLEL(x) x
+
+#else
+
+   // parallel wanted, but pthread_setaffinity_np() and friends are missing
+#warning "CORE_COUNT_WANTED configured, but pthread_setaffinity_np() missing"
+# undef PARALLEL_ENABLED
+# define IF_PARALLEL(x)
 
 #endif
 
 // define some atomic functions (even if the platform does not support them)
 //
-#ifdef HAVE_AFFINITY_NP
+#if HAVE_EXT_ATOMICITY_H
 
 #include <ext/atomicity.h>
 
