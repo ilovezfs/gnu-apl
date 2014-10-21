@@ -758,23 +758,22 @@ const double diff = val - result;
 }
 //-----------------------------------------------------------------------------
 bool
-ComplexCell::greater(const Cell * other, bool ascending) const
+ComplexCell::greater(const Cell & other) const
 {
-   switch(other->get_cell_type())
+   switch(other.get_cell_type())
       {
-        case CT_CHAR:    return ascending;
+        case CT_CHAR:    return true;
         case CT_INT:
         case CT_FLOAT:
         case CT_COMPLEX: break;
-        case CT_POINTER: return !ascending;
+        case CT_POINTER: return false;
         case CT_CELLREF: DOMAIN_ERROR;
         default:         Assert(0 && "Bad celltype");
       }
 
-const Comp_result comp = compare(*other);
-   if (comp == COMP_EQ)   return this > other;
-   if (comp == COMP_GT)   return ascending;
-   else                   return !ascending;
+const Comp_result comp = compare(other);
+   if (comp == COMP_EQ)   return this > &other;
+   return (comp == COMP_GT);
 }
 //-----------------------------------------------------------------------------
 Comp_result

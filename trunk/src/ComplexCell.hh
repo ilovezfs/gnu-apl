@@ -42,7 +42,7 @@ public:
    virtual bool is_complex_cell() const   { return true; }
 
    /// overloaded Cell::greater().
-   virtual bool greater(const Cell * other, bool ascending) const;
+   virtual bool greater(const Cell & other) const;
 
    /// overloaded Cell::equal().
    virtual bool equal(const Cell & other, APL_Float qct) const;

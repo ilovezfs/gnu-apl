@@ -40,37 +40,36 @@ FloatCell::equal(const Cell & A, APL_Float qct) const
 }
 //-----------------------------------------------------------------------------
 bool
-FloatCell::greater(const Cell * other, bool ascending) const
+FloatCell::greater(const Cell & other) const
 {
 const APL_Float this_val  = get_real_value();
 
-   switch(other->get_cell_type())
+   switch(other.get_cell_type())
       {
         case CT_INT:
              {
-               const APL_Integer other_val = other->get_int_value();
-               if (this_val == other_val)   return this > other;
-               return this_val > other_val ? ascending : !ascending;
+               const APL_Integer other_val = other.get_int_value();
+               if (this_val == other_val)   return this > &other;
+               return this_val > other_val;
              }
 
         case CT_FLOAT:
              {
-               const APL_Float other_val = other->get_real_value();
-               if (this_val == other_val)   return this > other;
-               return this_val > other_val ? ascending : !ascending;
+               const APL_Float other_val = other.get_real_value();
+               if (this_val == other_val)   return this > &other;
+               return this_val > other_val;
              }
 
-        case CT_CHAR:    return ascending;
+        case CT_CHAR:    return true;
         case CT_COMPLEX: break;
-        case CT_POINTER: return !ascending;
+        case CT_POINTER: return false;
         case CT_CELLREF: DOMAIN_ERROR;
         default:         Assert(0 && "Bad celltype");
       }
 
-const Comp_result comp = compare(*other);
-   if (comp == COMP_EQ)   return this > other;
-   if (comp == COMP_GT)   return ascending; 
-   else                   return !ascending;
+const Comp_result comp = compare(other);
+   if (comp == COMP_EQ)   return this > &other;
+   return (comp == COMP_GT);
 }
 //-----------------------------------------------------------------------------
 bool

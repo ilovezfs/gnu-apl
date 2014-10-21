@@ -320,7 +320,10 @@ uint64_t num1 = 0;
       }
    else                  // e.g.  '3.45M', num1 is 3456
       {
-        out << num << "." << ((num1/10)%100) << *multiplier;
+        int num2 = (num1/10)%100;
+        if (num2 < 10)   num2 *= 10;   // add trailing 0
+        if (num2 == 0)   out << num << ".00" << *multiplier;
+        else             out << num << "." << num2 << *multiplier;
       }
 }
 //============================================================================
