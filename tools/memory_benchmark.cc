@@ -18,19 +18,9 @@ int64_t LEN = 420000000;
 //-----------------------------------------------------------------------------
 inline uint64_t cycle_counter()
 {
-#if HAVE_RDTSC
-
 unsigned int lo, hi;
    __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
    return ((uint64_t)hi << 32) | lo;
-
-#else
-   cerr <<
-"This benchmark cannot run properly because the assembler\n"
-"opcode RDTSC is not supported on this machine." << endl;
-   return 0;
-        
-#endif
 }
 //-----------------------------------------------------------------------------
 struct thread_context

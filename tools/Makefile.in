@@ -80,8 +80,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = APL_keyboard$(EXEEXT) APL_keyboard_learn$(EXEEXT) \
-	APL_keyboard_show$(EXEEXT) phrase_gen$(EXEEXT) \
-	memory_benchmark$(EXEEXT)
+	APL_keyboard_show$(EXEEXT) phrase_gen$(EXEEXT) $(am__EXEEXT_1)
+@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@am__append_1 = memory_benchmark
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(dist_noinst_SCRIPTS) $(top_srcdir)/depcomp
@@ -96,6 +96,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@am__EXEEXT_1 = memory_benchmark$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am_APL_keyboard_OBJECTS = APL_keyboard.$(OBJEXT)
 APL_keyboard_OBJECTS = $(am_APL_keyboard_OBJECTS)
@@ -110,7 +111,8 @@ APL_keyboard_learn_LDADD = $(LDADD)
 am_APL_keyboard_show_OBJECTS = APL_keyboard_show.$(OBJEXT)
 APL_keyboard_show_OBJECTS = $(am_APL_keyboard_show_OBJECTS)
 APL_keyboard_show_LDADD = $(LDADD)
-am_memory_benchmark_OBJECTS = memory_benchmark.$(OBJEXT)
+am__memory_benchmark_SOURCES_DIST = memory_benchmark.cc
+@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@am_memory_benchmark_OBJECTS = memory_benchmark.$(OBJEXT)
 memory_benchmark_OBJECTS = $(am_memory_benchmark_OBJECTS)
 memory_benchmark_DEPENDENCIES =
 am_phrase_gen_OBJECTS = phrase_gen.$(OBJEXT)
@@ -155,8 +157,8 @@ SOURCES = $(APL_keyboard_SOURCES) $(APL_keyboard_learn_SOURCES) \
 	$(APL_keyboard_show_SOURCES) $(memory_benchmark_SOURCES) \
 	$(phrase_gen_SOURCES)
 DIST_SOURCES = $(APL_keyboard_SOURCES) $(APL_keyboard_learn_SOURCES) \
-	$(APL_keyboard_show_SOURCES) $(memory_benchmark_SOURCES) \
-	$(phrase_gen_SOURCES)
+	$(APL_keyboard_show_SOURCES) \
+	$(am__memory_benchmark_SOURCES_DIST) $(phrase_gen_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -330,13 +332,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@memory_benchmark_SOURCES = memory_benchmark.cc
+@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@memory_benchmark_LDADD = -lpthread
 dist_noinst_SCRIPTS = check_src
 APL_keyboard_show_SOURCES = APL_keyboard_show.cc
 APL_keyboard_learn_SOURCES = APL_keyboard_learn.cc  APL_keyboard.orig.def
 APL_keyboard_SOURCES = APL_keyboard.cc        APL_keyboard.def
 phrase_gen_SOURCES = phrase_gen.cc phrase_gen.def
-memory_benchmark_SOURCES = memory_benchmark.cc
-memory_benchmark_LDADD = -lpthread
 all: all-am
 
 .SUFFIXES:

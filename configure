@@ -667,6 +667,10 @@ MAX_RANK_WANTED
 DEVELOP_WANTED
 WANT_ANDROID_FALSE
 WANT_ANDROID_TRUE
+HAVE_AFFINITY_NP_FALSE
+HAVE_AFFINITY_NP_TRUE
+HAVE_RDTSC_FALSE
+HAVE_RDTSC_TRUE
 POSTGRESQL_LDFLAGS
 POSTGRESQL_CFLAGS
 POSTGRESQL_VERSION
@@ -18158,8 +18162,6 @@ else
   HAVE_rdtsc=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_rdtsc" >&5
-$as_echo "$HAVE_rdtsc" >&6; }
 if test "x$HAVE_rdtsc" = "xyes"; then
 
 cat >>confdefs.h <<_ACEOF
@@ -18167,7 +18169,16 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 fi
+ if test "x$HAVE_rdtsc" = xyes; then
+  HAVE_RDTSC_TRUE=
+  HAVE_RDTSC_FALSE='#'
+else
+  HAVE_RDTSC_TRUE='#'
+  HAVE_RDTSC_FALSE=
+fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_rdtsc" >&5
+$as_echo "$HAVE_rdtsc" >&6; }
 
 # see if pthread_getaffinity_np() and pthread_setaffinity_np are available
 #
@@ -18204,6 +18215,14 @@ else
   HAVE_AFFINITY_NP=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+ if test "x$HAVE_AFFINITY_NP" = xyes; then
+  HAVE_AFFINITY_NP_TRUE=
+  HAVE_AFFINITY_NP_FALSE='#'
+else
+  HAVE_AFFINITY_NP_TRUE='#'
+  HAVE_AFFINITY_NP_FALSE=
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_AFFINITY_NP" >&5
 $as_echo "$HAVE_AFFINITY_NP" >&6; }
 
@@ -18626,6 +18645,14 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCXX\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_RDTSC_TRUE}" && test -z "${HAVE_RDTSC_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_RDTSC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_AFFINITY_NP_TRUE}" && test -z "${HAVE_AFFINITY_NP_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_AFFINITY_NP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WANT_ANDROID_TRUE}" && test -z "${WANT_ANDROID_FALSE}"; then

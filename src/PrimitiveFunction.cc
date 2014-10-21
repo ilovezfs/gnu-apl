@@ -23,13 +23,12 @@
 
 #include "ArrayIterator.hh"
 #include "Avec.hh"
+#include "Bif_F12_SORT.hh"
 #include "Bif_OPER1_EACH.hh"
 #include "CharCell.hh"
 #include "ComplexCell.hh"
 #include "Command.hh"
-#include "CollatingCache.hh"
 #include "FloatCell.hh"
-#include "Heapsort.hh"
 #include "Id.hh"
 #include "IndexExpr.hh"
 #include "IndexIterator.hh"
@@ -62,8 +61,6 @@ Bif_F12_DOMINO    Bif_F12_DOMINO::fun;       // ⌹
 Bif_F12_ROTATE    Bif_F12_ROTATE::fun;       // ⌽
 Bif_F12_ROTATE1   Bif_F12_ROTATE1::fun;      // ⊖
 Bif_F12_TRANSPOSE Bif_F12_TRANSPOSE::fun;    // ⍉
-Bif_F12_SORT_ASC  Bif_F12_SORT_ASC::fun;     // ⍋
-Bif_F12_SORT_DES  Bif_F12_SORT_DES::fun;     // ⍒
 Bif_F12_INDEX_OF  Bif_F12_INDEX_OF::fun;     // ⍳
 Bif_F12_RHO       Bif_F12_RHO::fun;          // ⍴
 Bif_F2_INTER      Bif_F2_INTER::fun;         // ∩
@@ -2614,115 +2611,6 @@ bool seen[MAX_RANK];
 
    return Bif_F12_TAKE::do_take(ravel_A, B);
 }
-//-----------------------------------------------------------------------------
-Token
-Bif_SORT::sort(Value_P B, bool ascending)
-{
-   if (B->is_scalar())   RANK_ERROR;
-
-const ShapeItem len_BZ = B->get_shape_item(0);
-   if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
-
-const ShapeItem comp_len = B->element_count()/len_BZ;
-DynArray(const Cell *, array, len_BZ);
-   loop(bz, len_BZ)   array[bz] = &B->get_ravel(bz*comp_len);
-
-   if (ascending)
-      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len, &Cell::greater_vec);
-   else
-      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len, &Cell::smaller_vec);
-
-Value_P Z(new Value(len_BZ, LOC));
-
-const APL_Integer qio = Workspace::get_IO();
-const Cell * base = &B->get_ravel(0);
-   loop(bz, len_BZ)
-       new (Z->next_ravel())   IntCell(qio + (array[bz] - base)/comp_len);
-
-   Z->set_default_Zero();
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
-}
-//-----------------------------------------------------------------------------
-Token
-Bif_SORT::sort_collating(Value_P A, Value_P B, bool ascending)
-{
-   if (A->is_scalar())   RANK_ERROR;
-   if (A->NOTCHAR())     DOMAIN_ERROR;
-
-const APL_Integer qio = Workspace::get_IO();
-   if (B->NOTCHAR())     DOMAIN_ERROR;
-   if (B->is_scalar())   return Token(TOK_APL_VALUE1, IntScalar(qio, LOC));
-
-const ShapeItem len_BZ = B->get_shape_item(0);
-   if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
-   if (len_BZ == 1)   return Token(TOK_APL_VALUE1, IntScalar(qio, LOC));
-
-Value_P B1(new Value(B->get_shape(), LOC));
-const ShapeItem ec_B = B->element_count();
-const ShapeItem comp_len = ec_B/len_BZ;
-CollatingCache cc_cache(A->get_rank(), comp_len);
-   loop(b, ec_B)
-      {
-        const Unicode uni = B->get_ravel(b).get_char_value();
-        const ShapeItem b1 = collating_cache(uni, A, cc_cache);
-        new (&B1->get_ravel(b)) IntCell(b1);
-      }
-
-DynArray(const Cell *, array, len_BZ);
-   loop(bz, len_BZ)   array[bz] = &B1->get_ravel(bz*comp_len);
-
-   if (ascending)
-      Heapsort<const Cell *>::sort(&array[0], len_BZ, &cc_cache,
-                                   &CollatingCache::greater_vec);
-   else
-      Heapsort<const Cell *>::sort(&array[0], len_BZ, &cc_cache,
-                                   &CollatingCache::smaller_vec);
-
-Value_P Z(new Value(len_BZ, LOC));
-
-const Cell * base = &B1->get_ravel(0);
-   loop(bz, len_BZ)
-       new (&Z->get_ravel(bz)) IntCell(qio + (array[bz] - base)/comp_len);
-
-   Z->set_default_Zero();
-
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
-}
-//-----------------------------------------------------------------------------
-ShapeItem
-Bif_SORT::collating_cache(Unicode uni, Value_P A, CollatingCache & cache)
-{
-   // first check if uni is already in the cache...
-   //
-   loop(s, cache.size())
-      {
-        if (uni == cache[s].ce_char)   return s;
-      }
-
-   // uni is not in the cache. See if it is in the collating sequence.
-   //
-const ShapeItem ec_A = A->element_count();
-CollatingCacheEntry entry(uni, A->get_shape());
-   loop(a, ec_A)
-      {
-        if (uni != A->get_ravel(a).get_char_value())   continue;
-
-        ShapeItem aq = a;
-        loop(r, entry.ce_shape.get_rank())
-           {
-             const Rank axis = entry.ce_shape.get_rank() - r - 1;
-             const ShapeItem ar = aq % A->get_shape_item(axis);
-             if (entry.ce_shape.get_shape_item(axis) > ar)
-                entry.ce_shape.set_shape_item(axis, ar);
-             aq /= A->get_shape_item(axis);
-           }
-      }
-
-   cache.push_back(entry);
-   return cache.size() - 1;
-}
 //=============================================================================
 Token
 Bif_F12_EQUIV::eval_B(Value_P B)
@@ -2931,7 +2819,7 @@ const ShapeItem ec_B = B->element_count();
         return Z;
       }
 
-Token B1_tok = Bif_F12_SORT_ASC::fun.eval_B(B);
+Token B1_tok = Bif_F12_SORT::sort(B, true);
    if (B1_tok.get_Class() != TC_VALUE)   return B1_tok.get_apl_val();
 
 const APL_Integer qio = Workspace::get_IO();
@@ -2977,7 +2865,7 @@ Value_P Z1(new Value(ec_Z, LOC));
          return Z4;
       }
 
-Token Z2_tok = Bif_F12_SORT_ASC::fun.eval_B(Z1);
+Token Z2_tok = Bif_F12_SORT::sort(Z1, true);
    Assert(Z2_tok.get_Class() == TC_VALUE);
 Value_P Z2 = Z2_tok.get_apl_val();
 

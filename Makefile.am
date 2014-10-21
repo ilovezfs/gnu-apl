@@ -98,7 +98,7 @@ parallel:
                     CORE_COUNT_WANTED=-3
 	make all
 
-# dito, eith  performance counters
+# dito, with  performance counters
 #
 .PHONY:	parallel1
 parallel1:

@@ -99,15 +99,15 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_apl_OBJECTS = Archive.$(OBJEXT) ArrayIterator.$(OBJEXT) \
 	Assert.$(OBJEXT) Avec.$(OBJEXT) Backtrace.$(OBJEXT) \
-	Bif_F12_FORMAT.$(OBJEXT) Bif_OPER1_COMMUTE.$(OBJEXT) \
-	Bif_OPER1_EACH.$(OBJEXT) Bif_OPER2_POWER.$(OBJEXT) \
-	Bif_OPER2_INNER.$(OBJEXT) Bif_OPER2_OUTER.$(OBJEXT) \
-	Bif_OPER2_RANK.$(OBJEXT) Bif_OPER1_REDUCE.$(OBJEXT) \
-	Bif_OPER1_SCAN.$(OBJEXT) CDR.$(OBJEXT) Cell.$(OBJEXT) \
-	CharCell.$(OBJEXT) CollatingCache.$(OBJEXT) Command.$(OBJEXT) \
-	Common.$(OBJEXT) ComplexCell.$(OBJEXT) DiffOut.$(OBJEXT) \
-	DynamicObject.$(OBJEXT) Error.$(OBJEXT) Executable.$(OBJEXT) \
-	FloatCell.$(OBJEXT) Function.$(OBJEXT) \
+	Bif_F12_FORMAT.$(OBJEXT) Bif_F12_SORT.$(OBJEXT) \
+	Bif_OPER1_COMMUTE.$(OBJEXT) Bif_OPER1_EACH.$(OBJEXT) \
+	Bif_OPER2_POWER.$(OBJEXT) Bif_OPER2_INNER.$(OBJEXT) \
+	Bif_OPER2_OUTER.$(OBJEXT) Bif_OPER2_RANK.$(OBJEXT) \
+	Bif_OPER1_REDUCE.$(OBJEXT) Bif_OPER1_SCAN.$(OBJEXT) \
+	CDR.$(OBJEXT) Cell.$(OBJEXT) CharCell.$(OBJEXT) \
+	Command.$(OBJEXT) Common.$(OBJEXT) ComplexCell.$(OBJEXT) \
+	DiffOut.$(OBJEXT) DynamicObject.$(OBJEXT) Error.$(OBJEXT) \
+	Executable.$(OBJEXT) FloatCell.$(OBJEXT) Function.$(OBJEXT) \
 	DerivedFunction.$(OBJEXT) Id.$(OBJEXT) IndexExpr.$(OBJEXT) \
 	IndexIterator.$(OBJEXT) InputFile.$(OBJEXT) IntCell.$(OBJEXT) \
 	LApack.$(OBJEXT) LibPaths.$(OBJEXT) LineInput.$(OBJEXT) \
@@ -417,6 +417,7 @@ Assert.cc					Assert.hh		\
 Avec.cc			Avec.def		Avec.hh			\
 Backtrace.cc					Backtrace.hh		\
 Bif_F12_FORMAT.cc				Bif_F12_FORMAT.hh	\
+Bif_F12_SORT.cc					Bif_F12_SORT.hh		\
 Bif_OPER1_COMMUTE.cc				Bif_OPER1_COMMUTE.hh	\
 Bif_OPER1_EACH.cc				Bif_OPER1_EACH.hh	\
 Bif_OPER2_POWER.cc				Bif_OPER2_POWER.hh	\
@@ -428,7 +429,6 @@ Bif_OPER1_SCAN.cc				Bif_OPER1_SCAN.hh	\
 CDR.cc						CDR.hh			\
 Cell.cc						Cell.hh			\
 CharCell.cc					CharCell.hh		\
-CollatingCache.cc				CollatingCache.hh	\
 Command.cc		Command.def		Command.hh		\
 Common.cc					Common.hh		\
 ComplexCell.cc				    	ComplexCell.hh		\
@@ -608,6 +608,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Avec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Backtrace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_F12_FORMAT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_F12_SORT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_COMMUTE.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_EACH.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Bif_OPER1_REDUCE.Po@am__quote@
@@ -619,7 +620,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CDR.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CharCell.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CollatingCache.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ComplexCell.Po@am__quote@
