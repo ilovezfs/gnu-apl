@@ -102,6 +102,9 @@
 /* CPU has rdtsc opcode */
 #undef HAVE_RDTSC
 
+/* Define to 1 if atomic_add_32_nv() is available */
+#undef HAVE_SOLARIS_ATOMIC
+
 /* Have the SQLITE3 library */
 #undef HAVE_SQLITE3
 

@@ -84,6 +84,21 @@ inline int atomic_read(volatile _Atomic_word & counter)
 inline void atomic_add(volatile _Atomic_word & counter, int increment)
    { OSAtomicAdd32Barrier(increment, &counter); }
 
+#elif HAVE_SOLARIS_ATOMIC
+
+#include <atomic.h>
+
+typedef uint32_t _Atomic_word;
+
+inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
+   { return atomic_add_32_nv(&counter, increment) - increment; }
+
+inline int atomic_read(volatile _Atomic_word & counter)
+   { return atomic_add_32_nv(&counter, 0); }
+
+inline void atomic_add(volatile _Atomic_word & counter, int increment)
+   { atomic_add_32(&counter, increment); }
+
 #else
 
 typedef int _Atomic_word;
