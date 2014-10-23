@@ -91,6 +91,9 @@
 /* Define to 1 if <ncurses.h> is present */
 #define HAVE_NCURSES_H 1
 
+/* Define to 1 if OSAtomicAdd32Barrier() is available */
+/* #undef HAVE_OSX_ATOMIC */
+
 /* Define to 1 if PostgreSQL libraries are available */
 /* #undef HAVE_POSTGRESQL */
 

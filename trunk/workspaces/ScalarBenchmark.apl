@@ -98,7 +98,7 @@
   Mix_IR   ← LEN ⍴ Mix_IR
   Mix_IRC  ← LEN ⍴ Mix_IRC
   Mix1_IRC ← LEN ⍴ Mix1_IRC
-  Mat1_IRC ← (2⍴⌈LEN⋆0.5)⍴Mix1_IRC
+  Mat1_IRC ← (2⍴⌈LEN⋆0.35)⍴Mix1_IRC
   Vec1_IRC ← (⌈LEN⋆0.5)⍴Mix1_IRC
 ∇
 

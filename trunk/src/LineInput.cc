@@ -730,7 +730,7 @@ const APL_time_us from = now();
               //
               CIN << endl;
               COUT << "      *** end of input" << endl;
-              Parallel::kill_pool();
+              Thread_context::kill_pool();
               Command::cmd_OFF(2);   // exit()s
             }
       }

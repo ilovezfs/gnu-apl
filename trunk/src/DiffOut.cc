@@ -23,25 +23,30 @@
 #include "DiffOut.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
-#include "main.hh"
 #include "Output.hh"
-#include "Svar_DB.hh"
+#include "Performance.hh"
 #include "UTF8_string.hh"
 
 //-----------------------------------------------------------------------------
 int
 DiffOut::overflow(int c)
 {
+PERFORMANCE_START(cout_perf)
    Output::set_color_mode(errout ? Output::COLM_UERROR : Output::COLM_OUTPUT);
    cout << char(c);
 
    if (c != '\n')   // not end of line
       {
         aplout.append(c);
+        PERFORMANCE_END(fs_COUT_B, cout_perf, 1)
         return 0;
       }
 
-   if (!InputFile::is_validating())   return 0;
+   if (!InputFile::is_validating())
+      {
+        PERFORMANCE_END(fs_COUT_B, cout_perf, 1)
+        return 0;
+      }
 
 ofstream & rep = IO_Files::get_current_testreport();
    Assert(rep.is_open());
@@ -53,6 +58,7 @@ bool eof = false;
    if (eof)   // nothing in current_testfile
       {
         rep << "extra: " << apl << endl;
+        PERFORMANCE_END(fs_COUT_B, cout_perf, 1)
         return 0;
       }
 
@@ -70,6 +76,7 @@ bool eof = false;
       }
 
    aplout.clear();
+   PERFORMANCE_END(fs_COUT_B, cout_perf, 1)
    return 0;
 }
 //-----------------------------------------------------------------------------

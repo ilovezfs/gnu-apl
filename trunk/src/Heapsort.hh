@@ -36,56 +36,52 @@ public:
    static void sort(T * a, int64_t heapsize, const void * comp_arg,
                     greater_fun gf)
       {
-        // Sort a[] into a heap.
+        // turn a[] into a heap, i.e. a[i] > a[2i] and a[i] > a[2i+1]
+        // for all i.
         //
-        init_heap(a, heapsize, comp_arg, gf);
+        for (int64_t p = heapsize/2 - 1; p >= 0; --p)
+            make_heap(a, heapsize, p, comp_arg, gf);
 
-        // here a[] is a heap, with a[0] being the largest node.
+        // here a[] is a heap (and therefore a[0] is the largest element)
 
-        for (int k = heapsize - 1; k > 0; k--)
+        for (--heapsize; heapsize > 0; heapsize--)
             {
-              // The root a[0] is the largest element (in a[0]..a[k]).
-              // Store the root, replace it by another element.
+              // The root a[0] is the largest element in a[0] ... a[k].
+              // Exchange a[0] and a[k], decrease the heap size,
+              // and re-establish the heap property of the new a[0].
               //
-              const T t = a[k];   a[k] = a[0];   a[0] = t;
+              const T t = a[heapsize];   a[heapsize] = a[0];   a[0] = t;
 
-              // Sort a[] into a heap again.
+              // re-establish the heap property of the new a[0]
               //
-              make_heap(a, k, 0, comp_arg, gf);
+              make_heap(a, heapsize, 0, comp_arg, gf);
             }
       }
 
 protected:
-   /// sort a[] into a heap
-   static void init_heap(T * array, int64_t heapsize,
+   /// establish the heap property of the subtree with root a[i]
+   static void make_heap(T * a, int64_t heapsize, int64_t parent,
                          const void * comp_arg, greater_fun gf)
       {
-        for (int64_t p = heapsize/2 - 1; p >= 0; --p)
-            make_heap(array, heapsize, p, comp_arg, gf);
-
-         // here a is a heap, i.e. a[i] >= a[2i+1], a[2i+2]
-      }
-
-   /// sort subtree starting at a[i] into a heap
-   static void make_heap(T * a, int64_t heapsize, int64_t i,
-                         const void * comp_arg, greater_fun gf)
-      {
-        const int64_t l = 2*i + 1;   // left  child of i.
-        const int64_t r = l + 1;     // right child of i.
-        int64_t max = i;   // assume parent is the max.
-
-        // set max to the position of the largest of a[i], a[l], and a[r]
-        //
-        if ((l < heapsize) && (*gf)(a[l], a[max], comp_arg))
-           max = l;   // left child is larger
-
-        if ((r < heapsize) && (*gf)(a[r], a[max], comp_arg))
-           max = r;   // right child is larger
-
-        if (max != i)   // parent was not the max: exchange it.
+        for (;;)
            {
-             const T t = a[max];   a[max] = a[i];   a[i] = t;
-             make_heap(a, heapsize, max, comp_arg, gf);
+             const int64_t left = 2*parent + 1;   // left  child of parent.
+             const int64_t right = left + 1;      // right child of parent.
+             int64_t max = parent;                // assume parent is the max.
+
+             // set max to the position of the largest of a[i], a[l], and a[r]
+             //
+             if ((left < heapsize) && (*gf)(a[left], a[max], comp_arg))
+                max = left;   // left child is larger
+
+             if ((right < heapsize) && (*gf)(a[right], a[max], comp_arg))
+                max = right;   // right child is larger
+
+             if (max == parent)   return; // parent was the max: done
+
+             // left or right was the max. exchange and continue
+             const T t = a[max];   a[max] = a[parent];   a[parent] = t;
+             parent = max;
            }
       }
 };

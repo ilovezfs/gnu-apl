@@ -296,17 +296,24 @@ IO_Files::open_next_file()
          {
            if (!InputFile::current_file())   break;   // no more files
 
+           char log_name[FILENAME_MAX];
+           snprintf(log_name, sizeof(log_name) - 1,  "%s.log",
+                    InputFile::current_filename());
+
            if (InputFile::current_file()->test)
               {
-                CERR << " #######################################"
-                        "#######################################\n"
-                     << "########################################"
-                        "########################################\n"
-                     << " #######################################"
-                        "#######################################\n"
-                     << " Testfile: " << InputFile::current_filename() << endl
-                     << "########################################"
-                        "########################################" << endl;
+                CERR << "  #######################################"
+                        "#####################################\n"
+                     << " ########################################"
+                        "######################################\n"
+                     << " ##    Testfile: " << left << setw(60)
+                     << InputFile::current_filename() << "##\n"
+                     << " ##    Log file: " << setw(60) << log_name << "##\n"
+                     << " ########################################"
+                        "######################################" << endl
+                     << "  #######################################"
+                        "#####################################\n" << endl
+                     << right;
               }
 
            InputFile::open_current_file();
@@ -325,10 +332,6 @@ IO_Files::open_next_file()
            Output::reset_dout();
            reset_errors();
 
-           char log_name[FILENAME_MAX];
-           snprintf(log_name, sizeof(log_name) - 1,  "%s.log",
-                    InputFile::current_filename());
-        
            current_testreport.close();
 
            if (InputFile::current_file()->test)
