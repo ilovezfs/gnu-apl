@@ -188,20 +188,34 @@ AC_COMPILE_IFELSE(
 AM_CONDITIONAL(HAVE_AFFINITY_NP, test "x$HAVE_AFFINITY_NP" = xyes)
 AC_MSG_RESULT([$HAVE_AFFINITY_NP])
 
-# if HAVE_AFFINITY_NP is false then the _atomic_ functions may be unavailable.
-# in this case we check for alternatives on OS/X as an alternative to
-# ext/atomicity.h)
+# check for alternatives for ext/atomicity.h on OS/X 
 #
 AC_MSG_CHECKING([whether OSAtomicAdd32Barrier() is available])
 AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([ [#include <libkern/OSAtomic.h>] ],
- 	                 [ [OSAtomicAdd32Barrier(0, 0);]   ])],
+ 	             [ [OSAtomicAdd32Barrier(0, 0);]   ])],
     [HAVE_OSX_ATOMIC=yes
      AC_DEFINE_UNQUOTED([HAVE_OSX_ATOMIC], [1],
                           [Define to 1 if OSAtomicAdd32Barrier() is available])
     ],
     [HAVE_OSX_ATOMIC=no])
 AC_MSG_RESULT([$HAVE_OSX_ATOMIC])
+
+
+# check for alternatives for ext/atomicity.h on Solaris
+#
+AC_MSG_CHECKING([whether atomic_add_32_nv() is available])
+AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([ [#include <atomic.h>] ],
+ 	             [ [atomic_add_32_nv(0, 0);]
+ 	               [atomic_add_32   (0, 0);]
+                     ])],
+    [HAVE_SOLARIS_ATOMIC=yes
+     AC_DEFINE_UNQUOTED([HAVE_SOLARIS_ATOMIC], [1],
+                          [Define to 1 if atomic_add_32_nv() is available])
+    ],
+    [HAVE_SOLARIS_ATOMIC=no])
+AC_MSG_RESULT([$HAVE_SOLARIS_ATOMIC])
 
 
 # see if the compiler supports dynamic arrays

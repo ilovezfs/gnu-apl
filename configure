@@ -18226,9 +18226,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_AFFINITY_NP" >&5
 $as_echo "$HAVE_AFFINITY_NP" >&6; }
 
-# if HAVE_AFFINITY_NP is false then the _atomic_ functions may be unavailable.
-# in this case we check for alternatives on OS/X as an alternative to
-# ext/atomicity.h)
+# check for alternatives for ext/atomicity.h on OS/X
 #
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether OSAtomicAdd32Barrier() is available" >&5
 $as_echo_n "checking whether OSAtomicAdd32Barrier() is available... " >&6; }
@@ -18257,6 +18255,39 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_OSX_ATOMIC" >&5
 $as_echo "$HAVE_OSX_ATOMIC" >&6; }
+
+
+# check for alternatives for ext/atomicity.h on Solaris
+#
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether atomic_add_32_nv() is available" >&5
+$as_echo_n "checking whether atomic_add_32_nv() is available... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+ #include <atomic.h>
+int
+main ()
+{
+ atomic_add_32_nv(0, 0);
+ 	               atomic_add_32   (0, 0);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  HAVE_SOLARIS_ATOMIC=yes
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_SOLARIS_ATOMIC 1
+_ACEOF
+
+
+else
+  HAVE_SOLARIS_ATOMIC=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $HAVE_SOLARIS_ATOMIC" >&5
+$as_echo "$HAVE_SOLARIS_ATOMIC" >&6; }
 
 
 # see if the compiler supports dynamic arrays
