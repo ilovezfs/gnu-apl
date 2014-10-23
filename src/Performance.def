@@ -48,6 +48,8 @@ perfo_4(PrintBuffer2   , _B,  "PrintBuffer2  ", -1)
 perfo_4(PrintBuffer3   , _B,  "PrintBuffer3  ", -1)
 perfo_4(PrintBuffer4   , _B,  "PrintBuffer4  ", -1)
 perfo_4(PrintBuffer5   , _B,  "PrintBuffer5  ", -1)
+perfo_4(COUT           , _B,  "COUT", -1)
+perfo_4(CERR           , _B,  "CERR", -1)
 
 #undef perfo_1
 #undef perfo_2

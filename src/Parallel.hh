@@ -26,22 +26,23 @@
 // set PARALLEL_ENABLED if wanted and its prerequisites are satisfied
 //
 #if CORE_COUNT_WANTED == 0
+   //
    // parallel not wanted
+   //
 # undef PARALLEL_ENABLED
-# define IF_PARALLEL(x)
 
 #elif HAVE_AFFINITY_NP
+   //
    // parallel wanted and pthread_setaffinity_np() supported
-
+   //
 # define PARALLEL_ENABLED 1
-# define IF_PARALLEL(x) x
 
 #else
-
+   //
    // parallel wanted, but pthread_setaffinity_np() and friends are missing
+   //
 #warning "CORE_COUNT_WANTED configured, but pthread_setaffinity_np() missing"
 # undef PARALLEL_ENABLED
-# define IF_PARALLEL(x)
 
 #endif
 
@@ -67,6 +68,21 @@ inline void atomic_add(volatile _Atomic_word & counter, int increment)
    { __gnu_cxx::__atomic_add_dispatch((_Atomic_word *)&counter, increment);
      _GLIBCXX_WRITE_MEM_BARRIER;
    }
+
+#elif HAVE_OSX_ATOMIC
+
+#include <libkern/OSAtomic.h>
+
+typedef int32_t _Atomic_word;
+
+inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
+   { return OSAtomicAdd32Barrier(increment, &counter) - increment; }
+
+inline int atomic_read(volatile _Atomic_word & counter)
+   { return OSAtomicAdd32Barrier(0, &counter); }
+
+inline void atomic_add(volatile _Atomic_word & counter, int increment)
+   { OSAtomicAdd32Barrier(increment, &counter); }
 
 #else
 
@@ -137,16 +153,17 @@ enum CPU_count
   The worker threads 1... are either working, or busy-waiting for work, or
   blocked on a semaphore:
 
-                      init
-                       ↓
+         init
+          ↓
        blocked ←→ busy-waiting ←→ working
 
   The transitions
 
       blocked ←→ busy-waiting
 
-  occur before and after the master thread waits for terminal input. That is,
-  the worker threads are blocked while the master therad waits for terminal
+  occur before and after the master thread waits for terminal input or when
+  the number of cores is changed (with ⎕SYL[26;2]). That is,
+  the worker threads are blocked while the master thread waits for terminal
   input.
 
   The transitions
@@ -177,13 +194,13 @@ public:
    static void M_fork()
       {
         atomic_add(busy_worker_count, active_core_count - 1);
-        atomic_add(get_master().job_count, 1);
+        atomic_add(get_master().job_number, 1);
       }
 
    /// start parallel execution of work in a worker
    void PF_fork()
       {
-        while (atomic_read(get_master().job_count) == job_count)
+        while (atomic_read(get_master().job_number) == job_number)
               /* busy wait */ ;
       }
 
@@ -197,11 +214,11 @@ public:
    void PF_join()
       {
         atomic_add(busy_worker_count, -1);   // we are ready
-        atomic_add(job_count, 1);            // we reached master job_count
+        atomic_add(job_number, 1);            // we reached master job_number
 
         // wait until all workers finished or new job from master
         while (atomic_read(busy_worker_count) != 0 &&
-               atomic_read(get_master().job_count) == job_count)
+               atomic_read(get_master().job_number) == job_number)
               /* busy wait */ ;
       }
 
@@ -229,8 +246,8 @@ public:
    /// make all workers lock on pool_sema
    void M_lock_pool();
 
-   /// make all workers terminate themselves
-   void M_kill_pool();
+   /// terminate all worker threads
+   static void kill_pool();
 
    /// the next work to be done
    static PoolFunction * do_work;
@@ -240,9 +257,6 @@ public:
 
    /// block/unblock on the pool semaphore
    static PoolFunction PF_lock_unlock_pool;
-
-   /// terminate this thread
-   static PoolFunction PF_kill_pool;
 
    /// number of currently used cores
    static CoreCount get_active_core_count()
@@ -266,7 +280,7 @@ public:
    pthread_t thread;
 
    /// a counter controlling the start of parallel jobs
-   volatile int job_count;
+   volatile int job_number;
 
    /// a semaphore to block this context
    sem_t pool_sema;
@@ -320,8 +334,8 @@ public:
    static bool run_parallel;
 
    /// number of available cores
-   static CPU_count get_total_CPU_count()
-      { return (CPU_count)(all_CPUs.size()); }
+   static CoreCount get_max_core_count()
+      { return (CoreCount)(all_CPUs.size()); }
 
    /// lock all pool members on pool_sema
    static void lock_pool()
@@ -334,18 +348,11 @@ public:
         loop(a, Thread_context::get_active_core_count())
             sem_post(&Thread_context::get_context((CoreNumber)a)->pool_sema); }
 
-   static void kill_pool()
-      { if (Thread_context::get_active_core_count() > 1)
-           Thread_context::get_master().M_kill_pool(); }
-
-   /// initialize (first)
+   /// initialize
    static void init(bool logit);
 
-   /// re-initialize (subsequent)
-   static void reinit(bool logit);
-
    /// set new active core count, return true on error
-   static bool set_core_count(CoreCount count);
+   static bool set_core_count(CoreCount new_count, bool logit);
 
    static sem_t print_sema;
 
@@ -358,10 +365,10 @@ protected:
    /// the main() function of the worker threads
    static void * worker_main(void *);
 
-   /// initialize all_CPUs and active_core_count
-   static void init_CPUs(bool logit);
+   /// initialize \b all_CPUs (which then determines the max. core count)
+   static void init_all_CPUs(bool logit);
 
-   /// the core numbers (as per pthread_getaffinity_np())
+   /// the CPU numbers that can be used
    static vector<CPU_Number>all_CPUs;
 };
 //=============================================================================

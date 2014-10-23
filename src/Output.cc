@@ -69,6 +69,7 @@
 #include "main.hh"
 #include "LineInput.hh"
 #include "Output.hh"
+#include "Performance.hh"
 #include "PrintOperator.hh"
 #include "Svar_DB.hh"
 
@@ -176,18 +177,25 @@ char Output::ESC_Delete[MAX_ESC_LEN]      = CSI "3~";   ///< Key Del
 int
 CinOut::overflow(int c)
 {
+PERFORMANCE_START(cerr_perf)
    if (!InputFile::echo_current_file())   return 0;
 
    Output::set_color_mode(Output::COLM_INPUT);
    cerr << (char)c;
+PERFORMANCE_END(fs_CERR_B, cerr_perf, 1)
+
    return 0;
 }
 //-----------------------------------------------------------------------------
 int
 ErrOut::overflow(int c)
 {
+PERFORMANCE_START(cerr_perf)
+
    Output::set_color_mode(Output::COLM_ERROR);
    cerr << (char)c;
+PERFORMANCE_END(fs_CERR_B, cerr_perf, 1)
+
    return 0;
 }
 //-----------------------------------------------------------------------------
