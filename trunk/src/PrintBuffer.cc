@@ -192,11 +192,24 @@ const bool huge = out && ec > 10000;
 
      loop(x, cols)
         {
-          // merge the different items in column x of item_matrix int one
+          // merge the different items in column x of item_matrix into one
           // PrintBuffer pcol. Insert separator rows as needed.
           //
-          PrintBuffer & pcol = pcols[x];
-          new (&pcol) PrintBuffer;
+          PrintBuffer & dest = pcols[x];
+          new (&dest) PrintBuffer;
+
+          // compute the final height of dest and reserve enough rows as to
+          // avoid unnecessary copies
+          //
+          {
+            ShapeItem dest_height = 0;
+            loop(y, rows)
+               {
+                 dest_height += separator_rows(y, value.get_shape());
+                 dest_height += item_matrix[y*cols + x].get_height();
+               }
+            dest.buffer.reserve(dest_height);
+          }
 
           loop(y, rows)
               {
@@ -204,26 +217,15 @@ const bool huge = out && ec > 10000;
 
                 // insert separator row(s)
                 //
-                if (y)   // unless first row
+                const ShapeItem srows = separator_rows(y, value.get_shape());
+                if (srows)   // unless first row
                    {
-                    // compute the products of the high dimensions (from lower
-                    // to higer dimensions) and add one row for every prod
-                    // that is a multiple of y
-                    //
-                    const UCS_string sepa_row(pcol.get_width(0), UNI_iPAD_L0);
-                    ShapeItem prod = 1;
-                    loop(r, value.get_rank() - 2)
-                        {
-                          prod *= value.get_shape_item(value.get_rank()-r-2);
-                          if (y % prod == 0)   pcol.append_ucs(sepa_row);
-                          else                 break;
-                        }
+                    const UCS_string sepa_row(dest.get_width(0), UNI_iPAD_L0);
+                    loop(r, srows)   dest.append_ucs(sepa_row);
                    }
 
-                const PrintBuffer * item_row = item_matrix + y*cols;
-                const PrintBuffer & item = item_row[x];
-                if (y)   pcol.add_row(item);
-                else     pcol = item;
+                const PrintBuffer & src = item_matrix[y*cols + x];
+                dest.add_row(src);
               }
 
           bool not_char = false;   // determined by get_col_spacing()
@@ -250,7 +252,7 @@ const bool huge = out && ec > 10000;
                     // the current column is 'notchar' so we add one pad
                     // char to it.
                     //
-                    pcol.pad_l(UNI_iPAD_U3, 1);
+                    dest.pad_l(UNI_iPAD_U3, 1);
                     ++not_char_spaces;
                   }
 
@@ -467,6 +469,23 @@ UCS_string ucs;
 ColInfo ci;
    *this = PrintBuffer(ucs, ci);
    add_outer_frame(outer_style);
+}
+//-----------------------------------------------------------------------------
+ShapeItem
+PrintBuffer::separator_rows(ShapeItem y, const Shape & shape)
+{
+   if (y == 0)   return 0;
+
+ShapeItem prod = 1;
+ShapeItem ret = 0;
+   loop(r, shape.get_rank() - 2)
+       {
+         prod *= shape.get_shape_item(shape.get_rank()-r-2);
+         if (y % prod == 0)   ++ret;
+         else                 break;
+       }
+
+   return ret;
 }
 //-----------------------------------------------------------------------------
 Unicode

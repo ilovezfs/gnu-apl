@@ -206,8 +206,9 @@ public:
        { return N; }
 
    /// start parallel execution of work at the master
-   static void M_fork()
+   static void M_fork(const char * jname)
       {
+        get_master().job_name = jname;
         atomic_add(busy_worker_count, active_core_count - 1);
         atomic_add(get_master().job_number, 1);
       }
@@ -297,8 +298,15 @@ public:
    /// a counter controlling the start of parallel jobs
    volatile int job_number;
 
+   const char * job_name;
+
+   bool do_join;
+
    /// a semaphore to block this context
    sem_t pool_sema;
+
+   /// true if blocked on pool_sema
+   bool blocked;
 
 protected:
    static Thread_context * thread_contexts;
@@ -352,16 +360,11 @@ public:
    static CoreCount get_max_core_count()
       { return (CoreCount)(all_CPUs.size()); }
 
-   /// lock all pool members on pool_sema
-   static void lock_pool()
-      { if (Thread_context::get_active_core_count() > 1)
-           Thread_context::get_master().M_lock_pool(); }
+   /// make all pool members lock on their pool_sema
+   static void lock_pool(bool logit);
 
    /// unlock all pool members from their pool_sema
-   static void unlock_pool()
-      { if (Thread_context::get_active_core_count() <= 1)   return;
-        loop(a, Thread_context::get_active_core_count())
-            sem_post(&Thread_context::get_context((CoreNumber)a)->pool_sema); }
+   static void unlock_pool(bool logit);
 
    /// initialize
    static void init(bool logit);

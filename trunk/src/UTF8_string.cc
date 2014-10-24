@@ -133,7 +133,7 @@ UTF8_string::UTF8_string(const UCS_string & ucs)
 }
 //-----------------------------------------------------------------------------
 UTF8_string::UTF8_string(const Value & value)
-   : Simple_string((int)value.element_count(), (UTF8) 0)
+   : Simple_string<UTF8>((int)value.element_count(), (UTF8) 0)
 {
    loop(v, value.element_count())
        (*this)[v] = value.get_ravel(v).get_char_value() & 0xFF;

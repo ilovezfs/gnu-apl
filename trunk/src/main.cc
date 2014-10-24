@@ -159,6 +159,9 @@ signal_SEGV_handler(int)
    CERR << "\n\n====================================================\n"
            "SEGMENTATION FAULT" << endl;
 
+   CERR << "thread: " << (const void *)pthread_self() << endl;
+   Thread_context::print_all(CERR);
+
    Backtrace::show(__FILE__, __LINE__);
 
    CERR << "====================================================\n";

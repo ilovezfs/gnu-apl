@@ -61,7 +61,7 @@ const ShapeItem Z_len = job.ZAh * job.ZBl;
       {
         job.cores = Thread_context::get_active_core_count();
         Thread_context::do_work = PF_scalar_outer_product;
-        Thread_context::M_fork();   // start pool
+        Thread_context::M_fork("scalar_outer_product");   // start pool
         PF_scalar_outer_product(Thread_context::get_master());
         Thread_context::M_join();
       }

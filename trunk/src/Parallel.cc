@@ -49,7 +49,9 @@ bool Parallel::run_parallel = true;
 Thread_context::Thread_context()
    : N(CNUM_INVALID),
      thread(0),
-     job_number(0)
+     job_number(0),
+     job_name("no-name"),
+     blocked(false)
 {
 }
 //-----------------------------------------------------------------------------
@@ -82,7 +84,7 @@ Thread_context::bind_to_cpu(CPU_Number core, bool logit)
 
    CPU = core;
 
-   if (logit)
+   Log(LOG_Parallel || logit)
       {
         PRINT_LOCKED(CERR << "Binding thread #" << N
                           << " to core " << core << endl;);
@@ -117,32 +119,27 @@ void
 Thread_context::print_all(ostream & out)
 {
    PRINT_LOCKED(
-      out << "Thread_context size: " << thread_contexts_count << endl;
+      out << "thread_contexts_count: " << thread_contexts_count << endl
+          << "busy_worker_count:     " << busy_worker_count     << endl
+          << "active_core_count:     " << active_core_count     << endl;
+
       loop(e, thread_contexts_count)   thread_contexts[e].print(out);
       out << endl)
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::print_mileages(ostream & out, const char * loc)
-{
-   out << "    " << busy_worker_count << " of " << active_core_count
-       << " workers busy:";
-
-   loop(e, thread_contexts_count)   out << " " << thread_contexts[e].job_number;
-
-   out <<" at " << loc << endl;
-}
-//-----------------------------------------------------------------------------
-void
 Thread_context::print(ostream & out) const
 {
-   out << "Thread_context #" << N << ":" << endl;
-
 int semval = 42;
    sem_getvalue((sem_t *)&pool_sema, &semval);
-   out << endl
-       << "    thread:    " << (void *)thread  << endl
-       << "    pool sema: " << semval  << endl;
+
+   out << "Thread #"     << setw(2) << N
+       << ":"            << setw(16)  << (void *)thread
+       << " pool sema: " << setw(2) << semval
+       << (blocked ? " BLKD" : " RUN ")
+       << " job:"        << setw(4) << job_number
+       << " " << job_name
+       << endl;
 }
 //=============================================================================
 void
@@ -211,33 +208,43 @@ Parallel::set_core_count(CoreCount new_count, bool logit)
 
    if (new_count == Thread_context::get_active_core_count())
       {
-        if (logit)   CERR << "keeping current core count of "
-                          << Thread_context::get_active_core_count() << endl;
+        Log(LOG_Parallel || logit)
+           {
+             CERR << "keeping current core count of "
+                  << Thread_context::get_active_core_count() << endl;
+             Thread_context::print_all(CERR);
+           }
 
          return false;
       }
 
    if (new_count > Thread_context::get_active_core_count())
       {
-        if (logit)  CERR << "increasing core count from "
-                         << Thread_context::get_active_core_count()
-                         << " to " << new_count << endl;
+        Log(LOG_Parallel || logit)
+           CERR << "increasing core count from "
+                << Thread_context::get_active_core_count()
+                << " to " << new_count << endl;
 
-        for (int c = Thread_context::get_active_core_count();
-             c < new_count; ++c)
-            {
-              sem_post(&Thread_context::get_context((CoreNumber)c)->pool_sema);
-            }
+        lock_pool(logit);
         Thread_context::set_active_core_count(new_count);
+        for (int c = 1; c < new_count; ++c)
+            Thread_context::get_context((CoreNumber)c)->job_number =
+                            Thread_context::get_master().job_number;
+        unlock_pool(logit);
+
+        Log(LOG_Parallel || logit)   Thread_context::print_all(CERR);
       }
    else
       {
-        if (logit)   CERR << "decreasing core count from "
-                          << Thread_context::get_active_core_count()
-                          << " to " << new_count << endl;
-        lock_pool();
+        Log(LOG_Parallel || logit)
+           CERR << "decreasing core count from "
+                << Thread_context::get_active_core_count()
+                << " to " << new_count << endl;
+        lock_pool(logit);
         Thread_context::set_active_core_count(new_count);
-        unlock_pool();
+        unlock_pool(logit);
+
+        Log(LOG_Parallel || logit)   Thread_context::print_all(CERR);
       }
 
    return false;   // no error
@@ -323,7 +330,7 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
    // if there are more CPUs than requested then limit all_CPUs accordingly
    if (all_CPUs.size() > count)   all_CPUs.resize(count);
 
-   if (logit)
+   Log(LOG_Parallel || logit)
       {
         CERR << "detected " << all_CPUs.size() << " cores:";
         loop(cc, all_CPUs.size())   CERR << " #" << all_CPUs[cc];
@@ -336,7 +343,7 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
 
    loop(c, CORE_COUNT_WANTED)   all_CPUs.push_back((CPU_Number)c);
 
-   if (logit)
+   Log(LOG_Parallel || logit)
       {
         CERR <<
 "The precise number of cores could not be detected because function\n"
@@ -345,6 +352,51 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
       }
 
 #endif // HAVE_AFFINITY_NP
+}
+//-----------------------------------------------------------------------------
+void
+Parallel::lock_pool(bool logit)
+{
+   if (Thread_context::get_active_core_count() <= 1)   return;
+
+   Thread_context::get_master().M_lock_pool();
+
+   Log(LOG_Parallel || logit)
+      {
+        usleep(100000);
+        CERR << "pool after lock_pool()" << endl;
+        Thread_context::print_all(CERR);
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Parallel::unlock_pool(bool logit)
+{
+   if (Thread_context::get_active_core_count() <= 1)   return;
+
+   Log(LOG_Parallel || logit)
+     {
+        for (int a = 1; a < Thread_context::get_active_core_count(); ++a)
+            {
+              Thread_context * tc = Thread_context::get_context((CoreNumber)a);
+              int old_val = 42;
+              sem_getvalue(&tc->pool_sema, &old_val);
+
+              sem_post(&tc->pool_sema);
+
+              int new_val = 42;
+              sem_getvalue(&tc->pool_sema, &new_val);
+              PRINT_LOCKED(
+              CERR << "Parallel::unlock_pool(): pool_sema of thread #"
+                   << a << " changed from " << old_val << " to "
+                   << new_val << endl);
+            }
+     }
+   else
+     {
+        for (int a = 1; a < Thread_context::get_active_core_count(); ++a)
+            sem_post(&Thread_context::get_context((CoreNumber)a)->pool_sema);
+       }
 }
 //-----------------------------------------------------------------------------
 void *
@@ -358,16 +410,24 @@ Thread_context & tctx = *(Thread_context *)arg;
       }
 
    // the creator that we have started
+   //
    sem_post(&pthread_create_sema);
 
    // start in state locked
+   //
+   tctx.blocked = true;
    sem_wait(&tctx.pool_sema);
+   tctx.blocked = false;
+   PRINT_LOCKED(CERR << "thread #" << tctx.get_N()
+                          << " was unblocked from pool_sema" << endl)
 
    for (;;)
        {
          tctx.PF_fork();
+         tctx.job_name = Thread_context::get_master().job_name;
+         tctx.do_join = true;
          Thread_context::do_work(tctx);
-         tctx.PF_join();
+         if (tctx.do_join)   tctx.PF_join();
        }
 
    /* not reached */
@@ -386,15 +446,20 @@ Thread_context::PF_lock_unlock_pool(Thread_context & tctx)
 {
    Log(LOG_Parallel)
       {
-        PRINT_LOCKED(CERR << "task #" << tctx.get_N()
+        PRINT_LOCKED(CERR << "thread #" << tctx.get_N()
                           << " will now block on its pool_sema" << endl)
       }
 
+   tctx.do_join = false;
+   tctx.PF_join();
+
+   tctx.blocked = true;
    sem_wait(&tctx.pool_sema);
+   tctx.blocked = false;
 
    Log(LOG_Parallel)
       {
-        PRINT_LOCKED(CERR << "task #" << tctx.get_N()
+        PRINT_LOCKED(CERR << "thread #" << tctx.get_N()
                           << " was unblocked from pool_sema" << endl)
       }
 }
@@ -403,7 +468,7 @@ void
 Thread_context::M_lock_pool()
 {
    do_work = PF_lock_unlock_pool;
-   M_fork();
+   M_fork("PF_lock_unlock_pool");
 }
 //-----------------------------------------------------------------------------
 void
