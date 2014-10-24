@@ -28,12 +28,23 @@
 #include "../config.h"
 
 #if defined(PERFORMANCE_COUNTERS_WANTED) && defined(HAVE_RDTSC)
+
 # define PERFORMANCE_START(counter) const uint64_t counter = cycle_counter();
 # define PERFORMANCE_END(statistics, counter, len) \
    Performance::statistics.add_sample(cycle_counter() - counter, len);
+# define CELL_PERFORMANCE_END(get_stat, counter, subseq)   \
+   { const uint64_t end = cycle_counter();                 \
+     CellFunctionStatistics * stat = get_stat();           \
+     if (stat)   stat->add_sample(end - counter, subseq); }
+
+
+
 #else
+
 # define PERFORMANCE_START(counter)
 # define PERFORMANCE_END(statistics, counter, len)
+# define CELL_PERFORMANCE_END(get_stat, counter, subseq)
+
 #endif
 
 using namespace std;

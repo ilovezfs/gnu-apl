@@ -704,7 +704,7 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
 const APL_time_us from = now();
    if (start_input)   (*start_input)();
 
-   Parallel::lock_pool();
+   Parallel::lock_pool(false);
    for (int control_D_count = 0; ; ++control_D_count)
        {
          bool _eof = false;
@@ -734,7 +734,7 @@ const APL_time_us from = now();
               Command::cmd_OFF(2);   // exit()s
             }
       }
-   Parallel::unlock_pool();
+   Parallel::unlock_pool(false);
 
    Log(LOG_get_line)   CERR << " '" << line << "'" << endl;
 

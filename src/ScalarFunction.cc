@@ -170,11 +170,7 @@ static Parallel_job_list<PJob_scalar_AB> joblist_AB;
 Token
 ScalarFunction::eval_scalar_B(Value_P B, prim_f1 fun)
 {
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t start_1 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_1)
 
 const ShapeItem len_Z = B->element_count();
    if (len_Z == 0)   return eval_fill_B(B);
@@ -202,7 +198,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
             job->error = E_NO_ERROR;
             job->fun1 = fun;
             Thread_context::do_work = PF_eval_scalar_B;
-            Thread_context::M_fork();   // start pool
+            Thread_context::M_fork("eval_scalar_B");   // start pool
             PF_eval_scalar_B(Thread_context::get_master());
             Thread_context::M_join();
             if (job->error != E_NO_ERROR)
@@ -230,11 +226,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
                      }
                   else
                      {
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                       const uint64_t start_2 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_2)
 
                        const ErrorCode ec = (cell_B.*fun)(&cell_Z);
                        if (ec != E_NO_ERROR)
@@ -243,13 +235,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
                             throw_apl_error(ec, LOC);
                           }
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                       const uint64_t end_2 = cycle_counter();
-                       CellFunctionStatistics * stat = get_statistics_B();
-                       if (stat) stat->add_sample(end_2 - start_2, z);
-#endif
-#endif
+CELL_PERFORMANCE_END(get_statistics_B, start_2, z)
                      }
                 }
            }
@@ -257,12 +243,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
 
    Z->check_value(LOC);
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t end_1 = cycle_counter();
-   Performance::fs_SCALAR_B.add_sample(end_1 - start_1, Z->nz_element_count());
-#endif
-#endif
+PERFORMANCE_END(fs_SCALAR_B, start_1, Z->nz_element_count());
 
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -313,21 +294,11 @@ ShapeItem end_z = z + slice_len;
             {
                   // B not nested: execute fun
                   //
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                  const uint64_t start_2 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_2)
                   const ErrorCode ec = (cell_B.*job.fun1)(&cell_Z);
                   if (ec != E_NO_ERROR)   return;
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                  const uint64_t end_2 = cycle_counter();
-                  CellFunctionStatistics * stat = job.fun->get_statistics_B();
-                  if (stat) stat->add_sample(end_2 - start_2, z);
-#endif
-#endif
+CELL_PERFORMANCE_END(job.fun->get_statistics_B, start_2, z)
             }
        }
 }
@@ -376,11 +347,7 @@ ScalarFunction::expand_pointers(Cell * cell_Z, Value & Z_owner,
 Token
 ScalarFunction::eval_scalar_AB(Value_P A, Value_P B, prim_f2 fun)
 {
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t start_1 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_1)
 
 const int inc_A = A->is_scalar_or_len1_vector() ? 0 : 1;
 const int inc_B = B->is_scalar_or_len1_vector() ? 0 : 1;
@@ -423,7 +390,7 @@ Value_P Z(new Value(*shape_Z, LOC));
             job->error = E_NO_ERROR;
             job->fun2 = fun;
             Thread_context::do_work = PF_eval_scalar_AB;
-            Thread_context::M_fork();   // start pool
+            Thread_context::M_fork("eval_scalar_AB");   // start pool
             PF_eval_scalar_AB(Thread_context::get_master());
             Thread_context::M_join();
             if (job->error != E_NO_ERROR)
@@ -539,11 +506,8 @@ Value_P Z(new Value(*shape_Z, LOC));
                         {
                           // neither A nor B are nested: execute fun
                           //
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                          const uint64_t start_2 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_2)
+
                           const ErrorCode ec = (cell_B.*fun)(&cell_Z, &cell_A);
                           if (ec != E_NO_ERROR)
                              {
@@ -551,13 +515,7 @@ Value_P Z(new Value(*shape_Z, LOC));
                                throw_apl_error(ec, LOC);
                              }
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                          const uint64_t end_2 = cycle_counter();
-                          CellFunctionStatistics * stat = get_statistics_AB();
-                          if (stat) stat->add_sample(end_2 - start_2, z);
-#endif
-#endif
+CELL_PERFORMANCE_END(get_statistics_AB, start_2, z)
                         }
                 }
            }
@@ -567,12 +525,7 @@ Value_P Z(new Value(*shape_Z, LOC));
    Z->set_default(*B.get());
    Z->check_value(LOC);
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t end_1 = cycle_counter();
-   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1, Z->nz_element_count());
-#endif
-#endif
+PERFORMANCE_END(fs_SCALAR_AB, start_1, len_Z)
 
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -694,21 +647,12 @@ ShapeItem end_z = z + slice_len;
                    {
                      // neither A nor B are nested: execute fun
                      //
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                     const uint64_t start_2 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_2)
+
                      const ErrorCode ec = (cell_B.*job.fun2)(&cell_Z, &cell_A);
                      if (ec != E_NO_ERROR)   return;
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-                     const uint64_t end_2 = cycle_counter();
-                     CellFunctionStatistics * stat = job.fun->get_statistics_AB();
-                     if (stat) stat->add_sample(end_2 - start_2, z);
-#endif
-#endif
+// CELL_PERFORMANCE_END(job.fun->get_statistics_AB, start_2, z)
                    }
        }
 }
@@ -806,11 +750,7 @@ const Cell & cell_FI0 = FI0->get_ravel(0);
 Token
 ScalarFunction::eval_scalar_AXB(Value_P A, Value_P X, Value_P B, prim_f2 fun)
 {
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t start_1 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_1)
 
    if (A->is_scalar_or_len1_vector() || B->is_scalar_or_len1_vector() || !X)
       return eval_scalar_AB(A, B, fun);
@@ -837,12 +777,7 @@ const ShapeItem len_X = X->element_count();
 Value_P Z = (rank_A < rank_B) ? eval_scalar_AXB(A, axis_in_X, B, fun, false)
                               : eval_scalar_AXB(B, axis_in_X, A, fun, true);
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t end_1 = cycle_counter();
-   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1, Z->nz_element_count());
-#endif
-#endif
+PERFORMANCE_END(fs_SCALAR_AB, start_1, Z->nz_element_count())
 
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -909,11 +844,7 @@ const Cell * cB = &B->get_ravel(0);
 Token
 Bif_F2_FIND::eval_AB(Value_P A, Value_P B)
 {
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t start_1 = cycle_counter();
-#endif
-#endif
+PERFORMANCE_START(start_1)
 
 const APL_Float qct = Workspace::get_CT();
 Value_P Z(new Value(B->get_shape(), LOC));
@@ -948,22 +879,21 @@ Shape shape_A;
 
    for (ArrayIterator zi(B->get_shape()); !zi.done(); ++zi)
        {
+PERFORMANCE_START(start_2)
          if (contained(shape_A, &A->get_ravel(0), B, zi.get_values(), qct))
             new (&Z->get_ravel(zi.get_total()))   IntCell(1);
          else
             new (&Z->get_ravel(zi.get_total()))   IntCell(0);
+
+CELL_PERFORMANCE_END(get_statistics_AB, start_2, zi.get_total())
        }
 
 done:
    Z->set_default_Zero();
    Z->check_value(LOC);
 
-#ifdef PERFORMANCE_COUNTERS_WANTED
-#ifdef HAVE_RDTSC
-const uint64_t end_1 = cycle_counter();
-   Performance::fs_SCALAR_AB.add_sample(end_1 - start_1, Z->nz_element_count());
-#endif
-#endif
+PERFORMANCE_END(fs_SCALAR_AB, start_1, Z->nz_element_count());
+
    return Token(TOK_APL_VALUE1, Z);
 }
 //=============================================================================

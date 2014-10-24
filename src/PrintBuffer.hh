@@ -155,8 +155,12 @@ public:
    /// add padding and a column \b pb to \b this PrintBuffer
    void add_column(Unicode pad, int32_t pad_count, const PrintBuffer & pb);
 
-   /// add row \b pb to \b this PrintBuffer
-   void add_row(const PrintBuffer & pb);
+   /// add PrintBuffer \b row to \b this PrintBuffer
+   void add_row(const PrintBuffer & row);
+
+   /// add empty rows to \b this PrintBuffer
+   void add_empty_rows(ShapeItem count)
+      { buffer.resize(buffer.size() + count); }
 
    /// return the ColInfo of \b this PrintBuffer
    const ColInfo & get_info() const   { return col_info; }
@@ -186,6 +190,10 @@ protected:
 
    /// pad the fraction part to \b wanted_fract_len with '0'
    void pad_fraction(int wanted_fract_len, bool want_expo);
+
+   /// return the number of separator rows before row =b y in a value with
+   /// shape \b shape
+   static ShapeItem separator_rows(ShapeItem y, const Shape & shape);
 
    /// the character buffer.
    vector<UCS_string> buffer;
