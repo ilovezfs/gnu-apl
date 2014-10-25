@@ -360,6 +360,7 @@ Parallel::lock_pool(bool logit)
    if (Thread_context::get_active_core_count() <= 1)   return;
 
    Thread_context::get_master().M_lock_pool();
+   Thread_context::M_join();
 
    Log(LOG_Parallel || logit)
       {
@@ -418,8 +419,10 @@ Thread_context & tctx = *(Thread_context *)arg;
    tctx.blocked = true;
    sem_wait(&tctx.pool_sema);
    tctx.blocked = false;
-   PRINT_LOCKED(CERR << "thread #" << tctx.get_N()
-                          << " was unblocked from pool_sema" << endl)
+
+   Log(LOG_Parallel)
+      PRINT_LOCKED(CERR << "thread #" << tctx.get_N()
+                        << " was unblocked (initially) from pool_sema" << endl)
 
    for (;;)
        {

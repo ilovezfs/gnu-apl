@@ -1062,7 +1062,7 @@ int janitor = 0;
         return argc;
       }
 
-   // enable ^C and ^\ when in debig mode
+   // enable ^C and ^\ when in debug mode
    //
    memset(&new_control_C_action, 0, sizeof(struct sigaction));
    memset(&new_control_BSL_action, 0, sizeof(struct sigaction));
