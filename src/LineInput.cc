@@ -53,14 +53,25 @@ UCS_string LineEditContext::cut_buffer;
 
 ESCmap ESCmap::the_ESCmap[] =
 {
-  { 3, Output::ESC_CursorUp,    UNI_CursorUp     },
-  { 3, Output::ESC_CursorDown,  UNI_CursorDown   },
-  { 3, Output::ESC_CursorRight, UNI_CursorRight  },
-  { 3, Output::ESC_CursorLeft,  UNI_CursorLeft   },
-  { 3, Output::ESC_CursorEnd,   UNI_CursorEnd    },
-  { 3, Output::ESC_CursorHome,  UNI_CursorHome   },
-  { 4, Output::ESC_InsertMode,  UNI_InsertMode   },
-  { 4, Output::ESC_Delete,      UNI_ASCII_DELETE },
+   // normal sequences
+  { 3, Output::ESC_CursorUp,      UNI_CursorUp     },
+  { 3, Output::ESC_CursorDown,    UNI_CursorDown   },
+  { 3, Output::ESC_CursorRight,   UNI_CursorRight  },
+  { 3, Output::ESC_CursorLeft,    UNI_CursorLeft   },
+  { 3, Output::ESC_CursorEnd,     UNI_CursorEnd    },
+  { 3, Output::ESC_CursorHome,    UNI_CursorHome   },
+  { 4, Output::ESC_InsertMode,    UNI_InsertMode   },
+  { 4, Output::ESC_Delete,        UNI_ASCII_DELETE },
+
+   // sequences with SHIFT and/or CTRL
+  { 6, Output::ESC_CursorUp_1,    UNI_CursorUp     },
+  { 6, Output::ESC_CursorDown_1,  UNI_CursorDown   },
+  { 6, Output::ESC_CursorRight_1, UNI_CursorRight  },
+  { 6, Output::ESC_CursorLeft_1,  UNI_CursorLeft   },
+  { 6, Output::ESC_CursorEnd_1,   UNI_CursorEnd    },
+  { 6, Output::ESC_CursorHome_1,  UNI_CursorHome   },
+  { 6, Output::ESC_InsertMode_1,  UNI_InsertMode   },
+  { 6, Output::ESC_Delete_1,      UNI_ASCII_DELETE },
 };
 
 enum { ESCmap_entry_count = sizeof(ESCmap::the_ESCmap) / sizeof(ESCmap) };
@@ -83,7 +94,19 @@ ESCmap::has_prefix(const char * seq, int seq_len) const
    if (seq_len >= len)   return false;
    loop(s, seq_len)
       {
-        if (seq[s] != seqence[s])   return false;
+        if ((seq[s] != seqence[s]) && seqence[s])   return false;
+      }
+
+   return true;
+}
+//-----------------------------------------------------------------------------
+bool
+ESCmap::is_equal(const char * seq, int seq_len) const
+{
+   if (len != seq_len)   return false;
+   loop(s, seq_len)
+      {
+        if ((seq[s] != seqence[s]) && seqence[s])   return false;
       }
 
    return true;
@@ -95,18 +118,6 @@ ESCmap::refresh_lengths()
 return;
    loop(e, ESCmap_entry_count)
      the_ESCmap[e].len = strlen(the_ESCmap[e].seqence);
-}
-//-----------------------------------------------------------------------------
-bool
-ESCmap::is_equal(const char * seq, int seq_len) const
-{
-   if (len != seq_len)   return false;
-   loop(s, seq_len)
-      {
-        if (seq[s] != seqence[s])   return false;
-      }
-
-   return true;
 }
 //=============================================================================
 LineHistory::LineHistory(int maxl)

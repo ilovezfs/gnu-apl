@@ -104,13 +104,16 @@ inline void atomic_add(volatile _Atomic_word & counter, int increment)
 typedef int _Atomic_word;
 
 inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
-   { return counter; }
+   { CERR << "\n*** something is VERY WRONG if this function is called" << endl;
+      counter += increment; return counter - increment; }
 
 inline int atomic_read(volatile _Atomic_word & counter)
-   { return counter; }
+   { CERR << "\n*** something is VERY WRONG if this function is called" << endl;
+     return counter; }
 
 inline void atomic_add(volatile _Atomic_word & counter, int increment)
-   { counter += increment; }
+   { CERR << "\n*** something is VERY WRONG if this function is called" << endl;
+     counter += increment; }
 
 #endif
 
@@ -191,8 +194,6 @@ enum CPU_count
 
  **/
 //=============================================================================
-class Thread_context;
-
 class Thread_context
 {
 public:

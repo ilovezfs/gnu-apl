@@ -133,7 +133,7 @@ Thread_context::print(ostream & out) const
 int semval = 42;
    sem_getvalue((sem_t *)&pool_sema, &semval);
 
-   out << "Thread #"     << setw(2) << N
+   out << "thread #"     << setw(2) << N
        << ":"            << setw(16)  << (void *)thread
        << " pool sema: " << setw(2) << semval
        << (blocked ? " BLKD" : " RUN ")
@@ -210,7 +210,8 @@ Parallel::set_core_count(CoreCount new_count, bool logit)
       {
         Log(LOG_Parallel || logit)
            {
-             CERR << "keeping current core count of "
+             CERR <<
+                "Parallel::set_core_count(): keeping current core count of "
                   << Thread_context::get_active_core_count() << endl;
              Thread_context::print_all(CERR);
            }
@@ -221,7 +222,7 @@ Parallel::set_core_count(CoreCount new_count, bool logit)
    if (new_count > Thread_context::get_active_core_count())
       {
         Log(LOG_Parallel || logit)
-           CERR << "increasing core count from "
+           CERR << "Parallel::set_core_count(): increasing core count from "
                 << Thread_context::get_active_core_count()
                 << " to " << new_count << endl;
 
@@ -237,7 +238,7 @@ Parallel::set_core_count(CoreCount new_count, bool logit)
    else
       {
         Log(LOG_Parallel || logit)
-           CERR << "decreasing core count from "
+           CERR << "Parallel::set_core_count(): decreasing core count from "
                 << Thread_context::get_active_core_count()
                 << " to " << new_count << endl;
         lock_pool(logit);
@@ -364,8 +365,8 @@ Parallel::lock_pool(bool logit)
 
    Log(LOG_Parallel || logit)
       {
-        usleep(100000);
-        CERR << "pool after lock_pool()" << endl;
+        PRINT_LOCKED(
+            CERR << "Parallel::lock_pool() : pool state is now :" << endl; )
         Thread_context::print_all(CERR);
       }
 }
@@ -379,6 +380,7 @@ Parallel::unlock_pool(bool logit)
      {
         for (int a = 1; a < Thread_context::get_active_core_count(); ++a)
             {
+              PRINT_LOCKED(CERR << "Parallel::unlock_pool() : " << endl; )
               Thread_context * tc = Thread_context::get_context((CoreNumber)a);
               int old_val = 42;
               sem_getvalue(&tc->pool_sema, &old_val);
@@ -388,9 +390,9 @@ Parallel::unlock_pool(bool logit)
               int new_val = 42;
               sem_getvalue(&tc->pool_sema, &new_val);
               PRINT_LOCKED(
-              CERR << "Parallel::unlock_pool(): pool_sema of thread #"
-                   << a << " changed from " << old_val << " to "
-                   << new_val << endl);
+              CERR << "    pool_sema of thread #"
+                   << a << " incremented from " << old_val << " to "
+                   << new_val << endl;)
             }
      }
    else
@@ -410,7 +412,7 @@ Thread_context & tctx = *(Thread_context *)arg;
         PRINT_LOCKED(CERR << "worker #" << tctx.get_N() << " started" << endl)
       }
 
-   // the creator that we have started
+   // tell the creator that we have started
    //
    sem_post(&pthread_create_sema);
 
@@ -449,8 +451,8 @@ Thread_context::PF_lock_unlock_pool(Thread_context & tctx)
 {
    Log(LOG_Parallel)
       {
-        PRINT_LOCKED(CERR << "thread #" << tctx.get_N()
-                          << " will now block on its pool_sema" << endl)
+        PRINT_LOCKED(CERR << "worker #" << tctx.get_N()
+                          << " will now block itself on its pool_sema" << endl)
       }
 
    tctx.do_join = false;

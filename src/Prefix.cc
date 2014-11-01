@@ -911,6 +911,27 @@ Token result = Token(TOK_FUN2, derived);
 void
 Prefix::reduce_F_D_G_()
 {
+   // reduce, except if another dyadic operator is coming. In that case
+   // F belongs to the other operator and we simply continue.
+   //
+   if (PC < body.size())
+        {
+          const Token & tok = body[PC];
+          TokenClass next =  tok.get_Class();
+          if (next == TC_SYMBOL)
+             {
+               Symbol * sym = tok.get_sym_ptr();
+               const bool left_sym = get_assign_state() == ASS_arrow_seen;
+               next = sym->resolve_class(left_sym);
+             }
+
+          if (next == TC_OPER2)
+             {
+               action = RA_PUSH_NEXT;
+               return;
+             }
+        }
+
 DerivedFunction * derived =
    Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(), at2(), LOC);
@@ -922,6 +943,26 @@ DerivedFunction * derived =
 void
 Prefix::reduce_F_D_C_B()
 {
+   // reduce, except if another dyadic operator is coming. In that case
+   // F belongs to the other operator and we simply continue.
+   //
+   if (PC < body.size())
+        {
+          const Token & tok = body[PC];
+          TokenClass next =  tok.get_Class();
+          if (next == TC_SYMBOL)
+             {
+               Symbol * sym = tok.get_sym_ptr();
+               const bool left_sym = get_assign_state() == ASS_arrow_seen;
+               next = sym->resolve_class(left_sym);
+             }
+
+          if (next == TC_OPER2)
+             {
+               action = RA_PUSH_NEXT;
+               return;
+             }
+        }
    // we have f ⍤ [X] y_B with y_B glued beforehand. Unglue it.
    //
 Value_P y123;
