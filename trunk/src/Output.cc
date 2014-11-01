@@ -164,14 +164,25 @@ char Output::clear_EOS[MAX_ESC_LEN] = CSI "J";
 char Output::exit_attr_mode[MAX_ESC_LEN] = CSI "m" "\x1B"  "(B";
 
 /// the ESC sequences sent by the cursor keys...
-char Output::ESC_CursorUp[MAX_ESC_LEN]    = CSI "A";    ///< Key ↑
-char Output::ESC_CursorDown[MAX_ESC_LEN]  = CSI "B";    ///< Key ↓
-char Output::ESC_CursorRight[MAX_ESC_LEN] = CSI "C";    ///< Key →
-char Output::ESC_CursorLeft[MAX_ESC_LEN]  = CSI "D";    ///< Key ←
-char Output::ESC_CursorEnd[MAX_ESC_LEN]   = CSI "F";    ///< Key End
-char Output::ESC_CursorHome[MAX_ESC_LEN]  = CSI "D";    ///< Key Home
-char Output::ESC_InsertMode[MAX_ESC_LEN]  = CSI "2~";   ///< Key Ins
-char Output::ESC_Delete[MAX_ESC_LEN]      = CSI "3~";   ///< Key Del
+char Output::ESC_CursorUp   [MAX_ESC_LEN]   = CSI "A";    ///< Key ↑
+char Output::ESC_CursorDown [MAX_ESC_LEN]   = CSI "B";    ///< Key ↓
+char Output::ESC_CursorRight[MAX_ESC_LEN]   = CSI "C";    ///< Key →
+char Output::ESC_CursorLeft [MAX_ESC_LEN]   = CSI "D";    ///< Key ←
+char Output::ESC_CursorEnd  [MAX_ESC_LEN]   = CSI "F";    ///< Key End
+char Output::ESC_CursorHome [MAX_ESC_LEN]   = CSI "D";    ///< Key Home
+char Output::ESC_InsertMode [MAX_ESC_LEN]   = CSI "2~";   ///< Key Ins
+char Output::ESC_Delete     [MAX_ESC_LEN]   = CSI "3~";   ///< Key Del
+
+/// the ESC sequences sent by the cursor keys with SHIFT and/or CTRL...
+/// the "\0" in the middle is a wildcard match for 0x32/0x35/0x36
+char Output::ESC_CursorUp_1   [MAX_ESC_LEN] = CSI "1;" "\0" "A";   ///< Key ↑
+char Output::ESC_CursorDown_1 [MAX_ESC_LEN] = CSI "1;" "\0" "B";   ///< Key ↓
+char Output::ESC_CursorRight_1[MAX_ESC_LEN] = CSI "1;" "\0" "C";   ///< Key →
+char Output::ESC_CursorLeft_1 [MAX_ESC_LEN] = CSI "1;" "\0" "D";   ///< Key ←
+char Output::ESC_CursorEnd_1  [MAX_ESC_LEN] = CSI "1;" "\0" "F";   ///< Key End
+char Output::ESC_CursorHome_1 [MAX_ESC_LEN] = CSI "1;" "\0" "D";   ///< Key Home
+char Output::ESC_InsertMode_1 [MAX_ESC_LEN] = CSI "2;" "\0" "~";   ///< Key Ins
+char Output::ESC_Delete_1     [MAX_ESC_LEN] = CSI "3;" "\0" "~";   ///< Key Del
 
 //-----------------------------------------------------------------------------
 int

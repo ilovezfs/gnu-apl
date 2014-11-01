@@ -351,19 +351,19 @@ Nabla::parse_oper(UCS_string & oper, bool initial)
 
    // skip trailing spaces
    //
-   while (oper.size() > 0 && oper.last() < ' ')   oper.pop();
+   while (oper.size() > 0 && oper.last() <= ' ')   oper.pop();
    if (oper.size() > 0 && oper.last() == UNI_NABLA)
       {
         do_close = true;
         oper.pop();
-        while (oper.size() > 0 && oper.last() < ' ')   oper.pop();
+        while (oper.size() > 0 && oper.last() <= ' ')   oper.pop();
       }
    else if (oper.size() > 0 && oper.last() == UNI_DEL_TILDE)
       {
         do_close = true;
         locked = true;
         oper.pop();
-        while (oper.size() > 0 && oper.last() < ' ')   oper.pop();
+        while (oper.size() > 0 && oper.last() <= ' ')   oper.pop();
       }
 
    current_text.clear();

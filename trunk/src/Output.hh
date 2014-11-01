@@ -167,6 +167,30 @@ public:
    /// default ESC sequence for Delete key
    static char ESC_Delete[MAX_ESC_LEN];
 
+   /// default ESC sequence for Cursor Up key with SHIFT and/or CTRL
+   static char ESC_CursorUp_1[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Down key with SHIFT and/or CTRL
+   static char ESC_CursorDown_1[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Right key with SHIFT and/or CTRL
+   static char ESC_CursorRight_1[MAX_ESC_LEN];
+
+   /// default ESC sequence for Cursor Left key with SHIFT and/or CTRL
+   static char ESC_CursorLeft_1[MAX_ESC_LEN];
+
+   /// default ESC sequence for End key with SHIFT and/or CTRL
+   static char ESC_CursorEnd_1[MAX_ESC_LEN];
+
+   /// default ESC sequence for Home key with SHIFT and/or CTRL
+   static char ESC_CursorHome_1[MAX_ESC_LEN];
+
+   /// default ESC sequence for Insert key with SHIFT and/or CTRL
+   static char ESC_InsertMode_1[MAX_ESC_LEN];
+
+   /// default ESC sequence for Delete key with SHIFT and/or CTRL
+   static char ESC_Delete_1[MAX_ESC_LEN];
+
    /// escape sequence for exiting attribute mode
    static char exit_attr_mode[MAX_ESC_LEN];
 
