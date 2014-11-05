@@ -363,11 +363,11 @@ Token::print_value(ostream & out) const
         case TOK_VARIABLE:  return value.sym_ptr->print(out);
         case TOK_FUN0:      return out <<  "{ fun/0 }";
         case TOK_CHARACTER: return out << value.char_val;
-        case TOK_INTEGER:   return out << value.int_val;
-        case TOK_REAL:      return out << value.flt_val;
+        case TOK_INTEGER:   return out << value.int_vals[0];
+        case TOK_REAL:      return out << value.float_vals[0];
 
-        case TOK_COMPLEX:   return out << value.complex_val.real << "J"
-                                       << value.complex_val.imag;
+        case TOK_COMPLEX:   return out << value.float_vals[0] << "J"
+                                       << value.float_vals[1];
 
         case TOK_APL_VALUE1:
         case TOK_APL_VALUE3:
@@ -730,18 +730,20 @@ Token::copy_N(const Token & src)
    tag = src.tag;
    switch(src.get_ValueType())
       {
-        case TV_NONE:  value.int_val    = 0;                              break;
-        case TV_CHAR:  value.char_val   = src.value.char_val;             break;
-        case TV_INT:   value.int_val    = src.value.int_val;              break;
-        case TV_FLT:   value.flt_val    = src.value.flt_val;              break;
-        case TV_CPX:   value.complex_val.real = src.value.complex_val.real;
-                       value.complex_val.imag = src.value.complex_val.imag;
-                                                                          break;
-        case TV_SYM:   value.sym_ptr    = src.value.sym_ptr;              break;
-        case TV_LIN:   value.fun_line   = src.value.fun_line;             break;
-        case TV_VAL:   value._apl_val() = src.value._apl_val();           break;
-        case TV_INDEX: value.index_val  = src.value.index_val;            break;
-        case TV_FUN:   value.function   = src.value.function;             break;
+        case TV_NONE:  value.int_vals[0]   = 0;
+                       value.int_vals[1]   = src.value.int_vals[1];     break;
+
+        case TV_CHAR:  value.char_val      = src.value.char_val;        break;
+        case TV_INT:   value.int_vals[0]   = src.value.int_vals[0];
+                       value.int_vals[1]   = src.value.int_vals[1];     break;
+        case TV_FLT:   value.float_vals[0] = src.value.float_vals[0];   break;
+        case TV_CPX:   value.float_vals[0] = src.value.float_vals[0];
+                       value.float_vals[1] = src.value.float_vals[1];   break;
+        case TV_SYM:   value.sym_ptr       = src.value.sym_ptr;         break;
+        case TV_LIN:   value.fun_line      = src.value.fun_line;        break;
+        case TV_VAL:   value._apl_val()    = src.value._apl_val();      break;
+        case TV_INDEX: value.index_val     = src.value.index_val;       break;
+        case TV_FUN:   value.function      = src.value.function;        break;
         default:       FIXME;
       }
 }

@@ -777,7 +777,7 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
    do_indent();
 
    // write closing tag and a few 0's so that string functions
-   // can be used on mmaped file.
+   // can be used on the mmaped file.
    //
    out << "</Workspace>" << endl
        << char(0) << char(0) <<char(0) <<char(0) << endl;
@@ -799,7 +799,8 @@ XML_Loading_Archive::XML_Loading_Archive(const char * _filename, int & dump_fd)
      protection(false),
      reading_vids(false),
      have_allowed_objects(false),
-     filename(_filename)
+     filename(_filename),
+     file_is_complete(false)
 {
    Log(LOG_archive)   CERR << "Loading file " << filename << endl;
 
@@ -873,7 +874,7 @@ XML_Loading_Archive::skip_to_tag(const char * tag)
    for (;;)
       {
          if (next_tag(LOC))   return true;
-         if (is_tag(tag))   break;
+         if (is_tag(tag))     break;
       }
 
    return false;
@@ -1099,9 +1100,39 @@ bool next_month = false;
 
    Log(LOG_archive)   CERR << "read_Workspace() " << endl;
 
-const char * tag_order[] = { "Value",          "Ravel",
-                             "SymbolTable",    "Symbol",
-                             "StateIndicator", "/Workspace", 0 };
+   // quick check that the file is complete
+   //
+   for (const UTF8 * c = file_end - 12; (c > data) && (c > file_end - 200); --c)
+       {
+         if (!strncmp((const char *)c, "</Workspace>", 12))
+            {
+              file_is_complete = true;
+              break;
+            }
+       }
+
+   if (!file_is_complete && !copying)
+      {
+        CERR <<
+"*** workspace file " << filename << endl <<
+"    seems to be incomplete (possibly caused by a crash on )SAVE?)\n" 
+"    You may still be able to )COPY from it.\n"
+"\nNOT COPIED" << endl;
+        return;
+      }
+
+   // the order in which tags are written to the xml file
+   //
+const char * tag_order[] =
+{
+  "Value",
+  "Ravel",
+  "SymbolTable",
+  "Symbol",
+  "StateIndicator",
+  "/Workspace",
+  0
+};
 const char ** tag_pos = tag_order;
 
    for (;;)
@@ -1124,6 +1155,7 @@ const char ** tag_pos = tag_order;
          else if (is_tag("Ravel"))            read_Ravel();
          else if (is_tag("SymbolTable"))      read_SymbolTable();
          else if (is_tag("Symbol"))           read_Symbol();
+         else if (copying)                    break;
          else if (is_tag("StateIndicator"))   read_StateIndicator();
          else if (is_tag("/Workspace"))       break;
          else    /* complain */               expect_tag("UNEXPECTED", LOC);
@@ -1713,7 +1745,7 @@ XML_Loading_Archive::read_StateIndicator()
    if (copying)
       {
         skip_to_tag("/StateIndicator");
-          return;
+        return;
       }
 
    Log(LOG_archive)   CERR << "read_StateIndicator()" << endl;

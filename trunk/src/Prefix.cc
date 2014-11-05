@@ -436,7 +436,8 @@ again:
 
 found_prefix:
 
-   // found prefix. see if the next token class binds stronger than best->prio
+   // found a reducible prefix. See if the next token class binds stronger
+   // than best->prio
    //
    {
      TokenClass next = TC_INVALID;
@@ -445,7 +446,7 @@ found_prefix:
           const Token & tok = body[PC];
 
           next = tok.get_Class();
-          if (tok.get_Class() == TC_SYMBOL)
+          if (next == TC_SYMBOL)
              {
                Symbol * sym = tok.get_sym_ptr();
                const bool left_sym = get_assign_state() == ASS_arrow_seen;

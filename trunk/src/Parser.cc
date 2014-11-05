@@ -65,7 +65,7 @@ Parser::parse(const Token_string & input, Token_string & tos) const
 
    // split input into statements.
    //
-vector<Token_string *> statements;
+Simple_string<Token_string *> statements;
    {
      Source<Token> src(input);
      Token_string  * stat = new Token_string();
@@ -74,7 +74,7 @@ vector<Token_string *> statements;
           const Token tok = src.get();
           if (tok.get_tag() == TOK_DIAMOND)
              {
-               statements.push_back(stat);
+               statements.append(stat);
                stat = new Token_string();
              }
           else
@@ -82,7 +82,7 @@ vector<Token_string *> statements;
                stat->append(tok, LOC);
              }
         }
-     statements.push_back(stat);
+     statements.append(stat);
    }
 
    loop(s, statements.size())
@@ -105,7 +105,7 @@ vector<Token_string *> statements;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
-Parser::parse_statement(Token_string & tos) const
+Parser::parse_statement(Token_string & tos)
 {
    // 1. convert (X) into X and ((X...)) into (X...)
    //
@@ -163,11 +163,22 @@ Parser::parse_statement(Token_string & tos) const
         tos.print(CERR);
       }
 
+   // 6. update distances between (), [], and {}
+   //
+   {
+     const ErrorCode ec = match_par_bra(tos, false);
+     if (ec != E_NO_ERROR)
+        {
+          loop(t, tos.size())   tos[t].clear(LOC);
+          return ec;
+        }
+   }
+
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 void
-Parser::collect_constants(Token_string & tos) const
+Parser::collect_constants(Token_string & tos)
 {
    Log(LOG_collect_constants)
       {
@@ -237,7 +248,7 @@ Parser::collect_constants(Token_string & tos) const
 }
 //-----------------------------------------------------------------------------
 bool
-Parser::collect_groups(Token_string & tos) const
+Parser::collect_groups(Token_string & tos)
 {
    Log(LOG_collect_constants)
       {
@@ -526,8 +537,56 @@ int dst = 0;
    tos.shrink(dst);
 }
 //-----------------------------------------------------------------------------
+ErrorCode
+Parser::match_par_bra(Token_string & tos, bool backwards)
+{
+Simple_string<ShapeItem> stack;
+   loop(s, tos.size())
+       {
+         const ShapeItem t = backwards ? (tos.size() - 1) - s : s;
+         ErrorCode ec;
+         TokenClass tc_peer;
+         switch(tos[t].get_Class())
+           {
+             case TC_L_BRACK:
+             case TC_L_PARENT:
+             case TC_L_CURLY: stack.append(t);
+                              continue;
+
+             case TC_R_BRACK:  ec = E_UNBALANCED_BRACKET;
+                               tc_peer = TC_L_BRACK;
+                               break;
+
+             case TC_R_PARENT: ec = E_UNBALANCED_PARENT;
+                               tc_peer = TC_L_PARENT;
+                               break;
+
+             case TC_R_CURLY:  ec = E_UNBALANCED_CURLY;
+                               tc_peer = TC_L_CURLY;
+                               break;
+
+             default:          continue;
+           }
+
+          // at this point, a closing ), ], or } was detected
+          //
+          if (stack.size() == 0)   return ec;
+
+           const ShapeItem t1 = stack.last();
+           stack.pop();
+
+          if (tos[t1].get_Class() != tc_peer)   return ec;
+
+          const ShapeItem diff = (t > t1) ? t - t1 : t1 - t;
+          tos[t].set_int_val2(diff);
+          tos[t1].set_int_val2(diff);
+       }
+
+   return E_NO_ERROR;
+}
+//-----------------------------------------------------------------------------
 void
-Parser::create_value(Token_string & tos, int pos, int count) const
+Parser::create_value(Token_string & tos, int pos, int count)
 {
    Log(LOG_create_value)
       {
@@ -548,7 +607,7 @@ Parser::create_value(Token_string & tos, int pos, int count) const
 }
 //-----------------------------------------------------------------------------
 void
-Parser::create_scalar_value(Token & output) const
+Parser::create_scalar_value(Token & output)
 {
    switch(output.get_tag())
       {
@@ -610,7 +669,7 @@ Parser::create_scalar_value(Token & output) const
 //-----------------------------------------------------------------------------
 void
 Parser::create_vector_value(Token_string & tos,
-                            int pos, int count) const
+                            int pos, int count)
 {
 Value_P vector(new Value(count, LOC));
 
