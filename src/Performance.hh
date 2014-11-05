@@ -34,7 +34,7 @@
    Performance::statistics.add_sample(cycle_counter() - counter, len);
 # define CELL_PERFORMANCE_END(get_stat, counter, subseq)   \
    { const uint64_t end = cycle_counter();                 \
-     CellFunctionStatistics * stat = get_stat();           \
+     CellFunctionStatistics * stat = get_stat;             \
      if (stat)   stat->add_sample(end - counter, subseq); }
 
 

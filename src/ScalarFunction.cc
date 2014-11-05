@@ -235,7 +235,7 @@ PERFORMANCE_START(start_2)
                             throw_apl_error(ec, LOC);
                           }
 
-CELL_PERFORMANCE_END(get_statistics_B, start_2, z)
+CELL_PERFORMANCE_END(get_statistics_B(), start_2, z)
                      }
                 }
            }
@@ -298,7 +298,7 @@ PERFORMANCE_START(start_2)
                   const ErrorCode ec = (cell_B.*job.fun1)(&cell_Z);
                   if (ec != E_NO_ERROR)   return;
 
-CELL_PERFORMANCE_END(job.fun->get_statistics_B, start_2, z)
+CELL_PERFORMANCE_END(job.fun->get_statistics_B(), start_2, z)
             }
        }
 }
@@ -515,7 +515,7 @@ PERFORMANCE_START(start_2)
                                throw_apl_error(ec, LOC);
                              }
 
-CELL_PERFORMANCE_END(get_statistics_AB, start_2, z)
+CELL_PERFORMANCE_END(get_statistics_AB(), start_2, z)
                         }
                 }
            }
@@ -652,7 +652,7 @@ PERFORMANCE_START(start_2)
                      const ErrorCode ec = (cell_B.*job.fun2)(&cell_Z, &cell_A);
                      if (ec != E_NO_ERROR)   return;
 
-// CELL_PERFORMANCE_END(job.fun->get_statistics_AB, start_2, z)
+CELL_PERFORMANCE_END(job.fun->get_statistics_AB(), start_2, z)
                    }
        }
 }
@@ -885,7 +885,7 @@ PERFORMANCE_START(start_2)
          else
             new (&Z->get_ravel(zi.get_total()))   IntCell(0);
 
-CELL_PERFORMANCE_END(get_statistics_AB, start_2, zi.get_total())
+CELL_PERFORMANCE_END(get_statistics_AB(), start_2, zi.get_total())
        }
 
 done:

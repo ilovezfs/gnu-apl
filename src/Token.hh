@@ -49,14 +49,14 @@ public:
    /// parsing, and (2) as return values of user defined functions that
    /// do not return values.
    Token()
-   : tag(TOK_VOID) { value.int_val = 0; }
+   : tag(TOK_VOID) { value.int_vals[0] = 0; }
 
    /// copy constructor
    Token(const Token & other);
 
    /// Construct a token without a value
    Token(TokenTag tg)
-   : tag(tg) { Assert(get_ValueType() == TV_NONE);   value.int_val = 0; }
+   : tag(tg) { Assert(get_ValueType() == TV_NONE);   value.int_vals[0] = 0; }
 
    /// Construct a token for a \b Function.
    Token(TokenTag tg, Function * fun)
@@ -68,7 +68,7 @@ public:
 
    /// Construct a token for an \b error code
    Token(TokenTag tg, ErrorCode ec)
-   : tag(tg) { Assert(tg == TOK_ERROR);   value.int_val = ec; }
+   : tag(tg) { Assert(tg == TOK_ERROR);   value.int_vals[0] = ec; }
 
    /// Construct a token for a \b Symbol
    Token(TokenTag tg, Symbol * sp)
@@ -83,18 +83,18 @@ public:
 
    /// Construct a token for a single integer value.
    Token(TokenTag tg, int64_t ival)
-   : tag(tg) { value.int_val = ival; }
+   : tag(tg) { value.int_vals[0] = ival; }
 
    /// Construct a token for a single floating point value.
    Token(TokenTag tg, double flt)
-   : tag(tg) { value.flt_val = flt; }
+   : tag(tg) { value.float_vals[0] = flt; }
 
    /// Construct a token for a single complex value.
    Token(TokenTag tg, double r, double i)
    : tag(tg)
      {
-       value.complex_val.real = r;
-       value.complex_val.imag = i;
+       value.float_vals[0] = r;
+       value.float_vals[1] = i;
      }
 
    /// Construct a token for an APL value.
@@ -130,29 +130,37 @@ public:
 
    /// return the integer value of this token
    int64_t get_int_val() const
-      { Assert(get_ValueType() == TV_INT);   return value.int_val; }
+      { Assert(get_ValueType() == TV_INT);   return value.int_vals[0]; }
+
+   /// return the second integer value of this token
+   int64_t get_int_val2() const
+      { return value.int_vals[1]; }
 
    /// return the error code value of this token
    ErrorCode get_ErrorCode() const
       { Assert1(get_tag() == TOK_ERROR);
         Assert1(get_ValueType() == TV_INT);
-        return (ErrorCode)(value.int_val); }
+        return (ErrorCode)(value.int_vals[0]); }
 
    /// set the integer value of this token
    void set_int_val(int64_t val)
-      { Assert(get_ValueType() == TV_INT);   value.int_val = val; }
+      { Assert(get_ValueType() == TV_INT);   value.int_vals[0] = val; }
+
+   /// set the second integer value of this token
+   void set_int_val2(int64_t val)
+      { value.int_vals[1] = val; }
 
    /// return the float value of this token
    APL_Float get_flt_val() const
-      { Assert(get_ValueType() == TV_FLT);   return value.flt_val; }
+      { Assert(get_ValueType() == TV_FLT);   return value.float_vals[0]; }
 
    /// return the complex real value of this token
    double get_cpx_real() const
-      { Assert(get_ValueType() == TV_CPX);   return value.complex_val.real; }
+      { Assert(get_ValueType() == TV_CPX);   return value.float_vals[0]; }
 
    /// return the complex imag value of this token
    double get_cpx_imag() const
-      { Assert(get_ValueType() == TV_CPX);   return value.complex_val.imag; }
+      { Assert(get_ValueType() == TV_CPX);   return value.float_vals[1]; }
 
    /// return the Symbol * value of this token
    Symbol * get_sym_ptr() const
@@ -256,22 +264,14 @@ public:
    /// the optional value of the token.
    union sval
       {
-        ///< a complex number (for TV_CPX)
-        struct cdouble
-           {
-              APL_Float real;   ///< the real part
-              APL_Float imag;   ///< the imaginary part
-           };
-
-        Unicode                char_val;      ///< the Unicode for CTV_CHARTV_
-        int64_t                int_val;       ///< the integer for TV_INT
-        APL_Float              flt_val;       ///< the double for TV_FLT
-        cdouble                complex_val;   ///< complex number for TV_CPX
-        Symbol               * sym_ptr;        ///< the symbol for TV_SYM
-        Function_Line          fun_line;      ///< the function line for TV_LIN
-        IndexExpr            * index_val;     ///< the index for TV_INDEX
-        Function             * function;      ///< the function for TV_FUN
-        VALUE_P(               apl_val)       ///< the value for TV_VAL
+        Unicode         char_val;        ///< the Unicode for CTV_CHARTV_
+        int64_t         int_vals[2];     ///< the integer for TV_INT
+        APL_Float       float_vals[2];   ///< the doubles for TV_FLT and TV_CPX
+        Symbol        * sym_ptr;         ///< the symbol for TV_SYM
+        Function_Line   fun_line;        ///< the function line for TV_LIN
+        IndexExpr     * index_val;       ///< the index for TV_INDEX
+        Function      * function;        ///< the function for TV_FUN
+        VALUE_P(        apl_val)         ///< the value for TV_VAL
       };
 
    /// the name of \b tc

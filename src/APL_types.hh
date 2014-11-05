@@ -491,19 +491,33 @@ inline void
 copy_1(char & dst, char src, const char * loc)
 {
    dst = src;
-
 }
+//-----------------------------------------------------------------------------
 inline void
 copy_1(unsigned char & dst, unsigned char src, const char * loc)
 {
    dst = src;
 }
-
+//-----------------------------------------------------------------------------
 inline void
 copy_1(Unicode & dst, Unicode src, const char * loc)
 {
   dst = src;
 }
+//-----------------------------------------------------------------------------
+inline void
+copy_1(ShapeItem & dst, ShapeItem src, const char * loc)
+{
+  dst = src;
+}
+//-----------------------------------------------------------------------------
+class Token_string;
+inline void
+copy_1(Token_string * & dst, Token_string * src, const char * loc)
+{
+  dst = src;
+}
+//-----------------------------------------------------------------------------
 
 class Token;
 void copy_1(Token & dst, const Token & src, const char * loc);

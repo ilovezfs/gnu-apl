@@ -1,3 +1,3 @@
 #include "Common.hh"
-#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION " / 8882", "2014-11-01 15:28:48 UTC", "Linux 3.11-2-amd64 x86_64", "'--enable-maintainer-mode' 'VALUE_CHECK_WANTED=no' 'VALUE_HISTORY_WANTED=no' 'PERFORMANCE_COUNTERS_WANTED=yes' 'DYNAMIC_LOG_WANTED=yes' 'ASSERT_LEVEL_WANTED=0' 'CORE_COUNT_WANTED=-3'"
-#define ARCHIVE_SVN  8798
+#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION " / 8899", "2014-11-05 13:48:33 UTC", "Linux 3.11-2-amd64 x86_64", "'--host=x86_64-pc-linux-gnu' '--build=x86_64-pc-linux-gnu' '--program-prefix=' '--disable-dependency-tracking' '--prefix=/usr' '--exec-prefix=/usr' '--bindir=/usr/bin' '--sbindir=/usr/sbin' '--sysconfdir=/etc' '--datadir=/usr/share' '--includedir=/usr/include' '--libdir=/usr/lib64' '--libexecdir=/usr/lib/x86_64-linux-gnu' '--localstatedir=/var' '--sharedstatedir=/usr/com' '--mandir=/usr/share/man' '--infodir=/usr/share/info' 'build_alias=x86_64-pc-linux-gnu' 'host_alias=x86_64-pc-linux-gnu' 'CFLAGS=-O2 -g' 'CXXFLAGS=-O2 -g'"
+#define ARCHIVE_SVN  8896

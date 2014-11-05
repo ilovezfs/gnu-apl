@@ -10,7 +10,7 @@ struct termios orig_tios;
 int
 main(int argc, char *argv[])
 {
-   printf("\nhit keys, ESC to quit...\n\n");
+   printf("\nhit keys, ^C to quit...\n\n");
 
 struct termios new_tios;
    tcgetattr(STDIN_FILENO, &orig_tios);
@@ -19,7 +19,7 @@ struct termios new_tios;
    new_tios.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
                            | INLCR | IGNCR | ICRNL | IXON);
    new_tios.c_oflag &= ~OPOST;
-   new_tios.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+   new_tios.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN);
    new_tios.c_cflag &= ~(CSIZE | PARENB);
    new_tios.c_cflag |= CS8;
 
@@ -34,7 +34,7 @@ struct termios new_tios;
          const ssize_t len1 = read(STDIN_FILENO, buffer, 1);
          if (len1 < 1)   break;
 
-         if (buffer[0] == 27)   break;
+//       if (buffer[0] == 27)   break;
          int buflen = 1;
 
          // read subsequent chars with timeout

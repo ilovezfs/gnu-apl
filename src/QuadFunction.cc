@@ -1011,8 +1011,11 @@ const UCS_string statement_B(*B.get());
 
    if (fun == 0)   // ExecuteList::fix() failed
       {
-        // syntax error in B: try to fix A...
+        // syntax error in B: try to fix A. This will reset ⎕EM and ⎕ET even
+        // though we whould keep them (lrm p. 178). Therefore we save the error
+        // info from fixing B
         //
+        const Error error_B = *Workspace::get_error();
         try
            {
              const UCS_string statement_A(*A.get());
@@ -1022,15 +1025,14 @@ const UCS_string statement_B(*B.get());
            {
            }
 
-        if (fun == 0)   // syntax error in A and B: give up.
-        //
-        SYNTAX_ERROR;
+        if (fun == 0)   SYNTAX_ERROR;   // syntax error in A and B: give up.
 
         // A could be fixed: execute it.
         //
         Log(LOG_UserFunction__execute)   fun->print(CERR);
 
         Workspace::push_SI(fun, LOC);
+        *Workspace::get_error() = error_B;
         Workspace::SI_top()->set_safe_execution(true);
 
         // install end of context handler. The handler will do nothing when
@@ -1082,8 +1084,8 @@ StateIndicator * si = Workspace::SI_top();
 
    // in A ⎕EA B, ⍎B has failed...
    //
-   // "⎕EM and ⎕ET are set, execution of B is abandoned without an error
-   // message, and the expression represented by A is executed."
+   // lrm p. 178: "⎕EM and ⎕ET are set, execution of B is abandoned without
+   // an error message, and the expression represented by A is executed."
    //
 Value_P A = arg.A;
 Value_P B = arg.B;
