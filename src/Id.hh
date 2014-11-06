@@ -52,6 +52,7 @@ public:
 #define pp(i, _u, v)          i v,
 #define qf(i, _u, v) Quad_ ## i v,
 #define qv(i, _u, v) Quad_ ## i v,
+#define sf(i, _u, v)          i v,
 #define st(i, _u, v)          i v,
 
    #include "Id.def"

@@ -183,6 +183,10 @@ public:
    Value_P get_apl_val() const
       { if (!is_apl_val())   VALUE_ERROR;   return value._apl_val(); }
 
+   /// return the address of the Value_P value of this token.
+   Value_P * get_apl_valp() const
+      { if (!is_apl_val())   VALUE_ERROR;   return &value._apl_val(); }
+
    /// return the Value * of this token, or 0 for non-value token
    Value * get_apl_val_pointer() const
       { return is_apl_val() ? value._apl_val().get() : 0; }

@@ -90,7 +90,6 @@ public:
    bool operator!() const
       { return value_p == 0; }
 
-
    /// return true if this Value_P points to the same Value as \b other
    bool operator ==(const Value_P & other) const
       { return value_p == other.value_p; }

@@ -447,8 +447,8 @@ Token * tok_R = current_stack.locate_R();
 Value_P
 StateIndicator::get_X()
 {
-Token * tok_X = current_stack.locate_X();
-   if (tok_X)   return tok_X->get_apl_val();
+Value_P * X = current_stack.locate_X();
+   if (X)   return *X;
    return Value_P();
 }
 //-----------------------------------------------------------------------------
@@ -475,11 +475,8 @@ Value_P old_value = tok_R->get_apl_val();   // so that
 void
 StateIndicator::set_X(Value_P new_value)
 {
-Token * tok_X = current_stack.locate_X();
-   if (tok_X == 0)   return;
-
-Value_P old_value = tok_X->get_apl_val();   // so that 
-   move_2(*tok_X, Token(tok_X->get_tag(), new_value), LOC);
+Value_P * X = current_stack.locate_X();
+   if (X)   *X = new_value;
 }
 //-----------------------------------------------------------------------------
 Function_Line

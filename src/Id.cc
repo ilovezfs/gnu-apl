@@ -19,9 +19,20 @@
 */
 
 #include "Avec.hh"
+#include "Bif_F12_FORMAT.hh"
+#include "Bif_F12_SORT.hh"
+#include "Bif_OPER1_COMMUTE.hh"
+#include "Bif_OPER1_EACH.hh"
+#include "Bif_OPER1_REDUCE.hh"
+#include "Bif_OPER1_SCAN.hh"
+#include "Bif_OPER2_INNER.hh"
+#include "Bif_OPER2_OUTER.hh"
+#include "Bif_OPER2_POWER.hh"
+#include "Bif_OPER2_RANK.hh"
 #include "Common.hh"
 #include "Id.hh"
 #include "Output.hh"
+#include "PrimitiveFunction.hh"
 #include "PrintOperator.hh"
 #include "QuadFunction.hh"
 #include "Quad_FX.hh"
@@ -40,6 +51,7 @@ ID::name(ID::Id id)
 #define pp(i, _u, _v) case i:          return #i;
 #define qf(i,  u, _v)  case Quad_ ## i: return u;
 #define qv(i,  u, _v)  case Quad_ ## i: return u;
+#define sf(i,  u, _v)  case i:          return u;
 #define st(i,  u, _v)  case i:          return u;
 
 #include "Id.def"
@@ -64,7 +76,8 @@ ID::get_system_function(ID::Id id)
 #define pp(i, _u, _v)
 #define qf(i, _u, _v) case ID::Quad_ ## i: return &Quad_ ## i::fun;
 #define qv(i, _u, _v)
-#define st(i, _u, _v) 
+#define sf(i, _u, _v) case ID:: i:        return &Bif_ ## i::fun;
+#define st(i, _u, _v)
 
 #include "Id.def"
 
@@ -83,6 +96,7 @@ ID::get_system_variable(ID::Id id)
 #define qf(_i, _u, _v)
 #define qv( i, _u, _v)   case ID::Quad_ ## i: \
                               return &Workspace::get_v_Quad_ ## i();
+#define sf(_i, _u, _v) 
 #define st(_i, _u, _v) 
 
 #include "Id.def"

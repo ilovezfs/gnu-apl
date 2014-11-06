@@ -106,7 +106,7 @@ public:
    Token * locate_L();
 
    /// return the axis argument of a failed primitive function (if any)
-   Token * locate_X();
+   Value_P * locate_X();
 
    /// return the right argument of a failed primitive function (if any)
    Token * locate_R();

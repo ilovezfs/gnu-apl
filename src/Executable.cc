@@ -494,45 +494,142 @@ Executable::setup_lambdas()
          //
          if (body[b].get_tag() != TOK_R_CURLY)   continue;   // not {
 
-         // a named lambda has the form Q←{ ... }
-         //
-         // however, eg. Q←{ ... } / ... is not a named lambda but an unnamed
-         // lambda for / whose result is assigned to Q. We need to distinguish
-         // the two cases and remember if the token after } is the end of
-         // the statement or not.
-         //
-         const bool maybe_named = b == 0 || (body[b-1].get_tag() == TOK_DIAMOND
-                                         || body[b-1].get_tag() == TOK_END
-                                         || body[b-1].get_tag() == TOK_ENDL);
+         b = setup_one_lambda(b);
+       }
 
-         body[b++].clear(LOC);   // invalidate }
-         Token_string rev_lambda_body;
+   Parser::remove_void_token(body);
+   Parser::match_par_bra(body, true);
+}
+//-----------------------------------------------------------------------------
+ShapeItem
+Executable::setup_one_lambda(ShapeItem b)
+{
+const ShapeItem bend = b + body[b].get_int_val2();
+   Assert(bend < body.size());
+   Assert(body[bend].get_tag() == TOK_L_CURLY);
 
-         int signature = SIG_NONE;
-         int body_nesting = 1;   /// the TOK_R_CURLY above
+   // a named lambda has the form Q←{ ... }
+   //
+   // however, eg. Q←{ ... } / ... is not a named lambda but an unnamed
+   // lambda for / whose result is assigned to Q. We need to distinguish
+   // the two cases and remember if the token after } is the end of
+   // the statement or not.
+   //
+const bool maybe_named = (b == 0)
+                      ||  body[b - 1].get_tag() == TOK_DIAMOND
+                      ||  body[b - 1].get_tag() == TOK_END
+                      ||  body[b - 1].get_tag() == TOK_ENDL;
 
-         for (bool goon = true; goon;)
-             {
-               if (b >= body.size())   SYNTAX_ERROR;
+   body[b++].clear(LOC);    // invalidate }
+   body[bend].clear(LOC);   // invalidate {
+
+const bool is_named = maybe_named && 
+       (bend + 2) < body.size()               &&
+       body[bend + 1].get_tag() == TOK_ASSIGN &&
+       body[bend + 2].get_tag() == TOK_LSYMB;
+
+Token_string rev_lambda_body;
+
+const Fun_signature signature =
+      compute_lambda_signature(rev_lambda_body, b, bend, is_named);
+
+Token_string forw_lambda_body;
+   if (signature & SIG_Z)
+      {
+        Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
+        forw_lambda_body.append(ret_lambda, LOC);
+
+        const int64_t tr = 0;
+        forw_lambda_body.append(Token(TOK_ENDL, tr));
+
+        Symbol * sym_Z = &Workspace::get_v_LAMBDA();
+        forw_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
+        forw_lambda_body.append(Token(TOK_ASSIGN), LOC);
+
+        const ShapeItem body_len = rev_lambda_body.size();
+        loop(r, body_len)
+            forw_lambda_body.append(rev_lambda_body[body_len - r - 1]);
+      }
+   else
+      {
+        Token ret_void(TOK_RETURN_VOID);
+        forw_lambda_body.append(ret_void, LOC);
+      }
+
+   // at this point { ... } was copied from body to forw_lambda_body and
+   // bend is at the (now invalidated) { token.
+   // check if lambda is named, i.e. Name ← { ... }
+   //
+UCS_string lambda_name;
+Symbol * lambda_sym = 0;
+   if (is_named)   // named lambda
+      {
+        lambda_sym = body[bend + 2].get_sym_ptr();
+        lambda_name = lambda_sym->get_name();
+      }
+   else            // unnamed lambda
+      {
+        lambda_name.append(UNI_LAMBDA);
+        lambda_name.append_number(unnamed_lambdas.size() + 1);
+      }
+
+const UCS_string lambda_text = extract_lambda_text(signature);
+
+UserFunction * ufun = new UserFunction(signature, lambda_name,
+                                       lambda_text, forw_lambda_body);
+
+   if (signature & SIG_FUN)   // named lambda
+      {
+        named_lambdas.push_back(ufun);
+
+        // put a token for the lambda at thr place where the { was.
+        // That means we replasce (in forward notation) e.g.:
+        //
+        // A←{ ... }   by:
+        // A←UFUN      UFUN being a user-defined function with body { ... }
+        //
+        // This is to bind UFUN to A when A←UFUN is executed
+        //
+        move_2(body[bend], ufun->get_token(), LOC);
+
+        // UserFunction::UserFunction has bound the lambda body to
+        // the lambda name. However, we want that to happen when
+        // V←{ ...} is executed, not now. We therefore unbind it here
+        //
+        lambda_sym->set_nc(NC_UNUSED_USER_NAME, 0);
+      }
+   else                       // unnamed lambda
+      {
+        unnamed_lambdas.push_back(ufun);
+        move_2(body[bend], ufun->get_token(), LOC);
+      }
+
+   return bend + 1;
+}
+//-----------------------------------------------------------------------------
+Fun_signature
+Executable::compute_lambda_signature(Token_string & rev_lambda_body,
+                                     ShapeItem b, ShapeItem bend,
+                                     bool is_named)
+{
+int signature = is_named ? SIG_FUN : SIG_NONE;
+
+   for (; b < bend; ++b)
+       {
                Token t;
                move_1(t, body[b], LOC);
                body[b].clear(LOC);   // invalidate in main body
 
                // figure the signature by looking for ⍺, ⍶, ⍵, ⍹, and χ
-               // and compain about ◊ and →
+               // and complain about ◊ and →
                switch(t.get_tag())
                   {
-                    case TOK_L_CURLY:
-                         if (body_nesting == 1)  { goon = false;     continue; }
-                         else                    { --body_nesting;   break;    }
-
                     case TOK_ALPHA:    signature |= SIG_A;    /* no break */
                     case TOK_OMEGA:    signature |= SIG_B;    break;
                     case TOK_CHI:      signature |= SIG_X;    break;
                     case TOK_OMEGA_U:  signature |= SIG_RO;   /* no break */
                     case TOK_ALPHA_U:  signature |= SIG_LO;   break;
 
-                    case TOK_R_CURLY:  ++body_nesting;        break;
                     case TOK_DIAMOND:  DEFN_ERROR;
                     case TOK_BRANCH:   DEFN_ERROR;
                     case TOK_ESCAPE:   DEFN_ERROR;
@@ -541,92 +638,20 @@ Executable::setup_lambdas()
                   }
 
                rev_lambda_body.append(t, LOC);
-               ++b;
-             }
-
-         // if the lambda is { } then we can't assign anything to λ
-         // and make the lambda result-less.
-         //
-         if (rev_lambda_body.size())   signature |= SIG_Z;
-
-         Token_string forw_lambda_body;
-         if (signature & SIG_Z)
-              {
-                Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
-                forw_lambda_body.append(ret_lambda, LOC);
-
-                const int64_t tr = 0;
-                forw_lambda_body.append(Token(TOK_ENDL, tr));
-
-                Symbol * sym_Z = &Workspace::get_v_LAMBDA();
-                forw_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
-                forw_lambda_body.append(Token(TOK_ASSIGN), LOC);
-
-                const ShapeItem body_len = rev_lambda_body.size();
-                loop(r, body_len)
-                    forw_lambda_body.append(
-                                    rev_lambda_body[body_len - r - 1]);
-              }
-           else
-              {
-                Token ret_void(TOK_RETURN_VOID);
-                forw_lambda_body.append(ret_void, LOC);
-              }
-
-         // at this point {} was copied from body to forw_lambda_body and
-         // b is at the (now invalidated) { token.
-         // check if lambda is named, i.e. Name ← { ... }
-         //
-         UCS_string lambda_name;
-         Symbol * lambda_sym = 0;
-         if (   maybe_named && (b + 2) < body.size()
-             && body[b + 1].get_tag() == TOK_ASSIGN
-             && body[b + 2].get_tag() == TOK_LSYMB)
-            {
-              // named lambda
-              //
-              lambda_sym = body[b + 2].get_sym_ptr();
-              lambda_name = lambda_sym->get_name();
-              signature |= SIG_FUN;
-            }
-         else
-            {
-              lambda_name.append(UNI_LAMBDA);
-              lambda_name.append_number(unnamed_lambdas.size() + 1);
-            }
-
-         const UCS_string lambda_text = extract_lambda_text(
-                                (Fun_signature)signature,
-                                unnamed_lambdas.size() + named_lambdas.size());
-
-         UserFunction * ufun = new UserFunction(Fun_signature(signature),
-                                                lambda_name, lambda_text,
-                                                forw_lambda_body);
-
-         if (signature & SIG_FUN)   // named lambda
-            {
-              named_lambdas.push_back(ufun);
-              move_2(body[b], ufun->get_token(), LOC);
-
-              // UserFunction::UserFunction has bound the lambda body to
-              // the lambda name. However, we want that to happen when
-              // V←{ ...} is executed, not now. We therefore unbind it here
-              //
-              lambda_sym->set_nc(NC_UNUSED_USER_NAME, 0);
-            }
-         else                       // unnamed lambda
-            {
-              unnamed_lambdas.push_back(ufun);
-              move_2(body[b], ufun->get_token(), LOC);
-            }
        }
 
-   Parser::remove_void_token(body);
+   // if the lambda is { } then we can't assign anything to λ
+   // and make the lambda result-less.
+   //
+   if (rev_lambda_body.size())   signature |= SIG_Z;
+
+   return (Fun_signature)signature;
 }
 //-----------------------------------------------------------------------------
 UCS_string
-Executable::extract_lambda_text(Fun_signature signature, int skip) const
+Executable::extract_lambda_text(Fun_signature signature) const
 {
+int skip = unnamed_lambdas.size() + named_lambdas.size();
 UCS_string lambda_text;
    if (signature & SIG_Z)   lambda_text.append_utf8("λ←");
 
