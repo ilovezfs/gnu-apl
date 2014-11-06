@@ -548,7 +548,7 @@ Simple_string<ShapeItem> stack;
          TokenClass tc_peer;
          switch(tos[t].get_Class())
            {
-             case TC_L_BRACK:
+             case TC_L_BRACK: if (tos[t].get_tag() != TOK_L_BRACK)   continue;
              case TC_L_PARENT:
              case TC_L_CURLY: stack.append(t);
                               continue;
