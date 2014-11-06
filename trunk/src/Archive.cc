@@ -1977,6 +1977,7 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                   {
                     const int fun_id = find_int_attr("fun-id", false, 16);
                     Function * sysfun = ID::get_system_function(ID::Id(fun_id));
+                    Assert1(sysfun);
                     new (&tloc.tok) Token(tag, sysfun);
                   }
                else

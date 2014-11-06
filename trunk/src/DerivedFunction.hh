@@ -68,13 +68,18 @@ protected:
    /// overloaded Function::eval_AB();
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   /// overloaded Function::eval_AXB();
+   /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    virtual bool may_push_SI() const
       { return   oper->may_push_SI()
         || (left_fun .is_function() && left_fun .get_function()->may_push_SI())
-        || (right_fun.is_function() && right_fun.get_function()->may_push_SI()); }
+        || (right_fun.is_function() && right_fun.get_function()->may_push_SI());
+      }
+
+   /// overloaded Function::locate_X()
+   virtual Value_P * locate_X()
+      { return (!axis) ? 0 : &axis; }
 
    /// the function (to the left of the operator)
    Token left_fun;

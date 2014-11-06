@@ -604,7 +604,7 @@ Token * Prefix::locate_L()
    return 0;
 }
 //-----------------------------------------------------------------------------
-Token *
+Value_P *
 Prefix::locate_X()
 {
    // expect at least B X (so we have at0() and at1() and at2()
@@ -614,11 +614,20 @@ Prefix::locate_X()
    // either at0() (for monadic f X B) or at1() (for dyadic A f X B) must
    // be a function or operator
    //
-   for (int x = put - 2; x >= put - prefix_len; --x)
+   for (int x = put - 1; x >= put - prefix_len; --x)
        {
-         if (content[x].tok.get_Class() == TC_INDEX)   // found X
+         if (content[x].tok.get_ValueType() == TV_FUN)
             {
-              return &content[x].tok;
+              Function * fun = content[x].tok.get_function();
+              if (fun)
+                 {
+                   Value_P * X = fun->locate_X();
+                   if (X)   return  X;   // only for derived function
+                 }
+            }
+         else if (content[x].tok.get_Class() == TC_INDEX)   // maybe found X ?
+            {
+              return content[x].tok.get_apl_valp();
             }
        }
 
@@ -673,7 +682,7 @@ Prefix::reduce_LPAR_B_RPAR_()
 {
    Assert1(prefix_len == 3);
 
-Token result = at1();   // B
+Token result = at1();   // B or F
    if (result.get_tag() == TOK_APL_VALUE3)   result.ChangeTag(TOK_APL_VALUE1);
    pop_args_push_result(result);
    set_action(result);
@@ -683,6 +692,23 @@ void
 Prefix::reduce_LPAR_F_RPAR_()
 {
    reduce_LPAR_B_RPAR_();   // same as ( B )
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::reduce_LPAR_F_C_RPAR()
+{
+   Assert1(prefix_len == 4);
+
+   // C should be an axis and not a [;;] index
+   //
+   if (at2().get_ValueType() != TV_VAL)   SYNTAX_ERROR;
+   if (!at2().get_apl_val())              SYNTAX_ERROR;
+
+   move_1(at3(), at2(), LOC);
+   move_1(at2(), at1(), LOC);
+   pop();    // pop C
+   pop();    // pop RPAR
+   action = RA_CONTINUE;
 }
 //-----------------------------------------------------------------------------
 void
@@ -831,6 +857,18 @@ Prefix::reduce_F_M__()
 DerivedFunction * derived =
    Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(), LOC);
+
+   pop_args_push_result(Token(TOK_FUN2, derived));
+   action = RA_CONTINUE;
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::reduce_F_M_C_()
+{
+DerivedFunction * derived =
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (derived) DerivedFunction(at0(), at1().get_function(),
+                                 at2().get_axes(), LOC);
 
    pop_args_push_result(Token(TOK_FUN2, derived));
    action = RA_CONTINUE;

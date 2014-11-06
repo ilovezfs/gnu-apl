@@ -130,11 +130,20 @@ public:
       { return alloc_loc; }
 
 protected:
-   /// extract lambda expressions from body and store them in lambdas
+   /// extract all lambda expressions from body and store them in lambdas
    void setup_lambdas();
 
+   /// extract one lambda expressions from body and store it in lambdas
+   ShapeItem setup_one_lambda(ShapeItem b);
+
+   /// compute the lambda signature from body[b ... bend]. Store the lambda's
+   /// body in rev_lambda_body and clear it in \b this body
+   Fun_signature compute_lambda_signature(Token_string & rev_lambda_body,
+                                          ShapeItem b, ShapeItem bend,
+                                          bool is_named);
+
    /// extract the skip'th { ... } from the function text
-   UCS_string extract_lambda_text(Fun_signature signature, int skip) const;
+   UCS_string extract_lambda_text(Fun_signature signature) const;
 
    /// where this SI entry was allocated
    const char * alloc_loc;

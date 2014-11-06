@@ -220,6 +220,10 @@ public:
    virtual UCS_string canonical(bool with_lines) const
       { NeverReach("Function::canonical() called"); }
 
+   /// return axis (non-0 only for derived functions)
+   virtual Value_P * locate_X()
+      { return 0; }
+
    /// return the signature of this function (currently only valid
    /// for user-defined functions)
    Fun_signature get_signature() const;
