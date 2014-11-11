@@ -1670,7 +1670,6 @@ bool no_copy = is_protected || (have_allowed_objects && !is_selected);
 
    // in a )COPY without dedicated objects only
    // ⎕CT, ⎕FC, ⎕IO, ⎕LX, ⎕PP, ⎕PR, and ⎕RL shall be copied
-   // shall be copied.
    //
    if (!have_allowed_objects       &&   // no dedicated object list
         copying                    &&   // )COPY
@@ -1688,6 +1687,18 @@ bool no_copy = is_protected || (have_allowed_objects && !is_selected);
       {
         Log(LOG_archive)   CERR << name_ucs << " not copied at " << LOC << endl;
         no_copy = true;
+      }
+
+   // in a )LOAD silentlr ignore ⎕TZ
+   //
+   if (!copying                    &&   // )LOAD
+        Avec::is_quad(name_ucs[0]) &&   // ⎕xx
+        name_ucs.size() == 3       &&
+        ( name_ucs[1] == 'T' && name_ucs[2] == 'Z' )
+        )
+      {
+        skip_to_tag("/Symbol");
+        return;
       }
 
    if (copying)

@@ -237,36 +237,20 @@ Prefix::value_expected()
    //
    if (saved_lookahead.tok.get_ValueType() == TV_INDEX)   return true;
 
-int brack_count = 0;
    for (int pc = PC; pc < body.size();)
       {
         const Token & tok = body[pc++];
         switch(tok.get_Class())
            {
-               case TC_R_BRACK:  // skip to opening [
+               case TC_R_BRACK:   // skip over [...] (func axis or value index)
                     //
-                    brack_count = 1;   // this [...]
-                    for (;pc < body.size(); ++pc)
-                        {
-                          if (body[pc].get_Class() == TC_R_BRACK)   // another ]
-                             {
-                               ++brack_count;
-                             }
-                          else if (body[pc].get_Class() == TC_L_BRACK)
-                             {
-                               --brack_count;
-                               if (brack_count == 0)   break;
-                               ++pc;
-                               continue;   // inner for (.,,)
-                             }
-                        }
-                    ++pc;
-                    continue;   // outer for (.,,)
+                    pc += tok.get_int_val2();
+                    continue;
 
-               case TC_END:      goto done;
+               case TC_END:     return false;   // syntax error
 
-               case TC_FUN0:   return true;   // niladic function is a value
-               case TC_FUN12:  return false;  // function
+               case TC_FUN0:    return true;   // niladic function is a value
+               case TC_FUN12:   return false;  // function
 
                case TC_SYMBOL:
                     {
@@ -278,18 +262,15 @@ int brack_count = 0;
                       return true;   // value
                     }
              
-               case TC_RETURN:   goto done;
+               case TC_RETURN:  return false;   // syntax error
                case TC_VALUE:   return true;
 
                default: continue;
            }
-
-         break;  // for (;;)
       }
 
    // this is a syntax error.
    //
-done:
    return false;
 }
 //-----------------------------------------------------------------------------
@@ -869,18 +850,6 @@ DerivedFunction * derived =
    Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(),
                                  at2().get_axes(), LOC);
-
-   pop_args_push_result(Token(TOK_FUN2, derived));
-   action = RA_CONTINUE;
-}
-//-----------------------------------------------------------------------------
-void
-Prefix::reduce_F_C_M_()
-{
-DerivedFunction * derived =
-   Workspace::SI_top()->fun_oper_cache.get(LOC);
-   new (derived) DerivedFunction(at0(), at2().get_function(),
-                                 at1().get_axes(), LOC);
 
    pop_args_push_result(Token(TOK_FUN2, derived));
    action = RA_CONTINUE;

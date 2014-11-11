@@ -980,8 +980,7 @@ Quad_TZ::compute_offset()
    // that localtime() and gmtime() are more portable.
    // 
 
-   // choose a reference point in time that is the same month in all time zones.
-   // we use Monday Jan 2014 in the afternoon
+   // choose a reference point in time.
    //
 const time_t ref = now()/1000000;
 

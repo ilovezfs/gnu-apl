@@ -485,41 +485,42 @@ Parser::degrade_scan_reduce(Token_string & tos)
 bool
 Parser::check_if_value(const Token_string & tos, int pos)
 {
-   // figure if token at pos is the end of a function (and then return false)
-   // or the end of a value (and then return true).
+   // figure if tos[pos] (the token left og /. ⌿. \. or ⍀ is the end of a
+   // function (and then return false) or the end of a value (and then
+   // return true).
    //
    switch(tos[pos].get_Class())
       {
-        case TC_ASSIGN:
-        case TC_R_ARROW:
-        case TC_L_BRACK:
-        case TC_END:
-        case TC_L_PARENT:
-        case TC_VALUE:
-        case TC_RETURN:
-             return true;
+        case TC_ASSIGN:     // e.g. ←/       (actually syntax error)
+        case TC_R_ARROW:    // e.g. →/       (actually syntax error)
+        case TC_L_BRACK:    // e.g. [/       (actually syntax error)
+        case TC_END:        // e.g.  /       (actually syntax error)
+        case TC_L_PARENT:   // e.g. (/       (actually syntax error)
+        case TC_VALUE:      // e.g. 5/
+        case TC_RETURN:     // e.g.  /       (actually syntax error)
+             return true;   // tos[pos] is at the end of a value
 
-        case TC_R_BRACK:
+        case TC_R_BRACK:    // e.g. +[1]/2 or 2/[1]2
              {
                const int pos1 = find_opening_bracket(tos, pos);
                if (pos1 == 0)   return true;   // this is a syntax error
                return check_if_value(tos, pos1 - 1);
              }
 
-        case TC_R_PARENT:
+        case TC_R_PARENT:   // e.g. (2+3)/2 or 1 2 3 (2+3)/2
              {
                const int pos1 = find_opening_parent(tos, pos);
                if (pos1 == 0)   return true;
                return check_if_value(tos, pos1 - 1);
              }
 
-        case TC_SYMBOL:
+        case TC_SYMBOL:     // e.g. A/2 of FOO/2
              return (tos[pos].get_tag() == TOK_P_SYMB);   // if value
 
         default: break;
       }
 
-   return false;
+   return false;   // tos[pos] is at the end of a function
 }
 //-----------------------------------------------------------------------------
 void
