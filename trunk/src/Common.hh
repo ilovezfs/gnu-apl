@@ -259,6 +259,7 @@ struct YMDhmsu
    int second;   ///< second 0-59
    int micro;    ///< microseconds 0-999999
 };
+//-----------------------------------------------------------------------------
 
 #ifdef TROUBLESHOOT_NEW_DELETE
 inline void * operator new(size_t size)   { return common_new(size); }

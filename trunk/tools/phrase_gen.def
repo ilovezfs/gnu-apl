@@ -44,7 +44,6 @@ phrase(BS_A_F + 3,       A    , M    , B    ,      )
 phrase(BS_A_F + 4,       A    , M    , C    , B    )
 
 // monadic operator
-phrase(BS_LO_OP + 3,     F    , C    , M    ,      )
 phrase(BS_LO_OP + 2,     F    , M    ,      ,      )
 phrase(BS_LO_OP + 3,     F    , M    , C    ,      )
 
