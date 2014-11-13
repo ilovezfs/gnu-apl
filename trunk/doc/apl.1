@@ -33,17 +33,17 @@ accepts the following command line options:
 .B --cfg
 show ./configure options used and exit.
 .TP
-.B --[n]Color
+.B --[no]Color
 start with ]COLOR ON [OFF].
+.TP
+.B -d
+run the interpreter in the background (i.e. as daemon)
 .TP
 .B --emacs
 run in (old) emacs mode.
 .TP
-.B --emacs
+.B --emacs_arg arg
 run in (new) emacs mode with argument arg.
-.TP
-.B -d
-run the interpreter in the background (i.e. as daemon)
 .TP
 .B -f file
 read input from \fIfile\fP rather than from the keyboard. When the end of
@@ -51,8 +51,17 @@ the file is reached, input is switched back to the keyboard.
 If you want to terminate the APL interpreter after executing the file,
 then use )OFF as last line in the file.
 .TP
-.B -h, --help\
+.B --gpl
+show GNU APL license (GPL) and exit.
+.TP
+.B -h, --help
 print all command line options with a brief hint what they do.
+.TP
+.B -L wsname
+)LOAD wsname on start-up.
+.TP
+.B --LX expr
+execute expr first (like ⎕LX)
 .TP
 .B --id proc
 use processor ID \fIproc\fP for this interpreter. If no ID is provided,
@@ -112,7 +121,7 @@ needed to compile.
 .B --show_all_dirs
 display all the directories above.
 .TP
-.B --silent
+.B -q, --silent
 suppress printing of the GNU APL welcome message. Useful for APL scripts.
 .TP
 .B -T testcases ...

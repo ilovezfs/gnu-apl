@@ -185,16 +185,21 @@ the file is reached, input is switched back to the keyboard.
 If you want to terminate the APL interpreter after executing the file,
 then use )OFF as last line in the file.
 
-
 @item
 @option{--gpl}
 
 show GNU APL license (GPL) and exit.
 
-@option{--LX expr }
+@item
+@option{-L wsname}
+
+)LOAD wsname om start-up.
+
+@item
+@option{--LX expr}
 
 execute expr first. This can be used, for example, to load some library
-ore workspace at start-up.
+or workspace at start-up.
 
 @item
 @option{-h}, @option{--help}
@@ -259,7 +264,7 @@ this option is an abbreviation for:
 which is a typical combination of options for APL scripts.
 
 @item
-@option{--silent}
+@option{-q}, @option{--silent}
 
 suppress printing of the GNU APL welcome message. Useful for scripts.
 

@@ -78,16 +78,17 @@ char cc[4000];
 "    --noCIN              do not echo input(for scripting)\n"
 "    --rawCIN             do not emit escape sequences\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
-"    --noCONT             do not load CONTINUE workspace on startup)\n"
+"    --noCONT             do not )LOAD CONTINUE workspace on startup)\n"
 "    --emacs              run in (classical) emacs mode\n"
 "    --emacs_arg arg      run in emacs mode with argument arg\n"
 "    --gpl                show license (GPL) and exit\n"
+"    -L wsname            )LOAD wsname on startup\n"
 "    --LX expr            execute APL expression expr first\n"
 "    -p N                 use profile N in preferences files\n"
 "    --par proc           use processor parent ID proc (default: no parent)\n"
+"    -q, --silent         do not print the welcome banner\n"
 "    -s, --script         same as --silent --noCIN --noCONT --noColor\n"
 "    --safe               safe mode (no shared vars, no native functions)\n"
-"    --silent             do not show the welcome message\n"
 "    --show_bin_dir       show binary directory and exit\n"
 "    --show_doc_dir       show documentation directory and exit\n"
 "    --show_etc_dir       show system configuration directory and exit\n"
@@ -310,6 +311,19 @@ UserPreferences::parse_argv(bool logit)
               continue;
             }
 
+         if (!strcmp(opt, "-L"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "-L without workspace name" << endl;
+                   exit(a);
+                 }
+
+              initial_workspace = UTF8_string(val);
+              continue;
+            }
+
          if (!strcmp(opt, "--LX"))
             {
               ++a;
@@ -433,6 +447,12 @@ UserPreferences::parse_argv(bool logit)
                    << "libdir: " << Makefile__pkglibdir  << endl
                    << "srcdir: " << Makefile__srcdir     << endl;
               exit(0);
+            }
+
+         if (!strcmp(opt, "-q"))
+            {
+              silent = true;
+              continue;
             }
 
          if (!strcmp(opt, "--silent"))
