@@ -232,27 +232,24 @@ char c2[200];
 
 const char * lines[] =
 {
-  "",
-  "   ______ _   __ __  __    ___     ____   __ ",
-  "  / ____// | / // / / /   /   |   / __ \\ / / ",
-  " / / __ /  |/ // / / /   / /| |  / /_/ // /  ",
-  "/ /_/ // /|  // /_/ /   / ___ | / ____// /___",
-  "\\____//_/ |_/ \\____/   /_/  |_|/_/    /_____/",
-
-
-
-  "",
-  c1,
-  "",
-  "Copyright (C) 2008-2014  Dr. Jürgen Sauermann",
-  "Banner by FIGlet: www.figlet.org",
-  "",
-  "This program comes with ABSOLUTELY NO WARRANTY;",
-  c2,
-  "",
-  "This program is free software, and you are welcome to redistribute it",
-  "according to the GNU Public License (GPL) version 3 or later.",
-  "",
+  ""                                                                      ,
+  "   ______ _   __ __  __    ___     ____   __ "                         ,
+  "  / ____// | / // / / /   /   |   / __ \\ / / "                        ,
+  " / / __ /  |/ // / / /   / /| |  / /_/ // /  "                         ,
+  "/ /_/ // /|  // /_/ /   / ___ | / ____// /___"                         ,
+  "\\____//_/ |_/ \\____/   /_/  |_|/_/    /_____/"                       ,
+  ""                                                                      ,
+  c1                                                                      ,
+  ""                                                                      ,
+  "Copyright (C) 2008-2014  Dr. Jürgen Sauermann"                         ,
+  "Banner by FIGlet: www.figlet.org"                                      ,
+  ""                                                                      ,
+  "This program comes with ABSOLUTELY NO WARRANTY;"                       ,
+  c2                                                                      ,
+  ""                                                                      ,
+  "This program is free software, and you are welcome to redistribute it" ,
+  "according to the GNU Public License (GPL) version 3 or later."         ,
+  ""                                                                      ,
   0
 };
 
@@ -433,9 +430,20 @@ const bool log_startup = uprefs.log_startup_wanted();
 
          if (access(filename.c_str(), F_OK) == 0)
             {
+              // CONTINUE workspace exists and was not inhibited by --noCONT
+              //
               UCS_string load_cmd(")LOAD CONTINUE");
               Command::process_line(load_cmd);
+              return 0;
             }
+      }
+
+   if (uprefs.initial_workspace.size())
+      {
+         UCS_string init_ws(uprefs.initial_workspace);
+         UCS_string load_cmd(")LOAD ");
+         load_cmd.append(init_ws);
+         Command::process_line(load_cmd);
       }
 
    return 0;

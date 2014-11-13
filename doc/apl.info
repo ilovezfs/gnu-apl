@@ -151,10 +151,14 @@ APL understands the following command line options:
 
      show GNU APL license (GPL) and exit.
 
-     ‘--LX expr ’
+   • ‘-L wsname’
+
+     )LOAD wsname om start-up.
+
+   • ‘--LX expr’
 
      execute expr first.  This can be used, for example, to load some
-     library ore workspace at start-up.
+     library or workspace at start-up.
 
    • ‘-h’, ‘--help’
 
@@ -208,7 +212,7 @@ APL understands the following command line options:
      this option is an abbreviation for: ‘--silent’ ‘--noCIN’ ‘--noCONT’
      ‘-f -’ which is a typical combination of options for APL scripts.
 
-   • ‘--silent’
+   • ‘-q’, ‘--silent’
 
      suppress printing of the GNU APL welcome message.  Useful for
      scripts.
@@ -2665,15 +2669,15 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top383
 Node: Chapter 11370
-Node: Chapter 216183
-Node: Chapter 346356
-Node: Chapter 448104
-Node: Chapter 549233
-Node: Section 5.149652
-Node: Section 5.250336
-Node: Chapter 651167
-Node: Section 6.151670
-Node: Section 6.276979
+Node: Chapter 216249
+Node: Chapter 346422
+Node: Chapter 448170
+Node: Chapter 549299
+Node: Section 5.149718
+Node: Section 5.250402
+Node: Chapter 651233
+Node: Section 6.151736
+Node: Section 6.277045
 
 End Tag Table
 

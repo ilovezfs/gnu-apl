@@ -284,15 +284,18 @@ the file is reached, input is switched back to the keyboard.
 If you want to terminate the APL interpreter after executing the file,
 then use )OFF as last line in the file.
 </p>
-
 </li><li> <samp>--gpl</samp>
 
 <p>show GNU APL license (GPL) and exit.
 </p>
-<p><samp>--LX expr </samp>
+</li><li> <samp>-L wsname</samp>
+
+<p>)LOAD wsname om start-up.
 </p>
+</li><li> <samp>--LX expr</samp>
+
 <p>execute expr first. This can be used, for example, to load some library
-ore workspace at start-up.
+or workspace at start-up.
 </p>
 </li><li> <samp>-h</samp>, <samp>--help</samp>
 
@@ -346,7 +349,7 @@ not wanted and can be turned off with this option.
  <samp>--silent</samp> <samp>--noCIN</samp> <samp>--noCONT</samp> <samp>-f -</samp>
 which is a typical combination of options for APL scripts.
 </p>
-</li><li> <samp>--silent</samp>
+</li><li> <samp>-q</samp>, <samp>--silent</samp>
 
 <p>suppress printing of the GNU APL welcome message. Useful for scripts.
 </p>

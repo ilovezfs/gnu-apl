@@ -148,6 +148,9 @@ struct UserPreferences
    /// something to be executed at startup (--LX)
    UTF8_string latent_expression;
 
+   /// a workspace to be loaded at startup
+   UTF8_string initial_workspace;
+
    /// backup on )SAVE
    bool backup_before_save;
 
