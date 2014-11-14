@@ -590,6 +590,16 @@ const int ret = the_workspace.expunged_functions.size();
 void
 Workspace::clear_WS(ostream & out, bool silent)
 {
+   {
+     const StateIndicator * si = SI_top();
+     if (si && si->get_executable()->get_parse_mode() != PM_STATEMENT_LIST)
+        {
+          out << "BAD COMMAND+" << endl;
+          more_error() = UCS_string(")CLEAR not allowed in ⍎");
+          return;
+        }
+   }
+
    // clear the SI (pops all localized symbols)
    //
    clear_SI(out);
@@ -626,6 +636,17 @@ Workspace::clear_WS(ostream & out, bool silent)
 void
 Workspace::clear_SI(ostream & out)
 {
+   {
+     const StateIndicator * si = SI_top();
+     if (si && si->get_executable()->get_parse_mode() == PM_EXECUTE)
+        {
+          out << "BAD COMMAND+" << endl;
+          more_error() = UCS_string(")SIC not allowed in ⍎");
+          return;
+        }
+   }
+
+   // clear the SI (pops all localized symbols)
    while (SI_top())
       {
         SI_top()->escape();
@@ -657,7 +678,7 @@ bool name_from_WSID = false;
       }
    else if (lib_ws.size() > 2)   // too many arguments
       {
-        out << "BAD COMMAND" << endl;
+        out << "BAD COMMAND+" << endl;
         more_error() = UCS_string("too many parameters in command )SAVE");
         return;
       }
@@ -829,7 +850,7 @@ Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws)
       }
    else if (lib_ws.size() > 2)   // too many arguments
       {
-        out << "BAD COMMAND" << endl;
+        out << "BAD COMMAND+" << endl;
         more_error() = UCS_string("too many parameters in command )DUMP");
         return;
       }
@@ -916,10 +937,20 @@ Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws,
 {
    if (lib_ws.size() < 1 || lib_ws.size() > 2)   // no or too many argument(s)
       {
-        out << "BAD COMMAND" << endl;
+        out << "BAD COMMAND+" << endl;
         more_error() = UCS_string("too many parameters in command )LOAD");
         return;
       }
+
+   {
+     const StateIndicator * si = SI_top();
+     if (si && si->get_executable()->get_parse_mode() != PM_STATEMENT_LIST)
+        {
+          out << "BAD COMMAND+" << endl;
+          more_error() = UCS_string(")LOAD not allowed in ⍎");
+          return;
+        }
+   }
 
 LibRef libref = LIB_NONE;
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
@@ -986,7 +1017,7 @@ Workspace::copy_WS(ostream & out, vector<UCS_string> & lib_ws_objects,
 
    if (lib_ws_objects.size() < 1)   // at least workspace name is required
       {
-        out << "BAD COMMAND" << endl;
+        out << "BAD COMMAND+" << endl;
         more_error() = UCS_string(
                        "missing parameter(s) in command )COPY or )PCOPY");
         return;
@@ -1001,7 +1032,7 @@ LibRef libref = LIB_NONE;
 
    if (lib_ws_objects.size() < 1)   // at least workspace name is required
       {
-        out << "BAD COMMAND" << endl;
+        out << "BAD COMMAND+" << endl;
         more_error() = UCS_string(
                        "missing parameter(s) in command )COPY or )PCOPY");
         return;

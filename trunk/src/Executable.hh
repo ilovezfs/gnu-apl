@@ -180,7 +180,8 @@ class ExecuteList : public Executable
 
 public:
    /// compute body token from text \b data
-   static ExecuteList * fix(const UCS_string & data, const char * loc);
+   static ExecuteList * fix(const UCS_string & data, bool is_cmd,
+                            const char * loc);
 
    /// overloaded Executable::get_parse_mode()
    virtual ParseMode get_parse_mode() const
