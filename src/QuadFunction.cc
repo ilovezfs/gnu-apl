@@ -1003,7 +1003,7 @@ const UCS_string statement_B(*B.get());
 
    try
       {
-        fun = ExecuteList::fix(statement_B, LOC);
+        fun = ExecuteList::fix(statement_B, false, LOC);
       }
    catch (...)
       {
@@ -1019,7 +1019,7 @@ const UCS_string statement_B(*B.get());
         try
            {
              const UCS_string statement_A(*A.get());
-             fun = ExecuteList::fix(statement_A, LOC);
+             fun = ExecuteList::fix(statement_A, false, LOC);
            }
        catch (...)
            {
@@ -1094,7 +1094,7 @@ const UCS_string statement_A(*A.get());
 ExecuteList * fun = 0;
    try
       {
-         fun = ExecuteList::fix(statement_A, LOC);
+         fun = ExecuteList::fix(statement_A, false, LOC);
       }
    catch (...)
       {
@@ -1201,7 +1201,7 @@ ExecuteList * fun = 0;
 
    try
       {
-        fun = ExecuteList::fix(statement_B, LOC);
+        fun = ExecuteList::fix(statement_B, false, LOC);
       }
    catch (...)
       {

@@ -705,13 +705,22 @@ int tcol = 0;
 }
 //=============================================================================
 ExecuteList *
-ExecuteList::fix(const UCS_string & data, const char * loc)
+ExecuteList::fix(const UCS_string & data, bool is_cmd, const char * loc)
 {
    // clear errors that may have occured before
    {
      Error * err = Workspace::get_error();
      if (err) err->error_code = E_NO_ERROR;
    }
+
+   if (is_cmd)
+      {
+         UCS_string empty;
+         ExecuteList * fun = new ExecuteList(empty, loc);
+         Assert(fun);
+         fun->text.push_back(data);
+         return fun;
+      }
 
 ExecuteList * fun = new ExecuteList(data, loc);
 

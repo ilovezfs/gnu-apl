@@ -2698,9 +2698,17 @@ Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
        (statement[0] == UNI_ASCII_R_PARENT ||
         statement[0] == UNI_ASCII_R_BRACK))
       {
+        ExecuteList * fun = ExecuteList::fix(statement.no_pad(), true, LOC);
+        Assert(fun);
+        Workspace::push_SI(fun, LOC);
+
         UTF8_ostream out;
         const bool valid = Command::do_APL_command(out, statement);
-        if (!valid)   throw_apl_error(E_INCORRECT_COMMAND, LOC);
+        if (!valid)
+           {
+              Workspace::pop_SI(LOC);
+              throw_apl_error(E_INCORRECT_COMMAND, LOC);
+           }
 
         UTF8_string result_utf8 = out.get_data();
         if (result_utf8.last() != UNI_ASCII_LF)
@@ -2728,10 +2736,11 @@ Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
              new (Z->next_ravel())   PointerCell(ZZ, Z.getref());
            }
 
+        Workspace::pop_SI(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-ExecuteList * fun = ExecuteList::fix(statement.no_pad(), LOC);
+ExecuteList * fun = ExecuteList::fix(statement.no_pad(), false, LOC);
    if (fun == 0)   SYNTAX_ERROR;
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
