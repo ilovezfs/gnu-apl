@@ -912,7 +912,7 @@ int variable_count = 0;
 // )LOAD WS, set ⎕LX of loaded WS on success
 void
 Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws,
-                   UCS_string & quad_lx)
+                   UCS_string & quad_lx, bool silent)
 {
    if (lib_ws.size() < 1 || lib_ws.size() > 2)   // no or too many argument(s)
       {
@@ -932,10 +932,10 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
 
    if (dump_fd != -1)
       {
-        the_workspace.clear_WS(CERR, true);
+        the_workspace.clear_WS(out, true);
 
-        Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
-                                   << filename << "' ..." << endl;
+        Log(LOG_command_IN)   out << "LOADING " << wname << " from file '"
+                                  << filename << "' ..." << endl;
 
         load_DUMP(out, filename, dump_fd, true);   // closes dump_fd
 
@@ -957,19 +957,19 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
       {
         if (!in.is_open())   // open failed
            {
-             CERR << ")LOAD " << wname << " (file " << filename
-                  << ") failed: " << strerror(errno) << endl;
+             out << ")LOAD " << wname << " (file " << filename
+                 << ") failed: " << strerror(errno) << endl;
              return;
            }
 
-        Log(LOG_command_IN)   CERR << "LOADING " << wname << " from file '"
-                                   << filename << "' ..." << endl;
+        Log(LOG_command_IN)   out << "LOADING " << wname << " from file '"
+                                  << filename << "' ..." << endl;
 
         // got open file. We assume that from here on everything will be fine.
         // clear current WS and load it from file
         //
-        the_workspace.clear_WS(CERR, true);
-        in.read_Workspace();
+        the_workspace.clear_WS(out, true);
+        in.read_Workspace(silent);
       }
 
    if (Workspace::get_LX().size())  quad_lx = Workspace::get_LX();
@@ -1033,7 +1033,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
 
    in.set_protection(protection, lib_ws_objects);
    in.read_vids();
-   in.read_Workspace();
+   in.read_Workspace(false);
 }
 //-----------------------------------------------------------------------------
 void

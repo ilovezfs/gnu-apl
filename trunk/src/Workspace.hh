@@ -220,7 +220,7 @@ public:
 
    /// load \b lib_ws into the_workspace, maybe set ⎕LX of the new WS.
    static void load_WS(ostream & out, const vector<UCS_string> & lib_ws,
-                       UCS_string & quad_lx);
+                       UCS_string & quad_lx, bool silent);
 
    /// copy objects from another workspace
    static void copy_WS(ostream & out, vector<UCS_string> & lib_ws,
