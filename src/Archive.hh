@@ -177,7 +177,7 @@ public:
    bool is_open() const   { return fd != -1; }
 
    /// read an entire workspace, throw DOMAIN_ERROR on failure
-   void read_Workspace();
+   void read_Workspace(bool silent);
 
    /// set copying and maybe set protection
    void set_protection(bool prot, const vector<UCS_string> & allowed)

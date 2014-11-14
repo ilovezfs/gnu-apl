@@ -885,7 +885,7 @@ XML_Loading_Archive::read_vids()
 {
    reset();   // skips to <Workspace>
    reading_vids = true;
-   read_Workspace();
+   read_Workspace(true);
    reading_vids = false;
 
    reset();
@@ -1052,7 +1052,7 @@ again:
 }
 //-----------------------------------------------------------------------------
 void
-XML_Loading_Archive::read_Workspace()
+XML_Loading_Archive::read_Workspace(bool silent)
 {
    expect_tag("Workspace", LOC);
 
@@ -1169,7 +1169,8 @@ const char ** tag_pos = tag_order;
    if (reading_vids)   return;
 
 const char * tz_sign = (offset < 0) ? "" : "+";
-   COUT << "SAVED "
+   if (!silent)   COUT
+        << "SAVED "
         << setfill('0') << year        << "-"
         << setw(2)      << mon         << "-"
         << setw(2)      << day         << " "

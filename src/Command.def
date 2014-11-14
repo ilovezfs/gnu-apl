@@ -36,7 +36,8 @@ cmd_def(")HOST"     , cmd_HOST(out, arg);                   , "command"         
 cmd_def(")IN"       , cmd_IN(out, args, false);             , "filename [object ...]"  , EH_FILENAME)
 cmd_def(")LIBS"     , cmd_LIBS(out, args);                  , "[[lib] path]"           , EH_oLIB_oPATH)
 cmd_def(")LIB"      , cmd_LIB1(out, arg);                   , "[lib|path]"             , EH_DIR_OR_LIB)
-cmd_def(")LOAD"     , Workspace::load_WS(out, args, line);  , "[lib] wsname"           , EH_oLIB_WSNAME)
+cmd_def(")LOAD"     , Workspace::load_WS(out, args, line, false);
+                                                            , "[lib] wsname"           , EH_oLIB_WSNAME)
 cmd_def(")MORE"     , cmd_MORE(out);                        , ""                       , EH_NO_PARAM)
 cmd_def(")NMS"      , Workspace::list(out, LIST_NAMES, arg);, "[from-to]"              , EH_oFROM_oTO)
 cmd_def(")OFF"      , cmd_OFF(0);                           , ""                       , EH_NO_PARAM)
@@ -45,6 +46,8 @@ cmd_def(")OUT"      , cmd_OUT(out, args);                   , "filename [object 
 cmd_def(")PCOPY"    , Workspace::copy_WS(out, args, true);  , "[lib] wsname [object ...]"
                                                                                      , EH_oLIB_WSNAME)
 cmd_def(")PIN"      , cmd_IN(out, args, true);              , "filename [object ...]"  , EH_FILENAME)
+cmd_def(")QLOAD"    , Workspace::load_WS(out, args, line, true);
+                                                            , "[lib] wsname"           , EH_oLIB_WSNAME)
 cmd_def(")RESET"    , Workspace::clear_SI(out);             , ""                     , EH_NO_PARAM)
 cmd_def(")SAVE"     , Workspace::save_WS(out, args);        , "[[lib] wsname]"         , EH_oLIB_WSNAME)
 cmd_def(")SIC"      , Workspace::clear_SI(out);             , ""                       , EH_NO_PARAM)

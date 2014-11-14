@@ -440,8 +440,11 @@ const bool log_startup = uprefs.log_startup_wanted();
 
    if (uprefs.initial_workspace.size())
       {
+         // the user has provided a workspace name via -L
+         //
          UCS_string init_ws(uprefs.initial_workspace);
-         UCS_string load_cmd(")LOAD ");
+          const char * cmd = uprefs.silent ? ")QLOAD " : ")LOAD ";
+         UCS_string load_cmd(cmd);
          load_cmd.append(init_ws);
          Command::process_line(load_cmd);
       }
