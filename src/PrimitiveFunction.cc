@@ -2698,6 +2698,20 @@ Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
        (statement[0] == UNI_ASCII_R_PARENT ||
         statement[0] == UNI_ASCII_R_BRACK))
       {
+        if (statement.starts_iwith(")LOAD")  ||
+            statement.starts_iwith(")QLOAD") ||
+            statement.starts_iwith(")CLEAR") ||
+            statement.starts_iwith(")SIC"))
+           {
+             // the command modifies the SI stack. We throw E_COMMAND_PUSHED
+             // but without displaying it. That should bring us back to
+             // Command::do_APL_expression() with token.get_tag() == TOK_ERROR
+             //
+             Workspace::push_Command(statement);
+             Error error(E_COMMAND_PUSHED, LOC);
+             throw error;
+           }
+
         ExecuteList * fun = ExecuteList::fix(statement.no_pad(), true, LOC);
         Assert(fun);
         Workspace::push_SI(fun, LOC);

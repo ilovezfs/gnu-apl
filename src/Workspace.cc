@@ -590,16 +590,6 @@ const int ret = the_workspace.expunged_functions.size();
 void
 Workspace::clear_WS(ostream & out, bool silent)
 {
-   {
-     const StateIndicator * si = SI_top();
-     if (si && si->get_executable()->get_parse_mode() != PM_STATEMENT_LIST)
-        {
-          out << "BAD COMMAND+" << endl;
-          more_error() = UCS_string(")CLEAR not allowed in ⍎");
-          return;
-        }
-   }
-
    // clear the SI (pops all localized symbols)
    //
    clear_SI(out);
@@ -636,16 +626,6 @@ Workspace::clear_WS(ostream & out, bool silent)
 void
 Workspace::clear_SI(ostream & out)
 {
-   {
-     const StateIndicator * si = SI_top();
-     if (si && si->get_executable()->get_parse_mode() == PM_EXECUTE)
-        {
-          out << "BAD COMMAND+" << endl;
-          more_error() = UCS_string(")SIC not allowed in ⍎");
-          return;
-        }
-   }
-
    // clear the SI (pops all localized symbols)
    while (SI_top())
       {
@@ -941,16 +921,6 @@ Workspace::load_WS(ostream & out, const vector<UCS_string> & lib_ws,
         more_error() = UCS_string("too many parameters in command )LOAD");
         return;
       }
-
-   {
-     const StateIndicator * si = SI_top();
-     if (si && si->get_executable()->get_parse_mode() != PM_STATEMENT_LIST)
-        {
-          out << "BAD COMMAND+" << endl;
-          more_error() = UCS_string(")LOAD not allowed in ⍎");
-          return;
-        }
-   }
 
 LibRef libref = LIB_NONE;
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());

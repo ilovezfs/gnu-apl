@@ -326,6 +326,16 @@ Executable * statements = 0;
 
          if (token.get_tag() == TOK_ERROR)
             {
+              if (token.get_int_val() == E_COMMAND_PUSHED)
+                 {
+                   Workspace::pop_SI(LOC);
+                   UCS_string pushed_command = Workspace::get_pushed_Command();
+                   process_line(pushed_command);
+                   pushed_command.clear();
+                   Workspace::push_Command(pushed_command);   // clear in
+                   return;
+                 }
+
               // clear attention and interrupt flags
               //
               attention_raised = false;

@@ -19,6 +19,8 @@
 */
 
 
+//      name                    text                           major   minor
+//----------------------------------------------------------------------------
 err_def(NO_ERROR,               "No Error"                       , 0,      0 )
 
 err_def(USER_DEFINED_ERROR,     "User defined error"             , 0,      1 )
@@ -69,12 +71,12 @@ err_def(LEFT_SYNTAX_ERROR,      "SYNTAX ERROR"                   , 2,      4 )
 
 err_def(VALUE_ERROR,            "VALUE ERROR"                    , 3,      1 )
 
-err_def(Quad_PP_ERROR,         "⎕PP ERROR"  , 4,      1 )
-err_def(Quad_IO_ERROR,         "⎕IO ERROR"  , 4,      2 )
-err_def(Quad_CT_ERROR,         "⎕CT ERROR"  , 4,      3 )
-err_def(Quad_FC_ERROR,         "⎕FC ERROR"  , 4,      4 )
-err_def(Quad_RL_ERROR,         "⎕RL ERROR"  , 4,      5 )
-err_def(Quad_PR_ERROR,         "⎕PR ERROR"  , 4,      7 )
+err_def(Quad_PP_ERROR,          "⎕PP ERROR"                      , 4,      1 )
+err_def(Quad_IO_ERROR,          "⎕IO ERROR"                      , 4,      2 )
+err_def(Quad_CT_ERROR,          "⎕CT ERROR"                      , 4,      3 )
+err_def(Quad_FC_ERROR,          "⎕FC ERROR"                      , 4,      4 )
+err_def(Quad_RL_ERROR,          "⎕RL ERROR"                      , 4,      5 )
+err_def(Quad_PR_ERROR,          "⎕PR ERROR"                      , 4,      7 )
 
 err_def(VALENCE_ERROR,          "VALENCE ERROR"                  , 5,      1 )
 err_def(RANK_ERROR,             "RANK ERROR"                     , 5,      2 )
@@ -82,6 +84,8 @@ err_def(LENGTH_ERROR,           "LENGTH ERROR"                   , 5,      3 )
 err_def(DOMAIN_ERROR,           "DOMAIN ERROR"                   , 5,      4 )
 err_def(INDEX_ERROR,            "INDEX ERROR"                    , 5,      5 )
 err_def(AXIS_ERROR,             "AXIS ERROR"                     , 5,      6 )
+
+err_def(COMMAND_PUSHED,         "Command Pushed"                 , 9,      1 )
 
 #undef err_def
 
