@@ -258,6 +258,12 @@ public:
    rw_sv_def(Quad_QUOTE)
 #include "SystemVariable.def"
 
+   static void push_Command(const UCS_string & command)
+      { the_workspace.pushed_command = command; }
+
+   static const UCS_string & get_pushed_Command()
+      { return the_workspace.pushed_command; }
+
 protected:
    /// the name of the workspace
    UCS_string WS_name;
@@ -281,6 +287,9 @@ protected:
 
    /// the SI stack. Initially top_SI is 0 (empty stack)
    StateIndicator * top_SI;
+
+   /// )LOAD, )QLOAD, )CLEAR, or )SIC
+   UCS_string pushed_command;
 
    /// the current workspace (for objects that need one but don't have one).
    static Workspace the_workspace;
