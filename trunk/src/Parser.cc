@@ -469,7 +469,9 @@ Parser::degrade_scan_reduce(Token_string & tos)
              tos[src].get_Id() == ID::OPER1_SCAN    ||
              tos[src].get_Id() == ID::OPER1_SCAN1)
             {
-              const bool is_function = src == 0 ||
+              // tos[src] is / ⌿ \ or ⍀
+              //
+              const bool is_function = src == 0 ||   // (will SYNTAX_ERROR)
                          check_if_value(tos, src - 1);
               if (is_function)
                  {

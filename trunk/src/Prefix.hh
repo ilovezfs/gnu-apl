@@ -151,6 +151,9 @@ public:
    Token & at3()
       { Assert1(size() > 3);   return content[put - 4].tok; }
 
+   // return true if the next token bind stronger than the best match
+   bool dont_reduce(TokenClass next) const;
+
    /// return the current assignment state
    Assign_state get_assign_state() const
       { return assign_state; }
@@ -256,6 +259,9 @@ public:
 
    /// read and resolve the token class left of [ ... ], PC is at ]
    bool is_value_bracket() const;
+
+   /// read and resolve the token class left of )
+   bool is_value_parent(int pc) const;
 
    /// return the leftmost (top-of-stack) Token_loc (at put position)
    Token_loc & tos()

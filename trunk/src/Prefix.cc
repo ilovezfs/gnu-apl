@@ -102,38 +102,71 @@ Prefix::syntax_error(const char * loc)
 }
 //-----------------------------------------------------------------------------
 bool
+Prefix::is_value_parent(int pc) const
+{
+   // we have ) XXX with XXX on the stack and need to know if the evaluation
+   // of (... ) will be a value as in e.g. (1 + 1) or a function as in (+/).
+   //
+   Assert1(body[pc].get_Class() == TC_R_PARENT);
+
+   ++pc;
+   if (pc >= body.size())   return true;   // syntax error
+
+TokenClass next = body[pc].get_Class();
+
+   if (next == TC_R_BRACK)   // skip [ ... ]
+      {
+        const int offset = body[pc].get_int_val();
+        Assert1(body[pc + offset].get_Class() == TC_L_BRACK);   // opening [
+        pc += offset;
+        if (pc >= body.size())   return true;   // syntax error
+        next = body[pc].get_Class();
+      }
+
+   if (next == TC_OPER1)   return false;
+   if (next == TC_OPER2)   return false;
+   if (next == TC_FUN12)   return false;
+
+   if (next == TC_L_PARENT)   // )) XXX
+      {
+        ++pc;
+        if (!is_value_parent(pc))   return false;   // (fun)) XXX
+        const int offset = body[pc].get_int_val();
+        pc += offset;
+        if (pc >= body.size())   return true;   // syntax error
+        next = body[pc].get_Class();
+        Assert1(next == TC_L_PARENT);   // opening (
+        ++pc;
+        if (pc >= body.size())   return true;   // syntax error
+
+        //   (val)) XXX
+        //  ^
+        //  pc
+        //
+        next = body[pc].get_Class();
+        if (next == TC_OPER1)   return false;
+        if (next == TC_OPER2)   return false;
+        if (next == TC_FUN12)   return false;
+        return true;
+      }
+
+   return true;
+}
+//-----------------------------------------------------------------------------
+bool
 Prefix::is_value_bracket() const
 {
    Assert1(body[PC - 1].get_Class() == TC_R_BRACK);
+const int offset = body[PC - 1].get_int_val();
+   Assert1(body[PC + offset - 1].get_Class() == TC_L_BRACK);   // opening [
 
-   // find opening [...
-   //
-int pc1 = PC;
-int br_count = 1;   // the bracket at PC
+const Token & tok1 = body[PC + offset];
+   if (tok1.get_Class() == TC_VALUE)    return true;
+   if (tok1.get_Class() != TC_SYMBOL)   return false;
 
-   for (; pc1 < body.size(); ++pc1)
-       {
-         const Token & tok = body[pc1];
-         if (tok.get_Class() == TC_R_BRACK)   ++br_count;   // another ]
-         else if (tok.get_tag() == TOK_L_BRACK)             // a [
-            {
-              --br_count;
-              if (br_count == 0)   // matching [
-                 {
-                   const Token & tok1 = body[pc1 + 1];
-                   if (tok1.get_Class() == TC_VALUE)    return true;
-                   if (tok1.get_Class() != TC_SYMBOL)   return false;
-
-                   Symbol * sym = tok1.get_sym_ptr();
-                   const bool left_sym = get_assign_state() == ASS_arrow_seen;
-                   return sym->resolve_class(left_sym) == TC_VALUE;
-                 }
-            }
-       }
-
-   // not reached since the tokenizer checks [ ] balance.
-   //
-   FIXME;
+Symbol * sym = tok1.get_sym_ptr();
+const bool left_sym = get_assign_state() == ASS_arrow_seen;
+   return sym->resolve_class(left_sym) == TC_VALUE;
 }
 //-----------------------------------------------------------------------------
 int
@@ -355,6 +388,12 @@ grow:
                if (left_sym)   set_assign_state(ASS_var_seen);
              }
 
+          Log(LOG_prefix_parser)
+             {
+               CERR << "   resolved symbol " << sym->get_name()
+                    << " to " << tl.tok.get_Class() << endl;
+             }
+
           if (tl.tok.get_tag() == TOK_SI_PUSHED)
             {
               // Quad_Quad::resolve() calls ⍎ which returns TOK_SI_PUSHED.
@@ -464,27 +503,11 @@ found_prefix:
 
 //   Q(next) Q(at0())
 
-     bool more = false;
-     switch (at0().get_Class())
-        {
-          case TC_VALUE:
-               more = ((best->prio < BS_VAL_VAL) &&
-                        (  next == TC_VALUE            // A B
-                        || next == TC_R_PARENT         // ) B
-                        )) ||
-
-                      (best->prio < BS_OP_RO && next == TC_OPER2);
-
-               break;
-
-          case TC_FUN12:
-               more = best->prio < BS_OP_RO && next == TC_OPER2;
-               break;
-
-          default: break;
-        }
-
-     if (more)
+     // we could reduce, but we could also shift. Compute more, which is true
+     // if we should shift.
+     //
+     const bool shift = dont_reduce(next);
+     if (shift)
         {
            Log(LOG_prefix_parser)  CERR
                << "   phrase #" << (best - hash_table)
@@ -550,6 +573,42 @@ found_prefix:
       }
 
    FIXME;
+}
+//-----------------------------------------------------------------------------
+bool
+Prefix::dont_reduce(TokenClass next) const
+{
+   if (at0().get_Class() == TC_VALUE)
+      {
+        if (next == TC_OPER2)           // DOP B
+           {
+             return best->prio < BS_OP_RO;
+           }
+        else if (next == TC_VALUE)      // A B
+           {
+             return best->prio < BS_VAL_VAL;
+           }
+        else if (next == TC_R_PARENT)   // ) B
+           {
+             if (is_value_parent(PC))     // e.g. (X+Y) B
+                {
+                  return best->prio < BS_VAL_VAL;
+                }
+              else                      // e.g. (+/) B
+                {
+                  return false;
+                }
+           }
+      }
+   else if (at0().get_Class() == TC_FUN12)
+      {
+        if (next == TC_OPER2)
+           {
+             return best->prio < BS_OP_RO;
+           }
+      }
+
+   return false;
 }
 //-----------------------------------------------------------------------------
 bool
