@@ -196,6 +196,7 @@ const bool huge = out && ec > 10000;
           // PrintBuffer pcol. Insert separator rows as needed.
           //
           PrintBuffer & dest = pcols[x];
+          Assert(&dest);
           new (&dest) PrintBuffer;
 
           // compute the final height of dest and reserve enough rows as to
