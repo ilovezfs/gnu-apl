@@ -145,7 +145,7 @@ UserPreferences::is_APL_script(const char * filename)
 {
    /* according to man execve():
 
-       An interpreter script is  a  text  file  that  has  execute  permission
+       An interpreter script is a text file that has execute permission
        enabled and whose first line is of the form:
 
            #! interpreter [optional-arg]
@@ -160,26 +160,53 @@ char buf[2];
 const size_t len = read(fd, buf, sizeof(buf));
    close(fd);
 
-   if (len != 2)   return false;
+   if (len != 2)        return false;
    if (buf[0] != '#')   return false;
    if (buf[1] != '!')   return false;
    return true;;
 }
 //-----------------------------------------------------------------------------
 bool
-UserPreferences::log_startup_wanted() const
+UserPreferences::parse_argv_1()
 {
-   for (int a = 2; a < expanded_argv.size(); ++a)
+bool log_startup = false;
+   for (int a = 1; a < expanded_argv.size(); ++a)
        {
-         if (!strcmp(expanded_argv[a - 1], "-l") &&
-               atoi(expanded_argv[a]) == LID_startup)   return true;
+         const char * opt = expanded_argv[a++];
+         const char * val = (a < expanded_argv.size()) ? expanded_argv[a] : 0;
+
+         if (!strcmp(opt, "-l"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "-l without log level" << endl;
+                   exit(a);
+                 }
+
+              log_startup = (atoi(val) == LID_startup);
+              continue;
+            }
+
+         if (!strcmp(opt, "-p"))
+            {
+              ++a;
+              if (!val)
+                 {
+                   CERR << "-p without profile number" << endl;
+                   exit(a);
+                 }
+
+              user_profile = atoi(val);
+              continue;
+            }
        }
 
-   return false;
+   return log_startup;
 }
 //-----------------------------------------------------------------------------
 void
-UserPreferences::parse_argv(bool logit)
+UserPreferences::parse_argv_2(bool logit)
 {
    // execve() puts the script name (and optional args at the end of argv.
    // For example, argv might look like this:
@@ -365,14 +392,7 @@ UserPreferences::parse_argv(bool logit)
          if (!strcmp(opt, "-p"))
             {
               ++a;
-              if (!val)
-                 {
-                   CERR << "-p without profile number" << endl;
-                   exit(a);
-                 }
-
-              user_profile = atoi(val);
-              continue;
+              continue;   // -p already handled in parse_argv_1()
             }
 
          if (!strcmp(opt, "--par"))

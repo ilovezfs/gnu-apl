@@ -78,14 +78,14 @@ struct UserPreferences
    /// show version information
    static void show_version(ostream & out);
 
-   /// parse command line parameters
-   void parse_argv(bool logit);
+   /// parse command line parameters (before reading preference files)
+   bool parse_argv_1();
+
+   /// parse command line parameters (after reading preference files)
+   void parse_argv_2(bool logit);
 
    /// expand lumped arguments
    void expand_argv(int argc, const char ** argv);
-
-   /// return true iff -l 37 was given
-   bool log_startup_wanted() const;
 
    /// argv/argc at startup
    vector<const char *>original_argv;
