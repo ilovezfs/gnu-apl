@@ -117,10 +117,20 @@ TokenClass next = body[pc].get_Class();
    if (next == TC_R_BRACK)   // skip [ ... ]
       {
         const int offset = body[pc].get_int_val();
-        Assert1(body[pc + offset].get_Class() == TC_L_BRACK);   // opening [
         pc += offset;
+        Assert1(body[pc].get_Class() == TC_L_BRACK);   // opening [
         if (pc >= body.size())   return true;   // syntax error
         next = body[pc].get_Class();
+      }
+
+   if (next == TC_SYMBOL)   // resolve symbol if necessary
+      {
+        const Symbol * sym = body[pc].get_sym_ptr();
+        const NameClass nc = sym->get_nc();
+                      
+        if (nc == NC_FUNCTION)   return false;
+        if (nc == NC_OPERATOR)   return false;
+        return true;
       }
 
    if (next == TC_OPER1)   return false;
@@ -143,10 +153,18 @@ TokenClass next = body[pc].get_Class();
         //  ^
         //  pc
         //
+        // result is a value unless (val) is the right function operand
+        // of a dyadic operator
+        //
         next = body[pc].get_Class();
-        if (next == TC_OPER1)   return false;
         if (next == TC_OPER2)   return false;
-        if (next == TC_FUN12)   return false;
+        if (next == TC_SYMBOL)   // resolve symbol if necessary
+           {
+             const Symbol * sym = body[pc].get_sym_ptr();
+             const Function * fun = sym->get_function();
+             return ! (fun && fun->is_operator() &&
+                       fun->get_oper_valence() == 2);
+           }
         return true;
       }
 

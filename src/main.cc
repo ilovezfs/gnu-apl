@@ -286,7 +286,7 @@ init_apl(int argc, const char * argv[])
    }
 
    uprefs.expand_argv(argc, argv);
-const bool log_startup = uprefs.log_startup_wanted();
+const bool log_startup = uprefs.parse_argv_1();
 
 #ifdef DYNAMIC_LOG_WANTED
    if (log_startup)   Log_control(LID_startup, true);
@@ -326,7 +326,7 @@ const bool log_startup = uprefs.log_startup_wanted();
    sigaction(SIGTERM, &new_TERM_action,        &old_TERM_action);
    sigaction(SIGHUP,  &new_HUP_action,       &old_HUP_action);
 
-   uprefs.parse_argv(log_startup);
+   uprefs.parse_argv_2(log_startup);
 
    if (uprefs.emacs_mode)
       {
