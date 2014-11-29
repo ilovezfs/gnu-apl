@@ -170,7 +170,7 @@ bool
 UserPreferences::parse_argv_1()
 {
 bool log_startup = false;
-   for (int a = 1; a < expanded_argv.size(); ++a)
+   for (int a = 1; a < expanded_argv.size(); )
        {
          const char * opt = expanded_argv[a++];
          const char * val = (a < expanded_argv.size()) ? expanded_argv[a] : 0;
