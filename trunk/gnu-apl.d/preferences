@@ -135,7 +135,7 @@
 # COUT-SEQUENCE          1b 5b 30 3b 33 30 3b 34 38 6d    // ESC [0;30;48m
 # CERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 38 6d    // ESC [0;35;48m
 # UERR-SEQUENCE          1b 5b 30 3b 33 35 3b 34 38 6d    // ESC [0;35;48m
-# RESET-SEQUENCE         1b 5b 30 3b 33 38 3b 34 38 6d    // ESC [0;38;48m
+# RESET-SEQUENCE         1b 5b 30 3b 33 39 3b 34 39 6d    // ESC [0;39;49m
 # CLEAR-EOL-SEQUENCE     1b 5b 4B                         // ESC [K
 # CLEAR-EOS-SEQUENCE     1b 5b 4A                         // ESC [J
 #

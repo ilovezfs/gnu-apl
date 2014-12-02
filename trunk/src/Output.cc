@@ -143,16 +143,16 @@ Output::ColorMode Output::color_mode = COLM_UNDEF;
 char Output::color_CIN[MAX_ESC_LEN] = CSI "0;30;47m";
 
 /// VT100 escape sequence to change to cout color
-char Output::color_COUT[MAX_ESC_LEN] = CSI "0;30;48;2;255;255;255m";
+char Output::color_COUT[MAX_ESC_LEN] = CSI "0;30;49m";
 
 /// VT100 escape sequence to change to cerr color
-char Output::color_CERR[MAX_ESC_LEN] = CSI "0;35;48;2;255;255;255m";
+char Output::color_CERR[MAX_ESC_LEN] = CSI "0;35;49m";
 
 /// VT100 escape sequence to change to uerr color
-char Output::color_UERR[MAX_ESC_LEN] = CSI "0;35;48;2;255;255;255m";
+char Output::color_UERR[MAX_ESC_LEN] = CSI "0;35;49m";
 
 /// VT100 escape sequence to reset colors to their default
-char Output::color_RESET[MAX_ESC_LEN] = CSI "0;30;48;2;255;255;255m";
+char Output::color_RESET[MAX_ESC_LEN] = CSI "0;39;49m";
 
 /// VT100 escape sequence to clear to end of line
 char Output::clear_EOL[MAX_ESC_LEN] = CSI "K";
