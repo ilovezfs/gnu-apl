@@ -53,6 +53,7 @@ struct UserPreferences
      line_history_path(".apl.history"),
      line_history_len(500),
      nabla_to_history(1),   // if function was modified
+     control_Ds_to_exit(0),
      raw_cin(false)
    {}
 
@@ -169,6 +170,9 @@ struct UserPreferences
 
    /// name of a user-provided keyboard layout file
    UTF8_string keyboard_layout_file;
+
+   /// number of control-Ds to exit (0 = never)
+   int control_Ds_to_exit;
 
    /// send no ESC sequences on stderr
    bool raw_cin;

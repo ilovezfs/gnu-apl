@@ -1119,6 +1119,10 @@ int file_profile = 0;   // the current profile in the preferences file
             {
               keyboard_layout_file = UTF8_string(arg);;
             }
+         else if (!strcasecmp(opt, "CONTROL-Ds-TO-EXIT"))
+            {
+              control_Ds_to_exit = atoi(arg);
+            }
        }
 
    fclose(f);
