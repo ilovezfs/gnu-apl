@@ -287,6 +287,7 @@
 # LIBREF-9 /usr/lib/gnu-apl/lib-9
 #
 
+
 ###############################################################################
 #
 # READLINE HISTORY PARAMETERS
@@ -314,11 +315,13 @@ READLINE_HISTORY_PATH .apl.history
   NABLA-TO-HISTORY  Modified (default)
 # NABLA-TO-HISTORY  Always
 
+
 ###############################################################################
 #
 # CREATE BACKUP BEFORE )SAVE or )DUMP WORKSPACE
 #
 BACKUP_BEFORE_SAVE  yes
+
 
 ###############################################################################
 #
@@ -337,4 +340,15 @@ BACKUP_BEFORE_SAVE  yes
 #
 # KEYBOARD_LAYOUT_FILE  @GNU_APL_ETC@/gnu-apl.d/keyboard1.txt
 #
+
+###############################################################################
+#
+# Normally you exit GNU APL by issuing the command )OFF and hitting
+# ^D (aka. end-of-input) has no effect.
+#
+# You can make GNU APL exit after a number of ^Ds in a row by specifying
+# a (small) positive number below. Note thsat the interpreter will always
+# exit if a large number of ^Ds (or EOFs) are read within a short while.
+#
+CONTROL-Ds-TO-EXIT 0
 

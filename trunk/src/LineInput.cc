@@ -723,7 +723,18 @@ const APL_time_us from = now();
          if (!_eof)   break;
 
          // ^D or end of file
-         if (control_D_count < 5)
+         if (uprefs.control_Ds_to_exit)   // there is a ^D limit
+            {
+              if (control_D_count >= control_D_count)
+                 {
+                   CIN << endl;
+                   COUT << "      *** end of input" << endl;
+                   Thread_context::kill_pool();
+                   Command::cmd_OFF(2);   // exit()s
+                   return;  // not reached
+                 }
+            }
+         else if (control_D_count < 5)
             {
               CIN << endl;
               COUT << "      ^D or end-of-input detected ("
@@ -743,6 +754,7 @@ const APL_time_us from = now();
               COUT << "      *** end of input" << endl;
               Thread_context::kill_pool();
               Command::cmd_OFF(2);   // exit()s
+              return;  // not reached
             }
       }
    Parallel::unlock_pool(false);
