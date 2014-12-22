@@ -725,7 +725,7 @@ const APL_time_us from = now();
          // ^D or end of file
          if (uprefs.control_Ds_to_exit)   // there is a ^D limit
             {
-              if (control_D_count >= control_D_count)
+              if (control_D_count >= uprefs.control_Ds_to_exit)
                  {
                    CIN << endl;
                    COUT << "      *** end of input" << endl;
