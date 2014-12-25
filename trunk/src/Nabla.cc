@@ -118,7 +118,7 @@ int control_D_count = 0;
                     continue;
                  }
                COUT << endl << "      *** end of input" << endl;
-               Command::cmd_OFF(2);
+               Command::cmd_OFF(5);
             }
 
          if (const char * loc = parse_oper(line, false))

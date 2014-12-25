@@ -716,11 +716,13 @@ const APL_time_us from = now();
    if (start_input)   (*start_input)();
 
    Parallel::lock_pool(false);
-   for (int control_D_count = 0; ; ++control_D_count)
+   for (int control_D_count = 0;;)
        {
          bool _eof = false;
          LineInput::get_terminal_line(mode, prompt, line, _eof, hist);
          if (!_eof)   break;
+
+         ++control_D_count;
 
          // ^D or end of file
          if (uprefs.control_Ds_to_exit)   // there is a ^D limit
@@ -728,9 +730,9 @@ const APL_time_us from = now();
               if (control_D_count >= uprefs.control_Ds_to_exit)
                  {
                    CIN << endl;
-                   COUT << "      *** end of input" << endl;
                    Thread_context::kill_pool();
-                   Command::cmd_OFF(2);   // exit()s
+                   uprefs.silent = true;   // exit silently
+                   Command::cmd_OFF(4);    // exit()s
                    return;  // not reached
                  }
             }
