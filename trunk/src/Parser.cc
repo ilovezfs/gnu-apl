@@ -516,7 +516,12 @@ Parser::check_if_value(const Token_string & tos, int pos)
                return check_if_value(tos, pos1 - 1);
              }
 
-        case TC_SYMBOL:     // e.g. A/2 of FOO/2
+        case TC_SYMBOL:     // e.g. A/2 or FOO/2
+             if (tos[pos].get_tag() == TOK_ALPHA)     return true;
+             if (tos[pos].get_tag() == TOK_CHI)       return true;
+             if (tos[pos].get_tag() == TOK_OMEGA)     return true;
+             if (tos[pos].get_tag() == TOK_ALPHA_U)   return false;
+             if (tos[pos].get_tag() == TOK_OMEGA_U)   return false;
              return (tos[pos].get_tag() == TOK_P_SYMB);   // if value
 
         default: break;
