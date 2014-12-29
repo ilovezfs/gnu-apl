@@ -511,9 +511,8 @@ Parser::check_if_value(const Token_string & tos, int pos)
 
         case TC_R_PARENT:   // e.g. (2+3)/2 or 1 2 3 (2+3)/2
              {
-               const int pos1 = find_opening_parent(tos, pos);
-               if (pos1 == 0)   return true;
-               return check_if_value(tos, pos1 - 1);
+               if (pos == 0)   return true;   // (actually syntax error)
+               return check_if_value(tos, pos - 1);
              }
 
         case TC_SYMBOL:     // e.g. A/2 or FOO/2
