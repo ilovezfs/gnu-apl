@@ -638,6 +638,7 @@ UTF8_string fract_part;
 UTF8_string expo_part;
 bool negative = false;
 bool expo_negative = false;
+bool skipped_0 = false;
 
    // leading sign
    //
@@ -647,9 +648,9 @@ bool expo_negative = false;
         ++src;
       }
 
-   // leading zeros in integer part
+   // skip leading zeros in integer part
    //
-   while (src.rest() && *src == '0')   ++src;
+   while (src.rest() && *src == '0')   { ++src;   skipped_0 = true; }
 
    // integer part
    //
@@ -668,6 +669,12 @@ bool expo_negative = false;
              fract_part.append(src.get());
            }
       }
+
+   // require at least one integer or fractional digit
+   //
+   if (digits.size() == 0      &&
+       fract_part.size() == 0  &&
+       !skipped_0)   return false;
 
    // exponent part
    //

@@ -63,11 +63,12 @@ and texts about APL. We would like to refer the reader to the following:
 
 @menu
 * Chapter 1::    Installing and Starting APL
-* Chapter 2::    Non-standard Features
-* Chapter 3::    Limitations and Missing Features
-* Chapter 4::    Internationalization
-* Chapter 5::    Libraries Contributed by GNU APL Users
-* Chapter 6::    Licenses for GNU APL and this Manual
+* Chapter 2::    Design Decisions
+* Chapter 3::    Non-standard Features
+* Chapter 4::    Limitations and Missing Features
+* Chapter 5::    Internationalization
+* Chapter 6::    Libraries Contributed by GNU APL Users
+* Chapter 7::    Licenses for GNU APL and this Manual
 @end menu
 
 @c ============================================================================
@@ -561,6 +562,109 @@ in a 'preferences' file still follow the library root scheme.
 
 @c ----------------------------------------------------------------------------
 @node Chapter 2
+@chapter Design Decisions
+
+The ISO standard leaves a few things unspecified and GNU APL may behave
+differently than other APL interpreters.
+
+@section APL symbols that can be functions or operators
+
+There are 4 APL symbols / ⌿ \ and ⍀ that can be functions or operators,
+depending on their context (i.e. depending on the APL tokens left of them).
+Neither the ISO standard nor the otherwise excellent IBM APL2 language
+reference manual explain the rules that decide whether, for example /, should
+mean 'function compress' or 'operator reduce'. In simple cases the meaning of
+/ is obvious: +/B means 'operator reduce' while 1/B means 'function compress'.
+
+The following example may explain the problem:
+
+@verbatim
+     ÷  /  \  2      ⍝ case (i)
+2
+   (÷  /) \  2       ⍝ case (ii)
+2
+   ÷ (/  \) 2        ⍝ case (iii)
+0.5
+@end verbatim
+
+In (i) and (ii) \ is an operator thanks to ÷ left of it while in (iii) \ is
+a function bound to operator \.
+
+Both (ii) and (iii) are valid interpretations if (i). The ISO standard
+defined the result after the decision if / should be treated as function or
+as operator was made but says nothing about how to decide that.
+
+The APL2 language reference gives additional information about such aspects
+(binding strength between token) but the ambiguity related to / ⌿ \ and ⍀
+is not resolved by these rules.
+
+The first decision to make is at which point in time the role of / and friends
+shall be decided. The options are:
+
+(a) when the statement is tokenized and parsed (call that moment '⎕FX time'
+ similar to compile-time for compiler languages), or
+
+(b) when a statement is executed (call that 'run-time'), or
+
+(c) theoretically a combination of (a) and (b)
+
+The advantage of (a) is less reunite overhead which is important because / is
+probably the most frequently used APL operator. As will be explained below
+there are cases where (a) fails. The advantage of (b), at first glance,
+seems to be that it always gives the correct (more precisely: the expected
+result because correct would require a valid specification). A closer look
+reveals, however, that this is only true for the most simple cases but not
+in general.
+
+To give you an idea where (b) becomes tricky is this (there are more of
+that kind:
+
+      A[FOO]/B   ⍝ where FOO could define A via ⎕FX or do A←
+
+Io is still possible to resolve the last example at run time, but the parser
+would become far more complex to do that. The same holds for (c).
+
+For these reasons the decision was made in favor of (a) with a syntactic
+tweak to handle the (single) case where (a) fails. In principle the symbol
+left of, for instance, / decides if / should be a function or an operators.
+The matter can become more complex if index brackets or parentheses are
+involved. The algorithm used in GNU APL for classifying / and friend is
+(simplified) this:
+
+1. / ⌿ \ and ⍀ are tokenized as operators
+
+2. Scan the tokenized statement from left to right to find  / ⌿ \ or ⍀
+
+3. If found, go backwards until a constant, a function, or a user-defined
+   name is found:
+3a. if a constant, a function, or a user-defined name is found then →4
+3b. if ) is seen then skip over it
+3c. if ] is seen then skip until the corresponding [ is found
+3d. otherwise: SYNTAX ERROR
+
+4. decide the role of (for example) / based on the token found in 3a:
+4a. function: leave / as operator as initially tokenized
+4b. constant: change / from operator to function (compress)
+4c. see below
+
+This works fine except in case 4c. which cannot be resolved at ⎕FX time. For
+this case we introduce the following convention:
+
+A user-defined name is assumed to be a function (and hence / is an operator)
+unless the name (and nothing else) is enclosed in parentheses. For example:
+
+@verbatim
+       A  / B    ⍝ A is function, therefore / is operator
+
+      (A) / B    ⍝ A is value, therefore / is function
+@end verbatim
+
+This rule is moderately compatible with ISO and APL2; in APL2 (A) would be
+redundant parentheses so in that case there would be a small incompatibility
+between GNU APL and IBM APL2.
+
+@c ----------------------------------------------------------------------------
+@node Chapter 3
 @chapter Non-standard Features
 
 There are a few possibly useful features in GNU APL:
@@ -1423,7 +1527,7 @@ recalling function lines (and which are not fully supported in GNU APL).
     function or variable name.
 
 @c ----------------------------------------------------------------------------
-@node Chapter 3
+@node Chapter 4
 @chapter Limitations and Missing Features
 
 APL is an almost full implementation of the ISO standard 13751.
@@ -1466,7 +1570,7 @@ convenient to add your own commands or your own system variables to the
 APL interpreter rather that adding auxiliary processors.
 
 @c ----------------------------------------------------------------------------
-@node Chapter 4
+@node Chapter 5
 @chapter Internationalization
 
 GNU APL used to be internationalized by means of GNU gettext, but is not
@@ -1493,7 +1597,7 @@ As far as xterm is concerned, the xterm command line options --u8, --lc, and
 --en might solve problems related to the terminal.
 
 @c ----------------------------------------------------------------------------
-@node Chapter 5
+@node Chapter 6
 @chapter Libraries Contributed by GNU APL Users
 
 Since the first release of GNU APL, a number of libraries, but also other
@@ -1501,11 +1605,11 @@ developments, have been made by users of GNU APL. Below are links to these
 contributions.
 
 @menu
-* Section 5.1::  The GNU APL Community Webpage
-* Section 5.2::  Core Libraries
+* Section 6.1::  The GNU APL Community Webpage
+* Section 6.2::  Core Libraries
 @end menu
 
-@node Section 5.1
+@node Section 6.1
 @section The GNU APL Community Webpage
 
 The GNU APL project maintains a web page that lists contibutions made by
@@ -1523,7 +1627,7 @@ more likely that it was overlooked. Juse send an email to bug-apl@@gnu.org
 to fix that.
 
 
-@node Section 5.2
+@node Section 6.2
 @section Core Libraries
 
 There is a small number of libraries that are considered "core" APL because,
@@ -1547,7 +1651,7 @@ Component File System  (as required by ISO 13751)  by Blake McBride
 SQL
 
 @c ----------------------------------------------------------------------------
-@node Chapter 6
+@node Chapter 7
 @chapter Licenses for this GNU APL Manual and for GNU APL
 
 This manual for GNU APL is licensed under the GNU Free Documentation
@@ -1557,11 +1661,11 @@ GNU APL itself is licensed under the GNU Public License version 3 or later
 (aka GPLv3+), *Note Section 4.2:: below.
 
 @menu
-* Section 6.1::  The GNU Free Documentation License
-* Section 6.2::  The GNU General Public License
+* Section 7.1::  The GNU Free Documentation License
+* Section 7.2::  The GNU General Public License
 @end menu
 
-@node Section 6.1
+@node Section 7.1
 @section The GNU Free Documentation License
 
 @c The GNU Free Documentation License.
@@ -2063,7 +2167,7 @@ recommend releasing these examples in parallel under your choice of
 free software license, such as the GNU General Public License,
 to permit their use in free software.
 
-@node Section 6.2
+@node Section 7.2
 @section The GNU GENERAL PUBLIC LICENSE
 
                     GNU GENERAL PUBLIC LICENSE

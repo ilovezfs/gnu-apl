@@ -71,60 +71,64 @@ ul.no-bullet {list-style: none}
     <li><a name="toc-Config-File-for-GNU-APL" href="#Config-File-for-GNU-APL">1.4 Config File for GNU APL</a></li>
     <li><a name="toc-File-Names-and-Paths" href="#File-Names-and-Paths">1.5 File Names and Paths</a></li>
   </ul></li>
-  <li><a name="toc-Non_002dstandard-Features" href="#Chapter-2">2 Non-standard Features</a>
+  <li><a name="toc-Design-Decisions" href="#Chapter-2">2 Design Decisions</a>
   <ul class="no-bullet">
-    <li><a name="toc-APL-Scripting" href="#APL-Scripting">2.1 APL Scripting</a>
-    <ul class="no-bullet">
-      <li><a name="toc-redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter" href="#redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter">2.1.1 redirect the script file the stdin of the GNU APL interpreter</a></li>
-      <li><a name="toc-Make-the-script-file-executable" href="#Make-the-script-file-executable">2.1.2 Make the script file executable</a></li>
-      <li><a name="toc-How-command-line-arguments-are-handled" href="#How-command-line-arguments-are-handled">2.1.3 How command line arguments are handled</a></li>
-      <li><a name="toc-Helpful-features-for-scripting" href="#Helpful-features-for-scripting">2.1.4 Helpful features for scripting</a></li>
-      <li><a name="toc-Script-Example" href="#Script-Example">2.1.5 Script Example</a></li>
-    </ul></li>
-    <li><a name="toc-_005b_003f_005dSYL-_002d-System-limits" href="#g_t_005b_003f_005dSYL-_002d-System-limits">2.2 ⎕SYL - System limits</a>
-    <ul class="no-bullet">
-      <li><a name="toc-_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d" href="#g_t_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d">2.2.1 ⎕SYL[1 2 3 4 5 6;]</a></li>
-      <li><a name="toc-_005b_003f_005dSYL_005b7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23_003b_005d" href="#g_t_005b_003f_005dSYL_005b7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23_003b_005d">2.2.2 ⎕SYL[7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23;]</a></li>
-      <li><a name="toc-_005b_003f_005dSYL_005b24-25-26_003b_005d" href="#g_t_005b_003f_005dSYL_005b24-25-26_003b_005d">2.2.3 ⎕SYL[24 25 26;]</a></li>
-      <li><a name="toc-_005b_003f_005dSYL_005b27_003b_005d" href="#g_t_005b_003f_005dSYL_005b27_003b_005d">2.2.4 ⎕SYL[27;]</a></li>
-    </ul></li>
-    <li><a name="toc-Dyadic-_005b_003f_005dCR" href="#Dyadic-_005b_003f_005dCR">2.3 Dyadic ⎕CR</a></li>
-    <li><a name="toc-Debug-Commands" href="#Debug-Commands">2.4 Debug Commands</a></li>
-    <li><a name="toc-Colored-Output" href="#Colored-Output">2.5 Colored Output</a></li>
-    <li><a name="toc-Logging-Facilities" href="#Logging-Facilities">2.6 Logging Facilities</a>
-    <ul class="no-bullet">
-      <li><a name="toc-Static-Logging" href="#Static-Logging">2.6.1 Static Logging</a></li>
-      <li><a name="toc-Dynamic-Logging" href="#Dynamic-Logging">2.6.2 Dynamic Logging</a></li>
-    </ul></li>
-    <li><a name="toc-Complex-Numbers" href="#Complex-Numbers">2.7 Complex Numbers</a></li>
-    <li><a name="toc-Native-Functions" href="#Native-Functions">2.8 Native Functions</a></li>
-    <li><a name="toc-DUMP-Command" href="#DUMP-Command">2.9 DUMP Command</a></li>
-    <li><a name="toc-User_002ddefined-Command" href="#User_002ddefined-Command">2.10 User-defined Command</a></li>
-    <li><a name="toc-Direct-Functions-_0028Lambdas_0029" href="#Direct-Functions-_0028Lambdas_0029">2.11 Direct Functions (Lambdas)</a>
-    <ul class="no-bullet">
-      <li><a name="toc-Named-Lambdas" href="#Named-Lambdas">2.11.1 Named Lambdas</a></li>
-      <li><a name="toc-Unnamed-Lambdas" href="#Unnamed-Lambdas">2.11.2 Unnamed Lambdas</a></li>
-      <li><a name="toc-Limitations" href="#Limitations">2.11.3 Limitations</a></li>
-    </ul></li>
-    <li><a name="toc-Axis-argument-in-user_002ddefined-functions" href="#Axis-argument-in-user_002ddefined-functions">2.12 Axis argument in user-defined functions</a></li>
-    <li><a name="toc-_005b_003f_005dSI" href="#g_t_005b_003f_005dSI">2.13 ⎕SI</a></li>
-    <li><a name="toc-History-and-TAB-completion" href="#History-and-TAB-completion">2.14 History and TAB completion</a></li>
+    <li><a name="toc-APL-symbols-that-can-be-functions-or-operators" href="#APL-symbols-that-can-be-functions-or-operators">2.1 APL symbols that can be functions or operators</a></li>
   </ul></li>
-  <li><a name="toc-Limitations-and-Missing-Features" href="#Chapter-3">3 Limitations and Missing Features</a>
+  <li><a name="toc-Non_002dstandard-Features" href="#Chapter-3">3 Non-standard Features</a>
   <ul class="no-bullet">
-    <li><a name="toc-System-Limits" href="#System-Limits">3.1 System Limits</a></li>
-    <li><a name="toc-Shared-Variables" href="#Shared-Variables">3.2 Shared Variables</a></li>
+    <li><a name="toc-APL-Scripting" href="#APL-Scripting">3.1 APL Scripting</a>
+    <ul class="no-bullet">
+      <li><a name="toc-redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter" href="#redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter">3.1.1 redirect the script file the stdin of the GNU APL interpreter</a></li>
+      <li><a name="toc-Make-the-script-file-executable" href="#Make-the-script-file-executable">3.1.2 Make the script file executable</a></li>
+      <li><a name="toc-How-command-line-arguments-are-handled" href="#How-command-line-arguments-are-handled">3.1.3 How command line arguments are handled</a></li>
+      <li><a name="toc-Helpful-features-for-scripting" href="#Helpful-features-for-scripting">3.1.4 Helpful features for scripting</a></li>
+      <li><a name="toc-Script-Example" href="#Script-Example">3.1.5 Script Example</a></li>
+    </ul></li>
+    <li><a name="toc-_005b_003f_005dSYL-_002d-System-limits" href="#g_t_005b_003f_005dSYL-_002d-System-limits">3.2 ⎕SYL - System limits</a>
+    <ul class="no-bullet">
+      <li><a name="toc-_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d" href="#g_t_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d">3.2.1 ⎕SYL[1 2 3 4 5 6;]</a></li>
+      <li><a name="toc-_005b_003f_005dSYL_005b7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23_003b_005d" href="#g_t_005b_003f_005dSYL_005b7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23_003b_005d">3.2.2 ⎕SYL[7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23;]</a></li>
+      <li><a name="toc-_005b_003f_005dSYL_005b24-25-26_003b_005d" href="#g_t_005b_003f_005dSYL_005b24-25-26_003b_005d">3.2.3 ⎕SYL[24 25 26;]</a></li>
+      <li><a name="toc-_005b_003f_005dSYL_005b27_003b_005d" href="#g_t_005b_003f_005dSYL_005b27_003b_005d">3.2.4 ⎕SYL[27;]</a></li>
+    </ul></li>
+    <li><a name="toc-Dyadic-_005b_003f_005dCR" href="#Dyadic-_005b_003f_005dCR">3.3 Dyadic ⎕CR</a></li>
+    <li><a name="toc-Debug-Commands" href="#Debug-Commands">3.4 Debug Commands</a></li>
+    <li><a name="toc-Colored-Output" href="#Colored-Output">3.5 Colored Output</a></li>
+    <li><a name="toc-Logging-Facilities" href="#Logging-Facilities">3.6 Logging Facilities</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Static-Logging" href="#Static-Logging">3.6.1 Static Logging</a></li>
+      <li><a name="toc-Dynamic-Logging" href="#Dynamic-Logging">3.6.2 Dynamic Logging</a></li>
+    </ul></li>
+    <li><a name="toc-Complex-Numbers" href="#Complex-Numbers">3.7 Complex Numbers</a></li>
+    <li><a name="toc-Native-Functions" href="#Native-Functions">3.8 Native Functions</a></li>
+    <li><a name="toc-DUMP-Command" href="#DUMP-Command">3.9 DUMP Command</a></li>
+    <li><a name="toc-User_002ddefined-Command" href="#User_002ddefined-Command">3.10 User-defined Command</a></li>
+    <li><a name="toc-Direct-Functions-_0028Lambdas_0029" href="#Direct-Functions-_0028Lambdas_0029">3.11 Direct Functions (Lambdas)</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Named-Lambdas" href="#Named-Lambdas">3.11.1 Named Lambdas</a></li>
+      <li><a name="toc-Unnamed-Lambdas" href="#Unnamed-Lambdas">3.11.2 Unnamed Lambdas</a></li>
+      <li><a name="toc-Limitations" href="#Limitations">3.11.3 Limitations</a></li>
+    </ul></li>
+    <li><a name="toc-Axis-argument-in-user_002ddefined-functions" href="#Axis-argument-in-user_002ddefined-functions">3.12 Axis argument in user-defined functions</a></li>
+    <li><a name="toc-_005b_003f_005dSI" href="#g_t_005b_003f_005dSI">3.13 ⎕SI</a></li>
+    <li><a name="toc-History-and-TAB-completion" href="#History-and-TAB-completion">3.14 History and TAB completion</a></li>
   </ul></li>
-  <li><a name="toc-Internationalization" href="#Chapter-4">4 Internationalization</a></li>
-  <li><a name="toc-Libraries-Contributed-by-GNU-APL-Users" href="#Chapter-5">5 Libraries Contributed by GNU APL Users</a>
+  <li><a name="toc-Limitations-and-Missing-Features" href="#Chapter-4">4 Limitations and Missing Features</a>
   <ul class="no-bullet">
-    <li><a name="toc-The-GNU-APL-Community-Webpage" href="#Section-5_002e1">5.1 The GNU APL Community Webpage</a></li>
-    <li><a name="toc-Core-Libraries" href="#Section-5_002e2">5.2 Core Libraries</a></li>
+    <li><a name="toc-System-Limits" href="#System-Limits">4.1 System Limits</a></li>
+    <li><a name="toc-Shared-Variables" href="#Shared-Variables">4.2 Shared Variables</a></li>
   </ul></li>
-  <li><a name="toc-Licenses-for-this-GNU-APL-Manual-and-for-GNU-APL" href="#Chapter-6">6 Licenses for this GNU APL Manual and for GNU APL</a>
+  <li><a name="toc-Internationalization" href="#Chapter-5">5 Internationalization</a></li>
+  <li><a name="toc-Libraries-Contributed-by-GNU-APL-Users" href="#Chapter-6">6 Libraries Contributed by GNU APL Users</a>
   <ul class="no-bullet">
-    <li><a name="toc-The-GNU-Free-Documentation-License" href="#Section-6_002e1">6.1 The GNU Free Documentation License</a></li>
-    <li><a name="toc-The-GNU-GENERAL-PUBLIC-LICENSE" href="#Section-6_002e2">6.2 The GNU GENERAL PUBLIC LICENSE</a></li>
+    <li><a name="toc-The-GNU-APL-Community-Webpage" href="#Section-6_002e1">6.1 The GNU APL Community Webpage</a></li>
+    <li><a name="toc-Core-Libraries" href="#Section-6_002e2">6.2 Core Libraries</a></li>
+  </ul></li>
+  <li><a name="toc-Licenses-for-this-GNU-APL-Manual-and-for-GNU-APL" href="#Chapter-7">7 Licenses for this GNU APL Manual and for GNU APL</a>
+  <ul class="no-bullet">
+    <li><a name="toc-The-GNU-Free-Documentation-License" href="#Section-7_002e1">7.1 The GNU Free Documentation License</a></li>
+    <li><a name="toc-The-GNU-GENERAL-PUBLIC-LICENSE" href="#Section-7_002e2">7.2 The GNU GENERAL PUBLIC LICENSE</a></li>
   </ul></li>
 </ul>
 </div>
@@ -158,15 +162,17 @@ and texts about APL. We would like to refer the reader to the following:
 <table class="menu" border="0" cellspacing="0">
 <tr><td align="left" valign="top">&bull; <a href="#Chapter-1" accesskey="1">Chapter 1</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Installing and Starting APL
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Chapter-2" accesskey="2">Chapter 2</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Non-standard Features
+<tr><td align="left" valign="top">&bull; <a href="#Chapter-2" accesskey="2">Chapter 2</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Design Decisions
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Chapter-3" accesskey="3">Chapter 3</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Limitations and Missing Features
+<tr><td align="left" valign="top">&bull; <a href="#Chapter-3" accesskey="3">Chapter 3</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Non-standard Features
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Chapter-4" accesskey="4">Chapter 4</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Internationalization
+<tr><td align="left" valign="top">&bull; <a href="#Chapter-4" accesskey="4">Chapter 4</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Limitations and Missing Features
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Chapter-5" accesskey="5">Chapter 5</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Libraries Contributed by GNU APL Users
+<tr><td align="left" valign="top">&bull; <a href="#Chapter-5" accesskey="5">Chapter 5</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Internationalization
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Chapter-6" accesskey="6">Chapter 6</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Licenses for GNU APL and this Manual
+<tr><td align="left" valign="top">&bull; <a href="#Chapter-6" accesskey="6">Chapter 6</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Libraries Contributed by GNU APL Users
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Chapter-7" accesskey="7">Chapter 7</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Licenses for GNU APL and this Manual
 </td></tr>
 </table>
 
@@ -635,13 +641,118 @@ in a &rsquo;preferences&rsquo; file still follow the library root scheme.
 <p>
 Next: <a href="#Chapter-3" accesskey="n" rel="next">Chapter 3</a>, Previous: <a href="#Chapter-1" accesskey="p" rel="prev">Chapter 1</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
+<a name="Design-Decisions"></a>
+<h2 class="chapter">2 Design Decisions</h2>
+
+<p>The ISO standard leaves a few things unspecified and GNU APL may behave
+differently than other APL interpreters.
+</p>
+<a name="APL-symbols-that-can-be-functions-or-operators"></a>
+<h3 class="section">2.1 APL symbols that can be functions or operators</h3>
+
+<p>There are 4 APL symbols / ⌿ \ and ⍀ that can be functions or operators,
+depending on their context (i.e. depending on the APL tokens left of them).
+Neither the ISO standard nor the otherwise excellent IBM APL2 language
+reference manual explain the rules that decide whether, for example /, should
+mean &rsquo;function compress&rsquo; or &rsquo;operator reduce&rsquo;. In simple cases the meaning of
+/ is obvious: +/B means &rsquo;operator reduce&rsquo; while 1/B means &rsquo;function compress&rsquo;.
+</p>
+<p>The following example may explain the problem:
+</p>
+<pre class="verbatim">     ÷  /  \  2      ⍝ case (i)
+2
+   (÷  /) \  2       ⍝ case (ii)
+2
+   ÷ (/  \) 2        ⍝ case (iii)
+0.5
+</pre>
+<p>In (i) and (ii) \ is an operator thanks to ÷ left of it while in (iii) \ is
+a function bound to operator \.
+</p>
+<p>Both (ii) and (iii) are valid interpretations if (i). The ISO standard
+defined the result after the decision if / should be treated as function or
+as operator was made but says nothing about how to decide that.
+</p>
+<p>The APL2 language reference gives additional information about such aspects
+(binding strength between token) but the ambiguity related to / ⌿ \ and ⍀
+is not resolved by these rules.
+</p>
+<p>The first decision to make is at which point in time the role of / and friends
+shall be decided. The options are:
+</p>
+<p>(a) when the statement is tokenized and parsed (call that moment &rsquo;⎕FX time&rsquo;
+ similar to compile-time for compiler languages), or
+</p>
+<p>(b) when a statement is executed (call that &rsquo;run-time&rsquo;), or
+</p>
+<p>(c) theoretically a combination of (a) and (b)
+</p>
+<p>The advantage of (a) is less reunite overhead which is important because / is
+probably the most frequently used APL operator. As will be explained below
+there are cases where (a) fails. The advantage of (b), at first glance,
+seems to be that it always gives the correct (more precisely: the expected
+result because correct would require a valid specification). A closer look
+reveals, however, that this is only true for the most simple cases but not
+in general.
+</p>
+<p>To give you an idea where (b) becomes tricky is this (there are more of
+that kind:
+</p>
+<p>A[FOO]/B   ⍝ where FOO could define A via ⎕FX or do A←
+</p>
+<p>Io is still possible to resolve the last example at run time, but the parser
+would become far more complex to do that. The same holds for (c).
+</p>
+<p>For these reasons the decision was made in favor of (a) with a syntactic
+tweak to handle the (single) case where (a) fails. In principle the symbol
+left of, for instance, / decides if / should be a function or an operators.
+The matter can become more complex if index brackets or parentheses are
+involved. The algorithm used in GNU APL for classifying / and friend is
+(simplified) this:
+</p>
+<p>1. / ⌿ \ and ⍀ are tokenized as operators
+</p>
+<p>2. Scan the tokenized statement from left to right to find  / ⌿ \ or ⍀
+</p>
+<p>3. If found, go backwards until a constant, a function, or a user-defined
+   name is found:
+3a. if a constant, a function, or a user-defined name is found then →4
+3b. if ) is seen then skip over it
+3c. if ] is seen then skip until the corresponding [ is found
+3d. otherwise: SYNTAX ERROR
+</p>
+<p>4. decide the role of (for example) / based on the token found in 3a:
+4a. function: leave / as operator as initially tokenized
+4b. constant: change / from operator to function (compress)
+4c. see below
+</p>
+<p>This works fine except in case 4c. which cannot be resolved at ⎕FX time. For
+this case we introduce the following convention:
+</p>
+<p>A user-defined name is assumed to be a function (and hence / is an operator)
+unless the name (and nothing else) is enclosed in parentheses. For example:
+</p>
+<pre class="verbatim">       A  / B    ⍝ A is function, therefore / is operator
+
+      (A) / B    ⍝ A is value, therefore / is function
+</pre>
+<p>This rule is moderately compatible with ISO and APL2; in APL2 (A) would be
+redundant parentheses so in that case there would be a small incompatibility
+between GNU APL and IBM APL2.
+</p>
+<hr>
+<a name="Chapter-3"></a>
+<div class="header">
+<p>
+Next: <a href="#Chapter-4" accesskey="n" rel="next">Chapter 4</a>, Previous: <a href="#Chapter-2" accesskey="p" rel="prev">Chapter 2</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
 <a name="Non_002dstandard-Features"></a>
-<h2 class="chapter">2 Non-standard Features</h2>
+<h2 class="chapter">3 Non-standard Features</h2>
 
 <p>There are a few possibly useful features in GNU APL:
 </p>
 <a name="APL-Scripting"></a>
-<h3 class="section">2.1 APL Scripting</h3>
+<h3 class="section">3.1 APL Scripting</h3>
 
 <p>As already mentioned, it is possible to write APL scripts. Like for other
 script languages, the script starts with <samp>#!</samp>, followed by the
@@ -657,7 +768,7 @@ apl as the script interpreter (followed by some command line arguments for
 apl).
 </p>
 <a name="redirect-the-script-file-the-stdin-of-the-GNU-APL-interpreter"></a>
-<h4 class="subsection">2.1.1 redirect the script file the stdin of the GNU APL interpreter</h4>
+<h4 class="subsection">3.1.1 redirect the script file the stdin of the GNU APL interpreter</h4>
 
 <p>A file, say SCRIPT.apl, can be redirected to apl by redirection of the shell:
 </p>
@@ -672,7 +783,7 @@ redirection was performed by the shell running apl, while in the second case
 the redirecting of the file was performed by apl itself.
 </p>
 <a name="Make-the-script-file-executable"></a>
-<h4 class="subsection">2.1.2 Make the script file executable</h4>
+<h4 class="subsection">3.1.2 Make the script file executable</h4>
 
 <p>Alternatively the script can be made executable, mentioning apl as the
 interpreter for the script (see also <samp>'man 2 execve'</samp>). For this to
@@ -689,7 +800,7 @@ do not know in advance where the APL interpreter will be installed) then
 it must be in $PATH of the shell that runs the script).
 </p>
 <a name="How-command-line-arguments-are-handled"></a>
-<h4 class="subsection">2.1.3 How command line arguments are handled</h4>
+<h4 class="subsection">3.1.3 How command line arguments are handled</h4>
 
 <p>As we have seen, GNU APL can be started directly (by entering the name
 of the GNU APL binary on the command line of a shell, or indirectly by
@@ -794,7 +905,7 @@ of the options given to the script to be interpreted as APL options; all
 such options are passed to the application via ⎕ARG.
 </p>
 <a name="Helpful-features-for-scripting"></a>
-<h4 class="subsection">2.1.4 Helpful features for scripting</h4>
+<h4 class="subsection">3.1.4 Helpful features for scripting</h4>
 
 <p>In order to be really useful for scripting, three more features have been added:
 </p>
@@ -853,7 +964,7 @@ END-OF-⎕INP
 <p>These features together allow you to write Web pages in APL!
 </p>
 <a name="Script-Example"></a>
-<h4 class="subsection">2.1.5 Script Example</h4>
+<h4 class="subsection">3.1.5 Script Example</h4>
 
 <p>Note that the two different ways of running an APL script have an impact on
 how ⎕ARG looks like. If stdin is redirected then there is only one (possibly
@@ -922,7 +1033,7 @@ comes from function execve (see &rsquo;man 2 execve&rsquo;).
 
 </pre>
 <a name="g_t_005b_003f_005dSYL-_002d-System-limits"></a>
-<h3 class="section">2.2 ⎕SYL - System limits</h3>
+<h3 class="section">3.2 ⎕SYL - System limits</h3>
 
 <p>System variable ⎕SYL shows a number of system limits when referenced:
 </p>
@@ -960,7 +1071,7 @@ INDEX ERROR unless the limit is writable. Some read-only limits can
 be changed at compile-time via ./configure
 </p>
 <a name="g_t_005b_003f_005dSYL_005b1-2-3-4-5-6_003b_005d"></a>
-<h4 class="subsection">2.2.1 ⎕SYL[1 2 3 4 5 6;]</h4>
+<h4 class="subsection">3.2.1 ⎕SYL[1 2 3 4 5 6;]</h4>
 
 <p>The first three limits are writable; their purpose is to stop execution
 if:
@@ -993,20 +1104,20 @@ set the number of values limits and the total ravel bytes limits together.
 current value, is rejected with a DOMAIN ERROR.
 </p>
 <a name="g_t_005b_003f_005dSYL_005b7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23_003b_005d"></a>
-<h4 class="subsection">2.2.2 ⎕SYL[7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23;]</h4>
+<h4 class="subsection">3.2.2 ⎕SYL[7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23;]</h4>
 
 <p>These system limits are read-only. Some of them can be changed at
 compile time via ./configure. Most others can be changed in the source code
 of GNU APL, but doing so is not recommended.
 </p>
 <a name="g_t_005b_003f_005dSYL_005b24-25-26_003b_005d"></a>
-<h4 class="subsection">2.2.3 ⎕SYL[24 25 26;]</h4>
+<h4 class="subsection">3.2.3 ⎕SYL[24 25 26;]</h4>
 
 <p>These system limits have been added in preparation of multi-core GNU APL.
 They are currently not used.
 </p>
 <a name="g_t_005b_003f_005dSYL_005b27_003b_005d"></a>
-<h4 class="subsection">2.2.4 ⎕SYL[27;]</h4>
+<h4 class="subsection">3.2.4 ⎕SYL[27;]</h4>
 
 <p>This is not a limit that raises a limit error. Instead it limits the
 size of APL values when printed as statement results. It is fairly easy
@@ -1021,7 +1132,7 @@ is printed instead of VALUE. The shape SH is computed like this:
 
 </pre>
 <a name="Dyadic-_005b_003f_005dCR"></a>
-<h3 class="section">2.3 Dyadic ⎕CR</h3>
+<h3 class="section">3.3 Dyadic ⎕CR</h3>
 
 <p>The ⎕CR function has an optional left argument that selects one of several
 formatting style and conversions in addition to the well-known monadic form.
@@ -1074,7 +1185,7 @@ then be used as input for e.g. byte vector → hex or byte vector → base64
 conversions.
 </p>
 <a name="Debug-Commands"></a>
-<h3 class="section">2.4 Debug Commands</h3>
+<h3 class="section">3.4 Debug Commands</h3>
 
 <p>Besides the classical commands like )LOAD or )SAVE there are a number of
 debug commands that start with ] rather than ).
@@ -1086,7 +1197,7 @@ feature, colored output, uses different colors for stdout and stderr.
 <p>Type )HELP or ]HELP in the interpreter for a list of all commands available.
 </p>
 <a name="Colored-Output"></a>
-<h3 class="section">2.5 Colored Output</h3>
+<h3 class="section">3.5 Colored Output</h3>
 
 <p>The APL interpreter gets its input from the standard input (stdin),
 which is normally connected to the user&rsquo;s keyboard,
@@ -1113,7 +1224,7 @@ contains a description of all possible color settings.
 </p>
 
 <a name="Logging-Facilities"></a>
-<h3 class="section">2.6 Logging Facilities</h3>
+<h3 class="section">3.6 Logging Facilities</h3>
 
 <p>The APL interpreter has over 30 logging facilities. Each logging facility
 can be ON (and then produces some logging output on stderr) or OFF. The
@@ -1126,7 +1237,7 @@ there is a debug command ]LOG that allows to turn logging facilities to be
 turned ON or OFF.
 </p>
 <a name="Static-Logging"></a>
-<h4 class="subsection">2.6.1 Static Logging</h4>
+<h4 class="subsection">3.6.1 Static Logging</h4>
 
 <p>By default the logging facilities that shall be turned ON are defined
 statically. To change the logging facilities that shall be turned ON,
@@ -1142,7 +1253,7 @@ and not at run-time.
 NOT setting DYNAMIC_LOG_WANTED=yes.
 </p>
 <a name="Dynamic-Logging"></a>
-<h4 class="subsection">2.6.2 Dynamic Logging</h4>
+<h4 class="subsection">3.6.2 Dynamic Logging</h4>
 
 <p>Dynamic Logging is intended for trouble-shooters of GNU APL, but also for
 those who are interested in the internals of GNU APL. Dynamic Logging is
@@ -1163,12 +1274,12 @@ state. The command
 <p>toggles the state of logging facility N from OFF to ON and back.
 </p>
 <a name="Complex-Numbers"></a>
-<h3 class="section">2.7 Complex Numbers</h3>
+<h3 class="section">3.7 Complex Numbers</h3>
 
 <p>Complex numbers are fully supported.
 </p>
 <a name="Native-Functions"></a>
-<h3 class="section">2.8 Native Functions</h3>
+<h3 class="section">3.8 Native Functions</h3>
 
 <p>A Native Function is a function that can be called in APL like a normal user
 defined APL function, but is implemented in C++.
@@ -1224,7 +1335,7 @@ command prints a warning when the )OUT command is used with a
 workspace that contains native functions.
 </p>
 <a name="DUMP-Command"></a>
-<h3 class="section">2.9 DUMP Command</h3>
+<h3 class="section">3.9 DUMP Command</h3>
 
 <p>GNU APL has a command )DUMP that saves a workspace to disk, similar to command
  )OUT).  The difference to command )OUT is the file format being produced.
@@ -1234,7 +1345,7 @@ Files written with )DUMP can be edited with normal text editors (vi, emacs),
 read back with &quot;apl -f&quot;, or made executable (see scripting).
 </p>
 <a name="User_002ddefined-Command"></a>
-<h3 class="section">2.10 User-defined Command</h3>
+<h3 class="section">3.10 User-defined Command</h3>
 
 <p>There is a simple mechanism to define additional APL commands. This mechanism
 is intended to introduce new commands by APL libraries. Like system commands,
@@ -1265,13 +1376,13 @@ be deleted like this:
       ]USERCMD REMOVE-ALL
 </pre>
 <a name="Direct-Functions-_0028Lambdas_0029"></a>
-<h3 class="section">2.11 Direct Functions (Lambdas)</h3>
+<h3 class="section">3.11 Direct Functions (Lambdas)</h3>
 
 <p>GNU APL supports direct functions (aka. lambdas), but only in a rather
 limited form.
 </p>
 <a name="Named-Lambdas"></a>
-<h4 class="subsection">2.11.1 Named Lambdas</h4>
+<h4 class="subsection">3.11.1 Named Lambdas</h4>
 
 <p>A statement of the form
 </p>
@@ -1313,7 +1424,7 @@ function in which the named lambda is created. This creates a lambda with
 local scope.
 </p>
 <a name="Unnamed-Lambdas"></a>
-<h4 class="subsection">2.11.2 Unnamed Lambdas</h4>
+<h4 class="subsection">3.11.2 Unnamed Lambdas</h4>
 
 <p>An unnamed lambda is a statement inside { } but without assigning it to a
 name. This is often used together with the EACH operator.
@@ -1328,14 +1439,14 @@ For example:
 be passed as function arguments to operators.
 </p>
 <a name="Limitations"></a>
-<h4 class="subsection">2.11.3 Limitations</h4>
+<h4 class="subsection">3.11.3 Limitations</h4>
 
 <p>There are a number of features related to lambdas that are present in other
 APL interpreters but that are NOT implemented in GNU APL. This includes
 multiple statements, guards, lexical scoping, and probably more.
 </p>
 <a name="Axis-argument-in-user_002ddefined-functions"></a>
-<h3 class="section">2.12 Axis argument in user-defined functions</h3>
+<h3 class="section">3.12 Axis argument in user-defined functions</h3>
 
 <p>User-defined functions and operators accept an axis argument. For example:
 </p>
@@ -1360,7 +1471,7 @@ doing so will make your APL code incompatible with other APL interpreters.
 Use this feature carefully!
 </p>
 <a name="g_t_005b_003f_005dSI"></a>
-<h3 class="section">2.13 ⎕SI</h3>
+<h3 class="section">3.13 ⎕SI</h3>
 
 <p>⎕SI returns aspects of the current State Indicator, similar to the standard
 command )SI. This can be used, for example, to create debug functions similar
@@ -1421,7 +1532,7 @@ A count from the latest to the oldest level.
 the caller, and so on.
 </p>
 <a name="History-and-TAB-completion"></a>
-<h3 class="section">2.14 History and TAB completion</h3>
+<h3 class="section">3.14 History and TAB completion</h3>
 
 <p>Until GNU APL 1.4 / SVN 465, GNU APL used libreadline for interactive user
 input. libreadline did provide two useful features: tab expansion (the tab
@@ -1462,20 +1573,20 @@ recalling function lines (and which are not fully supported in GNU APL).
     function or variable name.
 </p>
 <hr>
-<a name="Chapter-3"></a>
+<a name="Chapter-4"></a>
 <div class="header">
 <p>
-Next: <a href="#Chapter-4" accesskey="n" rel="next">Chapter 4</a>, Previous: <a href="#Chapter-2" accesskey="p" rel="prev">Chapter 2</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Next: <a href="#Chapter-5" accesskey="n" rel="next">Chapter 5</a>, Previous: <a href="#Chapter-3" accesskey="p" rel="prev">Chapter 3</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="Limitations-and-Missing-Features"></a>
-<h2 class="chapter">3 Limitations and Missing Features</h2>
+<h2 class="chapter">4 Limitations and Missing Features</h2>
 
 <p>APL is an almost full implementation of the ISO standard 13751.
 However, a few limitations exist. See file README-4-compliance for
 an up-to-date descriptions of limitations.
 </p>
 <a name="System-Limits"></a>
-<h3 class="section">3.1 System Limits</h3>
+<h3 class="section">4.1 System Limits</h3>
 
 <p>APL integers are 64-bit wide, ranging from
 -9200000000000000000 to 9200000000000000000
@@ -1490,7 +1601,7 @@ the above limits are guaranteed for some operations (e.g. + and -)
 by means of ./configure (see README-2-configure).
 </p>
 <a name="Shared-Variables"></a>
-<h3 class="section">3.2 Shared Variables</h3>
+<h3 class="section">4.2 Shared Variables</h3>
 
 <p>The system functions and variables for shared variables, i.e. ⎕SVO, ⎕SVR,
 ⎕SVC, ⎕SVS, ⎕SVQ are implemented.
@@ -1512,13 +1623,13 @@ convenient to add your own commands or your own system variables to the
 APL interpreter rather that adding auxiliary processors.
 </p>
 <hr>
-<a name="Chapter-4"></a>
+<a name="Chapter-5"></a>
 <div class="header">
 <p>
-Next: <a href="#Chapter-5" accesskey="n" rel="next">Chapter 5</a>, Previous: <a href="#Chapter-3" accesskey="p" rel="prev">Chapter 3</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Next: <a href="#Chapter-6" accesskey="n" rel="next">Chapter 6</a>, Previous: <a href="#Chapter-4" accesskey="p" rel="prev">Chapter 4</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="Internationalization"></a>
-<h2 class="chapter">4 Internationalization</h2>
+<h2 class="chapter">5 Internationalization</h2>
 
 <p>GNU APL used to be internationalized by means of GNU gettext, but is not
 anymore. 
@@ -1544,33 +1655,33 @@ locales.
 &ndash;en might solve problems related to the terminal.
 </p>
 <hr>
-<a name="Chapter-5"></a>
+<a name="Chapter-6"></a>
 <div class="header">
 <p>
-Next: <a href="#Chapter-6" accesskey="n" rel="next">Chapter 6</a>, Previous: <a href="#Chapter-4" accesskey="p" rel="prev">Chapter 4</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Next: <a href="#Chapter-7" accesskey="n" rel="next">Chapter 7</a>, Previous: <a href="#Chapter-5" accesskey="p" rel="prev">Chapter 5</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="Libraries-Contributed-by-GNU-APL-Users"></a>
-<h2 class="chapter">5 Libraries Contributed by GNU APL Users</h2>
+<h2 class="chapter">6 Libraries Contributed by GNU APL Users</h2>
 
 <p>Since the first release of GNU APL, a number of libraries, but also other
 developments, have been made by users of GNU APL. Below are links to these
 contributions.
 </p>
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="#Section-5_002e1" accesskey="1">Section 5.1</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The GNU APL Community Webpage
+<tr><td align="left" valign="top">&bull; <a href="#Section-6_002e1" accesskey="1">Section 6.1</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The GNU APL Community Webpage
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Section-5_002e2" accesskey="2">Section 5.2</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Core Libraries
+<tr><td align="left" valign="top">&bull; <a href="#Section-6_002e2" accesskey="2">Section 6.2</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Core Libraries
 </td></tr>
 </table>
 
 <hr>
-<a name="Section-5_002e1"></a>
+<a name="Section-6_002e1"></a>
 <div class="header">
 <p>
-Next: <a href="#Section-5_002e2" accesskey="n" rel="next">Section 5.2</a>, Up: <a href="#Chapter-5" accesskey="u" rel="up">Chapter 5</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Next: <a href="#Section-6_002e2" accesskey="n" rel="next">Section 6.2</a>, Up: <a href="#Chapter-6" accesskey="u" rel="up">Chapter 6</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="The-GNU-APL-Community-Webpage"></a>
-<h3 class="section">5.1 The GNU APL Community Webpage</h3>
+<h3 class="section">6.1 The GNU APL Community Webpage</h3>
 
 <p>The GNU APL project maintains a web page that lists contibutions made by
 GNU APL users:
@@ -1588,13 +1699,13 @@ to fix that.
 </p>
 
 <hr>
-<a name="Section-5_002e2"></a>
+<a name="Section-6_002e2"></a>
 <div class="header">
 <p>
-Previous: <a href="#Section-5_002e1" accesskey="p" rel="prev">Section 5.1</a>, Up: <a href="#Chapter-5" accesskey="u" rel="up">Chapter 5</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Previous: <a href="#Section-6_002e1" accesskey="p" rel="prev">Section 6.1</a>, Up: <a href="#Chapter-6" accesskey="u" rel="up">Chapter 6</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="Core-Libraries"></a>
-<h3 class="section">5.2 Core Libraries</h3>
+<h3 class="section">6.2 Core Libraries</h3>
 
 <p>There is a small number of libraries that are considered &quot;core&quot; APL because,
 for example, the ISO standard requires their functionality, or because other
@@ -1617,13 +1728,13 @@ GNU APL packages that follows their contribution.
 <p>SQL
 </p>
 <hr>
-<a name="Chapter-6"></a>
+<a name="Chapter-7"></a>
 <div class="header">
 <p>
-Previous: <a href="#Chapter-5" accesskey="p" rel="prev">Chapter 5</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Previous: <a href="#Chapter-6" accesskey="p" rel="prev">Chapter 6</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="Licenses-for-this-GNU-APL-Manual-and-for-GNU-APL"></a>
-<h2 class="chapter">6 Licenses for this GNU APL Manual and for GNU APL</h2>
+<h2 class="chapter">7 Licenses for this GNU APL Manual and for GNU APL</h2>
 
 <p>This manual for GNU APL is licensed under the GNU Free Documentation
 License, *Note Section 4.1:: below.
@@ -1632,20 +1743,20 @@ License, *Note Section 4.1:: below.
 (aka GPLv3+), *Note Section 4.2:: below.
 </p>
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="#Section-6_002e1" accesskey="1">Section 6.1</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The GNU Free Documentation License
+<tr><td align="left" valign="top">&bull; <a href="#Section-7_002e1" accesskey="1">Section 7.1</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The GNU Free Documentation License
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Section-6_002e2" accesskey="2">Section 6.2</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The GNU General Public License
+<tr><td align="left" valign="top">&bull; <a href="#Section-7_002e2" accesskey="2">Section 7.2</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The GNU General Public License
 </td></tr>
 </table>
 
 <hr>
-<a name="Section-6_002e1"></a>
+<a name="Section-7_002e1"></a>
 <div class="header">
 <p>
-Next: <a href="#Section-6_002e2" accesskey="n" rel="next">Section 6.2</a>, Up: <a href="#Chapter-6" accesskey="u" rel="up">Chapter 6</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Next: <a href="#Section-7_002e2" accesskey="n" rel="next">Section 7.2</a>, Up: <a href="#Chapter-7" accesskey="u" rel="up">Chapter 7</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="The-GNU-Free-Documentation-License"></a>
-<h3 class="section">6.1 The GNU Free Documentation License</h3>
+<h3 class="section">7.1 The GNU Free Documentation License</h3>
 
 <div align="center">Version 1.3, 3 November 2008
 </div>
@@ -2115,13 +2226,13 @@ free software license, such as the GNU General Public License,
 to permit their use in free software.
 </p>
 <hr>
-<a name="Section-6_002e2"></a>
+<a name="Section-7_002e2"></a>
 <div class="header">
 <p>
-Previous: <a href="#Section-6_002e1" accesskey="p" rel="prev">Section 6.1</a>, Up: <a href="#Chapter-6" accesskey="u" rel="up">Chapter 6</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+Previous: <a href="#Section-7_002e1" accesskey="p" rel="prev">Section 7.1</a>, Up: <a href="#Chapter-7" accesskey="u" rel="up">Chapter 7</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
 </div>
 <a name="The-GNU-GENERAL-PUBLIC-LICENSE"></a>
-<h3 class="section">6.2 The GNU GENERAL PUBLIC LICENSE</h3>
+<h3 class="section">7.2 The GNU GENERAL PUBLIC LICENSE</h3>
 
 <p>GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
