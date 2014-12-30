@@ -36,11 +36,12 @@ ftp://rtfm.mit.edu/pub/usenet-by-group/comp.lang.apl/APL_language_FAQ
 * Menu:
 
 * Chapter 1::    Installing and Starting APL
-* Chapter 2::    Non-standard Features
-* Chapter 3::    Limitations and Missing Features
-* Chapter 4::    Internationalization
-* Chapter 5::    Libraries Contributed by GNU APL Users
-* Chapter 6::    Licenses for GNU APL and this Manual
+* Chapter 2::    Design Decisions
+* Chapter 3::    Non-standard Features
+* Chapter 4::    Limitations and Missing Features
+* Chapter 5::    Internationalization
+* Chapter 6::    Libraries Contributed by GNU APL Users
+* Chapter 7::    Licenses for GNU APL and this Manual
 
 
 File: apl.info,  Node: Chapter 1,  Next: Chapter 2,  Prev: Top,  Up: Top
@@ -500,12 +501,117 @@ scheme.
 
 File: apl.info,  Node: Chapter 2,  Next: Chapter 3,  Prev: Chapter 1,  Up: Top
 
-2 Non-standard Features
+2 Design Decisions
+******************
+
+The ISO standard leaves a few things unspecified and GNU APL may behave
+differently than other APL interpreters.
+
+2.1 APL symbols that can be functions or operators
+==================================================
+
+There are 4 APL symbols / ⌿ \ and ⍀ that can be functions or operators,
+depending on their context (i.e.  depending on the APL tokens left of
+them).  Neither the ISO standard nor the otherwise excellent IBM APL2
+language reference manual explain the rules that decide whether, for
+example /, should mean ’function compress’ or ’operator reduce’.  In
+simple cases the meaning of / is obvious: +/B means ’operator reduce’
+while 1/B means ’function compress’.
+
+   The following example may explain the problem:
+
+     ÷  /  \  2      ⍝ case (i)
+2
+   (÷  /) \  2       ⍝ case (ii)
+2
+   ÷ (/  \) 2        ⍝ case (iii)
+0.5
+
+   In (i) and (ii) \ is an operator thanks to ÷ left of it while in
+(iii) \ is a function bound to operator \.
+
+   Both (ii) and (iii) are valid interpretations if (i).  The ISO
+standard defined the result after the decision if / should be treated as
+function or as operator was made but says nothing about how to decide
+that.
+
+   The APL2 language reference gives additional information about such
+aspects (binding strength between token) but the ambiguity related to /
+⌿ \ and ⍀ is not resolved by these rules.
+
+   The first decision to make is at which point in time the role of /
+and friends shall be decided.  The options are:
+
+   (a) when the statement is tokenized and parsed (call that moment ’⎕FX
+time’ similar to compile-time for compiler languages), or
+
+   (b) when a statement is executed (call that ’run-time’), or
+
+   (c) theoretically a combination of (a) and (b)
+
+   The advantage of (a) is less reunite overhead which is important
+because / is probably the most frequently used APL operator.  As will be
+explained below there are cases where (a) fails.  The advantage of (b),
+at first glance, seems to be that it always gives the correct (more
+precisely: the expected result because correct would require a valid
+specification).  A closer look reveals, however, that this is only true
+for the most simple cases but not in general.
+
+   To give you an idea where (b) becomes tricky is this (there are more
+of that kind:
+
+   A[FOO]/B ⍝ where FOO could define A via ⎕FX or do A←
+
+   Io is still possible to resolve the last example at run time, but the
+parser would become far more complex to do that.  The same holds for
+(c).
+
+   For these reasons the decision was made in favor of (a) with a
+syntactic tweak to handle the (single) case where (a) fails.  In
+principle the symbol left of, for instance, / decides if / should be a
+function or an operators.  The matter can become more complex if index
+brackets or parentheses are involved.  The algorithm used in GNU APL for
+classifying / and friend is (simplified) this:
+
+   1.  / ⌿ \ and ⍀ are tokenized as operators
+
+   2.  Scan the tokenized statement from left to right to find / ⌿ \ or
+⍀
+
+   3.  If found, go backwards until a constant, a function, or a
+user-defined name is found: 3a.  if a constant, a function, or a
+user-defined name is found then →4 3b.  if ) is seen then skip over it
+3c.  if ] is seen then skip until the corresponding [ is found 3d.
+otherwise: SYNTAX ERROR
+
+   4.  decide the role of (for example) / based on the token found in
+3a: 4a.  function: leave / as operator as initially tokenized 4b.
+constant: change / from operator to function (compress) 4c.  see below
+
+   This works fine except in case 4c.  which cannot be resolved at ⎕FX
+time.  For this case we introduce the following convention:
+
+   A user-defined name is assumed to be a function (and hence / is an
+operator) unless the name (and nothing else) is enclosed in parentheses.
+For example:
+
+       A  / B    ⍝ A is function, therefore / is operator
+
+      (A) / B    ⍝ A is value, therefore / is function
+
+   This rule is moderately compatible with ISO and APL2; in APL2 (A)
+would be redundant parentheses so in that case there would be a small
+incompatibility between GNU APL and IBM APL2.
+
+
+File: apl.info,  Node: Chapter 3,  Next: Chapter 4,  Prev: Chapter 2,  Up: Top
+
+3 Non-standard Features
 ***********************
 
 There are a few possibly useful features in GNU APL:
 
-2.1 APL Scripting
+3.1 APL Scripting
 =================
 
 As already mentioned, it is possible to write APL scripts.  Like for
@@ -521,7 +627,7 @@ script file to stdin of the interpreter or making the script executable
 and indicate apl as the script interpreter (followed by some command
 line arguments for apl).
 
-2.1.1 redirect the script file the stdin of the GNU APL interpreter
+3.1.1 redirect the script file the stdin of the GNU APL interpreter
 -------------------------------------------------------------------
 
 A file, say SCRIPT.apl, can be redirected to apl by redirection of the
@@ -537,7 +643,7 @@ shell:
 case redirection was performed by the shell running apl, while in the
 second case the redirecting of the file was performed by apl itself.
 
-2.1.2 Make the script file executable
+3.1.2 Make the script file executable
 -------------------------------------
 
 Alternatively the script can be made executable, mentioning apl as the
@@ -554,7 +660,7 @@ starting of a thread for shared variable communication.
 you do not know in advance where the APL interpreter will be installed)
 then it must be in $PATH of the shell that runs the script).
 
-2.1.3 How command line arguments are handled
+3.1.3 How command line arguments are handled
 --------------------------------------------
 
 As we have seen, GNU APL can be started directly (by entering the name
@@ -661,7 +767,7 @@ apl; instead you can use them directly in the script.
 prevents any of the options given to the script to be interpreted as APL
 options; all such options are passed to the application via ⎕ARG.
 
-2.1.4 Helpful features for scripting
+3.1.4 Helpful features for scripting
 ------------------------------------
 
 In order to be really useful for scripting, three more features have
@@ -716,7 +822,7 @@ Third line ...  END-OF-⎕INP
 
    These features together allow you to write Web pages in APL!
 
-2.1.5 Script Example
+3.1.5 Script Example
 --------------------
 
 Note that the two different ways of running an APL script have an impact
@@ -787,7 +893,7 @@ execve’).
  /usr/local/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG
 
 
-2.2 ⎕SYL - System limits
+3.2 ⎕SYL - System limits
 ========================
 
 System variable ⎕SYL shows a number of system limits when referenced:
@@ -825,7 +931,7 @@ result in a SYNTAX ERROR. Indexed assignment to ⎕SYL will result in an
 INDEX ERROR unless the limit is writable.  Some read-only limits can be
 changed at compile-time via ./configure
 
-2.2.1 ⎕SYL[1 2 3 4 5 6;]
+3.2.1 ⎕SYL[1 2 3 4 5 6;]
 ------------------------
 
 The first three limits are writable; their purpose is to stop execution
@@ -857,20 +963,20 @@ bytes limits together.
    An attempt to set a too small limit, for example one that is close to
 the current value, is rejected with a DOMAIN ERROR.
 
-2.2.2 ⎕SYL[7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23;]
+3.2.2 ⎕SYL[7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23;]
 ------------------------------------------------------------
 
 These system limits are read-only.  Some of them can be changed at
 compile time via ./configure.  Most others can be changed in the source
 code of GNU APL, but doing so is not recommended.
 
-2.2.3 ⎕SYL[24 25 26;]
+3.2.3 ⎕SYL[24 25 26;]
 ---------------------
 
 These system limits have been added in preparation of multi-core GNU
 APL. They are currently not used.
 
-2.2.4 ⎕SYL[27;]
+3.2.4 ⎕SYL[27;]
 ---------------
 
 This is not a limit that raises a limit error.  Instead it limits the
@@ -886,7 +992,7 @@ this:
       while (ravel-length(SH) ≥ ⎕SYL[27;2])   { divide longest axis in SH by 2 }
 
 
-2.3 Dyadic ⎕CR
+3.3 Dyadic ⎕CR
 ==============
 
 The ⎕CR function has an optional left argument that selects one of
@@ -945,7 +1051,7 @@ strings but does not work for general APL text vectors.  Those need to
 be translated to bytes first and can then be used as input for e.g.
 byte vector → hex or byte vector → base64 conversions.
 
-2.4 Debug Commands
+3.4 Debug Commands
 ==================
 
 Besides the classical commands like )LOAD or )SAVE there are a number of
@@ -958,7 +1064,7 @@ output, uses different colors for stdout and stderr.
    Type )HELP or ]HELP in the interpreter for a list of all commands
 available.
 
-2.5 Colored Output
+3.5 Colored Output
 ==================
 
 The APL interpreter gets its input from the standard input (stdin),
@@ -984,7 +1090,7 @@ colors and UTF-8 (Unicode) encoded character I/O.
 can be configured in the ’preferences’ file.  The ’preferences’ file
 also contains a description of all possible color settings.
 
-2.6 Logging Facilities
+3.6 Logging Facilities
 ======================
 
 The APL interpreter has over 30 logging facilities.  Each logging
@@ -997,7 +1103,7 @@ OFF can be made at compile time (of the APL interpreter) or at run-time.
 logging - there is a debug command ]LOG that allows to turn logging
 facilities to be turned ON or OFF.
 
-2.6.1 Static Logging
+3.6.1 Static Logging
 --------------------
 
 By default the logging facilities that shall be turned ON are defined
@@ -1013,7 +1119,7 @@ compile time and not at run-time.
    If you benchmark the APL interpreter, then ./configure Static Logging
 by NOT setting DYNAMIC_LOG_WANTED=yes.
 
-2.6.2 Dynamic Logging
+3.6.2 Dynamic Logging
 ---------------------
 
 Dynamic Logging is intended for trouble-shooters of GNU APL, but also
@@ -1035,12 +1141,12 @@ current state.  The command
 
    toggles the state of logging facility N from OFF to ON and back.
 
-2.7 Complex Numbers
+3.7 Complex Numbers
 ===================
 
 Complex numbers are fully supported.
 
-2.8 Native Functions
+3.8 Native Functions
 ====================
 
 A Native Function is a function that can be called in APL like a normal
@@ -1096,7 +1202,7 @@ with all other APL interpreters if the workspace contains native
 functions.  The )OUT command prints a warning when the )OUT command is
 used with a workspace that contains native functions.
 
-2.9 DUMP Command
+3.9 DUMP Command
 ================
 
 GNU APL has a command )DUMP that saves a workspace to disk, similar to
@@ -1107,7 +1213,7 @@ APL statements).  Files written with )DUMP can be edited with normal
 text editors (vi, emacs), read back with "apl -f", or made executable
 (see scripting).
 
-2.10 User-defined Command
+3.10 User-defined Command
 =========================
 
 There is a simple mechanism to define additional APL commands.  This
@@ -1139,13 +1245,13 @@ be deleted like this:
       ]USERCMD REMOVE ]UCMD
       ]USERCMD REMOVE-ALL
 
-2.11 Direct Functions (Lambdas)
+3.11 Direct Functions (Lambdas)
 ===============================
 
 GNU APL supports direct functions (aka.  lambdas), but only in a rather
 limited form.
 
-2.11.1 Named Lambdas
+3.11.1 Named Lambdas
 --------------------
 
 A statement of the form
@@ -1189,7 +1295,7 @@ lambda (i.e.  the name left of ← { ...  }) can be made a local variable
 of the function in which the named lambda is created.  This creates a
 lambda with local scope.
 
-2.11.2 Unnamed Lambdas
+3.11.2 Unnamed Lambdas
 ----------------------
 
 An unnamed lambda is a statement inside { } but without assigning it to
@@ -1204,7 +1310,7 @@ example:
    Unnamed lambdas are automatically local in scope (similar to labels).
 They can be passed as function arguments to operators.
 
-2.11.3 Limitations
+3.11.3 Limitations
 ------------------
 
 There are a number of features related to lambdas that are present in
@@ -1212,7 +1318,7 @@ other APL interpreters but that are NOT implemented in GNU APL. This
 includes multiple statements, guards, lexical scoping, and probably
 more.
 
-2.12 Axis argument in user-defined functions
+3.12 Axis argument in user-defined functions
 ============================================
 
 User-defined functions and operators accept an axis argument.  For
@@ -1238,7 +1344,7 @@ Therefore you can use an axis as a third function argument.  Keep in
 mind, however, that doing so will make your APL code incompatible with
 other APL interpreters.  Use this feature carefully!
 
-2.13 ⎕SI
+3.13 ⎕SI
 ========
 
 ⎕SI returns aspects of the current State Indicator, similar to the
@@ -1301,7 +1407,7 @@ while negative A count from the latest to the oldest level.
    For example, ¯1 ⎕SI refers to the currently executing context, ¯2 ⎕SI
 is the caller, and so on.
 
-2.14 History and TAB completion
+3.14 History and TAB completion
 ===============================
 
 Until GNU APL 1.4 / SVN 465, GNU APL used libreadline for interactive
@@ -1345,16 +1451,16 @@ a system variable name.
 defined function or variable name.
 
 
-File: apl.info,  Node: Chapter 3,  Next: Chapter 4,  Prev: Chapter 2,  Up: Top
+File: apl.info,  Node: Chapter 4,  Next: Chapter 5,  Prev: Chapter 3,  Up: Top
 
-3 Limitations and Missing Features
+4 Limitations and Missing Features
 **********************************
 
 APL is an almost full implementation of the ISO standard 13751.
 However, a few limitations exist.  See file README-4-compliance for an
 up-to-date descriptions of limitations.
 
-3.1 System Limits
+4.1 System Limits
 =================
 
 APL integers are 64-bit wide, ranging from -9200000000000000000 to
@@ -1370,7 +1476,7 @@ and -)
    APL values have a maximum rank of 8.  This value can be increased,
 however, by means of ./configure (see README-2-configure).
 
-3.2 Shared Variables
+4.2 Shared Variables
 ====================
 
 The system functions and variables for shared variables, i.e.  ⎕SVO,
@@ -1393,9 +1499,9 @@ more convenient to add your own commands or your own system variables to
 the APL interpreter rather that adding auxiliary processors.
 
 
-File: apl.info,  Node: Chapter 4,  Next: Chapter 5,  Prev: Chapter 3,  Up: Top
+File: apl.info,  Node: Chapter 5,  Next: Chapter 6,  Prev: Chapter 4,  Up: Top
 
-4 Internationalization
+5 Internationalization
 **********************
 
 GNU APL used to be internationalized by means of GNU gettext, but is not
@@ -1425,9 +1531,9 @@ installed locales.
 –lc, and –en might solve problems related to the terminal.
 
 
-File: apl.info,  Node: Chapter 5,  Next: Chapter 6,  Prev: Chapter 4,  Up: Top
+File: apl.info,  Node: Chapter 6,  Next: Chapter 7,  Prev: Chapter 5,  Up: Top
 
-5 Libraries Contributed by GNU APL Users
+6 Libraries Contributed by GNU APL Users
 ****************************************
 
 Since the first release of GNU APL, a number of libraries, but also
@@ -1436,13 +1542,13 @@ to these contributions.
 
 * Menu:
 
-* Section 5.1::  The GNU APL Community Webpage
-* Section 5.2::  Core Libraries
+* Section 6.1::  The GNU APL Community Webpage
+* Section 6.2::  Core Libraries
 
 
-File: apl.info,  Node: Section 5.1,  Next: Section 5.2,  Up: Chapter 5
+File: apl.info,  Node: Section 6.1,  Next: Section 6.2,  Up: Chapter 6
 
-5.1 The GNU APL Community Webpage
+6.1 The GNU APL Community Webpage
 =================================
 
 The GNU APL project maintains a web page that lists contibutions made by
@@ -1460,9 +1566,9 @@ listed but more likely that it was overlooked.  Juse send an email to
 bug-apl@gnu.org to fix that.
 
 
-File: apl.info,  Node: Section 5.2,  Prev: Section 5.1,  Up: Chapter 5
+File: apl.info,  Node: Section 6.2,  Prev: Section 6.1,  Up: Chapter 6
 
-5.2 Core Libraries
+6.2 Core Libraries
 ==================
 
 There is a small number of libraries that are considered "core" APL
@@ -1486,9 +1592,9 @@ in the GNU APL packages that follows their contribution.
    SQL
 
 
-File: apl.info,  Node: Chapter 6,  Prev: Chapter 5,  Up: Top
+File: apl.info,  Node: Chapter 7,  Prev: Chapter 6,  Up: Top
 
-6 Licenses for this GNU APL Manual and for GNU APL
+7 Licenses for this GNU APL Manual and for GNU APL
 **************************************************
 
 This manual for GNU APL is licensed under the GNU Free Documentation
@@ -1499,13 +1605,13 @@ later (aka GPLv3+), *Note Section 4.2:: below.
 
 * Menu:
 
-* Section 6.1::  The GNU Free Documentation License
-* Section 6.2::  The GNU General Public License
+* Section 7.1::  The GNU Free Documentation License
+* Section 7.2::  The GNU General Public License
 
 
-File: apl.info,  Node: Section 6.1,  Next: Section 6.2,  Up: Chapter 6
+File: apl.info,  Node: Section 7.1,  Next: Section 7.2,  Up: Chapter 7
 
-6.1 The GNU Free Documentation License
+7.1 The GNU Free Documentation License
 ======================================
 
                      Version 1.3, 3 November 2008
@@ -1985,9 +2091,9 @@ software license, such as the GNU General Public License, to permit
 their use in free software.
 
 
-File: apl.info,  Node: Section 6.2,  Prev: Section 6.1,  Up: Chapter 6
+File: apl.info,  Node: Section 7.2,  Prev: Section 7.1,  Up: Chapter 7
 
-6.2 The GNU GENERAL PUBLIC LICENSE
+7.2 The GNU GENERAL PUBLIC LICENSE
 ==================================
 
 GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
@@ -2668,16 +2774,17 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
 Tag Table:
 Node: Top383
-Node: Chapter 11370
-Node: Chapter 216249
-Node: Chapter 346422
-Node: Chapter 448170
-Node: Chapter 549299
-Node: Section 5.149718
-Node: Section 5.250402
-Node: Chapter 651233
-Node: Section 6.151736
-Node: Section 6.277045
+Node: Chapter 11404
+Node: Chapter 216283
+Node: Chapter 320552
+Node: Chapter 450725
+Node: Chapter 552473
+Node: Chapter 653602
+Node: Section 6.154021
+Node: Section 6.254705
+Node: Chapter 755536
+Node: Section 7.156039
+Node: Section 7.281348
 
 End Tag Table
 

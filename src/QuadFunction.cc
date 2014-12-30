@@ -413,8 +413,8 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                const ShapeItem full_quantums = B.element_count() / 3;
                const ShapeItem len_Z = 4 * ((B.element_count() + 2) / 3);
                Value_P Z(new Value(len_Z, LOC));
-               alpha = "ABCDEFGHIJKLMNOPQRTSUVWXYZ"
-                       "abcdefghijklmnopqrtsuvwxyz"
+               alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                       "abcdefghijklmnopqrstuvwxyz"
                        "0123456789+/";
                const Cell * cB = &B.get_ravel(0);
                loop(b, full_quantums)   // encode full quantums
