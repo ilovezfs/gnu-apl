@@ -494,7 +494,7 @@ Executable::setup_lambdas()
          //
          if (body[b].get_tag() != TOK_R_CURLY)   continue;   // not {
 
-         b = setup_one_lambda(b);
+         b = setup_one_lambda(b) - 1;   // -1 due to ++b in loop(b)
        }
 
    Parser::remove_void_token(body);
