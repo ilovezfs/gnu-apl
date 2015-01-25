@@ -1,8 +1,8 @@
 Source: apl
 Section: devel
 Priority: optional
-Maintainer: Juergen <bug-apl@gnu.org>
-Build-Depends: debhelper (>= 7), autotools-dev, liblapack-dev, libgl1-mesa-glx, mime-support, libreadline5, locales, libc6, libgfortran3, libasound2, libatlas3gf-base, gawk
+Maintainer: Juergen Sauermann<bug-apl@gnu.org>
+Build-Depends: debhelper (>= 7), autotools-dev, libgl1-mesa-glx, mime-support, locales, libc6, gawk
 Standards-Version: 3.8.3
 Homepage: 
 

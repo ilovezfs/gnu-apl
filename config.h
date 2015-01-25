@@ -56,7 +56,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if lib(n)curses is available */
-#define HAVE_LIBCURSES 1
+/* #undef HAVE_LIBCURSES */
 
 /* Define to 1 if you have the `dl' library (-ldl). */
 #define HAVE_LIBDL 1
@@ -89,7 +89,7 @@
 #define HAVE_MUNMAP 1
 
 /* Define to 1 if <ncurses.h> is present */
-#define HAVE_NCURSES_H 1
+/* #undef HAVE_NCURSES_H */
 
 /* Define to 1 if OSAtomicAdd32Barrier() is available */
 /* #undef HAVE_OSX_ATOMIC */
@@ -146,7 +146,7 @@
 #define HAVE_SYS_UN_H 1
 
 /* Define to 1 if <term.h> is present */
-#define HAVE_TERM_H 1
+/* #undef HAVE_TERM_H */
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
