@@ -32,7 +32,6 @@
 
 #include "Backtrace.hh"
 #include "Logging.hh"
-#include "main.hh"
 #include "PrintOperator.hh"
 #include "ProcessorID.hh"
 #include "Svar_record.hh"

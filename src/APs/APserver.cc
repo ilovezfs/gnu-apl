@@ -75,7 +75,8 @@ bool LOG_shared_variables = false;
 AP_num3 ProcessorID::id;
 
 //-----------------------------------------------------------------------------
-const char * prog_name()
+const char *
+prog_name()
 {
    return "APserver";
 }

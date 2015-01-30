@@ -27,11 +27,62 @@
 
 #include "Common.hh"
 #include "FloatCell.hh"
+#include "LineInput.hh"
+#include "NativeFunction.hh"
 #include "Output.hh"
+#include "ProcessorID.hh"
 #include "Value.icc"
 
 uint64_t total_memory = 0;
 
+APL_time_us interrupt_when = 0;
+uint64_t interrupt_count = 0;
+bool interrupt_raised = false;
+
+bool attention_raised = false;
+uint64_t attention_count = 0;
+
+//-----------------------------------------------------------------------------
+/// the opposite of init()
+void
+cleanup(bool soft)
+{
+   if (soft)   // proper clean-up
+      {
+        ProcessorID::disconnect();
+
+        NativeFunction::cleanup();
+
+        // write line history
+        //
+        LineInput::close(false);
+
+        Output::reset_colors();
+      }
+   else        // minimal clean-up
+      {
+        LineInput::close(true);
+        Output::reset_colors();
+      }
+}
+//-----------------------------------------------------------------------------
+void
+control_C(int)
+{
+APL_time_us when = now();
+
+   CIN << "^C";
+
+   attention_raised = true;
+   ++attention_count;
+   if ((when - interrupt_when) < 1000000)   // second ^C within 1 second
+      {
+        interrupt_raised = true;
+        ++interrupt_count;
+      }
+
+   interrupt_when = when;
+}
 //-----------------------------------------------------------------------------
 
 // Probes...

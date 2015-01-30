@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include "Function.hh"
-#include "main.hh"
 #include "Output.hh"
 #include "Performance.hh"
 #include "PointerCell.hh"

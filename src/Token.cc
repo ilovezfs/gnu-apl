@@ -21,7 +21,6 @@
 #include <string.h>
 
 #include "IndexExpr.hh"
-#include "main.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 #include "Symbol.hh"

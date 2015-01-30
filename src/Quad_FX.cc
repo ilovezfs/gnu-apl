@@ -22,7 +22,6 @@
 #include <dlfcn.h>
 
 #include "IntCell.hh"
-#include "main.hh"
 #include "NativeFunction.hh"
 #include "Quad_FX.hh"
 #include "Symbol.hh"

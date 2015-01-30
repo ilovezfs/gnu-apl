@@ -56,7 +56,7 @@ LibPaths.cc					LibPaths.hh		\
 LineInput.cc					LineInput.hh		\
 Logging.cc	    Logging.def			Logging.hh		\
 LvalCell.cc					LvalCell.hh		\
-main.cc						main.hh			\
+main.cc									\
 						makefile.h		\
 Malloc_hooks.cc								\
 Nabla.cc					Nabla.hh		\

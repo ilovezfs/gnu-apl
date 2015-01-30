@@ -37,7 +37,6 @@
 
 #include "Backtrace.hh"
 #include "Logging.hh"
-#include "main.hh"
 #include "Svar_DB.hh"
 #include "Svar_signals.hh"
 #include "UserPreferences.hh"

@@ -20,7 +20,6 @@
 
 #include "Bif_OPER2_RANK.hh"
 #include "IntCell.hh"
-#include "main.hh"
 #include "PointerCell.hh"
 #include "Workspace.hh"
 
