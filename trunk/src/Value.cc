@@ -30,7 +30,6 @@
 #include "IntCell.hh"
 #include "IO_Files.hh"
 #include "LvalCell.hh"
-#include "main.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
 #include "Parallel.hh"

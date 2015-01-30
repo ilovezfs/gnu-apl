@@ -34,7 +34,6 @@
 #include "LibPaths.hh"
 #include "LineInput.hh"
 #include "Logging.hh"
-#include "main.hh"
 #include "makefile.h"
 #include "Output.hh"
 #include "NativeFunction.hh"
@@ -53,11 +52,6 @@
 
 static const char * build_tag[] = { BUILDTAG, 0 };
 
-//-----------------------------------------------------------------------------
-const char * prog_name()
-{
-   return "apl";
-}
 //-----------------------------------------------------------------------------
 /// initialize subsystems that are independent of argv[]
 static void
@@ -99,56 +93,10 @@ init_2(bool log_startup)
    Parallel::init(log_startup || LOG_Parallel);
 }
 //-----------------------------------------------------------------------------
-/// the opposite of init()
-void
-cleanup(bool soft)
-{
-   if (soft)   // proper clean-up
-      {
-        ProcessorID::disconnect();
-
-        NativeFunction::cleanup();
-
-        // write line history
-        //
-        LineInput::close(false);
-
-        Output::reset_colors();
-      }
-   else        // minimal clean-up
-      {
-        LineInput::close(true);
-        Output::reset_colors();
-      }
-}
-//-----------------------------------------------------------------------------
-
-APL_time_us interrupt_when = 0;
-bool interrupt_raised = false;
-bool attention_raised = false;
-uint64_t attention_count = 0;
-uint64_t interrupt_count = 0;
 
 static struct sigaction old_control_C_action;
 static struct sigaction new_control_C_action;
 
-void
-control_C(int)
-{
-APL_time_us when = now();
-
-   CIN << "^C";
-
-   attention_raised = true;
-   ++attention_count;
-   if ((when - interrupt_when) < 1000000)   // second ^C within 1 second
-      {
-        interrupt_raised = true;
-        ++interrupt_count;
-      }
-
-   interrupt_when = when;
-}
 //-----------------------------------------------------------------------------
 static struct sigaction old_SEGV_action;
 static struct sigaction new_SEGV_action;

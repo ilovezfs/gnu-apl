@@ -66,7 +66,6 @@
 #include "Common.hh"
 #include "DiffOut.hh"
 #include "InputFile.hh"
-#include "main.hh"
 #include "LineInput.hh"
 #include "Output.hh"
 #include "Performance.hh"

@@ -27,7 +27,6 @@
 #include "InputFile.hh"
 #include "IO_Files.hh"
 #include "LineInput.hh"
-#include "main.hh"
 #include "Nabla.hh"
 #include "Parallel.hh"
 #include "SystemVariable.hh"

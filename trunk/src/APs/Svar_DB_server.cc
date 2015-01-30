@@ -32,7 +32,6 @@
 
 #include "Backtrace.hh"
 #include "Logging.hh"
-#include "main.hh"
 #include "ProcessorID.hh"
 #include "Svar_DB_server.hh"
 #include "Svar_signals.hh"

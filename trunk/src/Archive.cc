@@ -37,7 +37,6 @@
 #include "IndexExpr.hh"
 #include "IntCell.hh"
 #include "LvalCell.hh"
-#include "main.hh"
 #include "NativeFunction.hh"
 #include "Output.hh"
 #include "PointerCell.hh"

@@ -51,6 +51,16 @@ Quad_SVS Quad_SVS::fun;
 
 APL_time_us Quad_SVE::timer_end = 0;
 
+//=============================================================================
+// there is a different prog_name() function around (in APserver) so we
+// declare the one for the APL interpreter here
+const char *
+prog_name()
+{
+   return "apl";
+}
+
+//=============================================================================
 TCP_socket get_TCP_for_key(SV_key key)
 {
    return Svar_DB::get_DB_tcp();

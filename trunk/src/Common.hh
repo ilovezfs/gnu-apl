@@ -56,6 +56,22 @@ enum { MAX_RANK = MAX_RANK_WANTED };
 
 using namespace std;
 
+/// clean up
+extern void cleanup(bool soft);
+
+/// true if Control-C was hit
+extern bool attention_raised;
+extern uint64_t attention_count;
+
+/// true if Control-C was hit twice within 500 ms
+extern bool interrupt_raised;
+extern uint64_t interrupt_count;
+
+/// time when ^C was hit last
+extern APL_time_us interrupt_when;
+
+extern void control_C(int);
+
 /// normal APL output (to stdout)
 extern ostream COUT;
 

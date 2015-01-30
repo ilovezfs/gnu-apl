@@ -19,7 +19,6 @@
 */
 
 #include "Bif_OPER1_EACH.hh"
-#include "main.hh"
 #include "PointerCell.hh"
 #include "Workspace.hh"
 

@@ -33,7 +33,6 @@
 #include "IntCell.hh"
 #include "IO_Files.hh"
 #include "LineInput.hh"
-#include "main.hh"
 #include "Nabla.hh"
 #include "Output.hh"
 #include "Parser.hh"

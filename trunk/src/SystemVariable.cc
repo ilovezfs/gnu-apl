@@ -36,7 +36,6 @@
 #include "IndexExpr.hh"
 #include "IntCell.hh"
 #include "LineInput.hh"
-#include "main.hh"
 #include "Output.hh"
 #include "Parallel.hh"
 #include "PointerCell.hh"

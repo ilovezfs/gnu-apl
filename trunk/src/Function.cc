@@ -27,7 +27,6 @@
 #include "Error.hh"
 #include "Function.hh"
 #include "IntCell.hh"
-#include "main.hh"
 #include "Output.hh"
 #include "Parser.hh"
 #include "PrintOperator.hh"

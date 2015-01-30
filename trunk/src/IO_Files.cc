@@ -25,7 +25,6 @@
 #include "IndexExpr.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
-#include "main.hh"
 #include "Output.hh"
 #include "UTF8_string.hh"
 #include "Workspace.hh"

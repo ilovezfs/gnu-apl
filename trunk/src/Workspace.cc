@@ -29,7 +29,6 @@ using namespace std;
 #include "InputFile.hh"
 #include "IO_Files.hh"
 #include "LibPaths.hh"
-#include "main.hh"
 #include "Output.hh"
 #include "Quad_FX.hh"
 #include "Quad_TF.hh"

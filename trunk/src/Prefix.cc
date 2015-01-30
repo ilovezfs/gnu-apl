@@ -23,7 +23,6 @@
 #include "DerivedFunction.hh"
 #include "Executable.hh"
 #include "IndexExpr.hh"
-#include "main.hh"
 #include "Prefix.hh"
 #include "StateIndicator.hh"
 #include "Symbol.hh"
