@@ -254,7 +254,7 @@ public:
    virtual ErrorCode bif_exponential(Cell * Z) const
       { return E_DOMAIN_ERROR; }
 
-   /// store the faculty (N!) of the value of this Cell in Z
+   /// store the factorial (N!) of the value of this Cell in Z
    virtual ErrorCode bif_factorial(Cell * Z) const
       { return E_DOMAIN_ERROR; }
 
