@@ -1913,6 +1913,7 @@ Symbol * symbol = Workspace::lookup_existing_symbol(ucs);
       {
         // symbol not found. Distinguish between invalid and unused names
         //
+        if (!Avec::is_first_symbol_char(ucs[0]))   return -1;   // invalid
         loop (u, ucs.size())
            {
               if (!Avec::is_symbol_char(ucs[u]))   return -1;   // invalid
