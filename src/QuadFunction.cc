@@ -1909,7 +1909,16 @@ Quad_NC::get_NC(const UCS_string ucs)
 
 Symbol * symbol = Workspace::lookup_existing_symbol(ucs);
 
-   if (!symbol)   return 0;   // not known
+   if (!symbol)
+      {
+        // symbol not found. Distinguish between invalid and unused names
+        //
+        loop (u, ucs.size())
+           {
+              if (!Avec::is_symbol_char(ucs[u]))   return -1;   // invalid
+           }
+        return 0;   // unused
+      }
 
 const NameClass nc = symbol->get_nc();
 
