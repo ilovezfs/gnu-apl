@@ -1528,6 +1528,7 @@ const ShapeItem name_len = get_cols();
    loop(v, var_count)
       {
         ShapeItem nidx = v*name_len;
+        const ShapeItem end = nidx + name_len;
         UCS_string & name = result[v];
         loop(n, name_len)
            {
@@ -1541,19 +1542,34 @@ const ShapeItem name_len = get_cols();
                 {
                   name.append(uni);
                 }
-             else if (last)
+             else if (uni == UNI_ASCII_SPACE)
                 {
-                  const ShapeItem end = v*name_len;
-                  while (nidx < end && get_ravel(nidx++).get_char_value()
-                         == UNI_ASCII_SPACE)   ++nidx;
-                  if (nidx == end)   break;   // remaining chars are spaces
+                  // skip space at nidx and subsequent spaces
+                  //
+                  while (nidx < end && get_ravel(nidx).get_char_value()
+                                  == UNI_ASCII_SPACE)   ++nidx;
 
-                  // another name following
+                  if (nidx == end)   break;   // only spaces (no second name)
+
                   name.clear();
-                  name.append(get_ravel(nidx++).get_char_value());
+                  if (last)
+                     {
+                       // if 'last' is true then to_varnames() was called from
+                       // ⎕SVO and the line may contains two variable names.
+                       // Return the second i.e. last) one)
+                       //
+
+
+                       // another name following
+                       //
+                       name.clear();   // discard first name
+                       name.append(get_ravel(nidx++).get_char_value());
+                       last = false;
+                     }
                 }
-             else  
+             else  // neither space nor valid variable name character
                 {
+                  name.clear();
                   break;
                 }
            }
