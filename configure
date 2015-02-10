@@ -665,6 +665,8 @@ PERFORMANCE_COUNTERS_WANTED
 VALUE_CHECK_WANTED
 MAX_RANK_WANTED
 DEVELOP_WANTED
+WANT_LIBAPL_FALSE
+WANT_LIBAPL_TRUE
 WANT_ANDROID_FALSE
 WANT_ANDROID_TRUE
 HAVE_AFFINITY_NP_FALSE
@@ -818,6 +820,7 @@ enable_libtool_lock
 with_sqlite3
 with_postgresql
 with_android
+with_libapl
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1498,6 +1501,7 @@ Optional Packages:
   --with-postgresql=[ARG] use PostgreSQL library [default=yes], optionally
                           specify path to pg_config
   --with-android          enable when compiling for Android
+  --with-libapl           enable to build libapl.so
 
 Some influential environment variables:
   CC          C compiler command
@@ -18329,6 +18333,8 @@ _ACEOF
 
 fi
 
+# check if the user compiles for ANDROID
+#
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if we are compiling for Android" >&5
 $as_echo_n "checking if we are compiling for Android... " >&6; }
 user_wants_android=no
@@ -18344,7 +18350,6 @@ if test "x$user_wants_android" = xyes ; then
 $as_echo "#define WANT_ANDROID 1" >>confdefs.h
 
 fi
-
  if test "x$user_wants_android" = xyes; then
   WANT_ANDROID_TRUE=
   WANT_ANDROID_FALSE='#'
@@ -18355,6 +18360,37 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $user_wants_android" >&5
 $as_echo "$user_wants_android" >&6; }
+
+
+# check if the user wants libapl.so
+#
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if we want to build libapl.so" >&5
+$as_echo_n "checking if we want to build libapl.so... " >&6; }
+user_wants_libapl=no
+
+# Check whether --with-libapl was given.
+if test "${with_libapl+set}" = set; then :
+  withval=$with_libapl; user_wants_libapl=yes
+fi
+
+
+if test "x$user_wants_libapl" = xyes ; then
+
+$as_echo "#define WANT_LIBAPL 1" >>confdefs.h
+
+fi
+
+ if test "x$user_wants_libapl" = xyes; then
+  WANT_LIBAPL_TRUE=
+  WANT_LIBAPL_FALSE='#'
+else
+  WANT_LIBAPL_TRUE='#'
+  WANT_LIBAPL_FALSE=
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $user_wants_libapl" >&5
+$as_echo "$user_wants_libapl" >&6; }
+
 
 ac_config_files="$ac_config_files Makefile debian/Makefile debian/source/Makefile doc/Makefile gnu-apl.d/Makefile rpm/Makefile rpm/apl.spec src/Makefile src/APs/Makefile src/emacs_mode/Makefile src/native/Makefile src/sql/Makefile src/testcases/Makefile src/workspaces/Makefile support-files/Makefile support-files/Dyalog-Keyboard/Makefile support-files/old-Keyboard/Makefile support-files/OS-X-Keyboard/Makefile support-files/Unicomp-Keyboard/Makefile support-files/WASD-Keyboard/Makefile tools/Makefile workspaces/Makefile wslib3/Makefile wslib4/Makefile wslib5/Makefile wslib5/APLComponentFiles/Makefile wslib5/iso-apl-cf/Makefile"
 
@@ -18727,6 +18763,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WANT_ANDROID_TRUE}" && test -z "${WANT_ANDROID_FALSE}"; then
   as_fn_error $? "conditional \"WANT_ANDROID\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${WANT_LIBAPL_TRUE}" && test -z "${WANT_LIBAPL_FALSE}"; then
+  as_fn_error $? "conditional \"WANT_LIBAPL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ON_i686_TRUE}" && test -z "${ON_i686_FALSE}"; then

@@ -233,6 +233,8 @@ if test "x$DynArrays" = "xyes"; then
                       [Define to 1 if the compiler supports dynamic arrays])
 fi
 
+# check if the user compiles for ANDROID
+#
 AC_MSG_CHECKING([if we are compiling for Android])
 user_wants_android=no
 AC_ARG_WITH( [android],
@@ -243,9 +245,26 @@ AC_ARG_WITH( [android],
 if test "x$user_wants_android" = xyes ; then
    AC_DEFINE([WANT_ANDROID], [1], [Define if compiling for Android])
 fi
-
 AM_CONDITIONAL(WANT_ANDROID, test "x$user_wants_android" = xyes)
 AC_MSG_RESULT([$user_wants_android])
+
+
+# check if the user wants libapl.so
+#
+AC_MSG_CHECKING([if we want to build libapl.so])
+user_wants_libapl=no
+AC_ARG_WITH( [libapl],
+             [AS_HELP_STRING([--with-libapl],
+                             [enable to build libapl.so])],
+             [user_wants_libapl=yes])
+
+if test "x$user_wants_libapl" = xyes ; then
+   AC_DEFINE([WANT_LIBAPL], [1], [Define if building libapl.so])
+fi
+
+AM_CONDITIONAL(WANT_LIBAPL, test "x$user_wants_libapl" = xyes)
+AC_MSG_RESULT([$user_wants_libapl])
+
 
 AC_CONFIG_FILES([Makefile
                  debian/Makefile
