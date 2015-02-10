@@ -237,6 +237,9 @@
 /* Define if compiling for Android */
 /* #undef WANT_ANDROID */
 
+/* Define if building libapl.so */
+/* #undef WANT_LIBAPL */
+
 /* Define to 1 if on MINIX. */
 /* #undef _MINIX */
 

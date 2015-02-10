@@ -1,7 +1,6 @@
-if ! WANT_ANDROID
-EXTRA_DIRS = APs emacs_mode sql workspaces
-else
 EXTRA_DIRS =
+if ! WANT_ANDROID
+EXTRA_DIRS += APs emacs_mode sql workspaces
 endif
 SUBDIRS = native $(EXTRA_DIRS)
 DIST_SUBDIRS = $(SUBDIRS) testcases
@@ -11,7 +10,7 @@ bin_PROGRAMS = apl
 datadir = @datadir@
 localedir = $(datadir)/locale
 
-apl_SOURCES = \
+common_sources = \
 			buildtag		buildtag.hh		\
 						../config.h		\
 						APL_types.hh		\
@@ -56,7 +55,6 @@ LibPaths.cc					LibPaths.hh		\
 LineInput.cc					LineInput.hh		\
 Logging.cc	    Logging.def			Logging.hh		\
 LvalCell.cc					LvalCell.hh		\
-main.cc									\
 						makefile.h		\
 Malloc_hooks.cc								\
 Nabla.cc					Nabla.hh		\
@@ -109,6 +107,16 @@ ValueHistory.cc					ValueHistory.hh		\
 Workspace.cc					Workspace.hh
 
 
+apl_SOURCES = main.cc $(common_sources)
+
+pkglib_LTLIBRARIES =
+if WANT_LIBAPL
+pkglib_LTLIBRARIES += libapl.la
+libapl_la_SOURCES = $(common_sources)
+libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
+endif
+
+
 # normally we would say:
 #
 # Svar_signals.hh: Svar_signals.def tcp_signal.m4
@@ -120,11 +128,12 @@ Workspace.cc					Workspace.hh
 update-svar_signals:
 	m4 -D protocol=Svar_signals tcp_signal.m4 > Svar_signals.hh
 
-AM_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(OPENMP)
+apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
+libapl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
 
 if DEVELOP
-   AM_CXXFLAGS += -Werror -Wall
-   AM_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
+   apl_CXXFLAGS += -Werror -Wall
+   apl_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
 endif
 
 apl_LDADD = $(LIBS)
