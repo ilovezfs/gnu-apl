@@ -161,7 +161,7 @@
  Zi ← Ah FILE_IO[22] B
 ∇
 
-∇Zi ← Ac FIO∆fwrite Bh
+∇Zi ← Ac FIO∆fwrite_utf8 Bh
  ⍝⍝ fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8
  Zi ← Ac FILE_IO[23] Bh
 ∇
