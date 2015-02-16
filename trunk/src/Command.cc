@@ -656,7 +656,7 @@ Command::cmd_HELP(ostream & out)
 {
    out << "Commands are:" << endl;
 #define cmd_def(cmd_str, _cod, arg, _hint) \
-   CERR << "      " cmd_str " " arg << endl;
+   out << "      " cmd_str " " arg << endl;
 #include "Command.def"
 
   if (user_commands.size() == 0)   return;
