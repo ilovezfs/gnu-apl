@@ -286,6 +286,7 @@ AC_CONFIG_FILES([Makefile
 		 support-files/OS-X-Keyboard/Makefile
 		 support-files/Unicomp-Keyboard/Makefile
 		 support-files/WASD-Keyboard/Makefile
+		 support-files/Dirk/Makefile
                  tools/Makefile
                  workspaces/Makefile
                  wslib3/Makefile
