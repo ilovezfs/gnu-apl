@@ -550,7 +550,7 @@ int result = unlink(filename.c_str());
 void
 Command::cmd_ERASE(ostream & out, vector<UCS_string> & args)
 {
-   Workspace::erase_symbols(CERR, args);
+   Workspace::erase_symbols(out, args);
 }
 //-----------------------------------------------------------------------------
 void 
