@@ -178,6 +178,9 @@ can generate your own apl.xkm file (see man pages for setxkbmap and xkbcomp).
 
 See also Blake's notes in support-files/apl.unicomp.xkb.txt
 
+Another description (also using setxkbmap) and files supporting it was kindly
+provided by Dirk Laurie and is contained in directory support-files//Dirk.
+
 5. loadkeys
 ===========
 

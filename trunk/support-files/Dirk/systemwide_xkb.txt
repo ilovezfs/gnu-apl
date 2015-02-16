@@ -1,0 +1,92 @@
+Keyboard
+========
+
+For a really luxurious keyboard experience, the APL keyboard should be
+installed system-wide. The instructions below apply to Ubuntu 14.04 LTS, 
+for which 
+
+    XKB=/usr/share/X11/xkb 
+
+For other systems, adapt the instructions after reading [Daniel 
+O'Donnell's informative tutorial](http://people.uleth.ca/~daniel.odonnell/Blog/custom-keyboard-in-linuxx11).
+
+Unified US APL keyboard
+-----------------------
+
+The following files for use with `setxkbmap` are provided:
+
+`system-apl`
+:   Defines `apl` to have variants `APL_on_3rd` (APL characters are 3rd
+    and 4th level symbols) and `line_drawing` (line drawing symbols are 
+    on numeric keypad, for easy use with NumLock). The keyboard layout 
+    is the one shown by the GNU APL system command `]KEYB`.
+`system-us`
+:   Defines `us` to have variant `usapl`, which loads the preceding
+    two variants on top of a default US keyboard and sets LeftAlt
+    as the Level 3 selector.
+`rules-evdev.xml`
+:   Make variant `usapl` selectable from the "Text Entry Settings"
+    menu under the name "APL (3rd/4th level)".
+`rules-evdev.lst`
+:   This is a human-friendly list of variants, not actually used by 
+    any program.
+
+Backup the following fies so that you can recover them if necessary.
+
+    $XKB/symbols/apl
+    $XKB/symbols/us
+    $XKB/rules/evdef.lst
+    $XKB/rules/evdef.xml
+
+Replace the files by the provided files, i.e. `symbols-apl` replaces 
+the existing  `/usr/share/X11/xkb/symbols/apl` etc.
+
+In order to register the changes with the X server, run
+    
+    sudo rm /var/lib/xkb/server-*
+    udevadm trigger --subsystem-match=input --action=change
+
+You can now load the US APL keyboard with
+
+    setxkbmap us usapl
+
+Level 3 and Compose keys
+------------------------
+
+The new APL keyboard is only available if you have a Level 3 selector
+key. This is set, as is the Compose key, when you install Ubuntu.  
+The power-on settings can be viewed in `/etc/default/keyboard`. 
+If you don't like them, don't just edit that file. The right way under 
+Ubuntu 14.04 is to run
+ 
+    sudo dpkg-reconfigure keyboard-configuration 
+
+The same menu is offered that was available at install time.
+
+From Ubuntu 8.10 to at least Ubuntu 12.04, it was possible to select 
+the Level 3 modifier key and Compose keys from the System Settings menu. 
+Why this highly useful feature was abolished remains a mystery.
+
+Changing the default settings is not enough if your preferred Level 3 
+and Compose keys have been grabbed by Unity (Ubuntu's desktop manager) 
+for its own purposes. One should run `ccsm` and select `Ubuntu Unity 
+Plugin` to seize them back. For example, I changed "Key to show the 
+menu bar while pressed" to "Menu" (which I find more logical than the 
+default "Alt") in order to free up LeftAlt.
+
+Choosing the APL keyboard from the Language icon
+------------------------------------------------
+
+The menu used by `Text Entry Settings` is accessible from the 
+language icon on the top bar. One can add several keyboards, and 
+switch between them by clicking the language icon and making one's 
+selection. The changed files in the `$XKB` will offer an option
+`APL (3rd/4th level)`, available in the "Input sources", but only 
+properly displayed in the Language Icon after the X server has 
+been restarted, for example by rebooting.
+
+The language icon can display the layout of the selected keyboard
+from the language icon. This layout is the one defined in the files
+under `$XKB/symbols` and does not reflect temporary changes that you
+may have made manually by `xmodmap` or `setxkbmap`.
+    
