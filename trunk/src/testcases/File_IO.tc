@@ -1,59 +1,60 @@
 ⍝ File_IO.tc
 ⍝ ----------------------------------
 
-      ⍝ 1. Fix native  function FILE_IO 
+      ⍝ same as File_IO_1.tc but using FILE_IO.apl library
+      ⍝ This is the recommeded way to use file_io.so
+      ⍝
+      ⍝ This file demonstrates the use of the FILE_IO.apl library
+      ⍝ and checks that the wrapper functions in FILE_IO.apl are working
       ⍝
 
       ⍝⍝⍝
       ⍝⍝⍝ If this segfaults then re-install GNU APL !!!
       ⍝⍝⍝
-
-      'lib_file_io.so' ⎕FX 'FILE_IO'
-FILE_IO
+      )COPY 5 FILE_IO.apl
 
       ⍝ fopen this file readonly
       ⍝
-      Filename←'testcases/File_IO.tc'
-      ⎕←Handle←FILE_IO[3] Filename
+      Filename←'testcases/File_IO_1.tc'
+      ⎕←Handle←FIO∆fopen_ro Filename
 ⁰
 
       ⍝ get statistics
       ⍝
-      ⎕←FILE_IO[18] Handle
+      ⎕←FIO∆fstat Handle
 ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰ ⁰
 
       ⍝ close this file
       ⍝
-      ⎕←FILE_IO[4] Handle
+      ⎕←FIO∆fclose Handle
 0
 
       ⍝ close this file again (which is an error)
       ⍝
-      FILE_IO[4] Handle
+      FIO∆fclose Handle
 DOMAIN ERROR
-      FILE_IO[4]Handle
-      ^         ^
-
+FIO∆fclose[2]  Ze←FILE_IO[4]Bh
+                  ^         ^
       →
 
       ⍝ create new file
       ⍝
       Filename← 'FILE_IO.test'
-      ⎕←Handle←'w' FILE_IO[3] Filename
+      ⎕←Handle←'w' FIO∆fopen Filename
 ⁰
 
       ⍝ write 3 lines
       ⍝
-      ⎕←(⎕UCS "Hello\n") FILE_IO[7] Handle
+      ⎕←(⎕UCS "Hello\n") FIO∆fwrite Handle
 6
-      ⎕←(⎕UCS "World\n") FILE_IO[7] Handle
+      ⎕←(⎕UCS "World\n") FIO∆fwrite Handle
 6
-      ⎕←(⎕UCS "Line 3...\n") FILE_IO[7] Handle
+      ⎕←(⎕UCS "Line 3...\n") FIO∆fwrite Handle
 10
 
       ⍝ close the file
       ⍝
-      FILE_IO[4] Handle
+      FIO∆fclose Handle
 0
 
       ⍝ print the file
@@ -67,7 +68,7 @@ Line 3...
 
       ⍝ open file again for reading
       ⍝
-      ⎕←Handle← FILE_IO[3] 'FILE_IO.test'
+      ⎕←Handle← FIO∆fopen_ro 'FILE_IO.test'
 ⁰
 
       ⍝ read one line (default max_len)
@@ -78,7 +79,7 @@ Hello
 
       ⍝ read another line (max_len 200)
       ⍝
-      Z←200 FILE_IO[8] Handle
+      Z←200 FIO∆fgets Handle
       ⎕UCS Z
 World
 
@@ -87,58 +88,58 @@ World
 
       ⍝ end of file ? (no)
       ⍝
-      FILE_IO[10] Handle
+      FIO∆feof Handle
 0
 
       ⍝ read more bytes
       ⍝
-      Z←FILE_IO[6] Handle
+      Z←200 FIO∆fread Handle
       ⍴Z
 10
 
       ⍝ end of file ? (yes)
       ⍝
-      FILE_IO[10] Handle
+      FIO∆feof Handle
 1
 
       ⍝ get statistics
       ⍝
-      ⎕←FSTAT←FILE_IO[18] Handle ◊ 0 8 8 8 ⊤ FSTAT[3]
+      ⎕←FSTAT←FIO∆fstat Handle ◊ 0 8 8 8 ⊤ FSTAT[3]
 ⁰ ⁰ ⁰ 1 ⁰ ⁰ 0 22 ⁰ ⁰ ⁰ ⁰ ⁰
 64 6 ⁰ ⁰
 
       ⍝ close the file
       ⍝
-      FILE_IO[4] Handle
+      FIO∆fclose Handle
 0
 
       ⍝ delete the file
       ⍝
-      FILE_IO[19] Filename
+      FIO∆unlink Filename
 0
 
       ⍝ delete the file again (should fail)
       ⍝
-      Error←FILE_IO[19] Filename
-      FILE_IO[2] Error
+      Error←-FIO∆unlink Filename
+      FIO∆strerror Error
 No such file or directory
 
       ⍝ printf
       ⍝
       )ERASE FORMAT
-      FORMAT←"⎕everything %d Pi %e String %s\n" 
-      FORMAT 42 (○1) 'Hello'  FILE_IO[22] 1
+      FORMAT←⊂"⎕everything %d Pi %e String %s\n" 
+      FIO∆printf FORMAT, 42 (○1) 'Hello'
 44
 
       ⍝ fwrite with UCS in UTF8 out
       ⍝
       Filename← 'FILE_IO.test1'
-      ⎕←Handle←'w' FILE_IO[3] Filename
+      ⎕←Handle←'w' FIO∆fopen Filename
 ⁰
-      'HELLO ⍋ ⌽ ⍒ ⍴ ⍵' FILE_IO[23] Handle
+      'HELLO ⍋ ⌽ ⍒ ⍴ ⍵' FIO∆fwrite_utf8 Handle
 25
 
-      FILE_IO[4] Handle ⍝ close file
+      FIO∆fclose Handle ⍝ close file
 0
 
       )HOST cat FILE_IO.test1 
@@ -148,20 +149,97 @@ HELLO ⍋ ⌽ ⍒ ⍴ ⍵
       ⍝ popen "r"
       ⍝
       Command←'ls FILE_IO*'
-      Handle← FILE_IO[24] Command
-      Z←20000 FILE_IO[6] Handle
+      Handle← FIO∆popen_ro Command
+      Z←20000 FIO∆fread Handle
       ⍴Z
 ⁰
-      FILE_IO[25] Handle ⍝ close command (returning its exit code)
+      FIO∆pclose Handle ⍝ close command (returning its exit code)
 0
 
       ⍝ read entire file
       ⍝
-      ⎕UCS FILE_IO[26] 'FILE_IO.test1'
+      ⎕UCS FIO∆read_file 'FILE_IO.test1'
 72 69 76 76 79 32 226 141 139 32 226 140 189 32 226 141 146 32 226 141 180 32 
       226 141 181
 
-      )ERASE FORMAT
+
+      ⍝ socket communication: send 'Hello' from one socket to another
+      ⍝ and 'World!' back.
+      ⍝
+      AF_INET     ← 2           ⍝ see /usr/include/.../bits/socket.h
+      SOCK_STREAM ← 1           ⍝ see /usr/include/.../bits/socket_type.h
+      IPPROTO_IP       ← 0      ⍝ see /usr/include/netinet/in.h
+      LOCALHOST←256⊥127 0 0 1   ⍝ 127.0.0.1 in host byte order
+      Port ← 22222
+      Server←AF_INET, LOCALHOST, Port
+
+      ⍝ socket(AF_INET, SOCK_STREAM, IPPROTO_IP)
+      ⍝
+      3 ≤ Handle←FIO∆socket AF_INET, SOCK_STREAM, IPPROTO_IP
+1
+
+      ⍝ setsockopt(Handle, SOL_SOCKET, SO_REUSEADDR, 1)
+      ⍝
+      SOL_SOCKET←1              ⍝ see /usr/include/asm-generic/socket.h
+      SO_REUSEADDR←2            ⍝ see /usr/include/asm-generic/socket.h
+      (SOL_SOCKET, SO_REUSEADDR, 1) FIO∆setsockopt Handle
+0
+
+      ⍝ bind(AF_INET, LOCALHOST, Port)
+      ⍝
+      Server FIO∆bind Handle
+0
+
+      ⍝ listen(10)
+      ⍝
+      10 FIO∆listen Handle
+0
+
+      ⍝ socket(AF_INET, SOCK_STREAM, IPPROTO_IP)
+      ⍝
+      4 ≤ Handle1←FIO∆socket AF_INET, SOCK_STREAM, IPPROTO_IP
+1
+
+      ⍝ connect() Handle1 to Handle
+      ⍝
+      Server FIO∆connect Handle1
+0
+
+      ⍝ accept() returns Handle, remote address
+      ⍝
+      Handle2 ← ↑ FIO∆accept Handle
+
+      ⍝ send("Hello")
+      ⍝
+      'Hello' FIO∆send_utf8 Handle2
+5
+
+      ⍝ recv()
+      ⍝
+      ⎕UCS 200 FIO∆recv Handle1
+Hello
+
+      ⍝ send("World!")
+      ⍝
+      'World!' FIO∆send_utf8 Handle1
+6
+
+      ⍝ recv()
+      ⍝
+      ⎕UCS 200 FIO∆recv Handle2
+World!
+
+      ⎕←FIO∆fclose Handle2
+0
+      ⎕←FIO∆fclose Handle1
+0
+      ⎕←FIO∆fclose Handle
+0
+
+      )ERASE FORMAT Handle Handle1 Handle2 Command AF_INET SOCK_STREAM
+      )ERASE Error FSTAT Filename LOCALHOST Port Z Server IPPROTO_IP
+
+⍝     )VARS
 
 ⍝ ==================================
 

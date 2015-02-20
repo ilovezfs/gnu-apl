@@ -211,6 +211,103 @@
  Zn ← As FILE_IO[31] Bs
 ∇
 
+∇Zh ← FIO∆socket Bi
+ ⍝⍝ socket(Bi). Bi is domain, type, protocol, e.g.
+ ⍝⍝ Zh ← FIO∆socket 2 1 0  for an IPv4 TCP socket
+ Zh ← FILE_IO[32] Bi
+∇
+
+∇Zi ← Ai FIO∆bind Bh
+ ⍝⍝ bind(Bh, Ai). Ai is domain, local IPv4-address, local port, e.g.
+ ⍝⍝ 2 (256⊥127 0 0 1) 80 bind Bh binds socket Bh to port 80 on
+ ⍝⍝ localhost 127.0.0.1 (web server)
+ Zi ← Ai FILE_IO[33] Bh
+∇
+
+∇Zi ← Ai FIO∆listen Bh
+ ⍝⍝ listen(Bh, Ai).
+ Zi ← Ai FILE_IO[34] Bh
+∇
+
+∇Zh ← FIO∆accept Bh
+ ⍝⍝ accept(Bh).
+ ⍝⍝ Return errno or 4 integers: handle, domain, remote IPv4-address, remote port
+ Zh ← FILE_IO[35] Bh
+∇
+
+∇Zh ← Aa FIO∆connect Bh
+ ⍝⍝ connect(Bh, Aa). Aa is domain, remote IPv4-address, remote port, e.g.
+ ⍝⍝ 2 (256⊥127 0 0 1) 80 connects to port 80 on localhost 127.0.0.1 (web server)
+ Zh ← Aa FILE_IO[36] Bh
+∇
+
+∇Zi ← Ai FIO∆recv Bh
+ ⍝⍝ return (at most) Ai bytes from socket Bh
+ Zi←Ai FILE_IO[37] Bh
+∇
+
+∇Zi ← Ai FIO∆send Bh
+ ⍝⍝ send bytes Ai on socket Bh
+ Zi←Ai FILE_IO[38] Bh
+∇
+
+∇Zi ← Ai FIO∆send_utf8 Bh
+ ⍝⍝ send Unicode characters Ai on socket Bh
+ Zi←Ai FILE_IO[39] Bh
+∇
+
+∇Z ← FIO∆select B
+ ⍝⍝ perform select() on handles in B
+ ⍝⍝ B = Br [Bw [Be [Bt]]] is a (nested) vector of 1, 2, 3, or 4 items:
+ ⍝⍝ Bt: timeout in milliseconds
+ ⍝⍝ Be: handles with exceptions
+ ⍝⍝ Bw: handles ready for writing
+ ⍝⍝ Br: handles ready for reading
+ ⍝⍝
+ ⍝⍝ Z = Zc Zr Zw Ze Zt is a (nested) 5-item vector:
+ ⍝⍝ Zc: number of handles in Zr, Zw, and Ze, or -errno
+ ⍝⍝ Zr, Zw, Ze: handles ready for reading, writing, and exceptions respectively
+ ⍝⍝ Zt: timeout remaining
+ Z←FILE_IO[40] B
+∇
+
+∇Zi ← Ai FIO∆read Bh
+ ⍝⍝ read (at most) Ai bytes from file descriptor Bh
+ Zi←Ai FILE_IO[41] Bh
+∇
+
+∇Zi ← Ai FIO∆write Bh
+ ⍝⍝ write bytes Ai on file descriptor Bh
+ Zi←Ai FILE_IO[42] Bh
+∇
+
+∇Zi ← Ai FIO∆write_utf8 Bh
+ ⍝⍝ write Unicode characters Ai on file descriptor Bh
+ Zi←Ai FILE_IO[43] Bh
+∇
+
+∇Za ← FIO∆getsockname Bh
+ ⍝⍝ get socket address (address family, ip address, port)
+ Zi←FILE_IO[44] Bh
+∇
+
+∇Za ← FIO∆getpeername Bh
+ ⍝⍝ get socket address (address family, ip address, port) of peer
+ Zi←FILE_IO[45] Bh
+∇
+
+∇Zi ← Ai FIO∆getsockopt Bh
+ ⍝⍝ get socket option from socket Bh
+ ⍝⍝ Ai is socket-level, option-name
+ Zi←Ai FILE_IO[46] Bh
+∇
+
+∇Zi ← Ai FIO∆setsockopt Bh
+ ⍝⍝ set socket option from socket Bh
+ ⍝⍝ Ai is socket-level, option-name, option-value
+ Zi←Ai FILE_IO[47] Bh
+∇
+
 ∇FIO∆clear_statistics Bi
  ⍝⍝ clear performance statistics with ID Bi
  Zn ← FILE_IO[200] Bi

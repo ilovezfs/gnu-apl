@@ -28,7 +28,9 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+#include <netinet/in.h>
 
 #include "../Bif_OPER2_INNER.hh"
 #include "../Bif_OPER2_OUTER.hh"
@@ -50,14 +52,14 @@ class NativeFunction;
 struct file_entry
 {
    file_entry(FILE * fp, int fd)
-   : fe_file(fp),
+   : fe_FILE(fp),
      fe_fd(fd),
      fe_errno(0),
      fe_may_read(false),
      fe_may_write(false)
    {}
      
-   FILE * fe_file;     ///< FILE * returned by fopen
+   FILE * fe_FILE;     ///< FILE * returned by fopen()
    int    fe_fd;       ///< file desriptor == fileno(file)
    int    fe_errno;    ///< errno for last operation
    bool   fe_may_read;    ///< file open for reading
@@ -83,13 +85,59 @@ get_file(const Value & value)
 const APL_Float qct = Workspace::get_CT();
 const APL_Integer handle = value.get_ravel(0).get_near_int(qct);
 
-
    loop(h, open_files.size())
       {
         if (open_files[h].fe_fd == handle)   return open_files[h];
       }
 
    DOMAIN_ERROR;
+}
+//-----------------------------------------------------------------------------
+static FILE *
+get_FILE(const Value & value)
+{
+file_entry & fe = get_file(value);
+   if (fe.fe_FILE == 0)
+      {
+        if (fe.fe_may_read && fe.fe_may_write)
+         fe.fe_FILE = fdopen(fe.fe_fd, "a+");
+        else if (fe.fe_may_read)
+         fe.fe_FILE = fdopen(fe.fe_fd, "r");
+        else if (fe.fe_may_write)
+         fe.fe_FILE = fdopen(fe.fe_fd, "a");
+        else
+         DOMAIN_ERROR;   // internal error
+      }
+
+   return fe.fe_FILE;
+}
+//-----------------------------------------------------------------------------
+static int
+get_fd(const Value & value)
+{
+file_entry & fe = get_file(value);
+   return fe.fe_fd;
+}
+//-----------------------------------------------------------------------------
+static Value_P
+fds_to_val(const fd_set * fds, int max_fd)
+{
+ShapeItem fd_count = 0;
+   if (fds)
+      {
+        loop(m, max_fd)   if (FD_ISSET(m, fds))   ++fd_count;
+      }
+
+Value_P Z(new Value(fd_count, LOC));
+   new (&Z->get_ravel(0)) IntCell(0);   // prototype
+
+   if (fds)
+      {
+        loop(m, max_fd)
+            if (FD_ISSET(m, fds))   new (Z->next_ravel())   IntCell(m);
+      }
+
+   return Z;
 }
 //-----------------------------------------------------------------------------
 static Token
@@ -263,10 +311,7 @@ const Value & format = *A->get_ravel(a++).get_pointer_value();
 
 printf_done:
 
-Value_P Z(new Value(LOC));   // scalar result
-   new (Z->next_ravel())   IntCell(out_len);
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+   return Token(TOK_APL_VALUE1, IntScalar(out_len, LOC));
 }
 //-----------------------------------------------------------------------------
 extern "C" void * get_function_mux(const char * function_name);
@@ -315,10 +360,11 @@ list_functions(ostream & out)
 "   Functions provided by this library.\n"
 "   Assumes 'lib_file_io.so'  ⎕FX  'FUN'\n"
 "\n"
-"   Legend: d - table of dirent structs\n"
-"           e - error code\n"
-"           i - integer\n"
+"   Legend: a - address family, IPv4 address, port (or errno)\n"
+"           d - table of dirent structs\n"
+"           e - error code (integer as per errno.h)\n"
 "           h - file handle (integer)\n"
+"           i - integer\n"
 "           n - names (nested vector of strings)\n"
 "           s - string\n"
 "           A1, A2, ...  nested vector with elements A1, A2, ...\n"
@@ -332,6 +378,8 @@ list_functions(ostream & out)
 "   Zs ←    FUN[ 2] Be    strerror(Be)\n"
 "   Zh ← As FUN[ 3] Bs    fopen(Bs, As) filename Bs mode As\n"
 "   Zh ←    FUN[ 3] Bs    fopen(Bs, \"r\") filename Bs\n"
+"\n"
+"File I/O functions:\n"
 "\n"
 "   Ze ←    FUN[ 4] Bh    fclose(Bh)\n"
 "   Ze ←    FUN[ 5] Bh    errno (of last call on Bh)\n"
@@ -357,7 +405,7 @@ list_functions(ostream & out)
 "   Zi ← A  FUN[22] 1     printf(         A1, A2...) format A1\n"
 "   Zi ← A  FUN[22] 2     fprintf(stderr, A1, A2...) format A1\n"
 "   Zi ← A  FUN[22] Bh    fprintf(Bh,     A1, A2...) format A1\n"
-"   Zi ← Ac FUN[23] Bh    fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8\n"
+"   Zi ← Ac FUN[23] Bh    fwrite(Ac, 1, ⍴Ac, Bh) 1 Unicode per Ac, Output UTF8\n"
 "   Zh ← As FUN[24] Bs    popen(Bs, As) command Bs mode As\n"
 "   Zh ←    FUN[24] Bs    popen(Bs, \"r\") command Bs\n"
 "   Ze ←    FUN[25] Bh    pclose(Bh)\n"
@@ -367,6 +415,27 @@ list_functions(ostream & out)
 "   Zn ←    FUN[29] Bs    return file names in directory Bs\n"
 "   Zs ←    FUN 30        getcwd()\n"
 "   Zn ← As FUN[31] Bs    access(As, Bs) As ∈ 'RWXF'\n"
+"   Zh ←    FUN[32] Bi    socket(Bi=AF_INET, SOCK_STREAM, 0)\n"
+"   Ze ← Aa FUN[33] Bh    bind(Bh, Aa)\n"
+"   Ze ←    FUN[34] Bh    listen(Bh, 10)\n"
+"   Ze ← Ai FUN[34] Bh    listen(Bh, Ai)\n"
+"   Za ←    FUN[35] Bh    accept(Bh)\n"
+"   Ze ← Aa FUN[36] Bh    connect(Bh, Aa)\n"
+"   Zi ←    FUN[37] Bh    recv(Bh, Zi, " << SMALL_BUF << ", 0) 1 byte per Zi\n"
+"   Zi ← Ai FUN[37] Bh    recv(Bh, Zi, Ai, 0) 1 byte per Zi\n"
+"   Zi ← Ai FUN[38] Bh    send(Bh, Ai, ⍴Ai, 0) 1 byte per Ai\n"
+"   Zi ← Ac FUN[39] Bh    send(Bh, Ac, ⍴Ac, 0) 1 Unicode per Ac, Output UTF8\n"
+"   Zi ←    FUN[40] B     select(B_read, B_write, B_exception, B_timeout)\n"
+"   Zi ←    FUN[41] Bh    read(Bh, Zi, " << SMALL_BUF << ") 1 byte per Zi\n"
+"   Zi ← Ai FUN[41] Bh    read(Bh, Zi, Ai) 1 byte per Zi\n"
+"   Zi ← Ai FUN[42] Bh    write(Bh, Ai, ⍴Ai) 1 byte per Ai\n"
+"   Zi ← Ac FUN[43] Bh    write(Bh, Ac, ⍴Ac) 1 Unicode per Ac, Output UTF8\n"
+"   Za ←    FUN[44] Bh    getsockname(Bh)\n"
+"   Za ←    FUN[45] Bh    getpeername(Bh)\n"
+"   Zi ← Ai FUN[46] Bh    getsockopt(Bh, A_level, A_optname, Zi)\n"
+"   Ze ← Ai FUN[47] Bh    setsockopt(Bh, A_level, A_optname, A_optval)\n"
+"\n"
+"Benchmarking functions:\n"
 "\n"
 "           FUN[200] Bi    clear statistics with ID Bi\n"
 "   Zn ←    FUN[201] Bi    get statistics with ID Bi\n"
@@ -381,6 +450,8 @@ list_functions(ostream & out)
 Token
 eval_B(Value_P B, const NativeFunction * caller)
 {
+   if (B->get_rank() > 1)   RANK_ERROR;
+
    if (!B->get_ravel(0).is_integer_cell())     return list_functions(COUT);
 
 const APL_Integer what = B->get_ravel(0).get_int_value();
@@ -447,18 +518,12 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                select(0, 0, 0, 0, &tv);
                const uint64_t to = cycle_counter();
 
-               Value_P Z(new Value(LOC));
-               new (Z->next_ravel())   IntCell(10*(to - from));
-               Z->check_value(LOC);
-               return Token(TOK_APL_VALUE1, Z);
+               return Token(TOK_APL_VALUE1, IntScalar(10*(to - from), LOC));
              }
 
         case -1: // return CPU cycle counter
              {
-               Value_P Z(new Value(LOC));
-               new (&Z->get_ravel(0))   IntCell(cycle_counter());
-               Z->check_value(LOC);
-               return Token(TOK_APL_VALUE1, Z);
+               return Token(TOK_APL_VALUE1, IntScalar(cycle_counter(), LOC));
              }
 
         case 30:   // getcwd()
@@ -483,12 +548,15 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
    return list_functions(COUT);
 
 out_errno:
-   return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
+   return Token(TOK_APL_VALUE1, IntScalar(-errno, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
 eval_AB(Value_P A, Value_P B, const NativeFunction * caller)
 {
+   if (A->get_rank() > 1)   RANK_ERROR;
+   if (B->get_rank() > 1)   RANK_ERROR;
+
    if (!B->get_ravel(0).is_integer_cell())     return list_functions(COUT);
 
 const APL_Integer what = B->get_ravel(0).get_int_value();
@@ -515,6 +583,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                     new (Z->next_ravel())   IntCell(Probe::get_time(probe, m));
 
                 Probe::init(probe);
+                Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
              }
              
@@ -527,6 +596,9 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
 Token
 eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
 {
+   if (B->get_rank() > 1)   RANK_ERROR;
+   if (X->get_rank() > 1)   RANK_ERROR;
+
 const APL_Float qct = Workspace::get_CT();
 const int function_number = X->get_ravel(0).get_near_int(qct);
 
@@ -561,17 +633,14 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 file_entry fe(f, fileno(f));
                 fe.fe_may_read = true;
                 open_files.push_back(fe);
-                Value_P Z(new Value(LOC));
-                new (&Z->get_ravel(0))   IntCell(fe.fe_fd);
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                return Token(TOK_APL_VALUE1, IntScalar(fe.fe_fd, LOC));
               }
 
          case 4:   // fclose(Bh)
               {
                 errno = 0;
                 file_entry & fe = get_file(*B.get());
-                if (fe.fe_file)   fclose(fe.fe_file);
+                if (fe.fe_FILE)   fclose(fe.fe_FILE);   // also closes fe.fe_fd
                 else              close(fe.fe_fd);
 
                 fe = open_files.back();       // move last file to fe
@@ -583,24 +652,23 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
               {
                 errno = 0;
                 file_entry & fe = get_file(*B.get());
-                Value_P Z(Value_P(new Value(LOC)));
-                new (&Z->get_ravel(0))   IntCell(fe.fe_errno);
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                return Token(TOK_APL_VALUE1, IntScalar(fe.fe_errno, LOC));
               }
 
-         case 6:   // fread(Zi, 1, SMALL_BUF, Bh) 1 byte per Zi\n"
+         case 6:   // fread(Zi, 1, SMALL_BUF, Bh) 1 byte per Zi
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
-                clearerr(fe.fe_file);
+                FILE * file = get_FILE(*B.get());
+                clearerr(file);
 
                 char buffer[SMALL_BUF];
 
-                size_t len = fread(buffer, 1, SMALL_BUF, fe.fe_file);
+                const ssize_t len = fread(buffer, 1, SMALL_BUF, file);
+                if (len < 0)   goto out_errno;
+
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
-                loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
@@ -608,78 +676,66 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 8:   // fgets(Zi, SMALL_BUF, Bh) 1 byte per Zi\n"
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
-                clearerr(fe.fe_file);
+                FILE * file = get_FILE(*B.get());
+                clearerr(file);
 
                 char buffer[SMALL_BUF];
 
-                const char * s = fgets(buffer, SMALL_BUF, fe.fe_file);
+                const char * s = fgets(buffer, SMALL_BUF, file);
                 const int len = s ? strlen(s) : 0;
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
-                loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
               }
 
          case 9:   // fgetc(Bh)
               {
-                file_entry & fe = get_file(*B.get());
-                Value_P Z(Value_P(new Value(LOC)));
-                new (&Z->get_ravel(0))   IntCell(fgetc(fe.fe_file));
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                FILE * file = get_FILE(*B.get());
+                return Token(TOK_APL_VALUE1, IntScalar(fgetc(file), LOC));
               }
 
          case 10:   // feof(Bh)
               {
-                file_entry & fe = get_file(*B.get());
-                Value_P Z(Value_P(new Value(LOC)));
-                new (&Z->get_ravel(0))   IntCell(feof(fe.fe_file));
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                FILE * file = get_FILE(*B.get());
+                return Token(TOK_APL_VALUE1, IntScalar(feof(file), LOC));
               }
 
          case 11:   // ferror(Bh)
               {
-                file_entry & fe = get_file(*B.get());
-                Value_P Z(Value_P(new Value(LOC)));
-                new (&Z->get_ravel(0))   IntCell(ferror(fe.fe_file));
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                FILE * file = get_FILE(*B.get());
+                return Token(TOK_APL_VALUE1, IntScalar(ferror(file),LOC));
               }
 
          case 12:   // ftell(Bh)
               {
-                file_entry & fe = get_file(*B.get());
-                Value_P Z(Value_P(new Value(LOC)));
-                new (&Z->get_ravel(0))   IntCell(ftell(fe.fe_file));
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                FILE * file = get_FILE(*B.get());
+                return Token(TOK_APL_VALUE1, IntScalar(ftell(file),LOC));
               }
 
          case 16:   // fflush(Bh)
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
-                fflush(fe.fe_file);
+                FILE * file = get_FILE(*B.get());
+                fflush(file);
               }
               goto out_errno;
 
          case 17:   // fsync(Bh)
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
-                fsync(fe.fe_fd);
+                const int fd = get_fd(*B.get());
+                fsync(fd);
               }
               goto out_errno;
 
          case 18:   // fstat(Bh)
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
+                const int fd = get_fd(*B.get());
                 struct stat s;
-                const int result = fstat(fe.fe_fd, &s);
+                const int result = fstat(fd, &s);
                 if (result)   goto out_errno;   // fstat failed
 
                 Value_P Z(Value_P(new Value(13, LOC)));
@@ -735,10 +791,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 file_entry fe(f, fileno(f));
                 fe.fe_may_read = true;
                 open_files.push_back(fe);
-                Value_P Z(new Value(LOC));
-                new (&Z->get_ravel(0))   IntCell(fe.fe_fd);
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                return Token(TOK_APL_VALUE1, IntScalar(fe.fe_fd,LOC));
               }
 
          case 25:   // pclose(Bh)
@@ -746,16 +799,13 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 errno = 0;
                 file_entry & fe = get_file(*B.get());
                 int err = EBADF;   /* Bad file number */
-                if (fe.fe_file)   err = pclose(fe.fe_file);
+                if (fe.fe_FILE)   err = pclose(fe.fe_FILE);
 
                 fe = open_files.back();       // move last file to fe
                 open_files.pop_back();        // erase last file
 
                 if (err == -1)   goto out_errno;   // pclose() failed
-                Value_P Z(new Value(LOC));
-                new (&Z->get_ravel(0))   IntCell(err);
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                return Token(TOK_APL_VALUE1, IntScalar(err,LOC));
               }
 
          case 26:   // read entire file
@@ -779,6 +829,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (data == 0)   goto out_errno;
 
                 Value_P Z(new Value(len, LOC));
+                new (&Z->get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
                 loop(z, len)   new (Z->next_ravel()) CharCell((Unicode)data[z]);
                 munmap((char *)data, len);
 
@@ -864,6 +915,212 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 return Token(TOK_APL_VALUE1, Z);
               }
 
+         case 32:   // socket(Bi=AF_INET, SOCK_STREAM, 0)
+              {
+                errno = 0;
+                APL_Integer domain = AF_INET;
+                APL_Integer type = SOCK_STREAM;
+                APL_Integer protocol = 0;
+                if (B->element_count() > 0)
+                   domain = B->get_ravel(0).get_int_value();
+                if (B->element_count() > 1)
+                   type = B->get_ravel(1).get_int_value();
+                if (B->element_count() > 2)
+                   protocol = B->get_ravel(2).get_int_value();
+                const int sock = socket(domain, type, protocol);
+                if (sock == -1)   goto out_errno;
+
+                file_entry fe(0, sock);
+                fe.fe_may_read = true;
+                fe.fe_may_write = true;
+                open_files.push_back(fe);
+                return Token(TOK_APL_VALUE1, IntScalar(fe.fe_fd, LOC));
+	      }
+
+         case 34:   // listen(Bh, 10)
+              {
+                const int fd = get_fd(*B.get());
+                errno = 0;
+                listen(fd, 10);
+                goto out_errno;
+              }
+
+         case 35:   // accept(Bh)
+              {
+                const int fd = get_fd(*B.get());
+                errno = 0;
+                sockaddr_in addr;
+                socklen_t alen = sizeof(addr);
+                const int sock = accept(fd, (sockaddr *)&addr, &alen);
+                if (sock == -1)   goto out_errno;
+
+                file_entry nfe (0, sock);
+                open_files.push_back(nfe);
+
+                Value_P Z(new Value(4, LOC));
+                new (Z->next_ravel())   IntCell(nfe.fe_fd);
+                new (Z->next_ravel())   IntCell(addr.sin_family);
+                new (Z->next_ravel())   IntCell(ntohl(addr.sin_addr.s_addr));
+                new (Z->next_ravel())   IntCell(ntohs(addr.sin_port));
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 37:   // recv(Bh, Zi, SMALL_BUF, 0) 1 byte per Zi
+              {
+                errno = 0;
+                const int fd = get_fd(*B.get());
+
+                char buffer[SMALL_BUF];
+
+                const ssize_t len = recv(fd, buffer, sizeof(buffer), 0);
+                if (len < 0)   goto out_errno;
+
+                Value_P Z(new Value(len, LOC));
+                new (&Z->get_ravel(0)) IntCell(0);   // prototype
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 40:   // select(Br, Bw, Be, Bt)
+              {
+                fd_set readfds;     FD_ZERO(&readfds);
+                fd_set writefds;    FD_ZERO(&writefds);
+                fd_set exceptfds;   FD_ZERO(&exceptfds);
+                timeval timeout = { 0, 0 };
+                fd_set * rd = 0;
+                fd_set * wr = 0;
+                fd_set * ex = 0;
+                timeval * to = 0;
+                APL_Integer max_fd = -1;
+
+                if (B->element_count() > 4)   LENGTH_ERROR;
+                if (B->element_count() < 1)   LENGTH_ERROR;
+
+                if (B->element_count() >= 4)
+                   {
+                     const APL_Integer milli = B->get_ravel(3).get_int_value();
+                     if (milli < 0)   DOMAIN_ERROR;
+
+                     timeout.tv_sec = milli / 1000;
+                     timeout.tv_usec = (milli%1000) * 1000;
+                   }
+
+                if (B->element_count() >= 3)
+                   {
+                      Value_P vex = B->get_ravel(2).get_pointer_value();
+                      loop(l, vex->element_count())
+                          {
+                            const APL_Integer fd =
+                                  vex->get_ravel(l).get_int_value();
+                            if (fd < 0)                  DOMAIN_ERROR;
+                            if (fd > 8*sizeof(fd_set))   DOMAIN_ERROR;
+                            FD_SET(fd, &exceptfds);
+                            if (max_fd < fd)   max_fd = fd;
+                            ex = &exceptfds;
+                          }
+                   }
+
+                if (B->element_count() >= 2)
+                   {
+                      Value_P vwr = B->get_ravel(1).get_pointer_value();
+                      loop(l, vwr->element_count())
+                          {
+                            const APL_Integer fd =
+                                  vwr->get_ravel(l).get_int_value();
+                            if (fd < 0)                  DOMAIN_ERROR;
+                            if (fd > 8*sizeof(fd_set))   DOMAIN_ERROR;
+                            FD_SET(fd, &writefds);
+                            if (max_fd < fd)   max_fd = fd;
+                            wr = &writefds;
+                          }
+                   }
+
+                if (B->element_count() >= 1)
+                   {
+                      Value_P vrd = B->get_ravel(0).get_pointer_value();
+                      loop(l, vrd->element_count())
+                          {
+                            const APL_Integer fd =
+                                  vrd->get_ravel(l).get_int_value();
+                            if (fd < 0)                  DOMAIN_ERROR;
+                            if (fd > 8*sizeof(fd_set))   DOMAIN_ERROR;
+                            FD_SET(fd, &readfds);
+                            if (max_fd < fd)   max_fd = fd;
+                            rd = &readfds;
+                          }
+                   }
+
+                const int count = select(max_fd + 1, rd, wr, ex, to);
+                if (count < 0)   goto out_errno;
+
+                Value_P Z(new Value(5, LOC));
+                new (Z->next_ravel())   IntCell(count);
+                new (Z->next_ravel())
+                    PointerCell(fds_to_val(rd, max_fd), Z.getref());
+                new (Z->next_ravel())
+                    PointerCell(fds_to_val(wr, max_fd), Z.getref());
+                new (Z->next_ravel())
+                    PointerCell(fds_to_val(ex, max_fd), Z.getref());
+                new (Z->next_ravel())
+                    IntCell(timeout.tv_sec*1000 + timeout.tv_usec/1000);
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 41:   // read(Bh, Zi, SMALL_BUF) 1 byte per Zi
+              {
+                errno = 0;
+                const int fd = get_fd(*B.get());
+
+                char buffer[SMALL_BUF];
+
+                const ssize_t len = read(fd, buffer, sizeof(buffer));
+                if (len < 0)   goto out_errno;
+
+                Value_P Z(new Value(len, LOC));
+                new (&Z->get_ravel(0)) IntCell(0);   // prototype
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 44:   // getsockname(Bh, Zi)
+              {
+                const int fd = get_fd(*B.get());
+                errno = 0;
+                sockaddr_in addr;
+                socklen_t alen = sizeof(addr);
+                const int ret = getsockname(fd, (sockaddr *)&addr, &alen);
+                if (ret == -1)   goto out_errno;
+
+                Value_P Z(new Value(3, LOC));
+                new (Z->next_ravel())   IntCell(addr.sin_family);
+                new (Z->next_ravel())   IntCell(ntohl(addr.sin_addr.s_addr));
+                new (Z->next_ravel())   IntCell(ntohs(addr.sin_port));
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 45:   // getpeername(Bh, Zi)
+              {
+                const int fd = get_fd(*B.get());
+                errno = 0;
+                sockaddr_in addr;
+                socklen_t alen = sizeof(addr);
+                const int ret = getpeername(fd, (sockaddr *)&addr, &alen);
+                if (ret == -1)   goto out_errno;
+
+                Value_P Z(new Value(3, LOC));
+                new (Z->next_ravel())   IntCell(addr.sin_family);
+                new (Z->next_ravel())   IntCell(ntohl(addr.sin_addr.s_addr));
+                new (Z->next_ravel())   IntCell(ntohs(addr.sin_port));
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+
          case 200:   // clear statistics Bi
          case 201:   // get statistics Bi
               {
@@ -895,6 +1152,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                        new (Z->next_ravel())   IntCell(rN->get_count());
                        new (Z->next_ravel())   IntCell(rN->get_sum());
                        new (Z->next_ravel())   FloatCell(rN->get_sum2());
+                       Z->check_value(LOC);
                        return Token(TOK_APL_VALUE1, Z);
                     }
                  else           // function statistics
@@ -906,6 +1164,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                        new (Z->next_ravel())   IntCell(r->get_count());
                        new (Z->next_ravel())   IntCell(r->get_sum());
                        new (Z->next_ravel())   FloatCell(r->get_sum2());
+                       Z->check_value(LOC);
                        return Token(TOK_APL_VALUE1, Z);
                     }
               }
@@ -954,13 +1213,17 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
    DOMAIN_ERROR;
 
 out_errno:
-   return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
+   return Token(TOK_APL_VALUE1, IntScalar(-errno, LOC));
 }
 //-----------------------------------------------------------------------------
 Token
 eval_AXB(const Value_P A, const Value_P X, const Value_P B,
          const NativeFunction * caller)
 {
+   if (A->get_rank() > 1)   RANK_ERROR;
+   if (B->get_rank() > 1)   RANK_ERROR;
+   if (X->get_rank() > 1)   RANK_ERROR;
+
 const APL_Float qct = Workspace::get_CT();
 const int function_number = X->get_ravel(0).get_near_int(qct);
 
@@ -993,19 +1256,15 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 fe.fe_may_read = read;
                 fe.fe_may_write = write;
                 open_files.push_back(fe);
-                Value_P Z(new Value(LOC));
-                new (&Z->get_ravel(0))   IntCell(fe.fe_fd);
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                return Token(TOK_APL_VALUE1, IntScalar(fe.fe_fd,LOC));
               }
 
          case 6:   // fread(Zi, 1, Ai, Bh) 1 byte per Zi\n"
               {
                 errno = 0;
                 const int bytes = A->get_ravel(0).get_near_int(qct);
-                file_entry & fe = get_file(*B.get());
-                clearerr(fe.fe_file);
-
+                FILE * file = get_FILE(*B.get());
+                clearerr(file);
 
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
@@ -1013,10 +1272,11 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (bytes > sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
-                size_t len = fread(buffer, 1, bytes, fe.fe_file);
+                const size_t len = fread(buffer, 1, bytes, file);
+                if (len < 0)   goto out_errno;
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
-                loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 delete [] del;
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
@@ -1025,8 +1285,8 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 7:   // fwrite(Ai, 1, ⍴Ai, Bh) 1 byte per Zi\n"
               {
                 errno = 0;
-                const int bytes = A->nz_element_count();
-                file_entry & fe = get_file(*B.get());
+                const int bytes = A->element_count();
+                FILE * file = get_FILE(*B.get());
 
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
@@ -1036,21 +1296,18 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                 loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
 
-                size_t len = fwrite(buffer, 1, bytes, fe.fe_file);
+                const size_t len = fwrite(buffer, 1, bytes, file);
                 delete [] del;
 
-                Value_P Z(new Value(LOC));
-                new (&Z->get_ravel(0)) IntCell(len); 
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                return Token(TOK_APL_VALUE1, IntScalar(len, LOC));
               }
 
          case 8:   // fgets(Zi, Ai, Bh) 1 byte per Zi\n"
               {
                 errno = 0;
                 const int bytes = A->get_ravel(0).get_near_int(qct);
-                file_entry & fe = get_file(*B.get());
-                clearerr(fe.fe_file);
+                FILE * file = get_FILE(*B.get());
+                clearerr(file);
 
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
@@ -1058,11 +1315,11 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (bytes > sizeof(buffer))
                    buffer = del = new char[bytes + 1];
 
-                const char * s = fgets(buffer, bytes, fe.fe_file);
+                const char * s = fgets(buffer, bytes, file);
                 const int len = s ? strlen(s) : 0;
                 Value_P Z(new Value(len, LOC));
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
-                loop(z, len)   new (&Z->get_ravel(z)) IntCell(buffer[z] & 0xFF);
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 delete [] del;
                 Z->check_value(LOC);
                 return Token(TOK_APL_VALUE1, Z);
@@ -1071,27 +1328,27 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 13:   // fseek(Bh, Ai, SEEK_SET)
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
+                FILE * file = get_FILE(*B.get());
                 const APL_Integer pos = A->get_ravel(0).get_near_int(qct);
-                fseek(fe.fe_file, pos, SEEK_SET);
+                fseek(file, pos, SEEK_SET);
               }
               goto out_errno;
 
          case 14:   // fseek(Bh, Ai, SEEK_CUR)
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
+                FILE * file = get_FILE(*B.get());
                 const APL_Integer pos = A->get_ravel(0).get_near_int(qct);
-                fseek(fe.fe_file, pos, SEEK_CUR);
+                fseek(file, pos, SEEK_CUR);
               }
               goto out_errno;
 
          case 15:   // fseek(Bh, Ai, SEEK_END)
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
+                FILE * file = get_FILE(*B.get());
                 const APL_Integer pos = A->get_ravel(0).get_near_int(qct);
-                fseek(fe.fe_file, pos, SEEK_END);
+                fseek(file, pos, SEEK_END);
               }
               goto out_errno;
 
@@ -1106,21 +1363,18 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 22:   // fprintf(Bh, A)
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
-                return do_printf(fe.fe_file, A);
+                FILE * file = get_FILE(*B.get());
+                return do_printf(file, A);
               }
 
          case 23:   // fwrite(Ac, 1, ⍴Ac, Bh) Unicode Ac Output UTF-8 \n"
               {
                 errno = 0;
-                file_entry & fe = get_file(*B.get());
+                FILE * file = get_FILE(*B.get());
                 UCS_string text(*A.get());
                 UTF8_string utf(text);
-                const size_t l = fwrite(utf.c_str(), 1, utf.size(), fe.fe_file); 
-                Value_P Z(new Value(LOC));
-                new (&Z->get_ravel(0)) IntCell(l); 
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                const size_t len = fwrite(utf.c_str(), 1, utf.size(), file); 
+                return Token(TOK_APL_VALUE1, IntScalar(len, LOC));
               }
 
          case 24:   // popen(Bs, As) command Bs mode As
@@ -1148,10 +1402,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 fe.fe_may_read = read;
                 fe.fe_may_write = write;
                 open_files.push_back(fe);
-                Value_P Z(new Value(LOC));
-                new (&Z->get_ravel(0))   IntCell(fe.fe_fd);
-                Z->check_value(LOC);
-                return Token(TOK_APL_VALUE1, Z);
+                return Token(TOK_APL_VALUE1, IntScalar(fe.fe_fd, LOC));
               }
 
          case 27:   // rename(As, Bs)
@@ -1188,6 +1439,180 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                  const int not_ok = access(path.c_str(), perms);
                  if (not_ok)   goto out_errno;
                  return Token(TOK_APL_VALUE1, IntScalar(0, LOC));
+              }
+
+         case 33:   // bind(Bh, Aa)
+              {
+                const int fd = get_fd(*B.get());
+                sockaddr_in addr;
+                memset(&addr, 0, sizeof(addr));
+                addr.sin_family      =       A->get_ravel(0).get_int_value();
+                addr.sin_addr.s_addr = htonl(A->get_ravel(1).get_int_value());
+                addr.sin_port        = htons(A->get_ravel(2).get_int_value());
+                errno = 0;
+                bind(fd, (const sockaddr *)&addr, sizeof(addr));
+                goto out_errno;
+              }
+
+         case 34:   // listen(Bh, Ai)
+              {
+                const int fd = get_fd(*B.get());
+                APL_Integer backlog = 10;
+                if (A->element_count() > 0)
+                   backlog = A->get_ravel(0).get_int_value();
+
+                errno = 0;
+                listen(fd, backlog);
+                goto out_errno;
+              }
+
+         case 36:   // connect(Bh, Aa)
+              {
+                const int fd = get_fd(*B.get());
+                errno = 0;
+                sockaddr_in addr;
+                memset(&addr, 0, sizeof(addr));
+                addr.sin_family      =       A->get_ravel(0).get_int_value();
+                addr.sin_addr.s_addr = htonl(A->get_ravel(1).get_int_value());
+                addr.sin_port        = htons(A->get_ravel(2).get_int_value());
+                errno = 0;
+                connect(fd, (const sockaddr *)&addr, sizeof(addr));
+                goto out_errno;
+              }
+
+         case 37:   // recv(Bh, Zi, Ai, 0) 1 byte per Zi
+              {
+                const int bytes = A->get_ravel(0).get_near_int(qct);
+                const int fd = get_fd(*B.get());
+                errno = 0;
+
+                char small_buffer[SMALL_BUF];
+                char * buffer = small_buffer;
+                char * del = 0;
+                if (bytes > sizeof(small_buffer))
+                   buffer = del = new char[bytes];
+
+                const ssize_t len = recv(fd, buffer, bytes, 0);
+                if (len < 0)   goto out_errno;
+
+                Value_P Z(new Value(len, LOC));
+                new (&Z->get_ravel(0)) IntCell(0);   // prototype
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
+                delete [] del;
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 38:   // send(Bh, Ai, ⍴Ai, 0) 1 byte per Zi\n"
+              {
+                errno = 0;
+                const int bytes = A->element_count();
+                const int fd = get_fd(*B.get());
+
+                char small_buffer[SMALL_BUF];
+                char * buffer = small_buffer;
+                char * del = 0;
+                if (bytes > sizeof(small_buffer))
+                   buffer = del = new char[bytes];
+
+                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
+
+                const ssize_t len = send(fd, buffer, bytes, 0);
+                if (len < 0)   goto out_errno;
+                delete [] del;
+
+                return Token(TOK_APL_VALUE1, IntScalar(len, LOC));
+              }
+
+         case 39:   // send(Bh, Ac, ⍴Ac, 0) Unicode Ac Output UTF-8 \n"
+              {
+                UCS_string text(*A.get());
+                UTF8_string utf(text);
+                const int fd = get_fd(*B.get());
+                errno = 0;
+                const ssize_t len = send(fd, utf.c_str(), utf.size(), 0); 
+                if (len < 0)   goto out_errno;
+
+                return Token(TOK_APL_VALUE1, IntScalar(len, LOC));
+              }
+
+         case 41:   // read(Bh, Zi, Ai) 1 byte per Zi
+              {
+                const int bytes = A->get_ravel(0).get_near_int(qct);
+                const int fd = get_fd(*B.get());
+
+                char small_buffer[SMALL_BUF];
+                char * buffer = small_buffer;
+                char * del = 0;
+                if (bytes > sizeof(small_buffer))
+                   buffer = del = new char[bytes];
+
+                errno = 0;
+                const ssize_t len = read(fd, buffer, bytes);
+                if (len < 0)   goto out_errno;
+
+                Value_P Z(new Value(len, LOC));
+                new (&Z->get_ravel(0)) IntCell(0);   // prototype
+                loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
+                delete [] del;
+                Z->check_value(LOC);
+                return Token(TOK_APL_VALUE1, Z);
+              }
+
+         case 42:   // write(Bh, Ai, ⍴Ai) 1 byte per Zi\n"
+              {
+                const int bytes = A->element_count();
+                const int fd = get_fd(*B.get());
+
+                char small_buffer[SMALL_BUF];
+                char * buffer = small_buffer;
+                char * del = 0;
+                if (bytes > sizeof(small_buffer))
+                   buffer = del = new char[bytes];
+
+                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
+
+                errno = 0;
+                const ssize_t len = write(fd, buffer, bytes);
+                delete [] del;
+                if (len < 0)   goto out_errno;
+
+                return Token(TOK_APL_VALUE1, IntScalar(len, LOC));
+              }
+
+         case 43:   // write(Bh, Ac, ⍴Ac) Unicode Ac Output UTF-8 \n"
+              {
+                const int fd = get_fd(*B.get());
+                UCS_string text(*A.get());
+                UTF8_string utf(text);
+                errno = 0;
+                const ssize_t len = write(fd, utf.c_str(), utf.size()); 
+                if (len < 0)   goto out_errno;
+                return Token(TOK_APL_VALUE1, IntScalar(len, LOC));
+              }
+
+         case 46:   // getsockopt(Bh, A_level, A_optname, Zi)\n"
+              {
+                const APL_Integer level = A->get_ravel(0).get_int_value();
+                const APL_Integer optname = A->get_ravel(1).get_int_value();
+                const int fd = get_fd(*B.get());
+                int optval = 0;
+                socklen_t olen = sizeof(optval);
+                errno = 0;
+                const int ret = getsockopt(fd, level, optname, &optval, &olen);
+                if (ret < 0)   goto out_errno;
+                return Token(TOK_APL_VALUE1, IntScalar(optval, LOC));
+              }
+
+         case 47:   // setsockopt(Bh, A_level, A_optname, A_optval)\n"
+              {
+                const APL_Integer level = A->get_ravel(0).get_int_value();
+                const APL_Integer optname = A->get_ravel(1).get_int_value();
+                const int optval =  A->get_ravel(2).get_int_value();
+                const int fd = get_fd(*B.get());
+                errno = 0;
+                setsockopt(fd, level, optname, &optval, sizeof(optval));
+                goto out_errno;
               }
 
          case 202:   // set monadic parallel threshold
@@ -1231,7 +1656,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
    DOMAIN_ERROR;
 
 out_errno:
-   return Token(TOK_APL_VALUE1, IntScalar(errno, LOC));
+   return Token(TOK_APL_VALUE1, IntScalar(-errno, LOC));
 }
 //-----------------------------------------------------------------------------
 

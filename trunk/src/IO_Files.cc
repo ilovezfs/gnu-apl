@@ -262,16 +262,19 @@ IO_Files::print_summary()
 {
 ofstream summary("testcases/summary.log", ios_base::app);
 
+int done = testcases_done;
+   if (done > testcase_count)   done = testcase_count;
+
    summary << "======================================="
               "=======================================" << endl
-           << total_errors << " errors in " << testcases_done
+           << total_errors << " errors in " << done
            << "(" << testcase_count << ")"
            << " testcase files" << endl;
 
    CERR    << endl
            << "======================================="
            "=======================================" << endl
-           << total_errors << " errors in " << testcases_done
+           << total_errors << " errors in " << done
            << "(" << testcase_count << ")"
            << " testcase files" << endl;
 }
