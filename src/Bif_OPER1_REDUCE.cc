@@ -72,7 +72,7 @@ vector<ShapeItem> rep_counts;
 Shape shape_Z(shape_B);
    shape_Z.set_shape_item(axis, len_Z);
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 
 const Shape3 shape_B3(shape_B, axis);
 
@@ -168,7 +168,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
       {
         Shape shape_B1 = B->get_shape().insert_axis(axis, 0);
         shape_B1.increment_shape_item(axis + 1);
-        Value_P val(new Value(shape_B1, LOC));
+        Value_P val(shape_B1, LOC);
         val->get_ravel(0).init(B->get_ravel(0), val.getref());   // prototype
 
         Token result = LO->eval_identity_fun(val, axis);
@@ -184,7 +184,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         //
         Shape shape_Z = B->get_shape();
         shape_Z.set_shape_item(axis, 0);
-        Value_P Z(new Value(shape_Z, LOC));
+        Value_P Z(shape_Z, LOC);
         Z->get_ravel(0).init(B->get_ravel(0), Z.getref());
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
@@ -205,7 +205,7 @@ Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
 {
    if (shape_Z.is_empty())   return LO->eval_identity_fun(B, axis);
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 EOC_arg arg(Z, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 

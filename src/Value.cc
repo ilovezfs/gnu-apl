@@ -212,21 +212,6 @@ Value::Value(const CDR_string & ui8, const char * loc)
    set_complete();
 }
 //-----------------------------------------------------------------------------
-Value::Value(const char * string, const char * loc)
-   : DynamicObject(loc, &all_values),
-     shape(strlen(string)),
-     flags(VF_NONE),
-     valid_ravel_items(0)
-{
-   ADD_EVENT(this, VHE_Create, 0, loc);
-   init_ravel();
-
-const ShapeItem length = strlen(string);
-   loop(e, length)  new (&get_ravel(e)) CharCell(Unicode(string[e]));
-
-   set_complete();
-}
-//-----------------------------------------------------------------------------
 Value::Value(const Shape & sh, const char * loc)
    : DynamicObject(loc, &all_values),
      shape(sh),
@@ -278,7 +263,7 @@ const ShapeItem length = nz_element_count();
 Value_P
 Value::get_cellrefs(const char * loc)
 {
-Value_P ret(new Value(get_shape(), loc));
+Value_P ret(get_shape(), loc);
 
 const ShapeItem ec = element_count();
 
@@ -971,7 +956,7 @@ Shape shape_Z;
 
 MultiIndexIterator mult(get_shape(), IX);   // deletes IDX
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 const ShapeItem ec_z = Z->element_count();
 
    if (ec_z == 0)   // empty result
@@ -1001,7 +986,7 @@ Value::index(Value_P X) const
    if (!X)   return clone(LOC);
 
 const Shape shape_Z(X->get_shape());
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 const ShapeItem max_idx = element_count();
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();
@@ -1115,7 +1100,7 @@ const ShapeItem len_B = B->element_count();
    Assert(A->is_scalar_or_vector());
    Assert(B->is_scalar_or_vector());
 
-Value_P Z(new Value(len_A + len_B, LOC));
+Value_P Z(len_A + len_B, LOC);
 
    loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a), Z.getref());
    loop(b, len_B)   Z->next_ravel()->init(B->get_ravel(b), Z.getref());
@@ -1139,7 +1124,7 @@ Value::glue_strand_closed(Token & result, Value_P A, Value_P B,
    Assert(A->is_scalar_or_vector());
 
 const ShapeItem len_A = A->element_count();
-Value_P Z(new Value(len_A + 1, LOC));
+Value_P Z(len_A + 1, LOC);
 
    loop(a, len_A)   Z->next_ravel()->init(A->get_ravel(a), Z.getref());
 
@@ -1171,7 +1156,7 @@ Value::glue_closed_strand(Token & result, Value_P A, Value_P B,
    Assert(B->is_scalar_or_vector());
 
 const ShapeItem len_B = B->element_count();
-Value_P Z(new Value(len_B + 1, LOC));
+Value_P Z(len_B + 1, LOC);
 
    if (A->is_simple_scalar())
       {
@@ -1200,7 +1185,7 @@ Value::glue_closed_closed(Token & result, Value_P A, Value_P B,
              << " and " << endl << *B << endl;
       }
 
-Value_P Z(new Value(2, LOC));
+Value_P Z(2, LOC);
    if (A->is_simple_scalar())
       {
         Z->next_ravel()->init(A->get_ravel(0), Z.getref());
@@ -1627,7 +1612,7 @@ const Cell & first = get_ravel(0);
    if (first.is_pointer_cell())
       {
         Value_P B0 = first.get_pointer_value();
-        Value_P Z(new Value(B0->get_shape(), loc));
+        Value_P Z(B0->get_shape(), loc);
         const ShapeItem ec_Z =  Z->nz_element_count();
 
         loop(z, ec_Z)   Z->get_ravel(z).init_type(B0->get_ravel(z), Z.getref());
@@ -1635,7 +1620,7 @@ const Cell & first = get_ravel(0);
       }
    else
       {
-        Value_P Z(new Value(loc));
+        Value_P Z(loc);
 
         Z->get_ravel(0).init_type(first, Z.getref());
         return Z;
@@ -1652,7 +1637,7 @@ const uint64_t start_1 = cycle_counter();
 #endif
 #endif
 
-Value_P ret(new Value(get_shape(), loc));
+Value_P ret(get_shape(), loc);
 
 const Cell * src = &get_ravel(0);
 Cell * dst = &ret->get_ravel(0);

@@ -643,7 +643,7 @@ Symbol::resolve(Token & tok, bool left_sym)
 
              {
                IntCell lab(value_stack.back().sym_val.label);
-               Value_P value(new Value(lab, LOC));
+               Value_P value(lab, LOC);
                Token t(TOK_APL_VALUE1, value);
                move_1(tok, t, LOC);
              }
@@ -1029,7 +1029,7 @@ const Cell * cV = &values->get_ravel(0);
            }
         else
            {
-             Value_P val(new Value(LOC));
+             Value_P val(LOC);
              val->get_ravel(0).init(*cV, val.getref());
              sym->assign(val, LOC);
            }

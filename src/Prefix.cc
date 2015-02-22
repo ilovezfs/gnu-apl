@@ -1207,7 +1207,7 @@ Function * F = at2().get_function();
 Symbol * V = at0().get_sym_ptr();
    V->assign_named_lambda(F, LOC);
 
-Value_P Z(new Value(V->get_name(), LOC));
+Value_P Z(V->get_name(), LOC);
 Token result = Token(TOK_APL_VALUE2, Z);
    pop_args_push_result(result);
 

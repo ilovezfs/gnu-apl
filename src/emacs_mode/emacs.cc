@@ -172,7 +172,7 @@ Value_P make_string_cell( const std::string &string, const char *loc )
 {
     UCS_string s = ucs_string_from_string( string );
     Shape shape( s.size() );
-    Value_P cell( new Value( shape, loc ) );
+    Value_P cell(shape, loc );
     for( int i = 0 ; i < s.size() ; i++ ) {
         new (cell->next_ravel()) CharCell( s[i] );
     }

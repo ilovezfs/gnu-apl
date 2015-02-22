@@ -65,7 +65,7 @@ Bif_OPER2_RANK::do_LyXB(Function * LO, const Shape * axes,
    // split shape of B into high and low shapes.
    //
 const Shape shape_Z = B->get_shape().high_shape(B->get_rank() - rk_chunk_B);
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 EOC_arg arg(Z, B);
 RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
 
@@ -94,7 +94,7 @@ RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
 
 loop_h:
    {
-     Value_P BB(new Value(_arg.get_sh_chunk_B(), LOC));
+     Value_P BB(_arg.get_sh_chunk_B(), LOC);
      Assert1(_arg.ec_chunk_B == _arg.get_sh_chunk_B().get_volume());
      loop(l, _arg.ec_chunk_B)   BB->next_ravel()->init(*_arg.cB++, BB.getref());
      BB->check_value(LOC);
@@ -227,7 +227,7 @@ Shape shape_Z;
         shape_Z = sh_B_frame;
       }
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 EOC_arg arg(Z, B, A);
 RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
 
@@ -282,8 +282,8 @@ RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
 
 loop_h:
    {
-     Value_P AA(new Value(_arg.get_sh_chunk_A(), LOC));
-     Value_P BB(new Value(_arg.get_sh_chunk_B(), LOC));
+     Value_P AA(_arg.get_sh_chunk_A(), LOC);
+     Value_P BB(_arg.get_sh_chunk_B(), LOC);
 
      loop(l, _arg.ec_chunk_A)   AA->get_ravel(l).init(*_arg.cA++, AA.getref());
      loop(l, _arg.ec_chunk_B)   BB->get_ravel(l).init(*_arg.cB++, BB.getref());
@@ -510,13 +510,13 @@ const ShapeItem length = y123_B->element_count();
                  }
               else
                  {
-                   B = Value_P(new Value(LOC));
+                   B = Value_P(LOC);
                    B->next_ravel()->init(B0, B.getref());
                  }
             }
          else                    // vector B
             {
-              B = Value_P(new Value(length - 1, LOC));
+              B = Value_P(length - 1, LOC);
               loop(l, length - 1)
                   B->next_ravel()->init(y123_B->get_ravel(l + 1), B.getref());
             }
@@ -547,7 +547,7 @@ int y123_len = 0;
    if (length == (y123_len + 1) &&
        y123_B->get_ravel(y123_len).is_pointer_cell())   // case 3. y123:⊂B
       {
-        y123 = Value_P(new Value(y123_len, LOC));
+        y123 = Value_P(y123_len, LOC);
         loop(yy, y123_len)
             y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref());
         B = y123_B->get_ravel(y123_len).get_pointer_value();
@@ -556,11 +556,11 @@ int y123_len = 0;
 
    // case 4: y123:B...
    //
-   y123 = Value_P(new Value(y123_len, LOC));
+   y123 = Value_P(y123_len, LOC);
    loop(yy, y123_len)
        y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref());
 
-   B = Value_P(new Value(length - y123_len, LOC));
+   B = Value_P(length - y123_len, LOC);
    loop(bb, (length - y123_len))
        B->next_ravel()->init(y123_B->get_ravel(bb + y123_len), B.getref());
 }

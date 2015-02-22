@@ -98,7 +98,7 @@ DynArray(const Cell *, array, len_BZ);
    else
       Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len, &Cell::smaller_vec);
 
-Value_P Z(new Value(len_BZ, LOC));
+Value_P Z(len_BZ, LOC);
 
 const APL_Integer qio = Workspace::get_IO();
 const Cell * base = &B->get_ravel(0);
@@ -124,7 +124,7 @@ const ShapeItem len_BZ = B->get_shape_item(0);
    if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
    if (len_BZ == 1)   return Token(TOK_APL_VALUE1, IntScalar(qio, LOC));
 
-Value_P B1(new Value(B->get_shape(), LOC));
+Value_P B1(B->get_shape(), LOC);
 const ShapeItem ec_B = B->element_count();
 const ShapeItem comp_len = ec_B/len_BZ;
 CollatingCache cc_cache(A->get_rank(), comp_len);
@@ -145,7 +145,7 @@ DynArray(const Cell *, array, len_BZ);
       Heapsort<const Cell *>::sort(&array[0], len_BZ, &cc_cache,
                                    &CollatingCache::smaller_vec);
 
-Value_P Z(new Value(len_BZ, LOC));
+Value_P Z(len_BZ, LOC);
 
 const Cell * base = &B1->get_ravel(0);
    loop(bz, len_BZ)

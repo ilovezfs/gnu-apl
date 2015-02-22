@@ -41,7 +41,7 @@ Bif_F12_FORMAT::eval_B(Value_P B)
 
    if (B->is_empty())
       {
-        Value_P Z(new Value(B->get_shape(), LOC));
+        Value_P Z(B->get_shape(), LOC);
         new (&Z->get_ravel(0)) CharCell(UNI_ASCII_SPACE);
         return Token(TOK_APL_VALUE1, Z);
       }
@@ -160,8 +160,8 @@ const ShapeItem height = pb.get_height();
    // in lrm.
    //
 Value_P Z;
-   if (height == 1)   Z = Value_P(new Value(width, LOC));
-   else               Z = Value_P(new Value(Shape(height, width), LOC));
+   if (height == 1)   Z = Value_P(width, LOC);
+   else               Z = Value_P(Shape(height, width), LOC);
 
    loop(h, height)
    loop(w, width)
@@ -235,7 +235,7 @@ Shape shape_Z(B->get_shape());
    if (B->is_scalar())   shape_Z.add_shape_item(1);
    shape_Z.set_last_shape_item(format.size());
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 
    try
       {
@@ -875,7 +875,7 @@ const APL_Float qct = Workspace::get_CT();
         shape_Z.add_shape_item(W);
         const ShapeItem ec_Z = shape_Z.get_volume();
 
-        Value_P Z(new Value(shape_Z, LOC));
+        Value_P Z(shape_Z, LOC);
         loop(z, ec_Z)   new (Z->next_ravel()) CharCell(UNI_ASCII_SPACE);
 
         Z->set_default_Spc();
@@ -919,7 +919,7 @@ const ShapeItem pb_h = pb.get_height();
 Shape shape_Z(shape_B);
    shape_Z.set_last_shape_item(pb_w);
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 
    loop(h, pb_h)
    loop(w, pb_w)   new (Z->next_ravel()) CharCell(pb.get_char(w, h));

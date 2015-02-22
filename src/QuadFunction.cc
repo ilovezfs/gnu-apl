@@ -66,7 +66,7 @@ Token
 Quad_AF::eval_B(Value_P B)
 {
 const ShapeItem ec = B->element_count();
-Value_P Z(new Value(B->get_shape(), LOC));
+Value_P Z(B->get_shape(), LOC);
 
    loop(v, ec)
        {
@@ -114,7 +114,7 @@ const int mode_len = mode_vec[mode - 1];
 Shape shape_Z(rows);
    shape_Z.add_shape_item(mode_len);
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 
    loop(r, rows)
       {
@@ -217,7 +217,7 @@ Shape shape_Z;
    shape_Z.add_shape_item(tlines.size());
    shape_Z.add_shape_item(max_len);
    
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
    loop(row, tlines.size())
       {
         const UCS_string & line = tlines[row];
@@ -258,7 +258,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
 
         case  4:
         case  8: { // like 3/7, but enclose B so that the entire B is boxed
-                   Value_P B1(new Value(LOC));
+                   Value_P B1(LOC);
                    new (&B1->get_ravel(0))
                        PointerCell(B.clone(LOC), B1.getref());
                    Value_P Z = do_CR(a - 1, *B1.get(), pctx);
@@ -275,7 +275,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                Shape shape_Z(B.get_shape());
                if (shape_Z.get_rank() == 0)   shape_Z.add_shape_item(1);
                shape_Z.set_shape_item(B.get_rank() - 1, B.get_cols() * 2);
-               Value_P Z(new Value(shape_Z, LOC));
+               Value_P Z(shape_Z, LOC);
 
                const Cell * cB = &B.get_ravel(0);
                loop(b, B.element_count())
@@ -299,10 +299,10 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                    vector<UCS_string> ucs_vec;
                    do_CR10(ucs_vec, B);
 
-                   Value_P Z(new Value(ucs_vec.size(), LOC));
+                   Value_P Z(ucs_vec.size(), LOC);
                    loop(line, ucs_vec.size())
                       {
-                        Value_P Z_line(new Value(ucs_vec[line], LOC));
+                        Value_P Z_line(ucs_vec[line], LOC);
                         new (Z->next_ravel())   PointerCell(Z_line, Z.getref());
                       }
                    Z->set_default_Spc();
@@ -317,7 +317,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                    CDR_string cdr;
                    CDR::to_CDR(cdr, B);
                    const ShapeItem len = cdr.size();
-                   Value_P Z(new Value(len, LOC));
+                   Value_P Z(len, LOC);
                    loop(l, len)
                        new (Z->next_ravel()) CharCell((Unicode)(0xFF & cdr[l]));
                    Z->set_default_Spc();
@@ -349,7 +349,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                    Shape shape_Z(B.get_shape());
                    shape_Z.set_shape_item(B.get_rank() - 1,
                                          (B.get_cols() + 1)/ 2);
-                   Value_P Z(new Value(shape_Z, LOC));
+                   Value_P Z(shape_Z, LOC);
                    const Cell * cB = &B.get_ravel(0);
                    loop(z, Z->element_count())
                       {
@@ -372,7 +372,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                    CDR_string cdr;
                    CDR::to_CDR(cdr, B);
                    const ShapeItem len = cdr.size();
-                   Value_P Z(new Value(2*len, LOC));
+                   Value_P Z(2*len, LOC);
                    loop(l, len)
                        {
                          const Unicode uh = Unicode(hex[0x0F & cdr[l] >> 4]);
@@ -412,7 +412,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                if (B.get_rank() > 1)   RANK_ERROR;
                const ShapeItem full_quantums = B.element_count() / 3;
                const ShapeItem len_Z = 4 * ((B.element_count() + 2) / 3);
-               Value_P Z(new Value(len_Z, LOC));
+               Value_P Z(len_Z, LOC);
                alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                        "abcdefghijklmnopqrstuvwxyz"
                        "0123456789+/";
@@ -499,7 +499,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                const ShapeItem len_Z = 3 * (B.element_count() / 4) - missing;
                const ShapeItem quantums = B.element_count() / 4;
 
-               Value_P Z(new Value(len_Z, LOC));
+               Value_P Z(len_Z, LOC);
                const Cell * cB = &B.get_ravel(0);
                loop(q, quantums)
                    {
@@ -548,7 +548,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
              {
                UCS_string ucs(B);
                UTF8_string utf(ucs);
-               Value_P Z(new Value(utf, LOC));
+               Value_P Z(utf, LOC);
                return Z;
              }
 
@@ -557,7 +557,7 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
              {
                UTF8_string utf(B);
                UCS_string ucs(utf);
-               Value_P Z(new Value(ucs, LOC));
+               Value_P Z(ucs, LOC);
                return Z;
              }
 
@@ -573,7 +573,7 @@ const ShapeItem height = pb.get_height();
 const ShapeItem width = pb.get_width(0);
 
 const Shape sh(height, width);
-Value_P Z(new Value(sh, LOC));
+Value_P Z(sh, LOC);
 
    // prototype
    //
@@ -988,7 +988,7 @@ const APL_time_us end = start + 1000000 * B->get_ravel(0).get_real_value();
 
    // return time elapsed.
    //
-Value_P Z(new Value(LOC));
+Value_P Z(LOC);
    new (&Z->get_ravel(0)) FloatCell(0.000001*(now() - start));
 
    Z->check_value(LOC);
@@ -1211,9 +1211,9 @@ ExecuteList * fun = 0;
       {
         // syntax error in B
         //
-        Value_P Z(new Value(3, LOC));
-        Value_P Z1(new Value(2, LOC));
-        Value_P Z2(new Value(Error::error_name(E_SYNTAX_ERROR), LOC));
+        Value_P Z(3, LOC);
+        Value_P Z1(2, LOC);
+        Value_P Z2(Error::error_name(E_SYNTAX_ERROR), LOC);
         new (&Z1->get_ravel(0))   IntCell(Error::error_major(E_SYNTAX_ERROR));
         new (&Z1->get_ravel(1))   IntCell(Error::error_minor(E_SYNTAX_ERROR));
 
@@ -1252,7 +1252,7 @@ Quad_EC::eoc(Token & result_B, EOC_arg & arg)
 StateIndicator * si = Workspace::SI_top();
    si->set_safe_execution(false);
 
-Value_P Z(new Value(3, LOC));
+Value_P Z(3, LOC);
 Value_P Z2;
 
 int result_type = 0;
@@ -1275,7 +1275,7 @@ ErrorCode ec = E_NO_ERROR;
               if (cols < row_3.size())   cols = row_3.size();
 
               const Shape sh_Z2(3, cols);
-              Z2 = Value_P(new Value(sh_Z2, LOC));   // 3 line message like ⎕EM
+              Z2 = Value_P(sh_Z2, LOC);   // 3 line message like ⎕EM
               Cell * C2 = &Z2->get_ravel(0);
               loop(c, cols)
                  if (c < row_1.size())   new (C2++) CharCell(row_1[c]);
@@ -1308,7 +1308,7 @@ ErrorCode ec = E_NO_ERROR;
 
         case TOK_BRANCH:
              result_type = 4;
-             Z2 = Value_P(new Value(LOC));
+             Z2 = Value_P(LOC);
              new (&Z2->get_ravel(0))   IntCell(result_B.get_int_val());
              break;
 
@@ -1322,7 +1322,7 @@ ErrorCode ec = E_NO_ERROR;
                  Assert(0);
       }
 
-Value_P Z1(new Value(2, LOC));
+Value_P Z1(2, LOC);
    new (&Z1->get_ravel(0)) IntCell(Error::error_major(ec));
    new (&Z1->get_ravel(1)) IntCell(Error::error_minor(ec));
 
@@ -1365,7 +1365,7 @@ vector<const char *> evars;
        }
 
 const Shape sh_Z(evars.size(), 2);
-Value_P Z(new Value(sh_Z, LOC));
+Value_P Z(sh_Z, LOC);
 
    loop(e, evars.size())
       {
@@ -1378,12 +1378,12 @@ Value_P Z(new Value(sh_Z, LOC));
            }
         ++env;   // skip '='
 
-        Value_P varname(new Value(ucs, LOC));
+        Value_P varname(ucs, LOC);
 
         ucs.clear();
         while (*env)   ucs.append(Unicode(*env++));
 
-        Value_P varval(new Value(ucs, LOC));
+        Value_P varval(ucs, LOC);
 
         new (Z->next_ravel()) PointerCell(varname, Z.getref());
         new (Z->next_ravel()) PointerCell(varval, Z.getref());
@@ -1515,7 +1515,9 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+Value_P Z(sh_Z, LOC);
 
    loop(z, var_count)   new (Z->next_ravel()) IntCell(expunge(vars[z]));
 
@@ -1618,7 +1620,7 @@ Quad_INP::eoc_INP(Token & token, EOC_arg & _arg)
          UCS_string err("*** ");
          err.append(Error::error_name((ErrorCode)(token.get_int_val())));
          err.append_utf8(" in ⎕INP ***");
-         Value_P val(new Value(err, LOC));
+         Value_P val(err, LOC);
          move_2(token, Token(TOK_APL_VALUE1, val), LOC);
       }
 
@@ -1754,14 +1756,14 @@ quad_INP arg = _arg.u.u_quad_INP;
        }
 
 const ShapeItem zlen = UCS_string_list::length(arg.lines);
-Value_P Z(new Value(ShapeItem(zlen), LOC));
+Value_P Z(zlen, LOC);
 Cell * cZ = &Z->get_ravel(0) + zlen;
 
    loop(z, zlen)
       {
         UCS_string_list * node = arg.lines;
         arg.lines = arg.lines->prev;
-        Value_P ZZ(new Value(node->string, LOC));
+        Value_P ZZ(node->string, LOC);
         ZZ->check_value(LOC);
         new (--cZ)   PointerCell(ZZ, Z.getref());
         delete node;
@@ -1774,7 +1776,7 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
    if (Z->is_empty())   // then Z←⊂''
       {
         Shape sh(0);   // length 0 vector
-        Value_P ZZ(new Value(sh, LOC));
+        Value_P ZZ(sh, LOC);
         ZZ->set_default_Spc();
         new (&Z->get_ravel(0)) PointerCell(ZZ, Z.getref());
       }
@@ -1849,13 +1851,13 @@ Parser parser(PM_EXECUTE, LOC);
          lines.push_back(line);
       }
 
-Value_P Z(new Value(lines.size(), LOC));
+Value_P Z(lines.size(), LOC);
    loop(z, lines.size())
       {
          Token_string tos;
          parser.parse(lines[z], tos);
          const ShapeItem val_count = (tos.size() + 1)/2;
-         Value_P ZZ(new Value(val_count, LOC));
+         Value_P ZZ(val_count, LOC);
          loop(v, val_count)
             {
               new (ZZ->next_ravel()) PointerCell(tos[2*v].get_apl_val(),
@@ -1867,7 +1869,7 @@ Value_P Z(new Value(lines.size(), LOC));
 
    if (lines.size() == 0)   // empty result
       {
-        Value_P ZZ(new Value(UCS_string(), LOC));
+        Value_P ZZ(UCS_string(), LOC);
         new(&Z->get_ravel(0)) PointerCell(ZZ, Z.getref());
       }
    Z->check_value(LOC);
@@ -1883,7 +1885,9 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+Value_P Z(sh_Z, LOC);
 
    loop(v, var_count)   new (Z->next_ravel())   IntCell(get_NC(vars[v]));
 
@@ -2008,7 +2012,7 @@ ShapeItem longest = 0;
       }
 
 const Shape shZ(names.size(), longest);
-Value_P Z(new Value(shZ, LOC));
+Value_P Z(shZ, LOC);
 
    // 5. construct result. The number of symbols is small and ⎕NL is
    // (or should) not be a perfomance // critical function, so we can
@@ -2081,10 +2085,10 @@ Value_P Z;
 const APL_Integer b = B->get_ravel(0).get_int_value();
    switch(b)
       {
-        case 1:  Z = Value_P(new Value(fun_name, LOC));
+        case 1:  Z = Value_P(fun_name, LOC);
                  break;
 
-        case 2:  Z = Value_P(new Value(LOC));
+        case 2:  Z = Value_P(LOC);
                 new (&Z->get_ravel(0)) IntCell(fun_line);
                 break;
 
@@ -2093,7 +2097,7 @@ const APL_Integer b = B->get_ravel(0).get_int_value();
                    fun_and_line.append(UNI_ASCII_L_BRACK);
                    fun_and_line.append_number(fun_line);
                    fun_and_line.append(UNI_ASCII_R_BRACK);
-                   Z = Value_P(new Value(fun_and_line, LOC)); 
+                   Z = Value_P(fun_and_line, LOC); 
                  }
                  break;
 
@@ -2101,19 +2105,19 @@ const APL_Integer b = B->get_ravel(0).get_int_value();
                     {
                       const UCS_string & text =
                                         si->get_error().get_error_line_2();
-                      Z = Value_P(new Value(text, LOC));
+                      Z = Value_P(text, LOC);
                     }
                  else
                     {
                       const UCS_string text = exec->statement_text(PC);
-                      Z = Value_P(new Value(text, LOC));
+                      Z = Value_P(text, LOC);
                     }
                  break;
 
-        case 5: Z = Value_P(new Value(LOC));
+        case 5: Z = Value_P(LOC);
                 new (&Z->get_ravel(0)) IntCell(PC);                      break;
 
-        case 6: Z = Value_P(new Value(LOC));
+        case 6: Z = Value_P(LOC);
                 new (&Z->get_ravel(0)) IntCell(pm);                      break;
 
         default: DOMAIN_ERROR;
@@ -2141,7 +2145,7 @@ const ShapeItem len = Workspace::SI_entry_count();
 
    // at this point we should not fail...
    //
-Value_P Z(new Value(len, LOC));
+Value_P Z(len, LOC);
 
 ShapeItem z = 0;
    for (const StateIndicator * si = Workspace::SI_top();
@@ -2158,7 +2162,7 @@ ShapeItem z = 0;
          switch (b)
            {
              case 1:  new (cZ) PointerCell(
-                                Value_P(new Value(fun_name, LOC)), Z.getref());
+                                Value_P(fun_name, LOC), Z.getref());
                       break;
 
              case 2:  new (cZ) IntCell(fun_line);
@@ -2170,7 +2174,7 @@ ShapeItem z = 0;
                         fun_and_line.append_number(fun_line);
                         fun_and_line.append(UNI_ASCII_R_BRACK);
                         new (cZ) PointerCell(Value_P(
-                                    new Value(fun_and_line, LOC)), Z.getref()); 
+                                    fun_and_line, LOC), Z.getref()); 
                       }
                       break;
 
@@ -2178,14 +2182,13 @@ ShapeItem z = 0;
                          {
                            const UCS_string & text =
                                         si->get_error().get_error_line_2();
-                           new (cZ) PointerCell(Value_P(
-                                            new Value(text, LOC)), Z.getref()); 
+                           new (cZ) PointerCell(Value_P(text, LOC), Z.getref()); 
                          }
                       else
                          {
                            const UCS_string text = exec->statement_text(PC);
-                           new (cZ) PointerCell(Value_P(
-                                            new Value(text, LOC)), Z.getref()); 
+                           new (cZ) PointerCell(Value_P( text, LOC),
+                                                Z.getref()); 
                          }
                       break;
 
@@ -2203,7 +2206,7 @@ ShapeItem z = 0;
 Token
 Quad_UCS::eval_B(Value_P B)
 {
-Value_P Z(new Value(B->get_shape(), LOC));
+Value_P Z(B->get_shape(), LOC);
 
 const ShapeItem ec = B->nz_element_count();
    loop(v, ec)
@@ -2266,7 +2269,7 @@ UserFunction * ufun = fun->get_ufun1();
 Token
 Stop_Trace::reference(const vector<Function_Line> & lines, bool assigned)
 {
-Value_P Z(new Value(lines.size(), LOC));
+Value_P Z(lines.size(), LOC);
 
    loop(z, lines.size())   new (Z->next_ravel()) IntCell(lines[z]);
 

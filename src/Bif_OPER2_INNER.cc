@@ -160,7 +160,7 @@ const ShapeItem items_B = shape_B1.get_volume();
         return fill(shape_Z, A, RO, B, LOC);
       }
 
-Value_P Z(new Value(shape_A1 + shape_B1, LOC));
+Value_P Z(shape_A1 + shape_B1, LOC);
 
    // an important and the most likely) special case is LO and RO being scalar
    // functions. This case can be implemented in a far simpler fashion than
@@ -208,7 +208,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
    _arg.args_A = new Value_P[_arg.items_A];
    loop(i, _arg.items_A)
        {
-         Value_P v(new Value(len_A, LOC));
+         Value_P v(len_A, LOC);
          v->get_ravel(0).init(A->get_ravel(0 + i*len_A), v.getref());
          loop(a, len_A)
             {
@@ -225,7 +225,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
    _arg.args_B = new Value_P[_arg.items_B];
    loop(i, _arg.items_B)
        {
-         Value_P v(new Value(len_B, LOC));
+         Value_P v(len_B, LOC);
          loop(b, len_B)
             {
               const ShapeItem src = (B->is_scalar()) ? 0 : b*_arg.items_B + i;

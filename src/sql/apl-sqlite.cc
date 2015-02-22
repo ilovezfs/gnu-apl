@@ -120,7 +120,7 @@ static Token open_database( Value_P A, Value_P B )
     int connection_index = find_free_connection();
     connections[connection_index] = provider_iterator->second->open_database( B );
 
-    return Token( TOK_APL_VALUE1, Value_P( new Value( IntCell( connection_index ), LOC ) ) );
+    return Token(TOK_APL_VALUE1, IntScalar(connection_index, LOC));
 }
 
 static void throw_illegal_db_id( void )
@@ -295,8 +295,7 @@ static Token show_tables( APL_Float qct, Value_P B )
         value = Idx0( LOC );
     }
     else {
-        Shape shape( tables.size () );
-        value = new Value( shape, LOC );
+        value = Value_P(tables.size (), LOC);
         for( vector<string>::iterator i = tables.begin() ; i != tables.end() ; i++ ) {
             new (value->next_ravel()) PointerCell( make_string_cell( *i, LOC ), value.getref() );
         }
@@ -325,7 +324,7 @@ static Token show_cols( APL_Float qct, Value_P A, Value_P B )
     }
     else {
         Shape shape( cols.size(), 2 );
-        value = new Value( shape, LOC );
+        value = Value_P( shape, LOC );
         for( vector<ColumnDescriptor>::iterator i = cols.begin() ; i != cols.end() ; i++ ) {
             new (value->next_ravel()) PointerCell( make_string_cell( i->get_name(), LOC ), value.getref() );
 
@@ -461,7 +460,7 @@ Value_P make_string_cell( const std::string &string, const char *loc )
 {
     UCS_string s = ucs_string_from_string( string );
     Shape shape( s.size() );
-    Value_P cell( new Value( shape, loc ) );
+    Value_P cell( shape, loc );
     for( int i = 0 ; i < s.size() ; i++ ) {
         new (cell->next_ravel()) CharCell( s[i] );
     }

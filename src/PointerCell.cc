@@ -208,7 +208,7 @@ PrintBuffer ret(*val, pctx, 0);
                 }
              else                           // several prototypes
                 {
-                  Value_P proto_reshaped(new Value(sh, LOC));
+                  Value_P proto_reshaped(sh, LOC);
                   Cell * c = &proto_reshaped->get_ravel(0);
                   const ShapeItem len = proto_reshaped->element_count();
 

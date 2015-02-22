@@ -162,8 +162,10 @@ vector<UCS_string> vars(var_count);
 const APL_Float qct = Workspace::get_CT();
 const Cell * cA = &A->get_ravel(0);
 
-const Shape shZ(var_count, 4);
-Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+   sh_Z.add_shape_item(4);
+Value_P Z(sh_Z, LOC);
 
    loop(z, var_count)
       {
@@ -218,8 +220,10 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-const Shape shZ(var_count, 4);
-Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+   sh_Z.add_shape_item(4);
+Value_P Z(sh_Z, LOC);
 
    loop(z, var_count)
       {
@@ -299,7 +303,7 @@ const APL_Float remaining = timer_end - now();
 
    if (remaining < 0)   return IntScalar(0, LOC);
 
-Value_P Z(new Value(LOC));
+Value_P Z(LOC);
    new (&Z->get_ravel(0))   FloatCell(0.000001 * remaining);
    return Z;
 }
@@ -322,7 +326,9 @@ vector<UCS_string> surrogates(var_count);
 
    if (A->get_rank() == 1 && A->element_count() != var_count)   LENGTH_ERROR;
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+Value_P Z(sh_Z, LOC);
 
    loop(z, var_count)
       {
@@ -455,7 +461,9 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+Value_P Z(sh_Z, LOC);
 
    loop(z, var_count)
       {
@@ -610,7 +618,7 @@ vector<int32_t> sorted;
             }
       }
 
-Value_P Z(new Value(sorted.size(), LOC));
+Value_P Z(sorted.size(), LOC);
    loop(z, sorted.size())   new (&Z->get_ravel(z)) IntCell(sorted[z]);
    return Z;
 }
@@ -641,7 +649,7 @@ ShapeItem max_len = 0;
        if (max_len < (var_lengths[z] - 1))   max_len = var_lengths[z] - 1;
 
 const Shape shZ(count, max_len);
-Value_P Z(new Value(shZ, LOC));
+Value_P Z(shZ, LOC);
 int v = 0;
 
    loop(z, count)
@@ -671,7 +679,9 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-Value_P Z(var_count > 1 ? new Value(var_count, LOC) : new Value(LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+Value_P Z(sh_Z, LOC);
 
    loop(z, var_count)
       {
@@ -695,8 +705,10 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-const Shape shZ(var_count, 4);
-Value_P Z(var_count > 1 ? new Value(shZ, LOC) : new Value(4, LOC));
+Shape sh_Z;
+   if (var_count > 1)   sh_Z.add_shape_item(var_count);
+   sh_Z.add_shape_item(4);
+Value_P Z(sh_Z, LOC);
 
    loop(z, var_count)
       {

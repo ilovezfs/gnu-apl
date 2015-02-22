@@ -50,7 +50,12 @@ class Thread_context;
  */
 class Value : public DynamicObject
 {
-public:
+   friend class Value_P;
+
+protected:
+   // constructors. Values should not be constructed directly but via their
+   // counterparts in class Value_P.
+   //
    /// construct a scalar value (i.e. a values with rank 0).
    Value(const char * loc);
 
@@ -67,14 +72,12 @@ public:
    Value(const UCS_string & ucs, const char * loc);
 
    /// construct a simple character vector from a UTF8 string
-   Value(const UTF8_string & ucs, const char * loc);
+   Value(const UTF8_string & utf, const char * loc);
 
    /// construct a simple character vector from a CDR string
-   Value(const CDR_string & ui8, const char * loc);
+   Value(const CDR_string & cdr, const char * loc);
 
-   /// construct a simple character vector from a 0-terminated C string
-   Value(const char * string, const char * loc);
-
+public:
    /// destructor
    virtual ~Value();
 
@@ -534,7 +537,6 @@ protected:
 
 #if 1 // enable/disable deleted values chain for faster memory allocation
 
-public:
    /// allocate space for a new Value. For performance reasons, a pool of
    /// deleted_values_MAX is kept and Value objects in that pool are reused
    /// before calling new().

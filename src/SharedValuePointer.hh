@@ -25,7 +25,12 @@
 #error this file must only be included by Common.hh
 #endif
 
+class Cell;
 class Value;
+class Shape;
+class CDR_string;
+class UCS_string;
+class UTF8_string;
 
 #define ptr_clear(p, l) p.reset()
 
@@ -38,11 +43,26 @@ public:
    : value_p(0)
    {}
 
-   /// Constructor: from Value *
-   inline Value_P(Value * val);
+   /// a new scalar value
+   inline Value_P(const char * loc);
 
-   /// Constructor: from Value *
-   inline Value_P(Value * val, const char * loc);
+   /// a new scalar value
+   inline Value_P(const Cell & cell, const char * loc);
+
+   /// a new vector (rank 1 value) of length len
+   inline Value_P(ShapeItem len, const char * loc);
+
+   /// a new value with shape sh
+   inline Value_P(const Shape & sh, const char * loc);
+
+   /// a new vector value from a UCS string
+   inline Value_P(const UCS_string & ucs, const char * loc);
+
+   /// a new vector value from a UTF8 string
+   inline Value_P(const UTF8_string & utf, const char * loc);
+
+   /// a new vector value from a CDR record
+   inline Value_P(const CDR_string & cdr, const char * loc);
 
    /// return he number of Value_P that point to \b value_p
    inline int use_count() const;
@@ -99,6 +119,9 @@ public:
       { return value_p != other.value_p; }
 
 protected:
+   static inline void decrement_owner_count(Value * & v, const char * loc);
+   static inline void increment_owner_count(Value * v, const char * loc);
+
    /// pointer to the value
    Value * value_p;
 };

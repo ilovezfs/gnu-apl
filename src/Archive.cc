@@ -1257,7 +1257,7 @@ bool no_copy = false;   // assume the value is needed
       {
         Assert(vid == values.size());
 
-        Value_P val(new Value(sh_value, LOC));
+        Value_P val(sh_value, LOC);
         values.push_back(val);
       }
 }

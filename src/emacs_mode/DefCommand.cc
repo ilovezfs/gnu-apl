@@ -42,7 +42,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
         stringstream out;
 
         Shape shape( content.size() );
-        Value_P function_list_value( new Value( shape, LOC ) );
+        Value_P function_list_value(shape, LOC);
         for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
             Value_P v;
             if( i->size() == 0 ) {
@@ -57,7 +57,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
 
         if( args.size() > 1 ) {
             Shape tag_shape( 2 );
-            Value_P tag( new Value( tag_shape, LOC ) );
+            Value_P tag(tag_shape, LOC);
             new (tag->next_ravel()) IntCell( 0 );
             new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ), tag.getref());
             function_list_value->check_value( LOC );
