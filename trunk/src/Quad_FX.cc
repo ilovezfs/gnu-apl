@@ -195,7 +195,7 @@ int error_line = 0;
 UserFunction * fun = UserFunction::fix(text, error_line, false, LOC, creator);
    if (fun == 0)
       {
-        Value_P Z(new Value(LOC));
+        Value_P Z(LOC);
         new (&Z->get_ravel(0))   IntCell(error_line + Workspace::get_IO());
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
@@ -204,7 +204,7 @@ UserFunction * fun = UserFunction::fix(text, error_line, false, LOC, creator);
    fun->set_exec_properties(exec_props);
 
 const UCS_string fun_name = fun->get_name();
-Value_P Z(new Value(fun_name, LOC));
+Value_P Z(fun_name, LOC);
 
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);

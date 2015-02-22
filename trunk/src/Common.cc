@@ -212,7 +212,7 @@ sixbit(Unicode uni)
 Value_P
 IntScalar(APL_Integer val, const char * loc)
 {
-Value_P Z(new Value(loc));
+Value_P Z(loc);
    new (Z->next_ravel())   IntCell(val);
    return Z;
 }
@@ -220,7 +220,7 @@ Value_P Z(new Value(loc));
 Value_P
 FloatScalar(APL_Float val, const char * loc)
 {
-Value_P Z(new Value(loc));
+Value_P Z(loc);
    new (Z->next_ravel())   FloatCell(val);
    return Z;
 }
@@ -228,7 +228,7 @@ Value_P Z(new Value(loc));
 Value_P
 Idx0(const char * loc)
 {
-Value_P Z(new Value((ShapeItem)0, loc));
+Value_P Z((ShapeItem)0, loc);
    new (&Z->get_ravel(0))   IntCell(0);
    return Z;
 }
@@ -236,7 +236,7 @@ Value_P Z(new Value((ShapeItem)0, loc));
 Value_P
 Spc(const char * loc)
 {
-Value_P Z(new Value(loc));
+Value_P Z(loc);
    new (Z->next_ravel())   CharCell(UNI_ASCII_SPACE);
    return Z;
 }
@@ -244,7 +244,7 @@ Value_P Z(new Value(loc));
 Value_P
 Str0(const char * loc)
 {
-Value_P Z(new Value((ShapeItem)0, loc));
+Value_P Z((ShapeItem)0, loc);
    new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
    return Z;
 }
@@ -253,7 +253,7 @@ Value_P
 Str0_0(const char * loc)
 {
 Shape sh((ShapeItem)0, (ShapeItem)0);
-Value_P Z(new Value(sh, loc));
+Value_P Z(sh, loc);
    new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
    return Z;
 }

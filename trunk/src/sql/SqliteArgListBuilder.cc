@@ -99,7 +99,7 @@ Value_P SqliteArgListBuilder::run_query( bool ignore_result )
     if( row_count > 0 ) {
         int col_count = results[0].get_values().size();
         Shape result_shape( row_count, col_count );
-        db_result_value = new Value( result_shape, LOC );
+        db_result_value = Value_P( result_shape, LOC );
         for( vector<ResultRow>::iterator row_iterator = results.begin() ; row_iterator != results.end() ; row_iterator++ ) {
             const vector<const ResultValue *> &row = row_iterator->get_values();
             for( vector<const ResultValue *>::const_iterator col_iterator = row.begin() ; col_iterator != row.end() ; col_iterator++ ) {

@@ -103,7 +103,7 @@ Bif_OPER2_OUTER::outer_product(Value_P A, Token & _RO, Value_P B)
 Function * RO = _RO.get_function();
    Assert(RO);
 
-Value_P Z(new Value(A->get_shape() + B->get_shape(), LOC));
+Value_P Z(A->get_shape() + B->get_shape(), LOC);
 
    // an important and the most likely) special case is RO being a scalar
    // function. This case can be implemented in a far simpler fashion than
@@ -145,10 +145,10 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    _arg.len_A = A->element_count();
    _arg.len_B = B->element_count();
 
-   arg.V1 = Value_P(new Value(LOC));   // helper value for non-pointer cA
+   arg.V1 = Value_P(LOC);   // helper value for non-pointer cA
    _arg.RO = RO;
 
-   arg.V2 = Value_P(new Value(LOC));   // helper value for non-pointer cB
+   arg.V2 = Value_P(LOC);   // helper value for non-pointer cB
    _arg.cA = &A->get_ravel(0);
    _arg.cB = &B->get_ravel(0);
 

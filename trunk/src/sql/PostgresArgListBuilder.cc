@@ -185,7 +185,7 @@ Value_P PostgresArgListBuilder::run_query( bool ignore_result )
         else {
             int cols = PQnfields( result.get_result() );
             Shape shape( rows, cols );
-            db_result_value = new Value( shape, LOC );
+            db_result_value = Value_P( shape, LOC );
             for( int row = 0 ; row < rows ; row++ ) {
                 for( int col = 0 ; col < cols ; col++ ) {
                     if( PQgetisnull( result.get_result(), row, col ) ) {

@@ -453,8 +453,7 @@ bool got_end = false;
       }
    else
       {
-        tos.append(Token(TOK_APL_VALUE1,
-                         Value_P(new Value(string_value, LOC))), LOC);
+        tos.append(Token(TOK_APL_VALUE1, Value_P(string_value, LOC)), LOC);
       }
 }
 //-----------------------------------------------------------------------------
@@ -524,8 +523,7 @@ bool got_end = false;
 
    else
       {
-        tos.append(Token(TOK_APL_VALUE1,
-                         Value_P(new Value(string_value, LOC))), LOC);
+        tos.append(Token(TOK_APL_VALUE1, Value_P(string_value, LOC)), LOC);
       }
 }
 //-----------------------------------------------------------------------------
@@ -854,7 +852,7 @@ UCS_string symbol;
 
         while (src.rest() && *src <= UNI_ASCII_SPACE)   src.get();   // spaces
         UCS_string symbol1(symbol, 2, symbol.size() - 2);   // without S∆/T∆
-        Value_P AB(new Value(symbol1, LOC));
+        Value_P AB(symbol1, LOC);
         Function * ST = 0;
         if (symbol[0] == UNI_ASCII_S) ST = &Quad_STOP::fun;
         else                          ST = &Quad_TRACE::fun;

@@ -175,7 +175,7 @@ PERFORMANCE_START(start_1)
 const ShapeItem len_Z = B->element_count();
    if (len_Z == 0)   return eval_fill_B(B);
 
-Value_P Z(new Value(B->get_shape(), LOC));
+Value_P Z(B->get_shape(), LOC);
 
    // create a worklist with one item that computes Z. If nested values are
    // detected when computing Z then jobs for them are added to the worklist.
@@ -218,7 +218,7 @@ Value_P Z(new Value(B->get_shape(), LOC));
                      {
                        POOL_LOCK(joblist_B.parallel_jobs_lock,
                           Value_P B1 = cell_B.get_pointer_value();
-                          Value_P Z1(new Value(B1->get_shape(), LOC));
+                          Value_P Z1(B1->get_shape(), LOC);
                           new (&cell_Z) PointerCell(Z1, *job->value_Z);
 
                           PJob_scalar_B j1(Z1.getref(), B1.getref());
@@ -283,7 +283,7 @@ ShapeItem end_z = z + slice_len;
                  {
                    POOL_LOCK(joblist_B.parallel_jobs_lock,
                       Value_P B1 = cell_B.get_pointer_value();
-                      Value_P Z1(new Value(B1->get_shape(), LOC));
+                      Value_P Z1(B1->get_shape(), LOC);
                       new (&cell_Z) PointerCell(Z1, *job.value_Z);
 
                       PJob_scalar_B j1(Z1.getref(), B1.getref());
@@ -322,7 +322,7 @@ ScalarFunction::expand_pointers(Cell * cell_Z, Value & Z_owner,
            {
              POOL_LOCK(joblist_AB.parallel_jobs_lock,
                 Value_P value_A = cell_A->get_pointer_value();
-                Value_P scalar_B(new Value(*cell_B, LOC));
+                Value_P scalar_B(*cell_B, LOC);
              Token token = eval_scalar_AB(value_A, scalar_B, fun);
              new (cell_Z) PointerCell(token.get_apl_val(), Z_owner))
            }
@@ -332,7 +332,7 @@ ScalarFunction::expand_pointers(Cell * cell_Z, Value & Z_owner,
         if (cell_B->is_pointer_cell())   // A is simple, B is pointer
            {
              POOL_LOCK(joblist_AB.parallel_jobs_lock,
-                Value_P scalar_A(new Value(*cell_A, LOC));
+                Value_P scalar_A(*cell_A, LOC);
                 Value_P value_B = cell_B->get_pointer_value();
                 Token token = eval_scalar_AB(scalar_A, value_B, fun);
                 new (cell_Z) PointerCell(token.get_apl_val(), Z_owner))
@@ -366,7 +366,7 @@ const Shape * shape_Z = 0;
 const ShapeItem len_Z = shape_Z->get_volume();
    if (len_Z == 0)   return eval_fill_AB(A, B);
 
-Value_P Z(new Value(*shape_Z, LOC));
+Value_P Z(*shape_Z, LOC);
 
    // create a worklist with one item that computes Z. If nested values are
    // detected when computing Z then jobs for them are added to the worklist.
@@ -437,7 +437,7 @@ Value_P Z(new Value(*shape_Z, LOC));
                              }
 
                           POOL_LOCK(joblist_AB.parallel_jobs_lock,
-                             Value_P Z1(new Value(*sh_Z1, LOC));
+                             Value_P Z1(*sh_Z1, LOC);
                              new (&cell_Z) PointerCell(Z1, *job->value_Z);
 
                              PJob_scalar_AB j1(Z1.getref(),
@@ -464,7 +464,7 @@ Value_P Z(new Value(*shape_Z, LOC));
                           else
                              {
                                 POOL_LOCK(joblist_AB.parallel_jobs_lock,
-                                  Value_P Z1(new Value(A1->get_shape(), LOC));
+                                  Value_P Z1(A1->get_shape(), LOC);
                                   new (&cell_Z) PointerCell(Z1, *job->value_Z);
 
                                   PJob_scalar_AB j1(Z1.getref(),
@@ -493,7 +493,7 @@ Value_P Z(new Value(*shape_Z, LOC));
                           else
                              {
                                POOL_LOCK(joblist_AB.parallel_jobs_lock,
-                                  Value_P Z1(new Value(B1->get_shape(), LOC));
+                                  Value_P Z1(B1->get_shape(), LOC);
                                   new (&cell_Z) PointerCell(Z1, *job->value_Z);
 
                                   PJob_scalar_AB j1(Z1.getref(),
@@ -580,7 +580,7 @@ ShapeItem end_z = z + slice_len;
                         }
 
                      POOL_LOCK(joblist_AB.parallel_jobs_lock,
-                        Value_P Z1(new Value(*sh_Z1, LOC));
+                        Value_P Z1(*sh_Z1, LOC);
                         new (&cell_Z) PointerCell(Z1, *job.value_Z);
 
                         PJob_scalar_AB j1(Z1.getref(),
@@ -606,7 +606,7 @@ ShapeItem end_z = z + slice_len;
                      else
                         {
                           POOL_LOCK(joblist_AB.parallel_jobs_lock,
-                             Value_P Z1(new Value(A1->get_shape(), LOC));
+                             Value_P Z1(A1->get_shape(), LOC);
                              new (&cell_Z) PointerCell(Z1, *job.value_Z);
 
                              PJob_scalar_AB j1(Z1.getref(),
@@ -634,7 +634,7 @@ ShapeItem end_z = z + slice_len;
                      else
                         {
                           POOL_LOCK(joblist_AB.parallel_jobs_lock,
-                             Value_P Z1(new Value(B1->get_shape(), LOC));
+                             Value_P Z1(B1->get_shape(), LOC);
                              new (&cell_Z) PointerCell(Z1, *job.value_Z);
 
                              PJob_scalar_AB j1(Z1.getref(),
@@ -719,7 +719,7 @@ ScalarFunction::eval_scalar_identity_fun(Value_P B, Axis axis, Value_P FI0)
 
 const Shape shape_Z = B->get_shape().without_axis(axis);
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 
 const Cell & proto_B = B->get_ravel(0);
 const Cell & cell_FI0 = FI0->get_ravel(0);
@@ -729,7 +729,7 @@ const Cell & cell_FI0 = FI0->get_ravel(0);
         // create a value like ↑B but with all ravel elements like FI0...
         //
         POOL_LOCK(joblist_B.parallel_jobs_lock,
-           Value_P sub(new Value(proto_B.get_pointer_value()->get_shape(),LOC));
+           Value_P sub(proto_B.get_pointer_value()->get_shape(),LOC);
         const ShapeItem len_sub = sub->nz_element_count();
         Cell * csub = &sub->get_ravel(0);
         loop(s, len_sub)   csub++->init(cell_FI0, sub.getref());
@@ -811,7 +811,7 @@ ScalarFunction::eval_scalar_AXB(Value_P A, bool * axis_in_X,
 
 Shape weight_A = A->get_shape().reverse_scan();
 
-Value_P Z(new Value(B->get_shape(), LOC));
+Value_P Z(B->get_shape(), LOC);
 
 const Cell * cB = &B->get_ravel(0);
 
@@ -847,7 +847,7 @@ Bif_F2_FIND::eval_AB(Value_P A, Value_P B)
 PERFORMANCE_START(start_1)
 
 const APL_Float qct = Workspace::get_CT();
-Value_P Z(new Value(B->get_shape(), LOC));
+Value_P Z(B->get_shape(), LOC);
 
 const ShapeItem len_Z = Z->element_count();
 Shape shape_A;
@@ -942,7 +942,7 @@ APL_Integer set_size = B->get_ravel(0).get_near_int(qct);
    if (set_size > 0x7FFFFFFF)   DOMAIN_ERROR;
 
 
-Value_P Z(new Value(aa, LOC));
+Value_P Z(aa, LOC);
 
    // set_size can be rather big, so we new/delete it
    //
@@ -1010,7 +1010,7 @@ Bif_F12_WITHOUT::eval_AB(Value_P A, Value_P B)
 const uint32_t len_A = A->element_count();
 const uint32_t len_B = B->element_count();
 const APL_Float qct = Workspace::get_CT();
-Value_P Z(new Value(len_A, LOC));
+Value_P Z(len_A, LOC);
 
 uint32_t len_Z = 0;
 

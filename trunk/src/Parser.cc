@@ -620,7 +620,7 @@ Parser::create_scalar_value(Token & output)
       {
         case TOK_CHARACTER:
              {
-               Value_P scalar(new Value(LOC));
+               Value_P scalar(LOC);
 
                new (&scalar->get_ravel(0))  CharCell(output.get_char_val());
                scalar->check_value(LOC);
@@ -631,7 +631,7 @@ Parser::create_scalar_value(Token & output)
 
         case TOK_INTEGER:
              {
-               Value_P scalar(new Value(LOC));
+               Value_P scalar(LOC);
 
                new (&scalar->get_ravel(0))   IntCell(output.get_int_val());
                scalar->check_value(LOC);
@@ -642,7 +642,7 @@ Parser::create_scalar_value(Token & output)
 
         case TOK_REAL:
              {
-               Value_P scalar(new Value(LOC));
+               Value_P scalar(LOC);
 
                new (&scalar->get_ravel(0))  FloatCell(output.get_flt_val());
                scalar->check_value(LOC);
@@ -653,7 +653,7 @@ Parser::create_scalar_value(Token & output)
 
         case TOK_COMPLEX:
              {
-               Value_P scalar(new Value(LOC));
+               Value_P scalar(LOC);
 
                new (&scalar->get_ravel(0))   ComplexCell(output.get_cpx_real(),
                                                          output.get_cpx_imag());
@@ -678,7 +678,7 @@ void
 Parser::create_vector_value(Token_string & tos,
                             int pos, int count)
 {
-Value_P vector(new Value(count, LOC));
+Value_P vector(count, LOC);
 
    loop(l, count)
        {

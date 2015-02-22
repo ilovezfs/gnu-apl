@@ -49,7 +49,7 @@ Function * LO = _LO.get_function();
 
         Value_P Z1 = LO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
 
-        Value_P Z(new Value(shape_Z, LOC));
+        Value_P Z(shape_Z, LOC);
         new (&Z->get_ravel(0)) PointerCell(Z1, Z.getref());
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
@@ -70,20 +70,20 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
         _arg.dA = 0;
         if (LO->has_result())
-           arg.Z = Value_P(new Value(B->get_shape(), LOC));
+           arg.Z = Value_P(B->get_shape(), LOC);
       }
    else if (B->is_scalar())
       {
         _arg.dB = 0;
         _arg.count = A->element_count();
         if (LO->has_result())
-           arg.Z = Value_P(new Value(A->get_shape(), LOC));
+           arg.Z = Value_P(A->get_shape(), LOC);
       }
    else if (A->same_shape(*B))
       {
         _arg.count = B->element_count();
         if (LO->has_result())
-           arg.Z = Value_P(new Value(A->get_shape(), LOC));
+           arg.Z = Value_P(A->get_shape(), LOC);
       }
    else
       {
@@ -228,7 +228,7 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 
    _arg.LO = LO;
    _arg.cB = &B->get_ravel(0);
-   if (LO->has_result())   arg.Z = Value_P(new Value(B->get_shape(), LOC));
+   if (LO->has_result())   arg.Z = Value_P(B->get_shape(), LOC);
 
    _arg.count = B->element_count();
 
@@ -299,7 +299,7 @@ loop_z:
            }
         else
            {
-             LO_B = Value_P(new Value(LOC));
+             LO_B = Value_P(LOC);
    
              LO_B->get_ravel(0).init(*_arg.cB++, LO_B.getref());
              LO_B->set_complete();

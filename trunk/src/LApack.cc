@@ -38,7 +38,7 @@ divide_matrix(ShapeItem rows, Value_P A, Value_P B,
 {
 const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
 
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 
 const ShapeItem cols_A = shape_Z.get_rows();
 const ShapeItem cols_B = shape_Z.get_cols();

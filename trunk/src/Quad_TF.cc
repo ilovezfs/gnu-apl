@@ -56,7 +56,7 @@ Value_P Z;
       {
         const bool inverse = is_inverse(symbol_name);
         if (!inverse)   return tf2(symbol_name);
-        Z = Value_P(new Value(tf2_inv(symbol_name), LOC));
+        Z = Value_P(tf2_inv(symbol_name), LOC);
       }
    else if (mode == 3)
       {
@@ -172,7 +172,7 @@ const ShapeItem ec = val->element_count();
            }
       }
 
-   return Value_P(new Value(ucs, LOC));
+   return Value_P(ucs, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -199,7 +199,7 @@ UCS_string ucs;
        loop(c, max_len - lines[l].size())   ucs.append(UNI_ASCII_SPACE);
       }
 
-   return Value_P(new Value(ucs, LOC));
+   return Value_P(ucs, LOC);
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -264,7 +264,7 @@ const size_t data_chars = len - idx;
 
         if (data_chars != shape.get_volume())   return Value_P();
 
-        Value_P new_val(new Value(shape, LOC));
+        Value_P new_val(shape, LOC);
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
         new_val->check_value(LOC);
@@ -276,7 +276,7 @@ const size_t data_chars = len - idx;
         if (data_chars != shape.get_volume())   return Value_P();
         if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
 
-        Value_P new_val(new Value(shape, LOC));
+        Value_P new_val(shape, LOC);
         loop(d, data_chars)
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
 
@@ -310,7 +310,7 @@ const size_t data_chars = len - idx;
 
         // at this point, we have a valid inverse 1 ⎕TF.
         //
-        Value_P new_val(new Value(shape, LOC));
+        Value_P new_val(shape, LOC);
 
         loop(t, tos.size())
            {
@@ -333,7 +333,7 @@ const size_t data_chars = len - idx;
       }
    else Assert(0);   // since checked above
    
-   return Value_P(new Value(name, LOC));
+   return Value_P(name, LOC);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -349,7 +349,7 @@ const Function * function = obj->get_function();
         if (obj->is_user_defined())
            {
              UCS_string ucs = tf2_fun(name, *function);
-             Value_P Z(new Value(ucs, LOC));
+             Value_P Z(ucs, LOC);
              Z->check_value(LOC);
              return Token(TOK_APL_VALUE1, Z);
            }
@@ -382,7 +382,7 @@ const bool error = tf2_value(0, ucs, value);
    //
    if (error)   return Token(TOK_APL_VALUE1, Str0(LOC));
 
-Value_P Z(new Value(ucs, LOC));
+Value_P Z(ucs, LOC);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -924,7 +924,7 @@ Symbol * symbol = obj->get_symbol();
              CDR_string cdr;
              CDR::to_CDR(cdr, value);
 
-             return Value_P(new Value(cdr, LOC));
+             return Value_P(cdr, LOC);
            }
 
         /* not a variable: fall through */

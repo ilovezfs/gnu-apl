@@ -30,7 +30,7 @@ uint64_t Quad_RL::state = 0;
 Quad_RL::Quad_RL()
    : SystemVariable(ID::Quad_RL)
 {
-Value_P value(new Value(LOC));
+Value_P value(LOC);
 
 const unsigned int seed = reset_seed();
 

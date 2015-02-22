@@ -103,7 +103,7 @@ Value_P ret;
       }
    else
       {
-        ret = Value_P(new Value(loc));
+        ret = Value_P(loc);
         ret->get_ravel(0).init(*this, ret.getref());
         ret->check_value(LOC);
       }

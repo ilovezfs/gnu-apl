@@ -127,7 +127,7 @@ SystemVariable::get_attributes(int mode, Cell * dest) const
 Quad_AV::Quad_AV()
    : RO_SystemVariable(ID::Quad_AV)
 {
-Value_P AV(new Value(MAX_AV, LOC));
+Value_P AV(MAX_AV, LOC);
    loop(cti, MAX_AV)
        {
          const int av_pos = Avec::get_av_pos(CHT_Index(cti));
@@ -162,7 +162,7 @@ Quad_AI::get_apl_value() const
 const int total_ms = (now() - session_start)/1000;
 const int user_ms  = user_wait/1000;
 
-Value_P ret(new Value(4, LOC));
+Value_P ret(4, LOC);
    new (&ret->get_ravel(0))   IntCell(ProcessorID::get_own_ID());
    new (&ret->get_ravel(1))   IntCell(total_ms - user_ms);
    new (&ret->get_ravel(2))   IntCell(total_ms);
@@ -182,14 +182,14 @@ Quad_ARG::get_apl_value() const
 {
 const int argc = uprefs.expanded_argv.size();
 
-Value_P Z(new Value(argc, LOC));
+Value_P Z(argc, LOC);
 Cell * C = &Z->get_ravel(0);
 
    loop(a, argc)
       {
         const char * arg = uprefs.expanded_argv[a];
         const int len = strlen(arg);
-        Value_P val(new Value(len, LOC));
+        Value_P val(len, LOC);
         loop(l, len)   new (val->next_ravel())   CharCell(Unicode(arg[l]));
 
         new (C++)   PointerCell(val, Z.getref());
@@ -254,7 +254,7 @@ const Error * err = 0;
         // return 3 0⍴' '
         //
         Shape sh((ShapeItem)3, (ShapeItem)0);
-        Value_P Z(new Value(sh, LOC));
+        Value_P Z(sh, LOC);
         new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
         Z->check_value(LOC);
         return Z;
@@ -275,7 +275,7 @@ ShapeItem max_len = len_1;
    if (max_len < len_3)   max_len = len_3;
 
 const Shape sh(3, max_len);
-Value_P Z(new Value(sh, LOC));
+Value_P Z(sh, LOC);
    loop(l, max_len)
       {
         new (&Z->get_ravel(l))
@@ -313,7 +313,7 @@ ErrorCode ec = E_NO_ERROR;
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
        }
 
-Value_P Z(new Value(2, LOC));
+Value_P Z(2, LOC);
 
    new (&Z->get_ravel(0)) IntCell(Error::error_major(ec));
    new (&Z->get_ravel(1)) IntCell(Error::error_minor(ec));
@@ -324,7 +324,7 @@ Value_P Z(new Value(2, LOC));
 //=============================================================================
 Quad_FC::Quad_FC() : SystemVariable(ID::Quad_FC)
 {
-Value_P QFC(new Value(6, LOC));
+Value_P QFC(6, LOC);
    new (QFC->next_ravel()) CharCell(UNI_ASCII_FULLSTOP);
    new (QFC->next_ravel()) CharCell(UNI_ASCII_COMMA);
    new (QFC->next_ravel()) CharCell(UNI_STAR_OPERATOR);
@@ -341,7 +341,7 @@ Quad_FC::push()
 {
    Symbol::push();
 
-Value_P QFC(new Value(6, LOC));
+Value_P QFC(6, LOC);
    new (QFC->next_ravel()) CharCell(UNI_ASCII_FULLSTOP);
    new (QFC->next_ravel()) CharCell(UNI_ASCII_COMMA);
    new (QFC->next_ravel()) CharCell(UNI_STAR_OPERATOR);
@@ -378,7 +378,7 @@ Unicode fc[6] = { UNI_ASCII_FULLSTOP, UNI_ASCII_COMMA,      UNI_STAR_OPERATOR,
       fc[4] = UNI_ASCII_SPACE;
 
 UCS_string ucs(fc, 6);
-Value_P new_val(new Value(ucs, LOC));
+Value_P new_val(ucs, LOC);
    Symbol::assign(new_val, LOC);
 }
 //-----------------------------------------------------------------------------
@@ -429,7 +429,7 @@ Unicode fc[6];
       fc[4] = UNI_ASCII_SPACE;
 
 UCS_string ucs(fc, 6);
-Value_P new_val(new Value(ucs, LOC));
+Value_P new_val(ucs, LOC);
    Symbol::assign(new_val, LOC);
 }
 //=============================================================================
@@ -505,7 +505,7 @@ int len = 0;
          if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   ++len;
        }
 
-Value_P Z(new Value(len, LOC));
+Value_P Z(len, LOC);
 
    for (StateIndicator * si = Workspace::SI_top();
         si; si = si->get_parent())
@@ -537,7 +537,7 @@ Quad_LX::assign(Value_P value, const char * loc)
 Quad_PP::Quad_PP()
    : SystemVariable(ID::Quad_PP)
 {
-Value_P value(new Value(LOC));
+Value_P value(LOC);
 
    new (&value->get_ravel(0)) IntCell(DEFAULT_Quad_PP);
 
@@ -615,7 +615,7 @@ Quad_PT::Quad_PT()
 Value_P
 Quad_PT::get_apl_value() const
 {
-Value_P Z(new Value(LOC));
+Value_P Z(LOC);
    new (&Z->get_ravel(0))   FloatCell(Workspace::get_CT());
 
    Z->check_value(LOC);
@@ -688,7 +688,7 @@ Quad_QUOTE::Quad_QUOTE()
 {
    // we assign a dummy value so that ⍞ is not undefined.
    //
-Value_P dummy(new Value(UCS_string(LOC), LOC));
+Value_P dummy(UCS_string(LOC), LOC);
    dummy->set_complete();
    Symbol::assign(dummy, LOC);
 }
@@ -773,7 +773,7 @@ const UCS_string qpr = Workspace::get_PR();
            }
       }
 
-Value_P Z(new Value(line, LOC));
+Value_P Z(line, LOC);
    Z->check_value(LOC);
    return Z;
 }
@@ -905,12 +905,12 @@ Value_P
 Quad_SYL::get_apl_value() const
 {
 const Shape sh(SYL_MAX, 2);
-Value_P Z( new Value(sh, LOC));
+Value_P Z(sh, LOC);
 
 #define syl2(n, e, v) syl1(n, e, v)
 #define syl3(n, e, v) syl1(n, e, v)
 #define syl1(n, _e, v) \
-  new (Z->next_ravel()) PointerCell(Value_P(new Value(UCS_string(UTF8_string(n)), LOC)), Z.getref()); \
+  new (Z->next_ravel()) PointerCell(Value_P(UCS_string(UTF8_string(n)), LOC), Z.getref()); \
   new (Z->next_ravel()) IntCell(v);
 #include "SystemLimits.def"
 
@@ -921,7 +921,7 @@ Value_P Z( new Value(sh, LOC));
 Quad_TC::Quad_TC()
    : RO_SystemVariable(ID::Quad_TC)
 {
-Value_P QCT(new Value(3, LOC));
+Value_P QCT(3, LOC);
    new (QCT->next_ravel()) CharCell(UNI_ASCII_BS);
    new (QCT->next_ravel()) CharCell(UNI_ASCII_CR);
    new (QCT->next_ravel()) CharCell(UNI_ASCII_LF);
@@ -942,7 +942,7 @@ Quad_TS::get_apl_value() const
 const APL_time_us offset_us = 1000000 * Workspace::get_v_Quad_TZ().get_offset();
 const YMDhmsu time(now() + offset_us);
 
-Value_P Z(new Value(7, LOC));
+Value_P Z(7, LOC);
    new (&Z->get_ravel(0)) IntCell(time.year);
    new (&Z->get_ravel(1)) IntCell(time.month);
    new (&Z->get_ravel(2)) IntCell(time.day);
@@ -1056,7 +1056,7 @@ int user_count = 0;
    user_count = 1;
 #endif
 
-Value_P Z(new Value(LOC));
+Value_P Z(LOC);
    new (&Z->get_ravel(0))   IntCell(user_count);
    Z->check_value(LOC);
    return Z;
@@ -1071,7 +1071,7 @@ Quad_WA::Quad_WA()
 Value_P
 Quad_WA::get_apl_value() const
 {
-Value_P Z(new Value(LOC));
+Value_P Z(LOC);
 
 uint64_t total = total_memory;   // max memory as reported by RLIM_INFINITY
 uint64_t proc_mem = 0;            // memory as reported proc/mem_info

@@ -29,7 +29,7 @@ Bif_OPER2_POWER Bif_OPER2_POWER::fun;
 Token
 Bif_OPER2_POWER::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 {
-EOC_arg arg(0, B, A);
+EOC_arg arg(Value_P(), B, A);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
    _arg.qct = Workspace::get_CT();
    _arg.WORK = LO.get_function();
@@ -248,7 +248,7 @@ how_1:
 Token
 Bif_OPER2_POWER::eval_LRB(Token & LO, Token & RO, Value_P B)
 {
-EOC_arg arg(0, B, 0);
+EOC_arg arg(Value_P(), B, Value_P());
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
    _arg.qct = Workspace::get_CT();
    _arg.WORK = LO.get_function();

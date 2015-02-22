@@ -128,7 +128,7 @@ ShapeItem fd_count = 0;
         loop(m, max_fd)   if (FD_ISSET(m, fds))   ++fd_count;
       }
 
-Value_P Z(new Value(fd_count, LOC));
+Value_P Z(fd_count, LOC);
    new (&Z->get_ravel(0)) IntCell(0);   // prototype
 
    if (fds)
@@ -500,7 +500,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                   
         case -5: // return ⎕AV of IBM APL2
              {
-               Value_P Z(new Value(256, LOC));
+               Value_P Z(256, LOC);
                const Unicode * ibm = Avec::IBM_quad_AV();
                loop(c, 256)   new (Z->next_ravel()) CharCell(ibm[c]);
                Z->check_value(LOC);
@@ -535,7 +535,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                buffer[PATH_MAX] = 0;
                UCS_string cwd(buffer);
 
-               Value_P Z(new Value(cwd, LOC));
+               Value_P Z(cwd, LOC);
                Z->set_default_Spc();
                Z->check_value(LOC);
                return Token(TOK_APL_VALUE1, Z);
@@ -578,7 +578,7 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
                const int len = Probe::get_length(probe);
                if (len < 0)   return Token(TOK_APL_VALUE1, IntScalar(-1, LOC));
 
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 loop(m, len)
                     new (Z->next_ravel())   IntCell(Probe::get_time(probe, m));
 
@@ -615,7 +615,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const int b = B->get_ravel(0).get_near_int(qct);
                 const char * text = strerror(b);
                 const int len = strlen(text);
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 loop(t, len)
                     new (&Z->get_ravel(t))   CharCell((Unicode)(text[t]));
 
@@ -666,7 +666,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const ssize_t len = fread(buffer, 1, SMALL_BUF, file);
                 if (len < 0)   goto out_errno;
 
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 Z->check_value(LOC);
@@ -683,7 +683,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                 const char * s = fgets(buffer, SMALL_BUF, file);
                 const int len = s ? strlen(s) : 0;
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 Z->check_value(LOC);
@@ -738,7 +738,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const int result = fstat(fd, &s);
                 if (result)   goto out_errno;   // fstat failed
 
-                Value_P Z(Value_P(new Value(13, LOC)));
+                Value_P Z(Value_P(13, LOC));
                 new (&Z->get_ravel( 0))   IntCell(s.st_dev);
                 new (&Z->get_ravel( 1))   IntCell(s.st_ino);
                 new (&Z->get_ravel( 2))   IntCell(s.st_mode);
@@ -828,7 +828,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 close(fd);
                 if (data == 0)   goto out_errno;
 
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
                 loop(z, len)   new (Z->next_ravel()) CharCell((Unicode)data[z]);
                 munmap((char *)data, len);
@@ -872,7 +872,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                      shape_Z.add_shape_item(5);
                    }
 
-                Value_P Z(new Value(shape_Z, LOC));
+                Value_P Z(shape_Z, LOC);
 
                 loop(e, entries.size())
                    {
@@ -906,7 +906,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                         }   // function_number == 28
 
                      UCS_string filename(dent.d_name);
-                     Value_P Z_name(new Value(filename, LOC));
+                     Value_P Z_name(filename, LOC);
                      new (Z->next_ravel())   PointerCell(Z_name, Z.getref());
                    }
 
@@ -957,7 +957,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 file_entry nfe (0, sock);
                 open_files.push_back(nfe);
 
-                Value_P Z(new Value(4, LOC));
+                Value_P Z(4, LOC);
                 new (Z->next_ravel())   IntCell(nfe.fe_fd);
                 new (Z->next_ravel())   IntCell(addr.sin_family);
                 new (Z->next_ravel())   IntCell(ntohl(addr.sin_addr.s_addr));
@@ -976,7 +976,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const ssize_t len = recv(fd, buffer, sizeof(buffer), 0);
                 if (len < 0)   goto out_errno;
 
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 Z->check_value(LOC);
@@ -1055,7 +1055,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const int count = select(max_fd + 1, rd, wr, ex, to);
                 if (count < 0)   goto out_errno;
 
-                Value_P Z(new Value(5, LOC));
+                Value_P Z(5, LOC);
                 new (Z->next_ravel())   IntCell(count);
                 new (Z->next_ravel())
                     PointerCell(fds_to_val(rd, max_fd), Z.getref());
@@ -1079,7 +1079,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const ssize_t len = read(fd, buffer, sizeof(buffer));
                 if (len < 0)   goto out_errno;
 
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 Z->check_value(LOC);
@@ -1095,7 +1095,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const int ret = getsockname(fd, (sockaddr *)&addr, &alen);
                 if (ret == -1)   goto out_errno;
 
-                Value_P Z(new Value(3, LOC));
+                Value_P Z(3, LOC);
                 new (Z->next_ravel())   IntCell(addr.sin_family);
                 new (Z->next_ravel())   IntCell(ntohl(addr.sin_addr.s_addr));
                 new (Z->next_ravel())   IntCell(ntohs(addr.sin_port));
@@ -1112,7 +1112,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const int ret = getpeername(fd, (sockaddr *)&addr, &alen);
                 if (ret == -1)   goto out_errno;
 
-                Value_P Z(new Value(3, LOC));
+                Value_P Z(3, LOC);
                 new (Z->next_ravel())   IntCell(addr.sin_family);
                 new (Z->next_ravel())   IntCell(ntohl(addr.sin_addr.s_addr));
                 new (Z->next_ravel())   IntCell(ntohs(addr.sin_port));
@@ -1138,12 +1138,12 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 //
                  const int t = Performance::get_statistics_type(b);
                  UCS_string stat_name(stat->get_name());
-                 Value_P Z1(new Value(stat_name, LOC));
+                 Value_P Z1(stat_name, LOC);
                  if (t <= 2)   // cell function statistics
                     {
                        const Statistics_record * r1 = stat->get_first_record();
                        const Statistics_record * rN = stat->get_record();
-                       Value_P Z(new Value(8, LOC));
+                       Value_P Z(8, LOC);
                        new (Z->next_ravel())   IntCell(t);
                        new (Z->next_ravel())   PointerCell(Z1, Z.getref());
                        new (Z->next_ravel())   IntCell(r1->get_count());
@@ -1158,7 +1158,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                  else           // function statistics
                     {
                        const Statistics_record * r = stat->get_record();
-                       Value_P Z(new Value(5, LOC));
+                       Value_P Z(5, LOC);
                        new (Z->next_ravel())   IntCell(t);
                        new (Z->next_ravel())   PointerCell(Z1, Z.getref());
                        new (Z->next_ravel())   IntCell(r->get_count());
@@ -1274,7 +1274,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                 const size_t len = fread(buffer, 1, bytes, file);
                 if (len < 0)   goto out_errno;
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 delete [] del;
@@ -1317,7 +1317,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
                 const char * s = fgets(buffer, bytes, file);
                 const int len = s ? strlen(s) : 0;
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 delete [] del;
@@ -1495,7 +1495,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const ssize_t len = recv(fd, buffer, bytes, 0);
                 if (len < 0)   goto out_errno;
 
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 delete [] del;
@@ -1551,7 +1551,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 const ssize_t len = read(fd, buffer, bytes);
                 if (len < 0)   goto out_errno;
 
-                Value_P Z(new Value(len, LOC));
+                Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
                 delete [] del;

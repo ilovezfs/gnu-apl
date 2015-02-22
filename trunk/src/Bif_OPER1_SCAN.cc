@@ -59,7 +59,7 @@ vector<ShapeItem> rep_counts;
 
 Shape shape_Z(shape_B);
    shape_Z.set_shape_item(axis, ec_A);
-Value_P Z(new Value(shape_Z, LOC));
+Value_P Z(shape_Z, LOC);
 
    if (ec_A == 0)   // (⍳0)/B : 
       {
@@ -143,7 +143,7 @@ const ShapeItem m_len = B->get_shape_item(axis);
 
 const Shape3 shape_Z3(B->get_shape(), axis);
 
-Value_P Z(new Value(B->get_shape(), LOC));
+Value_P Z(B->get_shape(), LOC);
 ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
 
    if (assoc_f2)
@@ -163,10 +163,10 @@ ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
               else
                  {
 
-                   Value_P AA(new Value(LOC));
+                   Value_P AA(LOC);
                    AA->next_ravel()->init(cZ[-shape_Z3.l()], AA.getref());
 
-                   Value_P BB(new Value(LOC));
+                   Value_P BB(LOC);
                    BB->next_ravel()->init(*cB++, BB.getref());
 
                    Token tok = LO->eval_AB(AA, BB);
