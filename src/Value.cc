@@ -1474,7 +1474,7 @@ UCS_string ind(indent, UNI_ASCII_SPACE);
 }
 //-----------------------------------------------------------------------------
 void
-Value::debug(const char * info)
+Value::debug(const char * info) const
 {
 const PrintContext pctx = Workspace::get_PrintContext();
 PrintBuffer pb(*this, pctx, 0);
@@ -1482,7 +1482,7 @@ PrintBuffer pb(*this, pctx, 0);
 }
 //-----------------------------------------------------------------------------
 ostream &
-Value::print_boxed(ostream & out, const char * info)
+Value::print_boxed(ostream & out, const char * info) const
 {
    if (info)   out << info << endl;
 
