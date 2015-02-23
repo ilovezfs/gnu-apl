@@ -205,10 +205,10 @@ public:
    ostream & print_properties(ostream & out, int indent) const;
 
    /// debug-print \b this value
-   void debug(const char * info);
+   void debug(const char * info) const;
 
    /// print this value in 4 ⎕CR style
-   ostream & print_boxed(ostream & out, const char * info = 0);
+   ostream & print_boxed(ostream & out, const char * info = 0) const;
 
    /// return \b this indexed by (multi-dimensional) \b IDX.
    Value_P index(const IndexExpr & IDX) const;
