@@ -105,7 +105,7 @@ Function * RO = _RO.get_function();
 
 Value_P Z(A->get_shape() + B->get_shape(), LOC);
 
-   // an important and the most likely) special case is RO being a scalar
+   // an important (and the most likely) special case is RO being a scalar
    // function. This case can be implemented in a far simpler fashion than
    // the general case.
    //

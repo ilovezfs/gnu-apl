@@ -64,7 +64,7 @@ public:
    /// a new vector value from a CDR record
    inline Value_P(const CDR_string & cdr, const char * loc);
 
-   /// return he number of Value_P that point to \b value_p
+   /// return the number of Value_P that point to \b value_p
    inline int use_count() const;
 
    /// Constructor: from other Value_P
