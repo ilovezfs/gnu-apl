@@ -139,7 +139,7 @@ const Shape shape_Z(A, Workspace::get_CT(), 0);
 const ShapeItem len_Z = shape_Z.get_volume();
 
    if (len_Z <= B->element_count()   &&
-       get_owner_count(B.get()) == 2 && 
+       B->get_owner_count() == 2 && 
        this == Workspace::SI_top()->get_prefix().get_dyadic_fun())
       {
         // at this point Z is not greater than B and B has only 2 owners:
@@ -700,7 +700,7 @@ Bif_F12_COMMA::eval_B(Value_P B)
 {
 const Shape shape_Z(B->element_count());
 
-   if (get_owner_count(B.get()) == 2 && 
+   if (B->get_owner_count() == 2 && 
        this == Workspace::SI_top()->get_prefix().get_monadic_fun())
       {
         Log(LOG_optimization) CERR << "optimizing ,B" << endl;
@@ -756,7 +756,7 @@ ShapeItem c2 = 1;   // assume B is scalar;
       }
 
 Shape shape_Z(c1, c2);
-   if (get_owner_count(B.get()) == 2 && 
+   if (B->get_owner_count() == 2 && 
        this == Workspace::SI_top()->get_prefix().get_monadic_fun())
       {
         Log(LOG_optimization) CERR << "optimizing ,B" << endl;
@@ -2830,7 +2830,7 @@ Bif_UNION_INTER::do_unique(Value_P B, bool sorted)
 const ShapeItem ec_B = B->element_count();
    if (ec_B <= 1)  // 0 or 1 element: return B
       {
-        if (get_owner_count(B.get()) == 2 && 
+        if (B->get_owner_count() == 2 && 
             this == Workspace::SI_top()->get_prefix().get_monadic_fun())
            {
               Log(LOG_optimization) CERR << "optimizing ∪B" << endl;

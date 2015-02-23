@@ -191,13 +191,6 @@ public:
    Value * get_apl_val_pointer() const
       { return is_apl_val() ? value._apl_val().get() : 0; }
 
-   /// return value usage counter
-   int value_use_count() const
-      { if (!is_apl_val())   return 0;
-        if (!value._apl_val())   return -98;
-        return value._apl_val().use_count();
-      }
-
    /// clear this token, properly clearing Value token
    void clear(const char * loc)
       {
@@ -229,6 +222,9 @@ public:
    /// return the Function * value of this token
    Function * get_function() const
       { if (!is_function())   SYNTAX_ERROR;   return value.function; }
+
+   /// return value usage counter
+   int value_use_count() const;
 
    /// clear the Value_P value (if any) this token, return the old pointer
    void extract_apl_val(const char * loc) const;

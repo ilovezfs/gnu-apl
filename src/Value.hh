@@ -250,6 +250,10 @@ public:
    bool is_scalar() const
       { return shape.get_rank() == 0; }
 
+   /// return the number of Value_P pointing to \b this value
+   int get_owner_count() const
+      { return owner_count; }
+
    /// return \b true iff \b this value is a simple (i.e. depth 0) scalar.
    bool is_simple_scalar() const
       { return is_scalar() &&

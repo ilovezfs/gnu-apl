@@ -242,6 +242,14 @@ Token::ChangeTag(TokenTag new_tag)
    (TokenTag &)tag = new_tag;
 }
 //-----------------------------------------------------------------------------
+int
+Token::value_use_count() const
+{
+   if (!is_apl_val())       return 0;
+   if (!value._apl_val())   return -98;
+   return value._apl_val()->get_owner_count();
+}
+//-----------------------------------------------------------------------------
 void Token::extract_apl_val(const char * loc) const
 {
    if (is_apl_val())   ptr_clear(value._apl_val(), loc);
