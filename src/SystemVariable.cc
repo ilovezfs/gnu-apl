@@ -566,7 +566,7 @@ APL_Integer val = cell.get_near_int(0.1);
 Quad_PR::Quad_PR()
    : SystemVariable(ID::Quad_PR)
 {
-   Symbol::assign(Spc(LOC), LOC);
+   Symbol::assign(CharScalar(UNI_ASCII_SPACE, LOC), LOC);
 }
 //-----------------------------------------------------------------------------
 void

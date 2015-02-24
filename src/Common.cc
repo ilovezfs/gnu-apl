@@ -244,12 +244,6 @@ Value_P Z(loc);
 }
 //-----------------------------------------------------------------------------
 Value_P
-Spc(const char * loc)
-{
-   return CharScalar(UNI_ASCII_SPACE, loc);
-}
-//-----------------------------------------------------------------------------
-Value_P
 Idx0(const char * loc)
 {
 Value_P Z((ShapeItem)0, loc);
