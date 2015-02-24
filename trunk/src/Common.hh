@@ -408,9 +408,6 @@ Value_P CharScalar(Unicode uni, const char * loc);
 /// complex scalar
 Value_P ComplexScalar(APL_Complex cpx, const char * loc);
 
-/// ' '
-Value_P Spc(const char * loc);
-
 /// ⍳0 (aka. ⍬)
 Value_P Idx0(const char * loc);
 
