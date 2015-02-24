@@ -51,6 +51,7 @@ class Thread_context;
 class Value : public DynamicObject
 {
    friend class Value_P;
+   friend class PointerCell;   // needs &cell_owner
 
 protected:
    // constructors. Values should not be constructed directly but via their
@@ -580,6 +581,8 @@ private:
 
    /// prevent delete[] of Value
    static void operator delete[](void* ptr);
+
+   Value * operator &()   { return this; }
 };
 // ----------------------------------------------------------------------------
 

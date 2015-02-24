@@ -402,6 +402,12 @@ Value_P IntScalar(APL_Integer val, const char * loc);
 /// floating-point scalar
 Value_P FloatScalar(APL_Float val, const char * loc);
 
+/// character scalar
+Value_P CharScalar(Unicode uni, const char * loc);
+
+/// complex scalar
+Value_P ComplexScalar(APL_Complex cpx, const char * loc);
+
 /// ' '
 Value_P Spc(const char * loc);
 

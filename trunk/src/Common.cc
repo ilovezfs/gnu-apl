@@ -25,7 +25,9 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
+#include "CharCell.hh"
 #include "Common.hh"
+#include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "LineInput.hh"
 #include "NativeFunction.hh"
@@ -226,18 +228,32 @@ Value_P Z(loc);
 }
 //-----------------------------------------------------------------------------
 Value_P
-Idx0(const char * loc)
+ComplexScalar(APL_Complex val, const char * loc)
 {
-Value_P Z((ShapeItem)0, loc);
-   new (&Z->get_ravel(0))   IntCell(0);
+Value_P Z(loc);
+   new (Z->next_ravel()) ComplexCell(val);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+CharScalar(Unicode uni, const char * loc)
+{
+Value_P Z(loc);
+   new (Z->next_ravel()) CharCell(uni);
    return Z;
 }
 //-----------------------------------------------------------------------------
 Value_P
 Spc(const char * loc)
 {
-Value_P Z(loc);
-   new (Z->next_ravel())   CharCell(UNI_ASCII_SPACE);
+   return CharScalar(UNI_ASCII_SPACE, loc);
+}
+//-----------------------------------------------------------------------------
+Value_P
+Idx0(const char * loc)
+{
+Value_P Z((ShapeItem)0, loc);
+   new (&Z->get_ravel(0))   IntCell(0);
    return Z;
 }
 //-----------------------------------------------------------------------------
