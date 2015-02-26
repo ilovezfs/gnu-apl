@@ -1,3 +1,23 @@
+/*
+    This file is part of GNU APL, a free implementation of the
+    ISO/IEC Standard 13751, "Programming Language APL, Extended"
+
+    Copyright (C) 2015  Dr. Dirk Laurie
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <cstring>
 #include <sstream>
 #include <ostream>
@@ -17,10 +37,6 @@ using namespace std;
       with release_value() below at some point in time (unless it is 0)
  */
 
-/// the current value of a variable, 0 if the variable has no value
-APL_value get_var_value(const char * var_name_utf8, const char * loc);
-
-//-----------------------------------------------------------------------------
 /// A new integer scalar.
 APL_value
 int_scalar(int64_t val, const char * loc)
@@ -263,7 +279,7 @@ const string st = out.str();
 }
 //-----------------------------------------------------------------------------
 APL_value
-get_var_value(const char * var_name)
+get_var_value(const char * var_name, const char * loc)
 {
 UTF8_string var_name_utf8(var_name);
 UCS_string var_name_ucs(var_name_utf8);
@@ -274,7 +290,7 @@ Symbol * symbol = Workspace::lookup_existing_symbol(var_name_ucs);
 Value_P Z = symbol->get_value();
    if (!Z)                              return 0;
 
-   Value_P::increment_owner_count(Z.get(), LOC);
+   Value_P::increment_owner_count(Z.get(), loc);
    return Z.get();
 }
 //-----------------------------------------------------------------------------
