@@ -1,3 +1,5 @@
+dist_noinst_DATA = libapl.txt
+
 EXTRA_DIRS =
 if ! WANT_ANDROID
 EXTRA_DIRS += APs emacs_mode sql workspaces
