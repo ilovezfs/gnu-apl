@@ -98,6 +98,13 @@ inline Value_P::Value_P(const Shape & sh, const char * loc)
    ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
 }
 //-----------------------------------------------------------------------------
+inline Value_P::Value_P(Value * val, const char * loc)
+   : value_p(val)
+{
+   increment_owner_count(value_p, LOC);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+}
+//-----------------------------------------------------------------------------
 inline Value_P::Value_P(const Value_P & other)
    : value_p(other.value_p)
 {
