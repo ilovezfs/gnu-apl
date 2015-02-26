@@ -64,17 +64,20 @@ public:
    /// a new vector value from a CDR record
    inline Value_P(const CDR_string & cdr, const char * loc);
 
-   /// return the number of Value_P that point to \b value_p
-   inline int use_count() const;
+   /// Constructor: from Value *
+   inline Value_P(Value * val, const char * loc);
 
    /// Constructor: from other Value_P
-   Value_P(const Value_P & other);
+   inline Value_P(const Value_P & other);
 
    /// copy operator
    Value_P & operator =(const Value_P & other);
 
    /// Destructor
    inline ~Value_P();
+
+   /// return the number of Value_P that point to \b value_p
+   inline int use_count() const;
 
    /// decrement owner-count and reset pointer to 0
    inline void reset();
@@ -118,10 +121,10 @@ public:
    bool operator !=(const Value_P & other) const
       { return value_p != other.value_p; }
 
-protected:
    static inline void decrement_owner_count(Value * & v, const char * loc);
    static inline void increment_owner_count(Value * v, const char * loc);
 
+protected:
    /// pointer to the value
    Value * value_p;
 };

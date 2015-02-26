@@ -172,7 +172,7 @@ am__libapl_la_SOURCES_DIST = buildtag buildtag.hh ../config.h \
 	UCS_string.hh Unicode.hh UserFunction.cc UserFunction.hh \
 	UserPreferences.cc UserPreferences.hh UTF8_string.cc \
 	UTF8_string.hh Value.cc Value.icc Value.hh ValueHistory.cc \
-	ValueHistory.hh Workspace.cc Workspace.hh
+	ValueHistory.hh Workspace.cc Workspace.hh libapl.h libapl.cc
 am__objects_1 = Archive.lo ArrayIterator.lo Assert.lo Avec.lo \
 	Backtrace.lo Bif_F12_FORMAT.lo Bif_F12_SORT.lo \
 	Bif_OPER1_COMMUTE.lo Bif_OPER1_EACH.lo Bif_OPER2_POWER.lo \
@@ -193,7 +193,7 @@ am__objects_1 = Archive.lo ArrayIterator.lo Assert.lo Avec.lo \
 	Token.lo Tokenizer.lo UCS_string.lo UserFunction.lo \
 	UserPreferences.lo UTF8_string.lo Value.lo ValueHistory.lo \
 	Workspace.lo
-@WANT_LIBAPL_TRUE@am_libapl_la_OBJECTS = $(am__objects_1)
+@WANT_LIBAPL_TRUE@am_libapl_la_OBJECTS = $(am__objects_1) libapl.lo
 libapl_la_OBJECTS = $(am_libapl_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -619,7 +619,7 @@ Workspace.cc					Workspace.hh
 
 apl_SOURCES = main.cc $(common_sources)
 pkglib_LTLIBRARIES = $(am__append_2)
-@WANT_LIBAPL_TRUE@libapl_la_SOURCES = $(common_sources)
+@WANT_LIBAPL_TRUE@libapl_la_SOURCES = $(common_sources) libapl.h libapl.cc
 @WANT_LIBAPL_TRUE@libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(am__append_3)
 libapl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
@@ -912,6 +912,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ValueHistory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Workspace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
