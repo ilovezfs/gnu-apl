@@ -1,5 +1,6 @@
-#include <sstream>
 #include <cstring>
+#include <sstream>
+#include <ostream>
 
 #include <Workspace.hh>
 #include <Command.hh>
@@ -8,6 +9,8 @@
 #include <PointerCell.hh>
 
 #include "libapl.h"
+
+using namespace std;
 
 /******************************************************************************
    1. APL value constructor functions. The APL_value returned must be released
@@ -67,7 +70,7 @@ apl_value(int rank, const int64_t * shape, const char * loc)
 const Shape sh(rank, shape);
 Value_P Z(sh, loc);
 
-   if (Z->element_cunt())
+   if (Z->element_count())
       {
          while (Cell * cell = Z->next_ravel())   new (cell)   IntCell(0);
       }
@@ -301,18 +304,25 @@ Symbol * symbol = Workspace::lookup_symbol(var_name_ucs);
       symbol->get_nc() != NC_UNUSED_USER_NAME)   return 4;
 
 Value_P B(new_value, loc);
-  symbol->assign(B, loc); 
-  return 0;   // ok
+   symbol->assign(B, loc); 
+   return 0;   // ok
 }
 //-----------------------------------------------------------------------------
 void
-print_value(APL_value value, FILE * file)
+print_value(const APL_value value, FILE * file)
 {
 stringstream out;
    value->print(out);
 
 const string st = out.str();
    fwrite(st.data(), 1, st.size(), file);
+}
+//-----------------------------------------------------------------------------
+ostream &
+print_value(const APL_value value, ostream & out)
+{
+   value->print(out);
+   return out;
 }
 //-----------------------------------------------------------------------------
 int

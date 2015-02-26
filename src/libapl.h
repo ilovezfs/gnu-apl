@@ -245,7 +245,7 @@ int set_var_value(const char * var_name_utf8, const APL_value new_value,
                   const char * loc);
 
 /// print value
-void print_value(APL_value value, FILE * out);
+void print_value(const APL_value value, FILE * out);
 
 /// UTF8 string to one Unicode. If len is non-0 then the number of characters
 /// used in utf is returned in * length.
@@ -258,6 +258,10 @@ void Unicode_to_UTF8(int unicode, char * dest, int * length);
 
 #ifdef __cplusplus
 }
+
+/// print value
+extern std::ostream & print_value(const APL_value value, std::ostream & out);
+
 #endif
 
 #endif // __LIBAPL_H_DEFINED__
