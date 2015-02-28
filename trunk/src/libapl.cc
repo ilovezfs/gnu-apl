@@ -334,6 +334,16 @@ const string st = out.str();
    fwrite(st.data(), 1, st.size(), file);
 }
 //-----------------------------------------------------------------------------
+char *
+print_value_to_string(const APL_value value)
+{
+stringstream out;
+   value->print(out);
+
+const string st = out.str();
+   return strndup(st.data(), st.size());
+}
+//-----------------------------------------------------------------------------
 ostream &
 print_value(const APL_value value, ostream & out)
 {

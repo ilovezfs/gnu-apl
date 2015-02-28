@@ -487,6 +487,11 @@ int pc = get_PC();
    return executable->get_line(Function_PC(pc));
 }
 //-----------------------------------------------------------------------------
+#ifdef WANT_LIBAPL
+typedef int (*result_callback)(const Value * result, int committed);
+extern "C" result_callback res_callback;
+result_callback res_callback = 0;
+#endif
 void
 StateIndicator::statement_result(Token & result, bool trace)
 {
@@ -520,7 +525,19 @@ Value_P B(result.get_apl_val());
 
    // print TOK_APL_VALUE and TOK_APL_VALUE1, but not TOK_APL_VALUE2
    //
-   if (tag != TOK_APL_VALUE1 && tag != TOK_APL_VALUE3)   return;
+bool print_value = tag == TOK_APL_VALUE1 || tag == TOK_APL_VALUE3;
+
+#ifdef WANT_LIBAPL
+   if (res_callback)   // callback installed
+      {
+        // the callback decides whether the value shall be printed (even
+        // if it was committed)
+        //
+        print_value = res_callback(B.get(), !print_value);
+      }
+#endif
+
+   if (!print_value)   return;
 
    Quad_QUOTE::done(false, LOC);
 
