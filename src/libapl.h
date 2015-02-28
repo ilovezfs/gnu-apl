@@ -54,6 +54,16 @@ const char * apl_command(const char* command_utf8);
 struct Value;
 typedef struct Value * APL_value;
 
+/** a function called with the final value of an APL statement.
+    int committed says if the value was committed (aka. assigned to a variable).    The int returned by the callback tells if the result shall be printed (0)
+    or not (non-0).
+
+    The APL_value result MUST NOT be released with release_value() below.
+ **/
+typedef int (*result_callback)(const APL_value result, int committed);
+
+extern "C" result_callback res_callback;
+
 /******************************************************************************
    1. APL value constructor functions. The APL_value returned must be released
       with release_value() below at some point in time (unless it is 0)
@@ -186,6 +196,9 @@ int set_var_value(const char * var_name_utf8, const APL_value new_value,
 
 /// print value
 void print_value(const APL_value value, FILE * out);
+
+/// print value into a string
+char * print_value_to_string(const APL_value value);
 
 /// UTF8 string to one Unicode. If len is non-0 then the number of characters
 /// used in utf is returned in * length.

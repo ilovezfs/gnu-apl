@@ -4,6 +4,24 @@ also file INSTALL in this directory). In addition to the standard options
 provided by ./configure (that are described in file INSTALL),
 the following GNU APL specific ./configure options are recognized:
 
+--with-android
+   This option prevents the instantiation of CIN, COUT, and CERR. This may
+   be needed when GNU APL is compiled for Android, since Android applications
+   are using a different I/O model than standard C++ programs.
+
+--with-libapl
+   This option builds GNU APL as a shared library (libapl.so) rather than an
+   executable. This option is often combined with option --with-android even
+   though the library is not built for Android, but because the executable
+   that is linked with libapl.so) has its own I/O channels.
+
+--with-sqlite3=[ARG]
+   Build the native function for SQL using sqlite3. ARG may provide a
+   non-default location of the sqlite3 library.
+
+--with-postgresql=[ARG]
+   Build the native function for SQL using PostgreSQL. ARG may provide a
+   non-default location of the postgresql library.
 
 ASSERT_LEVEL_WANTED=n
    There are numerous Assert() and Assert1 macros in the source code of the
