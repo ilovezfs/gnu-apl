@@ -192,7 +192,7 @@ extern void set_char(int unicode, APL_value val, uint64_t idx);
 extern void set_int(int64_t new_double, APL_value val, uint64_t idx);
 
 /// val[idx]←new_double
-extern void set_double(double new_real, double new_imag, APL_value val, uint64_t idx);
+extern void set_double(double new_real, APL_value val, uint64_t idx);
 
 /// val[idx]←new_real J new_imag
 extern void set_complex(double new_real, double new_imag, APL_value val, uint64_t idx);
