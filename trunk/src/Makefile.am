@@ -131,11 +131,13 @@ update-svar_signals:
 	m4 -D protocol=Svar_signals tcp_signal.m4 > Svar_signals.hh
 
 apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
-libapl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
+libapl_la_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
 
 if DEVELOP
    apl_CXXFLAGS += -Werror -Wall
    apl_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
+   libapl_la_CXXFLAGS += -Werror -Wall
+   libapl_la_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
 endif
 
 apl_LDADD = $(LIBS)
