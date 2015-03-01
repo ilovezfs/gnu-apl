@@ -167,7 +167,7 @@ get_int(const APL_value val, uint64_t idx)
 }
 //-----------------------------------------------------------------------------
 
-/// return the double val[idx] (after having checked is_double())
+/// return the real part of val[idx] (after having checked is_numeric())
 double
 get_real(const APL_value val, uint64_t idx)
 {
@@ -175,7 +175,7 @@ get_real(const APL_value val, uint64_t idx)
 }
 //-----------------------------------------------------------------------------
 
-/// return the complex val[idx] (after having checked is_complex())
+/// return the imag part of val[idx] (after having checked is_numeric())
 double
 get_imag(const APL_value val, uint64_t idx)
 {

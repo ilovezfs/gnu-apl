@@ -24,6 +24,16 @@
 
 #include <stdint.h>
 
+enum C_CellType
+{
+   CCT_CHAR    = 0x02,
+   CCT_POINTER = 0x04,
+   CCT_INT     = 0x10,
+   CCT_FLOAT   = 0x20,
+   CCT_COMPLEX = 0x40,
+   CCT_NUMERIC = CCT_INT | CCT_FLOAT | CCT_COMPLEX,
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,7 +72,7 @@ typedef struct Value * APL_value;
  **/
 typedef int (*result_callback)(const APL_value result, int committed);
 
-extern "C" result_callback res_callback;
+result_callback res_callback;
 
 /******************************************************************************
    1. APL value constructor functions. The APL_value returned must be released
@@ -131,23 +141,29 @@ int get_type(const APL_value val, uint64_t idx);
 
 /// return non-0 if val[idx] is a character
 inline int is_char(const APL_value val, uint64_t idx)
-   { return get_type(val, idx) == 0x02; }
+   { return get_type(val, idx) == CCT_CHAR; }
 
 /// return non-0 if val[idx] is an integer
 inline int is_int(const APL_value val, uint64_t idx)
-   { return get_type(val, idx) == 0x10; }
+   { return get_type(val, idx) == CCT_INT; }
 
 /// return non-0 if val[idx] is a double
 inline int is_double(const APL_value val, uint64_t idx)
-   { return get_type(val, idx) == 0x20; }
+   { return get_type(val, idx) == CCT_FLOAT; }
+
+/// return non-0 if val[idx] is integer, real, or complex. The get_real() and
+/// get_imag() functions may be called for all numeric ravel items
+
+inline int is_complex(const APL_value val, uint64_t idx)
+   { return get_type(val, idx) == CCT_COMPLEX; }
 
 /// return non-0 if val[idx] is a complex
-inline int is_complex(const APL_value val, uint64_t idx)
-   { return get_type(val, idx) == 0x40; }
+inline int is_numeric(const APL_value val, uint64_t idx)
+   { return get_type(val, idx) & CCT_NUMERIC; }
 
 /// return non-0 if val[idx] is a (nested) value
 inline int is_value(const APL_value val, uint64_t idx)
-   { return get_type(val, idx) == 0x04; }
+   { return get_type(val, idx) == CCT_POINTER; }
 
 /// return the character val[idx] (after having checked is_char())
 int get_char(const APL_value val, uint64_t idx);

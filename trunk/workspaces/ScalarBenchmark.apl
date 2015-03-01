@@ -266,7 +266,7 @@ LP: INIT_DATA LEN←LENGTHS[I]
   OUT←OUT, 6↑'_',((-1+0<⍴⊃EXPR[1])↑'AB'),','
   OUT←OUT, 10↑(TITLE1 EXPR),','
   OUT←OUT, T3,')',⎕UCS ,10
-  ⊣ OUT FIO∆fwrite TH_FILE
+  ⊣ OUT FIO∆fwrite_utf8 TH_FILE
 ∇
 
   ⍝ ----------------------------------------------------
@@ -306,19 +306,19 @@ CORES_OK:
   SUMMARY←0⍴''
   TH_FILE←"w" FIO∆fopen "parallel_thresholds"
 
-  ⊣ "\n" FIO∆fwrite TH_FILE
+  ⊣ "\n" FIO∆fwrite_utf8 TH_FILE
 
   ⊣ (⊂MON_A) FIGURE_B ¨ MON_EXPR
 
-  ⊣ "\n" FIO∆fwrite TH_FILE
+  ⊣ "\n" FIO∆fwrite_utf8 TH_FILE
 
   ⊣ (⊂DYA_A) FIGURE_B ¨ DYA_EXPR
 
-  ⊣ "\n" FIO∆fwrite TH_FILE
-  ⊣ "#undef perfo_1\n" FIO∆fwrite TH_FILE
-  ⊣ "#undef perfo_2\n" FIO∆fwrite TH_FILE
-  ⊣ "#undef perfo_3\n" FIO∆fwrite TH_FILE
-  ⊣ "\n" FIO∆fwrite TH_FILE
+  ⊣ "\n" FIO∆fwrite_utf8 TH_FILE
+  ⊣ "#undef perfo_1\n" FIO∆fwrite_utf8 TH_FILE
+  ⊣ "#undef perfo_2\n" FIO∆fwrite_utf8 TH_FILE
+  ⊣ "#undef perfo_3\n" FIO∆fwrite_utf8 TH_FILE
+  ⊣ "\n" FIO∆fwrite_utf8 TH_FILE
 
   ⊣ FIO∆fclose TH_FILE
 

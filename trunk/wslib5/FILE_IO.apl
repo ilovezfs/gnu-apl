@@ -65,7 +65,7 @@
 ∇
 
 ∇Zi ← Ai FIO∆fwrite Bh
- ⍝⍝ fwrite(Ai, 1, ⍴Ai, Bh) 1 byte per Zi
+ ⍝⍝ fwrite(Ai, 1, ⍴Ai, Bh) 1 byte per Ai
  Zi ← Ai FILE_IO[7] Bh
 ∇
 
@@ -158,7 +158,7 @@
 
 ∇Zi ← Ah FIO∆fprintf B
  ⍝⍝ fprintf(Ah, B1, B2...) format B1
- Zi ← Ah FILE_IO[22] B
+ Zi ← B FILE_IO[22] Ah
 ∇
 
 ∇Zi ← Ac FIO∆fwrite_utf8 Bh
