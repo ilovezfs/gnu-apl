@@ -99,7 +99,18 @@ Value_P Z(sh, loc);
    Value_P::increment_owner_count(Z.get(), loc);   // keep value
    return Z.get();
 }
+//-----------------------------------------------------------------------------
+/// A new character vector.
+APL_value
+char_vector(const char * str, const char * loc)
+{
+UTF8_string utf8(str);
+UCS_string ucs(utf8);
 
+Value_P Z(ucs, loc);
+   Value_P::increment_owner_count(Z.get(), loc);   // keep value
+   return Z.get();
+}
 
 /******************************************************************************
    2. APL value destructor function. All non-0 APL_values must be released
@@ -148,6 +159,12 @@ get_type(const APL_value val, uint64_t idx)
 {
    if (idx >= val->nz_element_count())   return 0;
    return val->get_ravel(idx).get_cell_type();
+}
+//-----------------------------------------------------------------------------
+/// return non-0 if val is a simple character vector.
+int is_string(const APL_value val)
+{
+   return val->is_char_vector();
 }
 //-----------------------------------------------------------------------------
 
@@ -255,14 +272,13 @@ Cell * cell = &val->get_ravel(idx);
       }
    else if (new_value->is_scalar())     // e.g. ⊂⊂5 is ⊂5
       {
-        if (!new_value->get_ravel(0).is_pointer_cell())   DOMAIN_ERROR;
-        new (cell) PointerCell(new_value->get_ravel(0).get_pointer_value(),
-                               *val);
+        const Cell & src = new_value->get_ravel(0);
+        if (!src.is_pointer_cell())   DOMAIN_ERROR;
+        new (cell)   PointerCell(src.get_pointer_value()->clone(LOC), *val);
       }
    else
       {
-        new (cell) PointerCell(new_value->clone(LOC), *val);
-        Assert(val->compute_depth() == (new_value->compute_depth() + 1));
+        new (cell)   PointerCell(new_value->clone(LOC), *val);
       }
 }
 
