@@ -116,6 +116,8 @@ inline APL_value apl_cube(int64_t blocks, int64_t rows, int64_t cols,
    { const int64_t sh[] = { blocks, rows, cols };
      return apl_value(3, sh, loc); }
 
+extern APL_value char_vector(const char * str, const char * loc);
+
 /******************************************************************************
    2. APL value destructor function. All non-0 APL_values must be released
       at some point in time (even const ones). release_value(0) is not needed
@@ -142,6 +144,9 @@ extern int get_type(const APL_value val, uint64_t idx);
 /// return non-0 if val[idx] is a character
 inline int is_char(const APL_value val, uint64_t idx)
    { return get_type(val, idx) == CCT_CHAR; }
+
+/// return non-0 if val[idx] is a character for every valid idx
+extern int is_string(APL_value val);
 
 /// return non-0 if val[idx] is an integer
 inline int is_int(const APL_value val, uint64_t idx)
