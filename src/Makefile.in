@@ -16,6 +16,7 @@
 
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -89,7 +90,8 @@ bin_PROGRAMS = apl$(EXEEXT)
 @DEVELOP_TRUE@	-Wno-strict-aliasing
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(dist_noinst_DATA)
+	$(top_srcdir)/depcomp $(dist_noinst_DATA) \
+	$(am__pkginclude_HEADERS_DIST)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/depend.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
@@ -128,7 +130,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(pkgincludedir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 libapl_la_LIBADD =
 am__libapl_la_SOURCES_DIST = buildtag buildtag.hh ../config.h \
@@ -339,6 +342,8 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 DATA = $(dist_noinst_DATA)
+am__pkginclude_HEADERS_DIST = libapl.h
+HEADERS = $(pkginclude_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -642,6 +647,7 @@ Workspace.cc					Workspace.hh
 
 apl_SOURCES = main.cc $(common_sources)
 pkglib_LTLIBRARIES = $(am__append_2)
+@WANT_LIBAPL_TRUE@pkginclude_HEADERS = libapl.h
 @WANT_LIBAPL_TRUE@libapl_la_SOURCES = $(common_sources) libapl.h libapl.cc
 @WANT_LIBAPL_TRUE@libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(am__append_3)
@@ -2604,6 +2610,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-pkgincludeHEADERS: $(pkginclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(pkginclude_HEADERS)'; test -n "$(pkgincludedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgincludedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgincludedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(pkgincludedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(pkgincludedir)" || exit $$?; \
+	done
+
+uninstall-pkgincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkginclude_HEADERS)'; test -n "$(pkgincludedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(pkgincludedir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -2761,10 +2788,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -2820,7 +2847,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am:
+install-data-am: install-pkgincludeHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -2866,7 +2893,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-pkglibLTLIBRARIES
+uninstall-am: uninstall-binPROGRAMS uninstall-pkgincludeHEADERS \
+	uninstall-pkglibLTLIBRARIES
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -2879,12 +2907,13 @@ uninstall-am: uninstall-binPROGRAMS uninstall-pkglibLTLIBRARIES
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-man install-pdf install-pdf-am \
-	install-pkglibLTLIBRARIES install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS uninstall-pkglibLTLIBRARIES
+	install-pkgincludeHEADERS install-pkglibLTLIBRARIES install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-pkgincludeHEADERS uninstall-pkglibLTLIBRARIES
 
 
 # normally we would say:

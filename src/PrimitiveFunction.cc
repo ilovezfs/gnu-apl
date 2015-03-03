@@ -1653,17 +1653,24 @@ Bif_F12_PARTITION::eval_AXB(Value_P A, Value_P X, Value_P B)
 Token
 Bif_F12_PARTITION::eval_B(Value_P B)
 {
-   if (B->is_simple_scalar())
-      {
-        Token result(TOK_APL_VALUE1, B->clone(LOC));
-        return result;
-      }
-
 Value_P Z(LOC);
 
-   new (&Z->get_ravel(0)) PointerCell(B->clone(LOC), Z.getref());   // calls B->set_nested
+   if (B->is_simple_scalar())   // ⊂ 5 is 5
+      {
+        Z->next_ravel()->init(B->get_ravel(0), Z.getref());
+      }
+   else if (B->is_scalar())     // ⊂ ⊂ 5 is ⊂ 5
+      {
+        if (!B->get_ravel(0).is_pointer_cell())   DOMAIN_ERROR;
+        new (Z->next_ravel()) PointerCell(B->get_ravel(0).get_pointer_value(),
+                                          Z.getref());
+      }
+   else
+      {
+        new (Z->next_ravel()) PointerCell(B->clone(LOC), Z.getref());
+        Assert(Z->compute_depth() == (B->compute_depth() + 1));
+      }
 
-   Assert(Z->compute_depth() == (B->compute_depth() + 1));
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }

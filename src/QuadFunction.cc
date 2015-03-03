@@ -1900,18 +1900,45 @@ Quad_NC::get_NC(const UCS_string ucs)
 {
    if (ucs.size() == 0)   return -1;   // invalid name
 
-   if (Avec::is_quad(ucs[0]))   // quad fun or var
+Symbol * symbol = 0;
+   if (!Avec::is_first_symbol_char(ucs[0]))   // system name
       {
-        int len = 0;
-        const Token t = Workspace::get_quad(ucs, len);
-        if (len < 2)                      return -1;   // invalid quad
-        if (t.get_Class() == TC_SYMBOL)   return  5;   // quad variable
-        else                              return  6;   // quad function
+        const Unicode uni = ucs[0];
+        if (Avec::is_quad(uni))   // quad fun or var
+           {
+             int len = 0;
+             const Token t = Workspace::get_quad(ucs, len);
+             if (len < 2)                      return -1;   // invalid quad
+             if (t.get_Class() == TC_SYMBOL)
+                {
+                }
+             else                              return  6;   // quad function
 
-        // cases 0, 1, or 4 cannot happen for Quad symbols
+             // cases 0, 1, or 4 cannot happen for Quad symbols
+           }
+        else if (ucs.size() == 1)   // maybe ⍺, ⍶, etc
+           {
+             if (uni == UNI_ALPHA)
+                symbol = &Workspace::get_v_ALPHA();
+             else if (uni == UNI_LAMBDA)
+                symbol = &Workspace::get_v_LAMBDA();
+             if (uni == UNI_OMEGA)
+                symbol = &Workspace::get_v_OMEGA();
+             if (uni == UNI_ALPHA_UNDERBAR)
+                symbol = &Workspace::get_v_OMEGA_U();
+             if (uni == UNI_ALPHA_UNDERBAR)
+                symbol = &Workspace::get_v_OMEGA_U();
+           }
+        if (symbol == 0)   return -1;
+        
+        const NameClass nc = symbol->get_nc();
+        if (nc == 0)   return nc;
+        return nc + 3;
       }
 
-Symbol * symbol = Workspace::lookup_existing_symbol(ucs);
+   // user-define name
+   //
+   symbol = Workspace::lookup_existing_symbol(ucs);
 
    if (!symbol)
       {
