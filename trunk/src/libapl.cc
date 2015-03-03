@@ -249,8 +249,21 @@ set_value(APL_value new_value, APL_value val, uint64_t idx)
 Cell * cell = &val->get_ravel(idx);
    if (cell->is_pointer_cell())   cell->get_pointer_value().clear(LOC);
 
-Value_P sub(new_value, LOC);
-   new (cell)   PointerCell(sub, *val);
+   if (new_value->is_simple_scalar())   // e.g. ⊂5 is 5
+      {
+        cell->init(new_value->get_ravel(0), *val);
+      }
+   else if (new_value->is_scalar())     // e.g. ⊂⊂5 is ⊂5
+      {
+        if (!new_value->get_ravel(0).is_pointer_cell())   DOMAIN_ERROR;
+        new (cell) PointerCell(new_value->get_ravel(0).get_pointer_value(),
+                               *val);
+      }
+   else
+      {
+        new (cell) PointerCell(new_value->clone(LOC), *val);
+        Assert(val->compute_depth() == (new_value->compute_depth() + 1));
+      }
 }
 
 /******************************************************************************

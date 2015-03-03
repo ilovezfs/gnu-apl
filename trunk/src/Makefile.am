@@ -114,6 +114,7 @@ apl_SOURCES = main.cc $(common_sources)
 pkglib_LTLIBRARIES =
 if WANT_LIBAPL
 pkglib_LTLIBRARIES += libapl.la
+pkginclude_HEADERS = libapl.h
 libapl_la_SOURCES = $(common_sources) libapl.h libapl.cc
 libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 endif
