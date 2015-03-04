@@ -1,5 +1,3 @@
-dist_noinst_DATA = libapl.txt
-
 EXTRA_DIRS =
 if ! WANT_ANDROID
 EXTRA_DIRS += APs emacs_mode sql workspaces
@@ -197,4 +195,10 @@ help:
 	@echo "    make git-pull                - pull sql and emacs subdirs"
 	@echo "    make update-svar_signals     - remake Svar_signals.hh"
 	@echo ""
+
+libapl.html: libapl.texi
+	$(MAKEINFOHTML) libapl.texi -o $@ --no-split || touch $@
+
+libapl.info: libapl.texi
+	$(MAKEINFO) libapl.texi -o $@ --no-split || touch $@
 

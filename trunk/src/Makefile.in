@@ -16,7 +16,6 @@
 
 
 
-
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -90,8 +89,8 @@ bin_PROGRAMS = apl$(EXEEXT)
 @DEVELOP_TRUE@	-Wno-strict-aliasing
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(dist_noinst_DATA) \
-	$(am__pkginclude_HEADERS_DIST)
+	$(top_srcdir)/depcomp $(am__pkginclude_HEADERS_DIST) \
+	texinfo.tex
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/depend.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
@@ -341,7 +340,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-DATA = $(dist_noinst_DATA)
 am__pkginclude_HEADERS_DIST = libapl.h
 HEADERS = $(pkginclude_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
@@ -545,7 +543,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-dist_noinst_DATA = libapl.txt
 EXTRA_DIRS = $(am__append_1)
 SUBDIRS = native $(EXTRA_DIRS)
 DIST_SUBDIRS = $(SUBDIRS) testcases
@@ -2788,7 +2785,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgincludedir)"; do \
@@ -2978,6 +2975,12 @@ help:
 	@echo "    make git-pull                - pull sql and emacs subdirs"
 	@echo "    make update-svar_signals     - remake Svar_signals.hh"
 	@echo ""
+
+libapl.html: libapl.texi
+	$(MAKEINFOHTML) libapl.texi -o $@ --no-split || touch $@
+
+libapl.info: libapl.texi
+	$(MAKEINFO) libapl.texi -o $@ --no-split || touch $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
