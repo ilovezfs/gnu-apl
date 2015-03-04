@@ -31,22 +31,20 @@ NamedObject::get_nc() const
    if (id == ID::USER_SYMBOL ||   // this named object is a user defined object
        id == ID::ALPHA       ||   // ⍺
        id == ID::ALPHA_U     ||   // ⍶
+       id == ID::LAMBDA      ||   // λ
        id == ID::OMEGA       ||   // ⍵
        id == ID::OMEGA_U     ||   // ⍹
        id == ID::CHI)             // χ
       {
         const Symbol * sym = get_symbol();
-        if (sym == 0)   return NC_UNUSED_USER_NAME;
-
-        const ValueStackItem * tos = sym->top_of_stack();
-        if (tos)   return tos->name_class;
+        if (sym)
+           {
+             const ValueStackItem * tos = sym->top_of_stack();
+             if (tos)   return tos->name_class;
+           }
 
         return NC_UNUSED_USER_NAME;
       }
-
-   if (id == ID::ALPHA)   return NC_VARIABLE;
-   if (id == ID::OMEGA)   return NC_VARIABLE;
-   if (id == ID::CHI)     return NC_VARIABLE;
 
    // Distinguished name.
    //
