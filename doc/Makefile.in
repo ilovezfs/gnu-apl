@@ -455,28 +455,6 @@ uninstall-html-am:
 	  rm -rf "$(DESTDIR)$(htmldir)/$$f"; \
 	done
 
-uninstall-info-am:
-	@$(PRE_UNINSTALL)
-	@if test -d '$(DESTDIR)$(infodir)' && $(am__can_run_installinfo); then \
-	  list='$(INFO_DEPS)'; \
-	  for file in $$list; do \
-	    relfile=`echo "$$file" | sed 's|^.*/||'`; \
-	    echo " install-info --info-dir='$(DESTDIR)$(infodir)' --remove '$(DESTDIR)$(infodir)/$$relfile'"; \
-	    if install-info --info-dir="$(DESTDIR)$(infodir)" --remove "$(DESTDIR)$(infodir)/$$relfile"; \
-	    then :; else test ! -f "$(DESTDIR)$(infodir)/$$relfile" || exit 1; fi; \
-	  done; \
-	else :; fi
-	@$(NORMAL_UNINSTALL)
-	@list='$(INFO_DEPS)'; \
-	for file in $$list; do \
-	  relfile=`echo "$$file" | sed 's|^.*/||'`; \
-	  relfile_i=`echo "$$relfile" | sed 's|\.info$$||;s|$$|.i|'`; \
-	  (if test -d "$(DESTDIR)$(infodir)" && cd "$(DESTDIR)$(infodir)"; then \
-	     echo " cd '$(DESTDIR)$(infodir)' && rm -f $$relfile $$relfile-[0-9] $$relfile-[0-9][0-9] $$relfile_i[0-9] $$relfile_i[0-9][0-9]"; \
-	     rm -f $$relfile $$relfile-[0-9] $$relfile-[0-9][0-9] $$relfile_i[0-9] $$relfile_i[0-9][0-9]; \
-	   else :; fi); \
-	done
-
 uninstall-pdf-am:
 	@$(NORMAL_UNINSTALL)
 	@list='$(PDFS)'; test -n "$(pdfdir)" || list=; \
@@ -735,39 +713,6 @@ install-html-am: $(HTMLS)
 	done; }
 install-info: install-info-am
 
-install-info-am: $(INFO_DEPS)
-	@$(NORMAL_INSTALL)
-	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
-	list='$(INFO_DEPS)'; test -n "$(infodir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(infodir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(infodir)" || exit 1; \
-	fi; \
-	for file in $$list; do \
-	  case $$file in \
-	    $(srcdir)/*) file=`echo "$$file" | sed "s|^$$srcdirstrip/||"`;; \
-	  esac; \
-	  if test -f $$file; then d=.; else d=$(srcdir); fi; \
-	  file_i=`echo "$$file" | sed 's|\.info$$||;s|$$|.i|'`; \
-	  for ifile in $$d/$$file $$d/$$file-[0-9] $$d/$$file-[0-9][0-9] \
-	               $$d/$$file_i[0-9] $$d/$$file_i[0-9][0-9] ; do \
-	    if test -f $$ifile; then \
-	      echo "$$ifile"; \
-	    else : ; fi; \
-	  done; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(infodir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(infodir)" || exit $$?; done
-	@$(POST_INSTALL)
-	@if $(am__can_run_installinfo); then \
-	  list='$(INFO_DEPS)'; test -n "$(infodir)" || list=; \
-	  for file in $$list; do \
-	    relfile=`echo "$$file" | sed 's|^.*/||'`; \
-	    echo " install-info --info-dir='$(DESTDIR)$(infodir)' '$(DESTDIR)$(infodir)/$$relfile'";\
-	    install-info --info-dir="$(DESTDIR)$(infodir)" "$(DESTDIR)$(infodir)/$$relfile" || :;\
-	  done; \
-	else : ; fi
 install-man: install-man1
 
 install-pdf: install-pdf-am
@@ -846,6 +791,19 @@ uninstall-man: uninstall-man1
 	uninstall-dvi-am uninstall-html-am uninstall-info-am \
 	uninstall-man uninstall-man1 uninstall-pdf-am uninstall-ps-am
 
+
+# info_TEXINFOS = fails for more than one .texi file. We therefore install
+# libapl.info explicitly
+#
+install-info-am:
+	@echo " $(MKDIR_P) $(DESTDIR)$(infodir)"; \
+	$(MKDIR_P) "$(DESTDIR)$(infodir)" || exit 1
+	@echo " $(INSTALL_DATA) libapl.info $(DESTDIR)$(infodir)"; \
+	$(INSTALL_DATA) libapl.info $(DESTDIR)$(infodir)
+
+uninstall-info-am:
+	 @echo " rm -f $(DESTDIR)$(infodir)/libapl.info"; \
+	 rm -f $(DESTDIR)$(infodir)/libapl.info
 
 # apl.texi in HTML format
 #

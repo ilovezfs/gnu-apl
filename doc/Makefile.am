@@ -3,6 +3,19 @@ info_TEXINFOS = apl.texi
 
 man1_MANS = apl.1
 
+# info_TEXINFOS = fails for more than one .texi file. We therefore install
+# libapl.info explicitly
+#
+install-info-am:
+	@echo " $(MKDIR_P) $(DESTDIR)$(infodir)"; \
+	$(MKDIR_P) "$(DESTDIR)$(infodir)" || exit 1
+	@echo " $(INSTALL_DATA) libapl.info $(DESTDIR)$(infodir)"; \
+	$(INSTALL_DATA) libapl.info $(DESTDIR)$(infodir)
+
+uninstall-info-am:
+	 @echo " rm -f $(DESTDIR)$(infodir)/libapl.info"; \
+	 rm -f $(DESTDIR)$(infodir)/libapl.info
+
 # apl.texi in HTML format
 #
 apl.html:   apl.texi
