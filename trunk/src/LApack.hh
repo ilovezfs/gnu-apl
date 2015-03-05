@@ -74,53 +74,74 @@
 #include <stdlib.h>
 
 using namespace std;
+/// a real number
 typedef double DD;
 
+/// a complex number
 class ZZ
 {
 public:
+   /// 0J0
    ZZ()
    : _r(0),
      _i(0)
    {}
 
+   /// rJ0
    ZZ(double r)
    : _r(r),
      _i(0)
    {}
 
+   /// rJi
    ZZ(double r, double i)
    : _r(r),
      _i(i)
    {}
 
+   /// return the real part of \b this
    double real() const       { return _r; }
+
+   /// set the real part of \b this
    void set_real(double x)   { _r = x; }
 
+   /// return the imag part of \b this
    double imag() const    { return _i; }
+
+   /// set the imag part of \b this
    void set_imag(double x)   { _i = x; }
 
+   /// conjugate \b this
    void conjugate()   { _i = - _i; }
 
+   /// return true if \b this is real and not equal to \b dd
    bool operator != (double dd) const   { return _r != dd || _i != 0; }
+
+   /// return true if \b this is real and equal to \b dd
    bool operator == (double dd) const   { return _r == dd && _i == 0; }
 
+   /// add \b r zz to \b this
    ZZ operator +(const ZZ & zz) const
       { return ZZ(_r + zz._r, _i + zz._i); }
 
+   /// subtract \b zz from \b this
    ZZ operator -(const ZZ & zz) const
       { return ZZ(_r - zz._r, _i - zz._i); }
 
+   /// negate \b this
    ZZ operator -() const
       { return ZZ(-_r, -_i); }
 
+   /// multiply \b zz and \b this
    ZZ operator *(const ZZ & zz) const
       { return ZZ(_r * zz._r - _i * zz._i,
                   _i * zz._r + _r * zz._i); }
 
+   /// divide \b this by \b d
    ZZ operator /(double d) const
       { return ZZ(_r/d, _i/d); }
 
+   /// divide \b this by \b zz
    ZZ operator /(const ZZ & zz) const
       { 
         const double denom = zz._r * zz._r + zz._i * zz._i;
@@ -129,11 +150,17 @@ public:
       }
 
 protected:
+   /// the real part
   double _r;
+
+   /// the imaginary part
   double _i;
 };
 
+/// the maximum of \b x and \b y
 #define MAX(x, y) ((x) >= (y) ? (x) : (y))
+
+/// the minimum of \b x and \b y
 #define MIN(x, y) ((x) <= (y) ? (x) : (y))
 
 /// a single double or complex number. This class contains wrappers to
@@ -141,27 +168,51 @@ protected:
 class DZ
 {
 public:
+   /// return true if the template argument (DD or ZZ) is complex (i.e. ZZ)
    static bool is_ZZ(DD x)   { return false; }
+   /// return true if the template argument (DD or ZZ) is complex (i.e. ZZ)
    static bool is_ZZ(ZZ z)   { return true;  }
 
+   /// return the real part of \b x
    static double get_real(DD x)   { return x;   }
+
+   /// return the imaginary part of \b x
    static double get_imag(DD x)   { return 0.0; }
+
+   /// return the real part of \b x
    static double get_real(ZZ z)   { return z.real(); }
+
+   /// return the imaginary part of \b x
    static double get_imag(ZZ z)   { return z.imag(); }
 
+   /// set the real part of \b x
    static void set_real(DD & y, DD x)   { y = x; }
+
+   /// set the imaginary part of \b x
    static void set_imag(DD & y, DD x)   { assert(x == 0.0); }
+
+   /// set the real part of \b x
    static void set_real(ZZ & y, DD x)   { y.set_real(x); }
+
+   /// set the imaginary part of \b x
    static void set_imag(ZZ & y, DD x)   { y.set_imag(x); }
 
+   /// conjugate \b x
    static void conjugate(DD x)     { }
+
+   /// conjugate \b z
    static void conjugate(ZZ & z)   { z.conjugate(); }
 
+   /// return \b x conjugated
    static DD CONJ(DD x)           { return x; }
+
+   /// return \b z conjugated
    static ZZ CONJ(const ZZ & z)   { return ZZ(z.real(), -z.imag()); }
 
+   /// return the inverse of \b dd
    static DD inv(DD dd)           { return 1.0 / dd; }
 
+   /// return the inverse of \b zz
    static inline ZZ inv(const ZZ & zz)
       {
         const double denom = zz.real() * zz.real() + zz.imag() * zz.imag();
@@ -169,28 +220,46 @@ public:
       }
 };
 
+/// return the real part of \b x
 template<typename T> double REAL(T x)        { return DZ::get_real(x);    }
+
+/// return the imaginary part of \b x
 template<typename T> double IMAG(T x)        { return DZ::get_imag(x);    }
+
+/// set the real part of \b x
 template<typename T> void  SREAL(T & y, double x)   { DZ::set_real(y, x); }
+
+/// set the imaginary part of \b x
 template<typename T> void  SIMAG(T & y, double x)   { DZ::set_imag(y, x); }
 
+/// set the real and imaginary parts of \b y
 template<typename T> void Sri(T & y, double xr, double xi)
    { SREAL<T>(y, xr);   SIMAG<T>(y, xi); }
+
+/// set the real part of \b y and clear its imaginary part
 template<typename T> void Sri(T & y, double xr)
    { SREAL<T>(y, xr);   SIMAG<T>(y, 0); }
 
+/// return the absolute value of a
 inline DD ABS(DD a) { return a < 0 ? -a : a; }
+
+/// return the square of the absolute value of a
 inline DD ABS_2(DD a) { return a*a; }
+
+/// return the absolute value of z
 inline DD ABS(ZZ z) { return sqrt(z.real()*z.real() + z.imag()*z.imag()); }
+
+/// return the square of the absolute value of z
 inline DD ABS_2(ZZ z) { return z.real()*z.real() + z.imag()*z.imag(); }
 
+/// return abs(a) with the sign of b
 inline double SIGN(double a, double b)
 {
-   // return abs(a) with the sign of b
    if (b < 0)  return -ABS(a);
    else        return  ABS(a);
 }
 
+/// swap x and y
 template<typename T>
 inline void exchange(T & x, T & y)
 {
@@ -199,29 +268,39 @@ const T tmp = x;
   y = tmp;
 }
 //-----------------------------------------------------------------------------
+/// a vector of real numbers or a vector of complex numbers
 template<typename T>
 class Vector
 {
 public:
+   /// constructor: vector of length _len, with values _data
+   /// _data must outlive \b this!
    Vector(T * _data, ShapeItem _len)
      : data(_data),
        len (_len)
    {}
 
+   /// the first \b new_len elements of \b this
    Vector sub_len(ShapeItem new_len) const
       { assert(new_len <= len);   return Vector(data, new_len); }
 
+   /// the rest of \b this, starting at \b off
    Vector sub_off(ShapeItem off) const
       { assert(off <= len);   return Vector(data + off, len - off); }
 
+   /// \b new_len elements of \b this, starting at \b off
    Vector sub_off_len(ShapeItem off, ShapeItem new_len) const
       { assert((off + new_len) <= len);
         return Vector(data + off, new_len); }
 
+   /// return the number of elements
    const ShapeItem get_length() const { return len; }
 
+   /// return true if \b this is a vector of complex numbers (and not a vector
+   /// of real numbers
    bool is_ZZ() const   { return DZ::is_ZZ(*data); }
 
+   /// the norm of \b this
    double norm() const
       {
 //     if (len < 1)   return 0.0;
@@ -277,6 +356,7 @@ public:
 //      return scale*sqrt(ssq);
       }
 
+   /// multiply \b this by \b factor
    void scale(T factor)
       {
         T * dj = data;
@@ -287,12 +367,14 @@ public:
             }
       }
 
+   /// set all elemens of \b this to 0
    void clear()
       {
         T * dj = data;
         loop(j, len)   *dj++ = 0.0;
       }
 
+   /// return true if \b this is 0
    bool is_zero(ShapeItem count) const
       {
         const T * dj = data;
@@ -304,6 +386,7 @@ public:
         return true;
       }
  
+   /// conjugate \b this
    void conjugate()
       {
         if (!is_ZZ())   return;
@@ -311,6 +394,7 @@ public:
         loop(j, len)   DZ::conjugate(*dj++);
       }
 
+   /// add \b other to \b this
    void add(const Vector & other)
       {
         assert(len == other.len);
@@ -319,37 +403,29 @@ public:
         loop(j, len)   *dj++ += *sj++;
       }
 
+   /// return \b this[i]
    T & at(ShapeItem i)
       { assert(i < len);  return *(data + i); }
 
+   /// return \b this[i]
    const T & at(ShapeItem i) const
       { assert(i < len);  return *(data + i); }
 
-   T sum_prod(const Vector other)
-      {
-        T sum = 0.0;
-        const T * p1 = data;
-        const T * p2 = other.data;
-        loop(j, len)   sum += *p1++ * *p2++;
-      }
-
-   T sum_prod_conj(const Vector other)
-      {
-        T sum = 0.0;
-        const T * p1 = data;
-        const T * p2 = other.data;
-        loop(j, len)   sum += DZ::CONJ(*p1++ * *p2++);
-      }
-
 protected:
+   /// the elements of \b this vector
    T * const data;
+
+   ///  the length of this vector
    const ShapeItem len;
 };
 //-----------------------------------------------------------------------------
+/// A double or complex  matrix
 template<typename T>
 class Matrix
 {
 public:
+   /// constructor: _rows by _cols matrix values from _data
+   /// _data must outlive \b this!
    Matrix(T * _data, ShapeItem _rows, ShapeItem _cols, ShapeItem _dx)
      : data(_data),
        rows(_rows),
@@ -357,6 +433,8 @@ public:
        dx(_dx)
    {}
 
+   /// constructor: sub-matrix of \b other with \b new_col_count columns
+   /// other must outlive \b this!
    Matrix(const Matrix & other, ShapeItem new_col_count)
      : data(other.data),
        rows(other.rows),
@@ -364,17 +442,15 @@ public:
        dx(other.dx)
    { assert(new_col_count <= other.cols); }
 
-   // return the sub-matrix starting at row y and column x
-   //
+   /// return the sub-matrix starting at row y and column x
    Matrix sub_yx(ShapeItem row, ShapeItem col)
       {
         assert(col <= cols && row <= rows);
         return Matrix(&at(row, col), rows - row, cols - col, dx);
       }
 
-   // return the sub-matrix of size new_len_y: new_len_x
-   // starting at row 0 and column 0
-   //
+   /// return the sub-matrix of size new_len_y: new_len_x
+   /// starting at row 0 and column 0
    Matrix sub_len(ShapeItem new_rows, ShapeItem new_cols)
       {
         assert(new_rows <= rows);
@@ -382,33 +458,43 @@ public:
         return Matrix(data, new_rows, new_cols, dx);
       }
 
+   /// return true if \b this is a matrix of complex numbers (and not a matrix
+   /// of real numbers
    bool is_ZZ() const   { return DZ::is_ZZ(*data); }
 
+   /// return the number of rows
    const ShapeItem get_row_count() const
       { return rows; }
 
+   /// return the number of columns
    const ShapeItem get_column_count() const
       { return cols; }
 
+   /// return column \b c
    Vector<T> get_column(ShapeItem c) 
       {
         return Vector<T>(data + c*dx, rows);
       }
 
+   /// return column \b c
    const Vector<T> get_column(ShapeItem c) const
       {
         return Vector<T>(data + c*dx, rows);
       }
 
+   /// return \b this[i, j]
    T & at(ShapeItem i, ShapeItem j)
       { assert(i < rows);   assert(j < cols); return *(data + i + j*dx); }
 
+   /// return \b this[i, j]
    const T & at(ShapeItem i, ShapeItem j) const
       { assert(i < rows);   assert(j < cols); return *(data + i + j*dx); }
 
+   /// return \b this[i, i]
    T & diag(ShapeItem i) const
       { assert(i < rows);   assert(i < cols); return *(data + i*(1 + dx)); }
 
+   /// swap columns c1 and c2
    void exchange_columns(ShapeItem c1, ShapeItem c2)
       {
         assert(c1 < cols);
@@ -418,6 +504,7 @@ public:
         loop(r, rows)   exchange(*p1++, *p2++);
       }
 
+   /// return the distance between two adjacent columns in \b data
    ShapeItem get_dx() const   { return dx; }
 
    /// return the length of the largest element
@@ -447,6 +534,7 @@ public:
            }
       }
 
+   /// multiply \b this by \b factor
    void scale(T factor)
       {
         T * dj = data;
@@ -459,9 +547,16 @@ public:
       }
 
 protected:
+   /// the elements of \b this matrix
    T * const data;
+
+   /// the number of rows of \b this matrix
    const ShapeItem rows;
+
+   /// the number of columns of \b this matrix
    const ShapeItem cols;
+
+   /// return the distance between two adjacent columns in \b data
    const ShapeItem dx;
 };
 //=============================================================================
@@ -472,7 +567,7 @@ protected:
 
 //=============================================================================
 
-   // numerical limnits
+   // numerical limits
    //
 #define dlamch_E 1.11022e-16
 #define dlamch_S 2.22507e-308
@@ -484,10 +579,10 @@ static const double inv_safe_min = 1.0 / safe_min;
 static const double tol3z        = sqrt(dlamch_E);
 
 //-----------------------------------------------------------------------------
-inline ShapeItem max_pos(const double * vec, ShapeItem len)
+/// return the offset of the largest element in vec
+inline ShapeItem
+max_pos(const double * vec, ShapeItem len)
 {
-   // return the offset of the largest element in vec
-   //
 ShapeItem imax = 0;
 double dmax = ABS(vec[0]); 
    for (ShapeItem j = 1; j < len; ++j)
@@ -499,8 +594,8 @@ double dmax = ABS(vec[0]);
    return imax;
 }
 //-----------------------------------------------------------------------------
-template<typename T>
-T larfg(ShapeItem N, T & ALPHA, Vector<T> &x)
+/// LApack function larfg
+template<typename T> T larfg(ShapeItem N, T & ALPHA, Vector<T> &x)
 {
    assert(N > 0);
 
@@ -545,6 +640,7 @@ const T factor = DZ::inv(ALPHA - beta);
    return tau;
 }
 //-----------------------------------------------------------------------------
+/// LApack function trsm
 template<typename T>
 void trsm(int M, int N, const Matrix<T> & A, Matrix<T> & B)
 {
@@ -569,6 +665,7 @@ void trsm(int M, int N, const Matrix<T> & A, Matrix<T> & B)
        }
 }
 //-----------------------------------------------------------------------------
+/// LApack function ila_lc
 template<typename T>
 int ila_lc(ShapeItem M, ShapeItem N, const Matrix<T> & A)
 {
@@ -591,6 +688,7 @@ int ila_lc(ShapeItem M, ShapeItem N, const Matrix<T> & A)
    return 1;
 }
 //-----------------------------------------------------------------------------
+/// LApack function gemv
 template<typename T>
 inline void gemv(int M, int N, const Matrix<T> & A, const Vector<T> &x,
                  Vector<T> &y)
@@ -603,6 +701,7 @@ inline void gemv(int M, int N, const Matrix<T> & A, const Vector<T> &x,
        }
 }
 //-----------------------------------------------------------------------------
+/// LApack function gerc
 template<typename T>
 void gerc(int M, int N, T ALPHA, const Vector<T> &x, const Vector<T> &y,
           Matrix<T> & A)
@@ -621,6 +720,7 @@ void gerc(int M, int N, T ALPHA, const Vector<T> &x, const Vector<T> &y,
       }
 }
 //-----------------------------------------------------------------------------
+/// LApack function larf
 template<typename T>
 void larf(Vector<T> & v, T tau, Matrix<T> & c)
 {
@@ -654,6 +754,7 @@ ShapeItem  lastc = 0;
       }
 }
 //-----------------------------------------------------------------------------
+/// LApack function laqp2
 template<typename T>
 void laqp2(Matrix<T> & A, ShapeItem * pivot, T * tau, double * vn1)
 {
@@ -742,6 +843,7 @@ double * vn2 = vn1 + N;
       }
 }
 //-----------------------------------------------------------------------------
+/// LApack function laic1 (maximum case)
 template<typename T>
 void laic1_max(double SEST, T alpha, T GAMMA, double &SESTPR, T &S, T &C)
 {
@@ -849,6 +951,7 @@ const double tmp = sqrt(ABS_2(sine) + ABS_2(cosine));
    SESTPR = sqrt(t + 1.0) * abs_estimate;
 }
 //-----------------------------------------------------------------------------
+/// LApack function laic1 (iniimum case)
 template<typename T>
 void laic1_min(double SEST, T alpha, T GAMMA, double &SESTPR, T &S, T &C)
 {
@@ -985,6 +1088,7 @@ const double tmp = sqrt(ABS_2(sine) + ABS_2(cosine));
    C = cosine / tmp;
 }
 //-----------------------------------------------------------------------------
+/// LApack function unm2r
 template<typename T>
 void unm2r(ShapeItem K, Matrix<T> & A, const T * tau, Matrix<T> & c)
 {
@@ -1013,6 +1117,7 @@ const ShapeItem M = c.get_row_count();
        }
 }
 //-----------------------------------------------------------------------------
+/// LApack function geqp3
 template<typename T>
 void geqp3(Matrix<T> & A, ShapeItem * pivot, T * tau)
 {
@@ -1047,6 +1152,7 @@ const ShapeItem N = A.get_column_count();
    }
 }
 //-----------------------------------------------------------------------------
+/// LApack function estimating the rank of \b A
 template<typename T>
 int estimate_rank(const Matrix<T> & A, double rcond)
 {

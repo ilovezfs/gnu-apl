@@ -211,14 +211,12 @@ public:
         VALUE_P(      valp)   ///< pointer to a nested sub-array
       };
 
+   /// additional data for ComplexCells and PointerCells
    union SomeValue2
       {
         APL_Float     cval_i;    ///< the imag part of a complex number
         Value        *owner;     ///< the value containing a PointerCell
       };
-
-   APL_Complex cval() const
-      { return APL_Complex(value.cval_r, value2.cval_i); }
 
    /// return the type of \b this cell
    virtual CellType get_cell_type() const

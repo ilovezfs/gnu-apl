@@ -755,6 +755,9 @@ protected:
    /// overloaded Function::get_dyadic_inverse()
    virtual Function * get_dyadic_inverse() const;
 
+   /// true if the inverse shall be computed. This allows Bif_F12_CIRCLE to
+   /// be instantiated twice: once for non-inverted operation and once for
+   /// inverted operation, and both instances can share some code in this class
    const bool inverse;
 };
 //-----------------------------------------------------------------------------

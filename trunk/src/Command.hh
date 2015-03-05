@@ -262,12 +262,14 @@ protected:
                                           const UCS_string cmd,
                                           const UCS_string arg);
 
+   /// perform tab expansion for a filename
    static ExpandResult expand_filename(UCS_string & user,
                                        bool have_trailing_blank,
                                        ExpandHint ehint,
                                        const char * shint,
                                        const UCS_string cmd, UCS_string arg);
 
+   /// perform tab expansion for a workspace name
    static ExpandResult expand_wsname(UCS_string & line, const UCS_string cmd,
                                      LibRef lib, const UCS_string filename);
 
@@ -280,6 +282,7 @@ protected:
                                        UTF8_string prefix, ExpandHint ehint,
                                        vector<UCS_string> & matches);
 
+   /// show the different alternatives for tab expansions
    static ExpandResult show_alternatives(UCS_string & user, int prefix_len,
                                          vector<UCS_string>matches);
 

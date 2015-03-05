@@ -849,7 +849,6 @@ Token result = eval_AB(I, B);
    return result;
 }
 //-----------------------------------------------------------------------------
-struct doublecomplex { double r; double i; };
 extern Value_P divide_matrix(ShapeItem rows, Value_P A, Value_P B,
                              const Shape & shape_Z, APL_Float qct);
 

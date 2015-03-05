@@ -204,7 +204,7 @@ public:
    static int read_ESC_sequence(char * dest, int destlen, int append,
                                 const char * capname, char * str, int p1);
 
-   // true if xterm/color is on
+   /// true if xterm/color is on
    static bool color_enabled();
 
 protected:

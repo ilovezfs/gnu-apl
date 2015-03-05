@@ -244,6 +244,7 @@ struct RANK_ALyXB : public RANK_LyXB
   Shape & get_sh_chunk_A()       { return *(Shape *)&_sh_chunk_A;     }
 };
 
+/// arguments of the EOC handler for A f⋆g B
 struct POWER_ALRB
 {
   int how;                           ///< how to finish_eval_ALRB()

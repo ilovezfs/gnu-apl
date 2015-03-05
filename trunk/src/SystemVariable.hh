@@ -413,19 +413,6 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   System variable Quad-PT (Print Tolerance), about 10^-⎕PP
- */
-class Quad_PT : public RO_SystemVariable
-{
-public:
-   /// constructor
-   Quad_PT();
-
-protected:
-   virtual Value_P get_apl_value() const;
-};
-//-----------------------------------------------------------------------------
-/**
    System variable Quad-PW (Print Width).
  */
 class Quad_PW : public SystemVariable

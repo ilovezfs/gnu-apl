@@ -58,6 +58,7 @@ Bif_F12_STILE     Bif_F12_STILE::fun;                  // ∣
 Bif_F12_LOGA      Bif_F12_LOGA::fun;                   // ⍟
 Bif_F12_WITHOUT   Bif_F12_WITHOUT::fun;                // ∼ (monadic is scalar)
 
+/// one monadic scalar job
 struct PJob_scalar_B
 {
    /// default constructor
@@ -65,6 +66,7 @@ struct PJob_scalar_B
    : value_Z(*(Value *)0)
    {}
 
+   /// assign \b other to \b this
    void operator =(const PJob_scalar_B & other)
       { memcpy(this, &other, sizeof(*this)); }
 
@@ -106,8 +108,11 @@ struct PJob_scalar_B
    Cell & Z_at(ShapeItem z) const
       { return cZ[z]; }
 };
+
+/// all monadic scalar jobs
 static Parallel_job_list<PJob_scalar_B> joblist_B;
 
+/// one dyadic scalar job
 struct PJob_scalar_AB
 {
    /// default constructor
@@ -115,6 +120,7 @@ struct PJob_scalar_AB
    : value_Z(*(Value *)0)
    {}
 
+   /// assign \b other to \b this
    void operator =(const PJob_scalar_AB & other)
       { memcpy(this, &other, sizeof(*this)); }
 
@@ -172,6 +178,8 @@ struct PJob_scalar_AB
    Cell & Z_at(ShapeItem z) const
       { return cZ[z]; }
 };
+
+/// all dyadic scalar jobs
 static Parallel_job_list<PJob_scalar_AB> joblist_AB;
 
 //-----------------------------------------------------------------------------

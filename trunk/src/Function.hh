@@ -141,6 +141,7 @@ public:
    /// Print \b this function.
    virtual ostream & print(ostream & out) const = 0;
 
+   /// return the dyadic scalar primitive if \b this function
    virtual prim_f2 get_scalar_f2() const
       { return 0; }
 

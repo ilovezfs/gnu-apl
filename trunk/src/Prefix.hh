@@ -151,7 +151,7 @@ public:
    Token & at3()
       { Assert1(size() > 3);   return content[put - 4].tok; }
 
-   // return true if the next token bind stronger than the best match
+   /// return true if the next token binds stronger than the best match
    bool dont_reduce(TokenClass next) const;
 
    /// return the current assignment state

@@ -135,6 +135,10 @@ public:
    static APL_Complex gamma(APL_Float x, const APL_Float y);
 
 protected:
+   /// return the complex value of \b this cell
+   APL_Complex cval() const
+      { return APL_Complex(value.cval_r, value2.cval_i); }
+
    /// compute circle function \b fun
    ErrorCode do_bif_circle_fun(Cell * Z, int fun) const;
 

@@ -54,9 +54,11 @@ public:
    /// overloaded Function::has_result()
    virtual bool has_result() const   { return true; }
 
+   /// return the dyadic cell statistics of \b this (scalar) function
    CellFunctionStatistics *
    get_statistics_AB() const   { return statistics_AB; }
 
+   /// return the monadic cell statistics of \b this (scalar) function
    CellFunctionStatistics *
    get_statistics_B() const   { return statistics_B; }
 
@@ -690,7 +692,7 @@ public:
 protected:
 };
 //-----------------------------------------------------------------------------
-// base class for Bif_F12_UNION and Bif_F2_INTER
+/// base class for Bif_F12_UNION and Bif_F2_INTER
 class Bif_UNION_INTER : public NonscalarFunction
 {
 public:

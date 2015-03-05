@@ -77,7 +77,10 @@ public:
    /// edit the function specified in \b cmd (e.g. cmd = "∇FUN")
    static void edit_function(const UCS_string & cmd);
 
+   /// return the line label (sucah as [1]) and the line text
    UCS_string get_label_and_text(int line, bool & is_current) const;
+
+   /// return the number of lines
    int get_line_count() const
       { return lines.size(); }
 
@@ -105,6 +108,7 @@ protected:
         /// print the line
         void print(ostream & out) const;
 
+        /// return the line label (sucah as [1]) and the line text
         UCS_string get_label_and_text() const;
 
         /// the label (like [1.2] of the line

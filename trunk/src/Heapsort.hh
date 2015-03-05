@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+/// heapsort an array of items of type \b T
 template<typename T>
 class Heapsort
 {
