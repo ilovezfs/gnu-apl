@@ -88,6 +88,7 @@ enum Pfstat_ID
         PFS_ALL
 };
 //=============================================================================
+/// one statistics for computing the mean and the variance of samples
 class Statistics_record
 {
 public:
@@ -114,15 +115,19 @@ public:
    /// write count, data, and data2 to file
    void save_record(ostream & outf);
 
+   /// return the number of samples
    uint64_t get_count() const
       { return count; }
 
+   /// return the sum of samples
    uint64_t get_sum() const
       { return data; }
 
+   /// return the average
    uint64_t get_average() const
       { return count ? data/count : 0; }
 
+   /// return the sum of squares
    double get_sum2() const
       { return data2; }
 
@@ -140,6 +145,7 @@ protected:
    double data2;   // can grow quickly!
 };
 //=============================================================================
+/// base class for different kinds of statistics
 class Statistics
 {
 public:
@@ -157,20 +163,26 @@ public:
    /// write statistics to file
    virtual void save_data(ostream & outf, const char * perf_name) = 0;
 
+   /// reset \b this statistics
    virtual void reset() = 0;
 
+   /// return the statistics for the first passes
    virtual const Statistics_record * get_first_record() const
       { return 0; }
 
+   /// return the statistics for the subsequent passes
    virtual const Statistics_record * get_record() const
       { return 0; }
 
+   /// return the name of \b this statistics
    const char * get_name() const
       { return get_name(id); }
 
-   static const char * get_name(Pfstat_ID _id);
+   /// return the name of the statistics with ID \b id
+   static const char * get_name(Pfstat_ID id);
 
 protected:
+   /// the ID of \b this statistics
    const Pfstat_ID id;
 };
 //=============================================================================
@@ -178,8 +190,9 @@ protected:
 class FunctionStatistics : public Statistics
 {
 public:
-   FunctionStatistics(Pfstat_ID _id)
-   : Statistics(_id)
+   /// constructor: FunctionStatistics with ID \b id
+   FunctionStatistics(Pfstat_ID id)
+   : Statistics(id)
    { reset(); }
 
    /// overloaded Statistics::print()
@@ -195,12 +208,15 @@ public:
    /// overloaded Statistics::save_data()
    virtual void save_data(ostream & outf, const char * perf_name);
 
+   /// return the (CPU-)cycles statistics
    virtual const Statistics_record * get_record() const
       { return &vec_cycles; }
 
+   /// return the (CPU-)cycles statistics
    const Statistics_record & get_data() const
       { return vec_cycles; }
 
+   /// add a sample
    void add_sample(uint64_t val, uint64_t veclen)
       {
          vec_cycles.add_sample(val);
@@ -208,7 +224,10 @@ public:
        }
 
 protected:
+   /// the vector lengths
    Statistics_record vec_lengths;
+
+   /// the cycles executed
    Statistics_record vec_cycles;
 };
 //-----------------------------------------------------------------------------
@@ -216,16 +235,19 @@ protected:
 class CellFunctionStatistics : public Statistics
 {
 public:
+   /// constructor: reset this statistics
    CellFunctionStatistics(Pfstat_ID _id)
    : Statistics(_id)
    { reset(); }
 
+   /// reset this statistics: clear \b first and \b subsequent records
    virtual void reset()
         {
           first.reset();
           subsequent.reset();
         }
 
+   /// add a sample to \b this statistics
    void add_sample(uint64_t val, bool subseq)
       {
          if (subseq)   subsequent.add_sample(val);
@@ -238,29 +260,39 @@ public:
    /// overloaded Statistics::save_data()
    virtual void save_data(ostream & outf, const char * perf_name);
 
+   /// return the record for the first executions
    virtual const Statistics_record * get_first_record() const
       { return  &first; }
 
+   /// return the record for subsequent executions
    virtual const Statistics_record * get_record() const
       { return  &subsequent; }
 
+   /// return the cycles sum
    uint64_t get_sum() const
       { return first.get_sum() + subsequent.get_sum(); }
 
+   /// return the square of cycles sums
    double get_sum2() const
       { return first.get_sum2() + subsequent.get_sum2(); }
 
+   /// return the number of first executions
    uint64_t get_count1() const
       { return first.get_count(); }
 
+   /// return the number of subsequent executions
    uint64_t get_countN() const
       { return subsequent.get_count(); }
 
+   /// return the number of all executions
    uint64_t get_count() const
       { return first.get_count() + subsequent.get_count(); }
 
 protected:
+   /// statistics for first executions
    Statistics_record first;
+
+   /// statistics for subsequent executions
    Statistics_record subsequent;
 };
 //=============================================================================
@@ -277,13 +309,13 @@ public:
    /// return statistics type of ID \b id
    static int get_statistics_type(Pfstat_ID id);
 
-   // print all counters
+   /// print all counters
    static void print(Pfstat_ID which, ostream & out);
 
-   // write all counters to .def file
+   /// write all counters to .def file
    static void save_data(ostream & out, ostream & out_file);
 
-   // reset all counters
+   /// reset all counters
    static void reset_all();
 
 #define perfo_1(id, ab, name, thr)                   \

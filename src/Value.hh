@@ -503,6 +503,7 @@ public:
    ShapeItem get_pointer_cell_count() const
       { return pointer_cell_count; }
 
+   /// increase \b nz_subcell_count by \b count
    void add_subcount(ShapeItem count)
       { nz_subcell_count += count; }
 
@@ -513,7 +514,7 @@ protected:
    /// the shape of \b this value (only the first \b rank values are valid.
    Shape shape;
 
-   // the value that has a PointerCell pointing to \b this value (if any)
+   /// the value that has a PointerCell pointing to \b this value (if any)
    ShapeItem pointer_cell_count;
 
    /// valueFlags for this value.

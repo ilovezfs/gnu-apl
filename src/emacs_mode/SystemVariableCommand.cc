@@ -28,9 +28,9 @@ void SystemVariableCommand::run_command( NetworkConnection &conn, const std::vec
 {
     stringstream out;
 
-#define ro_sv_def(VAR) out << ID::name( ID::VAR ) << "\n";
-#define rw_sv_def(VAR) out << ID::name( ID::VAR ) << "\n";
-#define sf_def(FUN)    out << ID::name( ID::FUN ) << "\n";
+#define ro_sv_def(VAR, txt) out << ID::name( ID::VAR ) << "\n";
+#define rw_sv_def(VAR, txt) out << ID::name( ID::VAR ) << "\n";
+#define sf_def(FUN, txt)    out << ID::name( ID::FUN ) << "\n";
 #include "../SystemVariable.def"
 
     out << END_TAG << "\n";

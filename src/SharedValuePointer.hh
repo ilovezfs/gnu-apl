@@ -121,8 +121,10 @@ public:
    bool operator !=(const Value_P & other) const
       { return value_p != other.value_p; }
 
-   static inline void decrement_owner_count(Value * & v, const char * loc);
-   static inline void increment_owner_count(Value * v, const char * loc);
+   /// decrement the owner count of \b val
+   static inline void decrement_owner_count(Value * & val, const char * loc);
+   /// increment the owner count of \b val
+   static inline void increment_owner_count(Value * val, const char * loc);
 
 protected:
    /// pointer to the value

@@ -52,6 +52,7 @@
 
 #include <ext/atomicity.h>
 
+/// atomic \b counter += \b increment, return old value
 inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
    { _GLIBCXX_READ_MEM_BARRIER;
      const int ret = __gnu_cxx::__exchange_and_add_dispatch(
@@ -59,11 +60,13 @@ inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
      _GLIBCXX_WRITE_MEM_BARRIER;
      return ret; }
 
+/// atomic read \b counter
 inline int atomic_read(volatile _Atomic_word & counter)
    { _GLIBCXX_READ_MEM_BARRIER;
      return __gnu_cxx::__exchange_and_add_dispatch(
                                         (_Atomic_word *)&counter, 0); }
 
+/// atomic \b counter += \b increment
 inline void atomic_add(volatile _Atomic_word & counter, int increment)
    { __gnu_cxx::__atomic_add_dispatch((_Atomic_word *)&counter, increment);
      _GLIBCXX_WRITE_MEM_BARRIER;
@@ -73,14 +76,18 @@ inline void atomic_add(volatile _Atomic_word & counter, int increment)
 
 #include <libkern/OSAtomic.h>
 
+/// a counter for atomic operations
 typedef int32_t _Atomic_word;
 
+/// atomic \b counter += \b increment, return old value
 inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
    { return OSAtomicAdd32Barrier(increment, &counter) - increment; }
 
+/// atomic read \b counter
 inline int atomic_read(volatile _Atomic_word & counter)
    { return OSAtomicAdd32Barrier(0, &counter); }
 
+/// atomic \b counter += \b increment
 inline void atomic_add(volatile _Atomic_word & counter, int increment)
    { OSAtomicAdd32Barrier(increment, &counter); }
 
@@ -88,29 +95,37 @@ inline void atomic_add(volatile _Atomic_word & counter, int increment)
 
 #include <atomic.h>
 
+/// a counter for atomic operations
 typedef uint32_t _Atomic_word;
 
+/// atomic \b counter += \b increment, return old value
 inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
    { return atomic_add_32_nv(&counter, increment) - increment; }
 
+/// atomic read \b counter
 inline int atomic_read(volatile _Atomic_word & counter)
    { return atomic_add_32_nv(&counter, 0); }
 
+/// atomic \b counter += \b increment
 inline void atomic_add(volatile _Atomic_word & counter, int increment)
    { atomic_add_32(&counter, increment); }
 
 #else
 
+/// a counter for atomic operations
 typedef int _Atomic_word;
 
+/// atomic \b counter += \b increment, return old value
 inline int atomic_fetch_add(volatile _Atomic_word & counter, int increment)
    { CERR << "\n*** something is VERY WRONG if this function is called" << endl;
       counter += increment; return counter - increment; }
 
+/// atomic read \b counter
 inline int atomic_read(volatile _Atomic_word & counter)
    { CERR << "\n*** something is VERY WRONG if this function is called" << endl;
      return counter; }
 
+/// atomic \b counter += \b increment
 inline void atomic_add(volatile _Atomic_word & counter, int increment)
    { CERR << "\n*** something is VERY WRONG if this function is called" << endl;
      counter += increment; }
@@ -152,13 +167,13 @@ enum CoreNumber
 /// the CPUs reported by the OS
 enum CPU_Number
 {
-   CPU_0 = 0
+   CPU_0 = 0   ///< the first (only) CPU
 };
 
 /// the number of CPUs available
 enum CPU_count
 {
-   CPU_CNT_1 = 1
+   CPU_CNT_1 = 1   ///< one CPU
 };
 //=============================================================================
 /**
@@ -188,7 +203,7 @@ enum CPU_count
 
         busy-waiting ←→ working
 
-  occur when the execution of APL primitives, primarily scalar functions,
+  occurs when the execution of APL primitives, primarily scalar functions,
   suggests to execute in parallel (i.e. if the vectors involved are
   sufficiently long).
 
@@ -203,6 +218,7 @@ public:
    /// constructor
    Thread_context();
 
+   /// return the number of the core executing \b this context
    CoreNumber get_N() const
        { return N; }
 
@@ -254,9 +270,11 @@ public:
    /// initialize all thread contexts (set all but N and thread)
    static void init(CoreCount thread_count, bool logit);
 
+   /// return the context for core \b n
    static Thread_context * get_context(CoreNumber n)
       { return thread_contexts + n; }
 
+   /// return the context of the master
    static Thread_context & get_master()
       { return thread_contexts[CNUM_MASTER]; }
 
@@ -287,6 +305,7 @@ protected:
    /// thread number (0 = interpreter, 1... worker threads
    CoreNumber N;
 
+   /// initialize thread_contexts[n]
    void init_entry(CoreNumber n);
 
    /// the cpu core to which this thread is bound
@@ -299,8 +318,10 @@ public:
    /// a counter controlling the start of parallel jobs
    volatile int job_number;
 
+   /// return the name of this context
    const char * job_name;
 
+   /// true if this context shall join (i.e. is not the master)
    bool do_join;
 
    /// a semaphore to block this context
@@ -310,8 +331,10 @@ public:
    bool blocked;
 
 protected:
+   /// all thread contexts
    static Thread_context * thread_contexts;
 
+   /// the number of thread contexts
    static CoreCount thread_contexts_count;
 
    /// the number of unfinished workers (excluding master)
@@ -321,9 +344,11 @@ protected:
    static CoreCount active_core_count;
 };
 //=============================================================================
+/// a class coordinating the different cores working in prallel
 class Parallel
 {
 public:
+   /// lock \b lock
    static void acquire_lock(volatile _Atomic_word & lock)
       {
          // chances are low that the lock is held. Therefore we try a simple
@@ -349,6 +374,7 @@ public:
              }
       }
 
+   /// unlock \b lock
    static void release_lock(volatile _Atomic_word & lock)
       {
         atomic_add(lock, -1);
@@ -373,10 +399,13 @@ public:
    /// set new active core count, return true on error
    static bool set_core_count(CoreCount new_count, bool logit);
 
+   /// a semaphore to protect printing from different threads
    static sem_t print_sema;
 
+   /// a semaphore to tell when a thread has started
    static sem_t pthread_create_sema;
 
+   /// return the core number for \b idx
    static CPU_Number get_CPU(int idx)
       { return all_CPUs[idx]; }
 
@@ -402,14 +431,21 @@ public:
    static const char * started_loc;
 };
 
+/** a list of parallel jobs. It is used to control the parallel computation
+    of nested results. Initially the Parallel_job_list is create with one
+    job. If nested values are encountered they are not computed immediately
+    but added to the joblist for later execution.
+ **/
 template <class T>
 class Parallel_job_list : public Parallel_job_list_base
 {
 public:
+   /// constructor: empty job list
    Parallel_job_list()
    : idx(0)
    {} 
 
+   /// start execution of \b jobs
    void start(const T & first_job, const char * loc)
       {
          if (started_loc)
@@ -450,17 +486,23 @@ public:
    int get_index()
       { return idx; }
 
+   /// add \b job to \b jobs
    void add_job(T & job)
       { jobs.push_back(job); }
 
+   /// return true if not all jobs are done yet
    bool busy()
       { return started_loc != 0; }
 
+   /// where joblist was started (also an indicator if all jobs were done)
    const char * get_started_loc()
       { return started_loc; }
 
 protected:
+   /// jobs to be performed
    vector<T> jobs;
+
+   /// last job
    int idx;
 
    /// the currently executed worklist item

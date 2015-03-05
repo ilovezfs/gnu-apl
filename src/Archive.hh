@@ -355,7 +355,7 @@ protected:
    /// the file name from which this archive was read
    const char * filename;
 
-   /// true if file contains a </Workspace> tag at the end
+   /// true if file contains a <\/Workspace> tag at the end
    bool file_is_complete;
 };
 //-----------------------------------------------------------------------------

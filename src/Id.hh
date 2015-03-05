@@ -46,6 +46,7 @@ class UCS_string;
 class ID
 {
 public:
+   /// an ID. Every object known to APL (primitive, ⎕xx, ...) has one
    enum Id
    {
 #define av(i, _u, v)          i v,

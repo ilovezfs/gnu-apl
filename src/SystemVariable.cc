@@ -606,22 +606,6 @@ const APL_Integer val = cell.get_near_int(0.1);
       }
 }
 //=============================================================================
-Quad_PT::Quad_PT()
-   : RO_SystemVariable(ID::Quad_PT)
-{
-   Symbol::assign(IntScalar(0, LOC), LOC);
-}
-//-----------------------------------------------------------------------------
-Value_P
-Quad_PT::get_apl_value() const
-{
-Value_P Z(LOC);
-   new (&Z->get_ravel(0))   FloatCell(Workspace::get_CT());
-
-   Z->check_value(LOC);
-   return Z;
-}
-//=============================================================================
 Quad_PW::Quad_PW()
    : SystemVariable(ID::Quad_PW)
 {

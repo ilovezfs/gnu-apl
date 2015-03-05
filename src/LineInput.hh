@@ -100,6 +100,7 @@ protected:
    /// the max. history size
    const int max_lines;
 
+   /// the history
    vector<UCS_string> hist_lines;
 };
 //-----------------------------------------------------------------------------
@@ -107,9 +108,11 @@ protected:
 class LineEditContext
 {
 public:
+   /// constructor
    LineEditContext(LineInputMode mode, int rows, int cols,
                    LineHistory & hist, const UCS_string & prmt);
 
+   /// destructor
    ~LineEditContext();
 
    /// clear (after ^C)
@@ -138,9 +141,11 @@ public:
    void refresh_wrapped_cursor()
       { if (on_bad_col(uidx))   set_cursor(); }
 
+   /// move the cursor
    void move_idx(int new_idx)
       { uidx = new_idx;   set_cursor(); }
 
+   /// set the cursor (writing the appropriate ESC sequence to CIN)
    void set_cursor()
       { const int offs = uidx + prompt.size();
         CIN.set_cursor(offs/screen_cols - allocated_height, offs%screen_cols);
@@ -240,10 +245,12 @@ protected:
 class InputMux
 {
 public:
+   /// get one line
    static void get_line(LineInputMode mode, const UCS_string & prompt,
                         UCS_string & line, bool & eof, LineHistory & hist);
 };
 //-----------------------------------------------------------------------------
+/// a class for obtaining one line of input from the user (editable)
 class LineInput
 {
 public:
@@ -260,6 +267,7 @@ public:
    /// initialize the input subsystem
    static void init(bool do_read_history);
 
+   /// close this line input, maybe updating the history
    static void close(bool do_not_write_hist)
       { if (the_line_input && do_not_write_hist)
             the_line_input->write_history = false;
@@ -286,10 +294,13 @@ public:
       { return the_line_input->history; }
 
 protected:
+   /// constructor
    LineInput(bool do_read_history);
 
+   /// destructor
    ~LineInput();
 
+   /// lines previously entered
    LineHistory history;
 
    /// the stdin termios at startup of the interpreter. Will be restored
@@ -312,6 +323,8 @@ protected:
    static LineInput * the_line_input;
 };
 //-----------------------------------------------------------------------------
+/// A mapping from ESC sequences to (internal) pseudo-Unicodes such as
+/// UNI_CursorUp and friends
 struct ESCmap
 {
    /// return true if seq is a true prefix of \b this ESCmap

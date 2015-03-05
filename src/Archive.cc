@@ -739,8 +739,8 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save certain system variables
    //
-#define rw_sv_def(x) save_symbol(Workspace::get_v_ ## x());
-#define ro_sv_def(x) save_symbol(Workspace::get_v_ ## x());
+#define rw_sv_def(x, txt) save_symbol(Workspace::get_v_ ## x());
+#define ro_sv_def(x, txt) save_symbol(Workspace::get_v_ ## x());
 #include "SystemVariable.def"
 
    // save state indicator
