@@ -79,10 +79,13 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = doc
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am texinfo.tex \
-	$(dist_doc_DATA)
+DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+	$(top_srcdir)/texinfo.tex $(dist_doc_DATA) texinfo.tex
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/depend.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
 	$(top_srcdir)/m4/ax_lib_postgresql.m4 \
 	$(top_srcdir)/configure.ac
@@ -135,7 +138,8 @@ am__v_texidevnull_ = $(am__v_texidevnull_@AM_DEFAULT_V@)
 am__v_texidevnull_0 = > /dev/null
 am__v_texidevnull_1 = 
 INFO_DEPS = $(srcdir)/apl.info
-am__TEXINFO_TEX_DIR = $(srcdir)
+TEXINFO_TEX = $(top_srcdir)/texinfo.tex
+am__TEXINFO_TEX_DIR = $(top_srcdir)
 DVIS = apl.dvi
 PDFS = apl.pdf
 PSS = apl.ps

@@ -4,6 +4,7 @@
 AC_PREREQ([2.65])
 AC_INIT([GNU APL], [1.4], [bug-apl@gnu.org])
 AC_PREFIX_DEFAULT( /usr/local )
+AC_CONFIG_AUX_DIR([.])
 AC_USE_SYSTEM_EXTENSIONS
 
 # always enable dependency tracking regardless of the user's choice.
