@@ -44,7 +44,8 @@ public:
    /// Overloaded Function::eval_ALXB().
    virtual Token eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B);
 
-   static Bif_OPER1_COMMUTE    fun;      ///< Built-in function.
+   static Bif_OPER1_COMMUTE * fun;      ///< Built-in function.
+   static Bif_OPER1_COMMUTE  _fun;      ///< Built-in function.
 
 protected:
 };

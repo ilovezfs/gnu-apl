@@ -43,11 +43,21 @@ extern char **environ;
 #define PATH_MAX 4096
 #endif
 
-Quad_SVC Quad_SVC::fun;
-Quad_SVO Quad_SVO::fun;
-Quad_SVQ Quad_SVQ::fun;
-Quad_SVR Quad_SVR::fun;
-Quad_SVS Quad_SVS::fun;
+// shared variable function instances
+//
+Quad_SVC Quad_SVC::_fun;
+Quad_SVO Quad_SVO::_fun;
+Quad_SVQ Quad_SVQ::_fun;
+Quad_SVR Quad_SVR::_fun;
+Quad_SVS Quad_SVS::_fun;
+
+// shared variable function pointers
+//
+Quad_SVC * Quad_SVC::fun = & Quad_SVC::_fun;
+Quad_SVO * Quad_SVO::fun = & Quad_SVO::_fun;
+Quad_SVQ * Quad_SVQ::fun = & Quad_SVQ::_fun;
+Quad_SVR * Quad_SVR::fun = & Quad_SVR::_fun;
+Quad_SVS * Quad_SVS::fun = & Quad_SVS::_fun;
 
 APL_time_us Quad_SVE::timer_end = 0;
 

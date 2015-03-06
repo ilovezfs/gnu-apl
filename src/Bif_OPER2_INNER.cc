@@ -22,7 +22,9 @@
 #include "Bif_OPER1_REDUCE.hh"
 #include "Workspace.hh"
 
-Bif_OPER2_INNER  Bif_OPER2_INNER::fun;
+Bif_OPER2_INNER   Bif_OPER2_INNER::_fun;
+Bif_OPER2_INNER * Bif_OPER2_INNER::fun = &Bif_OPER2_INNER::_fun;
+
 Bif_OPER2_INNER::PJob_product Bif_OPER2_INNER::job;
 
 //-----------------------------------------------------------------------------
@@ -304,7 +306,7 @@ how_1:
           // No need to handle TOK_SI_PUSHED for user-defined LO.
           //
           Token LO(TOK_FUN1, _arg.LO);
-          const Token T2 = Bif_OPER1_REDUCE::fun.eval_LB(LO, arg.V1);
+          const Token T2 = Bif_OPER1_REDUCE::fun->eval_LB(LO, arg.V1);
           if (T2.get_tag() == TOK_ERROR)   return T2;
           arg.Z->next_ravel()->init_from_value(T2.get_apl_val(),
                                                arg.Z.getref(), LOC);

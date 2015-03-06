@@ -35,7 +35,8 @@ public:
  
    virtual int get_oper_valence() const   { return 2; }
  
-   static Bif_JOT           fun;             ///< Built-in function.
+   static Bif_JOT * fun;             ///< Built-in function.
+   static Bif_JOT  _fun;             ///< Built-in function.
  
 protected:
 };
@@ -51,7 +52,8 @@ public:
    /// Overloaded Function::eval_ALRB().
    virtual Token eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B);
 
-   static Bif_OPER2_OUTER fun;   ///< Built-in function.
+   static Bif_OPER2_OUTER * fun;   ///< Built-in function.
+   static Bif_OPER2_OUTER  _fun;   ///< Built-in function.
 
 protected:
    /// Compute the outer product of A and B with function RO.

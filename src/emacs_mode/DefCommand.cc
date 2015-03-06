@@ -61,11 +61,11 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             new (tag->next_ravel()) IntCell( 0 );
             new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ), tag.getref());
             function_list_value->check_value( LOC );
-            Token result = Quad_FX::fun.eval_AB( tag, function_list_value );
+            Token result = Quad_FX::fun->eval_AB( tag, function_list_value );
             out << "function defined\n" << to_string( result.canonical( PST_CS_NONE ) );
         }
         else {
-            Token result = Quad_FX::fun.eval_B( function_list_value );
+            Token result = Quad_FX::fun->eval_B( function_list_value );
             if( result.is_apl_val() ) {
                 Value_P value = result.get_apl_val();
                 if( value->is_int_scalar( 0 ) ) {

@@ -22,10 +22,14 @@
 #include "Bif_OPER1_REDUCE.hh"
 #include "Workspace.hh"
 
-Bif_JOT  Bif_JOT::fun;
+Bif_JOT          Bif_JOT        ::_fun;
+Bif_OPER2_OUTER  Bif_OPER2_OUTER::_fun;
+
+Bif_JOT         * Bif_JOT        ::fun = &Bif_JOT        ::_fun;
+Bif_OPER2_OUTER * Bif_OPER2_OUTER::fun = &Bif_OPER2_OUTER::_fun;
 
 Bif_OPER2_OUTER::PJob_product Bif_OPER2_OUTER::job;
-Bif_OPER2_OUTER  Bif_OPER2_OUTER::fun;
+
 
 //-----------------------------------------------------------------------------
 Token

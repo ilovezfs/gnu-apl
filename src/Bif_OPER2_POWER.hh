@@ -38,7 +38,8 @@ public:
    /// overloaded Function::eval_LRB()
    virtual Token eval_LRB(Token & LO, Token & RO_y, Value_P B);
 
-   static Bif_OPER2_POWER fun;      ///< Built-in function
+   static Bif_OPER2_POWER * fun;      ///< Built-in function
+   static Bif_OPER2_POWER  _fun;      ///< Built-in function
 
 protected:
    /// helper for eval_ALRB

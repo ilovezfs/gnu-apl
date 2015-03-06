@@ -21,8 +21,11 @@
 #include "Bif_OPER1_REDUCE.hh"
 #include "Workspace.hh"
 
-Bif_OPER1_REDUCE   Bif_OPER1_REDUCE::fun;
-Bif_OPER1_REDUCE1  Bif_OPER1_REDUCE1::fun;
+Bif_OPER1_REDUCE    Bif_OPER1_REDUCE ::_fun;
+Bif_OPER1_REDUCE1   Bif_OPER1_REDUCE1::_fun;
+
+Bif_OPER1_REDUCE  * Bif_OPER1_REDUCE ::fun = &Bif_OPER1_REDUCE ::_fun;
+Bif_OPER1_REDUCE1 * Bif_OPER1_REDUCE1::fun = &Bif_OPER1_REDUCE1::_fun;
 
 //-----------------------------------------------------------------------------
 Token

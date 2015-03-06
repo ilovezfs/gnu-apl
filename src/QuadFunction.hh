@@ -58,7 +58,8 @@ public:
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
 
-   static Quad_AF           fun;          ///< Built-in function.
+   static Quad_AF * fun;          ///< Built-in function.
+   static Quad_AF  _fun;          ///< Built-in function.
 
 protected:
 };
@@ -75,7 +76,8 @@ public:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Quad_AT fun;          ///< Built-in function.
+   static Quad_AT * fun;          ///< Built-in function.
+   static Quad_AT  _fun;          ///< Built-in function.
 
 protected:
 };
@@ -98,7 +100,8 @@ public:
    /// compute \b a ⎕CR \b B
    static Value_P do_CR(APL_Integer a, const Value & B, PrintContext pctx);
 
-   static Quad_CR fun;          ///< Built-in function.
+   static Quad_CR * fun;          ///< Built-in function.
+   static Quad_CR  _fun;          ///< Built-in function.
 
    /// portable variable encoding of value named name (varname or varname ⊂)
    static void do_CR10_var(vector<UCS_string> & result,
@@ -119,7 +122,8 @@ public:
    /// Constructor.
    Quad_DL() : QuadFunction(TOK_Quad_DL) {}
 
-   static Quad_DL fun;          ///< Built-in function.
+   static Quad_DL * fun;          ///< Built-in function.
+   static Quad_DL  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -135,7 +139,8 @@ public:
    /// Constructor.
    Quad_EA() : QuadFunction(TOK_Quad_EA) {}
 
-   static Quad_EA fun;          ///< Built-in function.
+   static Quad_EA * fun;          ///< Built-in function.
+   static Quad_EA  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -157,7 +162,8 @@ public:
    /// Constructor.
    Quad_EC() : QuadFunction(TOK_Quad_EC) {}
 
-   static Quad_EC           fun;          ///< Built-in function.
+   static Quad_EC * fun;          ///< Built-in function.
+   static Quad_EC  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -176,7 +182,8 @@ public:
    /// Constructor.
    Quad_ENV() : QuadFunction(TOK_Quad_ENV) {}
 
-   static Quad_ENV fun;          ///< Built-in function.
+   static Quad_ENV * fun;          ///< Built-in function.
+   static Quad_ENV  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -192,7 +199,8 @@ public:
    /// Constructor.
    Quad_ES() : QuadFunction(TOK_Quad_ES) {}
 
-   static Quad_ES           fun;          ///< Built-in function.
+   static Quad_ES * fun;          ///< Built-in function.
+   static Quad_ES  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -217,7 +225,8 @@ public:
    /// Constructor.
    Quad_EX() : QuadFunction(TOK_Quad_EX) {}
 
-   static Quad_EX fun;          ///< Built-in function.
+   static Quad_EX * fun;          ///< Built-in function.
+   static Quad_EX  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -236,7 +245,8 @@ public:
    /// Constructor.
    Quad_INP() : QuadFunction(TOK_Quad_INP) {}
 
-   static Quad_INP fun;          ///< Built-in function.
+   static Quad_INP * fun;          ///< Built-in function.
+   static Quad_INP  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -261,7 +271,8 @@ public:
    /// Constructor.
    Quad_NA() : QuadFunction(TOK_Quad_NA) {}
 
-   static Quad_NA fun;          ///< Built-in function.
+   static Quad_NA * fun;          ///< Built-in function.
+   static Quad_NA  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB()
@@ -286,7 +297,8 @@ public:
    /// return the ⎕NC for variable name \b var
    static APL_Integer get_NC(const UCS_string var);
 
-   static Quad_NC fun;          ///< Built-in function.
+   static Quad_NC * fun;          ///< Built-in function.
+   static Quad_NC  _fun;          ///< Built-in function.
 
 protected:
 };
@@ -308,7 +320,8 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return do_quad_NL(A, B); }
 
-   static Quad_NL           fun;          ///< Built-in function.
+   static Quad_NL * fun;          ///< Built-in function.
+   static Quad_NL  _fun;          ///< Built-in function.
 
 protected:
    /// return A ⎕NL B
@@ -330,8 +343,8 @@ public:
    /// overloaded Function::eval_AB().
    virtual Token eval_B(Value_P B);
 
-   /// Built-in function.
-   static Quad_SI fun;
+   static Quad_SI * fun;          ///< Built-in function.
+   static Quad_SI  _fun;          ///< Built-in function.
 
 protected:
 };
@@ -348,8 +361,8 @@ public:
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
 
-   /// Built-in function.
-   static Quad_UCS fun;
+   static Quad_UCS * fun;          ///< Built-in function.
+   static Quad_UCS  _fun;          ///< Built-in function.
 
 protected:
 };
@@ -388,8 +401,8 @@ public:
    /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Built-in function
-   static Quad_STOP fun;
+   static Quad_STOP * fun;          ///< Built-in function.
+   static Quad_STOP  _fun;          ///< Built-in function.
 };
 //-----------------------------------------------------------------------------
 /// ⎕TRACE
@@ -407,8 +420,8 @@ public:
    /// Overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// Built-in function
-   static Quad_TRACE fun;
+   static Quad_TRACE * fun;          ///< Built-in function.
+   static Quad_TRACE  _fun;          ///< Built-in function.
 };
 //-----------------------------------------------------------------------------
 

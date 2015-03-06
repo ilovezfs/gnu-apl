@@ -40,10 +40,10 @@ Value_P Fill_A;   // argument A of the fill function
 Value_P Fill_B;   // argument B of the fill function
 
    if (A->is_empty())   Fill_A = A->prototype(LOC);
-   else                 Fill_A = Bif_F12_TAKE::fun.eval_B(A).get_apl_val();
+   else                 Fill_A = Bif_F12_TAKE::fun->eval_B(A).get_apl_val();
 
    if (B->is_empty())   Fill_B = B->prototype(LOC);
-   else                 Fill_B = Bif_F12_TAKE::fun.eval_B(B).get_apl_val();
+   else                 Fill_B = Bif_F12_TAKE::fun->eval_B(B).get_apl_val();
 
 Token tok = fun->eval_fill_AB(Fill_A, Fill_B);
 

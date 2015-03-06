@@ -33,7 +33,8 @@ public:
    /// Constructor.
    Quad_FX() : QuadFunction(TOK_Quad_FX) {}
 
-   static Quad_FX           fun;          ///< Built-in function.
+   static Quad_FX * fun;   ///< Built-in function.
+   static Quad_FX  _fun;   ///< Built-in function.
 
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);

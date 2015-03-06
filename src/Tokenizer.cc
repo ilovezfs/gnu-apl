@@ -203,7 +203,7 @@ Source<Unicode> src(input);
                        tos[tos.size() - 2].get_tag() == TOK_JOT)
                       {
                         new (&tos.last()) Token(TOK_OPER2_OUTER,
-                                                &Bif_OPER2_OUTER::fun);
+                                                Bif_OPER2_OUTER::fun);
                       }
                        
                    break;
@@ -291,7 +291,7 @@ Tokenizer::tokenize_function(Unicode uni)
 const Token tok = Avec::uni_to_token(uni, LOC);
 
 #define sys(t, f) \
-   case TOK_ ## t: return Token(tok.get_tag(), &Bif_ ## f::fun);   break;
+   case TOK_ ## t: return Token(tok.get_tag(), Bif_ ## f::fun);   break;
 
    switch(tok.get_tag())
       {
@@ -854,8 +854,8 @@ UCS_string symbol;
         UCS_string symbol1(symbol, 2, symbol.size() - 2);   // without S∆/T∆
         Value_P AB(symbol1, LOC);
         Function * ST = 0;
-        if (symbol[0] == UNI_ASCII_S) ST = &Quad_STOP::fun;
-        else                          ST = &Quad_TRACE::fun;
+        if (symbol[0] == UNI_ASCII_S) ST = Quad_STOP::fun;
+        else                          ST = Quad_TRACE::fun;
 
         const bool assigned = (src.rest() && *src == UNI_LEFT_ARROW);
         if (assigned)   // dyadic: AB ∆fun

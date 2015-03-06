@@ -55,7 +55,8 @@ public:
    /// split j B into j and B
    static void split_y123_B(Value_P y123_B, Value_P & y123, Value_P & B);
 
-   static Bif_OPER2_RANK fun;      ///< Built-in function
+   static Bif_OPER2_RANK * fun;      ///< Built-in function
+   static Bif_OPER2_RANK  _fun;      ///< Built-in function
 
 protected:
    /// function called when a sub-SI for a dyadic user defined LO returns

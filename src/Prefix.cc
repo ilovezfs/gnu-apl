@@ -115,7 +115,7 @@ TokenClass next = body[pc].get_Class();
 
    if (next == TC_R_BRACK)   // skip [ ... ]
       {
-        const int offset = body[pc].get_int_val();
+        const int offset = body[pc].get_int_val2();
         pc += offset;
         Assert1(body[pc].get_Class() == TC_L_BRACK);   // opening [
         if (pc >= body.size())   return true;   // syntax error

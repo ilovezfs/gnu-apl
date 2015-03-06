@@ -38,7 +38,8 @@ public:
    /// Overloaded Function::eval_ALB().
    virtual Token eval_ALB(Value_P A, Token & LO, Value_P B);
 
-   static Bif_OPER1_EACH    fun;      ///< Built-in function.
+   static Bif_OPER1_EACH * fun;      ///< Built-in function.
+   static Bif_OPER1_EACH  _fun;      ///< Built-in function.
 
 protected:
    /// function called when a sub-SI for a dyadic user defined LO returns

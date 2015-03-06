@@ -20,7 +20,8 @@
 
 #include "Bif_OPER1_COMMUTE.hh"
 
-Bif_OPER1_COMMUTE  Bif_OPER1_COMMUTE::fun;
+Bif_OPER1_COMMUTE   Bif_OPER1_COMMUTE::_fun;
+Bif_OPER1_COMMUTE * Bif_OPER1_COMMUTE::fun = &Bif_OPER1_COMMUTE::_fun;
 
 //-----------------------------------------------------------------------------
 Token
