@@ -22,7 +22,9 @@
 #include "PointerCell.hh"
 #include "Workspace.hh"
 
-Bif_OPER1_EACH     Bif_OPER1_EACH::fun;
+Bif_OPER1_EACH Bif_OPER1_EACH::_fun;
+
+Bif_OPER1_EACH * Bif_OPER1_EACH::fun = &Bif_OPER1_EACH::_fun;
 
 //-----------------------------------------------------------------------------
 Token

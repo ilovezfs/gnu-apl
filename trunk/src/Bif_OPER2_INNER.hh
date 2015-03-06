@@ -35,7 +35,8 @@ public:
    /// Overloaded Function::eval_ALRB().
    virtual Token eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B);
 
-   static Bif_OPER2_INNER fun;   ///< Built-in function.
+   static Bif_OPER2_INNER * fun;   ///< Built-in function.
+   static Bif_OPER2_INNER  _fun;   ///< Built-in function.
 
 protected:
    /// Compute the inner product of A and B with functions LO and RO.

@@ -43,30 +43,59 @@
 #include "Value.icc"
 #include "Workspace.hh"
                                             
-Bif_F0_ZILDE      Bif_F0_ZILDE::fun;         // ⍬
-Bif_F1_EXECUTE    Bif_F1_EXECUTE::fun;       // ⍎
-Bif_F2_INDEX      Bif_F2_INDEX::fun;         // ⌷
-Bif_F12_PARTITION Bif_F12_PARTITION::fun;    // ⊂
-Bif_F12_PICK      Bif_F12_PICK::fun;         // ⊃
-Bif_F12_COMMA     Bif_F12_COMMA::fun;        // ,
-Bif_F12_COMMA1    Bif_F12_COMMA1::fun;       // ⍪
-Bif_F12_TAKE      Bif_F12_TAKE::fun;         // ↑
-Bif_F12_DROP      Bif_F12_DROP::fun;         // ↓
-Bif_F12_ELEMENT   Bif_F12_ELEMENT::fun;      // ∈
-Bif_F12_EQUIV     Bif_F12_EQUIV::fun;        // ≡
-Bif_F12_NEQUIV    Bif_F12_NEQUIV::fun;       // ≢
-Bif_F12_ENCODE    Bif_F12_ENCODE::fun;       // ⊤
-Bif_F12_DECODE    Bif_F12_DECODE::fun;       // ⊥
-Bif_F12_DOMINO    Bif_F12_DOMINO::fun;       // ⌹
-Bif_F12_ROTATE    Bif_F12_ROTATE::fun;       // ⌽
-Bif_F12_ROTATE1   Bif_F12_ROTATE1::fun;      // ⊖
-Bif_F12_TRANSPOSE Bif_F12_TRANSPOSE::fun;    // ⍉
-Bif_F12_INDEX_OF  Bif_F12_INDEX_OF::fun;     // ⍳
-Bif_F12_RHO       Bif_F12_RHO::fun;          // ⍴
-Bif_F2_INTER      Bif_F2_INTER::fun;         // ∩
-Bif_F12_UNION     Bif_F12_UNION::fun;        // ∪
-Bif_F2_LEFT       Bif_F2_LEFT::fun;          // ⊣
-Bif_F2_RIGHT      Bif_F2_RIGHT::fun;         // ⊢
+// primitive function instances
+//
+Bif_F0_ZILDE      Bif_F0_ZILDE     ::_fun;    // ⍬
+Bif_F1_EXECUTE    Bif_F1_EXECUTE   ::_fun;    // ⍎
+Bif_F2_INDEX      Bif_F2_INDEX     ::_fun;    // ⌷
+Bif_F12_PARTITION Bif_F12_PARTITION::_fun;    // ⊂
+Bif_F12_PICK      Bif_F12_PICK     ::_fun;    // ⊃
+Bif_F12_COMMA     Bif_F12_COMMA    ::_fun;    // ,
+Bif_F12_COMMA1    Bif_F12_COMMA1   ::_fun;    // ⍪
+Bif_F12_TAKE      Bif_F12_TAKE     ::_fun;    // ↑
+Bif_F12_DROP      Bif_F12_DROP     ::_fun;    // ↓
+Bif_F12_ELEMENT   Bif_F12_ELEMENT  ::_fun;    // ∈
+Bif_F12_EQUIV     Bif_F12_EQUIV    ::_fun;    // ≡
+Bif_F12_NEQUIV    Bif_F12_NEQUIV   ::_fun;    // ≢
+Bif_F12_ENCODE    Bif_F12_ENCODE   ::_fun;    // ⊤
+Bif_F12_DECODE    Bif_F12_DECODE   ::_fun;    // ⊥
+Bif_F12_DOMINO    Bif_F12_DOMINO   ::_fun;    // ⌹
+Bif_F12_ROTATE    Bif_F12_ROTATE   ::_fun;    // ⌽
+Bif_F12_ROTATE1   Bif_F12_ROTATE1  ::_fun;    // ⊖
+Bif_F12_TRANSPOSE Bif_F12_TRANSPOSE::_fun;    // ⍉
+Bif_F12_INDEX_OF  Bif_F12_INDEX_OF ::_fun;    // ⍳
+Bif_F12_RHO       Bif_F12_RHO      ::_fun;    // ⍴
+Bif_F2_INTER      Bif_F2_INTER     ::_fun;    // ∩
+Bif_F12_UNION     Bif_F12_UNION    ::_fun;    // ∪
+Bif_F2_LEFT       Bif_F2_LEFT      ::_fun;    // ⊣
+Bif_F2_RIGHT      Bif_F2_RIGHT     ::_fun;    // ⊢
+
+// primitive function pointers
+//
+Bif_F0_ZILDE      * Bif_F0_ZILDE     ::fun = &Bif_F0_ZILDE     ::_fun;
+Bif_F1_EXECUTE    * Bif_F1_EXECUTE   ::fun = &Bif_F1_EXECUTE   ::_fun;
+Bif_F2_INDEX      * Bif_F2_INDEX     ::fun = &Bif_F2_INDEX     ::_fun;
+Bif_F12_PARTITION * Bif_F12_PARTITION::fun = &Bif_F12_PARTITION::_fun;
+Bif_F12_PICK      * Bif_F12_PICK     ::fun = &Bif_F12_PICK     ::_fun;
+Bif_F12_COMMA     * Bif_F12_COMMA    ::fun = &Bif_F12_COMMA    ::_fun;
+Bif_F12_COMMA1    * Bif_F12_COMMA1   ::fun = &Bif_F12_COMMA1   ::_fun;
+Bif_F12_TAKE      * Bif_F12_TAKE     ::fun = &Bif_F12_TAKE     ::_fun;
+Bif_F12_DROP      * Bif_F12_DROP     ::fun = &Bif_F12_DROP     ::_fun;
+Bif_F12_ELEMENT   * Bif_F12_ELEMENT  ::fun = &Bif_F12_ELEMENT  ::_fun;
+Bif_F12_EQUIV     * Bif_F12_EQUIV    ::fun = &Bif_F12_EQUIV    ::_fun;
+Bif_F12_NEQUIV    * Bif_F12_NEQUIV   ::fun = &Bif_F12_NEQUIV   ::_fun;
+Bif_F12_ENCODE    * Bif_F12_ENCODE   ::fun = &Bif_F12_ENCODE   ::_fun;
+Bif_F12_DECODE    * Bif_F12_DECODE   ::fun = &Bif_F12_DECODE   ::_fun;
+Bif_F12_DOMINO    * Bif_F12_DOMINO   ::fun = &Bif_F12_DOMINO   ::_fun;
+Bif_F12_ROTATE    * Bif_F12_ROTATE   ::fun = &Bif_F12_ROTATE   ::_fun;
+Bif_F12_ROTATE1   * Bif_F12_ROTATE1  ::fun = &Bif_F12_ROTATE1  ::_fun;
+Bif_F12_TRANSPOSE * Bif_F12_TRANSPOSE::fun = &Bif_F12_TRANSPOSE::_fun;
+Bif_F12_INDEX_OF  * Bif_F12_INDEX_OF ::fun = &Bif_F12_INDEX_OF ::_fun;
+Bif_F12_RHO       * Bif_F12_RHO      ::fun = &Bif_F12_RHO      ::_fun;
+Bif_F2_INTER      * Bif_F2_INTER     ::fun = &Bif_F2_INTER     ::_fun;
+Bif_F12_UNION     * Bif_F12_UNION    ::fun = &Bif_F12_UNION    ::_fun;
+Bif_F2_LEFT       * Bif_F2_LEFT      ::fun = &Bif_F2_LEFT      ::_fun;
+Bif_F2_RIGHT      * Bif_F2_RIGHT     ::fun = &Bif_F2_RIGHT     ::_fun;
 
 const CharCell PrimitiveFunction::c_filler(UNI_ASCII_SPACE);
 const IntCell  PrimitiveFunction::n_filler(0);
@@ -776,7 +805,7 @@ Bif_F12_COMMA1::eval_AB(Value_P A, Value_P B)
 Token
 Bif_F12_COMMA1::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
-   return Bif_F12_COMMA::fun.eval_AXB(A, X, B);
+   return Bif_F12_COMMA::fun->eval_AXB(A, X, B);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -922,7 +951,7 @@ Value_P Z = divide_matrix(rows_A, A, B, shape_Z, qct);
 Token
 Bif_F12_DOMINO::eval_fill_B(Value_P B)
 {
-   return Bif_F12_TRANSPOSE::fun.eval_B(B);
+   return Bif_F12_TRANSPOSE::fun->eval_B(B);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1427,7 +1456,7 @@ const ShapeItem len = (len_A == 1) ? len_B : len_A;
 Token
 Bif_F12_ENCODE::eval_AB(Value_P A, Value_P B)
 {
-   if (A->is_scalar())   return Bif_F12_STILE::fun.eval_AB(A, B);
+   if (A->is_scalar())   return Bif_F12_STILE::fun->eval_AB(A, B);
 
 const ShapeItem ec_A = A->element_count();
 const ShapeItem ec_B = B->element_count();
@@ -1714,8 +1743,8 @@ const Shape weight_B = B->get_shape().reverse_scan();
    if (it_shape.get_rank() == 0)   // empty axes
       {
         //  ⊂[⍳0]B   ←→   ⊂¨B
-        Token part(TOK_FUN1, &Bif_F12_PARTITION::fun);
-        return Bif_OPER1_EACH::fun.eval_LB(part, B);
+        Token part(TOK_FUN1, Bif_F12_PARTITION::fun);
+        return Bif_OPER1_EACH::fun->eval_LB(part, B);
       }
 
 Value_P Z(shape_Z, LOC);
@@ -2381,12 +2410,12 @@ Bif_F12_TAKE::eval_AXB(Value_P A, Value_P X, Value_P B)
 
    // A↑[X]B ←→ ⊃[X](⊂A)↑¨⊂[X]B
    //
-Value_P cA = Bif_F12_PARTITION::fun.eval_B(A).get_apl_val();           // ⊂A
-Value_P cB = Bif_F12_PARTITION::fun.eval_XB(X, B).get_apl_val();       // ⊂[X]B
-Token take(TOK_FUN2, &Bif_F12_TAKE::fun);
-Value_P cT = Bif_OPER1_EACH::fun.eval_ALB(cA, take, cB).get_apl_val(); // cA↑¨cB
+Value_P cA = Bif_F12_PARTITION::fun->eval_B(A).get_apl_val();           // ⊂A
+Value_P cB = Bif_F12_PARTITION::fun->eval_XB(X, B).get_apl_val();       // ⊂[X]B
+Token take(TOK_FUN2, Bif_F12_TAKE::fun);
+Value_P cT = Bif_OPER1_EACH::fun->eval_ALB(cA, take, cB).get_apl_val(); // cA↑¨cB
 
-Token result = Bif_F12_PICK::fun.eval_XB(X, cT);
+Token result = Bif_F12_PICK::fun->eval_XB(X, cT);
    return result;
 }
 //-----------------------------------------------------------------------------

@@ -25,9 +25,11 @@
 #include "Value.icc"
 #include "Workspace.hh"
 
-Bif_F12_SORT_ASC  Bif_F12_SORT_ASC::fun;     // ⍋
-Bif_F12_SORT_DES  Bif_F12_SORT_DES::fun;     // ⍒
+Bif_F12_SORT_ASC  Bif_F12_SORT_ASC::_fun;     // ⍋
+Bif_F12_SORT_DES  Bif_F12_SORT_DES::_fun;     // ⍒
 
+Bif_F12_SORT_ASC * Bif_F12_SORT_ASC::fun = &Bif_F12_SORT_ASC::_fun;
+Bif_F12_SORT_DES * Bif_F12_SORT_DES::fun = &Bif_F12_SORT_DES::_fun;
 //-----------------------------------------------------------------------------
 bool
 CollatingCache::greater_vec(const Cell * ca, const Cell * cb,

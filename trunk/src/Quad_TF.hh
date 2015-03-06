@@ -36,7 +36,8 @@ public:
    /// Overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Quad_TF fun;          ///< Built-in function.
+   static Quad_TF * fun;          ///< Built-in function.
+   static Quad_TF  _fun;          ///< Built-in function.
 
    /// return true if val contains an 1⎕TF or 2⎕TF record
    static bool is_inverse(const UCS_string & maybe_name);

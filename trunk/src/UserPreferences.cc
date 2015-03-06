@@ -1188,7 +1188,7 @@ int line = 0;
 
          enum { _B = 1, _AB = 2 };
 #define perfo_1(bif, ab, _name, th)   if (!strncmp(param, #bif, strlen(#bif))) \
-   set_threshold(Bif_ ## bif::fun, ab, i_ab, value);
+   set_threshold(*Bif_ ## bif::fun, ab, i_ab, value);
 
 #define perfo_2(bif, ab, _name, thr)  perfo_1(bif, ab, _name, thr)
 #define perfo_3(bif, ab, _name, thr)  perfo_1(bif, ab, _name, thr)

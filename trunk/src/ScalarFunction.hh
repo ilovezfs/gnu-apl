@@ -111,7 +111,8 @@ public:
    : ScalarFunction(PERF_AB(BINOM))
    {}
 
-   static Bif_F12_BINOM     fun;       ///< Built-in function.
+   static Bif_F12_BINOM * fun;       ///< Built-in function.
+   static Bif_F12_BINOM   _fun;      ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -145,7 +146,8 @@ public:
    : ScalarFunction(PERF_A(LESS))
    {}
 
-   static Bif_F2_LESS       fun;         ///< Built-in function.
+   static Bif_F2_LESS * fun;         ///< Built-in function.
+   static Bif_F2_LESS  _fun;         ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -175,7 +177,8 @@ public:
    : ScalarFunction(PERF_A(EQUAL))
    {}
 
-   static Bif_F2_EQUAL      fun;        ///< Built-in function.
+   static Bif_F2_EQUAL * fun;        ///< Built-in function.
+   static Bif_F2_EQUAL  _fun;        ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -205,7 +208,8 @@ public:
    : ScalarFunction(PERF_A(GREATER))
    {}
 
-   static Bif_F2_GREATER    fun;      ///< Built-in function.
+   static Bif_F2_GREATER * fun;      ///< Built-in function.
+   static Bif_F2_GREATER  _fun;      ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -235,7 +239,8 @@ public:
    : ScalarFunction(PERF_A(AND))
    {}
 
-   static Bif_F2_AND        fun;          ///< Built-in function.
+   static Bif_F2_AND * fun;          ///< Built-in function.
+   static Bif_F2_AND  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -268,7 +273,8 @@ public:
    : ScalarFunction(PERF_A(OR))
    {}
 
-   static Bif_F2_OR         fun;           ///< Built-in function.
+   static Bif_F2_OR * fun;           ///< Built-in function.
+   static Bif_F2_OR  _fun;           ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -301,7 +307,8 @@ public:
    : ScalarFunction(PERF_A(LEQ))
    {}
 
-   static Bif_F2_LEQ        fun;          ///< Built-in function.
+   static Bif_F2_LEQ * fun;          ///< Built-in function.
+   static Bif_F2_LEQ  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -331,7 +338,8 @@ public:
    : ScalarFunction(PERF_A(MEQ))
    {}
 
-   static Bif_F2_MEQ        fun;          ///< Built-in function.
+   static Bif_F2_MEQ * fun;          ///< Built-in function.
+   static Bif_F2_MEQ  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -361,7 +369,8 @@ public:
    : ScalarFunction(PERF_A(UNEQ))
    {}
 
-   static Bif_F2_UNEQ       fun;         ///< Built-in function.
+   static Bif_F2_UNEQ * fun;         ///< Built-in function.
+   static Bif_F2_UNEQ  _fun;         ///< Built-in function.
 
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
@@ -391,7 +400,8 @@ public:
    : ScalarFunction(PERF_A(FIND))
    {}
 
-   static Bif_F2_FIND       fun;         ///< Built-in function.
+   static Bif_F2_FIND * fun;         ///< Built-in function.
+   static Bif_F2_FIND  _fun;         ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -416,7 +426,8 @@ public:
    : ScalarFunction(PERF_A(NOR))
    {}
 
-   static Bif_F2_NOR        fun;          ///< Built-in function.
+   static Bif_F2_NOR * fun;          ///< Built-in function.
+   static Bif_F2_NOR  _fun;          ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -442,7 +453,8 @@ public:
    : ScalarFunction(PERF_A(NAND))
    {}
 
-   static Bif_F2_NAND       fun;         ///< Built-in function.
+   static Bif_F2_NAND * fun;         ///< Built-in function.
+   static Bif_F2_NAND  _fun;         ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_AB().
@@ -468,7 +480,8 @@ public:
    : ScalarFunction(PERF_AB(POWER))
    {}
 
-   static Bif_F12_POWER     fun;       ///< Built-in function.
+   static Bif_F12_POWER * fun;       ///< Built-in function.
+   static Bif_F12_POWER  _fun;       ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -523,7 +536,8 @@ public:
    /// return the associative cell function of this function
    virtual assoc_f2 get_assoc() const { return &Cell::bif_add; }
 
-   static Bif_F12_PLUS      fun;        ///< Built-in function.
+   static Bif_F12_PLUS * fun;        ///< Built-in function.
+   static Bif_F12_PLUS  _fun;        ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_identity_fun();
@@ -551,7 +565,8 @@ public:
    : ScalarFunction(PERF_AB(MINUS))
    {}
 
-   static Bif_F12_MINUS     fun;       ///< Built-in function.
+   static Bif_F12_MINUS * fun;       ///< Built-in function.
+   static Bif_F12_MINUS  _fun;       ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -591,7 +606,8 @@ public:
    : ScalarFunction(PERF_B(ROLL))
    {}
 
-   static Bif_F12_ROLL      fun;        ///< Built-in function.
+   static Bif_F12_ROLL * fun;        ///< Built-in function.
+   static Bif_F12_ROLL  _fun;        ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -620,7 +636,8 @@ public:
    : ScalarFunction(PERF_B(WITHOUT))
    {}
 
-   static Bif_F12_WITHOUT fun;     ///< Built-in function.
+   static Bif_F12_WITHOUT * fun;     ///< Built-in function.
+   static Bif_F12_WITHOUT  _fun;     ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -646,7 +663,8 @@ public:
    : ScalarFunction(PERF_AB(TIMES))
    {}
 
-   static Bif_F12_TIMES     fun;       ///< Built-in function.
+   static Bif_F12_TIMES * fun;       ///< Built-in function.
+   static Bif_F12_TIMES  _fun;       ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -689,7 +707,8 @@ public:
    : ScalarFunction(PERF_AB(DIVIDE))
    {}
 
-   static Bif_F12_DIVIDE    fun;      ///< Built-in function.
+   static Bif_F12_DIVIDE * fun;      ///< Built-in function.
+   static Bif_F12_DIVIDE  _fun;      ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -730,8 +749,10 @@ public:
      inverse(inv)
    {}
 
-   static Bif_F12_CIRCLE    fun;              ///< Built-in function.
-   static Bif_F12_CIRCLE    fun_inverse;      ///< Built-in function.
+   static Bif_F12_CIRCLE * fun;              ///< Built-in function.
+   static Bif_F12_CIRCLE  _fun;              ///< Built-in function.
+   static Bif_F12_CIRCLE * fun_inverse;      ///< Built-in function.
+   static Bif_F12_CIRCLE  _fun_inverse;      ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -771,7 +792,8 @@ public:
    : ScalarFunction(PERF_AB(RND_UP))
    {}
 
-   static Bif_F12_RND_UP    fun;      ///< Built-in function.
+   static Bif_F12_RND_UP * fun;      ///< Built-in function.
+   static Bif_F12_RND_UP  _fun;      ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -808,7 +830,8 @@ public:
    : ScalarFunction(PERF_AB(RND_DN))
    {}
 
-   static Bif_F12_RND_DN    fun;      ///< Built-in function.
+   static Bif_F12_RND_DN * fun;      ///< Built-in function.
+   static Bif_F12_RND_DN  _fun;      ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().
@@ -845,7 +868,8 @@ public:
    : ScalarFunction(PERF_AB(STILE))
    {}
 
-   static Bif_F12_STILE     fun;       ///< Built-in function.
+   static Bif_F12_STILE * fun;       ///< Built-in function.
+   static Bif_F12_STILE  _fun;       ///< Built-in function.
 
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B)
@@ -879,7 +903,8 @@ public:
    : ScalarFunction(PERF_AB(LOGA))
    {}
 
-   static Bif_F12_LOGA      fun;        ///< Built-in function.
+   static Bif_F12_LOGA * fun;        ///< Built-in function.
+   static Bif_F12_LOGA  _fun;        ///< Built-in function.
 
 protected:
    /// overloaded Function::eval_B().

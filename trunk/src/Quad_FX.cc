@@ -29,7 +29,8 @@
 #include "UserPreferences.hh"
 #include "Workspace.hh"
 
-Quad_FX  Quad_FX::fun;
+Quad_FX  Quad_FX::_fun;
+Quad_FX * Quad_FX::fun = &Quad_FX::_fun;
 
 //=============================================================================
 Token

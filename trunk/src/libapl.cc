@@ -390,11 +390,12 @@ const Unicode uni = UTF8_string::toUni((const UTF8 *)utf, len);
 }
 //-----------------------------------------------------------------------------
 void
-Unicode_to_UTF8(int uni, char * dest)
+Unicode_to_UTF8(int uni, char * dest, int * length)
 {
 UCS_string ucs((Unicode)uni);
 UTF8_string utf8(ucs);
    memcpy(dest, utf8.get_items(), utf8.size());
+   if (length)   *length = utf8.size();
    dest[utf8.size()] = 0;
 }
 //-----------------------------------------------------------------------------

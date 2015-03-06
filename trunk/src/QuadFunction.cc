@@ -43,23 +43,45 @@
 
 extern char **environ;
 
-Quad_AF    Quad_AF::fun;
-Quad_AT    Quad_AT::fun;
-Quad_CR    Quad_CR::fun;
-Quad_DL    Quad_DL::fun;
-Quad_EA    Quad_EA::fun;
-Quad_EC    Quad_EC::fun;
-Quad_ENV   Quad_ENV::fun;
-Quad_ES    Quad_ES::fun;
-Quad_EX    Quad_EX::fun;
-Quad_INP   Quad_INP::fun;
-Quad_NA    Quad_NA::fun;
-Quad_NC    Quad_NC::fun;
-Quad_NL    Quad_NL::fun;
-Quad_SI    Quad_SI::fun;
-Quad_UCS   Quad_UCS::fun;
-Quad_STOP  Quad_STOP::fun;            // S∆
-Quad_TRACE Quad_TRACE::fun;           // T∆
+// ⎕-function instances
+//
+Quad_AF    Quad_AF   ::_fun;
+Quad_AT    Quad_AT   ::_fun;
+Quad_CR    Quad_CR   ::_fun;
+Quad_DL    Quad_DL   ::_fun;
+Quad_EA    Quad_EA   ::_fun;
+Quad_EC    Quad_EC   ::_fun;
+Quad_ENV   Quad_ENV  ::_fun;
+Quad_ES    Quad_ES   ::_fun;
+Quad_EX    Quad_EX   ::_fun;
+Quad_INP   Quad_INP  ::_fun;
+Quad_NA    Quad_NA   ::_fun;
+Quad_NC    Quad_NC   ::_fun;
+Quad_NL    Quad_NL   ::_fun;
+Quad_SI    Quad_SI   ::_fun;
+Quad_UCS   Quad_UCS  ::_fun;
+Quad_STOP  Quad_STOP ::_fun;            // S∆
+Quad_TRACE Quad_TRACE::_fun;           // T∆
+
+// ⎕-function pointers
+//
+Quad_AF    * Quad_AF   ::fun = &Quad_AF   ::_fun;
+Quad_AT    * Quad_AT   ::fun = &Quad_AT   ::_fun;
+Quad_CR    * Quad_CR   ::fun = &Quad_CR   ::_fun;
+Quad_DL    * Quad_DL   ::fun = &Quad_DL   ::_fun;
+Quad_EA    * Quad_EA   ::fun = &Quad_EA   ::_fun;
+Quad_EC    * Quad_EC   ::fun = &Quad_EC   ::_fun;
+Quad_ENV   * Quad_ENV  ::fun = &Quad_ENV  ::_fun;
+Quad_ES    * Quad_ES   ::fun = &Quad_ES   ::_fun;
+Quad_EX    * Quad_EX   ::fun = &Quad_EX   ::_fun;
+Quad_INP   * Quad_INP  ::fun = &Quad_INP  ::_fun;
+Quad_NA    * Quad_NA   ::fun = &Quad_NA   ::_fun;
+Quad_NC    * Quad_NC   ::fun = &Quad_NC   ::_fun;
+Quad_NL    * Quad_NL   ::fun = &Quad_NL   ::_fun;
+Quad_SI    * Quad_SI   ::fun = &Quad_SI   ::_fun;
+Quad_UCS   * Quad_UCS  ::fun = &Quad_UCS  ::_fun;
+Quad_STOP  * Quad_STOP ::fun = &Quad_STOP ::_fun;
+Quad_TRACE * Quad_TRACE::fun = &Quad_TRACE::_fun;
 
 //=============================================================================
 Token
@@ -2019,7 +2041,7 @@ vector<UCS_string> names;
         names.push_back(symbol->get_name()); }
 
 #define sf_def(x, txt)                                      \
-   { if (requested_NCs & 1 << 6)   names.push_back((x::fun.get_name())); }
+   { if (requested_NCs & 1 << 6)   names.push_back((x::fun->get_name())); }
 #include "SystemVariable.def"
       }
 

@@ -23,8 +23,11 @@
 #include "LvalCell.hh"
 #include "Workspace.hh"
 
-Bif_OPER1_SCAN     Bif_OPER1_SCAN::fun;
-Bif_OPER1_SCAN1    Bif_OPER1_SCAN1::fun;
+Bif_OPER1_SCAN    Bif_OPER1_SCAN ::_fun;
+Bif_OPER1_SCAN1   Bif_OPER1_SCAN1::_fun;
+
+Bif_OPER1_SCAN  * Bif_OPER1_SCAN ::fun = &Bif_OPER1_SCAN ::_fun;
+Bif_OPER1_SCAN1 * Bif_OPER1_SCAN1::fun = &Bif_OPER1_SCAN1::_fun;
 
 //-----------------------------------------------------------------------------
 Token

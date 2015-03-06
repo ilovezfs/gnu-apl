@@ -29,7 +29,8 @@
 #include "Value.icc"
 #include "Workspace.hh"
                                             
-Bif_F12_FORMAT Bif_F12_FORMAT::fun;       // ⍕
+Bif_F12_FORMAT   Bif_F12_FORMAT::_fun;       // ⍕
+Bif_F12_FORMAT * Bif_F12_FORMAT::fun = &Bif_F12_FORMAT::_fun;
 
 //-----------------------------------------------------------------------------
 Token

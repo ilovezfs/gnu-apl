@@ -23,7 +23,8 @@
 #include "PointerCell.hh"
 #include "Workspace.hh"
 
-Bif_OPER2_RANK     Bif_OPER2_RANK::fun;
+Bif_OPER2_RANK   Bif_OPER2_RANK::_fun;
+Bif_OPER2_RANK * Bif_OPER2_RANK::fun = &Bif_OPER2_RANK::_fun;
 
 /* general comment: we use the term 'chunk' instead of 'p-rank' to avoid
  * confusion with the rank of a value

@@ -109,7 +109,8 @@ public:
    : NonscalarFunction(TOK_F0_ZILDE)
    {}
 
-   static Bif_F0_ZILDE fun;   ///< Built-in function
+   static Bif_F0_ZILDE * fun;   ///< Built-in function
+   static Bif_F0_ZILDE  _fun;   ///< Built-in function
 
    /// overladed Function::eval_()
    virtual Token eval_();
@@ -129,7 +130,8 @@ public:
    : NonscalarFunction(TOK_F1_EXECUTE)
    {}
 
-   static Bif_F1_EXECUTE    fun;   ///< Built-in function
+   static Bif_F1_EXECUTE * fun;   ///< Built-in function
+   static Bif_F1_EXECUTE  _fun;   ///< Built-in function
 
    /// execute string
    static Token execute_statement(UCS_string & statement);
@@ -158,7 +160,8 @@ public:
    /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F2_INDEX fun;   ///< Built-in function
+   static Bif_F2_INDEX * fun;   ///< Built-in function
+   static Bif_F2_INDEX  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -185,7 +188,8 @@ public:
    /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_PARTITION fun;   ///< Built-in function
+   static Bif_F12_PARTITION * fun;   ///< Built-in function
+   static Bif_F12_PARTITION  _fun;   ///< Built-in function
 
 protected:
    /// enclose B
@@ -233,7 +237,8 @@ public:
    static Token disclose_with_axis(const Shape & axes_X, Value_P B,
                                    bool rank_tolerant);
 
-   static Bif_F12_PICK fun;   ///< Built-in function
+   static Bif_F12_PICK * fun;   ///< Built-in function
+   static Bif_F12_PICK  _fun;   ///< Built-in function
 
 protected:
    /// the shape of the items being disclosed
@@ -297,7 +302,8 @@ public:
    /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_COMMA fun;   ///< Built-in function
+   static Bif_F12_COMMA * fun;   ///< Built-in function
+   static Bif_F12_COMMA  _fun;   ///< Built-in function
 
 protected:
 };
@@ -325,7 +331,8 @@ public:
    /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_COMMA1    fun;   ///< Built-in function
+   static Bif_F12_COMMA1 * fun;   ///< Built-in function
+   static Bif_F12_COMMA1  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -356,7 +363,8 @@ public:
    static void fill(const Shape & shape_Zi, Cell * cZ, Value & Z_owner,
                     Value_P B);
 
-   static Bif_F12_TAKE      fun;   ///< Built-in function
+   static Bif_F12_TAKE * fun;   ///< Built-in function
+   static Bif_F12_TAKE  _fun;   ///< Built-in function
 
    /// ↑B
    static Value_P first(Value_P B);
@@ -382,7 +390,8 @@ public:
    /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_DROP fun;   ///< Built-in function
+   static Bif_F12_DROP * fun;   ///< Built-in function
+   static Bif_F12_DROP  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -402,7 +411,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_ELEMENT   fun;   ///< Built-in function
+   static Bif_F12_ELEMENT * fun;   ///< Built-in function
+   static Bif_F12_ELEMENT  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -422,7 +432,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_EQUIV     fun;   ///< Built-in function
+   static Bif_F12_EQUIV * fun;   ///< Built-in function
+   static Bif_F12_EQUIV  _fun;   ///< Built-in function
 
 protected:
    /// return the depth of B
@@ -445,7 +456,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_NEQUIV fun;   ///< Built-in function
+   static Bif_F12_NEQUIV * fun;   ///< Built-in function
+   static Bif_F12_NEQUIV  _fun;   ///< Built-in function
 };
 //-----------------------------------------------------------------------------
 /** System function encode
@@ -461,7 +473,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_ENCODE fun;   ///< Built-in function
+   static Bif_F12_ENCODE * fun;   ///< Built-in function
+   static Bif_F12_ENCODE  _fun;   ///< Built-in function
 protected:
    /// encode b according to A (integer A and b)
    void encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
@@ -489,7 +502,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_DECODE    fun;   ///< Built-in function
+   static Bif_F12_DECODE * fun;   ///< Built-in function
+   static Bif_F12_DECODE  _fun;   ///< Built-in function
 protected:
    /// decode B according to len_A and cA (integer A, B and Z)
    bool decode_int(Cell * cZ, ShapeItem len_A, const Cell * cA,
@@ -522,7 +536,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_DOMINO    fun;   ///< Built-in function
+   static Bif_F12_DOMINO * fun;   ///< Built-in function
+   static Bif_F12_DOMINO  _fun;   ///< Built-in function
 
    /// overloaded Function::eval_fill_B()
    virtual Token eval_fill_B(Value_P B);
@@ -580,7 +595,8 @@ public:
    /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_ROTATE fun;   ///< Built-in function
+   static Bif_F12_ROTATE * fun;   ///< Built-in function
+   static Bif_F12_ROTATE  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -608,7 +624,8 @@ public:
    /// overloaded Function::eval_AXB()
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
-   static Bif_F12_ROTATE1   fun;   ///< Built-in function
+   static Bif_F12_ROTATE1 * fun;   ///< Built-in function
+   static Bif_F12_ROTATE1  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -628,7 +645,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_TRANSPOSE fun;   ///< Built-in function
+   static Bif_F12_TRANSPOSE * fun;   ///< Built-in function
+   static Bif_F12_TRANSPOSE  _fun;   ///< Built-in function
 
 protected:
    /// Transpose B according to A (without diagonals)
@@ -664,7 +682,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F12_INDEX_OF fun;   ///< Built-in function
+   static Bif_F12_INDEX_OF * fun;   ///< Built-in function
+   static Bif_F12_INDEX_OF  _fun;   ///< Built-in function
 
 protected:
 };
@@ -688,7 +707,8 @@ public:
    /// Reshape B according to rank and shape
    static Token do_reshape(const Shape & shape, const Value & B);
 
-   static Bif_F12_RHO fun;   ///< Built-in function
+   static Bif_F12_RHO * fun;   ///< Built-in function
+   static Bif_F12_RHO  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -724,7 +744,9 @@ public:
       { return Token(TOK_APL_VALUE1, do_unique(B, false)); }
 
    /// Built-in function
-   static Bif_F12_UNION fun;
+   static Bif_F12_UNION * fun;
+   /// Built-in function
+   static Bif_F12_UNION  _fun;
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -741,7 +763,8 @@ public:
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F2_INTER fun;   ///< Built-in function
+   static Bif_F2_INTER * fun;   ///< Built-in function
+   static Bif_F2_INTER  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -763,7 +786,8 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return Token(TOK_APL_VALUE1, A->clone(LOC)); }
 
-   static Bif_F2_LEFT fun;   ///< Built-in function
+   static Bif_F2_LEFT * fun;   ///< Built-in function
+   static Bif_F2_LEFT  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------
@@ -785,7 +809,8 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B)
       { return Token(TOK_APL_VALUE1, B->clone(LOC)); }
 
-   static Bif_F2_RIGHT fun;   ///< Built-in function
+   static Bif_F2_RIGHT * fun;   ///< Built-in function
+   static Bif_F2_RIGHT  _fun;   ///< Built-in function
 protected:
 };
 //-----------------------------------------------------------------------------

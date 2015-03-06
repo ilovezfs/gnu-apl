@@ -30,7 +30,8 @@
 #include "Tokenizer.hh"
 #include "Workspace.hh"
 
-Quad_TF  Quad_TF::fun;
+Quad_TF   Quad_TF::_fun;
+Quad_TF * Quad_TF::fun = &Quad_TF::_fun;
 
 //-----------------------------------------------------------------------------
 Token
@@ -269,7 +270,7 @@ const size_t data_chars = len - idx;
            new (&new_val->get_ravel(d)) CharCell(ravel[idx + d]);
         new_val->check_value(LOC);
 
-         Token t = Quad_FX::fun.eval_B(new_val);
+         Token t = Quad_FX::fun->eval_B(new_val);
       }
    else if (mode == UNI_ASCII_C)   // char array
       {
@@ -448,7 +449,7 @@ Token_string tos;
         Value_P fname   =  tos[0].get_apl_val();
         Value_P so_path =  tos[2].get_apl_val();
 
-        const Token tok = Quad_FX::fun.eval_AB(so_path, fname);
+        const Token tok = Quad_FX::fun->eval_AB(so_path, fname);
         if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
            {
              Value_P val = tok.get_apl_val();
@@ -464,7 +465,7 @@ Token_string tos;
 
    {
      Value_P function_text =  tos[1].get_apl_val();
-     const Token tok = Quad_FX::fun.eval_B(function_text);
+     const Token tok = Quad_FX::fun->eval_B(function_text);
 
    if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
       {

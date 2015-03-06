@@ -88,7 +88,8 @@ public:
    : NonscalarFunction(TOK_F12_FORMAT)
    {}
 
-   static Bif_F12_FORMAT    fun;   ///< Built-in function
+   static Bif_F12_FORMAT * fun;   ///< Built-in function
+   static Bif_F12_FORMAT  _fun;   ///< Built-in function
 
    /// Return true iff uni is '0' .. '9', comma, or full-stop
    static bool is_control_char(Unicode uni);

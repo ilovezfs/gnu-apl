@@ -263,13 +263,13 @@ Unicode av_4 = (ucs.size() > 5) ? ucs[5] : Invalid_Unicode;
    return Token(TOK_Quad_ ## t, &the_workspace.v_Quad_ ## t); }
 
 #define f0(t, l) { len = l + 1; \
-   return Token(TOK_Quad_ ## t, &Quad_ ## t::fun); }
+   return Token(TOK_Quad_ ## t, Quad_ ## t::fun); }
 
 #define f1(t, l) { len = l + 1; \
-   return Token(TOK_Quad_ ## t, &Quad_ ## t::fun); }
+   return Token(TOK_Quad_ ## t, Quad_ ## t::fun); }
 
 #define f2(t, l) { len = l + 1; \
-   return Token(TOK_Quad_ ## t, &Quad_ ## t::fun); }
+   return Token(TOK_Quad_ ## t, Quad_ ## t::fun); }
 
    switch(av_0)
       {
