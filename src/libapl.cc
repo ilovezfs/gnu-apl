@@ -222,7 +222,11 @@ void
 set_char(int new_char, APL_value val, uint64_t idx)
 {
 Cell * cell = &val->get_ravel(idx);
-   if (cell->is_pointer_cell())   cell->get_pointer_value().clear(LOC);
+   if (cell->is_pointer_cell())
+      {
+        Value * v = cell->get_pointer_value().get();
+        Value_P::decrement_owner_count(v, LOC);
+      }
 
    new (cell)   CharCell((Unicode)new_char);
 }
@@ -233,7 +237,11 @@ void
 set_int(int64_t new_int, APL_value val, uint64_t idx)
 {
 Cell * cell = &val->get_ravel(idx);
-   if (cell->is_pointer_cell())   cell->get_pointer_value().clear(LOC);
+   if (cell->is_pointer_cell())
+      {
+        Value * v = cell->get_pointer_value().get();
+        Value_P::decrement_owner_count(v, LOC);
+      }
 
    new (cell)   IntCell(new_int);
 }
@@ -244,7 +252,11 @@ void
 set_double(double new_double, APL_value val, uint64_t idx)
 {
 Cell * cell = &val->get_ravel(idx);
-   if (cell->is_pointer_cell())   cell->get_pointer_value().clear(LOC);
+   if (cell->is_pointer_cell())
+      {
+        Value * v = cell->get_pointer_value().get();
+        Value_P::decrement_owner_count(v, LOC);
+      }
 
    new (cell)   FloatCell(new_double);
 }
@@ -255,7 +267,11 @@ void
 set_complex(double new_real, double new_imag, APL_value val, uint64_t idx)
 {
 Cell * cell = &val->get_ravel(idx);
-   if (cell->is_pointer_cell())   cell->get_pointer_value().clear(LOC);
+   if (cell->is_pointer_cell())
+      {
+        Value * v = cell->get_pointer_value().get();
+        Value_P::decrement_owner_count(v, LOC);
+      }
 
    new (cell)   ComplexCell(new_real, new_imag);
 }
@@ -264,7 +280,11 @@ void
 set_value(APL_value new_value, APL_value val, uint64_t idx)
 {
 Cell * cell = &val->get_ravel(idx);
-   if (cell->is_pointer_cell())   cell->get_pointer_value().clear(LOC);
+   if (cell->is_pointer_cell())
+      {
+        Value * v = cell->get_pointer_value().get();
+        Value_P::decrement_owner_count(v, LOC);
+      }
 
    if (new_value->is_simple_scalar())   // e.g. ⊂5 is 5
       {

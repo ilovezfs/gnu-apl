@@ -454,3 +454,17 @@ AM_CONDITIONAL([POSTGRES], [test x$USABLE_PostgreSQL = xyes])
 
 AC_OUTPUT
 
+# summary
+  echo " "
+if test "x$USABLE_PostgreSQL" != "xyes"; then
+  echo "NOTE: the native function for accessing PostgreSQL will not be built because"
+  echo "      your PostgreSQL installation is missing or incomplete (see details above)"
+  echo " "
+fi
+
+ if test "x$found_sqlite" != "xyes"; then
+  echo "NOTE: the native function for accessing SQLite will not be built because"
+  echo "      your SQLite installation is missing or incomplete (see details above)"
+  echo " "
+fi
+

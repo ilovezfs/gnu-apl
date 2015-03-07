@@ -148,8 +148,7 @@ loop_z:
           // LO was a user defined function
           //
           _arg.how = 1;
-          Workspace::SI_top()->set_eoc_handler(eoc_ALB);
-          Workspace::SI_top()->get_eoc_arg() = arg;
+          Workspace::SI_top()->set_eoc_handler(eoc_ALB, arg, LOC);
 
           return result;   // continue in user defined function...
         }
@@ -261,8 +260,7 @@ loop_z:
              // LO was a user defined function or ⍎
              //
              _arg.how = 1;
-             Workspace::SI_top()->set_eoc_handler(eoc_LB);
-             Workspace::SI_top()->get_eoc_arg() = arg;
+             Workspace::SI_top()->set_eoc_handler(eoc_LB, arg, LOC);
              return result;   // continue in user defined function...
            }
 
@@ -315,8 +313,7 @@ loop_z:
              // LO was a user defined function or ⍎
              //
              _arg.how = 1;
-             Workspace::SI_top()->set_eoc_handler(eoc_LB);
-             Workspace::SI_top()->get_eoc_arg() = arg;
+             Workspace::SI_top()->set_eoc_handler(eoc_LB, arg, LOC);
              return result;   // continue in user defined function...
            }
 

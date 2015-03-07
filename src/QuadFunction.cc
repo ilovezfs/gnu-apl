@@ -1062,9 +1062,8 @@ const UCS_string statement_B(*B.get());
         //
         StateIndicator * si = Workspace::SI_top();
 
-        si->set_eoc_handler(eoc_A_and_B_done);
-        si->get_eoc_arg().A = A;
-        si->get_eoc_arg().B = B;
+        EOC_arg arg(Value_P(), B, A);
+        si->set_eoc_handler(eoc_A_and_B_done, arg, LOC);
 
         return Token(TOK_SI_PUSHED);
       }
@@ -1083,8 +1082,7 @@ const UCS_string statement_B(*B.get());
      Value_P dummy_Z;
      EOC_arg arg(dummy_Z, B, A);
 
-     Workspace::SI_top()->set_eoc_handler(eoc_B_done);
-     Workspace::SI_top()->get_eoc_arg() = arg;
+     Workspace::SI_top()->set_eoc_handler(eoc_B_done, arg, LOC);
    }
 
    return Token(TOK_SI_PUSHED);
@@ -1144,8 +1142,7 @@ ExecuteList * fun = 0;
      Value_P dummy_Z;
      EOC_arg arg(dummy_Z, B, A);
      StateIndicator * si1 = Workspace::SI_top();
-     si1->set_eoc_handler(eoc_A_and_B_done);
-     si1->get_eoc_arg() = arg;
+     si1->set_eoc_handler(eoc_A_and_B_done, arg, LOC);
    }
 
    return true;
@@ -1261,8 +1258,7 @@ ExecuteList * fun = 0;
      Value_P dummy_B;
      EOC_arg arg(dummy_B);
 
-     Workspace::SI_top()->set_eoc_handler(eoc);
-     Workspace::SI_top()->get_eoc_arg() = arg;
+     Workspace::SI_top()->set_eoc_handler(eoc, arg, LOC);
    }
 
    return Token(TOK_SI_PUSHED);
@@ -1648,7 +1644,8 @@ Quad_INP::eoc_INP(Token & token, EOC_arg & _arg)
 
    // _arg may be pop_SI()ed below so we need a copy of it
    //
-quad_INP arg = _arg.u.u_quad_INP;
+EOC_arg earg = _arg;
+quad_INP & arg = earg.u.u_quad_INP;
 
    if (token.get_tag() != TOK_FIRST_TIME)
       {
@@ -1766,8 +1763,7 @@ quad_INP arg = _arg.u.u_quad_INP;
                    Assert(token.get_tag() == TOK_SI_PUSHED);
 
                    StateIndicator * si = Workspace::SI_top();
-                   si->set_eoc_handler(eoc_INP);
-                   si->get_eoc_arg().u.u_quad_INP = arg;
+                   si->set_eoc_handler(eoc_INP, earg, LOC);
                    return true;   // continue
                  }
             }
