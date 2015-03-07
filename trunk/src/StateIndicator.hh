@@ -129,39 +129,24 @@ public:
    /// change left arg
    void set_L(Value_P value);
 
-   /// return axis arg
-   Value_P get_X();
-
-   /// change axis arg
-   void set_X(Value_P value);
-
    /// return right arg
    Value_P get_R();
 
    /// change right arg
    void set_R(Value_P value);
 
-   /// call eoc_handler(). Return false if there is none or else the result of
-   /// the eoc_handler.
-   bool call_eoc_handler(Token & token)
-      {
-        if (eoc_handler)
-           {
-             EOC_HANDLER eoc = eoc_handler;
-             eoc_handler = 0;   // clear handler
-             return eoc(token, eoc_arg);   // false: success, true: retry
-           }
+   /// return axis arg
+   Value_P get_X();
 
-        return false;   // no eoc_handler
-      }
+   /// change axis arg
+   void set_X(Value_P value);
 
-   /// set the eoc handler
-   void set_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc)
-      { eoc_handler = handler;   eoc_arg = arg; }
+   /// add an EOC handler
+   void add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc);
 
-   /// return the eoc handler argument
-   EOC_arg & get_eoc_arg()
-      { return eoc_arg; }
+   /// call eoc_handler. Return false if there is none or else the result
+   /// of the eoc_handler. false indicates that the eoc_handler has finished.
+   bool call_eoc_handler(Token & token);
 
    /// return safe_execution mode
    bool get_safe_execution() const
@@ -189,12 +174,9 @@ protected:
    /// true iff this context is in safe execution mode (⎕EA, ⎕EC)
    bool safe_execution;
 
-   /// an optional function that is called at the end of execution of this
-   /// context. Used by ⎕EA and ⎕EC
-   EOC_HANDLER eoc_handler;
-
-   /// the left argument for eoc_handler()
-   EOC_arg eoc_arg;
+   /// a (normally empty) list of EOC handler function and their arguyments.
+   /// The handlers are called at the end of execution of this context.
+   EOC_handler_and_arg * eoc_handlers;
 
    /// The nesting level (of sub-executions)
    const int level;

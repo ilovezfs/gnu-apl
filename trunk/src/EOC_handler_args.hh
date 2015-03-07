@@ -336,5 +336,28 @@ public:
 typedef bool (*EOC_HANDLER)(Token & token, EOC_arg & arg);
 
 //-----------------------------------------------------------------------------
+/// An EOC handler and its argument
+struct EOC_handler_and_arg
+{
+   /// constructor
+   EOC_handler_and_arg(EOC_HANDLER h, const EOC_arg & a, const char * _loc)
+   : handler(h),
+     arg(a),
+     loc(_LOC),
+     next(0)
+   {}
+
+   // the handler
+   EOC_HANDLER handler;
+
+   /// the argument for the handler
+   EOC_arg arg;
+
+   /// from where the handler was installed (for debugging purposes)
+   const char * loc;
+
+   EOC_handler_and_arg * next;
+};
+//-----------------------------------------------------------------------------
 
 #endif // __EOC_HANDLER_ARGS_HH_DEFINED__
