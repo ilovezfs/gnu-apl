@@ -160,7 +160,7 @@ Value_P::clear(const char * loc)
 {
   if (value_p)
      {
-       decrement_owner_count(value_p, LOC);
+       decrement_owner_count(value_p, loc);
        ADD_EVENT(value_p, VHE_PtrClr,
                       value_p ? value_p->owner_count : -99, loc);
 

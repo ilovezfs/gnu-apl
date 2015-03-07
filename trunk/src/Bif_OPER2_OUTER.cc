@@ -220,8 +220,7 @@ loop_b:
         // RO was a user defined function
         //
         _arg.how = 1;
-        Workspace::SI_top()->set_eoc_handler(eoc_outer_product);
-        Workspace::SI_top()->get_eoc_arg() = arg;
+        Workspace::SI_top()->set_eoc_handler(eoc_outer_product, arg, LOC);
 
         return result;   // continue in user defined function...
       }

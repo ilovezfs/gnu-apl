@@ -156,8 +156,8 @@ public:
       }
 
    /// set the eoc handler
-   void set_eoc_handler(EOC_HANDLER handler)
-      { eoc_handler = handler; }
+   void set_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc)
+      { eoc_handler = handler;   eoc_arg = arg; }
 
    /// return the eoc handler argument
    EOC_arg & get_eoc_arg()

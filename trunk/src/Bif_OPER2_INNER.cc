@@ -286,8 +286,7 @@ loop_b:
 
         _arg.how = 1;
         StateIndicator & si = *Workspace::SI_top();
-        si.set_eoc_handler(eoc_inner_product);
-        si.get_eoc_arg() = arg;
+        si.set_eoc_handler(eoc_inner_product, arg, LOC);
 
         return T1;   // continue in user defined function...
       }
@@ -342,8 +341,7 @@ loop_v:
 
               _arg.how = 2;
               StateIndicator & si = *Workspace::SI_top();
-              si.set_eoc_handler(eoc_inner_product);
-              si.get_eoc_arg() = arg;
+              si.set_eoc_handler(eoc_inner_product, arg, LOC);
 
               return T2;   // continue in user defined function...
             }
@@ -396,7 +394,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
    else
       {
         StateIndicator & si = *Workspace::SI_top();
-        si.set_eoc_handler(eoc_inner_product);
+        si.set_eoc_handler(eoc_inner_product, arg, LOC);
         return false;   // stop it
       }
 
