@@ -293,7 +293,7 @@ Value_P AA = cA->to_value(LOC);
    Assert(token.get_tag() == TOK_SI_PUSHED);
    _arg.need_pop = true;
 
-   Workspace::SI_top()->set_eoc_handler(eoc_beam, arg, LOC);
+   Workspace::SI_top()->add_eoc_handler(eoc_beam, arg, LOC);
    return true;   // continue
 }
 //-----------------------------------------------------------------------------

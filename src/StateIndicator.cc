@@ -34,8 +34,7 @@
 StateIndicator::StateIndicator(Executable * exec, StateIndicator * _par)
    : executable(exec),
      safe_execution(false),
-     eoc_handler(0),
-     eoc_arg(Value_P()),
+     eoc_handlers(0),
      level(_par ? 1 + _par->get_level() : 0),
      error(E_NO_ERROR, LOC),
      current_stack(*this, exec->get_body()),
@@ -63,6 +62,17 @@ StateIndicator::~StateIndicator()
          Assert1(executable);
          delete executable;
          executable = 0;
+      }
+
+   // clean up EOC handlers
+   //
+   if (eoc_handlers)
+      {
+        Log(LOG_EOC_handlers)
+           CERR << "StateIndicator::~StateIndicator() cleans up eoc_handlers"
+                << endl;
+
+        for (EOC_handler_and_arg * e = eoc_handlers; e; e = e->next)   delete e;
       }
 }
 //-----------------------------------------------------------------------------
@@ -376,10 +386,15 @@ const UserFunction * ufun = get_executable()->get_ufun();
 void
 StateIndicator::escape()  
 {
-   if (eoc_handler)
+   while (EOC_handler_and_arg * e = eoc_handlers)
       {
+        Log(LOG_EOC_handlers)
+           CERR << "StateIndicator::escape() cleans up eoc_handlers" << endl;
+
+        eoc_handlers = e->next;
         Token tok(TOK_ESCAPE);
-        eoc_handler(tok, eoc_arg);
+        e->handler(tok, e->arg);
+        delete e;
       }
 }
 //-----------------------------------------------------------------------------
@@ -477,6 +492,39 @@ StateIndicator::set_X(Value_P new_value)
 {
 Value_P * X = current_stack.locate_X();
    if (X)   *X = new_value;
+}
+//-----------------------------------------------------------------------------
+void
+StateIndicator::add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
+                                const char * loc)
+{
+   Log(LOG_EOC_handlers)   CERR << "add_eoc_handler(" << loc << ")" << endl;
+
+   if (EOC_handler_and_arg * e = eoc_handlers)
+      {
+        while (e->next)   e = e->next;
+        e->next = new EOC_handler_and_arg(handler, arg, loc);
+      }
+   else   // first EOC handler
+      {
+        eoc_handlers = new EOC_handler_and_arg(handler, arg, loc);
+      }
+}
+//-----------------------------------------------------------------------------
+bool
+StateIndicator::call_eoc_handler(Token & token)
+{
+        Log(LOG_EOC_handlers)   CERR << "call_eoc_handler()" << endl;
+
+   if (EOC_handler_and_arg * e = eoc_handlers)
+      {
+        eoc_handlers = e->next;
+        const bool goon = (e->handler)(token, e->arg);
+        delete e;
+        return goon;   // false: success (done), true: goon
+      }
+
+   return false;   // no eoc_handler
 }
 //-----------------------------------------------------------------------------
 Function_Line

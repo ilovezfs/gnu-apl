@@ -107,7 +107,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
               Assert(result_WORK.get_tag() == TOK_SI_PUSHED);
 
-              Workspace::SI_top()->set_eoc_handler(eoc_ALRB, arg, LOC);
+              Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
               return result_WORK;   // continue in user defined function...
             }
 
@@ -122,7 +122,7 @@ again:
 
         if (result_COND.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
            {
-              Workspace::SI_top()->set_eoc_handler(eoc_ALRB, arg, LOC);
+              Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
               return result_COND;   // continue in user defined function...
            }
 
@@ -149,7 +149,7 @@ again:
 
      if (result_WORK.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
         {
-          Workspace::SI_top()->set_eoc_handler(eoc_ALRB, arg, LOC);
+          Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
           return result_WORK;   // continue in user defined function...
         }
 
@@ -227,7 +227,7 @@ how_1:
         _arg.how = 1;
         move_1(token, result_COND, LOC);
 
-        Workspace::SI_top()->set_eoc_handler(eoc_ALRB, arg, LOC);
+        Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
 
         return true;   // continue
       }
@@ -322,7 +322,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
               Assert(result_WORK.get_tag() == TOK_SI_PUSHED);
 
-              Workspace::SI_top()->set_eoc_handler(eoc_LRB, arg, LOC);
+              Workspace::SI_top()->add_eoc_handler(eoc_LRB, arg, LOC);
               return result_WORK;   // continue in user defined function...
             }
 
@@ -337,7 +337,7 @@ again:
 
         if (result_COND.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
            {
-              Workspace::SI_top()->set_eoc_handler(eoc_LRB, arg, LOC);
+              Workspace::SI_top()->add_eoc_handler(eoc_LRB, arg, LOC);
               return result_COND;   // continue in user defined function...
            }
 
@@ -365,7 +365,7 @@ again:
 
      if (result_WORK.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
         {
-          Workspace::SI_top()->set_eoc_handler(eoc_LRB, arg, LOC);
+          Workspace::SI_top()->add_eoc_handler(eoc_LRB, arg, LOC);
           return result_WORK;   // continue in user defined function...
         }
 
@@ -443,7 +443,7 @@ how_1:
         _arg.how = 1;
         move_1(token, result_COND, LOC);
 
-        Workspace::SI_top()->set_eoc_handler(eoc_LRB, arg, LOC);
+        Workspace::SI_top()->add_eoc_handler(eoc_LRB, arg, LOC);
 
         return true;   // continue
       }

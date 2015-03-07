@@ -106,7 +106,7 @@ loop_h:
           // LO was a user defined function or ⍎
           //
           _arg.how = 1;
-          Workspace::SI_top()->set_eoc_handler(eoc_LyXB, arg, LOC);
+          Workspace::SI_top()->add_eoc_handler(eoc_LyXB, arg, LOC);
           return result;   // continue in user defined function...
         }
 
@@ -300,7 +300,7 @@ loop_h:
           // LO was a user defined function or ⍎
           //
           _arg.how = 1;
-          Workspace::SI_top()->set_eoc_handler(eoc_ALyXB, arg, LOC);
+          Workspace::SI_top()->add_eoc_handler(eoc_ALyXB, arg, LOC);
           return result;   // continue in user defined function...
         }
 
