@@ -75,6 +75,15 @@ public:
    const Executable * get_executable() const
       { return executable; }
 
+   /// remove EOC handlers and clear it
+   EOC_arg * remove_eoc_handlers(EOC_arg * & nxt);
+
+   EOC_arg * get_eoc_handlers() const
+      { return eoc_handlers; }
+
+   void set_eoc_handlers(EOC_arg * eoc)
+      { eoc_handlers = eoc; }
+
    /// return the name of the parse mode
    Unicode get_parse_mode_name() const;
 
@@ -144,6 +153,10 @@ public:
    /// add an EOC handler
    void add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc);
 
+   /// move an EOC handler from \b old_si to \b this si
+   void move_eoc_handler(EOC_HANDLER handler, EOC_arg * old_eoc,
+                         const char * loc);
+
    /// call eoc_handler. Return false if there is none or else the result
    /// of the eoc_handler. false indicates that the eoc_handler has finished.
    bool call_eoc_handler(Token & token);
@@ -176,7 +189,7 @@ protected:
 
    /// a (normally empty) list of EOC handler function and their arguyments.
    /// The handlers are called at the end of execution of this context.
-   EOC_handler_and_arg * eoc_handlers;
+   EOC_arg * eoc_handlers;
 
    /// The nesting level (of sub-executions)
    const int level;

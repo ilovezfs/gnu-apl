@@ -224,13 +224,13 @@ Bif_REDUCE::eoc_beam(Token & token, EOC_arg & si_arg)
 {
    if (token.get_tag() == TOK_ERROR)   return false;   // stop it
 
-EOC_arg arg = si_arg;
-REDUCTION & _arg = arg.u.u_REDUCTION;
+EOC_arg * arg = &si_arg;
+REDUCTION * _arg = &arg->u.u_REDUCTION;
 
    if (token.get_tag() == TOK_FIRST_TIME)   // first call to eoc_beam()
       {
 new_beam:
-        const Cell * cB = _arg.beam.next_B();
+        const Cell * cB = _arg->beam.next_B();
 
         // we need a token with a free (erasable) value. If the value were
         // nested, then we would get a double delete (from the original owner
@@ -247,36 +247,36 @@ new_beam:
 again:
 Value_P BB = token.get_apl_val();
 
-   if (_arg.beam.done())   // last reduction in current beam
+   if (_arg->beam.done())   // last reduction in current beam
       {
-        _arg.frame.next_hml();
+        _arg->frame.next_hml();
 
         // if beam has only one element, as for the first column in scan,
         // then BB->clear_eoc() below is never reached and we have to do
         // it here.
         //
-        arg.Z->next_ravel()->init_from_value(BB, arg.Z.getref(), LOC);
+        arg->Z->next_ravel()->init_from_value(BB, arg->Z.getref(), LOC);
 
-        if (_arg.frame.done())   // if last beam (final result complete)
+        if (_arg->frame.done())   // if last beam (final result complete)
            {
-             arg.Z->check_value(LOC);
-             copy_1(token, Token(TOK_APL_VALUE1, arg.Z), LOC);
+             arg->Z->check_value(LOC);
+             copy_1(token, Token(TOK_APL_VALUE1, arg->Z), LOC);
              return false;   // stop it
            }
 
-        if (_arg.frame.A0_inc)   _arg.beam.length = _arg.frame.m + 1;
-        const Cell * beam = _arg.frame.beam_start();
-        _arg.beam.reset(beam);
+        if (_arg->frame.A0_inc)   _arg->beam.length = _arg->frame.m + 1;
+        const Cell * beam = _arg->frame.beam_start();
+        _arg->beam.reset_beam(beam);
         goto new_beam;
       }
 
    // pop context for previous eval_AB() call
    //
-   if (_arg.need_pop)   Workspace::pop_SI(LOC);
+   if (_arg->need_pop)   Workspace::pop_SI(LOC);
 
-const Cell * cA = _arg.beam.next_B();
+const Cell * cA = _arg->beam.next_B();
 Value_P AA = cA->to_value(LOC);
-   copy_1(token, _arg.beam.LO->eval_AB(AA, BB), LOC);
+   copy_1(token, _arg->beam.LO->eval_AB(AA, BB), LOC);
 
    // if token is an APL value, then LO was a primitive function and the last
    // LO->eval_AB() succeeded. No SI entry was pushed, so we can loop locally.
@@ -291,9 +291,9 @@ Value_P AA = cA->to_value(LOC);
    // Otherwise LO must have been a user defined function
    //
    Assert(token.get_tag() == TOK_SI_PUSHED);
-   _arg.need_pop = true;
+   _arg->need_pop = true;
 
-   Workspace::SI_top()->add_eoc_handler(eoc_beam, arg, LOC);
+   Workspace::SI_top()->add_eoc_handler(eoc_beam, *arg, LOC);
    return true;   // continue
 }
 //-----------------------------------------------------------------------------

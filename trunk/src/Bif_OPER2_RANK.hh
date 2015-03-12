@@ -72,10 +72,10 @@ protected:
    static void y123_to_AB(Value_P y123, Rank & rk_A, Rank & rk_B);
 
    /// helper for eval_LXB
-   static Token finish_LyXB(EOC_arg & arg);
+   static Token finish_LyXB(EOC_arg & arg, bool first);
 
    /// helper for eval_ALyB
-   static Token finish_ALyXB(EOC_arg & arg);
+   static Token finish_ALyXB(EOC_arg & arg, bool first);
 };
 //-----------------------------------------------------------------------------
 

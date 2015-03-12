@@ -148,15 +148,14 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
    _arg.len_A = A->element_count();
    _arg.len_B = B->element_count();
+   _arg.len_Z = _arg.len_A * _arg.len_B;
 
    arg.V1 = Value_P(LOC);   // helper value for non-pointer cA
    _arg.RO = RO;
 
    arg.V2 = Value_P(LOC);   // helper value for non-pointer cB
-   _arg.cA = &A->get_ravel(0);
-   _arg.cB = &B->get_ravel(0);
 
-   _arg.how = 0;
+   _arg.z = -1;
 
    return finish_outer_product(arg);
 }
@@ -165,36 +164,30 @@ Token
 Bif_OPER2_OUTER::finish_outer_product(EOC_arg & arg)
 {
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
-   if (_arg.how == 1)   goto how_1;
 
-   Assert1(_arg.how == 0);
-   _arg.a = 0;
-loop_a:
-
-   _arg.cB = &arg.B->get_ravel(0);
-
-   if (_arg.cA->is_pointer_cell())
+   while (++_arg.z < _arg.len_Z)
       {
-        arg.RO_A = _arg.cA++->get_pointer_value();
+        const Cell * cA = &arg.A->get_ravel(_arg.z / _arg.len_B);
+        const Cell * cB = &arg.B->get_ravel(_arg.z % _arg.len_B);
+
+   if (cA->is_pointer_cell())
+      {
+        arg.RO_A = cA->get_pointer_value();
       }
    else
       {
-        arg.V1->get_ravel(0).init(*_arg.cA++, arg.V1.getref());
+        arg.V1->get_ravel(0).init(*cA, arg.V1.getref());
         arg.V1->set_complete();
         arg.RO_A = arg.V1;
       }
 
-   _arg.b = 0;
-   _arg.cB = &arg.B->get_ravel(0);
-loop_b:
-
-   if (_arg.cB->is_pointer_cell())
+   if (cB->is_pointer_cell())
       {
-        arg.RO_B = _arg.cB++->get_pointer_value();
+        arg.RO_B = cB->get_pointer_value();
       }
    else
       {
-        arg.V2->get_ravel(0).init(*_arg.cB++, arg.V2.getref());
+        arg.V2->get_ravel(0).init(*cB, arg.V2.getref());
         arg.V2->set_complete();
         arg.RO_B = arg.V2;
       }
@@ -210,7 +203,7 @@ loop_b:
       {
         Value_P ZZ = result.get_apl_val();
         arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);
-        goto next_a_b;
+        continue;
       }
 
    if (result.get_tag() == TOK_ERROR)   return result;
@@ -219,19 +212,19 @@ loop_b:
       {
         // RO was a user defined function
         //
-        _arg.how = 1;
-        Workspace::SI_top()->add_eoc_handler(eoc_outer_product, arg, LOC);
+        arg.new_mode = true;
+        if (_arg.z)   // subsequent call
+           Workspace::SI_top()->move_eoc_handler(eoc_outer_product, &arg, LOC);
+        else           // first call
+           Workspace::SI_top()->add_eoc_handler(eoc_outer_product, arg, LOC);
 
         return result;   // continue in user defined function...
       }
+
+     Q1(result);   FIXME;
    }
 
-how_1:
-next_a_b:
-
-   if (++_arg.b < _arg.len_B)   goto loop_b;
-   if (++_arg.a < _arg.len_A)   goto loop_a;
-
+      }
    arg.Z->set_default(*arg.B.get());
 
    arg.Z->check_value(LOC);
@@ -252,17 +245,22 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    //
    {
      Value_P ZZ = token.get_apl_val();
-     arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);   // erase()s token.get_apl_val()
+     arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);
    }
+
+EOC_arg * next = 0;
+EOC_arg * eoc = Workspace::SI_top()->remove_eoc_handlers(next);
 
    // pop the SI unless this is the last ravel element of Z to be computed
    //
-   {
-      const bool more = _arg.a < (_arg.len_A - 1) || _arg.b < (_arg.len_B - 1);
-      if (more)   Workspace::pop_SI(LOC);
-   }
-   copy_1(token, finish_outer_product(arg), LOC);
+   if (_arg.z < (_arg.len_Z - 1))   Workspace::pop_SI(LOC);
+
+   copy_1(token, finish_outer_product(*eoc), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
+
+   delete eoc;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(token, *next);
 
    return false;   // stop it
 }

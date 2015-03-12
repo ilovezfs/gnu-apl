@@ -98,7 +98,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    // arg.Z can be 0 (if not x(LO->has_result())
 
-   _arg.how = 0;
+   _arg.z = -1;
    return finish_eval_ALB(arg);
 }
 //-----------------------------------------------------------------------------
@@ -107,68 +107,58 @@ Bif_OPER1_EACH::finish_eval_ALB(EOC_arg & arg)
 {
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   if (_arg.how == 1)   goto how_1;
-
-   Assert1(_arg.how == 0);
-   _arg.z = 0;
-
-loop_z:
-   {
-     Value_P LO_A = _arg.cA->to_value(LOC);     // left argument of LO
-     Value_P LO_B = _arg.cB->to_value(LOC);     // right argument of LO;
-     _arg.sub = !(_arg.cA->is_pointer_cell() || _arg.cB->is_pointer_cell());
-
-     _arg.cA += _arg.dA;
-     _arg.cB += _arg.dB;
-
-     Token result = _arg.LO->eval_AB(LO_A, LO_B);
-
-     // if LO was a primitive function, then result may be a value.
-     // if LO was a user defined function then result may be TOK_SI_PUSHED.
-     // in both cases result could be TOK_ERROR.
-     //
-     if (result.get_Class() == TC_VALUE)
-        {
-          Value_P vZ = result.get_apl_val();
-
-          if (!_arg.sub)
-             arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
-          else if (vZ->is_simple_scalar())
-             arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
-          else
-             new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
-
-          goto next_z;   // next z
-        }
-
-     if (result.get_tag() == TOK_ERROR)   return result;
-
-     if (result.get_tag() == TOK_SI_PUSHED)
-        {
-          // LO was a user defined function
-          //
-          _arg.how = 1;
-          Workspace::SI_top()->add_eoc_handler(eoc_ALB, arg, LOC);
-
-          return result;   // continue in user defined function...
-        }
-
-     Q1(result);   FIXME;
-   }
-
-how_1:
-next_z:
-   if (++_arg.z < _arg.count)   goto loop_z;
-
-   if (!!arg.Z)   // LO with result
+   while (++_arg.z < _arg.count)
       {
-        arg.Z->set_default(*arg.B.get());
-        arg.Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, arg.Z);
+        Value_P LO_A = _arg.cA->to_value(LOC);     // left argument of LO
+        Value_P LO_B = _arg.cB->to_value(LOC);     // right argument of LO;
+        _arg.sub = !(_arg.cA->is_pointer_cell() || _arg.cB->is_pointer_cell());
+
+        _arg.cA += _arg.dA;
+        _arg.cB += _arg.dB;
+
+        Token result = _arg.LO->eval_AB(LO_A, LO_B);
+
+        // if LO was a primitive function, then result may be a value.
+        // if LO was a user defined function then result may be TOK_SI_PUSHED.
+        // in both cases result could be TOK_ERROR.
+        //
+        if (result.get_Class() == TC_VALUE)
+           {
+             Value_P vZ = result.get_apl_val();
+
+             if (!_arg.sub)
+                arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
+             else if (vZ->is_simple_scalar())
+                arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+             else
+                new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+
+            continue;   // next z
+           }
+
+        if (result.get_tag() == TOK_ERROR)   return result;
+
+        if (result.get_tag() == TOK_SI_PUSHED)
+           {
+             // LO was a user defined function
+             //
+             arg.new_mode = true;
+             if (_arg.z)   // subsequent call
+                Workspace::SI_top()->move_eoc_handler(eoc_ALB, &arg, LOC);
+             else           // first call
+                Workspace::SI_top()->add_eoc_handler(eoc_ALB, arg, LOC);
+
+             return result;   // continue in user defined function...
+           }
+
+        Q1(result);   FIXME;
       }
 
+   if (!arg.Z)   return Token(TOK_VOID);   // LO without result
 
-   return Token(TOK_VOID);   // LO without result
+   arg.Z->set_default(*arg.B.get());
+   arg.Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, arg.Z);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -195,10 +185,17 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
+EOC_arg * next = 0;
+EOC_arg * eoc = Workspace::SI_top()->remove_eoc_handlers(next);
+
    if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
 
-   copy_1(token, finish_eval_ALB(arg), LOC);
+   copy_1(token, finish_eval_ALB(*eoc), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
+
+   delete eoc;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(token, *next);
 
    return false;   // stop it
 }
@@ -233,7 +230,7 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 
    _arg.count = B->element_count();
 
-   _arg.how = 0;
+   _arg.z = -1;
    return finish_eval_LB(arg);
 }
 //-----------------------------------------------------------------------------
@@ -242,118 +239,115 @@ Bif_OPER1_EACH::finish_eval_LB(EOC_arg & arg)
 {
 EACH_LB & _arg = arg.u.u_EACH_LB;
 
-   if (_arg.how == 1)   goto how_1;
-
-   Assert1(_arg.how == 0);
-   _arg.z = 0;
-
-loop_z:
-   if (_arg.LO->get_fun_valence() == 0)
+   while (++_arg.z < _arg.count)
       {
-        // we alloe niladic functions N so that one can loop over them with
-        // N ¨ 1 2 3 4
-        //
-        Token result = _arg.LO->eval_();
-
-        if (result.get_tag() == TOK_SI_PUSHED)
+        if (_arg.LO->get_fun_valence() == 0)
            {
-             // LO was a user defined function or ⍎
+             // we alloe niladic functions N so that one can loop over them with
+             // N ¨ 1 2 3 4
              //
-             _arg.how = 1;
-             Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
-             return result;   // continue in user defined function...
+             Token result = _arg.LO->eval_();
+
+             if (result.get_tag() == TOK_SI_PUSHED)
+                {
+                  // LO was a user defined function or ⍎
+                  //
+                  arg.new_mode = true;
+                  if (_arg.z)   // subsequent call
+                     Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
+                  else           // first call
+                     Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
+                  return result;   // continue in user defined function...
+                }
+
+             // if LO was a primitive function, then result may be a value.
+             // if LO was a user defined function then result may be
+             // TOK_SI_PUSHED in both cases result could be TOK_ERROR.
+             //
+             if (result.get_Class() == TC_VALUE)
+                {
+                  Value_P vZ = result.get_apl_val();
+
+                  if (!_arg.sub)
+                     arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
+                  else if (vZ->is_simple_scalar())
+                     arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+                  else
+                     new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+
+                  continue;   // next z
            }
 
-        // if LO was a primitive function, then result may be a value.
-        // if LO was a user defined function then result may be TOK_SI_PUSHED.
-        // in both cases result could be TOK_ERROR.
-        //
-        if (result.get_Class() == TC_VALUE)
-           {
-             Value_P vZ = result.get_apl_val();
+             if (result.get_tag() == TOK_VOID)   continue;   // next z
 
-             if (!_arg.sub)
-                arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
-             else if (vZ->is_simple_scalar())
-                arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
-             else
-                new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+             if (result.get_tag() == TOK_ERROR)   return result;
 
-             goto next_z;
-           }
-
-        if (result.get_tag() == TOK_VOID)   goto next_z;
-
-        if (result.get_tag() == TOK_ERROR)   return result;
-
-        Q1(result);   FIXME;
-      }
-   else
-      {
-        Value_P LO_B;         // right argument of LO;
-
-        if (_arg.cB->is_pointer_cell())
-           {
-             LO_B = _arg.cB++->get_pointer_value();
-             _arg.sub = true;
+             Q1(result);   FIXME;
            }
         else
            {
-             LO_B = Value_P(LOC);
-   
-             LO_B->get_ravel(0).init(*_arg.cB++, LO_B.getref());
-             LO_B->set_complete();
-             _arg.sub = false;
-           }
+             Value_P LO_B;         // right argument of LO;
 
-        Token result = _arg.LO->eval_B(LO_B);
-
-        if (result.get_tag() == TOK_SI_PUSHED)
-           {
-             // LO was a user defined function or ⍎
-             //
-             _arg.how = 1;
-             Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
-             return result;   // continue in user defined function...
-           }
-
-        // if LO was a primitive function, then result may be a value.
-        // if LO was a user defined function then result may be TOK_SI_PUSHED.
-        // in both cases result could be TOK_ERROR.
-        //
-        if (result.get_Class() == TC_VALUE)
-           {
-             Value_P vZ = result.get_apl_val();
-
-             if (!_arg.sub)
-                arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
-             else if (vZ->is_simple_scalar())
-                arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+             if (_arg.cB->is_pointer_cell())
+                {
+                  LO_B = _arg.cB++->get_pointer_value();
+                  _arg.sub = true;
+                }
              else
-                new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+                {
+                  LO_B = Value_P(LOC);
+   
+                  LO_B->get_ravel(0).init(*_arg.cB++, LO_B.getref());
+                  LO_B->set_complete();
+                  _arg.sub = false;
+                }
 
-             goto next_z;
+             Token result = _arg.LO->eval_B(LO_B);
+
+             if (result.get_tag() == TOK_SI_PUSHED)
+                {
+                  // LO was a user defined function or ⍎
+                  //
+                  arg.new_mode = true;
+                  if (_arg.z)   // subsequent call
+                     Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
+                  else           // first call
+                     Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
+                  return result;   // continue in user defined function...
+                }
+
+             // if LO was a primitive function, then result may be a value.
+             // if LO was a user defined function then result may be
+             // TOK_SI_PUSHED in both cases result could be TOK_ERROR.
+             //
+             if (result.get_Class() == TC_VALUE)
+                {
+                  Value_P vZ = result.get_apl_val();
+
+                  if (!_arg.sub)
+                     arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(),
+                                                          LOC);
+                  else if (vZ->is_simple_scalar())
+                     arg.Z->next_ravel()->init(vZ->get_ravel(0),arg.Z.getref());
+                  else
+                     new (arg.Z->next_ravel())   PointerCell(vZ,arg.Z.getref());
+
+                  continue;   // next z
+                }
+
+             if (result.get_tag() == TOK_VOID)   continue;   // next z
+
+             if (result.get_tag() == TOK_ERROR)   return result;
+
+             Q1(result);   FIXME;
            }
-
-        if (result.get_tag() == TOK_VOID)   goto next_z;
-
-        if (result.get_tag() == TOK_ERROR)   return result;
-
-        Q1(result);   FIXME;
       }
 
-how_1:
-next_z:
-   if (++_arg.z < _arg.count)   goto loop_z;
+   if (!arg.Z)   return Token(TOK_VOID);   // LO without result
 
-   if (!!arg.Z)   // LO with result
-      {
-        arg.Z->set_default(*arg.B.get());
-        arg.Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, arg.Z);
-      }
-
-   return Token(TOK_VOID);   // LO without result
+   arg.Z->set_default(*arg.B.get());
+   arg.Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, arg.Z);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -380,9 +374,17 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
        if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
+EOC_arg * next = 0;
+EOC_arg * eoc = Workspace::SI_top()->remove_eoc_handlers(next);
+
    if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
-   copy_1(token, finish_eval_LB(arg), LOC);
+
+   copy_1(token, finish_eval_LB(*eoc), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
+
+   delete eoc;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(token, *next);
 
    return false;   // stop it
 }

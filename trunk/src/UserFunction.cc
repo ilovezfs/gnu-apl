@@ -1140,11 +1140,11 @@ int error_line = -1;
 }
 //-----------------------------------------------------------------------------
 Function_PC
-UserFunction::pc_for_line(int l) const
+UserFunction::pc_for_line(Function_Line line) const
 {
-   if (l < 1)                     return Function_PC(body.size() - 1);
-   if (l >= line_starts.size())   return Function_PC(body.size() - 1);
-   return line_starts[l];
+   if (line < 1)                     return Function_PC(body.size() - 1);
+   if (line >= line_starts.size())   return Function_PC(body.size() - 1);
+   return line_starts[line];
 }
 //-----------------------------------------------------------------------------
 UserFunction *
@@ -1302,6 +1302,37 @@ UCS_string ucs;
       }
 
    return ucs;
+}
+//-----------------------------------------------------------------------------
+void
+UserFunction::adjust_line_starts()
+{
+   // this function is called from Executable::setup_lambdas() just before
+   // Parser::remove_void_token(body) in order to adjust line_starts
+   //
+DynArray(ShapeItem, gaps, line_starts.size());   // count TOK_VOID in every line
+   loop(ls, line_starts.size())
+      {
+         gaps[ls] = 0;
+         if (ls == 0)   continue;   // function header (has no TOK_VOID)
+
+         const ShapeItem from = line_starts[ls];
+         ShapeItem to = body.size();    // end of function (for last line)
+         if (ls < (line_starts.size() - 1))   to = line_starts[ls + 1];
+
+        for (ShapeItem b = from; b < to; ++b)
+            {
+             if (body[b].get_tag() == TOK_VOID)   ++gaps[ls];
+            }
+
+      }
+
+int total_gaps = 0;
+   loop(ls, line_starts.size())
+       {
+          line_starts[ls] = Function_PC(line_starts[ls] - total_gaps);
+          total_gaps += gaps[ls];
+       }
 }
 //-----------------------------------------------------------------------------
 ostream &

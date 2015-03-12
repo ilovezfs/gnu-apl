@@ -491,11 +491,12 @@ Executable::setup_lambdas()
        {
          // body is in reverse order, so } comes before { (and optional ← NAME)
          //
-         if (body[b].get_tag() != TOK_R_CURLY)   continue;   // not {
+         if (body[b].get_tag() != TOK_R_CURLY)   continue;   // not }
 
          b = setup_one_lambda(b) - 1;   // -1 due to ++b in loop(b)
        }
 
+   adjust_line_starts();
    Parser::remove_void_token(body);
    Parser::match_par_bra(body, true);
 }
@@ -503,7 +504,7 @@ Executable::setup_lambdas()
 ShapeItem
 Executable::setup_one_lambda(ShapeItem b)
 {
-const ShapeItem bend = b + body[b].get_int_val2();
+const ShapeItem bend = b + body[b].get_int_val2();   // the corresponding {
    Assert(bend < body.size());
    Assert(body[bend].get_tag() == TOK_L_CURLY);
 
@@ -582,7 +583,7 @@ UserFunction * ufun = new UserFunction(signature, lambda_name,
         named_lambdas.push_back(ufun);
 
         // put a token for the lambda at thr place where the { was.
-        // That means we replasce (in forward notation) e.g.:
+        // That means we replace (in forward notation) e.g.:
         //
         // A←{ ... }   by:
         // A←UFUN      UFUN being a user-defined function with body { ... }

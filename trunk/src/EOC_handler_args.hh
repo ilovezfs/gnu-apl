@@ -53,13 +53,10 @@ struct quad_INP
 struct OUTER_PROD
 {
   Function * RO;     ///< user defined function
-  ShapeItem a;       ///< current A index
   ShapeItem len_A;   ///< number of cells in left arg
-  ShapeItem b;       ///< current B index
   ShapeItem len_B;   ///< number of cells in right arg
-  const Cell * cA;   ///< current left arg
-  const Cell * cB;   ///< current right arg
-  int how;           ///< how to continue in finish_outer_product()
+  ShapeItem len_Z;   ///< number of cells in result
+  ShapeItem z;       ///< current Z index
 };
 
 /// arguments of the EOC handler for A g.f B
@@ -86,29 +83,32 @@ struct REDUCTION
              const Cell * cB, ShapeItem bm, ShapeItem A0, int A0_inc)
       {
         need_pop = false;
+        eoc_handler_installed = false;
         
         frame.frame_init(Z3, cB, bm, A0_inc);
-        beam.beam_init(LO, cB, Z3.l(), A0);
+        beam.init_beam(LO, cB, Z3.l(), A0);
       }
 
    /// true if SI was pushed
    bool need_pop;
 
+   bool eoc_handler_installed;
+
    /// information about one beam
-   struct _beam
+   struct
       {
          /// initialize \b this _beam (first beam in frame)
-         void beam_init(Function * _LO, const Cell * B_h0l,
+         void init_beam(Function * _LO, const Cell * B_h0l,
                    ShapeItem _dist, ShapeItem _A0)
             { LO = _LO;
               if (_A0 < 0)   { dist = _dist;     length = - _A0; }
               else           { dist = - _dist;   length = _A0;   }
 
-              reset(B_h0l);
+              reset_beam(B_h0l);
             }
 
          /// reset \b this _beam (next beam in frame)
-         void reset(const Cell * B_h0l)
+         void reset_beam(const Cell * B_h0l)
             { idx = 0;
               if (dist < 0)    src = B_h0l - (length * dist);
               else             src = B_h0l - dist;
@@ -193,7 +193,6 @@ struct EACH_ALB
   ShapeItem z;       ///< current result index
   ShapeItem count;   ///< number of iterations
   bool sub;          ///< create a PointerCell
-  int how;           ///< how to continue in finish_eval_LB()
 };
 
 /// arguments of the EOC handler for f¨ B
@@ -204,7 +203,6 @@ struct EACH_LB
   ShapeItem z;       ///< current result index
   ShapeItem count;   ///< number of iterations
   bool sub;          ///< create a PointerCell
-  int how;           ///< how to continue in finish_eval_LB()
 };
 
 /// arguments of the EOC handler for (A) f⍤[X] B
@@ -217,7 +215,6 @@ struct RANK_LyXB
   ShapeItem ec_chunk_B;              ///< items in _sh_chunk_B
   const Cell * cB;                   ///< current B cell
   ShapeItem ec_frame;                ///< max. high index
-  int how;                           ///< how to finish_eval_LXB()
   Axis axes_valid;                   ///< LO[X] rather than LO
   char _axes  [sizeof(Shape)];       ///< axes for ⍤[X]
 
@@ -247,6 +244,7 @@ struct RANK_ALyXB : public RANK_LyXB
 /// arguments of the EOC handler for A f⋆g B
 struct POWER_ALRB
 {
+  bool dyadic;                       /// A f⍣ B vs. f⍣ B
   int how;                           ///< how to finish_eval_ALRB()
   double qct;                        ///< comparison tolerance
   ShapeItem repeat_count;            ///< repeat count N for  form  A f ⍣ N B
@@ -254,6 +252,11 @@ struct POWER_ALRB
   Function * COND;                   ///< condition fun g for form  A f ⍣ g B
   bool user_COND;                    ///< true if RO is user-defined
 };
+
+class EOC_arg;
+/// the type of a function to be called at the end of a context.
+/// the function returns true to retry and false to continue with token.
+typedef bool (*EOC_HANDLER)(Token & token, EOC_arg & arg);
 
 /// the second argument for an EOC_HANDLER. The actual type depends on the
 /// handler. An EOC_arg contains all information that is necessary for
@@ -263,7 +266,11 @@ class EOC_arg
 public:
    /// constructor for dyadic derived function
    EOC_arg(Value_P vpZ, Value_P vpB, Value_P vpA)
-   : Z(vpZ),
+   : handler(0),
+     loc(0),
+     next(0),
+     new_mode(false),
+     Z(vpZ),
      B(vpB),
      A(vpA)
    {}
@@ -271,18 +278,38 @@ public:
    /// constructor for monadic derived function without result (or
    /// result created at return)
    EOC_arg(Value_P vpB)
-   : B(vpB)
+   : handler(0),
+     loc(0),
+     next(0),
+     new_mode(false),
+     B(vpB)
    {}
 
    /// constructor for monadic derived function with result
    EOC_arg(Value_P vpZ, Value_P vpB)
-   : Z(vpZ),
+   : handler(0),
+     loc(0),
+     next(0),
+     new_mode(false),
+     Z(vpZ),
      B(vpB)
    {}
 
+   /// activation constructor
+   EOC_arg(EOC_HANDLER h, const EOC_arg & other, const char * l)
+      {
+        new (this) EOC_arg(other);
+        handler = h;
+        loc = l;
+      }
+
    /// copy constructor
    EOC_arg(const EOC_arg & other)
-   : Z(other.Z),
+   : handler(other.handler),
+     loc(other.loc),
+     next(other.next),
+     new_mode(other.new_mode),
+     Z(other.Z),
      B(other.B),
      A(other.A),
      V1(other.V1),
@@ -290,6 +317,15 @@ public:
      RO_A(other.RO_A),
      RO_B(other.RO_B)
    { u = other.u; }
+
+   /// the handler
+   EOC_HANDLER handler;
+
+   /// from where the handler was installed (for debugging purposes)
+   const char * loc;
+
+   EOC_arg * next;
+   bool new_mode;
 
    /// result
    Value_P Z;
@@ -331,33 +367,6 @@ public:
       } u; ///< a union big enough for all EOC args
 };
 
-/// the type of a function to be called at the end of a context.
-/// the function returns true to retry and false to continue with token.
-typedef bool (*EOC_HANDLER)(Token & token, EOC_arg & arg);
-
-//-----------------------------------------------------------------------------
-/// An EOC handler and its argument
-struct EOC_handler_and_arg
-{
-   /// constructor
-   EOC_handler_and_arg(EOC_HANDLER h, const EOC_arg & a, const char * _loc)
-   : handler(h),
-     arg(a),
-     loc(_LOC),
-     next(0)
-   {}
-
-   // the handler
-   EOC_HANDLER handler;
-
-   /// the argument for the handler
-   EOC_arg arg;
-
-   /// from where the handler was installed (for debugging purposes)
-   const char * loc;
-
-   EOC_handler_and_arg * next;
-};
 //-----------------------------------------------------------------------------
 
 #endif // __EOC_HANDLER_ARGS_HH_DEFINED__
