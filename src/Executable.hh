@@ -112,6 +112,9 @@ public:
    virtual Function_PC line_start(Function_Line line) const
       { return Function_PC_0; }
 
+   /// adjust line starts before calling Parser::remove_void_token(body)
+   virtual void adjust_line_starts() {}
+
    /// compute lines 2 and 3 in \b error
    void set_error_info(Error & error, Function_PC2 range) const;
 

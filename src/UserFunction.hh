@@ -299,7 +299,7 @@ public:
 
    /// return the pc of the first token in line l (valid line), or
    /// the pc of the last token in the function (invalid line)
-   Function_PC pc_for_line(int l) const;
+   Function_PC pc_for_line(Function_Line line) const;
    
    /// Overloaded Function::has_alpha()
    virtual bool has_alpha() const   { return true; }
@@ -319,6 +319,9 @@ public:
    /// overloaded Executable::line_start()
    virtual Function_PC line_start(Function_Line line) const
       { return line_starts[line]; }
+
+   /// overloaded Executable::adjust_line_starts
+   virtual void adjust_line_starts();
 
    /// compute lines 2 and 3 in \b error
    void set_locked_error_info(Error & error) const;

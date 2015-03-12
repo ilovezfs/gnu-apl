@@ -49,33 +49,12 @@ ul.no-bullet {list-style: none}
 <a name="Top"></a>
 <div class="header">
 <p>
-Next: <a href="#Application-Program-Interface-for-GNU-APL" accesskey="n" rel="next">Application Program Interface for GNU APL</a>, Up: <a href="dir.html#Top" accesskey="u" rel="up">(dir)</a> &nbsp; </p>
+Next: <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="n" rel="next">Vague details of the GNU APL implementation</a>, Up: <a href="dir.html#Top" accesskey="u" rel="up">(dir)</a> &nbsp; </p>
 </div>
 <a name="Top-1"></a>
 <h1 class="top">Top</h1>
 
-<table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="#Application-Program-Interface-for-GNU-APL" accesskey="1">Application Program Interface for GNU APL</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="2">Vague details of the GNU APL implementation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Summary-of-functions" accesskey="3">Summary of functions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Programming-notes" accesskey="4">Programming notes</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Appendix-List-of-system-variables-and-system-functions" accesskey="5">Appendix List of system variables and system functions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
-</table>
-
-<hr>
-<a name="Application-Program-Interface-for-GNU-APL"></a>
-<div class="header">
-<p>
-Next: <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="n" rel="next">Vague details of the GNU APL implementation</a>, Previous: <a href="#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; </p>
-</div>
-<a name="Application-Program-Interface-for-GNU-APL-1"></a>
-<h2 class="chapter">1 Application Program Interface for GNU APL</h2>
-<a name="g_t_0023application_002dprogram_002dinterface_002dfor_002dgnu_002dapl"></a><p>The following main facilities are provided:
+<p>The following main facilities are provided:
 </p>
 <dl compact="compact">
 <dt><code>apl_exec</code></dt>
@@ -102,14 +81,24 @@ Next: <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="n" rel="
 
 <p>No other GNU APL header is exposed.
 </p>
+<p>This document will not tell you much about APL. For more details about the language, consult an APL reference manual such as those recommended in the file <code>README-7-more-info</code>, which are probably installed in <code>/usr/share/doc/apl</code> or <code>/usr/local/share/doc/apl</code>.
+</p><table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="1">Vague details of the GNU APL implementation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Summary-of-functions" accesskey="2">Summary of functions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Programming-notes" accesskey="3">Programming notes</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
 <hr>
 <a name="Vague-details-of-the-GNU-APL-implementation"></a>
 <div class="header">
 <p>
-Next: <a href="#Summary-of-functions" accesskey="n" rel="next">Summary of functions</a>, Previous: <a href="#Application-Program-Interface-for-GNU-APL" accesskey="p" rel="prev">Application Program Interface for GNU APL</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; </p>
+Next: <a href="#Summary-of-functions" accesskey="n" rel="next">Summary of functions</a>, Previous: <a href="#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; </p>
 </div>
 <a name="Vague-details-of-the-GNU-APL-implementation-1"></a>
-<h2 class="chapter">2 Vague details of the GNU APL implementation</h2>
+<h2 class="chapter">1 Vague details of the GNU APL implementation</h2>
 <a name="g_t_0023vague_002ddetails_002dof_002dthe_002dgnu_002dapl_002dimplementation"></a><p>Although the implementation is hidden from the API, the programmer needs to know a little about it.
 </p>
 <p>Only one workspace, simply known as &quot;the workspace&quot;, is active at any time. The workspace may be cleared, named, saved and restored by calls to <code>apl_command</code>.
@@ -154,7 +143,7 @@ CCT_NUMERIC = CCT_INT | CCT_FLOAT | CCT_COMPLEX
 Up: <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="u" rel="up">Vague details of the GNU APL implementation</a> &nbsp; </p>
 </div>
 <a name="Lifespan-of-Values-1"></a>
-<h3 class="section">2.1 Lifespan of Values</h3>
+<h3 class="section">1.1 Lifespan of Values</h3>
 <a name="g_t_0023lifespan_002dof_002dvalues"></a><ol>
 <li> All Values are invisible to the API. Internally, they contain a reference count, and are scheduled for destruction when the reference count reaches zero. The actual destruction might not happen immediately. The fact that one succeeded in accessing a Value does not prove that it is still alive, it merely means that it has not yet been destructed.
 
@@ -162,11 +151,9 @@ Up: <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="u" rel="up
 
 </li><li> The APL value provided in the argument list of <code>res_callback</code> (see <a href="#g_t_0023interface_002dto_002dapl_002dinterpreter">Interface to APL interpreter</a>) has a particularly brief lifespan. The execution of that function is your only chance of accessing it. Its reference count is not increased before the call, so you must not release it.
 
-</li><li> The type-dependent <code>set_</code> functions change one element only. Other references to that Value will also reflect the change; for example, if the APL value was returned by <code>get_var_value</code>, a following call to <code>get_var_value</code> with the same variable name will show the change.
+</li><li> The type-specific <code>set_</code> functions change one element only. Other references to the Value concerned will also reflect the change; for example, if the APL value was returned by <code>get_var_value</code>, a following call to <code>get_var_value</code> with the same variable name will show the change.
 
-</li><li> <code>set_value</code> makes a new deep copy of a non-scalar Value. Cloning (which is deliberately discouraged in the API by not providing a copy constructor) can be simulated with the aid of <code>set_value</code>. The details are left to the persevering user.
-
-</li><li> <code>set_var_value</code> makes a new deep copy of the Value.
+</li><li> <code>set_value</code> and <code>set_var_value</code> make a new deep copy of a non-scalar Value. The reference count of the original Value is not increased. Cloning (which is deliberately discouraged in the API by not providing a copy constructor) can be simulated with the aid of either of these. The details are left to the persevering user.
 
 </li></ol>
 
@@ -177,9 +164,23 @@ Up: <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="u" rel="up
 Next: <a href="#Programming-notes" accesskey="n" rel="next">Programming notes</a>, Previous: <a href="#Vague-details-of-the-GNU-APL-implementation" accesskey="p" rel="prev">Vague details of the GNU APL implementation</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; </p>
 </div>
 <a name="Summary-of-functions-1"></a>
-<h2 class="chapter">3 Summary of functions</h2>
-<a name="g_t_0023summary_002dof_002dfunctions"></a><p>This section is an aide-memoire, not a manual: consult the comments preceding each function for details.
-</p><table class="menu" border="0" cellspacing="0">
+<h2 class="chapter">2 Summary of functions</h2>
+<a name="g_t_0023summary_002dof_002dfunctions"></a><p>This section is an aide-memoire, not a manual: consult the comments preceding each function for details. See <a href="#g_t_0023programming_002dnotes">Programming notes</a> for information on the <code>loc</code> parameter.
+</p>
+<p>The other parameter values have the following types:
+</p>
+<table>
+<tr><td><code>val</code></td><td>The main APL value</td></tr>
+<tr><td><code>pval</code></td><td>A secondary APL value</td></tr>
+<tr><td><code>cval</code></td><td>A 32-bit Unicode character</td></tr>
+<tr><td><code>ival</code></td><td>A 64-bit integer</td></tr>
+<tr><td><code>xval</code>,<code>yval</code></td><td>A 64-bit double</td></tr>
+<tr><td><code>sval</code></td><td>A UTF-8 encoded <code>char*</code></td></tr>
+<tr><td><code>i</code></td><td>A 64-bit index</td></tr>
+<tr><td><code>k</code>,<code>n1</code>,<code>n2</code>,<code>n2</code></td><td>A 32-bit index</td></tr>
+</table>
+
+<table class="menu" border="0" cellspacing="0">
 <tr><td align="left" valign="top">&bull; <a href="#Constructor-functions" accesskey="1">Constructor functions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Read-access-to-Values" accesskey="2">Read access to Values</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
@@ -188,7 +189,9 @@ Next: <a href="#Programming-notes" accesskey="n" rel="next">Programming notes</a
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Interface-to-APL-interpreter" accesskey="4">Interface to APL interpreter</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Print-support" accesskey="5">Print support</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Destructor-function" accesskey="5">Destructor function</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Print-support" accesskey="6">Print support</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
@@ -199,14 +202,14 @@ Next: <a href="#Programming-notes" accesskey="n" rel="next">Programming notes</a
 Next: <a href="#Read-access-to-Values" accesskey="n" rel="next">Read access to Values</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
 </div>
 <a name="Constructor-functions-1"></a>
-<h3 class="section">3.1 Constructor functions</h3>
+<h3 class="section">2.1 Constructor functions</h3>
 <a name="g_t_0023constructor_002dfunctions"></a><p>Each of these functions returns an APL value and has a name descriptive of its argument list.
 </p>
-<p><code>int_scalar</code>, <code>double_scalar</code>, <code>complex_scalar</code> and <code>char_scalar</code> initialize to a given C value.
+<p><code>int_scalar(ival,loc)</code>, <code>double_scalar(xval,loc)</code>, <code>complex_scalar(xval,yval,loc)</code> and <code>char_scalar(cval,loc)</code> initialize to a given C value.
 </p>
-<p><code>char_vector</code> initializes from a UTF-8 encoded C string to an array of rank 1 containing Unicode characters.
+<p><code>char_vector(sval,loc)</code> initializes from a UTF-8 encoded C string to an array of rank 1 containing Unicode characters.
 </p>
-<p><code>apl_scalar</code>, <code>apl_vector</code>, <code>apl_matrix</code> and <code>apl_cube</code> initialize to arrays of rank 0,1,2,3; <code>apl_value</code> initializes to an array of arbitrary shape. All cells in these arrays are initialized to 0.
+<p><code>apl_scalar(loc)</code>, <code>apl_vector(n1)</code>, <code>apl_matrix(n1,n2)</code> and <code>apl_cube(n1,n2,n3)</code> initialize to arrays of rank 0,1,2,3; <code>apl_value(shape,loc)</code> initializes to an array of arbitrary shape. All cells in these arrays are initialized to 0.
 </p>
 <hr>
 <a name="Read-access-to-Values"></a>
@@ -215,14 +218,16 @@ Next: <a href="#Read-access-to-Values" accesskey="n" rel="next">Read access to V
 Next: <a href="#Write-access-to-cells" accesskey="n" rel="next">Write access to cells</a>, Previous: <a href="#Constructor-functions" accesskey="p" rel="prev">Constructor functions</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
 </div>
 <a name="Read-access-to-Values-1"></a>
-<h3 class="section">3.2 Read access to Values</h3>
-<a name="g_t_0023read_002daccess_002dto_002dvalues"></a><p><code>get_rank</code>, <code>get_axis</code>, <code>get_element_count</code> and <code>get_type</code> give information about the shape and ravel elements.
+<h3 class="section">2.2 Read access to Values</h3>
+<a name="g_t_0023read_002daccess_002dto_002dvalues"></a><p><code>get_rank(val)</code>, <code>get_axis(val,k)</code> and <code>get_element_count(val)</code> give information about the shape,
 </p>
-<p><code>is_char</code>, <code>is_int</code>, <code>is_double</code>, <code>is_complex</code> and <code>is_value</code> are conveniently named front-ends to <code>get_type</code>.
+<p><code>get_type(val,i)</code> returns the cell type of a ravel element. The predefined names can be used in e.g. a <code>switch</code> statement on the cell type.
 </p>
-<p><code>is_string</code> tests whether the entire value is a simple character vector. If so, <code>print_value_to_string</code> can be used to convert it to a UTF-8 encoded C string.
+<p><code>is_char(val,i)</code>, <code>is_int(val,i)</code>, <code>is_double(val,i)</code>, <code>is_complex(val,i)</code> and <code>is_value(val,i)</code> are conveniently named front-ends to <code>get_type</code> that do not require the user to examine the cell type.
 </p>
-<p><code>get_char</code>, <code>get_int</code>, <code>get_real</code>, <code>get_imag</code> and <code>get_value</code> retrieve the actual contents of a cell of which the type is already known.
+<p><code>is_string(val)</code> tests whether the entire value is a simple character vector. If so, <code>print_value_to_string</code> can be used to convert it to a UTF-8 encoded C string.
+</p>
+<p><code>get_char(val,i)</code>, <code>get_int(val,i)</code>, <code>get_real(val,i)</code>, <code>get_imag(val,i)</code> and <code>get_value(val,i)</code> retrieve the actual contents of a cell of which the type is already known, if necessary by having called <code>get_type</code> or one of its front-ends. For example <code>get_real</code> can be used if <code>get_type(val,i) &amp; (CCT_FLOAT&nbsp;| CCT_COMPLEX)</code> is nonzero.
 </p>
 <hr>
 <a name="Write-access-to-cells"></a>
@@ -231,10 +236,10 @@ Next: <a href="#Write-access-to-cells" accesskey="n" rel="next">Write access to 
 Next: <a href="#Interface-to-APL-interpreter" accesskey="n" rel="next">Interface to APL interpreter</a>, Previous: <a href="#Read-access-to-Values" accesskey="p" rel="prev">Read access to Values</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
 </div>
 <a name="Write-access-to-cells-1"></a>
-<h3 class="section">3.3 Write access to cells</h3>
+<h3 class="section">2.3 Write access to cells</h3>
 <a name="g_t_0023write_002daccess_002dto_002dcells"></a><p>Cells can be accessed only via an APL value pointing to their containing Value.
 </p>
-<p><code>set_char</code>, <code>set_int</code>, <code>set_real</code>, <code>set_imag</code> and <code>set_value</code> replace the contents of a cell.
+<p><code>set_char(cval,val,i)</code>, <code>set_int(ival,val,i)</code>, <code>set_real(xval,val,i)</code>, <code>set_imag(yval,val,i)</code> and <code>set_value(pval,val,i)</code> replace the contents of cell <code>i</code> of <code>val</code>.
 </p>
 <p>It is not possible to change the shape of an APL value.
 </p>
@@ -242,44 +247,56 @@ Next: <a href="#Interface-to-APL-interpreter" accesskey="n" rel="next">Interface
 <a name="Interface-to-APL-interpreter"></a>
 <div class="header">
 <p>
-Next: <a href="#Print-support" accesskey="n" rel="next">Print support</a>, Previous: <a href="#Write-access-to-cells" accesskey="p" rel="prev">Write access to cells</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
+Next: <a href="#Destructor-function" accesskey="n" rel="next">Destructor function</a>, Previous: <a href="#Write-access-to-cells" accesskey="p" rel="prev">Write access to cells</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
 </div>
 <a name="Interface-to-APL-interpreter-1"></a>
-<h3 class="section">3.4 Interface to APL interpreter</h3>
-<a name="g_t_0023interface_002dto_002dapl_002dinterpreter"></a><p>An external function pointer <code>res_callback</code> is called just before <code>apl_exec</code> exits. To exploit it, assign a suitable user-written function to it, e.g.
+<h3 class="section">2.4 Interface to APL interpreter</h3>
+<a name="g_t_0023interface_002dto_002dapl_002dinterpreter"></a><p><code>set_var_value(name,val,loc)</code> and <code>get_var_value(name,val,loc)</code> save and retrieve values to the workspace under specified names.
+</p>
+<p>An external function pointer <code>res_callback</code> is called just before <code>apl_exec</code> exits. To exploit it, assign a suitable user-written function to it, e.g.
 </p>
 <pre class="verbatim">/* callback to print every value */
 static int always_print(const APL_value apl,int committed) {
   return 1;
 }
 
-/* callback to save it in the workspace under the name &quot;λ&quot; */
-static int save_to_hidden(const APL_value apl,int committed) {
-  set_var_value(&quot;λ&quot;,apl,LOC);
-  return ~committed;
+/* callback to save a copy in the workspace under the name &quot;_&quot; */
+static int save_to_workspace(const APL_value apl,int committed) {
+  set_var_value(&quot;_&quot;,apl,LOC);
+  return !committed;
 }
 
 /* One-off declaration statement, must not be inside a function */
 result_callback res_callback = always_print_it;
 ...
 /* A later assignment statement may be anywhere */
-res_callback = save_it_to_hidden;  
+res_callback = save_to_workspace;  
 ...
 res_callback = NULL;      /* disables callback feature */
 </pre>
 <p>Here <code>apl</code> is the anonymous value to which the APL expression evaluates. You are granted access to it just before its brief lifespan expires. <code>committed</code> is a C boolean (only 0 is false) reporting whether that value was stored to a variable. Your return value is a C boolean telling whether the value should be printed by the APL interpreter.
 </p>
-<p>The value <code>*apl</code> (which the API cannot see) will be scheduled for destruction as soon as you exit <code>res_callback</code>, so don&rsquo;t release it yourself.
+<p>The value <code>*apl</code> (which the API cannot see) will be scheduled for destruction as soon as you exit <code>res_callback</code>. Don&rsquo;t release it yourself.
+</p>
+<hr>
+<a name="Destructor-function"></a>
+<div class="header">
+<p>
+Next: <a href="#Print-support" accesskey="n" rel="next">Print support</a>, Previous: <a href="#Interface-to-APL-interpreter" accesskey="p" rel="prev">Interface to APL interpreter</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
+</div>
+<a name="Destructor-function-1"></a>
+<h3 class="section">2.5 Destructor function</h3>
+<a name="g_t_0023destructor_002dfunction"></a><p><code>release_value(val,loc)</code> decrements the reference count of <code>*val</code> as explained in <a href="#g_t_0023lifespan_002dof_002dvalues">Lifespan of Values</a>/
 </p>
 <hr>
 <a name="Print-support"></a>
 <div class="header">
 <p>
-Previous: <a href="#Interface-to-APL-interpreter" accesskey="p" rel="prev">Interface to APL interpreter</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
+Previous: <a href="#Destructor-function" accesskey="p" rel="prev">Destructor function</a>, Up: <a href="#Summary-of-functions" accesskey="u" rel="up">Summary of functions</a> &nbsp; </p>
 </div>
 <a name="Print-support-1"></a>
-<h3 class="section">3.5 Print support</h3>
-<a name="g_t_0023print_002dsupport"></a><p><code>print_value</code>, <code>print_value_to_string</code> filter an APL value through the APL formatting routines. Their behaviour depends on several system variables, such as <code>⎕FC</code>, <code>⎕PP</code>, <code>⎕PW</code>.
+<h3 class="section">2.6 Print support</h3>
+<a name="g_t_0023print_002dsupport"></a><p><code>print_value(value,file)</code>, <code>print_value_to_string(value)</code> filter an APL value through the APL formatting routines. Their behaviour depends on several system variables, such as <code>⎕FC</code>, <code>⎕PP</code>, <code>⎕PW</code>.
 </p>
 <p><code>UTF8_to_Unicode</code>, <code>Unicode_to_UTF8</code> are provided because <code>get_char</code> and <code>set_char</code> work with 32-bit Unicode, whereas many other user interfaces use UTF-8.
 </p>
@@ -287,15 +304,15 @@ Previous: <a href="#Interface-to-APL-interpreter" accesskey="p" rel="prev">Inter
 <a name="Programming-notes"></a>
 <div class="header">
 <p>
-Next: <a href="#Appendix-List-of-system-variables-and-system-functions" accesskey="n" rel="next">Appendix List of system variables and system functions</a>, Previous: <a href="#Summary-of-functions" accesskey="p" rel="prev">Summary of functions</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; </p>
+Previous: <a href="#Summary-of-functions" accesskey="p" rel="prev">Summary of functions</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; </p>
 </div>
 <a name="Programming-notes-1"></a>
-<h2 class="chapter">4 Programming notes</h2>
+<h2 class="chapter">3 Programming notes</h2>
 <a name="g_t_0023programming_002dnotes"></a><p>The typical application would start with:
 </p>
 <pre class="verbatim">#include &lt;stdio.h&gt;
 #include &lt;stdint.h&gt;
-#include &lt;libapl.h&gt;
+#include &lt;apl/libapl.h&gt;
 </pre>
 <p>This interface can be called from C, but since GNU APL is a C++ package. the C++ library must be explicitly loaded, e.g. in Linux:
 </p>
@@ -313,66 +330,10 @@ Next: <a href="#Appendix-List-of-system-variables-and-system-functions" accesske
 Up: <a href="#Programming-notes" accesskey="u" rel="up">Programming notes</a> &nbsp; </p>
 </div>
 <a name="The-loc-parameter-and-LOC-macro-1"></a>
-<h3 class="section">4.1 The <code>loc</code> parameter and <code>LOC</code> macro</h3>
-<a name="g_t_0023the_002dloc_002dparameter_002dand_002dloc_002dmacro"></a><p>Many of the API functions contain a parameter <code>const char* loc</code>. This parameter is used to keep track of changes to a Value and may be displayed by certain debugging services. You can put in anything you like, but most convenient is <code>LOC</code>, a macro that expands to the file name and line number.
+<h3 class="section">3.1 The <code>loc</code> parameter and <code>LOC</code> macro</h3>
+<a name="g_t_0023the_002dloc_002dparameter_002dand_002dloc_002dmacro"></a><p>All the functions that return APL values, as well as <code>release_value</code> and <code>set_var_value</code>, contain a parameter <code>const char* loc</code>. This parameter is used to keep track of changes to a Value and may be displayed by certain debugging services. You can put in anything you like, but most convenient is <code>LOC</code>, a macro that expands to the file name and line number.
 </p>
 <hr>
-<a name="Appendix-List-of-system-variables-and-system-functions"></a>
-<div class="header">
-<p>
-Previous: <a href="#Programming-notes" accesskey="p" rel="prev">Programming notes</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; </p>
-</div>
-<a name="Appendix_003a-List-of-system-variables-and-system-functions"></a>
-<h2 class="chapter">5 Appendix: List of system variables and system functions</h2>
-<a name="g_t_0023appendix_002dlist_002dof_002dsystem_002dvariables_002dand_002dsystem_002dfunctions"></a>
-<pre class="verbatim">⎕AI     Account Information
-⎕ARG    command line arguments of the interpreter
-⎕AV     Atomic Vector
-⎕CT     Comparison Tolerance
-⎕EM     Event Message
-⎕ET     Event Type
-⎕FC     Format Control
-⎕IO     Index Origin
-⎕L      Left Argument
-⎕LC     Line Counter
-⎕LX     Latent Expression
-⎕PP     Printing Precision
-⎕PR     Prompt Replacement
-⎕PS     Print Style 
-⎕PT     Print Tolerance about 10^-⎕PP
-⎕PW     Print Width
-⎕       Evaluated Input/Output
-⍞       Evaluated Input/Output
-⎕R      Right Argment
-⎕SYL    System Limits
-⎕TC     Terminal Control Characters
-⎕TS     Time Stamp
-⎕TZ     Time Zone
-⎕UL     User Load
-⎕WA     Workspace Available
-⎕X      Axis Argument
-
-⎕AF     Atomic Function
-⎕AT     Attributes
-⎕CR     Character Representation
-⎕DL     Delay
-⎕EA     Execute Alternate
-⎕EC     Execute Controlled
-⎕ENV    ENvironment Variables
-⎕ES     Event Simulate
-⎕EX     Expunge
-⎕FX     Fix
-⎕INP    Input from script
-⎕NA     Name Association
-⎕NC     Name Class
-⎕NL     Name List
-⎕RL     Random Link
-⎕SI     State Indicator
-⎕SVx    Shared Variable; x = C,E,O,Q,R,S for
-              Control, Event, Offer, Query, Retraction, State
-⎕TF     Transfer Form
-⎕UCS    Universal Character Set
-</pre><hr>
 
 
 

@@ -70,9 +70,12 @@ StateIndicator::~StateIndicator()
       {
         Log(LOG_EOC_handlers)
            CERR << "StateIndicator::~StateIndicator() cleans up eoc_handlers"
-                << endl;
+                << endl << "    deleting EOC handler "
+                << (const void *)eoc_handlers << endl;
 
-        for (EOC_handler_and_arg * e = eoc_handlers; e; e = e->next)   delete e;
+        eoc_handlers->loc = "(deleted)";
+        delete eoc_handlers;
+        eoc_handlers = 0;
       }
 }
 //-----------------------------------------------------------------------------
@@ -386,14 +389,20 @@ const UserFunction * ufun = get_executable()->get_ufun();
 void
 StateIndicator::escape()  
 {
-   while (EOC_handler_and_arg * e = eoc_handlers)
+EOC_arg * e;
+   while ((e = eoc_handlers))
       {
         Log(LOG_EOC_handlers)
-           CERR << "StateIndicator::escape() cleans up eoc_handlers" << endl;
+           CERR << "StateIndicator::escape() cleans up eoc_handler from "
+                << e->loc << endl;
 
-        eoc_handlers = e->next;
         Token tok(TOK_ESCAPE);
-        e->handler(tok, e->arg);
+        (e->handler)(tok, *e);
+        Log(LOG_EOC_handlers)
+           CERR << "StateIndicator::~StateIndicator() deletes "
+                << (const void *)e << endl;
+         
+        eoc_handlers = e->next;
         delete e;
       }
 }
@@ -498,33 +507,103 @@ void
 StateIndicator::add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
                                 const char * loc)
 {
-   Log(LOG_EOC_handlers)   CERR << "add_eoc_handler(" << loc << ")" << endl;
+EOC_arg * new_e =  new EOC_arg(handler, arg, loc);
 
-   if (EOC_handler_and_arg * e = eoc_handlers)
+   if (EOC_arg * e = eoc_handlers)
       {
         while (e->next)   e = e->next;
-        e->next = new EOC_handler_and_arg(handler, arg, loc);
+        e->next = new_e;
       }
    else   // first EOC handler
       {
-        eoc_handlers = new EOC_handler_and_arg(handler, arg, loc);
+        eoc_handlers = new_e;
+      }
+
+   Log(LOG_EOC_handlers)
+      {
+        int count = 0;
+        for (EOC_arg * e = eoc_handlers; e; e = e->next)   ++count;
+        CERR << "SI[" << level << "] added new EOC handler(" << new_e
+             << " from " << loc << " len=" << count << endl;
       }
 }
+//-----------------------------------------------------------------------------
+EOC_arg *
+StateIndicator::remove_eoc_handlers(EOC_arg * & nxt)
+{
+EOC_arg * ret = eoc_handlers;   nxt = ret->next;
+
+   Log(LOG_EOC_handlers)
+      {
+         CERR << "SI[" << level << "] remove_eoc_handler(" << eoc_handlers
+              << endl;
+      }
+
+   eoc_handlers = 0;
+   return ret;
+}
+//-----------------------------------------------------------------------------
+void
+StateIndicator::move_eoc_handler(EOC_HANDLER handler, EOC_arg * old_arg,
+                                 const char * loc)
+{
+   eoc_handlers = old_arg;
+   Assert(eoc_handlers);
+
+   Log(LOG_EOC_handlers)
+      {
+         CERR << "SI[" << level << "] move_eoc_handler(" << eoc_handlers
+              << " from " << eoc_handlers->loc
+              << " to " << loc << ")" << endl;
+      }
+
+   eoc_handlers->handler = handler;
+   eoc_handlers->loc = loc;
+}
+
 //-----------------------------------------------------------------------------
 bool
 StateIndicator::call_eoc_handler(Token & token)
 {
-        Log(LOG_EOC_handlers)   CERR << "call_eoc_handler()" << endl;
+   if (!eoc_handlers)     return false;   // no eoc_handler
 
-   if (EOC_handler_and_arg * e = eoc_handlers)
+   Log(LOG_EOC_handlers)
+           CERR << "SI[" << level << "] call_eoc_handler(" << (const void *)eoc_handlers
+                << " from " << eoc_handlers->loc << ")" << endl;
+
+
+   if (eoc_handlers->new_mode == true)
       {
-        eoc_handlers = e->next;
-        const bool goon = (e->handler)(token, e->arg);
-        delete e;
-        return goon;   // false: success (done), true: goon
+const bool goon = (eoc_handlers->handler)(token, *eoc_handlers);
+
+   if (eoc_handlers && !eoc_handlers->new_mode)   // need to remove handler
+      {
+        Log(LOG_EOC_handlers)
+           CERR << "    deleting finished EOC handler "
+                << (const void *)eoc_handlers << endl;
+        eoc_handlers->loc = "(deleted)";
+        eoc_handlers->next = 0;
+        delete eoc_handlers;
+        eoc_handlers = 0;
       }
 
-   return false;   // no eoc_handler
+   return goon;   // false: success (done), true: goon
+
+      }
+   else
+      {
+
+EOC_arg * e = eoc_handlers;
+   eoc_handlers = 0;
+const bool goon = (e->handler)(token, *e);
+   Log(LOG_EOC_handlers)
+                 CERR << "    deleting finished EOC handler "
+                      << (const void *)e << endl;
+   e->loc = "(deleted)";
+   e->next = 0;
+   delete e;
+   return goon;   // false: success (done), true: goon
+      }
 }
 //-----------------------------------------------------------------------------
 Function_Line

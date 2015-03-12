@@ -1060,10 +1060,9 @@ const UCS_string statement_B(*B.get());
         // install end of context handler. The handler will do nothing when
         // B succeeds, but will execute A if not.
         //
-        StateIndicator * si = Workspace::SI_top();
-
         EOC_arg arg(Value_P(), B, A);
-        si->add_eoc_handler(eoc_A_and_B_done, arg, LOC);
+        arg.new_mode = true;
+        Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg, LOC);
 
         return Token(TOK_SI_PUSHED);
       }
@@ -1082,6 +1081,7 @@ const UCS_string statement_B(*B.get());
      Value_P dummy_Z;
      EOC_arg arg(dummy_Z, B, A);
 
+     arg.new_mode = true;
      Workspace::SI_top()->add_eoc_handler(eoc_B_done, arg, LOC);
    }
 
@@ -1089,16 +1089,25 @@ const UCS_string statement_B(*B.get());
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EA::eoc_B_done(Token & token, EOC_arg & arg)
+Quad_EA::eoc_B_done(Token & token, EOC_arg &)
 {
 StateIndicator * si = Workspace::SI_top();
+EOC_arg * next = 0;
+EOC_arg * arg = si->remove_eoc_handlers(next);
+
 
    // in A ⎕EA B, ⍎B was executed and may or may not have failed.
    //
    if (token.get_tag() != TOK_ERROR)   // ⍎B succeeded
       {
-        si->set_safe_execution(false);
         // do not clear ⎕EM and ⎕ET; they should remain visible.
+
+        si->set_safe_execution(false);
+
+        delete arg;
+        Workspace::SI_top()->set_eoc_handlers(next);
+        if (next)   return (next->handler)(token, *next);
+
         return false;   // ⍎B successful.
       }
 
@@ -1107,8 +1116,8 @@ StateIndicator * si = Workspace::SI_top();
    // lrm p. 178: "⎕EM and ⎕ET are set, execution of B is abandoned without
    // an error message, and the expression represented by A is executed."
    //
-Value_P A = arg.A;
-Value_P B = arg.B;
+Value_P A = arg->A;
+Value_P B = arg->B;
 const UCS_string statement_A(*A.get());
 
 ExecuteList * fun = 0;
@@ -1140,33 +1149,43 @@ ExecuteList * fun = 0;
    //
    {
      Value_P dummy_Z;
-     EOC_arg arg(dummy_Z, B, A);
+     EOC_arg arg1(dummy_Z, B, A);
      StateIndicator * si1 = Workspace::SI_top();
-     si1->add_eoc_handler(eoc_A_and_B_done, arg, LOC);
+     arg1.new_mode = true;
+     si1->add_eoc_handler(eoc_A_and_B_done, arg1, LOC);
    }
 
+   delete arg;
    return true;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EA::eoc_A_and_B_done(Token & token, EOC_arg & arg)
+Quad_EA::eoc_A_and_B_done(Token & token, EOC_arg &)
 {
    // in A ⎕EA B, ⍎B has failed, and ⍎A was executed and may or
    // may not have failed.
    //
 StateIndicator * si = Workspace::SI_top();
+EOC_arg * next = 0;
+EOC_arg * arg = si->remove_eoc_handlers(next);
+
    Assert(si);
    si->set_safe_execution(false);
 
    if (token.get_tag() != TOK_ERROR)   // ⍎A succeeded
       {
+        delete arg;
         StateIndicator * si1 = si->get_parent();
         si1->get_error() = si->get_error();
+
+        Workspace::SI_top()->set_eoc_handlers(next);
+        if (next)   return (next->handler)(token, *next);
+
         return false;   // ⍎A successful.
       }
 
-Value_P A = arg.A;
-Value_P B = arg.B;
+Value_P A = arg->A;
+Value_P B = arg->B;
 const UCS_string statement_A(*A.get());
 
    // here both ⍎B and ⍎A failed. ⎕EM shows only B, but should show
@@ -1208,6 +1227,9 @@ const UCS_string statement_B(*B.get());
    UERR << si->get_error().get_error_line_2() << endl
         << si->get_error().get_error_line_3() << endl;
 
+   delete arg;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(token, *next);
    return false;
 }
 //=============================================================================
@@ -1258,6 +1280,7 @@ ExecuteList * fun = 0;
      Value_P dummy_B;
      EOC_arg arg(dummy_B);
 
+     arg.new_mode = true;
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
    }
 
@@ -1265,9 +1288,12 @@ ExecuteList * fun = 0;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EC::eoc(Token & result_B, EOC_arg & arg)
+Quad_EC::eoc(Token & result_B, EOC_arg &)
 {
 StateIndicator * si = Workspace::SI_top();
+EOC_arg * next = 0;
+EOC_arg * arg = si->remove_eoc_handlers(next);
+
    si->set_safe_execution(false);
 
 Value_P Z(3, LOC);
@@ -1350,6 +1376,10 @@ Value_P Z1(2, LOC);
 
    Z->check_value(LOC);
    move_2(result_B, Token(TOK_APL_VALUE1, Z), LOC);
+
+   delete arg;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(result_B, *next);
 
    return false;
 }
@@ -1630,8 +1660,10 @@ Token tok(TOK_FIRST_TIME);
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_INP::eoc_INP(Token & token, EOC_arg & _arg)
+Quad_INP::eoc_INP(Token & token, EOC_arg & si_arg)
 {
+const bool first = token.get_tag() == TOK_FIRST_TIME;
+
    if (token.get_tag() == TOK_ERROR)
       {
          CERR << "Error in ⎕INP" << endl;
@@ -1642,12 +1674,15 @@ Quad_INP::eoc_INP(Token & token, EOC_arg & _arg)
          move_2(token, Token(TOK_APL_VALUE1, val), LOC);
       }
 
-   // _arg may be pop_SI()ed below so we need a copy of it
+   // si_arg may be pop_SI()ed below so we need a copy of it
    //
-EOC_arg earg = _arg;
-quad_INP & arg = earg.u.u_quad_INP;
+EOC_arg * next = 0;
+EOC_arg * del = 0;
+EOC_arg * earg = first ? &si_arg
+                       : del = Workspace::SI_top()->remove_eoc_handlers(next);
+quad_INP & arg = earg->u.u_quad_INP;
 
-   if (token.get_tag() != TOK_FIRST_TIME)
+   if (!first)
       {
         // token is the result of ⍎ exec and arg.lines has at least 2 lines.
         // append the value in token and then the last line to the second
@@ -1763,7 +1798,12 @@ quad_INP & arg = earg.u.u_quad_INP;
                    Assert(token.get_tag() == TOK_SI_PUSHED);
 
                    StateIndicator * si = Workspace::SI_top();
-                   si->add_eoc_handler(eoc_INP, earg, LOC);
+                   earg->new_mode = true;
+                   if (first)
+                      si->add_eoc_handler(eoc_INP, *earg, LOC);
+                   else
+                      si->move_eoc_handler(eoc_INP, earg, LOC);
+
                    return true;   // continue
                  }
             }
@@ -1801,6 +1841,11 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
 
    Z->check_value(LOC);
    move_2(token, Token(TOK_APL_VALUE1, Z), LOC);
+
+   delete del;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(token, *next);
+
    return false;   // continue
 }
 //-----------------------------------------------------------------------------

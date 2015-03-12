@@ -43,16 +43,10 @@ public:
 
 protected:
    /// helper for eval_ALRB
-   static Token finish_ALRB(EOC_arg & arg);
+   static Token finish_ALRB(EOC_arg & arg, bool first);
 
    /// helper for eval_ALRB
    static bool eoc_ALRB(Token & token, EOC_arg & arg);
-
-   /// helper for eval_ALRB
-   static Token finish_LRB(EOC_arg & arg);
-
-   /// helper for eval_ALRB
-   static bool eoc_LRB(Token & token, EOC_arg & arg);
 
    /// return boolean value of 1-element value \b COND
    static bool get_condition_value(const Value & COND, double qct);

@@ -1,21 +1,13 @@
 \input texinfo
-@setfilename apl.info
 @documentencoding UTF-8
+@setfilename libapl.info
 
+@ifnottex
+@paragraphindent 0
+@end ifnottex
 @node Top
 @top Top
 
-@menu
-* Application Program Interface for GNU APL::
-* Vague details of the GNU APL implementation::
-* Summary of functions::
-* Programming notes::
-* Appendix List of system variables and system functions::
-@end menu
-
-@node Application Program Interface for GNU APL
-@chapter Application Program Interface for GNU APL
-@anchor{#application-program-interface-for-gnu-apl}
 The following main facilities are provided:
 
 @table @asis
@@ -37,6 +29,13 @@ set the contents of a variable in the workspace to that of the given APL value.
 @end table
 
 No other GNU APL header is exposed.
+
+This document will not tell you much about APL. For more details about the language, consult an APL reference manual such as those recommended in the file @code{README-7-more-info}, which are probably installed in @code{/usr/share/doc/apl} or @code{/usr/local/share/doc/apl}.
+@menu
+* Vague details of the GNU APL implementation::
+* Summary of functions::
+* Programming notes::
+@end menu
 
 @node Vague details of the GNU APL implementation
 @chapter Vague details of the GNU APL implementation
@@ -96,25 +95,53 @@ All API functions that return an APL value increment the reference count. It is 
 The APL value provided in the argument list of @code{res_callback} (see @ref{#interface-to-apl-interpreter,Interface to APL interpreter}) has a particularly brief lifespan. The execution of that function is your only chance of accessing it. Its reference count is not increased before the call, so you must not release it.
 
 @item
-The type-dependent @code{set_} functions change one element only. Other references to that Value will also reflect the change; for example, if the APL value was returned by @code{get_var_value}, a following call to @code{get_var_value} with the same variable name will show the change.
+The type-specific @code{set_} functions change one element only. Other references to the Value concerned will also reflect the change; for example, if the APL value was returned by @code{get_var_value}, a following call to @code{get_var_value} with the same variable name will show the change.
 
 @item
-@code{set_value} makes a new deep copy of a non-scalar Value. Cloning (which is deliberately discouraged in the API by not providing a copy constructor) can be simulated with the aid of @code{set_value}. The details are left to the persevering user.
-
-@item
-@code{set_var_value} makes a new deep copy of the Value.
+@code{set_value} and @code{set_var_value} make a new deep copy of a non-scalar Value. The reference count of the original Value is not increased. Cloning (which is deliberately discouraged in the API by not providing a copy constructor) can be simulated with the aid of either of these. The details are left to the persevering user.
 
 @end enumerate
 
 @node Summary of functions
 @chapter Summary of functions
 @anchor{#summary-of-functions}
-This section is an aide-memoire, not a manual: consult the comments preceding each function for details.
+This section is an aide-memoire, not a manual: consult the comments preceding each function for details. See @ref{#programming-notes,Programming notes} for information on the @code{loc} parameter.
+
+The other parameter values have the following types:
+
+@multitable {@code{k},@code{n1},@code{n2},@code{n2}} {A UTF-8 encoded @code{char*}} 
+@item 
+@code{val}
+ @tab The main APL value
+@item 
+@code{pval}
+ @tab A secondary APL value
+@item 
+@code{cval}
+ @tab A 32-bit Unicode character
+@item 
+@code{ival}
+ @tab A 64-bit integer
+@item 
+@code{xval},@code{yval}
+ @tab A 64-bit double
+@item 
+@code{sval}
+ @tab A UTF-8 encoded @code{char*}
+@item 
+@code{i}
+ @tab A 64-bit index
+@item 
+@code{k},@code{n1},@code{n2},@code{n2}
+ @tab A 32-bit index
+@end multitable
+
 @menu
 * Constructor functions::
 * Read access to Values::
 * Write access to cells::
 * Interface to APL interpreter::
+* Destructor function::
 * Print support::
 @end menu
 
@@ -123,35 +150,39 @@ This section is an aide-memoire, not a manual: consult the comments preceding ea
 @anchor{#constructor-functions}
 Each of these functions returns an APL value and has a name descriptive of its argument list.
 
-@code{int_scalar}, @code{double_scalar}, @code{complex_scalar} and @code{char_scalar} initialize to a given C value.
+@code{int_scalar(ival,loc)}, @code{double_scalar(xval,loc)}, @code{complex_scalar(xval,yval,loc)} and @code{char_scalar(cval,loc)} initialize to a given C value.
 
-@code{char_vector} initializes from a UTF-8 encoded C string to an array of rank 1 containing Unicode characters.
+@code{char_vector(sval,loc)} initializes from a UTF-8 encoded C string to an array of rank 1 containing Unicode characters.
 
-@code{apl_scalar}, @code{apl_vector}, @code{apl_matrix} and @code{apl_cube} initialize to arrays of rank 0,1,2,3; @code{apl_value} initializes to an array of arbitrary shape. All cells in these arrays are initialized to 0.
+@code{apl_scalar(loc)}, @code{apl_vector(n1)}, @code{apl_matrix(n1,n2)} and @code{apl_cube(n1,n2,n3)} initialize to arrays of rank 0,1,2,3; @code{apl_value(shape,loc)} initializes to an array of arbitrary shape. All cells in these arrays are initialized to 0.
 
 @node Read access to Values
 @section Read access to Values
 @anchor{#read-access-to-values}
-@code{get_rank}, @code{get_axis}, @code{get_element_count} and @code{get_type} give information about the shape and ravel elements.
+@code{get_rank(val)}, @code{get_axis(val,k)} and @code{get_element_count(val)} give information about the shape,
 
-@code{is_char}, @code{is_int}, @code{is_double}, @code{is_complex} and @code{is_value} are conveniently named front-ends to @code{get_type}.
+@code{get_type(val,i)} returns the cell type of a ravel element. The predefined names can be used in e.g. a @code{switch} statement on the cell type.
 
-@code{is_string} tests whether the entire value is a simple character vector. If so, @code{print_value_to_string} can be used to convert it to a UTF-8 encoded C string.
+@code{is_char(val,i)}, @code{is_int(val,i)}, @code{is_double(val,i)}, @code{is_complex(val,i)} and @code{is_value(val,i)} are conveniently named front-ends to @code{get_type} that do not require the user to examine the cell type.
 
-@code{get_char}, @code{get_int}, @code{get_real}, @code{get_imag} and @code{get_value} retrieve the actual contents of a cell of which the type is already known.
+@code{is_string(val)} tests whether the entire value is a simple character vector. If so, @code{print_value_to_string} can be used to convert it to a UTF-8 encoded C string.
+
+@code{get_char(val,i)}, @code{get_int(val,i)}, @code{get_real(val,i)}, @code{get_imag(val,i)} and @code{get_value(val,i)} retrieve the actual contents of a cell of which the type is already known, if necessary by having called @code{get_type} or one of its front-ends. For example @code{get_real} can be used if @code{get_type(val,i) & (CCT_FLOAT@ | CCT_COMPLEX)} is nonzero.
 
 @node Write access to cells
 @section Write access to cells
 @anchor{#write-access-to-cells}
 Cells can be accessed only via an APL value pointing to their containing Value.
 
-@code{set_char}, @code{set_int}, @code{set_real}, @code{set_imag} and @code{set_value} replace the contents of a cell.
+@code{set_char(cval,val,i)}, @code{set_int(ival,val,i)}, @code{set_real(xval,val,i)}, @code{set_imag(yval,val,i)} and @code{set_value(pval,val,i)} replace the contents of cell @code{i} of @code{val}.
 
 It is not possible to change the shape of an APL value.
 
 @node Interface to APL interpreter
 @section Interface to APL interpreter
 @anchor{#interface-to-apl-interpreter}
+@code{set_var_value(name,val,loc)} and @code{get_var_value(name,val,loc)} save and retrieve values to the workspace under specified names.
+
 An external function pointer @code{res_callback} is called just before @code{apl_exec} exits. To exploit it, assign a suitable user-written function to it, e.g.
 
 @verbatim
@@ -160,29 +191,34 @@ static int always_print(const APL_value apl,int committed) {
   return 1;
 }
 
-/* callback to save it in the workspace under the name "λ" */
-static int save_to_hidden(const APL_value apl,int committed) {
-  set_var_value("λ",apl,LOC);
-  return ~committed;
+/* callback to save a copy in the workspace under the name "_" */
+static int save_to_workspace(const APL_value apl,int committed) {
+  set_var_value("_",apl,LOC);
+  return !committed;
 }
 
 /* One-off declaration statement, must not be inside a function */
 result_callback res_callback = always_print_it;
 ...
 /* A later assignment statement may be anywhere */
-res_callback = save_it_to_hidden;  
+res_callback = save_to_workspace;  
 ...
 res_callback = NULL;      /* disables callback feature */
 @end verbatim
 
 Here @code{apl} is the anonymous value to which the APL expression evaluates. You are granted access to it just before its brief lifespan expires. @code{committed} is a C boolean (only 0 is false) reporting whether that value was stored to a variable. Your return value is a C boolean telling whether the value should be printed by the APL interpreter.
 
-The value @code{*apl} (which the API cannot see) will be scheduled for destruction as soon as you exit @code{res_callback}, so don't release it yourself.
+The value @code{*apl} (which the API cannot see) will be scheduled for destruction as soon as you exit @code{res_callback}. Don't release it yourself.
+
+@node Destructor function
+@section Destructor function
+@anchor{#destructor-function}
+@code{release_value(val,loc)} decrements the reference count of @code{*val} as explained in @ref{#lifespan-of-values,Lifespan of Values}/
 
 @node Print support
 @section Print support
 @anchor{#print-support}
-@code{print_value}, @code{print_value_to_string} filter an APL value through the APL formatting routines. Their behaviour depends on several system variables, such as @code{⎕FC}, @code{⎕PP}, @code{⎕PW}.
+@code{print_value(value,file)}, @code{print_value_to_string(value)} filter an APL value through the APL formatting routines. Their behaviour depends on several system variables, such as @code{⎕FC}, @code{⎕PP}, @code{⎕PW}.
 
 @code{UTF8_to_Unicode}, @code{Unicode_to_UTF8} are provided because @code{get_char} and @code{set_char} work with 32-bit Unicode, whereas many other user interfaces use UTF-8.
 
@@ -194,7 +230,7 @@ The typical application would start with:
 @verbatim
 #include <stdio.h>
 #include <stdint.h>
-#include <libapl.h>
+#include <apl/libapl.h>
 @end verbatim
 
 This interface can be called from C, but since GNU APL is a C++ package. the C++ library must be explicitly loaded, e.g. in Linux:
@@ -210,58 +246,6 @@ cc myprog.c -lapl -lstdc++ -o myprog
 @node The loc parameter and LOC macro
 @section The @code{loc} parameter and @code{LOC} macro
 @anchor{#the-loc-parameter-and-loc-macro}
-Many of the API functions contain a parameter @code{const char* loc}. This parameter is used to keep track of changes to a Value and may be displayed by certain debugging services. You can put in anything you like, but most convenient is @code{LOC}, a macro that expands to the file name and line number.
+All the functions that return APL values, as well as @code{release_value} and @code{set_var_value}, contain a parameter @code{const char* loc}. This parameter is used to keep track of changes to a Value and may be displayed by certain debugging services. You can put in anything you like, but most convenient is @code{LOC}, a macro that expands to the file name and line number.
 
-@node Appendix List of system variables and system functions
-@chapter Appendix: List of system variables and system functions
-@anchor{#appendix-list-of-system-variables-and-system-functions}
-
-@verbatim
-⎕AI     Account Information
-⎕ARG    command line arguments of the interpreter
-⎕AV     Atomic Vector
-⎕CT     Comparison Tolerance
-⎕EM     Event Message
-⎕ET     Event Type
-⎕FC     Format Control
-⎕IO     Index Origin
-⎕L      Left Argument
-⎕LC     Line Counter
-⎕LX     Latent Expression
-⎕PP     Printing Precision
-⎕PR     Prompt Replacement
-⎕PS     Print Style 
-⎕PT     Print Tolerance about 10^-⎕PP
-⎕PW     Print Width
-⎕       Evaluated Input/Output
-⍞       Evaluated Input/Output
-⎕R      Right Argment
-⎕SYL    System Limits
-⎕TC     Terminal Control Characters
-⎕TS     Time Stamp
-⎕TZ     Time Zone
-⎕UL     User Load
-⎕WA     Workspace Available
-⎕X      Axis Argument
-
-⎕AF     Atomic Function
-⎕AT     Attributes
-⎕CR     Character Representation
-⎕DL     Delay
-⎕EA     Execute Alternate
-⎕EC     Execute Controlled
-⎕ENV    ENvironment Variables
-⎕ES     Event Simulate
-⎕EX     Expunge
-⎕FX     Fix
-⎕INP    Input from script
-⎕NA     Name Association
-⎕NC     Name Class
-⎕NL     Name List
-⎕RL     Random Link
-⎕SI     State Indicator
-⎕SVx    Shared Variable; x = C,E,O,Q,R,S for
-              Control, Event, Offer, Query, Retraction, State
-⎕TF     Transfer Form
-⎕UCS    Universal Character Set
-@end verbatim
+@bye

@@ -164,7 +164,7 @@ const ShapeItem items_B = shape_B1.get_volume();
 
 Value_P Z(shape_A1 + shape_B1, LOC);
 
-   // an important and the most likely) special case is LO and RO being scalar
+   // an important (and the most likely) special case is LO and RO being scalar
    // functions. This case can be implemented in a far simpler fashion than
    // the general case.
    //

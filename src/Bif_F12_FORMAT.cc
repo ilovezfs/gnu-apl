@@ -63,7 +63,7 @@ Value_P Z;
         Assert(shape_Z.get_volume() == Z->element_count());
         Z->set_shape(shape_Z);
       }
-   else
+   else   // B->get_rank() is 0, 1, or 2
       {
         Z = monadic_format(B);
       }
@@ -74,7 +74,7 @@ Value_P Z;
    //
 const Depth depth = B->compute_depth();
 Shape sZ;
-   if (depth > 1)   // nested
+   if (depth > 1)   // B is nested ⊢ ⍴⍴R is 1 or 2
       {
         // the  examples in lrm contradict the text in lrm.
         //
@@ -98,9 +98,12 @@ Shape sZ;
              sZ = Z->get_shape();   // leave Z as is (2-dimensional)
            }
       }
-   else             // simple:                    result rank: 
+   else             // B is simple:                    result rank: ,1⌈⍴ρB
       {
-        if (B->get_rank() < 2)  sZ = Shape(Z->get_cols());
+        if (B->get_rank() < 2)
+           {
+             sZ = Shape(Z->get_cols());
+           }
         else
            {
              sZ = B->get_shape();
@@ -108,11 +111,11 @@ Shape sZ;
            }
       }
 
-        if (sZ != Z->get_shape())
-           {
-             Assert(sZ.get_volume() == Z->element_count());
-             Z->set_shape(sZ);
-           }
+   if (sZ != Z->get_shape())
+      {
+        Assert(sZ.get_volume() == Z->element_count());
+        Z->set_shape(sZ);
+      }
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
