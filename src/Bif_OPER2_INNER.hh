@@ -43,7 +43,7 @@ protected:
    Token inner_product(Value_P A, Token & LO, Token & RO, Value_P B);
 
    /// EOC handler for inner_product with user defined RO
-   static bool eoc_inner_product(Token & token, EOC_arg & arg);
+   static bool eoc_INNER(Token & token, EOC_arg & arg);
 
    /// the context for an inner product
    struct PJob_product
@@ -73,7 +73,7 @@ protected:
 
    /// helper for RO. returns true if the final token was computed, and false
    /// if finish_inner_product shall be called again
-   static Token finish_inner_product(EOC_arg & arg);
+   static Token finish_inner_product(EOC_arg & arg, bool first);
 	};
 //-----------------------------------------------------------------------------
 

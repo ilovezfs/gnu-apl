@@ -60,7 +60,7 @@ protected:
    Token outer_product(Value_P A, Token & RO, Value_P B);
 
    /// EOC handler for outer_product with user defined RO
-   static bool eoc_outer_product(Token & token, EOC_arg & arg);
+   static bool eoc_OUTER(Token & token, EOC_arg & arg);
 
    /// the context for an outer product
    struct PJob_product

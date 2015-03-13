@@ -142,7 +142,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
            {
              // LO was a user defined function
              //
-             arg.new_mode = true;
              if (_arg.z)   // subsequent call
                 Workspace::SI_top()->move_eoc_handler(eoc_ALB, &arg, LOC);
              else           // first call
@@ -162,38 +161,36 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_EACH::eoc_ALB(Token & token, EOC_arg & si_arg)
+Bif_OPER1_EACH::eoc_ALB(Token & token, EOC_arg &)
 {
-EOC_arg arg = si_arg;
-EACH_ALB & _arg = arg.u.u_EACH_ALB;
+EOC_arg * next = 0;
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
-   if (!!arg.Z)   // LO with result, maybe successful
+   if (!!arg->Z)   // LO with result, maybe successful
       {
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
        Value_P vZ = token.get_apl_val();
 
        if (!_arg.sub)
-          arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
+          arg->Z->next_ravel()->init_from_value(vZ, arg->Z.getref(), LOC);
        else if (vZ->is_simple_scalar())
-          arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+          arg->Z->next_ravel()->init(vZ->get_ravel(0), arg->Z.getref());
        else
-          new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+          new (arg->Z->next_ravel())   PointerCell(vZ, arg->Z.getref());
       }
    else        // LO without result, maybe successful
       {
         if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-EOC_arg * next = 0;
-EOC_arg * eoc = Workspace::SI_top()->remove_eoc_handlers(next);
-
    if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
 
-   copy_1(token, finish_eval_ALB(*eoc), LOC);
+   copy_1(token, finish_eval_ALB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
-   delete eoc;
+   delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
    if (next)   return (next->handler)(token, *next);
 
@@ -252,7 +249,6 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
                 {
                   // LO was a user defined function or ⍎
                   //
-                  arg.new_mode = true;
                   if (_arg.z)   // subsequent call
                      Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
                   else           // first call
@@ -308,7 +304,6 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
                 {
                   // LO was a user defined function or ⍎
                   //
-                  arg.new_mode = true;
                   if (_arg.z)   // subsequent call
                      Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
                   else           // first call
@@ -351,38 +346,36 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_EACH::eoc_LB(Token & token, EOC_arg & si_arg)
+Bif_OPER1_EACH::eoc_LB(Token & token, EOC_arg &)
 {
-EOC_arg arg = si_arg;
-EACH_LB & _arg = arg.u.u_EACH_LB;
+EOC_arg * next = 0;
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+EACH_LB & _arg = arg->u.u_EACH_LB;
 
-   if (!!arg.Z)   // LO with result, maybe successful
+   if (!!arg->Z)   // LO with result, maybe successful
       {
        if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
 
         Value_P vZ = token.get_apl_val();
 
         if (!_arg.sub)
-           arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
+           arg->Z->next_ravel()->init_from_value(vZ, arg->Z.getref(), LOC);
         else if (vZ->is_simple_scalar())
-           arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+           arg->Z->next_ravel()->init(vZ->get_ravel(0), arg->Z.getref());
         else
-           new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+           new (arg->Z->next_ravel())   PointerCell(vZ, arg->Z.getref());
       }
    else        // LO without result, maybe successful
       {
        if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-EOC_arg * next = 0;
-EOC_arg * eoc = Workspace::SI_top()->remove_eoc_handlers(next);
-
    if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
 
-   copy_1(token, finish_eval_LB(*eoc), LOC);
+   copy_1(token, finish_eval_LB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
-   delete eoc;
+   delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
    if (next)   return (next->handler)(token, *next);
 

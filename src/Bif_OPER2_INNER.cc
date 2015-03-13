@@ -241,11 +241,11 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
        }
 
    _arg.how = 0;
-   return finish_inner_product(arg);
+   return finish_inner_product(arg, true);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_INNER::finish_inner_product(EOC_arg & arg)
+Bif_OPER2_INNER::finish_inner_product(EOC_arg & arg, bool first)
 {
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
@@ -285,8 +285,10 @@ loop_b:
            }
 
         _arg.how = 1;
-        StateIndicator & si = *Workspace::SI_top();
-        si.add_eoc_handler(eoc_inner_product, arg, LOC);
+        if (first)   // first call
+           Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
+        else           // subsequent call
+           Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
 
         return T1;   // continue in user defined function...
       }
@@ -340,8 +342,10 @@ loop_v:
                  }
 
               _arg.how = 2;
-              StateIndicator & si = *Workspace::SI_top();
-              si.add_eoc_handler(eoc_inner_product, arg, LOC);
+               if (first)   // first call
+                  Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
+               else           // subsequent call
+                  Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
 
               return T2;   // continue in user defined function...
             }
@@ -377,24 +381,17 @@ next_a_b:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_INNER::eoc_inner_product(Token & token, EOC_arg & si_arg)
+Bif_OPER2_INNER::eoc_INNER(Token & token, EOC_arg &)
 {
-   // copy si_arg since pop_SI() will destroy it
-   //
-EOC_arg arg = si_arg;
-INNER_PROD & _arg = arg.u.u_INNER_PROD;
+EOC_arg * next = 0;
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+INNER_PROD & _arg = arg->u.u_INNER_PROD;
 
-   if      (token.get_Class() == TC_VALUE)   ;   // continue below
-   else if (token.get_tag() == TOK_ESCAPE)
+   if (token.get_Class() != TC_VALUE)
       {
         loop(i, _arg.items_A)   _arg.args_A[i].reset();
         loop(i, _arg.items_B)   _arg.args_B[i].reset();
-        return false;   // stop it
-      }
-   else
-      {
-        StateIndicator & si = *Workspace::SI_top();
-        si.add_eoc_handler(eoc_inner_product, arg, LOC);
+        delete arg;
         return false;   // stop it
       }
 
@@ -402,12 +399,16 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
    // a user defined function has returned a value. Store it.
    //
-   if      (_arg.how == 1)   arg.V1 = token.get_apl_val();
-   else if (_arg.how == 2)   arg.V2 = token.get_apl_val();
+   if      (_arg.how == 1)   arg->V1 = token.get_apl_val();
+   else if (_arg.how == 2)   arg->V2 = token.get_apl_val();
    else                      FIXME;
 
-   copy_1(token, finish_inner_product(arg), LOC);
+   copy_1(token, finish_inner_product(*arg, false), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
+
+   delete arg;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(token, *next);
 
    return false;
 }

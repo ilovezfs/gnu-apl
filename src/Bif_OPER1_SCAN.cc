@@ -182,14 +182,9 @@ ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(Z, B);
-REDUCTION & _arg = arg.u.u_REDUCTION;
+const Shape3 Z3(B->get_shape(), axis);
 
-   _arg.init(shape_Z3, LO, &B->get_ravel(0), m_len, 1, 1);
-
-Token tok(TOK_FIRST_TIME);
-   Bif_REDUCE::eoc_beam(tok, arg);
-   return tok;
+   return Bif_REDUCE::do_reduce(B->get_shape(), Z3, -1, LO, axis, B, m_len);
 }
 //-----------------------------------------------------------------------------
 Token
