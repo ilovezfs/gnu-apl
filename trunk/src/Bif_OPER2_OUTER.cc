@@ -212,11 +212,10 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
       {
         // RO was a user defined function
         //
-        arg.new_mode = true;
         if (_arg.z)   // subsequent call
-           Workspace::SI_top()->move_eoc_handler(eoc_outer_product, &arg, LOC);
+           Workspace::SI_top()->move_eoc_handler(eoc_OUTER, &arg, LOC);
         else           // first call
-           Workspace::SI_top()->add_eoc_handler(eoc_outer_product, arg, LOC);
+           Workspace::SI_top()->add_eoc_handler(eoc_OUTER, arg, LOC);
 
         return result;   // continue in user defined function...
       }
@@ -232,12 +231,13 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_OUTER::eoc_outer_product(Token & token, EOC_arg & si_arg)
+Bif_OPER2_OUTER::eoc_OUTER(Token & token, EOC_arg &)
 {
    // we copy _arg since pop_SI() will destroy it
    //
-EOC_arg arg = si_arg;
-OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
+EOC_arg * next = 0;
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+OUTER_PROD & _arg = arg->u.u_OUTER_PROD;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
@@ -245,20 +245,17 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    //
    {
      Value_P ZZ = token.get_apl_val();
-     arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);
+     arg->Z->next_ravel()->init_from_value(ZZ, arg->Z.getref(), LOC);
    }
-
-EOC_arg * next = 0;
-EOC_arg * eoc = Workspace::SI_top()->remove_eoc_handlers(next);
 
    // pop the SI unless this is the last ravel element of Z to be computed
    //
    if (_arg.z < (_arg.len_Z - 1))   Workspace::pop_SI(LOC);
 
-   copy_1(token, finish_outer_product(*eoc), LOC);
+   copy_1(token, finish_outer_product(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
-   delete eoc;
+   delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
    if (next)   return (next->handler)(token, *next);
 

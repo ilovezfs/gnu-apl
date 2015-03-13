@@ -78,108 +78,27 @@ struct INNER_PROD
 /// arguments of the EOC handler for one f/B result cell
 struct REDUCTION
 {
-   /// initialize \b this REDUCTION object
-   void init(const Shape3 & Z3, Function * LO,
-             const Cell * cB, ShapeItem bm, ShapeItem A0, int A0_inc)
-      {
-        need_pop = false;
-        eoc_handler_installed = false;
-        
-        frame.frame_init(Z3, cB, bm, A0_inc);
-        beam.init_beam(LO, cB, Z3.l(), A0);
-      }
+  // parameters that are constant for the entire reduction
+  Function * LO;            ///< left user defined function
+  bool scan;                ///< true for LO\ B
+  ShapeItem len_L;          ///< length of dimensions below (excluding) axis
+  ShapeItem len_L_s;        ///< len_L or 0 for scan
+  ShapeItem len_BML;        ///< length of dimensions below (including) axis
+  ShapeItem len_ZM;         ///< length of reduce axis in Z
+  ShapeItem len_Z;          ///< number of reductions (beams)
+  ShapeItem beam_len;       ///< dito, -1: variable (scan)
+  ShapeItem dB;             ///< - len_L (or len_L    if inverse)
+  ShapeItem start_offset;   ///< 0       (or len_L*dB if inverse);
 
-   /// true if SI was pushed
-   bool need_pop;
+  // parameters that are constant for one beam (= one z)
+  ShapeItem z;              ///< current beam
+  ShapeItem z_L;            ///< current beam (low dimension of z)
+  ShapeItem z_M;            ///< current beam (middle dimension of z)
+  ShapeItem z_H;            ///< current beam (middle dimension of z)
 
-   bool eoc_handler_installed;
-
-   /// information about one beam
-   struct
-      {
-         /// initialize \b this _beam (first beam in frame)
-         void init_beam(Function * _LO, const Cell * B_h0l,
-                   ShapeItem _dist, ShapeItem _A0)
-            { LO = _LO;
-              if (_A0 < 0)   { dist = _dist;     length = - _A0; }
-              else           { dist = - _dist;   length = _A0;   }
-
-              reset_beam(B_h0l);
-            }
-
-         /// reset \b this _beam (next beam in frame)
-         void reset_beam(const Cell * B_h0l)
-            { idx = 0;
-              if (dist < 0)    src = B_h0l - (length * dist);
-              else             src = B_h0l - dist;
-            }
-
-         /// advance B in \b this beam
-         const Cell * next_B()
-            { ++idx;  src += dist;  return src; }
-
-         /// return true iff this beam is finished (one reduction result item
-         /// has been computed
-         bool done() const
-            { return idx >= length; }
-
-         ShapeItem dist;     ///< the distance between beam elements
-         ShapeItem length;   ///< number of beam elements
-         Function * LO;      ///< left operand
-
-         const Cell * src;   ///< the next cell of the beam
-         ShapeItem    idx;   ///< the current index of base
-      } beam;   ///< the current beam
-
-   /// information about all beams
-   struct _frame
-      {
-        /// initialize \b this _frame
-        void frame_init(const Shape3 & Z3, const Cell *  _cB,
-                        ShapeItem _max_bm, int _A0_inc)
-           {
-             cB = _cB;
-
-             max_h = Z3.h();
-             max_bm = _max_bm;
-             max_zm = Z3.m();
-             max_l = Z3.l();
-             A0_inc = _A0_inc;
-
-             h = 0;
-             m = 0;
-             l = 0;
-           }
-
-        /// advance Z in \b this frame
-       void next_hml()
-           { ++l;
-             if (l >= max_l)    { l = 0;   ++m; }
-             if (m >= max_zm)   { m = 0;   ++h; }
-           }
-
-        /// return true iff this frame is finished (the last reduction result
-        /// item has been computed
-        bool done() const
-           { return h >= max_h; }
-
-        /// the beam start for Z[h;m]
-        const Cell * beam_start()
-           { return cB + l + max_l*(m * (1 - A0_inc) + max_bm * h); } 
-
-        // fixed variables
-        ShapeItem    max_bm;       ///< max. m for B
-        ShapeItem    max_h;        ///< max. h
-        ShapeItem    max_zm;       ///< max. m for Z
-        ShapeItem    max_l;        ///< max. l
-        int          A0_inc;       ///< window increment (= 1 for scan)
-
-        // running variables
-        const Cell * cB;           ///< first ravel item in B
-        ShapeItem    h;            ///< current h
-        ShapeItem    m;            ///< current m
-        ShapeItem    l;            ///< current l
-      } frame;   ///< the current frame
+  // parameters that are change during the reduction of a beam
+  ShapeItem todo_B;         ///< # of reductions left in this beam, -1: new beam
+  ShapeItem b;              ///< current b
 };
 
 /// arguments of the EOC handler for A f¨ B
@@ -206,7 +125,7 @@ struct EACH_LB
 };
 
 /// arguments of the EOC handler for (A) f⍤[X] B
-struct RANK_LyXB
+struct RANK
 {
   Function * LO;                     ///< user defined function
   ShapeItem h;                       ///< current high index
@@ -226,11 +145,8 @@ struct RANK_LyXB
 
   /// return sh_axes
   Shape & get_axes()             { return *(Shape *)&_axes;    }
-};
 
-/// arguments of the EOC handler for A f⍤[X] B
-struct RANK_ALyXB : public RANK_LyXB
-{
+   // additional args for dyadic RANK operator
   bool repeat_A;                     ///< scalar-extend A
   bool repeat_B;                     ///< scalar-extend B
   char _sh_chunk_A[sizeof(Shape)];   ///< low dimensions of A
@@ -244,7 +160,6 @@ struct RANK_ALyXB : public RANK_LyXB
 /// arguments of the EOC handler for A f⋆g B
 struct POWER_ALRB
 {
-  bool dyadic;                       /// A f⍣ B vs. f⍣ B
   int how;                           ///< how to finish_eval_ALRB()
   double qct;                        ///< comparison tolerance
   ShapeItem repeat_count;            ///< repeat count N for  form  A f ⍣ N B
@@ -269,7 +184,6 @@ public:
    : handler(0),
      loc(0),
      next(0),
-     new_mode(false),
      Z(vpZ),
      B(vpB),
      A(vpA)
@@ -281,7 +195,6 @@ public:
    : handler(0),
      loc(0),
      next(0),
-     new_mode(false),
      B(vpB)
    {}
 
@@ -290,7 +203,6 @@ public:
    : handler(0),
      loc(0),
      next(0),
-     new_mode(false),
      Z(vpZ),
      B(vpB)
    {}
@@ -308,7 +220,6 @@ public:
    : handler(other.handler),
      loc(other.loc),
      next(other.next),
-     new_mode(other.new_mode),
      Z(other.Z),
      B(other.B),
      A(other.A),
@@ -325,7 +236,6 @@ public:
    const char * loc;
 
    EOC_arg * next;
-   bool new_mode;
 
    /// result
    Value_P Z;
@@ -361,8 +271,7 @@ public:
         REDUCTION   u_REDUCTION;       ///< space for f/ context
         EACH_ALB    u_EACH_ALB;        ///< space for A¨B context
         EACH_LB     u_EACH_LB;         ///< space for ¨B context
-        RANK_LyXB   u_RANK_LyXB;       ///< space for f⍤[X] B context
-        RANK_ALyXB  u_RANK_ALyXB;      ///< space for A f⍤[X] B context
+        RANK        u_RANK;            ///< space for A f⍤[X] B context
         POWER_ALRB  u_POWER_ALRB;      ///< space for A f⍣g B context
       } u; ///< a union big enough for all EOC args
 };

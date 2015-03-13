@@ -572,38 +572,10 @@ StateIndicator::call_eoc_handler(Token & token)
                 << " from " << eoc_handlers->loc << ")" << endl;
 
 
-   if (eoc_handlers->new_mode == true)
-      {
 const bool goon = (eoc_handlers->handler)(token, *eoc_handlers);
 
-   if (eoc_handlers && !eoc_handlers->new_mode)   // need to remove handler
-      {
-        Log(LOG_EOC_handlers)
-           CERR << "    deleting finished EOC handler "
-                << (const void *)eoc_handlers << endl;
-        eoc_handlers->loc = "(deleted)";
-        eoc_handlers->next = 0;
-        delete eoc_handlers;
-        eoc_handlers = 0;
-      }
-
    return goon;   // false: success (done), true: goon
 
-      }
-   else
-      {
-
-EOC_arg * e = eoc_handlers;
-   eoc_handlers = 0;
-const bool goon = (e->handler)(token, *e);
-   Log(LOG_EOC_handlers)
-                 CERR << "    deleting finished EOC handler "
-                      << (const void *)e << endl;
-   e->loc = "(deleted)";
-   e->next = 0;
-   delete e;
-   return goon;   // false: success (done), true: goon
-      }
 }
 //-----------------------------------------------------------------------------
 Function_Line

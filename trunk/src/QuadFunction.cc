@@ -1061,7 +1061,6 @@ const UCS_string statement_B(*B.get());
         // B succeeds, but will execute A if not.
         //
         EOC_arg arg(Value_P(), B, A);
-        arg.new_mode = true;
         Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg, LOC);
 
         return Token(TOK_SI_PUSHED);
@@ -1081,7 +1080,6 @@ const UCS_string statement_B(*B.get());
      Value_P dummy_Z;
      EOC_arg arg(dummy_Z, B, A);
 
-     arg.new_mode = true;
      Workspace::SI_top()->add_eoc_handler(eoc_B_done, arg, LOC);
    }
 
@@ -1150,9 +1148,7 @@ ExecuteList * fun = 0;
    {
      Value_P dummy_Z;
      EOC_arg arg1(dummy_Z, B, A);
-     StateIndicator * si1 = Workspace::SI_top();
-     arg1.new_mode = true;
-     si1->add_eoc_handler(eoc_A_and_B_done, arg1, LOC);
+     Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg1, LOC);
    }
 
    delete arg;
@@ -1280,7 +1276,6 @@ ExecuteList * fun = 0;
      Value_P dummy_B;
      EOC_arg arg(dummy_B);
 
-     arg.new_mode = true;
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
    }
 
@@ -1797,12 +1792,10 @@ quad_INP & arg = earg->u.u_quad_INP;
                    move_2(token, Bif_F1_EXECUTE::execute_statement(exec), LOC);
                    Assert(token.get_tag() == TOK_SI_PUSHED);
 
-                   StateIndicator * si = Workspace::SI_top();
-                   earg->new_mode = true;
                    if (first)
-                      si->add_eoc_handler(eoc_INP, *earg, LOC);
+                      Workspace::SI_top()->add_eoc_handler(eoc_INP, *earg, LOC);
                    else
-                      si->move_eoc_handler(eoc_INP, earg, LOC);
+                      Workspace::SI_top()->move_eoc_handler(eoc_INP, earg, LOC);
 
                    return true;   // continue
                  }

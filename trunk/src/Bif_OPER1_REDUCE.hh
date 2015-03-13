@@ -33,7 +33,12 @@ public:
    Bif_REDUCE(TokenTag tag) : PrimitiveOperator(tag) {}
 
    /// function called when a sub-SI for a user defined LO returns
-   static bool eoc_beam(Token & token, EOC_arg & arg);
+   static bool eoc_REDUCE(Token & token, EOC_arg & arg);
+
+   /// common implementation of reduce() and reduce_n_wise.
+   static Token do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
+                          Function * LO, Axis axis, Value_P B, ShapeItem bm);
+
 protected:
    /// Replicate B according to A along axis.
    Token replicate(Value_P A, Value_P B, Axis axis);
@@ -44,9 +49,7 @@ protected:
    /// LO-reduce B n-wise along axis.
    Token reduce_n_wise(Value_P A, Function * LO, Value_P B, Axis axis);
 
-   /// common implementation of reduce() and reduce_n_wise.
-   static Token do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
-                          Function * LO, Axis axis, Value_P B, ShapeItem bm);
+   static Token finish_REDUCE(EOC_arg & arg, bool first);
 };
 //-----------------------------------------------------------------------------
 /** Primitive operator reduce along last axis.

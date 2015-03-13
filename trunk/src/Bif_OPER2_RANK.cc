@@ -68,7 +68,7 @@ Bif_OPER2_RANK::do_LyXB(Function * LO, const Shape * axes,
 const Shape shape_Z = B->get_shape().high_shape(B->get_rank() - rk_chunk_B);
 Value_P Z(shape_Z, LOC);
 EOC_arg arg(Z, B);
-RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
+RANK & _arg = arg.u.u_RANK;
 
    _arg.get_sh_chunk_B() = B->get_shape().low_shape(rk_chunk_B);
    _arg.get_sh_frame() = shape_Z;
@@ -87,7 +87,7 @@ RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
 Token
 Bif_OPER2_RANK::finish_LyXB(EOC_arg & arg, bool first)
 {
-RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
+RANK & _arg = arg.u.u_RANK;
 
    while (++_arg.h < _arg.ec_frame)
       {
@@ -102,7 +102,11 @@ RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
            {
              // LO was a user defined function or ⍎
              //
-             Workspace::SI_top()->add_eoc_handler(eoc_LyXB, arg, LOC);
+             if (first)   // first call
+                Workspace::SI_top()->add_eoc_handler(eoc_RANK, arg, LOC);
+             else           // subsequent call
+                Workspace::SI_top()->move_eoc_handler(eoc_RANK, &arg, LOC);
+
              return result;   // continue in user defined function...
            }
 
@@ -125,30 +129,6 @@ RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
    if (!_arg.axes_valid)   return Bif_F12_PICK::disclose(arg.Z, true);
 
    return Bif_F12_PICK::disclose_with_axis(_arg.get_axes(), arg.Z, true);
-}
-//-----------------------------------------------------------------------------
-bool
-Bif_OPER2_RANK::eoc_LyXB(Token & token, EOC_arg & si_arg)
-{
-EOC_arg arg = si_arg;
-RANK_LyXB & _arg = arg.u.u_RANK_LyXB;
-
-   if (token.get_Class() != TC_VALUE)  return false;   // stop it
-
-   // the user defined function has returned a value. Store it.
-   //
-Value_P ZZ = token.get_apl_val();
-   if (ZZ->is_scalar())
-      arg.Z->next_ravel()->init(ZZ->get_ravel(0), arg.Z.getref());
-   else
-      new (arg.Z->next_ravel())   PointerCell(ZZ, arg.Z.getref());
-
-   if (_arg.h < (_arg.ec_frame - 1))   Workspace::pop_SI(LOC);
-
-   copy_1(token, finish_LyXB(arg, false), LOC);
-   if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
-
-   return false;   // stop it
 }
 //-----------------------------------------------------------------------------
 Token
@@ -221,7 +201,7 @@ Shape shape_Z;
 
 Value_P Z(shape_Z, LOC);
 EOC_arg arg(Z, B, A);
-RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
+RANK & _arg = arg.u.u_RANK;
 
    _arg.get_sh_chunk_A() = A->get_shape().low_shape(rk_chunk_A);
    _arg.get_sh_chunk_B() = B->get_shape().low_shape(rk_chunk_B);
@@ -266,7 +246,7 @@ RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
 Token
 Bif_OPER2_RANK::finish_ALyXB(EOC_arg & arg, bool first)
 {
-RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
+RANK & _arg = arg.u.u_RANK;
 
    while (++_arg.h < _arg.ec_frame)
       {
@@ -287,7 +267,11 @@ RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
            {
              // LO was a user defined function or ⍎
              //
-             Workspace::SI_top()->add_eoc_handler(eoc_ALyXB, arg, LOC);
+             if (first)   // first call
+                Workspace::SI_top()->add_eoc_handler(eoc_RANK, arg, LOC);
+             else           // subsequent call
+                Workspace::SI_top()->move_eoc_handler(eoc_RANK, &arg, LOC);
+
              return result;   // continue in user defined function...
            }
 
@@ -314,10 +298,11 @@ RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_RANK::eoc_ALyXB(Token & token, EOC_arg & si_arg)
+Bif_OPER2_RANK::eoc_RANK(Token & token, EOC_arg &)
 {
-EOC_arg arg = si_arg;
-RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
+EOC_arg * next = 0;
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+RANK & _arg = arg->u.u_RANK;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
@@ -325,14 +310,20 @@ RANK_ALyXB & _arg = arg.u.u_RANK_ALyXB;
    //
 Value_P ZZ = token.get_apl_val();
    if (ZZ->is_scalar())
-      arg.Z->next_ravel()->init(ZZ->get_ravel(0), arg.Z.getref());
+      arg->Z->next_ravel()->init(ZZ->get_ravel(0), arg->Z.getref());
    else
-      new (arg.Z->next_ravel())   PointerCell(ZZ, arg.Z.getref());
+      new (arg->Z->next_ravel())   PointerCell(ZZ, arg->Z.getref());
 
    if (_arg.h < (_arg.ec_frame - 1))   Workspace::pop_SI(LOC);
 
-   copy_1(token, finish_ALyXB(arg, false), LOC);
+   if (!arg->A)   copy_1(token, finish_LyXB (*arg, false), LOC);
+   else           copy_1(token, finish_ALyXB(*arg, false), LOC);
+
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
+
+   delete arg;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return (next->handler)(token, *next);
 
    return false;   // stop it
 }

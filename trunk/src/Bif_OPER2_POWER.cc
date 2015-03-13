@@ -32,7 +32,6 @@ Bif_OPER2_POWER::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 {
 EOC_arg arg(Value_P(), B, A);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
-   _arg.dyadic = true;
    _arg.qct = Workspace::get_CT();
    _arg.WORK = LO.get_function();
    _arg.user_COND = false;
@@ -95,8 +94,9 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
         for (;;)
             {
-              Token result_WORK = _arg.dyadic ? _arg.WORK->eval_AB(arg.A, arg.B)
-                                              : _arg.WORK->eval_B(arg.B);
+              Token result_WORK = !arg.A ? _arg.WORK->eval_B(arg.B)
+                                         : _arg.WORK->eval_AB(arg.A, arg.B);
+
               if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
               --_arg.repeat_count;
 
@@ -109,7 +109,6 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
               Assert(result_WORK.get_tag() == TOK_SI_PUSHED);
 
-             arg.new_mode = true;
              if (first)
                 Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
              else
@@ -129,7 +128,6 @@ again:
 
         if (result_COND.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
            {
-             arg.new_mode = true;
              if (first)
                 Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
              else
@@ -155,13 +153,12 @@ again:
    // Evaluate LO
    //
    {
-     Token result_WORK = _arg.dyadic ? _arg.WORK->eval_AB(arg.A, arg.B)
-                                     : _arg.WORK->eval_B(arg.B);
+     Token result_WORK = !arg.A ? _arg.WORK->eval_B(arg.B)
+                                : _arg.WORK->eval_AB(arg.A, arg.B);
      if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
 
      if (result_WORK.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
         {
-          arg.new_mode = true;
           if (first)
              Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
           else
@@ -181,7 +178,7 @@ again:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_POWER::eoc_ALRB(Token & token, EOC_arg & si_arg)
+Bif_OPER2_POWER::eoc_ALRB(Token & token, EOC_arg &)
 {
 EOC_arg * next = 0;
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
@@ -258,7 +255,6 @@ how_1:
         _arg.how = 1;
         move_1(token, result_COND, LOC);
 
-        arg->new_mode = true;
          Workspace::SI_top()->move_eoc_handler(eoc_ALRB, arg, LOC);
         return true;   // continue
       }
@@ -278,7 +274,6 @@ Bif_OPER2_POWER::eval_LRB(Token & LO, Token & RO, Value_P B)
 {
 EOC_arg arg(Value_P(), B, Value_P());
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
-   _arg.dyadic = false;
    _arg.qct = Workspace::get_CT();
    _arg.WORK = LO.get_function();
    _arg.user_COND = false;
