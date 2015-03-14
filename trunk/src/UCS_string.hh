@@ -151,6 +151,9 @@ public:
    /// return a string like this, but with pad chars mapped to spaces
    UCS_string no_pad() const;
 
+   /// replace pad chars in \b this string by spaces
+   void map_pad();
+
    /// return a string like this, but with pad chars removed
    UCS_string remove_pad() const;
 
@@ -210,7 +213,7 @@ public:
    /// append number (in ASCII encoding like %d) to this string
    void append_number(ShapeItem num);
 
-   /// append number (in ASCII encoding like %d) to this string
+   /// append number (in ASCII encoding like %X or %x) to this string
    void append_hex(ShapeItem num, bool uppercase);
 
    /// append number (in ASCII encoding like %lf) to this string

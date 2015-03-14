@@ -228,15 +228,14 @@ Executable * statements = 0;
 
 // Q(token)
 
-         // start over if execution has pushed a new context
+         // start over if execution has pushed a new SI entry
          //
          if (token.get_tag() == TOK_SI_PUSHED)   continue;
 
          // maybe call EOC handler and repeat if true returned
          //
        check_EOC:
-         if (Workspace::SI_top()->call_eoc_handler(token))
-            continue;
+         if (Workspace::SI_top()->call_eoc_handler(token))   continue;
 
          // the far most frequent cases are TC_VALUE and TOK_VOID
          // so we handle them first.

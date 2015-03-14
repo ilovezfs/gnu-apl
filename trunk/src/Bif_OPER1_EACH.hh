@@ -43,10 +43,10 @@ public:
 
 protected:
    /// function called when a sub-SI for a dyadic user defined LO returns
-   static bool eoc_ALB(Token & token, EOC_arg & arg);
+   static bool eoc_ALB(Token & token);
 
    /// function called when a sub-SI for a monadic user defined LO returns
-   static bool eoc_LB(Token & token, EOC_arg & arg);
+   static bool eoc_LB(Token & token);
 
    /// helper for eval_LB. returns true if the final token was computed, and
    /// false if finish_eval_LB shall be called again

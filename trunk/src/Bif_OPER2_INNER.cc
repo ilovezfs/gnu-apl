@@ -381,7 +381,7 @@ next_a_b:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_INNER::eoc_INNER(Token & token, EOC_arg &)
+Bif_OPER2_INNER::eoc_INNER(Token & token)
 {
 EOC_arg * next = 0;
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
@@ -408,7 +408,7 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
 
    return false;
 }

@@ -298,7 +298,7 @@ RANK & _arg = arg.u.u_RANK;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_RANK::eoc_RANK(Token & token, EOC_arg &)
+Bif_OPER2_RANK::eoc_RANK(Token & token)
 {
 EOC_arg * next = 0;
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
@@ -323,7 +323,7 @@ Value_P ZZ = token.get_apl_val();
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
 
    return false;   // stop it
 }

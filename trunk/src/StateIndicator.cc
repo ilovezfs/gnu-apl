@@ -397,7 +397,7 @@ EOC_arg * e;
                 << e->loc << endl;
 
         Token tok(TOK_ESCAPE);
-        (e->handler)(tok, *e);
+        e->handler(tok);
         Log(LOG_EOC_handlers)
            CERR << "StateIndicator::~StateIndicator() deletes "
                 << (const void *)e << endl;
@@ -568,12 +568,11 @@ StateIndicator::call_eoc_handler(Token & token)
    if (!eoc_handlers)     return false;   // no eoc_handler
 
    Log(LOG_EOC_handlers)
-           CERR << "SI[" << level << "] call_eoc_handler(" << (const void *)eoc_handlers
-                << " from " << eoc_handlers->loc << ")" << endl;
+       CERR << "SI[" << level << "] call_eoc_handler(" << eoc_handlers
+            << " from " << eoc_handlers->loc << ")" << endl;
 
 
-const bool goon = (eoc_handlers->handler)(token, *eoc_handlers);
-
+const bool goon = eoc_handlers->handler(token);
    return goon;   // false: success (done), true: goon
 
 }

@@ -48,7 +48,7 @@ PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx,
 {
 PERFORMANCE_START(start_0)
 
-   // Note: if ostream is non-0 then this value may be inccomplete
+   // Note: if ostream is non-0 then this value may be incomplete
    // (as indicated by member complete if it is huge. This is to speed
    // up printing if the value is discarded after having been printed
 
@@ -480,7 +480,7 @@ ShapeItem prod = 1;
 ShapeItem ret = 0;
    loop(r, shape.get_rank() - 2)
        {
-         prod *= shape.get_shape_item(shape.get_rank()-r-2);
+         prod *= shape.get_shape_item(shape.get_rank() - r - 2);
          if (y % prod == 0)   ++ret;
          else                 break;
        }
@@ -583,7 +583,7 @@ PrintBuffer::get_frame_chars(PrintStyle pst,
 }
 //-----------------------------------------------------------------------------
 void
-PrintBuffer::add_frame(PrintStyle style, uint32_t rank, uint32_t depth)
+PrintBuffer::add_frame(PrintStyle style, const Shape & shape, uint32_t depth)
 {
    Assert(is_rectangular());
 
@@ -606,15 +606,21 @@ Unicode HORI, VERT, NW, NE, SE, SW;
         return;
       }
 
-   // draw a bar left and right
+   // draw | left and right
    //
    loop(y, get_height())
       {
         buffer[y].insert(0, 1, VERT);
         buffer[y].append(VERT);
+
+        // change internal pad characters to ASCII_SPACE so that they will
+        // not be removed later and the frame is printed correctly
+        //
+        buffer[y].map_pad();
+
       }
 
-   // draw a bar on top and bottom.
+   // draw - on top and bottom.
    //
 UCS_string hori(get_width(0), HORI);
 
@@ -630,8 +636,38 @@ UCS_string hori(get_width(0), HORI);
 
    // draw other decorators
    //
-   if (rank > 0)   set_char(1, 0, UNI_RIGHT_ARROW);
-   if (rank > 1)   set_char(0, 1, UNI_DOWN_ARROW);
+   if (shape.get_rank() > 0)
+      {
+        set_char(1, 0, UNI_RIGHT_ARROW);
+        if (style & PST_NARS)
+           {
+             UCS_string ucs;
+             ucs.append_number(shape.get_last_shape_item());
+             if (ucs.size() < (get_width(0) - 2))
+                {
+                  loop(u, ucs.size())   set_char(u + 1, 0, ucs[u]);
+                }
+           }
+      }
+
+   if (shape.get_rank() > 1)
+      {
+        set_char(0, 1, UNI_DOWN_ARROW);
+        if (style & PST_NARS)
+           {
+             UCS_string ucs;
+             loop(r, shape.get_rank() - 1)
+                {
+                  if (r)   ucs.append(VERT);
+                  ucs.append_number(shape.get_shape_item(r));
+                }
+             if (ucs.size() < (get_height() - 2))
+                {
+                  loop(u, ucs.size())   set_char(0, u + 1, ucs[u]);
+                }
+           }
+      }
+
    if (depth)
       {
         loop(d, depth - 1)
@@ -683,6 +719,11 @@ Unicode HORI, VERT, NW, NE, SE, SW;
       {
         buffer[y].insert(0, 1, VERT);
         buffer[y].append(VERT);
+
+        // change internal pad characters to ASCII_SPACE so that they will
+        // not be removed later and the frame is printed correctly
+        //
+        buffer[y].map_pad();
       }
 
    // draw a bar on top and bottom.

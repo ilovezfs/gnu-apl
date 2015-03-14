@@ -135,7 +135,7 @@ public:
    void pad_height(Unicode pad, ShapeItem height);
 
    /// add a decorator frame around this buffer
-   void add_frame(PrintStyle style, uint32_t rank, uint32_t depth);
+   void add_frame(PrintStyle style, const Shape & shape, uint32_t depth);
 
    /// add an outer frame around this buffer
    void add_outer_frame(PrintStyle style);

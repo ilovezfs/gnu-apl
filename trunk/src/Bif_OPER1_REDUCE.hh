@@ -33,7 +33,7 @@ public:
    Bif_REDUCE(TokenTag tag) : PrimitiveOperator(tag) {}
 
    /// function called when a sub-SI for a user defined LO returns
-   static bool eoc_REDUCE(Token & token, EOC_arg & arg);
+   static bool eoc_REDUCE(Token & token);
 
    /// common implementation of reduce() and reduce_n_wise.
    static Token do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,

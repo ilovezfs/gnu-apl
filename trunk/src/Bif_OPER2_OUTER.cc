@@ -146,9 +146,8 @@ Value_P Z(A->get_shape() + B->get_shape(), LOC);
 EOC_arg arg(Z, B, A);
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
-   _arg.len_A = A->element_count();
    _arg.len_B = B->element_count();
-   _arg.len_Z = _arg.len_A * _arg.len_B;
+   _arg.len_Z = A->element_count() * _arg.len_B;
 
    arg.V1 = Value_P(LOC);   // helper value for non-pointer cA
    _arg.RO = RO;
@@ -231,7 +230,7 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_OUTER::eoc_OUTER(Token & token, EOC_arg &)
+Bif_OPER2_OUTER::eoc_OUTER(Token & token)
 {
    // we copy _arg since pop_SI() will destroy it
    //
@@ -257,7 +256,7 @@ OUTER_PROD & _arg = arg->u.u_OUTER_PROD;
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
 
    return false;   // stop it
 }

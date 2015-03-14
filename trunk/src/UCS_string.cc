@@ -589,6 +589,15 @@ UCS_string ret;
    return ret;
 }
 //-----------------------------------------------------------------------------
+void
+UCS_string::map_pad()
+{
+   loop(s, size())
+      {
+        if (is_iPAD_char((*this)[s]))   (*this)[s] = UNI_ASCII_SPACE;
+      }
+}
+//-----------------------------------------------------------------------------
 UCS_string
 UCS_string::remove_pad() const
 {

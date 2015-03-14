@@ -203,7 +203,7 @@ PrintBuffer ret(*val, pctx, 0);
              if (sh.get_volume() == 1)   // one prototype
                 {
                   ret = PrintBuffer(*proto, pctx, 0);
-                  ret.add_frame(PrintStyle(style), proto->get_rank(),
+                  ret.add_frame(PrintStyle(style), proto->get_shape(),
                                 proto->compute_depth());
                 }
              else                           // several prototypes
@@ -221,13 +221,13 @@ PrintBuffer ret(*val, pctx, 0);
                                             proto_reshaped.getref());
 
                   ret = PrintBuffer(*proto_reshaped, pctx, 0);
-                  ret.add_frame(PrintStyle(style), proto_reshaped->get_rank(),
+                  ret.add_frame(PrintStyle(style), proto_reshaped->get_shape(),
                                 proto_reshaped->compute_depth());
                 }
            }
        else
            {
-             ret.add_frame(pctx.get_style(), val->get_rank(),
+             ret.add_frame(pctx.get_style(), val->get_shape(),
                            val->compute_depth());
            }
       }

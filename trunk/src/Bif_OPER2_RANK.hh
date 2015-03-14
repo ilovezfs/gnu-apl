@@ -60,7 +60,7 @@ public:
 
 protected:
    /// function called when a sub-SI for a dyadic user defined LO returns
-   static bool eoc_RANK(Token & token, EOC_arg & arg);
+   static bool eoc_RANK(Token & token);
 
    /// convert 1- 2- or 3-element vector y123 to chunk-rank of B
    static void y123_to_B(Value_P y123, Rank & rk_B);
