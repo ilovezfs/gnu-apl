@@ -33,8 +33,8 @@ Bif_OPER2_POWER::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 EOC_arg arg(Value_P(), B, A);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
    _arg.qct = Workspace::get_CT();
-   _arg.WORK = LO.get_function();
-   _arg.user_COND = false;
+   _arg.LO = LO.get_function();
+   _arg.user_RO = false;
 
    // RO can be a function or a value (integer count)
    //
@@ -62,23 +62,23 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
         if (_arg.repeat_count < 0)   // inverse
            {
-             Function * inverse = _arg.WORK->get_dyadic_inverse();
+             Function * inverse = _arg.LO->get_dyadic_inverse();
              if (inverse == 0)   DOMAIN_ERROR;   // no inverse
 
-             _arg.WORK = inverse;
+             _arg.LO = inverse;
              _arg.repeat_count = -_arg.repeat_count;
            }
 
         if (_arg.repeat_count == 1)
            {
-             return  _arg.WORK->eval_AB(A, B);
+             return  _arg.LO->eval_AB(A, B);
            }
       }
    else if (RO.get_ValueType() == TV_FUN)   // function
       {
         _arg.how = 2;
-        _arg.COND = RO.get_function();
-        _arg.user_COND = _arg.COND->is_user_defined();
+        _arg.RO = RO.get_function();
+        _arg.user_RO = _arg.RO->is_user_defined();
       }
    else Assert(0);
 
@@ -94,27 +94,27 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
         for (;;)
             {
-              Token result_WORK = !arg.A ? _arg.WORK->eval_B(arg.B)
-                                         : _arg.WORK->eval_AB(arg.A, arg.B);
+              Token result_LO = !arg.A ? _arg.LO->eval_B(arg.B)
+                                       : _arg.LO->eval_AB(arg.A, arg.B);
 
-              if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
+              if (result_LO.get_tag() == TOK_ERROR)   return result_LO;
               --_arg.repeat_count;
 
-              if (result_WORK.get_Class() == TC_VALUE)   // LO was primitive
+              if (result_LO.get_Class() == TC_VALUE)   // LO was primitive
                  {
-                   if (_arg.repeat_count == 0)   return result_WORK;
-                   arg.B = result_WORK.get_apl_val();
+                   if (_arg.repeat_count == 0)   return result_LO;
+                   arg.B = result_LO.get_apl_val();
                    continue;
                  }
 
-              Assert(result_WORK.get_tag() == TOK_SI_PUSHED);
+              Assert(result_LO.get_tag() == TOK_SI_PUSHED);
 
              if (first)
                 Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
              else
                 Workspace::SI_top()->move_eoc_handler(eoc_ALRB, &arg, LOC);
 
-              return result_WORK;   // continue in user defined function...
+              return result_LO;   // continue in user defined function...
             }
 
         Assert(0 && "Not reached");
@@ -123,21 +123,21 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 again:
    if (_arg.how == 1)   // evaluate condition function RO
       {
-        Token result_COND = _arg.COND->eval_AB(arg.Z, arg.B);
-        if (result_COND.get_tag() == TOK_ERROR)   return result_COND;
+        Token result_RO = _arg.RO->eval_AB(arg.Z, arg.B);
+        if (result_RO.get_tag() == TOK_ERROR)   return result_RO;
 
-        if (result_COND.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
+        if (result_RO.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
            {
              if (first)
                 Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
              else
                 Workspace::SI_top()->move_eoc_handler(eoc_ALRB, &arg, LOC);
-              return result_COND;   // continue in user defined function...
+              return result_RO;   // continue in user defined function...
            }
 
-        Assert(result_COND.get_Class() == TC_VALUE);
-        Value_P COND = result_COND.get_apl_val();
-        const bool stop = get_condition_value(*COND, _arg.qct);
+        Assert(result_RO.get_Class() == TC_VALUE);
+        Value_P condition = result_RO.get_apl_val();
+        const bool stop = get_condition_value(*condition, _arg.qct);
         if (stop)
            {
              Value_P Z(arg.Z);
@@ -153,21 +153,21 @@ again:
    // Evaluate LO
    //
    {
-     Token result_WORK = !arg.A ? _arg.WORK->eval_B(arg.B)
-                                : _arg.WORK->eval_AB(arg.A, arg.B);
-     if (result_WORK.get_tag() == TOK_ERROR)   return result_WORK;
+     Token result_LO = !arg.A ? _arg.LO->eval_B(arg.B)
+                              : _arg.LO->eval_AB(arg.A, arg.B);
+     if (result_LO.get_tag() == TOK_ERROR)   return result_LO;
 
-     if (result_WORK.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
+     if (result_LO.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
         {
           if (first)
              Workspace::SI_top()->add_eoc_handler(eoc_ALRB, arg, LOC);
           else
              Workspace::SI_top()->move_eoc_handler(eoc_ALRB, &arg, LOC);
-          return result_WORK;   // continue in user defined function...
+          return result_LO;   // continue in user defined function...
         }
 
-     Assert(result_WORK.get_Class() == TC_VALUE);
-     arg.Z = result_WORK.get_apl_val();
+     Assert(result_LO.get_Class() == TC_VALUE);
+     arg.Z = result_LO.get_apl_val();
    }
 
    // at this point, both the condition function RO and function LO were
@@ -178,7 +178,7 @@ again:
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_POWER::eoc_ALRB(Token & token, EOC_arg &)
+Bif_OPER2_POWER::eoc_ALRB(Token & token)
 {
 EOC_arg * next = 0;
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
@@ -188,8 +188,8 @@ POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
 
    // at this point some user-defined function was successful and has
    // returned a value. For how == 0 or 2 the user defined function
-   // was the WORK function (LO). For how = 1 the user defined function
-   // was the COND function (RO).
+   // was the work function (LO). For how = 1 the user defined function
+   // was the condition function (RO).
    //
    if (_arg.how == 0)   // count-down mode
       {
@@ -197,7 +197,7 @@ POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
            {
              delete arg;
              Workspace::SI_top()->set_eoc_handlers(next);
-             if (next)   return (next->handler)(token, *next);
+             if (next)   return next->handler(token);
 
              return false;  // stop it
            }
@@ -224,7 +224,7 @@ how_1:
 
              delete arg;
              Workspace::SI_top()->set_eoc_handlers(next);
-             if (next)   return (next->handler)(token, *next);
+             if (next)   return next->handler(token);
 
              return false;   // stop it
            }
@@ -241,27 +241,27 @@ how_1:
         return true;   // continue
       }
 
-   // user-defined WORK has returned
+   // user-defined LO has returned
    //
    arg->Z = token.get_apl_val();
-   if (_arg.user_COND)   // if COND is user-defined
+   if (_arg.user_RO)   // if RO is user-defined
       {
         Workspace::pop_SI(LOC);
 
-        Token result_COND = _arg.COND->eval_AB(arg->Z, arg->B);
-        if (result_COND.get_tag() == TOK_ERROR)   return false;
-        Assert(result_COND.get_tag() == TOK_SI_PUSHED);
+        Token result_RO = _arg.RO->eval_AB(arg->Z, arg->B);
+        if (result_RO.get_tag() == TOK_ERROR)   return false;
+        Assert(result_RO.get_tag() == TOK_SI_PUSHED);
 
         _arg.how = 1;
-        move_1(token, result_COND, LOC);
+        move_1(token, result_RO, LOC);
 
          Workspace::SI_top()->move_eoc_handler(eoc_ALRB, arg, LOC);
         return true;   // continue
       }
    else                 // primitive condition
       {
-        Token result_COND = _arg.COND->eval_AB(arg->Z, arg->B);
-        move_1(token, result_COND, LOC);
+        Token result_RO = _arg.RO->eval_AB(arg->Z, arg->B);
+        move_1(token, result_RO, LOC);
         if (token.get_tag() == TOK_ERROR)   return false;
 
         _arg.how = 1;
@@ -275,8 +275,8 @@ Bif_OPER2_POWER::eval_LRB(Token & LO, Token & RO, Value_P B)
 EOC_arg arg(Value_P(), B, Value_P());
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
    _arg.qct = Workspace::get_CT();
-   _arg.WORK = LO.get_function();
-   _arg.user_COND = false;
+   _arg.LO = LO.get_function();
+   _arg.user_RO = false;
 
    // RO can be a function or a value (integer count)
    //
@@ -304,23 +304,23 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
         if (_arg.repeat_count < 0)   // inverse
            {
-             Function * inverse = _arg.WORK->get_monadic_inverse();
+             Function * inverse = _arg.LO->get_monadic_inverse();
              if (inverse == 0)   DOMAIN_ERROR;   // no inverse
 
-             _arg.WORK = inverse;
+             _arg.LO = inverse;
              _arg.repeat_count = -_arg.repeat_count;
            }
 
         if (_arg.repeat_count == 1)
            {
-             return  _arg.WORK->eval_B(B);
+             return  _arg.LO->eval_B(B);
            }
       }
    else if (RO.get_ValueType() == TV_FUN)   // function
       {
         _arg.how = 2;
-        _arg.COND = RO.get_function();
-        _arg.user_COND = _arg.COND->is_user_defined();
+        _arg.RO = RO.get_function();
+        _arg.user_RO = _arg.RO->is_user_defined();
       }
    else Assert(0);
 
@@ -328,16 +328,16 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_POWER::get_condition_value(const Value & COND, double qct)
+Bif_OPER2_POWER::get_condition_value(const Value & RO, double qct)
 {
-   if (COND.element_count() != 1)
+   if (RO.element_count() != 1)
       {
-        if (COND.get_rank() > 1)   RANK_ERROR;
-        else                       LENGTH_ERROR;
+        if (RO.get_rank() > 1)   RANK_ERROR;
+        else                     LENGTH_ERROR;
       }
 
-   if (!COND.get_ravel(0).is_near_bool(qct))   DOMAIN_ERROR;
+   if (!RO.get_ravel(0).is_near_bool(qct))   DOMAIN_ERROR;
 
-   return COND.get_ravel(0).get_checked_near_int();
+   return RO.get_ravel(0).get_checked_near_int();
 }
 //-----------------------------------------------------------------------------

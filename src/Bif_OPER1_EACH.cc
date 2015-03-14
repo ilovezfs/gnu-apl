@@ -161,7 +161,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_EACH::eoc_ALB(Token & token, EOC_arg &)
+Bif_OPER1_EACH::eoc_ALB(Token & token)
 {
 EOC_arg * next = 0;
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
@@ -192,7 +192,7 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
 
    return false;   // stop it
 }
@@ -346,7 +346,7 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER1_EACH::eoc_LB(Token & token, EOC_arg &)
+Bif_OPER1_EACH::eoc_LB(Token & token)
 {
 EOC_arg * next = 0;
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
@@ -377,7 +377,7 @@ EACH_LB & _arg = arg->u.u_EACH_LB;
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
 
    return false;   // stop it
 }

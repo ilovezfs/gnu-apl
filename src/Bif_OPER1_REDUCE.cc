@@ -311,7 +311,7 @@ REDUCTION & _arg = arg.u.u_REDUCTION;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_REDUCE::eoc_REDUCE(Token & token, EOC_arg &)
+Bif_REDUCE::eoc_REDUCE(Token & token)
 {
 EOC_arg * next = 0;
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
@@ -336,7 +336,7 @@ REDUCTION & _arg = arg->u.u_REDUCTION;
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
 
    return false;   // stop it
 }

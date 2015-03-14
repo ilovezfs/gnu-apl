@@ -248,6 +248,7 @@ enum PrintStyle
    PST_MATRIX        = 0x00010000,       ///< multi line output
    PST_INPUT         = 0x00020000,       ///< use '' for chars and () for nested
    PST_PACKED        = 0x00040000,       ///< 4 byte/char
+   PST_NARS          = 0x00080000,       ///< NARS APL ⎕FMT style
 
    PR_APL            = PST_MATRIX,       ///< normal APL output
    PR_APL_MIN        = PST_MATRIX        ///< normal APL output w/o E0 and ...0
@@ -265,6 +266,9 @@ enum PrintStyle
    PR_BOXED_GRAPHIC2 = PST_MATRIX
                      | PST_CS_THICK 
                      | PST_CS_DOUBLE << 4, ///< DISPLAY graphic in double box
+   PR_NARS           = PR_BOXED_GRAPHIC  | PST_NARS,  ///< NARS APL style
+   PR_NARS1          = PR_BOXED_GRAPHIC1 | PST_NARS,  ///< NARS APL style,
+   PR_NARS2          = PR_BOXED_GRAPHIC2 | PST_NARS,  ///< NARS APL style,
 };
 //-----------------------------------------------------------------------------
 /// an offset into the body of a user-defined function. If we consider the APL

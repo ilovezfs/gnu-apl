@@ -53,7 +53,6 @@ struct quad_INP
 struct OUTER_PROD
 {
   Function * RO;     ///< user defined function
-  ShapeItem len_A;   ///< number of cells in left arg
   ShapeItem len_B;   ///< number of cells in right arg
   ShapeItem len_Z;   ///< number of cells in result
   ShapeItem z;       ///< current Z index
@@ -80,7 +79,7 @@ struct REDUCTION
 {
   // parameters that are constant for the entire reduction
   Function * LO;            ///< left user defined function
-  bool scan;                ///< true for LO\ B
+  bool scan;                ///< true for LO \ B
   ShapeItem len_L;          ///< length of dimensions below (excluding) axis
   ShapeItem len_L_s;        ///< len_L or 0 for scan
   ShapeItem len_BML;        ///< length of dimensions below (including) axis
@@ -160,18 +159,17 @@ struct RANK
 /// arguments of the EOC handler for A f⋆g B
 struct POWER_ALRB
 {
-  int how;                           ///< how to finish_eval_ALRB()
-  double qct;                        ///< comparison tolerance
-  ShapeItem repeat_count;            ///< repeat count N for  form  A f ⍣ N B
-  Function * WORK;                   ///< work function f for forms A f ⍣ N/g B
-  Function * COND;                   ///< condition fun g for form  A f ⍣ g B
-  bool user_COND;                    ///< true if RO is user-defined
+  int how;                         ///< how to finish_eval_ALRB()
+  double qct;                      ///< comparison tolerance
+  ShapeItem repeat_count;          ///< repeat count N for  form  A f ⍣ N B
+  Function * LO;                   ///< work function f for forms A f ⍣ N/g B
+  Function * RO;                   ///< condition fun g for form  A f ⍣ g B
+  bool user_RO;                    ///< true if RO is user-defined
 };
 
-class EOC_arg;
 /// the type of a function to be called at the end of a context.
 /// the function returns true to retry and false to continue with token.
-typedef bool (*EOC_HANDLER)(Token & token, EOC_arg & arg);
+typedef bool (*EOC_HANDLER)(Token & token);
 
 /// the second argument for an EOC_HANDLER. The actual type depends on the
 /// handler. An EOC_arg contains all information that is necessary for

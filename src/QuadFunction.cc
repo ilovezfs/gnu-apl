@@ -273,17 +273,29 @@ Quad_CR::do_CR(APL_Integer a, const Value & B, PrintContext pctx)
 const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
    switch(a)
       {
-        case  0:  pctx.set_style(PR_APL);              break;
-        case  1:  pctx.set_style(PR_APL_FUN);          break;
-        case  2:  pctx.set_style(PR_BOXED_CHAR);       break;
-        case  3:  pctx.set_style(PR_BOXED_GRAPHIC);    break;
+        case  0: pctx.set_style(PR_APL);               break;
+        case  1: pctx.set_style(PR_APL_FUN);           break;
 
-        case  4:
-        case  8: { // like 3/7, but enclose B so that the entire B is boxed
+        case  2: pctx.set_style(PR_BOXED_CHAR);        break;
+        case  3: pctx.set_style(PR_BOXED_GRAPHIC);     break;
+        case  7: pctx.set_style(PR_BOXED_GRAPHIC1);    break;
+        case  9: pctx.set_style(PR_BOXED_GRAPHIC2);    break;
+
+        case 20:  pctx.set_style(PR_NARS);             break;
+        case 21:  pctx.set_style(PR_NARS1);            break;
+        case 22:  pctx.set_style(PR_NARS2);            break;
+
+        case  4:  a =  3;   goto case_4_8_23_24_25;
+        case  8:  a =  7;   goto case_4_8_23_24_25;
+        case  23: a = 20;   goto case_4_8_23_24_25;
+        case  24: a = 21;   goto case_4_8_23_24_25;
+        case  25: a = 22;   goto case_4_8_23_24_25;
+        case_4_8_23_24_25:
+                { // like 3/7, but enclose B so that the entire B is boxed
                    Value_P B1(LOC);
                    new (&B1->get_ravel(0))
                        PointerCell(B.clone(LOC), B1.getref());
-                   Value_P Z = do_CR(a - 1, *B1.get(), pctx);
+                   Value_P Z = do_CR(a, *B1.get(), pctx);
                    return Z;
                  }
                  break;
@@ -313,9 +325,6 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                Z->check_value(LOC);
                return Z;
              }
-
-        case  7: pctx.set_style(PR_BOXED_GRAPHIC1);   break;
-        case  9: pctx.set_style(PR_BOXED_GRAPHIC2);   break;
 
         case 10: {
                    vector<UCS_string> ucs_vec;
@@ -1077,8 +1086,7 @@ const UCS_string statement_B(*B.get());
    // B succeeds, but will execute A if not.
    //
    {
-     Value_P dummy_Z;
-     EOC_arg arg(dummy_Z, B, A);
+     EOC_arg arg(Value_P(), B, A);
 
      Workspace::SI_top()->add_eoc_handler(eoc_B_done, arg, LOC);
    }
@@ -1087,7 +1095,7 @@ const UCS_string statement_B(*B.get());
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EA::eoc_B_done(Token & token, EOC_arg &)
+Quad_EA::eoc_B_done(Token & token)
 {
 StateIndicator * si = Workspace::SI_top();
 EOC_arg * next = 0;
@@ -1104,7 +1112,7 @@ EOC_arg * arg = si->remove_eoc_handlers(next);
 
         delete arg;
         Workspace::SI_top()->set_eoc_handlers(next);
-        if (next)   return (next->handler)(token, *next);
+        if (next)   return next->handler(token);
 
         return false;   // ⍎B successful.
       }
@@ -1146,8 +1154,7 @@ ExecuteList * fun = 0;
    // install end of context handler for the result of ⍎A. 
    //
    {
-     Value_P dummy_Z;
-     EOC_arg arg1(dummy_Z, B, A);
+     EOC_arg arg1(Value_P(), B, A);
      Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg1, LOC);
    }
 
@@ -1156,7 +1163,7 @@ ExecuteList * fun = 0;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EA::eoc_A_and_B_done(Token & token, EOC_arg &)
+Quad_EA::eoc_A_and_B_done(Token & token)
 {
    // in A ⎕EA B, ⍎B has failed, and ⍎A was executed and may or
    // may not have failed.
@@ -1175,7 +1182,7 @@ EOC_arg * arg = si->remove_eoc_handlers(next);
         si1->get_error() = si->get_error();
 
         Workspace::SI_top()->set_eoc_handlers(next);
-        if (next)   return (next->handler)(token, *next);
+        if (next)   return next->handler(token);
 
         return false;   // ⍎A successful.
       }
@@ -1225,7 +1232,7 @@ const UCS_string statement_B(*B.get());
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
    return false;
 }
 //=============================================================================
@@ -1273,8 +1280,8 @@ ExecuteList * fun = 0;
    // The handler will create the result after executing B.
    //
    {
-     Value_P dummy_B;
-     EOC_arg arg(dummy_B);
+     Value_P dummy;
+     EOC_arg arg(dummy);
 
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
    }
@@ -1283,7 +1290,7 @@ ExecuteList * fun = 0;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_EC::eoc(Token & result_B, EOC_arg &)
+Quad_EC::eoc(Token & result_B)
 {
 StateIndicator * si = Workspace::SI_top();
 EOC_arg * next = 0;
@@ -1374,7 +1381,7 @@ Value_P Z1(2, LOC);
 
    delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(result_B, *next);
+   if (next)   return next->handler(result_B);
 
    return false;
 }
@@ -1581,8 +1588,8 @@ Symbol * symbol = Workspace::lookup_existing_symbol(name);
 Token
 Quad_INP::eval_AB(Value_P A, Value_P B)
 {
-EOC_arg arg(B);
-quad_INP & _arg = arg.u.u_quad_INP;
+EOC_arg * arg = new EOC_arg(B);
+quad_INP & _arg = arg->u.u_quad_INP;
    _arg.lines = 0;
 
    // B is the end of document marker for a 'HERE document', similar
@@ -1626,15 +1633,16 @@ quad_INP & _arg = arg.u.u_quad_INP;
       }
 
 Token tok(TOK_FIRST_TIME);
-   eoc_INP(tok, arg);
+   Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
+   eoc_INP(tok);
    return tok;
 }
 //-----------------------------------------------------------------------------
 Token
 Quad_INP::eval_B(Value_P B)
 {
-EOC_arg arg(B);
-quad_INP & _arg = arg.u.u_quad_INP;
+EOC_arg * arg = new EOC_arg(B);
+quad_INP & _arg = arg->u.u_quad_INP;
    _arg.lines = 0;
 
    // B is the end of document marker for a 'HERE document', similar
@@ -1650,13 +1658,18 @@ quad_INP & _arg = arg.u.u_quad_INP;
    _arg.esc1 = _arg.esc2 = 0;
 
 Token tok(TOK_FIRST_TIME);
-   eoc_INP(tok, arg);
+   Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
+   eoc_INP(tok);
    return tok;
 }
 //-----------------------------------------------------------------------------
 bool
-Quad_INP::eoc_INP(Token & token, EOC_arg & si_arg)
+Quad_INP::eoc_INP(Token & token)
 {
+EOC_arg * next = 0;
+EOC_arg * earg = Workspace::SI_top()->remove_eoc_handlers(next);
+quad_INP & arg = earg->u.u_quad_INP;
+
 const bool first = token.get_tag() == TOK_FIRST_TIME;
 
    if (token.get_tag() == TOK_ERROR)
@@ -1668,14 +1681,6 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
          Value_P val(err, LOC);
          move_2(token, Token(TOK_APL_VALUE1, val), LOC);
       }
-
-   // si_arg may be pop_SI()ed below so we need a copy of it
-   //
-EOC_arg * next = 0;
-EOC_arg * del = 0;
-EOC_arg * earg = first ? &si_arg
-                       : del = Workspace::SI_top()->remove_eoc_handlers(next);
-quad_INP & arg = earg->u.u_quad_INP;
 
    if (!first)
       {
@@ -1792,11 +1797,7 @@ quad_INP & arg = earg->u.u_quad_INP;
                    move_2(token, Bif_F1_EXECUTE::execute_statement(exec), LOC);
                    Assert(token.get_tag() == TOK_SI_PUSHED);
 
-                   if (first)
-                      Workspace::SI_top()->add_eoc_handler(eoc_INP, *earg, LOC);
-                   else
-                      Workspace::SI_top()->move_eoc_handler(eoc_INP, earg, LOC);
-
+                   Workspace::SI_top()->move_eoc_handler(eoc_INP, earg, LOC);
                    return true;   // continue
                  }
             }
@@ -1835,9 +1836,9 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
    Z->check_value(LOC);
    move_2(token, Token(TOK_APL_VALUE1, Z), LOC);
 
-   delete del;
+   delete earg;
    Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return (next->handler)(token, *next);
+   if (next)   return next->handler(token);
 
    return false;   // continue
 }
