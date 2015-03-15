@@ -136,14 +136,20 @@ protected:
    /// extract all lambda expressions from body and store them in lambdas
    void setup_lambdas();
 
+   /// reverse the token order in every statement of tos
+  static void reverse_statement_token(Token_string & tos);
+
+   /// reverse the token order of the entire Token_string
+  static void reverse_all_token(Token_string & tos);
+
    /// extract one lambda expressions from body and store it in lambdas
    ShapeItem setup_one_lambda(ShapeItem b);
 
-   /// compute the lambda signature from body[b ... bend]. Store the lambda's
-   /// body in rev_lambda_body and clear it in \b this body
-   Fun_signature compute_lambda_signature(Token_string & rev_lambda_body,
-                                          ShapeItem b, ShapeItem bend,
-                                          bool is_named);
+   /// body[b ... bend] is a lambda. Move these token from this body to the body
+   /// of the lambda and clear them in \b this body.
+   Fun_signature compute_lambda_body(Token_string & rev_lambda_body,
+                                     ShapeItem b, ShapeItem bend,
+                                     bool is_named);
 
    /// extract the skip'th { ... } from the function text
    UCS_string extract_lambda_text(Fun_signature signature) const;

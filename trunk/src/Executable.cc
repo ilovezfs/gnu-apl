@@ -229,7 +229,7 @@ Token_string out;
 
    Log(LOG_UserFunction__set_line)
       {
-        CERR << "[non-reverse " << line << "] ";
+        CERR << "[final line " << line << "] ";
         out.print(CERR);
       } 
 
@@ -482,19 +482,44 @@ int count = 0;
 void
 Executable::setup_lambdas()
 {
+   // quick check if this body contains any lambdas. Parser::match_par_bra()
+   // should have checked for unbalanced { } so we simply look for } (which
+   // is the first to occur since the body is reversed.
+   //
+bool have_curly = false;
+   loop(b, body.size())
+       {
+         if (body[b].get_tag() == TOK_R_CURLY)
+            {
+              have_curly = true;
+              break;
+            }
+       }
+
+   if (!have_curly)   return;   // no { ... } in this body
+
    // setup_lambdas() may be called multiple times for the same executable.
    // remove old lambdas...
    //
    clear_lambdas();
 
+   // undo the token reversion of the body so that the body token and the
+   // text run in the same direction.
+   //
+
+   reverse_statement_token(body);
+
    loop(b, body.size())
        {
-         // body is in reverse order, so } comes before { (and optional ← NAME)
-         //
-         if (body[b].get_tag() != TOK_R_CURLY)   continue;   // not }
+         if (body[b].get_tag() != TOK_L_CURLY)   continue;   // not {
 
-         b = setup_one_lambda(b) - 1;   // -1 due to ++b in loop(b)
+         b = setup_one_lambda(b) - 1;   // -1 due to ++b in loop(b) above
        }
+
+   // redo the token reversion of the body so that the body token and the
+   // text run in the same direction.
+   //
+   reverse_statement_token(body);
 
    adjust_line_starts();
    Parser::remove_void_token(body);
@@ -504,67 +529,44 @@ Executable::setup_lambdas()
 ShapeItem
 Executable::setup_one_lambda(ShapeItem b)
 {
-const ShapeItem bend = b + body[b].get_int_val2();   // the corresponding {
+const ShapeItem bend = b + body[b].get_int_val2();   // the corresponding }
    Assert(bend < body.size());
-   Assert(body[bend].get_tag() == TOK_L_CURLY);
+   Assert(body[bend].get_tag() == TOK_R_CURLY);
 
    // a named lambda has the form Q←{ ... }
    //
-   // however, eg. Q←{ ... } / ... is not a named lambda but an unnamed
+   // however, eg. Q←{ ... } / ... is NOT a named lambda but an unnamed
    // lambda for / whose result is assigned to Q. We need to distinguish
-   // the two cases and remember if the token after } is the end of
-   // the statement or not.
+   // the two cases and remember if the token after } is the start of
+   // the next statement or not.
    //
-const bool maybe_named = (b == 0)
-                      ||  body[b - 1].get_tag() == TOK_DIAMOND
-                      ||  body[b - 1].get_tag() == TOK_END
-                      ||  body[b - 1].get_tag() == TOK_ENDL;
+const bool right_curly_at_end = (bend >= body.size() - 1)
+                             ||  body[bend + 1].get_tag() == TOK_DIAMOND
+                             ||  body[bend + 1].get_tag() == TOK_END
+                             ||  body[bend + 1].get_tag() == TOK_ENDL;
 
-   body[b++].clear(LOC);    // invalidate }
-   body[bend].clear(LOC);   // invalidate {
+const bool is_named = right_curly_at_end                  && 
+                      b >=   2                            &&
+                      body[b - 1].get_tag() == TOK_ASSIGN &&
+                      body[b - 2].get_tag() == TOK_LSYMB;
 
-const bool is_named = maybe_named && 
-       (bend + 2) < body.size()               &&
-       body[bend + 1].get_tag() == TOK_ASSIGN &&
-       body[bend + 2].get_tag() == TOK_LSYMB;
+Symbol * lambda_sym = is_named ? body[b - 2].get_sym_ptr() : 0;
 
-Token_string rev_lambda_body;
+   body[b++].clear(LOC);    // invalidate {
+   body[bend].clear(LOC);   // invalidate }
+
+Token_string lambda_body;
 
 const Fun_signature signature =
-      compute_lambda_signature(rev_lambda_body, b, bend, is_named);
+      compute_lambda_body(lambda_body, b, bend, is_named);
 
-Token_string forw_lambda_body;
-   if (signature & SIG_Z)
-      {
-        Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
-        forw_lambda_body.append(ret_lambda, LOC);
-
-        const int64_t tr = 0;
-        forw_lambda_body.append(Token(TOK_ENDL, tr));
-
-        Symbol * sym_Z = &Workspace::get_v_LAMBDA();
-        forw_lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
-        forw_lambda_body.append(Token(TOK_ASSIGN), LOC);
-
-        const ShapeItem body_len = rev_lambda_body.size();
-        loop(r, body_len)
-            forw_lambda_body.append(rev_lambda_body[body_len - r - 1]);
-      }
-   else
-      {
-        Token ret_void(TOK_RETURN_VOID);
-        forw_lambda_body.append(ret_void, LOC);
-      }
-
-   // at this point { ... } was copied from body to forw_lambda_body and
+   // at this point { ... } was copied from body to lambda_body and
    // bend is at the (now invalidated) { token.
    // check if lambda is named, i.e. Name ← { ... }
    //
 UCS_string lambda_name;
-Symbol * lambda_sym = 0;
    if (is_named)   // named lambda
       {
-        lambda_sym = body[bend + 2].get_sym_ptr();
         lambda_name = lambda_sym->get_name();
       }
    else            // unnamed lambda
@@ -575,8 +577,10 @@ Symbol * lambda_sym = 0;
 
 const UCS_string lambda_text = extract_lambda_text(signature);
 
+   reverse_statement_token(lambda_body);
+   reverse_all_token(lambda_body);
 UserFunction * ufun = new UserFunction(signature, lambda_name,
-                                       lambda_text, forw_lambda_body);
+                                       lambda_text, lambda_body);
 
    if (signature & SIG_FUN)   // named lambda
       {
@@ -608,42 +612,67 @@ UserFunction * ufun = new UserFunction(signature, lambda_name,
 }
 //-----------------------------------------------------------------------------
 Fun_signature
-Executable::compute_lambda_signature(Token_string & rev_lambda_body,
-                                     ShapeItem b, ShapeItem bend,
-                                     bool is_named)
+Executable::compute_lambda_body(Token_string & lambda_body,
+                                ShapeItem b, ShapeItem bend, bool is_named)
 {
 int signature = is_named ? SIG_FUN : SIG_NONE;
+int level = 0;
 
    for (; b < bend; ++b)
        {
-               Token t;
-               move_1(t, body[b], LOC);
-               body[b].clear(LOC);   // invalidate in main body
+         Token t;
+         move_1(t, body[b], LOC);
+         body[b].clear(LOC);   // invalidate in main body
 
-               // figure the signature by looking for ⍺, ⍶, ⍵, ⍹, and χ
-               // and complain about ◊ and →
-               switch(t.get_tag())
-                  {
-                    case TOK_ALPHA:    signature |= SIG_A;    /* no break */
-                    case TOK_OMEGA:    signature |= SIG_B;    break;
-                    case TOK_CHI:      signature |= SIG_X;    break;
-                    case TOK_OMEGA_U:  signature |= SIG_RO;   /* no break */
-                    case TOK_ALPHA_U:  signature |= SIG_LO;   break;
+         // figure the signature by looking for ⍺, ⍶, ⍵, ⍹, and χ
+         // and complain about ◊ and →
+         switch(t.get_tag())
+            {
+              case TOK_ALPHA:   if (!level)   signature |= SIG_A;   // no break
+              case TOK_OMEGA:   if (!level)   signature |= SIG_B;         break;
+              case TOK_CHI:     if (!level)   signature |= SIG_X;         break;
+              case TOK_OMEGA_U: if (!level)   signature |= SIG_RO;  // no break
+              case TOK_ALPHA_U: if (!level)   signature |= SIG_LO;        break;
 
-                    case TOK_DIAMOND:  DEFN_ERROR;
-                    case TOK_BRANCH:   DEFN_ERROR;
-                    case TOK_ESCAPE:   DEFN_ERROR;
+              case TOK_DIAMOND: DEFN_ERROR;
+              case TOK_BRANCH:  DEFN_ERROR;
+              case TOK_ESCAPE:  DEFN_ERROR;
 
-                    default: break;
-                  }
+              case TOK_L_CURLY: ++level;   break;
+              case TOK_R_CURLY: --level;   break;
+              default: break;
+            }
 
-               rev_lambda_body.append(t, LOC);
+         if (lambda_body.size() == 0)
+            {
+              // first token: prepend λ ← tokens
+              //
+              Symbol * sym_Z = &Workspace::get_v_LAMBDA();
+              lambda_body.append(Token(TOK_LAMBDA, sym_Z), LOC);
+              lambda_body.append(Token(TOK_ASSIGN), LOC);
+
+              signature |= SIG_Z;
+            }
+
+         lambda_body.append(t, LOC);
        }
 
-   // if the lambda is { } then we can't assign anything to λ
-   // and make the lambda result-less.
+   // if the lambda has at least one token, then it returns λ.
+   // Otherwise the lambda is result-less
    //
-   if (rev_lambda_body.size())   signature |= SIG_Z;
+   if (signature & SIG_Z)
+      {
+        const int64_t trace = 0;
+        lambda_body.append(Token(TOK_ENDL, trace));
+
+        Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
+        lambda_body.append(ret_lambda, LOC);
+      }
+   else
+      {
+        Token ret_void(TOK_RETURN_VOID);
+        lambda_body.append(ret_void, LOC);
+      }
 
    return (Fun_signature)signature;
 }
@@ -675,7 +704,6 @@ int tcol = 0;
          if (tcol >= line.size())   // end of line: wrap to next line
             {
               ++tidx;
-
               tcol = 0;
               continue;
             }
@@ -702,6 +730,45 @@ int tcol = 0;
 
    lambda_text.pop();   // the last }
    return lambda_text;
+}
+//-----------------------------------------------------------------------------
+void
+Executable::reverse_statement_token(Token_string & tos)
+{
+ShapeItem from = 0;
+
+   for (ShapeItem to = from + 1; to < tos.size(); ++to)
+       {
+         if (tos[to].get_Class() == TC_END)
+            {
+              Token * t1 = &tos[from];
+              Token * t2 = &tos[to - 1];
+              for (;t1 < t2; ++t1, --t2)
+                  {
+                    char tt[sizeof(Token)];
+                    memcpy(tt, t1, sizeof(Token));
+                    memcpy(t1, t2,   sizeof(Token));
+                    memcpy(t2, tt, sizeof(Token));
+                  }
+              from = to + 1;
+            }
+       }
+
+}
+//-----------------------------------------------------------------------------
+void
+Executable::reverse_all_token(Token_string & tos)
+{
+Token * t1 = &tos[0];
+Token * t2 = &tos[tos.size() - 1];
+
+   for (;t1 < t2; ++t1, --t2)
+       {
+         char tt[sizeof(Token)];
+         memcpy(tt, t1, sizeof(Token));
+         memcpy(t1, t2,   sizeof(Token));
+         memcpy(t2, tt, sizeof(Token));
+       }
 }
 //=============================================================================
 ExecuteList *
