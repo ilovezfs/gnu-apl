@@ -27,6 +27,7 @@
 #include <FloatCell.hh>
 #include <ComplexCell.hh>
 #include <PointerCell.hh>
+#include <UserPreferences.hh>
 
 #include "libapl.h"
 
@@ -417,6 +418,21 @@ UTF8_string utf8(ucs);
    memcpy(dest, utf8.get_items(), utf8.size());
    if (length)   *length = utf8.size();
    dest[utf8.size()] = 0;
+}
+//-----------------------------------------------------------------------------
+extern void init_1(const char * argv0, bool log_startup);
+extern void init_2(bool log_startup);
+
+void
+init_libapl(const char * progname, int log_startup)
+{
+   uprefs.safe_mode = true;
+   uprefs.user_do_svars = false;
+   uprefs.system_do_svars = false;
+   uprefs.requested_id = 2000;
+
+   init_1(progname, log_startup);
+   init_2(log_startup);
 }
 //-----------------------------------------------------------------------------
 

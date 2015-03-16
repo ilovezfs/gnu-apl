@@ -55,6 +55,10 @@ extern "C" {
 #define Loc(f, l) f ":" STR(l)
 
 
+/// Initialie libapl. Call this function first with argv[0] and log_startup
+/// as needed
+extern void init_libapl(const char * progname, int log_startup);
+
 /// Pass `line` to the interpreter for immediate execution as APL code.
 extern void apl_exec(const char * line_utf8);
 
