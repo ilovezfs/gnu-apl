@@ -53,46 +53,6 @@
 static const char * build_tag[] = { BUILDTAG, 0 };
 
 //-----------------------------------------------------------------------------
-/// initialize subsystems that are independent of argv[]
-static void
-init_1(const char * argv0, bool log_startup)
-{
-rlimit rl;
-   getrlimit(RLIMIT_AS, &rl);
-   total_memory = rl.rlim_cur;
-
-   if (log_startup)
-      CERR << "sizeof(Svar_record) is    " << sizeof(Svar_record) << endl
-           << "sizeof(Svar_partner) is   " << sizeof(Svar_partner)
-           << endl;
-
-   getrlimit(RLIMIT_NPROC, &rl);
-   if (log_startup)
-      CERR << "increasing rlimit RLIMIT_NPROC from " <<  rl.rlim_cur
-           << " to infinity" << endl;
-   rl.rlim_cur = RLIM_INFINITY;
-   setrlimit(RLIMIT_NPROC, &rl);
-
-   Avec::init();
-   LibPaths::init(argv0, log_startup);
-   Value::init();
-   VH_entry::init();
-}
-//-----------------------------------------------------------------------------
-/// initialize subsystems that depend on argv[]
-static void
-init_2(bool log_startup)
-{
-   Output::init(log_startup);
-   Svar_DB::init(LibPaths::get_APL_bin_path(),
-                 LibPaths::get_APL_bin_name(),
-                 log_startup, uprefs.system_do_svars);
-
-   LineInput::init(true);
-
-   Parallel::init(log_startup || LOG_Parallel);
-}
-//-----------------------------------------------------------------------------
 
 static struct sigaction old_control_C_action;
 static struct sigaction new_control_C_action;

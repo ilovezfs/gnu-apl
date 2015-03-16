@@ -56,6 +56,10 @@ enum { MAX_RANK = MAX_RANK_WANTED };
 
 using namespace std;
 
+/// initialize
+extern void init_1(const char * argv0, bool log_startup);
+extern void init_2(bool log_startup);
+
 /// clean up
 extern void cleanup(bool soft);
 

@@ -21,19 +21,24 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
+#include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
 
 #include "CharCell.hh"
 #include "Common.hh"
 #include "ComplexCell.hh"
 #include "FloatCell.hh"
 #include "LineInput.hh"
+#include "LibPaths.hh"
 #include "NativeFunction.hh"
 #include "Output.hh"
 #include "ProcessorID.hh"
+#include "Svar_DB.hh"
 #include "Value.icc"
+#include "UserPreferences.hh"
+#include "ValueHistory.hh"
 
 uint64_t total_memory = 0;
 
@@ -44,6 +49,45 @@ bool interrupt_raised = false;
 bool attention_raised = false;
 uint64_t attention_count = 0;
 
+//-----------------------------------------------------------------------------
+void
+init_1(const char * argv0, bool log_startup)
+{
+rlimit rl;
+   getrlimit(RLIMIT_AS, &rl);
+   total_memory = rl.rlim_cur;
+
+   if (log_startup)
+      CERR << "sizeof(Svar_record) is    " << sizeof(Svar_record) << endl
+           << "sizeof(Svar_partner) is   " << sizeof(Svar_partner)
+           << endl;
+
+   getrlimit(RLIMIT_NPROC, &rl);
+   if (log_startup)
+      CERR << "increasing rlimit RLIMIT_NPROC from " <<  rl.rlim_cur
+           << " to infinity" << endl;
+   rl.rlim_cur = RLIM_INFINITY;
+   setrlimit(RLIMIT_NPROC, &rl);
+
+   Avec::init();
+   LibPaths::init(argv0, log_startup);
+   Value::init();
+   VH_entry::init();
+}
+//-----------------------------------------------------------------------------
+/// initialize subsystems that depend on argv[]
+void
+init_2(bool log_startup)
+{
+   Output::init(log_startup);
+   Svar_DB::init(LibPaths::get_APL_bin_path(),
+                 LibPaths::get_APL_bin_name(),
+                 log_startup, uprefs.system_do_svars);
+
+   LineInput::init(true);
+
+   Parallel::init(log_startup || LOG_Parallel);
+}
 //-----------------------------------------------------------------------------
 /// the opposite of init()
 void
