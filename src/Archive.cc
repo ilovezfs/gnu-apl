@@ -1068,11 +1068,17 @@ int sec   = find_int_attr("second",   false, 10);
    sec  += offset          % 60;
    min  += (offset /   60) % 60;
    hour += (offset / 3600) % 60;
-   if (sec  >= 60)   { sec  -= 60;   ++min;  }
-   if (min  >= 60)   { min  -= 60;   ++hour; }
-   if (hour >= 24)   { hour -= 24;   ++day;  }
+   if      (sec  >= 60)   { sec  -= 60;   ++min;  }
+   else if (sec  <  0)    { sec  += 60;   --min;  }
+
+   if      (min  >= 60)   { min  -= 60;   ++hour; }
+   else if (min  <   0)   { min  += 60;   --hour; }
+
+   if      (hour >= 24)   { hour -= 24;   ++day;  }
+   else if (hour <   0)   { hour += 24;   --day;  }
 
 bool next_month = false;
+bool prev_month = false;
    switch(day)
       {
         case 32: next_month = true;
@@ -1085,17 +1091,28 @@ bool next_month = false;
         case 30: if (mon == 2)   next_month = true;
                  break;
 
-        case 29: if (mon != 2)         break;               // not februry
-                 if (year & 3)         next_month = true;   // not leap yer
+        case 29: if (mon != 2)         break;               // not february
+                 if (year & 3)         next_month = true;   // not leap year
                  // the above fails if someone loads a workspace that
-                 // was saved around midnight on 2/28/2100. Bad luck!
+                 // was saved around midnight on 2/28/2100. Dont do that!
+                 break;
+
+        case 0:  prev_month = true;
                  break;
 
         default: break;
       }
 
-   if (next_month)   { day = 1; ++mon;  }
-   if (mon > 12)     { mon = 1; ++year; }
+   if      (next_month)   { day = 1; ++mon;  }
+   else if (prev_month)
+           {
+             day = 31;   --mon;
+             if (mon == 4 || mon == 6 || mon == 9 || mon == 11)   day = 30;
+             else if (mon == 2)                 day = (year & 3) ? 28 : 29;
+           }
+
+   if      (mon > 12)   { mon =  1; ++year; }
+   else if (mon <  1)   { mon = 12; --year; }
 
    Log(LOG_archive)   CERR << "read_Workspace() " << endl;
 
