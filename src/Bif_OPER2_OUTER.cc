@@ -232,10 +232,8 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 bool
 Bif_OPER2_OUTER::eoc_OUTER(Token & token)
 {
-   // we copy _arg since pop_SI() will destroy it
-   //
-EOC_arg * next = 0;
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 OUTER_PROD & _arg = arg->u.u_OUTER_PROD;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it

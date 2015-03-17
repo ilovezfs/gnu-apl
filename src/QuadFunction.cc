@@ -1097,9 +1097,9 @@ const UCS_string statement_B(*B.get());
 bool
 Quad_EA::eoc_B_done(Token & token)
 {
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 StateIndicator * si = Workspace::SI_top();
-EOC_arg * next = 0;
-EOC_arg * arg = si->remove_eoc_handlers(next);
 
 
    // in A ⎕EA B, ⍎B was executed and may or may not have failed.
@@ -1169,8 +1169,8 @@ Quad_EA::eoc_A_and_B_done(Token & token)
    // may not have failed.
    //
 StateIndicator * si = Workspace::SI_top();
-EOC_arg * next = 0;
-EOC_arg * arg = si->remove_eoc_handlers(next);
+EOC_arg * arg = si->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 
    Assert(si);
    si->set_safe_execution(false);
@@ -1293,8 +1293,8 @@ bool
 Quad_EC::eoc(Token & result_B)
 {
 StateIndicator * si = Workspace::SI_top();
-EOC_arg * next = 0;
-EOC_arg * arg = si->remove_eoc_handlers(next);
+EOC_arg * arg = si->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 
    si->set_safe_execution(false);
 
@@ -1666,9 +1666,9 @@ Token tok(TOK_FIRST_TIME);
 bool
 Quad_INP::eoc_INP(Token & token)
 {
-EOC_arg * next = 0;
-EOC_arg * earg = Workspace::SI_top()->remove_eoc_handlers(next);
-quad_INP & arg = earg->u.u_quad_INP;
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
+quad_INP & _arg = arg->u.u_quad_INP;
 
 const bool first = token.get_tag() == TOK_FIRST_TIME;
 
@@ -1684,37 +1684,37 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
 
    if (!first)
       {
-        // token is the result of ⍎ exec and arg.lines has at least 2 lines.
+        // token is the result of ⍎ exec and _arg.lines has at least 2 lines.
         // append the value in token and then the last line to the second
         // last line and pop the last line.
         //
         Value_P result = token.get_apl_val();
 
-        UCS_string_list * last = arg.lines;
+        UCS_string_list * last = _arg.lines;
         Assert(last);                       // remember last
-        arg.lines = arg.lines->prev;        // pop last from lines
-        Assert(arg.lines);                  // must be 'before' below
+        _arg.lines = _arg.lines->prev;        // pop last from lines
+        Assert(_arg.lines);                  // must be 'before' below
 
         // if the result is a simple char string then insert it between
         // the last two lines. Otherwise insert a 2-dimensional ⍕result
-        // indented by the length of arg.lines.string (== before below)
+        // indented by the length of _arg.lines.string (== before below)
         // 
         if (result->is_char_string())
            {
              // simple char string: insert result
              //
-             arg.lines->string.append(result->get_UCS_ravel());
+             _arg.lines->string.append(result->get_UCS_ravel());
            }
         else
            {
              Value_P matrix = Bif_F12_FORMAT::monadic_format(result);
              const Cell * cm = &matrix->get_ravel(0);
-             const int plen = arg.lines->string.size();   // indent
+             const int plen = _arg.lines->string.size();   // indent
 
              // append the first row of the matrix to 'before'
              //
              loop(r, matrix->get_cols())
-                 arg.lines->string.append(cm++->get_char_value());
+                 _arg.lines->string.append(cm++->get_char_value());
 
              // append subsequent rows of the matrix to a new line
              //
@@ -1724,11 +1724,11 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                   loop(r, matrix->get_cols())
                       row.append(cm++->get_char_value());
 
-                  arg.lines = new UCS_string_list(row, arg.lines);
+                  _arg.lines = new UCS_string_list(row, _arg.lines);
                 }
            }
 
-        arg.lines->string.append(last->string);            // append last line
+        _arg.lines->string.append(last->string);            // append last line
 
         delete last;
       }
@@ -1740,27 +1740,27 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
          UCS_string prompt;
          InputMux::get_line(LIM_Quad_INP, prompt, line, eof,
                             LineHistory::quad_INP_history);
-         arg.done = (line.substr_pos(*arg.end_marker) != -1);
+         _arg.done = (line.substr_pos(*_arg.end_marker) != -1);
 
-         if (arg.esc1)   // start marker defined (dyadic ⎕INP)
+         if (_arg.esc1)   // start marker defined (dyadic ⎕INP)
             {
               UCS_string exec;     // line esc1 ... esc2 (excluding)
 
-              const int e1_pos = line.substr_pos(*arg.esc1);
+              const int e1_pos = line.substr_pos(*_arg.esc1);
               if (e1_pos != -1)   // and the start marker is present.
                  {
                    // push characters left of exec
                    //
                    {
                      const UCS_string before(line, 0, e1_pos);
-                     arg.lines = new UCS_string_list(before, arg.lines);
+                     _arg.lines = new UCS_string_list(before, _arg.lines);
                    }
 
-                   exec = line.drop(e1_pos + arg.esc1->size());
+                   exec = line.drop(e1_pos + _arg.esc1->size());
                    exec.remove_lt_spaces();   // no leading and trailing spaces
                    line.clear();
 
-                   if (arg.esc2 == 0)
+                   if (_arg.esc2 == 0)
                       {
                         // empty esc2 means exec is the rest of the line.
                         // nothing to do.
@@ -1769,7 +1769,7 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                       {
                         // non-empty esc2: search for it
                         //
-                        const int e2_pos = exec.substr_pos(*arg.esc2);
+                        const int e2_pos = exec.substr_pos(*_arg.esc2);
                         if (e2_pos == -1)   // esc2 not found: exec rest of line
                            {
                              // esc2 not in exec: take rest of line
@@ -1777,7 +1777,7 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                            }
                         else
                            {
-                             const int rest = e2_pos + arg.esc2->size();
+                             const int rest = e2_pos + _arg.esc2->size();
                              line = UCS_string(exec, rest, exec.size() - rest);
                              exec.shrink(e2_pos);
                            }
@@ -1792,38 +1792,38 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                    if (token.get_tag() != TOK_FIRST_TIME)
                       Workspace::pop_SI(LOC);
 
-                   arg.lines = new UCS_string_list(line, arg.lines);
+                   _arg.lines = new UCS_string_list(line, _arg.lines);
 
                    move_2(token, Bif_F1_EXECUTE::execute_statement(exec), LOC);
                    Assert(token.get_tag() == TOK_SI_PUSHED);
 
-                   Workspace::SI_top()->move_eoc_handler(eoc_INP, earg, LOC);
+                   Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
                    return true;   // continue
                  }
             }
 
-         if (arg.done)   break;
+         if (_arg.done)   break;
 
-         arg.lines = new UCS_string_list(line, arg.lines);
+         _arg.lines = new UCS_string_list(line, _arg.lines);
        }
 
-const ShapeItem zlen = UCS_string_list::length(arg.lines);
+const ShapeItem zlen = UCS_string_list::length(_arg.lines);
 Value_P Z(zlen, LOC);
 Cell * cZ = &Z->get_ravel(0) + zlen;
 
    loop(z, zlen)
       {
-        UCS_string_list * node = arg.lines;
-        arg.lines = arg.lines->prev;
+        UCS_string_list * node = _arg.lines;
+        _arg.lines = _arg.lines->prev;
         Value_P ZZ(node->string, LOC);
         ZZ->check_value(LOC);
         new (--cZ)   PointerCell(ZZ, Z.getref());
         delete node;
       }
 
-   delete arg.end_marker;
-   delete arg.esc1;
-   if (arg.esc2 != arg.esc1)   delete arg.esc2;
+   delete _arg.end_marker;
+   delete _arg.esc1;
+   if (_arg.esc2 != _arg.esc1)   delete _arg.esc2;
 
    if (Z->is_empty())   // then Z←⊂''
       {
@@ -1836,7 +1836,7 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
    Z->check_value(LOC);
    move_2(token, Token(TOK_APL_VALUE1, Z), LOC);
 
-   delete earg;
+   delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
    if (next)   return next->handler(token);
 

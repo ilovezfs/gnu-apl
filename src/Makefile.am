@@ -35,6 +35,7 @@ CharCell.cc					CharCell.hh		\
 Command.cc		Command.def		Command.hh		\
 Common.cc					Common.hh		\
 ComplexCell.cc				    	ComplexCell.hh		\
+configure_args.cc							\
 DiffOut.cc					DiffOut.hh		\
 DynamicObject.cc				DynamicObject.hh	\
 						EOC_handler_args.hh	\

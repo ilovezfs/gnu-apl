@@ -608,7 +608,9 @@ LineInput::LineInput(bool do_read_history)
    current_termios.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN);
    current_termios.c_lflag |= ISIG;
 
+#ifndef WANT_LIBAPL
    tcsetattr(STDIN_FILENO, TCSANOW, &current_termios);
+#endif // WANT_LIBAPL
 }
 //-----------------------------------------------------------------------------
 LineInput::~LineInput()
@@ -617,7 +619,9 @@ LineInput::~LineInput()
 
    if (write_history)   history.save_history(uprefs.line_history_path.c_str());
 
+#ifndef WANT_LIBAPL
    tcsetattr(STDIN_FILENO, TCSANOW, &initial_termios);
+#endif // WANT_LIBAPL
 }
 //-----------------------------------------------------------------------------
 void LineInput::init(bool do_read_history)
@@ -802,8 +806,10 @@ LineInput::edit_line(LineInputMode mode, const UCS_string & prompt,
                        UCS_string & user_line, bool & eof,
                        LineHistory & hist)
 {
-   the_line_input->current_termios.c_lflag &= ~ISIG;
+   the_line_input->current_termios.c_lflag &= ~ISIG;   // disable ^C
+#ifndef WANT_LIBAPL
    tcsetattr(STDIN_FILENO, TCSANOW, &the_line_input->current_termios);
+#endif // WANT_LIBAPL
 
    user_line.clear();
 
@@ -891,8 +897,10 @@ LineEditContext lec(mode, 24, Workspace::get_PrintContext().get_PW(),
          break;
        }
 
-   the_line_input->current_termios.c_lflag |= ISIG;
+   the_line_input->current_termios.c_lflag |= ISIG;   // enable ^C
+#ifndef WANT_LIBAPL
    tcsetattr(STDIN_FILENO, TCSANOW, &the_line_input->current_termios);
+#endif // WANT_LIBAPL
 
    user_line = lec.get_user_line();
 

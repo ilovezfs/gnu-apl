@@ -28,6 +28,7 @@
 
 #include "buildtag.hh"
 static const char * build_tag[] = { BUILDTAG, 0 };
+extern const char * configure_args;
 
 #include "Bif_OPER2_INNER.hh"
 #include "Bif_OPER2_OUTER.hh"
@@ -692,12 +693,12 @@ UserPreferences::show_version(ostream & out)
        {
          switch(bt - build_tag)
             {
-              case 0:  out << "  Project:        ";   break;
-              case 1:  out << "  Version / SVN:  ";   break;
-              case 2:  out << "  Build Date:     ";   break;
-              case 3:  out << "  Build OS:       ";   break;
-              case 4:  out << "  config.status:  ";   break;
-              default: out << "  [" << bt - build_tag << "] ";
+              case 0:  out << "    Project:        ";   break;
+              case 1:  out << "    Version / SVN:  ";   break;
+              case 2:  out << "    Build Date:     ";   break;
+              case 3:  out << "    Build OS:       ";   break;
+              case 4:  out << "    config.status:  ";   break;
+              default: out << "    [" << bt - build_tag << "] ";
             }
          out << *bt << endl;
        }
@@ -719,7 +720,34 @@ UserPreferences::show_configure_options()
                    "---------------------" << endl <<
 
    "    ASSERT_LEVEL_WANTED=" << ASSERT_LEVEL_WANTED
-        << is_default(ASSERT_LEVEL_WANTED == 1) << endl <<
+        << is_default(ASSERT_LEVEL_WANTED == 1)
+   << endl <<
+
+   "    APSERVER_PATH=" << APSERVER_PATH
+        << is_default(!strcmp(APSERVER_PATH, "/tmp/GNU-APL/APserver"))
+   << endl <<
+
+   "    APSERVER_PORT=" << APSERVER_PORT
+        << is_default(APSERVER_PORT == 16366)
+   << endl <<
+
+   "    APSERVER_TRANSPORT=" << APSERVER_TRANSPORT
+        << is_default(APSERVER_TRANSPORT == 0)
+   << endl <<
+
+   "    CORE_COUNT_WANTED=" << CORE_COUNT_WANTED <<
+#if   CORE_COUNT_WANTED == -3
+   "  (= ⎕SYL)"
+#elif CORE_COUNT_WANTED == -2
+   "  (= argv (--cc))"
+#elif CORE_COUNT_WANTED == -1
+   "  (= all)"
+#elif CORE_COUNT_WANTED == 0
+   "  (= sequential) (default)"
+#else
+   ""
+#endif
+   << endl <<
 
 #ifdef DYNAMIC_LOG_WANTED
    "    DYNAMIC_LOG_WANTED=yes"
@@ -737,8 +765,8 @@ UserPreferences::show_configure_options()
         << ", therefore:" << endl <<
    "        sizeof(Value)       : "  << value_size  << " bytes" << endl <<
    "        sizeof(Cell)        :  " << cell_size   << " bytes" << endl <<
-   "        sizeof(Value header): "  << header_size << " bytes" << endl <<
-   endl <<
+   "        sizeof(Value header): "  << header_size << " bytes" << endl
+   << endl <<
 
 #ifdef VALUE_CHECK_WANTED
    "    VALUE_CHECK_WANTED=yes"
@@ -751,20 +779,6 @@ UserPreferences::show_configure_options()
    "    VALUE_HISTORY_WANTED=yes"
 #else
    "    VALUE_HISTORY_WANTED=no (default)"
-#endif
-   << endl <<
-
-   "    CORE_COUNT_WANTED=" << CORE_COUNT_WANTED <<
-#if   CORE_COUNT_WANTED == -3
-   "  (⎕SYL)"
-#elif CORE_COUNT_WANTED == -2
-   "  (argv (--cc))"
-#elif CORE_COUNT_WANTED == -1
-   "  (all)"
-#elif CORE_COUNT_WANTED == 0
-   "  (default: (sequential))"
-#else
-   ""
 #endif
    << endl <<
 
@@ -781,9 +795,11 @@ UserPreferences::show_configure_options()
    "    VISIBLE_MARKERS_WANTED=no (default)"
 #endif
    << endl
-
+   << endl
+   << "how ./configure was (probably) called:" << endl
+   << "--------------------------------------" << endl
+   << "    " << configure_args << endl
    << endl;
-
 
    show_version(CERR);
 }

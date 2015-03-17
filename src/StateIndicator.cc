@@ -529,9 +529,9 @@ EOC_arg * new_e =  new EOC_arg(handler, arg, loc);
 }
 //-----------------------------------------------------------------------------
 EOC_arg *
-StateIndicator::remove_eoc_handlers(EOC_arg * & nxt)
+StateIndicator::remove_eoc_handlers()
 {
-EOC_arg * ret = eoc_handlers;   nxt = ret->next;
+EOC_arg * ret = eoc_handlers;
 
    Log(LOG_EOC_handlers)
       {

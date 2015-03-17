@@ -383,8 +383,8 @@ next_a_b:
 bool
 Bif_OPER2_INNER::eoc_INNER(Token & token)
 {
-EOC_arg * next = 0;
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 INNER_PROD & _arg = arg->u.u_INNER_PROD;
 
    if (token.get_Class() != TC_VALUE)

@@ -468,3 +468,7 @@ fi
   echo " "
 fi
 
+# remember how ./configure was called
+echo "extern const char * configure_args;" > src/configure_args.cc
+echo "const char * configure_args = \"$0 $ac_configure_args\";" >> src/configure_args.cc
+

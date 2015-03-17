@@ -76,7 +76,7 @@ public:
       { return executable; }
 
    /// remove EOC handlers and clear it
-   EOC_arg * remove_eoc_handlers(EOC_arg * & nxt);
+   EOC_arg * remove_eoc_handlers();
 
    EOC_arg * get_eoc_handlers() const
       { return eoc_handlers; }

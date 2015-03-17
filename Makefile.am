@@ -82,12 +82,15 @@ SVNUP:
 #
 .PHONY:	develop
 develop:
-	./configure --enable-maintainer-mode DEVELOP_WANTED=yes
+	./configure  --enable-maintainer-mode \
+                     DEVELOP_WANTED=yes
 	make all
 
 .PHONY:	develop_lib
 develop_lib:
-	./configure --enable-maintainer-mode DEVELOP_WANTED=yes --with-libapl
+	./configure  --enable-maintainer-mode \
+                     DEVELOP_WANTED=yes       \
+                     --with-libapl
 	make all
 
 # a shortcut to configure for parallel execution

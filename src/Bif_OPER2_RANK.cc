@@ -300,8 +300,8 @@ RANK & _arg = arg.u.u_RANK;
 bool
 Bif_OPER2_RANK::eoc_RANK(Token & token)
 {
-EOC_arg * next = 0;
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 RANK & _arg = arg->u.u_RANK;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it
