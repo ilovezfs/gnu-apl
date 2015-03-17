@@ -238,6 +238,7 @@ extern void Unicode_to_UTF8(int unicode, char * dest, int * length);
 }
 
 /// print value
+#include <ostream>
 extern std::ostream & print_value(const APL_value value, std::ostream & out);
 
 #endif

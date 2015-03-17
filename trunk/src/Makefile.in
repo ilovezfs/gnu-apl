@@ -148,28 +148,29 @@ am__libapl_la_SOURCES_DIST = buildtag buildtag.hh ../config.h \
 	Bif_OPER1_REDUCE.hh Bif_OPER1_SCAN.cc Bif_OPER1_SCAN.hh CDR.cc \
 	CDR.hh Cell.cc Cell.hh CharCell.cc CharCell.hh Command.cc \
 	Command.def Command.hh Common.cc Common.hh ComplexCell.cc \
-	ComplexCell.hh DiffOut.cc DiffOut.hh DynamicObject.cc \
-	DynamicObject.hh EOC_handler_args.hh Error.cc Error.def \
-	Error.hh ErrorCode.hh Executable.cc Executable.hh FloatCell.cc \
-	FloatCell.hh Function.cc Function.hh DerivedFunction.cc \
-	DerivedFunction.hh Heapsort.hh Id.cc Id.def Id.hh IndexExpr.cc \
-	IndexExpr.hh IndexIterator.cc IndexIterator.hh InputFile.cc \
-	InputFile.hh IntCell.cc IntCell.hh LApack.cc LApack.hh \
-	LibPaths.cc LibPaths.hh LineInput.cc LineInput.hh Logging.cc \
-	Logging.def Logging.hh LvalCell.cc LvalCell.hh makefile.h \
-	Malloc_hooks.cc Nabla.cc Nabla.hh NamedObject.cc \
-	NamedObject.hh NativeFunction.cc NativeFunction.hh \
-	Native_interface.hh NumericCell.cc NumericCell.hh Output.cc \
-	Output.hh Parser.cc Parser.hh Prefix.cc Prefix.def Prefix.hh \
-	PointerCell.cc PointerCell.hh PrimitiveFunction.cc \
-	PrimitiveFunction.hh PrimitiveOperator.cc PrimitiveOperator.hh \
-	PrintBuffer.cc PrintBuffer.hh PrintContext.hh PrintOperator.hh \
-	QuadFunction.cc QuadFunction.hh ProcessorID.cc ProcessorID.hh \
-	Quad_FX.cc Quad_FX.hh Quad_RL.cc Quad_RL.hh Quad_SVx.cc \
-	Quad_SVx.hh Quad_TF.cc Quad_TF.hh Parallel.cc Parallel.hh \
-	Performance.cc Performance.def Performance.hh RealCell.cc \
-	RealCell.hh Shape.cc Shape.hh SharedValuePointer.hh \
-	Simple_string.hh ScalarFunction.cc ScalarFunction.hh Source.hh \
+	ComplexCell.hh configure_args.cc DiffOut.cc DiffOut.hh \
+	DynamicObject.cc DynamicObject.hh EOC_handler_args.hh Error.cc \
+	Error.def Error.hh ErrorCode.hh Executable.cc Executable.hh \
+	FloatCell.cc FloatCell.hh Function.cc Function.hh \
+	DerivedFunction.cc DerivedFunction.hh Heapsort.hh Id.cc Id.def \
+	Id.hh IndexExpr.cc IndexExpr.hh IndexIterator.cc \
+	IndexIterator.hh InputFile.cc InputFile.hh IntCell.cc \
+	IntCell.hh LApack.cc LApack.hh LibPaths.cc LibPaths.hh \
+	LineInput.cc LineInput.hh Logging.cc Logging.def Logging.hh \
+	LvalCell.cc LvalCell.hh makefile.h Malloc_hooks.cc Nabla.cc \
+	Nabla.hh NamedObject.cc NamedObject.hh NativeFunction.cc \
+	NativeFunction.hh Native_interface.hh NumericCell.cc \
+	NumericCell.hh Output.cc Output.hh Parser.cc Parser.hh \
+	Prefix.cc Prefix.def Prefix.hh PointerCell.cc PointerCell.hh \
+	PrimitiveFunction.cc PrimitiveFunction.hh PrimitiveOperator.cc \
+	PrimitiveOperator.hh PrintBuffer.cc PrintBuffer.hh \
+	PrintContext.hh PrintOperator.hh QuadFunction.cc \
+	QuadFunction.hh ProcessorID.cc ProcessorID.hh Quad_FX.cc \
+	Quad_FX.hh Quad_RL.cc Quad_RL.hh Quad_SVx.cc Quad_SVx.hh \
+	Quad_TF.cc Quad_TF.hh Parallel.cc Parallel.hh Performance.cc \
+	Performance.def Performance.hh RealCell.cc RealCell.hh \
+	Shape.cc Shape.hh SharedValuePointer.hh Simple_string.hh \
+	ScalarFunction.cc ScalarFunction.hh Source.hh \
 	StateIndicator.cc StateIndicator.hh Svar_DB.cc Svar_DB.hh \
 	Svar_record.cc Svar_record.hh tcp_signal.m4 Svar_signals.def \
 	Svar_signals.hh Symbol.cc Symbol.hh SymbolTable.cc \
@@ -190,13 +191,14 @@ am__objects_1 = libapl_la-Archive.lo libapl_la-ArrayIterator.lo \
 	libapl_la-Bif_OPER1_REDUCE.lo libapl_la-Bif_OPER1_SCAN.lo \
 	libapl_la-CDR.lo libapl_la-Cell.lo libapl_la-CharCell.lo \
 	libapl_la-Command.lo libapl_la-Common.lo \
-	libapl_la-ComplexCell.lo libapl_la-DiffOut.lo \
-	libapl_la-DynamicObject.lo libapl_la-Error.lo \
-	libapl_la-Executable.lo libapl_la-FloatCell.lo \
-	libapl_la-Function.lo libapl_la-DerivedFunction.lo \
-	libapl_la-Id.lo libapl_la-IndexExpr.lo \
-	libapl_la-IndexIterator.lo libapl_la-InputFile.lo \
-	libapl_la-IntCell.lo libapl_la-LApack.lo libapl_la-LibPaths.lo \
+	libapl_la-ComplexCell.lo libapl_la-configure_args.lo \
+	libapl_la-DiffOut.lo libapl_la-DynamicObject.lo \
+	libapl_la-Error.lo libapl_la-Executable.lo \
+	libapl_la-FloatCell.lo libapl_la-Function.lo \
+	libapl_la-DerivedFunction.lo libapl_la-Id.lo \
+	libapl_la-IndexExpr.lo libapl_la-IndexIterator.lo \
+	libapl_la-InputFile.lo libapl_la-IntCell.lo \
+	libapl_la-LApack.lo libapl_la-LibPaths.lo \
 	libapl_la-LineInput.lo libapl_la-Logging.lo \
 	libapl_la-LvalCell.lo libapl_la-Malloc_hooks.lo \
 	libapl_la-Nabla.lo libapl_la-NamedObject.lo \
@@ -240,19 +242,19 @@ am__objects_2 = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-Bif_OPER1_SCAN.$(OBJEXT) apl-CDR.$(OBJEXT) \
 	apl-Cell.$(OBJEXT) apl-CharCell.$(OBJEXT) \
 	apl-Command.$(OBJEXT) apl-Common.$(OBJEXT) \
-	apl-ComplexCell.$(OBJEXT) apl-DiffOut.$(OBJEXT) \
-	apl-DynamicObject.$(OBJEXT) apl-Error.$(OBJEXT) \
-	apl-Executable.$(OBJEXT) apl-FloatCell.$(OBJEXT) \
-	apl-Function.$(OBJEXT) apl-DerivedFunction.$(OBJEXT) \
-	apl-Id.$(OBJEXT) apl-IndexExpr.$(OBJEXT) \
-	apl-IndexIterator.$(OBJEXT) apl-InputFile.$(OBJEXT) \
-	apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
-	apl-LibPaths.$(OBJEXT) apl-LineInput.$(OBJEXT) \
-	apl-Logging.$(OBJEXT) apl-LvalCell.$(OBJEXT) \
-	apl-Malloc_hooks.$(OBJEXT) apl-Nabla.$(OBJEXT) \
-	apl-NamedObject.$(OBJEXT) apl-NativeFunction.$(OBJEXT) \
-	apl-NumericCell.$(OBJEXT) apl-Output.$(OBJEXT) \
-	apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
+	apl-ComplexCell.$(OBJEXT) apl-configure_args.$(OBJEXT) \
+	apl-DiffOut.$(OBJEXT) apl-DynamicObject.$(OBJEXT) \
+	apl-Error.$(OBJEXT) apl-Executable.$(OBJEXT) \
+	apl-FloatCell.$(OBJEXT) apl-Function.$(OBJEXT) \
+	apl-DerivedFunction.$(OBJEXT) apl-Id.$(OBJEXT) \
+	apl-IndexExpr.$(OBJEXT) apl-IndexIterator.$(OBJEXT) \
+	apl-InputFile.$(OBJEXT) apl-IntCell.$(OBJEXT) \
+	apl-LApack.$(OBJEXT) apl-LibPaths.$(OBJEXT) \
+	apl-LineInput.$(OBJEXT) apl-Logging.$(OBJEXT) \
+	apl-LvalCell.$(OBJEXT) apl-Malloc_hooks.$(OBJEXT) \
+	apl-Nabla.$(OBJEXT) apl-NamedObject.$(OBJEXT) \
+	apl-NativeFunction.$(OBJEXT) apl-NumericCell.$(OBJEXT) \
+	apl-Output.$(OBJEXT) apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
 	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
 	apl-PrimitiveOperator.$(OBJEXT) apl-PrintBuffer.$(OBJEXT) \
 	apl-QuadFunction.$(OBJEXT) apl-ProcessorID.$(OBJEXT) \
@@ -574,6 +576,7 @@ CharCell.cc					CharCell.hh		\
 Command.cc		Command.def		Command.hh		\
 Common.cc					Common.hh		\
 ComplexCell.cc				    	ComplexCell.hh		\
+configure_args.cc							\
 DiffOut.cc					DiffOut.hh		\
 DynamicObject.cc				DynamicObject.hh	\
 						EOC_handler_args.hh	\
@@ -863,6 +866,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Value.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ValueHistory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Workspace.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-configure_args.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Archive.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-ArrayIterator.Plo@am__quote@
@@ -941,6 +945,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Value.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-ValueHistory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Workspace.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-configure_args.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-libapl.Plo@am__quote@
 
 .cc.o:
@@ -1113,6 +1118,13 @@ libapl_la-ComplexCell.lo: ComplexCell.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ComplexCell.cc' object='libapl_la-ComplexCell.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-ComplexCell.lo `test -f 'ComplexCell.cc' || echo '$(srcdir)/'`ComplexCell.cc
+
+libapl_la-configure_args.lo: configure_args.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-configure_args.lo -MD -MP -MF $(DEPDIR)/libapl_la-configure_args.Tpo -c -o libapl_la-configure_args.lo `test -f 'configure_args.cc' || echo '$(srcdir)/'`configure_args.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libapl_la-configure_args.Tpo $(DEPDIR)/libapl_la-configure_args.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='configure_args.cc' object='libapl_la-configure_args.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-configure_args.lo `test -f 'configure_args.cc' || echo '$(srcdir)/'`configure_args.cc
 
 libapl_la-DiffOut.lo: DiffOut.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-DiffOut.lo -MD -MP -MF $(DEPDIR)/libapl_la-DiffOut.Tpo -c -o libapl_la-DiffOut.lo `test -f 'DiffOut.cc' || echo '$(srcdir)/'`DiffOut.cc
@@ -1820,6 +1832,20 @@ apl-ComplexCell.obj: ComplexCell.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ComplexCell.cc' object='apl-ComplexCell.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ComplexCell.obj `if test -f 'ComplexCell.cc'; then $(CYGPATH_W) 'ComplexCell.cc'; else $(CYGPATH_W) '$(srcdir)/ComplexCell.cc'; fi`
+
+apl-configure_args.o: configure_args.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-configure_args.o -MD -MP -MF $(DEPDIR)/apl-configure_args.Tpo -c -o apl-configure_args.o `test -f 'configure_args.cc' || echo '$(srcdir)/'`configure_args.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-configure_args.Tpo $(DEPDIR)/apl-configure_args.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='configure_args.cc' object='apl-configure_args.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-configure_args.o `test -f 'configure_args.cc' || echo '$(srcdir)/'`configure_args.cc
+
+apl-configure_args.obj: configure_args.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-configure_args.obj -MD -MP -MF $(DEPDIR)/apl-configure_args.Tpo -c -o apl-configure_args.obj `if test -f 'configure_args.cc'; then $(CYGPATH_W) 'configure_args.cc'; else $(CYGPATH_W) '$(srcdir)/configure_args.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-configure_args.Tpo $(DEPDIR)/apl-configure_args.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='configure_args.cc' object='apl-configure_args.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-configure_args.obj `if test -f 'configure_args.cc'; then $(CYGPATH_W) 'configure_args.cc'; else $(CYGPATH_W) '$(srcdir)/configure_args.cc'; fi`
 
 apl-DiffOut.o: DiffOut.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-DiffOut.o -MD -MP -MF $(DEPDIR)/apl-DiffOut.Tpo -c -o apl-DiffOut.o `test -f 'DiffOut.cc' || echo '$(srcdir)/'`DiffOut.cc

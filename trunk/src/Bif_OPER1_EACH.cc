@@ -163,8 +163,8 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 bool
 Bif_OPER1_EACH::eoc_ALB(Token & token)
 {
-EOC_arg * next = 0;
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
    if (!!arg->Z)   // LO with result, maybe successful
@@ -348,8 +348,8 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 bool
 Bif_OPER1_EACH::eoc_LB(Token & token)
 {
-EOC_arg * next = 0;
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers(next);
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
 EACH_LB & _arg = arg->u.u_EACH_LB;
 
    if (!!arg->Z)   // LO with result, maybe successful
