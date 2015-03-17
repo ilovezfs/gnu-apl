@@ -5,8 +5,6 @@ endif
 SUBDIRS = native $(EXTRA_DIRS)
 DIST_SUBDIRS = $(SUBDIRS) testcases
 
-bin_PROGRAMS = apl
-
 datadir = @datadir@
 localedir = $(datadir)/locale
 
@@ -108,7 +106,7 @@ ValueHistory.cc					ValueHistory.hh		\
 Workspace.cc					Workspace.hh
 
 
-apl_SOURCES = main.cc $(common_sources)
+
 
 pkglib_LTLIBRARIES =
 if WANT_LIBAPL
@@ -116,6 +114,11 @@ pkglib_LTLIBRARIES += libapl.la
 pkginclude_HEADERS = libapl.h
 libapl_la_SOURCES = $(common_sources) libapl.h libapl.cc
 libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
+else
+
+bin_PROGRAMS = apl
+apl_SOURCES = main.cc $(common_sources)
+
 endif
 
 

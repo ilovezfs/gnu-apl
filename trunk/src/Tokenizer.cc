@@ -676,20 +676,24 @@ bool skipped_0 = false;
 
    // exponent part
    //
-   if (src.rest() &&
-       (*src == UNI_ASCII_E || *src == UNI_ASCII_e))   // exponent present
+   if (src.rest() > 1 &&
+       (*src == UNI_ASCII_E || *src == UNI_ASCII_e))   // maybe exponent
       {
-        need_float = true;
-        ++src;   // skip e/E
-        if (src.rest() && *src == UNI_OVERBAR)
+        if ((src[1] == UNI_OVERBAR && src[2] >= '0' && src[2] <= '9') ||
+            (src[1] >= '0' && src[1] <= '9'))
            {
-             ++src;   // skip ¯
-             expo_negative = true;
-           }
+             need_float = true;
+             ++src;   // skip e/E
+             if (src.rest() && *src == UNI_OVERBAR)
+           {
+                  ++src;   // skip ¯
+                  expo_negative = true;
+                }
 
-        while (src.rest() && *src >= '0' && *src <= '9')
-           {
-             expo_part.append(src.get());
+             while (src.rest() && *src >= '0' && *src <= '9')
+                {
+                  expo_part.append(src.get());
+                }
            }
       }
 
