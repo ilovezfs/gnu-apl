@@ -29,6 +29,15 @@
 #include "PrintOperator.hh"
 #include "Value.icc"
 
+/// max sizes for arrays on the stack. Larger values are allocated with new()
+enum
+{
+   PB_MAX_COLS        = 200,
+   PB_MAX_ROWS        = 100,
+   PB_MAX_ITEMS       = PB_MAX_COLS * PB_MAX_ROWS,
+   PB_MAX_BREAKPOINTS = 200,
+};
+
 //-----------------------------------------------------------------------------
 PrintBuffer::PrintBuffer()
    : complete(true)
@@ -47,6 +56,14 @@ PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx,
    : complete(false)
 {
 PERFORMANCE_START(start_0)
+
+bool * del1 = 0;   // bool scaling[cols];
+char * del2 = 0;   // item_matrix[rows*cols]
+char * del3 = 0;   // pcols
+
+bool __scaling     [PB_MAX_COLS];
+char __item_matrix [PB_MAX_ITEMS * sizeof(PrintBuffer)];
+char __pcols       [PB_MAX_COLS  * sizeof(PrintBuffer)];
 
    // Note: if ostream is non-0 then this value may be incomplete
    // (as indicated by member complete if it is huge. This is to speed
@@ -85,7 +102,7 @@ const bool huge = out && ec > 10000;
      if (ec == 0)   // empty value of any dimension
         {
           pb_empty(value, pctx, outer_style);
-           goto maybe_print_it;
+          goto maybe_print_it;
         }
 
      if (pctx.get_style() == PR_APL_FUN)
@@ -100,7 +117,8 @@ const bool huge = out && ec > 10000;
      const ShapeItem cols = value.get_last_shape_item();
      const ShapeItem rows = ec/cols;
 
-     DynArray(bool, scaling, cols);
+     bool * scaling = __scaling;
+     if (cols >= PB_MAX_COLS)   scaling = del1 = new bool[cols];
      loop(x, cols)
          {
            bool need_scaling = false;
@@ -121,8 +139,10 @@ const bool huge = out && ec > 10000;
      //    therefore we have (⍴,value) items. Items are rectangular.
      //
      PERFORMANCE_START(start_2)
-     DynArray(char, item_matrix1, sizeof(PrintBuffer)*rows*cols);
-     PrintBuffer * item_matrix = (PrintBuffer *)item_matrix1;
+     PrintBuffer * item_matrix = (PrintBuffer *)__item_matrix;
+     if (rows * cols >= PB_MAX_ITEMS)   item_matrix =
+        (PrintBuffer *)(del2 = new char[rows*cols*sizeof(PrintBuffer)]);
+
      loop(y, rows)
         {
           ShapeItem max_row_height = 0;
@@ -186,8 +206,9 @@ const bool huge = out && ec > 10000;
      int last_col_spacing = 0;    // the col_spacing of the previous column
      bool last_notchar = false;   // the notchar property of the previous column
 
-     DynArray(char, pcols1, sizeof(PrintBuffer)*cols);
-     PrintBuffer * pcols = (PrintBuffer *)pcols1;
+     PrintBuffer * pcols = (PrintBuffer *)__pcols;
+     if (cols >= PB_MAX_COLS)   pcols =
+        (PrintBuffer *)(del3 = new char[cols * sizeof(PrintBuffer)]);
 
      loop(x, cols)
         {
@@ -312,8 +333,7 @@ maybe_print_it:
      else if (out)
         {
           UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
-          if (ucs.size() == 0)   return;
-          *out << ucs << endl;
+          if (ucs.size())   *out << ucs << endl;
         }
      complete = true;
 
@@ -322,12 +342,18 @@ maybe_print_it:
 
    PERFORMANCE_END(fs_PrintBuffer_B, start_0, ec)
 
+   delete del1;
+   delete del2;
+   delete del3;
    return;
 
 interrupted:
    attention_raised = false;
    interrupt_raised = false;
    *out << endl << "INTERRUPT" << endl;
+   delete del1;
+   delete del2;
+   delete del3;
    return;
 }
 //-----------------------------------------------------------------------------
@@ -337,8 +363,13 @@ PrintBuffer::print_interruptible(ostream & out, Rank rank, int quad_PW)
    if (get_height() == 0)   return;      // empty PrintBuffer
 
 const int total_width = get_width(0);
+const int max_breaks = 2*total_width/quad_PW;
 
-DynArray(ShapeItem, breakpoints, 2*total_width/quad_PW);
+ShapeItem * del = 0;
+ShapeItem __breakpoints[PB_MAX_BREAKPOINTS];
+ShapeItem * breakpoints = __breakpoints;
+   if (max_breaks >= PB_MAX_BREAKPOINTS)
+      breakpoints = del = new ShapeItem[max_breaks];
 ShapeItem bp_len = 0;
 
    // print rows, breaking at breakpoints
@@ -379,12 +410,14 @@ ShapeItem bp_len = 0;
                    out << endl << "INTERRUPT" << endl;
                    attention_raised = false;
                    interrupt_raised = false;
+                   delete del;
                    return;
                  }
             }
        }
 
    out << endl;
+   delete del;
 }
 //-----------------------------------------------------------------------------
 void
