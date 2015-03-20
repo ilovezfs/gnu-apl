@@ -157,14 +157,14 @@ Executable * statements = 0;
       }
    catch (Error err)
       {
-        COUT << Error::error_name(err.error_code) << endl;
+        UERR << Error::error_name(err.error_code) << endl;
         if (err.get_error_line_2().size())
            {
              COUT << "      " << err.get_error_line_2() << endl
                   << "      " << err.get_error_line_3() << endl;
            }
 
-        err.print(CERR);
+        err.print(UERR);
         return;
       }
    catch (...)

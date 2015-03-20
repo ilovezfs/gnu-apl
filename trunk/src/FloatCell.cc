@@ -320,42 +320,61 @@ FloatCell::bif_subtract(Cell * Z, const Cell * A) const
 ErrorCode
 FloatCell::bif_multiply(Cell * Z, const Cell * A) const
 {
-   if (A->is_real_cell())
-      { 
-        new (Z) FloatCell(A->get_real_value() * get_real_value());
-        Z->demote_float_to_int(Workspace::get_CT());
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
+
+const APL_Float ar = A->get_real_value();
+const APL_Float ai = A->get_imag_value();
+
+   if (ai == 0.0)   // real result
+      {
+        const APL_Float z = ar * value.fval;
+        if (!isfinite(z))   return E_DOMAIN_ERROR;;
+        new (Z) FloatCell(z);
         return E_NO_ERROR;
       } 
 
-   // delegate to A
+   // complex result
    //
-   return A->bif_multiply(Z, this);
+const APL_Complex a(ar, ai);
+const APL_Complex z = a * value.fval;
+   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;;
+   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;;
+   new (Z) ComplexCell(z);
+   return E_NO_ERROR;
 }     
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_divide(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
 
-   if (this->is_near_zero(qct))   // divide by 0
+const APL_Float ar = A->get_real_value();
+const APL_Float ai = A->get_imag_value();
+
+   if (value.fval == 0.0)   // A ÷ 0
       {
-         if (!A->is_near_zero(qct))   return E_DOMAIN_ERROR;
-         new (Z) IntCell(1);   // 0/0 is 1 in APL
-         return E_NO_ERROR;
+         if (ar != 0.0)   return E_DOMAIN_ERROR;
+         if (ai != 0.0)   return E_DOMAIN_ERROR;
+
+         return IntCell::z1(Z);   // 0÷0 is 1 in APL
       }
 
 
-   if (A->is_real_cell())
+   if (ai == 0.0)   // real result
       {
-        const APL_Float real = A->get_real_value() / get_real_value();
-        if (Cell::is_near_int(real, qct))   new (Z) IntCell(real, qct);
-        else                                new (Z) FloatCell(real);
+        const APL_Float real = ar / value.fval ;
+        new (Z) FloatCell(real);
          return E_NO_ERROR;
       }
 
-   // delegate to A
+   // complex result
    //
-   return A->bif_divide(Z, this);
+const APL_Complex a(ar, ai);
+const APL_Complex z = a / value.fval;
+   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;;
+   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;;
+   new (Z) ComplexCell(z);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -365,63 +384,43 @@ FloatCell::bif_power(Cell * Z, const Cell * A) const
    //
    if (!A->is_numeric())   return E_DOMAIN_ERROR;
 
-const APL_Float qct = Workspace::get_CT();
-   if (is_near_int(qct))
+const APL_Float ar = A->get_real_value();
+const APL_Float ai = A->get_imag_value();
+
+   // 1. A == 0
+   //
+   if (ar == 0.0 && ai == 0.0)
+       {
+         if (value.fval == 0.0)   return IntCell::z1(Z);   // 0⋆0 is 1
+         if (value.fval > 0)      return IntCell::z0(Z);   // 0⋆N is 0
+         return E_DOMAIN_ERROR;;                           // 0⋆¯N = 1÷0
+       }
+
+   // 2. real A > 0   (real result)
+   //
+   if (ai == 0.0)
       {
-        APL_Integer b = get_near_int(qct);
-        const bool invert_Z = b < 0;
-        if (invert_Z)   b = - b;
-
-        if (b <= 1)   // special cases A⋆1, A⋆0, and A⋆¯1
+        if (ar  == 1.0)   return IntCell::z1(Z);   // 1⋆b = 1
+        if (ar > 0)
            {
-             if (b == 0)   return IntCell::z1(Z);  // A⋆0 is 1
-
-             if (invert_Z)               return A->bif_reciprocal(Z);
-             if (A->is_real_cell())      return A->bif_conjugate(Z);
-             new (Z) ComplexCell(A->get_complex_value());
+             const APL_Float z = pow(ar, value.fval);
+             if (!isfinite(z))   return E_DOMAIN_ERROR;;
+             new (Z) FloatCell(z);
              return E_NO_ERROR;
            }
+
+        /* fall through */
       }
 
-   if (A->is_near_zero(qct))
-      {
-        if (get_real_value() < 0)   return E_DOMAIN_ERROR;
-        return IntCell::z0(Z);
-      }
-          
-   if (A->is_real_cell())
-      {
-        if (A->get_real_value() < 0)
-           {
-             if (is_near_int(qct))
-                {
-                  const APL_Integer b = get_near_int(qct);
-                  const APL_Float z = pow(A->get_real_value(), (APL_Float)b);
-                  new (Z) FloatCell(z);
-                }
-             else
-                {
-                  const APL_Complex z = pow(A->get_complex_value(),
-                                            get_complex_value());
-                  new (Z) ComplexCell(z);
-                  Z->demote_complex_to_real(Workspace::get_CT());
-                }
-           }
-        else
-           {
-             new (Z) FloatCell(pow(A->get_real_value(),
-                               get_real_value()));
-           }
-        return E_NO_ERROR;
-      }
-
-   // complex A to the B-th power
+   // 3. complex result
    //
    {
-     APL_Complex z = pow(A->get_complex_value(), get_real_value());
+     const APL_Complex a(ar, ai);
+     const APL_Complex z = pow(a, value.fval);
+     if (!isfinite(z.real()))   return E_DOMAIN_ERROR;;
+     if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;;
 
      new (Z) ComplexCell(z);
-     Z->demote_complex_to_real(Workspace::get_CT());
      return E_NO_ERROR;
    }
 }

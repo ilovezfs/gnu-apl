@@ -242,12 +242,27 @@ protected:
 /** InputMux fetches one line from either an input file, or interactively
    from the user if no input file is present
  **/
+
+/// a callback function to be called instead of get_line()
+typedef void get_line_cb(LineInputMode mode, const UCS_string & prompt,
+                         UCS_string & line, bool & eof, LineHistory & hist);
+
 class InputMux
 {
 public:
    /// get one line
    static void get_line(LineInputMode mode, const UCS_string & prompt,
                         UCS_string & line, bool & eof, LineHistory & hist);
+
+   /// install a get_line() replacement, return old one
+   static get_line_cb * install_get_line_callback(get_line_cb * new_callback)
+      {
+        get_line_cb * ret = get_line_callback;
+        get_line_callback = new_callback;
+        return ret;
+      }
+protected:
+   static get_line_cb * get_line_callback;
 };
 //-----------------------------------------------------------------------------
 /// a class for obtaining one line of input from the user (editable)
