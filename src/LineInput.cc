@@ -48,6 +48,8 @@ LineHistory LineHistory::quad_INP_history(2);
 
 UCS_string LineEditContext::cut_buffer;
 
+get_line_cb * InputMux::get_line_callback = 0;
+
 //=============================================================================
 
 ESCmap ESCmap::the_ESCmap[] =
@@ -633,6 +635,12 @@ void
 InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
                    UCS_string & line, bool & eof, LineHistory & hist)
 {
+   if (get_line_callback)
+      {
+        get_line_callback(mode, prompt, line, eof, hist);
+        return;
+      }
+
    if (InputFile::is_validating())   Quad_QUOTE::done(true, LOC);
 
    InputFile::increment_current_line_no();

@@ -24,8 +24,9 @@
 
 #include <Workspace.hh>
 #include <Command.hh>
-#include <FloatCell.hh>
 #include <ComplexCell.hh>
+#include <LineInput.hh>
+#include <FloatCell.hh>
 #include <PointerCell.hh>
 #include <UserPreferences.hh>
 
@@ -434,5 +435,35 @@ init_libapl(const char * progname, int log_startup)
    init_1(progname, log_startup);
    init_2(log_startup);
 }
+//-----------------------------------------------------------------------------
+get_line_from_user_cb * glfu = 0;
+
+void
+libapl_glfu(LineInputMode mode, const UCS_string & prompt,
+                  UCS_string & line, bool & eof, LineHistory & hist)
+{
+UTF8_string prompt_utf8(prompt);
+const char * user_input = glfu(mode, prompt_utf8.c_str());
+   if (user_input)
+      {
+         UTF8_string user_input_utf8(user_input);
+        line = UCS_string(user_input_utf8);
+      }
+   else
+      {
+        eof = true;
+      }
+}
+
+get_line_from_user_cb * 
+install_get_line_from_user_cb(get_line_from_user_cb * new_callback)
+{
+get_line_from_user_cb * ret = glfu;
+   glfu = new_callback;
+   if (new_callback)    InputMux::install_get_line_callback(&libapl_glfu);
+   else                 InputMux::install_get_line_callback(0);
+   return ret;
+}
+
 //-----------------------------------------------------------------------------
 

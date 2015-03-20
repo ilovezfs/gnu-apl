@@ -233,6 +233,15 @@ extern int UTF8_to_Unicode(const char * utf, int * length);
 /// 0-teminated
 extern void Unicode_to_UTF8(int unicode, char * dest, int * length);
 
+/// a callback function when APL requests input. Return 0 for EOF. APL will not
+/// touch the return value (and you must not touch the prompt). USE WITH CARE!
+typedef const char * get_line_from_user_cb(
+   int /* Immediate execution = 0, ⍞ = 1, ⎕ = 2, ⎕INP = 3, ∇ = 4 */ mode,
+   const char * /* don't free() ! */ prompt);
+
+/// install new callback (old one will be returned)
+get_line_from_user_cb *
+ install_get_line_from_user_cb(get_line_from_user_cb * new_callback);
 
 #ifdef __cplusplus
 }

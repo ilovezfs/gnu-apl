@@ -107,12 +107,20 @@ Source<Unicode> src(input);
               case TC_LINE:
               case TC_VALUE:
               case TC_INDEX:
-              case TC_VOID:
                    CERR << "Offending token: " << tok.get_tag()
                         << " (" << tok << ")" << endl;
                    if (tok.get_tag() == TOK_CHARACTER)
                       CERR << "Unicode: " << UNI(tok.get_char_val()) << endl;
                    rest_2 = src.rest();
+                   throw_parse_error(E_NON_APL_CHAR, LOC, loc);
+                   break;
+
+              case TC_VOID:
+                   // Avec::uni_to_token returns TC_VOID for non-apl characters
+                   //
+                   rest_2 = src.rest();
+                   UERR << "Unknown APL character: " << uni
+                        << " (" << UNI(uni) << ")" << endl;
                    throw_parse_error(E_NON_APL_CHAR, LOC, loc);
                    break;
 
