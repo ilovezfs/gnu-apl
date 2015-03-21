@@ -643,7 +643,7 @@ xkb_symbols "line_drawing" {
 
 
 // Like "dyalog_basic", but puts APL characters on third and fourth level, keeping
-// the standard characters.
+// the standard characters. Adds lambda and quad-backslash.
 partial hidden alphanumeric_keys
 xkb_symbols "APL_on_3rd" {
 
@@ -655,7 +655,7 @@ xkb_symbols "APL_on_3rd" {
 // ┃       ┃     │   ⍹ │   ⍷ │     │   ⍨ │   ¥ │     │   ⍸ │   ⍥ │   ⍣ │   ⍞ │   ⍬ ┃       ┃
 // ┃       ┃   ? │   ⍵ │   ∊ │   ⍴ │   ~ │   ↑ │   ↓ │   ⍳ │   ○ │   * │   ← │   → ┃       ┃
 // ┣━━━━━━━┻┱────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┺┓      ┃
-// ┃        ┃   ⍶ │   § │     │     │     │   ⍙ │   ⍤ │     │   ⌷ │   ≡ │   ≢ │   ⊣ ┃      ┃
+// ┃        ┃   ⍶ │   § │     │   λ │     │   ⍙ │   ⍤ │   ⍂ │   ⌷ │   ≡ │   ≢ │   ⊣ ┃      ┃
 // ┃        ┃   ⍺ │   ⌈ │   ⌊ │   _ │   ∇ │   ∆ │   ∘ │   ' │   ⎕ │   ⍎ │   ⍕ │   ⊢ ┃      ┃
 // ┣━━━━━━━┳┹────┬┴────┬┴────┬┴────┬┴────┬┴────┬┴────┬┴────┬┴────┬┴────┬┴────┲┷━━━━━┻━━━━━━┫
 // ┃       ┃     │     │   χ │   ¢ │     │   £ │     │     │   ⍪ │   ⍙ │   ⍠ ┃             ┃
@@ -679,11 +679,11 @@ xkb_symbols "APL_on_3rd" {
 	key <AC01> { [ NoSymbol, NoSymbol, U237a,       U2376	] };	// alpha, alpha underbar
 	key <AC02> { [ NoSymbol, NoSymbol, U2308		] };	// left ceiling
 	key <AC03> { [ NoSymbol, NoSymbol, U230a		] };	// left floor
-	key <AC04> { [ NoSymbol, NoSymbol, underscore		] };	// low line
+	key <AC04> { [ NoSymbol, NoSymbol, underscore,	U03BB	] };	// , lambda
 	key <AC05> { [ NoSymbol, NoSymbol, U2207		] };	// nabla
 	key <AC06> { [ NoSymbol, NoSymbol, U2206,       U2359	] };	// increment, delta underbar
 	key <AC07> { [ NoSymbol, NoSymbol, U2218,	U2364	] };	// ring operator, jot diaeresis
-	key <AC08> { [ NoSymbol, NoSymbol, apostrophe		] };
+	key <AC08> { [ NoSymbol, NoSymbol, apostrophe,	U2342	] };    // , quad-backslash
 	key <AC09> { [ NoSymbol, NoSymbol, U2395,	U2337	] };	// quad, squish quad
 	key <AC10> { [ NoSymbol, NoSymbol, U234e,	U2261	] };	// up tack jot, identical to
 	key <AC11> { [ NoSymbol, NoSymbol, U2355,	U2262	] };	// down tack jot,  not identical to
