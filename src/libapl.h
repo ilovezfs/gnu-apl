@@ -22,6 +22,7 @@
 #ifndef __LIBAPL_H_DEFINED__
 #define __LIBAPL_H_DEFINED__
 
+#include <stdio.h>
 #include <stdint.h>
 
 enum C_CellType
@@ -240,7 +241,7 @@ typedef const char * get_line_from_user_cb(
    const char * /* don't free() ! */ prompt);
 
 /// install new callback (old one will be returned)
-get_line_from_user_cb *
+extern get_line_from_user_cb *
  install_get_line_from_user_cb(get_line_from_user_cb * new_callback);
 
 #ifdef __cplusplus

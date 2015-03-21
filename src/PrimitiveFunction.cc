@@ -878,8 +878,9 @@ Token result = eval_AB(I, B);
    return result;
 }
 //-----------------------------------------------------------------------------
-extern Value_P divide_matrix(ShapeItem rows, Value_P A, Value_P B,
-                             const Shape & shape_Z, APL_Float qct);
+extern void divide_matrix(Cell * cZ, bool need_complex,
+                          ShapeItem rows, ShapeItem cols_A, const Cell * cA,
+                          ShapeItem cols_B, const Cell * cB, ShapeItem nB2);
 
 Token
 Bif_F12_DOMINO::eval_AB(Value_P A, Value_P B)
@@ -928,7 +929,12 @@ ShapeItem cols_B = 1;
    if (rows_B <  cols_B)   LENGTH_ERROR;
    if (rows_A != rows_B)   LENGTH_ERROR;
 
-Value_P Z = divide_matrix(rows_A, A, B, shape_Z, qct);
+const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
+const ShapeItem nB2 = rows_B > cols_B ? rows_B : cols_B;
+Value_P Z(shape_Z, LOC);
+   divide_matrix(&Z->get_ravel(0), need_complex,
+                 rows_A, cols_A, &A->get_ravel(0),
+                 cols_B, &B->get_ravel(0), nB2);
 
    Z->set_default(*B.get());
 

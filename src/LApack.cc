@@ -32,39 +32,31 @@ using namespace std;
 #include "LApack.hh"
 
 //-----------------------------------------------------------------------------
-Value_P
-divide_matrix(ShapeItem rows, Value_P A, Value_P B,
-              const Shape & shape_Z, APL_Float qct)
+void
+divide_matrix(Cell * cZ, bool need_complex,
+              ShapeItem rows, ShapeItem cols_A, const Cell * cA,
+              ShapeItem cols_B, const Cell * cB, ShapeItem nB2)
 {
-const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
-
-Value_P Z(shape_Z, LOC);
-
-const ShapeItem cols_A = shape_Z.get_rows();
-const ShapeItem cols_B = shape_Z.get_cols();
-
    loop(c, cols_A)
        {
          if (need_complex)
             {
-              double  ad[2*rows];
+              DynArray(double, ad, 2*rows);
               ZZ * const a = (ZZ *)ad;
               loop(r, rows)
                   {
-                    new (a + r) ZZ(A->get_ravel(r*cols_A + c).get_real_value(),
-                                   A->get_ravel(r*cols_A + c).get_imag_value());
+                    new (a + r) ZZ(cA[r*cols_A + c].get_real_value(),
+                                   cA[r*cols_A + c].get_imag_value());
                   }
 
-              double bd[2*B->element_count()];
+              DynArray(double, bd, 2*nB2*nB2);
               ZZ * const b = (ZZ *)bd;
               ZZ * bb = b;
               loop(rr, cols_B)
               loop(cc, rows)
                  {
-                   new (bb++) ZZ(B->get_ravel(rr + cc*cols_B)
-                                                  .get_real_value(),
-                                   B->get_ravel(rr + cc*cols_B)
-                                                  .get_imag_value());
+                   new (bb++) ZZ(cB[rr + cc*cols_B].get_real_value(),
+                                 cB[rr + cc*cols_B].get_imag_value());
                  }
 
               {
@@ -83,23 +75,22 @@ const ShapeItem cols_B = shape_Z.get_cols();
               // which is row c of Z.
               //
               loop(r, cols_B)
-                  new (&Z->get_ravel(r*cols_A + c))
-                      ComplexCell(a[r].real(), a[r].imag());
+                  new (cZ + r*cols_A + c) ComplexCell(a[r].real(), a[r].imag());
             }
          else   // real
             {
-              double a[rows];
+              DynArray(double, a, rows);
               loop(r, rows)
                  {
-                   a[r] = A->get_ravel(r*cols_A + c).get_real_value();
+                   a[r] = cA[r*cols_A + c].get_real_value();
                  }
 
-              double b[B->element_count()];
+              DynArray(double, b, nB2*nB2);
               double * bb = b;
-              loop(rr, B->get_cols())
-              loop(cc, B->get_rows())
+              loop(rr, cols_B)
+              loop(cc, rows)
                  {
-                   *bb++ = B->get_ravel(rr + cc*B->get_cols()).get_real_value();
+                   *bb++ = cB[rr + cc*cols_B].get_real_value();
                  }
 
               {
@@ -119,10 +110,8 @@ const ShapeItem cols_B = shape_Z.get_cols();
               //
 
               loop(r, cols_B)
-                  new (&Z->get_ravel(r*cols_A + c)) FloatCell(a[r]);
+                  new (cZ + r*cols_A + c)   FloatCell(a[r]);
             }
        }
-
-   return Z;
 }
-
+//-----------------------------------------------------------------------------
