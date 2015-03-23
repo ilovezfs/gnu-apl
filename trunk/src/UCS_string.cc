@@ -34,11 +34,10 @@
 UCS_string::UCS_string(const char * cstring)
    : Simple_string<Unicode>(0, 0)
 {
-   items_valid = strlen(cstring);
-   items_allocated = items_valid + ADD_ALLOC;
-   items = new Unicode[items_allocated];
+const size_t len = strlen(cstring);
+   extend(len + 1);
 
-   for (int l = 0; l < items_valid; ++l)   items[l] = Unicode(cstring[l]);
+   while (items_valid < len)   items[items_valid++] = Unicode(*cstring++);
    items[items_valid] = UNI_ASCII_NUL;
 }
 //-----------------------------------------------------------------------------

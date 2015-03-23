@@ -1216,10 +1216,12 @@ const ErrorCode ec = ErrorCode(response->get__SVAR_ASSIGNED__error());
                   << endl;
            }
 
+        delete response;
         if (del)   delete del;
         throw_apl_error(ec, loc);
       }
 
+   delete response;
    if (del)   delete del;
 }
 //-----------------------------------------------------------------------------
@@ -1285,6 +1287,7 @@ const TCP_socket tcp = Svar_DB::get_DB_tcp();
         const string & data = response->get__WSWS_VALUE_IS__cdr_value();
         if (data.size() == 0)
            {
+             delete response;
              if (del)   delete del;
              CERR << "no data in signal WSWS_VALUE_IS" << endl;
              VALUE_ERROR;
@@ -1292,6 +1295,7 @@ const TCP_socket tcp = Svar_DB::get_DB_tcp();
 
         CDR_string cdr;
         loop(d, data.size())   cdr.append(data[d]);
+        delete response;
         if (del)   delete del;
 
         Value_P value = CDR::from_CDR(cdr, LOC);
@@ -1325,6 +1329,7 @@ const ErrorCode err(ErrorCode(response->get__VALUE_IS__error()));
                   << response->get__VALUE_IS__error_loc() << endl;
            }
 
+        delete response;
         if (del)   delete del;
         throw_apl_error(err, response->get__VALUE_IS__error_loc().c_str());
       }
@@ -1332,6 +1337,7 @@ const ErrorCode err(ErrorCode(response->get__VALUE_IS__error()));
 const string & data = response->get__VALUE_IS__cdr_value();
 CDR_string cdr;
    loop(d, data.size())   cdr.append(data[d]);
+   delete response;
    if (del)   delete del;
 
 Value_P value = CDR::from_CDR(cdr, LOC);

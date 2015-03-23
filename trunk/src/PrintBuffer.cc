@@ -57,14 +57,6 @@ PrintBuffer::PrintBuffer(const Value & value, const PrintContext & _pctx,
 {
 PERFORMANCE_START(start_0)
 
-bool * del1 = 0;   // bool scaling[cols];
-char * del2 = 0;   // item_matrix[rows*cols]
-char * del3 = 0;   // pcols
-
-bool __scaling     [PB_MAX_COLS];
-char __item_matrix [PB_MAX_ITEMS * sizeof(PrintBuffer)];
-char __pcols       [PB_MAX_COLS  * sizeof(PrintBuffer)];
-
    // Note: if ostream is non-0 then this value may be incomplete
    // (as indicated by member complete if it is huge. This is to speed
    // up printing if the value is discarded after having been printed
@@ -75,8 +67,6 @@ PrintContext pctx(_pctx);
    pctx.set_style(PrintStyle(outer_style &~ PST_CS_OUTER));
 
 const ShapeItem ec = value.element_count();
-const uint64_t ii_count = interrupt_count;
-const bool huge = out && ec > 10000;
 
    if (value.is_scalar())
       {
@@ -94,31 +84,104 @@ const bool huge = out && ec > 10000;
            }
 
         add_outer_frame(outer_style);
+
+        if (out)
+           {
+             UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
+             if (ucs.size())   *out << ucs << endl;
+            }
+        complete = true;
         PERFORMANCE_END(fs_PrintBuffer1_B, start_1, ec)
-        goto maybe_print_it;
+        return;
       }
 
+   if (ec == 0)   // empty value of any dimension
+      {
+        pb_empty(value, pctx, outer_style);
+        if (out)
+           {
+             UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
+             if (ucs.size())   *out << ucs << endl;
+            }
+        complete = true;
+        return;
+      }
+
+   if (pctx.get_style() == PR_APL_FUN)
+      {
+        pb_for_function(value, pctx, outer_style);
+        if (out)
+           {
+             UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
+             if (ucs.size())   *out << ucs << endl;
+            }
+        complete = true;
+        return;
+      }
+
+   // non-trivial PrintBuffer
+   //
+   const ShapeItem cols = value.get_last_shape_item();
+   if (cols <= PB_MAX_COLS)   // few columns
+      {
+        DynArray(bool, scaling, cols);
+        DynArray(PrintBuffer, pcols, cols);
+        if (ec <= PB_MAX_ITEMS)
+           {
+             DynArray(PrintBuffer, item_matrix, ec);
+             do_PrintBuffer(value, pctx, out, outer_style,
+                            scaling, pcols, item_matrix);
+           }
+        else
+           {
+             PrintBuffer * item_matrix = new PrintBuffer[ec];
+             do_PrintBuffer(value, pctx, out, outer_style,
+                            scaling, pcols, item_matrix);
+             delete [] item_matrix;
+           }
+      }
+   else                      // many columns
+      {
+        bool * scaling = new bool[cols];
+        PrintBuffer * pcols = new PrintBuffer[cols];
+        if (ec <= PB_MAX_ITEMS)
+           {
+             DynArray(PrintBuffer, item_matrix, ec);
+             do_PrintBuffer(value, pctx, out, outer_style,
+                            scaling, pcols, item_matrix);
+           }
+        else
+           {
+             PrintBuffer * item_matrix = new PrintBuffer[ec];
+             do_PrintBuffer(value, pctx, out, outer_style,
+                            scaling, pcols, item_matrix);
+             delete [] item_matrix;
+           }
+        delete [] pcols;
+        delete [] scaling;
+      }
+
+   PERFORMANCE_END(fs_PrintBuffer_B, start_0, ec)
+}
+//-----------------------------------------------------------------------------
+void
+PrintBuffer::do_PrintBuffer(const Value & value, const PrintContext & pctx,
+                         ostream * out, PrintStyle outer_style,
+                         bool * scaling, PrintBuffer * pcols,
+                         PrintBuffer * item_matrix)
+{
+const bool framed = outer_style & (PST_CS_MASK | PST_CS_OUTER);
+const ShapeItem ec = value.element_count();
+const uint64_t ii_count = interrupt_count;
+const bool huge = out && ec > 10000;
+
    {
-     if (ec == 0)   // empty value of any dimension
-        {
-          pb_empty(value, pctx, outer_style);
-          goto maybe_print_it;
-        }
-
-     if (pctx.get_style() == PR_APL_FUN)
-        {
-          pb_for_function(value, pctx, outer_style);
-          goto maybe_print_it;
-        }
-
      // 1. create a vector with a bool per column that tells if the
      // column needs scaling (i.e. exponential format) or not
      //
      const ShapeItem cols = value.get_last_shape_item();
      const ShapeItem rows = ec/cols;
 
-     bool * scaling = __scaling;
-     if (cols >= PB_MAX_COLS)   scaling = del1 = new bool[cols];
      loop(x, cols)
          {
            bool need_scaling = false;
@@ -139,10 +202,6 @@ const bool huge = out && ec > 10000;
      //    therefore we have (⍴,value) items. Items are rectangular.
      //
      PERFORMANCE_START(start_2)
-     PrintBuffer * item_matrix = (PrintBuffer *)__item_matrix;
-     if (rows * cols >= PB_MAX_ITEMS)   item_matrix =
-        (PrintBuffer *)(del2 = new char[rows*cols*sizeof(PrintBuffer)]);
-
      loop(y, rows)
         {
           ShapeItem max_row_height = 0;
@@ -152,7 +211,6 @@ const bool huge = out && ec > 10000;
                 if (huge && (ii_count != interrupt_count))   goto interrupted;
 
                 PrintBuffer & item = item_matrix[y*cols + x];
-                new (&item) PrintBuffer;
                 PrintContext pctx1 = pctx;
                 if (scaling[x])   pctx1.set_scaled();
                 const Cell & cell = value.get_ravel(x + y*cols);
@@ -205,10 +263,6 @@ const bool huge = out && ec > 10000;
 
      int last_col_spacing = 0;    // the col_spacing of the previous column
      bool last_notchar = false;   // the notchar property of the previous column
-
-     PrintBuffer * pcols = (PrintBuffer *)__pcols;
-     if (cols >= PB_MAX_COLS)   pcols =
-        (PrintBuffer *)(del3 = new char[cols * sizeof(PrintBuffer)]);
 
      loop(x, cols)
         {
@@ -322,17 +376,16 @@ const bool huge = out && ec > 10000;
      PERFORMANCE_END(fs_PrintBuffer4_B, start_4, ec)
    }
 
-maybe_print_it:
    {
      PERFORMANCE_START(start_5)
 
      if (huge)   // ergo: out
         {
-          print_interruptible(*out, value.get_rank(), _pctx.get_PW());
+          print_interruptible(*out, value.get_rank(), pctx.get_PW());
         }
      else if (out)
         {
-          UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
+          UCS_string ucs(*this, value.get_rank(), pctx.get_PW());
           if (ucs.size())   *out << ucs << endl;
         }
      complete = true;
@@ -340,21 +393,12 @@ maybe_print_it:
      PERFORMANCE_END(fs_PrintBuffer5_B, start_5, ec)
    }
 
-   PERFORMANCE_END(fs_PrintBuffer_B, start_0, ec)
-
-   delete del1;
-   delete del2;
-   delete del3;
    return;
 
 interrupted:
    attention_raised = false;
    interrupt_raised = false;
    *out << endl << "INTERRUPT" << endl;
-   delete del1;
-   delete del2;
-   delete del3;
-   return;
 }
 //-----------------------------------------------------------------------------
 void

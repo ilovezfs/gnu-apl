@@ -191,7 +191,8 @@ FloatCell::bif_magnitude(Cell * Z) const
 ErrorCode
 FloatCell::bif_reciprocal(Cell * Z) const
 {
-   if (is_near_zero(Workspace::get_CT()))  return E_DOMAIN_ERROR;
+const double z = 1.0/value.fval;
+   if (!isfinite(z))   return E_DOMAIN_ERROR;;
 
    new (Z) FloatCell(1.0/value.fval);
    return E_NO_ERROR;

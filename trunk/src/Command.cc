@@ -1368,7 +1368,10 @@ Command::do_USERCMD(ostream & out, UCS_string & apl_cmd,
 void
 Command::log_control(const UCS_string & arg)
 {
-   if (arg.size() == 0 || arg[0] == UNI_ASCII_QUESTION)  // no arg or '?'
+vector<UCS_string> args;
+   arg.copy_black_list(args);
+
+   if (args.size() == 0 || arg[0] == UNI_ASCII_QUESTION)  // no arg or '?'
       {
         for (LogId l = LID_MIN; l < LID_MAX; l = LogId(l + 1))
             {
@@ -1383,23 +1386,19 @@ Command::log_control(const UCS_string & arg)
         return;
       }
 
-LogId val = LogId(0);
-bool skip_leading_ws = true;
-
-   loop(a, arg.size())
-      {
-        if ((arg[a] <= ' ') && skip_leading_ws)   continue;
-        skip_leading_ws = false;
-        if (arg[a] < UNI_ASCII_0)   break;
-        if (arg[a] > UNI_ASCII_9)   break;
-        val = LogId(10*val + arg[a] - UNI_ASCII_0);
-      }
+const LogId val = LogId(args[0].atoi());
+int on_off = -1;
+   if      (args.size() > 1 && args[1].starts_iwith("ON"))    on_off = 1;
+   else if (args.size() > 1 && args[1].starts_iwith("OFf"))   on_off = 0;
 
    if (val >= LID_MIN && val <= LID_MAX)
       {
         const char * info = Log_info(val);
         Assert(info);
-        const bool new_status = !Log_status(val);
+        bool new_status = !Log_status(val);   // toggle
+        if (on_off == 0)        new_status = false;
+        else if (on_off == 1)   new_status = true;
+
         Log_control(val, new_status);
         CERR << "    Log facility '" << info << "' is now "
              << (new_status ? "ON " : "OFF") << endl;

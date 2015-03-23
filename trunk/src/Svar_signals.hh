@@ -344,6 +344,9 @@ enum Signal_id
 class Signal_base
 {
 public:
+   /// destructor
+   virtual ~Signal_base() {}
+
    /// store (encode) the signal into buffer
    virtual void store(string & buffer) const = 0;
 

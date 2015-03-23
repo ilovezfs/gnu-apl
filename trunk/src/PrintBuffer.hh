@@ -91,6 +91,12 @@ public:
    /// contructor: a PrintBuffer from an APL value
    PrintBuffer(const Value & value, const PrintContext & pctx, ostream * out);
 
+   /// helper for non-trivial PrintBuffer(const Value & ...) constructor
+   void do_PrintBuffer(const Value & value,const PrintContext & pctx,
+                         ostream * out, PrintStyle outer_style,
+                         bool * scaling, PrintBuffer * pcols,
+                         PrintBuffer * item_matrix);
+
    /// PrintBuffer from an APL value in function-style
    void pb_for_function(const Value & value, PrintContext pctx,
                         PrintStyle outer_style);

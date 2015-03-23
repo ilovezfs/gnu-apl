@@ -284,6 +284,7 @@ Signal_base * response = Signal_base::recv_TCP(sock, buffer, sizeof(buffer),
       {
         memcpy(&cache, response->get__SVAR_RECORD_IS__record().data(),
                sizeof(Svar_record));
+        delete response;
       }
    else   get_CERR() << "Svar_record_P() failed at " << LOC << endl;
    if (del)   delete del;
@@ -331,11 +332,17 @@ MATCH_OR_MAKE_c request(tcp, vname,
                              from.id.proc, from.id.parent, from.id.grand);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
-   if (response)   return response->get__MATCH_OR_MAKE_RESULT__key();
+   if (response)
+      {
+        const SV_key ret = response->get__MATCH_OR_MAKE_RESULT__key();
+        delete response;
+        return ret;
+     }
+
    else            return 0;
 }
 //-----------------------------------------------------------------------------
@@ -352,14 +359,16 @@ const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
 GET_EVENTS_c request(tcp, id.proc, id.parent, id.grand);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
    if (response)
       {
         events = (Svar_event)response->get__EVENTS_ARE__events();
-        return response->get__EVENTS_ARE__key();
+        const SV_key ret = response->get__EVENTS_ARE__key();
+        delete response;
+        return ret;
       }
    else
       {
@@ -380,13 +389,15 @@ const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
 CLEAR_ALL_EVENTS_c request(tcp, id.proc, id.parent, id.grand);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
    if (response)
       {
-        return (Svar_event)(response->get__EVENTS_ARE__events());
+        const Svar_event ret = (Svar_event)response->get__EVENTS_ARE__events();
+        delete response;
+        return ret;
       }
    else
       {
@@ -422,11 +433,17 @@ const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
 MAY_SET_c request(tcp, key, attempt);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
-   if (response)   return response->get__YES_NO__yes();
+   if (response)
+      {
+        const bool ret = response->get__YES_NO__yes();
+        delete response;
+        return ret;
+     }
+
    return true;
 }
 //-----------------------------------------------------------------------------
@@ -443,7 +460,12 @@ char buffer[2*MAX_SIGNAL_CLASS_SIZE];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
-   if (response)   return response->get__YES_NO__yes();
+   if (response)
+      {
+        const bool ret = response->get__YES_NO__yes();
+        delete response;
+        return ret;
+     }
    return true;
 }
 //-----------------------------------------------------------------------------
@@ -475,7 +497,7 @@ const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
 FIND_OFFERING_ID_c request(tcp, key);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
@@ -484,6 +506,7 @@ Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
          offering_id.proc   = (AP_num)(response->get__OFFERING_ID_IS__proc());
          offering_id.parent = (AP_num)(response->get__OFFERING_ID_IS__parent());
          offering_id.grand  = (AP_num)(response->get__OFFERING_ID_IS__grand());
+        delete response;
       }
        
    return offering_id;
@@ -498,7 +521,7 @@ const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
 GET_OFFERING_PROCS_c request(tcp, to_proc);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
@@ -509,6 +532,7 @@ Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
         const size_t count = op.size() / sizeof(AP_num);
 
         loop(c, count)   processors.push_back(*procs++);
+        delete response; 
       }
 }
 //-----------------------------------------------------------------------------
@@ -522,7 +546,7 @@ const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
 GET_OFFERED_VARS_c request(tcp, to_proc, from_proc);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
@@ -533,6 +557,7 @@ Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
         const size_t count = ov.size() / sizeof(uint32_t);
 
         loop(c, count)   varnames.push_back(*names++);
+        delete response; 
       }
 }
 //-----------------------------------------------------------------------------
@@ -545,11 +570,17 @@ const TCP_socket tcp = get_Svar_DB_tcp(__FUNCTION__);
 IS_REGISTERED_ID_c request(tcp, id.proc, id.parent, id.grand);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
-   if (response)   return response->get__YES_NO__yes();
+   if (response)
+      {
+        const bool ret = response->get__YES_NO__yes();
+        delete response;
+        return ret;
+     }
+
    return false;
 }
 //-----------------------------------------------------------------------------
@@ -575,11 +606,17 @@ const TCP_socket tcp = Svar_DB::get_DB_tcp();
 FIND_PAIRING_KEY_c request(tcp, key);
 
 char * del = 0;
-char buffer[2*MAX_SIGNAL_CLASS_SIZE];
+char buffer[2*MAX_SIGNAL_CLASS_SIZE + 16];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
-   if (response)   return response->get__PAIRING_KEY_IS__pairing_key();
+   if (response)
+      {
+        const SV_key ret = response->get__PAIRING_KEY_IS__pairing_key();
+        delete response;
+        return ret;
+     }
+
    return 0;
 }
 //-----------------------------------------------------------------------------
@@ -596,7 +633,11 @@ char buffer[2*MAX_SIGNAL_CLASS_SIZE + 4000];
 Signal_base * response = Signal_base::recv_TCP(tcp, buffer, sizeof(buffer),
                                                del, 0);
 
-   if (response)   out << response->get__SVAR_DB_PRINTED__printout();
+   if (response)
+      {
+        out << response->get__SVAR_DB_PRINTED__printout();
+        delete response;
+      }
 }
 //-----------------------------------------------------------------------------
 

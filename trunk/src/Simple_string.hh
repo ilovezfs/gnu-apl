@@ -95,6 +95,10 @@ public:
 
    /// destructor
    ~Simple_string()
+      { destruct(); }
+
+   /// destructor
+   void destruct()
       { 
         delete [] items;
       }

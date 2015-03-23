@@ -376,29 +376,34 @@ SymbolTable::clear(ostream & out)
    //
    Assert(Workspace::SI_entry_count() == 0);
 
-   loop(hash, MAX_SYMBOL_COUNT)
-      {
-        Symbol * sym = symbol_table[hash];
-        if (sym == 0)   continue;   // no symbol a this hash
+   loop(hash, MAX_SYMBOL_COUNT)   clear_slot(out, hash);
+}
+//-----------------------------------------------------------------------------
+void
+SymbolTable::clear_slot(ostream & out, int hash)
+{
+Symbol * sym = symbol_table[hash];
+   if (sym == 0)   return;   // no symbol with this hash
 
-        const bool user_defined = sym->is_user_defined();
-        for (; sym; sym = sym->next)
+   symbol_table[hash] = 0;
+
+Symbol * next;
+   for (; sym; sym = next)
+       {
+         next = sym->next;
+
+         // keep not user-defined symbols ??? ARE THERE ANY ???
+         //
+         if (!sym->is_user_defined())
             {
-              if (sym->is_erased())               continue;
-              if (sym->value_stack.size() == 0)   continue;
-
-              Assert(!Workspace::is_called(sym->get_name()));
-              if (sym->value_stack.size() != 1)
-                {
-                  Q1(sym->value_stack.size())
-                  Q1(sym->name)
-                  Assert(0);
-                }
-              sym->clear_vs();
+              sym->next = symbol_table[hash];
+              symbol_table[hash] = sym;
+              continue;
             }
 
-        if (user_defined)   symbol_table[hash] = 0;
-      } 
+         delete sym;
+       }
+
 }
 //-----------------------------------------------------------------------------
 bool

@@ -53,8 +53,11 @@ public:
    /// print variables owning value
    int show_owners(ostream & out, const Value & value) const;
 
-   /// clear this symbol table (remove all symbols)
+   /// clear this symbol table (remove all user-defined symbols)
    void clear(ostream & out);
+
+   /// clear one slot (hash) in this symbol table
+   void clear_slot(ostream & out, int hash);
 
    /// erase symbols from \b this SymbolTable
    void erase_symbols(ostream & out, const vector<UCS_string> & symbols);
