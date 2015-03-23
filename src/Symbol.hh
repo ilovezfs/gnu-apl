@@ -95,6 +95,19 @@ public:
    /// create a symbol with name \b ucs
    Symbol(const UCS_string & ucs, ID::Id id);
 
+   /// explicit destructor
+   void destruct()
+      {
+        clear_vs();
+        vector<ValueStackItem> x;
+        value_stack.swap(x);
+        name.destruct();
+      }
+
+   /// destructor
+   virtual ~Symbol()
+      { clear_vs(); }
+
    /// List \b this \b Symbol ( for )VARS, )FNS )
    ostream & list(ostream & out);
 
@@ -295,6 +308,9 @@ public:
    LAMBDA()
    : Symbol(ID::LAMBDA)
    {}
+
+   /// destroy variable
+   void destroy_var() {}
 };
 //-----------------------------------------------------------------------------
 /// lambda variable ⍺
@@ -305,6 +321,9 @@ public:
    ALPHA()
    : Symbol(ID::ALPHA)
    {}
+
+   /// destroy variable
+   void destroy_var() {}
 };
 //-----------------------------------------------------------------------------
 /// lambda variable ⍶
@@ -315,6 +334,9 @@ public:
    ALPHA_U()
    : Symbol(ID::ALPHA_U)
    {}
+
+   /// destroy variable
+   void destroy_var() {}
 };
 //-----------------------------------------------------------------------------
 /// lambda variable χ
@@ -325,6 +347,9 @@ public:
    CHI()
    : Symbol(ID::CHI)
    {}
+
+   /// destroy variable
+   void destroy_var() {}
 };
 //-----------------------------------------------------------------------------
 /// lambda variable ⍵
@@ -335,6 +360,9 @@ public:
    OMEGA()
    : Symbol(ID::OMEGA)
    {}
+
+   /// destroy variable
+   void destroy_var() {}
 };
 //-----------------------------------------------------------------------------
 /// lambda variable ⍹
@@ -345,6 +373,9 @@ public:
    OMEGA_U()
    : Symbol(ID::OMEGA_U)
    {}
+
+   /// destroy variable
+   void destroy_var() {}
 };
 //-----------------------------------------------------------------------------
 

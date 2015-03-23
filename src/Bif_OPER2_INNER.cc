@@ -371,8 +371,11 @@ next_a_b:
    if (++_arg.b < _arg.items_B)   goto loop_b;
    if (++_arg.a < _arg.items_A)   goto loop_a;
 
-   delete [] _arg.args_A;
-   delete [] _arg.args_B;
+   loop(i, _arg.items_A)   _arg.args_A[i].reset();   _arg.items_A = 0;
+   delete [] _arg.args_A;   _arg.args_A = 0;
+
+   loop(i, _arg.items_B)   _arg.args_B[i].reset();   _arg.items_B = 0;
+   delete [] _arg.args_B;   _arg.args_B = 0;
 
    arg.Z->set_default(*arg.B.get());
  
@@ -389,8 +392,11 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
 
    if (token.get_Class() != TC_VALUE)
       {
-        loop(i, _arg.items_A)   _arg.args_A[i].reset();
-        loop(i, _arg.items_B)   _arg.args_B[i].reset();
+        loop(i, _arg.items_A)   _arg.args_A[i].reset();   _arg.items_A = 0;
+        delete [] _arg.args_A;   _arg.args_A = 0;
+
+        loop(i, _arg.items_B)   _arg.args_B[i].reset();   _arg.items_B = 0;
+        delete [] _arg.args_B;   _arg.args_B = 0;
         delete arg;
         return false;   // stop it
       }

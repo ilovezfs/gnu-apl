@@ -1006,7 +1006,7 @@ uint32_t * idx_B = new uint32_t[set_size];
          --set_size;
        }
 
-   delete idx_B;
+   delete [] idx_B;
 
    Z->set_default_Zero();
 

@@ -1,3 +1,3 @@
 #include "Common.hh"
-#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION " / 9408", "2015-03-21 15:23:01 UTC", "Linux 3.13.0-37-generic i686", "'--host=i686-pc-linux-gnu' '--build=i686-pc-linux-gnu' '--program-prefix=' '--disable-dependency-tracking' '--prefix=/usr' '--exec-prefix=/usr' '--bindir=/usr/bin' '--sbindir=/usr/sbin' '--sysconfdir=/etc' '--datadir=/usr/share' '--includedir=/usr/include' '--libdir=/usr/lib' '--libexecdir=/usr/lib/i386-linux-gnu' '--localstatedir=/var' '--sharedstatedir=/usr/com' '--mandir=/usr/share/man' '--infodir=/usr/share/info' 'build_alias=i686-pc-linux-gnu' 'host_alias=i686-pc-linux-gnu' 'CFLAGS=-O2 -g -march=i486' 'CXXFLAGS=-O2 -g -march=i486'"
+#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION " / 9442", "2015-03-23 11:04:11 UTC", "Linux 3.13.0-37-generic i686", "'--enable-maintainer-mode' 'DEVELOP_WANTED=yes'"
 #define ARCHIVE_SVN  9341

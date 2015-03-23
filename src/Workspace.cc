@@ -602,7 +602,7 @@ Workspace::clear_WS(ostream & out, bool silent)
 
    // clear the value stacks of read/write system variables...
    //
-#define rw_sv_def(x, txt) get_v_ ## x().clear_vs();
+#define rw_sv_def(x, txt) get_v_ ## x().destruct();
 #define ro_sv_def(x, txt)
 #include "SystemVariable.def"
 

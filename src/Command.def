@@ -66,7 +66,7 @@ cmd_def("]EXPECT"   , IO_Files::expect_apl_errors(arg);     , "error_count"     
 cmd_def("]HELP"     , cmd_HELP(out);                        , ""                       , EH_NO_PARAM)
 cmd_def("]KEYB"     , cmd_KEYB(out);                        , ""                       , EH_NO_PARAM)
 cmd_def("]LIB"      , cmd_LIB2(out, arg);                   , "[lib|path]"             , EH_DIR_OR_LIB)
-cmd_def("]LOG"      , cmd_LOG(out, arg);                    , "[facility]"             , EH_LOG_NUM)
+cmd_def("]LOG"      , cmd_LOG(out, arg);                    , "[facility [ON|OFF]]"    , EH_LOG_NUM)
 cmd_def("]OWNERS"   , Value::list_all(out, true);           , ""                       , EH_NO_PARAM)
 cmd_def("]PSTAT"    , cmd_PSTAT(out, arg);                  , "[CLEAR|SAVE]"           , EH_oCLEAR_SAVE)
 cmd_def("]SIS"      , Workspace::list_SI(out, SIM_SIS_dbg); , ""                       , EH_NO_PARAM)
