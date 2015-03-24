@@ -63,47 +63,6 @@ ComplexCell::is_near_int(APL_Float qct) const
           Cell::is_near_int(value2.cval_i, qct);
 }
 //-----------------------------------------------------------------------------
-void
-ComplexCell::demote_complex_to_real(APL_Float qct)
-{
-const bool small_real = value.cval_r <  qct &&
-                        value.cval_r >  -qct;
-
-const bool small_imag = value2.cval_i <  qct &&
-                        value2.cval_i >  -qct;
-
-const APL_Float qct1 = 100000*qct;
-const bool large_real = value.cval_r >  qct1 ||
-                        value.cval_r <  -qct1;
-
-const bool large_imag = value2.cval_i >  qct1 ||
-                        value2.cval_i <  -qct1;
-
-   if (small_imag && large_real)
-      {
-        // imag is close to zero, so we demote this cell either
-        // to a FloatCell, or to an IntCell
-        //
-        const double val = value.cval_r;
-
-        if (Cell::is_near_int(val, qct))
-           {
-             if (val < 0)   new (this)   IntCell(APL_Integer(val - 0.3));
-             else           new (this)   IntCell(APL_Integer(val + 0.3));
-           }
-        else
-           {
-             new (this) FloatCell(val);
-           }
-      }
-   else if (small_real && large_imag)
-      {
-        // real is close to zero, so we round it down.
-        //
-        value.cval_r = 0.0;
-      }
-}
-//-----------------------------------------------------------------------------
 bool
 ComplexCell::is_near_zero(APL_Float qct) const
 {
@@ -266,7 +225,6 @@ ErrorCode
 ComplexCell::bif_nat_log(Cell * Z) const
 {
    new (Z) ComplexCell(log(cval()));
-   Z->demote_complex_to_real(Workspace::get_CT());
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------

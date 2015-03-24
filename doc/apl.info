@@ -135,11 +135,11 @@ APL understands the following command line options:
 
    • ‘--emacs’
 
-     run in (old) emacs mode.
+     run in (old) Emacs mode.
 
    • ‘--emacs_arg arg’
 
-     run in (new) emacs mode with argument arg.
+     run in (new) Emacs mode with argument arg.
 
    • ‘-f file’
 
@@ -1213,7 +1213,7 @@ command )OUT). The difference to command )OUT is the file format being
 produced.  While )OUT produces a file in IBM’s workspace interchange
 format, )DUMP produces a file in GNU APL’s script format (i.e.  readable
 APL statements).  Files written with )DUMP can be edited with normal
-text editors (vi, emacs), read back with "apl -f", or made executable
+text editors (vi, Emacs), read back with "apl -f", or made executable
 (see scripting).
 
 3.10 User-defined Command
@@ -1272,12 +1272,12 @@ operator.  If only ⍹ is present then it is a monadic operator, and if
 neither ⍶ nor ⍹ is present then the lambda is a normal function.
 
    The way a named lambda is implemented in GNU APL is that the
-statement
+expression
 
-      FUN ← { body_statement }
+      FUN ← { body_expression }
 
    is translated to a two-line function ⎕FX ’lambda_header’
-’body_statement’.
+’body_expression’.
 
    For example:
 
@@ -1298,11 +1298,18 @@ lambda (i.e.  the name left of ← { ...  }) can be made a local variable
 of the function in which the named lambda is created.  This creates a
 lambda with local scope.
 
+   Please note that the above only describes the current implementation
+of named lambda in GNU APL. As consequence of that implementation is
+that the symbols ⍺, ⍵, ⍶, ⍹, and λ are pretty much behaving like user
+defined variables.  In particular, they can be used outside named or
+unnamed lambdas.  However, that may change in the future and therefore
+such use of ⍺, ⍵, ⍶, ⍹, and λ is a bad idea.
+
 3.11.2 Unnamed Lambdas
 ----------------------
 
-An unnamed lambda is a statement inside { } but without assigning it to
-a name.  This is often used together with the EACH operator.  For
+An unnamed lambda is an expression inside { } but without assigning it
+to a name.  This is often used together with the EACH operator.  For
 example:
 
 
@@ -1554,8 +1561,8 @@ File: apl.info,  Node: Section 6.1,  Next: Section 6.2,  Up: Chapter 6
 6.1 The GNU APL Community Webpage
 =================================
 
-The GNU APL project maintains a web page that lists contibutions made by
-GNU APL users:
+The GNU APL project maintains a web page that lists contributions made
+by GNU APL users:
 
    <http://www.gnu.org/software/apl/Community.html>
 
@@ -1564,8 +1571,8 @@ bug-apl@gnu.org
 
    Since the list was started long after bug-apl@gnu.org was created.
 It is therefore quite possible that your contribution is missing.  That
-does not mean that your contribution was not considered worthwil to be
-listed but more likely that it was overlooked.  Juse send an email to
+does not mean that your contribution was not considered worthwhile to be
+listed but more likely that it was overlooked.  Just send an email to
 bug-apl@gnu.org to fix that.
 
 
@@ -1584,7 +1591,7 @@ in the GNU APL packages that follows their contribution.
 
    Currently the following core libraries exist:
 
-   GNU APL emacs mode (for emacs users) by Elias Mårtenson
+   GNU APL Emacs mode (for Emacs users) by Elias Mårtenson
 
    SQL interface (SQLite and Postgres) by Elias Mårtenson
 
@@ -2780,14 +2787,14 @@ Node: Top383
 Node: Chapter 11404
 Node: Chapter 216283
 Node: Chapter 320552
-Node: Chapter 450862
-Node: Chapter 552610
-Node: Chapter 653739
-Node: Section 6.154158
-Node: Section 6.254842
-Node: Chapter 755673
-Node: Section 7.156176
-Node: Section 7.281485
+Node: Chapter 451282
+Node: Chapter 553030
+Node: Chapter 654159
+Node: Section 6.154578
+Node: Section 6.255265
+Node: Chapter 756096
+Node: Section 7.156599
+Node: Section 7.281908
 
 End Tag Table
 

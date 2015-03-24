@@ -227,7 +227,7 @@ Symbol::assign_indexed(IndexExpr & IX, Value_P B)   // A[IX;...] ← B
    // see Value::index() for comments.
 
 Value_P A = get_apl_value();
-   if (A->get_rank() != IX.value_count())   INDEX_ERROR;
+   if (A->get_rank() != IX.value_count())   RANK_ERROR;   // ISO p. 159
 
    // B must either be a scalar (and is then scalar extended to the size
    // of the updated area, or else have the shape of the concatenated index

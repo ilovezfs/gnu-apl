@@ -88,24 +88,6 @@ FloatCell::get_near_bool(APL_Float qct)  const
    return false;
 }
 //-----------------------------------------------------------------------------
-void
-FloatCell::demote_float_to_int(APL_Float qct)
-{
-   if (Cell::is_near_int(value.fval, qct))
-      {
-        if (value.fval < 0)
-           {
-             APL_Integer ival(0.3 - value.fval);
-             new (this) IntCell(-ival);
-           }
-        else
-           {
-             APL_Integer ival(0.3 + value.fval);
-             new (this) IntCell(ival);
-           }
-      }
-}
-//-----------------------------------------------------------------------------
 Comp_result
 FloatCell::compare(const Cell & other) const
 {
@@ -155,10 +137,7 @@ const double arg = value.fval + 1.0;
 ErrorCode
 FloatCell::bif_conjugate(Cell * Z) const
 {
-   if (is_near_int(Workspace::get_CT()))
-      new (Z) IntCell(get_checked_near_int());
-   else
-      new (Z) FloatCell(value.fval);
+   new (Z) FloatCell(value.fval);
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -294,7 +273,6 @@ FloatCell::bif_add(Cell * Z, const Cell * A) const
    if (A->is_real_cell())
       {
         new (Z) FloatCell(A->get_real_value() + get_real_value());
-        Z->demote_float_to_int(Workspace::get_CT());
         return E_NO_ERROR;
       }
 
@@ -309,7 +287,6 @@ FloatCell::bif_subtract(Cell * Z, const Cell * A) const
    if (A->is_real_cell())
       {
         new (Z) FloatCell(A->get_real_value() - get_real_value());
-        Z->demote_float_to_int(Workspace::get_CT());
         return E_NO_ERROR;
       }
 

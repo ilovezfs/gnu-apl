@@ -522,6 +522,8 @@ IntCell::bif_subtract(Cell * Z, const Cell * A) const
 ErrorCode
 IntCell::bif_divide(Cell * Z, const Cell * A) const
 {
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
+
    if (A->is_integer_cell())
       {
         // both cells are integers.
@@ -529,20 +531,17 @@ IntCell::bif_divide(Cell * Z, const Cell * A) const
         const APL_Integer a = A->get_int_value();
         const APL_Integer b =    get_int_value();
 
-        if (b == 0)   // allowed if a == 0 as well
+        if (b == 0)   // a ÷ 0 is allowed iff a == 0
            {
              if (a != 0)   return E_DOMAIN_ERROR;
-             new (Z) IntCell(1);   // 0 ÷ 0 is defined as 1
-             return E_NO_ERROR;
+             return IntCell::z1(Z);   // 0÷0 is 1 in APL
            }
 
         const APL_Float i_quot = a / b;
         const APL_Float r_quot = a / (APL_Float)b;
 
-        if (r_quot > LARGE_INT ||
-            r_quot < SMALL_INT)     new (Z) FloatCell(r_quot);
-        else if (a != i_quot * b)   new (Z) FloatCell(r_quot);
-   else                             new (Z) IntCell(i_quot);
+        if (a != i_quot * b)   new (Z) FloatCell(r_quot);
+        else                   new (Z) IntCell(i_quot);
         return E_NO_ERROR;
       }
 

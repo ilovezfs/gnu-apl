@@ -35,6 +35,9 @@ public:
    /// constructor: empty (0-dimensional) IndexExpr
    IndexExpr(Assign_state ass_state, const char * loc);
 
+   /// destructor
+   ~IndexExpr();
+
    /// The quad-ct for this index.
    APL_Float quad_ct;
 

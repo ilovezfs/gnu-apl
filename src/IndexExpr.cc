@@ -34,6 +34,12 @@ IndexExpr::IndexExpr(Assign_state astate, const char * loc)
 {
 }
 //-----------------------------------------------------------------------------
+IndexExpr::~IndexExpr()
+{
+// Q(this)
+// Backtrace::show(__FILE__, __LINE__);
+}
+//-----------------------------------------------------------------------------
 Value_P
 IndexExpr::extract_value(Rank rk)
 {
