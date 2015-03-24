@@ -174,9 +174,6 @@ protected:
    /// Overloaded Cell::get_classname().
    virtual const char * get_classname()   const   { return "FloatCell"; }
 
-   /// Overloaded Cell::demote_float_to_int().
-   virtual void demote_float_to_int(APL_Float qct);
-
    /// Overloaded Cell::CDR_size()
    virtual int CDR_size() const { return 8; }
 };

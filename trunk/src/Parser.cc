@@ -89,7 +89,15 @@ Simple_string<Token_string *> statements;
       {
         Token_string * stat = statements[s];
         ErrorCode err = parse_statement(*stat);
-        if (err)   return err;
+        if (err)
+           {
+             while (s < statements.size())
+               {
+                 stat = statements[s++];
+                 delete stat;
+               }
+             return err;
+           }
 
         if (s)   tos.append(Token(TOK_DIAMOND));
 

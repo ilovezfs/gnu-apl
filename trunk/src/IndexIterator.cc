@@ -132,9 +132,6 @@ ShapeItem weight = 1;
          weight *= sh_r;
          last_it = new_it;
        }
-
-   Log(LOG_delete)   CERR << "delete " HEX(&IDX) << " at " LOC << endl;
-   delete &IDX;
 }
 //-----------------------------------------------------------------------------
 MultiIndexIterator::~MultiIndexIterator()

@@ -911,7 +911,7 @@ Value::index(const IndexExpr & IX) const
 {
    Assert(IX.value_count() != 1);   // should have called index(Value_P X)
 
-   if (get_rank() != IX.value_count())   RANK_ERROR;
+   if (get_rank() != IX.value_count())   RANK_ERROR;   // ISO p. 158
 
    // Notes:
    //
@@ -952,9 +952,12 @@ Shape shape_Z;
 
    // check that all indices are valid
    //
-   if (IX.check_range(get_shape()))   INDEX_ERROR;
+   if (IX.check_range(get_shape()))
+      {
+        INDEX_ERROR;
+      }
 
-MultiIndexIterator mult(get_shape(), IX);   // deletes IDX
+MultiIndexIterator mult(get_shape(), IX);
 
 Value_P Z(shape_Z, LOC);
 const ShapeItem ec_z = Z->element_count();
@@ -1011,6 +1014,7 @@ const Cell * cI = &X->get_ravel(0);
    return Z;
 }
 //-----------------------------------------------------------------------------
+/**
 Value_P
 Value::index(Token & IX) const
 {
@@ -1021,6 +1025,7 @@ Value::index(Token & IX) const
    //
    Q1(IX.get_tag());  FIXME;
 }
+**/
 //-----------------------------------------------------------------------------
 Rank
 Value::get_single_axis(Rank max_axis) const

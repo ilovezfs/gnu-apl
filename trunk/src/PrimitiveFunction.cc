@@ -938,18 +938,6 @@ Value_P Z(shape_Z, LOC);
 
    Z->set_default(*B.get());
 
-   // round items close to integers
-   //
-   {
-     ShapeItem ec_Z = shape_Z.get_volume();
-     Cell * cZ = &Z->get_ravel(0);
-     loop(z, ec_Z)
-        {
-          if (cZ->is_complex_cell())   cZ++->demote_complex_to_real(1.0e-15);
-          else                         cZ++->demote_float_to_int(1.0e-15);
-        }
-   }
-
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -1583,15 +1571,6 @@ Bif_F12_ENCODE::encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
              b -= cZ->get_real_value();
              b /= cA->get_real_value();
            }
-
-         if (cZ->is_near_zero(qct))
-            {
-              new (cZ) IntCell(0);
-            }
-         else
-            {
-              cZ->demote_float_to_int(qct);
-            }
        }
 }
 //-----------------------------------------------------------------------------
@@ -1621,17 +1600,6 @@ Bif_F12_ENCODE::encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
              b -= cZ->get_complex_value();
              b /= cA->get_complex_value();
            }
-
-         if (cZ->is_near_zero(qct))
-            {
-              // demote_complex_to_real doesn't for near-zero numbers
-              new (cZ) IntCell(0);
-            }
-         else
-            {
-              cZ->demote_complex_to_real(qct);
-              cZ->demote_float_to_int(qct);
-            }
        }
 }
 //-----------------------------------------------------------------------------
@@ -2263,7 +2231,7 @@ const ShapeItem ec_A = A->element_count();
 
    // index_expr is in reverse order!
    //
-IndexExpr * index_expr = new IndexExpr(ASS_none, LOC);
+IndexExpr index_expr(ASS_none, LOC);
    loop(a, ec_A)
       {
          const Cell & cell = A->get_ravel(ec_A - a - 1);
@@ -2281,21 +2249,23 @@ IndexExpr * index_expr = new IndexExpr(ASS_none, LOC);
 
               new (&val->get_ravel(0))   IntCell(i);
             }
-        index_expr->add(val);
+
+        index_expr.add(val);
       }
 
-   index_expr->quad_ct = Workspace::get_CT();
-   index_expr->quad_io = Workspace::get_IO();
+   index_expr.quad_ct = Workspace::get_CT();
+   index_expr.quad_io = Workspace::get_IO();
 
 Value_P Z;
-   if (index_expr->value_count() == 1)   // one-dimensional index
+   if (index_expr.value_count() == 1)   // one-dimensional index
       {
-        Value_P single_index = index_expr->extract_value(0);
+        Value_P single_index = index_expr.extract_value(0);
         Z = B->index(single_index);
       }
    else                                  // 0- or multi-dimensional index
       {
-        Z = B->index(*index_expr);
+        Z = B->index(index_expr);
+        
       }
 
    Z->set_default(*B.get());
@@ -2317,10 +2287,10 @@ const ShapeItem ec_A = A->element_count();
    // index_expr is in reverse order!
    //
 const APL_Integer qio = Workspace::get_IO();
-IndexExpr * index_expr = new IndexExpr(ASS_none, LOC);
-   loop(rb, B->get_rank())   index_expr->add(Value_P());
-   index_expr->quad_ct = Workspace::get_CT();
-   index_expr->quad_io = qio;
+IndexExpr index_expr(ASS_none, LOC);
+   loop(rb, B->get_rank())   index_expr.add(Value_P());
+   index_expr.quad_ct = Workspace::get_CT();
+   index_expr.quad_io = qio;
 
    loop(a, ec_A)
       {
@@ -2342,20 +2312,20 @@ IndexExpr * index_expr = new IndexExpr(ASS_none, LOC);
               new (&val->get_ravel(0))   IntCell(i);
             }
 
-        index_expr->set_value(axis, val);
+        index_expr.set_value(axis, val);
       }
 
-   if (index_expr->value_count() == 1)
+   if (index_expr.value_count() == 1)
       {
-        Value_P idx = index_expr->extract_value(0);
-        Value_P Z = B->index(idx);
+        Value_P single_index = index_expr.extract_value(0);
+        Value_P Z = B->index(single_index);
 
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
    else
       {
-        Value_P Z = B->index(*index_expr);
+        Value_P Z = B->index(index_expr);
 
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
@@ -2766,7 +2736,8 @@ Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
            }
 
         UTF8_string result_utf8 = out.get_data();
-        if (result_utf8.last() != UNI_ASCII_LF)
+        if (result_utf8.size() == 0 ||
+            result_utf8.last() != UNI_ASCII_LF)
            result_utf8.append(UNI_ASCII_LF);
 
         vector<ShapeItem> line_starts;

@@ -230,12 +230,6 @@ public:
    /// return the name of the class
    virtual const char * get_classname()  const   { return "Cell"; }
 
-   /// convert near-real complex to real or integer
-   virtual void demote_complex_to_real(APL_Float qct) {}
-
-   /// convert near-int real to integer
-   virtual void demote_float_to_int(APL_Float qct) {}
-
    /// round the value of this Cell up and store the result in Z
    virtual ErrorCode bif_ceiling(Cell * Z) const
       { return E_DOMAIN_ERROR; }

@@ -245,24 +245,24 @@ int errors = 0;
 
            // read some ESC sequences
            //
-#define READ_SEQ(dest, app, cap, p1) \
+#define READ_Seq(dest, app, cap, p1) \
    errors += read_ESC_sequence(dest, MAX_ESC_LEN, app, #cap, cap, p1);
 
-        READ_SEQ(clear_EOL,      0, clr_eol, 0);
-        READ_SEQ(clear_EOS,      0, clr_eos, 0);
-        READ_SEQ(exit_attr_mode, 0, exit_attribute_mode, 0);
+        READ_Seq(clear_EOL,      0, clr_eol, 0);
+        READ_Seq(clear_EOS,      0, clr_eos, 0);
+        READ_Seq(exit_attr_mode, 0, exit_attribute_mode, 0);
 
-        READ_SEQ(color_CIN, 0, set_foreground, color_CIN_foreground);
-        READ_SEQ(color_CIN, 1, set_background, color_CIN_background);
+        READ_Seq(color_CIN, 0, set_foreground, color_CIN_foreground);
+        READ_Seq(color_CIN, 1, set_background, color_CIN_background);
 
-        READ_SEQ(color_COUT, 0, set_foreground, color_COUT_foreground);
-        READ_SEQ(color_COUT, 1, set_background, color_COUT_background);
+        READ_Seq(color_COUT, 0, set_foreground, color_COUT_foreground);
+        READ_Seq(color_COUT, 1, set_background, color_COUT_background);
 
-        READ_SEQ(color_CERR, 0, set_foreground, color_CERR_foreground);
-        READ_SEQ(color_CERR, 1, set_background, color_CERR_background);
+        READ_Seq(color_CERR, 0, set_foreground, color_CERR_foreground);
+        READ_Seq(color_CERR, 1, set_background, color_CERR_background);
 
-        READ_SEQ(color_UERR, 0, set_foreground, color_UERR_foreground);
-        READ_SEQ(color_UERR, 1, set_background, color_UERR_background);
+        READ_Seq(color_UERR, 0, set_foreground, color_UERR_foreground);
+        READ_Seq(color_UERR, 1, set_background, color_UERR_background);
       }
 
    // cursor keys. This does not work currently because the keys reported
@@ -273,14 +273,14 @@ int errors = 0;
    //
    if (keys_curses)
       {
-        READ_SEQ(ESC_CursorUp,    0, key_up,    0);
-        READ_SEQ(ESC_CursorDown,  0, key_down,  0);
-        READ_SEQ(ESC_CursorLeft,  0, key_left,  0);
-        READ_SEQ(ESC_CursorRight, 0, key_right, 0);
-        READ_SEQ(ESC_CursorEnd,   0, key_end,   0);
-        READ_SEQ(ESC_CursorHome,  0, key_home,  0);
-        READ_SEQ(ESC_InsertMode,  0, key_ic,    0);
-        READ_SEQ(ESC_Delete,      0, key_dc,    0);
+        READ_Seq(ESC_CursorUp,    0, key_up,    0);
+        READ_Seq(ESC_CursorDown,  0, key_down,  0);
+        READ_Seq(ESC_CursorLeft,  0, key_left,  0);
+        READ_Seq(ESC_CursorRight, 0, key_right, 0);
+        READ_Seq(ESC_CursorEnd,   0, key_end,   0);
+        READ_Seq(ESC_CursorHome,  0, key_home,  0);
+        READ_Seq(ESC_InsertMode,  0, key_ic,    0);
+        READ_Seq(ESC_Delete,      0, key_dc,    0);
 
         ESCmap::refresh_lengths();
       }

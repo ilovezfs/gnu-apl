@@ -217,9 +217,6 @@ public:
    /// return \b this indexed by (one-dimensional) \b IDX.
    Value_P index(Value_P IDX) const;
 
-   /// return \b this indexed by (one- or multi-dimensional) \b IDX.
-   Value_P index(Token & B) const;
-
    /// If this value is a single axis between ⎕IO and ⎕IO + max_axis then
    /// return that axis. Otherwise throw AXIS_ERROR.
    Rank get_single_axis(Rank max_axis) const;
