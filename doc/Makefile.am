@@ -7,14 +7,16 @@ man1_MANS = apl.1
 # libapl.info explicitly
 #
 install-info-am:
-	@echo " $(MKDIR_P) $(DESTDIR)$(infodir)"; \
-	$(MKDIR_P) "$(DESTDIR)$(infodir)" || exit 1
-	@echo " $(INSTALL_DATA) libapl.info $(DESTDIR)$(infodir)"; \
-	$(INSTALL_DATA) libapl.info $(DESTDIR)$(infodir)
+	@echo " $(MKDIR_P) $(DESTDIR)$(infodir)"
+	@       $(MKDIR_P) "$(DESTDIR)$(infodir)" || exit 1
+	@echo " $(INSTALL_DATA) apl.info  libapl.info $(DESTDIR)$(infodir)"
+	@       $(INSTALL_DATA) apl.info  libapl.info $(DESTDIR)$(infodir)
 
 uninstall-info-am:
-	 @echo " rm -f $(DESTDIR)$(infodir)/libapl.info"; \
-	 rm -f $(DESTDIR)$(infodir)/libapl.info
+	 @echo " rm -f $(DESTDIR)$(infodir)/apl.info"
+	 @       rm -f $(DESTDIR)$(infodir)/apl.info
+	 @echo " rm -f $(DESTDIR)$(infodir)/libapl.info"
+	 @       rm -f $(DESTDIR)$(infodir)/libapl.info
 
 # apl.texi in HTML format
 #
