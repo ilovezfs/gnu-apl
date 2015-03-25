@@ -35,6 +35,7 @@ struct UserPreferences
      emacs_mode(false),
      emacs_arg(0),
      do_not_echo(false),
+     echo_CIN(false),
      safe_mode(false),
      user_do_svars(true),
      system_do_svars(true),
@@ -103,8 +104,11 @@ struct UserPreferences
    /// an argument for emacs mode
    const char * emacs_arg;
 
-   /// true if no banner/Goodbye is wanted.
+   /// true if no input echo is wanted.
    bool do_not_echo;
+
+   /// true to echo input (after editing)
+   bool echo_CIN;
 
    /// true if --safe command line option was given
    bool safe_mode;

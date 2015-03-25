@@ -223,6 +223,10 @@ facility for start-up messages can be turned on even when dynamic logging is
 not configured.
 
 @item
+@option{--echoCIN}
+copy the input line (after editing) to stdout. For creating session logs.
+
+@item
 @option{--noCIN}
 
 do not echo stdin to stdout. Almost a must for scripting (unless you
@@ -1347,8 +1351,12 @@ is dyadic. If only ⍵ is present then it is monadic, and if neither ⍺ nor ⍵
 present then the lambda is niladic.
 
 Likewise, if ⍶ and ⍹ are present then the lambda is a dyadic operator. If only
- ⍹ is present then it is a monadic operator, and if neither ⍶ nor ⍹ is present
+ ⍶ is present then it is a monadic operator, and if neither ⍶ nor ⍹ is present
 then the lambda is a normal function.
+
+GNU APL supports an axis argument in normal user defined functions and
+operators. In lambda expressions the greek letter χ (Chi) is the variable
+name for an axis argument.
 
 The way a named lambda is implemented in GNU APL is that the expression
 
@@ -1373,6 +1381,11 @@ SUM
 [1] λ← ⍺ + ⍵ 
 
 @end verbatim
+
+The lambda_header is automatically deducted from the presence ior absence
+of the variable names (⍺, ⍵, and χ) and function names (⍶ and ⍹) in the
+body_expression and from whether the body_expression is empty (no λ←) or
+not (with λ←).
 
 If a named lambda is created inside a function, then the name of the lambda
 (i.e. the name left of ← @{ ... @}) can be made a local variable of the
@@ -1400,9 +1413,14 @@ For example:
 @end verbatim
 
 Unnamed lambdas are automatically local in scope (similar to labels). They can
-be passed as function arguments to operators.
+be passed as function arguments to operators. However, unnamed lambdad are NOT
+inserted into the symbol table of the interpreter. They are therefore not
+visible to functions like ⎕CR or by the ∇-editor. Ocasionally the names λ1,
+λ2, ... may show up in commands like )SIS. These names are automatically
+generated for unnamed lambdas in order to provide a name in places where a
+function name is needed.
 
-@subsection Limitations
+@subsection Limitations of Lambdas
 
 There are a number of features related to lambdas that are present in other
 APL interpreters but that are NOT implemented in GNU APL. This includes
@@ -1410,7 +1428,8 @@ multiple statements, guards, lexical scoping, and probably more.
 
 @section Axis argument in user-defined functions
 
-User-defined functions and operators accept an axis argument. For example:
+User-defined functions and operators )including lambdas) accept an axis
+argument. For example:
 
 @verbatim
 

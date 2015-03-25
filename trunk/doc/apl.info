@@ -178,6 +178,9 @@ APL understands the following command line options:
      The logging facility for start-up messages can be turned on even
      when dynamic logging is not configured.
 
+   • ‘--echoCIN’ copy the input line (after editing) to stdout.  For
+     creating session logs.
+
    • ‘--noCIN’
 
      do not echo stdin to stdout.  Almost a must for scripting (unless
@@ -1268,8 +1271,12 @@ then the lambda is dyadic.  If only ⍵ is present then it is monadic, and
 if neither ⍺ nor ⍵ is present then the lambda is niladic.
 
    Likewise, if ⍶ and ⍹ are present then the lambda is a dyadic
-operator.  If only ⍹ is present then it is a monadic operator, and if
+operator.  If only ⍶ is present then it is a monadic operator, and if
 neither ⍶ nor ⍹ is present then the lambda is a normal function.
+
+   GNU APL supports an axis argument in normal user defined functions
+and operators.  In lambda expressions the greek letter χ (Chi) is the
+variable name for an axis argument.
 
    The way a named lambda is implemented in GNU APL is that the
 expression
@@ -1292,6 +1299,11 @@ SUM
 [0] λ←⍺ SUM ⍵
 [1] λ← ⍺ + ⍵
 
+
+   The lambda_header is automatically deducted from the presence ior
+absence of the variable names (⍺, ⍵, and χ) and function names (⍶ and ⍹)
+in the body_expression and from whether the body_expression is empty (no
+λ←) or not (with λ←).
 
    If a named lambda is created inside a function, then the name of the
 lambda (i.e.  the name left of ← { ...  }) can be made a local variable
@@ -1318,10 +1330,15 @@ example:
 
 
    Unnamed lambdas are automatically local in scope (similar to labels).
-They can be passed as function arguments to operators.
+They can be passed as function arguments to operators.  However, unnamed
+lambdad are NOT inserted into the symbol table of the interpreter.  They
+are therefore not visible to functions like ⎕CR or by the ∇-editor.
+Ocasionally the names λ1, λ2, ...  may show up in commands like )SIS.
+These names are automatically generated for unnamed lambdas in order to
+provide a name in places where a function name is needed.
 
-3.11.3 Limitations
-------------------
+3.11.3 Limitations of Lambdas
+-----------------------------
 
 There are a number of features related to lambdas that are present in
 other APL interpreters but that are NOT implemented in GNU APL. This
@@ -1331,8 +1348,8 @@ more.
 3.12 Axis argument in user-defined functions
 ============================================
 
-User-defined functions and operators accept an axis argument.  For
-example:
+User-defined functions and operators )including lambdas) accept an axis
+argument.  For example:
 
 
 ∇Z←Average[X] B
@@ -2785,16 +2802,16 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top383
 Node: Chapter 11404
-Node: Chapter 216283
-Node: Chapter 320552
-Node: Chapter 451282
-Node: Chapter 553030
-Node: Chapter 654159
-Node: Section 6.154578
-Node: Section 6.255265
-Node: Chapter 756096
-Node: Section 7.156599
-Node: Section 7.281908
+Node: Chapter 216387
+Node: Chapter 320656
+Node: Chapter 452224
+Node: Chapter 553972
+Node: Chapter 655101
+Node: Section 6.155520
+Node: Section 6.256207
+Node: Chapter 757038
+Node: Section 7.157541
+Node: Section 7.282850
 
 End Tag Table
 

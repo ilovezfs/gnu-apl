@@ -776,6 +776,8 @@ const APL_time_us from = now();
 
    Workspace::add_wait(now() - from);
    if (end_input)   (*end_input)();
+
+   if (uprefs.echo_CIN)   COUT << prompt << line << endl;
 }
 //=============================================================================
 void
