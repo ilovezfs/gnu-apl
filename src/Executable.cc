@@ -634,8 +634,8 @@ int level = 0;
               case TOK_ALPHA:   if (!level)   signature |= SIG_A;   // no break
               case TOK_OMEGA:   if (!level)   signature |= SIG_B;         break;
               case TOK_CHI:     if (!level)   signature |= SIG_X;         break;
-              case TOK_OMEGA_U: if (!level)   signature |= SIG_RO;  // no break
-              case TOK_ALPHA_U: if (!level)   signature |= SIG_LO;        break;
+              case TOK_ALPHA_U: if (!level)   signature |= SIG_LO;  // no break
+              case TOK_OMEGA_U: if (!level)   signature |= SIG_RO;        break;
 
               case TOK_DIAMOND: DEFN_ERROR;
               case TOK_BRANCH:  DEFN_ERROR;

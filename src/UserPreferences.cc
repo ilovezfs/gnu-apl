@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ char cc[4000];
    snprintf(cc, sizeof(cc),
 "    --cfg                show ./configure options used and exit\n"
 "    --noCIN              do not echo input(for scripting)\n"
+"    --echoCIN            echo (final) input to COUT\n"
 "    --rawCIN             do not emit escape sequences\n"
 "    --[no]Color          start with ]XTERM ON [OFF])\n"
 "    --noCONT             do not )LOAD CONTINUE workspace on startup)\n"
@@ -362,6 +363,14 @@ UserPreferences::parse_argv_2(bool logit)
                  }
 
               latent_expression = UTF8_string(val);
+              continue;
+            }
+
+         if (!strcmp(opt, "--echoCIN"))
+            {
+              echo_CIN = true;
+              do_not_echo = true;
+              do_Color = false;
               continue;
             }
 
