@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -561,20 +561,32 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
         ++src;   // skip 'J'
 
         APL_Float   imag_flt = 0.0;   // always valid
-        APL_Integer imag_int = 0;   // valid if need_float is false
+        APL_Integer imag_int = 0;     // valid if need_float is false
         bool need_float = false;
         const bool imag_valid = tokenize_real(src, need_float,
                                               imag_flt, imag_int);
 
         if (!imag_valid)
            {
-             --src;
-             if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
-             else              tos.append(Token(TOK_INTEGER, real_int));
+             --src;   // undo skip 'J'
+             if (need_float)
+                {
+                  tos.append(Token(TOK_REAL,    real_flt));
+                  Log(LOG_tokenize)
+                     CERR << "  tokenize_number: real " << real_flt << endl;
+                }
+             else
+                {
+                  tos.append(Token(TOK_INTEGER, real_int));
+                  Log(LOG_tokenize)
+                     CERR << "  tokenize_number: integer " << real_int << endl;
+                }
              return;
            }
 
         tos.append(Token(TOK_COMPLEX, real_flt, imag_flt));
+        Log(LOG_tokenize)   CERR << "  tokenize_number: complex "
+                                 << real_flt << "J" << imag_flt << endl;
       }
    else if (src.rest() && *src == UNI_ASCII_D)
       {
@@ -588,17 +600,29 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
 
         if (!imag_valid)
            {
-             --src;
-             if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
-             else              tos.append(Token(TOK_INTEGER, real_int));
+             --src;   // undo skip 'D'
+             if (need_float)
+                {
+                  tos.append(Token(TOK_REAL,    real_flt));
+                  Log(LOG_tokenize)
+                     CERR << "  tokenize_number: real " << real_flt << endl;
+                }
+             else
+                {
+                  tos.append(Token(TOK_INTEGER, real_int));
+                  Log(LOG_tokenize)
+                     CERR << "  tokenize_number: integer " << real_int << endl;
+                }
              return;
            }
 
         // real_flt is the magnitude and the angle is in degrees.
         //
-        APL_Float real = cos(M_PI*degrees_flt / 180);
-        APL_Float imag = sin(M_PI*degrees_flt / 180);
-        tos.append(Token(TOK_COMPLEX, real_flt*real, real_flt*imag));
+        APL_Float real = real_flt * cos(M_PI*degrees_flt / 180);
+        APL_Float imag = real_flt * sin(M_PI*degrees_flt / 180);
+        tos.append(Token(TOK_COMPLEX, real, imag));
+        Log(LOG_tokenize)   CERR << "  tokenize_number: complex " << real
+                                 << "J" << imag << endl;
       }
    else if (src.rest() && *src == UNI_ASCII_R)
       {
@@ -612,22 +636,44 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
 
         if (!imag_valid)
            {
-             --src;
-             if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
-             else              tos.append(Token(TOK_INTEGER, real_int));
+             --src;   // undo skip 'R'
+             if (need_float)
+                {
+                  tos.append(Token(TOK_REAL,    real_flt));
+                  Log(LOG_tokenize)
+                     CERR << "  tokenize_number: real " << real_flt << endl;
+                }
+             else
+                {
+                  tos.append(Token(TOK_INTEGER, real_int));
+                  Log(LOG_tokenize)
+                     CERR << "  tokenize_number: integer " << real_int << endl;
+                }
              return;
            }
 
         // real_flt is the magnitude and the angle is in radian.
         //
-        APL_Float real = cos(radian_flt);
-        APL_Float imag = sin(radian_flt);
-        tos.append(Token(TOK_COMPLEX, real_flt*real, real_flt*imag));
+        APL_Float real = real_flt * cos(radian_flt);
+        APL_Float imag = real_flt * sin(radian_flt);
+        tos.append(Token(TOK_COMPLEX, real, imag));
+        Log(LOG_tokenize)   CERR << "  tokenize_number: complex " << real
+                                 << "J" << imag << endl;
       }
    else 
      {
-         if (need_float)   tos.append(Token(TOK_REAL,    real_flt));
-         else              tos.append(Token(TOK_INTEGER, real_int));
+       if (need_float)
+          {
+            tos.append(Token(TOK_REAL,    real_flt));
+            Log(LOG_tokenize)
+               CERR << "  tokenize_number: real " << real_flt << endl;
+          }
+       else
+          {
+            tos.append(Token(TOK_INTEGER, real_int));
+            Log(LOG_tokenize)
+               CERR << "  tokenize_number: integer " << real_int << endl;
+          }
       }
 }
 //-----------------------------------------------------------------------------

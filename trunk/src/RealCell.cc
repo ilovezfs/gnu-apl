@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,10 +36,9 @@ RealCell::bif_logarithm(Cell * Z, const Cell * A) const
    // A⍟B is defined as: (⍟B)÷(⍟A)
    // if A=1 then ⍟A is 0 which causes division by 0 unless ⍟B is 0 as well.
    //
-const APL_Float qct = Workspace::get_CT();
-   if (A->is_near_one(qct))   // ⍟A is 0
+   if (A->is_near_one())   // ⍟A is 0
       {
-         if (!this->is_near_one(qct))   return E_DOMAIN_ERROR;
+         if (!this->is_near_one())   return E_DOMAIN_ERROR;
 
          // both ⍟A and ⍟B are 0, so we get 0÷0 (= 1 in APL)
          //
@@ -65,14 +64,14 @@ const APL_Float qct = Workspace::get_CT();
 ErrorCode
 RealCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
-const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+const APL_Integer fun = A->get_near_int();
    return do_bif_circle_fun(Z, fun);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 RealCell::bif_circle_fun_inverse(Cell * Z, const Cell * A) const
 {
-const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+const APL_Integer fun = A->get_near_int();
 
    switch(fun)
       {
@@ -102,35 +101,36 @@ const APL_Float b = get_real_value();
 
    switch(fun)
       {
-        case -12: ComplexCell(0, b).bif_exponential(Z);                  break;
-        case -11: new (Z) ComplexCell(0.0, b );                          break;
-        case -10: new (Z) FloatCell(      b );                           break;
-        case  -9: new (Z) FloatCell(      b );                           break;
-        case  -8: new (Z) ComplexCell(0, sqrt(1.0 + b*b));               break;
-        case  -7: new (Z) FloatCell(atanh(b));                           break;
-        case  -6: new (Z) FloatCell(acosh(b));                           break;
-        case  -5: new (Z) FloatCell(asinh(b));                           break;
-        case  -4: if (b > 1)   new (Z) FloatCell(sqrt(b*b - 1.0));
-                  else         new (Z) ComplexCell(0, sqrt(1.0 - b*b));  break;
-        case  -3: new (Z) FloatCell(atan (b));                           break;
-        case  -2: new (Z) FloatCell(acos (b));                           break;
-        case  -1: new (Z) FloatCell(asin (b));                           break;
-        case   0: new (Z) FloatCell(sqrt (1 - b*b));                     break;
-        case   1: new (Z) FloatCell( sin (b));                           break;
-        case   2: new (Z) FloatCell( cos (b));                           break;
-        case   3: new (Z) FloatCell( tan (b));                           break;
-        case   4: new (Z) FloatCell(sqrt (1 + b*b));                     break;
-        case   5: new (Z) FloatCell( sinh(b));                           break;
-        case   6: new (Z) FloatCell( cosh(b));                           break;
-        case   7: new (Z) FloatCell( tanh(b));                           break;
-        case   8: new (Z) ComplexCell(0, -sqrt(1.0 + b*b));              break;
-        case   9: new (Z) FloatCell(      b );                           break;
-        case  10: new (Z) FloatCell((b < 0) ? -b : b);                   break;
-        case  11: new (Z) FloatCell(    0.0 );                           break;
-        case  12: new (Z) FloatCell(    0.0 );                           break;
-        default:  return E_DOMAIN_ERROR;
+        case -12: ComplexCell(0, b).bif_exponential(Z);   break;
+        case -11: return ComplexCell::zv(Z, 0.0, b );
+        case -10: return FloatCell::zv(Z,       b );
+        case  -9: return FloatCell::zv(Z,       b );
+        case  -8: return ComplexCell::zv(Z, 0, sqrt(1.0 + b*b));
+        case  -7: return FloatCell::zv(Z, atanh(b));
+        case  -6: return FloatCell::zv(Z, acosh(b));
+        case  -5: return FloatCell::zv(Z, asinh(b));
+        case  -4: if (b > 1)   return FloatCell::zv(Z, sqrt(b*b - 1.0));
+                  else         return ComplexCell::zv(Z, 0, sqrt(1.0 - b*b));
+        case  -3: return FloatCell::zv(Z, atan (b));
+        case  -2: return FloatCell::zv(Z, acos (b));
+        case  -1: return FloatCell::zv(Z, asin (b));
+        case   0: return FloatCell::zv(Z, sqrt (1 - b*b));
+        case   1: return FloatCell::zv(Z,  sin (b));
+        case   2: return FloatCell::zv(Z,  cos (b));
+        case   3: return FloatCell::zv(Z,  tan (b));
+        case   4: return FloatCell::zv(Z, sqrt (1 + b*b));
+        case   5: return FloatCell::zv(Z,  sinh(b));
+        case   6: return FloatCell::zv(Z,  cosh(b));
+        case   7: return FloatCell::zv(Z,  tanh(b));
+        case   8: return ComplexCell::zv(Z, 0, -sqrt(1.0 + b*b));
+        case   9: return FloatCell::zv(Z, b );
+        case  10: return FloatCell::zv(Z, (b < 0) ? -b : b);
+        case  11: return FloatCell::zv(Z, 0.0 );
+        case  12: return FloatCell::zv(Z, 0.0 );
       }
 
+   // invalid fun
+   //
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------

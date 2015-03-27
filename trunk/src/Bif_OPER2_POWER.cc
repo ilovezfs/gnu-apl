@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
              else                         LENGTH_ERROR;
            }
 
-        if (!value->get_ravel(0).is_near_int(_arg.qct))   DOMAIN_ERROR;
+        if (!value->get_ravel(0).is_near_int())   DOMAIN_ERROR;
         _arg.repeat_count = value->get_ravel(0).get_checked_near_int();
 
         // special cases: 0, negative, and 1
@@ -291,7 +291,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
              else                         LENGTH_ERROR;
            }
 
-        if (!value->get_ravel(0).is_near_int(_arg.qct))   DOMAIN_ERROR;
+        if (!value->get_ravel(0).is_near_int())   DOMAIN_ERROR;
         _arg.repeat_count = value->get_ravel(0).get_checked_near_int();
 
         // special cases: 0, negative, and 1
@@ -336,7 +336,7 @@ Bif_OPER2_POWER::get_condition_value(const Value & RO, double qct)
         else                     LENGTH_ERROR;
       }
 
-   if (!RO.get_ravel(0).is_near_bool(qct))   DOMAIN_ERROR;
+   if (!RO.get_ravel(0).is_near_bool())   DOMAIN_ERROR;
 
    return RO.get_ravel(0).get_checked_near_int();
 }

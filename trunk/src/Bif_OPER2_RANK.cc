@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -354,18 +354,16 @@ const Rank rk_B = rank_B;
    // yM yA yB :        N/A        yM           yA       yB
    // ---------------------------------------------------------
 
-const APL_Float qct = Workspace::get_CT();
-
    switch(y123->element_count())
       {
-        case 1: rank_B = y123->get_ravel(0).get_near_int(qct);   break;
+        case 1: rank_B = y123->get_ravel(0).get_near_int();   break;
 
-        case 2:          y123->get_ravel(0).get_near_int(qct);
-                rank_B = y123->get_ravel(1).get_near_int(qct);   break;
+        case 2:          y123->get_ravel(0).get_near_int();
+                rank_B = y123->get_ravel(1).get_near_int();   break;
 
-        case 3: rank_B = y123->get_ravel(0).get_near_int(qct);
-                         y123->get_ravel(1).get_near_int(qct);
-                         y123->get_ravel(2).get_near_int(qct);   break;
+        case 3: rank_B = y123->get_ravel(0).get_near_int();
+                         y123->get_ravel(1).get_near_int();
+                         y123->get_ravel(2).get_near_int();   break;
 
              default: LENGTH_ERROR;
       }
@@ -406,19 +404,17 @@ const Rank rk_B = rank_B;
    // yM yA yB :        N/A        yM           yA       yB
    // ---------------------------------------------------------
 
-const APL_Float qct = Workspace::get_CT();
-
    switch(y123->element_count())
       {
-        case 1:  rank_A = y123->get_ravel(0).get_near_int(qct);
+        case 1:  rank_A = y123->get_ravel(0).get_near_int();
                  rank_B = rank_A;                            break;
 
-        case 2:  rank_A = y123->get_ravel(0).get_near_int(qct);
-                 rank_B = y123->get_ravel(1).get_near_int(qct);  break;
+        case 2:  rank_A = y123->get_ravel(0).get_near_int();
+                 rank_B = y123->get_ravel(1).get_near_int();  break;
 
-        case 3:           y123->get_ravel(0).get_near_int(qct);
-                 rank_A = y123->get_ravel(1).get_near_int(qct);
-                 rank_B = y123->get_ravel(2).get_near_int(qct);  break;
+        case 3:           y123->get_ravel(0).get_near_int();
+                 rank_A = y123->get_ravel(1).get_near_int();
+                 rank_B = y123->get_ravel(2).get_near_int();  break;
 
         default: LENGTH_ERROR;
       }
@@ -499,12 +495,11 @@ const ShapeItem length = y123_B->element_count();
    // case 1. ruled out, so the first 1, 2, or 3 cells are j123.
    // see how many (at most)
    //
-const APL_Float qct = Workspace::get_CT();
 int y123_len = 0;
    loop(yy, 3)
       {
         if (yy >= length)   break;
-        if (y123_B->get_ravel(yy).is_near_int(qct))   ++y123_len;
+        if (y123_B->get_ravel(yy).is_near_int())   ++y123_len;
         else                                          break;
       }
    if (y123_len == 0)   LENGTH_ERROR;   // at least y1 is needed

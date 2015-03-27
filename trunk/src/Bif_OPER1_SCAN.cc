@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,13 +47,12 @@ Shape shape_B = B->get_shape();
    if (shape_B.get_rank() <= axis)   RANK_ERROR;
 
 const ShapeItem ec_A = A->element_count();
-const APL_Float qct = Workspace::get_CT();
 ShapeItem ones_A = 0;
 vector<ShapeItem> rep_counts;
    rep_counts.reserve(ec_A);
    loop(a, ec_A)
       {
-        APL_Integer rep_A = A->get_ravel(a).get_near_int(qct);
+        APL_Integer rep_A = A->get_ravel(a).get_near_int();
         rep_counts.push_back(rep_A);
         if      (rep_A == 0)        ;
         else if (rep_A == 1)        ++ones_A;

@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@ Shape shape_B = B->get_shape();
    if (A->get_rank() > 1)             RANK_ERROR;
    if (axis >= shape_B.get_rank())    INDEX_ERROR;
 
-const APL_Float qct = Workspace::get_CT();
 const ShapeItem len_B = shape_B.get_shape_item(axis);
 ShapeItem len_A = A->element_count();
 ShapeItem len_Z = 0;
@@ -52,7 +51,7 @@ vector<ShapeItem> rep_counts;
    if (len_A == 1)   // single a -> a a ... a (len_B times)
       {
         len_A = len_B;
-        APL_Integer rep_A = A->get_ravel(0).get_near_int(qct);
+        APL_Integer rep_A = A->get_ravel(0).get_near_int();
         loop(a, len_A)   rep_counts.push_back(rep_A);
         if (rep_A > 0)        len_Z =  rep_A*len_B;
         else if (rep_A < 0)   len_Z = -rep_A*len_B;
@@ -62,7 +61,7 @@ vector<ShapeItem> rep_counts;
         ShapeItem geq_A = 0;   // number of items >= 0 in A
         loop(a, len_A)
            {
-             APL_Integer rep_A = A->get_ravel(a).get_near_int(qct);
+             APL_Integer rep_A = A->get_ravel(a).get_near_int();
              rep_counts.push_back(rep_A);
              if (rep_A > 0)        { len_Z += rep_A;   ++geq_A; }
              else if (rep_A < 0)   len_Z -= rep_A;

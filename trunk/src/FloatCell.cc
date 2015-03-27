@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,18 +73,18 @@ const Comp_result comp = compare(other);
 }
 //-----------------------------------------------------------------------------
 bool
-FloatCell::get_near_bool(APL_Float qct)  const
+FloatCell::get_near_bool()  const
 {
-   if (value.fval > qct)   // maybe 1
+   if (value.fval > INTEGER_TOLERANCE)   // maybe 1
       {
-        if (value.fval > (1.0 + qct))   DOMAIN_ERROR;
-        if (value.fval < (1.0 - qct))   DOMAIN_ERROR;
+        if (value.fval > (1.0 + INTEGER_TOLERANCE))   DOMAIN_ERROR;
+        if (value.fval < (1.0 - INTEGER_TOLERANCE))   DOMAIN_ERROR;
         return true;
       }
 
    // maybe 0. We already know that value.fval ≤ qct
    //
-   if (value.fval < -qct)   DOMAIN_ERROR;
+   if (value.fval < -INTEGER_TOLERANCE)   DOMAIN_ERROR;
    return false;
 }
 //-----------------------------------------------------------------------------
@@ -115,16 +115,6 @@ FloatCell::compare(const Cell & other) const
 ErrorCode
 FloatCell::bif_factorial(Cell * Z) const
 {
-const APL_Float qct = Workspace::get_CT();
-
-   if (is_near_int(qct))
-      {
-        const APL_Integer iv = get_near_int(qct);
-        IntCell icell(iv);
-        icell.bif_factorial(Z);
-        return E_NO_ERROR;
-      }
-
    // max N! that fits into double is about 170
    //
    if (value.fval > 170)   return E_DOMAIN_ERROR;
@@ -181,7 +171,7 @@ ErrorCode
 FloatCell::bif_roll(Cell * Z) const
 {
 const APL_Integer qio = Workspace::get_IO();
-   if (!is_near_int(Workspace::get_CT()))   return E_DOMAIN_ERROR;
+   if (!is_near_int())   return E_DOMAIN_ERROR;
 
 const APL_Integer set_size = get_checked_near_int();
    if (set_size <= 0)   return E_DOMAIN_ERROR;
@@ -194,41 +184,45 @@ const uint64_t rnd = Workspace::get_RL(set_size);
 ErrorCode
 FloatCell::bif_pi_times(Cell * Z) const
 {
-   new (Z) FloatCell(M_PI * value.fval);
-   return E_NO_ERROR;
+   return zv(Z, value.fval * M_PI);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_pi_times_inverse(Cell * Z) const
 {
-   new (Z) FloatCell(value.fval / M_PI);
-   return E_NO_ERROR;
+   return zv(Z, value.fval / M_PI);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_ceiling(Cell * Z) const
 {
-   // we want values slightly above an int to be rounded down rather than up
-   //
 const APL_Float qct = Workspace::get_CT();
-const double d_ret = ceil(value.fval - Workspace::get_CT());
+const APL_Float c = ceil(value.fval);   // c >= value.fval
 
-   if (Cell::is_near_int(d_ret, qct))   new (Z) IntCell(llrint(d_ret));
-   else                                 new (Z) FloatCell(d_ret);
-   return E_NO_ERROR;
+   // if the distance between value.fval and c is close to 1 (within ⎕CT)
+   // then value.fval is rounded down rather than up. In that decision we
+   // compute:  tolerantly_equal(c - value.fval, 1)
+   // and NOT   tolerantly_equal(value.fval, c - 1) !
+   //
+   if (tolerantly_equal(c - value.fval, 1.0, qct))   return zv(Z, c - 1);
+
+   return zv(Z, c);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_floor(Cell * Z) const
 {
-   // we want values slightly below an int to be rounded up rather than down
-   //
 const APL_Float qct = Workspace::get_CT();
-const double d_ret = floor(value.fval + qct);
+const APL_Float f = floor(value.fval);   // f <= value.fval
 
-   if (Cell::is_near_int(d_ret, qct))   new (Z) IntCell(llrint(d_ret)); 
-   else                                 new (Z) FloatCell(d_ret);
-   return E_NO_ERROR;
+   // if the distance between value.fval and f is close to 1 (within ⎕CT)
+   // then value.fval is rounded up rather than down. In that decision we
+   // compute:  tolerantly_equal(value.fval - f, 1)
+   // and NOT   tolerantly_equal(value.fval, f + 1) !
+   //
+   if (tolerantly_equal(value.fval - f, 1.0, qct))   return zv(Z, f + 1);
+
+   return zv(Z, f);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -418,7 +412,7 @@ FloatCell::bif_residue(Cell * Z, const Cell * A) const
 
         // if A is zero , return B
         //
-        if (A->is_near_zero(0))
+        if (A->is_near_zero())
            {
              new (Z) FloatCell(get_real_value());
              return E_NO_ERROR;
@@ -434,13 +428,13 @@ FloatCell::bif_residue(Cell * Z, const Cell * A) const
              return E_NO_ERROR;
            }
 
-        if (Cell::is_near_zero(remainder, qct))
+        if (Cell::is_near_zero(remainder))
            {
              new (Z) IntCell(0);
              return E_NO_ERROR;
            }
 
-        if (Cell::is_near_zero(A->get_real_value() - remainder, qct))
+        if (Cell::is_near_zero(A->get_real_value() - remainder))
            {
              new (Z) IntCell(0);
              return E_NO_ERROR;

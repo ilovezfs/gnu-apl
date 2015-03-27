@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1502,7 +1502,7 @@ const bool trace = at0().get_Class() == TC_END &&
 Value_P line = at2().get_apl_val();
    if (trace && line->element_count() > 0)
       {
-        const int64_t line_num = line->get_line_number(Workspace::get_CT());
+        const int64_t line_num = line->get_line_number();
         Token bra(TOK_BRANCH, line_num);
         si.statement_result(bra, true);
       }

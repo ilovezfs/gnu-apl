@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ Shape::Shape(Value_P A, APL_Float qct, int qio_A)
 
    loop(r, A->element_count())
       {
-        add_shape_item(A->get_ravel(r).get_near_int(qct) - qio_A);
+        add_shape_item(A->get_ravel(r).get_near_int() - qio_A);
       }
 }
 //-----------------------------------------------------------------------------

@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,30 +57,43 @@ ComplexCell::get_imag_value() const
 }
 //-----------------------------------------------------------------------------
 bool
-ComplexCell::is_near_int(APL_Float qct) const
+ComplexCell::is_near_int() const
 {
-   return Cell::is_near_int(value.cval_r, qct) &&
-          Cell::is_near_int(value2.cval_i, qct);
+   return Cell::is_near_int(value.cval_r) &&
+          Cell::is_near_int(value2.cval_i);
 }
 //-----------------------------------------------------------------------------
 bool
-ComplexCell::is_near_zero(APL_Float qct) const
+ComplexCell::is_near_zero() const
 {
-   if (value.cval_r >  qct)   return false;
-   if (value.cval_r < -qct)   return false;
-   if (value2.cval_i >  qct)   return false;
-   if (value2.cval_i < -qct)   return false;
+   if (value.cval_r  >=  INTEGER_TOLERANCE)   return false;
+   if (value.cval_r  <= -INTEGER_TOLERANCE)   return false;
+   if (value2.cval_i >=  INTEGER_TOLERANCE)   return false;
+   if (value2.cval_i <= -INTEGER_TOLERANCE)   return false;
    return true;
 }
 //-----------------------------------------------------------------------------
 bool
-ComplexCell::is_near_one(APL_Float qct) const
+ComplexCell::is_near_one() const
 {
-   if (value.cval_r >  (1.0 + qct))   return false;
-   if (value.cval_r <  (1.0 - qct))   return false;
-   if (value2.cval_i >  qct)           return false;
-   if (value2.cval_i < -qct)           return false;
+   if (value.cval_r >  (1.0 + INTEGER_TOLERANCE))   return false;
+   if (value.cval_r <  (1.0 - INTEGER_TOLERANCE))   return false;
+   if (value2.cval_i >  INTEGER_TOLERANCE)           return false;
+   if (value2.cval_i < -INTEGER_TOLERANCE)           return false;
    return true;
+}
+//-----------------------------------------------------------------------------
+bool
+ComplexCell::is_near_real() const
+{
+const APL_Float B = REAL_TOLERANCE*REAL_TOLERANCE;
+const double I = value2.cval_i * value2.cval_i;
+
+   if (I < B)     return true;   // I is absolutely small
+
+const double R = value.cval_r * value.cval_r;
+   if (I < R*B)   return true;   // I is relatively small
+   return false;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -95,7 +108,7 @@ ComplexCell::equal(const Cell & A, APL_Float qct) const
 ErrorCode
 ComplexCell::bif_factorial(Cell * Z) const
 {
-   if (is_near_real(Workspace::get_CT()))
+   if (is_near_real())
       {
         const FloatCell fc(get_real_value());
         fc.bif_factorial(Z);
@@ -144,19 +157,26 @@ ComplexCell::bif_magnitude(Cell * Z) const
 ErrorCode
 ComplexCell::bif_reciprocal(Cell * Z) const
 {
-const APL_Float qct = Workspace::get_CT();
-   if (is_near_zero(qct))  return E_DOMAIN_ERROR;
+   if (is_near_zero())  return E_DOMAIN_ERROR;
 
-   if (is_near_real(qct))   new (Z) FloatCell(1.0/value.cval_r);
-   else                     new (Z) ComplexCell(APL_Complex(1.0)/ cval());
-   return E_NO_ERROR;
+   if (is_near_real())
+      {
+        const APL_Float z = 1.0/value.cval_r;
+        if (!isfinite(z))   return E_DOMAIN_ERROR;
+        return FloatCell::zv(Z, z);
+      }
+
+const APL_Complex z = 1.0 / cval();
+   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;
+   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;
+   return zv(Z, z);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 ComplexCell::bif_roll(Cell * Z) const
 {
 const APL_Integer qio = Workspace::get_IO();
-   if (!is_near_int(Workspace::get_CT()))   return E_DOMAIN_ERROR;
+   if (!is_near_int())   return E_DOMAIN_ERROR;
 
 const APL_Integer set_size = get_checked_near_int();
    if (set_size <= 0)   return E_DOMAIN_ERROR;
@@ -183,35 +203,42 @@ ComplexCell::bif_pi_times_inverse(Cell * Z) const
 ErrorCode
 ComplexCell::bif_ceiling(Cell * Z) const
 {
-const double r = value.cval_r;
-const double i = value2.cval_i;
-const double dr = r - floor(r);
-const double di = i - floor(i);
+const APL_Float cr = ceil(value.cval_r);    // cr ≥ value.cval_r
+const APL_Float Dr = cr - value.cval_r;     // Dr ≥ 0
+const APL_Float ci = ceil(value2.cval_i);   // ci ≥ value2.cval_i
+const APL_Float Di = ci - value2.cval_i;    // Di ≥ 0
+const APL_Float D = Dr + Di;                // 0 ≤ D < 2
 
-   if (dr + di > 1.0)   // round real and imag up.
-      new (Z) ComplexCell(ceil(r), ceil(i));
-   else if (di >= dr)   // round real down and imag up
-      new (Z) ComplexCell(floor(r), ceil(i));
-   else                 // round real up and imag down
-      new (Z) ComplexCell(ceil(r), floor(i));
-   return E_NO_ERROR;
+   // ISO: if D is tolerantly less than 1 return fr + 0J1×fi
+   // IBM: if D is            less than 1 return fr + 0J1×fi
+   // However, ISO examples follow IBM (and so do we)
+   //
+// if (D < 1.0 + Workspace::get_CT())   return zv(Z, cr, ci);   // ISO
+   if (D < 1.0)   return zv(Z, cr, ci);   // IBM and examples in ISO
+
+   if (Di > Dr)   return zv(Z, cr, ci - 1.0);
+   else           return zv(Z, cr - 1.0, ci);
+
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 ComplexCell::bif_floor(Cell * Z) const
 {
-const double r = value.cval_r;
-const double i = value2.cval_i;
-const double dr = r - floor(r);
-const double di = i - floor(i);
+const APL_Float fr = floor(value.cval_r);    // fr ≤ value.cval_r
+const APL_Float Dr = value.cval_r - fr;      // Dr ≥ 0
+const APL_Float fi = floor(value2.cval_i);   // fi ≤ value2.cval_i
+const APL_Float Di = value2.cval_i - fi;     // Di ≥ 0
+const APL_Float D = Dr + Di;                 // 0 ≤ D < 2
 
-   if (dr + di < 1.0)   // round real and imag down.
-      new (Z) ComplexCell(floor(r), floor(i));
-   else if (di > dr)   // round real down and imag up
-      new (Z) ComplexCell(floor(r), ceil (i));
-   else                // round real up and imag down
-      new (Z) ComplexCell(ceil (r), floor(i));
-   return E_NO_ERROR;
+   // ISO: if D is tolerantly less than 1 return fr + 0J1×fi
+   // IBM: if D is            less than 1 return fr + 0J1×fi
+   // However, ISO examples follow IBM (and so do we)
+   //
+// if (D < 1.0 + Workspace::get_CT())   return zv(Z, fr, fi);   // ISO
+   if (D < 1.0)    return zv(Z, fr, fi);   // IBM and examples in ISO
+
+   if (Di > Dr)   return zv(Z, fr, fi + 1.0);
+   else           return zv(Z, fr + 1.0, fi);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -272,13 +299,11 @@ ComplexCell::bif_divide(Cell * Z, const Cell * A) const
 ErrorCode
 ComplexCell::bif_residue(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-
-   if (A->is_near_zero(qct))
+   if (A->is_near_zero())
       {
         new (Z) ComplexCell(get_complex_value());
       }
-   else if (is_near_zero(qct))
+   else if (is_near_zero())
       {
         new (Z) IntCell(0);
       }
@@ -306,33 +331,28 @@ ComplexCell::bif_maximum(Cell * Z, const Cell * A) const
    // maximum of complex numbers gives DOMAN ERROR if one of the cells
    // is not near-real.
    //
-const APL_Float qct = Workspace::get_CT();
+   if (!is_near_real())      return E_DOMAIN_ERROR;
 
-   if (get_imag_value() < -qct)   return E_DOMAIN_ERROR;   // not near-real
-   if (get_imag_value() >  qct)   return E_DOMAIN_ERROR;   // not near-real
-
-const APL_Float rval = get_real_value();
+const APL_Float breal = get_real_value();
 
    if (A->is_integer_cell())
       {
          const APL_Integer a = A->get_int_value();
-         if (APL_Float(a) >= rval)   new (Z) IntCell(a);
-         else                        new (Z) FloatCell(rval);
+         if (APL_Float(a) >= breal)   new (Z) IntCell(a);
+         else                        new (Z) FloatCell(breal);
       }
    else if (A->is_float_cell())
       {
          const APL_Float a = A->get_real_value();
-         if (a >= rval)   new (Z) FloatCell(a);
-         else             new (Z) FloatCell(rval);
+         if (a >= breal)   new (Z) FloatCell(a);
+         else             new (Z) FloatCell(breal);
       }
    else
       {
-        if (A->get_imag_value() < -qct)   return E_DOMAIN_ERROR;   // not near-real
-        if (A->get_imag_value() >  qct)   return E_DOMAIN_ERROR;   // not near-real
-
-         const APL_Float a = A->get_real_value();
-         if (a >= rval)   new (Z) FloatCell(a);
-         else             new (Z) FloatCell(rval);
+        if (!A->is_near_real())   return E_DOMAIN_ERROR;
+        const APL_Float a = A->get_real_value();
+        if (a >= breal)   new (Z) FloatCell(a);
+        else             new (Z) FloatCell(breal);
       }
 
    return E_NO_ERROR;
@@ -344,33 +364,29 @@ ComplexCell::bif_minimum(Cell * Z, const Cell * A) const
    // minimum of complex numbers gives DOMAN ERROR if one of the cells
    // is not near real.
    //
-const APL_Float qct = Workspace::get_CT();
+   if (!is_near_real())      return E_DOMAIN_ERROR;
 
-   if (get_imag_value() < -qct)   return E_DOMAIN_ERROR;   // not near-real
-   if (get_imag_value() >  qct)   return E_DOMAIN_ERROR;   // not near-real
-
-const APL_Float rval = get_real_value();
+const APL_Float breal = get_real_value();
 
    if (A->is_integer_cell())
       {
          const APL_Integer a = A->get_int_value();
-         if (APL_Float(a) <= rval)   new (Z) IntCell(a);
-         else                        new (Z) FloatCell(rval);
+         if (APL_Float(a) <= breal)   new (Z) IntCell(a);
+         else                        new (Z) FloatCell(breal);
       }
    else if (A->is_float_cell())
       {
          const APL_Float a = A->get_real_value();
-         if (a <= rval)   new (Z) FloatCell(a);
-         else             new (Z) FloatCell(rval);
+         if (a <= breal)   new (Z) FloatCell(a);
+         else             new (Z) FloatCell(breal);
       }
    else
       {
-        if (A->get_imag_value() < -qct)   return E_DOMAIN_ERROR;   // not near-real
-        if (A->get_imag_value() >  qct)   return E_DOMAIN_ERROR;   // not near-real
+        if (!A->is_near_real())   return E_DOMAIN_ERROR;
 
-         const APL_Float a = A->get_real_value();
-         if (a <= rval)   new (Z) FloatCell(a);
-         else             new (Z) FloatCell(rval);
+        const APL_Float a = A->get_real_value();
+        if (a <= breal)   new (Z) FloatCell(a);
+        else             new (Z) FloatCell(breal);
       }
    return E_NO_ERROR;
 }
@@ -457,14 +473,14 @@ ComplexCell::bif_logarithm(Cell * Z, const Cell * A) const
 ErrorCode
 ComplexCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
-const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+const APL_Integer fun = A->get_near_int();
    return do_bif_circle_fun(Z, fun);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 ComplexCell::bif_circle_fun_inverse(Cell * Z, const Cell * A) const
 {
-const APL_Integer fun = A->get_near_int(Workspace::get_CT());
+const APL_Integer fun = A->get_near_int();
 
    switch(fun)
       {
@@ -494,10 +510,14 @@ const APL_Complex b = cval();
 
    switch(fun)
       {
-        case -12: ComplexCell(-b.imag(), b.real()).bif_exponential(Z);   break;
-        case -11: new (Z) ComplexCell(-b.imag(), b.real());              break;
-        case -10: new (Z) ComplexCell(b.real(), -b.imag());              break;
-        case  -9: new (Z) ComplexCell(            b   );                 break;
+        case -12: {
+                    ComplexCell cb(-b.imag(), b.real());
+                    cb.bif_exponential(Z);
+                  }
+                  break;
+        case -11: return zv(Z, -b.imag(), b.real());
+        case -10: return zv(Z, b.real(), -b.imag());
+        case  -9: return zv(Z,             b   );
         case  -7: // arctanh(z) = 0.5 (ln(1 + z) - ln(1 - z))
                   {
                     const APL_Complex b1      = ONE() + b;
@@ -506,7 +526,7 @@ const APL_Complex b = cval();
                     const APL_Complex log_b_1 = log(b_1);
                     const APL_Complex diff    = log_b1 - log_b_1;
                     const APL_Complex half    = 0.5 * diff;
-                    new (Z) ComplexCell(half);                           break;
+                    return zv(Z, half);
                   }
         case  -6: // arccosh(z) = ln(z + sqrt(z + 1) sqrt(z - 1))
                   {
@@ -517,7 +537,7 @@ const APL_Complex b = cval();
                     const APL_Complex prod   = root1 * root_1;
                     const APL_Complex sum    = b + prod;
                     const APL_Complex loga   = log(sum);
-                    new (Z) ComplexCell(loga);                           break;
+                    return zv(Z, loga);
                   }
         case  -5: // arcsinh(z) = ln(z + sqrt(z^2 + 1))
                   {
@@ -526,9 +546,9 @@ const APL_Complex b = cval();
                     const APL_Complex root = sqrt(b2_1);
                     const APL_Complex sum =  b + root;
                     const APL_Complex loga = log(sum);
-                    new (Z) ComplexCell(loga);                           break;
+                    return zv(Z, loga);
                   }
-        case  -4: new (Z) ComplexCell(sqrt(b*b - 1.0));                  break;
+        case  -4: new (Z) ComplexCell(sqrt(b*b - 1.0));
         case  -3: // arctan(z) = i/2 (ln(1 - iz) - ln(1 + iz))
                   {
                     const APL_Complex iz = APL_Complex(- b.imag(), b.real());
@@ -538,7 +558,7 @@ const APL_Complex b = cval();
                     const APL_Complex log_niz = log(niz);
                     const APL_Complex diff = log_niz - log_piz;
                     const APL_Complex prod = APL_Complex(0, 0.5) * diff;
-                    new (Z) ComplexCell(prod);                           break;
+                    return zv(Z, prod);
                   }
         case  -2: // arccos(z) = -i (ln( z + sqrt(z^2 - 1)))
                   {
@@ -548,7 +568,7 @@ const APL_Complex b = cval();
                     const APL_Complex sum = b + root;
                     const APL_Complex loga = log(sum);
                     const APL_Complex prod = MINUS_i() * loga;
-                    new (Z) ComplexCell(prod);                           break;
+                    return zv(Z, prod);
                   }
         case  -1: // arcsin(z) = -i (ln(iz + sqrt(1 - z^2)))
                   {
@@ -559,16 +579,16 @@ const APL_Complex b = cval();
                                            + root;
                     const APL_Complex loga = log(sum);
                     const APL_Complex prod = MINUS_i() * loga;
-                    new (Z) ComplexCell(prod);                           break;
+                    return zv(Z, prod);
                   }
-        case   0: new (Z) ComplexCell(sqrt (1.0 - b*b));                 break;
-        case   1: new (Z) ComplexCell( sin       (b));                   break;
-        case   2: new (Z) ComplexCell( cos       (b));                   break;
-        case   3: new (Z) ComplexCell( tan       (b));                   break;
-        case   4: new (Z) ComplexCell(sqrt (1.0 + b*b));                 break;
-        case   5: new (Z) ComplexCell( sinh      (b));                   break;
-        case   6: new (Z) ComplexCell( cosh      (b));                   break;
-        case   7: new (Z) ComplexCell( tanh      (b));                   break;
+        case   0: return zv(Z, sqrt(1.0 - b*b));
+        case   1: return zv(Z, sin       (b));
+        case   2: return zv(Z, cos       (b));
+        case   3: return zv(Z, tan       (b));
+        case   4: return zv(Z, sqrt(1.0 + b*b));
+        case   5: return zv(Z, sinh      (b));
+        case   6: return zv(Z, cosh      (b));
+        case   7: return zv(Z, tanh      (b));
         case  -8:
         case   8: {
                     bool pos_8 = false;
@@ -581,27 +601,24 @@ const APL_Complex b = cval();
                     const APL_Complex sq = sqrt(-(1.0 + get_complex_value()
                                                       * get_complex_value()));
 
-                    if (pos_8)   new (Z) ComplexCell(sq);
-                    else         new (Z) ComplexCell(-sq);
-                  }                                                      break;
+                    return zv(Z, pos_8 ? sq : -sq);
+                  }
 
-        case   9: new (Z) FloatCell(     b.real());                      break;
-        case  10: new (Z) FloatCell(sqrt(b.real()*b.real()
-                                       + b.imag()* b.imag()));           break;
-        case  11: new (Z) FloatCell(b.imag());                           break;
-        case  12: new (Z) FloatCell(phase());                            break;
-
-        return E_DOMAIN_ERROR;
+        case   9: return FloatCell::zv(Z,      b.real());
+        case  10: return FloatCell::zv(Z, sqrt(b.real()*b.real()
+                                             + b.imag()* b.imag()));
+        case  11: return FloatCell::zv(Z, b.imag());
+        case  12: return FloatCell::zv(Z, phase());
       }
 
+   // invalid fun
+   //
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 APL_Float
 ComplexCell::phase() const
 {
-   if (is_near_zero(Workspace::get_CT()))   return 0.0;
-
 APL_Float real = value.cval_r;
 APL_Float imag = value2.cval_i;
 
@@ -664,26 +681,26 @@ const APL_Complex ret( (sqrt(2*M_PI) / z)
 
 //-----------------------------------------------------------------------------
 bool
-ComplexCell::get_near_bool(APL_Float qct)  const   
+ComplexCell::get_near_bool()  const   
 {
-   if (value2.cval_i >  qct)   DOMAIN_ERROR;
-   if (value2.cval_i < -qct)   DOMAIN_ERROR;
+   if (value2.cval_i >  INTEGER_TOLERANCE)   DOMAIN_ERROR;
+   if (value2.cval_i < -INTEGER_TOLERANCE)   DOMAIN_ERROR;
 
-   if (value.cval_r > qct)   // 1 or invalid
+   if (value.cval_r > INTEGER_TOLERANCE)   // 1 or invalid
       {
-        if (value.cval_r < (1.0 - qct))   DOMAIN_ERROR;
-        if (value.cval_r > (1.0 + qct))   DOMAIN_ERROR;
+        if (value.cval_r < (1.0 - INTEGER_TOLERANCE))   DOMAIN_ERROR;
+        if (value.cval_r > (1.0 + INTEGER_TOLERANCE))   DOMAIN_ERROR;
         return true;
       }
    else
       {
-        if (value.cval_r < -qct)   DOMAIN_ERROR;
+        if (value.cval_r < -INTEGER_TOLERANCE)   DOMAIN_ERROR;
         return false;
       }
 }
 //-----------------------------------------------------------------------------
 APL_Integer
-ComplexCell::get_near_int(APL_Float qct) const
+ComplexCell::get_near_int() const
 {
 // if (value2.cval_i >  qct)   DOMAIN_ERROR;
 // if (value2.cval_i < -qct)   DOMAIN_ERROR;
@@ -691,8 +708,8 @@ ComplexCell::get_near_int(APL_Float qct) const
 const double val = value.cval_r;
 const double result = round(val);
 const double diff = val - result;
-   if (diff > qct)    DOMAIN_ERROR;
-   if (diff < -qct)   DOMAIN_ERROR;
+   if (diff > INTEGER_TOLERANCE)    DOMAIN_ERROR;
+   if (diff < -INTEGER_TOLERANCE)   DOMAIN_ERROR;
 
    return APL_Integer(result + 0.3);
 }
@@ -722,38 +739,30 @@ ComplexCell::compare(const Cell & other) const
    // comparison of complex numbers gives DOMAN ERROR if one of the cells
    // is not near-real.
    //
-const APL_Float qct = Workspace::get_CT();
+   if (!is_near_real())   DOMAIN_ERROR;
 
-   if (get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
-   if (get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
-
-const APL_Float rval = get_real_value();
+const APL_Float breal = get_real_value();
    if (other.is_integer_cell())   // integer
       {
-        if (equal(other, qct))   return COMP_EQ;
-        return (rval < other.get_int_value()) ? COMP_LT : COMP_GT;
+        if (equal(other, Workspace::get_CT()))   return COMP_EQ;
+        return (breal < other.get_int_value()) ? COMP_LT : COMP_GT;
       }
 
    if (other.is_float_cell())
       {
-        if (equal(other, qct))   return COMP_EQ;
-        return (rval < other.get_real_value()) ? COMP_LT : COMP_GT;
+        if (equal(other, Workspace::get_CT()))   return COMP_EQ;
+        return (breal < other.get_real_value()) ? COMP_LT : COMP_GT;
       }
 
    if (other.is_complex_cell())   // complex
       {
-        if (other.get_imag_value() < -qct)   DOMAIN_ERROR;   // not near-real
-        if (other.get_imag_value() >  qct)   DOMAIN_ERROR;   // not near-real
+        if (!other.is_near_real())      DOMAIN_ERROR;
 
-        if (equal(other, qct))   return COMP_EQ;
-        return (rval < other.get_real_value()) ? COMP_LT : COMP_GT;
-        return COMP_EQ;
+        if (equal(other, Workspace::get_CT()))   return COMP_EQ;
+        return (breal < other.get_real_value()) ? COMP_LT : COMP_GT;
       }
 
-   if (other.is_character_cell())
-      {
-        return COMP_GT;
-      }
+   if (other.is_character_cell())   return COMP_GT;
 
    DOMAIN_ERROR;
 }
@@ -831,7 +840,7 @@ int int_fract = ucs.size();
       }
    info.fract_len = int_fract - info.int_len;
 
-   if (!is_near_real(Workspace::get_CT()))
+   if (!is_near_real())
       {
         ucs.append(UNI_ASCII_J);
         bool scaled_imag = pctx.get_scaled();  // may be changed by UCS_string()
@@ -852,7 +861,7 @@ ComplexCell::need_scaling(const PrintContext &pctx) const
    // a complex number needs scaling if the real part needs it, ot
    // the complex part is significant and needs it.
    return FloatCell::need_scaling(value.cval_r, pctx.get_PP()) ||
-          (!is_near_real(Workspace::get_CT()) && 
+          (!is_near_real() && 
           FloatCell::need_scaling(value2.cval_i, pctx.get_PP()));
 }
 //-----------------------------------------------------------------------------

@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -169,7 +169,6 @@ const ShapeItem var_count = B->get_rows();
 vector<UCS_string> vars(var_count);
    B->to_varnames(vars, false);
 
-const APL_Float qct = Workspace::get_CT();
 const Cell * cA = &A->get_ravel(0);
 
 Shape sh_Z;
@@ -184,22 +183,22 @@ Value_P Z(sh_Z, LOC);
         int ctl = 0;
         if (A->is_scalar())
            {
-             const bool val = A->get_ravel(0).get_near_bool(qct);
+             const bool val = A->get_ravel(0).get_near_bool();
               ctl = val ? ALL_SVAR_CONTROLS : NO_SVAR_CONTROL;
            }
         else if (A->is_vector())
            {
-             if (A->get_ravel(0).get_near_bool(qct))   ctl |= SET_BY_1;
-             if (A->get_ravel(1).get_near_bool(qct))   ctl |= SET_BY_2;
-             if (A->get_ravel(2).get_near_bool(qct))   ctl |= USE_BY_1;
-             if (A->get_ravel(3).get_near_bool(qct))   ctl |= USE_BY_2;
+             if (A->get_ravel(0).get_near_bool())   ctl |= SET_BY_1;
+             if (A->get_ravel(1).get_near_bool())   ctl |= SET_BY_2;
+             if (A->get_ravel(2).get_near_bool())   ctl |= USE_BY_1;
+             if (A->get_ravel(3).get_near_bool())   ctl |= USE_BY_2;
            }
         else // matrix
            {
-             if (cA++->get_near_bool(qct))   ctl |= SET_BY_1;
-             if (cA++->get_near_bool(qct))   ctl |= SET_BY_2;
-             if (cA++->get_near_bool(qct))   ctl |= USE_BY_1;
-             if (cA++->get_near_bool(qct))   ctl |= USE_BY_2;
+             if (cA++->get_near_bool())   ctl |= SET_BY_1;
+             if (cA++->get_near_bool())   ctl |= SET_BY_2;
+             if (cA++->get_near_bool())   ctl |= USE_BY_1;
+             if (cA++->get_near_bool())   ctl |= USE_BY_2;
            }
 
         // set control.

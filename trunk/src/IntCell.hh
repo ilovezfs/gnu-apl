@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public:
 
    /// Construct an integer cell with near-int value \b f
    IntCell(APL_Float f, APL_Float qct)
-      { value.ival = near_int(f, qct); }
+      { value.ival = near_int(f); }
 
    /// overloaded Cell::is_integer_cell()
    virtual bool is_integer_cell() const
@@ -136,6 +136,10 @@ public:
    static ErrorCode z_1(Cell * Z)
       { new (Z) IntCell(-1);   return E_NO_ERROR; }
 
+   /// initialize Z to integer v
+   static ErrorCode zv(Cell * Z, int v)
+      { new (Z) IntCell(v);   return E_NO_ERROR; }
+
 protected:
    /// overloaded Cell::get_cell_type()
    virtual CellType get_cell_type() const
@@ -158,13 +162,13 @@ protected:
       { return APL_Complex(value.ival, 0.0); }
 
    /// overloaded Cell::get_near_bool()
-   virtual bool get_near_bool(APL_Float qct)  const
+   virtual bool get_near_bool()  const
       { if (value.ival == 0)   return false;
         if (value.ival == 1)   return true;
         DOMAIN_ERROR; }
 
    /// overloaded Cell::get_near_int()
-   virtual APL_Integer get_near_int(APL_Float qct)  const
+   virtual APL_Integer get_near_int()  const
       { return value.ival; }
 
    /// overloaded Cell::get_checked_near_int()
@@ -172,19 +176,19 @@ protected:
       { return value.ival; }
 
    /// overloaded Cell::is_near_zero()
-   virtual bool is_near_zero(APL_Float qct) const
+   virtual bool is_near_zero() const
       { return value.ival == 0; }
 
    /// overloaded Cell::is_near_one()
-   virtual bool is_near_one(APL_Float qct) const
+   virtual bool is_near_one() const
       { return value.ival == 1; }
 
    /// overloaded Cell::is_near_int()
-   virtual bool is_near_int(APL_Float qct) const
+   virtual bool is_near_int() const
       { return true; }
 
    /// overloaded Cell::is_near_real()
-   virtual bool is_near_real(APL_Float qct) const
+   virtual bool is_near_real() const
       { return true; }
 
    /// overloaded Cell::get_classname()

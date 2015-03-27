@@ -123,7 +123,7 @@ UserPreferences::show_GPL(ostream & out)
 "    This program is GNU APL, a free implementation of the\n"
 "    ISO/IEC Standard 13751, \"Programming Language APL, Extended\"\n"
 "\n"
-"    Copyright (C) 2008-2014  Dr. Jürgen Sauermann\n"
+"    Copyright (C) 2008-2015  Dr. Jürgen Sauermann\n"
 "\n"
 "    This program is free software: you can redistribute it and/or modify\n"
 "    it under the terms of the GNU General Public License as published by\n"

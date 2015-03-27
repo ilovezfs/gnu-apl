@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,8 +40,11 @@ enum
 #define syl3(_n, e, v) const int64_t e = v;
 #include "SystemLimits.def"
 
-#define MAX_Quad_CT     (1.0e-9)
-#define DEFAULT_Quad_CT (1.0e-13)
+/// these numbers shall have an integer log₁₀ !
+#define MAX_Quad_CT       (1.0e-9)
+#define DEFAULT_Quad_CT   (1.0e-13)
+#define REAL_TOLERANCE    (1.0e-10)   // ≤ MAX_Quad_CT
+#define INTEGER_TOLERANCE (1.0e-10)   // ≤ MAX_Quad_CT
 
 #define BIG_INT64_F 9223372036854775807.0
 #define BIG_FLOAT   1.79769313486231470e308

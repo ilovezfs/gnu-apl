@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -167,21 +167,45 @@ Cell::equal(const Cell & other, APL_Float qct) const
 bool
 Cell::tolerantly_equal(APL_Complex A, APL_Complex B, APL_Float C)
 {
-   if (A == B)                             return true;
-   if (A.real() < 0.0 && B.real() > 0.0)   return false;
-   if (A.real() > 0.0 && B.real() < 0.0)   return false;
-   if (A.imag() < 0.0 && B.imag() > 0.0)   return false;
-   if (A.imag() > 0.0 && B.imag() < 0.0)   return false;
+   // if A equals B, return true
+   //
+   if (A == B) return true;
 
-const APL_Float mag2_A  = A.real() * A.real() + A.imag() * A.imag();
-const APL_Float mag2_B  = B.real() * B.real() + B.imag() * B.imag();
-const APL_Float max_mag = sqrt((mag2_A > mag2_B) ? mag2_A : mag2_B);
+   // if A and B are not in the same half-plane, return false.
+   //
+   // Implementation: If A and B are in the same real half-plane then
+   //                 the product of their real parts is ≥ 0,
+   //
+   //                 If A and B are in the same imag half-plane then
+   //                 the product of their imag parts is ≥ 0,
+   //
+   //                 Otherwise: they are not in the same half-plane
+   //                 and we return false;
+   //
+   if (A.real() * B.real() < 0.0 &&
+       A.imag() * B.imag() < 0.0)   return false;
 
+   // If the distance-between A and B is ≤ C times the larger-magnitude
+   // of A and B, return true
+   //
+   // Implementation: Instead of mag(A-B)  ≤ C × max(mag(A),   mag(B))
+   // we compute                 mag²(A-B) ≤ C² × max(mag²(A), mag²(B))
+   //
+   // 1. compute max(mag²A, mag²B)
+   //
+const APL_Float mag2_A   = A.real() * A.real() + A.imag() * A.imag();
+const APL_Float mag2_B   = B.real() * B.real() + B.imag() * B.imag();
+const APL_Float mag2_max = mag2_A > mag2_B ? mag2_A : mag2_B;
+
+   // 2. compute mag²(A-B)
+   //
 const APL_Complex A_B = A - B;
-const APL_Float dist2_A_B = sqrt(A_B.real() * A_B.real()
-                               + A_B.imag() * A_B.imag());
+const APL_Float dist2_A_B = A_B.real() * A_B.real()
+                          + A_B.imag() * A_B.imag();
+   // compare
+   //
 
-   return (dist2_A_B < C*max_mag);
+   return dist2_A_B <= C*C*mag2_max;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -196,34 +220,34 @@ Cell::tolerantly_equal(APL_Float A, APL_Float B, APL_Float C)
 
 APL_Float mag_A = A < 0 ? -A : A;
 APL_Float mag_B = B < 0 ? -B : B;
-APL_Float max_mag = (mag_A > mag_B) ? mag_A : mag_B;
+APL_Float mag_max = (mag_A > mag_B) ? mag_A : mag_B;
 
 const APL_Float dist_A_B = (A > B) ? (A - B) : (B - A);
 
-   return (dist_A_B < C*max_mag);
+   return (dist_A_B < C*mag_max);
 }
 //-----------------------------------------------------------------------------
 bool
-Cell::is_near_int(APL_Float value, APL_Float qct)
+Cell::is_near_int(APL_Float value)
 {
-   if (value > LARGE_INT)   return false;
-   if (value < SMALL_INT)   return false;
+   if (value > LARGE_INT)   return true;
+   if (value < SMALL_INT)   return true;
 
 const double result = nearbyint(value);
 const double diff = value - result;
-   if (diff > qct)    return false;
-   if (diff < -qct)   return false;
+   if (diff >= INTEGER_TOLERANCE)    return false;
+   if (diff <= -INTEGER_TOLERANCE)   return false;
 
    return true;
 }
 //-----------------------------------------------------------------------------
 APL_Integer
-Cell::near_int(APL_Float value, APL_Float qct)
+Cell::near_int(APL_Float value)
 {
 const double result = nearbyint(value);
 const double diff = value - result;
-   if (diff > qct)    DOMAIN_ERROR;
-   if (diff < -qct)   DOMAIN_ERROR;
+   if (diff > INTEGER_TOLERANCE)    DOMAIN_ERROR;
+   if (diff < -INTEGER_TOLERANCE)   DOMAIN_ERROR;
 
    if (result > 0)   return   APL_Integer(0.3 + result);
    else              return - APL_Integer(0.3 - result);
@@ -294,56 +318,44 @@ UCS_string ucs(pb, 0, Workspace::get_PrintContext().get_PW());
 ErrorCode
 Cell::bif_equal(Cell * Z, const Cell * A) const
 {
-APL_Integer eq = 0;   // assume incompatible cell types ( == not equal)
+   // incompatible types ?
+   //
+   if (is_character_cell() != A->is_character_cell())   return IntCell::z0(Z);
 
-   if (is_character_cell() == A->is_character_cell())   // compatible cell types
-      {
-       eq = equal(*A, Workspace::get_CT());
-      }
-
-   new (Z) IntCell(eq);
-   return E_NO_ERROR;
+   return IntCell::zv(Z, equal(*A, Workspace::get_CT()));
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 Cell::bif_not_equal(Cell * Z, const Cell * A) const
 {
-APL_Integer neq = 1;   // assume incompatible cell types ( == not equal)
+   // incompatible types ?
+   //
+   if (is_character_cell() != A->is_character_cell())   return IntCell::z1(Z);
 
-   if (is_character_cell() == A->is_character_cell())   // compatible cell types
-      {
-       neq = !equal(*A, Workspace::get_CT());
-      }
-
-   new (Z) IntCell(neq);
-   return E_NO_ERROR;
+   return IntCell::zv(Z, !equal(*A, Workspace::get_CT()));
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 Cell::bif_greater_than(Cell * Z, const Cell * A) const
 {
-   new (Z) IntCell((A->compare(*this) == COMP_GT) ? 1 : 0);
-   return E_NO_ERROR;
+   return IntCell::zv(Z, (A->compare(*this) == COMP_GT) ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 Cell::bif_less_eq(Cell * Z, const Cell * A) const
 {
-   new (Z) IntCell((A->compare(*this) != COMP_GT) ? 1 : 0);
-   return E_NO_ERROR;
+   return IntCell::zv(Z, (A->compare(*this) != COMP_GT) ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 Cell::bif_less_than(Cell * Z, const Cell * A) const
 {
-   new (Z) IntCell((A->compare(*this) == COMP_LT) ? 1 : 0);
-   return E_NO_ERROR;
+   return IntCell::zv(Z, (A->compare(*this) == COMP_LT) ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 Cell::bif_greater_eq(Cell * Z, const Cell * A) const
 {
-   new (Z) IntCell((A->compare(*this) != COMP_LT) ? 1 : 0);
-   return E_NO_ERROR;
+   return IntCell::zv(Z, (A->compare(*this) != COMP_LT) ? 1 : 0);
 }
 //-----------------------------------------------------------------------------

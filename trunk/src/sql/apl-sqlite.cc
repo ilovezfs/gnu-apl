@@ -373,7 +373,7 @@ Token eval_AB( Value_P A, Value_P B )
 Token eval_XB(Value_P X, Value_P B)
 {
     const APL_Float qct = Workspace::get_CT();
-    const int function_number = X->get_ravel( 0 ).get_near_int( qct );
+    const int function_number = X->get_ravel( 0 ).get_near_int();
 
     switch( function_number ) {
     case 0:
@@ -407,13 +407,13 @@ static Connection *param_to_db( APL_Float qct, Value_P X )
         Workspace::more_error() = "Database id missing from axis parameter";
         RANK_ERROR;
     }
-    return db_id_to_connection( X->get_ravel( 1 ).get_near_int( qct ) );
+    return db_id_to_connection( X->get_ravel( 1 ).get_near_int() );
 }
 
 Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 {
     const APL_Float qct = Workspace::get_CT();
-    const int function_number = X->get_ravel( 0 ).get_near_int( qct );
+    const int function_number = X->get_ravel( 0 ).get_near_int();
 
     switch( function_number ) {
     case 0:

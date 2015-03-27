@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -804,7 +804,6 @@ PERFORMANCE_START(start_1)
 
    if (X->get_rank() > 1)   AXIS_ERROR;
 
-const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 const Rank rank_A = A->get_rank();
 const Rank rank_B = B->get_rank();
@@ -814,7 +813,7 @@ bool axis_in_X[MAX_RANK];
 const ShapeItem len_X = X->element_count();
    loop(iX, len_X)
        {
-         APL_Integer i = X->get_ravel(iX).get_near_int(qct) - qio;
+         APL_Integer i = X->get_ravel(iX).get_near_int() - qio;
          if (i < 0)                        AXIS_ERROR;   // too small
          if (i >= rank_A && i >= rank_B)   AXIS_ERROR;   // too large
          if (axis_in_X[i])                 AXIS_ERROR;   // twice
@@ -974,7 +973,6 @@ const Shape weight = B->get_shape().reverse_scan();
 Token
 Bif_F12_ROLL::eval_AB(Value_P A, Value_P B)
 {
-const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
    // draw A items  from the set [quad-IO ... B]
@@ -982,8 +980,8 @@ const APL_Integer qio = Workspace::get_IO();
    if (!A->is_scalar_or_len1_vector())   RANK_ERROR;
    if (!B->is_scalar_or_len1_vector())   RANK_ERROR;
 
-const uint32_t aa = A->get_ravel(0).get_near_int(qct);
-APL_Integer set_size = B->get_ravel(0).get_near_int(qct);
+const uint32_t aa = A->get_ravel(0).get_near_int();
+APL_Integer set_size = B->get_ravel(0).get_near_int();
    if (aa > set_size)           DOMAIN_ERROR;
    if (set_size <= 0)           DOMAIN_ERROR;
    if (set_size > 0x7FFFFFFF)   DOMAIN_ERROR;
@@ -1040,8 +1038,8 @@ const Cell * C = &B.get_ravel(0);
             continue;
           }
 
-       if (!C->is_near_int(qct))       return true;
-       if (C->get_near_int(qct) < 0)   return true;
+       if (!C->is_near_int())       return true;
+       if (C->get_near_int() < 0)   return true;
 
         ++C;
       }
