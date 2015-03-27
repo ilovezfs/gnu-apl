@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -59,8 +59,7 @@ IndexIterator::print(ostream & out) const
 }
 //=============================================================================
 TrueIndexIterator::TrueIndexIterator(ShapeItem w, Value_P value,
-                                     uint32_t qio, APL_Float qct,
-                                     ShapeItem max_idx)
+                                     uint32_t qio, ShapeItem max_idx)
    : IndexIterator(w)
 {
 // CERR << "TrueIndexIterator(w=" << w << ", value=" << *value
@@ -71,7 +70,7 @@ const ShapeItem vlen = value->element_count();
    indices.reserve(vlen);
    loop(v, vlen)
       {
-        const ShapeItem idx = value->get_ravel(v).get_near_int(qct) - qio;
+        const ShapeItem idx = value->get_ravel(v).get_near_int() - qio;
 
         // instead of testing signed < 0 and >= max, we test unsigned >= max.
         //
@@ -120,7 +119,7 @@ ShapeItem weight = 1;
 
          IndexIterator * new_it = !!I
            ? (IndexIterator *)(new TrueIndexIterator(weight, I, IDX.quad_io,
-                                                    IDX.quad_ct, sh_r))
+                                                    sh_r))
            : (IndexIterator *)(new ElidedIndexIterator(weight, sh_r));
 
          Log(LOG_delete)

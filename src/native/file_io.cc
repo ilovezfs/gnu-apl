@@ -82,8 +82,7 @@ get_file(const Value & value)
         open_files.push_back(f2);
       }
 
-const APL_Float qct = Workspace::get_CT();
-const APL_Integer handle = value.get_ravel(0).get_near_int(qct);
+const APL_Integer handle = value.get_ravel(0).get_near_int();
 
    loop(h, open_files.size())
       {
@@ -599,8 +598,7 @@ eval_XB(Value_P X, Value_P B, const NativeFunction * caller)
    if (B->get_rank() > 1)   RANK_ERROR;
    if (X->get_rank() > 1)   RANK_ERROR;
 
-const APL_Float qct = Workspace::get_CT();
-const int function_number = X->get_ravel(0).get_near_int(qct);
+const int function_number = X->get_ravel(0).get_near_int();
 
    switch(function_number)
       {
@@ -612,7 +610,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
          case 2:   // return strerror(B)
               {
-                const int b = B->get_ravel(0).get_near_int(qct);
+                const int b = B->get_ravel(0).get_near_int();
                 const char * text = strerror(b);
                 const int len = strlen(text);
                 Value_P Z(len, LOC);
@@ -1224,8 +1222,7 @@ eval_AXB(const Value_P A, const Value_P X, const Value_P B,
    if (B->get_rank() > 1)   RANK_ERROR;
    if (X->get_rank() > 1)   RANK_ERROR;
 
-const APL_Float qct = Workspace::get_CT();
-const int function_number = X->get_ravel(0).get_near_int(qct);
+const int function_number = X->get_ravel(0).get_near_int();
 
    switch(function_number)
       {
@@ -1262,7 +1259,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 6:   // fread(Zi, 1, Ai, Bh) 1 byte per Zi\n"
               {
                 errno = 0;
-                const int bytes = A->get_ravel(0).get_near_int(qct);
+                const int bytes = A->get_ravel(0).get_near_int();
                 FILE * file = get_FILE(*B.get());
                 clearerr(file);
 
@@ -1294,7 +1291,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (bytes > sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
-                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
+                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int();
 
                 const size_t len = fwrite(buffer, 1, bytes, file);
                 delete [] del;
@@ -1305,7 +1302,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
          case 8:   // fgets(Zi, Ai, Bh) 1 byte per Zi\n"
               {
                 errno = 0;
-                const int bytes = A->get_ravel(0).get_near_int(qct);
+                const int bytes = A->get_ravel(0).get_near_int();
                 FILE * file = get_FILE(*B.get());
                 clearerr(file);
 
@@ -1329,7 +1326,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
               {
                 errno = 0;
                 FILE * file = get_FILE(*B.get());
-                const APL_Integer pos = A->get_ravel(0).get_near_int(qct);
+                const APL_Integer pos = A->get_ravel(0).get_near_int();
                 fseek(file, pos, SEEK_SET);
               }
               goto out_errno;
@@ -1338,7 +1335,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
               {
                 errno = 0;
                 FILE * file = get_FILE(*B.get());
-                const APL_Integer pos = A->get_ravel(0).get_near_int(qct);
+                const APL_Integer pos = A->get_ravel(0).get_near_int();
                 fseek(file, pos, SEEK_CUR);
               }
               goto out_errno;
@@ -1347,14 +1344,14 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
               {
                 errno = 0;
                 FILE * file = get_FILE(*B.get());
-                const APL_Integer pos = A->get_ravel(0).get_near_int(qct);
+                const APL_Integer pos = A->get_ravel(0).get_near_int();
                 fseek(file, pos, SEEK_END);
               }
               goto out_errno;
 
          case 20:   // mkdir(Bc, Ai)
               {
-                const int mask = A->get_ravel(0).get_near_int(qct);
+                const int mask = A->get_ravel(0).get_near_int();
                 UTF8_string path(*B.get());
                 mkdir(path.c_str(), mask);
               }
@@ -1482,7 +1479,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
          case 37:   // recv(Bh, Zi, Ai, 0) 1 byte per Zi
               {
-                const int bytes = A->get_ravel(0).get_near_int(qct);
+                const int bytes = A->get_ravel(0).get_near_int();
                 const int fd = get_fd(*B.get());
                 errno = 0;
 
@@ -1515,7 +1512,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (bytes > sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
-                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
+                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int();
 
                 const ssize_t len = send(fd, buffer, bytes, 0);
                 if (len < 0)   goto out_errno;
@@ -1538,7 +1535,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
 
          case 41:   // read(Bh, Zi, Ai) 1 byte per Zi
               {
-                const int bytes = A->get_ravel(0).get_near_int(qct);
+                const int bytes = A->get_ravel(0).get_near_int();
                 const int fd = get_fd(*B.get());
 
                 char small_buffer[SMALL_BUF];
@@ -1570,7 +1567,7 @@ const int function_number = X->get_ravel(0).get_near_int(qct);
                 if (bytes > sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
-                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int(qct);
+                loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int();
 
                 errno = 0;
                 const ssize_t len = write(fd, buffer, bytes);

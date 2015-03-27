@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -252,7 +252,6 @@ Bif_F12_INDEX_OF::eval_B(Value_P B)
 {
    // interval
 
-const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
    if (!B->is_scalar_or_len1_vector())
@@ -262,7 +261,7 @@ const APL_Integer qio = Workspace::get_IO();
       }
 
 const Cell * cell = &B->get_ravel(0);
-const APL_Integer len = cell->get_near_int(qct);
+const APL_Integer len = cell->get_near_int();
    if (len < 0)   DOMAIN_ERROR;
 
 Value_P Z(len, LOC);
@@ -677,7 +676,7 @@ const APL_Integer qio = Workspace::get_IO();
 
    // case 2:   ,[x.y]B : insert axis before axis x+1
    //
-   if (!X->get_ravel(0).is_near_int(qct))  // fraction: insert an axis
+   if (!X->get_ravel(0).is_near_int())  // fraction: insert an axis
       {
         if (B->get_rank() == MAX_RANK)   INDEX_ERROR;
 
@@ -758,8 +757,7 @@ Bif_F12_COMMA::eval_AXB(Value_P A, Value_P X, Value_P B)
 
 const Cell & cX = X->get_ravel(0);
 
-const APL_Float qct = Workspace::get_CT();
-   if (cX.is_near_int(qct))   // catenate along existing axis
+   if (cX.is_near_int())   // catenate along existing axis
       {
         const Axis axis = cX.get_checked_near_int() - Workspace::get_IO();
         if (axis < 0)                                       AXIS_ERROR;
@@ -993,7 +991,6 @@ Value_P Z(B->get_shape(), LOC);
 Token
 Bif_ROTATE::rotate(Value_P A, Value_P B, Axis axis)
 {
-const APL_Float qct = Workspace::get_CT();
 int32_t gsh = 0;   // global shift (scalar A); 0 means local shift (A) used.
 
 const Shape3 shape_B3(B->get_shape(), axis);
@@ -1001,7 +998,7 @@ const Shape shape_A2(shape_B3.h(), shape_B3.l());
 
    if (A->is_scalar_or_len1_vector())
       {
-        gsh = A->get_ravel(0).get_near_int(qct);
+        gsh = A->get_ravel(0).get_near_int();
         if (gsh == 0)   // nothing to do.
            {
              Token result(TOK_APL_VALUE1, B->clone(LOC));
@@ -1022,7 +1019,7 @@ Value_P Z(B->get_shape(), LOC);
    loop(l, shape_B3.l())
        {
          ShapeItem src = gsh;
-         if (!src)   src = A->get_ravel(l + h*shape_B3.l()).get_near_int(qct);
+         if (!src)   src = A->get_ravel(l + h*shape_B3.l()).get_near_int();
          src += shape_B3.m() + m;
          while (src < 0)               src += shape_B3.m();
          while (src >= shape_B3.m())   src -= shape_B3.m();
@@ -1306,14 +1303,14 @@ const Cell * cA = &A->get_ravel(0);
          bool integer_A = true;
          loop(aa, l_len_A)
              {
-                if (!cA[aa].is_near_real(qct))
+                if (!cA[aa].is_near_real())
                    {
                      complex_A = true;
                      integer_A = false;
                      break;
                    }
 
-                if (!cA[aa].is_near_int(qct))   integer_A = false;
+                if (!cA[aa].is_near_int())   integer_A = false;
              }
 
          loop(l, l_len_B)
@@ -1324,14 +1321,14 @@ const Cell * cA = &A->get_ravel(0);
                 bool integer_B = true;
                 loop(bb, h_len_B)
                     {
-                      if (!B->get_ravel(l + bb*l_len_B).is_near_real(qct))
+                      if (!B->get_ravel(l + bb*l_len_B).is_near_real())
                          {
                            complex_B = true;
                            integer_B = false;
                            break;
                          }
 
-                      if (!B->get_ravel(l + bb*l_len_B).is_near_int(qct))
+                      if (!B->get_ravel(l + bb*l_len_B).is_near_int())
                          integer_B = false;
                     }
 
@@ -1377,13 +1374,13 @@ const ShapeItem len = (len_A == 1) ? len_B : len_A;
         if (weight_f > LARGE_INT)   return true;
         if (weight_f < SMALL_INT)   return true;
 
-        const APL_Integer vB = cB[0].get_near_int(0.2);
+        const APL_Integer vB = cB[0].get_near_int();
         value += weight*vB;
         value_f += weight_f*vB;
         if (value_f > LARGE_INT)   return true;
         if (value_f < SMALL_INT)   return true;
 
-        weight *= cA[0].get_near_int(0.2);
+        weight *= cA[0].get_near_int();
         if (len_A != 1)   --cA;
         if (len_B != 1)   cB -= dB;
       }
@@ -1412,8 +1409,8 @@ const ShapeItem len = (len_A == 1) ? len_B : len_A;
         if (len_B != 1)   cB -= dB;
       }
 
-   if (Cell::is_near_int(value, qct))
-      new (cZ)   IntCell(value, qct);
+   if (Cell::is_near_int(value))
+      new (cZ)   IntCell(value);
    else
       new (cZ)   FloatCell(value);
 }
@@ -1441,8 +1438,8 @@ const ShapeItem len = (len_A == 1) ? len_B : len_A;
       new (cZ)   ComplexCell(value);
    else if (value.imag() < -qct)
       new (cZ)   ComplexCell(value);
-   else if (Cell::is_near_int(value.real(), qct))
-      new (cZ)   IntCell(value.real(), qct);
+   else if (Cell::is_near_int(value.real()))
+      new (cZ)   IntCell(value.real());
    else
       new (cZ)   FloatCell(value.real());
 }
@@ -1562,7 +1559,7 @@ Bif_F12_ENCODE::encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
         const FloatCell cC(b);
         cC.bif_residue(cZ, cA);
 
-        if (cA->is_near_zero(qct))
+        if (cA->is_near_zero())
            {
              b = 0.0;
            }
@@ -1591,7 +1588,7 @@ Bif_F12_ENCODE::encode(ShapeItem dZ, Cell * cZ, ShapeItem ah, ShapeItem al,
         const ComplexCell cC(b);
         cC.bif_residue(cZ, cA);
 
-        if (cA->is_near_zero(qct))
+        if (cA->is_near_zero())
            {
              b = APL_Complex(0, 0);
            }
@@ -2149,7 +2146,7 @@ ShapeItem c = 0;
    else   // A is a scalar, so B must be a vector.
       {
         if (B->get_rank() != 1)         RANK_ERROR;
-        const APL_Integer a = cA->get_near_int(qct) - qio;
+        const APL_Integer a = cA->get_near_int() - qio;
         if (a < 0)                       INDEX_ERROR;
         if (a >= B->get_shape_item(0))   INDEX_ERROR;
         c = a;
@@ -2253,7 +2250,6 @@ IndexExpr index_expr(ASS_none, LOC);
         index_expr.add(val);
       }
 
-   index_expr.quad_ct = Workspace::get_CT();
    index_expr.quad_io = Workspace::get_IO();
 
 Value_P Z;
@@ -2289,7 +2285,6 @@ const ShapeItem ec_A = A->element_count();
 const APL_Integer qio = Workspace::get_IO();
 IndexExpr index_expr(ASS_none, LOC);
    loop(rb, B->get_rank())   index_expr.add(Value_P());
-   index_expr.quad_ct = Workspace::get_CT();
    index_expr.quad_io = qio;
 
    loop(a, ec_A)
@@ -2595,7 +2590,6 @@ const uint64_t len_X = X->element_count();
 uint64_t len_A = A->element_count();
    if (len_A != len_X)   LENGTH_ERROR;
 
-const APL_Float   qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
    // init ravel_A = shape_B and seen.
@@ -2606,8 +2600,8 @@ bool seen[MAX_RANK];
 
    loop(r, len_X)
        {
-         const APL_Integer a = A->get_ravel(r).get_near_int(qct);
-         const uint32_t x = X->get_ravel(r).get_near_int(qct) - qio;
+         const APL_Integer a = A->get_ravel(r).get_near_int();
+         const uint32_t x = X->get_ravel(r).get_near_int() - qio;
 
          if (x >= B->get_rank())   INDEX_ERROR;
          if (seen[x])              INDEX_ERROR;

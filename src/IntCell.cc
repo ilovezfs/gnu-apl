@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -429,15 +429,14 @@ IntCell::bif_pi_times_inverse(Cell * Z) const
 ErrorCode
 IntCell::bif_ceiling(Cell * Z) const
 {
-   new (Z) IntCell(value.ival);
-   return E_NO_ERROR;
+Q(LOC)
+   return zv(Z, value.ival);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 IntCell::bif_floor(Cell * Z) const
 {
-   new (Z) IntCell(value.ival);
-   return E_NO_ERROR;
+   return zv(Z, value.ival);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -711,7 +710,7 @@ const APL_Float qct = Workspace::get_CT();
 
    // special cases
    //
-   if (A->is_near_zero(qct))   // 0∣B is B
+   if (A->is_near_zero())   // 0∣B is B
       {
         new (Z) IntCell(get_int_value());
         return E_NO_ERROR;
@@ -749,7 +748,7 @@ const APL_Float qct = Workspace::get_CT();
         if (tolerantly_equal(i_quot + 1, f_quot, qct))  ++i_quot;
 
         APL_Float rest = value.ival - valA * i_quot;
-        if (Cell::is_near_zero(rest, qct))
+        if (Cell::is_near_zero(rest))
           {
             new (Z) IntCell(0);
             return E_NO_ERROR;

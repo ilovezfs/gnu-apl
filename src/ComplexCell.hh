@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -131,6 +131,18 @@ public:
    /// return true iff this cell needs scaling (exponential format) in pctx.
    virtual bool need_scaling(const PrintContext &pctx) const;
 
+   /// initialize Z to real r
+   static ErrorCode zv(Cell * Z, APL_Float r)
+      { new (Z) ComplexCell(r, 0);   return E_NO_ERROR; }
+
+   /// initialize Z to complex r + ij
+   static ErrorCode zv(Cell * Z, APL_Float r, APL_Float j)
+      { new (Z) ComplexCell(r, j);   return E_NO_ERROR; }
+
+   /// initialize Z to APL_Complex v
+   static ErrorCode zv(Cell * Z, APL_Complex v)
+      { new (Z) ComplexCell(v.real(), v.imag());   return E_NO_ERROR; }
+
    /// the lanczos approximation for gamma(1.0 + x + iy) for x >= 0.
    static APL_Complex gamma(APL_Float x, const APL_Float y);
 
@@ -168,27 +180,26 @@ protected:
    virtual APL_Complex get_complex_value() const   { return cval(); }
 
    /// overloaded Cell::get_near_bool()
-   virtual bool get_near_bool(APL_Float qct)  const;
+   virtual bool get_near_bool()  const;
 
    /// overloaded Cell::get_near_int()
-   virtual APL_Integer get_near_int(APL_Float qct)  const;
+   virtual APL_Integer get_near_int()  const;
 
    /// overloaded Cell::get_checked_near_int()
    virtual APL_Integer get_checked_near_int()  const
       { return APL_Integer(value.cval_r + 0.3); }
 
    /// overloaded Cell::is_near_int()
-   virtual bool is_near_int(APL_Float qct) const;
+   virtual bool is_near_int() const;
 
    /// overloaded Cell::is_near_zero()
-   virtual bool is_near_zero(APL_Float qct) const;
+   virtual bool is_near_zero() const;
 
    /// overloaded Cell::is_near_one()
-   virtual bool is_near_one(APL_Float qct) const;
+   virtual bool is_near_one() const;
 
    /// overloaded Cell::is_near_real()
-   virtual bool is_near_real(APL_Float qct) const
-      { return (value2.cval_i < qct) && (value2.cval_i > -qct); }
+   virtual bool is_near_real() const;
 
    /// overloaded Cell::get_classname()
    virtual const char * get_classname() const   { return "ComplexCell"; }

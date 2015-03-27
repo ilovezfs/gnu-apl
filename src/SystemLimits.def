@@ -22,7 +22,7 @@ syl1("min. ⎕PW"                               , MIN_Quad_PW       , 30        
 syl1("max. ⎕PW"                               , MAX_Quad_PW       , 1000                )
 syl1("min. ⎕PP"                               , MIN_Quad_PP       , 1                   )
 syl1("max. ⎕PP"                               , MAX_Quad_PP       , 16                  )
-syl2("log10(max. ⎕CT)"                        , __LMAXCT          , (int)(log10(MAX_Quad_CT) - 0.2))
+syl2("log₁₀(max. ⎕CT)"                        , __LMAXCT          , (int)(log10(MAX_Quad_CT) - 0.2))
 syl1("max. input line length"                 , MAX_INPUT_LEN     , 2000                )
 syl1("max. symbol count"                      , MAX_SYMBOL_COUNT  , 65536               )
 syl1("max. shared variable name length"       , MAX_SVAR_NAMELEN  , 64                  )
@@ -39,6 +39,8 @@ syl2("cores available"                        , __CMAX2           , Parallel::ge
 syl2("cores used"                             , CURRENT_CORES     , Thread_context::get_active_core_count())
 syl2("print length limit (0 = no limit)"      , PRINT_LIMIT       , print_length_limit  )
 syl2("max. prefix length"                     , __MAXONT          , Prefix::MAX_CONTENT )
+syl2("log₁₀(integer tolerance)"               , __LINTTOLERANCE  , (int)(log10(INTEGER_TOLERANCE) - 0.2))
+syl2("log₁₀(real tolerance)"                  , __LREALTOLERANCE  , (int)(log10(REAL_TOLERANCE) - 0.2))
 
 #undef syl1
 #undef syl2

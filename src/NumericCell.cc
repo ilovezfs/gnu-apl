@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,12 +33,10 @@
 ErrorCode
 NumericCell::bif_not(Cell * Z) const
 {
-const APL_Float qct = Workspace::get_CT();
+   if (!is_near_bool())   return E_DOMAIN_ERROR;
 
-   if (!is_near_bool(qct))   return E_DOMAIN_ERROR;
-
-   if (get_near_bool(Workspace::get_CT()))   new (Z) IntCell(0);
-   else                                      new (Z) IntCell(1);
+   if (get_near_bool())   new (Z) IntCell(0);
+   else                   new (Z) IntCell(1);
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -1350,8 +1348,7 @@ double z  = tgamma(N + 1);          // N!
 ErrorCode
 NumericCell::bif_binomial(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-   if (!is_near_real(qct) || !A->is_near_real(qct))   // complex result
+   if (!is_near_real() || !A->is_near_real())   // complex result
       {
         const APL_Float r_1_a    = A->get_real_value();
         const APL_Float r_1_b    = get_real_value();
@@ -1369,22 +1366,22 @@ const APL_Float qct = Workspace::get_CT();
         return E_NO_ERROR;
       }
 
-   if (!is_near_int(qct) || !A->is_near_int(qct))   // non-integer result
+   if (!is_near_int() || !A->is_near_int())   // non-integer result
       {
         const APL_Float r_1_a    = 1.0 + A->get_real_value();
         const APL_Float r_1_b    = 1.0 + get_real_value();
         const APL_Float r_1_b__a = r_1_b - A->get_real_value();
 
-        if (r_1_a < 0    && is_near_int(r_1_a, qct))      return E_DOMAIN_ERROR;
-        if (r_1_b < 0    && is_near_int(r_1_b, qct))      return E_DOMAIN_ERROR;
-        if (r_1_b__a < 0 && is_near_int(r_1_b__a, qct))   return E_DOMAIN_ERROR;
+        if (r_1_a < 0    && is_near_int(r_1_a))      return E_DOMAIN_ERROR;
+        if (r_1_b < 0    && is_near_int(r_1_b))      return E_DOMAIN_ERROR;
+        if (r_1_b__a < 0 && is_near_int(r_1_b__a))   return E_DOMAIN_ERROR;
 
         new (Z) FloatCell(  tgamma(r_1_b) / (tgamma(r_1_a) * tgamma(r_1_b__a)));
         return E_NO_ERROR;
       }
 
-const APL_Integer a = A->get_near_int(qct);
-const APL_Integer b = get_near_int(qct);
+const APL_Integer a = A->get_near_int();
+const APL_Integer b = get_near_int();
 
 int how = 0;
    if (a < 0)    how |= 4;
@@ -1413,7 +1410,7 @@ const APL_Float qct = Workspace::get_CT();
 
    // if either value is 0 then return 0
    //
-   if (A->is_near_zero(qct) || is_near_zero(qct))
+   if (A->is_near_zero() || is_near_zero())
       {
         new (Z) IntCell(0);
         return E_NO_ERROR;
@@ -1421,7 +1418,7 @@ const APL_Float qct = Workspace::get_CT();
 
    // if both args are 1 then return the classical A ∧ B
    //
-   if (A->is_near_one(qct) && is_near_one(qct))
+   if (A->is_near_one() && is_near_one())
       {
         new (Z) IntCell(1);
         return E_NO_ERROR;
@@ -1445,10 +1442,10 @@ const APL_Float qct = Workspace::get_CT();
 
    // if both args are int then return the least common multiple of them
    //
-   if (A->is_near_int(qct) && is_near_int(qct))
+   if (A->is_near_int() && is_near_int())
       {
-        const APL_Integer a = A->get_near_int(qct);
-        const APL_Integer b =    get_near_int(qct);
+        const APL_Integer a = A->get_near_int();
+        const APL_Integer b =    get_near_int();
         APL_Integer gcd;
         const ErrorCode err = int_gcd(gcd, a, b);
         if (err)   return err;
@@ -1458,7 +1455,7 @@ const APL_Float qct = Workspace::get_CT();
 
    // if both args are real then return the (real) least common multiple of them
    //
-   if (A->is_near_real(qct) && is_near_real(qct))
+   if (A->is_near_real() && is_near_real())
       {
         const APL_Float a = A->get_real_value();
         const APL_Float b =    get_real_value();
@@ -1475,18 +1472,16 @@ const APL_Float qct = Workspace::get_CT();
 ErrorCode
 NumericCell::bif_nand(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-   if ( A->get_near_bool(qct) && get_near_bool(qct))   new (Z) IntCell(0);
-   else                                                new (Z) IntCell(1);
+   if (A->get_near_bool() && get_near_bool())   new (Z) IntCell(0);
+   else                                         new (Z) IntCell(1);
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 NumericCell::bif_nor(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
-   if ( A->get_near_bool(qct) || get_near_bool(qct))   new (Z) IntCell(0);
-   else                                                new (Z) IntCell(1);
+   if (A->get_near_bool() || get_near_bool())   new (Z) IntCell(0);
+   else                                         new (Z) IntCell(1);
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
@@ -1497,22 +1492,22 @@ const APL_Float qct = Workspace::get_CT();
 
    // if both args are boolean then return the classical A ∨ B
    //
-   if (A->is_near_bool(qct) && is_near_bool(qct))
+   if (A->is_near_bool() && is_near_bool())
       {
-        if ( A->get_near_bool(qct) || get_near_bool(qct))   new (Z) IntCell(1);
-        else                                                new (Z) IntCell(0);
+        if ( A->get_near_bool() || get_near_bool())   new (Z) IntCell(1);
+        else                                          new (Z) IntCell(0);
         return E_NO_ERROR;
       }
 
-   if (!A->is_near_real(qct) || !is_near_real(qct))   // complex
+   if (!A->is_near_real() || !is_near_real())   // complex
       {
-        if (A->is_near_zero(qct))
+        if (A->is_near_zero())
            {
              new (Z) ComplexCell(get_complex_value());
              return E_NO_ERROR;
            }
 
-        if (is_near_zero(qct))
+        if (is_near_zero())
            {
              new (Z) ComplexCell(A->get_complex_value());
              return E_NO_ERROR;
@@ -1531,10 +1526,10 @@ const APL_Float qct = Workspace::get_CT();
 
    // if both args are int then return the greatest common divisor of them
    //
-   if (A->is_near_int(qct) && is_near_int(qct))
+   if (A->is_near_int() && is_near_int())
       {
-        const APL_Integer a = A->get_near_int(qct);
-        const APL_Integer b =    get_near_int(qct);
+        const APL_Integer a = A->get_near_int();
+        const APL_Integer b =    get_near_int();
         APL_Integer gcd;
         const ErrorCode err = int_gcd(gcd, a, b);
         if (err)   return err;
@@ -1544,7 +1539,7 @@ const APL_Float qct = Workspace::get_CT();
 
    // if both args are real then return the (real) greatest common divisor
    //
-   if (A->is_near_real(qct) && is_near_real(qct))
+   if (A->is_near_real() && is_near_real())
       {
         const APL_Float a = A->get_real_value();
         const APL_Float b =    get_real_value();
@@ -1624,7 +1619,7 @@ NumericCell::flt_gcd(APL_Float & z, APL_Float a, APL_Float b, APL_Float qct)
    //
    for (;;)
        {
-         if (is_near_zero(a, qct))   { z = b;   return E_NO_ERROR; }
+         if (is_near_zero(a))   { z = b;   return E_NO_ERROR; }
          const APL_Float r = fmod(b, a);
          b = a;
          a = r;
@@ -1635,10 +1630,10 @@ ErrorCode
 NumericCell::cpx_gcd(APL_Complex & z, APL_Complex a, APL_Complex b,
                      APL_Float qct)
 {
-   if (!is_near_int(a.real(), qct))   return E_DOMAIN_ERROR;
-   if (!is_near_int(a.imag(), qct))   return E_DOMAIN_ERROR;
-   if (!is_near_int(b.real(), qct))   return E_DOMAIN_ERROR;
-   if (!is_near_int(b.imag(), qct))   return E_DOMAIN_ERROR;
+   if (!is_near_int(a.real()))   return E_DOMAIN_ERROR;
+   if (!is_near_int(a.imag()))   return E_DOMAIN_ERROR;
+   if (!is_near_int(b.real()))   return E_DOMAIN_ERROR;
+   if (!is_near_int(b.imag()))   return E_DOMAIN_ERROR;
 
    // make a and b true integers
    //

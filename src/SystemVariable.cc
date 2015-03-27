@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -448,7 +448,7 @@ Quad_IO::assign(Value_P value, const char * loc)
         else                         LENGTH_ERROR;
       }
 
-   if (value->get_ravel(0).get_near_bool(0.1))
+   if (value->get_ravel(0).get_near_bool())
       Symbol::assign(IntScalar(1, LOC), LOC);
    else
       Symbol::assign(IntScalar(0, LOC), LOC);
@@ -555,7 +555,7 @@ Quad_PP::assign(Value_P value, const char * loc)
       }
 
 const Cell & cell = value->get_ravel(0);
-APL_Integer val = cell.get_near_int(0.1);
+APL_Integer val = cell.get_near_int();
    if (val < MIN_Quad_PP)   DOMAIN_ERROR;
 
    if (val > MAX_Quad_PP)   val = MAX_Quad_PP;
@@ -595,7 +595,7 @@ Quad_PS::assign(Value_P value, const char * loc)
       }
 
 const Cell & cell = value->get_ravel(0);
-const APL_Integer val = cell.get_near_int(0.1);
+const APL_Integer val = cell.get_near_int();
    switch(val)
       {
         case 0:
@@ -622,7 +622,7 @@ Quad_PW::assign(Value_P value, const char * loc)
       }
 
 const Cell & cell = value->get_ravel(0);
-const APL_Integer val = cell.get_near_int(0.1);
+const APL_Integer val = cell.get_near_int();
 
    // min val is 30. Ignore smaller values.
    if (val < 30)   return;
@@ -819,13 +819,12 @@ Quad_SYL::assign_indexed(IndexExpr & IDX, Value_P value)
    //
 Value_P X2 = IDX.extract_value(0);
 
-const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
-   if (!X2)                                             INDEX_ERROR;
-   if (X2->element_count() != 1)                        INDEX_ERROR;
-   if (!X2->get_ravel(0).is_near_int(qct))              INDEX_ERROR;
-   if (X2->get_ravel(0).get_near_int(qct) != qio + 1)   INDEX_ERROR;
+   if (!X2)                                          INDEX_ERROR;
+   if (X2->element_count() != 1)                     INDEX_ERROR;
+   if (!X2->get_ravel(0).is_near_int())              INDEX_ERROR;
+   if (X2->get_ravel(0).get_near_int() != qio + 1)   INDEX_ERROR;
 
 Value_P X1 = IDX.extract_value(1);
 
@@ -846,8 +845,8 @@ const APL_Integer qio = Workspace::get_IO();
 
    loop(e, ec)
       {
-        const APL_Integer x = X->get_ravel(e).get_near_int(qct) - qio;
-        const APL_Integer b = B->get_ravel(e).get_near_int(qct);
+        const APL_Integer x = X->get_ravel(e).get_near_int() - qio;
+        const APL_Integer b = B->get_ravel(e).get_near_int();
 
         if (x == SYL_SI_DEPTH_LIMIT)   // SI depth limit
            {

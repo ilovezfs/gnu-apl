@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -193,7 +193,6 @@ const ShapeItem max_idx = A->element_count();
 const ShapeItem ec_B = B->element_count();
 const ShapeItem ec_X = X->element_count();
 const APL_Integer qio = Workspace::get_IO();
-const APL_Float qct = Workspace::get_CT();
 const int incr_B = (ec_B == 1) ? 0 : 1;   // maybe scalar extend B
 const Cell * cX = &X->get_ravel(0);
 const Cell * cB = &B->get_ravel(0);
@@ -202,7 +201,7 @@ const Cell * cB = &B->get_ravel(0);
 
    loop(x, ec_X)
       {
-        const ShapeItem idx = cX++->get_near_int(qct) - qio;
+        const ShapeItem idx = cX++->get_near_int() - qio;
         if (idx < 0)          INDEX_ERROR;
         if (idx >= max_idx)   INDEX_ERROR;
         Cell & dest = A->get_ravel(idx);

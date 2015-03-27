@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -133,8 +133,8 @@ public:
       { return cell - &get_ravel(0); }
 
    /// return the first integer of a value (the line number of →Value).
-   Function_Line get_line_number(double ct) const
-      { const APL_Integer line(ravel[0].get_near_int(ct));
+   Function_Line get_line_number() const
+      { const APL_Integer line(ravel[0].get_near_int());
         Log(LOG_execute_goto)   CERR << "goto line " << line << endl;
         return Function_Line(line); }
 

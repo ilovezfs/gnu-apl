@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -162,7 +162,7 @@ const ShapeItem ec = val->element_count();
                 {
                   ucs.append_number(cell.get_int_value());
                 }
-             else // if (cell.is_near_real(qct))
+             else // if (cell.is_near_real())
                 {
                   PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, MAX_Quad_PW);
                   const APL_Float value = cell.get_real_value();

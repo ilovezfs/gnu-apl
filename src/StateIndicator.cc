@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -371,7 +371,7 @@ StateIndicator::jump(Value_P value)
         return Token(TOK_NOBRANCH);           // stay in context
       }
 
-const Function_Line line = value->get_line_number(Workspace::get_CT());
+const Function_Line line = value->get_line_number();
 
 const UserFunction * ufun = get_executable()->get_ufun();
 

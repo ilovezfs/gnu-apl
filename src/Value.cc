@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -750,7 +750,7 @@ Value::is_int_vector(APL_Float qct) const
    loop(c, get_shape_item(0))
        {
          const Cell & cell = get_ravel(c);
-         if (!cell.is_near_int(qct))   return false;
+         if (!cell.is_near_int())   return false;
        }
 
    return true;
@@ -761,7 +761,7 @@ Value::is_int_scalar(APL_Float qct) const
 {
    if (get_rank() != 0)   return false;
 
-   return get_ravel(0).is_near_int(qct);
+   return get_ravel(0).is_near_int();
 }
 //-----------------------------------------------------------------------------
 bool
@@ -773,7 +773,7 @@ const ShapeItem ec = nz_element_count();
       {
         const Cell & cell = get_ravel(e);
         if (!cell.is_numeric())        DOMAIN_ERROR;
-        if (!cell.is_near_real(qct))   return true;
+        if (!cell.is_near_real())   return true;
       }
 
    return false;   // all cells numeric and not complex
@@ -992,13 +992,12 @@ const Shape shape_Z(X->get_shape());
 Value_P Z(shape_Z, LOC);
 const ShapeItem max_idx = element_count();
 const APL_Integer qio = Workspace::get_IO();
-const APL_Float qct = Workspace::get_CT();
 
 const Cell * cI = &X->get_ravel(0);
 
    while (Z->more())
       {
-         const ShapeItem idx = cI++->get_near_int(qct) - qio;
+         const ShapeItem idx = cI++->get_near_int() - qio;
          if (idx < 0 || idx >= max_idx)
             {
               Z->rollback(Z->valid_ravel_items, LOC);
@@ -1032,17 +1031,14 @@ Value::get_single_axis(Rank max_axis) const
 {
    if (this == 0)   AXIS_ERROR;
 
-const APL_Float   qct = Workspace::get_CT();
-const APL_Integer qio = Workspace::get_IO();
-
    if (!is_scalar_or_len1_vector())     AXIS_ERROR;
 
-   if (!get_ravel(0).is_near_int(qct))   AXIS_ERROR;
+   if (!get_ravel(0).is_near_int())   AXIS_ERROR;
 
    // if axis becomes (signed) negative then it will be (unsigned) too big.
    // Therefore we need not test for < 0.
    //
-const unsigned int axis = get_ravel(0).get_near_int(qct) - qio;
+const unsigned int axis = get_ravel(0).get_near_int() - Workspace::get_IO();
    if (axis >= max_axis)   AXIS_ERROR;
 
    return axis;
@@ -1054,12 +1050,11 @@ Value::to_shape() const
    if (this == 0)   INDEX_ERROR;   // elided index ?
 
 const ShapeItem xlen = element_count();
-const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
 Shape shape;
      loop(x, xlen)
-        shape.add_shape_item(get_ravel(x).get_near_int(qct) - qio);
+        shape.add_shape_item(get_ravel(x).get_near_int() - qio);
 
    return shape;
 }

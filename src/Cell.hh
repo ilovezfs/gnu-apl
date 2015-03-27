@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -117,11 +117,11 @@ public:
       { return false; }
 
    /// Return value if it is close to boolean, or else throw DOMAIN_ERROR
-   virtual bool get_near_bool(APL_Float qct)  const
+   virtual bool get_near_bool()  const
       { DOMAIN_ERROR; }
 
    /// Return value if it is close to int, or else throw DOMAIN_ERROR
-   virtual APL_Integer get_near_int(APL_Float qct)  const
+   virtual APL_Integer get_near_int()  const
       { DOMAIN_ERROR; }
 
    /// Return value if it is (known to be) close to int, or else Assert()
@@ -129,23 +129,23 @@ public:
       { NeverReach("Value is not an integer"); }
 
    /// return true iff value is numeric and close to 0
-   virtual bool is_near_zero(APL_Float qct) const
+   virtual bool is_near_zero() const
       { return false; }
 
    /// return true iff value is numeric and close to 1
-   virtual bool is_near_one(APL_Float qct) const
+   virtual bool is_near_one() const
       { return false; }
 
    /// return true iff value is numeric and close to 0 or 1
-   bool is_near_bool(APL_Float qct) const
-      { return is_near_zero(qct) || is_near_one(qct); }
+   bool is_near_bool() const
+      { return is_near_zero() || is_near_one(); }
 
    /// True iff value is numeric and close to an int
-   virtual bool is_near_int(APL_Float qct) const
+   virtual bool is_near_int() const
       { return false; }
 
-   /// True iff value is numeric and close to a real, or throw DOMAIN_ERROR
-   virtual bool is_near_real(APL_Float qct) const
+   /// return true iff value is numeric and close to a real number
+   virtual bool is_near_real() const
       { return false; }
 
    /// return the minimum number of data bytes to store this cell in
@@ -384,14 +384,14 @@ public:
    static void copy(Value & val, const Cell * & src, ShapeItem count);
 
    /// true iff value is close to an int (within +- qct)
-   static bool is_near_int(APL_Float value, APL_Float qct);
+   static bool is_near_int(APL_Float value);
 
    /// true iff value is close to 0 (within +- qct)
-   static bool is_near_zero(APL_Float value, APL_Float qct)
-      { return (value < qct) && (value > -qct); }
+   static bool is_near_zero(APL_Float value)
+      { return (value < INTEGER_TOLERANCE) && (value > -INTEGER_TOLERANCE); }
 
    /// return value if it is close to int, or else throw DOMAIN_ERROR
-   static APL_Integer near_int(APL_Float value, APL_Float qct);
+   static APL_Integer near_int(APL_Float value);
 
    /// return \b ascending iff a > b
    typedef bool (*greater_fun)(const Cell * a, const Cell * b,

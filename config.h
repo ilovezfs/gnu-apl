@@ -107,7 +107,7 @@
 /* #undef HAVE_SOLARIS_ATOMIC */
 
 /* Have the SQLITE3 library */
-/* #undef HAVE_SQLITE3 */
+#define HAVE_SQLITE3 /**/
 
 /* Define to 1 if you have the `sqrt' function. */
 #define HAVE_SQRT 1

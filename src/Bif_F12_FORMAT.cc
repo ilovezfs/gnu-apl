@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -865,14 +865,13 @@ const ShapeItem len_A = A->is_scalar() ? 1 : A->get_shape_item(0);
    if (len_A != 1 && len_A != 2 && len_A != 2*cols_B)
       LENGTH_ERROR;
 
-const APL_Float qct = Workspace::get_CT();
    if (shape_B.get_volume() == 0)   // empty B
       {
         ShapeItem W = 0;
         loop(c, cols_B)
            {
-             if (len_A <= 2)   W += A->get_ravel(0).get_near_int(qct);
-             else              W += A->get_ravel(2*c).get_near_int(qct);
+             if (len_A <= 2)   W += A->get_ravel(0).get_near_int();
+             else              W += A->get_ravel(2*c).get_near_int();
            }
 
         Shape shape_Z = shape_B.without_axis(shape_B.get_rank() - 1);
@@ -896,17 +895,17 @@ PrintBuffer pb;
          if (len_A == 1)
             {
               col_width = 0;
-              precision = A->get_ravel(0).get_near_int(qct);
+              precision = A->get_ravel(0).get_near_int();
             }
          else if (len_A == 2)
             {
-              col_width = A->get_ravel(0).get_near_int(qct);
-              precision = A->get_ravel(1).get_near_int(qct);
+              col_width = A->get_ravel(0).get_near_int();
+              precision = A->get_ravel(1).get_near_int();
             }
          else
             {
-              col_width = A->get_ravel(2*col)    .get_near_int(qct);
-              precision = A->get_ravel(2*col + 1).get_near_int(qct);
+              col_width = A->get_ravel(2*col)    .get_near_int();
+              precision = A->get_ravel(2*col + 1).get_near_int();
             }
 
          PrintBuffer pb_col(format_col_spec(col_width, precision,

@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2014  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -115,12 +115,12 @@ public:
    /// the Quad_CR representation of this cell.
    virtual PrintBuffer character_representation(const PrintContext &pctx) const;
 
-   /// return true if the integer part of val is longer than ⎕PP
-   static bool is_big(APL_Float val, int quad_pp);
-
    /// return true iff this cell needs scaling (exponential format) in pctx.
    virtual bool need_scaling(const PrintContext &pctx) const
       { return need_scaling(value.fval, pctx.get_PP()); }
+
+   /// return true if the integer part of val is longer than ⎕PP
+   static bool is_big(APL_Float val, int quad_pp);
 
    /// Return true iff the (fixed point) floating point number num shall
    /// be printed in scaled form (like 1.2E6).
@@ -128,6 +128,10 @@ public:
 
    /// replace normal chars by special chars specified in ⎕FC
    static void map_FC(UCS_string & ucs);
+
+   /// initialize Z to APL_Float v
+   static ErrorCode zv(Cell * Z, APL_Float v)
+      { new (Z) FloatCell(v);   return E_NO_ERROR; }
 
 protected:
    ///  Overloaded Cell::get_cell_type().
@@ -145,30 +149,32 @@ protected:
       { return APL_Complex(value.fval, 0.0); }
 
    /// Overloaded Cell::get_near_bool().
-   virtual bool get_near_bool(APL_Float qct)  const;
+   virtual bool get_near_bool()  const;
 
    /// Overloaded Cell::get_near_int().
-   virtual APL_Integer get_near_int(APL_Float qct)  const
-      { return near_int(value.fval, qct); }
+   virtual APL_Integer get_near_int()  const
+      { return near_int(value.fval); }
 
    /// Overloaded Cell::get_checked_near_int().
    virtual APL_Integer get_checked_near_int()  const
       { return APL_Integer(value.fval + 0.3); }
 
    /// Overloaded Cell::is_near_int().
-   virtual bool is_near_int(APL_Float qct) const
-      { return Cell::is_near_int(value.fval, qct); }
+   virtual bool is_near_int() const
+      { return Cell::is_near_int(value.fval); }
 
    /// Overloaded Cell::is_near_zero().
-   virtual bool is_near_zero(APL_Float qct) const
-      { return value.fval >= -qct && value.fval < qct; }
+   virtual bool is_near_zero() const
+      { return value.fval >= -INTEGER_TOLERANCE
+            && value.fval <   INTEGER_TOLERANCE; }
 
    /// Overloaded Cell::is_near_one().
-   virtual bool is_near_one(APL_Float qct) const
-      { return value.fval >= (1.0 - qct) && value.fval < (1.0 + qct); }
+   virtual bool is_near_one() const
+      { return value.fval >= (1.0 - INTEGER_TOLERANCE)
+            && value.fval <  (1.0 + INTEGER_TOLERANCE); }
 
    /// Overloaded Cell::is_near_real().
-   virtual bool is_near_real(APL_Float qct) const
+   virtual bool is_near_real() const
       { return true; }
 
    /// Overloaded Cell::get_classname().
