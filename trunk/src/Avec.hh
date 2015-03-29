@@ -71,6 +71,14 @@ public:
    /// Return \b true iff \b av is a valid char in a user defined symbol
    static bool is_symbol_char(Unicode av);
 
+   /// return \b true iff \b av is a whitespace char (ASCII 0..32 (including))
+   static bool is_white(Unicode av)
+      { return av >= 0 && av <= ' '; }
+
+   /// return \b true iff \b av is a control char (ASCII 0..32 (excluding))
+   static bool is_control(Unicode av)
+      { return av >= 0 && av < ' '; }
+
    /// Return \b true iff \b av is a valid char in a user defined symbol
    static bool is_first_symbol_char(Unicode uni);
 

@@ -266,6 +266,9 @@ public:
    /// case-sensitive comparison: return true iff \b this comes before \b other
    bool lexical_before(const UCS_string other) const;
 
+   /// dump \b this string to out (like U+nnn U+mmm ... )
+   ostream & dump(ostream & out) const;
+
    /// convert a signed integer value to an UCS_string (like sprintf())
    static UCS_string from_int(int64_t value);
 

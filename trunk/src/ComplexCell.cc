@@ -299,30 +299,45 @@ ComplexCell::bif_divide(Cell * Z, const Cell * A) const
 ErrorCode
 ComplexCell::bif_residue(Cell * Z, const Cell * A) const
 {
-   if (A->is_near_zero())
-      {
-        new (Z) ComplexCell(get_complex_value());
-      }
-   else if (is_near_zero())
-      {
-        new (Z) IntCell(0);
-      }
-   else if (A->is_numeric())
-      {
-        const APL_Complex a = A->get_complex_value();
-        const APL_Complex b = cval();
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
 
-        // We divide A by B, round down the result, and subtract.
-        //
-        A->bif_divide(Z, this);     // Z = B/A
-        Z->bif_floor(Z);            // Z = A/B rounded down.
-        new (Z) ComplexCell(b - a*Z->get_complex_value());
-      }
-   else
+const APL_Complex a = A->get_complex_value();
+
+   // if A is zero , return B
+   //
+   if (a.real() == 0.0 && a.imag() == 0.0)
+      return zv(Z, value.cval_r, value2.cval_i);
+
+   // IBM: if B is zero , return B
+   //
+   if (value.cval_r == 0.0 && value2.cval_i == 0.0)   return IntCell::z0(Z);
+
+   // if ⎕CT != 0 and B ÷ A is close to an integer within ⎕CT then return 0.
+   //
+   // Note: In that case, the integer to which A ÷ B is close is either
+   // floor(A ÷ B) or ceil(A ÷ B).
+   //
+const APL_Float qct = Workspace::get_CT();
+   if (qct != 0)
       {
-        return E_DOMAIN_ERROR;
+        const APL_Complex quot = cval() / a;
+        const APL_Float qfr = floor(quot.real());
+        const APL_Float qfi = floor(quot.imag());
+        const APL_Float qcr = ceil(quot.real());
+        const APL_Float qci = ceil(quot.imag());
+
+       if (quot.real() > (qcr - qct) && quot.imag() > (qci - qct)) 
+          return IntCell::z0(Z);   // quot is close to its ceiling
+
+       if (quot.real() < (qfr - qct) && quot.imag() < (qfi - qct)) 
+          return IntCell::z0(Z);   // quot is close to its floor
       }
-   return E_NO_ERROR;
+
+   // We divide A by B, round down the result, and subtract.
+   //
+   new (Z) ComplexCell(cval() / a);
+   Z->bif_floor(Z);            // Z = A/B rounded down.
+   return zv(Z, cval() - a * Z->get_complex_value());
 }
 //-----------------------------------------------------------------------------
 ErrorCode

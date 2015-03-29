@@ -119,7 +119,7 @@ FloatCell::bif_factorial(Cell * Z) const
    //
    if (value.fval > 170)   return E_DOMAIN_ERROR;
 
-const double arg = value.fval + 1.0;
+const APL_Float arg = value.fval + 1.0;
    new (Z) FloatCell(tgamma(arg));
    return E_NO_ERROR;
 }
@@ -160,7 +160,7 @@ FloatCell::bif_magnitude(Cell * Z) const
 ErrorCode
 FloatCell::bif_reciprocal(Cell * Z) const
 {
-const double z = 1.0/value.fval;
+const APL_Float z = 1.0/value.fval;
    if (!isfinite(z))   return E_DOMAIN_ERROR;;
 
    new (Z) FloatCell(1.0/value.fval);
@@ -243,8 +243,8 @@ FloatCell::bif_nat_log(Cell * Z) const
       }
    else if (value.fval < 0)
       {
-        const double real = log(-value.fval);
-        const double imag = M_PI;   // argz(-1)
+        const APL_Float real = log(-value.fval);
+        const APL_Float imag = M_PI;   // argz(-1)
         new (Z) ComplexCell(real, imag);
       }
    else
@@ -400,51 +400,61 @@ const APL_Float ai = A->get_imag_value();
 ErrorCode
 FloatCell::bif_residue(Cell * Z, const Cell * A) const
 {
-   if (A->is_complex_cell())
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
+
+   if (A->get_imag_value() != 0)   // complex A
       {
         ComplexCell B(get_real_value(), 0);
         return B.bif_residue(Z, A);
       }
 
-   if (A->is_numeric())
+   // if A is zero , return B
+   //
+const APL_Float a = A->get_real_value();
+const APL_Float b = value.fval;
+   if (a == 0.0)   return zv(Z, b);
+
+   // IBM: if B is zero , return B
+   //
+   if (b == 0.0)   return IntCell::z0(Z);
+
+   // if ⎕CT != 0 and B ÷ A is close to an integer within ⎕CT then return 0.
+   //
+   // Note: In that case, the integer to which A ÷ B is close is either
+   // floor(A ÷ B) or ceil(A ÷ B).
+   //
+const APL_Float quot = b / a;
+const APL_Float qf = floor(quot);
+APL_Float qct = Workspace::get_CT();
+
+   if (qct != 0)
       {
-        const APL_Float qct = Workspace::get_CT();
+        const APL_Float qc = ceil(quot);
 
-        // if A is zero , return B
-        //
-        if (A->is_near_zero())
-           {
-             new (Z) FloatCell(get_real_value());
-             return E_NO_ERROR;
-           }
-
-        // if ⎕CT != 0 and B÷A is close to an integer within ⎕CT then return 0.
-        // Otherwise return B mod A
-        //
-        const APL_Float remainder = fmod(get_real_value(), A->get_real_value()); 
-        if (qct == 0.0)   // ⎕CT is 0
-           {
-             new (Z) FloatCell(remainder);
-             return E_NO_ERROR;
-           }
-
-        if (Cell::is_near_zero(remainder))
-           {
-             new (Z) IntCell(0);
-             return E_NO_ERROR;
-           }
-
-        if (Cell::is_near_zero(A->get_real_value() - remainder))
-           {
-             new (Z) IntCell(0);
-             return E_NO_ERROR;
-           }
-
-        new (Z) FloatCell(remainder);
-        return E_NO_ERROR;
+        if (quot < qf + qct)   return IntCell::z0(Z);
+        if (quot > qc - qct)   return IntCell::z0(Z);
       }
 
-   return E_DOMAIN_ERROR;
+   // Otherwise return B mod A
+   //
+   // ISO: R←B-(×B)×|A×⌊|B÷A and return R if (×A)=×B or R+A otherwise
+   // IBM: if A > 0  then 0 ≤ Z < A
+   //                else 0 ≥ Z > A
+   //
+APL_Float z = b - a * qf;
+   if (a < 0)   // Z ≤ 0
+      {
+         while (z > 0)    z += a;
+         while (z <= a)   z -= a;
+      }
+   else         // Z ≥ 0
+      {
+         while (z < 0)    z += a;
+         while (z >= a)   z -= a;
+      }
+
+   Assert(z*a >= 0);
+   return zv(Z, z);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -538,7 +548,7 @@ int int_fract = ucs.size();
 bool
 FloatCell::is_big(APL_Float val, int quad_pp)
 {
-static const double big[MAX_Quad_PP + 1] =
+static const APL_Float big[MAX_Quad_PP + 1] =
 {
                   1ULL, // not used since MIN_Quad_PP == 1
                  10ULL,

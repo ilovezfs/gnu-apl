@@ -1035,6 +1035,35 @@ comes from function execve (see &rsquo;man 2 execve&rsquo;).
  /usr/local/bin/apl --script ../workspaces/SCRIPT.apl SCRIPTARG 
 
 </pre>
+<p>A final note on scripting in GNU APL is that the ∇-editor works slightly
+differently when it is used in a script. If a user edits an APL function
+interactively then an attempt to open an existing function with a full
+header gives a DEFN ERROR:
+</p>
+<pre class="verbatim">
+      ∇Z←FOO B
+[1] ∇
+      
+            ∇Z←FOO B
+DEFN ERROR+
+      ∇Z←FOO B
+             ^
+      )MORE
+attempt to ∇-open existing function with new function header
+
+</pre>
+<p>In contrast to a user who can react to the DEFN ERROR, a script cannot detect
+this situation and would continue to push lines (which were intended to be
+the body of the defined function) into the APL interpreter. That would most
+likely cause a fairly undesirable behavior.  For example, if the lines of
+defined function start with line numbers (like [1], [2], ...) then every
+such line would give a SYNTAX ERROR, and other errors can be expected as
+well.
+</p>
+<p>For that reason, if the ∇-editor is used in a script and attempts to redefine
+an existing defined function then the existing function is simply overridden
+iwith the new one and no DEFN ERROR is raised.
+</p>
 <a name="g_t_005b_003f_005dSYL-_002d-System-limits"></a>
 <h3 class="section">3.2 ⎕SYL - System limits</h3>
 
