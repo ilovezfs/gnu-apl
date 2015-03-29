@@ -44,6 +44,12 @@ extern const char * configure_args;
 
 UserPreferences uprefs;
 
+/// CYGWIN defines _B
+
+#ifdef _B
+#undef _B
+#endif
+
 //-----------------------------------------------------------------------------
 void
 UserPreferences::usage(const char * prog)

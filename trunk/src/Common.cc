@@ -62,12 +62,16 @@ rlimit rl;
            << "sizeof(Svar_partner) is   " << sizeof(Svar_partner)
            << endl;
 
+   // CYGWIN does not have RLIMIT_NPROC
+   //
+#ifdef RLIMIT_NPROC
    getrlimit(RLIMIT_NPROC, &rl);
    if (log_startup)
       CERR << "increasing rlimit RLIMIT_NPROC from " <<  rl.rlim_cur
            << " to infinity" << endl;
    rl.rlim_cur = RLIM_INFINITY;
    setrlimit(RLIMIT_NPROC, &rl);
+#endif
 
    Avec::init();
    LibPaths::init(argv0, log_startup);
