@@ -5,5 +5,5 @@
 #define Makefile__sysconfdir "/etc"
 #define Makefile__pkglibdir  "/usr/lib/apl"
 #define Makefile__localedir  "/usr/share/locale"
-#define Makefile__srcdir     "/home/eedjsa/projects/juergen/apl-1.4/src"
+#define Makefile__srcdir     "/home/eedjsa/projects/juergen/apl-1.5/src"
 
