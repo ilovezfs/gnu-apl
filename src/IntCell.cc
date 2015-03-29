@@ -429,7 +429,6 @@ IntCell::bif_pi_times_inverse(Cell * Z) const
 ErrorCode
 IntCell::bif_ceiling(Cell * Z) const
 {
-Q(LOC)
    return zv(Z, value.ival);
 }
 //-----------------------------------------------------------------------------
@@ -706,22 +705,41 @@ const bool invert_Z = b < 0;
 ErrorCode
 IntCell::bif_residue(Cell * Z, const Cell * A) const
 {
-const APL_Float qct = Workspace::get_CT();
+   if (!A->is_numeric())   return E_DOMAIN_ERROR;
 
-   // special cases
+   if (A->get_imag_value() != 0)   // complex A
+      {
+        ComplexCell B(value.ival, 0);
+        return B.bif_residue(Z, A);
+      }
+
+   // if A is zero , return B
    //
-   if (A->is_near_zero())   // 0∣B is B
+const APL_Float a = A->get_real_value();
+   if (a == 0.0)   return zv(Z, value.ival);
+
+   // IBM: if B is zero , return B
+   //
+   if (value.ival == 0)   return IntCell::z0(Z);
+
+   // if ⎕CT != 0 and B ÷ A is close to an integer within ⎕CT then return 0.
+   //
+const APL_Float quot = value.ival / a;
+const APL_Float qf = floor(quot);
+const APL_Float qct = Workspace::get_CT();
+   if (qct != 0)
       {
-        new (Z) IntCell(get_int_value());
-        return E_NO_ERROR;
+        const APL_Float qc = ceil(quot);
+        if (quot > qc - qct)   return IntCell::z0(Z);
+        if (quot < qf + qct)   return IntCell::z0(Z);
       }
 
-   if (value.ival == 0)   // B∣0 is 0
-      {
-        new (Z) IntCell(0);
-        return E_NO_ERROR;
-      }
-
+   // Otherwise return B mod A
+   //
+   // ISO: R←B-(×B)×|A×⌊|B÷A and return R if (×A)=×B or R+A otherwise
+   // IBM: if A > 0  then 0 ≤ Z < A
+   //                else 0 ≥ Z > A
+   //
    if (A->is_integer_cell())
       {
         APL_Integer rest = value.ival % A->get_int_value();
@@ -733,53 +751,18 @@ const APL_Float qct = Workspace::get_CT();
            {
               if (rest < 0)   rest += A->get_int_value();
            }
-        new (Z) IntCell(rest);
-        return E_NO_ERROR;
+        return zv(Z, rest);
       }
 
-   if (A->is_real_cell())
-      {
-        const APL_Float valA = A->get_real_value();
-        const APL_Float f_quot = value.ival / valA;
-        APL_Integer i_quot = floor(f_quot);
+APL_Float z = value.ival - a * qf;
+   if (Cell::is_near_zero(z))   return zv(Z, 0);
 
-        // compute i_quot with respect to ⎕CT
-        //
-        if (tolerantly_equal(i_quot + 1, f_quot, qct))  ++i_quot;
+   // make ×Z == ×A
+   //
+   if      (a < 0 && z > 0)   z += a;   // += since a < 0
+   else if (a > 0 && z < 0)   z += a;
 
-        APL_Float rest = value.ival - valA * i_quot;
-        if (Cell::is_near_zero(rest))
-          {
-            new (Z) IntCell(0);
-            return E_NO_ERROR;
-          }
-
-        if (valA < 0)   // A negative -> Z negative
-           {
-             if (rest > 0)   rest += valA;   // += since A < 0
-           }
-        else
-           {
-             if (rest < 0)   rest += valA;
-           }
-        new (Z) FloatCell(rest);
-        return E_NO_ERROR;
-      }
-
-   if (A->is_complex_cell())   // i.e. complex
-      {
-        const APL_Complex a = A->get_complex_value();
-        const APL_Complex b(value.ival);
-
-        // We divide A by B, round down the result, and subtract.
-        //
-        A->bif_divide(Z, this);      // Z = B/A
-        Z->bif_floor(Z);             // Z = A/B rounded down.
-        new (Z) ComplexCell(b - a*Z->get_complex_value());
-        return E_NO_ERROR;
-      }
-
-   return E_DOMAIN_ERROR;
+   return FloatCell::zv(Z, z);
 }
 //-----------------------------------------------------------------------------
 ErrorCode

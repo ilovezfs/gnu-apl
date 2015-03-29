@@ -393,7 +393,7 @@ UCS_string::remove_trailing_padchars()
 void
 UCS_string::remove_trailing_whitespaces()
 {
-   while (size() && (last() <= UNI_ASCII_SPACE))   pop();
+   while (size() && Avec::is_white(last()))   pop();
 }
 //-----------------------------------------------------------------------------
 void
@@ -402,7 +402,7 @@ UCS_string::remove_leading_whitespaces()
 int count = 0;
    loop(s, size())
       {
-        if ((*this)[s] <= UNI_ASCII_SPACE)   ++count;
+        if (Avec::is_white((*this)[s]))   ++count;
         else                                 break;
       }
 
@@ -416,10 +416,10 @@ UCS_string::split_ws(UCS_string & rest)
 
    loop(clen, size())
        {
-         if ((*this)[clen] <= UNI_ASCII_SPACE)   // whilespace: end of command
+         if (Avec::is_white((*this)[clen]))   // whilespace: end of command
             {
               ShapeItem arg = clen;
-              while (arg < size() && (*this)[arg] <= UNI_ASCII_SPACE)   ++arg;
+              while (arg < size() && Avec::is_white((*this)[arg]))   ++arg;
               while (arg < size())   rest.append((*this)[arg++]);
               shrink(clen);
               return;
@@ -508,7 +508,7 @@ const int start_positions = 1 + size() - sub.size();
 bool 
 UCS_string::has_black() const
 {
-   loop(s, size())   if ((*this)[s] >= UNI_ASCII_SPACE)   return true;
+   loop(s, size())   if (!Avec::is_white((*this)[s]))   return true;
    return false;
 }
 //-----------------------------------------------------------------------------
@@ -763,7 +763,7 @@ int ret = 0;
       {
         const Unicode uni = (*this)[s];
 
-        if (!ret && uni <= UNI_ASCII_SPACE)   continue;   // leading whitespace
+        if (!ret && Avec::is_white(uni))   continue;   // leading whitespace
 
         if (uni < UNI_ASCII_0)                break;      // non-digit
         if (uni > UNI_ASCII_9)                break;      // non-digit
@@ -838,6 +838,18 @@ UCS_string::lexical_before(const UCS_string other) const
    // at this point the common part of this and other is equal, If other
    // is longer then this is a prefix of other (and this comes before other)
    return other.size() > size();
+}
+//-----------------------------------------------------------------------------
+ostream &
+UCS_string::dump(ostream & out) const
+{
+   out << right << hex << uppercase << setfill('0');
+   loop(s, size())
+      {
+        out << " U+" << setw(4) << (int)((*this)[s]);
+      }
+
+   return out << left << dec << nouppercase << setfill(' ');
 }
 //-----------------------------------------------------------------------------
 UCS_string

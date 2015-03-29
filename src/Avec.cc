@@ -296,8 +296,8 @@ Avec::is_known_char(Unicode av)
 bool
 Avec::need_UCS(Unicode uni)
 {
-   if (uni < UNI_ASCII_SPACE)    return true;   // ASCII control char
-   if (uni < UNI_ASCII_DELETE)   return false;   // printable ASCII char
+   if (is_control(uni))   return true;                      // ASCII control
+   if (uni >= 0 && uni < UNI_ASCII_DELETE)  return false;   // printable ASCII
 
 const CHT_Index idx = find_char(uni);
    if (idx == Invalid_CHT)   return true;           // char not in GNU APL's ⎕AV
@@ -329,7 +329,7 @@ Avec::is_digit(Unicode av)
 bool
 Avec::is_digit_or_space(Unicode av)
 {
-   return (av <= UNI_ASCII_SPACE || (av <= UNI_ASCII_9 && av >= UNI_ASCII_0));
+   return (is_white(av) || (av <= UNI_ASCII_9 && av >= UNI_ASCII_0));
 }
 //-----------------------------------------------------------------------------
 bool

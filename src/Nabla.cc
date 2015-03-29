@@ -153,8 +153,10 @@ UCS_string fun_text;
         // the last history line (which contained some ∇foo ...)
         //
         {
-          UCS_string line_0("    ∇");
+          UCS_string line_0("    ");
+          line_0.append(UNI_NABLA);
           line_0.append(lines[0].text);
+          line_0.remove_trailing_whitespaces();
           LineInput::replace_history_line(line_0);
 
         }
@@ -166,11 +168,14 @@ UCS_string fun_text;
               line_l.append_utf8("]  ");
               while (line_l.size() < 6)   line_l.append(UNI_ASCII_SPACE);
               line_l.append(lines[l].text);
+              line_l.remove_trailing_whitespaces();
 
-             LineInput::add_history_line(line_l);
+              LineInput::add_history_line(line_l);
            }
 
-        LineInput::add_history_line(UCS_string("    ∇"));
+        UCS_string line_N("   ");
+        line_N.append(UNI_NABLA);
+        LineInput::add_history_line(line_N);
       }
 
 int error_line = 0;
@@ -219,7 +224,7 @@ UCS_string::iterator c(first_command.begin());
 
    // skip leading spaces
    //
-   while (c.more() && c.get() <= UNI_ASCII_SPACE)   c.next();
+   while (c.more() && Avec::is_white(c.get()))   c.next();
 
    // skip leading nabla.
    //
@@ -227,7 +232,7 @@ UCS_string::iterator c(first_command.begin());
 
    // skip leading spaces
    //
-   while (c.more() && c.get() <= UNI_ASCII_SPACE)   c.next();
+   while (c.more() && Avec::is_white(c.get()))   c.next();
 
    // function header.
    //
@@ -242,7 +247,7 @@ UCS_string::iterator c(first_command.begin());
       {
         for (int off = 1; ; ++off)
             {
-              if (c.get(off) <= UNI_ASCII_SPACE)   continue; 
+              if (Avec::is_white(c.get(off)))   continue; 
               if (Avec::is_first_symbol_char(c.get(off)))   // axis
                  {
                    fun_header.append(c.next());   //  copy the [
@@ -457,7 +462,7 @@ again:
    // [from ∆ to]
    // [from]
 
-   while (c.get() <= UNI_ASCII_SPACE)   c.next();
+   while (Avec::is_white(c.get()))   c.next();
 
    if (c.get() == UNI_ASCII_L_BRACK)   // another command: ignore previous
       {
