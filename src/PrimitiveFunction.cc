@@ -2196,8 +2196,9 @@ const Cell * cB = &B->get_ravel(c);
         Cell * cell = cB->get_lval_value();
         if (cell->is_pointer_cell())
            {
-             Value_P sub = cell->get_pointer_value();
-             return sub->get_cellrefs(LOC);
+             Value_P sub(LOC);
+             new (sub->next_ravel())   LvalCell(cell, cell_owner);
+             return sub;
            }
 
         Value_P Z(LOC);

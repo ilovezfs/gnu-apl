@@ -984,9 +984,25 @@ const ShapeItem ec_z = Z->element_count();
 Value_P
 Value::index(Value_P X) const
 {
-   if (get_rank() != 1)   RANK_ERROR;
+   if (get_rank() != 1)
+      {
+        // this is either an error, or a selective assignment
+        //
+        if (get_rank() == 0 &&
+            get_ravel(0).is_lval_cell())   // selective assignment
+           {
+             const Cell & ptr = *get_ravel(0).get_lval_value();
+             if (ptr.is_pointer_cell())
+                {
+                  Value_P dest = ptr.get_pointer_value()->get_cellrefs(LOC);
+                  return dest->index(X);
+                }
+           }
 
-   if (!X)   return clone(LOC);
+         RANK_ERROR;
+      }
+
+   if (!X)   return clone(LOC);   // elided index
 
 const Shape shape_Z(X->get_shape());
 Value_P Z(shape_Z, LOC);
