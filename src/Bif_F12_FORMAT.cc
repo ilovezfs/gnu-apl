@@ -649,7 +649,7 @@ char * fract_end = 0;
         //
         const int flen = snprintf(format, sizeof(format), "%%.%luE",
                                   (unsigned long)fract_part.size());
-        Assert(flen < sizeof(format));   // format was big enough.
+        Assert(flen < (int)sizeof(format));   // format was big enough.
 
         const int dlen = snprintf(&data_buf[0], data_buf_len, format, value);
         Assert(dlen < data_buf_len);
@@ -672,7 +672,7 @@ char * fract_end = 0;
       {
         const int flen = snprintf(format, sizeof(format), "%%.%luf",
                                   (unsigned long)fract_part.size());
-        Assert(flen < sizeof(format));   // assume no snprintf() overflow
+        Assert(flen < (int)sizeof(format));   // assume no snprintf() overflow
 
         const int dlen = snprintf(&data_buf[0], data_buf_len, format, value);
         data_buf[data_buf_len - 1] = 0;

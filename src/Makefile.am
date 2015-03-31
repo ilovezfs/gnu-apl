@@ -137,10 +137,8 @@ apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
 libapl_la_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
 
 if DEVELOP
-   apl_CXXFLAGS += -Werror -Wall
-   apl_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
-   libapl_la_CXXFLAGS += -Werror -Wall
-   libapl_la_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
+   apl_CXXFLAGS       += -Werror -Wall -Wno-strict-aliasing
+   libapl_la_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
 endif
 
 apl_LDADD = $(LIBS)
@@ -200,9 +198,6 @@ help:
 	@echo "    make update-svar_signals     - remake Svar_signals.hh"
 	@echo ""
 
-libapl.html: libapl.texi
-	$(MAKEINFOHTML) libapl.texi -o $@ --no-split || touch $@
-
-libapl.info: libapl.texi
-	$(MAKEINFO) libapl.texi -o $@ --no-split || touch $@
+clean:
+	rm -f makefile.h
 

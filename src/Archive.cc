@@ -52,8 +52,8 @@ using namespace std;
 
 /// if there is less than x chars left on the current line then leave
 /// char mode and start a new line indented.
-#define NEED(x)   if (space < (x))   { leave_char_mode();   out << "\n";   \
-                                       space = do_indent(); } out
+#define NEED(x)   if (space < (int)(x))   { leave_char_mode();   out << "\n"; \
+                                            space = do_indent(); } out
 
 //-----------------------------------------------------------------------------
 bool
@@ -159,8 +159,8 @@ char cc[80];
                  v.get_flags(), vid);
    out << cc;
 
-const unsigned int sub_vid = find_vid(v);
-   Assert(sub_vid < values.size());
+const int sub_vid = find_vid(v);
+   Assert(sub_vid < (int)values.size());
 unsigned int parent_vid = -1;
 
    if (&values[sub_vid]._par)   parent_vid = find_vid(values[sub_vid]._par);
@@ -478,7 +478,7 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                        break;
 
         case TV_INDEX: { const IndexExpr & idx = tok.get_index_val();
-                         const size_t rank = idx.value_count();
+                         const int rank = idx.value_count();
                          out << " index=\"";
                          loop(i, rank)
                              {
@@ -712,8 +712,8 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
                  {
                    const Value & sub = *cP->get_pointer_value().get();
                    Assert1(&sub);
-                   unsigned int sub_idx = find_vid(sub);
-                   Assert(sub_idx < values.size());
+                   const int sub_idx = find_vid(sub);
+                   Assert(sub_idx < (int)values.size());
                    Assert(!&values[sub_idx]._par);
                    values[sub_idx] = _val_par(values[sub_idx]._val,  parent);
                  }
@@ -727,11 +727,11 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save all values (without their ravel)
    //
-   for (vid = 0; vid < values.size(); ++vid)   save_shape(values[vid]._val);
+   for (vid = 0; vid < (int)values.size(); ++vid)  save_shape(values[vid]._val);
 
    // save ravels of all values
    //
-   for (vid = 0; vid < values.size(); ++vid)   save_ravel(values[vid]._val);
+   for (vid = 0; vid < (int)values.size(); ++vid)   save_ravel(values[vid]._val);
 
    // save user defined symbols
    //
@@ -739,8 +739,8 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save certain system variables
    //
-#define rw_sv_def(x, txt) save_symbol(Workspace::get_v_ ## x());
-#define ro_sv_def(x, txt) save_symbol(Workspace::get_v_ ## x());
+#define rw_sv_def(x, _txt) save_symbol(Workspace::get_v_ ## x());
+#define ro_sv_def(x, _txt) save_symbol(Workspace::get_v_ ## x());
 #include "SystemVariable.def"
 
    // save state indicator
@@ -1250,7 +1250,7 @@ bool no_copy = false;   // assume the value is needed
         int parent = vid;
         for (;;)
             {
-              Assert(parent < parents.size());
+              Assert(parent < (int)parents.size());
               if (parents[parent] == -1)   break;   // topmost owner found
               parent = parents[parent];
             }
@@ -1272,7 +1272,7 @@ bool no_copy = false;   // assume the value is needed
       }
    else
       {
-        Assert(vid == values.size());
+        Assert(vid == (int)values.size());
 
         Value_P val(sh_value, LOC);
         values.push_back(val);
@@ -1344,7 +1344,7 @@ const Unicode type = UTF8_string::toUni(first, len);
                char * end = 0;
                const int vid = strtol((const char *)first, &end, 10);
                Assert(vid >= 0);
-               Assert(vid < values.size());
+               Assert(vid < (int)values.size());
                new (C++) PointerCell(values[vid], C_owner);
                first = (const UTF8 *)end;
              }
@@ -1356,7 +1356,7 @@ const Unicode type = UTF8_string::toUni(first, len);
                char * end = 0;
                const int vid = strtol((const char *)first, &end, 16);
                Assert(vid >= 0);
-               Assert(vid < values.size());
+               Assert(vid < (int)values.size());
                Assert(*end == '[');   ++end;
                const ShapeItem offset = strtoll(end, &end, 16);
                Assert(*end == ']');   ++end;
@@ -1441,7 +1441,7 @@ const UTF8 * cells = find_attr("cells", false);
 
    Log(LOG_archive)   CERR << "    read_Ravel() vid=" << vid << endl;
 
-   Assert(vid < values.size());
+   Assert(vid < (int)values.size());
 Value_P val = values[vid];
 
    if (!val)   // )COPY with vids_COPY or static value
@@ -1485,8 +1485,8 @@ XML_Loading_Archive::read_unused_name(int d, Symbol & symbol)
 void
 XML_Loading_Archive::read_Variable(int d, Symbol & symbol)
 {
-const unsigned int vid = find_int_attr("vid", false, 10);
-   Assert(vid < values.size());
+const int vid = find_int_attr("vid", false, 10);
+   Assert(vid < (int)values.size());
 
    Log(LOG_archive)   CERR << "      read_Variable() vid=" << vid
                            << " name=" << symbol.get_name() << endl;
@@ -1639,7 +1639,8 @@ UCS_string name_ucs;
 
    // ⎕NLT was removed, but could lurk around in old workspaces.
    //
-   if (name_ucs == UCS_string(UTF8_string("⎕NLT")))
+   if (name_ucs == UCS_string(UTF8_string("⎕NLT")) ||
+       name_ucs == UCS_string(UTF8_string("⎕PT")))
       {
         Log(LOG_archive)   CERR << "        skipped at " << LOC << endl;
         skip_to_tag("/Symbol");
@@ -1678,7 +1679,7 @@ bool no_copy = is_protected || (have_allowed_objects && !is_selected);
         next_tag(LOC);
         if (is_tag("Variable"))
            {
-             const unsigned int vid = find_int_attr("vid", false, 10);
+             const int vid = find_int_attr("vid", false, 10);
              vids_COPY.push_back(vid);
            }
         skip_to_tag("/Symbol");
@@ -1965,8 +1966,8 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
 
         case TV_VAL:   
              {
-               const unsigned int vid = find_int_attr("vid", false, 10);
-               Assert(vid < values.size());
+               const int vid = find_int_attr("vid", false, 10);
+               Assert(vid < (int)values.size());
                new (&tloc.tok) Token(tag, values[vid]);
              }
              break;
@@ -1988,8 +1989,8 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                          Assert1(*vids == 'i');   ++vids;
                          Assert1(*vids == 'd');   ++vids;
                          Assert1(*vids == '_');   ++vids;
-                         const unsigned int vid = strtol(vids, &vids, 10);
-                         Assert(vid < values.size());
+                         const int vid = strtol(vids, &vids, 10);
+                         Assert(vid < (int)values.size());
                          idx.add(values[vid]);
                        }
                   }

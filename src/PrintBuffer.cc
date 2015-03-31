@@ -566,18 +566,18 @@ ShapeItem ret = 0;
 }
 //-----------------------------------------------------------------------------
 Unicode
-PrintBuffer::get_char(uint32_t x, uint32_t y) const
+PrintBuffer::get_char(int x, int y) const
 { 
-   Assert(y < buffer.size());
-   Assert(x < buffer[y].size());
+   Assert(y < (int)buffer.size());
+   Assert(x < (int)buffer[y].size());
    return buffer[y][x];
 }
 //-----------------------------------------------------------------------------
 void
-PrintBuffer::set_char(uint32_t x, uint32_t y, Unicode uc)
+PrintBuffer::set_char(int x, int y, Unicode uc)
 {
-   Assert(y < buffer.size());
-   Assert(x < buffer[y].size());
+   Assert(y < (int)buffer.size());
+   Assert(x < (int)buffer[y].size());
    buffer[y][x] = uc;
 }
 //-----------------------------------------------------------------------------
@@ -660,7 +660,7 @@ PrintBuffer::get_frame_chars(PrintStyle pst,
 }
 //-----------------------------------------------------------------------------
 void
-PrintBuffer::add_frame(PrintStyle style, const Shape & shape, uint32_t depth)
+PrintBuffer::add_frame(PrintStyle style, const Shape & shape, int depth)
 {
    Assert(is_rectangular());
 

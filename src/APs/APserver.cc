@@ -116,7 +116,7 @@ extern TCP_socket get_tcp_fd_for_id(const AP_num3 & id);
 TCP_socket
 get_tcp_fd_for_id(const AP_num3 & id)
 {
-   for (int j = 0; j < connected_procs.size(); ++j)
+   for (size_t j = 0; j < connected_procs.size(); ++j)
        {
          if (id == connected_procs[j].ap3)   return connected_procs[j].fd;
        }
@@ -128,7 +128,7 @@ extern TCP_socket get_tcp_fd2_for_id(const AP_num3 & id);
 TCP_socket
 get_tcp_fd2_for_id(const AP_num3 & id)
 {
-   for (int j = 0; j < connected_procs.size(); ++j)
+   for (size_t j = 0; j < connected_procs.size(); ++j)
        {
          if (id == connected_procs[j].ap3 &&
              connected_procs[j].fd2 != NO_TCP_SOCKET)
@@ -141,7 +141,7 @@ get_tcp_fd2_for_id(const AP_num3 & id)
 static
 AP_num3 fd_to_id(TCP_socket fd)
 {
-   for (int j = 0; j < connected_procs.size(); ++j)
+   for (size_t j = 0; j < connected_procs.size(); ++j)
        {
          if (fd == connected_procs[j].fd)    return connected_procs[j].ap3;
          if (fd == connected_procs[j].fd2)   return connected_procs[j].ap3;
@@ -156,7 +156,7 @@ get_TCP_for_key(SV_key key)
 Svar_record * svar = db.find_var(key, LOC);
    if (!svar)   goto not_found;
 
-   for (int j = 0; j < connected_procs.size(); ++j)
+   for (size_t j = 0; j < connected_procs.size(); ++j)
        {
          if (connected_procs[j].fd2 == NO_TCP_SOCKET)   continue;
 
@@ -250,39 +250,39 @@ maybe_start_AP(const AP_num3 & id)
 
    if (id.proc >= AP_FIRST_USER)   return;   // not  an AP
 
-   for (int j = 0; j < connected_procs.size(); ++j)
+   for (size_t j = 0; j < connected_procs.size(); ++j)
        {
          if (connected_procs[j].ap3 == id)   return;   // already running
        }
 
-char AP_progname[PATH_MAX + 1];
+char AP_progname[APL_PATH_MAX + 1];
    snprintf(AP_progname, sizeof(AP_progname), "%s", prog);
 
 char * bslash = strrchr(AP_progname, '/');
    if (bslash)
       {
         const int offset = bslash - AP_progname;
-        snprintf(bslash + 1, PATH_MAX - offset - 1, "AP%u", id.proc);
+        snprintf(bslash + 1, APL_PATH_MAX - offset - 1, "AP%u", id.proc);
       }
    else
       {
-        snprintf(AP_progname, PATH_MAX, "AP%u", id.proc);
+        snprintf(AP_progname, APL_PATH_MAX, "AP%u", id.proc);
       }
    
-   AP_progname[PATH_MAX] = 0;
+   AP_progname[APL_PATH_MAX] = 0;
 
    debug && *debug << "*** starting " << AP_progname << endl;
 
-char popen_arg[PATH_MAX + 1];
+char popen_arg[APL_PATH_MAX + 1];
    if (debug)
       {
-        snprintf(popen_arg, PATH_MAX,
+        snprintf(popen_arg, APL_PATH_MAX,
                  "%s --id %u --par %u --gra %u --auto -v",
                  AP_progname, id.proc, id.parent, id.grand);
       }
    else
       {
-        snprintf(popen_arg, PATH_MAX,
+        snprintf(popen_arg, APL_PATH_MAX,
                  "%s --id %u --par %u --gra %u --auto",
                  AP_progname, id.proc, id.parent, id.grand);
       }
@@ -312,7 +312,7 @@ AP_num3 removed_AP;
 bool found_fd = false;
 TCP_socket removed_fd2 = NO_TCP_SOCKET;
 
-   for (int j = 0; j < connected_procs.size(); ++j)
+   for (size_t j = 0; j < connected_procs.size(); ++j)
        {
          if (fd == connected_procs[j].fd)
             {
@@ -354,7 +354,7 @@ TCP_socket removed_fd2 = NO_TCP_SOCKET;
 
    // retract offers made by the removed processor
    //
-   for (int o = 0; o < db.offered_vars.size(); ++o)
+   for (size_t o = 0; o < db.offered_vars.size(); ++o)
        {
          Svar_record & svar = db.offered_vars[o];
 
@@ -373,7 +373,7 @@ TCP_socket removed_fd2 = NO_TCP_SOCKET;
       {
         if (removed_AP.parent)   // removed_AP is proc.parent.0
            {
-             for (int j = 0; j < connected_procs.size(); ++j)
+             for (size_t j = 0; j < connected_procs.size(); ++j)
                  {
                    if (connected_procs[j].ap3.parent == removed_AP.proc &&
                        connected_procs[j].ap3.grand  == removed_AP.parent)
@@ -388,7 +388,7 @@ TCP_socket removed_fd2 = NO_TCP_SOCKET;
            }
         else                     // removed_AP is proc.0.0
            {
-             for (int j = 0; j < connected_procs.size(); ++j)
+             for (size_t j = 0; j < connected_procs.size(); ++j)
                  {
                    if (connected_procs[j].ap3.parent == removed_AP.proc &&
                        connected_procs[j].ap3.grand == 0)
@@ -437,7 +437,7 @@ do_signal(TCP_socket fd, Signal_base * request)
    // impersonate that processor
    //
 AP3_fd * ap_fd = 0;
-   for (int j = 0; j < connected_procs.size(); ++j)
+   for (size_t j = 0; j < connected_procs.size(); ++j)
        {
          if (connected_procs[j].fd == fd)
             {
@@ -491,7 +491,7 @@ AP3_fd * ap_fd = 0;
 
                if (evconn)
                   {
-                    for (int j = 0; j < connected_procs.size(); ++j)
+                    for (size_t j = 0; j < connected_procs.size(); ++j)
                         {
                           AP3_fd & ap_fd1 = connected_procs[j];
                           if (ap_fd1.ap3 == ap3)
@@ -582,7 +582,7 @@ AP3_fd * ap_fd = 0;
                const int grand  = request->get__IS_REGISTERED_ID__grand();
                const AP_num3 ap3((AP_num)proc, (AP_num)parent, (AP_num)grand);
                int is_registered = 0;
-               for (int p = 0; p < connected_procs.size(); ++p)
+               for (size_t p = 0; p < connected_procs.size(); ++p)
                    {
                      const AP3_fd & pro = connected_procs[p];
                      if (pro.ap3 == ap3)
@@ -654,7 +654,7 @@ AP3_fd * ap_fd = 0;
                                << hex << key << dec << endl;
 
                bool existing = false;
-               for (int vv = 0; vv < var_values.size(); ++vv)
+               for (size_t vv = 0; vv < var_values.size(); ++vv)
                    {
                      if (var_values[vv].key == key)
                         {
@@ -689,12 +689,10 @@ AP3_fd * ap_fd = 0;
                debug && *debug << "reading var data for key 0x"
                                << hex << key << dec << endl;
 
-               bool existing = false;
-               for (int vv = 0; vv < var_values.size(); ++vv)
+               for (size_t vv = 0; vv < var_values.size(); ++vv)
                    {
                      if (var_values[vv].key == key)
                         {
-                          existing = true;
                           WSWS_VALUE_IS_c(fd, var_values[vv].var_value);
 
                           Svar_record * svar = db.find_var(key, LOC);
@@ -770,7 +768,7 @@ AP3_fd * ap_fd = 0;
                if (allowed && svar && svar->is_ws_to_ws())
                   {
                     bool have_value = false;
-                    for (int vv = 0; vv < var_values.size(); ++vv)
+                    for (size_t vv = 0; vv < var_values.size(); ++vv)
                         {
                           if (var_values[vv].key == key)
                              {
@@ -980,7 +978,7 @@ const char * listen_name = APSERVER_PATH;
 bool got_path = false;
 bool got_port = false;
 bool auto_start = false;
-int janitor = 0;
+size_t janitor = 0;
 
    for (int a = 1; a < argc; )
        {
@@ -1153,7 +1151,7 @@ int max_fd = listen_sock;
 #else // use select()
 
         FD_SET(listen_sock, &read_fds);
-        for (int j = 0; j < connected_procs.size(); ++j)
+        for (size_t j = 0; j < connected_procs.size(); ++j)
             {
               TCP_socket fd = connected_procs[j].fd;
               if (fd != NO_TCP_SOCKET)
@@ -1193,14 +1191,14 @@ int max_fd = listen_sock;
              int jfd = connected_procs[janitor].fd;
              if (jfd != NO_TCP_SOCKET)
                 {
-                  const ssize_t result = ::recv(jfd, 0, 0, MSG_DONTWAIT);
+                  ::recv(jfd, 0, 0, MSG_DONTWAIT);
                   cerr << "janitor got " << errno << " on fd " << jfd << endl;
                 }
 
              jfd = connected_procs[janitor].fd2;
              if (jfd != NO_TCP_SOCKET)
                 {
-                  const ssize_t result = ::recv(jfd, 0, 0, MSG_DONTWAIT);
+                  ::recv(jfd, 0, 0, MSG_DONTWAIT);
                   cerr << "janitor got " << errno << " on fd " << jfd << endl;
                 }
              
@@ -1236,7 +1234,7 @@ int max_fd = listen_sock;
 
         // connections readable
         //
-        for (int j = 0; j < connected_procs.size(); ++j)
+        for (size_t j = 0; j < connected_procs.size(); ++j)
             {
               const TCP_socket fd = connected_procs[j].fd;
               if (FD_ISSET(fd, &read_fds))   connection_readable(fd);
@@ -1252,7 +1250,7 @@ print_db(ostream & out)
    out << "╔══════════════════════┬════════┬══════════════════─═══╗" << endl
        << "║ Processor            │ fd fd2 │ Program              ║" << endl
        << "╠══════════════════════╪════════╪══════════════════════╣" << endl;
-   for (int p = 0; p < connected_procs.size(); ++p)
+   for (size_t p = 0; p < connected_procs.size(); ++p)
        {
          const AP3_fd & pro = connected_procs[p];
          char cc[100];
@@ -1285,7 +1283,7 @@ print_db(ostream & out)
 "║     │ ║ Offering  │   │  ║ Accepting │   │  ║OAOA│          ║\n"
 "║ Seq │C║ Proc,par  │Fd2│Fl║ Proc,par  │Fd2│Fl║SSUU│ Varname  ║\n"
 "╠═════╪═╬═══════════╪═══╪══╬═══════════╪═══╪══╬════╪══════════╣\n";
-   for (int o = 0; o < db.offered_vars.size(); ++o)
+   for (size_t o = 0; o < db.offered_vars.size(); ++o)
        {
          const Svar_record & svar = db.offered_vars[o];
          if (svar.valid())   svar.print(out);

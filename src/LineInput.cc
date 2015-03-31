@@ -195,7 +195,7 @@ ofstream outf(filename);
       }
 
 int count = 0;
-   for (int p = put + 1; p < hist_lines.size(); ++p)
+   for (size_t p = put + 1; p < hist_lines.size(); ++p)
       {
         outf << hist_lines[p] << endl;
         ++count;
@@ -223,7 +223,7 @@ UCS_string u("xxx");
 void
 LineHistory::print_history(ostream & out)
 {
-   for (int p = put + 1; p < hist_lines.size(); ++p)
+   for (size_t p = put + 1; p < hist_lines.size(); ++p)
       {
         out << "      " << hist_lines[p] << endl;
       }
@@ -238,14 +238,14 @@ LineHistory::add_line(const UCS_string & line)
 {
    if (!line.has_black())   return;
 
-   if (hist_lines.size() < max_lines)   // append
+   if ((int)hist_lines.size() < max_lines)   // append
       {
         hist_lines.push_back(line);
         put = 0;
       }
    else                            // override
       {
-        if (put >= hist_lines.size())   put = 0;   // wrap
+        if (put >= (int)hist_lines.size())   put = 0;   // wrap
         hist_lines[put++] = line;
       }
 
@@ -278,7 +278,7 @@ LineHistory::down()
    if (current_line == put)   return 0;
 
 int new_current_line = current_line + 1;
-   if (new_current_line >= hist_lines.size())   new_current_line = 0;   // wrap
+   if (new_current_line >= (int)hist_lines.size())   new_current_line = 0;   // wrap
    if (new_current_line == put)   return 0;
 
    return &hist_lines[current_line = new_current_line];

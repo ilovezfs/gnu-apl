@@ -41,7 +41,7 @@ struct Format_sub
    int             min_len;        ///< the minimum length in the output
 
    /// return the number of characters in \b format
-   size_t size() const
+   int size() const
       { return format.size(); }
 
    /// set flt_mask according to the digits in member \b format
@@ -101,12 +101,12 @@ public:
         Format_LIFER(UCS_string fmt);
 
         /// return the size of the format
-        size_t format_size() const
+        int format_size() const
            { return left_deco.size() + int_part.size() + fract_part.size()
                   + expo_deco.size() + exponent.size() + right_deco.size(); }
 
         /// return the size of the output
-        size_t out_size() const
+        int out_size() const
            { return left_deco.out_len + int_part.out_len + fract_part.out_len
                   + expo_deco.out_len + exponent.out_len + right_deco.out_len; }
 

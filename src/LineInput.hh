@@ -65,8 +65,8 @@ public:
    /// start a new up/down sequence
    void next()
       { current_line = put;
-        if (current_line < 0)   current_line += hist_lines.size();    // wrap
-        if (current_line >= hist_lines.size())   current_line = 0;    // wrap
+        if (current_line < 0)   current_line += hist_lines.size();       // wrap
+        if (current_line >= (int)hist_lines.size())   current_line = 0;  // wrap
       }
 
    /// move to next older entry

@@ -34,7 +34,7 @@
 UCS_string::UCS_string(const char * cstring)
    : Simple_string<Unicode>(0, 0)
 {
-const size_t len = strlen(cstring);
+const int len = strlen(cstring);
    extend(len + 1);
 
    while (items_valid < len)   items[items_valid++] = Unicode(*cstring++);
@@ -47,7 +47,7 @@ UCS_string::UCS_string(const UTF8_string & utf)
    Log(LOG_char_conversion)
       CERR << "UCS_string::UCS_string(): utf = " << utf << endl;
 
-   for (uint32_t i = 0; i < utf.size();)
+   for (int i = 0; i < utf.size();)
       {
         const uint32_t b0 = utf[i++];
         uint32_t bx = b0;
@@ -909,7 +909,7 @@ UCS_string ret;
 }
 //-----------------------------------------------------------------------------
 UCS_string
-UCS_string::from_double_expo_prec(double v, unsigned int fract_digits)
+UCS_string::from_double_expo_prec(double v, int fract_digits)
 {
 UCS_string ret;
 
@@ -1010,7 +1010,7 @@ int expo = 0;
 }
 //-----------------------------------------------------------------------------
 UCS_string
-UCS_string::from_double_fixed_prec(double v, unsigned int fract_digits)
+UCS_string::from_double_fixed_prec(double v, int fract_digits)
 {
 UCS_string ret;
 
@@ -1088,12 +1088,12 @@ UCS_string::sort_names(vector<UCS_string> names)
 {
    if (names.size() < 2)   return;
 
-   for (int h = 0; h < (names.size() - 1); ++h)
+   for (size_t h = 0; h < (names.size() - 1); ++h)
        {
          // find smallest above (including) h
          //
          int smallest = h;
-         for (int j = h + 1; j < names.size(); ++j)
+         for (size_t j = h + 1; j < names.size(); ++j)
              {
                if (names[smallest].compare(names[j]) == COMP_GT)
                   {

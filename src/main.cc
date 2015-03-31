@@ -46,10 +46,6 @@
 #include "UserPreferences.hh"
 #include "Value.icc"
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
 static const char * build_tag[] = { BUILDTAG, 0 };
 
 //-----------------------------------------------------------------------------

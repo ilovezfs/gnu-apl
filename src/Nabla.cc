@@ -161,7 +161,7 @@ UCS_string fun_text;
 
         }
 
-        for (int l = 1; l < lines.size(); ++l)
+        for (size_t l = 1; l < lines.size(); ++l)
             {
               UCS_string line_l("[");
               line_l.append_number(l);
@@ -694,7 +694,7 @@ const LineLabel user_edit_to = edit_to;
 
    if (idx_from == 0)   COUT << "    ∇" << endl;               // if header line
    for (int e = idx_from; e <= idx_to; ++e)   lines[e].print(COUT);
-   if (idx_to == lines.size() - 1)   COUT << "    ∇" << endl;  // if last line
+   if ((size_t)idx_to == lines.size() - 1)   COUT << "    ∇" << endl;  // if last line
 
    if (user_edit_to.valid())   // eg. [⎕42] or [2⎕42]
       {
@@ -836,7 +836,7 @@ const int idx_from = find_line(edit_from);
         // find the largest label before edit_from (if any)
         //
         int before_idx = -1;
-        for (int i = 0; i < lines.size(); ++i)
+        for (size_t i = 0; i < lines.size(); ++i)
             {
               if (lines[i].label < edit_from)   before_idx = i;
               else                                 break;

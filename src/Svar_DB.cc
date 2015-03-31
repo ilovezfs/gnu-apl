@@ -62,16 +62,16 @@ Svar_DB::start_APserver(const char * server_sockname,
    //
    // set APserver_path to the case that applies.
    //
-char APserver_path[PATH_MAX + 1];
-   snprintf(APserver_path, PATH_MAX, "%s/APserver", bin_dir);
-   APserver_path[PATH_MAX] = 0;
+char APserver_path[APL_PATH_MAX + 1];
+   snprintf(APserver_path, APL_PATH_MAX, "%s/APserver", bin_dir);
+   APserver_path[APL_PATH_MAX] = 0;
    if (access(APserver_path, X_OK) != 0)   // no APserver
       {
         logit && get_CERR() << "    Executable " << APserver_path
                  << " not found (this is OK when apl was started\n"
                     "    from the src directory): " << strerror(errno) << endl;
 
-        snprintf(APserver_path, PATH_MAX, "%s/APs/APserver", bin_dir);
+        snprintf(APserver_path, APL_PATH_MAX, "%s/APs/APserver", bin_dir);
         if (access(APserver_path, X_OK) != 0)   // no APs/APserver either
            {
              get_CERR() << "Executable " << APserver_path << " not found.\n"
@@ -86,13 +86,13 @@ char APserver_path[PATH_MAX + 1];
 
    logit && get_CERR() << "Found " << APserver_path << endl;
 
-char popen_args[PATH_MAX + 1];
+char popen_args[APL_PATH_MAX + 1];
    {
      if (server_sockname)
-        snprintf(popen_args, PATH_MAX,
+        snprintf(popen_args, APL_PATH_MAX,
                  "%s --path %s --auto", APserver_path, server_sockname);
      else
-        snprintf(popen_args, PATH_MAX,
+        snprintf(popen_args, APL_PATH_MAX,
                  "%s --port %u --auto", APserver_path, APserver_port);
    }
 

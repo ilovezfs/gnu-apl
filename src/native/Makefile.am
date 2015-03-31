@@ -2,8 +2,7 @@
 AM_CXXFLAGS = $(CXX_RDYNAMIC)
 
 if DEVELOP
-   AM_CXXFLAGS += -Werror -Wall
-   AM_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
+   AM_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
 endif
 
 pkglib_LTLIBRARIES =	lib_file_io.la		\

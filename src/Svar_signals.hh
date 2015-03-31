@@ -2,7 +2,7 @@
    This file is part of GNU APL, a free implementation of the
    ISO/IEC Standard 13751, "Programming Language APL, Extended"
  
-   Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+   Copyright (C) 2008-2014  Dr. Jürgen Sauermann
  
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -195,14 +195,14 @@ public:
       {
         const Sig_item_u16 len (value.size());
         len.store(buffer);
-        for (int b = 0; b < value.size(); ++b)   buffer += value[b];
+        for (size_t b = 0; b < value.size(); ++b)   buffer += value[b];
       }
 
    /// print the item
    ostream & print(ostream & out) const
       {
         bool printable = true;
-        for (int b = 0; b < value.size(); ++b)
+        for (size_t b = 0; b < value.size(); ++b)
             {
               const int v = value[b] & 0xFF;
               if (v < ' ' || v > '~')   { printable = false;   break; }
@@ -211,7 +211,7 @@ public:
         if (printable)   return out << "\"" << value << "\"";
 
         out << hex << setfill('0');
-        for (int b = 0; b < value.size(); ++b)
+        for (size_t b = 0; b < value.size(); ++b)
             {
               if (b > 16)   { out << "...";   break; }
               out << " " << setw(2) << (value[b] & 0xFF);
@@ -2842,7 +2842,7 @@ Signal_base::recv_TCP(int tcp_sock, char * buffer, int bufsize,
 
          return 0;
       }
-uint32_t siglen = 0;
+ssize_t siglen = 0;
    for (;;)
        {
          errno = 0;

@@ -79,8 +79,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = AP100$(EXEEXT) AP210$(EXEEXT) APserver$(EXEEXT)
-@DEVELOP_TRUE@am__append_1 = -Werror -Wall -Wno-sign-compare \
-@DEVELOP_TRUE@	-Wno-strict-aliasing
+@DEVELOP_TRUE@am__append_1 = -Werror -Wall -Wno-strict-aliasing
+@DEVELOP_TRUE@am__append_2 = -Werror -Wall -Wno-strict-aliasing
+@DEVELOP_TRUE@am__append_3 = -Werror -Wall -Wno-strict-aliasing
 subdir = src/APs
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -368,10 +369,10 @@ APserver_SOURCES = APserver.cc				\
 		Svar_DB_server.cc Svar_DB_server.hh	\
 		../Svar_record.cc ../Svar_record.hh
 
-AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100
-AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210
-APserver_CXXFLAGS = -I .. -g -O2
-AM_CXXFLAGS = $(CXX_RDYNAMIC) $(am__append_1)
+AP100_CXXFLAGS = -I .. -g -O2 -DAP_NUM=100 $(am__append_1)
+AP210_CXXFLAGS = -I .. -g -O2 -DAP_NUM=210 $(am__append_2)
+APserver_CXXFLAGS = -I .. -g -O2 $(am__append_3)
+AM_CXXFLAGS = $(CXX_RDYNAMIC)
 AM_MAKEFLAGS = -j 8
 all: all-am
 

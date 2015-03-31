@@ -281,21 +281,19 @@ public:
 
    /// convert double \b value to an UCS_string with \b fract_digits fractional
    /// digits in scaled (exponential) format
-   static UCS_string from_double_expo_prec(double value,
-                                            unsigned int fract_digits);
+   static UCS_string from_double_expo_prec(double value, int fract_digits);
 
    /// convert double \b value to an UCS_string with \b fract_digits fractional
    /// digits in fixed point format
-   static UCS_string from_double_fixed_prec(double value,
-                                            unsigned int fract_digits);
+   static UCS_string from_double_fixed_prec(double value, int fract_digits);
 
    /// convert double \b value to an UCS_string with \b quad_pp significant
    /// digits in acaled (exponential) format
-   static UCS_string from_double_expo_pp(double value, unsigned int quad_pp);
+   static UCS_string from_double_expo_pp(double value, int quad_pp);
 
    /// convert double \b value to an UCS_string with \b quad_pp significant
    /// digits in fixed point format
-   static UCS_string from_double_fixed_pp(double value, unsigned int quad_pp);
+   static UCS_string from_double_fixed_pp(double value, int quad_pp);
 
    /// sort a (small) number of UCS_strings (filenames, variables, or functions)
    /// using a simple but quadratic time algorithm

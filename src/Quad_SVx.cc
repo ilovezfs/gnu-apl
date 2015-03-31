@@ -39,10 +39,6 @@
 
 extern char **environ;
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
 // shared variable function instances
 //
 Quad_SVC Quad_SVC::_fun;
@@ -120,12 +116,12 @@ const AP_num par_ID = ProcessorID::get_parent_ID();
 const char * verbose = "";
    Log(LOG_shared_variables)   verbose = " -v";
 
-char filename[PATH_MAX + 1];
+char filename[APL_PATH_MAX + 1];
 
 bool found_executable = false;
    for (int d = 0; d < dircount; ++d)
        {
-         snprintf(filename, PATH_MAX,
+         snprintf(filename, APL_PATH_MAX,
                   "%s%s/AP%u --id %u --par %u --gra %u --auto%s",
                   LibPaths::get_APL_bin_path(), dirs[d], ap, ap,
                   own_ID, par_ID, verbose);
@@ -544,10 +540,10 @@ const char * dirs[] = { "", "/APs" };
 
    for (int d = 0; d < dircount; ++d)
        {
-         char dirname[PATH_MAX + 1];
-         snprintf(dirname, PATH_MAX, "%s%s", LibPaths::get_APL_bin_path(),
+         char dirname[APL_PATH_MAX + 1];
+         snprintf(dirname, APL_PATH_MAX, "%s%s", LibPaths::get_APL_bin_path(),
                   dirs[d]);
-         dirname[PATH_MAX] = 0;
+         dirname[APL_PATH_MAX] = 0;
          DIR * dir = opendir(dirname);
 
          // the APs directory only exists below the src directory (i.e when
@@ -573,16 +569,17 @@ const char * dirs[] = { "", "/APs" };
                 if (entry->d_type != DT_REG)   continue; // not a regular file
 #endif
 
-                char filename[PATH_MAX + 1];
-                snprintf(filename, PATH_MAX, "%s/%s", dirname, entry->d_name);
-                filename[PATH_MAX] = 0;
+                char filename[APL_PATH_MAX + 1];
+                snprintf(filename, APL_PATH_MAX, "%s/%s", dirname,
+                         entry->d_name);
+                filename[APL_PATH_MAX] = 0;
 
                 if (!is_executable(filename))   continue;
 
                 int apnum;
                 if (sscanf(entry->d_name, "AP%u", &apnum) != 1)   continue;
 
-                char expected[PATH_MAX + 1];
+                char expected[APL_PATH_MAX + 1];
                 snprintf(expected, sizeof(expected), "AP%u", apnum);
                 if (strcmp(entry->d_name, expected))   continue;
 
@@ -604,7 +601,7 @@ vector<int32_t> sorted;
         // find smallest
         //
         int smallest = processors[0];
-        for (int s = 1; s < processors.size(); ++s)
+        for (size_t s = 1; s < processors.size(); ++s)
             if (smallest > processors[s])   smallest = processors[s];
 
        // add smallest to sorted
@@ -613,7 +610,7 @@ vector<int32_t> sorted;
 
        // remove smallest from processors
        //
-        for (int s = 0; s < processors.size();)
+        for (size_t s = 0; s < processors.size();)
             {
               if (processors[s] != smallest)
                  {

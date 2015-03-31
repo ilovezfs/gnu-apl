@@ -690,7 +690,7 @@ UCS_string lambda_text;
 int level = 0;   // {/} nesting level
 bool copying = false;
 
-int tidx = 0;
+size_t tidx = 0;
 int tcol = 0;
 
    // skip over the first skip lambdas and copy the next one to lambda_text

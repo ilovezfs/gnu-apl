@@ -67,7 +67,7 @@ public:
         Assert(items_valid >= 0);
         if (items_allocated < MIN_ALLOC)   items_allocated = MIN_ALLOC;
         items = new T[items_allocated];
-        for (unsigned int l = 0; l < len; ++l)   items[l] = data;
+        for (int l = 0; l < len; ++l)   items[l] = data;
       }
 
    /// constructor: copy other string
@@ -135,16 +135,16 @@ public:
       { return items_valid; }
 
    /// return the idx'th character
-   const T & operator[](unsigned int idx) const
+   const T & operator[](int idx) const
       {
         Assert(idx < items_valid);
         return items[idx];
       }
 
    /// return the idx'th character
-   T & operator[](unsigned int idx)
+   T & operator[](int idx)
       {
-        if (idx >= items_valid)
+        if ((items_valid - idx) <= 0)
            {
              debug(cerr) << "idx = " << idx << endl;
              Assert(0 && "Bad index");
@@ -180,7 +180,7 @@ public:
    /// insert character \b t after position \b pos
    void insert_after(int pos, const T & t)
       {
-        Assert((unsigned int)pos < items_valid);
+        Assert(pos < items_valid);
         if (items_valid >= items_allocated)   extend();
         for (int s = items_valid - 1; s > pos; --s)  items[s + 1] = items[s];
         items[pos + 1] = t;
@@ -190,7 +190,7 @@ public:
    /// insert character \b t before position \b pos
    void insert_before(int pos, const T & t)
       {
-        Assert((unsigned int)pos < items_valid);
+        Assert(pos < items_valid);
         if (items_valid >= items_allocated)   extend();
         for (int s = items_valid - 1; s >= pos; --s)   items[s + 1] = items[s];
         items[pos] = t;
@@ -198,9 +198,9 @@ public:
       }
 
    /// decrease size to \b new_size
-   void shrink(unsigned int new_size)
+   void shrink(int new_size)
       {
-        Assert(items_valid >= new_size);
+        Assert((items_valid - new_size) >= 0);
         items_valid = new_size;
       }
 
@@ -278,7 +278,7 @@ public:
    void remove_front()   { erase(0, 1); }
 
    /// extend allocated size
-   void reserve(unsigned int new_alloc_size)
+   void reserve(int new_alloc_size)
       {
         extend(new_alloc_size);
       }
@@ -286,9 +286,9 @@ public:
    /// compare strings
    Comp_result compare(const Simple_string & other) const
       {
-        const unsigned int common_len = items_valid < other.items_valid
-                                      ? items_valid : other.items_valid;
-        for (unsigned int c = 0; c < common_len; ++c)
+        const int common_len = items_valid < other.items_valid
+                             ? items_valid : other.items_valid;
+        for (int c = 0; c < common_len; ++c)
             {
               if (items[c] < other.items[c])   return COMP_LT;
               if (items[c] > other.items[c])   return COMP_GT;
@@ -342,9 +342,9 @@ protected:
       }
 
    /// increase the allocated size to at least new_size
-   void extend(unsigned int new_size)
+   void extend(int new_size)
       {
-        if (new_size <= items_allocated)   return;
+        if ((items_allocated - new_size) >= 0)   return;
 
         items_allocated = new_size + ADD_ALLOC;
         T * new_items = new T[items_allocated];

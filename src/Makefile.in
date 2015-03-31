@@ -83,10 +83,8 @@ host_triplet = @host@
 @WANT_ANDROID_FALSE@am__append_1 = APs emacs_mode sql workspaces
 @WANT_LIBAPL_TRUE@am__append_2 = libapl.la
 @WANT_LIBAPL_FALSE@bin_PROGRAMS = apl$(EXEEXT)
-@DEVELOP_TRUE@am__append_3 = -Werror -Wall -Wno-sign-compare \
-@DEVELOP_TRUE@	-Wno-strict-aliasing
-@DEVELOP_TRUE@am__append_4 = -Werror -Wall -Wno-sign-compare \
-@DEVELOP_TRUE@	-Wno-strict-aliasing
+@DEVELOP_TRUE@am__append_3 = -Werror -Wall -Wno-strict-aliasing
+@DEVELOP_TRUE@am__append_4 = -Werror -Wall -Wno-strict-aliasing
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(am__pkginclude_HEADERS_DIST) \
@@ -2897,8 +2895,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-clean: clean-recursive
-
 clean-am: clean-binPROGRAMS clean-generic clean-libtool \
 	clean-pkglibLTLIBRARIES mostlyclean-am
 
@@ -3052,11 +3048,8 @@ help:
 	@echo "    make update-svar_signals     - remake Svar_signals.hh"
 	@echo ""
 
-libapl.html: libapl.texi
-	$(MAKEINFOHTML) libapl.texi -o $@ --no-split || touch $@
-
-libapl.info: libapl.texi
-	$(MAKEINFO) libapl.texi -o $@ --no-split || touch $@
+clean:
+	rm -f makefile.h
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

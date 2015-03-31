@@ -21,8 +21,9 @@ APserver_CXXFLAGS = -I .. -g -O2
 AM_CXXFLAGS = $(CXX_RDYNAMIC)
 
 if DEVELOP
-   AM_CXXFLAGS += -Werror -Wall
-   AM_CXXFLAGS += -Wno-sign-compare -Wno-strict-aliasing
+   AP100_CXXFLAGS    += -Werror -Wall -Wno-strict-aliasing
+   AP210_CXXFLAGS    += -Werror -Wall -Wno-strict-aliasing
+   APserver_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
 endif
 
 AM_MAKEFLAGS = -j 8
