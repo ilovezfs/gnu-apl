@@ -1329,7 +1329,7 @@ SUM
 [1] λ← ⍺ + ⍵
 
 
-   The lambda_header is automatically deducted from the presence or
+   The lambda_header is automatically deduced from the presence or
 absence of the variable names (⍺, ⍵, and χ) and function names (⍶ and ⍹)
 in the body_expression and from whether the body_expression is empty (no
 λ←) or not (with λ←).
@@ -2833,14 +2833,14 @@ Node: Top383
 Node: Chapter 11404
 Node: Chapter 216387
 Node: Chapter 320656
-Node: Chapter 453320
-Node: Chapter 555068
-Node: Chapter 656197
-Node: Section 6.156616
-Node: Section 6.257303
-Node: Chapter 758134
-Node: Section 7.158637
-Node: Section 7.283946
+Node: Chapter 453319
+Node: Chapter 555067
+Node: Chapter 656196
+Node: Section 6.156615
+Node: Section 6.257302
+Node: Chapter 758133
+Node: Section 7.158636
+Node: Section 7.283945
 
 End Tag Table
 
