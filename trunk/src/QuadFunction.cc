@@ -1971,8 +1971,8 @@ Symbol * symbol = 0;
       {
         int len = 0;
         const Token t = Workspace::get_quad(ucs, len);
-        if (len < 2)                      ;
-        if (t.get_Class() == TC_VOID)     ;
+        if (len < 2)                      return 5;    // ⎕ : quad variable
+        if (t.get_Class() == TC_VOID)     return -1;   // invalid
         if (t.get_Class() == TC_SYMBOL)   symbol = t.get_sym_ptr();
         else                              return  6;   // quad function
       }
