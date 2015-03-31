@@ -85,7 +85,7 @@ InputFile::randomize_files()
            }
       }
 
-   for (int done = 0; done < 4*files_todo.size();)
+   for (size_t done = 0; done < 4*files_todo.size();)
        {
          const int n1 = random() % files_todo.size();
          const int n2 = random() % files_todo.size();

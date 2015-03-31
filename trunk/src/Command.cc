@@ -47,10 +47,6 @@
 #include "Value.icc"
 #include "Workspace.hh"
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
 int Command::boxing_format = -1;
 
 vector<Command::user_command> Command::user_commands;
@@ -670,10 +666,10 @@ Command::cmd_HELP(ostream & out)
    out << endl << "System variables:" << endl;
 #define ro_sv_def(x, txt)                                           \
    { const UCS_string & ucs = Workspace::get_v_ ## x().get_name();  \
-        out << "      " << setw(8) << ucs << #txt << endl; }
+        out << "      " << setw(8) << ucs << txt << endl; }
 #define rw_sv_def(x, txt)                                           \
    { const UCS_string & ucs = Workspace::get_v_ ## x().get_name();  \
-        out << "      " << setw(8) << ucs << #txt << endl; }
+        out << "      " << setw(8) << ucs << txt << endl; }
 #include "SystemVariable.def"
 
    out << endl << "System functions:" << endl;
@@ -681,7 +677,7 @@ Command::cmd_HELP(ostream & out)
 #define rw_sv_def(x, txt)
 #define sf_def(q, txt) { const char * qu = #q;                      \
    if (!strncmp(qu, "Quad_", 5))                                    \
-        out << "      ⎕" << setw(8) << UCS_string(qu + 5) << #txt << endl; }
+        out << "      ⎕" << setw(8) << UCS_string(qu + 5) << txt << endl; }
 #include "SystemVariable.def"
 }
 //-----------------------------------------------------------------------------
@@ -1016,14 +1012,14 @@ int count = 0;
 
    for (int a = 0, x = 0;;)
        {
-         if (a >= apl_files.size())   // end of apl_files reached
+         if (a >= (int)apl_files.size())   // end of apl_files reached
             {
               loop(xx, xml_files.size() - x)
                   filenames[count++] = xml_filenames[x + xx];
               break;
             }
 
-         if (x >= xml_files.size())   // end of xml_files reached
+         if (x >= (int)xml_files.size())   // end of xml_files reached
             {
               loop(aa, apl_files.size() - a)
                   filenames[count++] = apl_filenames[a + aa];
@@ -1057,7 +1053,7 @@ vector<int> col_width;
 
    loop(c, count)
       {
-        const int col = c % col_width.size();
+        const size_t col = c % col_width.size();
         out << *filenames[c];
         if (col == (col_width.size() - 1) || c == (count - 1))
            {
@@ -1951,15 +1947,15 @@ int qpos = -1;
         UCS_string qxx(user, qpos, user.size() - qpos);
         vector<UCS_string>matches;
 
-#define ro_sv_def(q, txt) { const char * qu = #q;                  \
+#define ro_sv_def(q, _txt) { const char * qu = #q;                  \
    if (!strncmp(qu, "Quad_", 5)) { UCS_string ustr(qu + 5);   \
         if (ustr.starts_iwith(qxx)) matches.push_back(ustr); } }
 
-#define rw_sv_def(q, txt) { const char * qu = #q;                  \
+#define rw_sv_def(q, _txt) { const char * qu = #q;                  \
    if (!strncmp(qu, "Quad_", 5)) { UCS_string ustr(qu + 5);   \
         if (ustr.starts_iwith(qxx)) matches.push_back(ustr); } }
 
-#define sf_def(q, txt) { const char * qu = #q;                  \
+#define sf_def(q, _txt) { const char * qu = #q;                  \
    if (!strncmp(qu, "Quad_", 5)) { UCS_string ustr(qu + 5);   \
         if (ustr.starts_iwith(qxx)) matches.push_back(ustr); } }
 

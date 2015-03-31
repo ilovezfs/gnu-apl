@@ -250,12 +250,12 @@ public:
 
    // access to system variables.
    //
-#define ro_sv_def(x, txt) /** return x **/ static x & get_v_ ## x() \
+#define ro_sv_def(x, _txt) /** return x **/ static x & get_v_ ## x() \
    { return the_workspace.v_ ## x; }
-#define rw_sv_def(x, txt) /** return ## x **/ static x & get_v_ ## x() \
+#define rw_sv_def(x, _txt) /** return ## x **/ static x & get_v_ ## x() \
    { return the_workspace.v_ ## x; }
-   rw_sv_def(Quad_Quad,  ⎕)
-   rw_sv_def(Quad_QUOTE, ⍞)
+   rw_sv_def(Quad_Quad,  "⎕")
+   rw_sv_def(Quad_QUOTE, "⍞")
 #include "SystemVariable.def"
 
    /// push a command. This is done when ⍎Command is performed and the command
@@ -273,10 +273,10 @@ protected:
 
    // system variables.
    //
-#define ro_sv_def(x, txt) /** x **/ x v_ ## x;
-#define rw_sv_def(x, txt) /** x **/ x v_ ## x;
-   rw_sv_def(Quad_Quad,  ⎕)
-   rw_sv_def(Quad_QUOTE, ⍞)
+#define ro_sv_def(x, _txt) /** x **/ x v_ ## x;
+#define rw_sv_def(x, _txt) /** x **/ x v_ ## x;
+   rw_sv_def(Quad_Quad,  "⎕")
+   rw_sv_def(Quad_QUOTE, "⍞")
 #include "SystemVariable.def"
 
    /// the APL prompt (6 blanks by default)

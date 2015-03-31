@@ -235,7 +235,7 @@ const CDR_string & cdr = *var_D.data;
       {
         const int len = cdr.header().get_nb();
         const uint8_t * data = cdr.get_items();
-        const size_t written = fwrite(data, len, 1, file);
+        const int written = fwrite(data, len, 1, file);
         if (written == len)   return -48;   // partial write
 
         ++filepos;
@@ -645,7 +645,7 @@ const uint32_t * varname = Svar_DB::get_varname(var.key);
 SV_key key_D = Svar_DB::find_pairing_key(var.key);
    if (key_D == 0)   { error_loc = LOC;   return E_VALUE_ERROR; }
 Coupled_var * var_D = 0;
-   for (int c = 0; c < coupled_vars.size(); ++c)
+   for (size_t c = 0; c < coupled_vars.size(); ++c)
        {
          if (coupled_vars[c].key == key_D)
             {
@@ -656,7 +656,7 @@ Coupled_var * var_D = 0;
    if (var_D == 0)
       {
         get_CERR() << "key_D = " << (key_D & 0xFFFF) << endl;
-        for (int c = 0; c < coupled_vars.size(); ++c)
+        for (size_t c = 0; c < coupled_vars.size(); ++c)
             get_CERR() << "key = " << (coupled_vars[c].key & 0xFFFF) << endl;
 
         error_loc = LOC;   return E_VALUE_ERROR;

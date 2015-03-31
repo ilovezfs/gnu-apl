@@ -511,8 +511,8 @@ Workspace::unmark_all_values()
 
    // unmark system variables
    //
-#define rw_sv_def(x, txt) the_workspace.v_ ## x.unmark_all_values();
-#define ro_sv_def(x, txt) the_workspace.v_ ## x.unmark_all_values();
+#define rw_sv_def(x, _txt) the_workspace.v_ ## x.unmark_all_values();
+#define ro_sv_def(x, _txt) the_workspace.v_ ## x.unmark_all_values();
 #include "SystemVariable.def"
    the_workspace.v_Quad_Quad .unmark_all_values();
    the_workspace.v_Quad_QUOTE.unmark_all_values();
@@ -539,8 +539,8 @@ int count = 0;
 
    // system variabes
    //
-#define rw_sv_def(x, txt) count += get_v_ ## x().show_owners(out, value);
-#define ro_sv_def(x, txt) count += get_v_ ## x().show_owners(out, value);
+#define rw_sv_def(x, _txt) count += get_v_ ## x().show_owners(out, value);
+#define ro_sv_def(x, _txt) count += get_v_ ## x().show_owners(out, value);
 #include "SystemVariable.def"
    count += the_workspace.v_Quad_Quad .show_owners(out, value);
    count += the_workspace.v_Quad_QUOTE.show_owners(out, value);
@@ -602,8 +602,8 @@ Workspace::clear_WS(ostream & out, bool silent)
 
    // clear the value stacks of read/write system variables...
    //
-#define rw_sv_def(x, txt) get_v_ ## x().destruct();
-#define ro_sv_def(x, txt)
+#define rw_sv_def(x, _txt) get_v_ ## x().destruct();
+#define ro_sv_def(x, _txt)
 #include "SystemVariable.def"
 
    // at this point all values should have been gone.
@@ -611,8 +611,8 @@ Workspace::clear_WS(ostream & out, bool silent)
    //
 // Value::erase_all(out);
 
-#define rw_sv_def(x, txt) new  (&get_v_ ##x()) x;
-#define ro_sv_def(x, txt)
+#define rw_sv_def(x, _txt) new  (&get_v_ ##x()) x;
+#define ro_sv_def(x, _txt)
 #include "SystemVariable.def"
 
    get_v_Quad_RL().reset_seed();
@@ -898,8 +898,8 @@ int variable_count = 0;
 
    // system variables
    //
-#define ro_sv_def(x, txt)
-#define rw_sv_def(x, txt) if (ID:: x != ID::Quad_SYL) { get_v_ ## x().dump(outf);   ++variable_count; }
+#define ro_sv_def(x, _txt)
+#define rw_sv_def(x, _txt) if (ID:: x != ID::Quad_SYL) { get_v_ ## x().dump(outf);   ++variable_count; }
 #include "SystemVariable.def"
 
    COUT << "DUMPED WORKSPACE '" << wname << "'" << endl

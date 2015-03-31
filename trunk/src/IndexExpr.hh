@@ -50,7 +50,7 @@ public:
         values[rank++] = val; }
 
    /// return the number of values (= number of semicolons + 1)
-   size_t value_count() const   { return rank; }
+   Rank value_count() const   { return rank; }
 
    /// return true iff the number of dimensions is 1 (i.e. no ; and non-empty)
    bool is_axis() const   { return rank == 1; }

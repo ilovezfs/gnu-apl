@@ -310,7 +310,7 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
            if (CPU_ISSET(c, &CPUs))
               {
                 all_CPUs.push_back((CPU_Number)c);
-                if (all_CPUs.size() == CPU_count)   break;   // all CPUs found
+                if ((int)all_CPUs.size() == CPU_count)   break;   // all CPUs found
               }
          }
    }
@@ -329,7 +329,7 @@ const int err = pthread_getaffinity_np(pthread_self(), sizeof(CPUs), &CPUs);
    if (count < 0)   count = all_CPUs.size();
 
    // if there are more CPUs than requested then limit all_CPUs accordingly
-   if (all_CPUs.size() > count)   all_CPUs.resize(count);
+   if ((int)all_CPUs.size() > count)   all_CPUs.resize(count);
 
    Log(LOG_Parallel || logit)
       {

@@ -334,7 +334,7 @@ protected:
    bool reading_vids;
 
    /// the vids to be copied (empty if all)
-   vector<unsigned int> vids_COPY;
+   vector<int> vids_COPY;
 
    /// the names of objects (empty if all)
    vector<UCS_string> allowed_objects;

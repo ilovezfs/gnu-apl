@@ -1322,7 +1322,7 @@ NumericCell::do_binomial(Cell * Z, APL_Integer K, APL_Integer N, bool negate)
 
         // the first element in the table is the max. N (including) for K
         //
-        if (N <= table_K[0])
+        if ((uint64_t)N <= table_K[0])
            {
              const APL_Integer z = table_K[1 + (N - K)];
              if (negate)   new (Z) IntCell(-z);
@@ -1580,8 +1580,8 @@ APL_Complex z;
 ErrorCode
 NumericCell::int_gcd(APL_Integer & z, APL_Integer a, APL_Integer b)
 {
-   if (a == 0x8000000000000000ULL)   return E_DOMAIN_ERROR;
-   if (b == 0x8000000000000000ULL)   return E_DOMAIN_ERROR;
+   if ((uint64_t)a == 0x8000000000000000ULL)   return E_DOMAIN_ERROR;
+   if ((uint64_t)b == 0x8000000000000000ULL)   return E_DOMAIN_ERROR;
 
    if (a < 0)   a = - a;
    if (b < 0)   b = - b;

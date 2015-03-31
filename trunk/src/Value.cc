@@ -1054,7 +1054,7 @@ Value::get_single_axis(Rank max_axis) const
    // if axis becomes (signed) negative then it will be (unsigned) too big.
    // Therefore we need not test for < 0.
    //
-const unsigned int axis = get_ravel(0).get_near_int() - Workspace::get_IO();
+const int axis = get_ravel(0).get_near_int() - Workspace::get_IO();
    if (axis >= max_axis)   AXIS_ERROR;
 
    return axis;

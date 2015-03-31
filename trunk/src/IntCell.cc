@@ -363,7 +363,7 @@ IntCell::bif_conjugate(Cell * Z) const
 ErrorCode
 IntCell::bif_negative(Cell * Z) const
 {
-   if (value.ival == 0x8000000000000000LL)   // integer overflow
+   if ((uint64_t)value.ival == 0x8000000000000000LL)   // integer overflow
       new (Z) FloatCell(- value.ival);
    else
       new (Z) IntCell(- value.ival);
@@ -625,7 +625,7 @@ const bool invert_Z = b < 0;
            {
              if (b1 & 1)
                 {
-                  if (zi >= 0x7FFFFFFFFFFFFFFFULL / a_2_n)
+                  if ((uint64_t)zi >= 0x7FFFFFFFFFFFFFFFULL / a_2_n)
                      {
                        overflow = true;
                        break;
@@ -634,7 +634,7 @@ const bool invert_Z = b < 0;
                   if (b1 == 1)   break;
                 }
 
-             if (a_2_n >= 100000000ULL)
+             if (a_2_n >= 100000000LL)
                 {
                   overflow = true;
                   break;

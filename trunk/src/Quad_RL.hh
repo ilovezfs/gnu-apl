@@ -43,7 +43,7 @@ public:
 #define Knuth_c 1442695040888963407
 
    /// reset the seed (eg. after )CEAR)
-   unsigned int reset_seed()
+   int reset_seed()
       { state = INITIAL_SEED;   return INITIAL_SEED; }
 
 protected:

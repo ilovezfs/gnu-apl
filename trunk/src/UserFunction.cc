@@ -975,7 +975,7 @@ DynArray(bool, ts_lines, line_starts.size());
    loop(ll, line_count)
       {
         Function_Line line = lines[ll];
-        if (line >= 1 && line < line_starts.size())   ts_lines[line] = true;
+        if (line >= 1 && line < (int)line_starts.size())   ts_lines[line] = true;
       }
 
    if (stop)
@@ -1142,8 +1142,8 @@ int error_line = -1;
 Function_PC
 UserFunction::pc_for_line(Function_Line line) const
 {
-   if (line < 1)                     return Function_PC(body.size() - 1);
-   if (line >= line_starts.size())   return Function_PC(body.size() - 1);
+   if (line < 1)                          return Function_PC(body.size() - 1);
+   if (line >= (int)line_starts.size())   return Function_PC(body.size() - 1);
    return line_starts[line];
 }
 //-----------------------------------------------------------------------------

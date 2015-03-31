@@ -92,7 +92,7 @@ uint64_t ret = current.tv_sec;
 bool
 add_var(SV_key key)
 {
-   for (int c = 0; c < coupled_vars.size(); ++c)
+   for (size_t c = 0; c < coupled_vars.size(); ++c)
        {
          Coupled_var & cv = coupled_vars[c];
          if (key == cv.key)   return true;   // key already exists
@@ -110,7 +110,7 @@ Coupled_var cv = { key, 0, 0 };
 void
 print_vars(ostream & out)
 {
-   for (int c = 0; c < coupled_vars.size(); ++c)
+   for (size_t c = 0; c < coupled_vars.size(); ++c)
        {
          Coupled_var & cv = coupled_vars[c];
          get_CERR() << "   key: 0x" << hex << cv.key << dec << " ";
@@ -142,8 +142,6 @@ control_C(int)
 AP_num3 this_proc = ProcessorID::get_id();
    if (verbose)   get_CERR() << pref << " unregistering processor "
                        << this_proc << endl;
-
-const TCP_socket tcp = Svar_DB::get_DB_tcp();
 
    if (verbose)   get_CERR() << pref << " done (got ^C)" << endl;
 
@@ -262,8 +260,6 @@ const TCP_socket tcp = Svar_DB::get_DB_tcp();
         return 3;
       }
 
-const int nfds = 1 + tcp2;
-
 string progname(prog_name());
 
       { REGISTER_PROCESSOR_c request(tcp, this_proc.id.proc,
@@ -344,7 +340,7 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
                                        << " got RETRACT_OFFER" << endl;
                  {
                    const SV_key key = signal->get__RETRACT_OFFER__key();
-                   for (int c = 0; c < coupled_vars.size(); ++c)
+                   for (size_t c = 0; c < coupled_vars.size(); ++c)
                        {
                          Coupled_var & cv = coupled_vars[c];
                          if (key == cv.key)
@@ -374,7 +370,7 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
                    APL_error_code error = E_VALUE_ERROR;
                    bool found = false;
                    string data;
-                   for (int c = 0; c < coupled_vars.size(); ++c)
+                   for (size_t c = 0; c < coupled_vars.size(); ++c)
                        {
                          Coupled_var & cv = coupled_vars[c];
                          if (key == cv.key)
@@ -405,7 +401,7 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
                    const SV_key key = signal->get__ASSIGN_VALUE__key();
                    APL_error_code error = E_VALUE_ERROR;
                    bool found = false;
-                   for (int c = 0; c < coupled_vars.size(); ++c)
+                   for (size_t c = 0; c < coupled_vars.size(); ++c)
                        {
                          Coupled_var & cv = coupled_vars[c];
                          if (key == cv.key)

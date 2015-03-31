@@ -178,7 +178,7 @@ bool
 UserPreferences::parse_argv_1()
 {
 bool log_startup = false;
-   for (int a = 1; a < expanded_argv.size(); )
+   for (size_t a = 1; a < expanded_argv.size(); )
        {
          const char * opt = expanded_argv[a++];
          const char * val = (a < expanded_argv.size()) ? expanded_argv[a] : 0;
@@ -221,9 +221,9 @@ UserPreferences::parse_argv_2(bool logit)
    //
    // /usr/bin/apl -apl-options... -- -script-options ./scriptname
    //
-   for (int a = 1; a < expanded_argv.size(); )
+   for (size_t a = 1; a < expanded_argv.size(); )
        {
-         if (a == script_argc)   { ++a;   continue; }   // skip scriptname
+         if ((int)a == script_argc)   { ++a;   continue; }   // skip scriptname
 
          const char * opt = expanded_argv[a++];
          const char * val = (a < expanded_argv.size()) ? expanded_argv[a] : 0;
@@ -825,7 +825,7 @@ UserPreferences::open_user_file(const char * fname, char * filename,
 {
    if (sys)   // eg. /etc/gnu-apl.d/preferences
       {
-        snprintf(filename, PATH_MAX,
+        snprintf(filename, APL_PATH_MAX,
                  "%s/gnu-apl.d/%s", Makefile__sysconfdir, fname);
       }
    else       // try $HOME/.gnu_apl
@@ -838,20 +838,20 @@ UserPreferences::open_user_file(const char * fname, char * filename,
              return 0;
            }
 
-        snprintf(filename, PATH_MAX, "%s/.gnu-apl/%s", HOME, fname);
-        filename[PATH_MAX] = 0;
+        snprintf(filename, APL_PATH_MAX, "%s/.gnu-apl/%s", HOME, fname);
+        filename[APL_PATH_MAX] = 0;
 
         // check that $HOME/.gnu-apl/preferences exist and fall back to
         // $HOME/.config gnu-apl/preferences if not
         //
         if (access(filename, F_OK) != 0)   // file does not exit
            {
-             snprintf(filename, PATH_MAX,
+             snprintf(filename, APL_PATH_MAX,
                       "%s/.config/gnu-apl/%s", HOME, fname);
            }
       }
 
-   filename[PATH_MAX] = 0;
+   filename[APL_PATH_MAX] = 0;
 
 FILE * f = fopen(filename, "r");
    if (f == 0)
@@ -871,7 +871,7 @@ FILE * f = fopen(filename, "r");
 void
 UserPreferences::read_config_file(bool sys, bool log_startup)
 {
-char filename[PATH_MAX + 1];
+char filename[APL_PATH_MAX + 1];
 
 FILE * f = open_user_file("preferences", filename, sys, log_startup);
    if (f == 0)   return;
@@ -1162,7 +1162,7 @@ int file_profile = 0;   // the current profile in the preferences file
 void
 UserPreferences::read_threshold_file(bool sys, bool log_startup)
 {
-char filename[PATH_MAX + 1];
+char filename[APL_PATH_MAX + 1];
 
 FILE * f = open_user_file("parallel_thresholds", filename, sys, log_startup);
    if (f == 0)   return;

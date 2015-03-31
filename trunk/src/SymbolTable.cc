@@ -80,7 +80,12 @@ uint32_t hash = FNV_Offset_32;
 Symbol *
 SymbolTable::lookup_symbol(const UCS_string & sym_name)
 {
-   Assert(!Avec::is_quad(sym_name[0]));   // should not be called for ⎕xx
+   if (Avec::is_quad(sym_name[0]))   // should not be called for ⎕xx
+      {
+        CERR << "Symbol is: '" << sym_name << endl;
+        FIXME;
+      }
+     
 
    // compute hash for sym_name
    //
@@ -293,7 +298,7 @@ vector<int> col_width;
 
    loop(c, count)
       {
-        const int col = c % col_width.size();
+        const size_t col = c % col_width.size();
         out << *sorted_names[c];
         if (col == (col_width.size() - 1) || c == (count - 1))
            {

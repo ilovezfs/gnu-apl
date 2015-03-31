@@ -106,7 +106,7 @@ public:
                         PrintStyle outer_style);
 
    /// return the number of rows
-   size_t get_height() const
+   int get_height() const
       { return buffer.size(); }
 
    /// return the first (and only) line
@@ -114,22 +114,22 @@ public:
       { Assert (get_height() == 1);   return buffer[0]; }
 
    /// return line y
-   UCS_string get_line(size_t y) const
+   UCS_string get_line(int y) const
       { Assert (y < get_height());   return buffer[y]; }
 
    /// print this buffer, interruptible with ^C
    void print_interruptible(ostream & out, Rank rank, int quad_pw);
 
    /// return the number of columns.
-   uint32_t get_width(uint32_t y) const
+   int get_width(int y) const
       { if (get_height() == 0)   return 0;
         Assert(y < get_height());   return buffer[y].size(); }
 
    /// Set the char in column x and row y to uc.
-   void set_char(uint32_t x, uint32_t y, Unicode uc);
+   void set_char(int x, int y, Unicode uc);
 
    /// Return the char in column x and row y.
-   Unicode get_char(uint32_t x, uint32_t y) const;
+   Unicode get_char(int x, int y) const;
 
    /// prepend buffer with \b count characters \b pad
    void pad_l(Unicode pad, ShapeItem count);
@@ -141,7 +141,7 @@ public:
    void pad_height(Unicode pad, ShapeItem height);
 
    /// add a decorator frame around this buffer
-   void add_frame(PrintStyle style, const Shape & shape, uint32_t depth);
+   void add_frame(PrintStyle style, const Shape & shape, int depth);
 
    /// add an outer frame around this buffer
    void add_outer_frame(PrintStyle style);

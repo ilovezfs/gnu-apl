@@ -1002,7 +1002,7 @@ const APL_time_us start = now();
 
 const APL_time_us end = start + 1000000 * B->get_ravel(0).get_real_value();
    if (end < start)                            DOMAIN_ERROR;
-   if (end > start + 31*24*60*60*1000000ULL)   DOMAIN_ERROR;   // > 1 month
+   if (end > start + 31*24*60*60*1000000LL)   DOMAIN_ERROR;   // > 1 month
 
    for (;;)
        {
@@ -2065,17 +2065,17 @@ vector<UCS_string> names;
    //
    if (first_chars.size() == 0 || first_chars.contains(UNI_Quad_Quad))
       {
-#define ro_sv_def(x, txt)                                   \
+#define ro_sv_def(x, _txt)                                   \
    { Symbol * symbol = &Workspace::get_v_ ## x();           \
      if ((requested_NCs & 1 << 5) && symbol->get_nc() != 0) \
         names.push_back(symbol->get_name()); }
 
-#define rw_sv_def(x, txt)                                   \
+#define rw_sv_def(x, _txt)                                   \
    { Symbol * symbol = &Workspace::get_v_ ## x();           \
      if ((requested_NCs & 1 << 5) && symbol->get_nc() != 0) \
         names.push_back(symbol->get_name()); }
 
-#define sf_def(x, txt)                                      \
+#define sf_def(x, _txt)                                      \
    { if (requested_NCs & 1 << 6)   names.push_back((x::fun->get_name())); }
 #include "SystemVariable.def"
       }

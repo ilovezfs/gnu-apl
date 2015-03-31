@@ -125,6 +125,8 @@ parallel1:
 .PHONY:	SYNC
 SYNC:	DIST
 	tar xvzf apl-$(VERSION).tar.gz
+	rm -f apl-$(VERSION)/trunk/src/makefile.h
+	rm -f apl-$(VERSION)/trunk/src/configure_args.cc
 	cp -a apl-$(VERSION)/* ../savannah-repo-apl/trunk/
 	rm -Rf apl-$(VERSION)
 	cd ../savannah-repo-apl ; svn add . --force -q

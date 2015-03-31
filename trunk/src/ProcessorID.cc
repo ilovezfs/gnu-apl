@@ -173,7 +173,7 @@ const char * loc = 0;
          if (!strcmp(s, ":userid,"))
             {
               s += 8;
-              for (int u = 1; u < sizeof(svopid.user); ++u)
+              for (int u = 1; u < (int)sizeof(svopid.user); ++u)
                   {
                     if (*s < ' ')   break;
                     svopid.user[u - 1] = *s++;

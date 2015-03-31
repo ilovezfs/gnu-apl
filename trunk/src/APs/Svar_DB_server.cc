@@ -50,7 +50,7 @@ int ret = SVE_NO_EVENTS;
 
    // clear event bit in all shared variables
    //
-   for (int o = 0; o < offered_vars.size(); ++o)
+   for (size_t o = 0; o < offered_vars.size(); ++o)
        {
          Svar_record & svar = offered_vars[o];
          if (id == svar.offering.id)
@@ -73,7 +73,7 @@ Svar_DB_server::get_events(Svar_event & events, AP_num3 proc) const
 {
    // return the first key with an event for proc (if any)
    //
-   for (int o = 0; o < offered_vars.size(); ++o)
+   for (size_t o = 0; o < offered_vars.size(); ++o)
        {
          const Svar_record & svar = offered_vars[o];
          if (proc == svar.offering.id)
@@ -116,7 +116,7 @@ Svar_DB_server::find_pairing_key(SV_key key) const
 const Svar_record * svar1 = find_var(key, LOC);
    if (svar1 == 0)   return 0;
 
-   for (int o = 0; o < offered_vars.size(); ++o)
+   for (size_t o = 0; o < offered_vars.size(); ++o)
        {
          const Svar_record & svar2 = offered_vars[o];
          if (!svar2.valid())     continue;
@@ -137,7 +137,7 @@ Svar_DB_server::find_var(SV_key key, const char * loc) const
         return 0;
       }
 
-   for (int o = 0; o < offered_vars.size(); ++o)
+   for (size_t o = 0; o < offered_vars.size(); ++o)
        {
          const Svar_record & svar = offered_vars[o];
          if (key == svar.key)   return (Svar_record *)&svar;
@@ -167,7 +167,7 @@ vector<AP_num> procs;
 
    // return pending AND matched offers, general or to to_proc
    //
-   for (int o = 0; o < offered_vars.size(); ++o)
+   for (size_t o = 0; o < offered_vars.size(); ++o)
        {
          Svar_record & svar = offered_vars[o];
          if (!svar.valid())         continue;
@@ -186,7 +186,7 @@ vector<AP_num> procs;
           // find smallest proc, append it to the result, and remove it
           //
           AP_num smallest = procs[0];
-          for (int p = 1; p < procs.size(); ++p)
+          for (size_t p = 1; p < procs.size(); ++p)
               {
                 if (smallest > procs[p])   smallest = procs[p];
               }
@@ -214,7 +214,7 @@ Svar_DB_server::get_offered_variables(AP_num to_proc, AP_num from_proc,
 {
    // return pending variables but not matched offers, general or to to_proc
    //
-   for (int o = 0; o < offered_vars.size(); ++o)
+   for (size_t o = 0; o < offered_vars.size(); ++o)
        {
          const Svar_record & svar = offered_vars[o];
          if (!svar.valid())         continue;
@@ -309,7 +309,7 @@ Svar_DB_server::match_pending_offer(const uint32_t * UCS_varname,
 {
 Svar_record * pending_offer = 0;
 
-   for (int o = 0; o < offered_vars.size(); ++o)
+   for (size_t o = 0; o < offered_vars.size(); ++o)
        {
          Svar_record & svar = offered_vars[o];
          if (svar.get_coupling() != SV_OFFERED)                       continue;

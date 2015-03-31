@@ -167,7 +167,7 @@ const Value & format = *A->get_ravel(a++).get_pointer_value();
          // we want fmt to be "%42.42llf"
          //
          char fmt[40];
-         int fm = 0;        // an index into fmt;
+         unsigned int fm = 0;        // an index into fmt;
          fmt[fm++] = '%';   // copy the '%'
          for (;;)
              {
@@ -527,11 +527,11 @@ const APL_Integer what = B->get_ravel(0).get_int_value();
 
         case 30:   // getcwd()
              {
-               char buffer[PATH_MAX + 1];
-               char * success = getcwd(buffer, PATH_MAX);
+               char buffer[APL_PATH_MAX + 1];
+               char * success = getcwd(buffer, APL_PATH_MAX);
                if (!success)   goto out_errno;
 
-               buffer[PATH_MAX] = 0;
+               buffer[APL_PATH_MAX] = 0;
                UCS_string cwd(buffer);
 
                Value_P Z(cwd, LOC);
@@ -661,8 +661,8 @@ const int function_number = X->get_ravel(0).get_near_int();
 
                 char buffer[SMALL_BUF];
 
-                const ssize_t len = fread(buffer, 1, SMALL_BUF, file);
-                if (len < 0)   goto out_errno;
+                const size_t len = fread(buffer, 1, SMALL_BUF, file);
+                if (len == 0)   goto out_errno;
 
                 Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
@@ -1266,11 +1266,12 @@ const int function_number = X->get_ravel(0).get_near_int();
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
                 char * del = 0;
-                if (bytes > sizeof(small_buffer))
+                if (bytes > (int)sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
                 const size_t len = fread(buffer, 1, bytes, file);
-                if (len < 0)   goto out_errno;
+                if (len == 0)   goto out_errno;
+
                 Value_P Z(len, LOC);
                 new (&Z->get_ravel(0)) IntCell(0);   // prototype
                 loop(z, len)   new (Z->next_ravel()) IntCell(buffer[z] & 0xFF);
@@ -1288,7 +1289,7 @@ const int function_number = X->get_ravel(0).get_near_int();
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
                 char * del = 0;
-                if (bytes > sizeof(small_buffer))
+                if (bytes > (int)sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
                 loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int();
@@ -1309,7 +1310,7 @@ const int function_number = X->get_ravel(0).get_near_int();
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
                 char * del = 0;
-                if (bytes > sizeof(buffer))
+                if (bytes > (int)sizeof(buffer))
                    buffer = del = new char[bytes + 1];
 
                 const char * s = fgets(buffer, bytes, file);
@@ -1486,7 +1487,7 @@ const int function_number = X->get_ravel(0).get_near_int();
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
                 char * del = 0;
-                if (bytes > sizeof(small_buffer))
+                if (bytes > (int)sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
                 const ssize_t len = recv(fd, buffer, bytes, 0);
@@ -1509,7 +1510,7 @@ const int function_number = X->get_ravel(0).get_near_int();
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
                 char * del = 0;
-                if (bytes > sizeof(small_buffer))
+                if (bytes > (int)sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
                 loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int();
@@ -1541,7 +1542,7 @@ const int function_number = X->get_ravel(0).get_near_int();
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
                 char * del = 0;
-                if (bytes > sizeof(small_buffer))
+                if (bytes > (int)sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
                 errno = 0;
@@ -1564,7 +1565,7 @@ const int function_number = X->get_ravel(0).get_near_int();
                 char small_buffer[SMALL_BUF];
                 char * buffer = small_buffer;
                 char * del = 0;
-                if (bytes > sizeof(small_buffer))
+                if (bytes > (int)sizeof(small_buffer))
                    buffer = del = new char[bytes];
 
                 loop(z, bytes)   buffer[z] = A->get_ravel(z).get_near_int();

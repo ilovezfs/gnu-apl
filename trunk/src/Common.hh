@@ -101,7 +101,7 @@ APL_time_us now();
 #if HAVE_RDTSC
 inline uint64_t cycle_counter()
 {
-unsigned int lo, hi;
+uint32_t lo, hi;
    __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
    return ((uint64_t)hi << 32) | lo;
 }
@@ -139,7 +139,7 @@ public:
 
    /// init the p'th probe
    static int init(int p)
-      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+      { if (p >= (int)PROBE_COUNT)   return -3;
         probes[p].init();
         return 0;
       }
@@ -184,7 +184,7 @@ public:
 
    /// get the m'th time (from P1 to P2) of this probe
    int64_t get_time(int m) const
-      { if ((unsigned int)m >= (unsigned int)idx)   return -1;
+      { if (m >= idx)   return -1;
         const int64_t diff = measurements[m].cycles_to
                            - measurements[m].cycles_from;
         if (diff < 0)   return -2;
@@ -193,37 +193,37 @@ public:
 
    /// get the m'th time of the p'th probe
    static int get_time(int p, int m)
-      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+      { if (p >= PROBE_COUNT)   return -3;
         return probes[p].get_time(m);
       }
 
    /// get the m'th start time of this probe
    int64_t get_start(int m) const
-      { if ((unsigned int)m >= (unsigned int)idx)   return -1;
+      { if (m >= idx)   return -1;
         return measurements[m].cycles_from;
       }
 
    /// get the m'th start time of the p'th probe
    static int get_start(int p, int m)
-      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+      { if (p >= PROBE_COUNT)   return -3;
         return probes[p].get_start(m);
       }
 
    /// get the m'th stop time of this probe
    int64_t get_stop(int m) const
-      { if ((unsigned int)m >= (unsigned int)idx)   return -1;
+      { if (m >= idx)   return -1;
         return measurements[m].cycles_to;
       }
 
    /// get the m'th stop time of the p'th probe
    static int get_stop(int p, int m)
-      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+      { if (p >= PROBE_COUNT)   return -3;
         return probes[p].get_stop(m);
       }
 
    /// get the number of times int the p'th probe
    static int get_length(int p)
-      { if ((unsigned int)p >= (unsigned int)PROBE_COUNT)   return -3;
+      { if (p >= PROBE_COUNT)   return -3;
         return probes[p].idx;
       }
 

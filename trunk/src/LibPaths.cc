@@ -28,16 +28,12 @@
 #include "LibPaths.hh"
 #include "PrintOperator.hh"
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
 bool LibPaths::root_from_env = false;
 bool LibPaths::root_from_pwd = false;
 
-char LibPaths::APL_bin_path[PATH_MAX + 1] = "";
+char LibPaths::APL_bin_path[APL_PATH_MAX + 1] = "";
 const char * LibPaths::APL_bin_name = LibPaths::APL_bin_path;
-char LibPaths::APL_lib_root[PATH_MAX + 10] = "";
+char LibPaths::APL_lib_root[APL_PATH_MAX + 10] = "";
 
 LibPaths::LibDir LibPaths::lib_dirs[LIB_MAX];
 
@@ -120,7 +116,7 @@ LibPaths::compute_bin_path(const char * argv0, bool logit)
       }
 
    unused = realpath(argv0, APL_bin_path);
-   APL_bin_path[PATH_MAX] = 0;
+   APL_bin_path[APL_PATH_MAX] = 0;
    {
      char * slash =   strrchr(APL_bin_path, '/');
      if (slash)   { *slash = 0;   APL_bin_name = slash + 1; }
@@ -154,7 +150,7 @@ done:
 bool
 LibPaths::is_lib_root(const char * dir)
 {
-char filename[PATH_MAX + 1];
+char filename[APL_PATH_MAX + 1];
 
    snprintf(filename, sizeof(filename), "%s/workspaces", dir);
    if (access(filename, F_OK))   return false;
@@ -178,7 +174,7 @@ const char * path = getenv("APL_LIB_ROOT");
 
    // search from "." to "/" for  a valid lib-root
    //
-int last_len = 2*PATH_MAX;
+int last_len = 2*APL_PATH_MAX;
    APL_lib_root[0] = '.';
    APL_lib_root[1] = 0;
    for (;;)

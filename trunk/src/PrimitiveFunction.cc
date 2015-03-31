@@ -2602,7 +2602,7 @@ bool seen[MAX_RANK];
    loop(r, len_X)
        {
          const APL_Integer a = A->get_ravel(r).get_near_int();
-         const uint32_t x = X->get_ravel(r).get_near_int() - qio;
+         const APL_Integer x = X->get_ravel(r).get_near_int() - qio;
 
          if (x >= B->get_rank())   INDEX_ERROR;
          if (seen[x])              INDEX_ERROR;
