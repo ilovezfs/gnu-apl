@@ -223,10 +223,14 @@ AC_MSG_RESULT([$HAVE_SOLARIS_ATOMIC])
 #
 AC_MSG_CHECKING([if compiler supports dynamic arrays])
 AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM([[extern int foo();]],
-   [[int len = foo();][int array[len];][int a,r;]
-    [for (a=0; a<len; ++a) array[a]=a;]
-    [for (a=0; a<len; ++a) r+=array[a];] [ return r;]])],
+    [AC_LANG_PROGRAM(
+        [ [extern int foo();]
+          [ class A { public: A() {} }; ]
+        ],
+        [ [int len = foo();]
+          [A array[len];]
+          [for (int l = 1; l < len; ++l) array[l] = array[l - 1];]
+        ]           )],
     [DynArrays=yes], [DynArrays=no])
 AC_MSG_RESULT([$DynArrays])
 if test "x$DynArrays" = "xyes"; then

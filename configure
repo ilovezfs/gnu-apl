@@ -18310,13 +18310,16 @@ $as_echo "$HAVE_SOLARIS_ATOMIC" >&6; }
 $as_echo_n "checking if compiler supports dynamic arrays... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-extern int foo();
+ extern int foo();
+           class A { public: A() {} };
+
 int
 main ()
 {
-int len = foo();int array[len];int a,r;
-    for (a=0; a<len; ++a) array[a]=a;
-    for (a=0; a<len; ++a) r+=array[a];  return r;
+ int len = foo();
+          A array[len];
+          for (int l = 1; l < len; ++l) array[l] = array[l - 1];
+
   ;
   return 0;
 }
