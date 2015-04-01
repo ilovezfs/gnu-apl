@@ -126,6 +126,7 @@ parallel1:
 SYNC:	DIST
 	tar xvzf apl-$(VERSION).tar.gz
 	rm -f apl-$(VERSION)/trunk/src/makefile.h
+	rm -f apl-$(VERSION)/trunk/src/buildtag.hh
 	rm -f apl-$(VERSION)/trunk/src/configure_args.cc
 	cp -a apl-$(VERSION)/* ../savannah-repo-apl/trunk/
 	rm -Rf apl-$(VERSION)

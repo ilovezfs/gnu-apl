@@ -484,9 +484,17 @@ struct Function_PC2
            ~__DynArray()
               { delete[] data; }
 
+           const Type * get_data()   { return data; }
+
         protected:
            Type * data;
       };
+
+   size_t strlen(const __DynArray<char> & da)
+      { return strlen(da.get_data()); }
+
+   size_t strrchr(const __DynArray<char> & da, int ch)
+      { return strrchr(da.get_data(), ch); }
 
 # define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
 

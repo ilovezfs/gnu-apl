@@ -943,7 +943,12 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         const char * wsid_start = strrchr(filename.c_str(), '/');
         if (wsid_start == 0)   wsid_start = filename.c_str();
         else                   ++wsid_start;   // skip /
-        const char * wsid_end = filename.c_str() + filename.size() - 4;
+        const char * wsid_end = filename.c_str() + filename.size();
+        if (wsid_end > (wsid_start - 4) &&
+           wsid_end[-4] == '.' &&
+           wsid_end[-3] == 'a' &&
+           wsid_end[-2] == 'p' &&
+           wsid_end[-1] == 'l')   wsid_end -= 4;   // skip .apl extension
         const UTF8_string wsid_utf8((const UTF8 *)wsid_start,
                                     wsid_end - wsid_start);
         const UCS_string wsid_ucs(wsid_utf8);
