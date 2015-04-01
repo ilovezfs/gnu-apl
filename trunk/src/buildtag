@@ -9,7 +9,7 @@ SVNINFO=`svnversion`
 
 ARCHIVE_SVNINFO=`svn info src/Archive.cc | grep "Last Changed Rev" \
                                          | awk -F : '{print $2;}'`
-if [ x$ARCHIVE_SVNINFO = "x" ]
+if [ "$ARCHIVE_SVNINFO"x = "x" ]
 then
     ARCHIVE_SVNINFO="0"
 fi
