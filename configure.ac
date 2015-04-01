@@ -221,7 +221,25 @@ AC_MSG_RESULT([$HAVE_SOLARIS_ATOMIC])
 
 # see if the compiler supports dynamic arrays
 #
-AC_MSG_CHECKING([if compiler supports dynamic arrays])
+AC_MSG_CHECKING([if compiler supports dynamic arrays of PODs])
+AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM(
+        [ [extern int foo();]
+        ],
+        [ [int len = foo();]
+          [int array[len];]
+          [for (int l = 1; l < len; ++l) array[l] = array[l - 1];]
+        ]           )],
+    [DynArrays=yes], [DynArrays=no])
+AC_MSG_RESULT([$DynArrays])
+if test "x$DynArrays" = "xyes"; then
+   AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS], [1],
+                      [Define to 1 if the compiler supports dynamic arrays])
+fi
+
+# see if the compiler supports dynamic arrays with classes
+#
+AC_MSG_CHECKING([if compiler supports dynamic arrays with classes])
 AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM(
         [ [extern int foo();]
@@ -231,11 +249,11 @@ AC_COMPILE_IFELSE(
           [A array[len];]
           [for (int l = 1; l < len; ++l) array[l] = array[l - 1];]
         ]           )],
-    [DynArrays=yes], [DynArrays=no])
-AC_MSG_RESULT([$DynArrays])
-if test "x$DynArrays" = "xyes"; then
-   AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS], [1],
-                      [Define to 1 if the compiler supports dynamic arrays])
+    [DynArrays_noPOD=yes], [DynArrays_noPOD=no])
+AC_MSG_RESULT([$DynArrays_noPOD])
+if test "x$DynArrays_noPOD" = "xyes"; then
+   AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS_NOPOD], [1],
+      [Define to 1 if the compiler supports dynamic arrays with classes])
 fi
 
 # check if the user compiles for ANDROID
@@ -456,7 +474,18 @@ AM_CONDITIONAL([DEVELOP],  [test x$DEVELOP_WANTED    = xyes])
 AM_CONDITIONAL([SQLITE3],  [test x$found_sqlite      = xyes])
 AM_CONDITIONAL([POSTGRES], [test x$USABLE_PostgreSQL = xyes])
 
+echo
 AC_OUTPUT
+
+# create src/buildtag.hh
+echo
+echo "configure: creating src/buildtag.hh"
+. src/buildtag > src/buildtag.hh
+
+# remember how ./configure was called
+echo "configure: creating src/configure_args.cc"
+echo "extern const char * configure_args;" > src/configure_args.cc
+echo "const char * configure_args = \"$0 $ac_configure_args\";" >> src/configure_args.cc
 
 # summary
   echo " "
@@ -471,8 +500,4 @@ fi
   echo "      your SQLite installation is missing or incomplete (see details above)"
   echo " "
 fi
-
-# remember how ./configure was called
-echo "extern const char * configure_args;" > src/configure_args.cc
-echo "const char * configure_args = \"$0 $ac_configure_args\";" >> src/configure_args.cc
 

@@ -21,7 +21,7 @@
 #include "TempFileWrapper.hh"
 
 #include <stdlib.h>
-#include <fcntl.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "emacs.hh"
@@ -41,14 +41,18 @@ FileWrapper::~FileWrapper()
 
 TempFileWrapper::TempFileWrapper( const std::string &prefix )
 {
-char filename[APL_PATH_MAX + 1];
-   snprintf(filename, APL_PATH_MAX, "%sXXXXXX", prefix.c_str());
-   mktemp(filename);
-   if (!*filename)   abort();   // mktemp() failed
-   fd = open(filename, O_RDWR);
-   if( fd == -1 ) abort();      // open() failed
+    stringstream name_buf;
+    name_buf << prefix << "XXXXXX";
+    const char *name_cstr = name_buf.str().c_str();
+    DynArray( char, tmp_name, strlen( name_cstr ) + 1 );
+    strcpy( tmp_name, name_cstr );
 
-    name = std::string(filename);
+    fd = mkstemp( tmp_name );
+    if( fd == -1 ) {
+        abort();
+    }
+
+    name = tmp_name;
     closed = false;
 }
 

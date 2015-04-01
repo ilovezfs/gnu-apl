@@ -121,7 +121,9 @@ const ShapeItem ec = value.element_count();
 
    // non-trivial PrintBuffer
    //
-   const ShapeItem cols = value.get_last_shape_item();
+const ShapeItem cols = value.get_last_shape_item();
+
+#if HAVE_DYNAMIC_ARRAYS_NOPOD
    if (cols <= PB_MAX_COLS)   // few columns
       {
         DynArray(bool, scaling, cols);
@@ -160,6 +162,18 @@ const ShapeItem ec = value.element_count();
         delete [] pcols;
         delete [] scaling;
       }
+#else // e.g. clang
+      {
+        bool * scaling = new bool[cols];
+        PrintBuffer * pcols = new PrintBuffer[cols];
+        PrintBuffer * item_matrix = new PrintBuffer[ec];
+        do_PrintBuffer(value, pctx, out, outer_style,
+                       scaling, pcols, item_matrix);
+        delete [] item_matrix;
+        delete [] pcols;
+        delete [] scaling;
+      }
+#endif
 
    PERFORMANCE_END(fs_PrintBuffer_B, start_0, ec)
 }

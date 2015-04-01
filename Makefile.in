@@ -88,9 +88,6 @@ DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/depend.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
 	$(top_srcdir)/m4/ax_lib_postgresql.m4 \
 	$(top_srcdir)/configure.ac
@@ -1031,6 +1028,7 @@ parallel1:
 SYNC:	DIST
 	tar xvzf apl-$(VERSION).tar.gz
 	rm -f apl-$(VERSION)/trunk/src/makefile.h
+	rm -f apl-$(VERSION)/trunk/src/buildtag.hh
 	rm -f apl-$(VERSION)/trunk/src/configure_args.cc
 	cp -a apl-$(VERSION)/* ../savannah-repo-apl/trunk/
 	rm -Rf apl-$(VERSION)
