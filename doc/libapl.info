@@ -1,5 +1,11 @@
 This is libapl.info, produced by makeinfo version 5.2 from libapl.texi.
 
+INFO-DIR-SECTION GNU programming tools
+START-INFO-DIR-ENTRY
+* libAPL: (libapl).            call the GNU APL interpreter.
+
+END-INFO-DIR-ENTRY
+
 
 File: libapl.info,  Node: Top,  Next: Vague details of the GNU APL implementation,  Up: (dir)
 
@@ -342,29 +348,29 @@ number.
 
 
 Tag Table:
-Node: Top73
-Node: Vague details of the GNU APL implementation1392
-Ref: #vague-details-of-the-gnu-apl-implementation1609
-Node: Lifespan of Values4265
-Ref: #lifespan-of-values4410
-Node: Summary of functions6081
-Ref: #summary-of-functions6266
-Node: Constructor functions7080
-Ref: #constructor-functions7241
-Node: Read access to Values7876
-Ref: #read-access-to-values8067
-Node: Write access to cells9097
-Ref: #write-access-to-cells9295
-Node: Interface to APL interpreter9627
-Ref: #interface-to-apl-interpreter9837
-Node: Destructor function11207
-Ref: #destructor-function11391
-Node: Print support11530
-Ref: #print-support11665
-Node: Programming notes12063
-Ref: #programming-notes12190
-Node: The loc parameter and LOC macro12514
-Ref: #the-loc-parameter-and-loc-macro12688
+Node: Top215
+Node: Vague details of the GNU APL implementation1534
+Ref: #vague-details-of-the-gnu-apl-implementation1751
+Node: Lifespan of Values4407
+Ref: #lifespan-of-values4552
+Node: Summary of functions6223
+Ref: #summary-of-functions6408
+Node: Constructor functions7222
+Ref: #constructor-functions7383
+Node: Read access to Values8018
+Ref: #read-access-to-values8209
+Node: Write access to cells9239
+Ref: #write-access-to-cells9437
+Node: Interface to APL interpreter9769
+Ref: #interface-to-apl-interpreter9979
+Node: Destructor function11349
+Ref: #destructor-function11533
+Node: Print support11672
+Ref: #print-support11807
+Node: Programming notes12205
+Ref: #programming-notes12332
+Node: The loc parameter and LOC macro12656
+Ref: #the-loc-parameter-and-loc-macro12830
 
 End Tag Table
 

@@ -2,6 +2,12 @@
 @documentencoding UTF-8
 @setfilename libapl.info
 
+@dircategory GNU programming tools
+@direntry
+* libAPL: (libapl).            call the GNU APL interpreter.
+
+@end direntry
+
 @ifnottex
 @paragraphindent 0
 @end ifnottex
