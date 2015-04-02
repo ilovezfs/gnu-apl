@@ -477,10 +477,17 @@ AM_CONDITIONAL([POSTGRES], [test x$USABLE_PostgreSQL = xyes])
 echo
 AC_OUTPUT
 
-# create src/buildtag.hh
 echo
+
+# create src/buildtag.hh
+#
 echo "configure: creating src/buildtag.hh"
-cd src ; source buildtag ; cd -
+cd src  source ./buildtag ; cd ..
+
+# create src/makefile.h
+#
+echo "configure: creating src/makefile.h"
+make -C src MAKEFILE_h >/dev/null
 
 # remember how ./configure was called
 echo "configure: creating src/configure_args.cc"

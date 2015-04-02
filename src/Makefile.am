@@ -165,16 +165,17 @@ perf: apl
 
 AM_MAKEFLAGS = -j 8
 
-makefile.h: Makefile
-	@echo "// some strings exported from Makefile"           > $@
-	@echo "//"                                              >> $@
-	@echo "#define Makefile__bindir     \"${bindir}\""      >> $@
-	@echo "#define Makefile__docdir     \"${docdir}\""      >> $@
-	@echo "#define Makefile__sysconfdir \"${sysconfdir}\""  >> $@
-	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> $@
-	@echo "#define Makefile__localedir  \"${localedir}\""   >> $@
-	@echo "#define Makefile__srcdir     \"${abs_srcdir}\""  >> $@
-	@echo                                                   >> $@
+.PHONY:	MAKEFILE_h
+MAKEFILE_h:
+	@echo "// some strings exported from Makefile"           > makefile.h
+	@echo "//"                                              >> makefile.h
+	@echo "#define Makefile__bindir     \"${bindir}\""      >> makefile.h
+	@echo "#define Makefile__docdir     \"${docdir}\""      >> makefile.h
+	@echo "#define Makefile__sysconfdir \"${sysconfdir}\""  >> makefile.h
+	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> makefile.h
+	@echo "#define Makefile__localedir  \"${localedir}\""   >> makefile.h
+	@echo "#define Makefile__srcdir     \"${abs_srcdir}\""  >> makefile.h
+	@echo                                                   >> makefile.h
 
 .PHONY:	patch
 patch:

@@ -226,7 +226,7 @@ public:
    /// return value usage counter
    int value_use_count() const;
 
-   /// clear the Value_P value (if any) this token, return the old pointer
+   /// clear the Value_P value (if any) of this token
    void extract_apl_val(const char * loc) const;
 
    /// change the tag (within the same TokenValueType)
