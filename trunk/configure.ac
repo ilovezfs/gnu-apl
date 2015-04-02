@@ -480,7 +480,7 @@ AC_OUTPUT
 # create src/buildtag.hh
 echo
 echo "configure: creating src/buildtag.hh"
-. src/buildtag > src/buildtag.hh
+cd src ; source buildtag ; cd -
 
 # remember how ./configure was called
 echo "configure: creating src/configure_args.cc"

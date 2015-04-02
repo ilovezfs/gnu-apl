@@ -7,23 +7,19 @@ PACKAGE_VERSION=$2
 
 SVNINFO=`svnversion`
 
-ARCHIVE_SVNINFO=`svn info src/Archive.cc | grep "Last Changed Rev" \
-                                         | awk -F : '{print $2;}'`
-if [ "$ARCHIVE_SVNINFO"x = "x" ]
-then
-    ARCHIVE_SVNINFO="0"
-fi
+ARCHIVE_SVNINFO=`svn info Archive.cc | grep "Last Changed Rev" \
+                                     | awk -F : '{print $2;}'`
 
-CONFIGURE_OPTS="unknown"
+CONFIGURE_OPTS="unknown configure options"
 if [ -x ./config.status ]
 then
-    CONFIGURE_OPTS=`./config.status -V | grep "with options" | sed 's/[^"]*//'`
+    CONFIGURE_OPTS=`../config.status -V | grep "with options" | sed 's/[^"]*//'`
 fi
 BUILD_DATE=`date -u "+%F %R:%S %Z"`
 BUILD_OS=`uname -s -r -m`
-BUILD_TAG="\" / $SVNINFO\", \"$BUILD_DATE\", \"$BUILD_OS\", $CONFIGURE_OPTS"
+BUILD_TAG="\" / $SVNINFO\", \"$BUILD_DATE\", \"$BUILD_OS\", \"$CONFIGURE_OPTS\""
 
-echo "#include \"Common.hh\""
-echo "#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION $BUILD_TAG"
-echo "#define ARCHIVE_SVN $ARCHIVE_SVNINFO"
+echo "#include \"Common.hh\""                                     > buildtag.hh
+echo "#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION $BUILD_TAG" >> buildtag.hh
+echo "#define ARCHIVE_SVN \"$ARCHIVE_SVNINFO\""                  >> buildtag.hh
 

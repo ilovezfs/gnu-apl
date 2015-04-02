@@ -114,12 +114,12 @@ public:
    /// one user defined command
    static vector<user_command> user_commands;
 
+   /// check workspace integrity (stale Value and IndexExpr objects, etc)
+   static void cmd_CHECK(ostream & out);
+
 protected:
    /// show list of commands
    static void cmd_BOXING(ostream & out, const UCS_string & arg);
-
-   /// check workspace integrity (stale Value and IndexExpr objects, etc)
-   static void cmd_CHECK(ostream & out);
 
    /// )SAVE active WS as CONTINUE and )OFF
    static void cmd_CONTINUE(ostream & out);

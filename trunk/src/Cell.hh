@@ -402,6 +402,11 @@ public:
    /// compare comp_len items descendingly
    static bool smaller_vec(const Cell * a, const Cell * b, const void * arg);
 
+   /// raw pointer to the primary value (for 27 ⎕CR)
+   const void * get_u0() const   { return &value; }
+
+   /// raw pointer to the secondary value (for 28 ⎕CR)
+   const void * get_u1() const   { return &value2; }
 protected:
    /// the primary value of \b this cell
    SomeValue value;

@@ -482,7 +482,20 @@ Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
 {
    // dont print anything if shape is a scalar or non-empty vector
    //
-   if (shape.get_volume() != 0 && shape.get_rank() <= 1)   return false;
+   if (shape.get_rank() == 0)   return false;   // scalar
+
+   if (shape.get_rank() == 1)   // true vector
+      {
+        if (shape.get_volume() == 1)
+           {
+//           ucs.append(UNI_ASCII_L_PARENT);
+//           ucs.append(UNI_ASCII_1);
+//           ucs.append(UNI_RHO);
+//           return true;
+           }
+
+        if (shape.get_volume() != 0)   return false;
+      }
 
    ucs.append(UNI_ASCII_L_PARENT);
    loop(r, shape.get_rank())

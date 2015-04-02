@@ -592,6 +592,63 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                return Z;
              }
 
+        case 26:   // Cell types (flat)
+             {
+               const ShapeItem len = B.element_count();
+               Value_P Z(len, LOC);
+               loop(l, len)
+                   {
+                     Cell * cZ = Z->next_ravel();
+                     if (B.get_ravel(l).is_pointer_cell())
+                        {
+                          Value_P B_sub = B.get_ravel(l).get_pointer_value();
+                          Value_P Z_sub = do_CR(a, *B_sub.get(), pctx);
+                          new (cZ) PointerCell(Z_sub, Z.getref());
+                        }
+                     else
+                        {
+                          new (cZ)   IntCell(B.get_ravel(l).get_cell_type());
+                        }
+                   }
+               if (len == 0)   // prototype
+                  {
+                     Cell * cZ = &Z->get_ravel(0);
+                     if (B.get_ravel(0).is_pointer_cell())
+                        {
+                          Value_P B_sub = B.get_ravel(0).get_pointer_value();
+                          Value_P Z_sub = do_CR(a, *B_sub.get(), pctx);
+                          new (cZ) PointerCell(Z_sub, Z.getref());
+                        }
+                     else
+                        {
+                          new (cZ) IntCell(B.get_ravel(0).get_cell_type());
+                        }
+                  }
+               return Z;
+             }
+          
+        case 27:   // value as int
+        case 28:   // value2 as int
+             {
+               const ShapeItem len = B.element_count();
+               Value_P Z(len, LOC);
+               uint64_t data;
+               loop(l, len)
+                   {
+                     const void * src = (a == 27) ? B.get_ravel(l).get_u0()
+                                                  : B.get_ravel(l).get_u1();
+                     memcpy(&data, src, sizeof(data));
+                     new (Z->next_ravel())   IntCell(data);
+                   }
+               if (len == 0)
+                  {
+                     const void * src = (a == 27) ? B.get_ravel(0).get_u0()
+                                                  : B.get_ravel(0).get_u1();
+                     memcpy(&data, src, sizeof(data));
+                    new (&Z->get_ravel(0))   IntCell(data);
+                  }
+               return Z;
+             }
         default: DOMAIN_ERROR;
       }
 
