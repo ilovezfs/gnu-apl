@@ -482,7 +482,7 @@ echo
 # create src/buildtag.hh
 #
 echo "configure: creating src/buildtag.hh"
-cd src  source ./buildtag ; cd ..
+cd src ; source ./buildtag ; cd ..
 
 # create src/makefile.h
 #
