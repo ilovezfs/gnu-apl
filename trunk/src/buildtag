@@ -19,7 +19,21 @@ BUILD_DATE=`date -u "+%F %R:%S %Z"`
 BUILD_OS=`uname -s -r -m`
 BUILD_TAG="\" / $SVNINFO\", \"$BUILD_DATE\", \"$BUILD_OS\", \"$CONFIGURE_OPTS\""
 
+# write buildtag.hh
+#
 echo "#include \"Common.hh\""                                     > buildtag.hh
 echo "#define BUILDTAG PACKAGE_NAME, PACKAGE_VERSION $BUILD_TAG" >> buildtag.hh
 echo "#define ARCHIVE_SVN \"$ARCHIVE_SVNINFO\""                  >> buildtag.hh
+
+# write makefile.h
+#
+echo "// some strings exported from Makefile"             > makefile.h
+echo "//"                                                >> makefile.h
+echo "#define Makefile__bindir     \"$bindir\""          >> makefile.h
+echo "#define Makefile__docdir     \"$docdir\""          >> makefile.h
+echo "#define Makefile__sysconfdir \"$sysconfdir\""      >> makefile.h
+echo "#define Makefile__pkglibdir  \"$libdir/$PACKAGE\n" >> makefile.h
+echo "#define Makefile__localedir  \"$localedir\""       >> makefile.h
+echo "#define Makefile__srcdir     \"$abs_srcdir\""      >> makefile.h
+echo                                                     >> makefile.h
 

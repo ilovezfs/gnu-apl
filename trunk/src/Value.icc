@@ -50,59 +50,59 @@ Value_P::decrement_owner_count(Value * & v, const char * loc)
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(const char * loc)
-   : value_p(new Value(LOC))
+   : value_p(new Value(loc))
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(const Cell & cell, const char * loc)
-   : value_p(new Value(cell, LOC))
+   : value_p(new Value(cell, loc))
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(ShapeItem len, const char * loc)
-   : value_p(new Value(len, LOC))
+   : value_p(new Value(len, loc))
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(const UCS_string & ucs, const char * loc)
-   : value_p(new Value(ucs, LOC))
+   : value_p(new Value(ucs, loc))
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(const CDR_string & cdr, const char * loc)
-   : value_p(new Value(cdr, LOC))
+   : value_p(new Value(cdr, loc))
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(const UTF8_string & utf, const char * loc)
-   : value_p(new Value(utf, LOC))
+   : value_p(new Value(utf, loc))
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(const Shape & sh, const char * loc)
-   : value_p(new Value(sh, LOC))
+   : value_p(new Value(sh, loc))
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(Value * val, const char * loc)
    : value_p(val)
 {
-   increment_owner_count(value_p, LOC);
-   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, LOC);
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
 inline Value_P::Value_P(const Value_P & other)

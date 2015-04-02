@@ -409,7 +409,6 @@ Token_string tos;
    //
    tf2_simplify(tos);
 
-
    if (tos.size() < 2)   return UCS_string();   // too short for an inverse 2⎕TF
 
    // it could happen that some system variable ⎕XX which is not known by
@@ -488,10 +487,10 @@ Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
       {
         if (shape.get_volume() == 1)
            {
-//           ucs.append(UNI_ASCII_L_PARENT);
-//           ucs.append(UNI_ASCII_1);
-//           ucs.append(UNI_RHO);
-//           return true;
+             ucs.append(UNI_ASCII_L_PARENT);
+             ucs.append(UNI_ASCII_1);
+             ucs.append(UNI_RHO);
+             return true;
            }
 
         if (shape.get_volume() != 0)   return false;
@@ -716,13 +715,18 @@ int d = 0;
             tos[s + 1].get_tag()   == TOK_F12_RHO &&                // ⍴
             tos[s + 2].get_Class() == TC_VALUE)                     // B 
            {
-             Value_P aval = tos[s].get_apl_val();
+             Shape sh;
+             {
+               Value_P aval = tos[s].get_apl_val();
+               sh = Shape(aval, 0.0, 0);
+               tos[s].extract_apl_val(LOC);
+             }
+
              Value_P bval = tos[s + 2].get_apl_val();
-             Shape sh(aval, 0, 0);
-             if (sh.get_volume() == bval->element_count())   // same shape
+             if (sh.get_volume() == bval->element_count())   // same volume
                 {
-                  Token t(TOK_APL_VALUE1, bval);   // grouped value
-                  move_1(tos[d], t, LOC);
+                  move_1(tos[d], tos[s + 2], LOC);
+                  tos[d].ChangeTag(TOK_APL_VALUE1);
                   bval->set_shape(sh);
                   progress = true;
                   ++d;
@@ -731,7 +735,8 @@ int d = 0;
                 }
              else
                 {
-                  move_2(tos[d], Bif_F12_RHO::do_reshape(sh, *bval), LOC);
+                  Token t = Bif_F12_RHO::do_reshape(sh, *bval);
+                  move_1(tos[d], t, LOC);
                   progress = true;
                   ++d;
                   s += 2;
@@ -790,8 +795,10 @@ int d = 0;
            {
              while ((s + 1) < tos.size() && tos[s + 1].get_Class() == TC_VALUE)
                 {
-                   Value::glue(tos[d], tos[d], tos[s + 1], LOC);
-                   progress = true;
+                  Token t;
+                  move_1(t, tos[d], LOC);
+                  Value::glue(tos[d], t, tos[s + 1], LOC);
+                  progress = true;
                   ++s;
                 }
            }
