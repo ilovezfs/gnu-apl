@@ -53,7 +53,7 @@ Rank rk_chunk_B = B->get_rank();
 
    y123_to_B(y.get_apl_val(), rk_chunk_B);
 
-Shape sh_X(X, Workspace::get_CT(), Workspace::get_IO());
+Shape sh_X(X, Workspace::get_IO());
    return do_LyXB(LO.get_function(), &sh_X, B, rk_chunk_B);
 }
 //-----------------------------------------------------------------------------
@@ -156,7 +156,7 @@ Rank rk_chunk_B = B->get_rank();
 
    y123_to_AB(y.get_apl_val(), rk_chunk_A, rk_chunk_B);
 
-Shape sh_X(X, Workspace::get_CT(), Workspace::get_IO());
+Shape sh_X(X, Workspace::get_IO());
    return do_ALyXB(A, rk_chunk_A, LO.get_function(), &sh_X, B, rk_chunk_B);
 }
 //-----------------------------------------------------------------------------

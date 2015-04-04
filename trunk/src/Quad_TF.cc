@@ -488,8 +488,7 @@ Quad_TF::tf2_shape(UCS_string & ucs, const Shape & shape)
         if (shape.get_volume() == 1)
            {
              ucs.append(UNI_ASCII_L_PARENT);
-             ucs.append(UNI_ASCII_1);
-             ucs.append(UNI_RHO);
+             ucs.append(UNI_ASCII_COMMA);
              return true;
            }
 
@@ -653,161 +652,194 @@ bool have_parenth = tf2_shape(ucs, value->get_shape());
    return false;
 }
 //-----------------------------------------------------------------------------
-int
+void
 Quad_TF::tf2_simplify(Token_string & tos)
 {
-int errors = 0;
-
-   for (bool progress = true; progress && !errors;)
+   for (bool progress = true; progress; progress = false)
        {
-         progress = false;
-         errors += tf2_remove_UCS(tos);
-         errors += tf2_remove_RHO(tos, progress);
-         errors += tf2_remove_parentheses(tos, progress);
-         errors += tf2_glue(tos, progress);
+         tf2_remove_UCS(tos);
+         tf2_remove_RHO(tos, progress);
+         tf2_remove_COMMA(tos, progress);
+         tf2_remove_parentheses(tos, progress);
+         tf2_glue(tos, progress);
        }
-
-   return errors;
 }
 //-----------------------------------------------------------------------------
-int
+void
 Quad_TF::tf2_remove_UCS(Token_string & tos)
 {
-int d = 0;
+ShapeItem skipped = 0;
 bool ucs_active = false;
 
    loop(s, tos.size())
       {
         if (s < (tos.size() - 1) && tos[s].get_tag() == TOK_Quad_UCS)
            {
-              ucs_active = true;
-              continue;
+             ucs_active = true;
+             s += 1;     skipped += 1;    // skip A ⍴
+             continue;
            }
 
-        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
+        if (skipped)   // dont copy to itself
+           move_1(tos[s - skipped], tos[s], LOC);
 
         if (ucs_active)   // translate
            {
-              Assert(tos[d].get_Class() == TC_VALUE);
-              tos[d].get_apl_val()->toggle_UCS();
+              Assert(tos[s - skipped].get_Class() == TC_VALUE);
+              tos[s - skipped].get_apl_val()->toggle_UCS();
               ucs_active = false;
            }
-
-        ++d;
       }
 
-   tos.shrink(d);
-   return 0;   // no error(s)
+   if (skipped)   tos.shrink(tos.size() - skipped);
 }
 //-----------------------------------------------------------------------------
-int
+void
 Quad_TF::tf2_remove_RHO(Token_string & tos, bool & progress)
 {
-int d = 0;
+ShapeItem skipped = 0;
 
    loop(s, tos.size())
       {
         // we replace A⍴B by B reshaped to A. But only if the element count in
         // B agrees with A (otherwise we need to glue first).
         //
-        if (s < (tos.size() - 2)                  &&
-            tos[s    ].get_Class() == TC_VALUE    &&                // A
-            tos[s + 1].get_tag()   == TOK_F12_RHO &&                // ⍴
-            tos[s + 2].get_Class() == TC_VALUE)                     // B 
+        if (s >= (tos.size() - 2)                 ||
+            tos[s    ].get_Class() != TC_VALUE    ||                // A
+            tos[s + 1].get_tag()   != TOK_F12_RHO ||                // ⍴
+            tos[s + 2].get_Class() != TC_VALUE)                     // B 
            {
-             Shape sh;
-             {
-               Value_P aval = tos[s].get_apl_val();
-               sh = Shape(aval, 0.0, 0);
-               tos[s].extract_apl_val(LOC);
-             }
-
-             Value_P bval = tos[s + 2].get_apl_val();
-             if (sh.get_volume() == bval->element_count())   // same volume
-                {
-                  move_1(tos[d], tos[s + 2], LOC);
-                  tos[d].ChangeTag(TOK_APL_VALUE1);
-                  bval->set_shape(sh);
-                  progress = true;
-                  ++d;
-                  s += 2;
-                 continue;
-                }
-             else
-                {
-                  Token t = Bif_F12_RHO::do_reshape(sh, *bval);
-                  move_1(tos[d], t, LOC);
-                  progress = true;
-                  ++d;
-                  s += 2;
-                 continue;
-                }
+             if (skipped)   // dont copy to itself
+                move_1(tos[s - skipped], tos[s], LOC);
+             continue;
            }
 
-        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
-        ++d;
+        Shape sh;
+        {
+          Value_P aval = tos[s].get_apl_val();
+          sh = Shape(aval, /* ⎕IO */ 0);
+          tos[s].extract_apl_val(LOC);
+        }
+        s += 2;     skipped += 2;    // skip A ⍴
+
+        Value_P bval = tos[s].get_apl_val();
+        if (sh.get_volume() == bval->element_count())   // same volume
+           {
+             move_1(tos[s - skipped], tos[s], LOC);
+             tos[s - skipped].ChangeTag(TOK_APL_VALUE1);
+             bval->set_shape(sh);
+           }
+        else
+           {
+             Token t = Bif_F12_RHO::do_reshape(sh, *bval);
+             move_1(tos[s - skipped], t, LOC);
+           }
       }
 
-   tos.shrink(d);
-   return 0;   // no error(s)
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        progress = true;
+      }
 }
 //-----------------------------------------------------------------------------
-int
+void
+Quad_TF::tf2_remove_COMMA(Token_string & tos, bool & progress)
+{
+ShapeItem skipped = 0;
+
+   loop(s, tos.size())
+      {
+        // we replace , B by B reshaped
+        //
+        if (s >= (tos.size() - 1)                   ||
+            tos[s    ].get_tag()   != TOK_F12_COMMA ||   // ,
+            tos[s + 1].get_Class() != TC_VALUE)          // B 
+           {
+             if (skipped)   // dont copy to itself
+                move_1(tos[s - skipped], tos[s], LOC);
+             continue;
+           }
+
+        s += 1;   skipped += 1;    // skip ,
+
+        Value_P bval = tos[s].get_apl_val();
+        const Shape sh(bval->element_count());
+        bval->set_shape(sh);
+
+        move_1(tos[s - skipped], tos[s], LOC);
+        tos[s - skipped].ChangeTag(TOK_APL_VALUE1);
+      }
+
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        progress = true;
+      }
+}
+//-----------------------------------------------------------------------------
+void
 Quad_TF::tf2_remove_parentheses(Token_string & tos, bool & progress)
 {
-int d = 0;
+ShapeItem skipped = 0;
 
    loop(s, tos.size())   // ⍴ must not be first or last
       {
         // we replace A⍴B by B reshaped to A. But only if the element count in
         // B agrees with A (otherwise we need to glue first).
         //
-        if (s < (tos.size() - 2)                 &&
+        if (s < (tos.size() - 2)                   &&
             tos[s].get_tag()       == TOK_L_PARENT &&
             tos[s + 1].get_Class() == TC_VALUE     &&
             tos[s + 2].get_tag()   == TOK_R_PARENT)   // ( B )
            {
-             move_1(tos[d], tos[s + 1], LOC);   // override A of A⍴B
-             progress = true;
-             ++d;
-             s += 2;
+             move_1(tos[s - skipped], tos[s + 1], LOC);  // override ( of (B)
+             s += 2;   skipped += 2;
              continue;
            }
 
-        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
-        ++d;
+        if (skipped)   // dont copy to itself
+           move_1(tos[s - skipped], tos[s], LOC);
       }
 
-   tos.shrink(d);
-   return 0;   // no error(s)
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        progress = true;
+      }
 }
 //-----------------------------------------------------------------------------
-int
+void
 Quad_TF::tf2_glue(Token_string & tos, bool & progress)
 {
-int d = 0;
+ShapeItem skipped = 0;
 
    loop(s, tos.size())   // ⍴ must not be first or last
       {
-        if (d != s)   move_1(tos[d], tos[s], LOC);   // dont copy to itself
+        // the first value (if any) survives
+        //
+        if (skipped)   // dont copy to itself
+           move_1(tos[s - skipped], tos[s], LOC);
 
-        if (tos[d].get_Class() == TC_VALUE)
-           {
-             while ((s + 1) < tos.size() && tos[s + 1].get_Class() == TC_VALUE)
-                {
-                  Token t;
-                  move_1(t, tos[d], LOC);
-                  Value::glue(tos[d], t, tos[s + 1], LOC);
-                  progress = true;
-                  ++s;
-                }
-           }
+        if (tos[s - skipped].get_Class() != TC_VALUE)   continue;
 
-        ++d;
+         // subsequent values (if any) are glued to the first value which
+         // is now tos[s - skipped]
+         //
+         while ((s + 1) < tos.size() && tos[s + 1].get_Class() == TC_VALUE)
+            {
+               Token t;
+               move_1(t, tos[s - skipped], LOC);
+               Value::glue(tos[s - skipped], t, tos[s + 1], LOC);
+               s += 1;   skipped += 1;
+            }
       }
 
-   tos.shrink(d);
-   return 0;   // no error(s)
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        progress = true;
+      }
 }
 //-----------------------------------------------------------------------------
 UCS_string

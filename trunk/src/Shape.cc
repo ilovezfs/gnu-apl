@@ -22,7 +22,7 @@
 #include "Value.icc"
 
 //-----------------------------------------------------------------------------
-Shape::Shape(Value_P A, APL_Float qct, int qio_A)
+Shape::Shape(Value_P A, int qio_A)
    : rho_rho(0),
      volume(1)
 {

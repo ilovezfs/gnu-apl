@@ -161,6 +161,13 @@ EXPO1:
 	make RPM
 
 # dist and then adding Makefile,dist as Makefile to the tar file
+Makefile.dist:
+	echo "%:"		 > $@
+	echo "rm -f Makefile"	>> $@
+	echo "./configure"	>> $@
+	echo "make $@"		>> $@
+	echo 			>> $@
+
 DIST:	dist Makefile.dist
 	pwd
 	mkdir -p tmp

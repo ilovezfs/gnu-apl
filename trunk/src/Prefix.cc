@@ -1207,7 +1207,7 @@ Prefix::reduce_A_ASS_B_()
 Value_P A = at0().get_apl_val();
 Value_P B = at2().get_apl_val();
 
-   A->assign_cellrefs(B);   // erases A !
+   A->assign_cellrefs(B);
 
 Token result = Token(TOK_APL_VALUE2, B);
    pop_args_push_result(result);

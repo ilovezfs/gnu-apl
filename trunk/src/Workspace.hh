@@ -24,6 +24,7 @@
 #include "PrimitiveOperator.hh"
 #include "PrintContext.hh"
 #include "QuadFunction.hh"
+#include "Quad_CR.hh"
 #include "Quad_RL.hh"
 #include "Quad_SVx.hh"
 #include "ScalarFunction.hh"

@@ -117,7 +117,7 @@ public:
 
    /// return the current dyadic function (if any)
    const Function * get_monadic_fun()
-      { return at1().get_ValueType() == TV_FUN ? at1().get_function() : 0; }
+      { return at0().get_ValueType() == TV_FUN ? at0().get_function() : 0; }
 
    /// execute one context (user defined function or operator, execute,
    /// or immediate execution)

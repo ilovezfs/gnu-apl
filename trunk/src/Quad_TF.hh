@@ -84,21 +84,23 @@ protected:
    /// return B in transfer format 2 (new APL format) for a variable
    static Token tf2_var(const UCS_string & var_name, Value_P val);
 
-   /// simplify tos by removing UCS nnn etc. return the number of errors.
-   static int tf2_simplify(Token_string & tos);
+   /// simplify tos by removing UCS nnn etc.
+   static void tf2_simplify(Token_string & tos);
 
    /// replace ⎕UCS n... by the corresponding Unicodes,
-   /// return the number of errors
-   static int tf2_remove_UCS(Token_string & tos);
+   static void tf2_remove_UCS(Token_string & tos);
 
-   /// replace shape ⍴ value by a reshaped value
-   static int tf2_remove_RHO(Token_string & tos, bool & progress);
+   /// replace A ⍴ B by a reshaped B
+   static void tf2_remove_RHO(Token_string & tos, bool & progress);
+
+   /// replace , B by a reshaped B
+   static void tf2_remove_COMMA(Token_string & tos, bool & progress);
 
    /// replace ( value ) by value
-   static int tf2_remove_parentheses(Token_string & tos, bool & progress);
+   static void tf2_remove_parentheses(Token_string & tos, bool & progress);
 
    /// replace value1 value2 by value
-   static int tf2_glue(Token_string & tos, bool & progress);
+   static void tf2_glue(Token_string & tos, bool & progress);
 
    /// return B in transfer format 2 (new APL format) for a function
    static UCS_string tf2_fun(const UCS_string & fun_name, const Function & fun);

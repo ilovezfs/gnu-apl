@@ -37,11 +37,15 @@ public:
    /// Overloaded Cell::is_lval_cell().
    virtual bool is_lval_cell()  const   { return true; }
 
-   /// Overloaded Cell::get_lval_value().
+   /// Overloaded Cell::get_lval_value()
    virtual Cell * get_lval_value() const;
 
-   /// Overloaded Cell::character_representation().
+   /// Overloaded Cell::character_representation()
    virtual PrintBuffer character_representation(const PrintContext &pctx) const;
+
+   /// return the owner of the cell pointed to
+   Value * get_cell_owner() const
+      { return value2.owner; }
 
 protected:
    ///  Overloaded Cell::get_cell_type()

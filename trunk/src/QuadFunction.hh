@@ -83,37 +83,6 @@ protected:
 };
 //-----------------------------------------------------------------------------
 /**
-   The system function ⎕CR (Character Representation).
- */
-class Quad_CR : public QuadFunction
-{
-public:
-   /// Constructor.
-   Quad_CR() : QuadFunction(TOK_Quad_CR) {}
-
-   /// overloaded Function::eval_B().
-   virtual Token eval_B(Value_P B);
-
-   /// overloaded Function::eval_AB().
-   virtual Token eval_AB(Value_P A, Value_P B);
-
-   /// compute \b a ⎕CR \b B
-   static Value_P do_CR(APL_Integer a, const Value & B, PrintContext pctx);
-
-   static Quad_CR * fun;          ///< Built-in function.
-   static Quad_CR  _fun;          ///< Built-in function.
-
-   /// portable variable encoding of value named name (varname or varname ⊂)
-   static void do_CR10_var(vector<UCS_string> & result,
-                           const UCS_string & name, const UCS_string & pick,
-                           const Value & value);
-
-protected:
-   /// 10 ⎕CR symbol_name (variable or function name)
-   static void do_CR10(vector<UCS_string> & result, const Value & symbol_name);
-};
-//-----------------------------------------------------------------------------
-/**
    The system function ⎕DL (Delay).
  */
 class Quad_DL : public QuadFunction

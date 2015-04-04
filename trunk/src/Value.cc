@@ -291,6 +291,7 @@ Cell * C = &get_ravel(0);
    // cellowner: the owner of the cells that this points to
    //
 Value * cellowner = get_lval_cellowner();
+
 const int src_incr = new_value->is_scalar() ? 0 : 1;
 
    // if this is a scalar and new_value is not, then enclose new_value
@@ -320,7 +321,7 @@ const int src_incr = new_value->is_scalar() ? 0 : 1;
 
         // erase the pointee when overriding a pointer-cell.
         //
-        if (dest)   dest->init(*src, *this);
+        if (dest)   dest->init(*src, *cellowner);
         src += src_incr;
       }
 }
@@ -330,13 +331,18 @@ Value::get_lval_cellowner() const
 {
 const ShapeItem ec = nz_element_count();
 
+   // find the first lval cell with a non-0 owner
+   //
+const Cell * C = &get_ravel(0);
    loop(e, ec)
       {
-        const Cell & cell = get_ravel(e);
-        if (cell.is_lval_cell())   return cell.get_cell_owner();
-        if (!cell.is_pointer_cell())   return 0;
-        return  cell.get_pointer_value()->get_lval_cellowner();
+        if (C->is_lval_cell())
+           return ((const LvalCell *)C)->get_cell_owner();
 
+        if (C->is_pointer_cell())
+           return  C->get_pointer_value()->get_lval_cellowner();
+
+        ++C;
       }
 
    return 0;
@@ -991,11 +997,12 @@ Value::index(Value_P X) const
         if (get_rank() == 0 &&
             get_ravel(0).is_lval_cell())   // selective assignment
            {
-             const Cell & ptr = *get_ravel(0).get_lval_value();
+             Cell & ptr = *get_ravel(0).get_lval_value();
              if (ptr.is_pointer_cell())
                 {
                   Value_P dest = ptr.get_pointer_value()->get_cellrefs(LOC);
-                  return dest->index(X);
+                  Value_P result = dest->index(X);
+                  return result;
                 }
            }
 
