@@ -1028,7 +1028,7 @@ this:
 ==============
 
 The ⎕CR function has an optional left argument that selects one of
-several formatting style and conversions in addition to the well-known
+several formatting styles and conversions in addition to the well-known
 monadic form.
 
    Say a byte vector is a character vector with each character having an
@@ -1074,6 +1074,15 @@ format to Value)
 
    A=20-25: like 3,4,7-9 but using a formatting similar to NARS APL ⎕FMT
 (showing the axis lengths as numbers instead of → and ↓)
+
+   A=26: Z is the cell types of the ravel elements of B (2: character,
+16: integer, 32: real number, 64: complex number.
+
+   A=27: Z[I] is the primary data representation (for example the real
+part of a complex number) of the ravel elements of B[I].
+
+   A=28: Z[I] is the additional data representation (for example the
+imaginary part of a complex number) of the ravel elements of B[I].
 
    Conversions 14 to 17 can be used, for example, to store APL values as
 printable ASCII texts in databases.
@@ -2833,14 +2842,14 @@ Node: Top383
 Node: Chapter 11404
 Node: Chapter 216387
 Node: Chapter 320656
-Node: Chapter 453319
-Node: Chapter 555067
-Node: Chapter 656196
-Node: Section 6.156615
-Node: Section 6.257302
-Node: Chapter 758133
-Node: Section 7.158636
-Node: Section 7.283945
+Node: Chapter 453708
+Node: Chapter 555456
+Node: Chapter 656585
+Node: Section 6.157004
+Node: Section 6.257691
+Node: Chapter 758522
+Node: Section 7.159025
+Node: Section 7.284334
 
 End Tag Table
 

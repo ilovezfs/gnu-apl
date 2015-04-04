@@ -159,23 +159,24 @@ am__libapl_la_SOURCES_DIST = buildtag buildtag.hh ../config.h \
 	PrimitiveFunction.cc PrimitiveFunction.hh PrimitiveOperator.cc \
 	PrimitiveOperator.hh PrintBuffer.cc PrintBuffer.hh \
 	PrintContext.hh PrintOperator.hh QuadFunction.cc \
-	QuadFunction.hh ProcessorID.cc ProcessorID.hh Quad_FX.cc \
-	Quad_FX.hh Quad_RL.cc Quad_RL.hh Quad_SVx.cc Quad_SVx.hh \
-	Quad_TF.cc Quad_TF.hh Parallel.cc Parallel.hh Performance.cc \
-	Performance.def Performance.hh RealCell.cc RealCell.hh \
-	Shape.cc Shape.hh SharedValuePointer.hh Simple_string.hh \
-	ScalarFunction.cc ScalarFunction.hh Source.hh \
-	StateIndicator.cc StateIndicator.hh Svar_DB.cc Svar_DB.hh \
-	Svar_record.cc Svar_record.hh tcp_signal.m4 Svar_signals.def \
-	Svar_signals.hh Symbol.cc Symbol.hh SymbolTable.cc \
-	SymbolTable.hh SystemLimits.def SystemLimits.hh \
-	SystemVariable.cc SystemVariable.def SystemVariable.hh \
-	IO_Files.cc IO_Files.hh Token.cc Token.def Token.hh \
-	TokenEnums.hh Tokenizer.cc Tokenizer.hh UCS_string.cc \
-	UCS_string.hh Unicode.hh UserFunction.cc UserFunction.hh \
-	UserPreferences.cc UserPreferences.hh UTF8_string.cc \
-	UTF8_string.hh Value.cc Value.icc Value.hh ValueHistory.cc \
-	ValueHistory.hh Workspace.cc Workspace.hh libapl.h libapl.cc
+	QuadFunction.hh ProcessorID.cc ProcessorID.hh Quad_CR.cc \
+	Quad_CR.hh Quad_FX.cc Quad_FX.hh Quad_RL.cc Quad_RL.hh \
+	Quad_SVx.cc Quad_SVx.hh Quad_TF.cc Quad_TF.hh Parallel.cc \
+	Parallel.hh Performance.cc Performance.def Performance.hh \
+	RealCell.cc RealCell.hh Shape.cc Shape.hh \
+	SharedValuePointer.hh Simple_string.hh ScalarFunction.cc \
+	ScalarFunction.hh Source.hh StateIndicator.cc \
+	StateIndicator.hh Svar_DB.cc Svar_DB.hh Svar_record.cc \
+	Svar_record.hh tcp_signal.m4 Svar_signals.def Svar_signals.hh \
+	Symbol.cc Symbol.hh SymbolTable.cc SymbolTable.hh \
+	SystemLimits.def SystemLimits.hh SystemVariable.cc \
+	SystemVariable.def SystemVariable.hh IO_Files.cc IO_Files.hh \
+	Token.cc Token.def Token.hh TokenEnums.hh Tokenizer.cc \
+	Tokenizer.hh UCS_string.cc UCS_string.hh Unicode.hh \
+	UserFunction.cc UserFunction.hh UserPreferences.cc \
+	UserPreferences.hh UTF8_string.cc UTF8_string.hh Value.cc \
+	Value.icc Value.hh ValueHistory.cc ValueHistory.hh \
+	Workspace.cc Workspace.hh libapl.h libapl.cc
 am__objects_1 = libapl_la-Archive.lo libapl_la-ArrayIterator.lo \
 	libapl_la-Assert.lo libapl_la-Avec.lo libapl_la-Backtrace.lo \
 	libapl_la-Bif_F12_FORMAT.lo libapl_la-Bif_F12_SORT.lo \
@@ -201,7 +202,7 @@ am__objects_1 = libapl_la-Archive.lo libapl_la-ArrayIterator.lo \
 	libapl_la-PointerCell.lo libapl_la-PrimitiveFunction.lo \
 	libapl_la-PrimitiveOperator.lo libapl_la-PrintBuffer.lo \
 	libapl_la-QuadFunction.lo libapl_la-ProcessorID.lo \
-	libapl_la-Quad_FX.lo libapl_la-Quad_RL.lo \
+	libapl_la-Quad_CR.lo libapl_la-Quad_FX.lo libapl_la-Quad_RL.lo \
 	libapl_la-Quad_SVx.lo libapl_la-Quad_TF.lo \
 	libapl_la-Parallel.lo libapl_la-Performance.lo \
 	libapl_la-RealCell.lo libapl_la-Shape.lo \
@@ -255,23 +256,24 @@ am__apl_SOURCES_DIST = main.cc buildtag buildtag.hh ../config.h \
 	PrimitiveFunction.cc PrimitiveFunction.hh PrimitiveOperator.cc \
 	PrimitiveOperator.hh PrintBuffer.cc PrintBuffer.hh \
 	PrintContext.hh PrintOperator.hh QuadFunction.cc \
-	QuadFunction.hh ProcessorID.cc ProcessorID.hh Quad_FX.cc \
-	Quad_FX.hh Quad_RL.cc Quad_RL.hh Quad_SVx.cc Quad_SVx.hh \
-	Quad_TF.cc Quad_TF.hh Parallel.cc Parallel.hh Performance.cc \
-	Performance.def Performance.hh RealCell.cc RealCell.hh \
-	Shape.cc Shape.hh SharedValuePointer.hh Simple_string.hh \
-	ScalarFunction.cc ScalarFunction.hh Source.hh \
-	StateIndicator.cc StateIndicator.hh Svar_DB.cc Svar_DB.hh \
-	Svar_record.cc Svar_record.hh tcp_signal.m4 Svar_signals.def \
-	Svar_signals.hh Symbol.cc Symbol.hh SymbolTable.cc \
-	SymbolTable.hh SystemLimits.def SystemLimits.hh \
-	SystemVariable.cc SystemVariable.def SystemVariable.hh \
-	IO_Files.cc IO_Files.hh Token.cc Token.def Token.hh \
-	TokenEnums.hh Tokenizer.cc Tokenizer.hh UCS_string.cc \
-	UCS_string.hh Unicode.hh UserFunction.cc UserFunction.hh \
-	UserPreferences.cc UserPreferences.hh UTF8_string.cc \
-	UTF8_string.hh Value.cc Value.icc Value.hh ValueHistory.cc \
-	ValueHistory.hh Workspace.cc Workspace.hh
+	QuadFunction.hh ProcessorID.cc ProcessorID.hh Quad_CR.cc \
+	Quad_CR.hh Quad_FX.cc Quad_FX.hh Quad_RL.cc Quad_RL.hh \
+	Quad_SVx.cc Quad_SVx.hh Quad_TF.cc Quad_TF.hh Parallel.cc \
+	Parallel.hh Performance.cc Performance.def Performance.hh \
+	RealCell.cc RealCell.hh Shape.cc Shape.hh \
+	SharedValuePointer.hh Simple_string.hh ScalarFunction.cc \
+	ScalarFunction.hh Source.hh StateIndicator.cc \
+	StateIndicator.hh Svar_DB.cc Svar_DB.hh Svar_record.cc \
+	Svar_record.hh tcp_signal.m4 Svar_signals.def Svar_signals.hh \
+	Symbol.cc Symbol.hh SymbolTable.cc SymbolTable.hh \
+	SystemLimits.def SystemLimits.hh SystemVariable.cc \
+	SystemVariable.def SystemVariable.hh IO_Files.cc IO_Files.hh \
+	Token.cc Token.def Token.hh TokenEnums.hh Tokenizer.cc \
+	Tokenizer.hh UCS_string.cc UCS_string.hh Unicode.hh \
+	UserFunction.cc UserFunction.hh UserPreferences.cc \
+	UserPreferences.hh UTF8_string.cc UTF8_string.hh Value.cc \
+	Value.icc Value.hh ValueHistory.cc ValueHistory.hh \
+	Workspace.cc Workspace.hh
 am__objects_2 = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-Assert.$(OBJEXT) apl-Avec.$(OBJEXT) \
 	apl-Backtrace.$(OBJEXT) apl-Bif_F12_FORMAT.$(OBJEXT) \
@@ -298,19 +300,19 @@ am__objects_2 = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
 	apl-PrimitiveOperator.$(OBJEXT) apl-PrintBuffer.$(OBJEXT) \
 	apl-QuadFunction.$(OBJEXT) apl-ProcessorID.$(OBJEXT) \
-	apl-Quad_FX.$(OBJEXT) apl-Quad_RL.$(OBJEXT) \
-	apl-Quad_SVx.$(OBJEXT) apl-Quad_TF.$(OBJEXT) \
-	apl-Parallel.$(OBJEXT) apl-Performance.$(OBJEXT) \
-	apl-RealCell.$(OBJEXT) apl-Shape.$(OBJEXT) \
-	apl-ScalarFunction.$(OBJEXT) apl-StateIndicator.$(OBJEXT) \
-	apl-Svar_DB.$(OBJEXT) apl-Svar_record.$(OBJEXT) \
-	apl-Symbol.$(OBJEXT) apl-SymbolTable.$(OBJEXT) \
-	apl-SystemVariable.$(OBJEXT) apl-IO_Files.$(OBJEXT) \
-	apl-Token.$(OBJEXT) apl-Tokenizer.$(OBJEXT) \
-	apl-UCS_string.$(OBJEXT) apl-UserFunction.$(OBJEXT) \
-	apl-UserPreferences.$(OBJEXT) apl-UTF8_string.$(OBJEXT) \
-	apl-Value.$(OBJEXT) apl-ValueHistory.$(OBJEXT) \
-	apl-Workspace.$(OBJEXT)
+	apl-Quad_CR.$(OBJEXT) apl-Quad_FX.$(OBJEXT) \
+	apl-Quad_RL.$(OBJEXT) apl-Quad_SVx.$(OBJEXT) \
+	apl-Quad_TF.$(OBJEXT) apl-Parallel.$(OBJEXT) \
+	apl-Performance.$(OBJEXT) apl-RealCell.$(OBJEXT) \
+	apl-Shape.$(OBJEXT) apl-ScalarFunction.$(OBJEXT) \
+	apl-StateIndicator.$(OBJEXT) apl-Svar_DB.$(OBJEXT) \
+	apl-Svar_record.$(OBJEXT) apl-Symbol.$(OBJEXT) \
+	apl-SymbolTable.$(OBJEXT) apl-SystemVariable.$(OBJEXT) \
+	apl-IO_Files.$(OBJEXT) apl-Token.$(OBJEXT) \
+	apl-Tokenizer.$(OBJEXT) apl-UCS_string.$(OBJEXT) \
+	apl-UserFunction.$(OBJEXT) apl-UserPreferences.$(OBJEXT) \
+	apl-UTF8_string.$(OBJEXT) apl-Value.$(OBJEXT) \
+	apl-ValueHistory.$(OBJEXT) apl-Workspace.$(OBJEXT)
 @WANT_LIBAPL_FALSE@am_apl_OBJECTS = apl-main.$(OBJEXT) \
 @WANT_LIBAPL_FALSE@	$(am__objects_2)
 apl_OBJECTS = $(am_apl_OBJECTS)
@@ -656,6 +658,7 @@ PrintBuffer.cc					PrintBuffer.hh		\
 						PrintOperator.hh	\
 QuadFunction.cc					QuadFunction.hh		\
 ProcessorID.cc					ProcessorID.hh		\
+Quad_CR.cc					Quad_CR.hh		\
 Quad_FX.cc					Quad_FX.hh		\
 Quad_RL.cc					Quad_RL.hh		\
 Quad_SVx.cc					Quad_SVx.hh		\
@@ -885,6 +888,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-PrintBuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ProcessorID.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-QuadFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_CR.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_FX.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_RL.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Quad_SVx.Po@am__quote@
@@ -964,6 +968,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-PrintBuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-ProcessorID.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-QuadFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Quad_CR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Quad_FX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Quad_RL.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Quad_SVx.Plo@am__quote@
@@ -1383,6 +1388,13 @@ libapl_la-ProcessorID.lo: ProcessorID.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ProcessorID.cc' object='libapl_la-ProcessorID.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-ProcessorID.lo `test -f 'ProcessorID.cc' || echo '$(srcdir)/'`ProcessorID.cc
+
+libapl_la-Quad_CR.lo: Quad_CR.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-Quad_CR.lo -MD -MP -MF $(DEPDIR)/libapl_la-Quad_CR.Tpo -c -o libapl_la-Quad_CR.lo `test -f 'Quad_CR.cc' || echo '$(srcdir)/'`Quad_CR.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libapl_la-Quad_CR.Tpo $(DEPDIR)/libapl_la-Quad_CR.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Quad_CR.cc' object='libapl_la-Quad_CR.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-Quad_CR.lo `test -f 'Quad_CR.cc' || echo '$(srcdir)/'`Quad_CR.cc
 
 libapl_la-Quad_FX.lo: Quad_FX.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-Quad_FX.lo -MD -MP -MF $(DEPDIR)/libapl_la-Quad_FX.Tpo -c -o libapl_la-Quad_FX.lo `test -f 'Quad_FX.cc' || echo '$(srcdir)/'`Quad_FX.cc
@@ -2321,6 +2333,20 @@ apl-ProcessorID.obj: ProcessorID.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ProcessorID.cc' object='apl-ProcessorID.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-ProcessorID.obj `if test -f 'ProcessorID.cc'; then $(CYGPATH_W) 'ProcessorID.cc'; else $(CYGPATH_W) '$(srcdir)/ProcessorID.cc'; fi`
+
+apl-Quad_CR.o: Quad_CR.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_CR.o -MD -MP -MF $(DEPDIR)/apl-Quad_CR.Tpo -c -o apl-Quad_CR.o `test -f 'Quad_CR.cc' || echo '$(srcdir)/'`Quad_CR.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-Quad_CR.Tpo $(DEPDIR)/apl-Quad_CR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Quad_CR.cc' object='apl-Quad_CR.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_CR.o `test -f 'Quad_CR.cc' || echo '$(srcdir)/'`Quad_CR.cc
+
+apl-Quad_CR.obj: Quad_CR.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_CR.obj -MD -MP -MF $(DEPDIR)/apl-Quad_CR.Tpo -c -o apl-Quad_CR.obj `if test -f 'Quad_CR.cc'; then $(CYGPATH_W) 'Quad_CR.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_CR.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-Quad_CR.Tpo $(DEPDIR)/apl-Quad_CR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Quad_CR.cc' object='apl-Quad_CR.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-Quad_CR.obj `if test -f 'Quad_CR.cc'; then $(CYGPATH_W) 'Quad_CR.cc'; else $(CYGPATH_W) '$(srcdir)/Quad_CR.cc'; fi`
 
 apl-Quad_FX.o: Quad_FX.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Quad_FX.o -MD -MP -MF $(DEPDIR)/apl-Quad_FX.Tpo -c -o apl-Quad_FX.o `test -f 'Quad_FX.cc' || echo '$(srcdir)/'`Quad_FX.cc

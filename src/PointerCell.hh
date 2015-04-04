@@ -53,6 +53,10 @@ public:
    /// the Quad_CR representation of this cell
    virtual PrintBuffer character_representation(const PrintContext &pcx) const;
 
+   /// return the owner of this PointerCell
+   Value * get_cell_owner() const
+      { return value2.owner; }
+
 protected:
    ///  overloaded Cell::get_cell_type()
    virtual CellType get_cell_type() const

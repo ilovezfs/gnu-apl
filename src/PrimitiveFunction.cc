@@ -156,7 +156,7 @@ const uint64_t start_1 = cycle_counter();
 #endif
 #endif
 
-const Shape shape_Z(A, Workspace::get_CT(), 0);
+const Shape shape_Z(A, 0);
 
    // check that shape_Z is positive
    //
@@ -648,7 +648,6 @@ const Cell * cB = &B->get_ravel(0);
 Token
 Bif_COMMA::ravel_axis(Value_P X, Value_P B, Axis axis)
 {
-const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
    if (!X)   SYNTAX_ERROR;
@@ -696,7 +695,7 @@ const APL_Integer qio = Workspace::get_IO();
 
    // case 3b: ,[n1 ... nk]B : combine axes.
    //
-const Shape axes(X, qct, qio);
+const Shape axes(X, qio);
 
 const ShapeItem from = axes.get_shape_item(0);
    if (from < 0)   AXIS_ERROR;
@@ -731,7 +730,9 @@ const Shape shape_Z(B->element_count());
    if (B->get_owner_count() == 2 && 
        this == Workspace::SI_top()->get_prefix().get_monadic_fun())
       {
-        Log(LOG_optimization) CERR << "optimizing ,B" << endl;
+        Log(LOG_optimization)
+           CERR << "optimizing ,B (len="
+                << B->nz_element_count() << ")" << endl;
 
         B->set_shape(shape_Z);
         return Token(TOK_APL_VALUE1, B);
@@ -1093,7 +1094,7 @@ Bif_F12_TRANSPOSE::eval_AB(Value_P A, Value_P B)
         return Token(TOK_APL_VALUE1, Z);
       }
 
-const Shape shape_A(A, Workspace::get_CT(), Workspace::get_IO());
+const Shape shape_A(A, Workspace::get_IO());
    if (shape_A.get_rank() != B->get_rank())   LENGTH_ERROR;
 
    // the elements in A shall be valid axes of B->
@@ -2133,7 +2134,7 @@ ShapeItem c = 0;
         if (B->get_rank() != len_A)   RANK_ERROR;
 
         const Shape weight = B->get_shape().reverse_scan();
-        const Shape A_as_shape(A, qct, qio);
+        const Shape A_as_shape(A, qio);
 
         loop(r, A->element_count())
             {
@@ -2194,12 +2195,7 @@ const Cell * cB = &B->get_ravel(c);
         Assert(cell_owner);
 
         Cell * cell = cB->get_lval_value();
-        if (cell->is_pointer_cell())
-           {
-             Value_P sub(LOC);
-             new (sub->next_ravel())   LvalCell(cell, cell_owner);
-             return sub;
-           }
+        Assert(cell);
 
         Value_P Z(LOC);
         new (Z->next_ravel())   LvalCell(cell, cell_owner);
@@ -2398,7 +2394,7 @@ Bif_F12_TAKE::eval_AB(Value_P A, Value_P B)
    //
    if (A->get_rank() > 1)   RANK_ERROR;
 
-Shape ravel_A(A, Workspace::get_CT(), /* ⎕IO */ 0);
+Shape ravel_A(A, /* ⎕IO */ 0);
 Shape ravel_A1(ravel_A);
    if (ravel_A1.get_rank() == 0)   ravel_A1.add_shape_item(1);   // A ← ,A
    if (ravel_A1.get_rank() > MAX_RANK)     LENGTH_ERROR;
@@ -2532,7 +2528,7 @@ const Shape weight_B = B->get_shape().reverse_scan();
 Token
 Bif_F12_DROP::eval_AB(Value_P A, Value_P B)
 {
-Shape ravel_A(A, Workspace::get_CT(), 0);
+Shape ravel_A(A, /* ⎕IO */ 0);
    if (A->get_rank() > 1)   RANK_ERROR;
 
    if (B->is_scalar())

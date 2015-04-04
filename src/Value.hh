@@ -301,9 +301,15 @@ public:
    bool more()
       { return valid_ravel_items < element_count(); }
 
-   /// return the next ravel cell to be initialized
+   /// return the next ravel cell to be initialized (excluding prototype)
    Cell * next_ravel()
       { return more() ? &ravel[valid_ravel_items++] : 0; }
+
+   /// return the next ravel cell to be initialized (including prototype)
+   Cell * next_ravel_nz()
+      { if (more())   return &ravel[valid_ravel_items++];
+        if (element_count() || valid_ravel_items)   return 0;
+        return &ravel[valid_ravel_items++]; }
 
    /// return \b true iff \b this value is a simple character scalar.
    bool is_char_scalar() const;
