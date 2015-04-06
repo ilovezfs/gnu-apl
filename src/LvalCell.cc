@@ -21,6 +21,7 @@
 #include "LvalCell.hh"
 #include "PrintOperator.hh"
 #include "UTF8_string.hh"
+#include "Value.icc"
 
 //-----------------------------------------------------------------------------
 LvalCell::LvalCell(Cell * cell, Value * cell_owner)
@@ -53,5 +54,4 @@ PrintBuffer pb = value.lval->character_representation(pctx);
    return pb;
 }
 //-----------------------------------------------------------------------------
-
 

@@ -120,6 +120,21 @@ ShapeItem w = 1;
    return p;
 }
 //-----------------------------------------------------------------------------
+Shape
+Shape::offset_to_index(ShapeItem offset) const
+{
+Shape ret;
+   ret.rho_rho = rho_rho;
+   for (int r = rho_rho; r > 0;)
+       {
+         --r;
+         ret.rho[r] = offset % rho[r];
+         offset /= rho[r];
+       }
+
+   return ret;
+}
+//-----------------------------------------------------------------------------
 void
 Shape::check_same(const Shape & B, ErrorCode rank_err, ErrorCode len_err,
                   const char * loc) const

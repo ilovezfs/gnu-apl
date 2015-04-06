@@ -1044,8 +1044,7 @@ const ValueStackItem & vs = (*this)[0];
    if (vs.name_class == NC_VARIABLE)
       {
         vector<UCS_string> CR10;
-        const UCS_string pick;
-        Quad_CR::do_CR10_var(CR10, get_name(), pick, *vs.apl_val.get());
+        Quad_CR::do_CR10_var(CR10, get_name(), *vs.apl_val.get());
 
         loop(l, CR10.size())
            {

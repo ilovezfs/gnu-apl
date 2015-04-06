@@ -46,29 +46,63 @@ public:
    static Quad_CR  _fun;          ///< Built-in function.
 
    /// portable variable encoding of value named name (varname or varname ⊂)
-   static void do_CR10_var(vector<UCS_string> & result,
-                           const UCS_string & name, const UCS_string & pick,
+   static void do_CR10_var(vector<UCS_string> & result, const UCS_string & name,
                            const Value & value);
 
 protected:
+   class Picker
+      {
+        public:
+           Picker(const UCS_string & vname)
+           : var_name(vname)
+           {}
+
+          void push(const Shape & sh, ShapeItem pidx)
+             { shapes.push_back(sh);   indices.push_back(pidx); }
+
+          void pop()
+             { shapes.pop_back();   indices.pop_back(); }
+
+           /// varname or pick of varname
+           void get(UCS_string & result);
+
+           /// indexed varname or pick of varname
+           void get_indexed(UCS_string & result, ShapeItem pos, ShapeItem len);
+
+           int get_level() const
+              { return shapes.size(); }
+        protected:
+           const UCS_string & var_name;
+           vector<Shape> shapes;
+           vector<ShapeItem> indices;
+      };
+
+   static void do_CR10_rec(vector<UCS_string> & result, const Value & value,
+                           Picker & picker, ShapeItem pidx);
+
    enum V_mode
       {
-        Vm_NONE,
-        Vm_NUM,
-        Vm_QUOT,
-        Vm_UCS
+        Vm_NONE,   ///< initial state
+        Vm_NUM,    ///< in numeric vector.          e.g. 1 2 3
+        Vm_QUOT,   ///< in quoted character vector, e.g. 'abc'
+        Vm_UCS     ///< in ⎕UCS(),                  e.g. ⎕UCS(97 98 99)
       };
 
    /// 10 ⎕CR symbol_name (variable or function name). Also used for )OUT
    static void do_CR10(vector<UCS_string> & result, const Value & symbol_name);
 
    /// one ravel item in 10 ⎕CR symbol_name
-   static V_mode do_CR10_item(UCS_string & item, const Cell & cell, V_mode mode,
-                              bool may_quote, bool & item_nested);
+   static V_mode do_CR10_item(UCS_string & item, const Cell & cell,
+                              V_mode mode, bool may_quote);
 
    /// decide if 'xxx' or ⎕UCS(xxx) shall be used
    static bool use_quote(V_mode mode, const Value & value, ShapeItem pos);
 
+   /// close current mode (ending ' for '' or ) for ⎕UCS())
+   static void close_mode(UCS_string & line, V_mode mode);
+
+   /// print item separator
+   static void item_separator(UCS_string & line, V_mode from_mode, V_mode to_mode);
 };
 //-----------------------------------------------------------------------------
 

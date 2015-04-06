@@ -725,6 +725,14 @@ Shape shape_Z;
 Token
 Bif_F12_COMMA::eval_B(Value_P B)
 {
+   if (B->get_ravel(0).is_picked_lval_cell())
+      {
+        Cell * ptr = B->get_ravel(0).get_lval_value();
+        Assert(ptr);
+        Value_P target = ptr->get_pointer_value()->get_cellrefs(LOC);
+        return eval_B(target);
+      }
+
 const Shape shape_Z(B->element_count());
 
    if (B->get_owner_count() == 2 && 
@@ -2198,13 +2206,10 @@ const Cell * cB = &B->get_ravel(c);
         Assert(cell);
 
         Value_P Z(LOC);
-        new (Z->next_ravel())   LvalCell(cell, cell_owner);
-        return Z;
-      }
-   else if (cell_owner)   // e.g. (A⊃C) ← B
-      {
-        Value_P Z(LOC);
-        new (Z->next_ravel()) LvalCell((Cell *)cB, cell_owner);
+        if (cell->is_pointer_cell())
+           new (Z->next_ravel())   LvalCell_picked(cell, cell_owner);
+        else
+           new (Z->next_ravel())   LvalCell(cell, cell_owner);
         return Z;
       }
    else

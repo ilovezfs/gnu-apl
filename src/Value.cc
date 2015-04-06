@@ -990,24 +990,7 @@ const ShapeItem ec_z = Z->element_count();
 Value_P
 Value::index(Value_P X) const
 {
-   if (get_rank() != 1)
-      {
-        // this is either an error, or a selective assignment
-        //
-        if (get_rank() == 0 &&
-            get_ravel(0).is_lval_cell())   // selective assignment
-           {
-             Cell & ptr = *get_ravel(0).get_lval_value();
-             if (ptr.is_pointer_cell())
-                {
-                  Value_P dest = ptr.get_pointer_value()->get_cellrefs(LOC);
-                  Value_P result = dest->index(X);
-                  return result;
-                }
-           }
-
-         RANK_ERROR;
-      }
+   if (get_rank() != 1)   RANK_ERROR;
 
    if (!X)   return clone(LOC);   // elided index
 
@@ -1023,6 +1006,14 @@ const Cell * cI = &X->get_ravel(0);
          const ShapeItem idx = cI++->get_near_int() - qio;
          if (idx < 0 || idx >= max_idx)
             {
+              UCS_string & t4 = Workspace::more_error();
+              t4.clear();
+              t4.append_utf8("⎕IO=");
+              t4.append_number(qio);
+              t4.append_utf8(" offending index=");
+              t4.append_number(idx);
+              t4.append_utf8(" max index=");
+              t4.append_number(max_idx);
               Z->rollback(Z->valid_ravel_items, LOC);
               INDEX_ERROR;
             }
@@ -1035,19 +1026,6 @@ const Cell * cI = &X->get_ravel(0);
    Z->check_value(LOC);
    return Z;
 }
-//-----------------------------------------------------------------------------
-/**
-Value_P
-Value::index(Token & IX) const
-{
-   if (IX.get_tag() == TOK_AXES)     return index(IX.get_apl_val());
-   if (IX.get_tag() == TOK_INDEX)    return index(IX.get_index_val());
-
-   // not supposed to happen
-   //
-   Q1(IX.get_tag());  FIXME;
-}
-**/
 //-----------------------------------------------------------------------------
 Rank
 Value::get_single_axis(Rank max_axis) const

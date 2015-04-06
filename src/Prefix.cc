@@ -23,6 +23,8 @@
 #include "DerivedFunction.hh"
 #include "Executable.hh"
 #include "IndexExpr.hh"
+#include "LvalCell.hh"
+#include "PointerCell.hh"
 #include "Prefix.hh"
 #include "StateIndicator.hh"
 #include "Symbol.hh"
@@ -741,6 +743,7 @@ Prefix::reduce_LPAR_B_RPAR_()
 
 Token result = at1();   // B or F
    if (result.get_tag() == TOK_APL_VALUE3)   result.ChangeTag(TOK_APL_VALUE1);
+
    pop_args_push_result(result);
    set_action(result);
 }

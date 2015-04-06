@@ -172,6 +172,10 @@ public:
    virtual bool is_lval_cell() const
       { return false; }
 
+   /// Return \b true iff \b this cell is a pointer to a cell from pick()
+   virtual bool is_picked_lval_cell() const
+      { return false; }
+
    /// Return \b true iff \b this cell is an error cell
    virtual bool is_error_cell() const
       { return false; }

@@ -33,6 +33,7 @@ using namespace std;
 
 class PrintBuffer;
 class PrintContext;
+class Shape;
 class Value;
 
 //=============================================================================
@@ -215,6 +216,9 @@ public:
 
    /// append number (in ASCII encoding like %X or %x) to this string
    void append_hex(ShapeItem num, bool uppercase);
+
+   /// append shape (in APL encoding tke left arg of ↑) this string
+   void append_shape(const Shape & shape);
 
    /// append number (in ASCII encoding like %lf) to this string
    void append_float(double num);

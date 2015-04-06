@@ -62,6 +62,19 @@ protected:
   /// Overloaded Cell::CDR_size() should not be called for lval cells
    virtual int CDR_size() const { NeverReach("CDR_size called on LvalCell base class"); }
 };
+
+class LvalCell_picked : public LvalCell
+{
+public:
+   /// Construct an cell pointing to another cell
+   LvalCell_picked(Cell * cell, Value * cell_owner)
+   : LvalCell(cell, cell_owner)
+   {}
+
+protected:
+   virtual bool is_picked_lval_cell() const
+      { return true; }
+};
 //=============================================================================
 
 #endif // __LVALCELL_HH_DEFINED__
