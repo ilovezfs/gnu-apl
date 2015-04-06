@@ -202,6 +202,9 @@ public:
    /// return the position of \b idx in the ravel.
    ShapeItem ravel_pos(const Shape & idx) const;
 
+   /// the inverse of \b ravel_pos()
+   Shape offset_to_index(ShapeItem offset) const;
+
 protected:
    /// the rank (number of valid shape items)
    Rank rho_rho;

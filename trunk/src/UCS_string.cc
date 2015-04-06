@@ -709,6 +709,22 @@ char cc[40];
 }
 //-----------------------------------------------------------------------------
 void
+UCS_string::append_shape(const Shape & shape)
+{
+   loop(r, shape.get_rank())
+       {
+         if (r)   append(UNI_ASCII_SPACE);
+         ShapeItem s = shape.get_shape_item(r);
+         if (s < 0)
+            {
+              s = -s;
+              append(UNI_OVERBAR);
+            }
+         append_number(s);
+       }
+}
+//-----------------------------------------------------------------------------
+void
 UCS_string::append_float(double num)
 {
 char cc[60];
