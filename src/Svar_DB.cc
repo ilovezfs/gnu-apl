@@ -242,6 +242,7 @@ char peer[100];
                              << peer << endl;
 
          start_APserver(server_sockname, bin_dir, logit);
+         usleep(50000);
        }
 
    // at this point sock is != NO_TCP_SOCKET and connected.

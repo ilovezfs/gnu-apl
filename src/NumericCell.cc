@@ -1131,7 +1131,7 @@ NumericCell::do_binomial(Cell * Z, APL_Integer K, APL_Integer N, bool negate)
            }
         else if (K == 2)   // K == 2 or N-2
            {
-             if (N > 4294967296)   goto non_integer;   // K!N too large
+             if (N > 4294967296LL)   goto non_integer;   // K!N too large
 
              // either N or N-1 must be even
              //

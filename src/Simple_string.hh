@@ -181,7 +181,7 @@ public:
    void insert_after(int pos, const T & t)
       {
         Assert(pos < items_valid);
-        if (items_valid >= items_allocated)   extend();
+        if (items_valid - items_allocated >= 0)   extend();
         for (int s = items_valid - 1; s > pos; --s)  items[s + 1] = items[s];
         items[pos + 1] = t;
         ++items_valid;
@@ -191,7 +191,7 @@ public:
    void insert_before(int pos, const T & t)
       {
         Assert(pos < items_valid);
-        if (items_valid >= items_allocated)   extend();
+        if (items_valid - items_allocated >= 0)   extend();
         for (int s = items_valid - 1; s >= pos; --s)   items[s + 1] = items[s];
         items[pos] = t;
         ++items_valid;
