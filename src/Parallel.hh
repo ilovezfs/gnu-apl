@@ -471,7 +471,7 @@ public:
    /// execution of current_job. Therefore we copy current_job from
    /// jobs (and can then safely use current_job *).
    T * next_job()
-      { if (idx == jobs.size()) { started_loc = 0;   return 0; }
+      { if ((size_t)idx == jobs.size()) { started_loc = 0;   return 0; }
         current_job = jobs[idx++];   return &current_job; }
 
    /// return the current job

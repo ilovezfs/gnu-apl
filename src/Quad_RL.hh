@@ -39,8 +39,8 @@ public:
    enum { INITIAL_SEED = 16807 };
 
    // Xn+1 = a Xn + c
-#define Knuth_a 6364136223846793005
-#define Knuth_c 1442695040888963407
+#define Knuth_a 6364136223846793005LL
+#define Knuth_c 1442695040888963407LL
 
    /// reset the seed (eg. after )CEAR)
    int reset_seed()

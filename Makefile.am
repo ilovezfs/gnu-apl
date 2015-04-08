@@ -17,28 +17,9 @@ dist_doc_DATA = README			\
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
 
-dist_noinst_DATA = Doxyfile
+dist_noinst_DATA = Doxyfile Makefile.incl
 
-# show make targets
-#
-.PHONY:	help
-help:
-	@echo ""
-	@echo ""
-	@echo "in addition to standard targets (all, install, clean, ...) "
-	@echo "the following make targets may be supported (at this level):"
-	@echo ""
-	@echo "    make help    - print this text"
-	@echo "    make DIST    - dist + a Makefile that calls ./configure"
-	@echo "    make DOXY    - create Dougen documentation"
-	@echo "    make RPM     - create (source and binary) RPMs"
-	@echo "    make DEB     - create debian packages"
-	@echo ""
-	@echo "    make SVNUP   - update from SVN and ./configure"
-	@echo ""
-	@echo "NOTE: The RPM and DEB targets may fail because they require" 
-	@echo "additional tools that may not be present on your machine."
-	@echo ""
+include Makefile.incl
 
 # doxygen documentation
 #
@@ -77,47 +58,6 @@ DEB:	DIST
 SVNUP:
 	svn update
 	./configure --disable-maintainer-mode
-
-# a shortcut to configure for troubleshooting
-#
-.PHONY:	develop
-develop:
-	./configure  --enable-maintainer-mode \
-                     DEVELOP_WANTED=yes
-	make all
-
-.PHONY:	develop_lib
-develop_lib:
-	./configure  --enable-maintainer-mode \
-                     DEVELOP_WANTED=yes       \
-                     --with-libapl
-	make all
-
-# a shortcut to configure for parallel execution
-#
-.PHONY:	parallel
-parallel:
-	./configure --enable-maintainer-mode		\
-                    VALUE_CHECK_WANTED=no		\
-                    VALUE_HISTORY_WANTED=no		\
-                    PERFORMANCE_COUNTERS_WANTED=no	\
-                    DYNAMIC_LOG_WANTED=yes		\
-                    ASSERT_LEVEL_WANTED=0		\
-                    CORE_COUNT_WANTED=-3
-	make all
-
-# dito, with  performance counters
-#
-.PHONY:	parallel1
-parallel1:
-	./configure --enable-maintainer-mode		\
-                    VALUE_CHECK_WANTED=no		\
-                    VALUE_HISTORY_WANTED=no		\
-                    PERFORMANCE_COUNTERS_WANTED=yes	\
-                    DYNAMIC_LOG_WANTED=yes		\
-                    ASSERT_LEVEL_WANTED=0		\
-                    CORE_COUNT_WANTED=-3
-	make all
 
 # a shortcut to export changes to ../savannah-repo-apl (which is supposed to be
 # a checkout of the GNU APL repository at Savannah
@@ -160,7 +100,6 @@ EXPO1:
 	make DEB
 	make RPM
 
-# dist and then adding Makefile,dist as Makefile to the tar file
 Makefile.dist:
 	echo "%:"		 > $@
 	echo "rm -f Makefile"	>> $@
@@ -168,6 +107,7 @@ Makefile.dist:
 	echo "make $@"		>> $@
 	echo 			>> $@
 
+# make dist and then add Makefile,dist as Makefile to the tar file directory
 DIST:	dist Makefile.dist
 	pwd
 	mkdir -p tmp
