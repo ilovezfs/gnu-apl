@@ -14,6 +14,8 @@
 
 @SET_MAKE@
 
+# Makefile targets that can be made before running ./configure
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -78,14 +80,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = .
-DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
-	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+DIST_COMMON = $(srcdir)/Makefile.incl INSTALL NEWS README AUTHORS \
+	ChangeLog $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(srcdir)/config.h.in $(dist_doc_DATA) $(dist_noinst_DATA) \
 	$(nobase_dist_sysconf_DATA) COPYING compile config.guess \
 	config.rpath config.sub depcomp install-sh missing texinfo.tex \
 	ltmain.sh
+subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/depend.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
@@ -390,13 +392,13 @@ dist_doc_DATA = README			\
 		README-8-parallel
 
 nobase_dist_sysconf_DATA = gnu-apl.d/preferences
-dist_noinst_DATA = Doxyfile
+dist_noinst_DATA = Doxyfile Makefile.incl
 EXTRA_DIST = config.rpath m4/ChangeLog
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/Makefile.incl $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -419,6 +421,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
+$(srcdir)/Makefile.incl:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -921,9 +924,10 @@ uninstall-am: uninstall-dist_docDATA uninstall-nobase_dist_sysconfDATA
 	uninstall-dist_docDATA uninstall-nobase_dist_sysconfDATA
 
 
+###############################################################################
 # show make targets
 #
-.PHONY:	help
+.PHONY: help
 help:
 	@echo ""
 	@echo ""
@@ -941,6 +945,49 @@ help:
 	@echo "NOTE: The RPM and DEB targets may fail because they require" 
 	@echo "additional tools that may not be present on your machine."
 	@echo ""
+
+###############################################################################
+# a shortcut to ./configure for devlopimg and troubleshooting
+#
+.PHONY: develop
+develop:
+	./configure  --enable-maintainer-mode DEVELOP_WANTED=yes
+	make all
+
+###############################################################################
+# a shortcut to ./configure for devloping and troubleshooting libapl
+#
+.PHONY: develop_lib
+develop_lib:
+	./configure  --enable-maintainer-mode DEVELOP_WANTED=yes --with-libapl
+	make all
+
+# a shortcut to configure for benchmarking parallel execution
+#
+.PHONY: parallel
+parallel:
+	./configure --enable-maintainer-mode            \
+                    VALUE_CHECK_WANTED=no               \
+                    VALUE_HISTORY_WANTED=no             \
+                    PERFORMANCE_COUNTERS_WANTED=no      \
+                    DYNAMIC_LOG_WANTED=yes              \
+                    ASSERT_LEVEL_WANTED=0               \
+                    CORE_COUNT_WANTED=-3
+	make all
+
+# a shortcut to configure for benchmarking parallel execution but with
+# performance counters
+#
+.PHONY: parallel1
+parallel1:
+	./configure --enable-maintainer-mode            \
+                    VALUE_CHECK_WANTED=no               \
+                    VALUE_HISTORY_WANTED=no             \
+                    PERFORMANCE_COUNTERS_WANTED=yes     \
+                    DYNAMIC_LOG_WANTED=yes              \
+                    ASSERT_LEVEL_WANTED=0               \
+                    CORE_COUNT_WANTED=-3
+	make all
 
 # doxygen documentation
 #
@@ -979,47 +1026,6 @@ DEB:	DIST
 SVNUP:
 	svn update
 	./configure --disable-maintainer-mode
-
-# a shortcut to configure for troubleshooting
-#
-.PHONY:	develop
-develop:
-	./configure  --enable-maintainer-mode \
-                     DEVELOP_WANTED=yes
-	make all
-
-.PHONY:	develop_lib
-develop_lib:
-	./configure  --enable-maintainer-mode \
-                     DEVELOP_WANTED=yes       \
-                     --with-libapl
-	make all
-
-# a shortcut to configure for parallel execution
-#
-.PHONY:	parallel
-parallel:
-	./configure --enable-maintainer-mode		\
-                    VALUE_CHECK_WANTED=no		\
-                    VALUE_HISTORY_WANTED=no		\
-                    PERFORMANCE_COUNTERS_WANTED=no	\
-                    DYNAMIC_LOG_WANTED=yes		\
-                    ASSERT_LEVEL_WANTED=0		\
-                    CORE_COUNT_WANTED=-3
-	make all
-
-# dito, with  performance counters
-#
-.PHONY:	parallel1
-parallel1:
-	./configure --enable-maintainer-mode		\
-                    VALUE_CHECK_WANTED=no		\
-                    VALUE_HISTORY_WANTED=no		\
-                    PERFORMANCE_COUNTERS_WANTED=yes	\
-                    DYNAMIC_LOG_WANTED=yes		\
-                    ASSERT_LEVEL_WANTED=0		\
-                    CORE_COUNT_WANTED=-3
-	make all
 
 # a shortcut to export changes to ../savannah-repo-apl (which is supposed to be
 # a checkout of the GNU APL repository at Savannah
@@ -1062,7 +1068,6 @@ EXPO1:
 	make DEB
 	make RPM
 
-# dist and then adding Makefile,dist as Makefile to the tar file
 Makefile.dist:
 	echo "%:"		 > $@
 	echo "rm -f Makefile"	>> $@
@@ -1070,6 +1075,7 @@ Makefile.dist:
 	echo "make $@"		>> $@
 	echo 			>> $@
 
+# make dist and then add Makefile,dist as Makefile to the tar file directory
 DIST:	dist Makefile.dist
 	pwd
 	mkdir -p tmp

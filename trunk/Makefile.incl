@@ -1,0 +1,68 @@
+
+# Makefile targets that can be made before running ./configure
+
+###############################################################################
+# show make targets
+#
+.PHONY: help
+help:
+	@echo ""
+	@echo ""
+	@echo "in addition to standard targets (all, install, clean, ...) "
+	@echo "the following make targets may be supported (at this level):"
+	@echo ""
+	@echo "    make help    - print this text"
+	@echo "    make DIST    - dist + a Makefile that calls ./configure"
+	@echo "    make DOXY    - create Dougen documentation"
+	@echo "    make RPM     - create (source and binary) RPMs"
+	@echo "    make DEB     - create debian packages"
+	@echo ""
+	@echo "    make SVNUP   - update from SVN and ./configure"
+	@echo ""
+	@echo "NOTE: The RPM and DEB targets may fail because they require" 
+	@echo "additional tools that may not be present on your machine."
+	@echo ""
+
+###############################################################################
+# a shortcut to ./configure for devlopimg and troubleshooting
+#
+.PHONY: develop
+develop:
+	./configure  --enable-maintainer-mode DEVELOP_WANTED=yes
+	make all
+
+###############################################################################
+# a shortcut to ./configure for devloping and troubleshooting libapl
+#
+.PHONY: develop_lib
+develop_lib:
+	./configure  --enable-maintainer-mode DEVELOP_WANTED=yes --with-libapl
+	make all
+
+# a shortcut to configure for benchmarking parallel execution
+#
+.PHONY: parallel
+parallel:
+	./configure --enable-maintainer-mode            \
+                    VALUE_CHECK_WANTED=no               \
+                    VALUE_HISTORY_WANTED=no             \
+                    PERFORMANCE_COUNTERS_WANTED=no      \
+                    DYNAMIC_LOG_WANTED=yes              \
+                    ASSERT_LEVEL_WANTED=0               \
+                    CORE_COUNT_WANTED=-3
+	make all
+
+# a shortcut to configure for benchmarking parallel execution but with
+# performance counters
+#
+.PHONY: parallel1
+parallel1:
+	./configure --enable-maintainer-mode            \
+                    VALUE_CHECK_WANTED=no               \
+                    VALUE_HISTORY_WANTED=no             \
+                    PERFORMANCE_COUNTERS_WANTED=yes     \
+                    DYNAMIC_LOG_WANTED=yes              \
+                    ASSERT_LEVEL_WANTED=0               \
+                    CORE_COUNT_WANTED=-3
+	make all
+
