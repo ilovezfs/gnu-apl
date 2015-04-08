@@ -143,15 +143,13 @@ Value_P Z(A->get_shape() + B->get_shape(), LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(Z, B, A);
+EOC_arg arg(Z, A, 0, RO, B);
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
    _arg.len_B = B->element_count();
    _arg.len_Z = A->element_count() * _arg.len_B;
 
    arg.V1 = Value_P(LOC);   // helper value for non-pointer cA
-   _arg.RO = RO;
-
    arg.V2 = Value_P(LOC);   // helper value for non-pointer cB
 
    _arg.z = -1;
@@ -192,7 +190,7 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
       }
 
    {
-     Token result = _arg.RO->eval_AB(arg.RO_A, arg.RO_B);
+     Token result = arg.RO->eval_AB(arg.RO_A, arg.RO_B);
 
    // if RO was a primitive function, then result may be a value.
    // if RO was a user defined function then result may be

@@ -195,52 +195,15 @@ Value_P Z(shape_A1 + shape_B1, LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(Z, B, A);
+EOC_arg arg(Z, A, LO, RO, B);
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
-   arg.A = A;
-   _arg.LO = LO;
-   _arg.RO = RO;
-   arg.B = B;
 
    _arg.items_A = items_A;
    _arg.items_B = items_B;
 
-   // create a vector with the rows of A
-   //
-   _arg.args_A = new Value_P[_arg.items_A];
-   loop(i, _arg.items_A)
-       {
-         Value_P v(len_A, LOC);
-         v->get_ravel(0).init(A->get_ravel(0 + i*len_A), v.getref());
-         loop(a, len_A)
-            {
-              const ShapeItem src = (A->is_scalar()) ? 0 : a + i*len_A;
-              v->get_ravel(a).init(A->get_ravel(src), v.getref());
-            }
-         v->set_default(*A.get());
-         v->check_value(LOC);
-         _arg.args_A[i] = v;
-       }
-
-   // create a vector with the columns of B
-   //
-   _arg.args_B = new Value_P[_arg.items_B];
-   loop(i, _arg.items_B)
-       {
-         Value_P v(len_B, LOC);
-         loop(b, len_B)
-            {
-              const ShapeItem src = (B->is_scalar()) ? 0 : b*_arg.items_B + i;
-              v->get_ravel(b).init(B->get_ravel(src), v.getref());
-            }
-
-         v->set_default(*B.get());
-         v->check_value(LOC);
-
-         _arg.args_B[i] = v;
-       }
-
    _arg.how = 0;
+   _arg.z = -1;
+   _arg.last_ufun = false;
    return finish_inner_product(arg, true);
 }
 //-----------------------------------------------------------------------------
@@ -250,137 +213,170 @@ Bif_OPER2_INNER::finish_inner_product(EOC_arg & arg, bool first)
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
    if (_arg.how == 1)   goto how_1;
-   if (_arg.how == 2)   goto how_2;
 
-   Assert1(_arg.how == 0);
-   _arg.last_ufun = false;
-
-   _arg.a = 0;
-loop_a:
-
-   _arg.b = 0;
-loop_b:
-
-   {
-     Value_P pA = _arg.args_A[_arg.a];
-     Value_P pB = _arg.args_B[_arg.b];
-     const Token T1 = _arg.RO->eval_AB(pA, pB);
-
-   if (T1.get_tag() == TOK_ERROR)   return T1;
-
-   if (T1.get_tag() == TOK_SI_PUSHED)
+   if (_arg.how == 2)
       {
-        // RO is a user defined function. If LO is also user defined then the
-        // context pushed is not the last user defined function call for this
-        // operator. Otherwise it may or may not be the last call.
-        //
-        if (_arg.a >= (_arg.items_A - 1) && _arg.b >= (_arg.items_B - 1))
-           {
-             // at this point, the last ravel element of Z is being computed.
-             // If LO is not // user defined, then this call is the last user
-             // defined function call.
-             // Otherwise the LO-call below will be the last.
-             //
-             if (!_arg.LO->may_push_SI())   _arg.last_ufun = true;
-           }
-
-        _arg.how = 1;
-        if (first)   // first call
-           Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
-        else           // subsequent call
-           Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
-
-        return T1;   // continue in user defined function...
+        --_arg.v1;
+        goto how_2;
       }
 
-     arg.V1 = T1.get_apl_val();   // V1 is A[a] RO B1[b]
-   }
+   Assert1(_arg.how == 0);
 
-how_1:
-   {
-     const ShapeItem ec_V1 = arg.V1->element_count();
-
-     if (ec_V1 <= 1)   // reduction of 0- or 1-element vector
+   while (++_arg.z < _arg.items_A * _arg.items_B)
+      {
         {
-          // reduction of 0- or 1-element vector does not call LO->eval_AB()
-          // but rather LO->eval_identity_fun() or reshape(B).
-          // No need to handle TOK_SI_PUSHED for user-defined LO.
-          //
-          Token LO(TOK_FUN1, _arg.LO);
-          const Token T2 = Bif_OPER1_REDUCE::fun->eval_LB(LO, arg.V1);
-          if (T2.get_tag() == TOK_ERROR)   return T2;
-          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(),
-                                               arg.Z.getref(), LOC);
+          const ShapeItem a = _arg.z / _arg.items_B;
+          const ShapeItem b = _arg.z % _arg.items_B;
 
-          ptr_clear(arg.V1, LOC);
+          const ShapeItem len_A = arg.A->get_last_shape_item();
+          Value_P AA(len_A, LOC);
+          {
+            const ShapeItem inc_A = arg.A->is_scalar() ? 0 : 1;
+            ShapeItem src = a*len_A;
+            loop(j, len_A)   // make AA row(_arg.a) of A
+                {
+                  AA->next_ravel()->init(arg.A->get_ravel(src), AA.getref());
+                  src += inc_A;
+                }
+            if (len_A == 0)  AA->get_ravel(0).init(arg.A->get_ravel(0),
+                                                   AA.getref());
 
-          goto next_a_b;
+            AA->set_default(*arg.A.get());
+            AA->check_value(LOC);
+          }
+
+          const ShapeItem len_B = arg.B->get_shape_item(0);
+          Value_P BB(len_B, LOC);   // make BB column(_arg.b) of B
+          {
+            const ShapeItem inc_B = arg.A->is_scalar() ? 0 : _arg.items_B;
+            ShapeItem src = b;
+            loop(j, len_B)
+                {
+                  BB->next_ravel()->init(arg.B->get_ravel(src), BB.getref());
+                  src += inc_B;
+                }
+            if (len_B == 0)   BB->get_ravel(0).init(arg.B->get_ravel(0),
+                                                    BB.getref());
+
+            BB->set_default(*arg.B.get());
+            BB->check_value(LOC);
+          }
+
+        const Token T1 = arg.RO->eval_AB(AA, BB);
+
+        if (T1.get_tag() == TOK_ERROR)   return T1;
+
+        if (T1.get_tag() == TOK_SI_PUSHED)
+           {
+             // RO is a user defined function. If LO is also user defined then
+             // the context pushed is not the last user defined function call
+             // for this operator. Otherwise it may or may not be the last call.
+             //
+             if (a >= (_arg.items_A - 1) && b >= (_arg.items_B - 1))
+                {
+                  // at this point, the last ravel element of Z is being
+                  // computed. If LO is not user defined, then this call is the
+                  // last user defined function call.
+                  // Otherwise the LO-call below will be the last.
+                  //
+                  if (!arg.LO->may_push_SI())   _arg.last_ufun = true;
+                }
+
+             _arg.how = 1;
+             if (first)   // first call
+                Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
+             else           // subsequent call
+                Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
+
+             return T1;   // continue in user defined function...
+           }
+
+          arg.V1 = T1.get_apl_val();   // V1 is A[a] RO B1[b]
         }
 
-     // use V2 as accumulator for LO-reduction
-     //
-     arg.V2 = arg.V1->get_ravel(ec_V1 - 1).to_value(LOC);
-     _arg.v1 = ec_V1 - 2;
-   }
+how_1:
+        {
+          const ShapeItem ec_V1 = arg.V1->element_count();
 
-loop_v:
-       {
-         Value_P LO_A = arg.V1->get_ravel(_arg.v1).to_value(LOC);
-         const Token T2 = _arg.LO->eval_AB(LO_A, arg.V2);
-         ptr_clear(arg.V2, LOC);
+          if (ec_V1 <= 1)   // reduction of 0- or 1-element vector
+             {
+                 // reduction of 0- or 1-element vector does not call
+                 // LO->eval_AB() but rather LO->eval_identity_fun() or
+                 // reshape(B). No need to handle TOK_SI_PUSHED for
+                 //  user-defined LO.
+                 //
+                 Token LO(TOK_FUN1, arg.LO);
+                 const Token T2 = Bif_OPER1_REDUCE::fun->eval_LB(LO, arg.V1);
+                 if (T2.get_tag() == TOK_ERROR)   return T2;
 
-         if (T2.get_tag() == TOK_ERROR)   return T2;
+                 arg.Z->next_ravel()->init_from_value(T2.get_apl_val(),
+                                                      arg.Z.getref(), LOC);
 
-         if (T2.get_tag() == TOK_SI_PUSHED)
-            {
-              // LO was a user defined function. check if this was the last call
-              //
-              if (_arg.a >= (_arg.items_A - 1) && _arg.b >= (_arg.items_B - 1))
-                 {
-                   Assert1(_arg.LO->may_push_SI());
-                   if (_arg.v1 == 0)   _arg.last_ufun = true;
-                 }
+                 ptr_clear(arg.V1, LOC);
+                 continue;
+             }
 
-              _arg.how = 2;
-               if (first)   // first call
-                  Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
-               else           // subsequent call
-                  Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
-
-              return T2;   // continue in user defined function...
-            }
-
-
-         if (T2.get_Class() != TC_VALUE)
-            {
-              Q1(T2)   FIXME;
-            }
-
-         arg.V2 = T2.get_apl_val();
-       }
+          // use V2 as accumulator for LO-reduction
+          //
+          arg.V2 = arg.V1->get_ravel(ec_V1 - 1).to_value(LOC);
+          _arg.v1 = ec_V1 - 2;
+        }
 
 how_2:
-   if (--_arg.v1 >= 0)   goto loop_v;
+        for (; _arg.v1 >= 0; --_arg.v1)
+            {
+              const Token T2 = do_loop_v(arg, first);
+              if (T2.get_Class() != TC_VALUE)   return T2; // error or SI_PUSHED
+            }
 
-   arg.Z->next_ravel()->init_from_value(arg.V2, arg.Z.getref(), LOC);
+        arg.Z->next_ravel()->init_from_value(arg.V2, arg.Z.getref(), LOC);
 
-   ptr_clear(arg.V1, LOC);
-   ptr_clear(arg.V2, LOC);
-
-next_a_b:
-   if (++_arg.b < _arg.items_B)   goto loop_b;
-   if (++_arg.a < _arg.items_A)   goto loop_a;
-
-   loop(i, _arg.items_A)   _arg.args_A[i].reset();   _arg.items_A = 0;
-   delete [] _arg.args_A;   _arg.args_A = 0;
-
-   loop(i, _arg.items_B)   _arg.args_B[i].reset();   _arg.items_B = 0;
-   delete [] _arg.args_B;   _arg.args_B = 0;
+        ptr_clear(arg.V1, LOC);
+        ptr_clear(arg.V2, LOC);
+      }
 
    arg.Z->set_default(*arg.B.get());
  
    arg.Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, arg.Z);
+}
+//-----------------------------------------------------------------------------
+Token
+Bif_OPER2_INNER::do_loop_v(EOC_arg & arg, bool first)
+{
+INNER_PROD & _arg = arg.u.u_INNER_PROD;
+
+Value_P LO_A = arg.V1->get_ravel(_arg.v1).to_value(LOC);
+const Token T2 = arg.LO->eval_AB(LO_A, arg.V2);
+   ptr_clear(arg.V2, LOC);
+
+   if (T2.get_Class() == TC_VALUE)
+      {
+        arg.V2 = T2.get_apl_val();
+        return T2;
+      }
+
+   if (T2.get_tag() == TOK_ERROR)   return T2;
+
+   Assert (T2.get_tag() == TOK_SI_PUSHED);
+
+   // LO was a user defined function. check if this was the last call
+   //
+const ShapeItem a = _arg.z / _arg.items_B;
+const ShapeItem b = _arg.z % _arg.items_B;
+   if (a >= (_arg.items_A - 1) && b >= (_arg.items_B - 1))
+      {
+        Assert1(arg.LO->may_push_SI());
+        if (_arg.v1 == 0)   _arg.last_ufun = true;
+      }
+
+   _arg.how = 2;
+   if (first)   // first call
+      Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
+   else           // subsequent call
+      Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
+
+   return T2;   // continue in user defined function...
 }
 //-----------------------------------------------------------------------------
 bool
@@ -392,11 +388,6 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
 
    if (token.get_Class() != TC_VALUE)
       {
-        loop(i, _arg.items_A)   _arg.args_A[i].reset();   _arg.items_A = 0;
-        delete [] _arg.args_A;   _arg.args_A = 0;
-
-        loop(i, _arg.items_B)   _arg.args_B[i].reset();   _arg.items_B = 0;
-        delete [] _arg.args_B;   _arg.args_B = 0;
         delete arg;
         return false;   // stop it
       }

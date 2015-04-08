@@ -276,7 +276,7 @@ const UCS_string statement_B(*B.get());
         // install end of context handler. The handler will do nothing when
         // B succeeds, but will execute A if not.
         //
-        EOC_arg arg(Value_P(), B, A);
+        EOC_arg arg(Value_P(), A, 0, 0, B);
         Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg, LOC);
 
         return Token(TOK_SI_PUSHED);
@@ -293,7 +293,7 @@ const UCS_string statement_B(*B.get());
    // B succeeds, but will execute A if not.
    //
    {
-     EOC_arg arg(Value_P(), B, A);
+     EOC_arg arg(Value_P(), A, 0, 0, B);
 
      Workspace::SI_top()->add_eoc_handler(eoc_B_done, arg, LOC);
    }
@@ -361,7 +361,7 @@ ExecuteList * fun = 0;
    // install end of context handler for the result of ⍎A. 
    //
    {
-     EOC_arg arg1(Value_P(), B, A);
+     EOC_arg arg1(Value_P(), A, 0, 0, B);
      Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg1, LOC);
    }
 

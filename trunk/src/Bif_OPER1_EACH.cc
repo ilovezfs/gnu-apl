@@ -61,7 +61,7 @@ EOC_arg arg(B);   arg.A = A;
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    _arg.dA = 1;
-   _arg.LO = LO;
+   arg.LO = LO;
    _arg.dB = 1;
 
 // if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
@@ -93,9 +93,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         RANK_ERROR;
       }
 
-   _arg.cA = &A->get_ravel(0);
-   _arg.cB = &B->get_ravel(0);
-
    // arg.Z can be 0 (if not x(LO->has_result())
 
    _arg.z = -1;
@@ -109,14 +106,13 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    while (++_arg.z < _arg.count)
       {
-        Value_P LO_A = _arg.cA->to_value(LOC);     // left argument of LO
-        Value_P LO_B = _arg.cB->to_value(LOC);     // right argument of LO;
-        _arg.sub = !(_arg.cA->is_pointer_cell() || _arg.cB->is_pointer_cell());
+        const Cell * cA = &arg.A->get_ravel(_arg.dA * _arg.z);
+        const Cell * cB = &arg.B->get_ravel(_arg.dB * _arg.z);
+        Value_P LO_A = cA->to_value(LOC);     // left argument of LO
+        Value_P LO_B = cB->to_value(LOC);     // right argument of LO;
+        _arg.sub = !(cA->is_pointer_cell() || cB->is_pointer_cell());
 
-        _arg.cA += _arg.dA;
-        _arg.cB += _arg.dB;
-
-        Token result = _arg.LO->eval_AB(LO_A, LO_B);
+        Token result = arg.LO->eval_AB(LO_A, LO_B);
 
         // if LO was a primitive function, then result may be a value.
         // if LO was a user defined function then result may be TOK_SI_PUSHED.
@@ -219,10 +215,9 @@ Function * LO = _LO.get_function();
       }
 
 EOC_arg arg(B);
-EACH_LB & _arg = arg.u.u_EACH_LB;
+EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   _arg.LO = LO;
-   _arg.cB = &B->get_ravel(0);
+   arg.LO = LO;
    if (LO->has_result())   arg.Z = Value_P(B->get_shape(), LOC);
 
    _arg.count = B->element_count();
@@ -234,16 +229,16 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
 Token
 Bif_OPER1_EACH::finish_eval_LB(EOC_arg & arg)
 {
-EACH_LB & _arg = arg.u.u_EACH_LB;
+EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    while (++_arg.z < _arg.count)
       {
-        if (_arg.LO->get_fun_valence() == 0)
+        if (arg.LO->get_fun_valence() == 0)
            {
              // we alloe niladic functions N so that one can loop over them with
              // N ¨ 1 2 3 4
              //
-             Token result = _arg.LO->eval_();
+             Token result = arg.LO->eval_();
 
              if (result.get_tag() == TOK_SI_PUSHED)
                 {
@@ -283,22 +278,23 @@ EACH_LB & _arg = arg.u.u_EACH_LB;
         else
            {
              Value_P LO_B;         // right argument of LO;
+             const Cell * cB = &arg.B->get_ravel(_arg.z);
 
-             if (_arg.cB->is_pointer_cell())
+             if (cB->is_pointer_cell())
                 {
-                  LO_B = _arg.cB++->get_pointer_value();
+                  LO_B = cB->get_pointer_value();
                   _arg.sub = true;
                 }
              else
                 {
                   LO_B = Value_P(LOC);
    
-                  LO_B->get_ravel(0).init(*_arg.cB++, LO_B.getref());
+                  LO_B->get_ravel(0).init(*cB, LO_B.getref());
                   LO_B->set_complete();
                   _arg.sub = false;
                 }
 
-             Token result = _arg.LO->eval_B(LO_B);
+             Token result = arg.LO->eval_B(LO_B);
 
              if (result.get_tag() == TOK_SI_PUSHED)
                 {
@@ -350,7 +346,7 @@ Bif_OPER1_EACH::eoc_LB(Token & token)
 {
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
-EACH_LB & _arg = arg->u.u_EACH_LB;
+EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
    if (!!arg->Z)   // LO with result, maybe successful
       {

@@ -52,7 +52,6 @@ struct quad_INP
 /// arguments of the EOC handler for A ∘.f B
 struct OUTER_PROD
 {
-  Function * RO;     ///< user defined function
   ShapeItem len_B;   ///< number of cells in right arg
   ShapeItem len_Z;   ///< number of cells in result
   ShapeItem z;       ///< current Z index
@@ -61,14 +60,9 @@ struct OUTER_PROD
 /// arguments of the EOC handler for A g.f B
 struct INNER_PROD
 {
-  Value_P * args_A;    ///< left args of RO
-  ShapeItem a;         ///< current A1 index
   ShapeItem items_A;   ///< number of cells in A1
-  Function * LO;       ///< left user defined function
-  Function * RO;       ///< right user defined function
-  Value_P * args_B;    ///< right args of RO
-  ShapeItem b;         ///< current B1 index
   ShapeItem items_B;   ///< number of cells in B1
+  ShapeItem z;         ///< current Z index
   ShapeItem v1;        ///< current LO index
   int how;             ///< how to continue in finish_inner_product()
   bool last_ufun;      ///< true for the last user defined function call
@@ -78,7 +72,6 @@ struct INNER_PROD
 struct REDUCTION
 {
   // parameters that are constant for the entire reduction
-  Function * LO;            ///< left user defined function
   bool scan;                ///< true for LO \ B
   ShapeItem len_L;          ///< length of dimensions below (excluding) axis
   ShapeItem len_L_s;        ///< len_L or 0 for scan
@@ -100,24 +93,11 @@ struct REDUCTION
   ShapeItem b;              ///< current b
 };
 
-/// arguments of the EOC handler for A f¨ B
+/// arguments of the EOC handler for (A) f¨ B
 struct EACH_ALB
 {
-  const Cell * cA;   ///< current left arg
   uint32_t dA;       ///< cA increment (0 or 1)
-  Function * LO;     ///< user defined function
-  const Cell * cB;   ///< current left arg
   uint32_t dB;       ///< cB increment (0 or 1)
-  ShapeItem z;       ///< current result index
-  ShapeItem count;   ///< number of iterations
-  bool sub;          ///< create a PointerCell
-};
-
-/// arguments of the EOC handler for f¨ B
-struct EACH_LB
-{
-  Function * LO;     ///< user defined function
-  const Cell * cB;   ///< current left arg
   ShapeItem z;       ///< current result index
   ShapeItem count;   ///< number of iterations
   bool sub;          ///< create a PointerCell
@@ -126,44 +106,22 @@ struct EACH_LB
 /// arguments of the EOC handler for (A) f⍤[X] B
 struct RANK
 {
-  Function * LO;                     ///< user defined function
-  ShapeItem h;                       ///< current high index
-  char _sh_chunk_B[sizeof(Shape)];   ///< low dimensions of B
-  char _sh_frame  [sizeof(Shape)];   ///< high dimensions of B
-  ShapeItem ec_chunk_B;              ///< items in _sh_chunk_B
-  const Cell * cB;                   ///< current B cell
-  ShapeItem ec_frame;                ///< max. high index
-  Axis axes_valid;                   ///< LO[X] rather than LO
-  char _axes  [sizeof(Shape)];       ///< axes for ⍤[X]
+  ShapeItem z;               ///< current high (frame) index
+  ShapeItem rk_chunk_A;      ///< rank of lower dimensions of A
+  ShapeItem rk_chunk_B;      ///< rank of lower dimensions of B
+  ShapeItem a;               ///< current A cell
+  ShapeItem b;               ///< current B cell
+  bool repeat_A;             ///< scalar-extend A
+  bool repeat_B;             ///< scalar-extend B
 
-  /// return sh_chunk_B
-  Shape & get_sh_chunk_B()       { return *(Shape *)&_sh_chunk_B;  }
-
-  /// return sh_frame
-  Shape & get_sh_frame()         { return *(Shape *)&_sh_frame;    }
-
-  /// return sh_axes
-  Shape & get_axes()             { return *(Shape *)&_axes;    }
-
-   // additional args for dyadic RANK operator
-  bool repeat_A;                     ///< scalar-extend A
-  bool repeat_B;                     ///< scalar-extend B
-  char _sh_chunk_A[sizeof(Shape)];   ///< low dimensions of A
-  ShapeItem ec_chunk_A;              ///< items in _sh_chunk_B
-  const Cell * cA;                   ///< current A cell
-
-  /// return sh_chunk_A
-  Shape & get_sh_chunk_A()       { return *(Shape *)&_sh_chunk_A;     }
+  char axes[MAX_RANK + 1];   ///< axes for ⍤[X]
 };
 
 /// arguments of the EOC handler for A f⋆g B
 struct POWER_ALRB
 {
   int how;                         ///< how to finish_eval_ALRB()
-  double qct;                      ///< comparison tolerance
   ShapeItem repeat_count;          ///< repeat count N for  form  A f ⍣ N B
-  Function * LO;                   ///< work function f for forms A f ⍣ N/g B
-  Function * RO;                   ///< condition fun g for form  A f ⍣ g B
   bool user_RO;                    ///< true if RO is user-defined
 };
 
@@ -178,13 +136,15 @@ class EOC_arg
 {
 public:
    /// constructor for dyadic derived function
-   EOC_arg(Value_P vpZ, Value_P vpB, Value_P vpA)
+   EOC_arg(Value_P vpZ, Value_P vpA, Function * lo, Function * ro, Value_P vpB)
    : handler(0),
      loc(0),
      next(0),
      Z(vpZ),
-     B(vpB),
-     A(vpA)
+     A(vpA),
+     LO(lo),
+     RO(ro),
+     B(vpB)
    {}
 
    /// constructor for monadic derived function without result (or
@@ -193,15 +153,19 @@ public:
    : handler(0),
      loc(0),
      next(0),
+     LO(0),
+     RO(0),
      B(vpB)
    {}
 
    /// constructor for monadic derived function with result
-   EOC_arg(Value_P vpZ, Value_P vpB)
+   EOC_arg(Value_P vpZ, Function * lo, Value_P vpB)
    : handler(0),
      loc(0),
      next(0),
      Z(vpZ),
+     LO(lo),
+     RO(0),
      B(vpB)
    {}
 
@@ -219,8 +183,10 @@ public:
      loc(other.loc),
      next(other.next),
      Z(other.Z),
-     B(other.B),
      A(other.A),
+     LO(other.LO),
+     RO(other.RO),
+     B(other.B),
      V1(other.V1),
      V2(other.V2),
      RO_A(other.RO_A),
@@ -238,11 +204,17 @@ public:
    /// result
    Value_P Z;
 
-   /// left argument
-   Value_P B;
-
-   /// right argument
+   /// left value argument
    Value_P A;
+
+   /// left function argument
+   Function * LO;
+
+   /// right function argument
+   Function * RO;
+
+   /// right value argument
+   Value_P B;
 
   /// INNER_PROD: argument for LO-reduction
   /// OUTER_PROD: helper value for non-pointer left RO argument
@@ -268,7 +240,6 @@ public:
         INNER_PROD  u_INNER_PROD;      ///< space for f.g context
         REDUCTION   u_REDUCTION;       ///< space for f/ context
         EACH_ALB    u_EACH_ALB;        ///< space for A¨B context
-        EACH_LB     u_EACH_LB;         ///< space for ¨B context
         RANK        u_RANK;            ///< space for A f⍤[X] B context
         POWER_ALRB  u_POWER_ALRB;      ///< space for A f⍣g B context
       } u; ///< a union big enough for all EOC args

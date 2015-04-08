@@ -208,13 +208,12 @@ Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
    if (shape_Z.is_empty())   return LO->eval_identity_fun(B, axis);
 
 Value_P Z(shape_Z, LOC);
-EOC_arg arg(Z, B);
+EOC_arg arg(Z, LO, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
 const bool scan = (a == -1);
 const bool reverse = (a < -1);
 
-   _arg.LO         = LO;
    _arg.scan         = scan;
    _arg.len_L        = Z3.get_last_shape_item();
    _arg.len_L_s       = scan ? 0 : _arg.len_L;
@@ -275,7 +274,7 @@ REDUCTION & _arg = arg.u.u_REDUCTION;
         {
           Value_P LO_A = arg.B->get_ravel(_arg.b).to_value(LOC);
           Value_P LO_B = arg.Z->get_ravel(_arg.z).to_value(LOC);
-          Token result = _arg.LO->eval_AB(LO_A, LO_B);
+          Token result = arg.LO->eval_AB(LO_A, LO_B);
           arg.Z->get_ravel(_arg.z).release(LOC);
 
           if (result.get_Class() == TC_VALUE)

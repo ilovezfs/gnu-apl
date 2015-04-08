@@ -560,7 +560,6 @@ StateIndicator::move_eoc_handler(EOC_HANDLER handler, EOC_arg * old_arg,
    eoc_handlers->handler = handler;
    eoc_handlers->loc = loc;
 }
-
 //-----------------------------------------------------------------------------
 bool
 StateIndicator::call_eoc_handler(Token & token)

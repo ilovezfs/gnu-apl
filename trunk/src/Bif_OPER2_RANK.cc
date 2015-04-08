@@ -37,10 +37,10 @@ Bif_OPER2_RANK::eval_LRB(Token & LO, Token & y, Value_P B)
    if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
       B = B->get_ravel(0).get_pointer_value();
 
-Rank rk_chunk_B = B->get_rank();
-   y123_to_B(y.get_apl_val(), rk_chunk_B);
+Rank rank_chunk_B = B->get_rank();
+   y123_to_B(y.get_apl_val(), rank_chunk_B);
 
-   return do_LyXB(LO.get_function(), 0, B, rk_chunk_B);
+   return do_LyXB(LO.get_function(), 0, B, rank_chunk_B);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -49,37 +49,36 @@ Bif_OPER2_RANK::eval_LRXB(Token & LO, Token & y, Value_P X, Value_P B)
    if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
       B = B->get_ravel(0).get_pointer_value();
 
-Rank rk_chunk_B = B->get_rank();
+Rank rank_chunk_B = B->get_rank();
 
-   y123_to_B(y.get_apl_val(), rk_chunk_B);
+   y123_to_B(y.get_apl_val(), rank_chunk_B);
 
 Shape sh_X(X, Workspace::get_IO());
-   return do_LyXB(LO.get_function(), &sh_X, B, rk_chunk_B);
+   return do_LyXB(LO.get_function(), &sh_X, B, rank_chunk_B);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER2_RANK::do_LyXB(Function * LO, const Shape * axes,
-                        Value_P B, Rank rk_chunk_B)
+                        Value_P B, Rank rank_chunk_B)
 {
    if (!LO->has_result())   DOMAIN_ERROR;
 
-   // split shape of B into high and low shapes.
+   // split shape of B into high (=frame) and low (= chunk) shapes.
    //
-const Shape shape_Z = B->get_shape().high_shape(B->get_rank() - rk_chunk_B);
+const Shape shape_Z = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 Value_P Z(shape_Z, LOC);
-EOC_arg arg(Z, B);
+EOC_arg arg(Z, LO, B);
 RANK & _arg = arg.u.u_RANK;
 
-   _arg.get_sh_chunk_B() = B->get_shape().low_shape(rk_chunk_B);
-   _arg.get_sh_frame() = shape_Z;
-   _arg.ec_frame   = shape_Z.get_volume();
-   if (!_arg.ec_frame)   _arg.ec_frame = 1;
-   _arg.ec_chunk_B = _arg.get_sh_chunk_B().get_volume();
-   _arg.cB = &B->get_ravel(0);
-   _arg.LO = LO;
-   _arg.axes_valid = (axes != 0);
-   if (axes)   _arg.get_axes() = *axes;
-   _arg.h = -1;
+   _arg.rk_chunk_B = rank_chunk_B;
+   _arg.b = 0;
+   _arg.z = -1;
+   _arg.axes[0] = -1;
+   if (axes)
+      {
+        _arg.axes[0] = axes->get_rank();
+        loop(r, axes->get_rank())   _arg.axes[r + 1] = axes->get_shape_item(r);
+      }
 
    return finish_LyXB(arg, true);
 }
@@ -89,15 +88,18 @@ Bif_OPER2_RANK::finish_LyXB(EOC_arg & arg, bool first)
 {
 RANK & _arg = arg.u.u_RANK;
 
-   while (++_arg.h < _arg.ec_frame)
+   while (++_arg.z < arg.Z->nz_element_count())
       {
-        Value_P BB(_arg.get_sh_chunk_B(), LOC);
-        Assert1(_arg.ec_chunk_B == _arg.get_sh_chunk_B().get_volume());
-        loop(l, _arg.ec_chunk_B)
-            BB->next_ravel()->init(*_arg.cB++, BB.getref());
+        const Shape shape_BB = arg.B->get_shape().low_shape(_arg.rk_chunk_B);
+        Value_P BB(shape_BB, LOC);
+        loop(l, BB->element_count())
+            {
+              const Cell & cB = arg.B->get_ravel(_arg.b++);
+              BB->next_ravel()->init(cB, BB.getref());
+            }
         BB->check_value(LOC);
 
-        Token result = _arg.LO->eval_B(BB);
+        Token result = arg.LO->eval_B(BB);
         if (result.get_tag() == TOK_SI_PUSHED)
            {
              // LO was a user defined function or ⍎
@@ -126,9 +128,12 @@ RANK & _arg = arg.u.u_RANK;
       }
 
    arg.Z->check_value(LOC);
-   if (!_arg.axes_valid)   return Bif_F12_PICK::disclose(arg.Z, true);
 
-   return Bif_F12_PICK::disclose_with_axis(_arg.get_axes(), arg.Z, true);
+   if (_arg.axes[0] == -1)   return Bif_F12_PICK::disclose(arg.Z, true);
+
+Shape sh_X;
+   loop(r, _arg.axes[0])   sh_X.add_shape_item(_arg.axes[r + 1]);
+   return Bif_F12_PICK::disclose_with_axis(sh_X, arg.Z, true);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -137,11 +142,11 @@ Bif_OPER2_RANK::eval_ALRB(Value_P A, Token & LO, Token & y, Value_P B)
    if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
       B = B->get_ravel(0).get_pointer_value();
 
-Rank rk_chunk_A = A->get_rank();
-Rank rk_chunk_B = B->get_rank();
-   y123_to_AB(y.get_apl_val(), rk_chunk_A, rk_chunk_B);
+Rank rank_chunk_A = A->get_rank();
+Rank rank_chunk_B = B->get_rank();
+   y123_to_AB(y.get_apl_val(), rank_chunk_A, rank_chunk_B);
 
-   return do_ALyXB(A, rk_chunk_A, LO.get_function(), 0, B, rk_chunk_B);
+   return do_ALyXB(A, rank_chunk_A, LO.get_function(), 0, B, rank_chunk_B);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -151,23 +156,23 @@ Bif_OPER2_RANK::eval_ALRXB(Value_P A, Token & LO, Token & y,
    if (B->element_count() == 1 && B->get_ravel(0).is_pointer_cell())
       B = B->get_ravel(0).get_pointer_value();
 
-Rank rk_chunk_A = A->get_rank();
-Rank rk_chunk_B = B->get_rank();
+Rank rank_chunk_A = A->get_rank();
+Rank rank_chunk_B = B->get_rank();
 
-   y123_to_AB(y.get_apl_val(), rk_chunk_A, rk_chunk_B);
+   y123_to_AB(y.get_apl_val(), rank_chunk_A, rank_chunk_B);
 
 Shape sh_X(X, Workspace::get_IO());
-   return do_ALyXB(A, rk_chunk_A, LO.get_function(), &sh_X, B, rk_chunk_B);
+   return do_ALyXB(A, rank_chunk_A, LO.get_function(), &sh_X, B, rank_chunk_B);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_RANK::do_ALyXB(Value_P A, Rank rk_chunk_A, Function *  LO,
-                         const Shape * axes, Value_P B, Rank rk_chunk_B)
+Bif_OPER2_RANK::do_ALyXB(Value_P A, Rank rank_chunk_A, Function *  LO,
+                         const Shape * axes, Value_P B, Rank rank_chunk_B)
 {
    if (!LO->has_result())   DOMAIN_ERROR;
 
-Rank rk_A_frame = A->get_rank() - rk_chunk_A;   // rk_A_frame is y8
-Rank rk_B_frame = B->get_rank() - rk_chunk_B;   // rk_B_frame is y9
+Rank rk_A_frame = A->get_rank() - rank_chunk_A;   // rk_A_frame is y8
+Rank rk_B_frame = B->get_rank() - rank_chunk_B;   // rk_B_frame is y9
 
    // if both high-ranks are 0, then return A LO B.
    //
@@ -177,20 +182,20 @@ Rank rk_B_frame = B->get_rank() - rk_chunk_B;   // rk_B_frame is y9
    // Even though A and B have the same shape, rk_A_frame and rk_B_frame
    // could be different, leading to different split shapes for A and B
    //
-bool repeat_A = false;
-bool repeat_B = false;
-Shape sh_A_frame = A->get_shape().high_shape(A->get_rank() - rk_chunk_A);
-const Shape sh_B_frame = B->get_shape().high_shape(B->get_rank() - rk_chunk_B);
+int repeat_A = 0;
+int repeat_B = 0;
+Shape sh_A_frame = A->get_shape().high_shape(A->get_rank() - rank_chunk_A);
+const Shape sh_B_frame = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 Shape shape_Z;
    if (rk_A_frame == 0)   // "conform" A to B
       {
         shape_Z = sh_B_frame;
-        repeat_A = true;
+        repeat_A = 1;
       }
    else if (rk_B_frame == 0)   // "conform" B to A
       {
         shape_Z = sh_A_frame;
-        repeat_B = true;
+        repeat_B = 1;
       }
    else
       {
@@ -200,12 +205,12 @@ Shape shape_Z;
       }
 
 Value_P Z(shape_Z, LOC);
-EOC_arg arg(Z, B, A);
+EOC_arg arg(Z, A, LO, 0, B);
 RANK & _arg = arg.u.u_RANK;
 
-   _arg.get_sh_chunk_A() = A->get_shape().low_shape(rk_chunk_A);
-   _arg.get_sh_chunk_B() = B->get_shape().low_shape(rk_chunk_B);
-   _arg.get_sh_frame() = B->get_shape().high_shape(B->get_rank() - rk_chunk_B);
+   _arg.rk_chunk_A = rank_chunk_A;
+   _arg.rk_chunk_B = rank_chunk_B;
+Shape sh_frame = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 
    // a trick to avoid conforming A to B or B to A. If A or B
    // needs to be conformed, then we set the corresponding repeat_A or 
@@ -217,28 +222,23 @@ RANK & _arg = arg.u.u_RANK;
    if (_arg.repeat_A)   // "conform" A to B
       {
          rk_A_frame = rk_B_frame;
-         sh_A_frame = _arg.get_sh_frame();
+         sh_A_frame = sh_frame;
       }
    else if (_arg.repeat_B)   // "conform" B to A
       {
          rk_B_frame = rk_A_frame;
-         _arg.get_sh_frame() = sh_A_frame;
+         sh_frame = sh_A_frame;
       }
  
-   // at this point sh_A_frame == sh_B_frame, so we can use either of them
-   // to compute ec_chunk_A
-   //
-   _arg.ec_frame = _arg.get_sh_frame().get_volume();
-   if (!_arg.ec_frame)   _arg.ec_frame = 1;
-   _arg.ec_chunk_A = _arg.get_sh_chunk_A().get_volume();
-   _arg.ec_chunk_B = _arg.get_sh_chunk_B().get_volume();
-
-   _arg.cA = &A->get_ravel(0);
-   _arg.LO = LO;
-   _arg.axes_valid = (axes != 0);
-   if (axes)   _arg.get_axes() = *axes;
-   _arg.cB = &B->get_ravel(0);
-   _arg.h = -1;
+   _arg.a = 0;
+   _arg.b = 0;
+   _arg.z = -1;
+   _arg.axes[0] = -1;
+   if (axes)
+      {
+        _arg.axes[0] = axes->get_rank();
+        loop(r, axes->get_rank())   _arg.axes[r + 1] = axes->get_shape_item(r);
+      }
 
    return finish_ALyXB(arg, true);
 }
@@ -248,21 +248,29 @@ Bif_OPER2_RANK::finish_ALyXB(EOC_arg & arg, bool first)
 {
 RANK & _arg = arg.u.u_RANK;
 
-   while (++_arg.h < _arg.ec_frame)
+   while (++_arg.z < arg.Z->nz_element_count())
       {
-        Value_P AA(_arg.get_sh_chunk_A(), LOC);
-        Value_P BB(_arg.get_sh_chunk_B(), LOC);
-
-        loop(l, _arg.ec_chunk_A)  AA->get_ravel(l).init(*_arg.cA++,AA.getref());
-        loop(l, _arg.ec_chunk_B)  BB->get_ravel(l).init(*_arg.cB++,BB.getref());
-
-        if (_arg.repeat_A)   _arg.cA = &arg.A->get_ravel(0);
-        if (_arg.repeat_B)   _arg.cB = &arg.B->get_ravel(0);
-
+        const Shape shape_AA = arg.A->get_shape().low_shape(_arg.rk_chunk_A);
+        Value_P AA(shape_AA, LOC);
+        loop(l, AA->element_count())
+            {
+              const Cell & cA = arg.A->get_ravel(_arg.a++);
+              AA->next_ravel()->init(cA, AA.getref());
+            }
+        if (_arg.repeat_A)   _arg.a = 0;
         AA->check_value(LOC);
+
+        const Shape shape_BB = arg.B->get_shape().low_shape(_arg.rk_chunk_B);
+        Value_P BB(shape_BB, LOC);
+        loop(l, BB->element_count())
+            {
+              const Cell & cB = arg.B->get_ravel(_arg.b++);
+              BB->next_ravel()->init(cB, BB. getref());
+            }
+        if (_arg.repeat_B)   _arg.b = 0;
         BB->check_value(LOC);
 
-        Token result = _arg.LO->eval_AB(AA, BB);
+        Token result = arg.LO->eval_AB(AA, BB);
         if (result.get_tag() == TOK_SI_PUSHED)
            {
              // LO was a user defined function or ⍎
@@ -292,9 +300,12 @@ RANK & _arg = arg.u.u_RANK;
       }
 
    arg.Z->check_value(LOC);
-   if (!_arg.axes_valid)   return Bif_F12_PICK::disclose(arg.Z, true);
 
-   return Bif_F12_PICK::disclose_with_axis(_arg.get_axes(), arg.Z, true);
+   if (_arg.axes[0] == -1)   return Bif_F12_PICK::disclose(arg.Z, true);
+
+Shape sh_X;
+   loop(r, _arg.axes[0])   sh_X.add_shape_item(_arg.axes[r + 1]);
+   return Bif_F12_PICK::disclose_with_axis(sh_X, arg.Z, true);
 }
 //-----------------------------------------------------------------------------
 bool
@@ -314,7 +325,7 @@ Value_P ZZ = token.get_apl_val();
    else
       new (arg->Z->next_ravel())   PointerCell(ZZ, arg->Z.getref());
 
-   if (_arg.h < (_arg.ec_frame - 1))   Workspace::pop_SI(LOC);
+   if (_arg.z < (arg->Z->nz_element_count() - 1))   Workspace::pop_SI(LOC);
 
    if (!arg->A)   copy_1(token, finish_LyXB (*arg, false), LOC);
    else           copy_1(token, finish_ALyXB(*arg, false), LOC);
