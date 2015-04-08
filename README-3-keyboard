@@ -67,7 +67,8 @@ located in the support-files directory.
 Then a number of different keyboard layouts were contributed by GNU APL users.
 
 As of GNU APL 1.4 there is now one directory for every keyboard layout,
-currently Dyalog-Keyboard, old-Keyboard, Unicomp-Keyboard, and WASD-Keyboard.
+currently Dirk, Dyalog-Keyboard, old-Keyboard, OS-X-Keyboard, 
+Unicomp-Keyboard, and WASD-Keyboard.
 
 The file names mentioned in the following are generic (independent of a
 particular keyboard layout) whereas the support files provided lives in

@@ -49,7 +49,7 @@ protected:
    static bool eoc_ALRB(Token & token);
 
    /// return boolean value of 1-element value \b COND
-   static bool get_condition_value(const Value & COND, double qct);
+   static bool get_condition_value(const Value & COND);
 };
 //-----------------------------------------------------------------------------
 

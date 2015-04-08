@@ -30,10 +30,8 @@ Bif_OPER2_POWER * Bif_OPER2_POWER::fun = &Bif_OPER2_POWER::_fun;
 Token
 Bif_OPER2_POWER::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 {
-EOC_arg arg(Value_P(), B, A);
+EOC_arg arg(Value_P(), A, LO.get_function(), 0, B);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
-   _arg.qct = Workspace::get_CT();
-   _arg.LO = LO.get_function();
    _arg.user_RO = false;
 
    // RO can be a function or a value (integer count)
@@ -62,23 +60,23 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
         if (_arg.repeat_count < 0)   // inverse
            {
-             Function * inverse = _arg.LO->get_dyadic_inverse();
+             Function * inverse = arg.LO->get_dyadic_inverse();
              if (inverse == 0)   DOMAIN_ERROR;   // no inverse
 
-             _arg.LO = inverse;
+             arg.LO = inverse;
              _arg.repeat_count = -_arg.repeat_count;
            }
 
         if (_arg.repeat_count == 1)
            {
-             return  _arg.LO->eval_AB(A, B);
+             return  arg.LO->eval_AB(A, B);
            }
       }
    else if (RO.get_ValueType() == TV_FUN)   // function
       {
         _arg.how = 2;
-        _arg.RO = RO.get_function();
-        _arg.user_RO = _arg.RO->is_user_defined();
+        arg.RO = RO.get_function();
+        _arg.user_RO = arg.RO->is_user_defined();
       }
    else Assert(0);
 
@@ -94,8 +92,8 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
         for (;;)
             {
-              Token result_LO = !arg.A ? _arg.LO->eval_B(arg.B)
-                                       : _arg.LO->eval_AB(arg.A, arg.B);
+              Token result_LO = !arg.A ? arg.LO->eval_B(arg.B)
+                                       : arg.LO->eval_AB(arg.A, arg.B);
 
               if (result_LO.get_tag() == TOK_ERROR)   return result_LO;
               --_arg.repeat_count;
@@ -123,7 +121,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 again:
    if (_arg.how == 1)   // evaluate condition function RO
       {
-        Token result_RO = _arg.RO->eval_AB(arg.Z, arg.B);
+        Token result_RO = arg.RO->eval_AB(arg.Z, arg.B);
         if (result_RO.get_tag() == TOK_ERROR)   return result_RO;
 
         if (result_RO.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
@@ -137,7 +135,7 @@ again:
 
         Assert(result_RO.get_Class() == TC_VALUE);
         Value_P condition = result_RO.get_apl_val();
-        const bool stop = get_condition_value(*condition, _arg.qct);
+        const bool stop = get_condition_value(*condition);
         if (stop)
            {
              Value_P Z(arg.Z);
@@ -153,8 +151,8 @@ again:
    // Evaluate LO
    //
    {
-     Token result_LO = !arg.A ? _arg.LO->eval_B(arg.B)
-                              : _arg.LO->eval_AB(arg.A, arg.B);
+     Token result_LO = !arg.A ? arg.LO->eval_B(arg.B)
+                              : arg.LO->eval_AB(arg.A, arg.B);
      if (result_LO.get_tag() == TOK_ERROR)   return result_LO;
 
      if (result_LO.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
@@ -215,7 +213,7 @@ POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
       {
 how_1:
         Value_P cond =  token.get_apl_val();
-        const bool stop = get_condition_value(*cond, _arg.qct);
+        const bool stop = get_condition_value(*cond);
         if (stop)
            {
              Value_P Z(arg->Z);
@@ -248,7 +246,7 @@ how_1:
       {
         Workspace::pop_SI(LOC);
 
-        Token result_RO = _arg.RO->eval_AB(arg->Z, arg->B);
+        Token result_RO = arg->RO->eval_AB(arg->Z, arg->B);
         if (result_RO.get_tag() == TOK_ERROR)   return false;
         Assert(result_RO.get_tag() == TOK_SI_PUSHED);
 
@@ -260,7 +258,7 @@ how_1:
       }
    else                 // primitive condition
       {
-        Token result_RO = _arg.RO->eval_AB(arg->Z, arg->B);
+        Token result_RO = arg->RO->eval_AB(arg->Z, arg->B);
         move_1(token, result_RO, LOC);
         if (token.get_tag() == TOK_ERROR)   return false;
 
@@ -272,10 +270,8 @@ how_1:
 Token
 Bif_OPER2_POWER::eval_LRB(Token & LO, Token & RO, Value_P B)
 {
-EOC_arg arg(Value_P(), B, Value_P());
+EOC_arg arg(Value_P(), Value_P(), LO.get_function(), 0, B);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
-   _arg.qct = Workspace::get_CT();
-   _arg.LO = LO.get_function();
    _arg.user_RO = false;
 
    // RO can be a function or a value (integer count)
@@ -304,23 +300,23 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
         if (_arg.repeat_count < 0)   // inverse
            {
-             Function * inverse = _arg.LO->get_monadic_inverse();
+             Function * inverse = arg.LO->get_monadic_inverse();
              if (inverse == 0)   DOMAIN_ERROR;   // no inverse
 
-             _arg.LO = inverse;
+             arg.LO = inverse;
              _arg.repeat_count = -_arg.repeat_count;
            }
 
         if (_arg.repeat_count == 1)
            {
-             return  _arg.LO->eval_B(B);
+             return  arg.LO->eval_B(B);
            }
       }
    else if (RO.get_ValueType() == TV_FUN)   // function
       {
         _arg.how = 2;
-        _arg.RO = RO.get_function();
-        _arg.user_RO = _arg.RO->is_user_defined();
+        arg.RO = RO.get_function();
+        _arg.user_RO = arg.RO->is_user_defined();
       }
    else Assert(0);
 
@@ -328,7 +324,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_POWER::get_condition_value(const Value & RO, double qct)
+Bif_OPER2_POWER::get_condition_value(const Value & RO)
 {
    if (RO.element_count() != 1)
       {
