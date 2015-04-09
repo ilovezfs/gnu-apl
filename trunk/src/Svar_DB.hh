@@ -77,7 +77,7 @@ class Svar_DB
 {
 public:
    /// open (and possibly initialize) the shared variable database
-   static void init(const char * bin_path, const char * prog,
+   static void init(const char * bin_path, const char * prog, int retry_max,
                     bool logit, bool do_svars);
 
    /// open (and possibly initialize) the shared variable database
@@ -172,7 +172,8 @@ public:
 
    /// return a socket that is connect to APserver
    static TCP_socket connect_to_APserver(const char * bin_path,
-                                         const char * prog, bool logit);
+                                         const char * prog, int retry_max,
+                                         bool logit);
 
    /// close TCP connection to APserver
    static void disconnect()
@@ -193,8 +194,8 @@ public:
    static void DB_tcp_error(const char * op, int got, int expected);
 
 protected:
-   /// start an APserver process
-   static void start_APserver(const char * server_sockname,
+   /// start an APserver process, return true on failure
+   static bool start_APserver(const char * server_sockname,
                               const char * bin_dir, bool logit);
 
    /// the TCP connection to APserver, NO_TCP_SOCKET if invalid

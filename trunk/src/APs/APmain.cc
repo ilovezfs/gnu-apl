@@ -195,7 +195,8 @@ char * slash = strrchr(bin_path, '/');
         *slash = 0;
       }
 
-   Svar_DB::init(bin_path, prog, false, true);
+   Svar_DB::init(bin_path, prog, /* retry_max */ 10, /* logit */ false,
+                 /* do_svars */  true);
 
    if (strrchr(prog, '/'))   prog = strrchr(prog, '/') + 1;
    snprintf(pref, sizeof(pref) - 1, "%s(%u) ", prog, getpid());
@@ -252,7 +253,8 @@ Svar_partner this_proc(ProcessorID::get_id(), NO_TCP_SOCKET);
 const TCP_socket tcp = Svar_DB::get_DB_tcp();
 
    if (ProcessorID::get_id().proc < AP_FIRST_USER)
-      tcp2 = Svar_DB::connect_to_APserver(0, prog_name(), verbose);
+      tcp2 = Svar_DB::connect_to_APserver(0, prog_name(), /* retry_max */ 10,
+                                          verbose);
 
    if (tcp == NO_TCP_SOCKET || tcp2 == NO_TCP_SOCKET)
       {

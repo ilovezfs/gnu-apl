@@ -112,7 +112,7 @@ Workspace::get_RL(uint64_t mod)
    // we discard random numbers >= max_rand in order to avoid a bias
    // towards small numbers
    //
-const uint64_t max_rand = 0xFFFFFFFFFFFFFFFFULL - (0xFFFFFFFFFFFFFFFF % mod);
+const uint64_t max_rand = 0xFFFFFFFFFFFFFFFFULL - (0xFFFFFFFFFFFFFFFFULL % mod);
 uint64_t rand = the_workspace.v_Quad_RL.get_random();
 
    do { rand ^= rand >> 11;

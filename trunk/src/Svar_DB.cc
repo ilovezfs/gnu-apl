@@ -50,7 +50,7 @@ TCP_socket Svar_DB::DB_tcp = NO_TCP_SOCKET;
 Svar_record Svar_record_P::cache;
 
 //-----------------------------------------------------------------------------
-void
+bool
 Svar_DB::start_APserver(const char * server_sockname,
                         const char * bin_dir, bool logit)
 {
@@ -80,7 +80,7 @@ char APserver_path[APL_PATH_MAX + 1];
 "either the same directory as the binary 'apl' or the subdirectory 'APs' of\n"
 "that directory (the directory should also be in $PATH)." << endl;
 
-             return;
+             return true;   // error
            }
       }
 
@@ -103,7 +103,7 @@ FILE * fp = popen(popen_args, "r");
       {
         get_CERR() << "popen(" << popen_args << " failed: " << strerror(errno)
              << endl;
-        return;
+        return true;   // error
       }
 
    for (int cc; (cc = getc(fp)) != EOF;)
@@ -120,12 +120,12 @@ const int APserver_result = pclose(fp);
                     << strerror(errno) << endl;
       }
 
-   return;
+   return false;   // success
 }
 //-----------------------------------------------------------------------------
 TCP_socket
 Svar_DB::connect_to_APserver(const char * bin_dir, const char * prog,
-                                      bool logit)
+                                      int retry_max, bool logit)
 {
 int sock = NO_TCP_SOCKET;
 const char * server_sockname = APSERVER_PATH;
@@ -190,11 +190,14 @@ char peer[100];
    // We try to connect to the APserver. If that fails then no
    // APserver is running; we fork one and try again.
    //
-   for (bool retry = false; ; retry = true)
+   //  If emacs mode is enabled then we try a little longer since emacs starts
+   // up at the same time (and we know that emacs is slow).
+   //
+   loop(retry, retry_max)
        {
+#if HAVE_SYS_UN_H
         if (server_sockname)
            {
-#if HAVE_SYS_UN_H
              sockaddr_un remote;
              memset(&remote, 0, sizeof(sockaddr_un));
              remote.sun_family = AF_UNIX;
@@ -202,9 +205,9 @@ char peer[100];
 
              if (::connect(sock, (sockaddr *)&remote,
                            sizeof(remote)) == 0)   break;   // success
-#endif
            }
         else   // TCP
+#endif
            {
              sockaddr_in remote;
              memset(&remote, 0, sizeof(sockaddr_in));
@@ -216,38 +219,54 @@ char peer[100];
                            sizeof(remote)) == 0)   break;   // success
            }
 
-         if (logit)
-            {
-              get_CERR() << "connecting to " << peer << endl;
+         // ::connect() to APserver failed. If
+         // then most likely no APserver was started and we do it.
+         //
+         if (logit)   get_CERR() << "connecting to " << peer
+                                 << " failed." << endl;
 
-              if (retry)   get_CERR() <<
-                 "    (this is supposed to succeed.)" << endl;
-              else         get_CERR() <<
-                 "    (this is expected to fail, unless APserver"
-                 " was started manually)" << endl;
+         if (retry == 0)   // first attempt
+            {
+              // this was the first ::connect() that has failed.
+              // most likely no APserver was started yet and we do it now
+              //
+              if (logit)   get_CERR() <<
+"    (the first ::connect() to APserver is expected to fail, unless\n" <<
+"     APserver was started manually)\n" <<
+"Starting a new APserver listening on " << peer << endl;
+
+              if (start_APserver(server_sockname, bin_dir, logit))
+                 {
+                   // starting of APserver failed: no point to try longer
+                   //
+                   ::close(sock);
+                   return NO_TCP_SOCKET;
+                 }
+
+              usleep(200000);   // give APserver some time to start up
+              continue;
             }
 
-         if (retry && bin_dir)
+         if ((retry == (retry_max - 1)) && bin_dir)   // last attempt: give up
             {
-              get_CERR() << "::connect() to existing APserver failed: "
-                   << strerror(errno) << endl;
+              get_CERR() <<
+                         "::connect() to supposedly existing APserver failed: "
+                         << strerror(errno) << endl;
 
               ::close(sock);
               return NO_TCP_SOCKET;
            }
 
-         // start an APserver
-         //
-         logit && get_CERR() << "starting a new APserver listening on "
-                             << peer << endl;
+         if (logit)   get_CERR() <<
+            "    (::connect() should succeed eventually. This was attempt "
+            << retry << " of " << retry_max << ")" << endl;
 
-         start_APserver(server_sockname, bin_dir, logit);
-         usleep(50000);
+         usleep(200000);   // more time for APserver to start up
        }
 
    // at this point sock is != NO_TCP_SOCKET and connected.
    //
-   usleep(20000);
+   usleep(50000);
    logit && get_CERR() << "connected to APserver, socket is " << sock << endl;
 
    return (TCP_socket)sock;
@@ -292,7 +311,7 @@ Signal_base * response = Signal_base::recv_TCP(sock, buffer, sizeof(buffer),
 }
 //=============================================================================
 void
-Svar_DB::init(const char * bin_dir, const char * prog,
+Svar_DB::init(const char * bin_dir, const char * prog, int retry_max,
               bool logit, bool do_svars)
 {
    if (!do_svars)   // shared variables disabled
@@ -303,7 +322,7 @@ Svar_DB::init(const char * bin_dir, const char * prog,
         return;
       }
 
-   DB_tcp = connect_to_APserver(bin_dir, prog, logit);
+   DB_tcp = connect_to_APserver(bin_dir, prog, retry_max, logit);
    if (APserver_available())
       {
         if (logit)   get_CERR() << "using Svar_DB on APserver!" << endl;
