@@ -128,6 +128,13 @@ Shape ret;
    for (int r = rho_rho; r > 0;)
        {
          --r;
+         if (rho[r] == 0)
+            {
+              Assert(offset == 0);
+              ret.rho[r] = 0;
+              continue;
+            }
+
          ret.rho[r] = offset % rho[r];
          offset /= rho[r];
        }
