@@ -152,8 +152,6 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    arg.V1 = Value_P(LOC);   // helper value for non-pointer cA
    arg.V2 = Value_P(LOC);   // helper value for non-pointer cB
 
-   _arg.z = -1;
-
    return finish_outer_product(arg);
 }
 //-----------------------------------------------------------------------------
@@ -162,10 +160,10 @@ Bif_OPER2_OUTER::finish_outer_product(EOC_arg & arg)
 {
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
-   while (++_arg.z < _arg.len_Z)
+   while (++arg.z < _arg.len_Z)
       {
-        const Cell * cA = &arg.A->get_ravel(_arg.z / _arg.len_B);
-        const Cell * cB = &arg.B->get_ravel(_arg.z % _arg.len_B);
+        const Cell * cA = &arg.A->get_ravel(arg.z / _arg.len_B);
+        const Cell * cB = &arg.B->get_ravel(arg.z % _arg.len_B);
 
    if (cA->is_pointer_cell())
       {
@@ -209,7 +207,7 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
       {
         // RO was a user defined function
         //
-        if (_arg.z)   // subsequent call
+        if (arg.z)   // subsequent call
            Workspace::SI_top()->move_eoc_handler(eoc_OUTER, &arg, LOC);
         else           // first call
            Workspace::SI_top()->add_eoc_handler(eoc_OUTER, arg, LOC);
@@ -245,7 +243,7 @@ OUTER_PROD & _arg = arg->u.u_OUTER_PROD;
 
    // pop the SI unless this is the last ravel element of Z to be computed
    //
-   if (_arg.z < (_arg.len_Z - 1))   Workspace::pop_SI(LOC);
+   if (arg->z < (_arg.len_Z - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_outer_product(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue

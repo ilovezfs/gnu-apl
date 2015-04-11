@@ -32,7 +32,7 @@ Bif_OPER2_POWER::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
 {
 EOC_arg arg(Value_P(), A, LO.get_function(), 0, B);
 POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
-   _arg.user_RO = false;
+   _arg.user_RO = 0;
 
    // RO can be a function or a value (integer count)
    //
@@ -76,7 +76,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       {
         _arg.how = 2;
         arg.RO = RO.get_function();
-        _arg.user_RO = arg.RO->is_user_defined();
+        _arg.user_RO = arg.RO->is_user_defined() ? 1 : 0;
       }
    else Assert(0);
 

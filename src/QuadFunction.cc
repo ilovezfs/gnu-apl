@@ -794,7 +794,7 @@ Symbol * symbol = Workspace::lookup_existing_symbol(name);
 Token
 Quad_INP::eval_AB(Value_P A, Value_P B)
 {
-EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), 0, 0, B);
+EOC_arg * arg = new EOC_arg(Value_P(), A, 0, 0, B);
 quad_INP & _arg = arg->u.u_quad_INP;
    _arg.lines = 0;
 
@@ -805,38 +805,6 @@ quad_INP & _arg = arg->u.u_quad_INP;
    //
    if (B->get_rank() > 1)         RANK_ERROR;
    if (B->element_count() == 0)   LENGTH_ERROR;
-
-   _arg.end_marker = new UCS_string(B->get_UCS_ravel());
-
-   // A is either one string (esc1 == esc2) or two (nested) strings
-   // for esc1 and esc2 respectively.
-   //
-   if (A->compute_depth() == 2)   // two (nested) strings
-      {
-        if (A->get_rank() != 1)        RANK_ERROR;
-        if (A->element_count() != 2)   LENGTH_ERROR;
-
-        UCS_string ** esc[2] = { &_arg.esc1, &_arg.esc2 };
-        loop(e, 2)
-           {
-             const Cell & cell = A->get_ravel(e);
-             if (cell.is_pointer_cell())   // char vector
-                {
-                  *esc[e] =
-                      new UCS_string(cell.get_pointer_value()->get_UCS_ravel());
-                }
-             else                          // char scalar
-                {
-                  *esc[e] = new UCS_string(1, cell.get_char_value());
-                }
-           }
-
-        if (_arg.esc1->size() == 0)   LENGTH_ERROR;
-      }
-   else                       // one string 
-      {
-        _arg.esc1 = _arg.esc2 = new UCS_string(A->get_UCS_ravel());
-      }
 
 Token tok(TOK_FIRST_TIME);
    Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
@@ -859,14 +827,49 @@ quad_INP & _arg = arg->u.u_quad_INP;
    if (B->get_rank() > 1)         RANK_ERROR;
    if (B->element_count() == 0)   LENGTH_ERROR;
 
-   _arg.end_marker = new UCS_string(B->get_UCS_ravel());
-
-   _arg.esc1 = _arg.esc2 = 0;
-
 Token tok(TOK_FIRST_TIME);
    Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
    eoc_INP(tok);
    return tok;
+}
+//-----------------------------------------------------------------------------
+void
+Quad_INP::get_esc(EOC_arg * arg, UCS_string & esc1, UCS_string & esc2,
+                  UCS_string & end_marker)
+{
+   end_marker = arg->B->get_UCS_ravel();
+   if (!arg->A)   return;
+
+   // A is either one string (esc1 == esc2) or two (nested) strings
+   // for esc1 and esc2 respectively.
+   //
+   if (arg->A->compute_depth() == 2)   // two (nested) strings
+      {
+        if (arg->A->get_rank() != 1)        RANK_ERROR;
+        if (arg->A->element_count() != 2)   LENGTH_ERROR;
+
+        loop(e, 2)
+           {
+             const Cell & cell = arg->A->get_ravel(e);
+             if (cell.is_pointer_cell())   // char vector
+                {
+                  if (e)   esc2 = cell.get_pointer_value()->get_UCS_ravel();
+                  else     esc1 = cell.get_pointer_value()->get_UCS_ravel();
+                }
+             else                          // char scalar
+                {
+                  if (e)   esc2 = cell.get_pointer_value()->get_UCS_ravel();
+                  else     esc1 = cell.get_pointer_value()->get_UCS_ravel();
+                }
+           }
+
+        if (esc1.size() == 0)   LENGTH_ERROR;
+      }
+   else                       // one string 
+      {
+        esc1 = arg->A->get_UCS_ravel();
+        esc2 = esc1;
+      }
 }
 //-----------------------------------------------------------------------------
 bool
@@ -939,6 +942,11 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
         delete last;
       }
 
+UCS_string esc1;
+UCS_string esc2;
+UCS_string end_marker;
+   get_esc(arg, esc1, esc2, end_marker);
+
    for (;;)   // read lines until end reached.
        {
          bool eof = false;
@@ -946,13 +954,13 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
          UCS_string prompt;
          InputMux::get_line(LIM_Quad_INP, prompt, line, eof,
                             LineHistory::quad_INP_history);
-         _arg.done = (line.substr_pos(*_arg.end_marker) != -1);
+         const bool done = (line.substr_pos(end_marker) != -1);
 
-         if (_arg.esc1)   // start marker defined (dyadic ⎕INP)
+         if (esc1.size())   // start marker defined (dyadic ⎕INP)
             {
               UCS_string exec;     // line esc1 ... esc2 (excluding)
 
-              const int e1_pos = line.substr_pos(*_arg.esc1);
+              const int e1_pos = line.substr_pos(esc1);
               if (e1_pos != -1)   // and the start marker is present.
                  {
                    // push characters left of exec
@@ -962,11 +970,11 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                      _arg.lines = new UCS_string_list(before, _arg.lines);
                    }
 
-                   exec = line.drop(e1_pos + _arg.esc1->size());
+                   exec = line.drop(e1_pos + esc1.size());
                    exec.remove_lt_spaces();   // no leading and trailing spaces
                    line.clear();
 
-                   if (_arg.esc2 == 0)
+                   if (esc2.size() == 0)
                       {
                         // empty esc2 means exec is the rest of the line.
                         // nothing to do.
@@ -975,7 +983,7 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                       {
                         // non-empty esc2: search for it
                         //
-                        const int e2_pos = exec.substr_pos(*_arg.esc2);
+                        const int e2_pos = exec.substr_pos(esc2);
                         if (e2_pos == -1)   // esc2 not found: exec rest of line
                            {
                              // esc2 not in exec: take rest of line
@@ -983,7 +991,7 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                            }
                         else
                            {
-                             const int rest = e2_pos + _arg.esc2->size();
+                             const int rest = e2_pos + esc2.size();
                              line = UCS_string(exec, rest, exec.size() - rest);
                              exec.shrink(e2_pos);
                            }
@@ -1008,7 +1016,7 @@ const bool first = token.get_tag() == TOK_FIRST_TIME;
                  }
             }
 
-         if (_arg.done)   break;
+         if (done)   break;
 
          _arg.lines = new UCS_string_list(line, _arg.lines);
        }
@@ -1026,10 +1034,6 @@ Cell * cZ = &Z->get_ravel(0) + zlen;
         new (--cZ)   PointerCell(ZZ, Z.getref());
         delete node;
       }
-
-   delete _arg.end_marker;
-   delete _arg.esc1;
-   if (_arg.esc2 != _arg.esc1)   delete _arg.esc2;
 
    if (Z->is_empty())   // then Z←⊂''
       {
