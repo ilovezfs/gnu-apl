@@ -63,7 +63,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
    _arg.dA = 1;
    _arg.dB = 1;
 
-// if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
+   if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
 
    if (A->is_scalar())
       {
@@ -92,9 +92,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         RANK_ERROR;
       }
 
-   // arg.Z can be 0 (if not x(LO->has_result())
-
-   _arg.z = -1;
    return finish_eval_ALB(arg);
 }
 //-----------------------------------------------------------------------------
@@ -103,13 +100,13 @@ Bif_OPER1_EACH::finish_eval_ALB(EOC_arg & arg)
 {
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   while (++_arg.z < _arg.count)
+   while (++arg.z < _arg.count)
       {
-        const Cell * cA = &arg.A->get_ravel(_arg.dA * _arg.z);
-        const Cell * cB = &arg.B->get_ravel(_arg.dB * _arg.z);
+        const Cell * cA = &arg.A->get_ravel(_arg.dA * arg.z);
+        const Cell * cB = &arg.B->get_ravel(_arg.dB * arg.z);
         Value_P LO_A = cA->to_value(LOC);     // left argument of LO
         Value_P LO_B = cB->to_value(LOC);     // right argument of LO;
-        _arg.sub = !(cA->is_pointer_cell() || cB->is_pointer_cell());
+        _arg.sub = (cA->is_pointer_cell() || cB->is_pointer_cell()) ? 0 : 1;
 
         Token result = arg.LO->eval_AB(LO_A, LO_B);
 
@@ -121,12 +118,13 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
            {
              Value_P vZ = result.get_apl_val();
 
+             Cell * cZ = arg.Z->next_ravel();
              if (!_arg.sub)
-                arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
+                cZ->init_from_value(vZ, arg.Z.getref(), LOC);
              else if (vZ->is_simple_scalar())
-                arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+                cZ->init(vZ->get_ravel(0), arg.Z.getref());
              else
-                new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+                new (cZ)   PointerCell(vZ, arg.Z.getref());
 
             continue;   // next z
            }
@@ -137,7 +135,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
            {
              // LO was a user defined function
              //
-             if (_arg.z)   // subsequent call
+             if (arg.z)   // subsequent call
                 Workspace::SI_top()->move_eoc_handler(eoc_ALB, &arg, LOC);
              else           // first call
                 Workspace::SI_top()->add_eoc_handler(eoc_ALB, arg, LOC);
@@ -168,19 +166,20 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
        Value_P vZ = token.get_apl_val();
 
+       Cell * cZ = arg->Z->next_ravel();
        if (!_arg.sub)
-          arg->Z->next_ravel()->init_from_value(vZ, arg->Z.getref(), LOC);
+          cZ->init_from_value(vZ, arg->Z.getref(), LOC);
        else if (vZ->is_simple_scalar())
-          arg->Z->next_ravel()->init(vZ->get_ravel(0), arg->Z.getref());
+          cZ->init(vZ->get_ravel(0), arg->Z.getref());
        else
-          new (arg->Z->next_ravel())   PointerCell(vZ, arg->Z.getref());
+          new (cZ)   PointerCell(vZ, arg->Z.getref());
       }
    else        // LO without result, maybe successful
       {
         if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-   if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
+   if (arg->z < (_arg.count - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_ALB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -220,7 +219,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    _arg.count = B->element_count();
 
-   _arg.z = -1;
    return finish_eval_LB(arg);
 }
 //-----------------------------------------------------------------------------
@@ -229,7 +227,7 @@ Bif_OPER1_EACH::finish_eval_LB(EOC_arg & arg)
 {
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   while (++_arg.z < _arg.count)
+   while (++arg.z < _arg.count)
       {
         if (arg.LO->get_fun_valence() == 0)
            {
@@ -242,7 +240,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   // LO was a user defined function or ⍎
                   //
-                  if (_arg.z)   // subsequent call
+                  if (arg.z)   // subsequent call
                      Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
                   else           // first call
                      Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
@@ -257,12 +255,13 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   Value_P vZ = result.get_apl_val();
 
+                  Cell * cZ = arg.Z->next_ravel();
                   if (!_arg.sub)
-                     arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(), LOC);
+                     cZ->init_from_value(vZ, arg.Z.getref(), LOC);
                   else if (vZ->is_simple_scalar())
-                     arg.Z->next_ravel()->init(vZ->get_ravel(0), arg.Z.getref());
+                     cZ->init(vZ->get_ravel(0), arg.Z.getref());
                   else
-                     new (arg.Z->next_ravel())   PointerCell(vZ, arg.Z.getref());
+                     new (cZ)  PointerCell(vZ, arg.Z.getref());
 
                   continue;   // next z
            }
@@ -276,12 +275,12 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         else
            {
              Value_P LO_B;         // right argument of LO;
-             const Cell * cB = &arg.B->get_ravel(_arg.z);
+             const Cell * cB = &arg.B->get_ravel(arg.z);
 
              if (cB->is_pointer_cell())
                 {
                   LO_B = cB->get_pointer_value();
-                  _arg.sub = true;
+                  _arg.sub = 1;
                 }
              else
                 {
@@ -289,7 +288,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
    
                   LO_B->get_ravel(0).init(*cB, LO_B.getref());
                   LO_B->set_complete();
-                  _arg.sub = false;
+                  _arg.sub = 0;
                 }
 
              Token result = arg.LO->eval_B(LO_B);
@@ -298,7 +297,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   // LO was a user defined function or ⍎
                   //
-                  if (_arg.z)   // subsequent call
+                  if (arg.z)   // subsequent call
                      Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
                   else           // first call
                      Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
@@ -313,13 +312,14 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   Value_P vZ = result.get_apl_val();
 
+                  Cell * cZ = arg.Z->next_ravel();
                   if (!_arg.sub)
-                     arg.Z->next_ravel()->init_from_value(vZ, arg.Z.getref(),
+                     cZ->init_from_value(vZ, arg.Z.getref(),
                                                           LOC);
                   else if (vZ->is_simple_scalar())
-                     arg.Z->next_ravel()->init(vZ->get_ravel(0),arg.Z.getref());
+                     cZ->init(vZ->get_ravel(0),arg.Z.getref());
                   else
-                     new (arg.Z->next_ravel())   PointerCell(vZ,arg.Z.getref());
+                     new (cZ)   PointerCell(vZ,arg.Z.getref());
 
                   continue;   // next z
                 }
@@ -352,19 +352,20 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
         Value_P vZ = token.get_apl_val();
 
+        Cell * cZ = arg->Z->next_ravel();
         if (!_arg.sub)
-           arg->Z->next_ravel()->init_from_value(vZ, arg->Z.getref(), LOC);
+           cZ->init_from_value(vZ, arg->Z.getref(), LOC);
         else if (vZ->is_simple_scalar())
-           arg->Z->next_ravel()->init(vZ->get_ravel(0), arg->Z.getref());
+           cZ->init(vZ->get_ravel(0), arg->Z.getref());
         else
-           new (arg->Z->next_ravel())   PointerCell(vZ, arg->Z.getref());
+           new (cZ)   PointerCell(vZ, arg->Z.getref());
       }
    else        // LO without result, maybe successful
       {
        if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
-   if (_arg.z < (_arg.count - 1))   Workspace::pop_SI(LOC);
+   if (arg->z < (_arg.count - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_LB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue

@@ -202,7 +202,7 @@ const Shape3 Z3(shape_Z, axis);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
+Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem nwise,
                       Function * LO, Axis axis, Value_P B, ShapeItem bm)
 {
    if (shape_Z.is_empty())   return LO->eval_identity_fun(B, axis);
@@ -211,21 +211,12 @@ Value_P Z(shape_Z, LOC);
 EOC_arg arg(Z, Value_P(), LO, 0, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-const bool scan = (a == -1);
-const bool reverse = (a < -1);
-
-   _arg.scan         = scan;
+   _arg.nwise        = nwise;
    _arg.len_L        = Z3.get_last_shape_item();
-   _arg.len_L_s       = scan ? 0 : _arg.len_L;
    _arg.len_BML      = bm * _arg.len_L;
    _arg.len_ZM       = Z3.m();
-   _arg.len_Z        = shape_Z.get_volume();
-   _arg.beam_len     = reverse ? -a : a;
-   _arg.dB           = reverse ? _arg.len_L : - _arg.len_L;
-   _arg.start_offset = reverse ? (_arg.beam_len - 1) * _arg.dB : 0;
 
    _arg.todo_B = 0;   // new beam
-   _arg.z = -1;
 
    return finish_REDUCE(arg, true);
 }
@@ -235,23 +226,29 @@ Bif_REDUCE::finish_REDUCE(EOC_arg & arg, bool first)
 {
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
-   for (;;)
+   while (_arg.todo_B || arg.z < (arg.Z->element_count() - 1))
       {
         if (_arg.todo_B == 0)   // new beam
            {
-             if (++_arg.z >= _arg.len_Z)   break;   // all beams done
+             ++arg.z;
              
-             _arg.z_L =  _arg.z % _arg.len_L;
-             _arg.z_M = (_arg.z / _arg.len_L) % _arg.len_ZM;
-             _arg.z_H =  _arg.z / (_arg.len_L * _arg.len_ZM);
+             const ShapeItem z_L =  arg.z % _arg.len_L;
+             const ShapeItem z_M = (arg.z / _arg.len_L) % _arg.len_ZM;
+             const ShapeItem z_H =  arg.z / (_arg.len_L * _arg.len_ZM);
 
-             if (_arg.scan)   _arg.todo_B = 1 + _arg.z_M;
-             else             _arg.todo_B = _arg.beam_len;
+             if      (_arg.nwise == -1)   _arg.todo_B = 1 + z_M;        // scan
+             else if (_arg.nwise < -1)    _arg.todo_B = - _arg.nwise;
+             else                        _arg.todo_B =   _arg.nwise;
 
-            _arg.b = _arg.z_L + _arg.z_H * _arg.len_BML   // start of row
-                   + _arg.z_M * _arg.len_L_s              // start of beam
-                   + (_arg.todo_B - 1) * _arg.len_L       // end of beam
-                   - _arg.start_offset;                   // or start (reverse)
+             _arg.b = z_L + z_H * _arg.len_BML          // start of row in B
+                    + (_arg.todo_B - 1) * _arg.len_L;   // end of beam in B
+
+             // for reverse (i,e. nwise < -1) reduction direction go to the
+             // start of the beam instead of the end of the beam.
+             //
+             if (_arg.nwise < -1)   _arg.b += (_arg.nwise + 1) * _arg.len_L;
+
+            if (_arg.nwise != -1)   _arg.b += z_M * _arg.len_L; // start of beam
 
              // Z[z] ? B[b]
              //
@@ -262,44 +259,43 @@ REDUCTION & _arg = arg.u.u_REDUCTION;
         // update position and check for end of beam
         //
         Assert(_arg.todo_B > 0);
-        _arg.b += _arg.dB;
+        if (_arg.nwise < -1)   _arg.b += _arg.len_L;   // move  forward
+        else                   _arg.b -= _arg.len_L;   // move backward
         --_arg.todo_B;
-        if (_arg.todo_B == 0)
+        if (_arg.todo_B > 0)
            {
-             continue;
+           // one reduction step (one call of LO)
+           //
+             Value_P LO_A = arg.B->get_ravel(_arg.b).to_value(LOC);
+             Value_P LO_B = arg.Z->get_ravel(arg.z).to_value(LOC);
+             Token result = arg.LO->eval_AB(LO_A, LO_B);
+             arg.Z->get_ravel(arg.z).release(LOC);
+
+             if (result.get_Class() == TC_VALUE)
+                {
+                  Value_P ZZ = result.get_apl_val();
+                  arg.Z->get_ravel(arg.z)
+                        .init_from_value(ZZ, arg.Z.getref(), LOC);
+                  continue;
+                }
+
+             if (result.get_tag() == TOK_ERROR)   return result;
+
+             if (result.get_tag() == TOK_SI_PUSHED)
+                {
+                  // LO was a user defined function
+                  //
+                  if (first)   // first call
+                     Workspace::SI_top()->add_eoc_handler(eoc_REDUCE, arg, LOC);
+                  else         // subsequent call
+                     Workspace::SI_top()->move_eoc_handler(eoc_REDUCE, &arg,
+                                                           LOC);
+
+                  return result;   // continue in user defined function...
+                }
+
+             Q1(result);   FIXME;
            }
-
-        // reduction step (one call of LO)
-        //
-        {
-          Value_P LO_A = arg.B->get_ravel(_arg.b).to_value(LOC);
-          Value_P LO_B = arg.Z->get_ravel(_arg.z).to_value(LOC);
-          Token result = arg.LO->eval_AB(LO_A, LO_B);
-          arg.Z->get_ravel(_arg.z).release(LOC);
-
-          if (result.get_Class() == TC_VALUE)
-             {
-               Value_P ZZ = result.get_apl_val();
-               arg.Z->get_ravel(_arg.z).init_from_value(ZZ, arg.Z.getref(),LOC);
-               continue;
-             }
-
-          if (result.get_tag() == TOK_ERROR)   return result;
-
-          if (result.get_tag() == TOK_SI_PUSHED)
-             {
-               // LO was a user defined function
-               //
-               if (first)   // first call
-                  Workspace::SI_top()->add_eoc_handler(eoc_REDUCE, arg, LOC);
-               else           // subsequent call
-                  Workspace::SI_top()->move_eoc_handler(eoc_REDUCE, &arg, LOC);
-
-               return result;   // continue in user defined function...
-             }
-
-          Q1(result);   FIXME;
-        }
       }
 
    arg.Z->set_default(*arg.B.get());
@@ -321,13 +317,14 @@ REDUCTION & _arg = arg->u.u_REDUCTION;
    //
    {
      Value_P ZZ = token.get_apl_val();
-     arg->Z->get_ravel(_arg.z).init_from_value(ZZ, arg->Z.getref(), LOC);
+     arg->Z->get_ravel(arg->z).init_from_value(ZZ, arg->Z.getref(), LOC);
    }
 
    // pop the SI unless this is the last reduction of the last 
    // ravel element of Z to be computed
    //
-   if (_arg.z < (_arg.len_Z - 1) || _arg.todo_B > 1 )   Workspace::pop_SI(LOC);
+   if (arg->z < (arg->Z->element_count() - 1) || _arg.todo_B > 1 )
+      Workspace::pop_SI(LOC);
 
    copy_1(token, finish_REDUCE(*arg, false), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue

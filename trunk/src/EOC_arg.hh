@@ -25,28 +25,10 @@
 #include "Shape.hh"
 #include "Value.icc"
 
-/// arguments of the EOC handler for ⎕EA
-struct quad_EA
-{
-   // ⎕EA has no additional arguments
-};
-
-/// arguments of the EOC handler for ⎕EC
-struct quad_EC
-{
-   // ⎕EC has no additional arguments
-};
-
 /// arguments of the EOC handler for ⎕INP
 struct quad_INP
 {
   UCS_string_list * lines;       ///< the lines of the final result.
-
-  UCS_string * end_marker;       ///< the end of the data read by ⎕INP
-  UCS_string * esc1;             ///< start marker (escape from ⎕INP)
-  UCS_string * esc2;             ///< end marker (return to ⎕INP)
-
-  bool done;                     ///< true if end_marker read
 };
 
 /// arguments of the EOC handler for A ∘.f B
@@ -54,41 +36,29 @@ struct OUTER_PROD
 {
   ShapeItem len_B;   ///< number of cells in right arg
   ShapeItem len_Z;   ///< number of cells in result
-  ShapeItem z;       ///< current Z index
 };
 
 /// arguments of the EOC handler for A g.f B
 struct INNER_PROD
 {
-  ShapeItem items_A;   ///< number of cells in A1
-  ShapeItem items_B;   ///< number of cells in B1
-  ShapeItem z;         ///< current Z index
-  ShapeItem v1;        ///< current LO index
-  int how;             ///< how to continue in finish_inner_product()
-  bool last_ufun;      ///< true for the last user defined function call
+  ShapeItem items_A;     ///< number of cells in A1
+  ShapeItem items_B;     ///< number of cells in B1
+  ShapeItem v1;          ///< current LO index
+  ShapeItem how;         ///< how to continue in finish_inner_product()
+  ShapeItem last_ufun;   ///< true for the last user defined function call
 };
 
 /// arguments of the EOC handler for one f/B result cell
 struct REDUCTION
 {
   // parameters that are constant for the entire reduction
-  bool scan;                ///< true for LO \ B
+  //
+  ShapeItem nwise;          ///< left argument (possibly negative)
   ShapeItem len_L;          ///< length of dimensions below (excluding) axis
-  ShapeItem len_L_s;        ///< len_L or 0 for scan
   ShapeItem len_BML;        ///< length of dimensions below (including) axis
   ShapeItem len_ZM;         ///< length of reduce axis in Z
-  ShapeItem len_Z;          ///< number of reductions (beams)
-  ShapeItem beam_len;       ///< dito, -1: variable (scan)
-  ShapeItem dB;             ///< - len_L (or len_L    if inverse)
-  ShapeItem start_offset;   ///< 0       (or len_L*dB if inverse);
 
-  // parameters that are constant for one beam (= one z)
-  ShapeItem z;              ///< current beam
-  ShapeItem z_L;            ///< current beam (low dimension of z)
-  ShapeItem z_M;            ///< current beam (middle dimension of z)
-  ShapeItem z_H;            ///< current beam (middle dimension of z)
-
-  // parameters that are change during the reduction of a beam
+  // parameters that are changing during the reduction of a beam
   ShapeItem todo_B;         ///< # of reductions left in this beam, -1: new beam
   ShapeItem b;              ///< current b
 };
@@ -96,23 +66,19 @@ struct REDUCTION
 /// arguments of the EOC handler for (A) f¨ B
 struct EACH_ALB
 {
-  uint32_t dA;       ///< cA increment (0 or 1)
-  uint32_t dB;       ///< cB increment (0 or 1)
-  ShapeItem z;       ///< current result index
+  ShapeItem dA;       ///< cA increment (0 or 1)
+  ShapeItem dB;       ///< cB increment (0 or 1)
   ShapeItem count;   ///< number of iterations
-  bool sub;          ///< create a PointerCell
+  ShapeItem sub;          ///< create a PointerCell
 };
 
 /// arguments of the EOC handler for (A) f⍤[X] B
 struct RANK
 {
-  ShapeItem z;               ///< current high (frame) index
   ShapeItem rk_chunk_A;      ///< rank of lower dimensions of A
   ShapeItem rk_chunk_B;      ///< rank of lower dimensions of B
   ShapeItem a;               ///< current A cell
   ShapeItem b;               ///< current B cell
-  bool repeat_A;             ///< scalar-extend A
-  bool repeat_B;             ///< scalar-extend B
 
   char axes[MAX_RANK + 1];   ///< axes for ⍤[X]
 };
@@ -120,9 +86,9 @@ struct RANK
 /// arguments of the EOC handler for A f⋆g B
 struct POWER_ALRB
 {
-  int how;                         ///< how to finish_eval_ALRB()
+  ShapeItem how;                   ///< how to finish_eval_ALRB()
   ShapeItem repeat_count;          ///< repeat count N for  form  A f ⍣ N B
-  bool user_RO;                    ///< true if RO is user-defined
+  ShapeItem user_RO;               ///< true if RO is user-defined
 };
 
 /// the type of a function to be called at the end of a context.
@@ -160,7 +126,8 @@ public:
      A(vpA),
      LO(lo),
      RO(ro),
-     B(vpB)
+     B(vpB),
+     z(-1)
    {}
 
    /// activation constructor
@@ -184,7 +151,8 @@ public:
      V1(other.V1),
      V2(other.V2),
      RO_A(other.RO_A),
-     RO_B(other.RO_B)
+     RO_B(other.RO_B),
+     z(other.z)
    { u = other.u; }
 
    /// the handler
@@ -224,6 +192,8 @@ public:
    /// OUTER_PROD: right RO argument
   Value_P RO_B;
 
+   ShapeItem z;
+
    /// return the EOC_type for handler
    static EOC_type get_EOC_type(EOC_HANDLER handler);
 
@@ -233,8 +203,6 @@ public:
    /// additional EOC handler specific arguments
    union EOC_arg_u
       {
-        quad_EA     u_quad_EA;         ///< space for ⎕EA context
-        quad_EC     u_quad_EC;         ///< space for ⎕EC context
         quad_INP    u_quad_INP;        ///< space for ⎕INP context
         OUTER_PROD  u_OUTER_PROD;      ///< space for ∘.g context
         INNER_PROD  u_INNER_PROD;      ///< space for f.g context

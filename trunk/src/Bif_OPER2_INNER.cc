@@ -202,8 +202,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
    _arg.items_B = items_B;
 
    _arg.how = 0;
-   _arg.z = -1;
-   _arg.last_ufun = false;
+   _arg.last_ufun = 0;
    return finish_inner_product(arg, true);
 }
 //-----------------------------------------------------------------------------
@@ -222,11 +221,11 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
    Assert1(_arg.how == 0);
 
-   while (++_arg.z < _arg.items_A * _arg.items_B)
+   while (++arg.z < _arg.items_A * _arg.items_B)
       {
         {
-          const ShapeItem a = _arg.z / _arg.items_B;
-          const ShapeItem b = _arg.z % _arg.items_B;
+          const ShapeItem a = arg.z / _arg.items_B;
+          const ShapeItem b = arg.z % _arg.items_B;
 
           const ShapeItem len_A = arg.A->get_last_shape_item();
           Value_P AA(len_A, LOC);
@@ -279,7 +278,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
                   // last user defined function call.
                   // Otherwise the LO-call below will be the last.
                   //
-                  if (!arg.LO->may_push_SI())   _arg.last_ufun = true;
+                  if (!arg.LO->may_push_SI())   _arg.last_ufun = 1;
                 }
 
              _arg.how = 1;
@@ -362,12 +361,12 @@ const Token T2 = arg.LO->eval_AB(LO_A, arg.V2);
 
    // LO was a user defined function. check if this was the last call
    //
-const ShapeItem a = _arg.z / _arg.items_B;
-const ShapeItem b = _arg.z % _arg.items_B;
+const ShapeItem a = arg.z / _arg.items_B;
+const ShapeItem b = arg.z % _arg.items_B;
    if (a >= (_arg.items_A - 1) && b >= (_arg.items_B - 1))
       {
         Assert1(arg.LO->may_push_SI());
-        if (_arg.v1 == 0)   _arg.last_ufun = true;
+        if (_arg.v1 == 0)   _arg.last_ufun = 1;
       }
 
    _arg.how = 2;

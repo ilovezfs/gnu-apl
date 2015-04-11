@@ -72,7 +72,6 @@ RANK & _arg = arg.u.u_RANK;
 
    _arg.rk_chunk_B = rank_chunk_B;
    _arg.b = 0;
-   _arg.z = -1;
    _arg.axes[0] = -1;
    if (axes)
       {
@@ -88,7 +87,7 @@ Bif_OPER2_RANK::finish_LyXB(EOC_arg & arg, bool first)
 {
 RANK & _arg = arg.u.u_RANK;
 
-   while (++_arg.z < arg.Z->nz_element_count())
+   while (++arg.z < arg.Z->nz_element_count())
       {
         const Shape shape_BB = arg.B->get_shape().low_shape(_arg.rk_chunk_B);
         Value_P BB(shape_BB, LOC);
@@ -182,20 +181,20 @@ Rank rk_B_frame = B->get_rank() - rank_chunk_B;   // rk_B_frame is y9
    // Even though A and B have the same shape, rk_A_frame and rk_B_frame
    // could be different, leading to different split shapes for A and B
    //
-int repeat_A = 0;
-int repeat_B = 0;
+bool repeat_A = 0;
+bool repeat_B = 0;
 Shape sh_A_frame = A->get_shape().high_shape(A->get_rank() - rank_chunk_A);
 const Shape sh_B_frame = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 Shape shape_Z;
    if (rk_A_frame == 0)   // "conform" A to B
       {
         shape_Z = sh_B_frame;
-        repeat_A = 1;
+        repeat_A = true;
       }
    else if (rk_B_frame == 0)   // "conform" B to A
       {
         shape_Z = sh_A_frame;
-        repeat_B = 1;
+        repeat_B = true;
       }
    else
       {
@@ -212,19 +211,12 @@ RANK & _arg = arg.u.u_RANK;
    _arg.rk_chunk_B = rank_chunk_B;
 Shape sh_frame = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 
-   // a trick to avoid conforming A to B or B to A. If A or B
-   // needs to be conformed, then we set the corresponding repeat_A or 
-   // repeat_B to true and copy the same A or B again and again
-   //
-   _arg.repeat_A = repeat_A;
-   _arg.repeat_B = repeat_B;
-
-   if (_arg.repeat_A)   // "conform" A to B
+   if (repeat_A)   // "conform" A to B
       {
          rk_A_frame = rk_B_frame;
          sh_A_frame = sh_frame;
       }
-   else if (_arg.repeat_B)   // "conform" B to A
+   else if (repeat_B)   // "conform" B to A
       {
          rk_B_frame = rk_A_frame;
          sh_frame = sh_A_frame;
@@ -232,7 +224,6 @@ Shape sh_frame = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
  
    _arg.a = 0;
    _arg.b = 0;
-   _arg.z = -1;
    _arg.axes[0] = -1;
    if (axes)
       {
@@ -248,7 +239,7 @@ Bif_OPER2_RANK::finish_ALyXB(EOC_arg & arg, bool first)
 {
 RANK & _arg = arg.u.u_RANK;
 
-   while (++_arg.z < arg.Z->nz_element_count())
+   while (++arg.z < arg.Z->nz_element_count())
       {
         const Shape shape_AA = arg.A->get_shape().low_shape(_arg.rk_chunk_A);
         Value_P AA(shape_AA, LOC);
@@ -257,7 +248,7 @@ RANK & _arg = arg.u.u_RANK;
               const Cell & cA = arg.A->get_ravel(_arg.a++);
               AA->next_ravel()->init(cA, AA.getref());
             }
-        if (_arg.repeat_A)   _arg.a = 0;
+        if (arg.A->get_rank() == _arg.rk_chunk_A)   _arg.a = 0;
         AA->check_value(LOC);
 
         const Shape shape_BB = arg.B->get_shape().low_shape(_arg.rk_chunk_B);
@@ -267,7 +258,7 @@ RANK & _arg = arg.u.u_RANK;
               const Cell & cB = arg.B->get_ravel(_arg.b++);
               BB->next_ravel()->init(cB, BB. getref());
             }
-        if (_arg.repeat_B)   _arg.b = 0;
+        if (arg.B->get_rank() == _arg.rk_chunk_B)   _arg.b = 0;
         BB->check_value(LOC);
 
         Token result = arg.LO->eval_AB(AA, BB);
@@ -313,7 +304,6 @@ Bif_OPER2_RANK::eoc_RANK(Token & token)
 {
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
-RANK & _arg = arg->u.u_RANK;
 
    if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
@@ -325,7 +315,7 @@ Value_P ZZ = token.get_apl_val();
    else
       new (arg->Z->next_ravel())   PointerCell(ZZ, arg->Z.getref());
 
-   if (_arg.z < (arg->Z->nz_element_count() - 1))   Workspace::pop_SI(LOC);
+   if (arg->z < (arg->Z->nz_element_count() - 1))   Workspace::pop_SI(LOC);
 
    if (!arg->A)   copy_1(token, finish_LyXB (*arg, false), LOC);
    else           copy_1(token, finish_ALyXB(*arg, false), LOC);

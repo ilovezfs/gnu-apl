@@ -216,9 +216,9 @@ public:
    static Quad_INP * fun;          ///< Built-in function.
    static Quad_INP  _fun;          ///< Built-in function.
 
-
    /// read input until end_marker seen; maybe ⍎ esc1...esc2.
    static bool eoc_INP(Token & token);
+
 protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
@@ -228,6 +228,9 @@ protected:
 
    /// overloaded Function::eval_XB().
    virtual Token eval_XB(Value_P X, Value_P B);
+
+   static void get_esc(EOC_arg * arg, UCS_string & esc1, UCS_string & esc2,
+                        UCS_string & end_marker);
 };
 //-----------------------------------------------------------------------------
 /**
