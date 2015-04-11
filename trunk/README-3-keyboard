@@ -190,7 +190,7 @@ If you are not running X then the above methods will complain about
 set up the keyboard layout, and command "unicode_start" to set up an APL
 font.
 
-    $ loadkeys support-files/apl.loadkeys
+    $ sudo loadkeys support-files/apl.loadkeys
     $ unicode_start Unifont-APL8x16.psf 
 
 The console font Unifont-APL8x16.psf will be contained in the next official

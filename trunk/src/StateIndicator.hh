@@ -23,7 +23,7 @@
 
 #include "Common.hh"
 #include "DerivedFunction.hh"
-#include "EOC_handler_args.hh"
+#include "EOC_arg.hh"
 #include "Error.hh"
 #include "Parser.hh"
 #include "Prefix.hh"

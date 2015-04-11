@@ -487,8 +487,7 @@ ExecuteList * fun = 0;
    // The handler will create the result after executing B.
    //
    {
-     Value_P dummy;
-     EOC_arg arg(dummy);
+     EOC_arg arg(Value_P(), Value_P(), 0, 0, Value_P());
 
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
    }
@@ -795,7 +794,7 @@ Symbol * symbol = Workspace::lookup_existing_symbol(name);
 Token
 Quad_INP::eval_AB(Value_P A, Value_P B)
 {
-EOC_arg * arg = new EOC_arg(B);
+EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), 0, 0, B);
 quad_INP & _arg = arg->u.u_quad_INP;
    _arg.lines = 0;
 
@@ -848,7 +847,7 @@ Token tok(TOK_FIRST_TIME);
 Token
 Quad_INP::eval_B(Value_P B)
 {
-EOC_arg * arg = new EOC_arg(B);
+EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), 0, 0, B);
 quad_INP & _arg = arg->u.u_quad_INP;
    _arg.lines = 0;
 

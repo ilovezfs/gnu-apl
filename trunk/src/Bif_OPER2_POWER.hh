@@ -41,12 +41,12 @@ public:
    static Bif_OPER2_POWER * fun;      ///< Built-in function
    static Bif_OPER2_POWER  _fun;      ///< Built-in function
 
+   /// helper for eval_ALRB
+   static bool eoc_ALRB(Token & token);
+
 protected:
    /// helper for eval_ALRB
    static Token finish_ALRB(EOC_arg & arg, bool first);
-
-   /// helper for eval_ALRB
-   static bool eoc_ALRB(Token & token);
 
    /// return boolean value of 1-element value \b COND
    static bool get_condition_value(const Value & COND);

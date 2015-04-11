@@ -111,15 +111,14 @@ public:
    static Quad_EA * fun;          ///< Built-in function.
    static Quad_EA  _fun;          ///< Built-in function.
 
-protected:
-   /// overloaded Function::eval_AB().
-   virtual Token eval_AB(Value_P A, Value_P B);
-
    /// end of context handler for ⎕EA
    static bool eoc_B_done(Token & token);
 
    /// end of context handler for ⎕EA
    static bool eoc_A_and_B_done(Token & token);
+protected:
+   /// overloaded Function::eval_AB().
+   virtual Token eval_AB(Value_P A, Value_P B);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -134,12 +133,12 @@ public:
    static Quad_EC * fun;          ///< Built-in function.
    static Quad_EC  _fun;          ///< Built-in function.
 
+   /// end of context handler for ⎕EC
+   static bool eoc(Token & token);
+
 protected:
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
-
-   /// end of context handler for ⎕EC
-   static bool eoc(Token & token);
 };
 //-----------------------------------------------------------------------------
 /**
@@ -217,6 +216,9 @@ public:
    static Quad_INP * fun;          ///< Built-in function.
    static Quad_INP  _fun;          ///< Built-in function.
 
+
+   /// read input until end_marker seen; maybe ⍎ esc1...esc2.
+   static bool eoc_INP(Token & token);
 protected:
    /// overloaded Function::eval_AB().
    virtual Token eval_AB(Value_P A, Value_P B);
@@ -226,9 +228,6 @@ protected:
 
    /// overloaded Function::eval_XB().
    virtual Token eval_XB(Value_P X, Value_P B);
-
-   /// read input until end_marker seen; maybe ⍎ esc1...esc2.
-   static bool eoc_INP(Token & token);
 };
 //-----------------------------------------------------------------------------
 /**

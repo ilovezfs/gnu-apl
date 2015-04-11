@@ -208,7 +208,7 @@ Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem a,
    if (shape_Z.is_empty())   return LO->eval_identity_fun(B, axis);
 
 Value_P Z(shape_Z, LOC);
-EOC_arg arg(Z, LO, B);
+EOC_arg arg(Z, Value_P(), LO, 0, B);
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
 const bool scan = (a == -1);

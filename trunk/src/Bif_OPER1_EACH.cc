@@ -57,11 +57,10 @@ Function * LO = _LO.get_function();
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(B);   arg.A = A;
+EOC_arg arg(Value_P(), A, LO, 0, B);
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    _arg.dA = 1;
-   arg.LO = LO;
    _arg.dB = 1;
 
 // if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
@@ -214,10 +213,9 @@ Function * LO = _LO.get_function();
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(B);
+EOC_arg arg(Value_P(), Value_P(), LO, 0, B);
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   arg.LO = LO;
    if (LO->has_result())   arg.Z = Value_P(B->get_shape(), LOC);
 
    _arg.count = B->element_count();

@@ -58,10 +58,10 @@ public:
    static Bif_OPER2_RANK * fun;      ///< Built-in function
    static Bif_OPER2_RANK  _fun;      ///< Built-in function
 
-protected:
    /// function called when a sub-SI for a dyadic user defined LO returns
    static bool eoc_RANK(Token & token);
 
+protected:
    /// convert 1- 2- or 3-element vector y123 to chunk-rank of B
    static void y123_to_B(Value_P y123, Rank & rk_B);
 
