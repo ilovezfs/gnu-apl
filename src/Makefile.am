@@ -36,7 +36,7 @@ ComplexCell.cc				    	ComplexCell.hh		\
 configure_args.cc							\
 DiffOut.cc					DiffOut.hh		\
 DynamicObject.cc				DynamicObject.hh	\
-						EOC_handler_args.hh	\
+EOC_arg.cc					EOC_arg.hh		\
 Error.cc		Error.def		Error.hh		\
 						ErrorCode.hh		\
 Executable.cc					Executable.hh		\

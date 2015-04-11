@@ -67,7 +67,7 @@ Bif_OPER2_RANK::do_LyXB(Function * LO, const Shape * axes,
    //
 const Shape shape_Z = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 Value_P Z(shape_Z, LOC);
-EOC_arg arg(Z, LO, B);
+EOC_arg arg(Z, Value_P(), LO, 0, B);
 RANK & _arg = arg.u.u_RANK;
 
    _arg.rk_chunk_B = rank_chunk_B;

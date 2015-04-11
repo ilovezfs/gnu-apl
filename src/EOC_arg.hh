@@ -135,6 +135,22 @@ typedef bool (*EOC_HANDLER)(Token & token);
 class EOC_arg
 {
 public:
+   enum EOC_type
+      {
+         EOC_None,
+         EOC_Quad_EA_AB,
+         EOC_Quad_EA_B,
+         EOC_Quad_EC,
+         EOC_Quad_INP,
+         EOC_Outer_Prod,
+         EOC_Inner_Prod,
+         EOC_Reduce,
+         EOC_Each_AB,
+         EOC_Each_B,
+         EOC_Rank,
+         EOC_Power,
+      };
+
    /// constructor for dyadic derived function
    EOC_arg(Value_P vpZ, Value_P vpA, Function * lo, Function * ro, Value_P vpB)
    : handler(0),
@@ -144,28 +160,6 @@ public:
      A(vpA),
      LO(lo),
      RO(ro),
-     B(vpB)
-   {}
-
-   /// constructor for monadic derived function without result (or
-   /// result created at return)
-   EOC_arg(Value_P vpB)
-   : handler(0),
-     loc(0),
-     next(0),
-     LO(0),
-     RO(0),
-     B(vpB)
-   {}
-
-   /// constructor for monadic derived function with result
-   EOC_arg(Value_P vpZ, Function * lo, Value_P vpB)
-   : handler(0),
-     loc(0),
-     next(0),
-     Z(vpZ),
-     LO(lo),
-     RO(0),
      B(vpB)
    {}
 
@@ -229,6 +223,12 @@ public:
 
    /// OUTER_PROD: right RO argument
   Value_P RO_B;
+
+   /// return the EOC_type for handler
+   static EOC_type get_EOC_type(EOC_HANDLER handler);
+
+   /// return the EOC_handler for type
+   static EOC_HANDLER get_EOC_handler(EOC_type type);
 
    /// additional EOC handler specific arguments
    union EOC_arg_u

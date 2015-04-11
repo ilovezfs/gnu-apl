@@ -41,13 +41,13 @@ public:
    static Bif_OPER1_EACH * fun;      ///< Built-in function.
    static Bif_OPER1_EACH  _fun;      ///< Built-in function.
 
-protected:
    /// function called when a sub-SI for a dyadic user defined LO returns
    static bool eoc_ALB(Token & token);
 
    /// function called when a sub-SI for a monadic user defined LO returns
    static bool eoc_LB(Token & token);
 
+protected:
    /// helper for eval_LB. returns true if the final token was computed, and
    /// false if finish_eval_LB shall be called again
    static Token finish_eval_LB(EOC_arg & arg);

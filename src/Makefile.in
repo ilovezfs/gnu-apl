@@ -143,11 +143,11 @@ am__libapl_la_SOURCES_DIST = buildtag buildtag.hh ../config.h \
 	CDR.hh Cell.cc Cell.hh CharCell.cc CharCell.hh Command.cc \
 	Command.def Command.hh Common.cc Common.hh ComplexCell.cc \
 	ComplexCell.hh configure_args.cc DiffOut.cc DiffOut.hh \
-	DynamicObject.cc DynamicObject.hh EOC_handler_args.hh Error.cc \
-	Error.def Error.hh ErrorCode.hh Executable.cc Executable.hh \
-	FloatCell.cc FloatCell.hh Function.cc Function.hh \
-	DerivedFunction.cc DerivedFunction.hh Heapsort.hh Id.cc Id.def \
-	Id.hh IndexExpr.cc IndexExpr.hh IndexIterator.cc \
+	DynamicObject.cc DynamicObject.hh EOC_arg.cc EOC_arg.hh \
+	Error.cc Error.def Error.hh ErrorCode.hh Executable.cc \
+	Executable.hh FloatCell.cc FloatCell.hh Function.cc \
+	Function.hh DerivedFunction.cc DerivedFunction.hh Heapsort.hh \
+	Id.cc Id.def Id.hh IndexExpr.cc IndexExpr.hh IndexIterator.cc \
 	IndexIterator.hh InputFile.cc InputFile.hh IntCell.cc \
 	IntCell.hh LApack.cc LApack.hh LibPaths.cc LibPaths.hh \
 	LineInput.cc LineInput.hh Logging.cc Logging.def Logging.hh \
@@ -188,12 +188,12 @@ am__objects_1 = libapl_la-Archive.lo libapl_la-ArrayIterator.lo \
 	libapl_la-Command.lo libapl_la-Common.lo \
 	libapl_la-ComplexCell.lo libapl_la-configure_args.lo \
 	libapl_la-DiffOut.lo libapl_la-DynamicObject.lo \
-	libapl_la-Error.lo libapl_la-Executable.lo \
-	libapl_la-FloatCell.lo libapl_la-Function.lo \
-	libapl_la-DerivedFunction.lo libapl_la-Id.lo \
-	libapl_la-IndexExpr.lo libapl_la-IndexIterator.lo \
-	libapl_la-InputFile.lo libapl_la-IntCell.lo \
-	libapl_la-LApack.lo libapl_la-LibPaths.lo \
+	libapl_la-EOC_arg.lo libapl_la-Error.lo \
+	libapl_la-Executable.lo libapl_la-FloatCell.lo \
+	libapl_la-Function.lo libapl_la-DerivedFunction.lo \
+	libapl_la-Id.lo libapl_la-IndexExpr.lo \
+	libapl_la-IndexIterator.lo libapl_la-InputFile.lo \
+	libapl_la-IntCell.lo libapl_la-LApack.lo libapl_la-LibPaths.lo \
 	libapl_la-LineInput.lo libapl_la-Logging.lo \
 	libapl_la-LvalCell.lo libapl_la-Malloc_hooks.lo \
 	libapl_la-Nabla.lo libapl_la-NamedObject.lo \
@@ -240,11 +240,11 @@ am__apl_SOURCES_DIST = main.cc buildtag buildtag.hh ../config.h \
 	CDR.hh Cell.cc Cell.hh CharCell.cc CharCell.hh Command.cc \
 	Command.def Command.hh Common.cc Common.hh ComplexCell.cc \
 	ComplexCell.hh configure_args.cc DiffOut.cc DiffOut.hh \
-	DynamicObject.cc DynamicObject.hh EOC_handler_args.hh Error.cc \
-	Error.def Error.hh ErrorCode.hh Executable.cc Executable.hh \
-	FloatCell.cc FloatCell.hh Function.cc Function.hh \
-	DerivedFunction.cc DerivedFunction.hh Heapsort.hh Id.cc Id.def \
-	Id.hh IndexExpr.cc IndexExpr.hh IndexIterator.cc \
+	DynamicObject.cc DynamicObject.hh EOC_arg.cc EOC_arg.hh \
+	Error.cc Error.def Error.hh ErrorCode.hh Executable.cc \
+	Executable.hh FloatCell.cc FloatCell.hh Function.cc \
+	Function.hh DerivedFunction.cc DerivedFunction.hh Heapsort.hh \
+	Id.cc Id.def Id.hh IndexExpr.cc IndexExpr.hh IndexIterator.cc \
 	IndexIterator.hh InputFile.cc InputFile.hh IntCell.cc \
 	IntCell.hh LApack.cc LApack.hh LibPaths.cc LibPaths.hh \
 	LineInput.cc LineInput.hh Logging.cc Logging.def Logging.hh \
@@ -286,17 +286,18 @@ am__objects_2 = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-Command.$(OBJEXT) apl-Common.$(OBJEXT) \
 	apl-ComplexCell.$(OBJEXT) apl-configure_args.$(OBJEXT) \
 	apl-DiffOut.$(OBJEXT) apl-DynamicObject.$(OBJEXT) \
-	apl-Error.$(OBJEXT) apl-Executable.$(OBJEXT) \
-	apl-FloatCell.$(OBJEXT) apl-Function.$(OBJEXT) \
-	apl-DerivedFunction.$(OBJEXT) apl-Id.$(OBJEXT) \
-	apl-IndexExpr.$(OBJEXT) apl-IndexIterator.$(OBJEXT) \
-	apl-InputFile.$(OBJEXT) apl-IntCell.$(OBJEXT) \
-	apl-LApack.$(OBJEXT) apl-LibPaths.$(OBJEXT) \
-	apl-LineInput.$(OBJEXT) apl-Logging.$(OBJEXT) \
-	apl-LvalCell.$(OBJEXT) apl-Malloc_hooks.$(OBJEXT) \
-	apl-Nabla.$(OBJEXT) apl-NamedObject.$(OBJEXT) \
-	apl-NativeFunction.$(OBJEXT) apl-NumericCell.$(OBJEXT) \
-	apl-Output.$(OBJEXT) apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
+	apl-EOC_arg.$(OBJEXT) apl-Error.$(OBJEXT) \
+	apl-Executable.$(OBJEXT) apl-FloatCell.$(OBJEXT) \
+	apl-Function.$(OBJEXT) apl-DerivedFunction.$(OBJEXT) \
+	apl-Id.$(OBJEXT) apl-IndexExpr.$(OBJEXT) \
+	apl-IndexIterator.$(OBJEXT) apl-InputFile.$(OBJEXT) \
+	apl-IntCell.$(OBJEXT) apl-LApack.$(OBJEXT) \
+	apl-LibPaths.$(OBJEXT) apl-LineInput.$(OBJEXT) \
+	apl-Logging.$(OBJEXT) apl-LvalCell.$(OBJEXT) \
+	apl-Malloc_hooks.$(OBJEXT) apl-Nabla.$(OBJEXT) \
+	apl-NamedObject.$(OBJEXT) apl-NativeFunction.$(OBJEXT) \
+	apl-NumericCell.$(OBJEXT) apl-Output.$(OBJEXT) \
+	apl-Parser.$(OBJEXT) apl-Prefix.$(OBJEXT) \
 	apl-PointerCell.$(OBJEXT) apl-PrimitiveFunction.$(OBJEXT) \
 	apl-PrimitiveOperator.$(OBJEXT) apl-PrintBuffer.$(OBJEXT) \
 	apl-QuadFunction.$(OBJEXT) apl-ProcessorID.$(OBJEXT) \
@@ -622,7 +623,7 @@ ComplexCell.cc				    	ComplexCell.hh		\
 configure_args.cc							\
 DiffOut.cc					DiffOut.hh		\
 DynamicObject.cc				DynamicObject.hh	\
-						EOC_handler_args.hh	\
+EOC_arg.cc					EOC_arg.hh		\
 Error.cc		Error.def		Error.hh		\
 						ErrorCode.hh		\
 Executable.cc					Executable.hh		\
@@ -857,6 +858,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DerivedFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DiffOut.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-DynamicObject.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-EOC_arg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Error.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-FloatCell.Po@am__quote@
@@ -937,6 +939,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-DerivedFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-DiffOut.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-DynamicObject.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-EOC_arg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Error.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Executable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-FloatCell.Plo@am__quote@
@@ -1185,6 +1188,13 @@ libapl_la-DynamicObject.lo: DynamicObject.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='DynamicObject.cc' object='libapl_la-DynamicObject.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-DynamicObject.lo `test -f 'DynamicObject.cc' || echo '$(srcdir)/'`DynamicObject.cc
+
+libapl_la-EOC_arg.lo: EOC_arg.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-EOC_arg.lo -MD -MP -MF $(DEPDIR)/libapl_la-EOC_arg.Tpo -c -o libapl_la-EOC_arg.lo `test -f 'EOC_arg.cc' || echo '$(srcdir)/'`EOC_arg.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libapl_la-EOC_arg.Tpo $(DEPDIR)/libapl_la-EOC_arg.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='EOC_arg.cc' object='libapl_la-EOC_arg.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-EOC_arg.lo `test -f 'EOC_arg.cc' || echo '$(srcdir)/'`EOC_arg.cc
 
 libapl_la-Error.lo: Error.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-Error.lo -MD -MP -MF $(DEPDIR)/libapl_la-Error.Tpo -c -o libapl_la-Error.lo `test -f 'Error.cc' || echo '$(srcdir)/'`Error.cc
@@ -1927,6 +1937,20 @@ apl-DynamicObject.obj: DynamicObject.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='DynamicObject.cc' object='apl-DynamicObject.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-DynamicObject.obj `if test -f 'DynamicObject.cc'; then $(CYGPATH_W) 'DynamicObject.cc'; else $(CYGPATH_W) '$(srcdir)/DynamicObject.cc'; fi`
+
+apl-EOC_arg.o: EOC_arg.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-EOC_arg.o -MD -MP -MF $(DEPDIR)/apl-EOC_arg.Tpo -c -o apl-EOC_arg.o `test -f 'EOC_arg.cc' || echo '$(srcdir)/'`EOC_arg.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-EOC_arg.Tpo $(DEPDIR)/apl-EOC_arg.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='EOC_arg.cc' object='apl-EOC_arg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-EOC_arg.o `test -f 'EOC_arg.cc' || echo '$(srcdir)/'`EOC_arg.cc
+
+apl-EOC_arg.obj: EOC_arg.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-EOC_arg.obj -MD -MP -MF $(DEPDIR)/apl-EOC_arg.Tpo -c -o apl-EOC_arg.obj `if test -f 'EOC_arg.cc'; then $(CYGPATH_W) 'EOC_arg.cc'; else $(CYGPATH_W) '$(srcdir)/EOC_arg.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-EOC_arg.Tpo $(DEPDIR)/apl-EOC_arg.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='EOC_arg.cc' object='apl-EOC_arg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-EOC_arg.obj `if test -f 'EOC_arg.cc'; then $(CYGPATH_W) 'EOC_arg.cc'; else $(CYGPATH_W) '$(srcdir)/EOC_arg.cc'; fi`
 
 apl-Error.o: Error.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-Error.o -MD -MP -MF $(DEPDIR)/apl-Error.Tpo -c -o apl-Error.o `test -f 'Error.cc' || echo '$(srcdir)/'`Error.cc
