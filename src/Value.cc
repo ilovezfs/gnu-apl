@@ -243,9 +243,17 @@ const ShapeItem length = nz_element_count();
 
    if (get_pointer_cell_count() > 0)
       {
-
         Cell * cZ = &get_ravel(0);
-        loop(c, length)   cZ++->release(LOC);
+        if (is_complete())   // OK to release
+           {
+             loop(c, length)   cZ++->release(LOC);
+           }
+        else
+           {
+             // the last ravel item could be corrupt
+             loop(c, valid_ravel_items - 1)   cZ++->release(LOC);
+           }
+
       }
 
    --value_count;
@@ -1617,13 +1625,15 @@ const Cell & first = get_ravel(0);
         const ShapeItem ec_Z =  Z->nz_element_count();
 
         loop(z, ec_Z)   Z->get_ravel(z).init_type(B0->get_ravel(z), Z.getref());
+        Z->set_complete();
         return Z;
       }
    else
       {
         Value_P Z(loc);
 
-        Z->get_ravel(0).init_type(first, Z.getref());
+        Z->next_ravel()->init_type(first, Z.getref());
+        Z->set_complete();
         return Z;
       }
 

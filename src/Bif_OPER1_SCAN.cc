@@ -96,7 +96,7 @@ ShapeItem inc_2 = 0;              // increment after result m*l items
              if (rep_counts[m] == 1)   // copy items from B
                 {
                   loop(l, shape_Z3.l())
-                      Z->next_ravel()->init(cB[l], Z.getref());
+                      Z->next_ravel()->init(cB[l], Z.getref(), LOC);
                   cB += inc_1;
                 }
              else                      // init items
@@ -160,24 +160,28 @@ ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
               Cell * cZ = Z->next_ravel();
               if (m == 0)
                  {
-                   cZ->init(*cB++, Z.getref());
+                   cZ->init(*cB++, Z.getref(), LOC);
                  }
               else
                  {
 
                    Value_P AA(LOC);
-                   AA->next_ravel()->init(cZ[-shape_Z3.l()], AA.getref());
+                   AA->next_ravel()->init(cZ[-shape_Z3.l()], AA.getref(), LOC);
+                   AA->set_complete();
 
                    Value_P BB(LOC);
-                   BB->next_ravel()->init(*cB++, BB.getref());
+                   BB->next_ravel()->init(*cB++, BB.getref(), LOC);
+                   BB->set_complete();
 
                    Token tok = LO->eval_AB(AA, BB);
                    if (!tok.is_apl_val())   return tok;
 
                    Value_P ZZ = tok.get_apl_val();
-                   cZ->init(ZZ->get_ravel(0), ZZ.getref());
+                   cZ->init(ZZ->get_ravel(0), ZZ.getref(), LOC);
+                   ZZ->set_complete();
                  }
             }
+        Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
 

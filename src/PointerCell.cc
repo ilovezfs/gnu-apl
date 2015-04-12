@@ -220,6 +220,7 @@ PrintBuffer ret(*val, pctx, 0);
                       new (c++) PointerCell(proto->clone(LOC),
                                             proto_reshaped.getref());
 
+                  proto_reshaped->check_value(LOC);
                   ret = PrintBuffer(*proto_reshaped, pctx, 0);
                   ret.add_frame(PrintStyle(style), proto_reshaped->get_shape(),
                                 proto_reshaped->compute_depth());
