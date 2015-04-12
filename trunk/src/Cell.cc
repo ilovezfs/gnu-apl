@@ -39,7 +39,7 @@ Cell::operator new(std::size_t s, void * pos)
 }
 //-----------------------------------------------------------------------------
 void
-Cell::init(const Cell & other, Value & cell_owner)
+Cell::init(const Cell & other, Value & cell_owner, const char * loc)
 {
    Assert(&other);
    switch(other.get_cell_type())
@@ -65,7 +65,7 @@ Cell::init(const Cell & other, Value & cell_owner)
 
         case CT_POINTER:
              {
-               Value_P Z = other.get_pointer_value()->clone(LOC);
+               Value_P Z = other.get_pointer_value()->clone(loc);
 
                new (this) PointerCell(Z, cell_owner);
              }

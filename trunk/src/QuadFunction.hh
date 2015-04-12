@@ -229,8 +229,12 @@ protected:
    /// overloaded Function::eval_XB().
    virtual Token eval_XB(Value_P X, Value_P B);
 
+   /// extract the esc1 and esc2 strings from arg->A and end_marker from arg->B
    static void get_esc(EOC_arg * arg, UCS_string & esc1, UCS_string & esc2,
                         UCS_string & end_marker);
+
+   /// maybe expand Z so that \n new_lines can be added safely
+   static void expand_Z(EOC_arg * arg, ShapeItem new_lines);
 };
 //-----------------------------------------------------------------------------
 /**

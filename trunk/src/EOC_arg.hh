@@ -26,9 +26,9 @@
 #include "Value.icc"
 
 /// arguments of the EOC handler for ⎕INP
-struct quad_INP
+struct QUAD_INP
 {
-  UCS_string_list * lines;       ///< the lines of the final result.
+  ShapeItem prefix_len;       ///< length before eg. <apl ... />
 };
 
 /// arguments of the EOC handler for A ∘.f B
@@ -203,7 +203,7 @@ public:
    /// additional EOC handler specific arguments
    union EOC_arg_u
       {
-        quad_INP    u_quad_INP;        ///< space for ⎕INP context
+        QUAD_INP    u_Quad_INP;        ///< space for ⎕INP context
         OUTER_PROD  u_OUTER_PROD;      ///< space for ∘.g context
         INNER_PROD  u_INNER_PROD;      ///< space for f.g context
         REDUCTION   u_REDUCTION;       ///< space for f/ context

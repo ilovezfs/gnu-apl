@@ -1731,6 +1731,7 @@ Value_P Z(shape_Z, LOC);
    if (Z->is_empty())
       {
          Z->set_default(*B.get());
+         Z->check_value(LOC);
          return Token(TOK_APL_VALUE1, Z);
       }
 
@@ -1874,6 +1875,7 @@ Cell * vv = &V->get_ravel(0);
          vv++->init(cb, V.getref());
        }
 
+   V->check_value(LOC);
    new (dest) PointerCell(V, dest_owner);
 }
 //-----------------------------------------------------------------------------

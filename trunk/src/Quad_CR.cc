@@ -125,7 +125,9 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                    Value_P B1(LOC);
                    new (&B1->get_ravel(0))
                        PointerCell(B.clone(LOC), B1.getref());
+                   B1->check_value(LOC);
                    Value_P Z = do_CR(a, *B1.get(), pctx);
+                   Z->check_value(LOC);
                    return Z;
                  }
                  break;
@@ -506,6 +508,7 @@ Value_P Z(sh, LOC);
    loop(x, width)
        Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)), Z.getref());
 
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -618,9 +621,21 @@ UCS_string shape_rho;
 
    if (value.element_count() == 0)   // empty value
       {
+        UCS_string proto_name;
+        picker.get(proto_name);
+        picker.pop();
+
         Value_P proto = value.prototype(LOC);
         do_CR10_rec(result, *proto, picker, 0);
-        picker.pop();
+        result.back().append_utf8(" ⍝ prototype...");
+
+        // reshape the prototype
+        //
+        UCS_string reshape = proto_name;
+        reshape.append_utf8("←");
+        reshape.append(shape_rho);
+        reshape.append(proto_name);
+        result.push_back(reshape);
         return;
       }
 
@@ -657,7 +672,6 @@ const bool nested = value.compute_depth() >= 2;
 
            if (p && (line.size() + item.size()) > max_len)
               {
-Q(LOC)
                 // next item does not fit in this line.
                 //
                 close_mode(line, mode);
