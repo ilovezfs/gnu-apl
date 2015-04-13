@@ -122,7 +122,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
              if (!_arg.sub)
                 cZ->init_from_value(vZ, arg.Z.getref(), LOC);
              else if (vZ->is_simple_scalar())
-                cZ->init(vZ->get_ravel(0), arg.Z.getref());
+                cZ->init(vZ->get_ravel(0), arg.Z.getref(), LOC);
              else
                 new (cZ)   PointerCell(vZ, arg.Z.getref());
 
@@ -170,7 +170,7 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
        if (!_arg.sub)
           cZ->init_from_value(vZ, arg->Z.getref(), LOC);
        else if (vZ->is_simple_scalar())
-          cZ->init(vZ->get_ravel(0), arg->Z.getref());
+          cZ->init(vZ->get_ravel(0), arg->Z.getref(), LOC);
        else
           new (cZ)   PointerCell(vZ, arg->Z.getref());
       }
@@ -259,7 +259,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                   if (!_arg.sub)
                      cZ->init_from_value(vZ, arg.Z.getref(), LOC);
                   else if (vZ->is_simple_scalar())
-                     cZ->init(vZ->get_ravel(0), arg.Z.getref());
+                     cZ->init(vZ->get_ravel(0), arg.Z.getref(), LOC);
                   else
                      new (cZ)  PointerCell(vZ, arg.Z.getref());
 
@@ -286,7 +286,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   LO_B = Value_P(LOC);
    
-                  LO_B->get_ravel(0).init(*cB, LO_B.getref());
+                  LO_B->get_ravel(0).init(*cB, LO_B.getref(), LOC);
                   LO_B->set_complete();
                   _arg.sub = 0;
                 }
@@ -317,7 +317,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                      cZ->init_from_value(vZ, arg.Z.getref(),
                                                           LOC);
                   else if (vZ->is_simple_scalar())
-                     cZ->init(vZ->get_ravel(0),arg.Z.getref());
+                     cZ->init(vZ->get_ravel(0),arg.Z.getref(), LOC);
                   else
                      new (cZ)   PointerCell(vZ,arg.Z.getref());
 
@@ -356,7 +356,7 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
         if (!_arg.sub)
            cZ->init_from_value(vZ, arg->Z.getref(), LOC);
         else if (vZ->is_simple_scalar())
-           cZ->init(vZ->get_ravel(0), arg->Z.getref());
+           cZ->init(vZ->get_ravel(0), arg->Z.getref(), LOC);
         else
            new (cZ)   PointerCell(vZ, arg->Z.getref());
       }

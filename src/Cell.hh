@@ -53,10 +53,6 @@ public:
       { Assert(other.get_cell_type() == CT_BASE); }
 
    /// deep copy of cell \b other into \b this cell
-   void init(const Cell & other, Value & cell_owner)
-      { init(other, cell_owner, LOC); }
-
-   /// deep copy of cell \b other into \b this cell
    void init(const Cell & other, Value & cell_owner, const char * loc);
 
    /// init this Cell from value. If value is a scalar then its first element
@@ -68,7 +64,7 @@ public:
    Value_P to_value(const char * loc) const;
 
    /// init \b this cell to be the type of \b other
-   Cell * init_type(const Cell & other, Value & cell_owner);
+   Cell * init_type(const Cell & other, Value & cell_owner, const char * loc);
 
    /// Return \b true if \b this cell is greater than \b other, with:
    /// 1. PointerCell > NumericCell > CharCell
@@ -381,7 +377,7 @@ public:
    /// copy (deep) count cells from src to dest)
    static void copy(Cell * & dst, const Cell * & src, ShapeItem count,
                     Value & cell_owner)
-      { loop(c, count)   dst++->init(*src++, cell_owner); }
+      { loop(c, count)   dst++->init(*src++, cell_owner, LOC); }
 
    /// copy (deep) count cells from src to val (which is under construction))
    static void copy(Value & val, const Cell * & src, ShapeItem count);

@@ -109,7 +109,7 @@ ShapeItem inc_2 = 0;              // increment after result m*l items
                   else
                      {
                        loop(l, shape_Z3.l())
-                           Z->next_ravel()->init_type(fill[l], Z.getref());
+                           Z->next_ravel()->init_type(fill[l], Z.getref(), LOC);
                      }
                 }
            }

@@ -200,19 +200,28 @@ public:
    /// return the EOC_handler for type
    static EOC_HANDLER get_EOC_handler(EOC_type type);
 
+   /// the structs defined above...
+#define EOC_structs                                                   \
+   QUAD_INP    u_Quad_INP;        /**< space for ⎕INP context      */ \
+   OUTER_PROD  u_OUTER_PROD;      /**< space for ∘.g context       */ \
+   INNER_PROD  u_INNER_PROD;      /**< space for f.g context       */ \
+   REDUCTION   u_REDUCTION;       /**< space for f/ context        */ \
+   EACH_ALB    u_EACH_ALB;        /**< space for A¨B context       */ \
+   RANK        u_RANK;            /**< space for A f⍤[X] B context */ \
+   POWER_ALRB  u_POWER_ALRB;      /**< space for A f⍣g B context   */
+
+   /// a helper union for computing the size of the largest struct
+   union EOC_arg_u1 { EOC_structs };
+
+   enum { u_DATA_LEN = (sizeof(EOC_arg_u1)
+                     +  sizeof(ShapeItem) - 1) / sizeof(ShapeItem) };
+
    /// additional EOC handler specific arguments
    union EOC_arg_u
-      {
-        QUAD_INP    u_Quad_INP;        ///< space for ⎕INP context
-        OUTER_PROD  u_OUTER_PROD;      ///< space for ∘.g context
-        INNER_PROD  u_INNER_PROD;      ///< space for f.g context
-        REDUCTION   u_REDUCTION;       ///< space for f/ context
-        EACH_ALB    u_EACH_ALB;        ///< space for A¨B context
-        RANK        u_RANK;            ///< space for A f⍤[X] B context
-        POWER_ALRB  u_POWER_ALRB;      ///< space for A f⍣g B context
+      { EOC_structs 
+        ShapeItem u_data[u_DATA_LEN];   ///< for serialization in Archive.cc
       } u; ///< a union big enough for all EOC args
 };
-
 //-----------------------------------------------------------------------------
 
 #endif // __EOC_HANDLER_ARGS_HH_DEFINED__

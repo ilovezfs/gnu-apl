@@ -502,11 +502,12 @@ Value_P Z(sh, LOC);
 
    // prototype
    //
-   Z->get_ravel(0).init(CharCell(UNI_ASCII_SPACE), Z.getref());
+   Z->get_ravel(0).init(CharCell(UNI_ASCII_SPACE), Z.getref(), LOC);
 
    loop(y, height)
    loop(x, width)
-       Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)), Z.getref());
+       Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)),
+                                      Z.getref(), LOC);
 
    Z->check_value(LOC);
    return Z;

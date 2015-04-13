@@ -157,7 +157,7 @@ public:
              if (B.get_ravel(0).is_lval_cell())
                 new (&ravel[0]) LvalCell(0, 0);
              else
-                ravel[0].init_type(B.get_ravel(0), *this);
+                ravel[0].init_type(B.get_ravel(0), *this, LOC);
            }
       }
 

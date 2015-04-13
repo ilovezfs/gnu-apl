@@ -94,7 +94,7 @@ RANK & _arg = arg.u.u_RANK;
         loop(l, BB->element_count())
             {
               const Cell & cB = arg.B->get_ravel(_arg.b++);
-              BB->next_ravel()->init(cB, BB.getref());
+              BB->next_ravel()->init(cB, BB.getref(), LOC);
             }
         BB->check_value(LOC);
 
@@ -117,9 +117,11 @@ RANK & _arg = arg.u.u_RANK;
            {
              Value_P ZZ = result.get_apl_val();
              Cell * cZ = arg.Z->next_ravel();
-             if (cZ == 0)           cZ = &arg.Z->get_ravel(0);   // empty Z
-             if (ZZ->is_scalar())   cZ->init(ZZ->get_ravel(0), arg.Z.getref());
-             else                   new (cZ)   PointerCell(ZZ, arg.Z.getref());
+             if (cZ == 0)   cZ = &arg.Z->get_ravel(0);   // empty Z
+             if (ZZ->is_scalar())
+                cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
+             else
+                new (cZ)   PointerCell(ZZ, arg.Z.getref());
              continue;
            }
 
@@ -246,7 +248,7 @@ RANK & _arg = arg.u.u_RANK;
         loop(l, AA->element_count())
             {
               const Cell & cA = arg.A->get_ravel(_arg.a++);
-              AA->next_ravel()->init(cA, AA.getref());
+              AA->next_ravel()->init(cA, AA.getref(), LOC);
             }
         if (arg.A->get_rank() == _arg.rk_chunk_A)   _arg.a = 0;
         AA->check_value(LOC);
@@ -256,7 +258,7 @@ RANK & _arg = arg.u.u_RANK;
         loop(l, BB->element_count())
             {
               const Cell & cB = arg.B->get_ravel(_arg.b++);
-              BB->next_ravel()->init(cB, BB. getref());
+              BB->next_ravel()->init(cB, BB. getref(), LOC);
             }
         if (arg.B->get_rank() == _arg.rk_chunk_B)   _arg.b = 0;
         BB->check_value(LOC);
@@ -281,7 +283,7 @@ RANK & _arg = arg.u.u_RANK;
              Value_P ZZ = result.get_apl_val();
              Cell * cZ = arg.Z->is_empty() ? &arg.Z->get_ravel(0)
                                            : arg.Z->next_ravel();
-             if (ZZ->is_scalar())   cZ->init(ZZ->get_ravel(0), arg.Z.getref());
+             if (ZZ->is_scalar())   cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
              else                   new (cZ) PointerCell(ZZ, arg.Z.getref());
 
              continue;
@@ -311,7 +313,7 @@ EOC_arg * next = arg->next;
    //
 Value_P ZZ = token.get_apl_val();
    if (ZZ->is_scalar())
-      arg->Z->next_ravel()->init(ZZ->get_ravel(0), arg->Z.getref());
+      arg->Z->next_ravel()->init(ZZ->get_ravel(0), arg->Z.getref(), LOC);
    else
       new (arg->Z->next_ravel())   PointerCell(ZZ, arg->Z.getref());
 
@@ -481,14 +483,14 @@ const ShapeItem length = y123_B->element_count();
               else
                  {
                    B = Value_P(LOC);
-                   B->next_ravel()->init(B0, B.getref());
+                   B->next_ravel()->init(B0, B.getref(), LOC);
                  }
             }
          else                    // vector B
             {
               B = Value_P(length - 1, LOC);
               loop(l, length - 1)
-                  B->next_ravel()->init(y123_B->get_ravel(l + 1), B.getref());
+                  B->next_ravel()->init(y123_B->get_ravel(l + 1), B.getref(), LOC);
             }
          return;
       }
@@ -518,7 +520,7 @@ int y123_len = 0;
       {
         y123 = Value_P(y123_len, LOC);
         loop(yy, y123_len)
-            y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref());
+            y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref(), LOC);
         B = y123_B->get_ravel(y123_len).get_pointer_value();
         return;
       }
@@ -527,10 +529,10 @@ int y123_len = 0;
    //
    y123 = Value_P(y123_len, LOC);
    loop(yy, y123_len)
-       y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref());
+       y123->next_ravel()->init(y123_B->get_ravel(yy), y123.getref(), LOC);
 
    B = Value_P(length - y123_len, LOC);
    loop(bb, (length - y123_len))
-       B->next_ravel()->init(y123_B->get_ravel(bb + y123_len), B.getref());
+       B->next_ravel()->init(y123_B->get_ravel(bb + y123_len), B.getref(), LOC);
 }
 //-----------------------------------------------------------------------------

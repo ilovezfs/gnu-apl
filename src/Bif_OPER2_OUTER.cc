@@ -138,7 +138,7 @@ Value_P Z(A->get_shape() + B->get_shape(), LOC);
         Value_P Fill_B = Bif_F12_TAKE::first(B);
 
         Value_P Z1 = RO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
-        Z->get_ravel(0).init(Z1->get_ravel(0), Z.getref());
+        Z->get_ravel(0).init(Z1->get_ravel(0), Z.getref(), LOC);
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
@@ -149,8 +149,10 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    _arg.len_B = B->element_count();
    _arg.len_Z = A->element_count() * _arg.len_B;
 
-   arg.V1 = Value_P(LOC);   // helper value for non-pointer cA
-   arg.V2 = Value_P(LOC);   // helper value for non-pointer cB
+   arg.V1 = Value_P(LOC);   // helper value for scalar RO_A
+   arg.V1->set_complete();
+   arg.V2 = Value_P(LOC);   // helper value for scanar RO_B
+   arg.V2->set_complete();
 
    return finish_outer_product(arg);
 }
@@ -171,8 +173,7 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
       }
    else
       {
-        arg.V1->get_ravel(0).init(*cA, arg.V1.getref());
-        arg.V1->set_complete();
+        arg.V1->get_ravel(0).init(*cA, arg.V1.getref(), LOC);
         arg.RO_A = arg.V1;
       }
 
@@ -182,8 +183,7 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
       }
    else
       {
-        arg.V2->get_ravel(0).init(*cB, arg.V2.getref());
-        arg.V2->set_complete();
+        arg.V2->get_ravel(0).init(*cB, arg.V2.getref(), LOC);
         arg.RO_B = arg.V2;
       }
 
