@@ -234,11 +234,12 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
             ShapeItem src = a*len_A;
             loop(j, len_A)   // make AA row(_arg.a) of A
                 {
-                  AA->next_ravel()->init(arg.A->get_ravel(src), AA.getref());
+                  AA->next_ravel()->init(arg.A->get_ravel(src),
+                                         AA.getref(), LOC);
                   src += inc_A;
                 }
             if (len_A == 0)  AA->get_ravel(0).init(arg.A->get_ravel(0),
-                                                   AA.getref());
+                                                   AA.getref(), LOC);
 
             AA->set_default(*arg.A.get());
             AA->check_value(LOC);
@@ -251,11 +252,12 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
             ShapeItem src = b;
             loop(j, len_B)
                 {
-                  BB->next_ravel()->init(arg.B->get_ravel(src), BB.getref());
+                  BB->next_ravel()->init(arg.B->get_ravel(src),
+                                         BB.getref(), LOC);
                   src += inc_B;
                 }
             if (len_B == 0)   BB->get_ravel(0).init(arg.B->get_ravel(0),
-                                                    BB.getref());
+                                                    BB.getref(), LOC);
 
             BB->set_default(*arg.B.get());
             BB->check_value(LOC);

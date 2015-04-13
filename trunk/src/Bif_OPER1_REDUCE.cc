@@ -91,7 +91,7 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(l, shape_B3.l())
                      {
                        const ShapeItem src = shape_B3.hml(h, bm, l);
-                       Z->next_ravel()->init(B->get_ravel(src), Z.getref());
+                       Z->next_ravel()->init(B->get_ravel(src), Z.getref(), LOC);
                      }
                   if (shape_B3.m() > 1)   ++bm;
                 }
@@ -101,7 +101,8 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(l, shape_B3.l())
                      {
                        const ShapeItem src = shape_B3.hml(h, 0, l);
-                       Z->next_ravel()->init_type(B->get_ravel(src), Z.getref());
+                       Z->next_ravel()
+                        ->init_type(B->get_ravel(src), Z.getref(), LOC);
                      }
 
                   // cB is not incremented when fill item is used.
@@ -171,7 +172,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         Shape shape_B1 = B->get_shape().insert_axis(axis, 0);
         shape_B1.increment_shape_item(axis + 1);
         Value_P val(shape_B1, LOC);
-        val->get_ravel(0).init(B->get_ravel(0), val.getref());   // prototype
+        val->get_ravel(0).init(B->get_ravel(0), val.getref(), LOC);   // prototype
 
         Token result = LO->eval_identity_fun(val, axis);
         return result;
@@ -187,7 +188,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         Shape shape_Z = B->get_shape();
         shape_Z.set_shape_item(axis, 0);
         Value_P Z(shape_Z, LOC);
-        Z->get_ravel(0).init(B->get_ravel(0), Z.getref());
+        Z->get_ravel(0).init(B->get_ravel(0), Z.getref(), LOC);
         Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
@@ -253,7 +254,7 @@ REDUCTION & _arg = arg.u.u_REDUCTION;
              // Z[z] ? B[b]
              //
              arg.Z->next_ravel()->init(arg.B->get_ravel(_arg.b),
-                                       arg.Z.getref());
+                                       arg.Z.getref(), LOC);
            }
 
         // update position and check for end of beam

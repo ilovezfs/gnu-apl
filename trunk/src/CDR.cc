@@ -268,7 +268,7 @@ const uint32_t nelm = val.element_count();
              if (cell.is_character_cell() || cell.is_numeric())
                 {
                   Value_P sub_val(LOC);
-                  sub_val->get_ravel(0).init(cell, sub_val.getref());
+                  sub_val->get_ravel(0).init(cell, sub_val.getref(), LOC);
 
                   const CDR_type sub_type = sub_val->get_CDR_type();
                   const int sub_len = sub_val->total_size_brutto(sub_type);

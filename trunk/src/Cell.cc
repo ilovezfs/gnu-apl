@@ -88,7 +88,7 @@ Cell::init_from_value(Value_P value, Value & cell_owner, const char * loc)
 {
    if (value->is_scalar())
       {
-        init(value->get_ravel(0), cell_owner);
+        init(value->get_ravel(0), cell_owner, loc);
       }
    else
       {
@@ -107,7 +107,7 @@ Value_P ret;
    else
       {
         ret = Value_P(loc);
-        ret->get_ravel(0).init(*this, ret.getref());
+        ret->get_ravel(0).init(*this, ret.getref(), loc);
         ret->check_value(LOC);
       }
 
@@ -115,7 +115,7 @@ Value_P ret;
 }
 //-----------------------------------------------------------------------------
 Cell *
-Cell::init_type(const Cell & other, Value & cell_owner)
+Cell::init_type(const Cell & other, Value & cell_owner, const char * loc)
 {
    // Note: this function changes the type of this cell, but the
    // compiler may not notice that and use the declaration for this
@@ -123,7 +123,7 @@ Cell::init_type(const Cell & other, Value & cell_owner)
    //
    if (other.is_pointer_cell())
       {
-        new (this) PointerCell(other.get_pointer_value()->clone(LOC),
+        new (this) PointerCell(other.get_pointer_value()->clone(loc),
                                cell_owner);
         get_pointer_value()->to_proto();
       }
@@ -149,7 +149,7 @@ Cell::copy(Value & val, const Cell * & src, ShapeItem count)
    loop(c, count)
       {
         Assert1(val.more());
-        val.next_ravel()->init(*src++, val);
+        val.next_ravel()->init(*src++, val, LOC);
       }
 }
 //-----------------------------------------------------------------------------
