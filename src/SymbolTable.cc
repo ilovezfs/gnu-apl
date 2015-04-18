@@ -397,6 +397,8 @@ Symbol * next;
        {
          next = sym->next;
 
+         sym->call_monitor_callback(SEV_ERASED);
+
          // keep not user-defined symbols ??? ARE THERE ANY ???
          //
          if (!sym->is_user_defined())
