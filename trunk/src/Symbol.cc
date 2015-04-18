@@ -764,7 +764,7 @@ ValueStackItem & vs = value_stack.back();
       }
 
    vs.clear();
-   if (monitor_callback)   monitor_callback(*this, SEV_ERASED);
+   call_monitor_callback(SEV_ERASED);
    return 1;
 }
 //-----------------------------------------------------------------------------

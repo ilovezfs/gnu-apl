@@ -279,6 +279,10 @@ public:
    /// dump this symbol to out
    void dump(ostream & out) const;
 
+   /// call the monitor callback function (if any) with event \b ev
+   void call_monitor_callback(Symbol_Event ev)
+      { if (monitor_callback)   monitor_callback(*this, ev); }
+
 protected:
    /// Compare the name of \b this \b Symbol with \b ucs
    bool equal(const UCS_string & ucs) const
