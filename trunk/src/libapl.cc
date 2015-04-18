@@ -290,7 +290,7 @@ Cell * cell = &val->get_ravel(idx);
 
    if (new_value->is_simple_scalar())   // e.g. ⊂5 is 5
       {
-        cell->init(new_value->get_ravel(0), *val);
+        cell->init(new_value->get_ravel(0), *val, LOC);
       }
    else if (new_value->is_scalar())     // e.g. ⊂⊂5 is ⊂5
       {
