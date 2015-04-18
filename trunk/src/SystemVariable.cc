@@ -834,11 +834,9 @@ Value_P X1 = IDX.extract_value(1);
 void
 Quad_SYL::assign_indexed(Value_P X, Value_P B)
 {
-const APL_Float qct = Workspace::get_CT();
-
-   if (!(X->is_int_scalar(qct) || X->is_int_vector(qct)))   INDEX_ERROR;
-   if (!(B->is_int_scalar(qct) || B->is_int_vector(qct)))   DOMAIN_ERROR;
-   if (X->element_count() != B->element_count())            LENGTH_ERROR;
+   if (!(X->is_int_scalar() || X->is_int_vector()))   INDEX_ERROR;
+   if (!(B->is_int_scalar() || B->is_int_vector()))   DOMAIN_ERROR;
+   if (X->element_count() != B->element_count())      LENGTH_ERROR;
 
 const ShapeItem ec = X->element_count();
 const APL_Integer qio = Workspace::get_IO();

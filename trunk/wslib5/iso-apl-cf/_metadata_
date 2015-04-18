@@ -100,8 +100,8 @@ and includes extensions for transactions and other common operations.
 # List documentation for the package. The file is a relative path; its
 # components are space-separated. The name is for display purposes.
 #
-document_file: 
-document_name: 
+document_file: iso-component-files.md
+document_name: Specification
 
 # Additional documents should be identified by appending a sequential
 # numeric suffix. For example:

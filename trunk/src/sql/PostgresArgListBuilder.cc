@@ -30,7 +30,6 @@ PostgresBindArg<T>::~PostgresBindArg()
     }
 }
 
-
 template<>
 void PostgresBindArg<string>::update( Oid *types, const char **values, int *lengths, int *formats, int pos )
 {
@@ -185,11 +184,11 @@ Value_P PostgresArgListBuilder::run_query( bool ignore_result )
         else {
             int cols = PQnfields( result.get_result() );
             Shape shape( rows, cols );
-            db_result_value = Value_P( shape, LOC );
+            db_result_value = new Value( shape, LOC );
             for( int row = 0 ; row < rows ; row++ ) {
                 for( int col = 0 ; col < cols ; col++ ) {
                     if( PQgetisnull( result.get_result(), row, col ) ) {
-                        new (db_result_value->next_ravel()) PointerCell( Idx0( LOC ), db_result_value.getref() );
+                        new (db_result_value->next_ravel()) PointerCell( Idx0( LOC ) );
                     }
                     else {
                         Oid col_type = PQftype( result.get_result(), col );
@@ -209,10 +208,10 @@ Value_P PostgresArgListBuilder::run_query( bool ignore_result )
                         }
                         else {
                             if( *value == 0 ) {
-                                new (db_result_value->next_ravel()) PointerCell( Str0( LOC ), db_result_value.getref() );
+                                new (db_result_value->next_ravel()) PointerCell( Str0( LOC ) );
                             }
                             else {
-                                new (db_result_value->next_ravel()) PointerCell( make_string_cell( value, LOC ), db_result_value.getref() );
+                                new (db_result_value->next_ravel()) PointerCell( make_string_cell( value, LOC ) );
                             }
                         }
                     }
