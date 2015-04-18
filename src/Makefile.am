@@ -164,19 +164,18 @@ perf: apl
 	./apl --id 1010 --TM 3 -T testcases/Performance.pt
 
 
-AM_MAKEFLAGS = -j 8
+AM_MAKEFLAGS = -j 4
 
-.PHONY:	MAKEFILE_h
-MAKEFILE_h:
-	@echo "// some strings exported from Makefile"           > makefile.h
-	@echo "//"                                              >> makefile.h
-	@echo "#define Makefile__bindir     \"${bindir}\""      >> makefile.h
-	@echo "#define Makefile__docdir     \"${docdir}\""      >> makefile.h
-	@echo "#define Makefile__sysconfdir \"${sysconfdir}\""  >> makefile.h
-	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> makefile.h
-	@echo "#define Makefile__localedir  \"${localedir}\""   >> makefile.h
-	@echo "#define Makefile__srcdir     \"${abs_srcdir}\""  >> makefile.h
-	@echo                                                   >> makefile.h
+makefile.h:
+	@echo "// some strings exported from Makefile"           > $@
+	@echo "//"                                              >> $@
+	@echo "#define Makefile__bindir     \"${bindir}\""      >> $@
+	@echo "#define Makefile__docdir     \"${docdir}\""      >> $@
+	@echo "#define Makefile__sysconfdir \"${sysconfdir}\""  >> $@
+	@echo "#define Makefile__pkglibdir  \"${pkglibdir}\""   >> $@
+	@echo "#define Makefile__localedir  \"${localedir}\""   >> $@
+	@echo "#define Makefile__srcdir     \"${abs_srcdir}\""  >> $@
+	@echo                                                   >> $@
 
 .PHONY:	patch
 patch:
@@ -199,7 +198,4 @@ help:
 	@echo "    make git-pull                - pull sql and emacs subdirs"
 	@echo "    make update-svar_signals     - remake Svar_signals.hh"
 	@echo ""
-
-clean:
-	rm -f makefile.h
 

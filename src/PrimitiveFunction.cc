@@ -941,7 +941,7 @@ ShapeItem cols_B = 1;
    if (rows_B <  cols_B)   LENGTH_ERROR;
    if (rows_A != rows_B)   LENGTH_ERROR;
 
-const bool need_complex = A->is_complex(qct) || B->is_complex(qct);
+const bool need_complex = A->is_complex() || B->is_complex();
 const ShapeItem nB2 = rows_B > cols_B ? rows_B : cols_B;
 Value_P Z(shape_Z, LOC);
    divide_matrix(&Z->get_ravel(0), need_complex,

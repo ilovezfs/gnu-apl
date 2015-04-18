@@ -56,8 +56,8 @@
   CF⍙ensure_native_libraries
   CF⍙check_name new_name
   CF⍙check_name name
-  ⎕es(~CF⍙file_exists name)/5 4
-  ⎕es(CF⍙file_exists new_name)/5 4
+  ⎕es(~CF⍙file_exists CF⍙path name)/5 4
+  ⎕es(CF⍙file_exists CF⍙path new_name)/5 4
   ⊣ (CF⍙path name) CF⍙rename (CF⍙path new_name)
   z←0 0⍴0
 ∇

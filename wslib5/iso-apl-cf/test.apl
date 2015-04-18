@@ -2,7 +2,7 @@
 ⍝ Component File test cases
 ⍝ David B. Lamkins <david@lamkins.net>
 
-)copy iso-apl-cf/iso_cf
+⍝ )copy iso-apl-cf/iso_cf
 
 ⍝ Definitions:
 cf_file_path_1←'test1.cf'

@@ -482,12 +482,14 @@ echo
 # create src/buildtag.hh
 #
 echo "configure: creating src/buildtag.hh"
+rm -f src/buildtag.hh
 cd src ; source ./buildtag ; cd ..
 
 # create src/makefile.h
 #
 echo "configure: creating src/makefile.h"
-make -C src MAKEFILE_h >/dev/null
+rm -f src/makefile.h
+make -C src makefile.h >/dev/null
 
 # remember how ./configure was called
 echo "configure: creating src/configure_args.cc"

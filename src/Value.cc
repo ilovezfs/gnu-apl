@@ -757,7 +757,7 @@ int error_count = 0;
 }
 //-----------------------------------------------------------------------------
 bool
-Value::is_int_vector(APL_Float qct) const
+Value::is_int_vector() const
 {
    if (get_rank() != 1)   return false;
 
@@ -771,7 +771,7 @@ Value::is_int_vector(APL_Float qct) const
 }
 //-----------------------------------------------------------------------------
 bool
-Value::is_int_scalar(APL_Float qct) const
+Value::is_int_scalar() const
 {
    if (get_rank() != 0)   return false;
 
@@ -779,7 +779,7 @@ Value::is_int_scalar(APL_Float qct) const
 }
 //-----------------------------------------------------------------------------
 bool
-Value::is_complex(APL_Float qct) const
+Value::is_complex() const
 {
 const ShapeItem ec = nz_element_count();
 

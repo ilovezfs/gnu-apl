@@ -120,7 +120,7 @@ static Token open_database( Value_P A, Value_P B )
     int connection_index = find_free_connection();
     connections[connection_index] = provider_iterator->second->open_database( B );
 
-    return Token(TOK_APL_VALUE1, IntScalar(connection_index, LOC));
+    return Token( TOK_APL_VALUE1, IntScalar( connection_index , LOC ));
 }
 
 static void throw_illegal_db_id( void )
@@ -142,9 +142,9 @@ static Connection *db_id_to_connection( int db_id )
     return conn;
 }
 
-static Connection *value_to_db_id( APL_Float qct, Value_P value )
+static Connection *value_to_db_id( Value_P value )
 {
-    if( !value->is_int_scalar( qct ) ) {
+    if( !value->is_int_scalar( ) ) {
         throw_illegal_db_id();
     }
 
@@ -152,9 +152,9 @@ static Connection *value_to_db_id( APL_Float qct, Value_P value )
     return db_id_to_connection( db_id );
  }
 
-static Token close_database( APL_Float qct, Value_P B )
+static Token close_database( Value_P B )
 {
-    if( !B->is_int_scalar( qct ) ) {
+    if( !B->is_int_scalar( ) ) {
         Workspace::more_error() = "Close database command requires database id as argument";
         DOMAIN_ERROR;
     }
@@ -263,30 +263,30 @@ static Token run_update( Connection *conn, Value_P A, Value_P B )
     return Token( TOK_APL_VALUE1, run_generic( conn, A, B, false ) );
 }
 
-static Token run_transaction_begin( APL_Float qct, Value_P B )
+static Token run_transaction_begin( Value_P B )
 {
-    Connection *conn = value_to_db_id( qct, B );
+    Connection *conn = value_to_db_id( B );
     conn->transaction_begin();
     return Token( TOK_APL_VALUE1, Idx0( LOC ) );
 }
 
-static Token run_transaction_commit( APL_Float qct, Value_P B )
+static Token run_transaction_commit( Value_P B )
 {
-    Connection *conn = value_to_db_id( qct, B );
+    Connection *conn = value_to_db_id( B );
     conn->transaction_commit();
     return Token( TOK_APL_VALUE1, Idx0( LOC ) );
 }
 
-static Token run_transaction_rollback( APL_Float qct, Value_P B )
+static Token run_transaction_rollback( Value_P B )
 {
-    Connection *conn = value_to_db_id( qct, B );
+    Connection *conn = value_to_db_id( B );
     conn->transaction_rollback();
     return Token( TOK_APL_VALUE1, Idx0( LOC ) );
 }
 
-static Token show_tables( APL_Float qct, Value_P B )
+static Token show_tables( Value_P B )
 {
-    Connection *conn = value_to_db_id( qct, B );
+    Connection *conn = value_to_db_id( B );
     vector<string> tables;
     conn->fill_tables( tables );
 
@@ -295,9 +295,11 @@ static Token show_tables( APL_Float qct, Value_P B )
         value = Idx0( LOC );
     }
     else {
-        value = Value_P(tables.size (), LOC);
+        Shape shape( tables.size () );
+        value = Value_P( shape, LOC );
         for( vector<string>::iterator i = tables.begin() ; i != tables.end() ; i++ ) {
-            new (value->next_ravel()) PointerCell( make_string_cell( *i, LOC ), value.getref() );
+            new (value->next_ravel()) PointerCell( make_string_cell( *i, LOC ),
+               value.getref() );
         }
     }
 
@@ -305,9 +307,9 @@ static Token show_tables( APL_Float qct, Value_P B )
     return Token( TOK_APL_VALUE1, value );
 }
 
-static Token show_cols( APL_Float qct, Value_P A, Value_P B )
+static Token show_cols( Value_P A, Value_P B )
 {
-    Connection *conn = value_to_db_id( qct, A );
+    Connection *conn = value_to_db_id( A );
     vector<ColumnDescriptor> cols;
 
     if( !B->is_apl_char_vector() ) {
@@ -326,7 +328,7 @@ static Token show_cols( APL_Float qct, Value_P A, Value_P B )
         Shape shape( cols.size(), 2 );
         value = Value_P( shape, LOC );
         for( vector<ColumnDescriptor>::iterator i = cols.begin() ; i != cols.end() ; i++ ) {
-            new (value->next_ravel()) PointerCell( make_string_cell( i->get_name(), LOC ), value.getref() );
+            new (value->next_ravel()) PointerCell( make_string_cell( i->get_name(), LOC ) , value.getref());
 
             Value_P type;
             if( i->get_type().size() == 0 ) {
@@ -372,27 +374,26 @@ Token eval_AB( Value_P A, Value_P B )
 
 Token eval_XB(Value_P X, Value_P B)
 {
-    const APL_Float qct = Workspace::get_CT();
-    const int function_number = X->get_ravel( 0 ).get_near_int();
+    const int function_number = X->get_ravel( 0 ).get_near_int( );
 
     switch( function_number ) {
     case 0:
         return list_functions( CERR );
 
     case 2:
-        return close_database( qct, B );
+        return close_database( B );
 
     case 5:
-        return run_transaction_begin( qct, B );
+        return run_transaction_begin( B );
 
     case 6:
-        return run_transaction_commit( qct, B );
+        return run_transaction_commit( B );
 
     case 7:
-        return run_transaction_rollback( qct, B );
+        return run_transaction_rollback( B );
 
     case 8:
-        return show_tables( qct, B );
+        return show_tables( B );
 
     default:
         Workspace::more_error() = "Illegal function number";
@@ -400,20 +401,19 @@ Token eval_XB(Value_P X, Value_P B)
     }
 }
 
-static Connection *param_to_db( APL_Float qct, Value_P X )
+static Connection *param_to_db( Value_P X )
 {
     const Shape &shape = X->get_shape();
     if( shape.get_volume() != 2 ) {
         Workspace::more_error() = "Database id missing from axis parameter";
         RANK_ERROR;
     }
-    return db_id_to_connection( X->get_ravel( 1 ).get_near_int() );
+    return db_id_to_connection( X->get_ravel( 1 ).get_near_int( ) );
 }
 
 Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 {
-    const APL_Float qct = Workspace::get_CT();
-    const int function_number = X->get_ravel( 0 ).get_near_int();
+    const int function_number = X->get_ravel( 0 ).get_near_int( );
 
     switch( function_number ) {
     case 0:
@@ -423,13 +423,13 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
         return open_database( A, B );
 
     case 3:
-        return run_query( param_to_db( qct, X ), A, B );
+        return run_query( param_to_db( X ), A, B );
 
     case 4:
-        return run_update( param_to_db( qct, X ), A, B );
+        return run_update( param_to_db( X ), A, B );
 
     case 9:
-        return show_cols( qct, A, B );
+        return show_cols( A, B );
 
     default:
         Workspace::more_error() = "Illegal function number";

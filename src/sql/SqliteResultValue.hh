@@ -26,8 +26,6 @@
 #include <string>
 #include <sqlite3.h>
 
-class Value;
-
 class ResultValue
 {
 public:

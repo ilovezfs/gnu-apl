@@ -325,14 +325,14 @@ public:
    int toggle_UCS();
 
    /// return \b true iff \b this value is a simple integer vector.
-   bool is_int_vector(APL_Float qct) const;
+   bool is_int_vector() const;
 
    /// return \b true iff \b this value is a simple integer scalar.
-   bool is_int_scalar(APL_Float qct) const;
+   bool is_int_scalar() const;
 
    /// return true, if this value has complex cells, false iff it has only
    /// real cells. Throw domain error for other cells (char, nested etc.)
-   bool is_complex(APL_Float qct) const;
+   bool is_complex() const;
 
    /// return \b true iff \b this value has the same rank as \b other.
    bool same_rank(const Value & other) const

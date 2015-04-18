@@ -2,7 +2,7 @@
 ⍝ Component File performance tests
 ⍝ David B. Lamkins <david@lamkins.net>
 
-)copy iso-apl-cf/iso_cf
+⍝ )copy iso-apl-cf/iso_cf
 
 'This test takes several minutes to run.'
 'The first step takes the longest. Please be patient.'
@@ -28,14 +28,14 @@ cf_data←'test' (⍳10) (4 3⍴'thecatwasfat')
 ⍝ Append 500 components.
 'append    500; no transaction'
 cf_start←cf_now
-0 0⍴ { cf_data CF_APPEND cf_tn }¨⍳500
+0 0⍴ { ⍵, cf_data CF_APPEND cf_tn }¨⍳500
 cf_start cf_time 500
 
 ⍝ Append another 500 components in a transaction wrapper.
 'append    500; w/ transaction'
 cf_start←cf_now
 cf_transaction←CF_TRANSACTION_BEGIN cf_tn
-0 0⍴ { cf_data CF_APPEND cf_tn }¨⍳500
+0 0⍴ { ⍵, cf_data CF_APPEND cf_tn }¨⍳500
 CF_TRANSACTION_COMMIT cf_transaction
 cf_start cf_time 500
 

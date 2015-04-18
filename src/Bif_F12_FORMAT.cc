@@ -130,8 +130,7 @@ Value_P Z;
       {
         Z = format_by_example(A, B);
       }
-   else if (A->is_int_vector(Workspace::get_CT()) ||
-            A->is_int_scalar(Workspace::get_CT()))
+   else if (A->is_int_vector() || A->is_int_scalar())
       {
         Z = format_by_specification(A, B);
       }
