@@ -214,8 +214,7 @@ distribution with a different package manager.
 <?apl HTML∆H4[''] 'GNU APL Binary' ?>
 
 If you just want to quickly give GNU APL a try, and if you are very lucky
-(which includes having shared libraries like liblapack.so.3gf
-installed on your machine) then you may be able to start the compiled
+then you may be able to start the compiled
 GNU APL binary <B>apl</B> in the directory <B>apl</B> rather than 
 installing the entire packet . The binary MAY run on a 32-bit i686 Ubuntu.
 Chances are, however, that it does NOT work, Please DO NOT report any
@@ -231,14 +230,17 @@ have been corrected already.
 <DIV class="c4">
 <?apl HTML∆H2[''] 'Reporting Bugs' ?>
 
-GNU APL is made up of more than 60,000 lines of C++ code. In a code of that
+GNU APL is made up of more than 75,000 lines of C++ code. In a code of that
 size, programming mistakes are inevitable. Even though mistakes are hardly
 avoidable, they can be <B>corrected</B> once they are found. In order to
 improve the quality of GNU APL, we would like to encourage you to report
 errors that you find in GNU APL to
 <?apl HTML∆x2y ("mailto:", xMAIL_APL) HTML∆A "<EM>", xMAIL_APL, "</EM>" ?>.
 <BR><BR>
-Your email should include a small example of how to reproduce the fault.
+The emails that we like the most are those that include a small example of
+ how to reproduce the fault. You can see all previous postings to this mailing
+list at 
+<?apl HTML∆x2y 'http://lists.gnu.org/archive/html/bug-apl/' HTML∆A "<B>http://lists.gnu.org/archive/html/bug-apl</B>" ?>.
 </DIV>
 <DIV class="c5">
 <?apl HTML∆H2[''] 'Documentation' ?>
