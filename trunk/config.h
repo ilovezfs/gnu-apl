@@ -98,7 +98,7 @@
 /* #undef HAVE_OSX_ATOMIC */
 
 /* Define to 1 if PostgreSQL libraries are available */
-/* #undef HAVE_POSTGRESQL */
+#define HAVE_POSTGRESQL 1
 
 /* Define to 1 if you have the `pow' function. */
 #define HAVE_POW 1
@@ -198,7 +198,7 @@
 #define STDC_HEADERS 1
 
 /* PostgreSQL code compiles */
-/* #undef USABLE_PostgreSQL */
+#define USABLE_PostgreSQL 1
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE

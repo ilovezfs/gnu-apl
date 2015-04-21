@@ -75,12 +75,14 @@ public:
    const Executable * get_executable() const
       { return executable; }
 
-   /// remove EOC handlers and clear it
+   /// clear EOC handlers and return the old handlers
    EOC_arg * remove_eoc_handlers();
 
+   /// return the current EOC handlers (if any)
    EOC_arg * get_eoc_handlers() const
       { return eoc_handlers; }
 
+   /// set the current EOC handlers
    void set_eoc_handlers(EOC_arg * eoc)
       { eoc_handlers = eoc; }
 

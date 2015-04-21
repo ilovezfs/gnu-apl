@@ -50,16 +50,21 @@ public:
                            const Value & value);
 
 protected:
+   /// the left argument of Pick (⊃) which selects a sub-item of a variable
+   /// being constructed
    class Picker
       {
         public:
+           /// constructor: Picket at top (= variable) level
            Picker(const UCS_string & vname)
            : var_name(vname)
            {}
 
+          /// push \b sh on \b shapes stack and \b pidx on \b indices stack
           void push(const Shape & sh, ShapeItem pidx)
              { shapes.push_back(sh);   indices.push_back(pidx); }
 
+          /// pop \b shapes and \b indices
           void pop()
              { shapes.pop_back();   indices.pop_back(); }
 
@@ -69,17 +74,26 @@ protected:
            /// indexed varname or pick of varname
            void get_indexed(UCS_string & result, ShapeItem pos, ShapeItem len);
 
+           /// the pick depth (⍴A for A⊃B)
            int get_level() const
               { return shapes.size(); }
+
         protected:
+           /// the name of the variable from which we pick
            const UCS_string & var_name;
+
+           /// the shapes along the pick
            vector<Shape> shapes;
+
+           /// the indices along the pick
            vector<ShapeItem> indices;
       };
 
+   /// compute 10 ⎕CR recursively
    static void do_CR10_rec(vector<UCS_string> & result, const Value & value,
                            Picker & picker, ShapeItem pidx);
 
+   /// the state of the current output line
    enum V_mode
       {
         Vm_NONE,   ///< initial state

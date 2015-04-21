@@ -304,10 +304,10 @@ Shape sh_X;
 bool
 Bif_OPER2_RANK::eoc_RANK(Token & token)
 {
+   if (token.get_Class() != TC_VALUE)  return false;   // stop it
+
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
-
-   if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
    // the user defined function has returned a value. Store it.
    //

@@ -239,14 +239,13 @@ protected:
    static UCS_string cut_buffer;
 };
 //-----------------------------------------------------------------------------
-/** InputMux fetches one line from either an input file, or interactively
-   from the user if no input file is present
- **/
-
 /// a callback function to be called instead of get_line()
 typedef void get_line_cb(LineInputMode mode, const UCS_string & prompt,
                          UCS_string & line, bool & eof, LineHistory & hist);
 
+/** InputMux fetches one line from either an input file, or interactively
+   from the user if no input file is present
+ **/
 class InputMux
 {
 public:
@@ -261,7 +260,10 @@ public:
         get_line_callback = new_callback;
         return ret;
       }
+
 protected:
+   /// the callback that was installed with \b install_get_line_callback().
+   /// It will be called instead of \b get_line() if non-0
    static get_line_cb * get_line_callback;
 };
 //-----------------------------------------------------------------------------

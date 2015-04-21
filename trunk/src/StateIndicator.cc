@@ -425,6 +425,20 @@ StateIndicator::unmark_all_values() const
    executable->unmark_all_values();
 
    current_stack.unmark_all_values();
+
+   // unmark values in EOC handlers
+   //
+   for (EOC_arg * eoc = get_eoc_handlers(); eoc; eoc = eoc->next)
+       {
+         if (!!eoc->Z)      eoc->Z   ->unmark();
+         if (!!eoc->A)      eoc->A   ->unmark();
+         if (!!eoc->B)      eoc->B   ->unmark();
+         if (!!eoc->V1)     eoc->V1  ->unmark();
+         if (!!eoc->V2)     eoc->V2  ->unmark();
+         if (!!eoc->RO_A)   eoc->RO_A->unmark();
+         if (!!eoc->RO_B)   eoc->RO_B->unmark();
+       }
+
 }
 //-----------------------------------------------------------------------------
 int

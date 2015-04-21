@@ -308,11 +308,11 @@ REDUCTION & _arg = arg.u.u_REDUCTION;
 bool
 Bif_REDUCE::eoc_REDUCE(Token & token)
 {
+   if (token.get_Class() != TC_VALUE)  return false;   // stop it
+
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
 REDUCTION & _arg = arg->u.u_REDUCTION;
-
-   if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
    // the user defined function has returned a value. Store it.
    //

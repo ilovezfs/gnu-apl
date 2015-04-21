@@ -178,11 +178,11 @@ again:
 bool
 Bif_OPER2_POWER::eoc_ALRB(Token & token)
 {
+   if (token.get_Class() != TC_VALUE)  return false;   // stop it
+
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
 POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
-
-   if (token.get_Class() != TC_VALUE)  return false;   // stop it
 
    // at this point some user-defined function was successful and has
    // returned a value. For how == 0 or 2 the user defined function

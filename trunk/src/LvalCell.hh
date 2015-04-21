@@ -63,6 +63,7 @@ protected:
    virtual int CDR_size() const { NeverReach("CDR_size called on LvalCell base class"); }
 };
 
+/// a compatibility Cell for fixing a bug in ⊃. Will be removed 
 class LvalCell_picked : public LvalCell
 {
 public:

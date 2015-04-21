@@ -156,14 +156,14 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 bool
 Bif_OPER1_EACH::eoc_ALB(Token & token)
 {
+   if (token.get_tag() == TOK_ERROR)    return false;   // LO error: stop it
+
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
 EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
-   if (!!arg->Z)   // LO with result, maybe successful
+   if (!!arg->Z)   // LO with result
       {
-       if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
-
        Value_P vZ = token.get_apl_val();
 
        Cell * cZ = arg->Z->next_ravel();
@@ -173,10 +173,6 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
           cZ->init(vZ->get_ravel(0), arg->Z.getref(), LOC);
        else
           new (cZ)   PointerCell(vZ, arg->Z.getref());
-      }
-   else        // LO without result, maybe successful
-      {
-        if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
    if (arg->z < (_arg.count - 1))   Workspace::pop_SI(LOC);
@@ -342,14 +338,14 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 bool
 Bif_OPER1_EACH::eoc_LB(Token & token)
 {
+   if (token.get_tag() == TOK_ERROR)    return false;   // LO error: stop it
+
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
 EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
    if (!!arg->Z)   // LO with result, maybe successful
       {
-       if (token.get_Class() != TC_VALUE)  return false;   // LO error: stop it
-
         Value_P vZ = token.get_apl_val();
 
         Cell * cZ = arg->Z->next_ravel();
@@ -359,10 +355,6 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
            cZ->init(vZ->get_ravel(0), arg->Z.getref(), LOC);
         else
            new (cZ)   PointerCell(vZ, arg->Z.getref());
-      }
-   else        // LO without result, maybe successful
-      {
-       if (token.get_tag() != TOK_VOID)    return false;   // LO error: stop it
       }
 
    if (arg->z < (_arg.count - 1))   Workspace::pop_SI(LOC);

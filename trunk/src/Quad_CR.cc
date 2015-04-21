@@ -783,9 +783,10 @@ Quad_CR::Picker::get_indexed(UCS_string & result, ShapeItem pos, ShapeItem len)
 {
 const bool need_comma = true;
 
-   if (need_comma)   result.append_utf8("(,");
+   result.append_utf8("(⊃");
+   if (need_comma)   result.append_utf8(",");
    get(result);
-   if (need_comma)   result.append_utf8(")");
+   result.append_utf8(")");
    result.append_utf8("[");
    if (pos)
       {
