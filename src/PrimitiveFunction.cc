@@ -897,7 +897,6 @@ extern void divide_matrix(Cell * cZ, bool need_complex,
 Token
 Bif_F12_DOMINO::eval_AB(Value_P A, Value_P B)
 {
-const APL_Float qct = Workspace::get_CT();
 ShapeItem rows_A = 1;
 ShapeItem cols_A = 1;
 

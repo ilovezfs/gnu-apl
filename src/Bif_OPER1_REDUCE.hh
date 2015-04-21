@@ -49,6 +49,7 @@ protected:
    /// LO-reduce B n-wise along axis.
    Token reduce_n_wise(Value_P A, Function * LO, Value_P B, Axis axis);
 
+   /// finish one iteration
    static Token finish_REDUCE(EOC_arg & arg, bool first);
 };
 //-----------------------------------------------------------------------------

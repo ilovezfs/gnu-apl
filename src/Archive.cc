@@ -152,12 +152,8 @@ int space = do_indent();
 XML_Saving_Archive &
 XML_Saving_Archive::save_shape(const Value & v)
 {
-char cc[80];
-
    do_indent();
-   snprintf(cc, sizeof(cc), "<Value flg=\"%X\" vid=\"%d\"",
-                 v.get_flags(), vid);
-   out << cc;
+   out << "<Value flg=\"" << HEX(v.get_flags()) << "\" vid=\"" << vid << "\"";
 
 const int sub_vid = find_vid(v);
    Assert(sub_vid < (int)values.size());
@@ -165,16 +161,11 @@ unsigned int parent_vid = -1;
 
    if (&values[sub_vid]._par)   parent_vid = find_vid(values[sub_vid]._par);
 
-   snprintf(cc, sizeof(cc), " parent=\"%d\"", parent_vid);
-   out << cc;
-   snprintf(cc, sizeof(cc), " rk=\"%u\"", v.get_rank());
-   out << cc;
+   out << " parent=\"" << parent_vid << "\" rk=\"" << v.get_rank()<< "\"";
 
    loop (r, v.get_rank())
       {
-        snprintf(cc, sizeof(cc), " sh-%llu=\"%llu\"", (unsigned long long)r,
-                 (unsigned long long)(v.get_shape_item(r)));
-        out << cc;
+        out << " sh-" << r << "=\"" << v.get_shape_item(r) << "\"";
       }
 
    out << "/>" << endl;
@@ -182,7 +173,7 @@ unsigned int parent_vid = -1;
 }
 //-----------------------------------------------------------------------------
 XML_Saving_Archive &
-XML_Saving_Archive::save_ravel(const Value & v)
+XML_Saving_Archive::save_Ravel(const Value & v)
 {
 int space = do_indent();
 
@@ -259,7 +250,7 @@ char cc[80];
 }
 //-----------------------------------------------------------------------------
 void
-XML_Saving_Archive::save_function(const Function & fun)
+XML_Saving_Archive::save_Function(const Function & fun)
 {
 const int * eprops = fun.get_exec_properties();
 const APL_time_us creation_time = fun.get_creation_time();
@@ -279,6 +270,30 @@ const APL_time_us creation_time = fun.get_creation_time();
    --indent;
    do_indent();
    out << "</Function>" << endl;
+}
+//-----------------------------------------------------------------------------
+int
+XML_Saving_Archive::save_Function_name(const char * ufun_prefix,
+                                       const char * level_prefix,
+                                       const char * id_prefix,
+                                       const Function & fun)
+{
+const UserFunction * ufun = fun.get_ufun1();
+   if (ufun)   // user defined function
+      {
+        const UCS_string & fname = ufun->get_name();
+        Symbol * sym = Workspace::lookup_symbol(fname);
+        Assert(sym);
+        const int sym_depth = sym->get_ufun_depth(ufun);
+        out << " " << ufun_prefix << "-name=\""  << fname     << "\""
+            << " " << level_prefix << "-level=\"" << sym_depth << "\"";
+        return 2;   // two attributes
+      }
+   else        // primitive or quad function
+      {
+        out << " " << id_prefix << "-id=\"" << HEX(fun.get_Id());
+        return 1;   // one attribute
+      }
 }
 //-----------------------------------------------------------------------------
 void
@@ -407,10 +422,100 @@ const Executable & exec = *si.get_executable();
    //
    save_prefix(si.current_stack);
 
+   // print the EOC handlers
+   //
+   {
+      int level = 0;
+      for (EOC_arg * eoc = si.get_eoc_handlers(); eoc; eoc = eoc->next)
+          {
+            save_EOC_handler(*eoc, level++);
+          }
+   }
    --indent;
 
    do_indent();
    out << "</SI-entry>" << endl << endl;
+}
+//-----------------------------------------------------------------------------
+void
+XML_Saving_Archive::save_EOC_handler(const EOC_arg & eoc, int level)
+{
+const int type = EOC_arg::get_EOC_type(eoc.handler);
+
+   do_indent();
+   out << "<EOC level=\"" << level << "\" type=\"" << type << "\"";
+
+   // integer items. Only dump non-0 ones
+   //
+   {
+     if (eoc.z)   out << "z=\"" << eoc.z << "\"";
+     int len = EOC_arg::u_DATA_LEN;
+     while (len && eoc.u.u_data[len - 1] == 0)   --len;
+     if (len)
+        {
+          out << " data=\"";
+          loop(l, len)
+              {
+                if (l)   out << " ";
+                 out << eoc.u.u_data[l];
+              }
+          out << "\"";
+        }
+   }
+
+   ++indent;
+int count = 99;   // force new line
+   save_EOC_value("vid-Z",    eoc.Z.get(),    count);
+   save_EOC_value("vid-A",    eoc.A.get(),    count);
+   save_EOC_function("LO",    eoc.LO,         count);
+   save_EOC_function("RO",    eoc.RO,         count);
+   save_EOC_value("vid-B",    eoc.B.get(),    count);
+   save_EOC_value("vid-V1",   eoc.V1.get(),   count);
+   save_EOC_value("vid-V2",   eoc.V2.get(),   count);
+   save_EOC_value("vid-RO-A", eoc.RO_A.get(), count);
+   save_EOC_value("vid-RO-B", eoc.RO_B.get(), count);
+   --indent;
+
+   out << "/>" << endl;
+}
+//-----------------------------------------------------------------------------
+void
+XML_Saving_Archive::save_EOC_value(const char * name, const Value * val,
+                                   int & count)
+{
+   if (val == 0)   return;
+
+   ++count;
+   if (count > 5)
+      {
+        out << endl;
+        do_indent();
+        out << "  ";
+        count = 1;
+      }
+
+const int vid = find_vid(*val);
+   out << " " << name << "=\"" << vid << "\"";
+}
+//-----------------------------------------------------------------------------
+void
+XML_Saving_Archive::save_EOC_function(const char * name, const Function * fun,
+                                      int & count)
+{
+   if (fun == 0)   return;
+
+const UserFunction * ufun = fun->get_ufun1();
+const int max_count = ufun ? 4 : 5;
+   if (count > max_count)
+      {
+
+        out << endl;
+        do_indent();
+        out << "  ";
+        count = 0;
+      }
+
+   count += save_Function_name(name, name, name, *fun);
 }
 //-----------------------------------------------------------------------------
 void
@@ -431,12 +536,9 @@ XML_Saving_Archive::save_symbol(const Symbol & sym)
 void
 XML_Saving_Archive::save_token_loc(const Token_loc & tloc)
 {
-char cc[80];
-   snprintf(cc, sizeof(cc), "%X", tloc.tok.get_tag());
-
    do_indent();
    out << "<Token pc=\"" << tloc.pc
-       << "\" tag=\"" << cc << "\"";
+       << "\" tag=\"" << HEX(tloc.tok.get_tag()) << "\"";
    emit_token_val(tloc.tok);
 
    out << "/>" << endl;
@@ -494,23 +596,7 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
         case TV_FUN:   {
                          Function * fun = tok.get_function();
                          Assert1(fun);
-                         const UserFunction * ufun = fun->get_ufun1();
-                         if (ufun)   // user defined function
-                            {
-                              const UCS_string & fname = ufun->get_name();
-                              Symbol * sym = Workspace::lookup_symbol(fname);
-                              Assert(sym);
-                              const int sym_depth = sym->get_ufun_depth(ufun);
-                              out << " ufun-name=\"" << fname
-                                  << "\" symbol-level=\"" << sym_depth
-                                  << "\"" << endl;
-                            }
-                         else        // primitive or quad function
-                            {
-                              char cc[40];
-                              snprintf(cc, sizeof(cc), "%X", fun->get_Id());
-                              out << " fun-id=\"" << cc;
-                            }
+                         save_Function_name("ufun", "symbol", "fun", *fun);
                        }
                        out << "\"";
                        break;
@@ -543,7 +629,7 @@ XML_Saving_Archive::save_vstack_item(const ValueStackItem & vsi)
 
         case NC_FUNCTION:
         case NC_OPERATOR:
-             save_function(*vsi.sym_val.function);
+             save_Function(*vsi.sym_val.function);
              break;
 
         case NC_SHARED_VAR:
@@ -568,20 +654,23 @@ tm * t;
 
 const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 
+   // check with: xmllint --valid workspace.xml >/dev/null
+   //
    out <<
 "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>\n"
 "\n"
 "<!DOCTYPE Workspace\n"
 "[\n"
 "    <!ELEMENT Workspace (Value*,Ravel*,SymbolTable,Symbol*,StateIndicator)>\n"
-"    <!ATTLIST Workspace  wsid     CDATA #REQUIRED>\n"
-"    <!ATTLIST Workspace  year     CDATA #REQUIRED>\n"
-"    <!ATTLIST Workspace  month    CDATA #REQUIRED>\n"
-"    <!ATTLIST Workspace  day      CDATA #REQUIRED>\n"
-"    <!ATTLIST Workspace  hour     CDATA #REQUIRED>\n"
-"    <!ATTLIST Workspace  minute   CDATA #REQUIRED>\n"
-"    <!ATTLIST Workspace  second   CDATA #REQUIRED>\n"
-"    <!ATTLIST Workspace  timezone CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  wsid       CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  year       CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  month      CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  day        CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  hour       CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  minute     CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  second     CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  timezone   CDATA #REQUIRED>\n"
+"    <!ATTLIST Workspace  saving_SVN CDATA #REQUIRED>\n"
 "\n"
 "        <!ELEMENT Value (#PCDATA)>\n"
 "        <!ATTLIST Value flg    CDATA #REQUIRED>\n"
@@ -614,6 +703,8 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "                <!ATTLIST Variable vid CDATA #REQUIRED>\n"
 "\n"
 "                <!ELEMENT Function (UCS)>\n"
+"                <!ATTLIST Function creation-time   CDATA #IMPLIED>\n"
+"                <!ATTLIST Function exec-properties CDATA #IMPLIED>\n"
 "\n"
 "                <!ELEMENT Label (#PCDATA)>\n"
 "                <!ATTLIST Label value CDATA #REQUIRED>\n"
@@ -627,7 +718,7 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "        <!ELEMENT StateIndicator (SI-entry*)>\n"
 "        <!ATTLIST StateIndicator levels CDATA #REQUIRED>\n"
 "\n"
-"            <!ELEMENT SI-entry ((Execute|Statements|UserFunction),Parser+)>\n"
+"            <!ELEMENT SI-entry ((Execute|Statements|UserFunction),Parser+,EOC*)>\n"
 "            <!ATTLIST SI-entry level     CDATA #REQUIRED>\n"
 "            <!ATTLIST SI-entry pc        CDATA #REQUIRED>\n"
 "            <!ATTLIST SI-entry line      CDATA #REQUIRED>\n"
@@ -639,8 +730,6 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "                <!ELEMENT UserFunction (#PCDATA)>\n"
 "                <!ATTLIST UserFunction ufun-name       CDATA #REQUIRED>\n"
 "                <!ATTLIST UserFunction symbol-level    CDATA #REQUIRED>\n"
-"                <!ATTLIST UserFunction creation-time   CDATA #IMPLIED>\n"
-"                <!ATTLIST UserFunction exec-properties CDATA #IMPLIED>\n"
 "\n"
 "                <!ELEMENT Parser (Token*)>\n"
 "                <!ATTLIST Parser assign-pending CDATA #REQUIRED>\n"
@@ -661,7 +750,26 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "                    <!ATTLIST Token fun-id       CDATA #IMPLIED>\n"
 "                    <!ATTLIST Token ufun-name    CDATA #IMPLIED>\n"
 "                    <!ATTLIST Token symbol-level CDATA #IMPLIED>\n"
-"                    <!ATTLIST Token comment  CDATA #IMPLIED>\n"
+"                    <!ATTLIST Token comment      CDATA #IMPLIED>\n"
+"\n"
+"                <!ELEMENT EOC (#PCDATA)>\n"
+"                    <!ATTLIST EOC level          CDATA #REQUIRED>\n"
+"                    <!ATTLIST EOC type           CDATA #REQUIRED>\n"
+"                    <!ATTLIST EOC z              CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC data           CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC vid-Z          CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC vid-A          CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC LO-name        CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC LO-level       CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC LO-id          CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC RO-name        CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC RO-level       CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC RO-id          CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC vid-B          CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC vid-V1         CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC vid-V2         CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC vid-RO-A       CDATA #IMPLIED>\n"
+"                    <!ATTLIST EOC vid-RO-B       CDATA #IMPLIED>\n"
 "\n"
 "]>\n"
 "\n"
@@ -731,7 +839,7 @@ CERR << "LVAL CELL in " << p << " at " LOC << endl;
 
    // save ravels of all values
    //
-   for (vid = 0; vid < (int)values.size(); ++vid)   save_ravel(values[vid]._val);
+   for (vid = 0; vid < (int)values.size(); ++vid)   save_Ravel(values[vid]._val);
 
    // save user defined symbols
    //
@@ -1815,7 +1923,19 @@ Executable * exec = 0;
    Workspace::push_SI(exec, LOC);
 StateIndicator * si = Workspace::SI_top();
    Assert(si);
-   read_Parsers(*si);
+   read_Parser(*si);
+
+EOC_arg * last_eoc = 0;
+   for (;;)
+       {
+         next_tag(LOC);
+         if (is_tag("/SI-entry"))   break;
+
+         EOC_arg * next = read_EOC(*si);
+         if (last_eoc)   last_eoc->next = next;
+         else            si->set_eoc_handlers(next);
+         last_eoc = next;
+       }
 }
 //-----------------------------------------------------------------------------
 Executable *
@@ -1874,7 +1994,7 @@ UserFunction * ufun = fun->get_ufun1();
 }
 //-----------------------------------------------------------------------------
 void
-XML_Loading_Archive::read_Parsers(StateIndicator & si)
+XML_Loading_Archive::read_Parser(StateIndicator & si)
 {
    next_tag(LOC);
    expect_tag("Parser", LOC);
@@ -1896,7 +2016,77 @@ Prefix & parser = si.current_stack;
          parser.push(tloc);
        }
 
-   next_tag(LOC);
+   expect_tag("/Parser", LOC);
+}
+//-----------------------------------------------------------------------------
+EOC_arg *
+XML_Loading_Archive::read_EOC(StateIndicator & si)
+{
+   expect_tag("EOC", LOC);
+
+// const int level = find_int_attr("level", false, 10);
+const int type = find_int_attr("type",   false, 10);
+
+EOC_arg * eoc = new EOC_arg(Value_P(), Value_P(), 0, 0, Value_P());
+   Assert(eoc);
+
+   eoc->handler = EOC_arg::get_EOC_handler((EOC_arg::EOC_type)type);
+
+   // optional z. The default value for z is -1 and the value for a
+   // not-found find_int_attr() is -1 as well. Therefore we can assign
+   // the find_int_attr()) result without checking it.
+   //
+   {
+     const int z = find_int_attr("z", true, 10);
+     eoc->z = z;
+   }
+
+   // optional data
+   //
+const char * data = (const char * )find_attr("data", true);
+   if (data)
+      {
+        loop(j, EOC_arg::u_DATA_LEN)
+           {
+             ShapeItem d = 0;
+             const int count = sscanf(data, "%lld", &d);
+             if (count != 1)   break;   // no nmore data
+
+             eoc->u.u_data[j] = d;
+           }
+      }
+
+   read_EOC_value("vid-Z",    eoc->Z);
+   read_EOC_value("vid-A",    eoc->A);
+   read_EOC_function(true,    eoc->LO);
+   read_EOC_function(false,   eoc->RO);
+   read_EOC_value("vid-B",    eoc->B);
+   read_EOC_value("vid-V1",   eoc->V1);
+   read_EOC_value("vid-V2",   eoc->V2);
+   read_EOC_value("vid-RO-A", eoc->RO_A);
+   read_EOC_value("vid-RO-B", eoc->RO_B);
+
+   return eoc;
+}
+//-----------------------------------------------------------------------------
+void
+XML_Loading_Archive::read_EOC_value(const char * attr_name, Value_P & valp)
+{
+const int vid = find_int_attr(attr_name, true, 10);
+   if (vid == -1)   return;
+
+   Assert(vid < (int)values.size());
+   Assert(!!values[vid]);
+   valp = values[vid];
+}
+//-----------------------------------------------------------------------------
+void
+XML_Loading_Archive::read_EOC_function(bool is_LO, Function * &funp)
+{
+Function * fun;
+   if (is_LO) fun = read_Function_name("LO-name", "LO-level", "LO-id");
+   else       fun = read_Function_name("RO-name", "RO-level", "RO-id");
+   if (fun)   funp = fun;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -2000,32 +2190,10 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
 
         case TV_FUN:
              {
-               const UTF8 * fun_name = find_attr("ufun-name", true);
-
-               if (fun_name == 0)   // primitive or Quad function
-                  {
-                    const int fun_id = find_int_attr("fun-id", false, 16);
-                    Function * sysfun = ID::get_system_function(ID::Id(fun_id));
-                    Assert1(sysfun);
-                    new (&tloc.tok) Token(tag, sysfun);
-                  }
-               else
-                  {
-                    const int level = find_int_attr("symbol-level", false, 10);
-
-                    const UTF8 * end = fun_name;
-                    while (*end != '"')   ++end;
-                    UTF8_string name_utf(fun_name, end - fun_name);
-                    UCS_string ucs(name_utf);
-                    const Symbol & symbol = *Workspace::lookup_symbol(ucs);
-                    Assert(level >= 0);
-                    Assert(level < symbol.value_stack_size());
-                    const ValueStackItem & vsi = symbol[level];
-                    Assert(vsi.name_class == NC_FUNCTION);
-                    Function * fun = vsi.sym_val.function;
-                    Assert(fun);
-                    new (&tloc.tok) Token(tag, fun);
-                  }
+               Function * fun = read_Function_name("ufun-name",
+                                                   "symbol-level", "fun-id");
+               Assert(fun);
+               new (&tloc.tok) Token(tag, fun);
              }
              break;
 
@@ -2033,6 +2201,45 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
       }
 
    return true;
+}
+//-----------------------------------------------------------------------------
+Function *
+XML_Loading_Archive::read_Function_name(const char * name_attr,
+                                        const char * level_attr,
+                                        const char * id_attr)
+{
+const UTF8 * fun_name = find_attr(name_attr, true);
+
+   if (fun_name)   // user defined function
+      {
+        const int level = find_int_attr(level_attr, false, 10);
+
+        const UTF8 * end = fun_name;
+        while (*end != '"')   ++end;
+        UTF8_string name_utf(fun_name, end - fun_name);
+        UCS_string ucs(name_utf);
+        const Symbol & symbol = *Workspace::lookup_symbol(ucs);
+        Assert(level >= 0);
+        Assert(level < symbol.value_stack_size());
+        const ValueStackItem & vsi = symbol[level];
+        Assert(vsi.name_class == NC_FUNCTION);
+        Function * fun = vsi.sym_val.function;
+        Assert(fun);
+        return fun;
+      }
+
+const int fun_id = find_int_attr(id_attr, true, 16);
+   if (fun_id != -1)
+      {
+        Function * sysfun = ID::get_system_function(ID::Id(fun_id));
+        Assert1(sysfun);
+        return sysfun;
+      }
+
+   // not found. This can happen when the function is optional, like
+   // LO and RO functios in EOC
+   //
+   return 0;
 }
 //=============================================================================
 

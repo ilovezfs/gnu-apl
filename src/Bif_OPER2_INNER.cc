@@ -383,15 +383,11 @@ const ShapeItem b = arg.z % _arg.items_B;
 bool
 Bif_OPER2_INNER::eoc_INNER(Token & token)
 {
+   if (token.get_Class() != TC_VALUE)   return false;   // stop it
+
 EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
 EOC_arg * next = arg->next;
 INNER_PROD & _arg = arg->u.u_INNER_PROD;
-
-   if (token.get_Class() != TC_VALUE)
-      {
-        delete arg;
-        return false;   // stop it
-      }
 
    if (!_arg.last_ufun)   Workspace::pop_SI(LOC);
 

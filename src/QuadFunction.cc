@@ -304,21 +304,20 @@ const UCS_string statement_B(*B.get());
 bool
 Quad_EA::eoc_B_done(Token & token)
 {
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
-EOC_arg * next = arg->next;
-StateIndicator * si = Workspace::SI_top();
-
-
    // in A ⎕EA B, ⍎B was executed and may or may not have failed.
    //
    if (token.get_tag() != TOK_ERROR)   // ⍎B succeeded
       {
         // do not clear ⎕EM and ⎕ET; they should remain visible.
 
+        StateIndicator * si = Workspace::SI_top();
         si->set_safe_execution(false);
 
+        EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+        EOC_arg * next = arg->next;
+
         delete arg;
-        Workspace::SI_top()->set_eoc_handlers(next);
+        si->set_eoc_handlers(next);
         if (next)   return next->handler(token);
 
         return false;   // ⍎B successful.
@@ -329,22 +328,20 @@ StateIndicator * si = Workspace::SI_top();
    // lrm p. 178: "⎕EM and ⎕ET are set, execution of B is abandoned without
    // an error message, and the expression represented by A is executed."
    //
-Value_P A = arg->A;
-Value_P B = arg->B;
-const UCS_string statement_A(*A.get());
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+const UCS_string statement_A(*arg->A.get());
 
 ExecuteList * fun = 0;
    try
       {
-         fun = ExecuteList::fix(statement_A, false, LOC);
+        fun = ExecuteList::fix(statement_A, false, LOC);
       }
    catch (...)
       {
+        // syntax error in A (and B has failed before): give up
+        //
+        SYNTAX_ERROR;
       }
-        
-   // give up if if syntax error in A (and B has failed before)
-   //
-   if (fun == 0)   SYNTAX_ERROR;
 
    // A could be ⎕FXed: execute it.
    //
@@ -361,7 +358,7 @@ ExecuteList * fun = 0;
    // install end of context handler for the result of ⍎A. 
    //
    {
-     EOC_arg arg1(Value_P(), A, 0, 0, B);
+     EOC_arg arg1(Value_P(), arg->A, 0, 0, arg->B);
      Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg1, LOC);
    }
 

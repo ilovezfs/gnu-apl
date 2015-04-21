@@ -529,7 +529,7 @@ UCS_string wname = lib_ws.back();
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, true,
                                                   ".xml", ".apl");
 
-int result = unlink(filename.c_str());
+const int result = unlink(filename.c_str());
    if (result)
       {
         out << wname << " NOT DROPPED: " << strerror(errno) << endl;

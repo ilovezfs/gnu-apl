@@ -101,20 +101,21 @@ typedef bool (*EOC_HANDLER)(Token & token);
 class EOC_arg
 {
 public:
+   /// enumeration of alll EOC handlers for serializing them in Archive.cc
    enum EOC_type
       {
-         EOC_None,
-         EOC_Quad_EA_AB,
-         EOC_Quad_EA_B,
-         EOC_Quad_EC,
-         EOC_Quad_INP,
-         EOC_Outer_Prod,
-         EOC_Inner_Prod,
-         EOC_Reduce,
-         EOC_Each_AB,
-         EOC_Each_B,
-         EOC_Rank,
-         EOC_Power,
+         EOC_None,         ///<
+         EOC_Quad_EA_AB,   ///<  ⎕EA
+         EOC_Quad_EA_B,    ///<  ⎕EA
+         EOC_Quad_EC,      ///<  ⎕EC
+         EOC_Quad_INP,     ///<  ⎕INP
+         EOC_Outer_Prod,   ///<  ∘.f
+         EOC_Inner_Prod,   ///<  f.g
+         EOC_Reduce,       ///<  f/
+         EOC_Each_AB,      ///<  A f¨ B
+         EOC_Each_B,       ///<  f¨ B
+         EOC_Rank,         ///<  f⍤
+         EOC_Power,        ///<  f⍣g
       };
 
    /// constructor for dyadic derived function
@@ -128,7 +129,7 @@ public:
      RO(ro),
      B(vpB),
      z(-1)
-   {}
+   { memset(&u, 0, sizeof(u)); }
 
    /// activation constructor
    EOC_arg(EOC_HANDLER h, const EOC_arg & other, const char * l)
@@ -161,6 +162,7 @@ public:
    /// from where the handler was installed (for debugging purposes)
    const char * loc;
 
+   /// the next handler (after this one has finished)
    EOC_arg * next;
 
    /// result
@@ -192,6 +194,7 @@ public:
    /// OUTER_PROD: right RO argument
   Value_P RO_B;
 
+   /// current Z index
    ShapeItem z;
 
    /// return the EOC_type for handler

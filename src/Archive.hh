@@ -22,6 +22,7 @@
 #include <fstream>
 #include <string.h>
 
+#include "EOC_arg.hh"
 #include "SystemLimits.hh"
 #include "UCS_string.hh"
 #include "UTF8_string.hh"
@@ -57,7 +58,12 @@ public:
    ~XML_Saving_Archive()   { out.close(); }
 
    /// write user-defined function \b fun
-   void save_function(const Function & fun);
+   void save_Function(const Function & fun);
+
+   /// write either the name and SI-level of user-defined function or the
+   /// id of a system function. Return number of attribute= items written
+   int save_Function_name(const char * ufun_prefix, const char * level_prefix,
+                          const char * id_prefix, const Function & fun);
 
    /// write Prefix \b pfp
    void save_prefix(const Prefix & pfp);
@@ -70,6 +76,15 @@ public:
 
    /// write StateIndicator entry \b si
    void save_SI_entry(const StateIndicator & si);
+
+   /// write EOC handler \b eoc
+   void save_EOC_handler(const EOC_arg & eoc, int level);
+
+   /// write EOC Value_P \b val with name \b name
+   void save_EOC_value(const char * name, const Value * val, int & count);
+
+   /// write EOC Function \b fun with name \b name
+   void save_EOC_function(const char * name, const Function * fun, int & count);
 
    /// write Token_loc \b tloc
    void save_token_loc(const Token_loc & tloc);
@@ -84,7 +99,7 @@ public:
    XML_Saving_Archive & save_shape(const Value & v);
 
    /// write ravel of Value \b v
-   XML_Saving_Archive & save_ravel(const Value & v);
+   XML_Saving_Archive & save_Ravel(const Value & v);
 
    /// write entire workspace
    XML_Saving_Archive & save();
@@ -237,8 +252,17 @@ protected:
    /// read next StateIndicator entry
    void read_SI_entry(int level);
 
-   /// read parsers in StateIndicator entry
-   void read_Parsers(StateIndicator & si);
+   /// read parsers in SI entry
+   void read_Parser(StateIndicator & si);
+
+   /// read EOC handler in SI entry
+   EOC_arg * read_EOC(StateIndicator & si);
+
+   /// construct one Value_P
+   void read_EOC_value(const char * attr_name, Value_P & valp);
+
+   /// construct one Function
+   void read_EOC_function(bool is_LO, Function * & funp);
 
    /// read ⍎ Executable
    Executable * read_Execute();
@@ -251,6 +275,11 @@ protected:
 
    /// read a token
    bool read_Token(Token_loc & tloc);
+
+   /// read a system function with attribute id_prefix-id or a user defined
+   /// functions with attributes 'ufun_prefix-ufun' and 'level_prefix-prefix'
+   Function * read_Function_name(const char * ufun_name, const char * si_level,
+                                 const char * sysfun_id);
 
    /// return true iff there is more data in the file
    bool more() const   { return data < file_end; }
