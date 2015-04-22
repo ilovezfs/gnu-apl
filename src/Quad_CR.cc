@@ -574,33 +574,26 @@ void
 Quad_CR::do_CR10_rec(vector<UCS_string> & result, const Value & value, 
                      Picker & picker, ShapeItem pidx)
 {
-   // recursively encode var_name with value.
-   //
-   // we emit one of 2 formats:
-   //
-   // short format: var_name ← (⍴ value) ⍴ value             " shortlog "
-   //         
-   // long format:  var_name ← (⍴ value) ⍴ 0                 " prolog "
-   //               var_name[] ← partial value ...
-   //         
-   // short format (the default) requires a short and not nested value
-   //
+   /*
+      recursively encode var_name with value.
+     
+      we emit one of 2 formats:
+     
+      short format: dest ← (⍴ value) ⍴ value
+              
+      long format:  dest ← (⍴ value) ⍴ 0                 " prolog "
+                    dest[] ← partial value ...
+              
+      short format (the default) requires a reasonably short value
+
+      If value is nested then the short or long format is followed
+      by recursive do_CR10_rec() calls for the sub-values.
+   */
+
    picker.push(value.get_shape(), pidx);
 
 UCS_string left;
    picker.get(left);
-
-   // compute the prolog
-   //
-UCS_string prolog(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
-   {
-     prolog.append(left);
-     prolog.append_utf8("←");
-     if (picker.get_level() > 1)   prolog.append_utf8("⊂");
-     prolog.append_shape(value.get_shape());
-     prolog.append_utf8("⍴0 ⍝ prolog ≡");
-     prolog.append_number(picker.get_level());
-   }
 
    // compute shape_rho which is "" for scalars and true vectors
    // of length > 1, "," for true vectors of length 1, and
@@ -641,13 +634,7 @@ UCS_string shape_rho;
       }
 
 bool short_format = true;   // if false then prolog has been emitted.
-const bool nested = value.compute_depth() >= 2;
-   if (nested)
-      {
-        result.push_back(prolog);
-        short_format = false;
-      }
-      
+bool nested = false;
 
    // step 1: top-level ravel
    //
@@ -657,37 +644,43 @@ const bool nested = value.compute_depth() >= 2;
      int max_len = 72 - left.size();
      if (max_len < 40)   max_len = 40;
      UCS_string line;
-     int count = 0;
-     loop(p, value.element_count())
+     ShapeItem count = 0;                   // the number of items on this line
+     ShapeItem todo = value.nz_element_count();   // the number of items to do
+
+     loop(p, todo)
         {
-          UCS_string pref(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
-          picker.get_indexed(pref, pos, count);
-          pref.append_utf8("←");
+          UCS_string lhs(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
+          picker.get_indexed(lhs, pos, count);
+          lhs.append_utf8("←");
 
           // compute next item
           //
           UCS_string item;
           const Cell & cell = value.get_ravel(p);
+          if (cell.is_pointer_cell())   nested = true;
           const bool may_quote = use_quote(mode, value, p);
           const V_mode next_mode = do_CR10_item(item, cell, mode, may_quote);
 
            if (p && (line.size() + item.size()) > max_len)
               {
-                // next item does not fit in this line.
+                // next item does not fit in this line. Close the line, append
+                // it to result, and start a new line.
                 //
                 close_mode(line, mode);
 
                 if (short_format)
                    {
+                     const UCS_string prolog =
+                           compute_prolog(picker.get_level(), left, value);
                      result.push_back(prolog);
                      short_format = false;
                    }
 
-                pref.append(line);
+                lhs.append(line);
                 pos += count;
                 count = 0;
 
-                result.push_back(pref);
+                result.push_back(lhs);
                 line.clear();
                 mode = Vm_NONE;
               }
@@ -706,22 +699,22 @@ const bool nested = value.compute_depth() >= 2;
 
      if (short_format)
         {
-          UCS_string pref(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
-          pref.append(left);
-          pref.append_utf8("←");
-          pref.append(shape_rho);
-          pref.append(line);
+          UCS_string lhs(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
+          lhs.append(left);
+          lhs.append_utf8("←");
+          lhs.append(shape_rho);
+          lhs.append(line);
 
-          result.push_back(pref);
+          result.push_back(lhs);
         }
      else
         {
-          UCS_string pref(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
-          picker.get_indexed(pref, pos, count);
-          pref.append_utf8("←");
-          pref.append(line);
+          UCS_string lhs(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
+          picker.get_indexed(lhs, pos, count);
+          lhs.append_utf8("←");
+          lhs.append(line);
 
-          result.push_back(pref);
+          result.push_back(lhs);
         }
    }
 
@@ -740,6 +733,52 @@ const bool nested = value.compute_depth() >= 2;
       }
 
    picker.pop();
+}
+//-----------------------------------------------------------------------------
+UCS_string
+Quad_CR::compute_prolog(int pick_level, const UCS_string & left,
+                        const Value & value)
+{
+   // compute the prolog
+   //
+UCS_string prolog(2 * (pick_level - 1), UNI_ASCII_SPACE);
+Unicode default_char = UNI_ASCII_SPACE;
+APL_Integer default_int  = 0;
+const bool default_is_int = figure_default(value, default_char, default_int);
+
+   {
+     prolog.append(left);
+     prolog.append_utf8("←");
+     if (pick_level > 1)   prolog.append_utf8("⊂");
+     prolog.append_shape(value.get_shape());
+     if (default_is_int)   prolog.append_utf8("⍴0 ⍝ prolog ≡");
+     else                  prolog.append_utf8("⍴' ' ⍝ prolog ≡");
+     prolog.append_number(pick_level);
+   }
+
+   return prolog;
+}
+//-----------------------------------------------------------------------------
+bool
+Quad_CR::figure_default(const Value & value, Unicode & default_char,
+                        APL_Integer & default_int)
+{
+ShapeItem zeroes = 0;
+ShapeItem blanks = 0;
+   loop(v, value.nz_element_count())
+      {
+        const Cell & cell = value.get_ravel(0);
+        if (cell.is_integer_cell())
+           {
+             if (cell.get_int_value() == 0)   ++zeroes;
+           }
+        else if (cell.is_character_cell())
+           {
+             if (cell.get_char_value() == UNI_ASCII_SPACE)   ++blanks;
+           }
+      }
+
+   return zeroes >= blanks;
 }
 //-----------------------------------------------------------------------------
 void
@@ -781,10 +820,17 @@ const int level = shapes.size();
 void
 Quad_CR::Picker::get_indexed(UCS_string & result, ShapeItem pos, ShapeItem len)
 {
-const bool need_comma = true;
+   // ⊃ is not needed at top level
+   //
+const bool need_disclose = get_level() > 1;
 
-   result.append_utf8("(⊃");
-   if (need_comma)   result.append_utf8(",");
+   // , is only needed if the picked item is not a true vector
+   //
+const bool need_comma = shapes.back().get_rank() != 1;
+
+   result.append_utf8("(");
+   if (need_comma)      result.append_utf8(",");
+   if (need_disclose)   result.append_utf8("⊃");
    get(result);
    result.append_utf8(")");
    result.append_utf8("[");

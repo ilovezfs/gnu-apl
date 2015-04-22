@@ -30,17 +30,25 @@
 class Quad_CR : public QuadFunction
 {
 public:
-   /// Constructor.
+   /// Constructor
    Quad_CR() : QuadFunction(TOK_Quad_CR) {}
 
-   /// overloaded Function::eval_B().
+   /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B);
 
-   /// overloaded Function::eval_AB().
+   /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    /// compute \b a ⎕CR \b B
    static Value_P do_CR(APL_Integer a, const Value & B, PrintContext pctx);
+
+   /// compute a good default type and value for the top-level ⍴ og 10 ⎕CR.
+   /// Return true for INT and false for CHAR.
+   static bool figure_default(const Value & value, Unicode & default_char,
+                              APL_Integer & default_int);
+
+   static UCS_string compute_prolog(int pick_level, const UCS_string & left,
+                                    const Value & value);
 
    static Quad_CR * fun;          ///< Built-in function.
    static Quad_CR  _fun;          ///< Built-in function.

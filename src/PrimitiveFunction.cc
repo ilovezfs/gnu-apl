@@ -732,6 +732,7 @@ Bif_F12_COMMA::eval_B(Value_P B)
 {
    if (B->get_ravel(0).is_picked_lval_cell())
       {
+// CERR << "*** PICKED ***" << endl;
         Cell * ptr = B->get_ravel(0).get_lval_value();
         Assert(ptr);
         Value_P target = ptr->get_pointer_value()->get_cellrefs(LOC);
@@ -1692,14 +1693,14 @@ Value_P Z(LOC);
 Token
 Bif_F12_PARTITION::eval_XB(Value_P X, Value_P B)
 {
-Shape it_shape;
+Shape item_shape;
 Shape it_weight;
 Shape shape_Z;
 Shape weight_Z;
 
 const Shape weight_B = B->get_shape().reverse_scan();
 
-   // put the dimensions mentioned in X into it_shape and the
+   // put the dimensions mentioned in X into item_shape and the
    // others into shape_Z
    //
    Shape shape_X = X->to_shape();
@@ -1722,11 +1723,11 @@ const Shape weight_B = B->get_shape().reverse_scan();
          if (x_r < 0)                AXIS_ERROR;
          if (x_r >= B->get_rank())   AXIS_ERROR;
 
-         it_shape.add_shape_item(B->get_shape_item(x_r));
+         item_shape.add_shape_item(B->get_shape_item(x_r));
          it_weight.add_shape_item(weight_B.get_shape_item(x_r));
        }
 
-   if (it_shape.get_rank() == 0)   // empty axes
+   if (item_shape.get_rank() == 0)   // empty axes
       {
         //  ⊂[⍳0]B   ←→   ⊂¨B
         Token part(TOK_FUN1, Bif_F12_PARTITION::fun);
@@ -1745,11 +1746,11 @@ Value_P Z(shape_Z, LOC);
       {
         const ShapeItem off_Z = it_Z.multiply(weight_Z);   // offset in B
 
-        Value_P vZ(it_shape, LOC);
+        Value_P vZ(item_shape, LOC);
         new (Z->next_ravel()) PointerCell(vZ, Z.getref());
 
         Cell * dst_it = &vZ->get_ravel(0);
-        for (ArrayIterator it_it(it_shape); !it_it.done(); ++it_it)
+        for (ArrayIterator it_it(item_shape); !it_it.done(); ++it_it)
            {
              const ShapeItem off_it = it_it.multiply(it_weight);  // offset in B
              dst_it++->init(B->get_ravel(off_Z + off_it), vZ.getref(), LOC);
@@ -1889,12 +1890,13 @@ Token
 Bif_F12_PICK::disclose(Value_P B, bool rank_tolerant)
 {
 const ShapeItem len_B = B->element_count();
-const Shape it_shape = item_shape(B, rank_tolerant);
-const Shape shape_Z = B->get_shape() + it_shape;
+const Shape item_shape = compute_item_shape(B, rank_tolerant);
+const Shape shape_Z = B->get_shape() + item_shape;
 
 Value_P Z(shape_Z, LOC);
 
-const ShapeItem llen = it_shape.get_volume();
+const ShapeItem llen = item_shape.get_volume();
+
    if (llen == 0)   // empty enclosed value
       {
         const Cell & B0 = B->get_ravel(0);
@@ -1916,23 +1918,39 @@ const ShapeItem llen = it_shape.get_volume();
    loop(h, len_B)
        {
          const Cell & B_item = B->get_ravel(h);
+         Cell * Z_from = &Z->get_ravel(h*llen);
          if (B_item.is_pointer_cell())
             {
               Value_P vB = B_item.get_pointer_value();
-              Bif_F12_TAKE::fill(it_shape, &Z->get_ravel(h*llen), Z.getref(),
-                                 vB);
+              Bif_F12_TAKE::fill(item_shape, Z_from, Z.getref(), vB);
+            }
+         else if (B_item.is_lval_cell())
+            {
+              const Cell & pointee = *B_item.get_lval_value();
+               if (pointee.is_pointer_cell())   // pointer to nested
+                  {
+                    Value_P vB = pointee.get_pointer_value();
+                    Value_P ref_B = vB->get_cellrefs(LOC);
+                    Bif_F12_TAKE::fill(item_shape, Z_from, Z.getref(), ref_B);
+                  }
+               else                             // pointer to simple scalar
+                  {
+                    Z_from->init(B_item, Z.getref(), LOC);
+                    for (ShapeItem c = 1; c < llen; ++c)
+                        new (Z_from + c) LvalCell(0, 0);
+                  }
             }
          else if (B_item.is_character_cell())   // simple char scalar
             {
-              Z->get_ravel(h*llen).init(B_item, Z.getref(), LOC);
+              Z_from->init(B_item, Z.getref(), LOC);
               for (ShapeItem c = 1; c < llen; ++c)
-                  Z->get_ravel(h*llen + c).init(c_filler, Z.getref(), LOC);
+                  (Z_from + c)->init(c_filler, Z.getref(), LOC);
             }
-         else   // simple scalar
+         else                                   // simple numeric scalar
             {
               Z->get_ravel(h*llen).init(B_item, Z.getref(), LOC);
               for (ShapeItem c = 1; c < llen; ++c)
-                  Z->get_ravel(h*llen + c).init(n_filler, Z.getref(), LOC);
+                  (Z_from + c)->init(n_filler, Z.getref(), LOC);
             }
        }
 
@@ -1947,15 +1965,15 @@ Bif_F12_PICK::disclose_with_axis(const Shape & axes_X, Value_P B,
 {
    // disclose with axis
 
-   // all items of B must have the same rank. it_shape is the smallest
+   // all items of B must have the same rank. item_shape is the smallest
    // shape that can contain each item of B.
    //
-const Shape it_shape = item_shape(B, rank_tolerant);
+const Shape item_shape = compute_item_shape(B, rank_tolerant);
 
-   // the number of items in X must be the number of axes in it_shape
-   if (it_shape.get_rank() != axes_X.get_rank())   AXIS_ERROR;
+   // the number of items in X must be the number of axes in item_shape
+   if (item_shape.get_rank() != axes_X.get_rank())   AXIS_ERROR;
 
-   // distribute shape_B and it_shape into 2 shapes perm and shape_Z.
+   // distribute shape_B and item_shape into 2 shapes perm and shape_Z.
    // if a dimension is mentioned in axes_X then it goes into shape_Z and
    // otherwise into perm.
    //
@@ -1964,7 +1982,7 @@ Shape shape_Z;
    {
      ShapeItem B_idx = 0;
      //
-     loop(z, B->get_rank() + it_shape.get_rank())
+     loop(z, B->get_rank() + item_shape.get_rank())
         {
           // check if z is in X, remembering its position if so.
           //
@@ -1980,7 +1998,7 @@ Shape shape_Z;
 
           if (z_in_X)   // z is an item dimension: put it in shape_Z
              {
-               shape_Z.add_shape_item(it_shape.get_shape_item(x_pos));
+               shape_Z.add_shape_item(item_shape.get_shape_item(x_pos));
              }
           else          // z is a B dimension: put it in perm
              {
@@ -2020,7 +2038,7 @@ PermutedArrayIterator it_Z(shape_Z, perm);
            {
              Value_P vB = B_item.get_pointer_value();
              ArrayIterator vB_it(vB->get_shape());
-             for (ArrayIterator it_it(it_shape); !it_it.done(); ++it_it)
+             for (ArrayIterator it_it(item_shape); !it_it.done(); ++it_it)
                  {
                    if (vB->get_shape().contains(it_it.get_values()))
                       {
@@ -2038,7 +2056,7 @@ PermutedArrayIterator it_Z(shape_Z, perm);
            }
         else
            {
-             for (ArrayIterator it_it(it_shape); !it_it.done(); ++it_it)
+             for (ArrayIterator it_it(item_shape); !it_it.done(); ++it_it)
                  {
                    if (it_it.get_total() == 0)   // first element: use B_item
                       {
@@ -2066,7 +2084,7 @@ PermutedArrayIterator it_Z(shape_Z, perm);
 }
 //-----------------------------------------------------------------------------
 Shape
-Bif_F12_PICK::item_shape(Value_P B, bool rank_tolerant)
+Bif_F12_PICK::compute_item_shape(Value_P B, bool rank_tolerant)
 {
    // all items of B are scalars or (nested) arrays of the same rank R.
    // return the shape with rank R and the (per-dimension) max. of
@@ -2078,10 +2096,24 @@ Shape ret;   // of the first non-scalar in B
 
    loop(b, len_B)
        {
-         const Cell & cell = B->get_ravel(b);
-         if (!cell.is_pointer_cell())   continue;   // simple scalar
-
-         Value_P v = cell.get_pointer_value();
+         Value_P v;
+         {
+           const Cell & cB = B->get_ravel(b);
+           if (cB.is_pointer_cell())
+              {
+                v = cB.get_pointer_value();
+              }
+           else if (cB.is_lval_cell())
+              {
+                const Cell & pointee = *cB.get_lval_value();
+                if (!pointee.is_pointer_cell())   continue;  // ptr to scalar
+                v = pointee.get_pointer_value();
+              }
+           else
+              {
+                continue;   // simple scalar
+              }
+         }
 
          if (ret.get_rank() == 0)   // first non-scalar
             {
@@ -2125,11 +2157,10 @@ const ShapeItem ec_A = A->element_count();
    //
    if (ec_A == 0)   return Token(TOK_APL_VALUE1, B);
 
-const APL_Float qct = Workspace::get_CT();
 const APL_Integer qio = Workspace::get_IO();
 
 Value * B_cellowner = B->get_lval_cellowner();
-Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B_cellowner);
+Value_P Z = pick(&A->get_ravel(0), ec_A, B, qio, B_cellowner);
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
@@ -2137,7 +2168,7 @@ Value_P Z = pick(&A->get_ravel(0), ec_A, B, qct, qio, B_cellowner);
 //-----------------------------------------------------------------------------
 Value_P
 Bif_F12_PICK::pick(const Cell * cA, ShapeItem len_A, Value_P B,
-                   APL_Float qct, APL_Integer qio, Value * cell_owner)
+                   APL_Integer qio, Value * cell_owner)
 {
 ShapeItem c = 0;
 
@@ -2176,7 +2207,7 @@ const Cell * cB = &B->get_ravel(c);
         if (cB->is_pointer_cell())
            {
              return pick(cA + 1, len_A - 1, cB->get_pointer_value(),
-                         qct, qio, cell_owner);
+                         qio, cell_owner);
            }
 
         if (cB->is_lval_cell())
@@ -2189,7 +2220,7 @@ const Cell * cB = &B->get_ravel(c);
              Value_P subrefs = subval->get_cellrefs(LOC);
              Value * sub_cellowner = subrefs->get_lval_cellowner();
              Assert(sub_cellowner);
-             return pick(cA + 1, len_A - 1, subrefs, qct, qio, sub_cellowner);
+             return pick(cA + 1, len_A - 1, subrefs, qio, sub_cellowner);
            }
 
         // at this point the depth implied by A is greater than the
