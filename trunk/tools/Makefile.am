@@ -2,7 +2,8 @@
 noinst_PROGRAMS =	APL_keyboard		\
 			APL_keyboard_learn	\
 			APL_keyboard_show	\
-			phrase_gen
+			phrase_gen		\
+			sockconst
 
 if HAVE_RDTSC
 if HAVE_AFFINITY_NP

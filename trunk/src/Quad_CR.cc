@@ -633,89 +633,70 @@ UCS_string shape_rho;
         return;
       }
 
-bool short_format = true;   // if false then prolog has been emitted.
 bool nested = false;
 
-   // step 1: top-level ravel
+   // step 1: top-level ravel. Try short (one-line) ravel and use long
+   // (multi-line ravel if that fails.
    //
-   {
-     ShapeItem pos = 0;
-     V_mode mode = Vm_NONE;
-     int max_len = 72 - left.size();
-     if (max_len < 40)   max_len = 40;
-     UCS_string line;
-     ShapeItem count = 0;                   // the number of items on this line
-     ShapeItem todo = value.nz_element_count();   // the number of items to do
+   if (short_ravel(result, nested, value, picker, left, shape_rho))
+      {
+        result.push_back(compute_prolog(picker.get_level(), left, value));
 
-     loop(p, todo)
-        {
-          UCS_string lhs(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
-          picker.get_indexed(lhs, pos, count);
-          lhs.append_utf8("←");
+        ShapeItem pos = 0;
+        V_mode mode = Vm_NONE;
+        UCS_string rhs;
+        ShapeItem count = 0;                // the number of items on this line
+        ShapeItem todo = value.nz_element_count();  // the number of items to do
 
-          // compute next item
-          //
-          UCS_string item;
-          const Cell & cell = value.get_ravel(p);
-          if (cell.is_pointer_cell())   nested = true;
-          const bool may_quote = use_quote(mode, value, p);
-          const V_mode next_mode = do_CR10_item(item, cell, mode, may_quote);
+        loop(p, todo)
+           {
+             // recompute line (which changes since count changes)
+             //
+             UCS_string line(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
+             picker.get_indexed(line, pos, count);
+             line.append_utf8("←");
 
-           if (p && (line.size() + item.size()) > max_len)
-              {
-                // next item does not fit in this line. Close the line, append
-                // it to result, and start a new line.
-                //
-                close_mode(line, mode);
+             // compute next item
+             //
+             UCS_string item;
+             const Cell & cell = value.get_ravel(p);
+             if (cell.is_pointer_cell())   nested = true;
+             const bool may_quote = use_quote(mode, value, p);
+             const V_mode next_mode = do_CR10_item(item, cell, mode, may_quote);
 
-                if (short_format)
-                   {
-                     const UCS_string prolog =
-                           compute_prolog(picker.get_level(), left, value);
-                     result.push_back(prolog);
-                     short_format = false;
-                   }
+              if (count && (rhs.size() + item.size() + line.size()) > 76)
+                 {
+                   // next item does not fit in this line. Close the line,
+                   // append it to result, and start a new line.
+                   //
+                   close_mode(rhs, mode);
 
-                lhs.append(line);
-                pos += count;
-                count = 0;
+                   line.append(rhs);
+                   pos += count;
+                   count = 0;
 
-                result.push_back(lhs);
-                line.clear();
-                mode = Vm_NONE;
-              }
+                   result.push_back(line);
+                   rhs.clear();
+                   mode = Vm_NONE;
+                 }
 
-          item_separator(line, mode, next_mode);
+             item_separator(rhs, mode, next_mode);
 
-          mode = next_mode;
-          line.append(item);
-          ++count;
-        }
+             mode = next_mode;
+             rhs.append(item);
+             ++count;
+           }
 
      // all items done: close mode
      //
-     if (mode == Vm_QUOT)       line.append_utf8("'");
-     else if (mode == Vm_UCS)   line.append_utf8(")");
+     close_mode(rhs, mode);
 
-     if (short_format)
-        {
-          UCS_string lhs(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
-          lhs.append(left);
-          lhs.append_utf8("←");
-          lhs.append(shape_rho);
-          lhs.append(line);
+     UCS_string line(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
+     picker.get_indexed(line, pos, count);
+     line.append_utf8("←");
+     line.append(rhs);
 
-          result.push_back(lhs);
-        }
-     else
-        {
-          UCS_string lhs(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
-          picker.get_indexed(lhs, pos, count);
-          lhs.append_utf8("←");
-          lhs.append(line);
-
-          result.push_back(lhs);
-        }
+     result.push_back(line);
    }
 
    // step 2: nested items
@@ -733,6 +714,65 @@ bool nested = false;
       }
 
    picker.pop();
+}
+//-----------------------------------------------------------------------------
+bool
+Quad_CR::short_ravel(vector<UCS_string> & result, bool & nested,
+                     const Value & value, const Picker & picker,
+                     const UCS_string & left, const UCS_string & shape_rho)
+{
+   // some quick checks beforehand to avoid wasting time attempting to
+   // create short ravel
+   //
+   enum { MAX_SHORT_RAVEL_LEN = 70 };
+
+const ShapeItem value_len = value.nz_element_count();
+   if (value_len >= MAX_SHORT_RAVEL_LEN)   return true;  // too long
+int len = 0;
+   loop(v, value_len)
+      {
+        const Cell & cell = value.get_ravel(v);
+        if (cell.is_integer_cell())   len += 2;   // min. integer (+ separator)
+        else if (cell.is_character_cell())   len += 1;
+        else if (cell.is_pointer_cell())     len += 1;
+        else if (cell.is_complex_cell())     len += 3;
+        else                                 len += 2;
+
+        if (len >= MAX_SHORT_RAVEL_LEN)   return true;
+      }
+
+   // at this point, a short ravel MAY be possible. Try it
+   //
+UCS_string line(2*(picker.get_level() - 1), UNI_ASCII_SPACE);  // indent
+
+   line.append(left);
+   line.append_utf8("←");
+   line.append(shape_rho);
+
+V_mode mode = Vm_NONE;
+   loop(v, value_len)
+       {
+         // compute next item
+         //
+          UCS_string item;
+          const Cell & cell = value.get_ravel(v);
+          if (cell.is_pointer_cell())   nested = true;
+          const bool may_quote = use_quote(mode, value, v);
+          const V_mode next_mode = do_CR10_item(item, cell, mode, may_quote);
+
+          item_separator(line, mode, next_mode);
+
+          mode = next_mode;
+          line.append(item);
+          if ((line.size() + item.size()) >= MAX_SHORT_RAVEL_LEN)   return true;
+       }
+
+   // all items done: close mode
+   //
+   close_mode(line, mode);
+
+   result.push_back(line);
+   return false;
 }
 //-----------------------------------------------------------------------------
 UCS_string
@@ -892,8 +932,7 @@ Quad_CR::do_CR10_item(UCS_string & item, const Cell & cell, V_mode mode,
    if (cell.is_pointer_cell())
       {
         // cell is a pointer cell which will be replaced later.
-        // for now we add an item in the current mode as
-        // placeholder
+        // For now we add an item in the current mode as placeholder
         //
         if (mode == Vm_QUOT)   { item.append_utf8("∘");     return Vm_QUOT; }
         if (mode == Vm_UCS)    { item.append_utf8("33");    return Vm_UCS;  }
@@ -936,10 +975,10 @@ int ascii_len = 0;
 }
 //-----------------------------------------------------------------------------
 void
-Quad_CR::close_mode(UCS_string & line, V_mode mode)
+Quad_CR::close_mode(UCS_string & rhs, V_mode mode)
 {
-   if      (mode == Vm_QUOT)   line.append_utf8("'");
-   else if (mode == Vm_UCS)    line.append_utf8(")");
+   if      (mode == Vm_QUOT)   rhs.append_utf8("'");
+   else if (mode == Vm_UCS)    rhs.append_utf8(")");
 }
 //-----------------------------------------------------------------------------
 void
