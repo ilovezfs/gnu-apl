@@ -101,6 +101,13 @@ protected:
    static void do_CR10_rec(vector<UCS_string> & result, const Value & value,
                            Picker & picker, ShapeItem pidx);
 
+   /// try to emit \b value in short format. Retrun true if that is not
+   /// possible.
+   static bool short_ravel(vector<UCS_string> & result, bool & nested,
+                           const Value & value, const Picker & picker,
+                           const UCS_string & left,
+                           const UCS_string & shape_rho);
+
    /// the state of the current output line
    enum V_mode
       {
