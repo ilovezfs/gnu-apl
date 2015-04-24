@@ -152,6 +152,7 @@ st( Quad_Quad     , "⎕"       , = 0x5101 )
 st( QUOTE1        , "'"       ,          )
 st( QUOTE2        , "\""      ,          )
 st( QUOTE_Quad    , "⍞"       ,          )
+st( Quad_PREFIX   , ""        ,          )
 
 qv( R             , "⎕R"      , = 0x5201 )
 st( R_ARROW       , "→"       ,          )

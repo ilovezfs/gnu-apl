@@ -37,46 +37,6 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-SymbolTable::SymbolTable()
-{
-   memset(symbol_table, 0, sizeof(symbol_table));
-}
-//-----------------------------------------------------------------------------
-NamedObject *
-SymbolTable::lookup_existing_name(const UCS_string & name)
-{
-   Assert(!Avec::is_quad(name[0]));   // should not be called for ⎕xx
-
-Symbol * sym = lookup_existing_symbol(name);
-   if (sym == 0)   return 0;
-
-   switch(sym->get_nc())
-      {
-        case NC_VARIABLE: return sym;
-
-        case NC_FUNCTION:
-        case NC_OPERATOR: return sym->get_function();
-        default:          return 0;
-      }
-}
-//-----------------------------------------------------------------------------
-Symbol *
-SymbolTable::lookup_existing_symbol(const UCS_string & sym_name)
-{
-   Assert(!Avec::is_quad(sym_name[0]));   // should not be called for ⎕xx
-
-uint32_t hash = FNV_Offset_32;
-   loop(s, sym_name.size())   hash = hash*FNV_Prime_32 ^ sym_name[s];
-   hash = ((hash >> 16) ^ hash) & 0x0000FFFF;
-
-   for (Symbol * sp = symbol_table[hash]; sp; sp = sp->next)
-       {
-         if (!sp->is_erased() && sp->equal(sym_name))   return sp;
-       }
-
-   return 0;
-}
-//-----------------------------------------------------------------------------
 Symbol *
 SymbolTable::lookup_symbol(const UCS_string & sym_name)
 {
@@ -85,15 +45,8 @@ SymbolTable::lookup_symbol(const UCS_string & sym_name)
         CERR << "Symbol is: '" << sym_name << endl;
         FIXME;
       }
-     
 
-   // compute hash for sym_name
-   //
-uint32_t hash = FNV_Offset_32;
-   loop(s, sym_name.size())   hash = hash*FNV_Prime_32 ^ sym_name[s];
-   hash = ((hash >> 16) ^ hash) & 0x0000FFFF;
-
-Symbol * sp = symbol_table[hash];
+const uint32_t hash = compute_hash(sym_name);
 
    if (symbol_table[hash] == 0)   // unused hash value
       {
@@ -126,43 +79,7 @@ Symbol * sp = symbol_table[hash];
 
    // no symbol with name sym_name exists. The second walk:
    //
-   // 1. search for an erased symbol and override it, or
-   // 2. append a new symbol at the end if no erased symbol was seen.
-   //
-int pos = 0;
-   for (Symbol * sym = symbol_table[hash]; ; sym = sym->next, ++pos)
-       {
-         if (sym->is_erased())   // override an erased symbol.
-            {
-              sym->set_erased(false);
-              sym->name = sym_name;
-
-              Log(LOG_SYMBOL_lookup_symbol)
-                 {
-                   CERR << "Symbol " << sym_name << " has hash "
-                        << HEX(hash) << endl;
-                 }
-              return sp;
-            }
-
-         if (sym->next == 0)   // append a new symbol at the end
-            {
-              if (pos >= 255)
-                 throw_apl_error(E_SYSTEM_LIMIT_SYMTAB, LOC);
-
-              sym->next = new Symbol(sym_name, ID::USER_SYMBOL);
-
-              Log(LOG_SYMBOL_lookup_symbol)
-                 {
-                   CERR << "Symbol " << sym_name << " has hash "
-                        << HEX(hash) << endl;
-                 }
-
-              return sym->next;
-            }
-       }
-
-   Assert(0 && "Not reached");
+   return add_symbol(sym_name, ID::USER_SYMBOL);
 }
 //-----------------------------------------------------------------------------
 ostream &
@@ -410,7 +327,6 @@ Symbol * next;
 
          delete sym;
        }
-
 }
 //-----------------------------------------------------------------------------
 bool

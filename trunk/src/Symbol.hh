@@ -114,6 +114,10 @@ public:
    /// write this symbol in )OUT format to file \b out
    void write_OUT(FILE * out, uint64_t & seq) const;
 
+   /// replace an (erased) symbol with a new one
+   void replace_name(const UCS_string & new_name)
+      { name = new_name; }
+
    /// set \b token according to the current NC/sym_val of \b this \b Symbol
    virtual void resolve(Token & token, bool left);
 
@@ -283,14 +287,14 @@ public:
    void call_monitor_callback(Symbol_Event ev)
       { if (monitor_callback)   monitor_callback(*this, ev); }
 
-protected:
    /// Compare the name of \b this \b Symbol with \b ucs
    bool equal(const UCS_string & ucs) const
-      { return (name.compare(ucs) == 0); }
+      { return (name.compare(ucs) == COMP_EQ); }
 
    /// The next Symbol with the same hash value as \b this \b Symbol
    Symbol * next;
 
+protected:
    /// The name of \b this \b Symbol
    UCS_string name;
 

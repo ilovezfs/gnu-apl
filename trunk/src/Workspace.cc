@@ -215,7 +215,17 @@ Workspace::lookup_existing_name(const UCS_string & name)
 
    // user defined variable or function
    //
-   return the_workspace.symbol_table.lookup_existing_name(name);
+Symbol * sym = the_workspace.symbol_table.lookup_existing_symbol(name);
+   if (sym == 0)   return 0;
+
+   switch(sym->get_nc())
+      {
+        case NC_VARIABLE: return sym;
+
+        case NC_FUNCTION:
+        case NC_OPERATOR: return sym->get_function();
+        default:          return 0;
+      }
 }
 //-----------------------------------------------------------------------------
 Symbol *
