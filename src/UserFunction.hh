@@ -120,7 +120,7 @@ public:
       }
 
    /// Check that all function params, local vars. and labels are unique.
-   void check_duplicate_symbols();
+   void remove_duplicate_local_variables();
 
    /// the header (as per SIG_xxx and local_vars)
    static UCS_string lambda_header(Fun_signature sig, const UCS_string & fname);
@@ -132,8 +132,8 @@ public:
    const bool from_lambda;
 
 protected:
-   /// Check that sym occurs at most once in \b Symbol array \b sym.
-   void check_duplicate_symbol(const Symbol * sym);
+   /// remove \b sym from local_vars if it occurs at pos or above
+   void remove_duplicate_local_var(const Symbol * sym, unsigned int pos);
 
    /// error if header was not parsed successfully
    ErrorCode error;
