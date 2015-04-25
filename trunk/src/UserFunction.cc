@@ -466,7 +466,7 @@ UserFunction_header::eval_common()
 UserFunction::UserFunction(const UCS_string txt,
                            int & error_line, const char * & error_cause,
                            bool keep_existing, const char * loc,
-                           const UTF8_string & _creator)
+                           const UTF8_string & _creator, bool tolerant)
   : Function(ID::USER_SYMBOL, TOK_FUN2),
     Executable(txt, loc),
     header(txt),
@@ -512,7 +512,7 @@ Function * old_function = header.FUN()->get_function();
         DEFN_ERROR;
       }
 
-   parse_body(error_line, loc);
+   parse_body(error_line, loc, tolerant);
 
    header.remove_duplicate_local_variables();
    if (error_line > 0)   error_cause = "Error in function body";
@@ -555,7 +555,7 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
    else if (header.B())    tag = TOK_FUN1;
    else                    tag = TOK_FUN0;
 
-   parse_body_line(Function_Line_0, bdy, false, LOC);
+   parse_body_line(Function_Line_0, bdy, false, LOC, false);
    setup_lambdas();
    line_starts.push_back(Function_PC(bdy.size() - 1));
 
@@ -998,11 +998,11 @@ DynArray(bool, ts_lines, line_starts.size());
       }
 
 int error_line = -1;
-   parse_body(error_line, LOC);
+   parse_body(error_line, LOC, false);
 }
 //-----------------------------------------------------------------------------
 void
-UserFunction::parse_body(int & error_line, const char * loc)
+UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
 {
    line_starts.clear();
    line_starts.push_back(Function_PC_0);   // will be set later.
@@ -1041,8 +1041,18 @@ UserFunction::parse_body(int & error_line, const char * loc)
              body.append(Token(TOK_END, tr));
            }
 
-        const UCS_string & text = get_text(l);
-        parse_body_line(Function_Line(l), text, trace_line, loc);
+        const UCS_string & line = get_text(l);
+        ErrorCode ec = parse_body_line(Function_Line(l), line, trace_line,
+                                       loc, tolerant);
+
+        if (tolerant && ec != E_NO_ERROR)
+           {
+             UCS_string new_line = "## ";
+             new_line.append(line);
+             text[l] = new_line;
+             CERR << "Warning: SYNTAX ERROR in function "
+                  << header.FUN()->get_name() << endl;
+           }
       }
       setup_lambdas();
 
@@ -1138,7 +1148,7 @@ UCS_string ucs(utf);
    close(in);
 
 int error_line = -1;
-   fun = fix(ucs, error_line, false, LOC, filename);
+   fun = fix(ucs, error_line, false, LOC, filename, false);
 }
 //-----------------------------------------------------------------------------
 Function_PC
@@ -1152,7 +1162,7 @@ UserFunction::pc_for_line(Function_Line line) const
 UserFunction *
 UserFunction::fix(const UCS_string & text, int & error_line,
                   bool keep_existing, const char * loc,
-                  const UTF8_string & creator)
+                  const UTF8_string & creator, bool tolerant)
 {
    Log(LOG_UserFunction__fix)
       {
@@ -1167,7 +1177,7 @@ const char * error_cause = 0;
    try
       {
         fun = new UserFunction(text, error_line, error_cause,
-                               keep_existing, loc, creator);
+                               keep_existing, loc, creator, tolerant);
       }
    catch (Error err)
       {

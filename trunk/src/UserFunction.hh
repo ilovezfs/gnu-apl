@@ -191,7 +191,7 @@ public:
    UserFunction(const UCS_string txt,
                 int & error_line, const char * & error_cause,
                 bool keep_existing, const char * loc,
-                const UTF8_string &  _creator);
+                const UTF8_string &  _creator, bool tolerant);
 
    /// Construct a lambda
    UserFunction(Fun_signature sig, const UCS_string & fname,
@@ -295,7 +295,7 @@ public:
    /// in workspace \b w.
    static UserFunction * fix(const UCS_string & data, int & error_line,
                              bool keep_existing, const char * loc,
-                             const UTF8_string &  creator);
+                             const UTF8_string &  creator, bool tolerant);
 
    /// return the pc of the first token in line l (valid line), or
    /// the pc of the last token in the function (invalid line)
@@ -334,7 +334,7 @@ public:
    void set_trace_stop(Function_Line * lines, int line_count, bool stop);
 
    /// recompile the body
-   void parse_body(int & error_line, const char * loc);
+   void parse_body(int & error_line, const char * loc, bool tolerant);
 
    /// return stop lines (from S∆fun ← lines)
    const vector<Function_Line> & get_stop_lines() const

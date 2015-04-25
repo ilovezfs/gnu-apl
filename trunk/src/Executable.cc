@@ -125,9 +125,9 @@ Executable::clear_lambdas()
       }
 }
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
-                            bool trace, const char * loc)
+                            bool trace, const char * loc, bool tolerant)
 {
    Log(LOG_UserFunction__set_line)
       CERR << "[" << line << "]" << ucs_line << endl;
@@ -138,27 +138,28 @@ const Parser parser(get_parse_mode(), loc);
      ErrorCode ec = parser.parse(ucs_line, in);
      if (ec)
         {
+          if (tolerant)   return ec;
+
           if (ec == E_NO_TOKEN)
              {
                Error error(ec, LOC);
                throw error;
-
              }
 
-     if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
+          if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
         }
    }
 
-   parse_body_line(line, in, trace, loc);
+   return parse_body_line(line, in, trace, loc, tolerant);
 } 
 //-----------------------------------------------------------------------------
-void
+ErrorCode
 Executable::parse_body_line(Function_Line line, const Token_string & in,
-                            bool trace, const char * loc)
+                            bool trace, const char * loc, bool tolerant)
 {
 Source<Token> src(in);
 
-   // handle labs (if any)
+   // handle labels (if any)
    //
    if (get_parse_mode() == PM_FUNCTION &&
        src.rest() >= 2                 &&
@@ -205,6 +206,8 @@ Token_string out;
                   tok.get_tag() != TOK_L_CURLY &&
                   tok.get_tag() != TOK_R_CURLY)
                  {
+                   if (tolerant)   return E_SYNTAX_ERROR;
+
                    CERR << "Line " << line << endl
                         << "Offending token: (tag > TC_MAX_PERM) "
                         << tok.get_tag() << " " << tok << endl
@@ -237,6 +240,7 @@ Token_string out;
       } 
 
    loop(t, out.size())   body.append(out[t], LOC);
+   return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 Token
@@ -819,7 +823,7 @@ ExecuteList * fun = new ExecuteList(data, loc);
 
    try
       {
-        fun->parse_body_line(Function_Line_0, data, false, loc);
+        fun->parse_body_line(Function_Line_0, data, false, loc, false);
       }
    catch (Error err)
       {
@@ -860,7 +864,7 @@ StatementList * fun = new StatementList(data, loc);
      if (err)   err->parser_loc = 0;
    }
 
-   fun->parse_body_line(Function_Line_0, data, false, loc);
+   fun->parse_body_line(Function_Line_0, data, false, loc, false);
    fun->setup_lambdas();
 
    Log(LOG_UserFunction__fix)

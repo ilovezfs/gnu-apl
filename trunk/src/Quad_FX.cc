@@ -37,7 +37,7 @@ Token
 Quad_FX::eval_B(Value_P B)
 {
 static const int eprops[] = { 0, 0, 0, 0 };
-   return do_quad_FX(eprops, B, UTF8_string("⎕FX"));
+   return do_quad_FX(eprops, B, UTF8_string("⎕FX"), false);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -97,7 +97,7 @@ UTF8_string creator("⎕FX");
         default: LENGTH_ERROR;
       }
 
-   return do_quad_FX(eprops, B, creator);
+   return do_quad_FX(eprops, B, creator, false);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -114,7 +114,7 @@ const Axis axis = X->get_single_axis(10);
 //-----------------------------------------------------------------------------
 Token
 Quad_FX::do_quad_FX(const int * exec_props, Value_P B,
-                    const UTF8_string & creator)
+                    const UTF8_string & creator, bool tolerant)
 {
    if (B->get_rank() > 2)   RANK_ERROR;
    if (B->get_rank() < 1)   RANK_ERROR;
@@ -185,15 +185,16 @@ UCS_string text;
            }
       }
 
-   return do_quad_FX(exec_props, text, creator);
+   return do_quad_FX(exec_props, text, creator, tolerant);
 }
 //-----------------------------------------------------------------------------
 Token
 Quad_FX::do_quad_FX(const int * exec_props, const UCS_string & text,
-                    const UTF8_string & creator)
+                    const UTF8_string & creator, bool tolerant)
 {
 int error_line = 0;
-UserFunction * fun = UserFunction::fix(text, error_line, false, LOC, creator);
+UserFunction * fun = UserFunction::fix(text, error_line, false, LOC, creator,
+                                       tolerant);
    if (fun == 0)
       {
         Value_P Z(LOC);

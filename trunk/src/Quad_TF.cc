@@ -464,7 +464,10 @@ Token_string tos;
 
    {
      Value_P function_text =  tos[1].get_apl_val();
-     const Token tok = Quad_FX::fun->eval_B(function_text);
+     static const int eprops[] = { 0, 0, 0, 0 };
+
+     const Token tok = Quad_FX::do_quad_FX(eprops, function_text,
+                                           UTF8_string("2 ⎕TF"), true);
 
    if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
       {
