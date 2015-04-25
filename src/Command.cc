@@ -1603,7 +1603,7 @@ Symbol * sym = 0;
    
    Log(LOG_command_IN)
       {
-        CERR << endl << var_name << " rank " << shape.get_rank() << " IS '";
+        CERR << endl << var_name << " shape " << shape << " IS: '";
         loop(j, data.size() - idx)   CERR << data[idx + j];
         CERR << "'" << endl;
       }
@@ -1612,7 +1612,13 @@ Value_P val(shape, LOC);
    new (&val->get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
 
 const ShapeItem ec = val->element_count();
-   loop(e, ec)   new (&val->get_ravel(e)) CharCell(data[idx + e]);
+
+const UCS_string data1(data, idx, data.size() - idx);
+const UTF8_string data2(data1);
+   loop(e, ec)
+      {
+        new (&val->get_ravel(e)) CharCell((Unicode)(data2[e]));
+      }
 
    Assert(sym);
    sym->assign(val, LOC);

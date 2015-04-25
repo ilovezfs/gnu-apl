@@ -2226,7 +2226,7 @@ const Cell * cB = &B->get_ravel(c);
         // at this point the depth implied by A is greater than the
         // depth of B.
         //
-        DOMAIN_ERROR;
+        RANK_ERROR;   // ISO p.166
       }
 
    // at this point, cB is the cell in B pick'ed by A->

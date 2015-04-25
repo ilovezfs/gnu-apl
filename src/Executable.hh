@@ -158,12 +158,12 @@ protected:
    const char * alloc_loc;
 
    /// parse the body line number \b line of \b this function
-   void parse_body_line(Function_Line line, const UCS_string & ucs, bool trace,
-                        const char * loc);
+   ErrorCode parse_body_line(Function_Line line, const UCS_string & ucs,
+                             bool trace, const char * loc, bool tolerant);
 
    /// parse the body line number \b line of \b this function
-   void parse_body_line(Function_Line line, const Token_string & tos,
-                        bool trace, const char * loc);
+   ErrorCode parse_body_line(Function_Line line, const Token_string & tos,
+                             bool trace, const char * loc, bool tolerant);
 
    /// the program text from which \b body was created
    vector<UCS_string> text;

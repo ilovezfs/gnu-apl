@@ -46,16 +46,16 @@ public:
    virtual Token eval_AXB(Value_P A, Value_P X, Value_P B);
 
    /// do ⎕FX with execution properties \b exec_props
-   Token do_quad_FX(const int * exec_props, const UCS_string & text,
-                    const UTF8_string & creator);
+   static Token do_quad_FX(const int * exec_props, Value_P B,
+                           const UTF8_string & creator, bool tolerant);
 
 protected:
    /// do ⎕FX with execution properties \b exec_props
-   Token do_quad_FX(const int * exec_props, Value_P B,
-                    const UTF8_string & creator);
+   static Token do_quad_FX(const int * exec_props, const UCS_string & text,
+                           const UTF8_string & creator, bool tolerant);
 
    /// ⎕FX with native function and optional library reference
-   Token do_native_FX(Value_P A, Axis axis, Value_P B);
+   static Token do_native_FX(Value_P A, Axis axis, Value_P B);
 };
 //-----------------------------------------------------------------------------
 #endif //  __QUAD_FX_HH_DEFINED__

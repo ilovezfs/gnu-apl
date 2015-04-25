@@ -185,7 +185,7 @@ UCS_string creator(InputFile::current_filename());
 UTF8_string creator_utf8(creator);
 
 UserFunction * ufun = UserFunction::fix(fun_text, error_line, false,
-                                        LOC, creator_utf8);
+                                        LOC, creator_utf8, false);
    if (ufun == 0)   NABLA_ERROR;
 
    if (locked)

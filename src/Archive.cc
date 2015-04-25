@@ -1681,7 +1681,7 @@ UCS_string text;
         UTF8_string creator_utf8(creator);
 
         UserFunction * ufun = UserFunction::fix(text, err, false,
-                                               LOC, creator_utf8);
+                                               LOC, creator_utf8, false);
 
         if (d == 0)   symbol.pop();
         if (ufun)

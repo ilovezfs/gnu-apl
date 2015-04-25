@@ -691,6 +691,7 @@ UTF8_string expo_part;
 bool negative = false;
 bool expo_negative = false;
 bool skipped_0 = false;
+bool dot_seen = false;
 
    // leading sign
    //
@@ -716,6 +717,7 @@ bool skipped_0 = false;
    if (src.rest() &&  *src == UNI_ASCII_FULLSTOP)   // fract part present
       {
         ++src;
+        dot_seen = true;
         while (src.rest() && *src >= '0' && *src <= '9')
            {
              fract_part.append(src.get());
@@ -750,6 +752,9 @@ bool skipped_0 = false;
                 }
            }
       }
+
+   // second dot ?
+   if (dot_seen && src.rest() && *src == UNI_ASCII_FULLSTOP)   return false;
 
 int expo = 0;
    loop(d, expo_part.size())   expo = 10*expo + (expo_part[d] - '0');
