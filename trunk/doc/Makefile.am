@@ -1,5 +1,10 @@
 
-info_TEXINFOS = apl.texi
+# NOTE: listing a file in info_TEXINFOS causes the corresponding .html file
+# to be deleted on 'make clean' That is bad for people not having a
+# $MAKEINFOHTML installed. We therefore leve info_TEXINFOS empty and instead
+# install info stuff manually below.
+#
+info_TEXINFOS = 
 
 man1_MANS = apl.1
 
