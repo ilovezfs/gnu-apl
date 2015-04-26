@@ -22,6 +22,7 @@
 #define __DYNAMIC_OBJECT_HH_DEFINED__
 
 #include "Common.hh"
+#include "Id.hh"
 #include "Output.hh"
 #include "PrintOperator.hh"
 

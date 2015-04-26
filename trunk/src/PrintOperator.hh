@@ -26,7 +26,6 @@
 #include "Common.hh"
 #include "Id.hh"
 #include "Source.hh"
-#include "TokenEnums.hh"
 #include "Unicode.hh"
 
 struct AP_num3;

@@ -22,7 +22,7 @@
 #define __SHARED_VALUE_POINTER_HH_DEFINED__
 
 #ifndef __COMMON_HH_DEFINED__
-#error this file must only be included by Common.hh
+# error This file shall NOT be #included directly, but by #including Comon.hh
 #endif
 
 class Cell;

@@ -21,9 +21,9 @@
 #ifndef __SYSTEM_VARIABLE_HH_DEFINED__
 #define __SYSTEM_VARIABLE_HH_DEFINED__
 
+#include "Id.hh"
 #include "Parallel.hh"
 #include "Symbol.hh"
-#include "Id.hh"
 
 #include <sys/time.h>
 
@@ -38,6 +38,10 @@ public:
    SystemVariable(ID::Id id)
    : Symbol(id)
    {}
+
+   /// return the TokenTag for this system variable
+   Token get_token() const
+      { return Token((TokenTag)ID::get_token_tag(get_Id()), (Symbol *)this); }
 
    /// overloaded Symbol::print().
    virtual ostream & print(ostream & out) const;

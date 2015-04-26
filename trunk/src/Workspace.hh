@@ -38,15 +38,17 @@ class StateIndicator;
 
 //-----------------------------------------------------------------------------
 /**
- The symbol table of the Workspace. We put it into a base class for Workspace,
- so that it is completely initialized before all other members of Workspace
- (in particular the ⎕-variables).
+ The symbol tables of the Workspace. We put them into a base class for
+ Workspace, so that they are initialized before all the members of Workspace.
  **/
 class Workspace_0
 {
 protected:
-   /// the symbol table of this workspace.
+   /// the (user-defined) symbol table of this workspace.
    SymbolTable symbol_table;
+
+   /// the (system aka distinguished name) symbol table of this workspace.
+   SystemSymTab distinguished_names;
 };
 //-----------------------------------------------------------------------------
 /**
@@ -57,12 +59,7 @@ class Workspace : public Workspace_0
 {
 public:
    /// Construct an empty workspace.
-   Workspace()
-   : WS_name("CLEAR WS"),
-//   prompt("-----> "),
-     prompt("      "),
-     top_SI(0)
-   {}
+   Workspace();
 
    /// return the current Quad-CT
    static APL_Float get_CT()
@@ -228,7 +225,7 @@ public:
                        bool protection);
 
    /// return a token for system function or variable \b ucs
-   static Token get_quad(UCS_string ucs, int & len);
+   static Token get_quad(const UCS_string & ucs, int & len);
 
    /// return oldest SI entry that is running \b exex, or 0 if none
    static StateIndicator * oldest_exec(const Executable * exec);

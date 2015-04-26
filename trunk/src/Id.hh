@@ -23,13 +23,10 @@
 
 #include <iostream>
 
-#include "UTF8_string.hh"
-
 class Function;
 class Symbol;
-class UCS_string;
 
-/*!
+/**
  An Identifier for each internal object (primitives, Quad-symbols, and more).
  The ID can be derived in different ways:
 
@@ -64,14 +61,18 @@ public:
 
    /// If \b id is the ID of primitive function, primitive operator, or
    /// quad function, then return a pointer to it. Otherwise return 0.
-   static Function * get_system_function(ID::Id id);
+   static Function * get_system_function(Id id);
 
    /// If \b id is the ID of a quad variable, then return a pointer to its
    /// symbol. Otherwise return 0.
-   static Symbol * get_system_variable(ID::Id id);
+   static Symbol * get_system_variable(Id id);
 
+   /// return the TokenTag for \b id
+   static int get_token_tag(Id id);
 };
 //-----------------------------------------------------------------------------
+
+#include "TokenEnums.hh"
 
 #endif // __ID_HH_DEFINED__
 

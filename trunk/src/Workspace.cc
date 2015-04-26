@@ -32,6 +32,7 @@ using namespace std;
 #include "Output.hh"
 #include "Quad_FX.hh"
 #include "Quad_TF.hh"
+#include "SystemVariable.hh"
 #include "UserFunction.hh"
 #include "UserPreferences.hh"
 #include "Workspace.hh"
@@ -49,6 +50,24 @@ DynamicObject DynamicObject::all_index_exprs(LOC);
 //
 Workspace Workspace::the_workspace;
 
+//-----------------------------------------------------------------------------
+Workspace::Workspace()
+   : WS_name("CLEAR WS"),
+//   prompt("-----> "),
+     prompt("      "),
+     top_SI(0)
+{
+#define ro_sv_def(x, _txt) if (strlen(#x) > 5 && !strncmp(#x, "Quad_", 5)) { \
+   UCS_string q(UNI_Quad_Quad);   q.append_utf8(#x + 5);                     \
+   distinguished_names.add_variable(q, ID::x, &v_ ## x); }
+
+#define rw_sv_def ro_sv_def
+
+#define sf_def(x, _txt) \
+   distinguished_names.add_function(x::fun->get_name(), ID::x, x::fun);
+
+#include "SystemVariable.def"
+}
 //-----------------------------------------------------------------------------
 void
 Workspace::push_SI(Executable * fun, const char * loc)
@@ -247,7 +266,7 @@ Workspace::lookup_existing_symbol(const UCS_string & symbol_name)
 }
 //-----------------------------------------------------------------------------
 Token
-Workspace::get_quad(UCS_string ucs, int & len)
+Workspace::get_quad(const UCS_string & ucs, int & len)
 {
    if (ucs.size() == 0 || !Avec::is_quad(ucs[0]))
      {
@@ -255,172 +274,36 @@ Workspace::get_quad(UCS_string ucs, int & len)
        return Token();
      }
 
-Unicode av_0 = (ucs.size() > 1) ? ucs[1] : Invalid_Unicode;
-Unicode av_1 = (ucs.size() > 2) ? ucs[2] : Invalid_Unicode;
-Unicode av_2 = (ucs.size() > 3) ? ucs[3] : Invalid_Unicode;
-Unicode av_3 = (ucs.size() > 4) ? ucs[4] : Invalid_Unicode;
-Unicode av_4 = (ucs.size() > 5) ? ucs[5] : Invalid_Unicode;
+UCS_string name(UNI_Quad_Quad);
+   len = 1;
 
-   // lowercase to uppercase
-   //
-   if (av_0 >= 'a' && av_0 <= 'z')   av_0 = Unicode(av_0 - 0x20);
-   if (av_1 >= 'a' && av_1 <= 'z')   av_1 = Unicode(av_1 - 0x20);
-   if (av_2 >= 'a' && av_2 <= 'z')   av_2 = Unicode(av_2 - 0x20);
-   if (av_3 >= 'a' && av_3 <= 'z')   av_3 = Unicode(av_3 - 0x20);
-   if (av_4 >= 'a' && av_4 <= 'z')   av_4 = Unicode(av_4 - 0x20);
+SystemName * longest = 0;
 
-#define var(t, l) { len = l + 1; \
-   return Token(TOK_Quad_ ## t, &the_workspace.v_Quad_ ## t); }
-
-#define f0(t, l) { len = l + 1; \
-   return Token(TOK_Quad_ ## t, Quad_ ## t::fun); }
-
-#define f1(t, l) { len = l + 1; \
-   return Token(TOK_Quad_ ## t, Quad_ ## t::fun); }
-
-#define f2(t, l) { len = l + 1; \
-   return Token(TOK_Quad_ ## t, Quad_ ## t::fun); }
-
-   switch(av_0)
+   for (ShapeItem u = 1; u < ucs.size(); ++u)
       {
-        case UNI_ASCII_A:
-             if (av_1 == UNI_ASCII_F)        f1 (AF, 2)
-             if (av_1 == UNI_ASCII_I)        var(AI, 2)
-             if (av_1 == UNI_ASCII_R)
-                {
-                  if (av_2 == UNI_ASCII_G)   var(ARG, 3)
-                }
-             if (av_1 == UNI_ASCII_T)        f2 (AT, 2)
-             if (av_1 == UNI_ASCII_V)        var(AV, 2)
-             break;
+        Unicode uni = ucs[u];
+        if (!Avec::is_symbol_char(uni))   break;
 
-        case UNI_ASCII_C:
-             if (av_1 == UNI_ASCII_R)        f1 (CR, 2)
-             if (av_1 == UNI_ASCII_T)        var(CT, 2)
-             break;
+        if (uni >= 'a' && uni <= 'z')   uni = Unicode(uni - 0x20);
+        name.append(uni);
+        SystemName * dn =
+               the_workspace.distinguished_names.lookup_existing_symbol(name);
 
-        case UNI_ASCII_D:
-             if (av_1 == UNI_ASCII_L)        f1 (DL, 2)
-             break;
-
-        case UNI_ASCII_E:
-             if (av_1 == UNI_ASCII_A)        f2 (EA, 2)
-             if (av_1 == UNI_ASCII_C)        f1 (EC, 2)
-             if (av_1 == UNI_ASCII_M)        var(EM, 2)
-             if (av_1 == UNI_ASCII_N)
-                {
-                  if (av_2 == UNI_ASCII_V)   f1(ENV, 3)
-                }
-             if (av_1 == UNI_ASCII_S)        f2 (ES, 2)
-             if (av_1 == UNI_ASCII_T)        var(ET, 2)
-             if (av_1 == UNI_ASCII_X)        f1 (EX, 2)
-             break;
-
-        case UNI_ASCII_F:
-             if (av_1 == UNI_ASCII_C)        var(FC, 2)
-             if (av_1 == UNI_ASCII_X)        f2 (FX, 2)
-             break;
-
-        case UNI_ASCII_I:
-             if (av_1 == UNI_ASCII_N)
-                {
-                  if (av_2 == UNI_ASCII_P)   f2(INP, 3)
-                  break;
-                }
-
-             if (av_1 == UNI_ASCII_O)        var(IO, 2)
-             break;
-
-        case UNI_ASCII_L:
-             if (av_1 == UNI_ASCII_C)        var(LC, 2)
-             if (av_1 == UNI_ASCII_X)        var(LX, 2)
-                                             var(L, 1)
-             break;
-
-        case UNI_ASCII_N:
-             if (av_1 == UNI_ASCII_A)        f2 (NA, 2);
-             if (av_1 == UNI_ASCII_C)        f2 (NC, 2);
-             if (av_1 == UNI_ASCII_L)        f1 (NL, 2)
-             break;
-
-        case UNI_ASCII_P:
-             if (av_1 == UNI_ASCII_P)        var(PP, 2)
-             if (av_1 == UNI_ASCII_R)        var(PR, 2)
-             if (av_1 == UNI_ASCII_S)        var(PS, 2)
-             if (av_1 == UNI_ASCII_W)        var(PW, 2)
-             break;
-
-        case UNI_ASCII_R:
-             if (av_1 == UNI_ASCII_L)        var(RL, 2)
-                                             var(R, 1)
-             break;
-
-        case UNI_ASCII_S:
-             if (av_1 == UNI_ASCII_I)      f1 (SI, 2)
-             if (av_1 == UNI_ASCII_T)
-                {
-                  if (av_2 == UNI_ASCII_O &&
-                      av_3 == UNI_ASCII_P)   f2 (STOP, 4)
-                  break;
-                }
-             if (av_1 == UNI_ASCII_V)
-                {
-                  if (av_2 == UNI_ASCII_C)   f2 (SVC, 3)
-                  if (av_2 == UNI_ASCII_E)   var(SVE, 3)
-                  if (av_2 == UNI_ASCII_O)   f2 (SVO, 3)
-                  if (av_2 == UNI_ASCII_Q)   f2 (SVQ, 3)
-                  if (av_2 == UNI_ASCII_R)   f1 (SVR, 3)
-                  if (av_2 == UNI_ASCII_S)   f1 (SVS, 3)
-                  break;
-                }
-             if (av_1 == UNI_ASCII_Y)
-                {
-                  if (av_2 == UNI_ASCII_L)   var(SYL, 3)
-                  break;
-                }
-             break;
-
-        case UNI_ASCII_T:
-             if (av_1 == UNI_ASCII_C)        var(TC, 2)
-             if (av_1 == UNI_ASCII_F)        f2 (TF, 2)
-             if (av_1 == UNI_ASCII_R)
-                {
-                  if (av_2 == UNI_ASCII_A &&
-                      av_3 == UNI_ASCII_C &&
-                      av_4 == UNI_ASCII_E)   f2 (TRACE, 5)
-                  break;
-                }
-             if (av_1 == UNI_ASCII_S)        var(TS, 2)
-             if (av_1 == UNI_ASCII_Z)        var(TZ, 2)
-             break;
-
-        case UNI_ASCII_U:
-             if (av_1 == UNI_ASCII_C &&
-                 av_2 == UNI_ASCII_S)        f1 (UCS, 3)
-             if (av_1 == UNI_ASCII_L)        var(UL, 2)
-             break;
-
-        case UNI_ASCII_W:
-             if (av_1 == UNI_ASCII_A)        var(WA, 2)
-             break;
-
-        case UNI_ASCII_X:
-                                             var(X, 1)
-             break;
-
-        default: break;
+        if (dn)   // ss is a valid distinguished name
+           {
+             longest = dn;
+             len = name.size();
+           }
       }
 
-   var(Quad, 0);
+   if (longest == 0)   return Token(TOK_Quad_Quad, &the_workspace.v_Quad_Quad);
 
-#undef var
-#undef f0
-#undef f1
-#undef f2
+   if (longest->get_variable())   return longest->get_variable()->get_token();
+   else                           return longest->get_function()->get_token();
 }
 //-----------------------------------------------------------------------------
 StateIndicator *
-Workspace:: oldest_exec(const Executable * exec)
+Workspace::oldest_exec(const Executable * exec)
 {
 StateIndicator * ret = 0;
 

@@ -22,7 +22,7 @@
 #define __UNICODE_HH_DEFINED__
 
 #ifndef __COMMON_HH_DEFINED__
-# error This file shall not be #included directly, but by #including Common.hh
+# error This file shall NOT be #included directly, but by #including Common.hh
 #endif
 
 #include "../config.h"
