@@ -47,46 +47,37 @@ public:
         return 0;
       }
 
-   /// add \b new_name to the symbol table. The caller has checked
+   /// add \b sym to the symbol table. The caller has checked
    /// that new_name does not yet exist in the symbol table
-   T * add_symbol(const UCS_string & new_name, ID::Id id)
+   void add_symbol(T * sym)
        {
-         const uint32_t hash = compute_hash(new_name);
-         Log(LOG_SYMBOL_lookup_symbol)
-            {
-              CERR << "Symbol " << new_name
-                   << " has hash " << HEX(hash) << endl;
-            }
-
+         const uint32_t hash = compute_hash(sym->get_name());
          if (symbol_table[hash] == 0)   // unused slot
             {
-              T * new_symbol = new T(new_name, id);
-              symbol_table[hash] = new_symbol;
-              new_symbol->next = 0;
-              return new_symbol;
+              symbol_table[hash] = sym;
+              sym->next = 0;
+              return;
             }
 
          for (T * t = symbol_table[hash]; ; t = t->next)
              {
                if (t->is_erased())   // override an erased symbol.
                   {
-                    t->replace_name(new_name);
+                    t->replace_name(sym->get_name());
                     t->set_erased(false);
-                    return t;
+                    return;
                   }
 
                if (t->next == 0)   // append new_symbol at the end
                   {
-                    Symbol * new_symbol = new Symbol(new_name, ID::USER_SYMBOL);
-                    t->next = new_symbol;
-                    new_symbol->next = 0;
-                    return new_symbol;
+                    t->next = sym;
+                    sym->next = 0;
+                    return;
                   }
              }
-
        }
 
-   /// compute 16-bit hash for \b name
+   /// compute a 16-bit hash for \b name
    static uint32_t compute_hash(const UCS_string & name)
       {
         // Parameters for the FNV-1 hash.
@@ -98,7 +89,17 @@ public:
         uint32_t hash = FNV_Offset_32;
         for (int s = 0; s < name.size(); ++s)
             hash = (hash * FNV_Prime_32) ^ name[s];
-        return  ((hash >> 16) ^ hash) % SYMBOL_COUNT;
+
+        hash = (((hash >> 16) ^ hash) & 0x0000FFFF) % SYMBOL_COUNT;
+
+        Log(LOG_SYMBOL_lookup_symbol)
+           {
+              CERR << "name[len=" << name.size() << "] " << name
+                   << " has hash " << HEX(hash)
+                   << " in table of size " << SYMBOL_COUNT << endl;
+           }
+
+        return  hash;
      }
 
 protected:
@@ -162,34 +163,55 @@ class SystemVariable;
 class SystemName
 {
 public:
-   /// constructor: prefix of a system variable or function
-   SystemName(const UCS_string & prefix)
-   : name(prefix),
-     id(ID::Quad_PREFIX),
-     function(0),
-      sysvar(0)
-   {}
-
-   /// constructor: system variable
-   SystemName(const UCS_string & var_name, ID::Id var_id, SystemVariable * var)
+   /// constructor: system variable or function
+   SystemName(const UCS_string & var_name, ID::Id var_id,
+              QuadFunction * fun,  SystemVariable * var)
    : name(var_name),
      id(var_id),
-     function(0),
+     function(fun),
       sysvar(var)
    {}
-     
-   /// constructor: system function
-   SystemName(const UCS_string & fun_name, ID::Id fun_id, QuadFunction * fun)
-   : name(fun_name),
-     id(fun_id),
-     function(fun),
-      sysvar(0)
-   {}
-     
+
+   /// return the distinguished name
+   const UCS_string & get_name() const
+      { return name; }
+
+   /// never called
+   void replace_name(const UCS_string &) const { FIXME; }
+
+   /// never called
+   void set_erased(bool) const { FIXME; }
+
+   /// system names are never erased
+   bool is_erased()   { return false; }
+
+   /// Compare the name of \b this \b Symbol with \b ucs
+   bool equal(const UCS_string & ucs) const
+      { return (name.compare(ucs) == COMP_EQ); }
+
+   SystemVariable * get_variable() const
+      { return sysvar; }
+
+   QuadFunction * get_function() const
+      { return function; }
+
+   ID::Id get_id() const
+      { return id; }
+
+   /// The next name with the same hash value as \b this \b SystemName
+   SystemName * next;
+
 protected:
-   UCS_string name;
-   ID::Id id;
+   /// the name (including ⎕). Eg. ⎕IO
+   const UCS_string name;
+
+   /// the Id of the variable or function
+   const ID::Id id;
+
+   /// the function if the name refers to a system function, or 0 if not
    QuadFunction * function;
+
+   /// the variable if the name refers to a system variable, or 0 if not
    SystemVariable * sysvar;
 };
 
@@ -200,6 +222,28 @@ protected:
 class SystemSymTab : public SymbolTableBase<SystemName, 256 - 1>
 {
 public:
+   SystemSymTab()
+   : max_name_len(0)
+   {}
+
+   void add_function(const UCS_string & name, ID::Id id,
+                     QuadFunction * function)
+      { add_fun_or_var(name, id, function, 0); }
+
+   void add_variable(const UCS_string & name, ID::Id id,
+                     SystemVariable * variable)
+      { add_fun_or_var(name, id, 0, variable); }
+
+   /// don't add ⍺ and friends
+   void add_variable(const UCS_string & name, ID::Id id, Symbol * variable)
+      { }
+
+protected:
+   void add_fun_or_var(const UCS_string & name, ID::Id id,
+                       QuadFunction * function, SystemVariable * variable);
+
+   // the length of the longest name
+   int max_name_len;
 };
 //-----------------------------------------------------------------------------
 

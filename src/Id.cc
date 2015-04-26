@@ -107,3 +107,22 @@ ID::get_system_variable(ID::Id id)
    return 0;
 }
 //-----------------------------------------------------------------------------
+int
+ID::get_token_tag(Id id)
+{
+   switch(id)
+      {
+#define pp(_i, _u, _v)
+#define qf(_i, _u, _v)
+#define qv( i, _u, _v)   case ID::Quad_ ## i: return TOK_Quad_## i;
+#define sf(_i, _u, _v) 
+#define st(_i, _u, _v) 
+
+#include "Id.def"
+
+        default: break;
+      }
+
+   return 0;
+}
+//-----------------------------------------------------------------------------

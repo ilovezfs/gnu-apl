@@ -18,10 +18,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __ID_HH_DEFINED__
+# error This file shall NOT be #included directly, but by #including Id.hh
+#endif
+
 #ifndef __TOKENENUMS_HH_DEFINED__
 #define __TOKENENUMS_HH_DEFINED__
-
-#include "Id.hh"   // for ID_xxx
 
 /**
     The class tag of a token. Token classes < TC_MAX_PERM are permanent

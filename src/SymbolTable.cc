@@ -79,7 +79,9 @@ const uint32_t hash = compute_hash(sym_name);
 
    // no symbol with name sym_name exists. The second walk:
    //
-   return add_symbol(sym_name, ID::USER_SYMBOL);
+Symbol * sym = new Symbol(sym_name, ID::USER_SYMBOL);
+   add_symbol(sym);
+   return sym;
 }
 //-----------------------------------------------------------------------------
 ostream &
@@ -503,5 +505,21 @@ vector<const Symbol *> symbols;
         const ValueStackItem & vs = sym[0];
         if (vs.name_class == NC_VARIABLE)   { ++vcount;   sym.dump(out); }
       }
+}
+//=============================================================================
+void
+SystemSymTab::add_fun_or_var(const UCS_string & name, ID::Id id,
+                       QuadFunction * function, SystemVariable * variable)
+{
+   // name should not yet exist
+   //
+   if (lookup_existing_symbol(name))
+      {
+        Q1(name);   FIXME;
+      }
+
+SystemName * dist_name = new SystemName(name, id, function, variable);
+   add_symbol(dist_name);
+   if (max_name_len < name.size())   max_name_len = name.size();
 }
 //-----------------------------------------------------------------------------

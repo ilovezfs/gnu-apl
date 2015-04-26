@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "../src/TokenEnums.hh"
+#include "../src/Id.hh"
 
 using namespace std;
 
