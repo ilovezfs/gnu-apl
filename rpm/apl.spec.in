@@ -22,7 +22,7 @@ Group:        Applications/Interpreters
 Source:       file://@abs_top_srcdir@/@PACKAGE@-@VERSION@.tar.gz
 Distribution: Ubuntu
 Vendor:       Dr. Jürgen Sauermann
-License:      proprietary
+License:      GPL
 Packager:     Dr. Jürgen Sauermann <juergen.sauermann@t-online.de>
 
 ###############################################################################

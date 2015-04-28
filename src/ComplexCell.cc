@@ -469,6 +469,8 @@ const APL_Float ai = A->get_imag_value();
 ErrorCode
 ComplexCell::bif_logarithm(Cell * Z, const Cell * A) const
 {
+   if (is_near_zero())     return E_DOMAIN_ERROR;
+
    if (A->is_real_cell())
       {
         new (Z) ComplexCell(log(cval()) / log(A->get_real_value()));

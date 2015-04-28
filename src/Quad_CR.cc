@@ -636,7 +636,7 @@ UCS_string shape_rho;
 bool nested = false;
 
    // step 1: top-level ravel. Try short (one-line) ravel and use long
-   // (multi-line ravel if that fails.
+   // (multi-line ravel) if that fails.
    //
    if (short_ravel(result, nested, value, picker, left, shape_rho))
       {
@@ -650,7 +650,7 @@ bool nested = false;
 
         loop(p, todo)
            {
-             // recompute line (which changes since count changes)
+             // recompute line (which changes because count changes)
              //
              UCS_string line(2*(picker.get_level() - 1), UNI_ASCII_SPACE);
              picker.get_indexed(line, pos, count);

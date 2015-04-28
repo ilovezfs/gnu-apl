@@ -32,6 +32,7 @@ ErrorCode
 RealCell::bif_logarithm(Cell * Z, const Cell * A) const
 {
    if (!A->is_numeric())   return E_DOMAIN_ERROR;
+   if (is_near_zero())     return E_DOMAIN_ERROR;
 
    // A⍟B is defined as: (⍟B)÷(⍟A)
    // if A=1 then ⍟A is 0 which causes division by 0 unless ⍟B is 0 as well.

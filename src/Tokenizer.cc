@@ -79,7 +79,8 @@ Source<Unicode> src(input);
    while ((rest_1 = rest_2 = src.rest()) != 0)
       {
         const Unicode uni = *src;
-        if (uni == UNI_COMMENT)   break;
+        if (uni == UNI_COMMENT)             break;   // ⍝ comment
+        if (uni == UNI_ASCII_NUMBER_SIGN)   break;   // # comment
 
         const Token tok = Avec::uni_to_token(uni, LOC);
 

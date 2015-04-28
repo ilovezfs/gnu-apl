@@ -227,7 +227,8 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
           const ShapeItem a = arg.z / _arg.items_B;
           const ShapeItem b = arg.z % _arg.items_B;
 
-          const ShapeItem len_A = arg.A->get_last_shape_item();
+          const ShapeItem len_A = arg.A->is_scalar()
+                                ? 1 : arg.A->get_last_shape_item();
           Value_P AA(len_A, LOC);
           {
             const ShapeItem inc_A = arg.A->is_scalar() ? 0 : 1;
@@ -245,7 +246,8 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
             AA->check_value(LOC);
           }
 
-          const ShapeItem len_B = arg.B->get_shape_item(0);
+          const ShapeItem len_B = arg.B->is_scalar()
+                                ? 1 : arg.B->get_shape_item(0);
           Value_P BB(len_B, LOC);   // make BB column(_arg.b) of B
           {
             const ShapeItem inc_B = arg.A->is_scalar() ? 0 : _arg.items_B;
