@@ -43,16 +43,16 @@ public:
    : value_p(0)
    {}
 
-   /// a new scalar value
+   /// a new scalar value with un-initialized ravel
    inline Value_P(const char * loc);
 
-   /// a new scalar value
+   /// a new scalar value with the value of Cell
    inline Value_P(const Cell & cell, const char * loc);
 
-   /// a new vector (rank 1 value) of length len
+   /// a new true vector (rank 1 value) of length len and un-initialized ravel
    inline Value_P(ShapeItem len, const char * loc);
 
-   /// a new value with shape sh
+   /// a new value with shape sh and un-initialized ravel
    inline Value_P(const Shape & sh, const char * loc);
 
    /// a new vector value from a UCS string
