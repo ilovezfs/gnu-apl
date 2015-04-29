@@ -471,9 +471,6 @@ int count = 99;   // force new line
    save_EOC_function("RO",    eoc.RO,         count);
    save_EOC_value("vid-B",    eoc.B.get(),    count);
    save_EOC_value("vid-V1",   eoc.V1.get(),   count);
-   save_EOC_value("vid-V2",   eoc.V2.get(),   count);
-   save_EOC_value("vid-RO-A", eoc.RO_A.get(), count);
-   save_EOC_value("vid-RO-B", eoc.RO_B.get(), count);
    --indent;
 
    out << "/>" << endl;
@@ -1172,6 +1169,29 @@ int day   = find_int_attr("day",      false, 10);
 int hour  = find_int_attr("hour",     false, 10);
 int min   = find_int_attr("minute",   false, 10);
 int sec   = find_int_attr("second",   false, 10);
+const UTF8 * saving_SVN = find_attr("saving_SVN", true);
+bool mismatch = false;
+
+   if (saving_SVN == 0)   // saved with very old version
+      {
+        mismatch = true;
+        CERR << "WARNING: this workspace was )SAVEd with a VERY "
+             << "old version of GNU APL." << endl;
+      }
+   else if (strcmp(ARCHIVE_SVN, (const char *)saving_SVN))   // other version
+      {
+        mismatch = true;
+        CERR << "WARNING: this workspace was )SAVEd with SVN version "
+             << saving_SVN << endl <<
+                " but is now being loaded with SVN version "
+             << ARCHIVE_SVN << endl;
+      }
+
+   if (mismatch)
+      {
+        CERR << "Expect problems, in particular when the )SI was not clear.\n";
+        if (!copying)   CERR << "You better use )COPY in this case" << endl;
+      }
 
    sec  += offset          % 60;
    min  += (offset /   60) % 60;
@@ -2062,9 +2082,6 @@ const char * data = (const char * )find_attr("data", true);
    read_EOC_function(false,   eoc->RO);
    read_EOC_value("vid-B",    eoc->B);
    read_EOC_value("vid-V1",   eoc->V1);
-   read_EOC_value("vid-V2",   eoc->V2);
-   read_EOC_value("vid-RO-A", eoc->RO_A);
-   read_EOC_value("vid-RO-B", eoc->RO_B);
 
    return eoc;
 }

@@ -155,6 +155,9 @@ public:
    /// add an EOC handler
    void add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc);
 
+   /// add an EOC handler
+   void add1_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc);
+
    /// move an EOC handler from \b old_si to \b this si
    void move_eoc_handler(EOC_HANDLER handler, EOC_arg * old_eoc,
                          const char * loc);

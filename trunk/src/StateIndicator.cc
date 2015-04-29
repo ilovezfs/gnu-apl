@@ -25,6 +25,7 @@
 #include "IndexExpr.hh"
 #include "Output.hh"
 #include "Prefix.hh"
+#include "SharedValuePointer.hh"
 #include "StateIndicator.hh"
 #include "SystemLimits.hh"
 #include "UserFunction.hh"
@@ -434,11 +435,7 @@ StateIndicator::unmark_all_values() const
          if (!!eoc->A)      eoc->A   ->unmark();
          if (!!eoc->B)      eoc->B   ->unmark();
          if (!!eoc->V1)     eoc->V1  ->unmark();
-         if (!!eoc->V2)     eoc->V2  ->unmark();
-         if (!!eoc->RO_A)   eoc->RO_A->unmark();
-         if (!!eoc->RO_B)   eoc->RO_B->unmark();
        }
-
 }
 //-----------------------------------------------------------------------------
 int
@@ -515,6 +512,16 @@ StateIndicator::set_X(Value_P new_value)
 {
 Value_P * X = current_stack.locate_X();
    if (X)   *X = new_value;
+}
+//-----------------------------------------------------------------------------
+void
+StateIndicator::add1_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
+                                const char * loc)
+{
+   add_eoc_handler(handler, arg, loc);
+   ptr_clear(arg.Z, LOC);
+   ptr_clear(arg.A, LOC);
+   ptr_clear(arg.B, LOC);
 }
 //-----------------------------------------------------------------------------
 void

@@ -195,7 +195,7 @@ Value_P Z(shape_A1 + shape_B1, LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(Z, A, LO, RO, B);
+EOC_arg arg(Z, A, LO, RO, B, LOC);
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
    _arg.items_A = items_A;
@@ -211,12 +211,12 @@ Bif_OPER2_INNER::finish_inner_product(EOC_arg & arg, bool first)
 {
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
-   if (_arg.how == 1)   goto how_1;
+   if (_arg.how == 1)   goto RO_done;
 
    if (_arg.how == 2)
       {
         --_arg.v1;
-        goto how_2;
+        goto LO_done;
       }
 
    Assert1(_arg.how == 0);
@@ -285,7 +285,7 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
                   if (!arg.LO->may_push_SI())   _arg.last_ufun = 1;
                 }
 
-             _arg.how = 1;
+             _arg.how = 1;   // user-defined RO
              if (first)   // first call
                 Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
              else           // subsequent call
@@ -294,92 +294,42 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
              return T1;   // continue in user defined function...
            }
 
+          // RO was a system function. Set V1 to the value returned by RO.
+          //
           arg.V1 = T1.get_apl_val();   // V1 is A[a] RO B1[b]
         }
 
-how_1:
+RO_done:
+        // at this point arg.V1 is the result of a system- or user-defined
+        // function RO. Compute LO/V1.
         {
-          const ShapeItem ec_V1 = arg.V1->element_count();
+          Token LO(TOK_FUN1, arg.LO);
+          const Token T2 = Bif_OPER1_REDUCE::fun->eval_LB(LO, arg.V1);
+          ptr_clear(arg.V1, LOC);
 
-          if (ec_V1 <= 1)   // reduction of 0- or 1-element vector
+          if (T2.get_tag() == TOK_ERROR)   return T2;
+          if (T2.get_tag() == TOK_SI_PUSHED)   // user-defined LO
              {
-                 // reduction of 0- or 1-element vector does not call
-                 // LO->eval_AB() but rather LO->eval_identity_fun() or
-                 // reshape(B). No need to handle TOK_SI_PUSHED for
-                 //  user-defined LO.
-                 //
-                 Token LO(TOK_FUN1, arg.LO);
-                 const Token T2 = Bif_OPER1_REDUCE::fun->eval_LB(LO, arg.V1);
-                 if (T2.get_tag() == TOK_ERROR)   return T2;
-
-                 arg.Z->next_ravel()->init_from_value(T2.get_apl_val(),
-                                                      arg.Z.getref(), LOC);
-
-                 ptr_clear(arg.V1, LOC);
-                 continue;
+               _arg.how = 2;   // user-defined LO
+               _arg.last_ufun = (arg.z >= _arg.items_A * _arg.items_B - 1);
+               Workspace::SI_top()->add1_eoc_handler(eoc_INNER, arg, LOC);
+               return T2;
              }
 
-          // use V2 as accumulator for LO-reduction
+          // LO was a system function. store it in Z 
           //
-          arg.V2 = arg.V1->get_ravel(ec_V1 - 1).to_value(LOC);
-          _arg.v1 = ec_V1 - 2;
+          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(),
+                                               arg.Z.getref(), LOC);
+          continue;
         }
 
-how_2:
-        for (; _arg.v1 >= 0; --_arg.v1)
-            {
-              const Token T2 = do_loop_v(arg, first);
-              if (T2.get_Class() != TC_VALUE)   return T2; // error or SI_PUSHED
-            }
-
-        arg.Z->next_ravel()->init_from_value(arg.V2, arg.Z.getref(), LOC);
-
-        ptr_clear(arg.V1, LOC);
-        ptr_clear(arg.V2, LOC);
+LO_done: ;
       }
 
    arg.Z->set_default(*arg.B.get());
  
    arg.Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, arg.Z);
-}
-//-----------------------------------------------------------------------------
-Token
-Bif_OPER2_INNER::do_loop_v(EOC_arg & arg, bool first)
-{
-INNER_PROD & _arg = arg.u.u_INNER_PROD;
-
-Value_P LO_A = arg.V1->get_ravel(_arg.v1).to_value(LOC);
-const Token T2 = arg.LO->eval_AB(LO_A, arg.V2);
-   ptr_clear(arg.V2, LOC);
-
-   if (T2.get_Class() == TC_VALUE)
-      {
-        arg.V2 = T2.get_apl_val();
-        return T2;
-      }
-
-   if (T2.get_tag() == TOK_ERROR)   return T2;
-
-   Assert (T2.get_tag() == TOK_SI_PUSHED);
-
-   // LO was a user defined function. check if this was the last call
-   //
-const ShapeItem a = arg.z / _arg.items_B;
-const ShapeItem b = arg.z % _arg.items_B;
-   if (a >= (_arg.items_A - 1) && b >= (_arg.items_B - 1))
-      {
-        Assert1(arg.LO->may_push_SI());
-        if (_arg.v1 == 0)   _arg.last_ufun = 1;
-      }
-
-   _arg.how = 2;
-   if (first)   // first call
-      Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
-   else           // subsequent call
-      Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
-
-   return T2;   // continue in user defined function...
 }
 //-----------------------------------------------------------------------------
 bool
@@ -395,9 +345,19 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
 
    // a user defined function has returned a value. Store it.
    //
-   if      (_arg.how == 1)   arg->V1 = token.get_apl_val();
-   else if (_arg.how == 2)   arg->V2 = token.get_apl_val();
-   else                      FIXME;
+   if (_arg.how == 1)
+      {
+        arg->V1 = token.get_apl_val();   // eoc for RO
+      }
+   else if (_arg.how == 2)
+      {
+        arg->Z->next_ravel()->init_from_value(token.get_apl_val(),
+                                             arg->Z.getref(), LOC);
+      }
+   else
+      {
+        FIXME;
+      }
 
    copy_1(token, finish_inner_product(*arg, false), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
