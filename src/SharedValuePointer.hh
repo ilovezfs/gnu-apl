@@ -68,6 +68,9 @@ public:
    inline Value_P(Value * val, const char * loc);
 
    /// Constructor: from other Value_P
+   inline Value_P(const Value_P & other, const char * loc);
+
+   /// Constructor: from other Value_P
    inline Value_P(const Value_P & other);
 
    /// copy operator
@@ -123,6 +126,7 @@ public:
 
    /// decrement the owner count of \b val
    static inline void decrement_owner_count(Value * & val, const char * loc);
+
    /// increment the owner count of \b val
    static inline void increment_owner_count(Value * val, const char * loc);
 

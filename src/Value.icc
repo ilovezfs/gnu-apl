@@ -105,6 +105,16 @@ inline Value_P::Value_P(Value * val, const char * loc)
    ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
+inline Value_P::Value_P(const Value_P & other, const char * loc)
+   : value_p(other.value_p)
+{
+   if (value_p)
+      {
+        increment_owner_count(value_p, loc);
+        ADD_EVENT(value_p, VHE_PtrCopy1, value_p->owner_count, loc);
+      }
+}
+//-----------------------------------------------------------------------------
 inline Value_P::Value_P(const Value_P & other)
    : value_p(other.value_p)
 {

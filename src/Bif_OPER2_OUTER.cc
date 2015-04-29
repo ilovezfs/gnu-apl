@@ -149,11 +149,6 @@ OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
    _arg.len_B = B->element_count();
    _arg.len_Z = A->element_count() * _arg.len_B;
 
-   arg.V1 = Value_P(LOC);   // helper value for scalar RO_A
-   arg.V1->set_complete();
-   arg.V2 = Value_P(LOC);   // helper value for scanar RO_B
-   arg.V2->set_complete();
-
    return finish_outer_product(arg);
 }
 //-----------------------------------------------------------------------------
@@ -162,63 +157,64 @@ Bif_OPER2_OUTER::finish_outer_product(EOC_arg & arg)
 {
 OUTER_PROD & _arg = arg.u.u_OUTER_PROD;
 
+Value_P RO_A;
+Value_P RO_B;
+
    while (++arg.z < _arg.len_Z)
       {
         const Cell * cA = &arg.A->get_ravel(arg.z / _arg.len_B);
         const Cell * cB = &arg.B->get_ravel(arg.z % _arg.len_B);
 
-   if (cA->is_pointer_cell())
-      {
-        arg.RO_A = cA->get_pointer_value();
+        if (cA->is_pointer_cell())
+           {
+             RO_A = cA->get_pointer_value();
+           }
+        else
+           {
+             RO_A = Value_P(LOC);
+             RO_A->get_ravel(0).init(*cA, RO_A.getref(), LOC);
+           }
+
+        if (cB->is_pointer_cell())
+           {
+             RO_B = cB->get_pointer_value();
+           }
+        else
+           {
+             RO_B = Value_P(LOC);
+             RO_B->get_ravel(0).init(*cB, RO_B.getref(), LOC);
+           }
+
+        Token result = arg.RO->eval_AB(RO_A, RO_B);
+
+      // if RO was a primitive function, then result may be a value.
+      // if RO was a user defined function then result may be
+      // TOK_SI_PUSHED. In both cases result could be TOK_ERROR.
+      //
+      if (result.get_Class() == TC_VALUE)
+         {
+           Value_P ZZ = result.get_apl_val();
+           arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);
+           continue;
+         }
+
+      if (result.get_tag() == TOK_ERROR)   return result;
+
+      if (result.get_tag() == TOK_SI_PUSHED)
+         {
+           // RO was a user defined function
+           //
+           if (arg.z)   // subsequent call
+              Workspace::SI_top()->move_eoc_handler(eoc_OUTER, &arg, LOC);
+           else           // first call
+              Workspace::SI_top()->add_eoc_handler(eoc_OUTER, arg, LOC);
+
+           return result;   // continue in user defined function...
+         }
+
+        Q1(result);   FIXME;
       }
-   else
-      {
-        arg.V1->get_ravel(0).init(*cA, arg.V1.getref(), LOC);
-        arg.RO_A = arg.V1;
-      }
 
-   if (cB->is_pointer_cell())
-      {
-        arg.RO_B = cB->get_pointer_value();
-      }
-   else
-      {
-        arg.V2->get_ravel(0).init(*cB, arg.V2.getref(), LOC);
-        arg.RO_B = arg.V2;
-      }
-
-   {
-     Token result = arg.RO->eval_AB(arg.RO_A, arg.RO_B);
-
-   // if RO was a primitive function, then result may be a value.
-   // if RO was a user defined function then result may be
-   // TOK_SI_PUSHED. In both cases result could be TOK_ERROR.
-   //
-   if (result.get_Class() == TC_VALUE)
-      {
-        Value_P ZZ = result.get_apl_val();
-        arg.Z->next_ravel()->init_from_value(ZZ, arg.Z.getref(), LOC);
-        continue;
-      }
-
-   if (result.get_tag() == TOK_ERROR)   return result;
-
-   if (result.get_tag() == TOK_SI_PUSHED)
-      {
-        // RO was a user defined function
-        //
-        if (arg.z)   // subsequent call
-           Workspace::SI_top()->move_eoc_handler(eoc_OUTER, &arg, LOC);
-        else           // first call
-           Workspace::SI_top()->add_eoc_handler(eoc_OUTER, arg, LOC);
-
-        return result;   // continue in user defined function...
-      }
-
-     Q1(result);   FIXME;
-   }
-
-      }
    arg.Z->set_default(*arg.B.get());
 
    arg.Z->check_value(LOC);

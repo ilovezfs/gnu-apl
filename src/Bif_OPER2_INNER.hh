@@ -74,9 +74,6 @@ protected:
    /// helper for RO. returns true if the final token was computed, and false
    /// if finish_inner_product shall be called again
    static Token finish_inner_product(EOC_arg & arg, bool first);
-
-   /// helper function to finish the reduction (LO) part of the inner product
-   static Token do_loop_v(EOC_arg & arg, bool first);
 };
 //-----------------------------------------------------------------------------
 

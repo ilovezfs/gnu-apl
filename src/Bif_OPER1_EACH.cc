@@ -63,8 +63,6 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
    _arg.dA = 1;
    _arg.dB = 1;
 
-   if (A->is_scalar() && B->is_scalar())   return LO->eval_AB(A, B);
-
    if (A->is_scalar())
       {
         _arg.count = B->element_count();
@@ -194,8 +192,6 @@ Bif_OPER1_EACH::eval_LB(Token & _LO, Value_P B)
 
 Function * LO = _LO.get_function();
    Assert1(LO);
-
-   if (B->is_scalar())   return LO->eval_B(B);
 
    if (B->is_empty())
       {

@@ -118,7 +118,7 @@ public:
          EOC_Power,        ///<  f⍣g
       };
 
-   /// constructor for dyadic derived function
+   /// constructor
    EOC_arg(Value_P vpZ, Value_P vpA, Function * lo, Function * ro, Value_P vpB)
    : handler(0),
      loc(0),
@@ -131,30 +131,55 @@ public:
      z(-1)
    { memset(&u, 0, sizeof(u)); }
 
+   /// constructor
+   EOC_arg(Value_P vpZ, Value_P vpA, Function * lo, Function * ro, Value_P vpB,
+           const char * loc)
+   : handler(0),
+     loc(0),
+     next(0),
+     Z(vpZ, loc),
+     A(vpA, loc),
+     LO(lo),
+     RO(ro),
+     B(vpB, loc),
+     z(-1)
+   { memset(&u, 0, sizeof(u)); }
+
    /// activation constructor
    EOC_arg(EOC_HANDLER h, const EOC_arg & other, const char * l)
       {
-        new (this) EOC_arg(other);
+        new (this) EOC_arg(other, l);
         handler = h;
         loc = l;
       }
+
+   /// copy constructor
+   EOC_arg(const EOC_arg & other, const char * loc)
+   : handler(other.handler),
+     loc(loc),
+     next(other.next),
+     Z(other.Z, loc),
+     A(other.A, loc),
+     LO(other.LO),
+     RO(other.RO),
+     B(other.B, loc),
+     V1(other.V1, loc),
+     z(other.z)
+   { u = other.u; }
 
    /// copy constructor
    EOC_arg(const EOC_arg & other)
    : handler(other.handler),
      loc(other.loc),
      next(other.next),
-     Z(other.Z),
-     A(other.A),
+     Z(other.Z, LOC),
+     A(other.A, LOC),
      LO(other.LO),
      RO(other.RO),
-     B(other.B),
-     V1(other.V1),
-     V2(other.V2),
-     RO_A(other.RO_A),
-     RO_B(other.RO_B),
+     B(other.B, LOC),
+     V1(other.V1, LOC),
      z(other.z)
-   { u = other.u; }
+   { u = other.u; Backtrace::show(__FILE__, __LINE__); }
 
    /// the handler
    EOC_HANDLER handler;
@@ -183,16 +208,6 @@ public:
   /// INNER_PROD: argument for LO-reduction
   /// OUTER_PROD: helper value for non-pointer left RO argument
   Value_P V1;
-
-  /// INNER_PROD: accumulator for LO-reduction
-  /// OUTER_PROD: helper value for non-pointer right RO argument
-  Value_P V2;
-
-  /// OUTER_PROD: left RO argument
-  Value_P RO_A;
-
-   /// OUTER_PROD: right RO argument
-  Value_P RO_B;
 
    /// current Z index
    ShapeItem z;
