@@ -212,12 +212,7 @@ Bif_OPER2_INNER::finish_inner_product(EOC_arg & arg, bool first)
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
    if (_arg.how == 1)   goto RO_done;
-
-   if (_arg.how == 2)
-      {
-        --_arg.v1;
-        goto LO_done;
-      }
+   if (_arg.how == 2)   goto LO_done;
 
    Assert1(_arg.how == 0);
 
@@ -287,9 +282,9 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
              _arg.how = 1;   // user-defined RO
              if (first)   // first call
-                Workspace::SI_top()->add_eoc_handler(eoc_INNER, arg, LOC);
+                Workspace::SI_top()->add_eoc_handler(eoc_RO, arg, LOC);
              else           // subsequent call
-                Workspace::SI_top()->move_eoc_handler(eoc_INNER, &arg, LOC);
+                Workspace::SI_top()->move_eoc_handler(eoc_RO, &arg, LOC);
 
              return T1;   // continue in user defined function...
            }
@@ -312,7 +307,7 @@ RO_done:
              {
                _arg.how = 2;   // user-defined LO
                _arg.last_ufun = (arg.z >= _arg.items_A * _arg.items_B - 1);
-               Workspace::SI_top()->add1_eoc_handler(eoc_INNER, arg, LOC);
+               Workspace::SI_top()->add1_eoc_handler(eoc_LO, arg, LOC);
                return T2;
              }
 
@@ -333,7 +328,7 @@ LO_done: ;
 }
 //-----------------------------------------------------------------------------
 bool
-Bif_OPER2_INNER::eoc_INNER(Token & token)
+Bif_OPER2_INNER::eoc_LO(Token & token)
 {
    if (token.get_Class() != TC_VALUE)   return false;   // stop it
 
@@ -345,19 +340,34 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
 
    // a user defined function has returned a value. Store it.
    //
-   if (_arg.how == 1)
-      {
-        arg->V1 = token.get_apl_val();   // eoc for RO
-      }
-   else if (_arg.how == 2)
-      {
-        arg->Z->next_ravel()->init_from_value(token.get_apl_val(),
-                                             arg->Z.getref(), LOC);
-      }
-   else
-      {
-        FIXME;
-      }
+   Assert(_arg.how == 2);
+   arg->Z->next_ravel()->init_from_value(token.get_apl_val(),
+                                         arg->Z.getref(), LOC);
+   copy_1(token, finish_inner_product(*arg, false), LOC);
+   if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
+
+   delete arg;
+   Workspace::SI_top()->set_eoc_handlers(next);
+   if (next)   return next->handler(token);
+
+   return false;
+}
+//-----------------------------------------------------------------------------
+bool
+Bif_OPER2_INNER::eoc_RO(Token & token)
+{
+   if (token.get_Class() != TC_VALUE)   return false;   // stop it
+
+EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
+EOC_arg * next = arg->next;
+INNER_PROD & _arg = arg->u.u_INNER_PROD;
+
+   if (!_arg.last_ufun)   Workspace::pop_SI(LOC);
+
+   // a user defined RO has returned a value. Store it.
+   //
+   Assert(_arg.how == 1);
+   arg->V1 = token.get_apl_val();   // eoc for RO
 
    copy_1(token, finish_inner_product(*arg, false), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
