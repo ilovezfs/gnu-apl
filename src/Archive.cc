@@ -1169,28 +1169,36 @@ int day   = find_int_attr("day",      false, 10);
 int hour  = find_int_attr("hour",     false, 10);
 int min   = find_int_attr("minute",   false, 10);
 int sec   = find_int_attr("second",   false, 10);
-const UTF8 * saving_SVN = find_attr("saving_SVN", true);
+
+UCS_string saving_SVN;
+UCS_string current_SVN(ARCHIVE_SVN);
+   {
+     const UTF8 * saving = find_attr("saving_SVN", true);
+     while (saving && *saving != '"')   saving_SVN.append(Unicode(*saving++));
+   }
 bool mismatch = false;
 
-   if (saving_SVN == 0)   // saved with very old version
+   if (saving_SVN.size() == 0)   // saved with very old version
       {
         mismatch = true;
         CERR << "WARNING: this workspace was )SAVEd with a VERY "
-             << "old version of GNU APL." << endl;
+             << "old SVN version of GNU APL." << endl;
       }
-   else if (strcmp(ARCHIVE_SVN, (const char *)saving_SVN))   // other version
+   else if (saving_SVN != current_SVN)   // saved with different version
       {
         mismatch = true;
         CERR << "WARNING: this workspace was )SAVEd with SVN version "
              << saving_SVN << endl <<
-                " but is now being loaded with SVN version "
-             << ARCHIVE_SVN << endl;
+                "          but is now being )LOADed with SVN version "
+             << current_SVN << endl;
       }
 
    if (mismatch)
       {
         CERR << "Expect problems, in particular when the )SI was not clear.\n";
-        if (!copying)   CERR << "You better use )COPY in this case" << endl;
+        if (!copying)
+           CERR << "In case of problems, please try )COPY instead off )LOAD."
+                << endl;
       }
 
    sec  += offset          % 60;
@@ -1963,6 +1971,7 @@ XML_Loading_Archive::read_Execute()
 {
    next_tag(LOC);
    expect_tag("UCS", LOC);
+
 const UTF8 * uni = find_attr("uni", false);
 UCS_string text;
    while (*uni != '"')   read_chars(text, uni);
@@ -2249,12 +2258,12 @@ const int fun_id = find_int_attr(id_attr, true, 16);
    if (fun_id != -1)
       {
         Function * sysfun = ID::get_system_function(ID::Id(fun_id));
-        Assert1(sysfun);
+        Assert(sysfun);
         return sysfun;
       }
 
    // not found. This can happen when the function is optional, like
-   // LO and RO functios in EOC
+   // LO and RO functios in EOC handlers
    //
    return 0;
 }

@@ -65,7 +65,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    if (A->is_scalar())
       {
-        _arg.count = B->element_count();
+        _arg.len_Z = B->element_count();
 
         _arg.dA = 0;
         if (LO->has_result())
@@ -74,13 +74,13 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
    else if (B->is_scalar())
       {
         _arg.dB = 0;
-        _arg.count = A->element_count();
+        _arg.len_Z = A->element_count();
         if (LO->has_result())
            arg.Z = Value_P(A->get_shape(), LOC);
       }
    else if (A->same_shape(*B))
       {
-        _arg.count = B->element_count();
+        _arg.len_Z = B->element_count();
         if (LO->has_result())
            arg.Z = Value_P(A->get_shape(), LOC);
       }
@@ -98,7 +98,7 @@ Bif_OPER1_EACH::finish_eval_ALB(EOC_arg & arg)
 {
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   while (++arg.z < _arg.count)
+   while (++arg.z < _arg.len_Z)
       {
         const Cell * cA = &arg.A->get_ravel(_arg.dA * arg.z);
         const Cell * cB = &arg.B->get_ravel(_arg.dB * arg.z);
@@ -173,7 +173,7 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
           new (cZ)   PointerCell(vZ, arg->Z.getref());
       }
 
-   if (arg->z < (_arg.count - 1))   Workspace::pop_SI(LOC);
+   if (arg->z < (_arg.len_Z - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_ALB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -209,7 +209,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    if (LO->has_result())   arg.Z = Value_P(B->get_shape(), LOC);
 
-   _arg.count = B->element_count();
+   _arg.len_Z = B->element_count();
 
    return finish_eval_LB(arg);
 }
@@ -219,7 +219,7 @@ Bif_OPER1_EACH::finish_eval_LB(EOC_arg & arg)
 {
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
-   while (++arg.z < _arg.count)
+   while (++arg.z < _arg.len_Z)
       {
         if (arg.LO->get_fun_valence() == 0)
            {
@@ -353,7 +353,7 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
            new (cZ)   PointerCell(vZ, arg->Z.getref());
       }
 
-   if (arg->z < (_arg.count - 1))   Workspace::pop_SI(LOC);
+   if (arg->z < (_arg.len_Z - 1))   Workspace::pop_SI(LOC);
 
    copy_1(token, finish_eval_LB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue

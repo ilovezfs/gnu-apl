@@ -43,7 +43,6 @@ struct INNER_PROD
 {
   ShapeItem items_A;     ///< number of cells in A1
   ShapeItem items_B;     ///< number of cells in B1
-  ShapeItem v1;          ///< current LO index
   ShapeItem how;         ///< how to continue in finish_inner_product()
   ShapeItem last_ufun;   ///< true for the last user defined function call
 };
@@ -68,8 +67,8 @@ struct EACH_ALB
 {
   ShapeItem dA;       ///< cA increment (0 or 1)
   ShapeItem dB;       ///< cB increment (0 or 1)
-  ShapeItem count;   ///< number of iterations
-  ShapeItem sub;          ///< create a PointerCell
+  ShapeItem len_Z;    ///< number of iterations
+  ShapeItem sub;      ///< create a PointerCell
 };
 
 /// arguments of the EOC handler for (A) f⍤[X] B
@@ -110,7 +109,8 @@ public:
          EOC_Quad_EC,      ///<  ⎕EC
          EOC_Quad_INP,     ///<  ⎕INP
          EOC_Outer_Prod,   ///<  ∘.f
-         EOC_Inner_Prod,   ///<  f.g
+         EOC_Inner_LO,     ///<  f of f.g
+         EOC_Inner_RO,     ///<  g of f.g
          EOC_Reduce,       ///<  f/
          EOC_Each_AB,      ///<  A f¨ B
          EOC_Each_B,       ///<  f¨ B

@@ -53,7 +53,7 @@ public:
 #define sf(i, _u, v)          i v,
 #define st(i, _u, v)          i v,
 
-   #include "Id.def"
+#include "Id.def"
    };
 
    /// return the printable name for id

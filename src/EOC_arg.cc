@@ -36,7 +36,8 @@ EOC_arg::get_EOC_type(EOC_HANDLER handler)
    if (handler == Quad_EC::eoc)                 return EOC_Quad_EC;
    if (handler == Quad_INP::eoc_INP)            return EOC_Quad_INP;
    if (handler == Bif_OPER2_OUTER::eoc_OUTER)   return EOC_Outer_Prod;
-   if (handler == Bif_OPER2_INNER::eoc_INNER)   return EOC_Inner_Prod;
+   if (handler == Bif_OPER2_INNER::eoc_LO)      return EOC_Inner_LO;
+   if (handler == Bif_OPER2_INNER::eoc_RO)      return EOC_Inner_RO;
    if (handler == Bif_REDUCE::eoc_REDUCE)       return EOC_Reduce;
    if (handler == Bif_OPER1_EACH::eoc_ALB)      return EOC_Each_AB;
    if (handler == Bif_OPER1_EACH::eoc_LB)       return EOC_Each_B;
@@ -57,7 +58,8 @@ EOC_arg::get_EOC_handler(EOC_type type)
         case EOC_Quad_EC:    return Quad_EC::eoc;
         case EOC_Quad_INP:   return Quad_INP::eoc_INP;
         case EOC_Outer_Prod: return Bif_OPER2_OUTER::eoc_OUTER;
-        case EOC_Inner_Prod: return Bif_OPER2_INNER::eoc_INNER;
+        case EOC_Inner_LO:   return Bif_OPER2_INNER::eoc_LO;
+        case EOC_Inner_RO:   return Bif_OPER2_INNER::eoc_LO;
         case EOC_Reduce:     return Bif_REDUCE::eoc_REDUCE;
         case EOC_Each_AB:    return Bif_OPER1_EACH::eoc_ALB;
         case EOC_Each_B:     return Bif_OPER1_EACH::eoc_LB;

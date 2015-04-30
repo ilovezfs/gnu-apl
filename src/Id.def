@@ -104,7 +104,7 @@ qf( INP           , "⎕INP"    ,          )
 sf( F2_INTER      , "∩"       ,          )
 sf( OPER2_INNER   , "."       ,          )
 
-st( JOT           , "∘"       , = 0x4A01 )
+sf( JOT           , "∘"       , = 0x4A01 )
 
 qv( L             , "⎕L"      , = 0x4C01 )
 st( L_BRACK       , "["       ,          )
