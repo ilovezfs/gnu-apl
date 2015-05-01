@@ -434,7 +434,6 @@ StateIndicator::unmark_all_values() const
          if (!!eoc->Z)      eoc->Z   ->unmark();
          if (!!eoc->A)      eoc->A   ->unmark();
          if (!!eoc->B)      eoc->B   ->unmark();
-         if (!!eoc->V1)     eoc->V1  ->unmark();
        }
 }
 //-----------------------------------------------------------------------------

@@ -191,6 +191,9 @@ public:
    static Bif_F12_PARTITION * fun;   ///< Built-in function
    static Bif_F12_PARTITION  _fun;   ///< Built-in function
 
+   /// enclose_with_axes
+   static Value_P enclose_with_axes(const Shape & shape_X, Value_P B);
+
 protected:
    /// enclose B
    Token enclose(Value_P B);
