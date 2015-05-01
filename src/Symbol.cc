@@ -286,6 +286,8 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
    while (!mult.done())
       {
         const ShapeItem offset_A = mult.next();
+        if (offset_A < 0)                     INDEX_ERROR;
+        if (offset_A >= A->element_count())   INDEX_ERROR;
         Cell & dest = A->get_ravel(offset_A);
         dest.release(LOC);   // free sub-values etc (if any)
         dest.init(*cB, A.getref(), LOC);
