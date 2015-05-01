@@ -20,6 +20,7 @@
 
 #include "Bif_OPER2_INNER.hh"
 #include "Bif_OPER1_REDUCE.hh"
+#include "PointerCell.hh"
 #include "Workspace.hh"
 
 Bif_OPER2_INNER   Bif_OPER2_INNER::_fun;
@@ -168,8 +169,9 @@ Value_P Z(shape_A1 + shape_B1, LOC);
    // functions. This case can be implemented in a far simpler fashion than
    // the general case.
    //
-   if (LO->get_scalar_f2() && RO->get_scalar_f2() &&
-       A->is_simple() && B->is_simple() && len_A)
+   job.LO = LO->get_scalar_f2();
+   job.RO = RO->get_scalar_f2();
+   if (job.LO && job.RO && A->is_simple() && B->is_simple() && len_A)
       {
         if (len_A != len_B &&
             !(A->is_scalar() || B->is_scalar()))   LENGTH_ERROR;
@@ -178,9 +180,7 @@ Value_P Z(shape_A1 + shape_B1, LOC);
         job.cA     = &A->get_ravel(0);
         job.incA   = A->is_scalar() ? 0 : 1;
         job.ZAh    = items_A;
-        job.LO     = LO->get_scalar_f2();
         job.LO_len = A->is_scalar() ? len_B : len_A;
-        job.RO     = RO->get_scalar_f2();
         job.cB     = &B->get_ravel(0);
         job.incB   = B->is_scalar() ? 0 : 1;
         job.ZBl    = items_B;
@@ -197,7 +197,25 @@ Value_P Z(shape_A1 + shape_B1, LOC);
 
 EOC_arg arg(Z, A, LO, RO, B, LOC);
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
+   _arg.A_enclosed = arg.A->get_rank() > 1;
+   _arg.B_enclosed = arg.B->get_rank() > 1;
 
+   // enclose last axis of A if necessary
+   //
+   if (_arg.A_enclosed)
+      {
+        const Shape last_axis(A->get_rank() - 1);
+        arg.A = Bif_F12_PARTITION::enclose_with_axes(last_axis, A);
+      }
+   
+   // enclose first axis of B if necessary
+   //
+   if (_arg.B_enclosed)
+      {
+        const Shape first_axis(0);
+        arg.B = Bif_F12_PARTITION::enclose_with_axes(first_axis, B);
+      }
+   
    _arg.items_A = items_A;
    _arg.items_B = items_B;
 
@@ -222,85 +240,62 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
           const ShapeItem a = arg.z / _arg.items_B;
           const ShapeItem b = arg.z % _arg.items_B;
 
-          const ShapeItem len_A = arg.A->is_scalar()
-                                ? 1 : arg.A->get_last_shape_item();
-          Value_P AA(len_A, LOC);
-          {
-            const ShapeItem inc_A = arg.A->is_scalar() ? 0 : 1;
-            ShapeItem src = a*len_A;
-            loop(j, len_A)   // make AA row(_arg.a) of A
-                {
-                  AA->next_ravel()->init(arg.A->get_ravel(src),
-                                         AA.getref(), LOC);
-                  src += inc_A;
-                }
-            if (len_A == 0)  AA->get_ravel(0).init(arg.A->get_ravel(0),
-                                                   AA.getref(), LOC);
+          Value_P RO_A(arg.A, LOC);
+          if (_arg.A_enclosed)
+             {
+               RO_A = arg.A->get_ravel(a).get_pointer_value();
+             }
 
-            AA->set_default(*arg.A.get());
-            AA->check_value(LOC);
-          }
+          Value_P RO_B(arg.B, LOC);
+          if (_arg.B_enclosed)
+             {
+               RO_B = arg.B->get_ravel(b).get_pointer_value();
+             }
 
-          const ShapeItem len_B = arg.B->is_scalar()
-                                ? 1 : arg.B->get_shape_item(0);
-          Value_P BB(len_B, LOC);   // make BB column(_arg.b) of B
-          {
-            const ShapeItem inc_B = arg.A->is_scalar() ? 0 : _arg.items_B;
-            ShapeItem src = b;
-            loop(j, len_B)
-                {
-                  BB->next_ravel()->init(arg.B->get_ravel(src),
-                                         BB.getref(), LOC);
-                  src += inc_B;
-                }
-            if (len_B == 0)   BB->get_ravel(0).init(arg.B->get_ravel(0),
-                                                    BB.getref(), LOC);
+          const Token T1 = arg.RO->eval_AB(RO_A, RO_B);
 
-            BB->set_default(*arg.B.get());
-            BB->check_value(LOC);
-          }
+          if (T1.get_tag() == TOK_ERROR)   return T1;
 
-        const Token T1 = arg.RO->eval_AB(AA, BB);
+          if (T1.get_tag() == TOK_SI_PUSHED)
+             {
+               // RO is a user defined function. If LO is also user defined
+               // then the context pushed is not the last user defined function
+               // call for this operator. Otherwise it may or may not be the
+               //  last call.
+               //
+               if (a >= (_arg.items_A - 1) && b >= (_arg.items_B - 1))
+                  {
+                    // at this point, the last ravel element of Z is being
+                    // computed. If LO is not user defined, then this call is
+                    // the last user defined function call.
+                    // Otherwise the LO-call below will be the last.
+                    //
+                    if (!arg.LO->may_push_SI())   _arg.last_ufun = 1;
+                  }
 
-        if (T1.get_tag() == TOK_ERROR)   return T1;
+               _arg.how = 1;   // user-defined RO
+               if (first)   // first call
+                  Workspace::SI_top()->add_eoc_handler(eoc_RO, arg, LOC);
+               else           // subsequent call
+                  Workspace::SI_top()->move_eoc_handler(eoc_RO, &arg, LOC);
 
-        if (T1.get_tag() == TOK_SI_PUSHED)
-           {
-             // RO is a user defined function. If LO is also user defined then
-             // the context pushed is not the last user defined function call
-             // for this operator. Otherwise it may or may not be the last call.
-             //
-             if (a >= (_arg.items_A - 1) && b >= (_arg.items_B - 1))
-                {
-                  // at this point, the last ravel element of Z is being
-                  // computed. If LO is not user defined, then this call is the
-                  // last user defined function call.
-                  // Otherwise the LO-call below will be the last.
-                  //
-                  if (!arg.LO->may_push_SI())   _arg.last_ufun = 1;
-                }
+               return T1;   // continue in user defined function...
+             }
 
-             _arg.how = 1;   // user-defined RO
-             if (first)   // first call
-                Workspace::SI_top()->add_eoc_handler(eoc_RO, arg, LOC);
-             else           // subsequent call
-                Workspace::SI_top()->move_eoc_handler(eoc_RO, &arg, LOC);
-
-             return T1;   // continue in user defined function...
-           }
-
-          // RO was a system function. Set V1 to the value returned by RO.
+          // RO was a system function. Set Z[z] ← A[a] RO B1[b]
           //
-          arg.V1 = T1.get_apl_val();   // V1 is A[a] RO B1[b]
+          Value_P A_RO_B = T1.get_apl_val();
+          new (arg.Z->next_ravel()) PointerCell(A_RO_B, arg.Z.getref());
         }
 
 RO_done:
-        // at this point arg.V1 is the result of a system- or user-defined
-        // function RO. Compute LO/V1.
+        // at this point Z[z] is the result of a system- or user-defined
+        // function RO. Compute LO/Z[z].
         {
           Token LO(TOK_FUN1, arg.LO);
-          const Token T2 = Bif_OPER1_REDUCE::fun->eval_LB(LO, arg.V1);
-          ptr_clear(arg.V1, LOC);
+          Value_P ZZ = arg.Z->get_ravel(arg.z).get_pointer_value();
+          const Token T2 = Bif_OPER1_REDUCE::fun->eval_LB(LO, ZZ);
+          arg.Z->get_ravel(arg.z).release(LOC);
 
           if (T2.get_tag() == TOK_ERROR)   return T2;
           if (T2.get_tag() == TOK_SI_PUSHED)   // user-defined LO
@@ -313,9 +308,8 @@ RO_done:
 
           // LO was a system function. store it in Z 
           //
-          arg.Z->next_ravel()->init_from_value(T2.get_apl_val(),
+          arg.Z->get_ravel(arg.z).init_from_value(T2.get_apl_val(),
                                                arg.Z.getref(), LOC);
-          continue;
         }
 
 LO_done: ;
@@ -341,7 +335,7 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
    // a user defined function has returned a value. Store it.
    //
    Assert(_arg.how == 2);
-   arg->Z->next_ravel()->init_from_value(token.get_apl_val(),
+   arg->Z->get_ravel(arg->z).init_from_value(token.get_apl_val(),
                                          arg->Z.getref(), LOC);
    copy_1(token, finish_inner_product(*arg, false), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
@@ -367,7 +361,8 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
    // a user defined RO has returned a value. Store it.
    //
    Assert(_arg.how == 1);
-   arg->V1 = token.get_apl_val();   // eoc for RO
+Value_P A_RO_B = token.get_apl_val();
+   new (arg->Z->next_ravel()) PointerCell(A_RO_B, arg->Z.getref());
 
    copy_1(token, finish_inner_product(*arg, false), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue

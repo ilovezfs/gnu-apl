@@ -1693,6 +1693,15 @@ Value_P Z(LOC);
 Token
 Bif_F12_PARTITION::eval_XB(Value_P X, Value_P B)
 {
+const Shape shape_X = X->to_shape();
+
+Value_P Z = enclose_with_axes(shape_X, B);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+Value_P
+Bif_F12_PARTITION::enclose_with_axes(const Shape & shape_X, Value_P B)
+{
 Shape item_shape;
 Shape it_weight;
 Shape shape_Z;
@@ -1703,7 +1712,6 @@ const Shape weight_B = B->get_shape().reverse_scan();
    // put the dimensions mentioned in X into item_shape and the
    // others into shape_Z
    //
-   Shape shape_X = X->to_shape();
 
    loop(r, B->get_rank())        // the axes not in shape_X
        {
@@ -1731,7 +1739,7 @@ const Shape weight_B = B->get_shape().reverse_scan();
       {
         //  ⊂[⍳0]B   ←→   ⊂¨B
         Token part(TOK_FUN1, Bif_F12_PARTITION::fun);
-        return Bif_OPER1_EACH::fun->eval_LB(part, B);
+        return Bif_OPER1_EACH::fun->eval_LB(part, B).get_apl_val();
       }
 
 Value_P Z(shape_Z, LOC);
@@ -1739,28 +1747,36 @@ Value_P Z(shape_Z, LOC);
       {
          Z->set_default(*B.get());
          Z->check_value(LOC);
-         return Token(TOK_APL_VALUE1, Z);
+         return Z;
       }
 
    for (ArrayIterator it_Z(shape_Z); !it_Z.done(); ++it_Z)
       {
-        const ShapeItem off_Z = it_Z.multiply(weight_Z);   // offset in B
+        const ShapeItem off_Z = it_Z.multiply(weight_Z);   // offset in Z
 
         Value_P vZ(item_shape, LOC);
         new (Z->next_ravel()) PointerCell(vZ, Z.getref());
 
-        Cell * dst_it = &vZ->get_ravel(0);
-        for (ArrayIterator it_it(item_shape); !it_it.done(); ++it_it)
+        if (item_shape.is_empty())
            {
-             const ShapeItem off_it = it_it.multiply(it_weight);  // offset in B
-             dst_it++->init(B->get_ravel(off_Z + off_it), vZ.getref(), LOC);
+             vZ->get_ravel(0).init(B->get_ravel(0), vZ.getref(), LOC);
+           }
+        else
+           {
+             for (ArrayIterator it_it(item_shape); !it_it.done(); ++it_it)
+                 {
+                   const ShapeItem off_B =  // offset in B
+                         it_it.multiply(it_weight);
+                   vZ->next_ravel()->init(B->get_ravel(off_Z + off_B),
+                                                       vZ.getref(), LOC);
+                 }
            }
 
         vZ->check_value(LOC);
       }
 
    Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+   return Z;
 }
 //-----------------------------------------------------------------------------
 Token

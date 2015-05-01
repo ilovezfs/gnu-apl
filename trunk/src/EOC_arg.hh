@@ -44,7 +44,9 @@ struct INNER_PROD
   ShapeItem items_A;     ///< number of cells in A1
   ShapeItem items_B;     ///< number of cells in B1
   ShapeItem how;         ///< how to continue in finish_inner_product()
-  ShapeItem last_ufun;   ///< true for the last user defined function call
+  bool      last_ufun;   ///< true for the last user defined function call
+  bool      A_enclosed;   ///< true if A was enclosed
+  bool      B_enclosed;   ///< true if B was enclosed
 };
 
 /// arguments of the EOC handler for one f/B result cell
@@ -163,7 +165,6 @@ public:
      LO(other.LO),
      RO(other.RO),
      B(other.B, loc),
-     V1(other.V1, loc),
      z(other.z)
    { u = other.u; }
 
@@ -177,7 +178,6 @@ public:
      LO(other.LO),
      RO(other.RO),
      B(other.B, LOC),
-     V1(other.V1, LOC),
      z(other.z)
    { u = other.u; Backtrace::show(__FILE__, __LINE__); }
 
@@ -204,10 +204,6 @@ public:
 
    /// right value argument
    Value_P B;
-
-  /// INNER_PROD: argument for LO-reduction
-  /// OUTER_PROD: helper value for non-pointer left RO argument
-  Value_P V1;
 
    /// current Z index
    ShapeItem z;

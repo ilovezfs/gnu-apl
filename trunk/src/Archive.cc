@@ -470,7 +470,6 @@ int count = 99;   // force new line
    save_EOC_function("LO",    eoc.LO,         count);
    save_EOC_function("RO",    eoc.RO,         count);
    save_EOC_value("vid-B",    eoc.B.get(),    count);
-   save_EOC_value("vid-V1",   eoc.V1.get(),   count);
    --indent;
 
    out << "/>" << endl;
@@ -763,10 +762,6 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 "                    <!ATTLIST EOC RO-level       CDATA #IMPLIED>\n"
 "                    <!ATTLIST EOC RO-id          CDATA #IMPLIED>\n"
 "                    <!ATTLIST EOC vid-B          CDATA #IMPLIED>\n"
-"                    <!ATTLIST EOC vid-V1         CDATA #IMPLIED>\n"
-"                    <!ATTLIST EOC vid-V2         CDATA #IMPLIED>\n"
-"                    <!ATTLIST EOC vid-RO-A       CDATA #IMPLIED>\n"
-"                    <!ATTLIST EOC vid-RO-B       CDATA #IMPLIED>\n"
 "\n"
 "]>\n"
 "\n"
@@ -1197,7 +1192,7 @@ bool mismatch = false;
       {
         CERR << "Expect problems, in particular when the )SI was not clear.\n";
         if (!copying)
-           CERR << "In case of problems, please try )COPY instead off )LOAD."
+           CERR << "In case of problems, please try )COPY instead of )LOAD."
                 << endl;
       }
 
@@ -2090,7 +2085,6 @@ const char * data = (const char * )find_attr("data", true);
    read_EOC_function(true,    eoc->LO);
    read_EOC_function(false,   eoc->RO);
    read_EOC_value("vid-B",    eoc->B);
-   read_EOC_value("vid-V1",   eoc->V1);
 
    return eoc;
 }
