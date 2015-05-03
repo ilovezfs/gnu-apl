@@ -1478,6 +1478,7 @@ const bool trace = (at0().get_int_val() & 1) != 0;
 
    pop_and_discard();   // pop END
 Token B = pop().tok;    // pop B
+   si.fun_oper_cache.reset();
    si.statement_result(B, trace);
 
    action = RA_PUSH_NEXT;
@@ -1495,6 +1496,8 @@ Prefix::reduce_END_GOTO_B_()
    Assert1(prefix_len == 3);
 
    if (size() != 3)   syntax_error(LOC);
+
+   si.fun_oper_cache.reset();
 
    // at0() is either TOK_END or TOK_ENDL.
    //
@@ -1587,6 +1590,8 @@ Prefix::reduce_END_GOTO__()
    Assert1(prefix_len == 2);
 
    if (size() != 2)   syntax_error(LOC);
+
+   si.fun_oper_cache.reset();
 
 const bool trace = at0().get_Class() == TC_END &&
                   (at0().get_int_val() & 1) != 0;
