@@ -914,7 +914,6 @@ UCS_string line;
           --arg->z;
         }
 
-
         const ShapeItem diff = line.size() - _arg.prefix_len;   // split point
         UCS_string suffix;
         if (diff > 0)
@@ -1013,6 +1012,7 @@ UCS_string end_marker;
                            {
                              const int rest = e2_pos + esc2.size();
                              line = UCS_string(exec, rest, exec.size() - rest);
+                             new_last_line.append(line);   // append the rest
                              exec.shrink(e2_pos);
                            }
                       }

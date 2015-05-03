@@ -84,6 +84,8 @@ xAPL_TAR←xFTP_GNU, '/', xTARFILE
 xMAIL_GNU←'gnu@gnu.org'
 xMAIL_WEB←'bug-apl@gnu.org'
 xMAIL_APL←'bug-apl@gnu.org'
+xMAIL_APL_ARCHIVE←'http://lists.gnu.org/archive/html/bug-apl/'
+xMAIL_APL_SUBSCRIBE←'https://lists.gnu.org/mailman/listinfo/bug-apl'
 xSVN_APL←'https://savannah.gnu.org/svn/?group=apl'
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
@@ -240,7 +242,9 @@ errors that you find in GNU APL to
 The emails that we like the most are those that include a small example of
  how to reproduce the fault. You can see all previous postings to this mailing
 list at 
-<?apl HTML∆x2y 'http://lists.gnu.org/archive/html/bug-apl/' HTML∆A "<B>http://lists.gnu.org/archive/html/bug-apl</B>" ?>.
+<?apl HTML∆x2y xMAIL_APL_ARCHIVE HTML∆A "<B>", xMAIL_APL_ARCHIVE,"</B>" ?>
+or subscribe to it at 
+<?apl HTML∆x2y xMAIL_APL_SUBSCRIBE HTML∆A "<B>", xMAIL_APL_SUBSCRIBE,"</B>" ?>
 </DIV>
 <DIV class="c5">
 <?apl HTML∆H2[''] 'Documentation' ?>
