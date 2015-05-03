@@ -237,6 +237,13 @@ char cc[80];
                  space -= leave_char_mode();
                  {
                    Cell * cp = cell.get_lval_value();
+                   if (cp == 0)
+                      {
+                        // 0-cell-pointer
+                        snprintf(cc, sizeof(cc), "0");
+                        NEED(2) << UNI_PAD_U7 << "0" << decr(--space, cc);
+                        break;
+                      }
                    const int vid = find_owner(cp);
                    const Value & val = values[vid]._val;
                    const ShapeItem offset = val.get_offset(cp);
@@ -819,7 +826,8 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
                  }
               else if (cP->is_lval_cell())
                  {
-CERR << "LVAL CELL in " << p << " at " LOC << endl;
+                   Log(LOG_archive)
+                      CERR << "LVAL CELL in " << p << " at " LOC << endl;
                  }
               ++cP;
             }
@@ -1483,18 +1491,24 @@ const Unicode type = UTF8_string::toUni(first, len);
 
         case UNI_PAD_U7: // cellref
              first += len;
-             {
-               char * end = 0;
-               const int vid = strtol((const char *)first, &end, 16);
-               Assert(vid >= 0);
-               Assert(vid < (int)values.size());
-               Assert(*end == '[');   ++end;
-               const ShapeItem offset = strtoll(end, &end, 16);
-               Assert(*end == ']');   ++end;
-               new (C++) LvalCell(&values[vid]->get_ravel(offset),
-                                  values[vid].get());
-               first = (const UTF8 *)end;
-             }
+             if (first[0] == '0')    // 0-cell-pointer
+                {
+                  new (C++) LvalCell(0, 0);
+                  first++;
+                }
+             else
+                {
+                  char * end = 0;
+                  const int vid = strtol((const char *)first, &end, 16);
+                  Assert(vid >= 0);
+                  Assert(vid < (int)values.size());
+                  Assert(*end == '[');   ++end;
+                  const ShapeItem offset = strtoll(end, &end, 16);
+                  Assert(*end == ']');   ++end;
+                  new (C++) LvalCell(&values[vid]->get_ravel(offset),
+                                     values[vid].get());
+                  first = (const UTF8 *)end;
+                }
              break;
 
         default: Q1(type) Q1(line_no) DOMAIN_ERROR;
