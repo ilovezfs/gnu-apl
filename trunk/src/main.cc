@@ -32,19 +32,11 @@
 #include "Common.hh"
 #include "IO_Files.hh"
 #include "LibPaths.hh"
-#include "LineInput.hh"
-#include "Logging.hh"
 #include "makefile.h"
 #include "Output.hh"
 #include "NativeFunction.hh"
-#include "Parallel.hh"
-#include "Prefix.hh"
-#include "ProcessorID.hh"
-#include "Quad_SVx.hh"
-#include "ValueHistory.hh"
 #include "Workspace.hh"
 #include "UserPreferences.hh"
-#include "Value.icc"
 
 static const char * build_tag[] = { BUILDTAG, 0 };
 

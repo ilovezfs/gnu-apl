@@ -26,6 +26,11 @@
 #include "SystemVariable.hh"
 #include "UserPreferences.hh"
 
+#if !PARALLEL_ENABLED
+#define sem_getvalue(x, y) *y = 1
+#define sem_init(x, y, z)
+#endif // PARALLEL_ENABLED
+
 Thread_context * Thread_context::thread_contexts = 0;
 CoreCount Thread_context::thread_contexts_count = CCNT_0;
 Thread_context::PoolFunction * Thread_context::do_work = &Thread_context::PF_no_work;
