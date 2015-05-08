@@ -437,14 +437,13 @@ Token_string tos;
          return tos[0].get_sym_ptr()->get_name();   // valid 2⎕TF
       }
 
-   // Try ⎕FX fun-text
+   // Try dyadic ⎕FX (native function)
    //
-   if (tos.size() == 3)   // native function
+   if (tos.size() == 3                   &&
+       tos[0].get_Class() == TC_VALUE    &&
+       tos[1].get_tag()   == TOK_Quad_FX &&
+       tos[2].get_Class() == TC_VALUE)
       {
-        if (tos[0].get_Class() != TC_VALUE)    return UCS_string();
-        if (tos[1].get_tag() != TOK_Quad_FX)   return UCS_string();
-        if (tos[2].get_Class() != TC_VALUE)    return UCS_string();
-
         Value_P fname   =  tos[0].get_apl_val();
         Value_P so_path =  tos[2].get_apl_val();
 
@@ -458,23 +457,38 @@ Token_string tos;
         return UCS_string();
       }
 
-   if (tos.size() != 2)                   return UCS_string();
+   // at this point we should have ⎕FX Value ...
+   //
+   if (tos.size() < 2)                    return UCS_string();
    if (tos[0].get_tag() != TOK_Quad_FX)   return UCS_string();
-   if (tos[1].get_Class() != TC_VALUE)    return UCS_string();
+   for (ShapeItem t = 1; t < tos.size(); ++t)
+       {
+         if (tos[t].get_Class() != TC_VALUE)   return UCS_string();
+       }
 
-   {
-     Value_P function_text =  tos[1].get_apl_val();
-     static const int eprops[] = { 0, 0, 0, 0 };
+Value_P function_text =  tos[1].get_apl_val();
+   if (tos.size() > 2)
+      {
+        function_text = Value_P(tos.size() - 1, LOC);
+        for (ShapeItem t = 1; t < tos.size(); ++t)
+            {
+              Value_P line = tos[t].get_apl_val();
+              function_text->next_ravel()->init(line->get_ravel(0),
+                                                function_text.getref(), LOC);
+               tos[t].extract_apl_val(LOC);
+            }
+          
+      }
 
-     const Token tok = Quad_FX::do_quad_FX(eprops, function_text,
-                                           UTF8_string("2 ⎕TF"), true);
+static const int eprops[] = { 0, 0, 0, 0 };
+const Token tok = Quad_FX::do_quad_FX(eprops, function_text,
+                                      UTF8_string("2 ⎕TF"), true);
 
    if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
       {
-        Value_P val = tok.get_apl_val();
+        Value_P val = tok.get_apl_val();   // the name of the function
         return UCS_string(*val.get());
       }
-   }
 
    return UCS_string();
 }
@@ -658,8 +672,9 @@ bool have_parenth = tf2_shape(ucs, value->get_shape());
 void
 Quad_TF::tf2_simplify(Token_string & tos)
 {
-   for (bool progress = true; progress; progress = false)
+   for (bool progress = true; progress;)
        {
+         progress = false;
          tf2_remove_UCS(tos);
          tf2_remove_RHO(tos, progress);
          tf2_remove_COMMA(tos, progress);
@@ -672,26 +687,21 @@ void
 Quad_TF::tf2_remove_UCS(Token_string & tos)
 {
 ShapeItem skipped = 0;
-bool ucs_active = false;
 
    loop(s, tos.size())
       {
         if (s < (tos.size() - 1) && tos[s].get_tag() == TOK_Quad_UCS)
            {
-             ucs_active = true;
-             s += 1;     skipped += 1;    // skip A ⍴
-             continue;
+             s += 1;     skipped += 1;    // skip ⎕UCS
+             for (; s < tos.size() && tos[s].get_Class() == TC_VALUE; ++s)
+                {
+                  tos[s].get_apl_val()->toggle_UCS();
+                  move_1(tos[s - skipped], tos[s], LOC);
+                }
            }
 
-        if (skipped)   // dont copy to itself
-           move_1(tos[s - skipped], tos[s], LOC);
+        if (skipped)   move_1(tos[s - skipped], tos[s], LOC);
 
-        if (ucs_active)   // translate
-           {
-              Assert(tos[s - skipped].get_Class() == TC_VALUE);
-              tos[s - skipped].get_apl_val()->toggle_UCS();
-              ucs_active = false;
-           }
       }
 
    if (skipped)   tos.shrink(tos.size() - skipped);
@@ -753,25 +763,53 @@ ShapeItem skipped = 0;
 
    loop(s, tos.size())
       {
-        // we replace , B by B reshaped
+        // we replace , B by B reshaped or A , B by AB
         //
-        if (s >= (tos.size() - 1)                   ||
-            tos[s    ].get_tag()   != TOK_F12_COMMA ||   // ,
-            tos[s + 1].get_Class() != TC_VALUE)          // B 
+        if (s < (tos.size() - 1)                    &&
+            tos[s    ].get_tag()   == TOK_F12_COMMA &&   // ,
+            tos[s + 1].get_Class() == TC_VALUE)          // B 
            {
-             if (skipped)   // dont copy to itself
-                move_1(tos[s - skipped], tos[s], LOC);
+             const ShapeItem d_1 = s - skipped - 1;
+             if (s > 0 && tos[d_1].get_tag() == TOK_R_PARENT)   // value to be
+                {
+                  // TOK_R_PARENT will become a value: just copy it for now
+                  //
+                  if (skipped)   move_1(tos[s - skipped], tos[s], LOC);
+                  continue;
+                }
+
+             if (s > 0 && tos[d_1].get_Class() == TC_VALUE)   // value
+                {
+                  Value_P A = tos[d_1].get_apl_val();
+                  Value_P B = tos[s + 1].get_apl_val();
+                  Assert(A->get_rank() <= 1);
+                  Assert(B->get_rank() <= 1);
+                  Value_P Z(A->element_count() + B->element_count(), LOC);
+                  loop(a, A->element_count())
+                     Z->next_ravel()->init(A->get_ravel(a), Z.getref(), LOC);
+                  loop(b, B->element_count())
+                     Z->next_ravel()->init(B->get_ravel(b), Z.getref(), LOC);
+
+                  tos[s + 1].clear(LOC);
+                  Token tok_AB(TOK_APL_VALUE1, Z);
+                  move_2(tos[d_1], tok_AB, LOC);
+                  s += 1;   skipped += 2;   // skip , (of A , B) but not B
+                  continue;   // don't move_1() below
+                }
+
+             // monadic , B
+             s += 1;   skipped += 1;    // skip ,
+
+             Value_P bval = tos[s].get_apl_val();
+             const Shape sh(bval->element_count());
+             bval->set_shape(sh);
+
+             tos[s].ChangeTag(TOK_APL_VALUE1);
+             move_1(tos[s - skipped], tos[s], LOC);
              continue;
            }
 
-        s += 1;   skipped += 1;    // skip ,
-
-        Value_P bval = tos[s].get_apl_val();
-        const Shape sh(bval->element_count());
-        bval->set_shape(sh);
-
-        move_1(tos[s - skipped], tos[s], LOC);
-        tos[s - skipped].ChangeTag(TOK_APL_VALUE1);
+        if (skipped)   move_1(tos[s - skipped], tos[s], LOC);
       }
 
    if (skipped)
@@ -786,10 +824,9 @@ Quad_TF::tf2_remove_parentheses(Token_string & tos, bool & progress)
 {
 ShapeItem skipped = 0;
 
-   loop(s, tos.size())   // ⍴ must not be first or last
+   loop(s, tos.size())
       {
-        // we replace A⍴B by B reshaped to A. But only if the element count in
-        // B agrees with A (otherwise we need to glue first).
+        // we replace ( B ) by B 
         //
         if (s < (tos.size() - 2)                   &&
             tos[s].get_tag()       == TOK_L_PARENT &&

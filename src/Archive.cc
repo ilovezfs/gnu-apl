@@ -847,8 +847,8 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
 
    // save certain system variables
    //
-#define rw_sv_def(x, _txt) save_symbol(Workspace::get_v_ ## x());
-#define ro_sv_def(x, _txt) save_symbol(Workspace::get_v_ ## x());
+#define rw_sv_def(x, _str, _txt) save_symbol(Workspace::get_v_ ## x());
+#define ro_sv_def(x, _str, _txt) save_symbol(Workspace::get_v_ ## x());
 #include "SystemVariable.def"
 
    // save state indicator

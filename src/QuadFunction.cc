@@ -1319,17 +1319,17 @@ vector<UCS_string> names;
    //
    if (first_chars.size() == 0 || first_chars.contains(UNI_Quad_Quad))
       {
-#define ro_sv_def(x, _txt)                                   \
+#define ro_sv_def(x, _str, _txt)                                   \
    { Symbol * symbol = &Workspace::get_v_ ## x();           \
      if ((requested_NCs & 1 << 5) && symbol->get_nc() != 0) \
         names.push_back(symbol->get_name()); }
 
-#define rw_sv_def(x, _txt)                                   \
+#define rw_sv_def(x, _str, _txt)                                   \
    { Symbol * symbol = &Workspace::get_v_ ## x();           \
      if ((requested_NCs & 1 << 5) && symbol->get_nc() != 0) \
         names.push_back(symbol->get_name()); }
 
-#define sf_def(x, _txt)                                      \
+#define sf_def(x, _str, _txt)                                      \
    { if (requested_NCs & 1 << 6)   names.push_back((x::fun->get_name())); }
 #include "SystemVariable.def"
       }

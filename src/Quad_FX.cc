@@ -167,7 +167,10 @@ UCS_string text;
                   if (!c1.is_character_cell())   DOMAIN_ERROR;
                   text.append(c1.get_char_value());
                 }
-             else DOMAIN_ERROR;
+             else
+                {
+                  DOMAIN_ERROR;
+                }
 
              text.append(UNI_ASCII_LF);
            }
