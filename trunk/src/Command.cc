@@ -37,6 +37,7 @@
 #include "Output.hh"
 #include "Parser.hh"
 #include "Prefix.hh"
+#include "Quad_FX.hh"
 #include "Quad_TF.hh"
 #include "StateIndicator.hh"
 #include "Svar_DB.hh"
@@ -664,20 +665,20 @@ Command::cmd_HELP(ostream & out)
      }
 
    out << endl << "System variables:" << endl;
-#define ro_sv_def(x, txt)                                           \
+#define ro_sv_def(x, _str, txt)                                           \
    { const UCS_string & ucs = Workspace::get_v_ ## x().get_name();  \
         out << "      " << setw(8) << ucs << txt << endl; }
-#define rw_sv_def(x, txt)                                           \
+#define rw_sv_def(x, _str, txt)                                           \
    { const UCS_string & ucs = Workspace::get_v_ ## x().get_name();  \
         out << "      " << setw(8) << ucs << txt << endl; }
 #include "SystemVariable.def"
 
    out << endl << "System functions:" << endl;
-#define ro_sv_def(x, txt)
-#define rw_sv_def(x, txt)
-#define sf_def(q, txt) { const char * qu = #q;                      \
-   if (!strncmp(qu, "Quad_", 5))                                    \
-        out << "      ⎕" << setw(8) << UCS_string(qu + 5) << txt << endl; }
+#define ro_sv_def(x, _str, _txt)
+#define rw_sv_def(x, _str, _txt)
+#define sf_def(q, _str, txt) \
+        out << "      " << setw(8) << q::fun->get_name() << txt << endl;
+
 #include "SystemVariable.def"
 }
 //-----------------------------------------------------------------------------
@@ -1953,17 +1954,14 @@ int qpos = -1;
         UCS_string qxx(user, qpos, user.size() - qpos);
         vector<UCS_string>matches;
 
-#define ro_sv_def(q, _txt) { const char * qu = #q;                  \
-   if (!strncmp(qu, "Quad_", 5)) { UCS_string ustr(qu + 5);   \
-        if (ustr.starts_iwith(qxx)) matches.push_back(ustr); } }
+#define ro_sv_def(_q, str, _txt) { UCS_string ustr(str);   \
+   if (ustr.size() && ustr.starts_iwith(qxx)) matches.push_back(ustr); }
 
-#define rw_sv_def(q, _txt) { const char * qu = #q;                  \
-   if (!strncmp(qu, "Quad_", 5)) { UCS_string ustr(qu + 5);   \
-        if (ustr.starts_iwith(qxx)) matches.push_back(ustr); } }
+#define rw_sv_def(_q, str, _txt) { UCS_string ustr(str);   \
+   if (ustr.size() && ustr.starts_iwith(qxx)) matches.push_back(ustr); }
 
-#define sf_def(q, _txt) { const char * qu = #q;                  \
-   if (!strncmp(qu, "Quad_", 5)) { UCS_string ustr(qu + 5);   \
-        if (ustr.starts_iwith(qxx)) matches.push_back(ustr); } }
+#define sf_def(_q, str, _txt) { UCS_string ustr(str);   \
+   if (ustr.size() && ustr.starts_iwith(qxx)) matches.push_back(ustr); }
 
 #include "SystemVariable.def"
 

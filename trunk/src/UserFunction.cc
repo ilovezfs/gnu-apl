@@ -1202,7 +1202,8 @@ const char * error_cause = 0;
            {
              Workspace::more_error().append_utf8(" (function line [");
              Workspace::more_error().append_number(error_line);
-             Workspace::more_error().append_utf8("])");
+             Workspace::more_error().append_utf8("] of:\n");
+             Workspace::more_error().append(text);
            }
                 
         return 0;
