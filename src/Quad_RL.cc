@@ -50,7 +50,7 @@ Quad_RL::assign(Value_P value, const char * loc)
       }
 
 const Cell & cell = value->get_ravel(0);
-const APL_Integer val = cell.get_int_value();
+const APL_Integer val = cell.get_near_int();
 
    state = val;
    Symbol::assign(value, LOC);
@@ -81,6 +81,6 @@ void
 Quad_RL::pop()
 {
    Symbol::pop();
-   state = value_stack.back().apl_val->get_ravel(0).get_int_value();
+   state = value_stack.back().apl_val->get_ravel(0).get_near_int();
 }
 //=============================================================================

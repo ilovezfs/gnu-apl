@@ -437,7 +437,7 @@ Token_string tos;
          return tos[0].get_sym_ptr()->get_name();   // valid 2⎕TF
       }
 
-   // Try dyadic ⎕FX (native function)
+   // try dyadic ⎕FX (native function)
    //
    if (tos.size() == 3                   &&
        tos[0].get_Class() == TC_VALUE    &&
@@ -457,40 +457,21 @@ Token_string tos;
         return UCS_string();
       }
 
-   // at this point we should have ⎕FX Value ...
+   // monadic ⎕FX. at this point we should have ⎕FX Value ...
    //
-   if (tos.size() < 2)                    return UCS_string();
+   if (tos.size() != 2)                   return UCS_string();
    if (tos[0].get_tag() != TOK_Quad_FX)   return UCS_string();
-   for (ShapeItem t = 1; t < tos.size(); ++t)
-       {
-         if (tos[t].get_Class() != TC_VALUE)   return UCS_string();
-       }
-
-Value_P function_text =  tos[1].get_apl_val();
-   if (tos.size() > 2)
-      {
-        function_text = Value_P(tos.size() - 1, LOC);
-        for (ShapeItem t = 1; t < tos.size(); ++t)
-            {
-              Value_P line = tos[t].get_apl_val();
-              function_text->next_ravel()->init(line->get_ravel(0),
-                                                function_text.getref(), LOC);
-               tos[t].extract_apl_val(LOC);
-            }
-          
-      }
+   if (tos[1].get_Class() != TC_VALUE)    return UCS_string();
 
 static const int eprops[] = { 0, 0, 0, 0 };
-const Token tok = Quad_FX::do_quad_FX(eprops, function_text,
+const Token tok = Quad_FX::do_quad_FX(eprops, tos[1].get_apl_val(),
                                       UTF8_string("2 ⎕TF"), true);
 
-   if (tok.get_Class() == TC_VALUE)   // ⎕FX successful
-      {
-        Value_P val = tok.get_apl_val();   // the name of the function
-        return UCS_string(*val.get());
-      }
+   if (tok.get_Class() != TC_VALUE)   return UCS_string();   // error in ⎕FX
 
-   return UCS_string();
+   // ⎕FX succeeded (and the token returned is the name of the function)
+   //
+   return UCS_string(*tok.get_apl_val().get());
 }
 //-----------------------------------------------------------------------------
 bool

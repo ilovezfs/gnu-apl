@@ -103,7 +103,7 @@ Value_P Z(B->get_shape(), LOC);
 
          if (cell_B.is_integer_cell())
             {
-              const APL_Integer idx = cell_B.get_int_value();
+              const APL_Integer idx = cell_B.get_near_int();
               new (&Z->get_ravel(v))   CharCell(Quad_AV::indexed_at(idx));
               continue;
             }
@@ -121,7 +121,7 @@ Quad_AT::eval_AB(Value_P A, Value_P B)
    // A should be an integer scalar 1, 2, 3, or 4
    //
    if (A->get_rank() > 0)   RANK_ERROR;
-const APL_Integer mode = A->get_ravel(0).get_int_value();
+const APL_Integer mode = A->get_ravel(0).get_near_int();
    if (mode < 1)   DOMAIN_ERROR;
    if (mode > 4)   DOMAIN_ERROR;
 
@@ -753,8 +753,8 @@ Quad_ES::get_error_code(Value_P B)
    if (B->is_char_string())       return E_USER_DEFINED_ERROR;
    if (B->element_count() != 2)   LENGTH_ERROR;
 
-const APL_Integer major = B->get_ravel(0).get_int_value();
-const APL_Integer minor = B->get_ravel(1).get_int_value();
+const APL_Integer major = B->get_ravel(0).get_near_int();
+const APL_Integer minor = B->get_ravel(1).get_near_int();
 
    return ErrorCode(major << 16 | (minor & 0xFFFF));
 }
@@ -1104,7 +1104,7 @@ Quad_INP::eval_XB(Value_P X, Value_P B)
         else                     LENGTH_ERROR;
       }
 
-APL_Integer x = X->get_ravel(0).get_int_value();
+APL_Integer x = X->get_ravel(0).get_near_int();
    if (x == 0)   return eval_B(B);
    if (x > 1)    DOMAIN_ERROR;
 
@@ -1280,7 +1280,7 @@ int requested_NCs = 0;
    {
      loop(b, B->element_count())
         {
-          const APL_Integer bb = B->get_ravel(b).get_int_value();
+          const APL_Integer bb = B->get_ravel(b).get_near_int();
           if (bb < 1)   DOMAIN_ERROR;
           if (bb > 6)   DOMAIN_ERROR;
           requested_NCs |= 1 << bb;
@@ -1387,7 +1387,7 @@ Quad_SI::eval_AB(Value_P A, Value_P B)
         if (A->get_rank() > 1)   RANK_ERROR;
         else                     LENGTH_ERROR;
       }
-APL_Integer a = A->get_ravel(0).get_int_value();
+APL_Integer a = A->get_ravel(0).get_near_int();
 const ShapeItem len = Workspace::SI_entry_count();
    if (a >= len)   DOMAIN_ERROR;
    if (a < -len)   DOMAIN_ERROR;
@@ -1415,7 +1415,7 @@ const Function_Line fun_line = exec->get_line(PC);
 
 Value_P Z;
 
-const APL_Integer b = B->get_ravel(0).get_int_value();
+const APL_Integer b = B->get_ravel(0).get_near_int();
    switch(b)
       {
         case 1:  Z = Value_P(fun_name, LOC);
@@ -1470,7 +1470,7 @@ Quad_SI::eval_B(Value_P B)
         else                     LENGTH_ERROR;
       }
 
-const APL_Integer b = B->get_ravel(0).get_int_value();
+const APL_Integer b = B->get_ravel(0).get_near_int();
 const ShapeItem len = Workspace::SI_entry_count();
 
    if (b < 1)   DOMAIN_ERROR;
@@ -1555,7 +1555,7 @@ const ShapeItem ec = B->nz_element_count();
 
          if (cell_B.is_integer_cell())
             {
-              const APL_Integer bint = cell_B.get_int_value();
+              const APL_Integer bint = cell_B.get_near_int();
               new (&Z->get_ravel(v))   CharCell(Unicode(bint));
               continue;
             }

@@ -416,7 +416,7 @@ Unicode fc[6];
 
    loop(e, ec)
       {
-        const APL_Integer idx = X->get_ravel(e).get_int_value() - qio;
+        const APL_Integer idx = X->get_ravel(e).get_near_int() - qio;
         if (idx < 0)   continue;
         if (idx > 5)   continue;
 
@@ -989,7 +989,7 @@ Quad_TZ::assign(Value_P value, const char * loc)
 Cell & cell = value->get_ravel(0);
    if (cell.is_integer_cell())
       {
-        const APL_Integer ival = cell.get_int_value();
+        const APL_Integer ival = cell.get_near_int();
         if (ival < -12)   return;
         if (ival > 14)    return;
         offset_seconds = ival*3600;

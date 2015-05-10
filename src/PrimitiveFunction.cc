@@ -1511,7 +1511,7 @@ Value_P Z(shape_Z, LOC);
               else if (ct_b == CT_COMPLEX)   ct = CT_COMPLEX;
               else                           DOMAIN_ERROR;
 
-              if (ct == CT_INT)
+              if (ct == CT_INT)   // both cells are integer
                  encode(dZ, Z->next_ravel(), ah, al,
                         &A->get_ravel(a1), cB++->get_int_value());
               else if (ct == CT_FLOAT)
@@ -1787,7 +1787,7 @@ Bif_F12_PARTITION::partition(Value_P A, Value_P B, Axis axis)
 
    if (A->is_scalar())
       {
-        APL_Integer val = A->get_ravel(0).get_int_value();
+        APL_Integer val = A->get_ravel(0).get_near_int();
         if (val == 0)
            {
              return Token(TOK_APL_VALUE1, Idx0(LOC));
@@ -1805,7 +1805,7 @@ ShapeItem len_Z = 0;
      ShapeItem prev = 0;
      loop(l, A->get_shape_item(0))
         {
-           const APL_Integer am = A->get_ravel(l).get_int_value();
+           const APL_Integer am = A->get_ravel(l).get_near_int();
            if (am < 0)   DOMAIN_ERROR;
            if (am  > prev)   ++len_Z;
            prev = am;
@@ -1839,7 +1839,7 @@ Cell * cZ;
 
          loop(m, shape_B3.m())
              {
-               const APL_Integer am = A->get_ravel(m).get_int_value();
+               const APL_Integer am = A->get_ravel(m).get_near_int();
                Assert(am >= 0);   // already verified above.
 
                if (am == 0)   // skip element m (and following)
@@ -2297,7 +2297,7 @@ IndexExpr index_expr(ASS_none, LOC);
             }
         else
             {
-              const APL_Integer i = cell.get_int_value();
+              const APL_Integer i = cell.get_near_int();
               val = Value_P(LOC);
               if (i < 0)   DOMAIN_ERROR;
 
@@ -2357,7 +2357,7 @@ IndexExpr index_expr(ASS_none, LOC);
             }
         else
             {
-              const APL_Integer i = cell.get_int_value();
+              const APL_Integer i = cell.get_near_int();
               val = Value_P(LOC);
               if (i < 0)   DOMAIN_ERROR;
 
@@ -2917,10 +2917,10 @@ Value_P B1 = B1_tok.get_apl_val();
    // compute result size
    //
 ShapeItem ec_Z = 0;   // first element is always in the result.
-const Cell * last = &B->get_ravel(B1->get_ravel(0).get_int_value() - qio);
+const Cell * last = &B->get_ravel(B1->get_ravel(0).get_near_int() - qio);
    loop(j, ec_B)
       {
-        const APL_Integer idx = B1->get_ravel(j).get_int_value();
+        const APL_Integer idx = B1->get_ravel(j).get_near_int();
         const Cell * cj = &B->get_ravel(idx - qio);
         const bool new_element = (j == 0) || !last->equal(*cj, qct);
         if (new_element)
@@ -2934,7 +2934,7 @@ Value_P Z1(ec_Z, LOC);
 
    loop(j, ec_B)
       {
-        const APL_Integer idx = B1->get_ravel(j).get_int_value();
+        const APL_Integer idx = B1->get_ravel(j).get_near_int();
         const Cell * cj = &B->get_ravel(idx - qio);
         const bool new_element = (j == 0) || !last->equal(*cj, qct);
         if (new_element)
