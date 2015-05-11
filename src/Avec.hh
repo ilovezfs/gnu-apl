@@ -132,6 +132,9 @@ public:
    /// the IBM ⎕AV (= its code in .ATF files). Return 0xB0 if not found.
    static unsigned char unicode_to_cp(Unicode uni);
 
+   /// recompute \b inverse_ibm_av from \b ibm_av and print it
+   static void print_inverse_IBM_quad_AV();
+
 protected:
    /// a Unicode and its position in the ⎕AV of IBM APL2
    struct Unicode_to_IBM_codepoint
@@ -142,9 +145,6 @@ protected:
 
    /// Unicode_to_IBM_codepoint table sorted by Unicode (for bsearch())
    static Unicode_to_IBM_codepoint inverse_ibm_av[];
-
-   /// recompute \b inverse_ibm_av from \b ibm_av and print it
-   static void print_inverse_IBM_quad_AV();
 
    /// print an error position on cerr, and then Assert(0);
    static void show_error_pos(int i, int line, bool cond, int def_line);

@@ -1701,12 +1701,9 @@ Command::transfer_context::add(const UTF8 * str, int len)
 
 #if 0
    // helper to print the uni_to_cp_map when given a cp_to_uni_map.
-   // The print-out can be triggered by )IN file.atf and then sorted
-   // with the GNU/Linux command 'sort'.
    //
-   loop(q, 128)
-       fprintf(stderr, "  { 0x%4.4X, %u },\n", cp_to_uni_map[q], q + 128);
-   exit(0);
+   Avec::print_inverse_IBM_quad_AV();
+   DOMAIN_ERROR;
 #endif
 
 const Unicode * cp_to_uni_map = Avec::IBM_quad_AV();
