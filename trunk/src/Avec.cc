@@ -402,7 +402,7 @@ Avec::superscript(uint32_t i)
    the Unicode for that position. In addition CTRL-K is mapped to ⍬ for
    compatibility with Dyalog-APL
  */
-static const uint32_t ibm_av[] =
+static const int ibm_av[] =
 {
   0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 
   0x0008, 0x0009, 0x000A, 0x236C, 0x000C, 0x000D, 0x000E, 0x000F, 

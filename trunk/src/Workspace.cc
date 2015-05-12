@@ -63,8 +63,9 @@ Workspace::Workspace()
 
 #define rw_sv_def ro_sv_def
 
-#define sf_def(x, _str, _txt) \
-   distinguished_names.add_function(x::fun->get_name(), ID::x, x::fun);
+#define sf_def(x, str, _txt)                                      \
+   if (*str) { UCS_string q(UNI_Quad_Quad);   q.append_utf8(str); \
+   distinguished_names.add_function(q, ID::x, x::fun); }
 
 #include "SystemVariable.def"
 }
