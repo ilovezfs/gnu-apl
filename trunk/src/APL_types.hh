@@ -360,6 +360,34 @@ enum SI_mode
    SIM_SIS_dbg    = SIM_debug | SIM_statements,
 };
 //-----------------------------------------------------------------------------
+/// the number of cores/tasks to be used
+enum CoreCount
+{
+  CCNT_UNKNOWN = -1,   ///< unknown core count
+  CCNT_0       = 0,    ///<< no core
+  CCNT_1       = 1,    ///< one core ...
+};
+//-----------------------------------------------------------------------------
+/// the cores/tasks to be used
+enum CoreNumber
+{
+  CNUM_INVALID = -1,  ///< invalid core
+  CNUM_MASTER  = 0,   ///< the interpreter core
+  CNUM_WORKER1 = 1,   ///< the first worker core ...
+};
+//-----------------------------------------------------------------------------
+/// the CPUs reported by the OS
+enum CPU_Number
+{
+   CPU_0 = 0   ///< the first (only) CPU
+};
+//-----------------------------------------------------------------------------
+/// the number of CPUs available
+enum CPU_count
+{
+   CPU_CNT_1 = 1   ///< one CPU
+};
+//-----------------------------------------------------------------------------
 /// the state of an assignment
 enum Assign_state
 {

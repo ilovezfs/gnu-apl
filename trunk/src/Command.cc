@@ -197,9 +197,7 @@ Executable * statements = 0;
                 StateIndicator * si = Workspace::SI_top();
                 if (si == 0)   break;   // SI empty
 
-                const Executable * exec = si->get_executable();
-                Assert(exec);
-                goon = exec->get_parse_mode() != PM_STATEMENT_LIST;
+                goon = si->get_parse_mode() != PM_STATEMENT_LIST;
                 si->escape();   // pop local vars of user defined functions
                 Workspace::pop_SI(LOC);
               }
@@ -237,8 +235,7 @@ Executable * statements = 0;
          //
          if (token.get_Class() == TC_VALUE || token.get_tag() == TOK_VOID )
             {
-              if (Workspace::SI_top()->get_executable()
-                             ->get_parse_mode() == PM_STATEMENT_LIST)
+              if (Workspace::SI_top()->get_parse_mode() == PM_STATEMENT_LIST)
                  {
                    if (attention_raised)
                       {
@@ -275,6 +272,16 @@ Executable * statements = 0;
 
          if (token.get_tag() == TOK_BRANCH)
             {
+              const Function_Line line = Function_Line(token.get_int_val());
+              if (line == Function_Retry                                     &&
+                  Workspace::SI_top()->get_parse_mode() == PM_STATEMENT_LIST &&
+                  Workspace::SI_top()->get_parent())
+                 {
+                   Workspace::pop_SI(LOC);
+                   Workspace::SI_top()->retry(LOC);
+                   continue;
+                 }
+
               StateIndicator * si = Workspace::SI_top_fun();
 
               if (si == 0)
@@ -289,10 +296,7 @@ Executable * statements = 0;
               //
               while (si != Workspace::SI_top())   Workspace::pop_SI(LOC);
 
-              const Function_Line line = Function_Line(token.get_int_val());
-
-              if (line == Function_Retry)   si->retry(LOC);
-              else                          si->goon(line, LOC);
+              si->goon(line, LOC);
               continue;
             }
 
@@ -306,9 +310,7 @@ Executable * statements = 0;
                     StateIndicator * si = Workspace::SI_top();
                     if (si == 0)   break;   // SI empty
 
-                    const Executable * exec = si->get_executable();
-                    Assert(exec);
-                    goon = exec->get_parse_mode() != PM_STATEMENT_LIST;
+                    goon = si->get_parse_mode() != PM_STATEMENT_LIST;
                     si->escape();   // pop local vars of user defined functions
                     Workspace::pop_SI(LOC);
               }

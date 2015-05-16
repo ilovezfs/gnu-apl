@@ -58,6 +58,7 @@ const uint64_t start_1 = cycle_counter();
 const ShapeItem Z_len = job.ZAh * job.ZBl;
    job.ec = E_NO_ERROR;
 
+#if PARALLEL_ENABLED
    if (  Parallel::run_parallel
       && Thread_context::get_active_core_count() > 1
       && Z_len > get_dyadic_threshold())
@@ -69,6 +70,7 @@ const ShapeItem Z_len = job.ZAh * job.ZBl;
         Thread_context::M_join();
       }
    else
+#endif // PARALLEL_ENABLED
       {
         job.cores = CCNT_1;
         PF_scalar_inner_product(Thread_context::get_master());

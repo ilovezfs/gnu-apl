@@ -55,8 +55,10 @@ signal_SEGV_handler(int)
    CERR << "\n\n====================================================\n"
            "SEGMENTATION FAULT" << endl;
 
+#if PARALLEL_ENABLED
    CERR << "thread: " << (const void *)pthread_self() << endl;
    Thread_context::print_all(CERR);
+#endif // PARALLEL_ENABLED
 
    Backtrace::show(__FILE__, __LINE__);
 
@@ -89,6 +91,7 @@ signal_TERM_handler(int)
    raise(SIGTERM);
 }
 //-----------------------------------------------------------------------------
+#if PARALLEL_ENABLED
 static struct sigaction old_control_BSL_action;
 static struct sigaction new_control_BSL_action;
 
@@ -98,6 +101,7 @@ control_BSL(int sig)
    CERR << endl << "^\\" << endl;
    Thread_context::print_all(CERR);
 }
+#endif // PARALLEL_ENABLED
 //-----------------------------------------------------------------------------
 static struct sigaction old_HUP_action;
 static struct sigaction new_HUP_action;
@@ -195,32 +199,35 @@ const bool log_startup = uprefs.parse_argv_1();
    uprefs.read_threshold_file(true,  log_startup);  // dito parallel_thresholds
    uprefs.read_threshold_file(false, log_startup);  // dito parallel_thresholds
 
-   // struct sigaction differs between GNU/Linux and other systems, which
-   // causes direct bracket assignment to not compile on some machines.
+   // struct sigaction differs between GNU/Linux and other systems, which causes
+   // compile errors for direct curly bracket assignment on some systems
    //
    // We therefore memset everything to 0 and then set the handler (which
-   // should be compatible on GNU/Linux and other systems.
+   // should compile on GNU/Linux and also on other systems.
    //
-   memset(&new_control_C_action,   0, sizeof(struct sigaction));
-   memset(&new_USR1_action,        0, sizeof(struct sigaction));
-   memset(&new_SEGV_action,        0, sizeof(struct sigaction));
-   memset(&new_TERM_action,        0, sizeof(struct sigaction));
-   memset(&new_control_BSL_action, 0, sizeof(struct sigaction));
-   memset(&new_HUP_action,         0, sizeof(struct sigaction));
+   memset(&new_control_C_action, 0, sizeof(struct sigaction));
+   memset(&new_USR1_action,      0, sizeof(struct sigaction));
+   memset(&new_SEGV_action,      0, sizeof(struct sigaction));
+   memset(&new_TERM_action,      0, sizeof(struct sigaction));
+   memset(&new_HUP_action,       0, sizeof(struct sigaction));
 
    new_control_C_action.sa_handler = &control_C;
-   new_control_BSL_action.sa_handler = &control_BSL;
-   new_USR1_action .sa_handler = &signal_USR1_handler;
-   new_SEGV_action .sa_handler = &signal_SEGV_handler;
-   new_TERM_action .sa_handler = &signal_TERM_handler;
-   new_HUP_action  .sa_handler = &signal_HUP_handler;
+   new_USR1_action     .sa_handler = &signal_USR1_handler;
+   new_SEGV_action     .sa_handler = &signal_SEGV_handler;
+   new_TERM_action     .sa_handler = &signal_TERM_handler;
+   new_HUP_action      .sa_handler = &signal_HUP_handler;
 
-   sigaction(SIGINT,  &new_control_C_action,   &old_control_C_action);
-   sigaction(SIGQUIT, &new_control_BSL_action, &old_control_BSL_action);
-   sigaction(SIGUSR1, &new_USR1_action,        &old_USR1_action);
-   sigaction(SIGSEGV, &new_SEGV_action,        &old_SEGV_action);
-   sigaction(SIGTERM, &new_TERM_action,        &old_TERM_action);
+   sigaction(SIGINT,  &new_control_C_action, &old_control_C_action);
+   sigaction(SIGUSR1, &new_USR1_action,      &old_USR1_action);
+   sigaction(SIGSEGV, &new_SEGV_action,      &old_SEGV_action);
+   sigaction(SIGTERM, &new_TERM_action,      &old_TERM_action);
    sigaction(SIGHUP,  &new_HUP_action,       &old_HUP_action);
+
+#if PARALLEL_ENABLED
+   memset(&new_control_BSL_action, 0, sizeof(struct sigaction));
+   new_control_BSL_action.sa_handler = &control_BSL;
+   sigaction(SIGQUIT, &new_control_BSL_action, &old_control_BSL_action);
+#endif
 
    uprefs.parse_argv_2(log_startup);
 

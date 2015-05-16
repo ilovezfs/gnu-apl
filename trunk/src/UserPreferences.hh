@@ -26,6 +26,8 @@
 #include "Parallel.hh"
 #include "UTF8_string.hh"
 
+class Function;
+
 /// a structure that contains user preferences from different sources
 /// (command line arguments, config files, environment variables ...)
 struct UserPreferences

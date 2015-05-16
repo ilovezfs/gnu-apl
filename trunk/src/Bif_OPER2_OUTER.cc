@@ -30,7 +30,6 @@ Bif_OPER2_OUTER * Bif_OPER2_OUTER::fun = &Bif_OPER2_OUTER::_fun;
 
 Bif_OPER2_OUTER::PJob_product Bif_OPER2_OUTER::job;
 
-
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER2_OUTER::eval_ALRB(Value_P A, Token & LO, Token & _RO, Value_P B)
@@ -58,6 +57,7 @@ const uint64_t start_1 = cycle_counter();
 const ShapeItem Z_len = job.ZAh * job.ZBl;
    job.ec = E_NO_ERROR;
 
+#if PARALLEL_ENABLED
    if (  Parallel::run_parallel
       && Thread_context::get_active_core_count() > 1
       && Z_len > get_dyadic_threshold())
@@ -69,6 +69,7 @@ const ShapeItem Z_len = job.ZAh * job.ZBl;
         Thread_context::M_join();
       }
    else
+#endif // PARALLEL_ENABLED
       {
         job.cores = CCNT_1;
         PF_scalar_outer_product(Thread_context::get_master());

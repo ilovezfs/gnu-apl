@@ -31,15 +31,11 @@
 #define sem_init(x, y, z)
 #endif // PARALLEL_ENABLED
 
-Thread_context * Thread_context::thread_contexts = 0;
-CoreCount Thread_context::thread_contexts_count = CCNT_0;
-Thread_context::PoolFunction * Thread_context::do_work = &Thread_context::PF_no_work;
-volatile _Atomic_word Thread_context::busy_worker_count = 0;
+vector<CPU_Number>Parallel::all_CPUs;
 CoreCount Thread_context::active_core_count = CCNT_1;   // the master
 
-sem_t Parallel::print_sema;
-sem_t Parallel::pthread_create_sema;
-vector<CPU_Number>Parallel::all_CPUs;
+Thread_context * Thread_context::thread_contexts = 0;
+CoreCount Thread_context::thread_contexts_count = CCNT_0;
 
 volatile _Atomic_word Parallel_job_list_base::parallel_jobs_lock = 0;
 const char * Parallel_job_list_base::started_loc = 0;
@@ -51,6 +47,68 @@ bool Parallel::run_parallel = true;
 #endif
 
 //=============================================================================
+void
+Parallel::init(bool logit)
+{
+#if PARALLEL_ENABLED
+
+   // init global semaphores
+   //
+   sem_init(&print_sema,          /* shared */ 0, /* value */ 1);
+   sem_init(&pthread_create_sema, /* shared */ 0, /* value */ 0);
+
+   // compute number of cores available and set total_CPU_count accordingly
+   //
+   init_all_CPUs(logit);
+
+   // initialize thread contexts
+   //
+   Thread_context::init_parallel(get_max_core_count(), logit);
+
+   // create threads...
+   //
+   Thread_context::get_context(CNUM_MASTER)->thread = pthread_self();
+   for (int w = CNUM_WORKER1; w < get_max_core_count(); ++w)
+       {
+         Thread_context * tctx = Thread_context::get_context((CoreNumber)w);
+         const int result = pthread_create(&(tctx->thread), /* attr */ 0,
+                                             worker_main, tctx);
+         if (result)
+            {
+              CERR << "pthread_create() failed at " << LOC
+                   << " : " << strerror(result) << endl;
+              Thread_context::set_active_core_count(CCNT_1);
+              return;
+            }
+
+         // wait until new thread has reached its work loop
+         sem_wait(&pthread_create_sema);
+       }
+
+   // bind threads to cores
+   //
+   loop(c, get_max_core_count())
+       Thread_context::get_context((CoreNumber)c)
+                       ->bind_to_cpu(all_CPUs[c], logit);
+
+   if (logit)   Thread_context::print_all(CERR);
+
+   // the threads above start in state locked. Wake them up...
+   //
+#if CORE_COUNT_WANTED == -3
+   set_core_count(CCNT_1, logit);
+#else
+   set_core_count(get_max_core_count(), logit);
+#endif
+
+#else // not PARALLEL_ENABLED
+
+   Thread_context::init_sequential(logit);
+   all_CPUs.push_back(CPU_0);
+
+#endif // PARALLEL_ENABLED
+}
+//=============================================================================
 Thread_context::Thread_context()
    : N(CNUM_INVALID),
      thread(0),
@@ -61,6 +119,25 @@ Thread_context::Thread_context()
 }
 //-----------------------------------------------------------------------------
 void
+Thread_context::init_sequential(bool logit)
+{
+   thread_contexts_count = CCNT_1;
+   thread_contexts = new Thread_context[thread_contexts_count];
+   thread_contexts[0].N = CNUM_MASTER;
+}
+
+// functions and variables  that are only needed #if PARALLEL_ENABLED...
+
+#if PARALLEL_ENABLED
+
+Thread_context::PoolFunction * Thread_context::do_work = &Thread_context::PF_no_work;
+volatile _Atomic_word Thread_context::busy_worker_count = 0;
+
+sem_t Parallel::print_sema;
+sem_t Parallel::pthread_create_sema;
+
+//=============================================================================
+void
 Thread_context::init_entry(CoreNumber n)
 {
    N = n;
@@ -68,7 +145,7 @@ Thread_context::init_entry(CoreNumber n)
 }
 //-----------------------------------------------------------------------------
 void
-Thread_context::init(CoreCount count, bool logit)
+Thread_context::init_parallel(CoreCount count, bool logit)
 {
    delete thread_contexts;
 
@@ -147,59 +224,6 @@ int semval = 42;
        << endl;
 }
 //=============================================================================
-void
-Parallel::init(bool logit)
-{
-   // init global semaphores
-   //
-   sem_init(&print_sema,          /* shared */ 0, /* value */ 1);
-   sem_init(&pthread_create_sema, /* shared */ 0, /* value */ 0);
-
-   // compute number of cores available and set total_CPU_count accordingly
-   //
-   init_all_CPUs(logit);
-
-   // initialize thread contexts
-   //
-   Thread_context::init(get_max_core_count(), logit);
-
-   // create threads...
-   //
-   Thread_context::get_context(CNUM_MASTER)->thread = pthread_self();
-   for (int w = CNUM_WORKER1; w < get_max_core_count(); ++w)
-       {
-         Thread_context * tctx = Thread_context::get_context((CoreNumber)w);
-         const int result = pthread_create(&(tctx->thread), /* attr */ 0,
-                                             worker_main, tctx);
-         if (result)
-            {
-              CERR << "pthread_create() failed at " << LOC
-                   << " : " << strerror(result) << endl;
-              Thread_context::set_active_core_count(CCNT_1);
-              return;
-            }
-
-         // wait until new thread has reached its work loop
-         sem_wait(&pthread_create_sema);
-       }
-
-   // bind threads to cores
-   //
-   loop(c, get_max_core_count())
-       Thread_context::get_context((CoreNumber)c)
-                       ->bind_to_cpu(all_CPUs[c], logit);
-
-   if (logit)   Thread_context::print_all(CERR);
-
-   // the threads above start in state locked. Wake them up...
-   //
-#if CORE_COUNT_WANTED == -3
-   set_core_count(CCNT_1, logit);
-#else
-   set_core_count(get_max_core_count(), logit);
-#endif
-}
-//-----------------------------------------------------------------------------
 bool
 Parallel::set_core_count(CoreCount new_count, bool logit)
 {
@@ -490,3 +514,4 @@ Thread_context::kill_pool()
       }
 }
 //=============================================================================
+#endif // PARALLEL_ENABLED

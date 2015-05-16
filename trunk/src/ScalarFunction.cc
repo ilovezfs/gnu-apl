@@ -237,6 +237,7 @@ Value_P Z(B->get_shape(), LOC);
    for (PJob_scalar_B * job = joblist_B.next_job();
         job; job = joblist_B.next_job())
       {
+#if PARALLEL_ENABLED
         if (  Parallel::run_parallel
            && Thread_context::get_active_core_count() > 1
            && job->len_Z > get_monadic_threshold())
@@ -255,6 +256,8 @@ Value_P Z(B->get_shape(), LOC);
               }
            }
         else   // sequential
+#endif // PARALLEL_ENABLED
+
            {
              loop(z, job->len_Z)
                 {
@@ -429,6 +432,7 @@ Value_P Z(*shape_Z, LOC);
    for (PJob_scalar_AB * job = joblist_AB.next_job();
         job; job = joblist_AB.next_job())
       {
+#if PARALLEL_ENABLED
         if (  Parallel::run_parallel
            && Thread_context::get_active_core_count() > 1
            && job->len_Z > get_dyadic_threshold())
@@ -447,6 +451,7 @@ Value_P Z(*shape_Z, LOC);
                }
            }
         else
+#endif // PARALLEL_ENABLED
            {
              loop(z, job->len_Z)
                 {
