@@ -46,6 +46,21 @@
 
 #endif
 
+#ifdef PARALLEL_ENABLED
+
+# define PRINT_LOCKED(x) \
+   { sem_wait(&Parallel::print_sema); x; sem_post(&Parallel::print_sema); }
+
+# define POOL_LOCK(l, x) \
+   { Parallel::acquire_lock(l); { x; } Parallel::release_lock(l); }
+
+#else
+
+# define PRINT_LOCKED(x) { x; }
+# define POOL_LOCK(l, x) { x; }
+
+#endif // PARALLEL_ENABLED
+
 // define some atomic functions (even if the platform does not support them)
 //
 #if HAVE_EXT_ATOMICITY_H
@@ -140,41 +155,8 @@ inline void atomic_add(volatile _Atomic_word & counter, int increment)
 
 class Value;
 
-#define PRINT_LOCKED(x) \
-   { sem_wait(&Parallel::print_sema); x; sem_post(&Parallel::print_sema); }
-
-#define POOL_LOCK(l, x) \
-   { Parallel::acquire_lock(l); { x; } Parallel::release_lock(l); }
-
 using namespace std;
 
-/// the number of cores/tasks to be used
-enum CoreCount
-{
-  CCNT_UNKNOWN = -1,   ///< unknown core count
-  CCNT_0       = 0,    ///<< no core
-  CCNT_1       = 1,    ///< one core ...
-};
-
-/// the cores/tasks to be used
-enum CoreNumber
-{
-  CNUM_INVALID = -1,  ///< invalid core
-  CNUM_MASTER  = 0,   ///< the interpreter core
-  CNUM_WORKER1 = 1,   ///< the first worker core ...
-};
-
-/// the CPUs reported by the OS
-enum CPU_Number
-{
-   CPU_0 = 0   ///< the first (only) CPU
-};
-
-/// the number of CPUs available
-enum CPU_count
-{
-   CPU_CNT_1 = 1   ///< one CPU
-};
 //=============================================================================
 /**
   Multi-core GNU APL uses a pool of threads numbered 0, 1, ... core_count()-1
@@ -268,7 +250,10 @@ public:
    void print(ostream & out) const;
 
    /// initialize all thread contexts (set all but N and thread)
-   static void init(CoreCount thread_count, bool logit);
+   static void init_parallel(CoreCount thread_count, bool logit);
+
+   /// initialize all thread contexts (set all but N and thread)
+   static void init_sequential(bool logit);
 
    /// return the context for core \b n
    static Thread_context * get_context(CoreNumber n)

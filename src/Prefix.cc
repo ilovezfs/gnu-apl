@@ -340,6 +340,7 @@ Prefix::unmark_all_values() const
 }
 //-----------------------------------------------------------------------------
 
+// a hash table with all prefixes that can be reduced...
 #define PH(name, idx, prio, misc, len, fun) \
    { #name, idx, prio, misc, len, &Prefix::reduce_ ## fun, #fun },
 
@@ -392,6 +393,14 @@ grow:
 
      if (tcl == TC_SYMBOL)   // resolve symbol if necessary
         {
+          // reset the PC back to the previous token, so that a failed
+          // resolve() (aka VALUE ERROR) will re-fetch the token
+          //
+          // But not if symbol is ⎕LC because that would make the first
+          // element of ⎕LC too low!
+          //
+          if (tl.tok.get_tag() != TOK_Quad_LC)   --PC;
+
           Symbol * sym = tl.tok.get_sym_ptr();
           if (tl.tok.get_tag() == TOK_LSYMB2)
              {
@@ -406,6 +415,7 @@ grow:
                sym->resolve(tl.tok, left_sym);
                if (left_sym)   set_assign_state(ASS_var_seen);
              }
+          PC = lookahead_high + 1;   // resolve() succeeded: restore PV
 
           Log(LOG_prefix_parser)
              {

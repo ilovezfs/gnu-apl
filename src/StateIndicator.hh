@@ -24,12 +24,11 @@
 #include "Common.hh"
 #include "DerivedFunction.hh"
 #include "EOC_arg.hh"
+#include "Executable.hh"
 #include "Error.hh"
 #include "Parser.hh"
 #include "Prefix.hh"
 #include "PrintOperator.hh"
-
-class Executable;
 
 //-----------------------------------------------------------------------------
 /**
@@ -96,6 +95,9 @@ public:
    /// set the current PC
    void set_PC(Function_PC new_pc)
       { current_stack.set_PC(new_pc); }
+
+   ParseMode get_parse_mode() const
+      { return executable->get_parse_mode(); }
 
    /// evaluate a →N statement. Update pc return true iff context has changed
    Token jump(Value_P val);

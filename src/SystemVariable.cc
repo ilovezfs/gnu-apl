@@ -246,7 +246,7 @@ const Error * err = 0;
               err = &si->get_error();
               break;
             }
-         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
+         if (si->get_parse_mode() == PM_FUNCTION)   break;
        }
 
    if (err == 0)   // no SI entry with non-zero error code
@@ -310,7 +310,7 @@ ErrorCode ec = E_NO_ERROR;
               break;
             }
 
-         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
+         if (si->get_parse_mode() == PM_FUNCTION)   break;
        }
 
 Value_P Z(2, LOC);
@@ -502,7 +502,7 @@ int len = 0;
    for (StateIndicator * si = Workspace::SI_top();
         si; si = si->get_parent())
        {
-         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   ++len;
+         if (si->get_parse_mode() == PM_FUNCTION)   ++len;
        }
 
 Value_P Z(len, LOC);
@@ -510,7 +510,7 @@ Value_P Z(len, LOC);
    for (StateIndicator * si = Workspace::SI_top();
         si; si = si->get_parent())
        {
-         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)
+         if (si->get_parse_mode() == PM_FUNCTION)
             new (Z->next_ravel())   IntCell(si->get_line());
        }
 
@@ -868,7 +868,11 @@ const APL_Integer qio = Workspace::get_IO();
            }
         else if (x == SYL_CURRENT_CORES)   // number of cores
            {
+#if PARALLEL_ENABLED
              if (Parallel::set_core_count((CoreCount)b, false))   DOMAIN_ERROR;
+#else
+             DOMAIN_ERROR;
+#endif
            }
         else if (x == SYL_PRINT_LIMIT)   // print length limit
            {

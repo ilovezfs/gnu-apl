@@ -53,7 +53,7 @@ StateIndicator::~StateIndicator()
    // if executable is a user defined function then pop its local vars.
    // otherwise delete the body token
    //
-   if (executable->get_parse_mode() == PM_FUNCTION)
+   if (get_parse_mode() == PM_FUNCTION)
       {
         const UserFunction * ufun = get_executable()->get_ufun();
         if (ufun)   ufun->pop_local_vars();
@@ -118,7 +118,7 @@ StateIndicator::function_name() const
 {
    Assert(executable);
 
-   switch(executable->get_parse_mode())
+   switch(get_parse_mode())
       {
         case PM_FUNCTION:
              return executable->get_name();
@@ -150,7 +150,7 @@ StateIndicator::print(ostream & out) const
 
    Assert(executable);
 
-   switch(get_executable()->get_parse_mode())
+   switch(get_parse_mode())
       {
         case PM_FUNCTION:
              out << "Pmode:    ∇ "
@@ -166,7 +166,7 @@ StateIndicator::print(ostream & out) const
              break;
 
         default:
-             out << "??? Bad pmode " << executable->get_parse_mode();
+             out << "??? Bad pmode " << get_parse_mode();
       }
    out << endl;
 
@@ -197,7 +197,7 @@ StateIndicator::list(ostream & out, SI_mode mode) const
 
    // pmode column
    //
-   switch(get_executable()->get_parse_mode())
+   switch(get_parse_mode())
       {
         case PM_FUNCTION:
              Assert(executable);
@@ -366,7 +366,7 @@ StateIndicator::jump(Value_P value)
         // →⍬ in immediate execution means resume (retry) suspended function
         // →⍬ on ⍎ or defined functions means do nothing
         //
-        if (get_executable()->get_parse_mode() == PM_STATEMENT_LIST)
+        if (get_parse_mode() == PM_STATEMENT_LIST)
            return Token(TOK_BRANCH, int64_t(Function_Retry));
 
         return Token(TOK_NOBRANCH);           // stay in context
@@ -629,7 +629,7 @@ StateIndicator::statement_result(Token & result, bool trace)
 
    fun_oper_cache.reset();
 
-// if (get_executable()->get_parse_mode() == PM_EXECUTE)   return;
+// if (get_parse_mode() == PM_EXECUTE)   return;
 
    // if result is a value then print it, unless it is a committed value
    // (i.e. TOK_APL_VALUE2)
@@ -704,14 +704,14 @@ const int boxing_format = Command::get_boxing_format();
 Unicode
 StateIndicator::get_parse_mode_name() const
 {
-   switch(get_executable()->get_parse_mode())
+   switch(get_parse_mode())
       {
         case PM_FUNCTION:       return UNI_NABLA;
         case PM_STATEMENT_LIST: return UNI_DIAMOND;
         case PM_EXECUTE:        return UNI_EXECUTE;
      }
 
-   CERR << "pmode = " << get_executable()->get_parse_mode() << endl;
+   CERR << "pmode = " << get_parse_mode() << endl;
    Assert(0 && "bad pmode");
 }
 //-----------------------------------------------------------------------------

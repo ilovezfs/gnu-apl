@@ -726,7 +726,10 @@ InputMux::get_line(LineInputMode mode, const UCS_string & prompt,
 const APL_time_us from = now();
    if (start_input)   (*start_input)();
 
+#if PARALLEL_ENABLED
    Parallel::lock_pool(false);
+#endif
+
    for (int control_D_count = 0;;)
        {
          bool _eof = false;
@@ -741,7 +744,9 @@ const APL_time_us from = now();
               if (control_D_count >= uprefs.control_Ds_to_exit)
                  {
                    CIN << endl;
+#if PARALLEL_ENABLED
                    Thread_context::kill_pool();
+#endif // PARALLEL_ENABLED
                    uprefs.silent = true;   // exit silently
                    Command::cmd_OFF(4);    // exit()s
                    return;  // not reached
@@ -765,12 +770,16 @@ const APL_time_us from = now();
               //
               CIN << endl;
               COUT << "      *** end of input" << endl;
+#if PARALLEL_ENABLED
               Thread_context::kill_pool();
+#endif
               Command::cmd_OFF(2);   // exit()s
               return;  // not reached
             }
       }
+#if PARALLEL_ENABLED
    Parallel::unlock_pool(false);
+#endif
 
    Log(LOG_get_line)   CERR << " '" << line << "'" << endl;
 

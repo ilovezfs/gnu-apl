@@ -151,7 +151,7 @@ Workspace::clear_error(const char * loc)
    for (StateIndicator * si = the_workspace.SI_top(); si; si = si->get_parent())
        {
          si->get_error().init(E_NO_ERROR, LOC);
-         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   break;
+         if (si->get_parse_mode() == PM_FUNCTION)   break;
        }
 }
 //-----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ Workspace::SI_top_fun()
 {
    for (StateIndicator * si = SI_top(); si; si = si->get_parent())
        {
-         if (si->get_executable()->get_parse_mode() == PM_FUNCTION)   return si;
+         if (si->get_parse_mode() == PM_FUNCTION)   return si;
        }
 
    return 0;   // no context wirh parse mode PM_FUNCTION
