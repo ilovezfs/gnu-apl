@@ -766,9 +766,13 @@ ofstream outf(filename.c_str(), ofstream::out);
      const YMDhmsu time(now() + 1000000*offset);
      const char * tz_sign = (offset < 0) ? "" : "+";
 
-     outf << "#!" << LibPaths::get_APL_bin_path()
+     outf << "<!-- #!" << LibPaths::get_APL_bin_path()
           << "/" << LibPaths::get_APL_bin_name()
-          << " --script" << endl
+          << " --script -->" << endl
+          << "<html><head>" << endl
+          << "<meta http-equiv=\"content-type\" "
+          << "content=\"text/html; charset=UTF-8\">" << endl
+          <<"</head><body><pre>"
           << endl
           << " ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝" << endl
           << "⍝" << endl
@@ -796,6 +800,8 @@ int variable_count = 0;
 #define rw_sv_def(x, _str, _txt) if (ID:: x != ID::Quad_SYL) \
    { get_v_ ## x().dump(outf);   ++variable_count; }
 #include "SystemVariable.def"
+
+   outf << endl << "⍝ EOF </pre></body></html>" << endl;
 
    COUT << "DUMPED WORKSPACE '" << wname << "'" << endl
         << " TO FILE '" << filename << "'" << endl
@@ -833,7 +839,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
 
         load_DUMP(out, filename, dump_fd, true);   // closes dump_fd
 
-        // )DUMP files have no )WSID so create on from the filename
+        // )DUMP files have no )WSID so create one from the filename
         //
         const char * wsid_start = strrchr(filename.c_str(), '/');
         if (wsid_start == 0)   wsid_start = filename.c_str();

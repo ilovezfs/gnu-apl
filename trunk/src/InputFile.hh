@@ -42,12 +42,21 @@ struct InputFile
      echo     (_echo),
      is_script(_is_script),
      with_LX  (_with_LX),
-     line_no  (0)
+     line_no  (0),
+     in_html  (false)
    {}
 
    /// set the current line number
    void set_line_no(int num)
       { line_no = num; }
+
+   /// set the current HTML mode
+   void set_html(bool html)
+      { in_html = html; }
+
+   /// return the current HTML mode
+   bool is_html() const
+      { return in_html; }
 
    /// the current file
    static InputFile * current_file()
@@ -104,11 +113,12 @@ struct InputFile
    UTF8_string  filename;   ///< dito.
 
 protected:
-   bool         test;       ///< true for -T testfile, false for -f APLfile
-   bool         echo;       ///< echo stdin
-   bool         is_script;  ///< script (override existing functions)
-   bool         with_LX;    ///< execute ⎕LX at the end
-   int          line_no;    ///< line number in file
+   bool test;       ///< true for -T testfile, false for -f APLfile
+   bool echo;       ///< echo stdin
+   bool is_script;  ///< script (override existing functions)
+   bool with_LX;    ///< execute ⎕LX at the end
+   int  line_no;    ///< line number in file
+   bool in_html;    ///< in HTML header
 
    /// line number in stdin
    static int stdin_line_no;

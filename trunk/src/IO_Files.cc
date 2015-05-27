@@ -108,7 +108,7 @@ IO_Files::read_file_line(UTF8_string & file_line, bool & eof)
 {
    for (;;)
        {
-         int cc = fgetc(InputFile::current_file()->file);
+         const int cc = fgetc(InputFile::current_file()->file);
          if (cc == EOF)   // end of file
             {
               if (file_line.size())   break;   // EOF, but we have chars
@@ -119,10 +119,40 @@ IO_Files::read_file_line(UTF8_string & file_line, bool & eof)
 
          if (cc == '\n' || cc == 2)   // end of line or ^B
             {
+              if (InputFile::current_file()->current_line_no() == 1 &&
+                  file_line.size() && file_line[0] == '<')
+                 {
+                   // first line of the file starts with < (so this file starts
+                   // with some HTML tags.
+                   //
+                   InputFile::current_file()->set_html(true);
+                   InputFile::current_file()->increment_current_line_no();
+                   file_line.clear();
+                   continue;
+                 }
+
+              if (InputFile::current_file()->is_html())   // in HTML header
+                 {
+                   InputFile::current_file()->set_html(false);
+                   loop(f, file_line.size())
+                      {
+                        const char cc = (const char)(file_line[f]);
+                        if (cc == ' ')   continue;   // leading blank
+                        InputFile::current_file()->set_html(cc == '<');
+                        break;
+                      }
+
+                   if (InputFile::current_file()->is_html())  // still in HTML
+                      {
+                        InputFile::current_file()->increment_current_line_no();
+                        file_line.clear();
+                        continue;
+                      }
+                 }
               break;
             }
 
-         if (cc == '\r')   continue;   // ignore carrige returns
+         if (cc == '\r')   continue;   // ignore carriage returns
 
           file_line.append((UTF8)cc);
        }
@@ -284,13 +314,13 @@ IO_Files::open_next_file()
 {
    if (InputFile::current_file() == 0)
       {
-        CERR << "Workspace::open_next_file(): no more files" << endl;
+        CERR << "IO_Files::open_next_file(): no more files" << endl;
         return;
       }
 
    if (InputFile::current_file()->file)
       {
-        CERR << "Workspace::open_next_file(): already open" << endl;
+        CERR << "IO_Files::open_next_file(): already open" << endl;
         return;
       }
 
