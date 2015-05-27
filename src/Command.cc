@@ -92,6 +92,7 @@ Command::process_line(UCS_string & line)
               return;
 
          case UNI_ASCII_NUMBER_SIGN:   // e.g. # comment
+         case UNI_ASCII_LESS:          // e.g. <HTML-tag...
          case UNI_COMMENT:             // e.g. ⍝ comment
               return;
 
