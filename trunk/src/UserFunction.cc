@@ -1293,7 +1293,8 @@ const Function_Line line = get_line(pc);
 Function_Line
 UserFunction::get_line(Function_PC pc) const
 {
-   Assert(pc >= 0);
+   Assert(pc >= -1);
+   if (pc < 0)   pc = Function_PC_0;
 
    // search line_starts backwards until a line with non-greater pc is found.
    //

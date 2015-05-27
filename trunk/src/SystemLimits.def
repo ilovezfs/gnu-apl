@@ -19,7 +19,7 @@ syl2("current number of values"               , __CURVC           , Value::value
 syl2("current total ravel bytes"              , __CURRC           , Value::total_ravel_count * sizeof(Cell))
 syl2("max. rank for APL values"               , __MAXRK           , MAX_RANK_WANTED     )
 syl1("min. ⎕PW"                               , MIN_Quad_PW       , 30                  )
-syl1("max. ⎕PW"                               , MAX_Quad_PW       , 1000                )
+syl1("max. ⎕PW"                               , MAX_Quad_PW       , 10000                )
 syl1("min. ⎕PP"                               , MIN_Quad_PP       , 1                   )
 syl1("max. ⎕PP"                               , MAX_Quad_PP       , 16                  )
 syl2("log₁₀(max. ⎕CT)"                        , __LMAXCT          , (int)(log10(MAX_Quad_CT) - 0.2))
