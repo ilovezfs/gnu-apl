@@ -940,8 +940,9 @@ struct stat st;
 
    reset();
 
-   if (!strncmp((const char *)file_start, "#!", 2) ||    // a )DUMP file
-       !strncmp((const char *)file_start, "⍝!", 4))      // a library
+   if (!strncmp((const char *)file_start, "#!", 2)      ||   // old )DUMP file
+       !strncmp((const char *)file_start, "<!-- #!", 7) ||   // new )DUMP file
+       !strncmp((const char *)file_start, "⍝!", 4))          // a library
       {
         // the file was either written with )DUMP or is a library.
         // Return the open file descriptor (the destructor will unmap())
