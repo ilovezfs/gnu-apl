@@ -307,8 +307,8 @@ ValueStackItem & vs = value_stack.back();
         case NC_UNUSED_USER_NAME:
         case NC_FUNCTION:
         case NC_OPERATOR:
-
-             vs.name_class = NC_FUNCTION;
+             if (lambda->is_operator())   vs.name_class = NC_OPERATOR;
+             else                         vs.name_class = NC_FUNCTION;
              vs.sym_val.function = lambda;
              if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;

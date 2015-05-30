@@ -559,10 +559,10 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
    setup_lambdas();
    line_starts.push_back(Function_PC(bdy.size() - 1));
 
-   if (header.FUN())
+   if (header.FUN())   // named lambda
       {
-        if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
-        else               header.FUN()->set_nc(NC_FUNCTION, this);
+        if (header.LO() || header.RO()) header.FUN()->set_nc(NC_OPERATOR, this);
+        else                            header.FUN()->set_nc(NC_FUNCTION, this);
       }
 }
 //-----------------------------------------------------------------------------

@@ -14,14 +14,18 @@ are correct:
 
 
 This directory also produces apl.html (the home page of GNU APL at
- http://www.gnu.org/software/apl:
+ http://www.gnu.org/software/apl and Community.html that contains
+ links to developments outside the GNU APL project but related to GNU APL.
 
 
-           ../../workspaces/APL_CGT.apl > apl.html
+           ../../workspaces/HTML.apl        (library)
+           ../../workspaces/APL_CGT.apl   > index.html
+           ../../workspaces/Community.apl > Community.html
                        |
                        |
                        |
-  apl-home.css     apl.html
+                   index.html
+  apl-home.css     Community.html
              \     /
               \   /
                \ /
