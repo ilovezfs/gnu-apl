@@ -1,4 +1,13 @@
 
+	/* NOTE: 4-tuples are: North East South West:
+
+			      N
+			  +-------+
+			W |       | E
+			  +-------+
+			      S
+	 */
+
 BODY	{ background-color: #FFFFFF;
           margin: 0; padding: 2em;
           font: normal;
@@ -13,9 +22,10 @@ H1, H2, H3, H4, H5, H6	{ text-align: center; }
 .c3 {  background-color: #C0F0C0; }   /* downloading   */
 .c4 {  background-color: #F0C0C0; }   /* bugs          */
 .c5 {  background-color: #E0F0F0; }   /* documentation */
-.c6 {  background-color: #E0E0E0; }   /* GNU stuff     */
+.c6 {  background-color: #E0E080; }   /* Community     */
+.c7 {  background-color: #E0E0E0; }   /* GNU stuff     */
 
-.c1, .c2, .c3, .c4, .c5, .c6 { margin: 1em; padding: 1em; }
+.c1, .c2, .c3, .c4, .c5, .c6, .c7 { margin: 1em; padding: 1em; }
 
     /* table of content */
 .toc_a2	{
@@ -98,4 +108,54 @@ H1, H2, H3, H4, H5, H6	{ text-align: center; }
           border: solid black;
           border-width: 1px;
        }
+
+    /* function tables...  */
+
+.tab1	{ width: 15% }
+.tab2	{ width: 15% }
+.tab3	{ width:  5% }
+.tab4	{ width: 15% }
+.tab5	{ width: 15% }
+
+    /* cell colors
+     */
+.tab1, .tab12, .tab2	{ background-color: #E0E0FF; color: black; }
+.tab3			{ background-color: #F0F0C0; color: black; }
+.tab4, .tab45, .tab5	{ background-color: #E0F0E0; color: black; }
+
+    /* cell margin (transparent space outside border
+     */
+.tab1, .tab12, .tab2, .tab3, .tab4, .tab45, .tab5
+	{ margin: 0 }
+
+    /* cell padding (opaque space between border and content
+     */
+.tab1, .tab4			    { padding: 0.1em 1em 0.5em 1em; }
+.tab2, .tab5			    { padding: 0 }
+TH.tab1, TH.tab2, TH.tab4, TH.tab5  { padding: 0.3em 1em 0.5em 1em; }
+.tab12, .tab45			    { padding: 0.3em 1em 0.5em 1em; }
+
+.tab2, .tab5  { padding: 0 }
+
+	/* table and cell borders
+	 */
+.table1	{ border: solid black;	border-width: 2px; }
+
+.tab1, .tab12, .tab2, .tab3, .tab4, .tab45, .tab5
+	{ border: solid black;	    border-width: 1px 0px 0px 1px; }
+
+.tab3	{ text-align: center; font-weight: bold }
+TD.tab3	{ font-size: 160%; }
+
+    /* user input/output table examples
+     */
+.input4  { color: blue;
+          margin: 1em 1em 0 1em; padding: 0.5em 1em 0.1em 1em;
+	  font-weight: 600;      font-size: 120%;
+        }
+
+.output4 { color: black;
+          margin: 0 1em 1em 1em;     padding: 0.1em 1em 0.1em 1em;
+	  font-weight: normal;       font-size: 120%;
+        }
 

@@ -1,0 +1,152 @@
+<html>
+  <head>
+    <title>README-Bits_and_Pieces</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel='stylesheet' type='text/css' href='bits-and-pieces.css'>
+  </head>
+  <body>
+
+<H1>Introduction</H1>
+
+This directory contains small files that contain APL code fragments,
+APL functions, entire APL workspaces, or files that are otherwise related
+to GNU APL, and that the author of the file would like to share with other
+APL users (GNU APL or not).
+<BR><BR>
+The files are self-contained in the sense that no other information about
+them is required or available. Some files are GNU APL workspaces (created
+with the )DUMP command) while others are meant for direct cut-and-paste
+from a web browser into GNU APL without the need to download them first.
+<BR><BR>
+Please note that the files are NOT maintained by the GNU APL project but
+by the author named in each file.
+
+<H1>File Format</H1>
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in
+   <A href=http://www.rfc-editor.org/rfc/rfc2119.txt>RFC 2119)</A>
+<BR><BR>
+All files MUST be HTML and UTF8-encoded.
+<BR><BR>
+Every file MUST contain the following information (preferably at the
+beginning as APL comments):
+<UL>
+<LI> Author
+<LI> Date
+<LI> Copyright
+<LI> License
+<LI> Support email address
+<LI> Portability
+<LI> Purpose
+<LI> Description
+</UL>
+
+There is a file <A href="+TEMPLATE-Bits_and_Pieces.apl">
++TEMPLATE-Bits_and_Pieces.apl</A> in this directory that can serve as a
+template for contributions of APL code. The details of the mandatory
+information in a file is described in the following sub-chapters.
+
+<H3>Author</H3>
+
+The author is the name of the person that has written the code. It MUST NOT
+be the name of a legal entity (company, corporation etc.). The author MAY
+provide additional information like postal address, but should keep in mind
+that this information will be visible on the internet.
+<BR><BR>
+The author is responsible for the content of the file. The author (and NOT
+the GNU APL project) is also responsible for maintaining the file.
+
+<H3>Date</H3>
+
+The date when the file was submitted to the GNU APL Bits_and_Pieces
+directory (see <A href="#CH_2">Process </A> below).
+
+<H3>Copyright</H3>
+
+The file MUST contain a copyright line like:
+<BR><BR>
+Copyright (C) 2015 by Author
+<BR><BR>
+with, of course, <B>2015</B> and <B>Author</B> replaced by the actual date and
+name. We currently assume that the author is also the copyright owner. If the
+author differs from the copyright owner then we need to check with the GNU
+project how to handle the contribution.
+
+<H3>License</H3>
+
+The file MUST declare under which license it is being published. The license
+MUST be either GPL or LGPL at the discretion of the author.
+
+<H3>Support email</H3>
+
+The file MUST contain an email address to which support requests (questions
+and bug reports) should be sent. Since this email address appears on the internet,
+the author MAY obscure it in a way that is easy to understand by human readers
+but difficult to handle by programs that scan the internet automatically.
+
+<H3>Portability Level</H3>
+
+A file containing APL code MUST indicate its portability level, which is
+one of:
+<UL>
+<LI> L1: runs on all ISO 13751 compatible APL interpreters
+<LI> L2: like L1, but needs an additional portability library
+<LI> L3: runs only on GNU APL
+</UL>
+
+See <A href=http://www.gnu.org/software/apl/Library-Guidelines.html>
+Library Guidelines</A> for details.
+
+<H3>Purpose</H3>
+
+This should be a brief description of WHAT the code does.
+
+<H3>Description</H3>
+
+This should be a description of HOW the code is supposed to be used.
+<BR><BR>
+In general, more is better. However a too long description at the beginning of
+the file can reduce the readability of the file considerably. For that
+reason it is recommended to put a brief description at the beginning of
+the file and a longer, more detailed description at the end. This can be
+achieved by ending the APL code with command )OFF or with command ]NEXTFILE.
+After )OFF or ]NEXTFILE you can then add the long description (without
+worrying about performance because the interpreter stops processing of the file
+at the )OFF or ]NEXTFILE command.
+
+<H1>Process</H1><A name="CH_2"></A>
+
+If you would like to share a file by publishing it in the the GNU APL
+GNU APL Bits_and_Pieces directory, then please do the following.
+<OL>
+<LI> Prepare the file according to the format described above
+<LI> Send an email to <a href="mailto:bug-apl@gnu,org">bug-apl@gnu,org</a>
+     with the file attached and declaring that (1) you are the author of the
+     file and (2) you would like it to be published in the GNU APL
+     Bits_and_Pieces directory. In that email, please solicit feedback from
+     the GNU APL Community on your contribution.
+<LI> We will then look at the file (checking that the format of the file is
+     as described above, that it does not conflict with the
+     <A href="http://www.gnu.org/philosophy/philosophy.html">GNU philosophy</A>,
+     and that it is suitable for the GNU APL Bits_and_Pieces directory).
+     We will then either accept the file, request modifications, or reject it.
+<LI> If the file is accepted then send a release announcement to
+     <a href="mailto:bug-apl@gnu,org">bug-apl@gnu,org</a> (and possibly other
+     places as appropriate).
+</OL>
+
+<H1>Removal</H1>
+
+There could be reasons to remove a file, for example if the support email
+address becomes invalid, support requests are not answered, or the code in
+the file is obsoleted by other contributions.
+<BR><BR>
+We will, if possible, inform the author of a file before removing it.
+<BR><BR>
+The author of a file can also, at any time, request the removal of the file.
+
+  </body>
+</html>
+
