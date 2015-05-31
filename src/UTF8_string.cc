@@ -269,6 +269,65 @@ const int ext_len = strlen(ext);
    return true;
 }
 //-----------------------------------------------------------------------------
+int
+UTF8_string::un_HTML(int in_HTML)
+{
+int dest = 0;
+bool got_tag = false;
+   loop(src, size())
+      {
+        const char cc = (char)(items[src]);
+        if (in_HTML == 2)   // in HTML header, i.e. < seen
+           {
+             if (cc == '>')   in_HTML = 1;   // in HTML but not in HTML tag
+             continue;
+           }
+
+        if (cc == '<')   // start of HTML tag
+           {
+             in_HTML = 2;   // in HTML tag
+             got_tag = true;
+             continue;
+           }
+
+        if (cc != '&')   // unless HTML-escaped char
+           {
+             items[dest++] = cc;
+             continue;
+           }
+
+        const int rest = size() - src;
+        if (rest > 5 && items[src + 1] == '#' && items[src + 4] == ';')
+           {
+             const long val = strtol((const char *)(items + src + 2), 0, 10);
+             items[dest++] = (char)val;
+             src += 4;
+           }
+        else if (rest > 4 && items[src + 1] == 'g' &&
+                             items[src + 2] == 't' &&
+                             items[src + 3] == ';')
+           {
+             items[dest++] = '>';
+             src += 3;   // skip gt;
+           }
+        else if (rest > 4 && items[src + 1] == 'l' &&
+                             items[src + 2] == 't' &&
+                             items[src + 3] == ';')
+           {
+             items[dest++] = '<';
+             src += 3;   // skip gt;
+           }
+        else
+           {
+             items[dest++] = cc;
+           }
+      }
+
+   if (got_tag)   dest = 0;
+   shrink(dest);
+   return in_HTML;
+}
+//-----------------------------------------------------------------------------
 ostream &
 operator<<(ostream & os, const UTF8_string & utf)
 {

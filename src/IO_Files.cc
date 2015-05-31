@@ -106,9 +106,10 @@ IO_Files::get_file_line(UTF8_string & line, bool & eof)
 void
 IO_Files::read_file_line(UTF8_string & file_line, bool & eof)
 {
+InputFile * input = InputFile::current_file();
    for (;;)
        {
-         const int cc = fgetc(InputFile::current_file()->file);
+         const int cc = fgetc(input->file);
          if (cc == EOF)   // end of file
             {
               if (file_line.size())   break;   // EOF, but we have chars
@@ -119,35 +120,19 @@ IO_Files::read_file_line(UTF8_string & file_line, bool & eof)
 
          if (cc == '\n' || cc == 2)   // end of line or ^B
             {
-              if (InputFile::current_file()->current_line_no() == 1 &&
-                  file_line.size() && file_line[0] == '<')
+              if (input->current_line_no() == 1 &&
+                  file_line.starts_with("<!"))
                  {
-                   // first line of the file starts with < (so this file starts
-                   // with some HTML tags.
+                   // first line of the file starts with <! (so we assume that
+                   // this fle is a HTML tagged file
                    //
-                   InputFile::current_file()->set_html(true);
-                   InputFile::current_file()->increment_current_line_no();
-                   file_line.clear();
-                   continue;
+                   input->set_html(1);
                  }
 
-              if (InputFile::current_file()->is_html())   // in HTML header
+              if (input->get_html() > 0)   // HTML file
                  {
-                   InputFile::current_file()->set_html(false);
-                   loop(f, file_line.size())
-                      {
-                        const char cc = (const char)(file_line[f]);
-                        if (cc == ' ')   continue;   // leading blank
-                        InputFile::current_file()->set_html(cc == '<');
-                        break;
-                      }
-
-                   if (InputFile::current_file()->is_html())  // still in HTML
-                      {
-                        InputFile::current_file()->increment_current_line_no();
-                        file_line.clear();
-                        continue;
-                      }
+                  input->set_html(file_line.un_HTML(input->get_html()));
+                  if (file_line.size() == 0)   continue;   // line with tag(s)
                  }
               break;
             }

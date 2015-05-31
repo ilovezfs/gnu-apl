@@ -76,8 +76,11 @@ public:
    /// return true iff string ends with ext (usually a file name extennsion)
    bool ends_with(const char * ext) const;
 
-   /// return true iff string ends with ext (usually a file path)
+   /// return true iff string starts with path (usually a file path)
    bool starts_with(const char * path) const;
+
+   /// skip over < ... > and expand &lt; and friends
+   int un_HTML(int in_HTML);
 
    /// append a 0-terminated C string
    void append_str(const char * str)

@@ -709,8 +709,41 @@ InputFile fam(filename, file, false, false, true, with_LX);
    InputFile::files_todo.insert(InputFile::files_todo.begin(), fam);
 }
 //-----------------------------------------------------------------------------
+class HTML_streambuf : public streambuf
+{
+public:
+   HTML_streambuf(ofstream & outf)
+   : out_file(outf)
+   {}
+
+   virtual int overflow(int c)
+      {
+        switch(c & 0xFF)
+           {
+              case '#':  out_file << "&#35";    break;
+              case '%':  out_file << "&#37;";   break;
+              case '&':  out_file << "&#38;";   break;
+              case '<':  out_file << "&lt;";    break;
+              case '>':  out_file << "&gt;";    break;
+              default:   out_file << (char)(c & 0xFF);
+           }
+        return 0;
+      }
+
+protected:
+   ofstream & out_file;
+};
+
+class HTML_stream : public ostream
+{
+public:
+   HTML_stream(HTML_streambuf * html_out)
+   : ostream(html_out)
+   {}
+};
+
 void
-Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws)
+Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws, bool html)
 {
    // )DUMP
    // )DUMP wsname
@@ -730,11 +763,11 @@ Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws)
    // at this point, lib_ws.size() is 1 or 2.
 
 LibRef libref = LIB_NONE;
-UCS_string wname = lib_ws.back();
+const UCS_string wname = lib_ws.back();
    if (lib_ws.size() == 2)   libref = (LibRef)(lib_ws.front().atoi());
+const char * extension = html ? ".html" : ".apl";
 UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
-                                                  ".apl", 0);
-
+                                                  extension, 0);
    if (wname.compare(UCS_string("CLEAR WS")) == 0)   // don't save CLEAR WS
       {
         COUT << "NOT DUMPED: THIS WS IS " << wname << endl;
@@ -752,13 +785,18 @@ UTF8_string filename = LibPaths::get_lib_filename(libref, wname, false,
       }
 
 ofstream outf(filename.c_str(), ofstream::out);
+
    if (!outf.is_open())   // open failed
       {
         CERR << "Unable to )DUMP workspace '" << wname
-             << "'." << strerror(errno) << endl;
+             << "': " << strerror(errno) << endl;
         return;
       }
 
+HTML_streambuf hout_buf(outf);
+HTML_stream hout(&hout_buf);
+ostream * sout = &outf;
+   if (html)   sout = &hout;
    // print header line, workspace name, time, and date to outf
    //
    {
@@ -766,15 +804,54 @@ ofstream outf(filename.c_str(), ofstream::out);
      const YMDhmsu time(now() + 1000000*offset);
      const char * tz_sign = (offset < 0) ? "" : "+";
 
-     outf << "<!-- #!" << LibPaths::get_APL_bin_path()
-          << "/" << LibPaths::get_APL_bin_name()
-          << " --script -->" << endl
-          << "<html><head>" << endl
-          << "<meta http-equiv=\"content-type\" "
-          << "content=\"text/html; charset=UTF-8\">" << endl
-          <<"</head><body><pre>"
-          << endl
-          << " ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝" << endl
+     if (html)
+        {
+          outf <<
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\""               << endl <<
+"                      \"http://www.w3.org/TR/html4/strict.dtd\">"  << endl <<
+"<html>"                                                            << endl <<
+"  <head>"                                                          << endl <<
+"    <title>" << wname << ".apl</title> "                           << endl <<
+"    <meta http-equiv=\"content-type\" "                            << endl <<
+"          content=\"text/html; charset=UTF-8\">"                   << endl <<
+"    <meta name=\"author\" content=\"??????\">"                     << endl <<
+"    <meta name=\"copyright\" content=\"&copy; " << time.year
+                                                 <<" by ??????\">"  << endl <<
+"    <meta name=\"date\" content=\"" << time.year << "-"
+                                     << time.month << "-"
+                                     << time.day << "\">"           << endl <<
+"    <meta name=\"description\""                                    << endl <<
+"          content=\"??????\">"                                     << endl <<
+"    <meta name=\"keywords\" lang=\"en\""                           << endl <<
+"          content=\"??????, APL, GNU\">"                           << endl <<
+" </head>"                                                          << endl <<
+" <body><pre>"                                                      << endl <<
+"⍝"                                                                 << endl <<
+"⍝ Author:      ??????"                                             << endl <<
+"⍝ Date:        " << time.year << "-"
+                  << time.month << "-"
+                  << time.day                                       << endl <<
+"⍝ Copyright:   Copyright (C) " << time.year << " by ??????"        << endl <<
+"⍝ License:     GPL see http://www.gnu.org/licenses/gpl-3.0.en.html"<< endl <<
+"⍝ Support email: ??????@??????"                                    << endl <<
+"⍝ Portability:   L3 (GNU APL)"                                     << endl <<
+"⍝"                                                                 << endl <<
+"⍝ Purpose:"                                                        << endl <<
+"⍝ ??????"                                                          << endl <<
+"⍝"                                                                 << endl <<
+"⍝ Description:"                                                    << endl <<
+"⍝ ??????"                                                          << endl <<
+"⍝"                                                                 << endl <<
+                                                                       endl;
+        }
+     else
+        {
+          outf << "#!" << LibPaths::get_APL_bin_path()
+               << "/" << LibPaths::get_APL_bin_name()
+               << " --script" << endl;
+        }
+
+     *sout << " ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝" << endl
           << "⍝" << endl
           << "⍝ " << wname << " "
           << setfill('0') << time.year  << "-"
@@ -792,21 +869,21 @@ ofstream outf(filename.c_str(), ofstream::out);
 
 int function_count = 0;
 int variable_count = 0;
-   the_workspace.symbol_table.dump(outf, function_count, variable_count);
+   the_workspace.symbol_table.dump(*sout, function_count, variable_count);
 
    // system variables
    //
 #define ro_sv_def(x, _str, _txt)
 #define rw_sv_def(x, _str, _txt) if (ID:: x != ID::Quad_SYL) \
-   { get_v_ ## x().dump(outf);   ++variable_count; }
+   { get_v_ ## x().dump(*sout);   ++variable_count; }
 #include "SystemVariable.def"
 
-   outf << endl << "⍝ EOF </pre></body></html>" << endl;
+   if (html)   outf << endl << "⍝ EOF </pre></body></html>" << endl;
 
-   COUT << "DUMPED WORKSPACE '" << wname << "'" << endl
-        << " TO FILE '" << filename << "'" << endl
-        << " (" << function_count << " FUNCTIONS, " << variable_count
-        << " VARIABLES)" << endl;
+   out << "DUMPED WORKSPACE '" << wname << "'" << endl
+       << " TO FILE '" << filename << "'" << endl
+       << " (" << function_count << " FUNCTIONS, " << variable_count
+       << " VARIABLES)" << endl;
 }
 //-----------------------------------------------------------------------------
 // )LOAD WS, set ⎕LX of loaded WS on success

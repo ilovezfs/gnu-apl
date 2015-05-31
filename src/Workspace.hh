@@ -207,7 +207,7 @@ public:
    static bool backup_existing_file(const char * filename);
 
    /// dump this workspace
-   static void dump_WS(ostream & out, vector<UCS_string> & lib_ws);
+   static void dump_WS(ostream & out, vector<UCS_string> & lib_ws, bool html);
 
    /// set or inquire the workspace ID
    static void wsid(ostream & out, UCS_string arg);

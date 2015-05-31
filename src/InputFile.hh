@@ -43,7 +43,7 @@ struct InputFile
      is_script(_is_script),
      with_LX  (_with_LX),
      line_no  (0),
-     in_html  (false)
+     in_html  (0)
    {}
 
    /// set the current line number
@@ -51,11 +51,11 @@ struct InputFile
       { line_no = num; }
 
    /// set the current HTML mode
-   void set_html(bool html)
+   void set_html(int html)
       { in_html = html; }
 
    /// return the current HTML mode
-   bool is_html() const
+   int get_html() const
       { return in_html; }
 
    /// the current file
@@ -118,7 +118,7 @@ protected:
    bool is_script;  ///< script (override existing functions)
    bool with_LX;    ///< execute ⎕LX at the end
    int  line_no;    ///< line number in file
-   bool in_html;    ///< in HTML header
+   int  in_html;    ///< 0: no HTML, 1: in HTML file 2: in HTML header
 
    /// line number in stdin
    static int stdin_line_no;
