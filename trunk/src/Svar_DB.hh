@@ -50,10 +50,6 @@ public:
    const Svar_record * operator->() const
       { return &cache; }
 
-   /// return reference to the record (overloaded * operator)
-   Svar_record * operator->()
-      { return &cache; }
-
 protected:
    /// the last fetched record
    static Svar_record cache;
@@ -100,9 +96,9 @@ public:
    static void retract_var(SV_key key);
 
    /// return pointer to varname or 0 if key does not exist
-   static const uint32_t * get_varname(SV_key key)
+   static const uint32_t * get_svar_name(SV_key key)
       {
-        READ_RECORD(key, return svar->get_varname(); , return 0; )
+        READ_RECORD(key, return svar->get_svar_name(); , return 0; )
       }
 
    /// find ID of the procesdsor that has offered the variable with key \b key

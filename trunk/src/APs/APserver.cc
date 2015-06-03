@@ -678,8 +678,8 @@ AP3_fd * ap_fd = 0;
                   }
 
                Svar_record * svar = db.find_var(key, LOC);
-               if (svar) svar->set_state(false, "APserver 524");
-               else cerr << "*** key not in db" << endl;
+               if (svar)   svar->set_state(false, LOC);
+               else        cerr << "*** key not in db" << endl;
              }
              return;
 
@@ -696,7 +696,7 @@ AP3_fd * ap_fd = 0;
                           WSWS_VALUE_IS_c(fd, var_values[vv].var_value);
 
                           Svar_record * svar = db.find_var(key, LOC);
-                          if (svar) svar->set_state(true, LOC);
+                          if (svar)   svar->set_state(true, LOC);
                           else cerr << "*** key not in db at " << LOC << endl;
                           return;
                         }
@@ -827,8 +827,8 @@ AP3_fd * ap_fd = 0;
                const SV_key key = request->get__SET_STATE__key();
                Svar_record * svar = db.find_var(key, LOC);
 
-               if (svar) svar->set_state(request->get__SET_STATE__new_state(),
-                                   request->get__SET_STATE__loc().c_str());
+               if (svar)   svar->set_state(request->get__SET_STATE__new_state(),
+                                       request->get__SET_STATE__loc().c_str());
                else cerr << "*** key not in db at " << LOC << endl;
              }
              return;

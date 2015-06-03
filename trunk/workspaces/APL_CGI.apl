@@ -133,7 +133,7 @@ yZ←⊃ HTML∆Ol I1, I2, I3, I4
 <TABLE>
   <TR>
     <TD> <?apl HTML∆Img[xGNU_PIC, (HTML∆_alt 'Astrid'), HTML∆__h_w 122 129] 1 ?>
-    <TD width="20%">
+    <TD style="width:20%">
     <TD><I> Rho, rho, rho of X<BR>
          Always equals 1<BR>
          Rho is dimension, rho rho rank.<BR>
@@ -264,7 +264,15 @@ There is a growing group of people that are using GNU APL and that have made
 their own developments related to APL available to the public.
 We have created a
 <?apl  'Community.html' HTML∆A '<b>GNU APL Community Web page</b>' ?>
-that collects links to those developments to avoid that they get lost.
+that collects <B>links</B> to those developments to avoid that they get lost.
+<BR><BR>
+In addition, we maintain a 
+<?apl  'Bits_and_Pieces/' HTML∆A '<b>Bits-and-Pieces</b>' ?> directory
+where we collect <B>files</B> that contain APL code sniplets, GNU APL
+workspaces, and other files that were contributed by the GNU APL Community.
+The Bits-and-Pieces directory is the right place for contributions for which
+the creation of an own hosting account would be an overkill.
+
 </DIV>
 
 END-OF-⎕INP

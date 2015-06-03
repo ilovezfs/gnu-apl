@@ -369,7 +369,7 @@ Function_PC end = start;
 
    Assert(start   <= pc_from_to.low);
    Assert(pc_from_to.low  <= pc_from_to.high);
-   Assert(pc_from_to.high <= end);
+   if (pc_from_to.high > end)   pc_from_to.high = end;
 
    // if the error was caused by some function being executed then
    // the right arg of the function was OK and we skip it

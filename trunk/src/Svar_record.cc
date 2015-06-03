@@ -96,8 +96,6 @@ const AP_num3 offered_to = offering.id;
 SV_Coupling
 Svar_record::retract()
 {
-   if (this == 0)   return NO_COUPLING;
-
 const SV_Coupling old_coupling = get_coupling();
 
    if (ProcessorID::get_id() == offering.id)         remove_offering();
@@ -122,8 +120,6 @@ const SV_Coupling old_coupling = get_coupling();
 bool
 Svar_record::is_ws_to_ws()   const
 {
-   if (this == 0)   return false;
-
    if (get_coupling() != SV_COUPLED)   return offering.id.proc >= AP_FIRST_USER;
 
    return offering.id.proc  >= AP_FIRST_USER &&
@@ -164,8 +160,6 @@ int ret = 0;
 Svar_Control
 Svar_record::get_control() const
 {
-   if (this == 0)   return NO_SVAR_CONTROL;
-
 int ctl = offering.get_control() | accepting.get_control();
 
    if (ProcessorID::get_id() == accepting.id)   ctl = mirror(ctl);
@@ -175,8 +169,6 @@ int ctl = offering.get_control() | accepting.get_control();
 void
 Svar_record::set_control(Svar_Control ctl)
 {
-   if (this == 0)   return;
-
    Log(LOG_shared_variables)
       {
         get_CERR() << "set_control(" << ctl << ") on ";
@@ -207,16 +199,12 @@ Svar_record::set_control(Svar_Control ctl)
 Svar_state
 Svar_record::get_state() const
 {
-   if (this == 0)   return SVS_NOT_SHARED;
-
    return state;
 }
 //-----------------------------------------------------------------------------
 void
 Svar_record::set_state(bool used, const char * loc)
 {
-   if (this == 0)   return;
-
 usleep(50000);
 
    Log(LOG_shared_variables)
@@ -224,7 +212,8 @@ usleep(50000);
         const char * op = used ? "used" : "set";
         get_CERR() << "set_state(" << op << ") on ";
         print_name(get_CERR());
-        get_CERR() << " by " << ProcessorID::get_id().proc << " at " << loc << endl;
+        get_CERR() << " by " << ProcessorID::get_id().proc
+                   << " at " << loc << endl;
       }
 
    // the control vector as seen by the offering side
@@ -290,8 +279,6 @@ Svar_partner * peer = 0;
 bool
 Svar_record::may_use(int attempt)
 {
-   if (this == 0)   return false;
-
    // control restriction as seen by the offering partner
    //
 const int control = offering.get_control() | accepting.get_control();
@@ -328,8 +315,6 @@ const int restriction = control & state;
 bool
 Svar_record::may_set(int attempt)
 {
-   if (this == 0)   return false;
-
    // control restriction as seen by the offering partner
    //
 const int control = offering.get_control() | accepting.get_control();
