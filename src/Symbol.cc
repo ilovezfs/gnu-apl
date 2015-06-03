@@ -1159,7 +1159,7 @@ const bool ws_to_ws = Svar_DB::is_ws_to_ws(get_SV_key());
                  {
                    CERR << "Shared variable ";
                    for (const uint32_t * varname =
-                                         Svar_DB::get_varname(get_SV_key());
+                                         Svar_DB::get_svar_name(get_SV_key());
                         varname && *varname; ++varname)
                        CERR << (Unicode)(*varname++);
                    CERR << " is blocked on set. Waiting ...";
@@ -1250,7 +1250,7 @@ const bool ws_to_ws = Svar_DB::is_ws_to_ws(get_SV_key());
                    CERR << "apl" << ProcessorID::get_id().proc
                                     << ": Shared variable ";
                    for (const uint32_t * varname =
-                                         Svar_DB::get_varname(get_SV_key());
+                                         Svar_DB::get_svar_name(get_SV_key());
                         varname && *varname; ++varname)
                        CERR << (Unicode)(*varname++);
                    CERR << " is blocked on use. Waiting ...";

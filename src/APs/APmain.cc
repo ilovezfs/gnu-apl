@@ -114,7 +114,7 @@ print_vars(ostream & out)
        {
          Coupled_var & cv = coupled_vars[c];
          get_CERR() << "   key: 0x" << hex << cv.key << dec << " ";
-         const uint32_t * varname = Svar_DB::get_varname(cv.key);
+         const uint32_t * varname = Svar_DB::get_svar_name(cv.key);
          if (varname)
             {
               while (*varname)   get_CERR() << (Unicode)(*varname++);
@@ -307,7 +307,7 @@ cerr << "APnnn got " << signal->get_sigName() << endl;
                                            << " got MAKE_OFFER" << endl;
                  {
                    const SV_key key = signal->get__MAKE_OFFER__key();
-                   const uint32_t * varname = Svar_DB::get_varname(key);
+                   const uint32_t * varname = Svar_DB::get_svar_name(key);
                   if (varname == 0)
                      {
                        get_CERR() << "Could not find svar for key "

@@ -289,6 +289,8 @@ Svar_DB::DB_tcp_error(const char * op, int got, int expected)
 
 Svar_record_P::Svar_record_P(SV_key key)
 {
+   cache.clear();
+
    if (!Svar_DB::APserver_available())   return;
 
 const int sock = Svar_DB::get_DB_tcp();

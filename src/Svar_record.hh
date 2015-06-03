@@ -203,8 +203,7 @@ struct Svar_record
 
    /// return the coupling of the variable
    SV_Coupling get_coupling() const
-       { if (this == 0)   return NO_COUPLING;
-         int ret = 0;   if (offering.is_active())   ++ret;
+       { int ret = 0;   if (offering.is_active())    ++ret;
                         if (accepting.is_active())   ++ret;
          return (SV_Coupling)ret; }
 
@@ -218,10 +217,9 @@ struct Svar_record
    /// return the state of this variable
    Svar_state get_state() const;
 
-   /// return the name of the variable. This function may be called with
-   /// this == 0 to test for the presence of a variable.
-   const uint32_t * get_varname() const
-      { return this ? varname : 0; }
+   /// return the name of the variable, or 0 if fetching it has failed
+   const uint32_t * get_svar_name() const
+      { return *varname ? varname : 0; }
 
    /// update the state when using or setting this variable, and clear events
    void set_state(bool used, const char * loc);
