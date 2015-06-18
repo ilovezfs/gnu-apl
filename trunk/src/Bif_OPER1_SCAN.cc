@@ -194,15 +194,14 @@ Token
 Bif_OPER1_SCAN::eval_AXB(Value_P A,
                              Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
-
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return expand(A, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER1_SCAN::eval_LXB(Token & LO, Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return scan(LO.get_function(), B, axis);
 }
 //-----------------------------------------------------------------------------
@@ -210,15 +209,14 @@ Token
 Bif_OPER1_SCAN1::eval_AXB(Value_P A,
                              Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
-
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return expand(A, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER1_SCAN1::eval_LXB(Token & LO, Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return scan(LO.get_function(), B, axis);
 }
 //-----------------------------------------------------------------------------

@@ -233,7 +233,7 @@ public:
 
    /// overloaded Function::eval_XB()
    virtual Token eval_XB(Value_P X, Value_P B)
-      { const Shape axes_X = X->to_shape();
+      { const Shape axes_X = Value::to_shape(X.get());
         return disclose_with_axis(axes_X, B, false); }
 
    /// ⊃[X]B

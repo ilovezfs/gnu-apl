@@ -340,8 +340,7 @@ REDUCTION & _arg = arg->u.u_REDUCTION;
 Token
 Bif_OPER1_REDUCE::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
-
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return replicate(A, B, axis);
 }
 //-----------------------------------------------------------------------------
@@ -350,7 +349,7 @@ Bif_OPER1_REDUCE::eval_LXB(Token & _LO, Value_P X, Value_P B)
 {
 Function * LO = _LO.get_function();
 
-const Rank axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return reduce(LO, B, axis);
 }
 //-----------------------------------------------------------------------------
@@ -359,7 +358,7 @@ Bif_OPER1_REDUCE::eval_ALXB(Value_P A, Token & _LO, Value_P X, Value_P B)
 {
 Function * LO = _LO.get_function();
 
-const Rank axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return reduce_n_wise(A, LO, B, axis);
 }
 //-----------------------------------------------------------------------------
@@ -367,7 +366,7 @@ Token
 Bif_OPER1_REDUCE1::eval_AXB(Value_P A,
                             Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
 
    return replicate(A, B, axis);
 }
@@ -375,14 +374,14 @@ const Rank axis = X->get_single_axis(B->get_rank());
 Token
 Bif_OPER1_REDUCE1::eval_LXB(Token & LO, Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return reduce(LO.get_function(), B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER1_REDUCE1::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
 {
-const Rank axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return reduce_n_wise(A, LO.get_function(), B, axis);
 }
 //-----------------------------------------------------------------------------

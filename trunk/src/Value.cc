@@ -357,18 +357,19 @@ const Cell * C = &get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 bool
-Value::is_or_contains(const Value & value) const
+Value::is_or_contains(const Value * val, const Value & sub)
 {
-   if (this == 0)        return false;   // not a valie value
+   if (val == 0)        return false;   // not a valid value
 
-   if (this == &value)   return true;
+   if (val == &sub)   return true;
 
-const Cell * C = &get_ravel(0);
-   loop(e, nz_element_count())
+const Cell * C = &val->get_ravel(0);
+   loop(e, val->nz_element_count())
       {
         if (C->is_pointer_cell())
            {
-             if (C->get_pointer_value()->is_or_contains(value))   return true;;
+             if (is_or_contains(C->get_pointer_value().get(), sub))
+                return true;
            }
         ++C;
       }
@@ -1037,34 +1038,34 @@ const Cell * cI = &X->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 Rank
-Value::get_single_axis(Rank max_axis) const
+Value::get_single_axis(const Value * val, Rank max_axis)
 {
-   if (this == 0)   AXIS_ERROR;
+   if (val == 0)   AXIS_ERROR;
 
-   if (!is_scalar_or_len1_vector())     AXIS_ERROR;
+   if (!val->is_scalar_or_len1_vector())     AXIS_ERROR;
 
-   if (!get_ravel(0).is_near_int())   AXIS_ERROR;
+   if (!val->get_ravel(0).is_near_int())   AXIS_ERROR;
 
    // if axis becomes (signed) negative then it will be (unsigned) too big.
    // Therefore we need not test for < 0.
    //
-const int axis = get_ravel(0).get_near_int() - Workspace::get_IO();
+const int axis = val->get_ravel(0).get_near_int() - Workspace::get_IO();
    if (axis >= max_axis)   AXIS_ERROR;
 
    return axis;
 }
 //-----------------------------------------------------------------------------
 Shape
-Value::to_shape() const
+Value::to_shape(const Value * val)
 {
-   if (this == 0)   INDEX_ERROR;   // elided index ?
+   if (val == 0)   INDEX_ERROR;   // elided index ?
 
-const ShapeItem xlen = element_count();
+const ShapeItem xlen = val->element_count();
 const APL_Integer qio = Workspace::get_IO();
 
 Shape shape;
      loop(x, xlen)
-        shape.add_shape_item(get_ravel(x).get_near_int() - qio);
+        shape.add_shape_item(val->get_ravel(x).get_near_int() - qio);
 
    return shape;
 }

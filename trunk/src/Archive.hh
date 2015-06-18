@@ -152,7 +152,7 @@ protected:
    struct _val_par
       {
          /// constructor
-         _val_par(const Value & v, const Value & par = *(Value *)0)
+         _val_par(const Value & v, const Value * par = 0)
          : _val(v),
            _par(par)
          {}
@@ -161,7 +161,7 @@ protected:
          const Value & _val;
 
          /// the optional parent
-         const Value & _par;
+         const Value * _par;
 
          /// compare with \b other
          void operator=(const _val_par & other)

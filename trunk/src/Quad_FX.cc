@@ -107,8 +107,7 @@ Quad_FX::eval_AXB(Value_P A, Value_P X, Value_P B)
    if (A->get_rank() > 1)                RANK_ERROR;
    if (!A->is_char_string())             DOMAIN_ERROR;
 
-const Axis axis = X->get_single_axis(10);
-
+const Axis axis = Value::get_single_axis(X.get(), 10);
    return do_native_FX(A, axis, B);
 }
 //-----------------------------------------------------------------------------
