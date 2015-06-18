@@ -219,10 +219,10 @@ public:
 
    /// If this value is a single axis between ⎕IO and ⎕IO + max_axis then
    /// return that axis. Otherwise throw AXIS_ERROR.
-   Rank get_single_axis(Rank max_axis) const;
+   static Rank get_single_axis(const Value * val, Rank max_axis);
 
-   /// convert the ravel of this value to a shape
-   Shape to_shape() const;
+   /// convert the ravel of \b val to a shape
+   static Shape to_shape(const Value * val);
 
    /// glue two values.
    static void glue(Token & token, Token & token_A, Token & token_B,
@@ -346,8 +346,8 @@ public:
         return true;
       }
 
-   /// returen true if value == \b this or value is contained in \b this
-   bool is_or_contains(const Value & value) const;
+   /// returen true if \b sub == \b val or sub is contained in \b val
+   static bool is_or_contains(const Value * val, const Value & sub);
 
    /// print debug info about setting or clearing of flags to CERR
    void flag_info(const char * loc, ValueFlags flag, const char * flag_name,

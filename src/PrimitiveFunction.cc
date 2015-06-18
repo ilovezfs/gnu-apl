@@ -1051,31 +1051,28 @@ Value_P Z(B->get_shape(), LOC);
 Token
 Bif_F12_ROTATE::eval_XB(Value_P X, Value_P B)
 {
-const Axis axis = X->get_single_axis(B->get_rank());
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return reverse(B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_F12_ROTATE::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
-const Axis axis = X->get_single_axis(B->get_rank());
-
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return rotate(A, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_F12_ROTATE1::eval_XB(Value_P X, Value_P B)
 {
-const Axis axis = X->get_single_axis(B->get_rank());
-
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return reverse(B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_F12_ROTATE1::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
-const Axis axis = X->get_single_axis(B->get_rank());
-
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return rotate(A, B, axis);
 }
 //-----------------------------------------------------------------------------
@@ -1662,7 +1659,8 @@ Value_P Z(A->get_shape(), LOC);
 Token
 Bif_F12_PARTITION::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
-   return partition(A, B, X->get_single_axis(B->get_rank()));
+const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
+   return partition(A, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1693,7 +1691,7 @@ Value_P Z(LOC);
 Token
 Bif_F12_PARTITION::eval_XB(Value_P X, Value_P B)
 {
-const Shape shape_X = X->to_shape();
+const Shape shape_X = Value::to_shape(X.get());
 
 Value_P Z = enclose_with_axes(shape_X, B);
    return Token(TOK_APL_VALUE1, Z);
@@ -2331,7 +2329,7 @@ Bif_F2_INDEX::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
    if (A->get_rank() > 1)   RANK_ERROR;
 
-const Shape axes_present = X->to_shape();
+const Shape axes_present = Value::to_shape(X.get());
 
 const ShapeItem ec_A = A->element_count();
    if (ec_A != axes_present.get_rank())   RANK_ERROR;

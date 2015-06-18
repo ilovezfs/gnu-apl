@@ -159,7 +159,7 @@ const int sub_vid = find_vid(v);
    Assert(sub_vid < (int)values.size());
 unsigned int parent_vid = -1;
 
-   if (&values[sub_vid]._par)   parent_vid = find_vid(values[sub_vid]._par);
+   if (values[sub_vid]._par)   parent_vid = find_vid(*values[sub_vid]._par);
 
    out << " parent=\"" << parent_vid << "\" rk=\"" << v.get_rank()<< "\"";
 
@@ -588,9 +588,9 @@ XML_Saving_Archive::emit_token_val(const Token & tok)
                          loop(i, rank)
                              {
                                if (i)   out << ",";
-                               const Value & val = *idx.values[i].get();
-                               if (&val)   out << "vid_" << find_vid(val);
-                               else        out << "-";
+                               const Value * val = idx.values[i].get();
+                               if (val)   out << "vid_" << find_vid(*val);
+                               else       out << "-";
                                 out << "\"";
                              }
                        }
@@ -821,8 +821,8 @@ const int offset = Workspace::get_v_Quad_TZ().get_offset();   // timezone offset
                    Assert1(&sub);
                    const int sub_idx = find_vid(sub);
                    Assert(sub_idx < (int)values.size());
-                   Assert(!&values[sub_idx]._par);
-                   values[sub_idx] = _val_par(values[sub_idx]._val,  parent);
+                   Assert(!values[sub_idx]._par);
+                   values[sub_idx] = _val_par(values[sub_idx]._val, &parent);
                  }
               else if (cP->is_lval_cell())
                  {

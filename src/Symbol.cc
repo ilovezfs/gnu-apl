@@ -981,7 +981,7 @@ int count = 0;
          switch(item.name_class)
             {
               case NC_VARIABLE:
-                   if (item.apl_val->is_or_contains(value))
+                   if (Value::is_or_contains(item.apl_val.get(), value))
                       {
                          out << "    Variable[vs=" << v << "] "
                             << get_name() << endl;

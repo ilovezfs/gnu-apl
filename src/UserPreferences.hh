@@ -189,7 +189,7 @@ protected:
                          bool sys, bool log_startup);
 
    /// set the parallel threshold of function \b fun to \b threshold
-   static void set_threshold(Function & fun, int padic, int macn,
+   static void set_threshold(Function * fun, int padic, int macn,
                              ShapeItem threshold);
 
    /// return true if file \b filename is an APL script (has execute permission

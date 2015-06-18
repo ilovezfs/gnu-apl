@@ -992,11 +992,11 @@ NamedObject * obj = Workspace::lookup_existing_name(name);
 Symbol * symbol = obj->get_symbol();
    if (symbol)
       {
-        const Value & value = *symbol->get_apl_value();
-        if (&value)
+        const Value * value = &*symbol->get_apl_value();
+        if (value)
            {
              CDR_string cdr;
-             CDR::to_CDR(cdr, value);
+             CDR::to_CDR(cdr, *value);
 
              return Value_P(cdr, LOC);
            }
