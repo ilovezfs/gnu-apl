@@ -1533,41 +1533,68 @@ const ShapeItem name_len = get_cols();
              if (n == 0 && Avec::is_quad(uni))   // leading ⎕
                 {
                   name.append(uni);
+                  continue;
                 }
-             else if (Avec::is_symbol_char(uni))   // valid symbol char
+
+             if (Avec::is_symbol_char(uni))   // valid symbol char
                 {
                   name.append(uni);
+                  continue;
                 }
-             else if (uni == UNI_ASCII_SPACE)
-                {
-                  // skip space at nidx and subsequent spaces
-                  //
-                  while (nidx < end && get_ravel(nidx).get_char_value()
-                                  == UNI_ASCII_SPACE)   ++nidx;
 
-                  if (nidx == end)   break;   // only spaces (no second name)
-
-                  name.clear();
-                  if (last)
-                     {
-                       // if 'last' is true then to_varnames() was called from
-                       // ⎕SVO and the line may contains two variable names.
-                       // Return the second i.e. last) one)
-                       //
-
-
-                       // another name following
-                       //
-                       name.clear();   // discard first name
-                       name.append(get_ravel(nidx++).get_char_value());
-                       last = false;
-                     }
-                }
-             else  // neither space nor valid variable name character
+             // end of (first) name reached. At this point we expect either
+             // spaces until 'end' or some spaces and another name.
+             //
+             if (uni != UNI_ASCII_SPACE)
                 {
                   name.clear();
                   break;
                 }
+
+             // we have reached the end of the first name. At this point
+             // there could bei:
+             //
+             // 1. spaces until 'end' (= one name), or
+             // 2. a second name (alias)
+
+             // skip spaces from nidx and subsequent spaces
+             //
+             while (nidx < end &&
+                    get_ravel(nidx).get_char_value() == UNI_ASCII_SPACE)
+                   ++nidx;
+
+             if (nidx == end)   break;   // only spaces (no second name)
+
+             // at this point we maybe have the start of a second name, which
+             // is an error (if last is false) or not. In both cases the first
+             // name can be ignored.
+             //
+             name.clear();
+             if (!last)   break;   // error
+
+             // 'last' is true thus to_varnames() was called from ⎕SVO and
+             // the line may contains two variable names.
+             // Return the second i.e. last) one)
+             //
+             last = false;
+             while (nidx < end)
+                {
+                  const Unicode uni = get_ravel(nidx++).get_char_value();
+                  if (Avec::is_symbol_char(uni))   // valid symbol char
+                     {
+                       name.append(uni);
+                     }
+                  else if (uni == UNI_ASCII_SPACE)
+                     {
+                       break;
+                     }
+                  else
+                     {
+                       name.clear();   // error
+                       break;
+                     }
+                }
+             break;
            }
       }
 }
