@@ -42,7 +42,7 @@ DBTYPE  CF_DBCREATE  DBSPEC	create a new APL component file system
 
 DBTYPE  CF_DBCONNECT  DBSPEC	open an existing component file system
 
-CF_DISCONNECT			close all open component files and
+CF_DBDISCONNECT			close all open component files and
 				close the connection to the underlying SQL DB
 
 

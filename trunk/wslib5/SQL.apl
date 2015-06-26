@@ -112,12 +112,7 @@
 ⍝⍝ be rolled back.
   SQL∆Begin db
 
-  →(0≠⎕NC 'X')/dyadic
-  result ← '→rollback' ⎕EA 'F Y'
-  →commit
-
-dyadic:
-  result ← '→rollback' ⎕EA 'X F Y'
+  result ← '→rollback' ⎕EA 'F R'
 
 commit:
   SQL∆Commit db
