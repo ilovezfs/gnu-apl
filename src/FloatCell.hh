@@ -40,6 +40,10 @@ public:
    /// Overloaded Cell::is_float_cell().
    virtual bool is_float_cell()     const   { return true; }
 
+   /// Overloaded Cell::is_finite().
+   virtual bool is_finite() const
+      { return isfinite(value.fval); }
+
    /// Overloaded Cell::greater().
    virtual bool greater(const Cell & other) const;
 

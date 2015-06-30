@@ -66,14 +66,20 @@ ErrorCode
 RealCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
 const APL_Integer fun = A->get_near_int();
-   return do_bif_circle_fun(Z, fun);
+   new (Z) FloatCell(0);   // prepare for DOMAIN ERROR
+
+const ErrorCode ret = do_bif_circle_fun(Z, fun);
+   if (!Z->is_finite())   return E_DOMAIN_ERROR;
+   return ret;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 RealCell::bif_circle_fun_inverse(Cell * Z, const Cell * A) const
 {
 const APL_Integer fun = A->get_near_int();
+   new (Z) FloatCell(0);   // prepare for DOMAIN ERROR
 
+ErrorCode ret = E_DOMAIN_ERROR;
    switch(fun)
       {
         case 1: case -1:
@@ -83,10 +89,14 @@ const APL_Integer fun = A->get_near_int();
         case 5: case -5:
         case 6: case -6:
         case 7: case -7:
-                return do_bif_circle_fun(Z, -fun);
+                ret = do_bif_circle_fun(Z, -fun);
+                if (!Z->is_finite())   return E_DOMAIN_ERROR;
+                return ret;
 
         case -10:  // +A (conjugate) is self-inverse
-                 return do_bif_circle_fun(Z, fun);
+                 ret = do_bif_circle_fun(Z, fun);
+                if (!Z->is_finite())   return E_DOMAIN_ERROR;
+                return ret;
 
         default: return E_DOMAIN_ERROR;
       }
@@ -102,20 +112,30 @@ const APL_Float b = get_real_value();
 
    switch(fun)
       {
-        case -12: ComplexCell(0, b).bif_exponential(Z);   break;
+        case -12: ComplexCell(0, b).bif_exponential(Z);   return E_NO_ERROR;
         case -11: return ComplexCell::zv(Z, 0.0, b );
         case -10: return FloatCell::zv(Z,       b );
         case  -9: return FloatCell::zv(Z,       b );
-        case  -8: return ComplexCell::zv(Z, 0, sqrt(1.0 + b*b));
-        case  -7: return FloatCell::zv(Z, atanh(b));
-        case  -6: return FloatCell::zv(Z, acosh(b));
+        case  -8: return ComplexCell::do_bif_circle_fun(Z, -8, b);
+
+        case  -7: if (b > -1.0 && b < 1.0)   return FloatCell::zv(Z, atanh(b));
+                  if (b == -1.0 || b == 1.0)   return E_DOMAIN_ERROR;
+                  return ComplexCell::do_bif_circle_fun(Z, -7, b);
+
+        case  -6: if (b > -1.0 && b < 1.0)   return FloatCell::zv(Z, acosh(b));
+                  if (b == -1.0 || b == 1.0)   return E_DOMAIN_ERROR;
+                  return ComplexCell::do_bif_circle_fun(Z, -6, b);
+
         case  -5: return FloatCell::zv(Z, asinh(b));
         case  -4: if (b > 1)   return FloatCell::zv(Z, sqrt(b*b - 1.0));
                   else         return ComplexCell::zv(Z, 0, sqrt(1.0 - b*b));
         case  -3: return FloatCell::zv(Z, atan (b));
-        case  -2: return FloatCell::zv(Z, acos (b));
-        case  -1: return FloatCell::zv(Z, asin (b));
-        case   0: return FloatCell::zv(Z, sqrt (1 - b*b));
+        case  -2: if (b >= -1.0 && b <= 1.0)  return FloatCell::zv(Z, acos (b));
+                  return ComplexCell::do_bif_circle_fun(Z, -2, b);
+        case  -1: if (b >= -1.0 && b <= 1.0)  return FloatCell::zv(Z, asin (b));
+                  return ComplexCell::do_bif_circle_fun(Z, -1, b);
+        case   0: if (b*b < 1)   return FloatCell::zv(Z, sqrt (1 - b*b));
+                  return ComplexCell::do_bif_circle_fun(Z, 0, b);
         case   1: return FloatCell::zv(Z,  sin (b));
         case   2: return FloatCell::zv(Z,  cos (b));
         case   3: return FloatCell::zv(Z,  tan (b));
@@ -123,15 +143,15 @@ const APL_Float b = get_real_value();
         case   5: return FloatCell::zv(Z,  sinh(b));
         case   6: return FloatCell::zv(Z,  cosh(b));
         case   7: return FloatCell::zv(Z,  tanh(b));
-        case   8: return ComplexCell::zv(Z, 0, -sqrt(1.0 + b*b));
+        case   8: return ComplexCell::do_bif_circle_fun(Z, 8, b);
         case   9: return FloatCell::zv(Z, b );
         case  10: return FloatCell::zv(Z, (b < 0) ? -b : b);
         case  11: return FloatCell::zv(Z, 0.0 );
-        case  12: return FloatCell::zv(Z, 0.0 );
+        case  12: return FloatCell::zv(Z, (b < 0) ? M_PI : 0.0);
       }
 
    // invalid fun
    //
-   return E_NO_ERROR;
+   return E_DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------

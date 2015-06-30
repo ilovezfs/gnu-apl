@@ -689,7 +689,6 @@ const bool invert_Z = b < 0;
    //
    {
      APL_Complex a = A->get_complex_value();
-     if (a.imag() == 0 && a.real() < 0)   return E_DOMAIN_ERROR;
 
      APL_Complex z = pow(a, (APL_Complex)b);
      if (invert_Z)

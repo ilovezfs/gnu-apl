@@ -171,7 +171,7 @@ const size_t len = read(fd, buf, sizeof(buf));
    if (len != 2)        return false;
    if (buf[0] != '#')   return false;
    if (buf[1] != '!')   return false;
-   return true;;
+   return true;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -544,7 +544,7 @@ UserPreferences::parse_argv_2(bool logit)
               if (!val)
                  {
                    CERR << "--TM without test mode" << endl;
-                   exit(a);;
+                   exit(a);
                  }
               const int mode = atoi(val);
               IO_Files::test_mode = IO_Files::TestMode(mode);
@@ -1148,7 +1148,7 @@ int file_profile = 0;   // the current profile in the preferences file
             }
          else if (!strcasecmp(opt, "KEYBOARD_LAYOUT_FILE"))
             {
-              keyboard_layout_file = UTF8_string(arg);;
+              keyboard_layout_file = UTF8_string(arg);
             }
          else if (!strcasecmp(opt, "CONTROL-Ds-TO-EXIT"))
             {

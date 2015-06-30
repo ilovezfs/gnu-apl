@@ -161,7 +161,7 @@ ErrorCode
 FloatCell::bif_reciprocal(Cell * Z) const
 {
 const APL_Float z = 1.0/value.fval;
-   if (!isfinite(z))   return E_DOMAIN_ERROR;;
+   if (!isfinite(z))   return E_DOMAIN_ERROR;
 
    new (Z) FloatCell(1.0/value.fval);
    return E_NO_ERROR;
@@ -300,7 +300,7 @@ const APL_Float ai = A->get_imag_value();
    if (ai == 0.0)   // real result
       {
         const APL_Float z = ar * value.fval;
-        if (!isfinite(z))   return E_DOMAIN_ERROR;;
+        if (!isfinite(z))   return E_DOMAIN_ERROR;
         new (Z) FloatCell(z);
         return E_NO_ERROR;
       } 
@@ -309,8 +309,8 @@ const APL_Float ai = A->get_imag_value();
    //
 const APL_Complex a(ar, ai);
 const APL_Complex z = a * value.fval;
-   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;;
-   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;;
+   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;
+   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;
    new (Z) ComplexCell(z);
    return E_NO_ERROR;
 }     
@@ -343,8 +343,8 @@ const APL_Float ai = A->get_imag_value();
    //
 const APL_Complex a(ar, ai);
 const APL_Complex z = a / value.fval;
-   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;;
-   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;;
+   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;
+   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;
    new (Z) ComplexCell(z);
    return E_NO_ERROR;
 }
@@ -365,7 +365,7 @@ const APL_Float ai = A->get_imag_value();
        {
          if (value.fval == 0.0)   return IntCell::z1(Z);   // 0⋆0 is 1
          if (value.fval > 0)      return IntCell::z0(Z);   // 0⋆N is 0
-         return E_DOMAIN_ERROR;;                           // 0⋆¯N = 1÷0
+         return E_DOMAIN_ERROR;                            // 0⋆¯N = 1÷0
        }
 
    // 2. real A > 0   (real result)
@@ -376,7 +376,7 @@ const APL_Float ai = A->get_imag_value();
         if (ar > 0)
            {
              const APL_Float z = pow(ar, value.fval);
-             if (!isfinite(z))   return E_DOMAIN_ERROR;;
+             if (!isfinite(z))   return E_DOMAIN_ERROR;
              new (Z) FloatCell(z);
              return E_NO_ERROR;
            }
@@ -389,8 +389,8 @@ const APL_Float ai = A->get_imag_value();
    {
      const APL_Complex a(ar, ai);
      const APL_Complex z = pow(a, value.fval);
-     if (!isfinite(z.real()))   return E_DOMAIN_ERROR;;
-     if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;;
+     if (!isfinite(z.real()))   return E_DOMAIN_ERROR;
+     if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;
 
      new (Z) ComplexCell(z);
      return E_NO_ERROR;
