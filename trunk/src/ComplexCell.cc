@@ -287,8 +287,8 @@ ComplexCell::bif_divide(Cell * Z, const Cell * A) const
 {
    if (cval().real() == 0.0 && cval().imag() == 0.0)   // A ÷ 0
       {
-        if (A->get_real_value() != 0.0)   return E_DOMAIN_ERROR;;
-        if (A->get_imag_value() != 0.0)   return E_DOMAIN_ERROR;;
+        if (A->get_real_value() != 0.0)   return E_DOMAIN_ERROR;
+        if (A->get_imag_value() != 0.0)   return E_DOMAIN_ERROR;
         new (Z) IntCell(1);   // 0÷0 is 1 in APL
       }
 
@@ -451,15 +451,15 @@ const APL_Float ai = A->get_imag_value();
        {
          if (cval().real() == 0.0)   return IntCell::z1(Z);   // 0⋆0 is 1
          if (cval().imag() > 0)      return IntCell::z0(Z);   // 0⋆N is 0
-         return E_DOMAIN_ERROR;;                              // 0⋆¯N = 1÷0
+         return E_DOMAIN_ERROR;                               // 0⋆¯N = 1÷0
        }
 
    // 2. complex result
    {
      const APL_Complex a(ar, ai);
      const APL_Complex z = pow(a, cval());
-     if (!isfinite(z.real()))   return E_DOMAIN_ERROR;;
-     if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;;
+     if (!isfinite(z.real()))   return E_DOMAIN_ERROR;
+     if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;
 
      new (Z) ComplexCell(z);
      return E_NO_ERROR;
@@ -491,14 +491,20 @@ ErrorCode
 ComplexCell::bif_circle_fun(Cell * Z, const Cell * A) const
 {
 const APL_Integer fun = A->get_near_int();
-   return do_bif_circle_fun(Z, fun);
+   new (Z) FloatCell(0);   // prepare for DOMAIN ERROR
+
+const ErrorCode ret = do_bif_circle_fun(Z, fun, cval());
+   if (!Z->is_finite())   return E_DOMAIN_ERROR;
+   return ret;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 ComplexCell::bif_circle_fun_inverse(Cell * Z, const Cell * A) const
 {
 const APL_Integer fun = A->get_near_int();
+   new (Z) FloatCell(0);   // prepare for DOMAIN ERROR
 
+ErrorCode ret = E_DOMAIN_ERROR;
    switch(fun)
       {
         case 1: case -1:
@@ -508,10 +514,14 @@ const APL_Integer fun = A->get_near_int();
         case 5: case -5:
         case 6: case -6:
         case 7: case -7:
-                return do_bif_circle_fun(Z, -fun);
+                ret = do_bif_circle_fun(Z, -fun, cval());
+                if (!Z->is_finite())   return E_DOMAIN_ERROR;
+                return ret;
 
         case -10:  // +A (conjugate) is self-inverse
-                return do_bif_circle_fun(Z, fun);
+                ret = do_bif_circle_fun(Z, fun, cval());
+                if (!Z->is_finite())   return E_DOMAIN_ERROR;
+                return ret;
 
         default: return E_DOMAIN_ERROR;
       }
@@ -521,20 +531,22 @@ const APL_Integer fun = A->get_near_int();
 }
 //-----------------------------------------------------------------------------
 ErrorCode
-ComplexCell::do_bif_circle_fun(Cell * Z, int fun) const
+ComplexCell::do_bif_circle_fun(Cell * Z, int fun, APL_Complex b)
 {
-const APL_Complex b = cval();
-
    switch(fun)
       {
         case -12: {
                     ComplexCell cb(-b.imag(), b.real());
                     cb.bif_exponential(Z);
                   }
-                  break;
+                  return E_NO_ERROR;
+
         case -11: return zv(Z, -b.imag(), b.real());
+
         case -10: return zv(Z, b.real(), -b.imag());
+
         case  -9: return zv(Z,             b   );
+
         case  -7: // arctanh(z) = 0.5 (ln(1 + z) - ln(1 - z))
                   {
                     const APL_Complex b1      = ONE() + b;
@@ -545,6 +557,7 @@ const APL_Complex b = cval();
                     const APL_Complex half    = 0.5 * diff;
                     return zv(Z, half);
                   }
+
         case  -6: // arccosh(z) = ln(z + sqrt(z + 1) sqrt(z - 1))
                   {
                     const APL_Complex b1     = b + ONE();
@@ -556,6 +569,7 @@ const APL_Complex b = cval();
                     const APL_Complex loga   = log(sum);
                     return zv(Z, loga);
                   }
+
         case  -5: // arcsinh(z) = ln(z + sqrt(z^2 + 1))
                   {
                     const APL_Complex b2 = b*b;
@@ -565,7 +579,9 @@ const APL_Complex b = cval();
                     const APL_Complex loga = log(sum);
                     return zv(Z, loga);
                   }
-        case  -4: new (Z) ComplexCell(sqrt(b*b - 1.0));
+
+        case  -4: return zv(Z, sqrt(b*b - 1.0));
+
         case  -3: // arctan(z) = i/2 (ln(1 - iz) - ln(1 + iz))
                   {
                     const APL_Complex iz = APL_Complex(- b.imag(), b.real());
@@ -577,6 +593,7 @@ const APL_Complex b = cval();
                     const APL_Complex prod = APL_Complex(0, 0.5) * diff;
                     return zv(Z, prod);
                   }
+
         case  -2: // arccos(z) = -i (ln( z + sqrt(z^2 - 1)))
                   {
                     const APL_Complex b2 = b*b;
@@ -587,6 +604,7 @@ const APL_Complex b = cval();
                     const APL_Complex prod = MINUS_i() * loga;
                     return zv(Z, prod);
                   }
+
         case  -1: // arcsin(z) = -i (ln(iz + sqrt(1 - z^2)))
                   {
                     const APL_Complex b2 = b*b;
@@ -598,48 +616,54 @@ const APL_Complex b = cval();
                     const APL_Complex prod = MINUS_i() * loga;
                     return zv(Z, prod);
                   }
+
         case   0: return zv(Z, sqrt(1.0 - b*b));
+
         case   1: return zv(Z, sin       (b));
+
         case   2: return zv(Z, cos       (b));
+
         case   3: return zv(Z, tan       (b));
+
         case   4: return zv(Z, sqrt(1.0 + b*b));
+
         case   5: return zv(Z, sinh      (b));
+
         case   6: return zv(Z, cosh      (b));
+
         case   7: return zv(Z, tanh      (b));
-        case  -8:
+
+        case  -8: // ¯8○B is - 8○B
         case   8: {
+                    // Let b = X + iY and sq = (¯1 - R*2)*.5
+                    // Then 8○X+JY:  Z is: + sq  if  X > 0 and Y > 0
+                    //                           or  X = 0 and Y > 1
+                    //                           or  X < 0 and Y ≥ 0, and
+                    //                     - sq  otherwise
                     bool pos_8 = false;
-                    if (b.real() >  0)      { if (b.imag() > 0)  pos_8 = true; }
+                    if      (b.real() >  0) { if (b.imag() > 0)  pos_8 = true; }
                     else if (b.real() == 0) { if (b.imag() > 1)  pos_8 = true; }
                     else                    { if (b.imag() >= 0) pos_8 = true; }
 
-                    if (fun == -8)   pos_8 = ! pos_8;
+                    if (fun == 8)   pos_8 = ! pos_8;
 
-                    const APL_Complex sq = sqrt(-(1.0 + get_complex_value()
-                                                      * get_complex_value()));
+                    const APL_Complex sq = sqrt(-(1.0 + b*b));  // (¯1 - R*2)*.5
 
                     return zv(Z, pos_8 ? sq : -sq);
                   }
 
         case   9: return FloatCell::zv(Z,      b.real());
+
         case  10: return FloatCell::zv(Z, sqrt(b.real()*b.real()
                                              + b.imag()* b.imag()));
         case  11: return FloatCell::zv(Z, b.imag());
-        case  12: return FloatCell::zv(Z, phase());
+
+        case  12: return FloatCell::zv(Z, atan2(b.imag(), b.real()));
       }
 
    // invalid fun
    //
-   return E_NO_ERROR;
-}
-//-----------------------------------------------------------------------------
-APL_Float
-ComplexCell::phase() const
-{
-APL_Float real = value.cval_r;
-APL_Float imag = value2.cval_i;
-
-   return atan2(imag, real);
+   return E_DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 APL_Complex

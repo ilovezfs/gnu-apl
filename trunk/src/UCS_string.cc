@@ -825,7 +825,7 @@ operator << (ostream & os, Unicode uni)
 ostream &
 operator << (ostream & os, const UCS_string & ucs)
 {
-const int fill_len = os.width() - ucs.size();;
+const int fill_len = os.width() - ucs.size();
 
    if (fill_len > 0)
       {

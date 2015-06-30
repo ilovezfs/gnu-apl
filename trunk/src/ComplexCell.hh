@@ -41,6 +41,10 @@ public:
    /// overloaded Cell::is_complex_cell().
    virtual bool is_complex_cell() const   { return true; }
 
+   /// Overloaded Cell::is_finite().
+   virtual bool is_finite() const
+      { return isfinite(value.cval_r) && isfinite(value2.cval_i); }
+
    /// overloaded Cell::greater().
    virtual bool greater(const Cell & other) const;
 
@@ -146,13 +150,13 @@ public:
    /// the lanczos approximation for gamma(1.0 + x + iy) for x >= 0.
    static APL_Complex gamma(APL_Float x, const APL_Float y);
 
+   /// compute circle function \b fun
+   static ErrorCode do_bif_circle_fun(Cell * Z, int fun, APL_Complex b);
+
 protected:
    /// return the complex value of \b this cell
    APL_Complex cval() const
       { return APL_Complex(value.cval_r, value2.cval_i); }
-
-   /// compute circle function \b fun
-   ErrorCode do_bif_circle_fun(Cell * Z, int fun) const;
 
    /// 1.0
    static APL_Complex ONE()       { return APL_Complex(1, 0); }
@@ -162,9 +166,6 @@ protected:
 
    /// -i
    static APL_Complex MINUS_i()   { return APL_Complex(0, -1); }
-
-   /// the phase of \b cpx number.
-   APL_Float phase() const;
 
    /// overloaded Cell::get_cell_type().
    virtual CellType get_cell_type() const
