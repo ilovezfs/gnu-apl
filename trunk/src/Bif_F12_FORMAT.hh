@@ -172,9 +172,6 @@ protected:
 
    /// format value with \b precision mantissa digits (floating format)
    static UCS_string format_spec_float(APL_Float value, int precision);
-
-   /// format value with \b precision mantissa digits (exponential format)
-   static UCS_string format_spec_expo(APL_Float value, int precision);
 };
 //-----------------------------------------------------------------------------
 

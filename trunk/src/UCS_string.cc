@@ -1018,7 +1018,18 @@ int expo = 0;
 
    // print mantissa in fixed format
    //
-   ret.append(from_double_fixed_prec(v, fract_digits));
+UCS_string mantissa = from_double_fixed_prec(v, fract_digits);
+   if (mantissa.size() > 2 &&
+       mantissa[0] == UNI_ASCII_1 &&
+       mantissa[1] == UNI_ASCII_0 &&
+       mantissa[2] == UNI_ASCII_FULLSTOP)   // 9.xxx rounded up to 10.xxx
+      {
+        mantissa[1] = UNI_ASCII_FULLSTOP;
+        mantissa[2] = UNI_ASCII_0;
+       ++expo;
+      }
+       
+   ret.append(mantissa);
    ret.append(UNI_ASCII_E);
    ret.append(from_int(expo));
 
@@ -1032,6 +1043,12 @@ UCS_string ret;
 
    if (v < 0)   { ret.append(UNI_OVERBAR);   v = - v; }
 
+   // in the loop below, there could be rounding errors when casting float
+   // to int. We therefore increase v slighly (by 0.3 of the rounded digit)
+   // to avoid that.
+   //
+   v += 0.03 * exp10(-fract_digits);
+
    ret.append(from_big(v));   // leaves fractional part of v in v
 
    ret.append(UNI_ASCII_FULLSTOP);
@@ -1039,7 +1056,7 @@ UCS_string ret;
    loop(f, fract_digits + 1)
       {
         v *= 10;
-        const int vv = v;
+        const int vv = v;   // subject to rounding errors!
         ret.append(Unicode(UNI_ASCII_0 + vv));
         v -= vv;
       }
@@ -1057,12 +1074,20 @@ UCS_string::round_last_digit()
         for (int q = size() - 2; q >= 0; --q)
             {
               const Unicode cc = items[q];
-              if (cc >= UNI_ASCII_0 && cc <= UNI_ASCII_9)
-                 {
-                   items[q] = Unicode(cc + 1);
-                   if (cc != UNI_ASCII_9)   break;    // 0-8 rounded up: stop
-                   items[q] = UNI_ASCII_0;    // 9 rounded up: say 0 and repeat
-                 }
+              if (cc < UNI_ASCII_0)   continue;   // not a digit
+              if (cc > UNI_ASCII_9)   continue;   // not a digit
+
+              items[q] = Unicode(cc + 1);   // round up
+              if (cc != UNI_ASCII_9)   break;    // 0-8 rounded up: stop
+
+              items[q] = UNI_ASCII_0;    // 9 rounded up: say 0 and repeat
+              if (q)   continue;   // not first difit
+
+              // something like 9.xxx has been rounded up to, say, 0.xxx
+              // but should be 10.xxx Fix it.
+              //
+              for (int d = size() - 1; d > 0; --d)   items[d] = items[d - 1];
+              items[0] = UNI_ASCII_1;
             }
       }
 
