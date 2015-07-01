@@ -888,8 +888,8 @@ PrintBuffer pb;
 
    loop(col, cols_B)
        {
-         uint32_t col_width;
-         uint32_t precision;
+         APL_Integer col_width;
+         APL_Integer precision;
 
          if (len_A == 1)
             {
@@ -988,7 +988,8 @@ bool has_num = false;
            }
         else                  // exponential format
            {
-             UCS_string data = format_spec_expo(value, - precision);
+             UCS_string data = UCS_string::from_double_expo_prec(value,
+                                            -precision - 1);
              add_row(ret, r, has_char, has_num, UNI_ASCII_E, data);
           }
       }
@@ -1060,12 +1061,6 @@ UCS_string ret = UCS_string::from_double_fixed_prec(value, precision);
            }
 
    return ret;
-}
-//-----------------------------------------------------------------------------
-UCS_string
-Bif_F12_FORMAT::format_spec_expo(APL_Float value, int precision)
-{
-  return UCS_string::from_double_expo_prec(value, precision - 1);
 }
 //-----------------------------------------------------------------------------
 ostream &
