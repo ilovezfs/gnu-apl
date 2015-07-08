@@ -373,28 +373,20 @@ const APL_Float ai = A->get_imag_value();
    if (ai == 0.0)
       {
         if (ar  == 1.0)   return IntCell::z1(Z);   // 1⋆b = 1
-        if (ar > 0)
-           {
-             const APL_Float z = pow(ar, value.fval);
-             if (!isfinite(z))   return E_DOMAIN_ERROR;
-             new (Z) FloatCell(z);
-             return E_NO_ERROR;
-           }
+        const APL_Float z = pow(ar, value.fval);
+        if (isfinite(z)) return zv(Z, z);
 
         /* fall through */
       }
 
    // 3. complex result
    //
-   {
-     const APL_Complex a(ar, ai);
-     const APL_Complex z = pow(a, value.fval);
-     if (!isfinite(z.real()))   return E_DOMAIN_ERROR;
-     if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;
+const APL_Complex a(ar, ai);
+const APL_Complex z = pow(a, value.fval);
+   if (!isfinite(z.real()))   return E_DOMAIN_ERROR;
+   if (!isfinite(z.imag()))   return E_DOMAIN_ERROR;
 
-     new (Z) ComplexCell(z);
-     return E_NO_ERROR;
-   }
+   return ComplexCell::zv(Z, z);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
