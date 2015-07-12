@@ -1047,7 +1047,7 @@ UCS_string ret;
    // to int. We therefore increase v slighly (by 0.3 of the rounded digit)
    // to avoid that.
    //
-   v += 0.03 * exp10(-fract_digits);
+   v += 0.03 * pow(10.0, -fract_digits);
 
    ret.append(from_big(v));   // leaves fractional part of v in v
 
