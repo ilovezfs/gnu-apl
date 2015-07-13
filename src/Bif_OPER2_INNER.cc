@@ -175,16 +175,18 @@ Value_P Z(shape_A1 + shape_B1, LOC);
    job.RO = RO->get_scalar_f2();
    if (job.LO && job.RO && A->is_simple() && B->is_simple() && len_A)
       {
-        if (len_A != len_B &&
-            !(A->is_scalar() || B->is_scalar()))   LENGTH_ERROR;
+        job.incA   = (A->element_count() == 1) ? 0 : 1;
+        job.incB   = (B->element_count() == 1) ? 0 : 1;
+
+   // len_A must be len_B, unless at least one length is 1
+   //
+        if (len_A != len_B && job.incA && job.incB)   LENGTH_ERROR;
 
         job.cZ     = &Z->get_ravel(0);
         job.cA     = &A->get_ravel(0);
-        job.incA   = A->is_scalar() ? 0 : 1;
         job.ZAh    = items_A;
         job.LO_len = A->is_scalar() ? len_B : len_A;
         job.cB     = &B->get_ravel(0);
-        job.incB   = B->is_scalar() ? 0 : 1;
         job.ZBl    = items_B;
         job.ec     = E_NO_ERROR;
 
