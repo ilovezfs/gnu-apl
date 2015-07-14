@@ -83,7 +83,8 @@ const ShapeItem vlen = value->element_count();
 MultiIndexIterator::MultiIndexIterator(const Shape & shape,
                                        const IndexExpr & IDX)
    : last_it(0),
-     lowest_it(0)
+     lowest_it(0),
+     empty(false)
 {
    // IDX is parsed from right to left:    Value[I2;I1;I0]  --> I0 I1 I2
    // the shapes of Value and IDX are then related as follows:
@@ -116,11 +117,18 @@ ShapeItem weight = 1;
          const Rank val_r = shape.get_rank() - idx_r - 1;  // see comment above.
          const ShapeItem  sh_r = shape.get_shape_item(val_r);
          Value_P I = IDX.values[idx_r];
-
-         IndexIterator * new_it = !!I
-           ? (IndexIterator *)(new TrueIndexIterator(weight, I, IDX.quad_io,
-                                                    sh_r))
-           : (IndexIterator *)(new ElidedIndexIterator(weight, sh_r));
+         IndexIterator * new_it;
+         if (!I)   // elided index
+            {
+              new_it = (IndexIterator *)(new ElidedIndexIterator(weight, sh_r));
+              if (sh_r == 0)   empty = true;
+            }
+         else
+            {
+              new_it = (IndexIterator *)
+                       (new TrueIndexIterator(weight, I, IDX.quad_io, sh_r));
+              if (I->element_count() == 0)   empty = true;
+            }
 
          Log(LOG_delete)
             CERR << "new    " << (const void *)new_it << " at " LOC << endl;
@@ -161,6 +169,7 @@ bool
 MultiIndexIterator::done() const
 {
    if (last_it == 0)   return true;
+   if (empty)          return true;
    return last_it->done();
 }
 //=============================================================================

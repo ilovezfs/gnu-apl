@@ -1052,7 +1052,7 @@ UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
              UCS_string new_line = "## ";
              new_line.append(line);
              text[l] = new_line;
-             CERR << "Warning: SYNTAX ERROR in function "
+             CERR << "WARNING: SYNTAX ERROR in function "
                   << header.FUN()->get_name() << endl;
            }
       }

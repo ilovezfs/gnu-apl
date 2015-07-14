@@ -1612,15 +1612,22 @@ Symbol * sym = 0;
       }
 
 Value_P val(shape, LOC);
+const ShapeItem ec = val->element_count();
    new (&val->get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
 
-const ShapeItem ec = val->element_count();
-
-const UCS_string data1(data, idx, data.size() - idx);
-const UTF8_string data2(data1);
+ShapeItem padded = 0;
    loop(e, ec)
       {
-        new (&val->get_ravel(e)) CharCell((Unicode)(data2[e]));
+        Unicode uni = UNI_ASCII_SPACE;
+        if (e < (data.size() - idx))   uni = data[e + idx];
+        else                   ++padded;
+         new (&val->get_ravel(e)) CharCell(uni);
+      }
+
+   if (padded)
+      {
+        CERR << "WARNING: ATF Record for " << var_name << " is broken ("
+             << padded << " spaces added)" << endl;
       }
 
    Assert(sym);
@@ -1652,7 +1659,10 @@ UCS_string var_or_fun;
 
    var_or_fun = Quad_TF::tf2_inv(data1);
 
-   Assert(var_or_fun.size());
+   if (var_or_fun.size() == 0)
+      {
+        CERR << "ERROR: inverse 2 ⎕TF failed for '" << data1 << ";" << endl;
+      }
 }
 //-----------------------------------------------------------------------------
 void
