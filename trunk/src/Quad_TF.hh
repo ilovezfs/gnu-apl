@@ -91,16 +91,22 @@ protected:
    static void tf2_remove_UCS(Token_string & tos);
 
    /// replace A ⍴ B by a reshaped B
-   static void tf2_remove_RHO(Token_string & tos, bool & progress);
+   static void tf2_remove_RHO(Token_string & tos, int & progress);
 
    /// replace , B by a reshaped B
-   static void tf2_remove_COMMA(Token_string & tos, bool & progress);
+   static void tf2_remove_COMMA(Token_string & tos, int & progress);
+
+   /// replace ( ⊂ B ) by an enclosed B
+   static void tf2_remove_ENCLOSE(Token_string & tos, int & progress);
+
+   /// replace ⊂ ⊂ B by ⊂ B
+   static void tf2_remove_ENCLOSE_ENCLOSE(Token_string & tos, int & progress);
 
    /// replace ( value ) by value
-   static void tf2_remove_parentheses(Token_string & tos, bool & progress);
+   static void tf2_remove_parentheses(Token_string & tos, int & progress);
 
    /// replace value1 value2 by value
-   static void tf2_glue(Token_string & tos, bool & progress);
+   static void tf2_glue(Token_string & tos, int & progress);
 
    /// return B in transfer format 2 (new APL format) for a function
    static UCS_string tf2_fun(const UCS_string & fun_name, const Function & fun);

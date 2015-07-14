@@ -149,6 +149,9 @@ protected:
 
    /// the iterator for the lowest dimension
    IndexIterator * lowest_it;
+
+   /// true if one of the iterators has length 0
+   bool empty;
 };
 //-----------------------------------------------------------------------------
 

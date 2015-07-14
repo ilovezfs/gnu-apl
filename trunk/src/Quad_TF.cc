@@ -653,12 +653,14 @@ bool have_parenth = tf2_shape(ucs, value->get_shape());
 void
 Quad_TF::tf2_simplify(Token_string & tos)
 {
-   for (bool progress = true; progress;)
+   for (int progress = 1; progress;)
        {
-         progress = false;
+         progress = 0;
          tf2_remove_UCS(tos);
          tf2_remove_RHO(tos, progress);
          tf2_remove_COMMA(tos, progress);
+         tf2_remove_ENCLOSE_ENCLOSE(tos, progress);
+         tf2_remove_ENCLOSE(tos, progress);
          tf2_remove_parentheses(tos, progress);
          tf2_glue(tos, progress);
        }
@@ -689,7 +691,7 @@ ShapeItem skipped = 0;
 }
 //-----------------------------------------------------------------------------
 void
-Quad_TF::tf2_remove_RHO(Token_string & tos, bool & progress)
+Quad_TF::tf2_remove_RHO(Token_string & tos, int & progress)
 {
 ShapeItem skipped = 0;
 
@@ -733,12 +735,12 @@ ShapeItem skipped = 0;
    if (skipped)
       {
         tos.shrink(tos.size() - skipped);
-        progress = true;
+        ++progress;
       }
 }
 //-----------------------------------------------------------------------------
 void
-Quad_TF::tf2_remove_COMMA(Token_string & tos, bool & progress)
+Quad_TF::tf2_remove_COMMA(Token_string & tos, int & progress)
 {
 ShapeItem skipped = 0;
 
@@ -796,12 +798,81 @@ ShapeItem skipped = 0;
    if (skipped)
       {
         tos.shrink(tos.size() - skipped);
-        progress = true;
+        ++progress;
       }
 }
 //-----------------------------------------------------------------------------
 void
-Quad_TF::tf2_remove_parentheses(Token_string & tos, bool & progress)
+Quad_TF::tf2_remove_ENCLOSE_ENCLOSE(Token_string & tos, int & progress)
+{
+ShapeItem skipped = 0;
+
+   loop(s, tos.size())
+      {
+        if (s >= (tos.size() - 2)                       ||
+            (s && tos[s - 1].get_Class() == TC_VALUE)   ||   // dyadic ⊂
+            tos[s    ].get_tag()   != TOK_F12_PARTITION ||   // not ⊂
+            tos[s + 1].get_tag()   != TOK_F12_PARTITION ||   // not ⊂
+            tos[s + 2].get_Class() != TC_VALUE)              // not B 
+           {
+             if (skipped)   // dont copy to itself
+                move_1(tos[s - skipped], tos[s], LOC);
+             continue;
+           }
+
+        skipped++;   // ignore ⊂ at tos[s]
+      }
+
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        ++progress;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Quad_TF::tf2_remove_ENCLOSE(Token_string & tos, int & progress)
+{
+ShapeItem skipped = 0;
+
+   loop(s, tos.size())
+      {
+        if (s >= (tos.size() - 3)                       ||
+            tos[s    ].get_tag()   != TOK_L_PARENT      ||   // not (
+            tos[s + 1].get_tag()   != TOK_F12_PARTITION ||   // not ⊂
+            tos[s + 2].get_Class() != TC_VALUE          ||   // not B 
+            tos[s + 3].get_tag()   != TOK_R_PARENT)          // not )
+           {
+             if (skipped)   // dont copy to itself
+                move_1(tos[s - skipped], tos[s], LOC);
+             continue;
+           }
+
+        Value_P B = tos[s + 2].get_apl_val();
+        if (B->is_scalar())
+           {
+             move_1(tos[s - skipped], tos[s + 2], LOC);
+           }
+        else
+           {
+             Value_P enc_B(LOC);
+             new (enc_B->next_ravel()) PointerCell(B, enc_B.getref());
+             Token tok(TOK_APL_VALUE1, enc_B);
+             move_2(tos[s - skipped], tok, LOC);
+             tos[s + 2].clear(LOC);   // B
+           }
+        s += 3;   skipped += 3;
+      }
+
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        ++progress;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Quad_TF::tf2_remove_parentheses(Token_string & tos, int & progress)
 {
 ShapeItem skipped = 0;
 
@@ -826,12 +897,12 @@ ShapeItem skipped = 0;
    if (skipped)
       {
         tos.shrink(tos.size() - skipped);
-        progress = true;
+        ++progress;
       }
 }
 //-----------------------------------------------------------------------------
 void
-Quad_TF::tf2_glue(Token_string & tos, bool & progress)
+Quad_TF::tf2_glue(Token_string & tos, int & progress)
 {
 ShapeItem skipped = 0;
 
@@ -859,7 +930,7 @@ ShapeItem skipped = 0;
    if (skipped)
       {
         tos.shrink(tos.size() - skipped);
-        progress = true;
+        ++progress;
       }
 }
 //-----------------------------------------------------------------------------
