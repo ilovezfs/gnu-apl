@@ -41,7 +41,8 @@ divide_matrix(Cell * cZ, bool need_complex,
        {
          if (need_complex)
             {
-              DynArray(double, ad, 2*rows);
+              double * ad = new double[2*rows];
+              Assert(ad);
               ZZ * const a = (ZZ *)ad;
               loop(r, rows)
                   {
@@ -49,7 +50,8 @@ divide_matrix(Cell * cZ, bool need_complex,
                                    cA[r*cols_A + c].get_imag_value());
                   }
 
-              DynArray(double, bd, 2*nB2*nB2);
+              double * bd = new double[2*nB2*nB2];
+              Assert(bd);
               ZZ * const b = (ZZ *)bd;
               ZZ * bb = b;
               loop(rr, cols_B)
@@ -65,8 +67,10 @@ divide_matrix(Cell * cZ, bool need_complex,
                 Matrix<ZZ> B(b, rows, cols_B, /* LDB */ rows);
                 Matrix<ZZ> A(a, rows, 1,      /* LDA */ rows);
                 const ShapeItem rk = gelsy<ZZ>(B, A, rcond);
+                delete [] bd;
                 if (rk != cols_B)
                    {
+                     delete [] ad;
                      DOMAIN_ERROR;
                    }
               }
@@ -76,16 +80,19 @@ divide_matrix(Cell * cZ, bool need_complex,
               //
               loop(r, cols_B)
                   new (cZ + r*cols_A + c) ComplexCell(a[r].real(), a[r].imag());
+              delete [] ad;
             }
          else   // real
             {
-              DynArray(double, a, rows);
+              double * a = new double[nB2*nB2];
+              Assert(a);
               loop(r, rows)
                  {
                    a[r] = cA[r*cols_A + c].get_real_value();
                  }
 
-              DynArray(double, b, nB2*nB2);
+              double * b = new double[nB2*nB2];
+              Assert(b);
               double * bb = b;
               loop(rr, cols_B)
               loop(cc, rows)
@@ -99,8 +106,10 @@ divide_matrix(Cell * cZ, bool need_complex,
                 Matrix<DD> B(b, rows, cols_B, /* LDB */ rows);
                 Matrix<DD> A(a, rows, 1,      /* LDA */ rows);
                 const ShapeItem rk = gelsy<DD>(B, A, rcond);
+                delete [] b;
                 if (rk != cols_B)
                    {
+                     delete [] a;
                      DOMAIN_ERROR;
                    }
               }
@@ -111,6 +120,7 @@ divide_matrix(Cell * cZ, bool need_complex,
 
               loop(r, cols_B)
                   new (cZ + r*cols_A + c)   FloatCell(a[r]);
+              delete [] a;
             }
        }
 }
