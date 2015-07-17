@@ -123,7 +123,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 lib_file_io_la_LIBADD =
-am_lib_file_io_la_OBJECTS = file_io.lo
+am_lib_file_io_la_OBJECTS = lib_file_io_la-file_io.lo
 lib_file_io_la_OBJECTS = $(am_lib_file_io_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -131,8 +131,8 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 lib_file_io_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(lib_file_io_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
+	$(lib_file_io_la_CXXFLAGS) $(CXXFLAGS) \
+	$(lib_file_io_la_LDFLAGS) $(LDFLAGS) -o $@
 lib_template_F0_la_LIBADD =
 am_lib_template_F0_la_OBJECTS = template_F0.lo
 lib_template_F0_la_OBJECTS = $(am_lib_template_F0_la_OBJECTS)
@@ -376,7 +376,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CXXFLAGS = $(CXX_RDYNAMIC) $(am__append_1)
+AM_CXXFLAGS = $(CXX_RDYNAMIC) -I $(srcdir)/.. -g -O2 $(am__append_1)
 pkglib_LTLIBRARIES = lib_file_io.la		\
 			lib_template_F0.la	\
 			lib_template_F12.la	\
@@ -384,6 +384,7 @@ pkglib_LTLIBRARIES = lib_file_io.la		\
 			lib_template_OP2.la	
 
 lib_file_io_la_SOURCES = file_io.cc
+lib_file_io_la_CXXFLAGS = $(AM_CXXFLAGS)
 lib_file_io_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 lib_template_F0_la_SOURCES = template_F0.cc template.hh
 lib_template_F12_la_SOURCES = template_F12.cc template.hh
@@ -480,7 +481,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/file_io.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lib_file_io_la-file_io.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/template_F0.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/template_F12.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/template_OP1.Plo@am__quote@
@@ -509,6 +510,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+lib_file_io_la-file_io.lo: file_io.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_file_io_la_CXXFLAGS) $(CXXFLAGS) -MT lib_file_io_la-file_io.lo -MD -MP -MF $(DEPDIR)/lib_file_io_la-file_io.Tpo -c -o lib_file_io_la-file_io.lo `test -f 'file_io.cc' || echo '$(srcdir)/'`file_io.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lib_file_io_la-file_io.Tpo $(DEPDIR)/lib_file_io_la-file_io.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='file_io.cc' object='lib_file_io_la-file_io.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_file_io_la_CXXFLAGS) $(CXXFLAGS) -c -o lib_file_io_la-file_io.lo `test -f 'file_io.cc' || echo '$(srcdir)/'`file_io.cc
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -48,12 +48,16 @@ public:
    /// Constructor (monadic operator, with axis)
    DerivedFunction(Token & lf, Function * monop, Value_P X, const char * loc);
 
+   /// Constructor (function with axis)
+   DerivedFunction(Function * func, Value_P X, const char * loc);
+
    /// overloaded Function::print();
    virtual ostream & print(ostream & out) const;
 
    /// Overloaded Function::has_result()
    virtual bool has_result() const
-     { return left_fun.is_function() && left_fun.get_function()->has_result(); }
+     { if (left_fun.get_tag() == TOK_VOID)   return oper->has_result();
+       return left_fun.is_function() && left_fun.get_function()->has_result(); }
 
 protected:
    /// Overloaded Function::print_properties()

@@ -25,12 +25,12 @@
    Normally the priority is the priority of the prefix plus the number of tems
  */
 
-// remove parenthesis
+// remove parentheses
 phrase(BS_ANY + 3,       LPAR , B    , RPAR ,      )
 phrase(BS_ANY + 3,       LPAR , F    , RPAR ,      )
 phrase(BS_ANY + 4,       LPAR , F    , C    , RPAR )
 
-// niladic function
+// niladic function call
 phrase(BS_ANY +  1,      N    ,      ,      ,      )
 
 // function called monadically
@@ -44,8 +44,10 @@ phrase(BS_A_F + 3,       A    , M    , B    ,      )
 phrase(BS_A_F + 4,       A    , M    , C    , B    )
 
 // monadic operator
-phrase(BS_LO_OP + 2,     F    , M    ,      ,      )
-phrase(BS_LO_OP + 3,     F    , M    , C    ,      )
+phrase(BS_LO_OP + 2,     F    , M    ,      ,      )   // e.g. +/B
+phrase(BS_LO_OP + 3,     F    , M    , C    ,      )   // e.g. +/[2]B
+phrase(BS_LO_OP + 3,     F    , C    , M    ,      )   // e.g. ,[2]/B
+phrase(BS_LO_OP + 4,     F    , C    , M    , C    )   // e.g. ,[2]/[2]B
 
 // dyadic operator
 phrase(BS_OP_RO + 3,     B    , D    , B    ,      )

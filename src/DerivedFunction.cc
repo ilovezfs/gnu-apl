@@ -88,6 +88,22 @@ DerivedFunction::DerivedFunction(Token & lfun, Function * monop,
      }
 }
 //-----------------------------------------------------------------------------
+DerivedFunction::DerivedFunction(Function * fun, Value_P X, const char * loc)
+   : Function(ID::USER_SYMBOL, TOK_FUN2),
+     left_fun(TOK_VOID),
+     oper(fun),
+     right_fun(TOK_VOID),
+     axis(X)
+{
+   Assert1(fun);
+
+   Log(LOG_FunOperX)
+      {
+        print(CERR<< "DerivedFunction(function with axis)");
+        CERR << " at " << loc << endl;
+     }
+}
+//-----------------------------------------------------------------------------
 Token
 DerivedFunction::eval_B(Value_P B)
 {
@@ -95,6 +111,11 @@ DerivedFunction::eval_B(Value_P B)
       {
         print(CERR << "entering DerivedFunction");
         CERR << "::eval_B() , this = " << (void *)this << endl;
+      }
+
+   if (left_fun.get_tag() == TOK_VOID)   // function bound to axis
+      {
+        return oper->eval_XB(axis, B);
       }
 
    if (right_fun.get_tag() != TOK_VOID)   // dyadic operator
@@ -134,6 +155,11 @@ DerivedFunction::eval_AB(Value_P A, Value_P B)
       {
         print(CERR << "entering DerivedFunction");
         CERR << "::eval_AB()" << endl;
+      }
+
+   if (left_fun.get_tag() == TOK_VOID)   // function bound to axis
+      {
+        return oper->eval_AXB(A, axis, B);
       }
 
    if (right_fun.get_tag() != TOK_VOID)   // dyadic operator
