@@ -5,7 +5,7 @@ dist_noinst_DATA =	AUTHORS		\
 dist_doc_DATA = SQL.apl
 
 pkglib_LTLIBRARIES = lib_sql.la
-AM_CXXFLAGS =		-I .. -I ../..
+AM_CXXFLAGS =		-I $(srcdir)/.. -I $(srcdir)/../..
 AM_LDFLAGS =
 lib_sql_la_SOURCES =	apl-sqlite.cc	apl-sqlite.hh		\
 			Connection.cc	Connection.hh		\

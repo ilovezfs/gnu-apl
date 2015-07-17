@@ -84,7 +84,6 @@ host_triplet = @host@
 @WANT_LIBAPL_TRUE@am__append_2 = libapl.la
 @WANT_LIBAPL_FALSE@bin_PROGRAMS = apl$(EXEEXT)
 @DEVELOP_TRUE@am__append_3 = -Werror -Wall -Wno-strict-aliasing
-@DEVELOP_TRUE@am__append_4 = -Werror -Wall -Wno-strict-aliasing
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(am__pkginclude_HEADERS_DIST)
@@ -595,6 +594,7 @@ top_srcdir = @top_srcdir@
 EXTRA_DIRS = $(am__append_1)
 SUBDIRS = native $(EXTRA_DIRS)
 DIST_SUBDIRS = $(SUBDIRS) testcases
+distcleancheck_listfile = buildtag
 common_sources = \
 			buildtag		buildtag.hh		\
 						../config.h		\
@@ -697,9 +697,10 @@ pkglib_LTLIBRARIES = $(am__append_2)
 @WANT_LIBAPL_TRUE@pkginclude_HEADERS = libapl.h
 @WANT_LIBAPL_TRUE@libapl_la_SOURCES = $(common_sources) libapl.h libapl.cc
 @WANT_LIBAPL_TRUE@libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
+@WANT_LIBAPL_TRUE@libapl_la_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) \
+@WANT_LIBAPL_TRUE@	-Werror -Wall -Wno-strict-aliasing
 @WANT_LIBAPL_FALSE@apl_SOURCES = main.cc $(common_sources)
 apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(am__append_3)
-libapl_la_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC) $(am__append_4)
 apl_LDADD = $(LIBS)
 AM_MAKEFLAGS = -j 4
 all: all-recursive
@@ -3032,6 +3033,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-pkgincludeHEADERS \
 	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-pkgincludeHEADERS uninstall-pkglibLTLIBRARIES
 
+@WANT_LIBAPL_TRUE@  if DEVELOP
+@WANT_LIBAPL_TRUE@  endif
 
 # normally we would say:
 #

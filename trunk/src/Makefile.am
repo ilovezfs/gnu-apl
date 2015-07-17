@@ -8,6 +8,8 @@ DIST_SUBDIRS = $(SUBDIRS) testcases
 datadir = @datadir@
 localedir = $(datadir)/locale
 
+distcleancheck_listfile = buildtag
+
 common_sources = \
 			buildtag		buildtag.hh		\
 						../config.h		\
@@ -115,6 +117,10 @@ pkglib_LTLIBRARIES += libapl.la
 pkginclude_HEADERS = libapl.h
 libapl_la_SOURCES = $(common_sources) libapl.h libapl.cc
 libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
+libapl_la_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
+  if DEVELOP
+     libapl_la_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
+  endif
 else
 
 bin_PROGRAMS = apl
@@ -135,11 +141,8 @@ update-svar_signals:
 	m4 -D protocol=Svar_signals tcp_signal.m4 > Svar_signals.hh
 
 apl_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
-libapl_la_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
-
 if DEVELOP
    apl_CXXFLAGS       += -Werror -Wall -Wno-strict-aliasing
-   libapl_la_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
 endif
 
 apl_LDADD = $(LIBS)

@@ -481,20 +481,21 @@ echo
 
 # create src/buildtag.hh
 #
-echo "configure: creating src/buildtag.hh"
-rm -f src/buildtag.hh
-cd src ; source ./buildtag ; cd ..
+echo "configure: creating $srcdir/src//buildtag.hh"
+rm -f $srcdir/src/buildtag.hh
+cd $srcdir/src ; source ./buildtag ; cd ..
 
 # create src/makefile.h
 #
-echo "configure: creating src/makefile.h"
-rm -f src/makefile.h
-make -C src makefile.h >/dev/null
+echo "configure: creating $srcdir/src/makefile.h"
+rm -f $srcdir/src/makefile.h
+make -C $srcdir/src makefile.h >/dev/null
 
 # remember how ./configure was called
-echo "configure: creating src/configure_args.cc"
-echo "extern const char * configure_args;" > src/configure_args.cc
-echo "const char * configure_args = \"$0 $ac_configure_args\";" >> src/configure_args.cc
+echo "configure: creating $srcdir/src/configure_args.cc"
+echo "extern const char * configure_args;" > $srcdir/src/configure_args.cc
+echo "const char * configure_args = \
+              \"$0 $ac_configure_args\";" >> $srcdir/src/configure_args.cc
 
 # summary
   echo " "

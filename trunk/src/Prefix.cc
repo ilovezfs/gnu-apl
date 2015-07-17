@@ -931,6 +931,8 @@ Prefix::reduce_A_M_C_B()
 void
 Prefix::reduce_F_M__()
 {
+   Assert1(prefix_len == 2);
+
 DerivedFunction * derived =
    Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(), LOC);
@@ -942,10 +944,49 @@ DerivedFunction * derived =
 void
 Prefix::reduce_F_M_C_()
 {
+   Assert1(prefix_len == 3);
+
 DerivedFunction * derived =
    Workspace::SI_top()->fun_oper_cache.get(LOC);
    new (derived) DerivedFunction(at0(), at1().get_function(),
                                  at2().get_axes(), LOC);
+
+   pop_args_push_result(Token(TOK_FUN2, derived));
+   action = RA_CONTINUE;
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::reduce_F_C_M_()
+{
+   Assert1(prefix_len == 3);
+
+DerivedFunction * F_C =
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (F_C) DerivedFunction(at0().get_function(), at1().get_axes(), LOC);
+
+Token tok_F_C(TOK_FUN2, F_C);
+DerivedFunction * derived =
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (derived) DerivedFunction(tok_F_C, at2().get_function(), LOC);
+
+   pop_args_push_result(Token(TOK_FUN2, derived));
+   action = RA_CONTINUE;
+}
+//-----------------------------------------------------------------------------
+void
+Prefix::reduce_F_C_M_C()
+{
+   Assert1(prefix_len == 4);
+
+DerivedFunction * F_C =
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (F_C) DerivedFunction(at0().get_function(), at1().get_axes(), LOC);
+
+Token tok_F_C(TOK_FUN2, F_C);
+DerivedFunction * derived =
+   Workspace::SI_top()->fun_oper_cache.get(LOC);
+   new (derived) DerivedFunction(tok_F_C, at2().get_function(),
+                                          at3().get_axes(), LOC);
 
    pop_args_push_result(Token(TOK_FUN2, derived));
    action = RA_CONTINUE;

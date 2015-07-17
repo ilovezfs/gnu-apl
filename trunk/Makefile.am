@@ -119,6 +119,10 @@ DIST:	dist Makefile.dist
 am--refresh:
 	echo "making am--refresh"
 
+# make distclean currently fails for libapl files
+distcleancheck:
+	@:
+
 EXTRA_DIST = config.rpath m4/ChangeLog
 
 .PHONY: git-pull

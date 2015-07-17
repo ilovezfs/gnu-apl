@@ -14,17 +14,16 @@ APserver_SOURCES = APserver.cc				\
 		Svar_DB_server.cc Svar_DB_server.hh	\
 		../Svar_record.cc ../Svar_record.hh
 
-AP100_CXXFLAGS    = -I .. -g -O2 -DAP_NUM=100
-AP210_CXXFLAGS    = -I .. -g -O2 -DAP_NUM=210
-APserver_CXXFLAGS = -I .. -g -O2
-
-AM_CXXFLAGS = $(CXX_RDYNAMIC)
-
+AM_CXXFLAGS = $(CXX_RDYNAMIC) -I $(srcdir)/.. -g -O2
 if DEVELOP
-   AP100_CXXFLAGS    += -Werror -Wall -Wno-strict-aliasing
-   AP210_CXXFLAGS    += -Werror -Wall -Wno-strict-aliasing
-   APserver_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
+   AM_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
 endif
+
+AP100_CXXFLAGS    = $(AM_CXXFLAGS) -DAP_NUM=100
+AP210_CXXFLAGS    = $(AM_CXXFLAGS) -DAP_NUM=210
+APmain_CXXFLAGS   = $(AM_CXXFLAGS)
+APserver_CXXFLAGS = $(AM_CXXFLAGS)
+
 
 AM_MAKEFLAGS = -j 8
 

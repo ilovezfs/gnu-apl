@@ -14,8 +14,8 @@ man1_MANS = apl.1
 install-info-am:
 	@echo " $(MKDIR_P) $(DESTDIR)$(infodir)"
 	@       $(MKDIR_P) "$(DESTDIR)$(infodir)" || exit 1
-	@echo " $(INSTALL_DATA) apl.info  libapl.info $(DESTDIR)$(infodir)"
-	@       $(INSTALL_DATA) apl.info  libapl.info $(DESTDIR)$(infodir)
+	@echo " $(INSTALL_DATA) $(srcdir)/apl.info  $(srcdir)/libapl.info $(DESTDIR)$(infodir)"
+	@       $(INSTALL_DATA) $(srcdir)/apl.info  $(srcdir)/libapl.info $(DESTDIR)$(infodir)
 
 uninstall-info-am:
 	 @echo " rm -f $(DESTDIR)$(infodir)/apl.info"
