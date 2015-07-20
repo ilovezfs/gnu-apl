@@ -144,7 +144,8 @@ get_rank(const APL_value val)
 int64_t
 get_axis(const APL_value val, unsigned int axis)
 {
-   return axis < val->get_rank() ? val->get_shape_item(axis) : -1;
+   return axis < (unsigned int)(val->get_rank())
+          ? val->get_shape_item(axis) : -1;
 }
 //-----------------------------------------------------------------------------
 
@@ -159,7 +160,7 @@ get_element_count(const APL_value val)
 int
 get_type(const APL_value val, uint64_t idx)
 {
-   if (idx >= val->nz_element_count())   return 0;
+   if (idx >= (uint64_t)(val->nz_element_count()))   return 0;
    return val->get_ravel(idx).get_cell_type();
 }
 //-----------------------------------------------------------------------------

@@ -118,9 +118,9 @@ pkginclude_HEADERS = libapl.h
 libapl_la_SOURCES = $(common_sources) libapl.h libapl.cc
 libapl_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 libapl_la_CXXFLAGS = $(GPROF_WANTED) $(CXX_RDYNAMIC)
-  if DEVELOP
+if DEVELOP
      libapl_la_CXXFLAGS += -Werror -Wall -Wno-strict-aliasing
-  endif
+endif
 else
 
 bin_PROGRAMS = apl
