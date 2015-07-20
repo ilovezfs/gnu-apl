@@ -2087,11 +2087,11 @@ const char * data = (const char * )find_attr("data", true);
       {
         loop(j, EOC_arg::u_DATA_LEN)
            {
-             ShapeItem d = 0;
+             long long d = 0;
              const int count = sscanf(data, "%lld", &d);
              if (count != 1)   break;   // no nmore data
 
-             eoc->u.u_data[j] = d;
+             eoc->u.u_data[j] = (ShapeItem)d;
            }
       }
 

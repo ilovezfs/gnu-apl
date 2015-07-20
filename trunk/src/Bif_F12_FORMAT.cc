@@ -206,7 +206,7 @@ vector<UCS_string> col_formats;
            }
       }
 
-   if (col_formats.size() != cols)   LENGTH_ERROR;
+   if (cols != (ShapeItem)(col_formats.size()))   LENGTH_ERROR;
 
    // convert each column format string into a Format_LIFER
    //
