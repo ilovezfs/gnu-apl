@@ -171,13 +171,16 @@ const uint64_t start = ctx[0].t1;
 
    // summary
    //
-int64_t total = 0;
+int max = 0;
    for (int c = 0; c < cores; ++c)
-       if (total < (ctx[c].t2 - start))   total = ctx[c].t2 - start;
+       {
+         const int diff = ctx[c].t2 - start;
+         if (max < diff)   max = diff;
+       }
 
-   fprintf(stderr, "%s int64_t: %10u total, %5.2f cycles per %s"
-                   " (on %d cores)\n",
-           opname, total, (cores*(double)total)/LEN, opname, cores);
+   fprintf(stderr,
+           "%s int64_t: %10d total, %5.2f cycles per %s (on %d cores)\n",
+           opname, max, (cores*(double)max)/LEN, opname, cores);
 }
 //-----------------------------------------------------------------------------
 void
@@ -213,8 +216,9 @@ const char * opname;
    if (!verbose)   return;
 
 
-   fprintf(stderr, "%s int64_t: %10u total, %5.2f cycles per %s (sequential)\n",
-           opname, t2 - t1, ((double)(t2 - t1))/LEN, opname);
+   fprintf(stderr,
+           "%s int64_t: %10d; total, %5.2f cycles per %s (sequential)\n",
+           opname, (int)(t2 - t1), ((double)(t2 - t1))/LEN, opname);
 }
 //-----------------------------------------------------------------------------
 int
