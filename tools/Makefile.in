@@ -116,9 +116,13 @@ am_apl2html_OBJECTS = apl2html.$(OBJEXT)
 apl2html_OBJECTS = $(am_apl2html_OBJECTS)
 apl2html_LDADD = $(LDADD)
 am__memory_benchmark_SOURCES_DIST = memory_benchmark.cc
-@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@am_memory_benchmark_OBJECTS = memory_benchmark.$(OBJEXT)
+@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@am_memory_benchmark_OBJECTS = memory_benchmark-memory_benchmark.$(OBJEXT)
 memory_benchmark_OBJECTS = $(am_memory_benchmark_OBJECTS)
 memory_benchmark_DEPENDENCIES =
+memory_benchmark_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(memory_benchmark_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_phrase_gen_OBJECTS = phrase_gen.$(OBJEXT)
 phrase_gen_OBJECTS = $(am_phrase_gen_OBJECTS)
 phrase_gen_LDADD = $(LDADD)
@@ -360,6 +364,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 @HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@memory_benchmark_SOURCES = memory_benchmark.cc
 @HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@memory_benchmark_LDADD = -lpthread
+@HAVE_AFFINITY_NP_TRUE@@HAVE_RDTSC_TRUE@memory_benchmark_CXXFLAGS = -Wall
 dist_noinst_SCRIPTS = check_src
 APL_keyboard_SOURCES = APL_keyboard.cc        APL_keyboard.def
 APL_keyboard_learn_SOURCES = APL_keyboard_learn.cc  APL_keyboard.orig.def
@@ -428,7 +433,7 @@ apl2html$(EXEEXT): $(apl2html_OBJECTS) $(apl2html_DEPENDENCIES) $(EXTRA_apl2html
 
 memory_benchmark$(EXEEXT): $(memory_benchmark_OBJECTS) $(memory_benchmark_DEPENDENCIES) $(EXTRA_memory_benchmark_DEPENDENCIES) 
 	@rm -f memory_benchmark$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(memory_benchmark_OBJECTS) $(memory_benchmark_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(memory_benchmark_LINK) $(memory_benchmark_OBJECTS) $(memory_benchmark_LDADD) $(LIBS)
 
 phrase_gen$(EXEEXT): $(phrase_gen_OBJECTS) $(phrase_gen_DEPENDENCIES) $(EXTRA_phrase_gen_DEPENDENCIES) 
 	@rm -f phrase_gen$(EXEEXT)
@@ -448,7 +453,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APL_keyboard_learn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/APL_keyboard_show.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl2html.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memory_benchmark.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memory_benchmark-memory_benchmark.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phrase_gen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sockconst.Po@am__quote@
 
@@ -499,6 +504,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+memory_benchmark-memory_benchmark.o: memory_benchmark.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(memory_benchmark_CXXFLAGS) $(CXXFLAGS) -MT memory_benchmark-memory_benchmark.o -MD -MP -MF $(DEPDIR)/memory_benchmark-memory_benchmark.Tpo -c -o memory_benchmark-memory_benchmark.o `test -f 'memory_benchmark.cc' || echo '$(srcdir)/'`memory_benchmark.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/memory_benchmark-memory_benchmark.Tpo $(DEPDIR)/memory_benchmark-memory_benchmark.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='memory_benchmark.cc' object='memory_benchmark-memory_benchmark.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(memory_benchmark_CXXFLAGS) $(CXXFLAGS) -c -o memory_benchmark-memory_benchmark.o `test -f 'memory_benchmark.cc' || echo '$(srcdir)/'`memory_benchmark.cc
+
+memory_benchmark-memory_benchmark.obj: memory_benchmark.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(memory_benchmark_CXXFLAGS) $(CXXFLAGS) -MT memory_benchmark-memory_benchmark.obj -MD -MP -MF $(DEPDIR)/memory_benchmark-memory_benchmark.Tpo -c -o memory_benchmark-memory_benchmark.obj `if test -f 'memory_benchmark.cc'; then $(CYGPATH_W) 'memory_benchmark.cc'; else $(CYGPATH_W) '$(srcdir)/memory_benchmark.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/memory_benchmark-memory_benchmark.Tpo $(DEPDIR)/memory_benchmark-memory_benchmark.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='memory_benchmark.cc' object='memory_benchmark-memory_benchmark.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(memory_benchmark_CXXFLAGS) $(CXXFLAGS) -c -o memory_benchmark-memory_benchmark.obj `if test -f 'memory_benchmark.cc'; then $(CYGPATH_W) 'memory_benchmark.cc'; else $(CYGPATH_W) '$(srcdir)/memory_benchmark.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

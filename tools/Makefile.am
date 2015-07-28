@@ -11,6 +11,7 @@ if HAVE_AFFINITY_NP
 noinst_PROGRAMS += memory_benchmark
 memory_benchmark_SOURCES = memory_benchmark.cc
 memory_benchmark_LDADD = -lpthread
+memory_benchmark_CXXFLAGS = -Wall
 endif
 endif
 
