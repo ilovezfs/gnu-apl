@@ -178,8 +178,8 @@ int max = 0;
          if (max < diff)   max = diff;
        }
 
-   fprintf(stderr,
-           "%s int64_t: %10d total, %5.2f cycles per %s (on %d cores)\n",
+   fprintf(stderr, "%s int64_t: %10d total, %5.2f cycles per %s"
+                   " (on %d cores)\n",
            opname, max, (cores*(double)max)/LEN, opname, cores);
 }
 //-----------------------------------------------------------------------------
