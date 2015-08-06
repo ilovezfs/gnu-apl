@@ -451,14 +451,6 @@ if test "x$SHORT_VALUE_LENGTH_WANTED" = "x"; then SHORT_VALUE_LENGTH_WANTED=12; 
 AC_DEFINE_UNQUOTED([SHORT_VALUE_LENGTH_WANTED], [$SHORT_VALUE_LENGTH_WANTED],
                    [short value cellcount])
 
-
-# APL: desired colors for CERR, CIN, and COUT ?
-AC_ARG_VAR(CERR_COLOR_WANTED,   [ obsolete option ])
-AC_ARG_VAR(CIN_COLOR_WANTED,    [ obsolete option ])
-AC_ARG_VAR(COUT_COLOR_WANTED,   [ obsolete option ])
-AC_ARG_VAR(RESET_COLORS_WANTED, [ obsolete option ])
-AC_ARG_VAR(CLEAR_EOL_WANTED,    [ obsolete option ])
-
 # APL: visible markers (debug only option) ?
 AC_ARG_VAR(VISIBLE_MARKERS_WANTED,
    [ enable CHECK() macro (see README-2-configure) default: no ])

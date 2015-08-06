@@ -243,12 +243,8 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
-CERR_COLOR_WANTED = @CERR_COLOR_WANTED@
 CFLAGS = @CFLAGS@
-CIN_COLOR_WANTED = @CIN_COLOR_WANTED@
-CLEAR_EOL_WANTED = @CLEAR_EOL_WANTED@
 CORE_COUNT_WANTED = @CORE_COUNT_WANTED@
-COUT_COLOR_WANTED = @COUT_COLOR_WANTED@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -310,7 +306,6 @@ POSTGRESQL_CFLAGS = @POSTGRESQL_CFLAGS@
 POSTGRESQL_LDFLAGS = @POSTGRESQL_LDFLAGS@
 POSTGRESQL_VERSION = @POSTGRESQL_VERSION@
 RANLIB = @RANLIB@
-RESET_COLORS_WANTED = @RESET_COLORS_WANTED@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -378,6 +373,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
+DISTCHECK_CONFIGURE_FLAGS = --enable-maintainer-mode=no
 APL_DIRS = workspaces wslib3 wslib4 wslib5
 SUBDIRS = doc gnu-apl.d src support-files tools $(APL_DIRS)
 DIST_SUBDIRS = $(SUBDIRS) rpm debian
@@ -786,6 +782,15 @@ distuninstallcheck:
 	        fi ; \
 	        $(distuninstallcheck_listfiles) ; \
 	        exit 1; } >&2
+distcleancheck: distclean
+	@if test '$(srcdir)' = . ; then \
+	  echo "ERROR: distcleancheck can only run from a VPATH build" ; \
+	  exit 1 ; \
+	fi
+	@test `$(distcleancheck_listfiles) | wc -l` -eq 0 \
+	  || { echo "ERROR: files left in build directory after distclean:" ; \
+	       $(distcleancheck_listfiles) ; \
+	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
 all-am: Makefile $(DATA) config.h
@@ -1077,10 +1082,6 @@ DIST:	dist Makefile.dist
 
 am--refresh:
 	echo "making am--refresh"
-
-# make distclean currently fails for libapl files
-distcleancheck:
-	@:
 
 .PHONY: git-pull
 git-pull:
