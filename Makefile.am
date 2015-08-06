@@ -1,5 +1,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
+DISTCHECK_CONFIGURE_FLAGS =--enable-maintainer-mode=no
 
 APL_DIRS	= workspaces wslib3 wslib4 wslib5
 SUBDIRS		= doc gnu-apl.d src support-files tools $(APL_DIRS)
@@ -118,10 +119,6 @@ DIST:	dist Makefile.dist
 
 am--refresh:
 	echo "making am--refresh"
-
-# make distclean currently fails for libapl files
-distcleancheck:
-	@:
 
 EXTRA_DIST = config.rpath m4/ChangeLog
 
