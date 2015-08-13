@@ -31,7 +31,7 @@ DOXY:
 # source and binary RPMs
 #
 .PHONY:	RPM
-RPM:	DIST
+RPM:	DIST all
 	rm -f rpm/rpm-tmp.*
 	make -C rpm $@
 	mkdir -p ftp-upload
