@@ -2385,14 +2385,20 @@ IndexExpr index_expr(ASS_none, LOC);
 Value_P
 Bif_F12_TAKE::first(Value_P B)
 {
+const Cell & first_B = B->get_ravel(0);
    if (B->element_count() == 0)   // empty value: return prototype
       {
+        if (first_B.is_lval_cell())   // (
+            {
+              Value_P Z(LOC);
+              Z->next_ravel()->init(first_B, B.getref(), LOC);
+              return Z;
+            }
         Value_P Z = B->prototype(LOC);
         Z->check_value(LOC);
         return Z;
       }
 
-const Cell & first_B = B->get_ravel(0);
    if (!first_B.is_pointer_cell())   // simple cell
       {
         Value_P Z(LOC);
