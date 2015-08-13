@@ -241,7 +241,7 @@ const CDR_string & cdr = *var_D.data;
         ++filepos;
         return 0;
       }
-   else if (code == 'D')   // char (var size
+   else if (code == 'D')   // char (var size)
       {
       }
    else if (code == 'T')   // translate
@@ -455,7 +455,8 @@ SVAR_context * ctx = new SVAR_context(f, code, var_C, var_D, true);
 }
 //-----------------------------------------------------------------------------
 void
-read_file(const char * filename, int code, Coupled_var & var_C, Coupled_var & var_D)
+read_file(const char * filename, int code, Coupled_var & var_C,
+          Coupled_var & var_D)
 {
    if (code == 0)   code = 'A';    // default if no code is provided
    if (!strchr("ABCDT", code))
@@ -467,6 +468,9 @@ read_file(const char * filename, int code, Coupled_var & var_C, Coupled_var & va
 FILE * f = fopen(filename, "r");
    if (f == 0)
       {
+        get_CERR() << "Could not open file " << filename << " for reading: "
+                   << strerror(errno) << endl;
+
        set_ACK(var_C, 2);          //  2 := FILE NOT FOUND
        return;
       }
@@ -493,6 +497,9 @@ write_file(const char * filename, int code, Coupled_var & var_C, Coupled_var & v
 FILE * f = fopen(filename, "w");
    if (f == 0)
       {
+        get_CERR() << "Could not open " << filename << " for writing: "
+                   << strerror(errno) << endl;
+
        set_ACK(var_C, 2);          //  2 := FILE NOT FOUND
        return;
       }
@@ -653,11 +660,16 @@ Coupled_var * var_D = 0;
               break;
             }
        }
+
    if (var_D == 0)
       {
-        get_CERR() << "key_D = " << (key_D & 0xFFFF) << endl;
+        get_CERR() << "Could not find matching data variable for key "
+                   << var.key << " (svar " << varname
+                   << ")" << endl
+                   << "unknown key_D = " << key_D << endl
+                   << "known keys:" << endl;
         for (size_t c = 0; c < coupled_vars.size(); ++c)
-            get_CERR() << "key = " << (coupled_vars[c].key & 0xFFFF) << endl;
+            get_CERR() << " key[" << c << "] = " << coupled_vars[c].key << endl;
 
         error_loc = LOC;   return E_VALUE_ERROR;
       }

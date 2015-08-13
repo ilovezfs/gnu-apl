@@ -1329,9 +1329,10 @@ const ErrorCode err(ErrorCode(response->get__VALUE_IS__error()));
                   << response->get__VALUE_IS__error_loc() << endl;
            }
 
+        string eloc = response->get__VALUE_IS__error_loc();
         delete response;
         if (del)   delete del;
-        throw_apl_error(err, response->get__VALUE_IS__error_loc().c_str());
+        throw_apl_error(err, eloc.c_str());
       }
 
 const string & data = response->get__VALUE_IS__cdr_value();
