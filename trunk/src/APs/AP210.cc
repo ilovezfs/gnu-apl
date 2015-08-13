@@ -39,7 +39,9 @@
 
 using namespace std;
 
-enum { ALL_RW = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH };
+bool debug_log = false;;
+
+        enum { ALL_RW = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH };
 
 struct SVAR_context
 {
@@ -395,8 +397,16 @@ open_pipe(const char * filename, const char * mode)
 struct stat st;
    if (stat(filename, &st) == 0)   // file exists
       {
-        if (S_ISFIFO(st.st_mode))   return fopen(filename, mode);
-        return 0;   // file exists but is not a pipe
+        FILE * pipe = 0;
+        if (S_ISFIFO(st.st_mode))
+           {
+             pipe = fopen(filename, mode);
+             if (pipe == 0 && debug_log)
+                get_CERR() << "Could not open pipe " << filename << ": "
+                           << strerror(errno) << endl;
+           }
+
+        return pipe;   // file exists but is not a pipe
       }
 
    // stat failed: create pipe
@@ -468,8 +478,9 @@ read_file(const char * filename, int code, Coupled_var & var_C,
 FILE * f = fopen(filename, "r");
    if (f == 0)
       {
-        get_CERR() << "Could not open file " << filename << " for reading: "
-                   << strerror(errno) << endl;
+        if (debug_log)
+           get_CERR() << "Could not open file " << filename << " for reading: "
+                      << strerror(errno) << endl;
 
        set_ACK(var_C, 2);          //  2 := FILE NOT FOUND
        return;
@@ -497,8 +508,9 @@ write_file(const char * filename, int code, Coupled_var & var_C, Coupled_var & v
 FILE * f = fopen(filename, "w");
    if (f == 0)
       {
-        get_CERR() << "Could not open " << filename << " for writing: "
-                   << strerror(errno) << endl;
+        if (debug_log)
+           get_CERR() << "Could not open file " << filename << " for writing: "
+                      << strerror(errno) << endl;
 
        set_ACK(var_C, 2);          //  2 := FILE NOT FOUND
        return;
