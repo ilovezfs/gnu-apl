@@ -281,7 +281,8 @@ const ShapeItem ec = element_count();
         new (ret->next_ravel())   LvalCell(&cell, this);
       }
 
-   if (ec == 0)   new (&ret->get_ravel(0))   LvalCell(0, 0);
+   // prototype
+   if (ec == 0)   new (&ret->get_ravel(0))   LvalCell(&get_ravel(0), this);
 
    ret->check_value(LOC);
    return ret;
