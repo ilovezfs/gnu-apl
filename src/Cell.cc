@@ -248,6 +248,9 @@ const double diff = value - result;
 APL_Integer
 Cell::near_int(APL_Float value)
 {
+   if (value >= LARGE_INT)   DOMAIN_ERROR;
+   if (value <= SMALL_INT)   DOMAIN_ERROR;
+
 const double result = nearbyint(value);
 const double diff = value - result;
    if (diff > INTEGER_TOLERANCE)    DOMAIN_ERROR;
