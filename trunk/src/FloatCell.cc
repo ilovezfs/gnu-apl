@@ -196,33 +196,78 @@ FloatCell::bif_pi_times_inverse(Cell * Z) const
 ErrorCode
 FloatCell::bif_ceiling(Cell * Z) const
 {
-const APL_Float qct = Workspace::get_CT();
-const APL_Float c = ceil(value.fval);   // c >= value.fval
+   // see comments for bif_floor below.
 
-   // if the distance between value.fval and c is close to 1 (within ⎕CT)
-   // then value.fval is rounded down rather than up. In that decision we
-   // compute:  tolerantly_equal(c - value.fval, 1)
-   // and NOT   tolerantly_equal(value.fval, c - 1) !
+const double b = value.fval;
+   // if b is large then return it as is.
    //
-   if (tolerantly_equal(c - value.fval, 1.0, qct))   return zv(Z, c - 1);
+   if (b >= LARGE_INT)   return zv(Z, b);
+   if (b <= SMALL_INT)   return zv(Z, b);
 
-   return zv(Z, c);
+APL_Integer bi = b;
+   while (bi < b)         ++bi;
+   while ((bi - 1) > b)   --bi;
+   if (bi == b)   return IntCell::zv(Z, bi);   // b already equal to its floor
+
+const double D = bi - b;
+
+   if (D >= (1 - Workspace::get_CT()))   --bi;
+   return IntCell::zv(Z, bi);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
 FloatCell::bif_floor(Cell * Z) const
 {
-const APL_Float qct = Workspace::get_CT();
-const APL_Float f = floor(value.fval);   // f <= value.fval
+/* Informal description (iso p. 78):
+   For real-numbers, Z is the greatest integer tolerantly less than
+   or equal to B. Uses comparison-tolerance.
 
-   // if the distance between value.fval and f is close to 1 (within ⎕CT)
-   // then value.fval is rounded up rather than down. In that decision we
-   // compute:  tolerantly_equal(value.fval - f, 1)
-   // and NOT   tolerantly_equal(value.fval, f + 1) !
+   Formal description:
+   Return the tolerant-floor of B within comparison-tolerance.
+
+   tolerant-floor (p.19) is defined for complex A:
+   Let A be a member of the set of numbers in the unit-square at the
+   complex-integer C, and let D be A minus C.
+   If the sum of the real and imaginary parts of D is tolerantly-less-than
+   one within B, then Z is C.
+   Otherwise, if the imaginary-part of D is greater-than the real-part of D,
+   then Z is C plus imaginary-one.
+   Otherwise, Z is C plus one.
+
+   Unfortunately tolerantly-less-than is not defined in the standard. We
+   interpret it as meaning 'less than and not tolerrantly-equal'.
+
+   Replacing B with ⎕CT, and A with B, and considering that the imaginary
+   part of B is always 0 if B is real this becomes:
+
+   tolerant-floor of (real) B within ⎕CT:
+   Let B be a member of the set of numbers in the hals-open interval [C, C+1),
+   and let D be B minus C.
+   If D is tolerantly-less-than one within ⎕CT, then Z is C.
+   Otherwise, Z is C plus one.
+
+   In other word, Let RB be B rounded down. Then Z is RB if B < RB + 1 - ⎕CT
+   and RB+1 otherwise.
+
+   Note: if B cannot fit into int64_t then, due to the smaller precision
+   of double, it is already equal to its floor and we return it unchanged.
+*/
+
+const double b = value.fval;
+   // if b is large then return it as is.
    //
-   if (tolerantly_equal(value.fval - f, 1.0, qct))   return zv(Z, f + 1);
+   if (b >= LARGE_INT)   return zv(Z, b);
+   if (b <= SMALL_INT)   return zv(Z, b);
 
-   return zv(Z, f);
+APL_Integer bi = b;
+   while (bi > b)         --bi;
+   while ((bi + 1) < b)   ++bi;
+   if (bi == b)   return IntCell::zv(Z, bi);   // b already equal to its floor
+
+const double D = b - bi;
+
+   if (D >= (1 - Workspace::get_CT()))   ++bi;
+   return IntCell::zv(Z, bi);
 }
 //-----------------------------------------------------------------------------
 ErrorCode
