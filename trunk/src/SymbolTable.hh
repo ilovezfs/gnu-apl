@@ -113,7 +113,7 @@ class Symbol;
 /**
      A table containing all user defined symbols.
  */
-class SymbolTable : public SymbolTableBase<Symbol, MAX_SYMBOL_COUNT>
+class SymbolTable : public SymbolTableBase<Symbol, SYMBOL_HASH_TABLE_SIZE>
 {
 public:
    /// Return or create a \b Symbol with name \b ucs in \b this \b SymbolTable.

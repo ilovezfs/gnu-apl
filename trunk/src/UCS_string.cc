@@ -23,6 +23,7 @@
 
 #include "Common.hh"
 #include "FloatCell.hh"
+#include "Heapsort.hh"
 #include "Output.hh"
 #include "PrintBuffer.hh"
 #include "PrintOperator.hh"
@@ -1107,21 +1108,7 @@ UCS_string::sort_names(const UCS_string ** names, int count)
 {
    if (count < 2)   return;
 
-   for (int h = 0; h < (count - 1); ++h)
-       {
-         // find smallest above (including) h
-         //
-         int smallest = h;
-         for (int j = h + 1; j < count; ++j)
-             {
-               if (names[smallest]->compare(*names[j]) == COMP_GT)
-                  {
-                    const UCS_string * tmp = names[smallest];
-                    names[smallest] = names[j];
-                    names[j] = tmp;
-                  }
-             }
-       }
+Heapsort<const UCS_string *>::sort(names, count, 0, compare_names);
 }
 //----------------------------------------------------------------------------
 void

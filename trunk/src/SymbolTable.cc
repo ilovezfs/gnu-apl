@@ -132,7 +132,7 @@ UCS_string to;
    //
 vector<Symbol *> list;
 int symbol_count = 0;
-   loop(s, MAX_SYMBOL_COUNT)
+   loop(s, SYMBOL_HASH_TABLE_SIZE)
        {
          for (Symbol * sym = symbol_table[s]; sym; sym = sym->next)
              {
@@ -203,7 +203,8 @@ vector<UCS_string> names;
         names.push_back(name);
       }
 
-DynArray(const UCS_string *, sorted_names, count);
+const UCS_string ** sorted_names = new const UCS_string *[count];
+   Assert(sorted_names);
    loop(n, count)   sorted_names[n] = &names[n];
    UCS_string::sort_names(sorted_names, count);
 
@@ -234,12 +235,14 @@ vector<int> col_width;
              loop(l, len)   out << " ";
            }
       }
+
+   delete sorted_names;
 }
 //-----------------------------------------------------------------------------
 void
 SymbolTable::unmark_all_values() const
 {
-   loop(s, MAX_SYMBOL_COUNT)
+   loop(s, SYMBOL_HASH_TABLE_SIZE)
        {
          for (Symbol * sym = symbol_table[s]; sym; sym = sym->next)
              {
@@ -252,7 +255,7 @@ int
 SymbolTable::show_owners(ostream & out, const Value & value) const
 {
 int count = 0;
-   loop(s, MAX_SYMBOL_COUNT)
+   loop(s, SYMBOL_HASH_TABLE_SIZE)
        {
          for (Symbol * sym = symbol_table[s]; sym; sym = sym->next)
              {
@@ -265,7 +268,7 @@ int count = 0;
 void
 SymbolTable::write_all_symbols(FILE * out, uint64_t & seq) const
 {
-   loop(s, MAX_SYMBOL_COUNT)
+   loop(s, SYMBOL_HASH_TABLE_SIZE)
        {
          for (Symbol * sym = symbol_table[s]; sym; sym = sym->next)
              {
@@ -300,7 +303,7 @@ SymbolTable::clear(ostream & out)
    //
    Assert(Workspace::SI_entry_count() == 0);
 
-   loop(hash, MAX_SYMBOL_COUNT)   clear_slot(out, hash);
+   loop(hash, SYMBOL_HASH_TABLE_SIZE)   clear_slot(out, hash);
 }
 //-----------------------------------------------------------------------------
 void
@@ -434,7 +437,7 @@ SymbolTable::symbols_allocated() const
 {
 int count = 0;
 
-   loop(hash, MAX_SYMBOL_COUNT)
+   loop(hash, SYMBOL_HASH_TABLE_SIZE)
       {
         for (const Symbol * sym = symbol_table[hash]; sym; sym = sym->next)
             ++count;
@@ -448,7 +451,7 @@ SymbolTable::get_all_symbols(Symbol ** table, int table_size) const
 {
 int idx = 0;
 
-   loop(hash, MAX_SYMBOL_COUNT)
+   loop(hash, SYMBOL_HASH_TABLE_SIZE)
       {
         for (Symbol * sym = symbol_table[hash]; sym; sym = sym->next)
             {
@@ -462,7 +465,7 @@ void
 SymbolTable::dump(ostream & out, int & fcount, int & vcount) const
 {
 vector<const Symbol *> symbols;
-   loop(hash, MAX_SYMBOL_COUNT)
+   loop(hash, SYMBOL_HASH_TABLE_SIZE)
       {
         for (const Symbol * sym = symbol_table[hash]; sym; sym = sym->next)
             {
