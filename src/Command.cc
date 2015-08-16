@@ -993,15 +993,15 @@ vector<UCS_string> directories;
    //
 DynArray(const UCS_string *, directory_names, directories.size());
    loop(a, directories.size())   directory_names[a] = &directories[a];
-   UCS_string::sort_names(directory_names, directories.size());
+   UCS_string::sort_names(directory_names.get_data(), directories.size());
 
 DynArray(const UCS_string *, apl_filenames, apl_files.size());
    loop(a, apl_files.size())   apl_filenames[a] = &apl_files[a];
-   UCS_string::sort_names(apl_filenames, apl_files.size());
+   UCS_string::sort_names(apl_filenames.get_data(), apl_files.size());
 
 DynArray(const UCS_string *, xml_filenames, xml_files.size());
    loop(x, xml_files.size())   xml_filenames[x] = &xml_files[x];
-   UCS_string::sort_names(xml_filenames, xml_files.size());
+   UCS_string::sort_names(xml_filenames.get_data(), xml_files.size());
 
    // 4. list directories first, then files
    //
@@ -1051,7 +1051,8 @@ int count = 0;
    //
    enum { tabsize = 4 };
 vector<int> col_width;
-   UCS_string::compute_column_width(col_width, filenames, count, tabsize,
+   UCS_string::compute_column_width(col_width, filenames.get_data(), count,
+                                    tabsize,
                                     Workspace::get_PrintContext().get_PW());
 
    loop(c, count)

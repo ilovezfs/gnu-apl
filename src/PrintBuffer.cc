@@ -123,7 +123,6 @@ const ShapeItem ec = value.element_count();
    //
 const ShapeItem cols = value.get_last_shape_item();
 
-#if HAVE_DYNAMIC_ARRAYS_NOPOD
    if (cols <= PB_MAX_COLS)   // few columns
       {
         DynArray(bool, scaling, cols);
@@ -132,13 +131,15 @@ const ShapeItem cols = value.get_last_shape_item();
            {
              DynArray(PrintBuffer, item_matrix, ec);
              do_PrintBuffer(value, pctx, out, outer_style,
-                            scaling, pcols, item_matrix);
+                            scaling.get_data(), pcols.get_data(),
+                            item_matrix.get_data());
            }
         else
            {
              PrintBuffer * item_matrix = new PrintBuffer[ec];
              do_PrintBuffer(value, pctx, out, outer_style,
-                            scaling, pcols, item_matrix);
+                            scaling.get_data(), pcols.get_data(),
+                            item_matrix);
              delete [] item_matrix;
            }
       }
@@ -150,7 +151,7 @@ const ShapeItem cols = value.get_last_shape_item();
            {
              DynArray(PrintBuffer, item_matrix, ec);
              do_PrintBuffer(value, pctx, out, outer_style,
-                            scaling, pcols, item_matrix);
+                            scaling, pcols, item_matrix.get_data());
            }
         else
            {
@@ -162,18 +163,6 @@ const ShapeItem cols = value.get_last_shape_item();
         delete [] pcols;
         delete [] scaling;
       }
-#else // e.g. clang
-      {
-        bool * scaling = new bool[cols];
-        PrintBuffer * pcols = new PrintBuffer[cols];
-        PrintBuffer * item_matrix = new PrintBuffer[ec];
-        do_PrintBuffer(value, pctx, out, outer_style,
-                       scaling, pcols, item_matrix);
-        delete [] item_matrix;
-        delete [] pcols;
-        delete [] scaling;
-      }
-#endif
 
    PERFORMANCE_END(fs_PrintBuffer_B, start_0, ec)
 }

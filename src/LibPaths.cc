@@ -96,7 +96,8 @@ LibPaths::compute_bin_path(const char * argv0, bool logit)
 
                     if (access(&filename[0], X_OK) == 0)
                        {
-                         strncpy(APL_bin_path, filename, sizeof(APL_bin_path));
+                         strncpy(APL_bin_path, filename.get_data(),
+                                 sizeof(APL_bin_path));
                          char * slash =   strrchr(APL_bin_path, '/');
                          Assert(slash);   // due to %s/%s above
                          *slash = 0;

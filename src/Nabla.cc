@@ -206,8 +206,8 @@ int trace_count = 0;
          if (lines[l].trace_flag)   trace_vec[trace_count++] = Function_Line(l);
        }
 
-   ufun->set_trace_stop(stop_vec,  stop_count,  true);
-   ufun->set_trace_stop(trace_vec, trace_count, false);
+   ufun->set_trace_stop(stop_vec.get_data(),  stop_count,  true);
+   ufun->set_trace_stop(trace_vec.get_data(), trace_count, false);
 }
 //-----------------------------------------------------------------------------
 const char *

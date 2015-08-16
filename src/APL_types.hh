@@ -484,18 +484,9 @@ struct Function_PC2
    Function_PC high;   ///< high PC (including)
 };
 //-----------------------------------------------------------------------------
-// dynamic arrays. Some platforms don't support them and we fix that here.
-
-#if HAVE_DYNAMIC_ARRAYS
-   //
-   // the platform supports dynamic arrays
-   //
-# define DynArray(Type, Name, Size) Type Name[Size];
-
-#else // not HAVE_DYNAMIC_ARRAYS
-   //
-   // the platform does not support dynamic arrays
-   //
+// dynamic arrays. Due to several segfaults when the array is too big
+// we removed the usage of (compiler-supported) dynamic arrays completely.
+//
    template<typename Type>
    class __DynArray
       {
@@ -512,21 +503,21 @@ struct Function_PC2
            ~__DynArray()
               { delete[] data; }
 
-           const Type * get_data()   { return data; }
+           const Type * get_data() const   { return data; }
+           Type * get_data() { return data; }
+
+           size_t strlen() const
+              { return strlen(get_data()); }
+
+           const Type * strrchr(Type ch) const
+              { return strrchr(get_data(), ch); }
 
         protected:
            Type * data;
+
       };
 
-   size_t strlen(const __DynArray<char> & da)
-      { return strlen(da.get_data()); }
-
-   size_t strrchr(const __DynArray<char> & da, int ch)
-      { return strrchr(da.get_data(), ch); }
-
-# define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
-
-#endif // HAVE_DYNAMIC_ARRAYS
+#define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
 
 //-----------------------------------------------------------------------------
 inline void

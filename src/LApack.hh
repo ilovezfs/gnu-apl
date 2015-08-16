@@ -747,7 +747,7 @@ ShapeItem  lastc = 0;
    if (lastv)
       {
         DynArray(double, gemv_data, 2*N);   // double instead of T for OSX
-        Vector<T> gemv_result((T *)gemv_data, N);
+        Vector<T> gemv_result((T *)gemv_data.get_data(), N);
 
         gemv<T>(lastv, lastc, c, v, gemv_result);
         gerc<T>(lastv, lastc, -tau, v, gemv_result, c);
@@ -1148,7 +1148,7 @@ const ShapeItem N = A.get_column_count();
 
      // Use unblocked code to factor the last or only block
      //
-     laqp2<T>(A, pivot, tau, vn12);
+     laqp2<T>(A, pivot, tau, vn12.get_data());
    }
 }
 //-----------------------------------------------------------------------------
@@ -1164,7 +1164,7 @@ const ShapeItem N = A.get_column_count();
    // store maxima in work_max == work_min[N ... 2N]
    //
 DynArray(double, work_1, 4*N);   // double instead of T for OSX
-T * work_min = (T *)work_1;
+T * work_min = (T *)work_1.get_data();
 T * work_max = work_min + N;
 
    work_min[0] = 1.0;
@@ -1229,9 +1229,9 @@ const ShapeItem NRHS = B.get_column_count();
 DynArray(ShapeItem, pivot, N);
 
 DynArray(double, tau1, 2*N);   // double instead of T for OSX
-T * tau = (T *)tau1;
+T * tau = (T *)tau1.get_data();
 
-   geqp3<T>(A, pivot, tau);
+   geqp3<T>(A, pivot.get_data(), tau);
 
    // Details of Householder rotations stored in WORK(1:MN).
    //
@@ -1271,7 +1271,7 @@ T * tau = (T *)tau1;
    loop(j_0, NRHS)
       {
         DynArray(double, tmp1, 2*N);   // double instead of T for OSX
-        T * tmp = (T *)tmp1;
+        T * tmp = (T *)tmp1.get_data();
         loop(i_0, N)   tmp[pivot[i_0]] = B.at(i_0, j_0);
         loop(i_0, N)   B.at(i_0, j_0) = tmp[i_0];
       }

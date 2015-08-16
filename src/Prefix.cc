@@ -408,12 +408,21 @@ grow:
                // (A B ... C)←. We return C and let the caller do the rest
                //
                sym->resolve(tl.tok, true);
+               Log(LOG_prefix_parser)
+                  CERR << "TOK_LSYMB2 " << sym->get_name()
+                       << "resolved to " << tl.tok << endl;
              }
           else
              {
                const bool left_sym = get_assign_state() == ASS_arrow_seen;
                sym->resolve(tl.tok, left_sym);
                if (left_sym)   set_assign_state(ASS_var_seen);
+               Log(LOG_prefix_parser)
+                  {
+                    if (left_sym)   CERR << "TOK_LSYMB ";
+                    else            CERR << "TOK_SYMBOL ";
+                    CERR << "resolved to " << tl.tok << endl;
+                  }
              }
           PC = lookahead_high + 1;   // resolve() succeeded: restore PV
 
@@ -1185,6 +1194,15 @@ Token result = Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 void
+Prefix::reduce_V_C__()
+{
+Symbol * V = at0().get_sym_ptr();
+   copy_1(at0(), V->resolve_lv(LOC), LOC);
+   set_assign_state(ASS_var_seen);
+   action = RA_CONTINUE;
+}
+//-----------------------------------------------------------------------------
+void
 Prefix::reduce_V_C_ASS_B()
 {
 Symbol * V = at0().get_sym_ptr();
@@ -1479,7 +1497,7 @@ DynArray(Symbol *, symbols, count + 1);
       }
 
 Value_P B = at3().get_apl_val();
-   Symbol::vector_assignment(symbols, count + 1, B);
+   Symbol::vector_assignment(symbols.get_data(), count + 1, B);
 
    set_assign_state(ASS_none);
 

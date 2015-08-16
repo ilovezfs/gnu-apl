@@ -219,43 +219,6 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT([$HAVE_SOLARIS_ATOMIC])
 
 
-# see if the compiler supports dynamic arrays
-#
-AC_MSG_CHECKING([if compiler supports dynamic arrays of PODs])
-AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM(
-        [ [extern int foo();]
-        ],
-        [ [int len = foo();]
-          [int array[len];]
-          [for (int l = 1; l < len; ++l) array[l] = array[l - 1];]
-        ]           )],
-    [DynArrays=yes], [DynArrays=no])
-AC_MSG_RESULT([$DynArrays])
-if test "x$DynArrays" = "xyes"; then
-   AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS], [1],
-                      [Define to 1 if the compiler supports dynamic arrays])
-fi
-
-# see if the compiler supports dynamic arrays with classes
-#
-AC_MSG_CHECKING([if compiler supports dynamic arrays with classes])
-AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM(
-        [ [extern int foo();]
-          [ class A { public: A() {} }; ]
-        ],
-        [ [int len = foo();]
-          [A array[len];]
-          [for (int l = 1; l < len; ++l) array[l] = array[l - 1];]
-        ]           )],
-    [DynArrays_noPOD=yes], [DynArrays_noPOD=no])
-AC_MSG_RESULT([$DynArrays_noPOD])
-if test "x$DynArrays_noPOD" = "xyes"; then
-   AC_DEFINE_UNQUOTED([HAVE_DYNAMIC_ARRAYS_NOPOD], [1],
-      [Define to 1 if the compiler supports dynamic arrays with classes])
-fi
-
 # check if the user compiles for ANDROID
 #
 AC_MSG_CHECKING([if we are compiling for Android])
