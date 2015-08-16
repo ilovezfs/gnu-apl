@@ -1624,7 +1624,7 @@ int line_count = 0;
          lines[line_count++] = (Function_Line)line;
       }
 
-   ufun->set_trace_stop(lines, line_count, stop);
+   ufun->set_trace_stop(lines.get_data(), line_count, stop);
 }
 //=============================================================================
 Token

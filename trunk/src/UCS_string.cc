@@ -1107,8 +1107,7 @@ void
 UCS_string::sort_names(const UCS_string ** names, int count)
 {
    if (count < 2)   return;
-
-Heapsort<const UCS_string *>::sort(names, count, 0, compare_names);
+   Heapsort<const UCS_string *>::sort(names, count, 0, compare_names);
 }
 //----------------------------------------------------------------------------
 void

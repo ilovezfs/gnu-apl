@@ -678,8 +678,9 @@ char * fract_end = 0;
 
         // the int part could be longer than allowed by the exaple string.
         //
-        const char * dot = strchr(data_buf, '.');
-        const int ilen = dot ? (dot - data_buf) : strlen(data_buf);
+        const char * dot = strchr(data_buf.get_data(), '.');
+        const int ilen = dot ? (dot - data_buf.get_data())
+                             : strlen(data_buf.get_data());
         if (ilen > int_part.out_len)
            {
              if (Workspace::get_FC(3) == UNI_ASCII_0)   DOMAIN_ERROR;

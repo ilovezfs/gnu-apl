@@ -21,6 +21,7 @@
 #include "PostgresArgListBuilder.hh"
 
 #include <string.h>
+#include "../Simple_string.hh"
 
 template<class T>
 PostgresBindArg<T>::~PostgresBindArg()
@@ -158,19 +159,20 @@ Value_P PostgresArgListBuilder::run_query( bool ignore_result )
 {
     int n = args.size();
     int array_len = n == 0 ? 1 : n;
-    DynArray( Oid, types, array_len );
-    DynArray( const char *, values, array_len );
-    DynArray( int, lengths, array_len );
-    DynArray( int, formats, array_len );
+    Simple_string<Oid>          types  (array_len, 0);
+    Simple_string<const char *> values (array_len, 0);
+    Simple_string<int>          lengths(array_len, 0);
+    Simple_string<int>          formats(array_len, 0);
 
     for( int i = 0 ; i < n ; i++ ) {
         PostgresArg *arg = args[i];
-        arg->update( types, values, lengths, formats, i );
+        arg->update( &types[0], &values[0], &lengths[0], &formats[0], i );
     }
 
-    PostgresResultWrapper result( PQexecParams( connection->get_db(), sql.c_str(), n,
-                                                NULL, values, lengths, formats,
-                                                0 ) );
+    PostgresResultWrapper result( PQexecParams( connection->get_db(),
+                                                sql.c_str(), n, NULL,
+                                                &values[0], &lengths[0],
+                                                &formats[0], 0 ) );
     ExecStatusType status = PQresultStatus( result.get_result() );
     Value_P db_result_value;
     if( status == PGRES_COMMAND_OK ) {
