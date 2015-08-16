@@ -506,15 +506,8 @@ struct Function_PC2
            const Type * get_data() const   { return data; }
            Type * get_data() { return data; }
 
-           size_t strlen() const
-              { return strlen(get_data()); }
-
-           const Type * strrchr(Type ch) const
-              { return strrchr(get_data(), ch); }
-
         protected:
            Type * data;
-
       };
 
 #define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
