@@ -57,6 +57,10 @@ public:
 
    /// system vars cannot be expunged.
    virtual int expunge() { return 0; }
+
+   /// do not allow (...⎕xxx)←...
+   virtual Token resolve_lv(const char * loc)
+      { SYNTAX_ERROR; }
 };
 //-----------------------------------------------------------------------------
 /**

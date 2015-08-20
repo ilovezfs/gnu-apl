@@ -125,7 +125,7 @@ public:
    void resolve_shared_variable(Token & token);
 
    /// resolve a variable name for an assignment
-   Token resolve_lv(const char * loc);
+   virtual Token resolve_lv(const char * loc);
 
    /// return the token class of \b this \b Symbol WITHOUT calling resolve()
    TokenClass resolve_class(bool left);
