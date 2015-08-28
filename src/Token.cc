@@ -804,11 +804,29 @@ move_2(Token & dst, const Token & src, const char * loc)
 }
 //-----------------------------------------------------------------------------
 void
-Token_string::print(ostream & out, int from) const
+Token_string::reverse_from_to(ShapeItem from, ShapeItem to)
 {
-   loop(t, size() - from)
+Token * t1 = items + from;
+Token * t2 = items + to;
+   Assert(0 <= from);
+   Assert(from <= to);
+   Assert(to <= size());
+
+   for (;t1 < t2; ++t1, --t2)
        {
-         const Token & tok = (*this)[from + t];
+         char tt[sizeof(Token)];
+         memcpy(tt, t1, sizeof(Token));
+         memcpy(t1, t2,   sizeof(Token));
+         memcpy(t2, tt, sizeof(Token));
+       }
+}
+//-----------------------------------------------------------------------------
+void
+Token_string::print(ostream & out) const
+{
+   loop(t, size())
+       {
+         const Token & tok = (*this)[t];
          out << "`" << tok << "  ";
        }
 

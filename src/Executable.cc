@@ -513,7 +513,6 @@ bool have_curly = false;
    // undo the token reversion of the body so that the body token and the
    // text run in the same direction.
    //
-
    reverse_statement_token(body);
 
    loop(b, body.size())
@@ -748,19 +747,15 @@ ShapeItem from = 0;
        {
          if (tos[to].get_Class() == TC_END)
             {
-              Token * t1 = &tos[from];
-              Token * t2 = &tos[to - 1];
-              for (;t1 < t2; ++t1, --t2)
-                  {
-                    char tt[sizeof(Token)];
-                    memcpy(tt, t1, sizeof(Token));
-                    memcpy(t1, t2,   sizeof(Token));
-                    memcpy(t2, tt, sizeof(Token));
-                  }
+              tos.reverse_from_to(from, to - 1);   // except TC_END
+              from = to + 1;
+            }
+         else if (to == (tos.size() - 1))
+            {
+              tos.reverse_from_to(from, to);
               from = to + 1;
             }
        }
-
 }
 //-----------------------------------------------------------------------------
 void
