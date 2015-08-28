@@ -227,6 +227,8 @@ Bif_REDUCE::finish_REDUCE(EOC_arg & arg, bool first)
 {
 REDUCTION & _arg = arg.u.u_REDUCTION;
 
+prim_f2 scalar_LO = arg.LO->get_scalar_f2();
+
    while (_arg.todo_B || arg.z < (arg.Z->element_count() - 1))
       {
         if (_arg.todo_B == 0)   // new beam
@@ -267,35 +269,47 @@ REDUCTION & _arg = arg.u.u_REDUCTION;
            {
            // one reduction step (one call of LO)
            //
-             Value_P LO_A = arg.B->get_ravel(_arg.b).to_value(LOC);
-             Value_P LO_B = arg.Z->get_ravel(arg.z).to_value(LOC);
-             Token result = arg.LO->eval_AB(LO_A, LO_B);
-             arg.Z->get_ravel(arg.z).release(LOC);
+           if (scalar_LO                                &&
+               arg.Z->get_ravel(arg.z).is_simple_cell() &&
+               arg.B->get_ravel(_arg.b).is_simple_cell())
+              {
+                Cell * cZ = &arg.Z->get_ravel(arg.z);
+                ErrorCode ec = (cZ->*scalar_LO)(cZ, &arg.B->get_ravel(_arg.b));
+                if (ec == E_NO_ERROR)   continue;
+                throw_apl_error(ec, LOC);
+              }
+           else
+              {
+                Value_P LO_A = arg.B->get_ravel(_arg.b).to_value(LOC);
+                Value_P LO_B = arg.Z->get_ravel(arg.z).to_value(LOC);
+                Token result = arg.LO->eval_AB(LO_A, LO_B);
+                arg.Z->get_ravel(arg.z).release(LOC);
 
-             if (result.get_Class() == TC_VALUE)
-                {
-                  Value_P ZZ = result.get_apl_val();
-                  arg.Z->get_ravel(arg.z)
-                        .init_from_value(ZZ, arg.Z.getref(), LOC);
-                  continue;
-                }
+                if (result.get_Class() == TC_VALUE)
+                   {
+                     Value_P ZZ = result.get_apl_val();
+                     arg.Z->get_ravel(arg.z)
+                           .init_from_value(ZZ, arg.Z.getref(), LOC);
+                     continue;
+                   }
 
-             if (result.get_tag() == TOK_ERROR)   return result;
+                if (result.get_tag() == TOK_ERROR)   return result;
 
-             if (result.get_tag() == TOK_SI_PUSHED)
-                {
-                  // LO was a user defined function
-                  //
-                  if (first)   // first call
+                if (result.get_tag() == TOK_SI_PUSHED)
+                   {
+                     // LO was a user defined function
+                     //
+                     if (first)   // first call
                      Workspace::SI_top()->add_eoc_handler(eoc_REDUCE, arg, LOC);
-                  else         // subsequent call
-                     Workspace::SI_top()->move_eoc_handler(eoc_REDUCE, &arg,
-                                                           LOC);
+                     else         // subsequent call
+                        Workspace::SI_top()->move_eoc_handler(eoc_REDUCE, &arg,
+                                                              LOC);
 
-                  return result;   // continue in user defined function...
-                }
+                     return result;   // continue in user defined function...
+                   }
 
-             Q1(result);   FIXME;
+                Q1(result);   FIXME;
+              }
            }
       }
 

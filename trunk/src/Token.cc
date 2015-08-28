@@ -489,8 +489,7 @@ const Value & val = *get_apl_val();
    else if (val.get_rank() == 1)   // vector
       {
         if (val.element_count() == 0 &&   // empty vector
-            (val.get_ravel(0).is_character_cell() ||
-             val.get_ravel(0).is_numeric()))
+            val.get_ravel(0).is_simple_cell())
            {
              out << endl;
              return;

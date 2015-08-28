@@ -156,6 +156,10 @@ public:
    virtual bool is_integer_cell() const
       { return false; }
 
+   /// Return \b true iff \b this cell is a numeric cor character cell
+   bool is_simple_cell() const
+      { return (get_cell_type() & CT_SIMPLE) != 0; }
+
    /// Return \b true iff \b this cell is a floating point cell
    virtual bool is_float_cell() const
       { return false; }

@@ -238,7 +238,7 @@ const uint32_t nelm = val.element_count();
              result.append(Unicode(offset >> 24 & 0xFF));
 
              const Cell & cell = val.get_ravel(e);
-             if (cell.is_character_cell() || cell.is_numeric())
+             if (cell.is_simple_cell())
                 {
                   // a non-pointer sub value: 16 byte header,
                   // and 1-16 data bytes, padded up to 16 bytes,
@@ -265,7 +265,7 @@ const uint32_t nelm = val.element_count();
         loop(e, nelm)
            {
              const Cell & cell = val.get_ravel(e);
-             if (cell.is_character_cell() || cell.is_numeric())
+             if (cell.is_simple_cell())
                 {
                   Value_P sub_val(LOC);
                   sub_val->get_ravel(0).init(cell, sub_val.getref(), LOC);

@@ -80,6 +80,7 @@ enum CellType
    CT_FLOAT   = 0x20,
    CT_COMPLEX = 0x40,
    CT_NUMERIC = CT_INT  | CT_FLOAT   | CT_COMPLEX,
+   CT_SIMPLE  = CT_CHAR | CT_NUMERIC,
    CT_MASK    = CT_CHAR | CT_NUMERIC | CT_POINTER | CT_CELLREF,
 
    // sub-types for Int and Char cells of different sizes.
