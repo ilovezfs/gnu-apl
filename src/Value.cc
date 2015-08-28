@@ -1295,7 +1295,7 @@ int size = 16 + 4*get_rank() + 4*ec;   // top_level size
    loop(e, ec)
       {
         const Cell & cell = get_ravel(e);
-        if (cell.is_character_cell() || cell.is_numeric())
+        if (cell.is_simple_cell())
            {
              // a non-pointer sub value consisting of its own 16 byte header,
              // and 1-16 data bytes, padded up to 16 bytes,
@@ -1341,7 +1341,7 @@ int size = 0;
    loop(e, ec)
       {
         const Cell & cell = get_ravel(e);
-        if (cell.is_character_cell() || cell.is_numeric())
+        if (cell.is_simple_cell())
            {
              size += cell.CDR_size();
            }
@@ -1432,7 +1432,7 @@ PrintContext pctx = Workspace::get_PrintContext();
    else if (get_rank() == 1)   // vector
       {
         if (element_count() == 0 &&   // empty vector
-            (get_ravel(0).is_character_cell() || get_ravel(0).is_numeric()))
+            (get_ravel(0).is_simple_cell()))
            {
              return out << endl;
            }
