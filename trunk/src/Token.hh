@@ -311,8 +311,11 @@ public:
    : Simple_string<Token>(other, pos, len)
    {}
 
+   /// reversde the token order from \b from to \b to (including)
+   void reverse_from_to(ShapeItem from, ShapeItem to);
+
    /// print the token string, starting at \b from
-   void print(ostream & out, int from = 0) const;
+   void print(ostream & out) const;
 
 private:
    // prevent accidental copying

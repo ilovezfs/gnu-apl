@@ -563,6 +563,7 @@ Simple_string<ShapeItem> stack;
          TokenClass tc_peer;
          switch(tos[t].get_Class())
            {
+             // for [ ( or { push the position onto stack
              case TC_L_BRACK:  if (tos[t].get_tag() != TOK_L_BRACK)   continue;
              case TC_L_PARENT:
              case TC_L_CURLY:  stack.append(t);
@@ -596,6 +597,16 @@ Simple_string<ShapeItem> stack;
           tos[t].set_int_val2(diff);
           tos[t1].set_int_val2(diff);
        }
+
+   // if there are unmatched items: return syntax error of the outer token
+   //
+   if (stack.size())
+      {
+        const TokenClass outer = tos[stack[0]].get_Class();
+        if (outer == TC_L_BRACK)    return E_UNBALANCED_BRACKET;
+        if (outer == TC_L_PARENT)   return E_UNBALANCED_PARENT;
+        return E_UNBALANCED_CURLY;
+      }
 
    return E_NO_ERROR;
 }
