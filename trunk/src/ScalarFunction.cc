@@ -985,41 +985,41 @@ const Shape weight = B->get_shape().reverse_scan();
 Token
 Bif_F12_ROLL::eval_AB(Value_P A, Value_P B)
 {
-const APL_Integer qio = Workspace::get_IO();
-
    // draw A items  from the set [quad-IO ... B]
    //
    if (!A->is_scalar_or_len1_vector())   RANK_ERROR;
    if (!B->is_scalar_or_len1_vector())   RANK_ERROR;
 
-const uint32_t aa = A->get_ravel(0).get_near_int();
+const ShapeItem zlen = A->get_ravel(0).get_near_int();
 APL_Integer set_size = B->get_ravel(0).get_near_int();
-   if (aa > set_size)           DOMAIN_ERROR;
+   if (zlen > set_size)           DOMAIN_ERROR;
    if (set_size <= 0)           DOMAIN_ERROR;
    if (set_size > 0x7FFFFFFF)   DOMAIN_ERROR;
 
-
-Value_P Z(aa, LOC);
+Value_P Z(zlen, LOC);
 
    // set_size can be rather big, so we new/delete it
    //
-uint32_t * idx_B = new uint32_t[set_size];
-   if (idx_B == 0)   DOMAIN_ERROR;
+uint8_t * used = new uint8_t[set_size/8];
+   memset(used, 0, set_size/8);
+   if (used == 0)   throw_apl_error(E_WS_FULL, LOC);
    
-   loop(c, set_size)   idx_B[c] = c + qio;
-
-   loop(z, aa)
+   loop(z, zlen)
        {
          const uint64_t rnd = Workspace::get_RL(set_size) % set_size;
-         new (&Z->get_ravel(z)) IntCell(idx_B[rnd]);
-         idx_B[rnd] = idx_B[set_size - 1];   // move last item in.
-         --set_size;
+
+         if (used[rnd >> 3] & 1 << (rnd & 7))   // already drawn
+            {
+              --z;
+              continue;
+            }
+         used[rnd >> 3] |= 1 << (rnd & 7);
+         new (&Z->get_ravel(z)) IntCell(rnd + Workspace::get_IO());
        }
 
-   delete [] idx_B;
+   delete [] used;
 
    Z->set_default_Zero();
-
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
