@@ -25,6 +25,7 @@
 #include "FloatCell.hh"
 #include "Output.hh"
 #include "Value.icc"
+#include "Workspace.hh"
 
 using namespace std;
 
@@ -62,7 +63,7 @@ divide_matrix(Cell * cZ, bool need_complex,
                  }
 
               {
-                const double rcond = 1E-10;
+                const APL_Float rcond = Workspace::get_CT();
 
                 Matrix<ZZ> B(b, rows, cols_B, /* LDB */ rows);
                 Matrix<ZZ> A(a, rows, 1,      /* LDA */ rows);
@@ -101,7 +102,7 @@ divide_matrix(Cell * cZ, bool need_complex,
                  }
 
               {
-                const double rcond = 1E-10;
+                const APL_Float rcond = Workspace::get_CT();
 
                 Matrix<DD> B(b, rows, cols_B, /* LDB */ rows);
                 Matrix<DD> A(a, rows, 1,      /* LDA */ rows);
