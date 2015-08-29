@@ -397,8 +397,7 @@ EOC_arg * e;
            CERR << "StateIndicator::escape() cleans up eoc_handler from "
                 << e->loc << endl;
 
-        Token tok(TOK_ESCAPE);
-        e->handler(tok);
+        e->clear(LOC);
         Log(LOG_EOC_handlers)
            CERR << "StateIndicator::~StateIndicator() deletes "
                 << (const void *)e << endl;
