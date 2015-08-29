@@ -582,7 +582,7 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
                   Log(LOG_tokenize)
                      CERR << "  tokenize_number: integer " << real_int << endl;
                 }
-             return;
+             goto done;;
            }
 
         tos.append(Token(TOK_COMPLEX, real_flt, imag_flt));
@@ -614,7 +614,7 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
                   Log(LOG_tokenize)
                      CERR << "  tokenize_number: integer " << real_int << endl;
                 }
-             return;
+             goto done;;
            }
 
         // real_flt is the magnitude and the angle is in degrees.
@@ -650,7 +650,7 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
                   Log(LOG_tokenize)
                      CERR << "  tokenize_number: integer " << real_int << endl;
                 }
-             return;
+             goto done;;
            }
 
         // real_flt is the magnitude and the angle is in radian.
@@ -675,6 +675,24 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
             Log(LOG_tokenize)
                CERR << "  tokenize_number: integer " << real_int << endl;
           }
+      }
+
+done:
+   // ISO 13751 requires a space between two numeric scalar literals (page 42),
+   // but not between a numeric scalar literal and an identifier.
+   //
+   // IBM APL2 requires a space in both cases. For example, 10Q10 is tokenized
+   // as  10Q 10
+   //
+   // We follow ISO. The second numeric literal cannot start with 0-9 because
+   // that would have been eaten by the first literal. Therefor the only cases
+   // remaining to be checked are a numeric scalar literal followed by ¯
+   // or by . (page 42)
+   //
+   if (src.rest())
+      {
+        if (*src == UNI_OVERBAR || *src == '.')
+                   throw_parse_error(E_BAD_NUMBER, LOC, loc);
       }
 }
 //-----------------------------------------------------------------------------
