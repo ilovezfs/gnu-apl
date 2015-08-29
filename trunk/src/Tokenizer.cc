@@ -754,7 +754,8 @@ bool dot_seen = false;
    if (src.rest() > 1 &&
        (*src == UNI_ASCII_E || *src == UNI_ASCII_e))   // maybe exponent
       {
-        if ((src[1] == UNI_OVERBAR && src[2] >= '0' && src[2] <= '9') ||
+        if ((src[1] == UNI_OVERBAR &&
+             src.rest() > 2 && src[2] >= '0' && src[2] <= '9')  ||
             (src[1] >= '0' && src[1] <= '9'))
            {
              need_float = true;
