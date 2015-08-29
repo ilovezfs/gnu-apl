@@ -181,6 +181,14 @@ public:
      z(other.z)
    { u = other.u; Backtrace::show(__FILE__, __LINE__); }
 
+   /// clear the Value_P in this EOC_arg
+   void clear(const char * loc)
+      {
+        Z.clear(loc);
+        A.clear(loc);
+        B.clear(loc);
+      }
+
    /// the handler
    EOC_HANDLER handler;
 
