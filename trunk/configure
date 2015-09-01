@@ -1518,7 +1518,7 @@ Some influential environment variables:
   GPROF_WANTED
               enable gprof (-pg) (see README-2-configure) default: no
   DYNAMIC_LOG_WANTED
-              enable dynamic (see README-2-configure) default: no
+              enable dynamic logging (see README-2-configure) default: no
   VF_TRACING_WANTED
               enable tracing of value flags (see README-2-configure) default:
               no

@@ -54,9 +54,10 @@ UserPreferences uprefs;
 void
 UserPreferences::usage(const char * prog)
 {
-const char * prog1 = strrchr(prog, '/');
-   if (prog1)   ++prog1;
-   else         prog1 = prog;
+   {
+     const char * prog1 = strrchr(prog, '/');
+     if (prog1)   prog = prog1 + 1;
+   }
 
 char cc[4000];
    snprintf(cc, sizeof(cc),
@@ -115,7 +116,7 @@ char cc[4000];
 "    --TS                 append to (rather than override) summary.log\n"
 "    -v, --version        show version information and exit\n"
 "    -w milli             wait milli milliseconds at startup\n"
-"    --                   end of options for %s\n", prog1);
+"    --                   end of options for %s\n", prog);
    CERR << cc << endl;
 }
 //-----------------------------------------------------------------------------

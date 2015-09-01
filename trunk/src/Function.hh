@@ -76,6 +76,10 @@ public:
    /// return \b true iff \b this function is a lambda
    virtual bool is_lambda() const   { return false; }
 
+   /// return \b true iff \b this function is a derived function
+   virtual bool is_derived() const
+      { return false; }
+
    /// return \b true if \b eval_XXX may push the SI. True for ⍎, user defined
    /// functions, and operators derived from user defined functions
    virtual bool may_push_SI() const   { return false; }
