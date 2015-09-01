@@ -54,6 +54,10 @@ public:
    /// overloaded Function::print();
    virtual ostream & print(ostream & out) const;
 
+   /// overloaded Function::is_derived();
+   virtual bool is_derived() const
+      { return true; }
+
    /// Overloaded Function::has_result()
    virtual bool has_result() const
      { if (left_fun.get_tag() == TOK_VOID)   return oper->has_result();

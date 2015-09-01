@@ -285,6 +285,15 @@ XML_Saving_Archive::save_Function_name(const char * ufun_prefix,
                                        const char * id_prefix,
                                        const Function & fun)
 {
+   if (fun.is_derived())
+      {
+        CERR << endl <<
+"WARNING: The )SI stack contains a derived function. )SAVEing a workspace in\n"
+"         such a state is currently not supported and WILL cause problems\n"
+"         when )LOADing the workspace. Please perform )SIC (or → and then\n"
+"         )SAVE this workspace again." << endl;
+      }
+
 const UserFunction * ufun = fun.get_ufun1();
    if (ufun)   // user defined function
       {
@@ -1932,7 +1941,24 @@ const int levels = find_int_attr("levels", false, 10);
         next_tag(LOC);
         expect_tag("SI-entry", LOC);
 
-        read_SI_entry(l);
+        try
+           {
+             read_SI_entry(l);
+           }
+        catch (...)
+           {
+             CERR <<
+"\n"
+"*** SORRY! An error occured while reading the )SI stack of the )SAVEd\n"
+"    workspace. The )SI stack was reconstructed to the extent possible.\n"
+"    We stronly recommend to perform )SIC and then )DUMP the workspace under\n"
+"    a different name.\n" << endl;
+
+             // skip rest of <StateIndicator>
+             //
+             skip_to_tag("/StateIndicator");
+             return;
+           }
 
         // the parsers loop eats the terminating /SI-entry
       }
@@ -1944,7 +1970,7 @@ const int levels = find_int_attr("levels", false, 10);
 void
 XML_Loading_Archive::read_SI_entry(int lev)
 {
-const int level     = find_int_attr("level",     false, 10);
+const int level = find_int_attr("level",     false, 10);
 
    Log(LOG_archive)   CERR << "read_SI_entry() level=" << level << endl;
 
@@ -2247,13 +2273,14 @@ const UTF8 * fun_name = find_attr(name_attr, true);
 
    if (fun_name)   // user defined function
       {
-        const int level = find_int_attr(level_attr, false, 10);
-
+        int level = find_int_attr(level_attr, false, 10);
         const UTF8 * end = fun_name;
         while (*end != '"')   ++end;
         UTF8_string name_utf(fun_name, end - fun_name);
         UCS_string ucs(name_utf);
         const Symbol & symbol = *Workspace::lookup_symbol(ucs);
+        if (level == -1)   level = 0;   // named lambda?
+
         Assert(level >= 0);
         Assert(level < symbol.value_stack_size());
         const ValueStackItem & vsi = symbol[level];

@@ -243,7 +243,7 @@ char peer[100];
                    return NO_TCP_SOCKET;
                  }
 
-              usleep(200000);   // give APserver some time to start up
+              usleep(300000);   // give APserver some time to start up
               continue;
             }
 

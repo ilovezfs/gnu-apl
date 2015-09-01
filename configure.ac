@@ -347,7 +347,7 @@ AC_DEFINE_UNQUOTED([GPROF_WANTED], [-pg],
 
 # APL: dynamic logging desired ?
 AC_ARG_VAR(DYNAMIC_LOG_WANTED,
-   [ enable dynamic (see README-2-configure) default: no ])
+   [ enable dynamic logging (see README-2-configure) default: no ])
 if test "x$DYNAMIC_LOG_WANTED" = "xyes"; then
 AC_DEFINE_UNQUOTED([DYNAMIC_LOG_WANTED], [yes],
                    [ define to enable dynamic logging ])
