@@ -580,7 +580,10 @@ ComplexCell::do_bif_circle_fun(Cell * Z, int fun, APL_Complex b)
                     return zv(Z, loga);
                   }
 
-        case  -4: return zv(Z, sqrt(b*b - 1.0));
+        case  -4: if (b.real() >= 0 ||
+                      b.real() > -1 && Cell::is_near_zero(b.imag())
+                     )   return zv(Z,  sqrt(b*b - 1.0));
+                  else   return zv(Z, -sqrt(b*b - 1.0));
 
         case  -3: // arctan(z) = i/2 (ln(1 - iz) - ln(1 + iz))
                   {

@@ -127,8 +127,8 @@ const APL_Float b = get_real_value();
                   return ComplexCell::do_bif_circle_fun(Z, -6, b);
 
         case  -5: return FloatCell::zv(Z, asinh(b));
-        case  -4: if (b > 1)   return FloatCell::zv(Z, sqrt(b*b - 1.0));
-                  else         return ComplexCell::zv(Z, 0, sqrt(1.0 - b*b));
+        case  -4: if (b >= -1)   return FloatCell::zv(Z, sqrt(b*b - 1.0));
+                  return ComplexCell::do_bif_circle_fun(Z, -4, b);
         case  -3: return FloatCell::zv(Z, atan (b));
         case  -2: if (b >= -1.0 && b <= 1.0)  return FloatCell::zv(Z, acos (b));
                   return ComplexCell::do_bif_circle_fun(Z, -2, b);
