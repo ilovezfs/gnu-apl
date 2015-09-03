@@ -96,11 +96,20 @@ protected:
    /// replace , B by a reshaped B
    static void tf2_remove_COMMA(Token_string & tos, int & progress);
 
+   /// replace ⍴ ⊂ B  by  ⍴ enclosed B
+   static void tf2_remove_ENCLOSE1(Token_string & tos, int & progress);
+
    /// replace ( ⊂ B ) by an enclosed B
    static void tf2_remove_ENCLOSE(Token_string & tos, int & progress);
 
    /// replace ⊂ ⊂ B by ⊂ B
    static void tf2_remove_ENCLOSE_ENCLOSE(Token_string & tos, int & progress);
+
+   /// replace N - ⎕IO - ⍳ K  by  N N+1 ... N+K-1
+   static void tf2_remove_sequence(Token_string & tos, int & progress);
+
+   /// replace N - M × ⎕IO - ⍳ K  by  M × (N N+1 ... N+K-1)
+   static void tf2_remove_sequence1(Token_string & tos, int & progress);
 
    /// replace ( value ) by value
    static void tf2_remove_parentheses(Token_string & tos, int & progress);
