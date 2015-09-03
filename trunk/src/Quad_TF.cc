@@ -661,6 +661,9 @@ Quad_TF::tf2_simplify(Token_string & tos)
          tf2_remove_COMMA(tos, progress);
          tf2_remove_ENCLOSE_ENCLOSE(tos, progress);
          tf2_remove_ENCLOSE(tos, progress);
+         tf2_remove_ENCLOSE1(tos, progress);
+         tf2_remove_sequence(tos, progress);
+         tf2_remove_sequence1(tos, progress);
          tf2_remove_parentheses(tos, progress);
          tf2_glue(tos, progress);
        }
@@ -831,10 +834,113 @@ ShapeItem skipped = 0;
 }
 //-----------------------------------------------------------------------------
 void
+Quad_TF::tf2_remove_sequence(Token_string & tos, int & progress)
+{
+ShapeItem skipped = 0;
+
+//   tos.print(CERR);
+
+   // replace N - ⎕IO - ⍳ K  by  N N+1 ... N+K-1
+   //         0 1 2   3 4 5
+   //
+   loop(s, tos.size())
+      {
+        if ((s >= (tos.size() - 5))                    ||   // too short
+            tos[s    ].get_Class() != TC_VALUE         ||   // not N
+            tos[s + 1].get_tag()   != TOK_F12_MINUS    ||   // not -
+            tos[s + 2].get_tag()   != TOK_Quad_IO      ||   // not ⎕IO
+            tos[s + 3].get_tag()   != TOK_F12_MINUS    ||   // not -
+            tos[s + 4].get_tag()   != TOK_F12_INDEX_OF ||   // not ⍳
+            tos[s + 5].get_Class() != TC_VALUE         ||   // not K
+           !tos[s    ].get_apl_val()->is_int_scalar()  ||   // N not integer
+           !tos[s + 5].get_apl_val()->is_int_scalar())      // K not integer
+           {
+             if (skipped)   // dont copy to itself
+                move_1(tos[s - skipped], tos[s], LOC);
+             continue;
+           }
+
+        const APL_Integer N = tos[s].get_apl_val()->get_ravel(0)
+                                    .get_int_value();
+        const APL_Integer K = tos[s + 5].get_apl_val()->get_ravel(0)
+                                        .get_int_value();
+
+        loop(j, 6)   tos[s + j].clear(LOC);
+
+        Value_P sequence(K, LOC);
+        loop(k, K)   new (sequence->next_ravel())   IntCell(N + k);
+        Token tok(TOK_APL_VALUE1, sequence);
+        move_2(tos[s - skipped], tok, LOC);
+        s += 5;   skipped += 5;
+      }
+
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        ++progress;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Quad_TF::tf2_remove_sequence1(Token_string & tos, int & progress)
+{
+ShapeItem skipped = 0;
+
+//   tos.print(CERR);
+
+   // replace N - M × ⎕IO - ⍳ K by M(N N+1 ... N+K-1)
+   //         0 1 2 3 4   5 6 7
+   //
+   loop(s, tos.size())
+      {
+        if ((s >= (tos.size() - 7))                    ||   // too short
+            tos[s    ].get_Class() != TC_VALUE         ||   // not N
+            tos[s + 1].get_tag()   != TOK_F12_MINUS    ||   // not -
+            tos[s + 2].get_Class() != TC_VALUE         ||   // not K
+            tos[s + 3].get_tag()   != TOK_F12_TIMES    ||   // not ×
+            tos[s + 4].get_tag()   != TOK_Quad_IO      ||   // not ⎕IO
+            tos[s + 5].get_tag()   != TOK_F12_MINUS    ||   // not -
+            tos[s + 6].get_tag()   != TOK_F12_INDEX_OF ||   // not ⍳
+            tos[s + 7].get_Class() != TC_VALUE         ||   // not K
+           !tos[s    ].get_apl_val()->is_int_scalar()  ||   // N not integer
+           !tos[s + 2].get_apl_val()->is_int_scalar()  ||   // M not integer
+           !tos[s + 7].get_apl_val()->is_int_scalar())      // K not integer
+           {
+             if (skipped)   // dont copy to itself
+                move_1(tos[s - skipped], tos[s], LOC);
+             continue;
+           }
+
+        const APL_Integer N = tos[s].get_apl_val()->get_ravel(0)
+                                    .get_int_value();
+        const APL_Integer M = tos[s + 2].get_apl_val()->get_ravel(0)
+                                        .get_int_value();
+        const APL_Integer K = tos[s + 7].get_apl_val()->get_ravel(0)
+                                        .get_int_value();
+
+        loop(j, 6)   tos[s + j].clear(LOC);
+
+        Value_P sequence(K, LOC);
+        loop(k, K)   new (sequence->next_ravel())   IntCell(M * (N + k));
+        Token tok(TOK_APL_VALUE1, sequence);
+        move_2(tos[s - skipped], tok, LOC);
+        s += 7;   skipped += 7;
+      }
+
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        ++progress;
+      }
+}
+//-----------------------------------------------------------------------------
+void
 Quad_TF::tf2_remove_ENCLOSE(Token_string & tos, int & progress)
 {
 ShapeItem skipped = 0;
 
+   // replace  ( ⊂ B )  by an enclosed B  
+   //
    loop(s, tos.size())
       {
         if (s >= (tos.size() - 3)                       ||
@@ -862,6 +968,51 @@ ShapeItem skipped = 0;
              tos[s + 2].clear(LOC);   // B
            }
         s += 3;   skipped += 3;
+      }
+
+   if (skipped)
+      {
+        tos.shrink(tos.size() - skipped);
+        ++progress;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Quad_TF::tf2_remove_ENCLOSE1(Token_string & tos, int & progress)
+{
+ShapeItem skipped = 0;
+
+   // replace  ⍴ ⊂ B  by ⍴ enclosed B  
+   //
+   loop(s, tos.size())
+      {
+        if (s >= (tos.size() - 2)                       ||
+            tos[s    ].get_tag()   != TOK_F12_RHO       ||   // not ⍴
+            tos[s + 1].get_tag()   != TOK_F12_PARTITION ||   // not ⊂
+            tos[s + 2].get_Class() != TC_VALUE)              // not B 
+           {
+             if (skipped)   // dont copy to itself
+                move_1(tos[s - skipped], tos[s], LOC);
+             continue;
+           }
+
+        if (skipped)   // dont copy to itself
+           move_1(tos[s - skipped], tos[s], LOC);   // move ⍴
+
+        Value_P B = tos[s + 2].get_apl_val();
+        if (B->is_scalar())
+           {
+             move_1(tos[s - skipped + 1], tos[s + 2], LOC);
+           }
+        else
+           {
+             Value_P enc_B(LOC);
+             new (enc_B->next_ravel()) PointerCell(B, enc_B.getref());
+             Token tok(TOK_APL_VALUE1, enc_B);
+             move_2(tos[s - skipped + 1], tok, LOC);
+             tos[s + 2].clear(LOC);   // B
+           }
+        s += 2;   ++skipped;
       }
 
    if (skipped)
