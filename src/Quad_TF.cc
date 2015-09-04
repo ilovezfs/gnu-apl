@@ -33,6 +33,8 @@
 Quad_TF   Quad_TF::_fun;
 Quad_TF * Quad_TF::fun = &Quad_TF::_fun;
 
+enum { Quad_PP_TF = 17 };
+
 //-----------------------------------------------------------------------------
 Token
 Quad_TF::eval_AB(Value_P A, Value_P B)
@@ -164,7 +166,7 @@ const ShapeItem ec = val->element_count();
                 }
              else // if (cell.is_near_real())
                 {
-                  PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, MAX_Quad_PW);
+                  PrintContext pctx(PR_APL_MIN, Quad_PP_TF, MAX_Quad_PW);
                   const APL_Float value = cell.get_real_value();
                   bool scaled = true;
                   UCS_string ucs1(value, scaled, pctx);
@@ -621,7 +623,7 @@ bool have_parenth = tf2_shape(ucs, value->get_shape());
            }
         else if (cell.is_complex_cell())
            {
-             PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, MAX_Quad_PW);
+             PrintContext pctx(PR_APL_MIN, Quad_PP_TF, MAX_Quad_PW);
              bool scaled = true;
              UCS_string ucs1(cell.get_real_value(), scaled, pctx);
              UCS_string ucs2(cell.get_imag_value(), scaled, pctx);
@@ -631,7 +633,7 @@ bool have_parenth = tf2_shape(ucs, value->get_shape());
            }
         else if (cell.is_float_cell())
            {
-             PrintContext pctx(PR_APL_MIN, MAX_Quad_PP, MAX_Quad_PW);
+             PrintContext pctx(PR_APL_MIN, Quad_PP_TF, MAX_Quad_PW);
              bool scaled = true;
              UCS_string ucs1(cell.get_real_value(), scaled, pctx);
              ucs.append(ucs1);
