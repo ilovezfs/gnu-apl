@@ -137,7 +137,7 @@ public:
       { new (Z) IntCell(-1);   return E_NO_ERROR; }
 
    /// initialize Z to integer v
-   static ErrorCode zv(Cell * Z, int v)
+   static ErrorCode zv(Cell * Z, APL_Integer v)
       { new (Z) IntCell(v);   return E_NO_ERROR; }
 
 protected:
