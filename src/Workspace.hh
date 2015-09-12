@@ -207,14 +207,15 @@ public:
    static bool backup_existing_file(const char * filename);
 
    /// dump this workspace
-   static void dump_WS(ostream & out, vector<UCS_string> & lib_ws, bool html);
+   static void dump_WS(ostream & out, vector<UCS_string> & lib_ws,
+                       bool html, bool silent);
 
    /// set or inquire the workspace ID
-   static void wsid(ostream & out, UCS_string arg);
+   static void wsid(ostream & out, UCS_string arg, bool silent);
 
    /// load )DUMPed file from open file descriptor fd (closes fd)
    static void load_DUMP(ostream & out, const UTF8_string & filename, int fd,
-                         bool with_LX);
+                         bool with_LX, bool silent);
 
    /// load \b lib_ws into the_workspace, maybe set ⎕LX of the new WS.
    static void load_WS(ostream & out, const vector<UCS_string> & lib_ws,
