@@ -493,7 +493,7 @@ Command::cmd_CHECK(ostream & out)
 void 
 Command::cmd_CONTINUE(ostream & out)
 {
-   Workspace::wsid(out, UCS_string("CONTINUE"));
+   Workspace::wsid(out, UCS_string("CONTINUE"), false);
 
 vector<UCS_string> vcont;
    Workspace::save_WS(out, vcont);

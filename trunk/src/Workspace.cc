@@ -607,7 +607,7 @@ ofstream outf(filename.c_str(), ofstream::out);
    if (!outf.is_open())   // open failed
       {
         CERR << "Unable to )SAVE workspace '" << wname
-             << "'." << strerror(errno) << endl;
+             << "'. " << strerror(errno) << endl;
         return;
       }
 
@@ -688,9 +688,9 @@ const int err = rename(filename, backup_filename.c_str());
 //-----------------------------------------------------------------------------
 void
 Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
-                     bool with_LX)
+                     bool with_LX, bool silent)
 {
-   out << "loading )DUMP file " << filename << "..." << endl;
+   if (!silent)   out << "loading )DUMP file " << filename << "..." << endl;
 FILE * file = fdopen(fd, "r");
 
    // make sure that filename is not already open (which would indicate
@@ -743,7 +743,8 @@ public:
 };
 
 void
-Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws, bool html)
+Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws, bool html,
+                   bool silent)
 {
    // )DUMP
    // )DUMP wsname
@@ -799,10 +800,10 @@ ostream * sout = &outf;
    if (html)   sout = &hout;
    // print header line, workspace name, time, and date to outf
    //
+const APL_time_us offset = get_v_Quad_TZ().get_offset();
+const YMDhmsu time(now() + 1000000*offset);
+const char * tz_sign = (offset < 0) ? "" : "+";
    {
-     const APL_time_us offset = get_v_Quad_TZ().get_offset();
-     const YMDhmsu time(now() + 1000000*offset);
-     const char * tz_sign = (offset < 0) ? "" : "+";
 
      if (html)
         {
@@ -880,10 +881,27 @@ int variable_count = 0;
 
    if (html)   outf << endl << "⍝ EOF </pre></body></html>" << endl;
 
-   out << "DUMPED WORKSPACE '" << wname << "'" << endl
-       << " TO FILE '" << filename << "'" << endl
-       << " (" << function_count << " FUNCTIONS, " << variable_count
-       << " VARIABLES)" << endl;
+   if (silent)
+      {
+        out
+        << "DUMPED "
+        << setfill('0') << time.year        << "-"
+        << setw(2)      << time.month       << "-"
+        << setw(2)      << time.day         << " "
+        << setw(2)      << time.hour        << ":"
+        << setw(2)      << time.minute      << ":"
+        << setw(2)      << time.second      << " (GMT"
+        << tz_sign      << offset/3600 << ")"
+        << setfill(' ') <<  endl;
+
+      }
+   else
+      {
+        out << "DUMPED WORKSPACE '" << wname << "'" << endl
+            << " TO FILE '" << filename << "'" << endl
+            << " (" << function_count << " FUNCTIONS, " << variable_count
+            << " VARIABLES)" << endl;
+      }
 }
 //-----------------------------------------------------------------------------
 // )LOAD WS, set ⎕LX of loaded WS on success
@@ -914,7 +932,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         Log(LOG_command_IN)   out << "LOADING " << wname << " from file '"
                                   << filename << "' ..." << endl;
 
-        load_DUMP(out, filename, dump_fd, true);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, true, silent);   // closes dump_fd
 
         // )DUMP files have no )WSID so create one from the filename
         //
@@ -930,7 +948,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         const UTF8_string wsid_utf8((const UTF8 *)wsid_start,
                                     wsid_end - wsid_start);
         const UCS_string wsid_ucs(wsid_utf8);
-        wsid(out, wsid_ucs);
+        wsid(out, wsid_ucs, silent);
 
         // we cant set ⎕LX because it was not executed yet.
         return;
@@ -999,7 +1017,7 @@ int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);
    if (dump_fd != -1)
       {
-        load_DUMP(out, filename, dump_fd, false);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, false, false);   // closes dump_fd
         return;
       }
 
@@ -1019,7 +1037,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
 }
 //-----------------------------------------------------------------------------
 void
-Workspace::wsid(ostream & out, UCS_string arg)
+Workspace::wsid(ostream & out, UCS_string arg, bool silent)
 {
    while (arg.size() && arg[0] <= ' ')       arg.remove_front();
    while (arg.size() && arg.back() <= ' ')   arg.erase(arg.size() - 1);
@@ -1039,7 +1057,7 @@ Workspace::wsid(ostream & out, UCS_string arg)
            }
       }
 
-   out << "WAS " << the_workspace.WS_name << endl;
+   if (!silent)   out << "WAS " << the_workspace.WS_name << endl;
    the_workspace.WS_name = arg;
 }
 //-----------------------------------------------------------------------------
