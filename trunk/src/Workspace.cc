@@ -20,6 +20,8 @@
 
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
+
 #include <fstream>
 
 using namespace std;
@@ -690,7 +692,27 @@ void
 Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
                      bool with_LX, bool silent)
 {
-   if (!silent)   out << "loading )DUMP file " << filename << "..." << endl;
+   Log(LOG_command_IN)
+      CERR << "loading )DUMP file " << filename << "..." << endl;
+
+   {
+     struct stat st;
+     fstat(fd, &st);
+     tm * t = localtime(&st.st_mtime);
+     const int offset = timezone;
+     const char * tz_sign = offset < 0 ? "" : "+";
+
+      out << "DUMPED "
+          << setfill('0') << (1900 + t->tm_year) << "-"
+          << setw(2)      << t->tm_mon           << "-"
+          << setw(2)      << (t->tm_mday + 1)    << " "
+          << setw(2)      << t->tm_hour          << ":"
+          << setw(2)      << t->tm_min           << ":"
+          << setw(2)      << t->tm_sec           << " (GMT"
+          << tz_sign      << offset/3600 << ")"
+          << setfill(' ') <<  endl;
+   }
+
 FILE * file = fdopen(fd, "r");
 
    // make sure that filename is not already open (which would indicate
