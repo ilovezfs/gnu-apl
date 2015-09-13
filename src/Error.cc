@@ -230,7 +230,6 @@ throw_symbol_error(const UCS_string & sym_name, const char * loc)
         CERR << "throwing VALUE ERROR at " << loc;
         if (sym_name.size())   CERR << " (symbol is " << sym_name << ")"; 
         CERR << endl;
-
       }
 
    Log(LOG_verbose_error)     Backtrace::show(__FILE__, __LINE__);
