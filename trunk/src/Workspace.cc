@@ -883,17 +883,14 @@ int variable_count = 0;
 
    if (silent)
       {
-        out
-        << "DUMPED "
-        << setfill('0') << time.year        << "-"
-        << setw(2)      << time.month       << "-"
-        << setw(2)      << time.day         << " "
-        << setw(2)      << time.hour        << ":"
-        << setw(2)      << time.minute      << ":"
-        << setw(2)      << time.second      << " (GMT"
-        << tz_sign      << offset/3600 << ")"
-        << setfill(' ') <<  endl;
-
+        out << setfill('0') << time.year        << "-"
+            << setw(2)      << time.month       << "-"
+            << setw(2)      << time.day         << " "
+            << setw(2)      << time.hour        << ":"
+            << setw(2)      << time.minute      << ":"
+            << setw(2)      << time.second      << " (GMT"
+            << tz_sign      << offset/3600 << ")"
+            << setfill(' ') <<  endl;
       }
    else
       {

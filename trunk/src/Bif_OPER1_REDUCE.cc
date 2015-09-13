@@ -150,11 +150,27 @@ Bif_REDUCE::reduce_n_wise(Value_P A, Function * LO, Value_P B, Axis axis)
 
    if (A->element_count() != 1)   LENGTH_ERROR;
 const APL_Integer A0 = A->get_ravel(0).get_int_value();
-const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
+const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items (M1 is iso)
 
    if (B->is_scalar())
       {
-        if (n_wise > 1)                               DOMAIN_ERROR;
+        if (n_wise > 2)    DOMAIN_ERROR;
+        if (n_wise == 0)
+           {
+              Token ident = LO->eval_identity_fun(B, axis);
+              Value_P val(2, LOC);
+              val->next_ravel()->init(ident.get_apl_val()->get_ravel(0),
+                                      val.getref(), LOC);
+              val->next_ravel()->init(ident.get_apl_val()->get_ravel(0),
+                                      val.getref(), LOC);
+              return Token(TOK_APL_VALUE1, val);
+           }
+
+        // n_wise is 1 or 2: return (2 - n_wise) ⍴ B
+        //
+        Shape sh;
+        if (n_wise == 2)   sh.add_shape_item(0);
+        return Bif_F12_RHO::do_reshape(sh, B.getref());
       }
    else
       {
@@ -172,7 +188,7 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items
         Shape shape_B1 = B->get_shape().insert_axis(axis, 0);
         shape_B1.increment_shape_item(axis + 1);
         Value_P val(shape_B1, LOC);
-        val->get_ravel(0).init(B->get_ravel(0), val.getref(), LOC);   // prototype
+        val->get_ravel(0).init(B->get_ravel(0), val.getref(), LOC); // prototype
 
         Token result = LO->eval_identity_fun(val, axis);
         return result;

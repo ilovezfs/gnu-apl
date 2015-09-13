@@ -393,6 +393,11 @@ int len_left = 0;      // characters before the first caret
 int len_between = 0;   // distance between the carets
    for (int q = end - 1; q >= start; --q)
        {
+         // avoid duplicate ∘ in ∘.f
+         //
+         if (body[q].get_tag() == TOK_JOT && q > 0 &&
+             body[q - 1].get_tag() == TOK_OPER2_OUTER)   continue;
+
          // Note: Token::error_info returns -len if it inserts a space.
          // Such an inserted space counts for the previous token.
          // The previous token is q + 1 since we count down.
