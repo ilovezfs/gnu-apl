@@ -704,8 +704,8 @@ Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
 
       out << "DUMPED "
           << setfill('0') << (1900 + t->tm_year) << "-"
-          << setw(2)      << t->tm_mon           << "-"
-          << setw(2)      << (t->tm_mday + 1)    << " "
+          << setw(2)      << (t->tm_mon + 1)     << "-"
+          << setw(2)      << t->tm_mday          << " "
           << setw(2)      << t->tm_hour          << ":"
           << setw(2)      << t->tm_min           << ":"
           << setw(2)      << t->tm_sec           << " (GMT"
@@ -967,7 +967,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         const UTF8_string wsid_utf8((const UTF8 *)wsid_start,
                                     wsid_end - wsid_start);
         const UCS_string wsid_ucs(wsid_utf8);
-        wsid(out, wsid_ucs, silent);
+        wsid(out, wsid_ucs, true);
 
         // we cant set ⎕LX because it was not executed yet.
         return;
