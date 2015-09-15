@@ -699,7 +699,7 @@ Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
      struct stat st;
      fstat(fd, &st);
      tm * t = localtime(&st.st_mtime);
-     const int offset = timezone;
+     const int offset = Quad_TZ::compute_offset();
      const char * tz_sign = offset < 0 ? "" : "+";
 
       out << "DUMPED "
