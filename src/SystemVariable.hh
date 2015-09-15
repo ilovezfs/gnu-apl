@@ -593,12 +593,12 @@ public:
    /// does not overflow
    int64_t get_offset() const   { return offset_seconds; }
 
+   /// compute the offset (in seconds) from GMT
+   static int compute_offset();
+
 protected:
    /// overloaded Symbol::assign().
    virtual void assign(Value_P value, const char * loc);
-
-   /// compute the offset (in seconds) from GMT
-   static int compute_offset();
 
    // overloaded Symbol::push()
    virtual void push()
