@@ -50,6 +50,15 @@ Token_string tos1;
      if (ec != E_NO_ERROR)   return ec;
    }
 
+   // special case: single token (to speed up ⍎)
+   //
+   if (tos1.size() == 1)
+      {
+        const ErrorCode err = parse_statement(tos1);
+        if (err == E_NO_ERROR)   tos.append(tos1[0]);
+        return err;
+      }
+
    return parse(tos1, tos);
 }
 //-----------------------------------------------------------------------------
@@ -146,6 +155,14 @@ Parser::parse_statement(Token_string & tos)
    //
    collect_constants(tos);
    remove_void_token(tos);
+
+   // special case: single APL value (to speed up ⍎)
+   //
+   if (tos.size() == 1)
+      {
+        Log(LOG_parse)   CERR << "parse 3a: single value " << tos[0] << endl;;
+        return E_NO_ERROR;
+      }
 
    Log(LOG_parse)
       {

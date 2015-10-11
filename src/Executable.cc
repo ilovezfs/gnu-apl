@@ -28,26 +28,36 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-Executable::Executable(const UCS_string & ucs, const char * loc)
+Executable::Executable(const UCS_string & ucs,  bool multi_line,
+                       const char * loc)
    : alloc_loc(loc)
 {
 // { cerr << "Executable " << (void *)this << " created at " << loc << endl; }
+
    // initialize text, stripping carriage returns and line feeds.
    //
-UCS_string line;
-
-   loop(t, ucs.size())
+   if (multi_line)
       {
-        const Unicode uni = ucs[t];
-        switch (uni)
-           {
-             case UNI_ASCII_CR:                                         break;
-             case UNI_ASCII_LF: text.push_back(line);   line.clear();   break;
-             default: line.append(uni);
-          }
-      }
+        UCS_string line;
 
-   if (line.size())   text.push_back(line);
+        loop(t, ucs.size())
+           {
+             const Unicode uni = ucs[t];
+             switch (uni)
+                {
+                  case UNI_ASCII_CR:                         break;
+                  case UNI_ASCII_LF: text.push_back(line);
+                                     line.clear();           break;
+                  default:           line.append(uni);
+               }
+           }
+
+        if (line.size())   text.push_back(line);
+      }
+   else
+      {
+        text.push_back(ucs);
+      }
 }
 //-----------------------------------------------------------------------------
 Executable::Executable(Fun_signature sig, const UCS_string & fname,
@@ -127,35 +137,46 @@ Executable::clear_lambdas()
 //-----------------------------------------------------------------------------
 ErrorCode
 Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
-                            bool trace, const char * loc, bool tolerant)
+                            bool trace, bool tolerant, Token & single_value,
+                            const char * loc)
 {
    Log(LOG_UserFunction__set_line)
       CERR << "[" << line << "]" << ucs_line << endl;
 
 Token_string in;
 const Parser parser(get_parse_mode(), loc);
-   {
-     ErrorCode ec = parser.parse(ucs_line, in);
-     if (ec)
-        {
-          if (tolerant)   return ec;
+ErrorCode ec = parser.parse(ucs_line, in);
+   if (ec)
+      {
+        if (tolerant)   return ec;
 
-          if (ec == E_NO_TOKEN)
-             {
-               Error error(ec, LOC);
-               throw error;
-             }
+        if (ec == E_NO_TOKEN)
+           {
+             Error error(ec, LOC);
+             throw error;
+           }
 
-          if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
-        }
-   }
+        if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
+      }
 
-   return parse_body_line(line, in, trace, loc, tolerant);
+   // special case: execute with single value
+   //
+   if (in.size() == 1                 &&
+       get_parse_mode() == PM_EXECUTE &&
+       in[0].get_Class() == TC_VALUE
+      )
+      {
+        move_1(single_value, in[0], LOC);
+        single_value.ChangeTag(TOK_APL_VALUE1);
+        return E_NO_ERROR;
+      }
+
+   return parse_body_line(line, in, trace, tolerant, loc);
 } 
 //-----------------------------------------------------------------------------
 ErrorCode
 Executable::parse_body_line(Function_Line line, const Token_string & in,
-                            bool trace, const char * loc, bool tolerant)
+                            bool trace,  bool tolerant, const char * loc)
 {
 Source<Token> src(in);
 
@@ -779,22 +800,14 @@ Token * t2 = &tos[tos.size() - 1];
 }
 //=============================================================================
 ExecuteList *
-ExecuteList::fix(const UCS_string & data, bool is_cmd, const char * loc)
+ExecuteList::fix(const UCS_string & data, Token & single_value,
+                 const char * loc)
 {
    // clear errors that may have occured before
    {
      Error * err = Workspace::get_error();
      if (err) err->error_code = E_NO_ERROR;
    }
-
-   if (is_cmd)
-      {
-         UCS_string empty;
-         ExecuteList * fun = new ExecuteList(empty, loc);
-         Assert(fun);
-         fun->text.push_back(data);
-         return fun;
-      }
 
 ExecuteList * fun = new ExecuteList(data, loc);
 
@@ -823,7 +836,9 @@ ExecuteList * fun = new ExecuteList(data, loc);
 
    try
       {
-        fun->parse_body_line(Function_Line_0, data, false, loc, false);
+        fun->parse_body_line(Function_Line_0, data, false, false,
+                             single_value, loc);
+        if (single_value.get_tag() == TOK_APL_VALUE1)   return 0;
       }
    catch (Error err)
       {
@@ -864,7 +879,8 @@ StatementList * fun = new StatementList(data, loc);
      if (err)   err->parser_loc = 0;
    }
 
-   fun->parse_body_line(Function_Line_0, data, false, loc, false);
+Token not_used;
+   fun->parse_body_line(Function_Line_0, data, false, false, not_used, loc);
    fun->setup_lambdas();
 
    Log(LOG_UserFunction__fix)
