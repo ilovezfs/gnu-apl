@@ -40,7 +40,11 @@ extern "C" {
 #endif
 
 /* Application Program Interface for GNU APL...
-   The details of this API are described in libapl.txt in this directory
+   See
+
+   info libapl
+
+   for details.
  */
 
 /// LOC is a macro that expands to the source filename and line number as 

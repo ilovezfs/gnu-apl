@@ -38,7 +38,7 @@ class Executable
 {
 public:
    /// constructor
-   Executable(const UCS_string & ucs, const char * loc);
+   Executable(const UCS_string & ucs, bool multi_line, const char * loc);
 
    /// constructor for lambdas
    Executable(Fun_signature sig, const UCS_string & fname,
@@ -159,11 +159,12 @@ protected:
 
    /// parse the body line number \b line of \b this function
    ErrorCode parse_body_line(Function_Line line, const UCS_string & ucs,
-                             bool trace, const char * loc, bool tolerant);
+                             bool trace, bool tolerant, Token & single_value,
+                             const char * loc);
 
    /// parse the body line number \b line of \b this function
    ErrorCode parse_body_line(Function_Line line, const Token_string & tos,
-                             bool trace, const char * loc, bool tolerant);
+                             bool trace, bool tolerant, const char * loc);
 
    /// the program text from which \b body was created
    vector<UCS_string> text;
@@ -189,19 +190,19 @@ class ExecuteList : public Executable
 
 public:
    /// compute body token from text \b data
-   static ExecuteList * fix(const UCS_string & data, bool is_cmd,
+   static ExecuteList * fix(const UCS_string & data, Token & single_value,
                             const char * loc);
 
    /// overloaded Executable::get_parse_mode()
    virtual ParseMode get_parse_mode() const
       { return PM_EXECUTE; }
 
-protected:
    /// constructor
    ExecuteList(const UCS_string & txt, const char * loc)
-   : Executable(txt, loc)
+   : Executable(txt, false, loc)
    {}
 
+protected:
    /// overloaded Executable::get_name()
    virtual UCS_string get_name() const
       { return UCS_string(UTF8_string(ID::name(ID::F1_EXECUTE))); }
@@ -225,7 +226,7 @@ public:
 protected:
    /// constructor
    StatementList(const UCS_string txt, const char * loc)
-   : Executable(txt, loc)
+   : Executable(txt, false, loc)
    {}
 
    /// overloaded Executable::get_name()

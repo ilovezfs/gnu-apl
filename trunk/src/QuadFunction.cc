@@ -238,17 +238,20 @@ Quad_EA::eval_AB(Value_P A, Value_P B)
 {
 ExecuteList * fun = 0;
 const UCS_string statement_B(*B.get());
+Token constant;
 
    try
       {
-        fun = ExecuteList::fix(statement_B, false, LOC);
+        fun = ExecuteList::fix(statement_B, constant, LOC);
       }
    catch (...)
       {
       }
 
-   if (fun == 0)   // ExecuteList::fix() failed
+   if (fun == 0)   // ExecuteList::fix() failed, or constant value parsed
       {
+        if (constant.get_tag() == TOK_APL_VALUE1)   return constant;
+
         // syntax error in B: try to fix A. This will reset ⎕EM and ⎕ET even
         // though we whould keep them (lrm p. 178). Therefore we save the error
         // info from fixing B
@@ -257,13 +260,17 @@ const UCS_string statement_B(*B.get());
         try
            {
              const UCS_string statement_A(*A.get());
-             fun = ExecuteList::fix(statement_A, false, LOC);
+             fun = ExecuteList::fix(statement_A, constant, LOC);
            }
        catch (...)
            {
            }
 
-        if (fun == 0)   SYNTAX_ERROR;   // syntax error in A and B: give up.
+        if (fun == 0)
+           {
+             if (constant.get_tag() == TOK_APL_VALUE1)   return constant;
+             SYNTAX_ERROR;   // syntax error in A and B: give up.
+          }
 
         // A could be fixed: execute it.
         //
@@ -334,7 +341,7 @@ const UCS_string statement_A(*arg->A.get());
 ExecuteList * fun = 0;
    try
       {
-        fun = ExecuteList::fix(statement_A, false, LOC);
+        fun = ExecuteList::fix(statement_A, token, LOC);
       }
    catch (...)
       {
@@ -345,6 +352,18 @@ ExecuteList * fun = 0;
 
    // A could be ⎕FXed: execute it.
    //
+   if (fun == 0 && token.get_tag() == TOK_APL_VALUE1)
+      {
+        StateIndicator * si = Workspace::SI_top();
+        si->set_safe_execution(false);
+
+        EOC_arg * next = arg->next;
+
+        delete arg;
+        si->set_eoc_handlers(next);
+        if (next)   return next->handler(token);
+        return false;
+      }
    Assert(fun);
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
@@ -446,10 +465,11 @@ Quad_EC::eval_B(Value_P B)
 const UCS_string statement_B(*B.get());
 
 ExecuteList * fun = 0;
+Token constant;
 
    try
       {
-        fun = ExecuteList::fix(statement_B, false, LOC);
+        fun = ExecuteList::fix(statement_B, constant, LOC);
       }
    catch (...)
       {
@@ -457,6 +477,8 @@ ExecuteList * fun = 0;
 
    if (fun == 0)
       {
+        if (constant.get_tag() == TOK_APL_VALUE1)   return constant;
+
         // syntax error in B
         //
         Value_P Z(3, LOC);

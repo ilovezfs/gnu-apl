@@ -468,7 +468,7 @@ UserFunction::UserFunction(const UCS_string txt,
                            bool keep_existing, const char * loc,
                            const UTF8_string & _creator, bool tolerant)
   : Function(ID::USER_SYMBOL, TOK_FUN2),
-    Executable(txt, loc),
+    Executable(txt, true, loc),
     header(txt),
     creator(_creator)
 {
@@ -555,7 +555,7 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
    else if (header.B())    tag = TOK_FUN1;
    else                    tag = TOK_FUN0;
 
-   parse_body_line(Function_Line_0, bdy, false, LOC, false);
+   parse_body_line(Function_Line_0, bdy, false, false, LOC);
    setup_lambdas();
    line_starts.push_back(Function_PC(bdy.size() - 1));
 
@@ -1044,8 +1044,9 @@ UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
            }
 
         const UCS_string & line = get_text(l);
+        Token not_used;
         ErrorCode ec = parse_body_line(Function_Line(l), line, trace_line,
-                                       loc, tolerant);
+                                       tolerant, not_used, loc);
 
         if (tolerant && ec != E_NO_ERROR)
            {
