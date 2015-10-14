@@ -992,7 +992,7 @@ Bif_F12_ROLL::eval_AB(Value_P A, Value_P B)
 
 const ShapeItem zlen = A->get_ravel(0).get_near_int();
 APL_Integer set_size = B->get_ravel(0).get_near_int();
-   if (zlen > set_size)           DOMAIN_ERROR;
+   if (zlen > set_size)         DOMAIN_ERROR;
    if (set_size <= 0)           DOMAIN_ERROR;
    if (set_size > 0x7FFFFFFF)   DOMAIN_ERROR;
 
@@ -1000,10 +1000,10 @@ Value_P Z(zlen, LOC);
 
    // set_size can be rather big, so we new/delete it
    //
-uint8_t * used = new uint8_t[set_size/8];
-   memset(used, 0, set_size/8);
+uint8_t * used = new uint8_t[(set_size + 7)/8];
    if (used == 0)   throw_apl_error(E_WS_FULL, LOC);
-   
+   memset(used, 0, (set_size + 7)/8);
+
    loop(z, zlen)
        {
          const uint64_t rnd = Workspace::get_RL(set_size) % set_size;
