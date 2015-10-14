@@ -323,15 +323,17 @@ FloatCell::bif_add(Cell * Z, const Cell * A) const
 ErrorCode
 FloatCell::bif_subtract(Cell * Z, const Cell * A) const
 {
-   if (A->is_real_cell())
+   if (A->is_real_cell())   // real result
       {
-        new (Z) FloatCell(A->get_real_value() - get_real_value());
-        return E_NO_ERROR;
+       return zv(Z, A->get_real_value() - get_real_value());
       }
 
-   // delegate to A
-   //
-   return A->bif_subtract(Z, this);
+   if (A->is_complex_cell())   // complex result
+      {
+       return ComplexCell::zv(Z, A->get_complex_value() - get_real_value());
+      }
+
+   return E_DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 ErrorCode
