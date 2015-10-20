@@ -35,13 +35,13 @@ struct InputFile
 
    /// Normal constructor
    InputFile(const UTF8_string & _filename, FILE * _file,
-                     bool _test, bool _echo, bool _is_script, bool _with_LX)
+                     bool _test, bool _echo, bool _is_script, LX_mode LX)
    : file     (_file),
      filename (_filename),
      test     (_test),
      echo     (_echo),
      is_script(_is_script),
-     with_LX  (_with_LX),
+     with_LX  (LX),
      line_no  (0),
      in_html  (0)
    {}
@@ -113,12 +113,12 @@ struct InputFile
    UTF8_string  filename;   ///< dito.
 
 protected:
-   bool test;       ///< true for -T testfile, false for -f APLfile
-   bool echo;       ///< echo stdin
-   bool is_script;  ///< script (override existing functions)
-   bool with_LX;    ///< execute ⎕LX at the end
-   int  line_no;    ///< line number in file
-   int  in_html;    ///< 0: no HTML, 1: in HTML file 2: in HTML header
+   bool test;         ///< true for -T testfile, false for -f APL file
+   bool echo;         ///< echo stdin
+   bool is_script;    ///< script (override existing functions)
+   LX_mode with_LX;   ///< execute ⎕LX at the end
+   int  line_no;      ///< line number in file
+   int  in_html;      ///< 0: no HTML, 1: in HTML file 2: in HTML header
 
    /// line number in stdin
    static int stdin_line_no;

@@ -280,6 +280,13 @@ struct YMDhmsu
    int micro;    ///< microseconds 0-999999
 };
 //-----------------------------------------------------------------------------
+/// whether ⎕LX shall be executed at the end of the file
+enum LX_mode
+{
+   no_LX = 0,     ///< no
+   do_LX = 1      ///< yes
+};
+//-----------------------------------------------------------------------------
 
 #ifdef TROUBLESHOOT_NEW_DELETE
 inline void * operator new(size_t size)   { return common_new(size); }
