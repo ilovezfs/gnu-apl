@@ -297,7 +297,7 @@ UserPreferences::parse_argv_2(bool logit)
                    exit(a);
                  }
               InputFile fam(UTF8_string(val), 0, false,
-                                        !do_not_echo, true, false);
+                                        !do_not_echo, true, no_LX);
               InputFile::files_todo.push_back(fam);
               continue;
             }
@@ -521,7 +521,7 @@ UserPreferences::parse_argv_2(bool logit)
 
                        }
                     InputFile fam(UTF8_string(expanded_argv[a]), 0, true,
-                                          true, false, false);
+                                          true, false, no_LX);
                     InputFile::files_todo.push_back(fam);
                   }
 
@@ -596,7 +596,7 @@ UserPreferences::parse_argv_2(bool logit)
    if (script_argc != 0)
       {
         InputFile fam(UTF8_string(expanded_argv[script_argc]), 0,
-                                        false, !do_not_echo, true, false);
+                                        false, !do_not_echo, true, no_LX);
         InputFile::files_todo.insert(InputFile::files_todo.begin(), fam);
 
       }

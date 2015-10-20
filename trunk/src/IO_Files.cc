@@ -55,21 +55,20 @@ IO_Files::get_file_line(UTF8_string & line, bool & eof)
              if (!InputFile::current_file()->file)   break;   // no more files
            }
 
+        // At this point current_file and current_file->file are valid
         // read a line with CR and LF removed.
         //
         eof = false;
         read_file_line(line, eof);
         if (eof)   // end of file reached: do some global checks
            {
-             if (InputFile::current_file() &&
-                 InputFile::current_file()->with_LX)
+             if (InputFile::current_file()->with_LX == do_LX)
                 {
-                  InputFile::current_file()->with_LX = false;
+                  InputFile::current_file()->with_LX = no_LX;
                   UCS_string LX = Workspace::get_LX();
                   if (LX.size())   // ⎕LX pending
                      {
-                       LX.append_utf8(" ⍝ ⎕LX");
-                       line = UTF8_string(LX);
+                       Command::process_line(LX);
                        eof = false;
                        return;
                      }

@@ -690,7 +690,7 @@ const int err = rename(filename, backup_filename.c_str());
 //-----------------------------------------------------------------------------
 void
 Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
-                     bool with_LX, bool silent)
+                     LX_mode with_LX, bool silent)
 {
    Log(LOG_command_IN)
       CERR << "loading )DUMP file " << filename << "..." << endl;
@@ -698,8 +698,8 @@ Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
    {
      struct stat st;
      fstat(fd, &st);
+     const int offset = Quad_TZ::compute_offset();  // call BEFORE localtime() !
      tm * t = localtime(&st.st_mtime);
-     const int offset = Quad_TZ::compute_offset();
      const char * tz_sign = offset < 0 ? "" : "+";
 
       out << "DUMPED "
@@ -951,7 +951,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         Log(LOG_command_IN)   out << "LOADING " << wname << " from file '"
                                   << filename << "' ..." << endl;
 
-        load_DUMP(out, filename, dump_fd, true, silent);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, do_LX, silent);   // closes dump_fd
 
         // )DUMP files have no )WSID so create one from the filename
         //
@@ -1036,7 +1036,7 @@ int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);
    if (dump_fd != -1)
       {
-        load_DUMP(out, filename, dump_fd, false, false);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, no_LX, false);   // closes dump_fd
         return;
       }
 
