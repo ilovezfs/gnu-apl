@@ -65,6 +65,7 @@ IO_Files::get_file_line(UTF8_string & line, bool & eof)
              if (InputFile::current_file()->with_LX == do_LX)
                 {
                   InputFile::current_file()->with_LX = no_LX;
+                  InputFile::current_file()->echo = true;
                   UCS_string LX = Workspace::get_LX();
                   if (LX.size())   // ⎕LX pending
                      {
