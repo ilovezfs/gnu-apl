@@ -1593,8 +1593,10 @@ const ShapeItem ec = B->nz_element_count();
 UserFunction *
 Stop_Trace::locate_fun(const Value & fun_name)
 {
+   if (!fun_name.is_char_string())   return 0;
+
 UCS_string fun_name_ucs(fun_name);
-   if (fun_name_ucs.size() == 0)   LENGTH_ERROR;
+   if (fun_name_ucs.size() == 0)   return 0;
 
 Symbol * fun_symbol = Workspace::lookup_existing_symbol(fun_name_ucs);
    if (fun_symbol == 0)
@@ -1604,7 +1606,7 @@ Symbol * fun_symbol = Workspace::lookup_existing_symbol(fun_name_ucs);
       }
 
 Function * fun = fun_symbol->get_function();
-   if (fun_symbol == 0)
+   if (fun == 0)
       {
         CERR << "symbol " << fun_name_ucs << " is not a function" << endl;
         return 0;
