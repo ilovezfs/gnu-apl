@@ -2454,68 +2454,29 @@ Token result = Bif_F12_PICK::fun->eval_XB(X, cT);
 Token
 Bif_F12_TAKE::eval_AB(Value_P A, Value_P B)
 {
-   // A must be an integer scalar or vector
-   //
-   if (A->get_rank() > 1)   RANK_ERROR;
-
-Shape ravel_A(A, /* ⎕IO */ 0);
-Shape ravel_A1(ravel_A);
-   if (ravel_A1.get_rank() == 0)   ravel_A1.add_shape_item(1);   // A ← ,A
-   if (ravel_A1.get_rank() > MAX_RANK)     LENGTH_ERROR;
+Shape ravel_A1(A, /* ⎕IO */ 0);   // checks that 1 ≤ ⍴⍴A and ⍴A ≤ MAX_RANK
 
    if (B->is_scalar())
       {
-        // if B is a skalar then Z is a value with shape ∣ A and one of
-        // the corner elements being B
-        //
-        if (ravel_A.get_rank() == 0)   // '' ↑ B
-           {
-             Token result(TOK_APL_VALUE1, B->clone(LOC));
-             return result;
-           }
-
-        // Note: the declaration of proto_p below makes C++ believe that it is
-        // a cell (even though init_type() turns it into a derived celltype.
-        // Use proto_p instead of proto to avoid that!
-        //
-        Cell proto;
-        Cell * proto_p =  proto.init_type(B->get_ravel(0), B.getref(), LOC);
-        const Shape shape_Z = ravel_A1.abs();
-        Value_P Z(shape_Z, LOC);
-        const ShapeItem ec_Z = Z->element_count();   // incl. proto
-
-        loop(z, ec_Z)   Z->next_ravel()->init(*proto_p, Z.getref(), LOC);
-        if (ec_Z == 0)   Z->get_ravel(0).init(*proto_p, Z.getref(), LOC);
-
-        proto_p->release(LOC);
-
-        // compute the position of the non-default element. It is the first
-        // item of the corresponding dimension if the axis is positive, or the
-        // last element if the axis is negative.
-        //
-        ShapeItem pos = 0;
-        ShapeItem weight = 1;
-        loop(r, ravel_A1.get_rank())
-            {
-              const ShapeItem len = ravel_A1.get_shape_item(r);
-              if (len < 0)   { pos -= (1 + len) * weight;   weight *= -len; }
-              else           {                              weight *=  len; }
-            }
-        Z->get_ravel(pos).release(LOC);
-        Z->get_ravel(pos).init(B->get_ravel(0), Z.getref(), LOC);
-
-        Z->check_value(LOC);
-        return Token(TOK_APL_VALUE1, Z);
+        Shape shape_B1;
+        loop(a, ravel_A1.get_rank())   shape_B1.add_shape_item(1);
+        Value_P B1 = B->clone(LOC);
+        B1->set_shape(shape_B1);
+        return do_take(ravel_A1, B1);
       }
-
-   if (ravel_A1.get_rank() != B->get_rank())   RANK_ERROR;
-
-   return do_take(ravel_A, B);
+   else
+      {
+        if (ravel_A1.get_rank() != B->get_rank())   LENGTH_ERROR;
+        return do_take(ravel_A1, B);
+      }
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_F12_TAKE::do_take(const Shape shape_Zi, Value_P B)
 {
+   // shape_Zi can have negative items (for take from the end). Create
+   // shape_Z which is a true shape with the absolute values of shape_Zi
+   //
 Shape shape_Z(shape_Zi);
 
    loop(r, shape_Zi.get_rank())
@@ -2615,7 +2576,7 @@ Shape ravel_A(A, /* ⎕IO */ 0);
 
    if (ravel_A.get_rank() == 0)   ravel_A.add_shape_item(1);   // A = ,A
 
-   if (ravel_A.get_rank() != B->get_rank())   RANK_ERROR;
+   if (ravel_A.get_rank() != B->get_rank())   LENGTH_ERROR;
 
    loop(r, ravel_A.get_rank())
        {
