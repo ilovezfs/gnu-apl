@@ -1061,7 +1061,7 @@ UCS_string end_marker;
                  }
             }
 
-         if (done)   break;
+         if (done || interrupt_raised)   break;
 
          Value_P ZZ(line, LOC);
          expand_Z(arg, 1);
