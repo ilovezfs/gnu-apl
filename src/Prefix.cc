@@ -1529,9 +1529,11 @@ Token Void(TOK_VOID);
    action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
       {
+        const bool int_raised = interrupt_raised;
         attention_raised = false;
         interrupt_raised = false;
-        ATTENTION;
+        if (int_raised)   INTERRUPT;
+        else              ATTENTION;
       }
 }
 //-----------------------------------------------------------------------------
@@ -1553,9 +1555,11 @@ Token B = pop().tok;    // pop B
    action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
       {
+        const bool int_raised = interrupt_raised;
         attention_raised = false;
         interrupt_raised = false;
-        ATTENTION;
+        if (int_raised)   INTERRUPT;
+        else              ATTENTION;
       }
 }
 //-----------------------------------------------------------------------------
@@ -1613,9 +1617,11 @@ const Token result = si.jump(line);
         action = RA_PUSH_NEXT;
         if (attention_raised && end_of_line)
            {
+             const bool int_raised = interrupt_raised;
              attention_raised = false;
              interrupt_raised = false;
-             ATTENTION;
+             if (int_raised)   INTERRUPT;
+             else              ATTENTION;
            }
 
         return;
@@ -1626,9 +1632,11 @@ const Token result = si.jump(line);
         action = RA_PUSH_NEXT;
         if (attention_raised && end_of_line)
            {
+             const bool int_raised = interrupt_raised;
              attention_raised = false;
              interrupt_raised = false;
-             ATTENTION;
+             if (int_raised)   INTERRUPT;
+             else              ATTENTION;
            }
 
         return;
@@ -1647,9 +1655,11 @@ const Function_PC new_pc = si.get_PC();
    action = RA_PUSH_NEXT;
    if (attention_raised && end_of_line)
       {
+        const bool int_raised = interrupt_raised;
         attention_raised = false;
         interrupt_raised = false;
-        ATTENTION;
+        if (int_raised)   INTERRUPT;
+        else              ATTENTION;
       }
 }
 //-----------------------------------------------------------------------------
