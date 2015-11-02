@@ -153,7 +153,7 @@ APL understands the following command line options:
 @item
 @option{--cfg}
 
-show ./configure options used and exit.
+show ./configure options that were used to configure GNU APL, and exit.
 
 @item
 @option{--[no]Color}
@@ -163,8 +163,8 @@ start with ]COLOR ON [OFF].
 @item
 @option{-d}
 
-run the interpreter (or script) in the background (i.e. as daemon). For
-this to work you need to provide some input to the background process, e.g.
+run the APL interpreter (or APL script) in the background (i.e. as a daemon).
+For this to work you need to provide some input to the background process, e.g.
 via the -f option.
 
 @item
@@ -194,7 +194,7 @@ show GNU APL license (GPL) and exit.
 @item
 @option{-L wsname}
 
-)LOAD wsname om start-up.
+)LOAD wsname on start-up.
 
 @item
 @option{--LX expr}
@@ -382,11 +382,12 @@ started together with this interpreter time to initialize themselves.
 @item
 @option{--}
 
-end of options for the interpreter. There is a system variable ⎕ARG that
-returns all command line arguments of the interpreter
-(like argv in main(int argv, char * argv[]) in C). Option ---- can bed to separate command line opt used
-to separate command line options for the APL interpreter from command line
-options understood by APL applications.
+end of command line options for the interpreter. GNU APL provides the system
+variable ⎕ARG that returns all command line options with which the GNU APL
+interpreter was started (similar to variable argv in main(int argv,
+char * argv[]) in C/C++). Option ---- can be used to separate command line
+options for the APL interpreter from command line options understood by APL
+applications.
 
 Thus,
 

@@ -121,7 +121,8 @@ APL understands the following command line options:
 
    • ‘--cfg’
 
-     show ./configure options used and exit.
+     show ./configure options that were used to configure GNU APL, and
+     exit.
 
    • ‘--[no]Color’
 
@@ -129,8 +130,8 @@ APL understands the following command line options:
 
    • ‘-d’
 
-     run the interpreter (or script) in the background (i.e.  as
-     daemon).  For this to work you need to provide some input to the
+     run the APL interpreter (or APL script) in the background (i.e.  as
+     a daemon).  For this to work you need to provide some input to the
      background process, e.g.  via the -f option.
 
    • ‘--emacs’
@@ -154,7 +155,7 @@ APL understands the following command line options:
 
    • ‘-L wsname’
 
-     )LOAD wsname om start-up.
+     )LOAD wsname on start-up.
 
    • ‘--LX expr’
 
@@ -316,12 +317,12 @@ APL understands the following command line options:
 
    • ‘--’
 
-     end of options for the interpreter.  There is a system variable
-     ⎕ARG that returns all command line arguments of the interpreter
-     (like argv in main(int argv, char * argv[]) in C). Option —- can
-     bed to separate command line opt used to separate command line
-     options for the APL interpreter from command line options
-     understood by APL applications.
+     end of command line options for the interpreter.  GNU APL provides
+     the system variable ⎕ARG that returns all command line options with
+     which the GNU APL interpreter was started (similar to variable argv
+     in main(int argv, char * argv[]) in C/C++).  Option —- can be used
+     to separate command line options for the APL interpreter from
+     command line options understood by APL applications.
 
      Thus,
 
@@ -2840,16 +2841,16 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top383
 Node: Chapter 11404
-Node: Chapter 216387
-Node: Chapter 320656
-Node: Chapter 453708
-Node: Chapter 555456
-Node: Chapter 656585
-Node: Section 6.157004
-Node: Section 6.257691
-Node: Chapter 758522
-Node: Section 7.159025
-Node: Section 7.284334
+Node: Chapter 216473
+Node: Chapter 320742
+Node: Chapter 453794
+Node: Chapter 555542
+Node: Chapter 656671
+Node: Section 6.157090
+Node: Section 6.257777
+Node: Chapter 758608
+Node: Section 7.159111
+Node: Section 7.284420
 
 End Tag Table
 
