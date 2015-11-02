@@ -1582,7 +1582,6 @@ const ShapeItem ec = B->nz_element_count();
               continue;
             }
 
-         Q1(cell_B.get_cell_type())
          DOMAIN_ERROR;
        }
 

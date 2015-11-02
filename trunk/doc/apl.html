@@ -262,7 +262,7 @@ shall be those defined in the Unicode character set (most of them in the
 <ul>
 <li> <samp>--cfg</samp>
 
-<p>show ./configure options used and exit.
+<p>show ./configure options that were used to configure GNU APL, and exit.
 </p>
 </li><li> <samp>--[no]Color</samp>
 
@@ -270,8 +270,8 @@ shall be those defined in the Unicode character set (most of them in the
 </p>
 </li><li> <samp>-d</samp>
 
-<p>run the interpreter (or script) in the background (i.e. as daemon). For
-this to work you need to provide some input to the background process, e.g.
+<p>run the APL interpreter (or APL script) in the background (i.e. as a daemon).
+For this to work you need to provide some input to the background process, e.g.
 via the -f option.
 </p>
 </li><li> <samp>--emacs</samp>
@@ -296,7 +296,7 @@ then use )OFF as last line in the file.
 </p>
 </li><li> <samp>-L wsname</samp>
 
-<p>)LOAD wsname om start-up.
+<p>)LOAD wsname on start-up.
 </p>
 </li><li> <samp>--LX expr</samp>
 
@@ -457,11 +457,12 @@ started together with this interpreter time to initialize themselves.
 </p>
 </li><li> <samp>--</samp>
 
-<p>end of options for the interpreter. There is a system variable ⎕ARG that
-returns all command line arguments of the interpreter
-(like argv in main(int argv, char * argv[]) in C). Option &mdash;- can bed to separate command line opt used
-to separate command line options for the APL interpreter from command line
-options understood by APL applications.
+<p>end of command line options for the interpreter. GNU APL provides the system
+variable ⎕ARG that returns all command line options with which the GNU APL
+interpreter was started (similar to variable argv in main(int argv,
+char * argv[]) in C/C++). Option &mdash;- can be used to separate command line
+options for the APL interpreter from command line options understood by APL
+applications.
 </p>
 <p>Thus,
 </p>
