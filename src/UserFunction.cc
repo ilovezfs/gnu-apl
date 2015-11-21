@@ -359,8 +359,8 @@ UserFunction_header::print_local_vars(ostream & out) const
 void
 UserFunction_header::remove_duplicate_local_variables()
 {
-   // remove local vars that are also labels, arguments or return values
-   // this is to avoid pushing them twice
+   // remove local vars that are also labels, arguments or return values.
+   // This is to avoid pushing them twice
    //
    remove_duplicate_local_var(sym_Z,   0);
    remove_duplicate_local_var(sym_A,   0);
@@ -381,15 +381,20 @@ void
 UserFunction_header::remove_duplicate_local_var(const Symbol * sym,
                                                 unsigned int pos)
 {
+   // remove sym from the vector of local variables. Only the local vars
+   // at pos or higher are ebing removed
+   //
    if (sym == 0)   return;   // unused symbol
 
-   for(; pos < local_vars.size(); ++pos)
+   while (pos < local_vars.size())
        {
-        if (sym == local_vars[pos])
-           {
-             local_vars[pos] = local_vars.back();
-             local_vars.pop_back();
-           }
+         if (sym == local_vars[pos])
+            {
+              local_vars[pos] = local_vars.back();
+              local_vars.pop_back();
+              continue;
+            }
+         ++pos;
        }
 }
 //-----------------------------------------------------------------------------
