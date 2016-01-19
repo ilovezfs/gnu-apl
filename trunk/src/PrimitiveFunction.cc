@@ -1161,33 +1161,32 @@ Bif_F12_TRANSPOSE::transpose_diag(const Shape & A, Value_P B)
 Shape shape_Z;
    {
      // check that 0 ≤ A[a] ≤ ⍴⍴B, and compute max_A = ⌈/A
-     //
+     // i.e. ∧/(ι/0,L)∈L   lrm p. 253
      ShapeItem max_A = 0;   // the largest index in A (- qio).
      loop(ra, A.get_rank())
          {
-           if (A.get_shape_item(ra) < 0)               DOMAIN_ERROR;
+           if (A.get_shape_item(ra) < 0)                DOMAIN_ERROR;
            if (A.get_shape_item(ra) >= B->get_rank())   DOMAIN_ERROR;
            if (max_A < A.get_shape_item(ra))   max_A = A.get_shape_item(ra);
          }
 
-     // check that every m < max_A is in A->
-     // the first item found is added shape_Z.
+     // check that every m < max_A is in A.
+     // the smallest axis in B found is added to shape_Z.
      //
      loop(m, max_A + 1)
          {
+           ShapeItem min_Bm = -1;
            loop(ra, A.get_rank())
                {
-                if (m == A.get_shape_item(ra))
-                   {
-                     shape_Z.add_shape_item(B->get_shape_item(ra));
-                     goto found;
-                   }
+                if (m != A.get_shape_item(ra))   continue;
+                const ShapeItem B_ra = B->get_shape_item(ra);
+                if (min_Bm == -1)   min_Bm = B_ra;
+                else if (min_Bm > B_ra)   min_Bm = B_ra;
                }
 
-           // not found
-           DOMAIN_ERROR;
+           if (min_Bm == -1)   DOMAIN_ERROR;   // m not in A
 
-           found: ;
+           shape_Z.add_shape_item(min_Bm);
          }
    }
 
