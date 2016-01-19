@@ -187,10 +187,10 @@ see <B>README-5-WINDOWS</B> for further information.
 <?apl HTML∆H4[''] 'Subversion (SVN) repository for GNU APL' ?>
 
 You can also check out the latest version of GNU APL from its subversion
-repository on Savannah:
+repository on Savannah. The subversion command to do that is:
 <BR>
 <BR>
-<B>svn co http://svn.savannah.gnu.org/svn/apl/trunk</B>.
+<B>svn co http://svn.savannah.gnu.org/svn/apl/trunk</B>
 <BR>
 <BR>
 Here is <?apl HTML∆x2y xSVN_APL HTML∆A "<EM>more information</EM>" ?>
