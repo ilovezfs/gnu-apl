@@ -1184,6 +1184,11 @@ general APL text vectors. Those need to be translated to bytes first and can
 then be used as input for e.g. byte vector → hex or byte vector → base64
 conversions.
 
+@section ⎕FIO
+
+As of GNU APL 1.6, the native function FILE_IO has been replaced by the
+system function ⎕FIO. See the FILE_IO section below for details.
+
 @section Debug Commands
 
 Besides the classical commands like )LOAD or )SAVE there are a number of
@@ -1328,6 +1333,10 @@ interchange file (.atf files) written by )OUT incompatible with all other
 APL interpreters if the workspace contains native functions. The )OUT 
 command prints a warning when the )OUT command is used with a
 workspace that contains native functions.
+
+Note: As of GNU APL 1.6, the native function FILE_IO has been turned into the
+system function ⎕FIO. The syntax of ⎕FIO is the same as for FILE_IO. The
+)CLEAR workspace command will close all open files. 
 
 @section DUMP Command
 

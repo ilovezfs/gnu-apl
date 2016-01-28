@@ -1096,7 +1096,13 @@ strings but does not work for general APL text vectors.  Those need to
 be translated to bytes first and can then be used as input for e.g.
 byte vector → hex or byte vector → base64 conversions.
 
-3.4 Debug Commands
+3.4 ⎕FIO
+========
+
+As of GNU APL 1.6, the native function FILE_IO has been replaced by the
+system function ⎕FIO. See the FILE_IO section below for details.
+
+3.5 Debug Commands
 ==================
 
 Besides the classical commands like )LOAD or )SAVE there are a number of
@@ -1109,7 +1115,7 @@ output, uses different colors for stdout and stderr.
    Type )HELP or ]HELP in the interpreter for a list of all commands
 available.
 
-3.5 Colored Output
+3.6 Colored Output
 ==================
 
 The APL interpreter gets its input from the standard input (stdin),
@@ -1135,7 +1141,7 @@ colors and UTF-8 (Unicode) encoded character I/O.
 can be configured in the ’preferences’ file.  The ’preferences’ file
 also contains a description of all possible color settings.
 
-3.6 Logging Facilities
+3.7 Logging Facilities
 ======================
 
 The APL interpreter has over 30 logging facilities.  Each logging
@@ -1148,7 +1154,7 @@ OFF can be made at compile time (of the APL interpreter) or at run-time.
 logging - there is a debug command ]LOG that allows to turn logging
 facilities to be turned ON or OFF.
 
-3.6.1 Static Logging
+3.7.1 Static Logging
 --------------------
 
 By default the logging facilities that shall be turned ON are defined
@@ -1164,7 +1170,7 @@ compile time and not at run-time.
    If you benchmark the APL interpreter, then ./configure Static Logging
 by NOT setting DYNAMIC_LOG_WANTED=yes.
 
-3.6.2 Dynamic Logging
+3.7.2 Dynamic Logging
 ---------------------
 
 Dynamic Logging is intended for trouble-shooters of GNU APL, but also
@@ -1186,12 +1192,12 @@ current state.  The command
 
    toggles the state of logging facility N from OFF to ON and back.
 
-3.7 Complex Numbers
+3.8 Complex Numbers
 ===================
 
 Complex numbers are fully supported.
 
-3.8 Native Functions
+3.9 Native Functions
 ====================
 
 A Native Function is a function that can be called in APL like a normal
@@ -1247,8 +1253,12 @@ with all other APL interpreters if the workspace contains native
 functions.  The )OUT command prints a warning when the )OUT command is
 used with a workspace that contains native functions.
 
-3.9 DUMP Command
-================
+   Note: As of GNU APL 1.6, the native function FILE_IO has been turned
+into the system function ⎕FIO. The syntax of ⎕FIO is the same as for
+FILE_IO. The )CLEAR workspace command will close all open files.
+
+3.10 DUMP Command
+=================
 
 GNU APL has a command )DUMP that saves a workspace to disk, similar to
 command )OUT). The difference to command )OUT is the file format being
@@ -1258,7 +1268,7 @@ APL statements).  Files written with )DUMP can be edited with normal
 text editors (vi, Emacs), read back with "apl -f", or made executable
 (see scripting).
 
-3.10 User-defined Command
+3.11 User-defined Command
 =========================
 
 There is a simple mechanism to define additional APL commands.  This
@@ -1290,13 +1300,13 @@ be deleted like this:
       ]USERCMD REMOVE ]UCMD
       ]USERCMD REMOVE-ALL
 
-3.11 Direct Functions (Lambdas)
+3.12 Direct Functions (Lambdas)
 ===============================
 
 GNU APL supports direct functions (aka.  lambdas), but only in a rather
 limited form.
 
-3.11.1 Named Lambdas
+3.12.1 Named Lambdas
 --------------------
 
 A statement of the form
@@ -1356,7 +1366,7 @@ defined variables.  In particular, they can be used outside named or
 unnamed lambdas.  However, that may change in the future and therefore
 such use of ⍺, ⍵, ⍶, ⍹, and λ is a bad idea.
 
-3.11.2 Unnamed Lambdas
+3.12.2 Unnamed Lambdas
 ----------------------
 
 An unnamed lambda is an expression inside { } but without assigning it
@@ -1376,7 +1386,7 @@ Ocasionally the names λ1, λ2, ...  may show up in commands like )SIS.
 These names are automatically generated for unnamed lambdas in order to
 provide a name in places where a function name is needed.
 
-3.11.3 Limitations of Lambdas
+3.12.3 Limitations of Lambdas
 -----------------------------
 
 There are a number of features related to lambdas that are present in
@@ -1384,7 +1394,7 @@ other APL interpreters but that are NOT implemented in GNU APL. This
 includes multiple statements, guards, lexical scoping, and probably
 more.
 
-3.12 Axis argument in user-defined functions
+3.13 Axis argument in user-defined functions
 ============================================
 
 User-defined functions and operators )including lambdas) accept an axis
@@ -1410,7 +1420,7 @@ Therefore you can use an axis as a third function argument.  Keep in
 mind, however, that doing so will make your APL code incompatible with
 other APL interpreters.  Use this feature carefully!
 
-3.13 ⎕SI
+3.14 ⎕SI
 ========
 
 ⎕SI returns aspects of the current State Indicator, similar to the
@@ -1473,7 +1483,7 @@ while negative A count from the latest to the oldest level.
    For example, ¯1 ⎕SI refers to the currently executing context, ¯2 ⎕SI
 is the caller, and so on.
 
-3.14 History and TAB completion
+3.15 History and TAB completion
 ===============================
 
 Until GNU APL 1.4 / SVN 465, GNU APL used libreadline for interactive
@@ -2843,14 +2853,14 @@ Node: Top383
 Node: Chapter 11404
 Node: Chapter 216473
 Node: Chapter 320742
-Node: Chapter 453794
-Node: Chapter 555542
-Node: Chapter 656671
-Node: Section 6.157090
-Node: Section 6.257777
-Node: Chapter 758608
-Node: Section 7.159111
-Node: Section 7.284420
+Node: Chapter 454168
+Node: Chapter 555916
+Node: Chapter 657045
+Node: Section 6.157464
+Node: Section 6.258151
+Node: Chapter 758982
+Node: Section 7.159485
+Node: Section 7.284794
 
 End Tag Table
 

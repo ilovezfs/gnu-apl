@@ -75,6 +75,7 @@ PrintBuffer.cc					PrintBuffer.hh		\
 QuadFunction.cc					QuadFunction.hh		\
 ProcessorID.cc					ProcessorID.hh		\
 Quad_CR.cc					Quad_CR.hh		\
+Quad_FIO.cc					Quad_FIO.hh		\
 Quad_FX.cc					Quad_FX.hh		\
 Quad_RL.cc					Quad_RL.hh		\
 Quad_SVx.cc					Quad_SVx.hh		\
