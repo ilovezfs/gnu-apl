@@ -513,6 +513,9 @@ Workspace::clear_WS(ostream & out, bool silent)
 
    get_v_Quad_RL().reset_seed();
 
+   // close open files in ⎕FIO
+   Quad_FIO::fun->clear();
+
    set_WS_name(UCS_string("CLEAR WS"));
    if (!silent)   out << "CLEAR WS" << endl;
 }

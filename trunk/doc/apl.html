@@ -93,26 +93,27 @@ ul.no-bullet {list-style: none}
       <li><a name="toc-_005b_003f_005dSYL_005b27_003b_005d" href="#g_t_005b_003f_005dSYL_005b27_003b_005d">3.2.4 ⎕SYL[27;]</a></li>
     </ul></li>
     <li><a name="toc-Dyadic-_005b_003f_005dCR" href="#Dyadic-_005b_003f_005dCR">3.3 Dyadic ⎕CR</a></li>
-    <li><a name="toc-Debug-Commands" href="#Debug-Commands">3.4 Debug Commands</a></li>
-    <li><a name="toc-Colored-Output" href="#Colored-Output">3.5 Colored Output</a></li>
-    <li><a name="toc-Logging-Facilities" href="#Logging-Facilities">3.6 Logging Facilities</a>
+    <li><a name="toc-_005b_003f_005dFIO" href="#g_t_005b_003f_005dFIO">3.4 ⎕FIO</a></li>
+    <li><a name="toc-Debug-Commands" href="#Debug-Commands">3.5 Debug Commands</a></li>
+    <li><a name="toc-Colored-Output" href="#Colored-Output">3.6 Colored Output</a></li>
+    <li><a name="toc-Logging-Facilities" href="#Logging-Facilities">3.7 Logging Facilities</a>
     <ul class="no-bullet">
-      <li><a name="toc-Static-Logging" href="#Static-Logging">3.6.1 Static Logging</a></li>
-      <li><a name="toc-Dynamic-Logging" href="#Dynamic-Logging">3.6.2 Dynamic Logging</a></li>
+      <li><a name="toc-Static-Logging" href="#Static-Logging">3.7.1 Static Logging</a></li>
+      <li><a name="toc-Dynamic-Logging" href="#Dynamic-Logging">3.7.2 Dynamic Logging</a></li>
     </ul></li>
-    <li><a name="toc-Complex-Numbers" href="#Complex-Numbers">3.7 Complex Numbers</a></li>
-    <li><a name="toc-Native-Functions" href="#Native-Functions">3.8 Native Functions</a></li>
-    <li><a name="toc-DUMP-Command" href="#DUMP-Command">3.9 DUMP Command</a></li>
-    <li><a name="toc-User_002ddefined-Command" href="#User_002ddefined-Command">3.10 User-defined Command</a></li>
-    <li><a name="toc-Direct-Functions-_0028Lambdas_0029" href="#Direct-Functions-_0028Lambdas_0029">3.11 Direct Functions (Lambdas)</a>
+    <li><a name="toc-Complex-Numbers" href="#Complex-Numbers">3.8 Complex Numbers</a></li>
+    <li><a name="toc-Native-Functions" href="#Native-Functions">3.9 Native Functions</a></li>
+    <li><a name="toc-DUMP-Command" href="#DUMP-Command">3.10 DUMP Command</a></li>
+    <li><a name="toc-User_002ddefined-Command" href="#User_002ddefined-Command">3.11 User-defined Command</a></li>
+    <li><a name="toc-Direct-Functions-_0028Lambdas_0029" href="#Direct-Functions-_0028Lambdas_0029">3.12 Direct Functions (Lambdas)</a>
     <ul class="no-bullet">
-      <li><a name="toc-Named-Lambdas" href="#Named-Lambdas">3.11.1 Named Lambdas</a></li>
-      <li><a name="toc-Unnamed-Lambdas" href="#Unnamed-Lambdas">3.11.2 Unnamed Lambdas</a></li>
-      <li><a name="toc-Limitations-of-Lambdas" href="#Limitations-of-Lambdas">3.11.3 Limitations of Lambdas</a></li>
+      <li><a name="toc-Named-Lambdas" href="#Named-Lambdas">3.12.1 Named Lambdas</a></li>
+      <li><a name="toc-Unnamed-Lambdas" href="#Unnamed-Lambdas">3.12.2 Unnamed Lambdas</a></li>
+      <li><a name="toc-Limitations-of-Lambdas" href="#Limitations-of-Lambdas">3.12.3 Limitations of Lambdas</a></li>
     </ul></li>
-    <li><a name="toc-Axis-argument-in-user_002ddefined-functions" href="#Axis-argument-in-user_002ddefined-functions">3.12 Axis argument in user-defined functions</a></li>
-    <li><a name="toc-_005b_003f_005dSI" href="#g_t_005b_003f_005dSI">3.13 ⎕SI</a></li>
-    <li><a name="toc-History-and-TAB-completion" href="#History-and-TAB-completion">3.14 History and TAB completion</a></li>
+    <li><a name="toc-Axis-argument-in-user_002ddefined-functions" href="#Axis-argument-in-user_002ddefined-functions">3.13 Axis argument in user-defined functions</a></li>
+    <li><a name="toc-_005b_003f_005dSI" href="#g_t_005b_003f_005dSI">3.14 ⎕SI</a></li>
+    <li><a name="toc-History-and-TAB-completion" href="#History-and-TAB-completion">3.15 History and TAB completion</a></li>
   </ul></li>
   <li><a name="toc-Limitations-and-Missing-Features" href="#Chapter-4">4 Limitations and Missing Features</a>
   <ul class="no-bullet">
@@ -1229,8 +1230,14 @@ general APL text vectors. Those need to be translated to bytes first and can
 then be used as input for e.g. byte vector → hex or byte vector → base64
 conversions.
 </p>
+<a name="g_t_005b_003f_005dFIO"></a>
+<h3 class="section">3.4 ⎕FIO</h3>
+
+<p>As of GNU APL 1.6, the native function FILE_IO has been replaced by the
+system function ⎕FIO. See the FILE_IO section below for details.
+</p>
 <a name="Debug-Commands"></a>
-<h3 class="section">3.4 Debug Commands</h3>
+<h3 class="section">3.5 Debug Commands</h3>
 
 <p>Besides the classical commands like )LOAD or )SAVE there are a number of
 debug commands that start with ] rather than ).
@@ -1242,7 +1249,7 @@ feature, colored output, uses different colors for stdout and stderr.
 <p>Type )HELP or ]HELP in the interpreter for a list of all commands available.
 </p>
 <a name="Colored-Output"></a>
-<h3 class="section">3.5 Colored Output</h3>
+<h3 class="section">3.6 Colored Output</h3>
 
 <p>The APL interpreter gets its input from the standard input (stdin),
 which is normally connected to the user&rsquo;s keyboard,
@@ -1269,7 +1276,7 @@ contains a description of all possible color settings.
 </p>
 
 <a name="Logging-Facilities"></a>
-<h3 class="section">3.6 Logging Facilities</h3>
+<h3 class="section">3.7 Logging Facilities</h3>
 
 <p>The APL interpreter has over 30 logging facilities. Each logging facility
 can be ON (and then produces some logging output on stderr) or OFF. The
@@ -1282,7 +1289,7 @@ there is a debug command ]LOG that allows to turn logging facilities to be
 turned ON or OFF.
 </p>
 <a name="Static-Logging"></a>
-<h4 class="subsection">3.6.1 Static Logging</h4>
+<h4 class="subsection">3.7.1 Static Logging</h4>
 
 <p>By default the logging facilities that shall be turned ON are defined
 statically. To change the logging facilities that shall be turned ON,
@@ -1298,7 +1305,7 @@ and not at run-time.
 NOT setting DYNAMIC_LOG_WANTED=yes.
 </p>
 <a name="Dynamic-Logging"></a>
-<h4 class="subsection">3.6.2 Dynamic Logging</h4>
+<h4 class="subsection">3.7.2 Dynamic Logging</h4>
 
 <p>Dynamic Logging is intended for trouble-shooters of GNU APL, but also for
 those who are interested in the internals of GNU APL. Dynamic Logging is
@@ -1319,12 +1326,12 @@ state. The command
 <p>toggles the state of logging facility N from OFF to ON and back.
 </p>
 <a name="Complex-Numbers"></a>
-<h3 class="section">3.7 Complex Numbers</h3>
+<h3 class="section">3.8 Complex Numbers</h3>
 
 <p>Complex numbers are fully supported.
 </p>
 <a name="Native-Functions"></a>
-<h3 class="section">3.8 Native Functions</h3>
+<h3 class="section">3.9 Native Functions</h3>
 
 <p>A Native Function is a function that can be called in APL like a normal user
 defined APL function, but is implemented in C++.
@@ -1379,8 +1386,12 @@ APL interpreters if the workspace contains native functions. The )OUT
 command prints a warning when the )OUT command is used with a
 workspace that contains native functions.
 </p>
+<p>Note: As of GNU APL 1.6, the native function FILE_IO has been turned into the
+system function ⎕FIO. The syntax of ⎕FIO is the same as for FILE_IO. The
+)CLEAR workspace command will close all open files. 
+</p>
 <a name="DUMP-Command"></a>
-<h3 class="section">3.9 DUMP Command</h3>
+<h3 class="section">3.10 DUMP Command</h3>
 
 <p>GNU APL has a command )DUMP that saves a workspace to disk, similar to command
  )OUT).  The difference to command )OUT is the file format being produced.
@@ -1390,7 +1401,7 @@ Files written with )DUMP can be edited with normal text editors (vi, Emacs),
 read back with &quot;apl -f&quot;, or made executable (see scripting).
 </p>
 <a name="User_002ddefined-Command"></a>
-<h3 class="section">3.10 User-defined Command</h3>
+<h3 class="section">3.11 User-defined Command</h3>
 
 <p>There is a simple mechanism to define additional APL commands. This mechanism
 is intended to introduce new commands by APL libraries. Like system commands,
@@ -1421,13 +1432,13 @@ be deleted like this:
       ]USERCMD REMOVE-ALL
 </pre>
 <a name="Direct-Functions-_0028Lambdas_0029"></a>
-<h3 class="section">3.11 Direct Functions (Lambdas)</h3>
+<h3 class="section">3.12 Direct Functions (Lambdas)</h3>
 
 <p>GNU APL supports direct functions (aka. lambdas), but only in a rather
 limited form.
 </p>
 <a name="Named-Lambdas"></a>
-<h4 class="subsection">3.11.1 Named Lambdas</h4>
+<h4 class="subsection">3.12.1 Named Lambdas</h4>
 
 <p>A statement of the form
 </p>
@@ -1485,7 +1496,7 @@ may change in the future and therefore such use of ⍺, ⍵, ⍶, ⍹, and λ is
 bad idea.
 </p>
 <a name="Unnamed-Lambdas"></a>
-<h4 class="subsection">3.11.2 Unnamed Lambdas</h4>
+<h4 class="subsection">3.12.2 Unnamed Lambdas</h4>
 
 <p>An unnamed lambda is an expression inside { } but without assigning it to a
 name. This is often used together with the EACH operator.
@@ -1505,14 +1516,14 @@ generated for unnamed lambdas in order to provide a name in places where a
 function name is needed.
 </p>
 <a name="Limitations-of-Lambdas"></a>
-<h4 class="subsection">3.11.3 Limitations of Lambdas</h4>
+<h4 class="subsection">3.12.3 Limitations of Lambdas</h4>
 
 <p>There are a number of features related to lambdas that are present in other
 APL interpreters but that are NOT implemented in GNU APL. This includes
 multiple statements, guards, lexical scoping, and probably more.
 </p>
 <a name="Axis-argument-in-user_002ddefined-functions"></a>
-<h3 class="section">3.12 Axis argument in user-defined functions</h3>
+<h3 class="section">3.13 Axis argument in user-defined functions</h3>
 
 <p>User-defined functions and operators )including lambdas) accept an axis
 argument. For example:
@@ -1538,7 +1549,7 @@ doing so will make your APL code incompatible with other APL interpreters.
 Use this feature carefully!
 </p>
 <a name="g_t_005b_003f_005dSI"></a>
-<h3 class="section">3.13 ⎕SI</h3>
+<h3 class="section">3.14 ⎕SI</h3>
 
 <p>⎕SI returns aspects of the current State Indicator, similar to the standard
 command )SI. This can be used, for example, to create debug functions similar
@@ -1599,7 +1610,7 @@ A count from the latest to the oldest level.
 the caller, and so on.
 </p>
 <a name="History-and-TAB-completion"></a>
-<h3 class="section">3.14 History and TAB completion</h3>
+<h3 class="section">3.15 History and TAB completion</h3>
 
 <p>Until GNU APL 1.4 / SVN 465, GNU APL used libreadline for interactive user
 input. libreadline did provide two useful features: tab expansion (the tab
