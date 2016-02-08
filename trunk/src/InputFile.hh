@@ -43,7 +43,10 @@ struct InputFile
      is_script(_is_script),
      with_LX  (LX),
      line_no  (0),
-     in_html  (0)
+     in_html  (0),
+     in_function(false),
+     in_variable(false),
+     in_matched(false)
    {}
 
    /// set the current line number
@@ -94,6 +97,21 @@ struct InputFile
         return count;
       }
 
+   /// add object to object_filter
+   void add_filter_object(UCS_string & object)
+      {
+        object_filter.push_back(object);
+      }
+
+   /// return true if this file as an oject filter (from )COPY file names...)
+   bool has_object_filter() const
+      { return object_filter.size() > 0; }
+
+   /// check the current line and return true if the line is permitted by the
+   /// object_filter. This function also updates \b in_function and \b
+   /// in_variable
+   bool check_filter(const UTF8_string & line);
+
    /// true if echo (of the input) is on for the current file
    static bool echo_current_file();
 
@@ -119,6 +137,18 @@ protected:
    LX_mode with_LX;   ///< execute ⎕LX at the end
    int  line_no;      ///< line number in file
    int  in_html;      ///< 0: no HTML, 1: in HTML file 2: in HTML header
+
+   /// functions and vars that shoule be )COPIED
+   vector<UCS_string> object_filter;
+
+   /// return true if current line belongs to a function. Cleared at final ∇
+   bool in_function;
+
+   /// return true if current line belongs to a variable. Cleared by empty line
+   bool in_variable;
+
+   /// true if current function or variable was mentioned in object_filte
+   bool in_matched;
 
    /// line number in stdin
    static int stdin_line_no;

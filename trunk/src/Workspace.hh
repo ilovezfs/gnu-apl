@@ -216,7 +216,8 @@ public:
 
    /// load )DUMPed file from open file descriptor fd (closes fd)
    static void load_DUMP(ostream & out, const UTF8_string & filename, int fd,
-                         LX_mode with_LX, bool silent);
+                         LX_mode with_LX, bool silent,
+                         vector<UCS_string> * object_filter);
 
    /// load \b lib_ws into the_workspace, maybe set ⎕LX of the new WS.
    static void load_WS(ostream & out, const vector<UCS_string> & lib_ws,

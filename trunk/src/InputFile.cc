@@ -28,6 +28,8 @@
 #include "Common.hh"
 #include "InputFile.hh"
 #include "IO_Files.hh"
+#include "PrintOperator.hh"
+#include "UserFunction.hh"
 #include "UserPreferences.hh"
 
 vector<InputFile> InputFile::files_todo;
@@ -119,6 +121,80 @@ InputFile::echo_current_file()
 {
    if (files_todo.size()) return files_todo[0].echo;
    return uprefs.echo_CIN || !uprefs.do_not_echo;
+}
+//-----------------------------------------------------------------------------
+bool
+InputFile::check_filter(const UTF8_string & line)
+{
+bool ret = in_matched;
+UCS_string ucs_line(line);
+   ucs_line.remove_lt_spaces();   // remove leading and trailing spaces
+
+   if (in_function)
+      {
+        if (ucs_line.size() && ucs_line[0] == UNI_NABLA)   // end of a function
+           {
+             in_function = false;
+             in_variable = false;
+             in_matched  = false;
+           }
+        return ret;
+      }
+
+   if (in_variable)
+      {
+        if (ucs_line.size() == 0)                          // end of a vriable
+           {
+             in_function = false;
+             in_variable = false;
+             in_matched  = false;
+           }
+        return ret;
+      }
+
+   if (ucs_line.size() && (ucs_line[0] == UNI_NABLA))   // new function
+      {
+        in_function = true;
+        in_variable = false;
+        in_matched  = false;
+        ucs_line = ucs_line.drop(1);
+        UserFunction_header uh(ucs_line);
+        const UCS_string fun_name = uh.get_name();
+        loop(n, object_filter.size())
+           {
+              if (fun_name == object_filter[n])
+                 {
+                   in_matched = true;
+                   return true;
+                 }
+           }
+        return false;
+      }
+
+   if (ucs_line.size() && (Avec::is_quad(ucs_line[0]) ||
+             Avec::is_first_symbol_char(ucs_line[0])))   // new variable
+      {
+        in_function = false;
+        in_variable = true;
+        in_matched  = false;
+        loop(u, ucs_line.size())
+           {
+             if (ucs_line[u] != UNI_LEFT_ARROW)   continue;   // not ←
+
+             ucs_line.shrink(u);
+             ucs_line.remove_lt_spaces();
+             loop(n, object_filter.size())
+                 {
+                   if (ucs_line == object_filter[n])
+                      {
+                        in_matched = true;
+                        return true;
+                      }
+                 }
+           }
+      }
+
+   return ret;
 }
 //-----------------------------------------------------------------------------
 

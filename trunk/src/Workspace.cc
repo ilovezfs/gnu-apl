@@ -693,7 +693,8 @@ const int err = rename(filename, backup_filename.c_str());
 //-----------------------------------------------------------------------------
 void
 Workspace::load_DUMP(ostream & out, const UTF8_string & filename, int fd,
-                     LX_mode with_LX, bool silent)
+                     LX_mode with_LX, bool silent,
+                     vector<UCS_string> * object_filter)
 {
    Log(LOG_command_IN)
       CERR << "loading )DUMP file " << filename << "..." << endl;
@@ -731,6 +732,11 @@ FILE * file = fdopen(fd, "r");
       }
 
 InputFile fam(filename, file, false, false, true, with_LX);
+   if (object_filter)
+      {
+        loop(o, object_filter->size())
+            fam.add_filter_object((*object_filter)[o]);
+      }
    InputFile::files_todo.insert(InputFile::files_todo.begin(), fam);
 }
 //-----------------------------------------------------------------------------
@@ -954,7 +960,7 @@ XML_Loading_Archive in(filename.c_str(), dump_fd);
         Log(LOG_command_IN)   out << "LOADING " << wname << " from file '"
                                   << filename << "' ..." << endl;
 
-        load_DUMP(out, filename, dump_fd, do_LX, silent);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, do_LX, silent, 0);   // closes dump_fd
 
         // )DUMP files have no )WSID so create one from the filename
         //
@@ -1039,7 +1045,8 @@ int dump_fd = -1;
 XML_Loading_Archive in(filename.c_str(), dump_fd);
    if (dump_fd != -1)
       {
-        load_DUMP(out, filename, dump_fd, no_LX, false);   // closes dump_fd
+        load_DUMP(out, filename, dump_fd, no_LX, false, &lib_ws_objects);
+        // load_DUMP closes dump_fd
         return;
       }
 
