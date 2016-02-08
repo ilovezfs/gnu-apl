@@ -124,7 +124,7 @@ InputFile * input = InputFile::current_file();
                   file_line.starts_with("<!"))
                  {
                    // first line of the file starts with <! (so we assume that
-                   // this fle is a HTML tagged file
+                   // this file is a HTML tagged file
                    //
                    input->set_html(1);
                  }
@@ -133,6 +133,16 @@ InputFile * input = InputFile::current_file();
                  {
                   input->set_html(file_line.un_HTML(input->get_html()));
                   if (file_line.size() == 0)   continue;   // line with tag(s)
+                 }
+
+              if (input->has_object_filter())
+                 {
+                    const bool allowed = input->check_filter(file_line);
+                    if (!allowed)
+                       {
+                         file_line.clear();
+                         continue;
+                       }
                  }
               break;
             }

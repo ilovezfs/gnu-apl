@@ -12,6 +12,7 @@
       ⍝⍝⍝ If this segfaults then re-install GNU APL !!!
       ⍝⍝⍝
       )COPY 5 FILE_IO.apl
+DUMPED ³
 
       ⍝ fopen this file readonly
       ⍝
