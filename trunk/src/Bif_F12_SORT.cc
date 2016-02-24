@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -84,22 +84,28 @@ CollatingCacheEntry::compare(const CollatingCacheEntry & other,
 }
 //=============================================================================
 Token
-Bif_F12_SORT::sort(Value_P B, bool ascending)
+Bif_F12_SORT::sort(Value_P B, Sort_order order)
 {
-   if (B->is_scalar())   RANK_ERROR;
+   if (B->is_scalar())   return Token(TOK_ERROR, E_RANK_ERROR);
 
 const ShapeItem len_BZ = B->get_shape_item(0);
    if (len_BZ == 0)   return Token(TOK_APL_VALUE1, Idx0(LOC));
 
 const ShapeItem comp_len = B->element_count()/len_BZ;
 DynArray(const Cell *, array, len_BZ);
-   loop(bz, len_BZ)   array[bz] = &B->get_ravel(bz*comp_len);
+   loop(bz, len_BZ)
+       {
+         array[bz] = &B->get_ravel(bz*comp_len);
+         if (array[bz]->is_complex_cell())
+            return Token(TOK_ERROR, E_DOMAIN_ERROR);
+       }
 
-   if (ascending)
-      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len, &Cell::greater_vec);
+   if (order == SORT_ASCENDING)
+      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len,
+                                   &Cell::greater_vec);
    else
-      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len, &Cell::smaller_vec);
-
+      Heapsort<const Cell *>::sort(&array[0], len_BZ, &comp_len,
+                                   &Cell::smaller_vec);
 Value_P Z(len_BZ, LOC);
 
 const APL_Integer qio = Workspace::get_IO();
@@ -113,7 +119,7 @@ const Cell * base = &B->get_ravel(0);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F12_SORT::sort_collating(Value_P A, Value_P B, bool ascending)
+Bif_F12_SORT::sort_collating(Value_P A, Value_P B, Sort_order order)
 {
    if (A->is_scalar())   RANK_ERROR;
    if (A->NOTCHAR())     DOMAIN_ERROR;
@@ -140,7 +146,7 @@ CollatingCache cc_cache(A->get_rank(), comp_len);
 DynArray(const Cell *, array, len_BZ);
    loop(bz, len_BZ)   array[bz] = &B1->get_ravel(bz*comp_len);
 
-   if (ascending)
+   if (order == SORT_ASCENDING)
       Heapsort<const Cell *>::sort(&array[0], len_BZ, &cc_cache,
                                    &CollatingCache::greater_vec);
    else
