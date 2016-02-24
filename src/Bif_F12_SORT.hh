@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ public:
    {}
 
    /// sort integer vector B 
-   static Token sort(Value_P B, bool ascending);
+   static Token sort(Value_P B, Sort_order order);
 
 protected:
    /// a helper structure for sorting: a cahr and a shape
@@ -112,7 +112,7 @@ protected:
       };
 
    /// sort char vector B according to collationg sequence A
-   Token sort_collating(Value_P A, Value_P B, bool ascending);
+   Token sort_collating(Value_P A, Value_P B, Sort_order order);
 
    /// the collating cache that determines the order of elements
    static ShapeItem collating_cache(Unicode uni, Value_P A,
@@ -131,11 +131,11 @@ public:
 
    /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
-      { return sort(B, true); }
+      { return sort(B, SORT_ASCENDING); }
 
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
-      { return sort_collating(A, B, true); }
+      { return sort_collating(A, B, SORT_ASCENDING); }
 
    static Bif_F12_SORT_ASC * fun;   ///< Built-in function
    static Bif_F12_SORT_ASC  _fun;   ///< Built-in function
@@ -154,11 +154,11 @@ public:
 
    /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
-      { return sort(B, false); }
+      { return sort(B, SORT_DESCENDING); }
 
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
-      { return sort_collating(A, B, false); }
+      { return sort_collating(A, B, SORT_DESCENDING); }
 
    static Bif_F12_SORT_DES * fun;   ///< Built-in function
    static Bif_F12_SORT_DES  _fun;   ///< Built-in function

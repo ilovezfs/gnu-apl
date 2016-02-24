@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ Value_P B = other.get_pointer_value();
 
    if (!A->same_shape(*B))                 return false;
 
-const ShapeItem count = A->element_count();
+const ShapeItem count = A->nz_element_count();
    loop(c, count)
        if (!A->get_ravel(c).equal(B->get_ravel(c), qct))   return false;
 
@@ -65,12 +65,20 @@ const ShapeItem count = A->element_count();
 bool
 PointerCell::greater(const Cell & other) const
 {
+   if (compare(other) == COMP_GT)   return true;
+   if (compare(other) == COMP_LT)   return false;
+   return this > &other;
+}
+//-----------------------------------------------------------------------------
+Comp_result
+PointerCell::compare(const Cell & other) const
+{
    switch(other.get_cell_type())
       {
         case CT_CHAR:
         case CT_INT:
         case CT_FLOAT:
-        case CT_COMPLEX: return true;
+        case CT_COMPLEX: return COMP_GT;
         case CT_POINTER: break;   // continue below
         case CT_CELLREF: DOMAIN_ERROR;
         default:         Assert(0 && "Bad celltype");
@@ -83,15 +91,15 @@ Value_P v2 = other.get_pointer_value();
 
    // compare ranks
    //
-   if (v1->get_rank() > v2->get_rank())   return true;
-   if (v2->get_rank() > v1->get_rank())   return false;
+   if (v1->get_rank() > v2->get_rank())   return COMP_GT;
+   if (v1->get_rank() < v2->get_rank())   return COMP_LT;
 
    // same rank, compare shapes
    //
    loop(r, v1->get_rank())
       {
-        if (v1->get_shape_item(r) > v2->get_shape_item(r))   return true;
-        if (v2->get_shape_item(r) > v1->get_shape_item(r))   return false;
+        if (v1->get_shape_item(r) > v2->get_shape_item(r))   return COMP_GT;
+        if (v1->get_shape_item(r) < v2->get_shape_item(r))   return COMP_LT;
       }
 
    // same rank and shape, compare ravel
@@ -101,13 +109,13 @@ const Cell * C2 = &v2->get_ravel(0);
    loop(e, v1->nz_element_count())
       {
         const Comp_result comp = C1++->compare(*C2++);
-        if (comp == COMP_GT)   return   true;
-        if (comp == COMP_LT)   return  false;
+        if (comp == COMP_GT)   return  COMP_GT;
+        if (comp == COMP_LT)   return  COMP_LT;
       }
 
    // everthing equal
    //
-   return this > &other;
+   return COMP_EQ;
 }
 //-----------------------------------------------------------------------------
 Value_P

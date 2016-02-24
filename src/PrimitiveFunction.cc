@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -2804,6 +2804,28 @@ ExecuteList * fun = ExecuteList::fix(statement.no_pad(), constant, LOC);
 Token
 Bif_F12_UNION::eval_AB(Value_P A, Value_P B)
 {
+   if (A->get_rank() > 1)   RANK_ERROR;
+   if (B->get_rank() > 1)   RANK_ERROR;
+
+   // NOTE: A ∪ B is not defined in lrm or ISO, but in dyalog APL p. 369:
+   // "A∪B returns a vector containing all the items of A, followed by the
+   // items of B which do not appear in A."
+   // According to that definition, A∪B ≠ B∪A in general. We take the freedom
+   // to sort (and remove duplicate) elements in A or B, which makes matters
+   // symmetric and speeds up the execution time from O(N²) to O(N log N).
+   //
+   // That does not work if complex numbers (which cannot be sorted) occur in
+   // A or B. In that case we fall back to an ISO compatible N² algorithm
+
+const int cell_types = A->flat_cell_types() | B->flat_cell_types();
+   if (cell_types & CT_COMPLEX)
+      {
+        // A or B contain complex numbers or nested values
+        //
+        return union_iso(&A->get_ravel(0), A->nz_element_count(),
+                         &B->get_ravel(0), B->nz_element_count());
+      }
+
 Value_P unique_A = do_unique(A, true);
 Value_P unique_B = do_unique(B, true);
 
@@ -2856,8 +2878,49 @@ Value_P Z(unique_A->nz_element_count()
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
+Token
+Bif_F12_UNION::union_iso(const Cell * cA, ShapeItem len_A, 
+                         const Cell * cB, ShapeItem len_B)
+{
+const APL_Float qct = Workspace::get_CT();
+
+DynArray(const Cell *, items_Z, len_A + len_B);
+ShapeItem len_Z = 0;
+
+   loop(a, len_A)
+       {
+         if (is_unique(cA[a], items_Z.get_data(), len_Z, qct))
+            items_Z[len_Z++] = cA + a;
+       }
+
+   loop(b, len_B)
+      {
+         if (is_unique(cB[b], items_Z.get_data(), len_Z, qct))
+            items_Z[len_Z++] = cB + b;
+      }
+
+   // build result value Z
+   //
+Value_P Z(len_Z, LOC);
+   loop(z, len_Z)   Z->next_ravel()->init(*(items_Z[z]), Z.getref(), LOC);
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+bool
+Bif_UNION_INTER::is_unique(const Cell & cell, const Cell ** others,
+                           ShapeItem len, APL_Float qct)
+{
+   loop(z, len)
+       {
+         if (others[z]->equal(cell, qct))   return false;   // not unique
+       }
+
+   return true;
+}
+//-----------------------------------------------------------------------------
 Value_P
-Bif_UNION_INTER::do_unique(Value_P B, bool sorted)
+Bif_UNION_INTER::do_unique(Value_P B, bool sort_result)
 {
    if (B->get_rank() > 1)   RANK_ERROR;
 
@@ -2876,12 +2939,18 @@ const ShapeItem ec_B = B->element_count();
         return Z;
       }
 
-Token B1_tok = Bif_F12_SORT::sort(B, true);
-   if (B1_tok.get_Class() != TC_VALUE)   return B1_tok.get_apl_val();
+   if (ec_B <= 16 && !sort_result)   return do_unique_iso(B);   // small B
 
+Token B1_tok = Bif_F12_SORT::sort(B, SORT_ASCENDING);
+   if (B1_tok.get_Class() != TC_VALUE)
+       {
+         if (sort_result)   return Value_P();
+         return do_unique_iso(B);
+       }
+
+Value_P B1 = B1_tok.get_apl_val();
 const APL_Integer qio = Workspace::get_IO();
 const APL_Float qct = Workspace::get_CT();
-Value_P B1 = B1_tok.get_apl_val();
 
    // compute result size
    //
@@ -2916,13 +2985,13 @@ Value_P Z1(ec_Z, LOC);
    // at this point , B[Z1] is the set of unique elements, but sorted. 
    // We may need to sort Z1 in order to get the original order.
    //
-   if (sorted)
+   if (sort_result)
       {
          Value_P Z4 = B->index(Z1);
          return Z4;
       }
 
-Token Z2_tok = Bif_F12_SORT::sort(Z1, true);
+Token Z2_tok = Bif_F12_SORT::sort(Z1, SORT_ASCENDING);
    Assert(Z2_tok.get_Class() == TC_VALUE);
 Value_P Z2 = Z2_tok.get_apl_val();
 
@@ -2933,9 +3002,54 @@ Value_P Z4 = B->index(Z3);
    return Z4;
 }
 //-----------------------------------------------------------------------------
+Value_P
+Bif_UNION_INTER::do_unique_iso(Value_P B)
+{
+const APL_Float qct = Workspace::get_CT();
+const ShapeItem len_B = B->element_count();
+
+DynArray(const Cell *, items_Z, len_B);
+ShapeItem len_Z = 0;
+
+   loop(b, len_B)
+      {
+        const Cell & cell = B->get_ravel(b);
+        if (is_unique(cell, items_Z.get_data(), len_Z, qct))
+           items_Z[len_Z++] = &cell;
+      }
+
+   // build result value Z
+   //
+Value_P Z(len_Z, LOC);
+   loop(z, len_Z)   Z->next_ravel()->init(*(items_Z[z]), Z.getref(), LOC);
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
 Token
 Bif_F2_INTER::eval_AB(Value_P A, Value_P B)
 {
+   if (A->get_rank() > 1)   RANK_ERROR;
+   if (B->get_rank() > 1)   RANK_ERROR;
+
+   // NOTE: A ∩ B is not defined in lrm or ISO, but in dyalog APL p. 369:
+   // "A∩B returns a vector containing the items of A that also appear in B."
+   // According to that definition, A∩B ≠ B∩A in general. We take the freedom
+   // to sort (and remove duplicate) elements in A or B, which makes matters
+   // symmetric and speeds up the execution time from O(N²) to O(N log N).
+   //
+   // That does not work if complex numbers (which cannot be sorted) occur in
+   // A or B. In that case we fall back to an ISO compatible N² algorithm
+
+const int cell_types = A->flat_cell_types() | B->flat_cell_types();
+   if (cell_types & CT_COMPLEX)
+      {
+        // A or B contain complex numbers: cannot sort
+        //
+        return inter_iso(&A->get_ravel(0), A->nz_element_count(),
+                         &B->get_ravel(0), B->nz_element_count());
+      }
+
 Value_P unique_A = do_unique(A, true);
 Value_P unique_B = do_unique(B, true);
 
@@ -2950,8 +3064,8 @@ const Cell * endB = cB + unique_B->element_count();
    while (cA < endA && cB < endB)   // both have elements
        {
          const Comp_result comp = cA->compare(*cB);
-         if      (comp == COMP_LT)   ++cA;    // cA < cB
-         else if (comp == COMP_GT)   ++cB;    // cA > cB
+         if      (comp == COMP_LT)   ++cA;    // cA < cB: advance cA
+         else if (comp == COMP_GT)   ++cB;    // cA > cB: advance cB
          else                                 // cA == cB
             {
               ++cA;
@@ -2976,6 +3090,37 @@ Value_P Z(eq_count, LOC);
        }
 
    Z->set_default(*B.get());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+Token
+Bif_F2_INTER::inter_iso(const Cell * cA, ShapeItem len_A,
+                        const Cell * cB, ShapeItem len_B)
+{
+const APL_Float qct = Workspace::get_CT();
+
+DynArray(const Cell *, items_Z, len_A + len_B);
+ShapeItem len_Z = 0;
+
+   loop(a, len_A)
+       {
+         const Cell & cell = cA[a];
+        if (!is_unique(cell, items_Z.get_data(), len_Z, qct))   continue;
+        loop(b, len_B)
+            {
+              if (cell.equal(cB[b], qct))
+                 {
+                   items_Z[len_Z++] = &cell;
+                   break;
+                 }
+            }
+       }
+
+   // build result value Z
+   //
+Value_P Z(len_Z, LOC);
+   loop(z, len_Z)   Z->next_ravel()->init(*(items_Z[z]), Z.getref(), LOC);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }

@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -424,6 +424,13 @@ enum Comp_result
   COMP_LT = -1,   ///< less than
   COMP_EQ =  0,   ///< equal
   COMP_GT =  1,   ///< greter than
+};
+//-----------------------------------------------------------------------------
+/// the order of a comparison
+enum Sort_order
+{
+   SORT_DESCENDING = 0,   ///< sort descending
+   SORT_ASCENDING  = 1,   ///< sort asscending
 };
 //-----------------------------------------------------------------------------
 /// events for a symbol
