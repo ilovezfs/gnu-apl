@@ -25,6 +25,7 @@
 #include "Avec.hh"
 #include "Bif_F12_SORT.hh"
 #include "Bif_OPER1_EACH.hh"
+#include "Bif_OPER1_REDUCE.hh"
 #include "CharCell.hh"
 #include "ComplexCell.hh"
 #include "Command.hh"
@@ -2802,209 +2803,10 @@ ExecuteList * fun = ExecuteList::fix(statement.no_pad(), constant, LOC);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F12_UNION::eval_AB(Value_P A, Value_P B)
-{
-   if (A->get_rank() > 1)   RANK_ERROR;
-   if (B->get_rank() > 1)   RANK_ERROR;
-
-   // NOTE: A ∪ B is not defined in lrm or ISO, but in dyalog APL p. 369:
-   // "A∪B returns a vector containing all the items of A, followed by the
-   // items of B which do not appear in A."
-   // According to that definition, A∪B ≠ B∪A in general. We take the freedom
-   // to sort (and remove duplicate) elements in A or B, which makes matters
-   // symmetric and speeds up the execution time from O(N²) to O(N log N).
-   //
-   // That does not work if complex numbers (which cannot be sorted) occur in
-   // A or B. In that case we fall back to an ISO compatible N² algorithm
-
-const int cell_types = A->flat_cell_types() | B->flat_cell_types();
-   if (cell_types & CT_COMPLEX)
-      {
-        // A or B contain complex numbers or nested values
-        //
-        return union_iso(&A->get_ravel(0), A->nz_element_count(),
-                         &B->get_ravel(0), B->nz_element_count());
-      }
-
-Value_P unique_A = do_unique(A, true);
-Value_P unique_B = do_unique(B, true);
-
-   // count equal elements
-   //
-ShapeItem eq_count = 0;
-const Cell * cA = &unique_A->get_ravel(0);
-const Cell * cB = &unique_B->get_ravel(0);
-const Cell * endA = cA + unique_A->element_count();
-const Cell * endB = cB + unique_B->element_count();
-
-   while (cA < endA && cB < endB)   // both have elements
-       {
-         const Comp_result comp = cA->compare(*cB);
-         if      (comp == COMP_LT)   ++cA;    // cA < cB
-         else if (comp == COMP_GT)   ++cB;    // cA > cB
-         else                                 // cA == cB
-            {
-              ++cA;
-              ++cB;
-              ++eq_count;
-            }
-       }
-
-Value_P Z(unique_A->nz_element_count()
-        + unique_B->nz_element_count() - eq_count, LOC);
-   cA = &unique_A->get_ravel(0);
-   cB = &unique_B->get_ravel(0);
-   while (cA < endA && cB < endB)   // both have elements
-       {
-         const Comp_result comp = cA->compare(*cB);
-         if (comp == COMP_LT)
-            Z->next_ravel()->init(*cA++, Z.getref(), LOC);
-         else if (comp == COMP_GT)
-            Z->next_ravel()->init(*cB++, Z.getref(), LOC);
-         else                             
-            {
-              Z->next_ravel()->init(*cA++, Z.getref(), LOC);
-              ++cB;
-            }
-       }
-
-   // the remaining elements in the larger vsalue...
-   //
-   while (cA < endA)   Z->next_ravel()->init(*cA++, Z.getref(), LOC);
-   while (cB < endB)   Z->next_ravel()->init(*cB++, Z.getref(), LOC);
-
-   Z->set_default(*B.get());
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
-}
-//-----------------------------------------------------------------------------
-Token
-Bif_F12_UNION::union_iso(const Cell * cA, ShapeItem len_A, 
-                         const Cell * cB, ShapeItem len_B)
-{
-const APL_Float qct = Workspace::get_CT();
-
-DynArray(const Cell *, items_Z, len_A + len_B);
-ShapeItem len_Z = 0;
-
-   loop(a, len_A)
-       {
-         if (is_unique(cA[a], items_Z.get_data(), len_Z, qct))
-            items_Z[len_Z++] = cA + a;
-       }
-
-   loop(b, len_B)
-      {
-         if (is_unique(cB[b], items_Z.get_data(), len_Z, qct))
-            items_Z[len_Z++] = cB + b;
-      }
-
-   // build result value Z
-   //
-Value_P Z(len_Z, LOC);
-   loop(z, len_Z)   Z->next_ravel()->init(*(items_Z[z]), Z.getref(), LOC);
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
-}
-//-----------------------------------------------------------------------------
-bool
-Bif_UNION_INTER::is_unique(const Cell & cell, const Cell ** others,
-                           ShapeItem len, APL_Float qct)
-{
-   loop(z, len)
-       {
-         if (others[z]->equal(cell, qct))   return false;   // not unique
-       }
-
-   return true;
-}
-//-----------------------------------------------------------------------------
-Value_P
-Bif_UNION_INTER::do_unique(Value_P B, bool sort_result)
+Bif_F12_UNION::eval_B(Value_P B)
 {
    if (B->get_rank() > 1)   RANK_ERROR;
 
-const ShapeItem ec_B = B->element_count();
-   if (ec_B <= 1)  // 0 or 1 element: return B
-      {
-        if (B->get_owner_count() == 2 && 
-            this == Workspace::SI_top()->get_prefix().get_monadic_fun())
-           {
-              Log(LOG_optimization) CERR << "optimizing ∪B" << endl;
-              return B;
-           }
-
-        Value_P Z = B->clone(LOC);
-        Z->check_value(LOC);
-        return Z;
-      }
-
-   if (ec_B <= 16 && !sort_result)   return do_unique_iso(B);   // small B
-
-Token B1_tok = Bif_F12_SORT::sort(B, SORT_ASCENDING);
-   if (B1_tok.get_Class() != TC_VALUE)
-       {
-         if (sort_result)   return Value_P();
-         return do_unique_iso(B);
-       }
-
-Value_P B1 = B1_tok.get_apl_val();
-const APL_Integer qio = Workspace::get_IO();
-const APL_Float qct = Workspace::get_CT();
-
-   // compute result size
-   //
-ShapeItem ec_Z = 0;   // first element is always in the result.
-const Cell * last = &B->get_ravel(B1->get_ravel(0).get_near_int() - qio);
-   loop(j, ec_B)
-      {
-        const APL_Integer idx = B1->get_ravel(j).get_near_int();
-        const Cell * cj = &B->get_ravel(idx - qio);
-        const bool new_element = (j == 0) || !last->equal(*cj, qct);
-        if (new_element)
-           {
-             ++ec_Z;
-             last = cj;
-           }
-      }
-
-Value_P Z1(ec_Z, LOC);
-
-   loop(j, ec_B)
-      {
-        const APL_Integer idx = B1->get_ravel(j).get_near_int();
-        const Cell * cj = &B->get_ravel(idx - qio);
-        const bool new_element = (j == 0) || !last->equal(*cj, qct);
-        if (new_element)
-           {
-             new (Z1->next_ravel()) IntCell(idx);
-             last = cj;
-           }
-      }
-
-   // at this point , B[Z1] is the set of unique elements, but sorted. 
-   // We may need to sort Z1 in order to get the original order.
-   //
-   if (sort_result)
-      {
-         Value_P Z4 = B->index(Z1);
-         return Z4;
-      }
-
-Token Z2_tok = Bif_F12_SORT::sort(Z1, SORT_ASCENDING);
-   Assert(Z2_tok.get_Class() == TC_VALUE);
-Value_P Z2 = Z2_tok.get_apl_val();
-
-Value_P Z3 = Z1->index(Z2);
-Value_P Z4 = B->index(Z3);
-
-   Z4->check_value(LOC);
-   return Z4;
-}
-//-----------------------------------------------------------------------------
-Value_P
-Bif_UNION_INTER::do_unique_iso(Value_P B)
-{
 const APL_Float qct = Workspace::get_CT();
 const ShapeItem len_B = B->element_count();
 
@@ -3023,7 +2825,7 @@ ShapeItem len_Z = 0;
 Value_P Z(len_Z, LOC);
    loop(z, len_Z)   Z->next_ravel()->init(*(items_Z[z]), Z.getref(), LOC);
    Z->check_value(LOC);
-   return Z;
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -3032,97 +2834,22 @@ Bif_F2_INTER::eval_AB(Value_P A, Value_P B)
    if (A->get_rank() > 1)   RANK_ERROR;
    if (B->get_rank() > 1)   RANK_ERROR;
 
-   // NOTE: A ∩ B is not defined in lrm or ISO, but in dyalog APL p. 369:
-   // "A∩B returns a vector containing the items of A that also appear in B."
-   // According to that definition, A∩B ≠ B∩A in general. We take the freedom
-   // to sort (and remove duplicate) elements in A or B, which makes matters
-   // symmetric and speeds up the execution time from O(N²) to O(N log N).
+   // A ∩ B ←→ (A∈B)/A
    //
-   // That does not work if complex numbers (which cannot be sorted) occur in
-   // A or B. In that case we fall back to an ISO compatible N² algorithm
-
-const int cell_types = A->flat_cell_types() | B->flat_cell_types();
-   if (cell_types & CT_COMPLEX)
-      {
-        // A or B contain complex numbers: cannot sort
-        //
-        return inter_iso(&A->get_ravel(0), A->nz_element_count(),
-                         &B->get_ravel(0), B->nz_element_count());
-      }
-
-Value_P unique_A = do_unique(A, true);
-Value_P unique_B = do_unique(B, true);
-
-   // count equal elements
-   //
-ShapeItem eq_count = 0;
-const Cell * cA = &unique_A->get_ravel(0);
-const Cell * cB = &unique_B->get_ravel(0);
-const Cell * endA = cA + unique_A->element_count();
-const Cell * endB = cB + unique_B->element_count();
-
-   while (cA < endA && cB < endB)   // both have elements
-       {
-         const Comp_result comp = cA->compare(*cB);
-         if      (comp == COMP_LT)   ++cA;    // cA < cB: advance cA
-         else if (comp == COMP_GT)   ++cB;    // cA > cB: advance cB
-         else                                 // cA == cB
-            {
-              ++cA;
-              ++cB;
-              ++eq_count;
-            }
-       }
-
-Value_P Z(eq_count, LOC);
-   cA = &unique_A->get_ravel(0);
-   cB = &unique_B->get_ravel(0);
-   while (cA < endA && cB < endB)   // both have elements
-       {
-         const Comp_result comp = cA->compare(*cB);
-         if      (comp == COMP_LT)   ++cA;
-         else if (comp == COMP_GT)   ++cB;
-         else                             
-            {
-              Z->next_ravel()->init(*cA++, Z.getref(), LOC);
-              ++cB;
-            }
-       }
-
-   Z->set_default(*B.get());
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+Token AinB = Bif_F12_ELEMENT::fun->eval_AB(A, B);
+   return Bif_OPER1_REDUCE::fun->eval_AB(AinB.get_apl_val(), A);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_F2_INTER::inter_iso(const Cell * cA, ShapeItem len_A,
-                        const Cell * cB, ShapeItem len_B)
+Bif_F12_UNION::eval_AB(Value_P A, Value_P B)
 {
-const APL_Float qct = Workspace::get_CT();
+   if (A->get_rank() > 1)   RANK_ERROR;
+   if (B->get_rank() > 1)   RANK_ERROR;
 
-DynArray(const Cell *, items_Z, len_A + len_B);
-ShapeItem len_Z = 0;
-
-   loop(a, len_A)
-       {
-         const Cell & cell = cA[a];
-        if (!is_unique(cell, items_Z.get_data(), len_Z, qct))   continue;
-        loop(b, len_B)
-            {
-              if (cell.equal(cB[b], qct))
-                 {
-                   items_Z[len_Z++] = &cell;
-                   break;
-                 }
-            }
-       }
-
-   // build result value Z
+   // A ∪ B ←→ A,B∼A
    //
-Value_P Z(len_Z, LOC);
-   loop(z, len_Z)   Z->next_ravel()->init(*(items_Z[z]), Z.getref(), LOC);
-   Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, Z);
+Token BwoA = Bif_F12_WITHOUT::fun->eval_AB(B, A);
+   return Bif_F12_COMMA::fun->eval_AB(A, BwoA.get_apl_val());
 }
 //=============================================================================
 

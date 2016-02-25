@@ -592,7 +592,7 @@ The following example may explain the problem:
 0.5
 @end verbatim
 
-In (i) and (ii) \ is an operator thanks to ÷ left of it while in (iii) \ is
+In (i) and (ii) / is an operator thanks to ÷ left of it while in (iii) / is
 a function bound to operator \.
 
 Both (ii) and (iii) are valid interpretations if (i). The ISO standard

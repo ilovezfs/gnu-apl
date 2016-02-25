@@ -639,14 +639,14 @@ public:
    static Bif_F12_WITHOUT * fun;     ///< Built-in function.
    static Bif_F12_WITHOUT  _fun;     ///< Built-in function.
 
+   /// Compute A without B.
+   /// overloaded Function::eval_AB().
+   virtual Token eval_AB(Value_P A, Value_P B);
+
 protected:
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B)
       { return eval_scalar_B(B, &Cell::bif_not); }
-
-   /// Compute A without B.
-   /// overloaded Function::eval_AB().
-   virtual Token eval_AB(Value_P A, Value_P B);
 
    /// overloaded Function::get_scalar_f2
    virtual prim_f2 get_scalar_f2() const

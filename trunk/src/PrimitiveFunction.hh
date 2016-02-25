@@ -715,73 +715,54 @@ public:
 protected:
 };
 //-----------------------------------------------------------------------------
-/// base class for Bif_F12_UNION and Bif_F2_INTER
-class Bif_UNION_INTER : public NonscalarFunction
-{
-public:
-   /// constructor
-   Bif_UNION_INTER(TokenTag tag)
-   : NonscalarFunction(tag)
-   {}
-
-protected:
-   /// return unique elements in B (sorted or not)
-   Value_P do_unique(Value_P B, bool sorted);
-
-   /// return unique elements in B as specified in ISO (runtime O(n×n))
-   static Value_P do_unique_iso(Value_P B);
-
-   /// return \b true iff \b cell is different from all \b others within \b qct
-   static bool is_unique(const Cell & cell, const Cell ** others,
-                         ShapeItem len, APL_Float qct);
-};
-//-----------------------------------------------------------------------------
-/** System function unique
+/** System function ∪ (unique/union)
  */
-class Bif_F12_UNION : public Bif_UNION_INTER
+class Bif_F12_UNION : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F12_UNION()
-   : Bif_UNION_INTER(TOK_F12_UNION)
+   : NonscalarFunction(TOK_F12_UNION)
    {}
 
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
    /// overloaded Function::eval_B()
-   virtual Token eval_B(Value_P B)
-      { return Token(TOK_APL_VALUE1, do_unique(B, false)); }
+   virtual Token eval_B(Value_P B);
 
-   /// Built-in function
+   /// pointer to _fun
    static Bif_F12_UNION * fun;
+
    /// Built-in function
    static Bif_F12_UNION  _fun;
 
 protected:
-   Token union_iso(const Cell * cA, ShapeItem len_A,
-                   const Cell * cB, ShapeItem len_B);
+   /// return \b true iff \b cell is different from all \b others within \b qct
+   static bool is_unique(const Cell & cell, const Cell ** others,
+                         ShapeItem len, APL_Float qct)
+      { loop(z, len) { if (others[z]->equal(cell, qct))   return false; }
+        return true;
+      }
 };
 //-----------------------------------------------------------------------------
-/** System function intersection
+/** System function ∩ (intersection)
  */
-class Bif_F2_INTER : public Bif_UNION_INTER
+class Bif_F2_INTER : public NonscalarFunction
 {
 public:
    /// Constructor
    Bif_F2_INTER()
-   : Bif_UNION_INTER(TOK_F2_INTER)
+   : NonscalarFunction(TOK_F2_INTER)
    {}
 
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B);
 
-   static Bif_F2_INTER * fun;   ///< Built-in function
    static Bif_F2_INTER  _fun;   ///< Built-in function
+   static Bif_F2_INTER * fun;   ///< pointer to _fun
 
 protected:
-   Token inter_iso(const Cell * cA, ShapeItem len_A,
-                   const Cell * cB, ShapeItem len_B);
 };
 //-----------------------------------------------------------------------------
 /** System function left (⊣)
