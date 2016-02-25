@@ -169,6 +169,12 @@ TokenClass next = body[pc].get_Class();
         return true;
       }
 
+   // dyadic operator with numeric function argument, for example:  ⍤ 0 
+   //
+   if (next == TC_VALUE       &&
+       pc < (body.size() - 1) &&
+       body[pc+1].get_Class() == TC_OPER2)   return false;
+
    return true;
 }
 //-----------------------------------------------------------------------------
