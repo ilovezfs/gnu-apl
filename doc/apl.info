@@ -98,26 +98,34 @@ its name and optional command line parameters, for example:
 
    $ apl —id 1001
 
-   APL is script-able; a text file whose first line looks like this
-(assuming the APL interpreter binary is called apl and can be found in
-the shell’s PATH):
+   GNU APL is script-able; a text file whose first line looks like this
+(assuming the APL interpreter binary is called ’apl’ and is located in
+the current directory):
 
    #!  apl
 
-   or (if the APL interpreter binary is /mypath/apl but not necessarily
-in the shell’s PATH):
+   or (if the APL interpreter binary is not in the current directory but
+in /mypath/apl):
 
    #!  /mypath/apl
+
+   The path to the ’apl’ binary can be missing (like in the first
+example), relative, or absolute (second example).  The exact details of
+how the first line of a GNU APL script shall look like varies slightly
+among operating systems.  Please consult the info (or man) pages for
+’path_resolution’ and/or ’execve’ on your operating system.  After the
+the name of the binary, optional GNU APL command line options, usually
+–script, can be provided.
 
    The text file must, of course, have execute permission, and should be
 ASCII or, more likely, UTF-8 encoded.  The APL characters in the script
 shall be those defined in the Unicode character set (most of them in the
-0x2200 - 0x23FF range).
+U+2200 - U+23FF range).
 
 1.3 Command Line Options
 ========================
 
-APL understands the following command line options:
+GNU APL understands the following command line options:
 
    • ‘--cfg’
 
@@ -2851,16 +2859,16 @@ please read <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 Tag Table:
 Node: Top383
 Node: Chapter 11404
-Node: Chapter 216473
-Node: Chapter 320742
-Node: Chapter 454168
-Node: Chapter 555916
-Node: Chapter 657045
-Node: Section 6.157464
-Node: Section 6.258151
-Node: Chapter 758982
-Node: Section 7.159485
-Node: Section 7.284794
+Node: Chapter 216943
+Node: Chapter 321212
+Node: Chapter 454638
+Node: Chapter 556386
+Node: Chapter 657515
+Node: Section 6.157934
+Node: Section 6.258621
+Node: Chapter 759452
+Node: Section 7.159955
+Node: Section 7.285264
 
 End Tag Table
 

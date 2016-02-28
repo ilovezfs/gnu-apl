@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Shape.hh"
+
 #include "Value.icc"
 
 //-----------------------------------------------------------------------------
@@ -31,8 +33,9 @@ class IndexIterator
 {
 public:
    /// constructor: IndexIterator with weight w
-   IndexIterator(ShapeItem w)
+   IndexIterator(ShapeItem w, ShapeItem cnt)
    : weight(w),
+     count(cnt),
      upper(0),
      pos(0)
    {}
@@ -43,10 +46,7 @@ public:
    void increment();
 
    /// true iff this operator has reached the end of the Array cross section.
-   bool done() const   { return pos == get_index_count(); }
-
-   /// return the number of indices
-   virtual ShapeItem get_index_count() const = 0;
+   bool done() const   { return pos == count; }
 
    /// return the current index
    virtual ShapeItem get_value() const = 0;
@@ -63,9 +63,15 @@ public:
    /// set the next higher IndexIterator
    void set_upper(IndexIterator * up)   { Assert(upper == 0);   upper = up; };
 
+   /// get the number of indices.
+   ShapeItem get_index_count() const   { return count; }
+
 protected:
    /// the weight of this IndexIterator
    const ShapeItem weight;
+
+   /// number of index elements
+   const ShapeItem count;
 
    /// The next higher iterator.
    IndexIterator * upper;
@@ -80,23 +86,15 @@ class ElidedIndexIterator : public IndexIterator
 public:
    /// constructor
    ElidedIndexIterator(ShapeItem w, ShapeItem sh)
-   : IndexIterator(w),
-     count(sh)
+   : IndexIterator(w, sh)
    {}
 
    /// get the current index.
-   virtual ShapeItem get_value() const { return pos*weight; }
+   virtual ShapeItem get_value() const { return pos * weight; }
 
    /// get the index i.
    virtual ShapeItem get_pos(ShapeItem i) const
       { Assert(i < count);   return i; }
-
-   /// get the number of indices.
-   virtual ShapeItem get_index_count() const   { return count; }
-
-protected:
-   /// number of index elements
-   ShapeItem count;
 };
 //-----------------------------------------------------------------------------
 /// an IndexIterator for a true (i.e. non-elided) index vector
@@ -107,21 +105,21 @@ public:
    TrueIndexIterator(ShapeItem w, Value_P value,
                      uint32_t qio, ShapeItem max_idx);
 
+   /// destructor
+   ~TrueIndexIterator()
+      { delete indices; }
+
    /// return the current index
    virtual ShapeItem get_value() const
-      { Assert(pos < indices.size());   return indices[pos]; }
+      { Assert(pos < count);   return indices[pos]; }
 
    /// return the i'th index
    virtual ShapeItem get_pos(ShapeItem i) const
-      { Assert(i < indices.size());   return indices[i]; }
-
-   /// return the number of indices
-   virtual ShapeItem get_index_count() const
-      { return indices.size(); }
+      { Assert(i < count);   return indices[i]; }
 
 protected:
    /// the indices
-   vector<ShapeItem> indices;
+   ShapeItem * indices;
 };
 //-----------------------------------------------------------------------------
 /**

@@ -240,25 +240,33 @@ name and optional command line parameters, for example:
 </p>
 <p>$ apl &mdash;id 1001
 </p>
-<p>APL is script-able; a text file whose first line looks like this (assuming the
-APL interpreter binary is called apl and can be found in the shell&rsquo;s PATH):
+<p>GNU APL is script-able; a text file whose first line looks like this (assuming
+the APL interpreter binary is called &rsquo;apl&rsquo; and is located in the current
+directory):
 </p>
 <p>#! apl 
 </p>
-<p>or (if the APL interpreter binary is /mypath/apl but not necessarily
-in the shell&rsquo;s PATH):
+<p>or (if the APL interpreter binary is not in the current directory but in
+/mypath/apl):
 </p>
 <p>#! /mypath/apl
+</p>
+<p>The path to the &rsquo;apl&rsquo; binary can be missing (like in the first example),
+relative, or absolute (second example). The exact details of how the first
+line of a GNU APL script shall look like varies slightly among operating
+systems. Please consult the info (or man) pages for &rsquo;path_resolution&rsquo; and/or
+&rsquo;execve&rsquo; on your operating system. After the the name of the binary, optional
+GNU APL command line options, usually &ndash;script, can be provided.
 </p>
 <p>The text file must, of course, have execute permission, and should be ASCII
 or, more likely, UTF-8 encoded. The APL characters in the script
 shall be those defined in the Unicode character set (most of them in the
-0x2200 - 0x23FF range).
+U+2200 - U+23FF range).
 </p>
 <a name="Command-Line-Options"></a>
 <h3 class="section">1.3 Command Line Options</h3>
 
-<p>APL understands the following command line options:
+<p>GNU APL understands the following command line options:
 </p>
 <ul>
 <li> <samp>--cfg</samp>

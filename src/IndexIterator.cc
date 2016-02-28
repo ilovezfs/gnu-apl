@@ -60,15 +60,13 @@ IndexIterator::print(ostream & out) const
 //=============================================================================
 TrueIndexIterator::TrueIndexIterator(ShapeItem w, Value_P value,
                                      uint32_t qio, ShapeItem max_idx)
-   : IndexIterator(w)
+   : IndexIterator(w, value->element_count())
 {
 // CERR << "TrueIndexIterator(w=" << w << ", value=" << *value
 //      << ", max=" << max_idx << ")" << endl;
 
-const ShapeItem vlen = value->element_count();
-
-   indices.reserve(vlen);
-   loop(v, vlen)
+   indices = new ShapeItem[count];
+   loop(v, count)
       {
         const ShapeItem idx = value->get_ravel(v).get_near_int() - qio;
 
@@ -76,7 +74,7 @@ const ShapeItem vlen = value->element_count();
         //
         if (idx >= max_idx)   INDEX_ERROR;
 
-        indices.push_back(idx*w);
+        indices[v] = idx * w;
       }
 }
 //=============================================================================
