@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ public:
      volume(height*rows*cols)
    { rho[0] = height;   rho[1] = rows;   rho[2] = cols; }
 
-   /// constructor: any shape
+   /// constructor: arbitrary shape
    Shape(Rank rk, const ShapeItem * sh)
    : rho_rho(0),
      volume(1)

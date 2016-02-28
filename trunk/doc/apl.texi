@@ -130,24 +130,32 @@ or:
 
 $ apl ---id 1001
 
-APL is script-able; a text file whose first line looks like this (assuming the
-APL interpreter binary is called apl and can be found in the shell's PATH):
+GNU APL is script-able; a text file whose first line looks like this (assuming
+the APL interpreter binary is called 'apl' and is located in the current
+directory):
 
 #! apl 
 
-or (if the APL interpreter binary is /mypath/apl but not necessarily
-in the shell's PATH):
+or (if the APL interpreter binary is not in the current directory but in
+/mypath/apl):
 
 #! /mypath/apl
+
+The path to the 'apl' binary can be missing (like in the first example),
+relative, or absolute (second example). The exact details of how the first
+line of a GNU APL script shall look like varies slightly among operating
+systems. Please consult the info (or man) pages for 'path_resolution' and/or
+'execve' on your operating system. After the the name of the binary, optional
+GNU APL command line options, usually --script, can be provided.
 
 The text file must, of course, have execute permission, and should be ASCII
 or, more likely, UTF-8 encoded. The APL characters in the script
 shall be those defined in the Unicode character set (most of them in the
-0x2200 - 0x23FF range).
+U+2200 - U+23FF range).
 
 @section Command Line Options
 
-APL understands the following command line options:
+GNU APL understands the following command line options:
 
 @itemize @bullet
 @item
