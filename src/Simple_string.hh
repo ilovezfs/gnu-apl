@@ -155,14 +155,14 @@ public:
    /// append character \b t to \b this string
    void append(const T & t)
       {
-        if (items_valid >= items_allocated)   extend();
+        if (items_valid - items_allocated >= 0)   extend();
         copy_1(items[items_valid++], t, LOC);
       }
 
    /// append character \b t to \b this string
    void append(const T & t, const char * loc)
       {
-        if (items_valid >= items_allocated)   extend();
+        if (items_valid - items_allocated >= 0)   extend();
         copy_1(items[items_valid++], t, loc);
       }
 
