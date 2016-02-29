@@ -2809,6 +2809,7 @@ Bif_F12_UNION::eval_B(Value_P B)
 
 const APL_Float qct = Workspace::get_CT();
 const ShapeItem len_B = B->element_count();
+   if (len_B <= 1)   return Token(TOK_APL_VALUE1, B->clone(LOC));
 
 DynArray(const Cell *, items_Z, len_B);
 ShapeItem len_Z = 0;
