@@ -1672,12 +1672,6 @@ Value_P Z(LOC);
       {
         Z->next_ravel()->init(B->get_ravel(0), Z.getref(), LOC);
       }
-   else if (B->is_scalar())     // ⊂ ⊂ 5 is ⊂ 5
-      {
-        if (!B->get_ravel(0).is_pointer_cell())   DOMAIN_ERROR;
-        new (Z->next_ravel()) PointerCell(B->get_ravel(0).get_pointer_value(),
-                                          Z.getref());
-      }
    else
       {
         new (Z->next_ravel()) PointerCell(B->clone(LOC), Z.getref());
