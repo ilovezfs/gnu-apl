@@ -34,8 +34,8 @@ DUMPED ³
       ⍝
       FIO∆fclose Handle
 DOMAIN ERROR
-FIO∆fclose[2]  Ze←FILE_IO[4]Bh
-                  ^         ^
+FIO∆fclose[2]  Ze←⎕FIO[4]Bh
+                  ^      ^
       →
 
       ⍝ create new file
