@@ -136,7 +136,7 @@ Value_P Z;
       }
    else
       {
-        A->print_boxed(CERR, "left argument of ⍕: ");
+        Workspace::more_error() = UCS_string("Bad left argument of ⍕");
         DOMAIN_ERROR;
       }
 
