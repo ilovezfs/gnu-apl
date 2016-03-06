@@ -42,7 +42,7 @@ SymbolTable::lookup_symbol(const UCS_string & sym_name)
 {
    if (Avec::is_quad(sym_name[0]))   // should not be called for ⎕xx
       {
-        CERR << "Symbol is: '" << sym_name << endl;
+        CERR << "Symbol is: '" << sym_name << "' at " << LOC << endl;
         FIXME;
       }
 

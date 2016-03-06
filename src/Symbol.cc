@@ -322,7 +322,7 @@ Symbol::pop()
 {
    if (value_stack.size() == 0)
       {
-       CERR << "Symbol is: '" << get_name() << "'" << endl;
+       CERR << "Symbol is: '" << get_name() << "' at " << LOC << endl;
         Assert(0 && LOC);
       }
 
@@ -672,7 +672,7 @@ Symbol::resolve(Token & tok, bool left_sym)
              return;
 
         default:
-             CERR << "Symbol is '" << get_name() << "'" << endl;
+             CERR << "Symbol is '" << get_name() << "' at " << LOC << endl;
              SYNTAX_ERROR;
       }
 }
