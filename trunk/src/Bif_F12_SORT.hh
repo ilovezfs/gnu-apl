@@ -131,7 +131,10 @@ public:
 
    /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
-      { return sort(B, SORT_ASCENDING); }
+      { Token ret = sort(B, SORT_ASCENDING);
+        if (ret.get_Class() == TC_VALUE)   return ret;
+        DOMAIN_ERROR;   // complex value(s)
+      }
 
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
@@ -154,7 +157,10 @@ public:
 
    /// overloaded Function::eval_B()
    virtual Token eval_B(Value_P B)
-      { return sort(B, SORT_DESCENDING); }
+      { Token ret = sort(B, SORT_DESCENDING);
+        if (ret.get_Class() == TC_VALUE)   return ret;
+        DOMAIN_ERROR;   // complex value(s)
+      }
 
    /// overloaded Function::eval_AB()
    virtual Token eval_AB(Value_P A, Value_P B)
