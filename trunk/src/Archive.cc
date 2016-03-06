@@ -2203,7 +2203,10 @@ const TokenTag tag = TokenTag(find_int_attr("tag", false, 16));
                while (*end != '"')   ++end;
                UTF8_string name_utf(sym_name, end - sym_name);
                UCS_string name_ucs(name_utf);
-               Symbol * symbol = Workspace::lookup_symbol(name_ucs);
+
+               Symbol * symbol = Avec::is_quad(name_ucs[0])
+                               ? Workspace::lookup_existing_symbol(name_ucs)
+                               : Workspace::lookup_symbol(name_ucs);
                new (&tloc.tok) Token(tag, symbol);
              }
              break;
