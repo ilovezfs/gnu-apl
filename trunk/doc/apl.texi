@@ -1486,7 +1486,7 @@ multiple statements, guards, lexical scoping, and probably more.
 
 @section Axis argument in user-defined functions
 
-User-defined functions and operators )including lambdas) accept an axis
+User-defined functions and operators (including lambdas) accept an axis
 argument. For example:
 
 @verbatim

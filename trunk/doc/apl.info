@@ -1405,7 +1405,7 @@ more.
 3.13 Axis argument in user-defined functions
 ============================================
 
-User-defined functions and operators )including lambdas) accept an axis
+User-defined functions and operators (including lambdas) accept an axis
 argument.  For example:
 
 
