@@ -182,7 +182,8 @@ bool log_startup = false;
    for (size_t a = 1; a < expanded_argv.size(); )
        {
          const char * opt = expanded_argv[a++];
-         const char * val = (a < expanded_argv.size()) ? expanded_argv[a] : 0;
+         const char * val = (a < expanded_argv.size() - 1)
+                          ? expanded_argv[a] : 0;
 
          if (!strcmp(opt, "-l"))
             {
@@ -296,8 +297,9 @@ UserPreferences::parse_argv_2(bool logit)
                    CERR << "-f without argument" << endl;
                    exit(a);
                  }
-              InputFile fam(UTF8_string(val), 0, false,
-                                        !do_not_echo, true, no_LX);
+
+              const UTF8_string & filename(val);
+              InputFile fam(filename, 0, false, !do_not_echo, true, no_LX);
               InputFile::files_todo.push_back(fam);
               continue;
             }
@@ -520,8 +522,8 @@ UserPreferences::parse_argv_2(bool logit)
                          break;           // inner for
 
                        }
-                    InputFile fam(UTF8_string(expanded_argv[a]), 0, true,
-                                          true, false, no_LX);
+                    const UTF8_string & filename = expanded_argv[a];
+                    InputFile fam(filename, 0, true, true, false, no_LX);
                     InputFile::files_todo.push_back(fam);
                   }
 
@@ -595,10 +597,9 @@ UserPreferences::parse_argv_2(bool logit)
    // if running from a script then make the script the first input file
    if (script_argc != 0)
       {
-        InputFile fam(UTF8_string(expanded_argv[script_argc]), 0,
-                                        false, !do_not_echo, true, no_LX);
+        const UTF8_string & filename = expanded_argv[script_argc];
+        InputFile fam(filename, 0, false, !do_not_echo, true, no_LX);
         InputFile::files_todo.insert(InputFile::files_todo.begin(), fam);
-
       }
 
    // count number of testfiles
