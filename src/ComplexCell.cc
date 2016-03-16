@@ -469,22 +469,19 @@ const APL_Float ai = A->get_imag_value();
 ErrorCode
 ComplexCell::bif_logarithm(Cell * Z, const Cell * A) const
 {
-   if (is_near_zero())     return E_DOMAIN_ERROR;
+   if (value.cval_r == 0.0 && value2.cval_i == 0.0)   return E_DOMAIN_ERROR;
 
    if (A->is_real_cell())
       {
-        new (Z) ComplexCell(log(cval()) / log(A->get_real_value()));
-      }
-   else if (A->is_complex_cell())
-      {
-        new (Z) ComplexCell(log(cval()) / log(A->get_complex_value()));
-      }
-   else
-      {
-        return E_DOMAIN_ERROR;
+        return zv(Z, log(cval()) / log(A->get_real_value()));
       }
 
-   return E_NO_ERROR;
+   if (A->is_complex_cell())
+      {
+        return zv(Z, log(cval()) / log(A->get_complex_value()));
+      }
+
+   return E_DOMAIN_ERROR;
 }
 //-----------------------------------------------------------------------------
 ErrorCode

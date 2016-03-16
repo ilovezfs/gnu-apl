@@ -450,20 +450,18 @@ IntCell::bif_exponential(Cell * Z) const
 ErrorCode
 IntCell::bif_nat_log(Cell * Z) const
 {
+   if (value.ival == 0)     return E_DOMAIN_ERROR;
+
    if (value.ival > 0)
       {
         new (Z) FloatCell(log((APL_Float)value.ival));
       }
-   else if (value.ival < 0)
-      {
-        const APL_Float real = log(-((APL_Float)value.ival));
-        const APL_Float imag = M_PI;   // argz(-1)
-        new (Z) ComplexCell(real, imag);
-      }
    else
       {
-        return E_DOMAIN_ERROR;
+        const APL_Complex bb(value.ival, 0);
+        new (Z) ComplexCell(log(bb));
       }
+
    return E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
