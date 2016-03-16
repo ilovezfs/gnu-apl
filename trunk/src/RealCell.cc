@@ -31,8 +31,8 @@
 ErrorCode
 RealCell::bif_logarithm(Cell * Z, const Cell * A) const
 {
-   if (!A->is_numeric())   return E_DOMAIN_ERROR;
-   if (is_near_zero())     return E_DOMAIN_ERROR;
+   if (!A->is_numeric())          return E_DOMAIN_ERROR;
+   if (get_real_value() == 0.0)   return E_DOMAIN_ERROR;
 
    // A⍟B is defined as: (⍟B)÷(⍟A)
    // if A=1 then ⍟A is 0 which causes division by 0 unless ⍟B is 0 as well.
@@ -49,14 +49,18 @@ RealCell::bif_logarithm(Cell * Z, const Cell * A) const
 
    if (A->is_real_cell())
       {
-        new (Z) FloatCell(log(get_real_value()) / log(A->get_real_value()));
-        return E_NO_ERROR;
+        if (get_real_value() < 0)
+           return ComplexCell::zv(Z,
+               log(get_complex_value()) / log(A->get_complex_value()));
+
+        return FloatCell::zv(Z,
+               log(get_real_value()) / log(A->get_real_value()));
       }
 
    if (A->is_complex_cell())
       {
-        new (Z) ComplexCell(log(get_real_value()) / log(A->get_complex_value()));
-        return E_NO_ERROR;
+        return ComplexCell::zv(Z,
+               log(get_complex_value()) / log(A->get_complex_value()));
       }
 
    return E_DOMAIN_ERROR;
