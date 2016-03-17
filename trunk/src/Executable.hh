@@ -159,8 +159,7 @@ protected:
 
    /// parse the body line number \b line of \b this function
    ErrorCode parse_body_line(Function_Line line, const UCS_string & ucs,
-                             bool trace, bool tolerant, Token & single_value,
-                             const char * loc);
+                             bool trace, bool tolerant, const char * loc);
 
    /// parse the body line number \b line of \b this function
    ErrorCode parse_body_line(Function_Line line, const Token_string & tos,
@@ -190,8 +189,7 @@ class ExecuteList : public Executable
 
 public:
    /// compute body token from text \b data
-   static ExecuteList * fix(const UCS_string & data, Token & single_value,
-                            const char * loc);
+   static ExecuteList * fix(const UCS_string & data, const char * loc);
 
    /// overloaded Executable::get_parse_mode()
    virtual ParseMode get_parse_mode() const
