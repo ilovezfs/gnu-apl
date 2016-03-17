@@ -2819,13 +2819,8 @@ Bif_F1_EXECUTE::execute_statement(UCS_string & statement)
         return Token(TOK_APL_VALUE1, Z);
       }
 
-Token constant;
-ExecuteList * fun = ExecuteList::fix(statement.no_pad(), constant, LOC);
-   if (fun == 0)
-      {
-         if (constant.get_tag() == TOK_APL_VALUE1)   return constant;
-         SYNTAX_ERROR;
-      }
+ExecuteList * fun = ExecuteList::fix(statement.no_pad(), LOC);
+   if (fun == 0)   SYNTAX_ERROR;
 
    Log(LOG_UserFunction__execute)   fun->print(CERR);
 

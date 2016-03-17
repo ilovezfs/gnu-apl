@@ -137,8 +137,7 @@ Executable::clear_lambdas()
 //-----------------------------------------------------------------------------
 ErrorCode
 Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
-                            bool trace, bool tolerant, Token & single_value,
-                            const char * loc)
+                            bool trace, bool tolerant, const char * loc)
 {
    Log(LOG_UserFunction__set_line)
       CERR << "[" << line << "]" << ucs_line << endl;
@@ -157,18 +156,6 @@ ErrorCode ec = parser.parse(ucs_line, in);
            }
 
         if (ec != E_NO_ERROR)   throw_parse_error(ec, LOC, LOC);
-      }
-
-   // special case: execute with single value
-   //
-   if (in.size() == 1                 &&
-       get_parse_mode() == PM_EXECUTE &&
-       in[0].get_Class() == TC_VALUE
-      )
-      {
-        move_1(single_value, in[0], LOC);
-        single_value.ChangeTag(TOK_APL_VALUE1);
-        return E_NO_ERROR;
       }
 
    return parse_body_line(line, in, trace, tolerant, loc);
@@ -800,8 +787,7 @@ Token * t2 = &tos[tos.size() - 1];
 }
 //=============================================================================
 ExecuteList *
-ExecuteList::fix(const UCS_string & data, Token & single_value,
-                 const char * loc)
+ExecuteList::fix(const UCS_string & data, const char * loc)
 {
    // clear errors that may have occured before
    {
@@ -836,9 +822,7 @@ ExecuteList * fun = new ExecuteList(data, loc);
 
    try
       {
-        fun->parse_body_line(Function_Line_0, data, false, false,
-                             single_value, loc);
-        if (single_value.get_tag() == TOK_APL_VALUE1)   return 0;
+        fun->parse_body_line(Function_Line_0, data, false, false, loc);
       }
    catch (Error err)
       {
@@ -879,8 +863,7 @@ StatementList * fun = new StatementList(data, loc);
      if (err)   err->parser_loc = 0;
    }
 
-Token not_used;
-   fun->parse_body_line(Function_Line_0, data, false, false, not_used, loc);
+   fun->parse_body_line(Function_Line_0, data, false, false, loc);
    fun->setup_lambdas();
 
    Log(LOG_UserFunction__fix)

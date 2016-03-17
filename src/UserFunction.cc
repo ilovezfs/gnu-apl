@@ -1049,9 +1049,8 @@ UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
            }
 
         const UCS_string & line = get_text(l);
-        Token not_used;
         ErrorCode ec = parse_body_line(Function_Line(l), line, trace_line,
-                                       tolerant, not_used, loc);
+                                       tolerant, loc);
 
         if (tolerant && ec != E_NO_ERROR)
            {

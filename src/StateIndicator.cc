@@ -572,7 +572,8 @@ StateIndicator::move_eoc_handler(EOC_HANDLER handler, EOC_arg * old_arg,
    Log(LOG_EOC_handlers)
       {
          CERR << "SI[" << level << "] move_eoc_handler(" << eoc_handlers
-              << " from " << eoc_handlers->loc
+              << " from "
+              << (eoc_handlers->loc ? "?? null ??" : eoc_handlers->loc)
               << " to " << loc << ")" << endl;
       }
 

@@ -238,20 +238,17 @@ Quad_EA::eval_AB(Value_P A, Value_P B)
 {
 ExecuteList * fun = 0;
 const UCS_string statement_B(*B.get());
-Token constant;
 
    try
       {
-        fun = ExecuteList::fix(statement_B, constant, LOC);
+        fun = ExecuteList::fix(statement_B, LOC);
       }
    catch (...)
       {
       }
 
-   if (fun == 0)   // ExecuteList::fix() failed, or constant value parsed
+   if (fun == 0)   // ExecuteList::fix() failed
       {
-        if (constant.get_tag() == TOK_APL_VALUE1)   return constant;
-
         // syntax error in B: try to fix A. This will reset ⎕EM and ⎕ET even
         // though we whould keep them (lrm p. 178). Therefore we save the error
         // info from fixing B
@@ -260,7 +257,7 @@ Token constant;
         try
            {
              const UCS_string statement_A(*A.get());
-             fun = ExecuteList::fix(statement_A, constant, LOC);
+             fun = ExecuteList::fix(statement_A, LOC);
            }
        catch (...)
            {
@@ -268,7 +265,6 @@ Token constant;
 
         if (fun == 0)
            {
-             if (constant.get_tag() == TOK_APL_VALUE1)   return constant;
              SYNTAX_ERROR;   // syntax error in A and B: give up.
           }
 
@@ -341,7 +337,7 @@ const UCS_string statement_A(*arg->A.get());
 ExecuteList * fun = 0;
    try
       {
-        fun = ExecuteList::fix(statement_A, token, LOC);
+        fun = ExecuteList::fix(statement_A, LOC);
       }
    catch (...)
       {
@@ -465,11 +461,10 @@ Quad_EC::eval_B(Value_P B)
 const UCS_string statement_B(*B.get());
 
 ExecuteList * fun = 0;
-Token constant;
 
    try
       {
-        fun = ExecuteList::fix(statement_B, constant, LOC);
+        fun = ExecuteList::fix(statement_B, LOC);
       }
    catch (...)
       {
@@ -477,8 +472,6 @@ Token constant;
 
    if (fun == 0)
       {
-        if (constant.get_tag() == TOK_APL_VALUE1)   return constant;
-
         // syntax error in B
         //
         Value_P Z(3, LOC);
