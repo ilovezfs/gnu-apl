@@ -627,17 +627,17 @@ XML_Saving_Archive ar(outf);
      const YMDhmsu time(now() + 1000000*offset);
      const char * tz_sign = (offset < 0) ? "" : "+";
 
-     out << setfill('0') << time.year  << "-"
-         << setw(2)      << time.month << "-"
-         << setw(2)      << time.day   << "  " 
-         << setw(2)      << time.hour  << ":"
-         << setw(2)      << time.minute << ":"
-         << setw(2)      << time.second << " (GMT"
-         << tz_sign      << offset/3600 << ")"
-         << setfill(' ');
+     ostringstream os;
+     os << setfill('0') << time.year  << "-"
+        << setw(2)      << time.month << "-"
+        << setw(2)      << time.day   << "  " 
+        << setw(2)      << time.hour  << ":"
+        << setw(2)      << time.minute << ":"
+        << setw(2)      << time.second << " (GMT"
+        << tz_sign      << offset/3600 << ")";
 
-     if (name_from_WSID)   out << " " << the_workspace.WS_name;
-     out << endl;
+     if (name_from_WSID)   os << " " << the_workspace.WS_name;
+     out << os.str() << endl;
    }
 }
 //-----------------------------------------------------------------------------
