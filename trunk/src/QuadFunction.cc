@@ -459,6 +459,9 @@ Token
 Quad_EC::eval_B(Value_P B)
 {
 const UCS_string statement_B(*B.get());
+cerr << "=======================================" << endl;
+Q(statement_B)
+Workspace::SI_top()->print_EOC_handlers(CERR, LOC);
 
 ExecuteList * fun = 0;
 
@@ -500,8 +503,10 @@ ExecuteList * fun = 0;
    //
    {
      EOC_arg arg(Value_P(), Value_P(), 0, 0, Value_P());
+     arg.loc = LOC;
 
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
+Workspace::SI_top()->print_EOC_handlers(CERR, LOC);
    }
 
    return Token(TOK_SI_PUSHED);

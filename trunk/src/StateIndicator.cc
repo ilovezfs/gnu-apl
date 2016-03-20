@@ -513,6 +513,22 @@ Value_P * X = current_stack.locate_X();
 }
 //-----------------------------------------------------------------------------
 void
+StateIndicator::print_EOC_handlers(ostream & out, const char * loc) const
+{
+   out << "EOC handlers at " << loc << ":" << endl;
+   for (const StateIndicator * si = this; si; si = si->get_parent())
+       {
+         int count = 0;
+         for (EOC_arg * eoc = si->get_eoc_handlers(); eoc; eoc = eoc->next)
+             {
+               si->indent(out) << "    " << "[" << si->get_level() << "] "
+                   << "EOC handler #" << count << " " << eoc->loc << endl;
+               ++count;
+             }
+       }
+}
+//-----------------------------------------------------------------------------
+void
 StateIndicator::add1_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
                                 const char * loc)
 {
@@ -555,7 +571,7 @@ EOC_arg * ret = eoc_handlers;
    Log(LOG_EOC_handlers)
       {
          CERR << "SI[" << level << "] remove_eoc_handler(" << eoc_handlers
-              << endl;
+              << ") from " << eoc_handlers->loc << endl;
       }
 
    eoc_handlers = 0;
@@ -588,7 +604,7 @@ StateIndicator::call_eoc_handler(Token & token)
 
    Log(LOG_EOC_handlers)
        CERR << "SI[" << level << "] call_eoc_handler(" << eoc_handlers
-            << " from " << eoc_handlers->loc << ")" << endl;
+            << ") from " << eoc_handlers->loc << ")" << endl;
 
 
 const bool goon = eoc_handlers->handler(token);

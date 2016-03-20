@@ -58,6 +58,7 @@ Function * LO = _LO.get_function();
       }
 
 EOC_arg arg(Value_P(), A, LO, 0, B);
+   arg.loc = LOC;
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    _arg.dA = 1;
@@ -133,11 +134,8 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
            {
              // LO was a user defined function
              //
-             if (arg.z)   // subsequent call
-                Workspace::SI_top()->move_eoc_handler(eoc_ALB, &arg, LOC);
-             else           // first call
-                Workspace::SI_top()->add_eoc_handler(eoc_ALB, arg, LOC);
-
+             Workspace::SI_top()->add_eoc_handler(eoc_ALB, arg, LOC);
+             if (arg.z)   delete &arg;
              return result;   // continue in user defined function...
            }
 
@@ -205,6 +203,7 @@ Function * LO = _LO.get_function();
       }
 
 EOC_arg arg(Value_P(), Value_P(), LO, 0, B);
+   arg.loc = LOC;
 EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    if (LO->has_result())   arg.Z = Value_P(B->get_shape(), LOC);
@@ -223,7 +222,7 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
       {
         if (arg.LO->get_fun_valence() == 0)
            {
-             // we alloe niladic functions N so that one can loop over them with
+             // we allow niladic functions N so that one can loop over them with
              // N ¨ 1 2 3 4
              //
              Token result = arg.LO->eval_();
@@ -232,10 +231,8 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   // LO was a user defined function or ⍎
                   //
-                  if (arg.z)   // subsequent call
-                     Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
-                  else           // first call
-                     Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
+                  Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
+                  if (arg.z)   delete &arg;
                   return result;   // continue in user defined function...
                 }
 
@@ -289,10 +286,8 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   // LO was a user defined function or ⍎
                   //
-                  if (arg.z)   // subsequent call
-                     Workspace::SI_top()->move_eoc_handler(eoc_LB, &arg, LOC);
-                  else           // first call
-                     Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
+                  Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
+                  if (arg.z)   delete &arg;
                   return result;   // continue in user defined function...
                 }
 

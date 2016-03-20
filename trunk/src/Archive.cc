@@ -1038,7 +1038,7 @@ XML_Loading_Archive::get_uni()
    if (data > file_end)   return true;   // EOF
 
 int len = 0;
-   current_char = UTF8_string::toUni(data, len);
+   current_char = UTF8_string::toUni(data, len, true);
    data += len;
    if (current_char == 0x0A)   { ++line_no;   line_start = data; }
    return false;
@@ -1435,7 +1435,7 @@ XML_Loading_Archive::read_Cells(Cell * & C, Value & C_owner,
    while (*first <= ' ')   ++first;
 
 int len;
-const Unicode type = UTF8_string::toUni(first, len);
+const Unicode type = UTF8_string::toUni(first, len, true);
 
    switch (type)
       {
@@ -1541,7 +1541,7 @@ XML_Loading_Archive::read_chars(UCS_string & ucs, const UTF8 * & utf)
              }
 
          int len;
-         const Unicode type = UTF8_string::toUni(utf, len);
+         const Unicode type = UTF8_string::toUni(utf, len, true);
 
          if (type == UNI_PAD_U2)   // start of char_mode
             {
@@ -1622,7 +1622,7 @@ Cell * end = C + count;
 
    {
      int len = 0;
-     const Unicode next = UTF8_string::toUni(cells, len);
+     const Unicode next = UTF8_string::toUni(cells, len, true);
      Assert(next == '"');
    }
 
