@@ -154,18 +154,18 @@ UTF8_string::dump_hex(ostream & out, int max_bytes) const
 }
 //-----------------------------------------------------------------------------
 Unicode
-UTF8_string::toUni(const UTF8 * string, int & len)
+UTF8_string::toUni(const UTF8 * string, int & len, bool verbose)
 {
 const uint32_t b0 = *string++;
    if (b0 < 0x80)                  { len = 1;   return Unicode(b0); }
 
 uint32_t bx = b0;   // the "significant" bits in b0
-   if ((b0 & 0xE0) == 0xC0)        { len = 2;   bx &= 0x1F; }
+   if      ((b0 & 0xE0) == 0xC0)   { len = 2;   bx &= 0x1F; }
    else if ((b0 & 0xF0) == 0xE0)   { len = 3;   bx &= 0x0F; }
    else if ((b0 & 0xF8) == 0xF0)   { len = 4;   bx &= 0x0E; }
    else if ((b0 & 0xFC) == 0xF8)   { len = 5;   bx &= 0x0E; }
    else if ((b0 & 0xFE) == 0xFC)   { len = 6;   bx &= 0x0E; }
-   else
+   else if (verbose)
       {
         CERR << "Bad UTF8 sequence: " << HEX(b0);
         loop(j, 6)
@@ -179,6 +179,11 @@ uint32_t bx = b0;   // the "significant" bits in b0
 
         Backtrace::show(__FILE__, __LINE__);
         Assert(0 && "Internal error in UTF8_string::toUni()");
+      }
+   else
+      {
+        len = 0;
+        return Invalid_Unicode;
       }
 
 uint32_t uni = 0;

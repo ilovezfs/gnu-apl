@@ -87,8 +87,8 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
        {
          int len_apl, len_ref;
 
-         const Unicode a = UTF8_string::toUni(apl, len_apl);
-         const Unicode r = UTF8_string::toUni(ref, len_ref);
+         const Unicode a = UTF8_string::toUni(apl, len_apl, true);
+         const Unicode r = UTF8_string::toUni(ref, len_ref, true);
          apl += len_apl;
          ref += len_ref;
 
@@ -137,7 +137,7 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
                    else
                       {
                          int len;
-                         if (UTF8_string::toUni(apl, len) == UNI_OVERBAR)
+                         if (UTF8_string::toUni(apl, len, true) == UNI_OVERBAR)
                             {
                               apl += len;
                               continue;
@@ -154,7 +154,7 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
 
          if (r == UNI_COMMENT)   // maybe ⍝³: optional line
             {
-              const Unicode r1 = UTF8_string::toUni(ref + len_ref, len_ref);
+              Unicode r1 = UTF8_string::toUni(ref + len_ref, len_ref, true);
               return r1 == UNI_PAD_U3;
             }
 

@@ -88,7 +88,7 @@ public:
 
    /// convert the first char in UTF8-encoded string to Unicode, set
    /// setting len to the number of bytes in the UTF8 encoding of the char
-   static Unicode toUni(const UTF8 * string, int & len);
+   static Unicode toUni(const UTF8 * string, int & len, bool verbose);
 
    /// return the next UTF8 encoded char from an input file
    static Unicode getc(istream & in);

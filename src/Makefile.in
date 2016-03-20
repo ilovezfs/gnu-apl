@@ -3119,6 +3119,14 @@ help:
 	@echo "    make update-svar_signals     - remake Svar_signals.hh"
 	@echo ""
 
+%.Po:
+	@mkdir -p `dirname $@`
+	@touch $@
+
+%.Plo:
+	@mkdir -p `dirname $@`
+	@touch $@
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

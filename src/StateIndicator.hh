@@ -154,6 +154,9 @@ public:
    /// change axis arg
    void set_X(Value_P value);
 
+   /// print EOC handlers, starting at \b this SI entry
+   void print_EOC_handlers(ostream & out, const char * loc) const;
+
    /// add an EOC handler
    void add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc);
 
