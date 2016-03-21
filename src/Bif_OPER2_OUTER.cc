@@ -205,10 +205,8 @@ Value_P RO_B;
          {
            // RO was a user defined function
            //
-           if (arg.z)   // subsequent call
-              Workspace::SI_top()->move_eoc_handler(eoc_OUTER, &arg, LOC);
-           else           // first call
-              Workspace::SI_top()->add_eoc_handler(eoc_OUTER, arg, LOC);
+           Workspace::SI_top()->add_eoc_handler(eoc_OUTER, arg, LOC);
+           if (arg.z)   delete &arg;   // subsequent call
 
            return result;   // continue in user defined function...
          }

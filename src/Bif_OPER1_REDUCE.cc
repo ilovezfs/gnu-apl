@@ -315,12 +315,8 @@ prim_f2 scalar_LO = arg.LO->get_scalar_f2();
                    {
                      // LO was a user defined function
                      //
-                     if (first)   // first call
                      Workspace::SI_top()->add_eoc_handler(eoc_REDUCE, arg, LOC);
-                     else         // subsequent call
-                        Workspace::SI_top()->move_eoc_handler(eoc_REDUCE, &arg,
-                                                              LOC);
-
+                     if (!first)   delete &arg;   // subsequent call
                      return result;   // continue in user defined function...
                    }
 

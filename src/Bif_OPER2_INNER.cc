@@ -278,10 +278,8 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
                   }
 
                _arg.how = 1;   // user-defined RO
-               if (first)   // first call
-                  Workspace::SI_top()->add_eoc_handler(eoc_RO, arg, LOC);
-               else           // subsequent call
-                  Workspace::SI_top()->move_eoc_handler(eoc_RO, &arg, LOC);
+               Workspace::SI_top()->add_eoc_handler(eoc_RO, arg, LOC);
+               if (!first)    delete &arg;   // subsequent call
 
                return T1;   // continue in user defined function...
              }
