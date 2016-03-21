@@ -459,9 +459,6 @@ Token
 Quad_EC::eval_B(Value_P B)
 {
 const UCS_string statement_B(*B.get());
-cerr << "=======================================" << endl;
-Q(statement_B)
-Workspace::SI_top()->print_EOC_handlers(CERR, LOC);
 
 ExecuteList * fun = 0;
 
@@ -506,7 +503,6 @@ ExecuteList * fun = 0;
      arg.loc = LOC;
 
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
-Workspace::SI_top()->print_EOC_handlers(CERR, LOC);
    }
 
    return Token(TOK_SI_PUSHED);
@@ -815,7 +811,7 @@ Value_P Z(1000, LOC);
    loop(z, Z->element_count())   new (Z->next_ravel())   IntCell(0);
    Z->check_value(LOC);
 
-EOC_arg * arg = new EOC_arg(Z, A, 0, 0, B);
+EOC_arg arg(Z, A, 0, 0, B);
 
    // B is the end of document marker for a 'HERE document', similar
    // to ENDCAT in cat << ENDCAT.
@@ -826,7 +822,7 @@ EOC_arg * arg = new EOC_arg(Z, A, 0, 0, B);
    if (B->element_count() == 0)   LENGTH_ERROR;
 
 Token tok(TOK_FIRST_TIME);
-   Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
+   Workspace::SI_top()->add_eoc_handler(eoc_INP, arg, LOC);
    eoc_INP(tok);
    return tok;
 }
@@ -838,7 +834,7 @@ Value_P Z(1000, LOC);
    loop(z, Z->element_count())   new (Z->next_ravel())   IntCell(0);
    Z->check_value(LOC);
 
-EOC_arg * arg = new EOC_arg(Z, Value_P(), 0, 0, B);
+EOC_arg arg(Z, Value_P(), 0, 0, B);
 
    // B is the end of document marker for a 'HERE document', similar
    // to ENDCAT in cat << ENDCAT.
@@ -849,7 +845,7 @@ EOC_arg * arg = new EOC_arg(Z, Value_P(), 0, 0, B);
    if (B->element_count() == 0)   LENGTH_ERROR;
 
 Token tok(TOK_FIRST_TIME);
-   Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
+   Workspace::SI_top()->add_eoc_handler(eoc_INP, arg, LOC);
    eoc_INP(tok);
    return tok;
 }
@@ -1054,7 +1050,8 @@ UCS_string end_marker;
                    move_2(token, Bif_F1_EXECUTE::execute_statement(exec), LOC);
                    Assert(token.get_tag() == TOK_SI_PUSHED);
 
-                   Workspace::SI_top()->move_eoc_handler(eoc_INP, arg, LOC);
+                   Workspace::SI_top()->add_eoc_handler(eoc_INP, *arg, LOC);
+                   delete arg;
                    return true;   // continue
                  }
             }
