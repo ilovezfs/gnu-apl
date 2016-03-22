@@ -529,16 +529,6 @@ StateIndicator::print_EOC_handlers(ostream & out, const char * loc) const
 }
 //-----------------------------------------------------------------------------
 void
-StateIndicator::add1_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
-                                const char * loc)
-{
-   add_eoc_handler(handler, arg, loc);
-   ptr_clear(arg.Z, LOC);
-   ptr_clear(arg.A, LOC);
-   ptr_clear(arg.B, LOC);
-}
-//-----------------------------------------------------------------------------
-void
 StateIndicator::add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
                                 const char * loc)
 {
@@ -563,6 +553,16 @@ EOC_arg * new_e =  new EOC_arg(handler, arg, loc);
       }
 }
 //-----------------------------------------------------------------------------
+void
+StateIndicator::add1_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
+                                const char * loc)
+{
+   add_eoc_handler(handler, arg, loc);
+   ptr_clear(arg.Z, LOC);
+   ptr_clear(arg.A, LOC);
+   ptr_clear(arg.B, LOC);
+}
+//-----------------------------------------------------------------------------
 EOC_arg *
 StateIndicator::remove_eoc_handlers()
 {
@@ -576,25 +576,6 @@ EOC_arg * ret = eoc_handlers;
 
    eoc_handlers = 0;
    return ret;
-}
-//-----------------------------------------------------------------------------
-void
-StateIndicator::move_eoc_handler(EOC_HANDLER handler, EOC_arg * old_arg,
-                                 const char * loc)
-{
-   eoc_handlers = old_arg;
-   Assert(eoc_handlers);
-
-   Log(LOG_EOC_handlers)
-      {
-         CERR << "SI[" << level << "] move_eoc_handler(" << eoc_handlers
-              << " from "
-              << (eoc_handlers->loc ? "?? null ??" : eoc_handlers->loc)
-              << " to " << loc << ")" << endl;
-      }
-
-   eoc_handlers->handler = handler;
-   eoc_handlers->loc = loc;
 }
 //-----------------------------------------------------------------------------
 bool

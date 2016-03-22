@@ -42,7 +42,9 @@ EOC_arg::get_EOC_type(EOC_HANDLER handler)
    if (handler == Bif_OPER1_EACH::eoc_ALB)      return EOC_Each_AB;
    if (handler == Bif_OPER1_EACH::eoc_LB)       return EOC_Each_B;
    if (handler == Bif_OPER2_RANK::eoc_RANK)     return EOC_Rank;
-   if (handler == Bif_OPER2_POWER::eoc_ALRB)    return EOC_Power;
+   if (handler == Bif_OPER2_POWER::eoc_form_1)  return EOC_Power_0;
+   if (handler == Bif_OPER2_POWER::eoc_LO)      return EOC_Power_LO;
+   if (handler == Bif_OPER2_POWER::eoc_RO)      return EOC_Power_RO;
 
    Assert(0 && "Bad EOC_handler");
    return EOC_None;
@@ -64,7 +66,9 @@ EOC_arg::get_EOC_handler(EOC_type type)
         case EOC_Each_AB:    return Bif_OPER1_EACH::eoc_ALB;
         case EOC_Each_B:     return Bif_OPER1_EACH::eoc_LB;
         case EOC_Rank:       return Bif_OPER2_RANK::eoc_RANK;
-        case EOC_Power:      return Bif_OPER2_POWER::eoc_ALRB;
+        case EOC_Power_0:    return Bif_OPER2_POWER::eoc_form_1;
+        case EOC_Power_LO:   return Bif_OPER2_POWER::eoc_LO;
+        case EOC_Power_RO:   return Bif_OPER2_POWER::eoc_RO;
         default:  Assert(0 && "Bad EOC_type");
       }
 
