@@ -103,11 +103,8 @@ RANK & _arg = arg.u.u_RANK;
            {
              // LO was a user defined function or ⍎
              //
-             if (first)   // first call
-                Workspace::SI_top()->add_eoc_handler(eoc_RANK, arg, LOC);
-             else           // subsequent call
-                Workspace::SI_top()->move_eoc_handler(eoc_RANK, &arg, LOC);
-
+             Workspace::SI_top()->add_eoc_handler(eoc_RANK, arg, LOC);
+             if (!first)   delete &arg;   // subsequent call
              return result;   // continue in user defined function...
            }
 
@@ -268,11 +265,8 @@ RANK & _arg = arg.u.u_RANK;
            {
              // LO was a user defined function or ⍎
              //
-             if (first)   // first call
-                Workspace::SI_top()->add_eoc_handler(eoc_RANK, arg, LOC);
-             else           // subsequent call
-                Workspace::SI_top()->move_eoc_handler(eoc_RANK, &arg, LOC);
-
+             Workspace::SI_top()->add_eoc_handler(eoc_RANK, arg, LOC);
+             if (!first)   delete &arg;   // subsequent call
              return result;   // continue in user defined function...
            }
 
@@ -283,8 +277,10 @@ RANK & _arg = arg.u.u_RANK;
              Value_P ZZ = result.get_apl_val();
              Cell * cZ = arg.Z->is_empty() ? &arg.Z->get_ravel(0)
                                            : arg.Z->next_ravel();
-             if (ZZ->is_scalar())   cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
-             else                   new (cZ) PointerCell(ZZ, arg.Z.getref());
+             if (ZZ->is_scalar())
+                cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
+             else
+                new (cZ) PointerCell(ZZ, arg.Z.getref());
 
              continue;
           }

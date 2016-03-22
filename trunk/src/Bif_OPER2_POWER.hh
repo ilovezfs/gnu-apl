@@ -24,7 +24,7 @@
 #include "PrimitiveOperator.hh"
 
 //-----------------------------------------------------------------------------
-/** Primitive operator ⍤ (rank)
+/** Primitive operator ⍣ (power)
  */
 class Bif_OPER2_POWER : public PrimitiveOperator
 {
@@ -38,15 +38,29 @@ public:
    /// overloaded Function::eval_LRB()
    virtual Token eval_LRB(Token & LO, Token & RO_y, Value_P B);
 
+   /// eval_ALRB() for numeric RO (aka. Form 1)
+   Token eval_form_1(Value_P A, Function * LO, Value_P N, Value_P B);
+
+   /// eval_LRB() for numeric RO (aka. Form 1)
+   Token eval_form_1(Function * LO, Value_P N, Value_P B);
+
    static Bif_OPER2_POWER * fun;      ///< Built-in function
    static Bif_OPER2_POWER  _fun;      ///< Built-in function
 
-   /// helper for eval_ALRB
-   static bool eoc_ALRB(Token & token);
+   /// EOC handler for Form 1
+   static bool eoc_form_1(Token & token);
+
+   /// EOC handler for Form 2 and user defined LO
+   static bool eoc_LO(Token & token);
+
+   /// EOC handler for Form 2 and user defined RO
+   static bool eoc_RO(Token & token);
 
 protected:
    /// helper for eval_ALRB
    static Token finish_ALRB(EOC_arg & arg, bool first);
+
+   static Token finish_form_1(EOC_arg & arg, bool first);
 
    /// return boolean value of 1-element value \b COND
    static bool get_condition_value(const Value & COND);

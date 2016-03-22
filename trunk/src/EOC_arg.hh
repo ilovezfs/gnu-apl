@@ -102,7 +102,7 @@ typedef bool (*EOC_HANDLER)(Token & token);
 class EOC_arg
 {
 public:
-   /// enumeration of alll EOC handlers for serializing them in Archive.cc
+   /// enumeration of all EOC handlers for serializing them in Archive.cc
    enum EOC_type
       {
          EOC_None,         ///<
@@ -117,7 +117,9 @@ public:
          EOC_Each_AB,      ///<  A f¨ B
          EOC_Each_B,       ///<  f¨ B
          EOC_Rank,         ///<  f⍤
-         EOC_Power,        ///<  f⍣g
+         EOC_Power_0,      ///<  f⍣N  user-defined f
+         EOC_Power_LO,     ///<  f⍣g  user-defined f
+         EOC_Power_RO,     ///<  f⍣g  user-defined g
       };
 
    /// constructor
