@@ -460,19 +460,17 @@ Command::cmd_CHECK(ostream & out)
      int stale = Workspace::cleanup_expunged(CERR, erased);
      if (stale)
         {
-          CERR << "WARNING - " << stale << " stale functions ("
+          out << "WARNING - " << stale << " stale functions ("
                << (erased ? "" : "not ") << "erased)" << endl;
         }
-     else CERR << "OK      - no stale functions" << endl;
+     else out << "OK      - no stale functions" << endl;
    }
 
    {
      const int stale = Value::print_stale(CERR);
      if (stale)
         {
-          char cc[200];
-          snprintf(cc, sizeof(cc), "ERROR   - %d stale values", stale);
-          out << cc << endl;
+          out << "ERROR   - " << stale << " stale values" << endl;
           IO_Files::apl_error(LOC);
         }
      else out << "OK      - no stale values" << endl;
@@ -481,12 +479,20 @@ Command::cmd_CHECK(ostream & out)
      const int stale = IndexExpr::print_stale(CERR);
      if (stale)
         {
-          char cc[200];
-          snprintf(cc, sizeof(cc), "ERROR   - %d stale indices", stale);
-          out << cc << endl;
+          out << "ERROR   - " << stale << " stale indices" << endl;
           IO_Files::apl_error(LOC);
         }
      else out << "OK      - no stale indices" << endl;
+   }
+
+   {
+    const int stale = EOC_arg::EOC_arg_count;
+     if (stale)
+        {
+          out << "ERROR   - " << stale << " stale EOC_args" << endl;
+          IO_Files::apl_error(LOC);
+        }
+     else out << "OK      - no stale EOC_args" << endl;
    }
 }
 //-----------------------------------------------------------------------------

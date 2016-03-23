@@ -160,9 +160,6 @@ public:
    /// add an EOC handler
    void add_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc);
 
-   /// add an EOC handler and clear values in arg
-   void add1_eoc_handler(EOC_HANDLER handler, EOC_arg & arg, const char * loc);
-
    /// call eoc_handler. Return false if there is none or else the result
    /// of the eoc_handler. false indicates that the eoc_handler has finished.
    bool call_eoc_handler(Token & token);

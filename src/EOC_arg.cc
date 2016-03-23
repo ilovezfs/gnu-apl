@@ -27,6 +27,8 @@
 #include "EOC_arg.hh"
 #include "QuadFunction.hh"
 
+ShapeItem EOC_arg::EOC_arg_count = 0;
+
 //-----------------------------------------------------------------------------
 EOC_arg::EOC_type
 EOC_arg::get_EOC_type(EOC_HANDLER handler)

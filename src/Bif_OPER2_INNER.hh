@@ -76,7 +76,7 @@ protected:
 
    /// helper for RO. returns true if the final token was computed, and false
    /// if finish_inner_product shall be called again
-   static Token finish_inner_product(EOC_arg & arg, bool first);
+   static Token finish_inner_product(EOC_arg & arg);
 };
 //-----------------------------------------------------------------------------
 
