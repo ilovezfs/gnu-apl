@@ -225,13 +225,14 @@ INNER_PROD & _arg = arg.u.u_INNER_PROD;
 
    _arg.how = 0;
    _arg.last_ufun = 0;
-   return finish_inner_product(arg, true);
+   return finish_inner_product(arg);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER2_INNER::finish_inner_product(EOC_arg & arg, bool first)
+Bif_OPER2_INNER::finish_inner_product(EOC_arg & arg)
 {
 INNER_PROD & _arg = arg.u.u_INNER_PROD;
+bool first = arg.z == -1;
 
    if (_arg.how == 1)   goto RO_done;
    if (_arg.how == 2)   goto LO_done;
@@ -304,7 +305,9 @@ RO_done:
              {
                _arg.how = 2;   // user-defined LO
                _arg.last_ufun = (arg.z >= _arg.items_A * _arg.items_B - 1);
-               Workspace::SI_top()->add1_eoc_handler(eoc_LO, arg, LOC);
+               Workspace::SI_top()->add_eoc_handler(eoc_LO, arg, LOC);
+               if (first)   first = false;
+               else         delete &arg;
                return T2;
              }
 
@@ -339,7 +342,7 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
    Assert(_arg.how == 2);
    arg->Z->get_ravel(arg->z).init_from_value(token.get_apl_val(),
                                          arg->Z.getref(), LOC);
-   copy_1(token, finish_inner_product(*arg, false), LOC);
+   copy_1(token, finish_inner_product(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    delete arg;
@@ -366,7 +369,7 @@ INNER_PROD & _arg = arg->u.u_INNER_PROD;
 Value_P A_RO_B = token.get_apl_val();
    new (arg->Z->next_ravel()) PointerCell(A_RO_B, arg->Z.getref());
 
-   copy_1(token, finish_inner_product(*arg, false), LOC);
+   copy_1(token, finish_inner_product(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
    delete arg;

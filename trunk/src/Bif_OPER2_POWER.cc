@@ -59,15 +59,15 @@ Bif_OPER2_POWER::eval_ALRB(Value_P A, Token & LO, Token & RO, Value_P B)
    if (RO.get_ValueType() == TV_VAL)   // integer count
       return eval_form_1(A, LO.get_function(), RO.get_apl_val(), B);
 
-EOC_arg arg(Value_P(), A, LO.get_function(), 0, B);
-POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
+EOC_arg * arg = new EOC_arg(Value_P(), A, LO.get_function(), 0, B);
+POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
    _arg.user_RO = 0;
 
    _arg.how = 2;
-   arg.RO = RO.get_function();
-   _arg.user_RO = arg.RO->is_user_defined() ? 1 : 0;
+   arg->RO = RO.get_function();
+   _arg.user_RO = arg->RO->is_user_defined() ? 1 : 0;
 
-   return finish_ALRB(arg, true);
+   return finish_ALRB(*arg, true);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -76,15 +76,15 @@ Bif_OPER2_POWER::eval_LRB(Token & LO, Token & RO, Value_P B)
    if (RO.get_ValueType() == TV_VAL)   // integer count
       return eval_form_1(LO.get_function(), RO.get_apl_val(), B);
 
-EOC_arg arg(Value_P(), Value_P(), LO.get_function(), 0, B);
-POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
+EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), LO.get_function(), 0, B);
+POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
    _arg.user_RO = false;
 
    _arg.how = 2;
-   arg.RO = RO.get_function();
-   _arg.user_RO = arg.RO->is_user_defined();
+   arg->RO = RO.get_function();
+   _arg.user_RO = arg->RO->is_user_defined();
 
-   return finish_ALRB(arg, true);
+   return finish_ALRB(*arg, true);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -101,7 +101,7 @@ again:
         if (result_RO.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
            {
              Workspace::SI_top()->add_eoc_handler(eoc_RO, arg, LOC);
-             if (!first)   delete &arg;
+             delete &arg;
              return result_RO;   // continue in user defined function...
            }
 
@@ -130,7 +130,7 @@ again:
      if (result_LO.get_tag() == TOK_SI_PUSHED)   // RO was user-defined
         {
           Workspace::SI_top()->add_eoc_handler(eoc_LO, arg, LOC);
-          if (!first)   delete &arg;
+          delete &arg;
           return result_LO;   // continue in user defined function...
         }
 
@@ -211,7 +211,8 @@ POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
         _arg.how = 1;
         move_1(token, result_RO, LOC);
 
-        Workspace::SI_top()->add1_eoc_handler(eoc_RO, *arg, LOC);
+        Workspace::SI_top()->add_eoc_handler(eoc_RO, *arg, LOC);
+         delete arg;
         return true;   // continue
       }
 
@@ -269,10 +270,6 @@ Bif_OPER2_POWER::get_condition_value(const Value & RO)
 Token
 Bif_OPER2_POWER::eval_form_1(Value_P A, Function * LO, Value_P N, Value_P B)
 {
-EOC_arg arg(Value_P(), A, LO, 0, B);
-POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
-   _arg.user_RO = 0;
-
    Assert(!!N);
    if (N->element_count() != 1)
       {
@@ -281,40 +278,41 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       }
 
    if (!N->get_ravel(0).is_near_int())   DOMAIN_ERROR;
-   _arg.repeat_count = N->get_ravel(0).get_checked_near_int();
+ShapeItem repeat_cnt = N->get_ravel(0).get_checked_near_int();
 
    // special cases: 0, negative, and 1
    //
-   if (_arg.repeat_count == 0)
+   if (repeat_cnt == 0)
       {
         Value_P Z(B);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-   if (_arg.repeat_count < 0)   // inverse
+   if (repeat_cnt < 0)   // inverse
       {
-        Function * inverse = arg.LO->get_dyadic_inverse();
-        if (inverse == 0)   DOMAIN_ERROR;   // no inverse
+        Function * inverse = LO->get_dyadic_inverse();
+        if (inverse == 0)   DOMAIN_ERROR;   // no inverse for LO
 
-        arg.LO = inverse;
-        _arg.repeat_count = -_arg.repeat_count;
+        LO = inverse;
+        repeat_cnt = - repeat_cnt;
       }
 
-   if (_arg.repeat_count == 1)
+   if (repeat_cnt == 1)
       {
-        return  arg.LO->eval_AB(A, B);
+        return  LO->eval_AB(A, B);
       }
 
-   return finish_form_1(arg, true);
+EOC_arg * arg = new EOC_arg(Value_P(), A, LO, 0, B);
+POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
+   _arg.user_RO = 0;
+   _arg.repeat_count = repeat_cnt;
+
+   return finish_form_1(*arg, true);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER2_POWER::eval_form_1(Function * LO, Value_P N, Value_P B)
 {
-EOC_arg arg(Value_P(), Value_P(), LO, 0, B);
-POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
-   _arg.user_RO = false;
-
    Assert(!!N);
 
    if (N->element_count() != 1)
@@ -324,31 +322,36 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
       }
 
    if (!N->get_ravel(0).is_near_int())   DOMAIN_ERROR;
-   _arg.repeat_count = N->get_ravel(0).get_checked_near_int();
+ShapeItem repeat_cnt = N->get_ravel(0).get_checked_near_int();
 
    // special cases: 0, negative, and 1
    //
-   if (_arg.repeat_count == 0)
+   if (repeat_cnt == 0)
       {
         Value_P Z(B);
         return Token(TOK_APL_VALUE1, Z);
       }
 
-   if (_arg.repeat_count < 0)   // inverse
+   if (repeat_cnt < 0)   // inverse
       {
-        Function * inverse = arg.LO->get_monadic_inverse();
+        Function * inverse = LO->get_monadic_inverse();
         if (inverse == 0)   DOMAIN_ERROR;   // no inverse
 
-        arg.LO = inverse;
-        _arg.repeat_count = -_arg.repeat_count;
+        LO = inverse;
+        repeat_cnt = -repeat_cnt;
       }
 
-   if (_arg.repeat_count == 1)
+   if (repeat_cnt == 1)
       {
-        return  arg.LO->eval_B(B);
+        return  LO->eval_B(B);
       }
 
-   return finish_ALRB(arg, true);
+EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), LO, 0, B);
+POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
+   _arg.user_RO = false;
+   _arg.repeat_count = repeat_cnt;
+
+   return finish_ALRB(*arg, true);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -366,7 +369,11 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
 
          if (result_LO.get_Class() == TC_VALUE)   // LO was primitive
             {
-              if (_arg.repeat_count == 0)   return result_LO;
+              if (_arg.repeat_count == 0)
+                 {
+                   delete &arg;
+                   return result_LO;
+                 }
               arg.B = result_LO.get_apl_val();
               continue;
             }
@@ -374,7 +381,7 @@ POWER_ALRB & _arg = arg.u.u_POWER_ALRB;
          Assert(result_LO.get_tag() == TOK_SI_PUSHED);
 
          Workspace::SI_top()->add_eoc_handler(eoc_form_1, arg, LOC);
-         if (!first)   delete &arg;
+         delete &arg;
          return result_LO;   // continue in user defined function...
        }
 }

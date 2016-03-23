@@ -133,7 +133,7 @@ public:
      RO(ro),
      B(vpB),
      z(-1)
-   { memset(&u, 0, sizeof(u)); }
+   { memset(&u, 0, sizeof(u));   ++EOC_arg_count; }
 
    /// constructor
    EOC_arg(Value_P vpZ, Value_P vpA, Function * lo, Function * ro, Value_P vpB,
@@ -147,7 +147,7 @@ public:
      RO(ro),
      B(vpB, loc),
      z(-1)
-   { memset(&u, 0, sizeof(u)); }
+   { memset(&u, 0, sizeof(u));   ++EOC_arg_count; }
 
    /// activation constructor
    EOC_arg(EOC_HANDLER h, const EOC_arg & other, const char * l)
@@ -168,7 +168,7 @@ public:
      RO(other.RO),
      B(other.B, loc),
      z(other.z)
-   { u = other.u; }
+   { u = other.u;   ++EOC_arg_count; }
 
    /// copy constructor
    EOC_arg(const EOC_arg & other)
@@ -181,7 +181,9 @@ public:
      RO(other.RO),
      B(other.B, LOC),
      z(other.z)
-   { u = other.u; Backtrace::show(__FILE__, __LINE__); }
+   { u = other.u; Backtrace::show(__FILE__, __LINE__);   ++EOC_arg_count; }
+
+   ~EOC_arg()   { --EOC_arg_count; }
 
    /// clear the Value_P in this EOC_arg
    void clear(const char * loc)
@@ -243,8 +245,10 @@ public:
    /// additional EOC handler specific arguments
    union EOC_arg_u
       { EOC_structs 
-        ShapeItem u_data[u_DATA_LEN];   ///< for serialization in Archive.cc
+        uint8_t u_data[u_DATA_LEN];   ///< for serialization in Archive.cc
       } u; ///< a union big enough for all EOC args
+
+   static ShapeItem EOC_arg_count;
 };
 //-----------------------------------------------------------------------------
 

@@ -553,16 +553,6 @@ EOC_arg * new_e =  new EOC_arg(handler, arg, loc);
       }
 }
 //-----------------------------------------------------------------------------
-void
-StateIndicator::add1_eoc_handler(EOC_HANDLER handler, EOC_arg & arg,
-                                const char * loc)
-{
-   add_eoc_handler(handler, arg, loc);
-   ptr_clear(arg.Z, LOC);
-   ptr_clear(arg.A, LOC);
-   ptr_clear(arg.B, LOC);
-}
-//-----------------------------------------------------------------------------
 EOC_arg *
 StateIndicator::remove_eoc_handlers()
 {
