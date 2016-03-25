@@ -139,6 +139,9 @@ public:
 protected:
    /// overloaded Function::eval_B().
    virtual Token eval_B(Value_P B);
+
+   /// overloaded Function::eval_fill_B().
+   virtual Token eval_fill_B(Value_P B);
 };
 //-----------------------------------------------------------------------------
 /**

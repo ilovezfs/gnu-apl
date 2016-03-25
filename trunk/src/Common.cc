@@ -265,6 +265,7 @@ IntScalar(APL_Integer val, const char * loc)
 {
 Value_P Z(loc);
    new (Z->next_ravel())   IntCell(val);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -273,6 +274,7 @@ FloatScalar(APL_Float val, const char * loc)
 {
 Value_P Z(loc);
    new (Z->next_ravel())   FloatCell(val);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -281,6 +283,7 @@ ComplexScalar(APL_Complex val, const char * loc)
 {
 Value_P Z(loc);
    new (Z->next_ravel()) ComplexCell(val);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -289,6 +292,7 @@ CharScalar(Unicode uni, const char * loc)
 {
 Value_P Z(loc);
    new (Z->next_ravel()) CharCell(uni);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -297,6 +301,7 @@ Idx0(const char * loc)
 {
 Value_P Z((ShapeItem)0, loc);
    new (&Z->get_ravel(0))   IntCell(0);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -305,6 +310,7 @@ Str0(const char * loc)
 {
 Value_P Z((ShapeItem)0, loc);
    new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
@@ -314,6 +320,17 @@ Str0_0(const char * loc)
 Shape sh((ShapeItem)0, (ShapeItem)0);
 Value_P Z(sh, loc);
    new (&Z->get_ravel(0))   CharCell(UNI_ASCII_SPACE);
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Idx0_0(const char * loc)
+{
+Shape sh((ShapeItem)0, (ShapeItem)0);
+Value_P Z(sh, loc);
+   new (&Z->get_ravel(0))   IntCell(0);
+   Z->check_value(LOC);
    return Z;
 }
 //-----------------------------------------------------------------------------
