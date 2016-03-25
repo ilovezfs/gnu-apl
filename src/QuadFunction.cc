@@ -508,6 +508,26 @@ ExecuteList * fun = 0;
    return Token(TOK_SI_PUSHED);
 }
 //-----------------------------------------------------------------------------
+Token
+Quad_EC::eval_fill_B(Value_P B)
+{
+Value_P Z2(2, LOC);
+   new(Z2->next_ravel())   IntCell(0);
+   new(Z2->next_ravel())   IntCell(0);
+   Z2->check_value(LOC);
+
+Value_P Zsub(3, LOC);
+   new (Zsub->next_ravel())   IntCell(3);   // statement without result
+   new (Zsub->next_ravel())   PointerCell(Z2, Zsub.getref());
+   new (Zsub->next_ravel())   PointerCell(Idx0(LOC), Zsub.getref());
+   Zsub->check_value(LOC);
+
+Value_P Z((ShapeItem)0, LOC);
+  new (&Z->get_ravel(0))   PointerCell(Zsub, Z.getref());
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
 bool
 Quad_EC::eoc(Token & result_B)
 {

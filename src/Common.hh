@@ -428,4 +428,7 @@ Value_P Str0(const char * loc);
 /// 0 0⍴''
 Value_P Str0_0(const char * loc);
 
+/// 0 0⍴0
+Value_P Idx0_0(const char * loc);
+
 #endif // __COMMON_HH_DEFINED__
