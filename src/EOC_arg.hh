@@ -67,10 +67,11 @@ struct REDUCTION
 /// arguments of the EOC handler for (A) f¨ B
 struct EACH_ALB
 {
-  ShapeItem dA;       ///< cA increment (0 or 1)
-  ShapeItem dB;       ///< cB increment (0 or 1)
-  ShapeItem len_Z;    ///< number of iterations
-  ShapeItem sub;      ///< create a PointerCell
+  ShapeItem dA;          ///< cA increment (0 or 1)
+  ShapeItem dB;          ///< cB increment (0 or 1)
+  ShapeItem len_Z;       ///< number of iterations
+  ShapeItem sub;         ///< create a PointerCell
+  ShapeItem SI_pushed;   ///< user-defined LO
 };
 
 /// arguments of the EOC handler for (A) f⍤[X] B

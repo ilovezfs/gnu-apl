@@ -57,9 +57,9 @@ Function * LO = _LO.get_function();
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(Value_P(), A, LO, 0, B);
-   arg.loc = LOC;
-EACH_ALB & _arg = arg.u.u_EACH_ALB;
+EOC_arg * arg = new EOC_arg(Value_P(), A, LO, 0, B);
+   arg->loc = LOC;
+EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
    _arg.dA = 1;
    _arg.dB = 1;
@@ -69,29 +69,26 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
         _arg.len_Z = B->element_count();
 
         _arg.dA = 0;
-        if (LO->has_result())
-           arg.Z = Value_P(B->get_shape(), LOC);
+        if (LO->has_result())   arg->Z = Value_P(B->get_shape(), LOC);
       }
    else if (B->is_scalar())
       {
         _arg.dB = 0;
         _arg.len_Z = A->element_count();
-        if (LO->has_result())
-           arg.Z = Value_P(A->get_shape(), LOC);
+        if (LO->has_result())   arg->Z = Value_P(A->get_shape(), LOC);
       }
    else if (A->same_shape(*B))
       {
         _arg.len_Z = B->element_count();
-        if (LO->has_result())
-           arg.Z = Value_P(A->get_shape(), LOC);
+        if (LO->has_result())   arg->Z = Value_P(A->get_shape(), LOC);
       }
    else
       {
         if (A->same_rank(*B))   LENGTH_ERROR;
-        RANK_ERROR;
+        else                    RANK_ERROR;
       }
 
-   return finish_eval_ALB(arg);
+   return finish_eval_ALB(*arg);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -134,8 +131,9 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
            {
              // LO was a user defined function
              //
+             _arg.SI_pushed = 1;
              Workspace::SI_top()->add_eoc_handler(eoc_ALB, arg, LOC);
-             if (arg.z)   delete &arg;
+             delete &arg;
              return result;   // continue in user defined function...
            }
 
@@ -146,7 +144,9 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    arg.Z->set_default(*arg.B.get());
    arg.Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, arg.Z);
+Token ret(TOK_APL_VALUE1, arg.Z);
+   delete &arg;
+   return ret;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -176,7 +176,6 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
    copy_1(token, finish_eval_ALB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
-   delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
    if (next)   return next->handler(token);
 
@@ -202,15 +201,15 @@ Function * LO = _LO.get_function();
         return Token(TOK_APL_VALUE1, Z);
       }
 
-EOC_arg arg(Value_P(), Value_P(), LO, 0, B);
-   arg.loc = LOC;
-EACH_ALB & _arg = arg.u.u_EACH_ALB;
+EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), LO, 0, B);
+   arg->loc = LOC;
+EACH_ALB & _arg = arg->u.u_EACH_ALB;
 
-   if (LO->has_result())   arg.Z = Value_P(B->get_shape(), LOC);
+   if (LO->has_result())   arg->Z = Value_P(B->get_shape(), LOC);
 
    _arg.len_Z = B->element_count();
 
-   return finish_eval_LB(arg);
+   return finish_eval_LB(*arg);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -231,8 +230,9 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   // LO was a user defined function or ⍎
                   //
+                  _arg.SI_pushed = 1;
                   Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
-                  if (arg.z)   delete &arg;
+                  delete &arg;
                   return result;   // continue in user defined function...
                 }
 
@@ -286,8 +286,9 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
                 {
                   // LO was a user defined function or ⍎
                   //
+                  _arg.SI_pushed = 1;
                   Workspace::SI_top()->add_eoc_handler(eoc_LB, arg, LOC);
-                  if (arg.z)   delete &arg;
+                  delete &arg;
                   return result;   // continue in user defined function...
                 }
 
@@ -301,13 +302,23 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
                   Cell * cZ = arg.Z->next_ravel();
                   if (!_arg.sub)
-                     cZ->init_from_value(vZ, arg.Z.getref(),
-                                                          LOC);
+                     cZ->init_from_value(vZ, arg.Z.getref(), LOC);
                   else if (vZ->is_simple_scalar())
                      cZ->init(vZ->get_ravel(0),arg.Z.getref(), LOC);
                   else
                      new (cZ)   PointerCell(vZ,arg.Z.getref());
 
+                  if (_arg.SI_pushed && arg.z == (_arg.len_Z - 1))
+                     {
+                       // this happens for user-define funtions that sometimes
+                       // return SI_PUSHED and sometimes not, i.e. ⎕EC
+                       // We push a dummy function after the final computation
+                       //
+                       UCS_string data;
+                       Executable * exec = new ExecuteList(data, LOC);
+                       Workspace::push_SI(exec, LOC);
+                       break;
+                     }
                   continue;   // next z
                 }
 
@@ -323,7 +334,9 @@ EACH_ALB & _arg = arg.u.u_EACH_ALB;
 
    arg.Z->set_default(*arg.B.get());
    arg.Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, arg.Z);
+Token ret(TOK_APL_VALUE1, arg.Z);
+   delete &arg;
+   return ret;
 }
 //-----------------------------------------------------------------------------
 bool
@@ -353,7 +366,6 @@ EACH_ALB & _arg = arg->u.u_EACH_ALB;
    copy_1(token, finish_eval_LB(*arg), LOC);
    if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
 
-   delete arg;
    Workspace::SI_top()->set_eoc_handlers(next);
    if (next)   return next->handler(token);
 
