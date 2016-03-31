@@ -139,8 +139,14 @@ const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
                // byte-vector → hex
                //
                Shape shape_Z(B.get_shape());
-               if (shape_Z.get_rank() == 0)   shape_Z.add_shape_item(1);
-               shape_Z.set_shape_item(B.get_rank() - 1, B.get_cols() * 2);
+               if (shape_Z.get_rank() == 0)
+                  {
+                    shape_Z.add_shape_item(2);
+                  }
+               else
+                  {
+                    shape_Z.set_shape_item(B.get_rank() - 1, B.get_cols() * 2);
+                  }
                Value_P Z(shape_Z, LOC);
 
                const Cell * cB = &B.get_ravel(0);
