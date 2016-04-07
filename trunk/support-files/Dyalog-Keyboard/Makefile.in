@@ -80,7 +80,7 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = support-files/Dyalog-Keyboard
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(dist_noinst_DATA)
+	$(dist_noinst_DATA) README
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/depend.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 \
@@ -257,10 +257,12 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-dist_noinst_DATA = apl.xmodmap	\
-			apl.xkb		\
-			keyboard1.txt	\
-			keyboard.txt
+dist_noinst_DATA = apl.xmodmap		\
+			apl.xmodmap-alexweiner	\
+			apl.xkb			\
+			keyboard1.txt		\
+			keyboard.txt		\
+			README
 
 all: all-am
 
