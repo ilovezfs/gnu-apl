@@ -177,6 +177,7 @@ const bool framed = outer_style & (PST_CS_MASK | PST_CS_OUTER);
 const ShapeItem ec = value.element_count();
 const uint64_t ii_count = interrupt_count;
 const bool huge = out && ec > 10000;
+const bool nested = !value.is_simple();
 
    {
      // 1. create a vector with a bool per column that tells if the
@@ -205,9 +206,12 @@ const bool huge = out && ec > 10000;
      //    therefore we have (⍴,value) items. Items are rectangular.
      //
      PERFORMANCE_START(start_2)
+     vector<Rank> max_row_ranks;
+     max_row_ranks.reserve(rows);
      loop(y, rows)
         {
           ShapeItem max_row_height = 0;
+          max_row_ranks.push_back(0);
 
           loop(x, cols)
               {
@@ -218,6 +222,14 @@ const bool huge = out && ec > 10000;
                 if (scaling[x])   pctx1.set_scaled();
                 const Cell & cell = value.get_ravel(x + y*cols);
                 item = cell.character_representation(pctx1);
+
+                if (cell.is_pointer_cell())
+                   {
+                     Value_P sub_val = cell.get_pointer_value();
+                     const Rank sub_rank = sub_val->get_rank();
+                     if (max_row_ranks.back() < sub_rank)
+                        max_row_ranks.back() = sub_rank;
+                   }
 
                 if (max_row_height < item.get_height())
                    max_row_height = item.get_height();
@@ -260,7 +272,7 @@ const bool huge = out && ec > 10000;
         }
      PERFORMANCE_END(fs_PrintBuffer3_B, start_3, ec)
 
-     // 4. combine colums, then rows.
+     // 4. combine columms, then rows.
      //
      PERFORMANCE_START(start_4)
 
@@ -283,7 +295,9 @@ const bool huge = out && ec > 10000;
             ShapeItem dest_height = 0;
             loop(y, rows)
                {
-                 dest_height += separator_rows(y, value.get_shape());
+                 dest_height += separator_rows(y, value, nested,
+                                               max_row_ranks[y],
+                                               y ? max_row_ranks[y - 1] : 0);
                  dest_height += item_matrix[y*cols + x].get_height();
                }
             dest.buffer.reserve(dest_height);
@@ -295,7 +309,9 @@ const bool huge = out && ec > 10000;
 
                 // insert separator row(s)
                 //
-                const ShapeItem srows = separator_rows(y, value.get_shape());
+                const ShapeItem srows = separator_rows(y, value, nested,
+                                                       max_row_ranks[y],
+                                                  y ? max_row_ranks[y - 1] : 0);
                 if (srows)   // unless first row
                    {
                     const UCS_string sepa_row(dest.get_width(0), UNI_iPAD_L0);
@@ -552,9 +568,12 @@ ColInfo ci;
 }
 //-----------------------------------------------------------------------------
 ShapeItem
-PrintBuffer::separator_rows(ShapeItem y, const Shape & shape)
+PrintBuffer::separator_rows(ShapeItem y, const Value & value, bool nested,
+                            Rank rk1, Rank rk2)
 {
    if (y == 0)   return 0;
+
+const Shape & shape = value.get_shape();
 
 ShapeItem prod = 1;
 ShapeItem ret = 0;
@@ -564,6 +583,12 @@ ShapeItem ret = 0;
          if (y % prod == 0)   ++ret;
          else                 break;
        }
+
+   if (nested)   // see lrm p. 138
+      {
+        const int max_rk = rk1 > rk2 ? rk1 : rk2;
+        if (max_rk > 1)   ret += max_rk - 1;
+      }
 
    return ret;
 }

@@ -199,7 +199,8 @@ protected:
 
    /// return the number of separator rows before row =b y in a value with
    /// shape \b shape
-   static ShapeItem separator_rows(ShapeItem y, const Shape & shape);
+   static ShapeItem separator_rows(ShapeItem y, const Value & value,
+                                   bool nested, Rank rk1, Rank rk2);
 
    /// the character buffer.
    vector<UCS_string> buffer;

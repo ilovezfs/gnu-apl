@@ -351,7 +351,7 @@ POWER_ALRB & _arg = arg->u.u_POWER_ALRB;
    _arg.user_RO = false;
    _arg.repeat_count = repeat_cnt;
 
-   return finish_ALRB(*arg, true);
+   return finish_form_1(*arg, true);
 }
 //-----------------------------------------------------------------------------
 Token
