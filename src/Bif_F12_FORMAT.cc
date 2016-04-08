@@ -47,6 +47,32 @@ Bif_F12_FORMAT::eval_B(Value_P B)
         return Token(TOK_APL_VALUE1, Z);
       }
 
+   if (!B->is_simple())
+      {
+        const PrintContext pctx(PR_APL);
+        PrintBuffer pb(*B, pctx, 0);
+        Assert(pb.is_rectangular());
+        const ShapeItem cols = pb.get_width(0);
+        const ShapeItem rows = pb.get_height();
+        Shape shape_Z(rows, cols);
+        Value_P Z(shape_Z, LOC);
+        loop(y, rows)
+            {
+              UCS_string row = pb.get_line(y);
+              row.map_pad();
+              loop(x, cols)   new (Z->next_ravel()) CharCell(row[x]);
+            }
+
+        if (Z->get_rank() == 2 && Z->get_shape().get_shape_item(0) == 1)
+           {
+             Shape sh(Z->get_shape().get_shape_item(1));
+             Z->set_shape(sh);
+           }
+
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
 Value_P Z;
    if (B->get_rank() > 2)
       {
