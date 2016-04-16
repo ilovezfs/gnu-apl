@@ -118,27 +118,30 @@ ColInfo info;
              ucs.append(uni);
              ucs.append(uni);
              ucs.append(UNI_SINGLE_QUOTE);
-
-             info.int_len = 3;
            }
         else
            {
              ucs.append(UNI_SINGLE_QUOTE);
              ucs.append(uni);
              ucs.append(UNI_SINGLE_QUOTE);
-
-             info.int_len = 3;
            }
       }
    else
       {
-        ucs.append(get_char_value());
+       if (pctx.get_style() & PST_QUOTE_CHARS)
+          {
+            ucs.append(UNI_SINGLE_QUOTE);
+            ucs.append(get_char_value());
+            ucs.append(UNI_SINGLE_QUOTE);
+          }
+        else
+          {
+            ucs.append(get_char_value());
+          }
 
-        info.int_len = 1;
       }
 
-
-   info.real_len = info.int_len;
+   info.real_len = info.int_len = ucs.size();
 
    return PrintBuffer(ucs, info);
 }

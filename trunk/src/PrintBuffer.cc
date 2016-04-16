@@ -71,10 +71,11 @@ const ShapeItem ec = value.element_count();
    if (value.is_scalar())
       {
         PERFORMANCE_START(start_1)
+        const Cell & cell = value.get_ravel(0);
         PrintContext pctx1(pctx);
-        if (value.get_ravel(0).need_scaling(pctx))   pctx1.set_scaled();
+        if (cell.need_scaling(pctx))   pctx1.set_scaled();
 
-        *this = value.get_ravel(0).character_representation(pctx1);
+        *this = cell.character_representation(pctx1);
 
         // pad the value unless it is framed
         if (value.compute_depth() > 1 && !framed)
@@ -95,6 +96,28 @@ const ShapeItem ec = value.element_count();
         return;
       }
 
+   if (pctx.get_style() & PST_QUOTE_CHARS)
+      {
+        if (value.is_char_vector())
+           {
+             UCS_string ucs;
+             ucs.append(UNI_ASCII_DOUBLE_QUOTE);
+             loop(v, ec)   ucs.append(value.get_ravel(v).get_char_value());
+             ucs.append(UNI_ASCII_DOUBLE_QUOTE);
+             append_ucs(ucs);
+             update_info();
+             complete = true;
+             return;
+           }
+
+        if (value.is_char_array())
+           {
+             pctx.set_style(PR_BOXED_GRAPHIC2);
+             new (this)   PrintBuffer(value, pctx, out);
+             return;
+           }
+      }
+
    if (ec == 0)   // empty value of any dimension
       {
         pb_empty(value, pctx, outer_style);
@@ -103,6 +126,7 @@ const ShapeItem ec = value.element_count();
              UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
              if (ucs.size())   *out << ucs << endl;
             }
+        update_info();
         complete = true;
         return;
       }
@@ -115,6 +139,7 @@ const ShapeItem ec = value.element_count();
              UCS_string ucs(*this, value.get_rank(), _pctx.get_PW());
              if (ucs.size())   *out << ucs << endl;
             }
+        update_info();
         complete = true;
         return;
       }
@@ -285,8 +310,7 @@ const bool nested = !value.is_simple();
           // PrintBuffer pcol. Insert separator rows as needed.
           //
           PrintBuffer & dest = pcols[x];
-          Assert(&dest);
-          new (&dest) PrintBuffer;
+          new (pcols + x) PrintBuffer;
 
           // compute the final height of dest and reserve enough rows as to
           // avoid unnecessary copies
@@ -407,11 +431,12 @@ const bool nested = !value.is_simple();
           UCS_string ucs(*this, value.get_rank(), pctx.get_PW());
           if (ucs.size())   *out << ucs << endl;
         }
-     complete = true;
 
      PERFORMANCE_END(fs_PrintBuffer5_B, start_5, ec)
    }
 
+   complete = true;
+   update_info();
    return;
 
 interrupted:

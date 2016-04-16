@@ -61,7 +61,7 @@ void TraceData::display_value_for_trace( ostream &out, const Value_P &value, int
             throw ConnectionError( "Illegal CR level" );
         }
         PrintContext context( PST_NONE, Workspace::get_PrintContext().get_PP(), 100000 );
-        Value_P cr_formatted = Quad_CR::do_CR( cr_level, *value, context );
+        Value_P cr_formatted = Quad_CR::do_CR( cr_level, value.get(), context);
 
         PrintContext context2( PST_NONE, Workspace::get_PrintContext().get_PP(), 100000 );
         cr_formatted->print1( out, context2 );

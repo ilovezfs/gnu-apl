@@ -1045,8 +1045,8 @@ monadic form.
 
    Then the left argument A of ⎕CR selects one of the following:
 
-   A=0-4 or 7-9: various formatting styles (boxed, APL input/output,
-etc.).  Just try them out.
+   A=0-4 or 7-9, or 29: various formatting styles (boxed, APL
+input/output, etc.).  Just try them out.
 
    A=5/6: convert byte vector B to a string of uppercase/lowercase hex
 digits.
@@ -2861,14 +2861,14 @@ Node: Top383
 Node: Chapter 11404
 Node: Chapter 216943
 Node: Chapter 321212
-Node: Chapter 454638
-Node: Chapter 556386
-Node: Chapter 657515
-Node: Section 6.157934
-Node: Section 6.258621
-Node: Chapter 759452
-Node: Section 7.159955
-Node: Section 7.285264
+Node: Chapter 454645
+Node: Chapter 556393
+Node: Chapter 657522
+Node: Section 6.157941
+Node: Section 6.258628
+Node: Chapter 759459
+Node: Section 7.159962
+Node: Section 7.285271
 
 End Tag Table
 
