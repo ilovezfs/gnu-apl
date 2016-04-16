@@ -441,13 +441,13 @@ int format = arg.atoi();
         case  7: case   8: case   9:
         case 20: case  21: case  22:
         case 23: case  24: case  25:
+        case 29:
                  boxing_format = format;
                  return;
-
-        default:   out << "Bad ]BOXING parameter " << arg
-                       << " (valid values are: OFF, 2...4, 7...9, and 20...25)"
-                       << endl;
       }
+
+   out << "Bad ]BOXING parameter " << arg
+       << ". Valid values are: OFF, 2-4, 7-9, 20-25, and 29." << endl;
 }
 //-----------------------------------------------------------------------------
 void 
