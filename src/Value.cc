@@ -49,7 +49,7 @@ void * Value::deleted_values = 0;
 int Value::deleted_values_count = 0;
 
 //-----------------------------------------------------------------------------
-void
+inline void
 Value::init_ravel()
 {
    owner_count = 0;
@@ -138,7 +138,29 @@ Value::Value(const char * loc)
    init_ravel();
 }
 //-----------------------------------------------------------------------------
+Value::Value(const Cell & cell, const char * loc)
+   : DynamicObject(loc, &all_values),
+     flags(VF_NONE),
+     valid_ravel_items(0)
+{
+   ADD_EVENT(this, VHE_Create, 0, loc);
+   init_ravel();
+
+   get_ravel(0).init(cell, *this, loc);
+   check_value(LOC);
+}
+//-----------------------------------------------------------------------------
 Value::Value(ShapeItem sh, const char * loc)
+   : DynamicObject(loc, &all_values),
+     shape(sh),
+     flags(VF_NONE),
+     valid_ravel_items(0)
+{
+   ADD_EVENT(this, VHE_Create, 0, loc);
+   init_ravel();
+}
+//-----------------------------------------------------------------------------
+Value::Value(const Shape & sh, const char * loc)
    : DynamicObject(loc, &all_values),
      shape(sh),
      flags(VF_NONE),
@@ -157,15 +179,8 @@ Value::Value(const UCS_string & ucs, const char * loc)
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
-   if (ucs.size())
-      {
-        loop(l, ucs.size())   new (next_ravel()) CharCell(ucs[l]);
-      }
-   else   // empty string: set prototype
-      {
-        new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-      }
-
+   new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
+   loop(l, ucs.size())   new (next_ravel()) CharCell(ucs[l]);
    set_complete();
 }
 //-----------------------------------------------------------------------------
@@ -178,16 +193,8 @@ Value::Value(const UTF8_string & utf, const char * loc)
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
-   if (utf.size())
-      {
-        loop(l, utf.size())
-            new (next_ravel()) CharCell((Unicode)(utf[l] & 0xFF));
-      }
-   else   // empty string: set prototype
-      {
-        new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-      }
-
+   new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
+   loop(l, utf.size())   new (next_ravel()) CharCell((Unicode)(utf[l] & 0xFF));
    set_complete();
 }
 //-----------------------------------------------------------------------------
@@ -200,38 +207,29 @@ Value::Value(const CDR_string & ui8, const char * loc)
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
-   if (ui8.size())
-      {
-        loop(l, ui8.size())   new (&get_ravel(l)) CharCell(Unicode(ui8[l]));
-      }
-   else   // empty string: set prototype
-      {
-        new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);
-      }
-
+   new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
+   loop(l, ui8.size())   new (next_ravel()) CharCell(Unicode(ui8[l]));
    set_complete();
 }
 //-----------------------------------------------------------------------------
-Value::Value(const Shape & sh, const char * loc)
+Value::Value(const PrintBuffer & pb, const char * loc)
    : DynamicObject(loc, &all_values),
-     shape(sh),
-     flags(VF_NONE),
-     valid_ravel_items(0)
-{
-   ADD_EVENT(this, VHE_Create, 0, loc);
-   init_ravel();
-}
-//-----------------------------------------------------------------------------
-Value::Value(const Cell & cell, const char * loc)
-   : DynamicObject(loc, &all_values),
+     shape(pb.get_height(), pb.get_width(0)),
      flags(VF_NONE),
      valid_ravel_items(0)
 {
    ADD_EVENT(this, VHE_Create, 0, loc);
    init_ravel();
 
-   get_ravel(0).init(cell, *this, loc);
-   check_value(LOC);
+   new (&get_ravel(0)) CharCell(UNI_ASCII_SPACE);   // prototype
+
+const ShapeItem height = pb.get_height();
+const ShapeItem width = pb.get_width(0);
+
+   loop(y, height)
+   loop(x, width)   next_ravel()->init(CharCell(pb.get_char(x, y)), *this, LOC);
+
+   set_complete();
 }
 //-----------------------------------------------------------------------------
 Value::~Value()
@@ -697,22 +695,12 @@ Value::is_apl_char_vector() const
 }
 //-----------------------------------------------------------------------------
 bool
-Value::is_char_vector() const
+Value::is_char_array() const
 {
-   if (get_rank() != 1)   return false;
-
 const Cell * C = &get_ravel(0);
    loop(c, nz_element_count())   // also check prototype
       if (!C++->is_character_cell())   return false;   // not char
    return true;
-}
-//-----------------------------------------------------------------------------
-bool
-Value::is_char_scalar() const
-{
-   if (get_rank() != 0)   return false;
-
-   return get_ravel(0).is_character_cell();
 }
 //-----------------------------------------------------------------------------
 bool
@@ -770,14 +758,6 @@ Value::is_int_vector() const
        }
 
    return true;
-}
-//-----------------------------------------------------------------------------
-bool
-Value::is_int_scalar() const
-{
-   if (get_rank() != 0)   return false;
-
-   return get_ravel(0).is_near_int();
 }
 //-----------------------------------------------------------------------------
 bool
@@ -1500,7 +1480,7 @@ Value::print_boxed(ostream & out, const char * info) const
 
 const PrintContext pctx(PST_NONE);
 
-Value_P Z = Quad_CR::do_CR(4, *this, pctx);
+Value_P Z = Quad_CR::do_CR(4, this, pctx);
    out << *Z << endl;
    return out;
 }
@@ -1872,7 +1852,7 @@ Value::print_stale_info(ostream & out, const DynamicObject * dob)
       {
         print_structure(out, 0, 0);
         const PrintContext pctx(PST_NONE);
-        Value_P Z = Quad_CR::do_CR(7, *this, pctx);
+        Value_P Z = Quad_CR::do_CR(7, this, pctx);
         Z->print(out);
         out << endl;
       }

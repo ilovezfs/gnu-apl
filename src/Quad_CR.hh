@@ -40,7 +40,7 @@ public:
    virtual Token eval_AB(Value_P A, Value_P B);
 
    /// compute \b a ⎕CR \b B
-   static Value_P do_CR(APL_Integer a, const Value & B, PrintContext pctx);
+   static Value_P do_CR(APL_Integer a, const Value * B, PrintContext pctx);
 
    /// compute a good default type and value for the top-level ⍴ og 10 ⎕CR.
    /// Return true for INT and false for CHAR.
@@ -53,11 +53,50 @@ public:
    static Quad_CR * fun;          ///< Built-in function.
    static Quad_CR  _fun;          ///< Built-in function.
 
-   /// portable variable encoding of value named name (varname or varname ⊂)
+   /// portable variable encoding of value \b name (varname or varname ⊂)
    static void do_CR10_var(vector<UCS_string> & result, const UCS_string & name,
                            const Value & value);
 
 protected:
+   /// compute \b 5 ⎕CR \b B or \b 6 ⎕CR \b B
+   static Value_P do_CR5_6(const char * alpha, const Value & B);
+
+   /// compute \b 10 ⎕CR \b B
+   static Value_P do_CR10(const Value & B);
+
+   /// compute \b 11 ⎕CR \b B
+   static Value_P do_CR11(const Value & B);
+
+   /// compute \b 12 ⎕CR \b B
+   static Value_P do_CR12(const Value & B);
+
+   /// compute \b 13 ⎕CR \b B
+   static Value_P do_CR13(const Value & B);
+
+   /// compute \b 14 ⎕CR \b B
+   static Value_P do_CR14(const Value & B);
+
+   /// compute \b 15 ⎕CR \b B
+   static Value_P do_CR15(const Value & B);
+
+   /// compute \b 16 ⎕CR \b B
+   static Value_P do_CR16(const Value & B);
+
+   /// compute \b 17 ⎕CR \b B
+   static Value_P do_CR17(const Value & B);
+
+   /// compute \b 18 ⎕CR \b B
+   static Value_P do_CR18(const Value & B);
+
+   /// compute \b 19 ⎕CR \b B
+   static Value_P do_CR19(const Value & B);
+
+   /// compute \b 26 ⎕CR \b B
+   static Value_P do_CR26(const Value & B);
+
+   /// compute \b 27 ⎕CR \b B or \b 28 ⎕CR \b B
+   static Value_P do_CR27_28(bool primary, const Value & B);
+
    /// the left argument of Pick (⊃) which selects a sub-item of a variable
    /// being constructed
    class Picker

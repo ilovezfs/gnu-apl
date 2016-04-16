@@ -89,441 +89,153 @@ Quad_CR::eval_AB(Value_P A, Value_P B)
 {
    if (A->get_rank() > 1)                    RANK_ERROR;
    if (!A->is_scalar_or_len1_vector())       LENGTH_ERROR;
-   if (!A->get_ravel(0).is_integer_cell())   DOMAIN_ERROR;
+const APL_Integer a = A->get_ravel(0).get_int_value();
 
-const PrintContext pctx = Workspace::get_PrintContext(PST_NONE);
-Value_P Z = do_CR(A->get_ravel(0).get_int_value(), *B.get(), pctx);
+PrintContext pctx = Workspace::get_PrintContext(PST_NONE);
+
+Value_P Z = do_CR(a, B.get(), pctx);
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Value_P
-Quad_CR::do_CR(APL_Integer a, const Value & B, PrintContext pctx)
+Quad_CR::do_CR(APL_Integer a, const Value * B, PrintContext pctx)
 {
-const char * alpha = "0123456789abcdef";   // alphabet for hex and base64
+   // some functions a have an inverse (which has its own number, but can
+   // also be specified as -a
+   //
+   if (a < 0)   switch(a)
+      {
+        case  -5: a = 13;   break;
+        case  -6: a = 13;   break;
+        case -13: a =  6;   break;
+        case -12: a = 11;   break;
+        case -11: a = 12;   break;
+        case -14: a = 15;   break;
+        case -15: a = 14;   break;
+        case -16: a = 17;   break;
+        case -17: a = 16;   break;
+        case -18: a = 19;   break;
+        case -19: a = 18;   break;
+        default: Workspace::more_error() = "A ⎕CR B with invalid A < 0";
+                 DOMAIN_ERROR;
+      }
+  
+bool extra_frame = false;
+   switch(a)
+      {
+        case  4:
+        case  8:
+        case 23:
+        case 24:
+        case 25:
+        case 29: extra_frame = true;
+
+      }
+
    switch(a)
       {
         case  0: pctx.set_style(PR_APL);               break;
         case  1: pctx.set_style(PR_APL_FUN);           break;
-
         case  2: pctx.set_style(PR_BOXED_CHAR);        break;
         case  3: pctx.set_style(PR_BOXED_GRAPHIC);     break;
+        case  4: pctx.set_style(PR_BOXED_GRAPHIC);     break;
+        case  5: return do_CR5_6("0123456789ABCDEF", *B);   // byte-vector → HEX
+        case  6: return do_CR5_6("0123456789abcdef", *B);   // byte-vector → hex
         case  7: pctx.set_style(PR_BOXED_GRAPHIC1);    break;
+        case  8: pctx.set_style(PR_BOXED_GRAPHIC1);    break;
         case  9: pctx.set_style(PR_BOXED_GRAPHIC2);    break;
+        case 10: return do_CR10(*B);
+        case 11: return do_CR11(*B);    // Value → CDR conversion
+        case 12: return do_CR12(*B);    // CDR → Value conversion
+        case 13: return do_CR13(*B);    // hex → byte-vector
+        case 14: return do_CR14(*B);    // Value → CDR → hex conversion
+        case 15: return do_CR15(*B);    // hex → CDR → Value conversion
+        case 16: return do_CR16(*B);    // byte vector → base64 (RFC 4648)
+        case 17: return do_CR17(*B);    // base64 → byte vector (RFC 4648)
+        case 18: return do_CR18(*B);    // UCS → UTF8 byte vector
+        case 19: return do_CR19(*B);    // UTF8 byte vector → UCS string
+        case 20: pctx.set_style(PR_NARS);              break;
+        case 21: pctx.set_style(PR_NARS1);             break;
+        case 22: pctx.set_style(PR_NARS2);             break;
+        case 23: pctx.set_style(PR_NARS);              break;
+        case 24: pctx.set_style(PR_NARS1);             break;
+        case 25: pctx.set_style(PR_NARS2);             break;
+        case 26:   return do_CR26(*B);  // Cell types
+        case 27: return do_CR27_28(true,  *B);   // value as int
+        case 28: return do_CR27_28(false, *B);   // value2 as int
+        case 29: pctx.set_style(PR_BOXED_GRAPHIC3);    break;
 
-        case 20:  pctx.set_style(PR_NARS);             break;
-        case 21:  pctx.set_style(PR_NARS1);            break;
-        case 22:  pctx.set_style(PR_NARS2);            break;
-
-        case  4:  a =  3;   goto case_4_8_23_24_25;
-        case  8:  a =  7;   goto case_4_8_23_24_25;
-        case  23: a = 20;   goto case_4_8_23_24_25;
-        case  24: a = 21;   goto case_4_8_23_24_25;
-        case  25: a = 22;   goto case_4_8_23_24_25;
-        case_4_8_23_24_25:
-                { // like 3/7, but enclose B so that the entire B is boxed
-                   Value_P B1(LOC);
-                   new (&B1->get_ravel(0))
-                       PointerCell(B.clone(LOC), B1.getref());
-                   B1->check_value(LOC);
-                   Value_P Z = do_CR(a, *B1.get(), pctx);
-                   Z->check_value(LOC);
-                   return Z;
-                 }
-                 break;
-
-        case  5: alpha = "0123456789ABCDEF";
-        case -13:
-        case  6:
-             {
-               // byte-vector → hex
-               //
-               Shape shape_Z(B.get_shape());
-               if (shape_Z.get_rank() == 0)
-                  {
-                    shape_Z.add_shape_item(2);
-                  }
-               else
-                  {
-                    shape_Z.set_shape_item(B.get_rank() - 1, B.get_cols() * 2);
-                  }
-               Value_P Z(shape_Z, LOC);
-
-               const Cell * cB = &B.get_ravel(0);
-               loop(b, B.element_count())
-                   {
-                     const int val = cB++->get_char_value() & 0x00FF;
-                     const int h = alpha[val >> 4];
-                     const int l = alpha[val & 0x0F];
-                     new (Z->next_ravel())   CharCell((Unicode)h);
-                     new (Z->next_ravel())   CharCell((Unicode)l);
-                   }
-
-               Z->set_default_Spc();
-               Z->check_value(LOC);
-               return Z;
-             }
-
-        case 10: {
-                   vector<UCS_string> ucs_vec;
-                   do_CR10(ucs_vec, B);
-
-                   Value_P Z(ucs_vec.size(), LOC);
-                   loop(line, ucs_vec.size())
-                      {
-                        Value_P Z_line(ucs_vec[line], LOC);
-                        new (Z->next_ravel())   PointerCell(Z_line, Z.getref());
-                      }
-                   Z->set_default_Spc();
-                   Z->check_value(LOC);
-                   return Z;
-                 }
-
-        case -12:
-        case 11: // Value → CDR conversion
-                 //
-                 {
-                   CDR_string cdr;
-                   CDR::to_CDR(cdr, B);
-                   const ShapeItem len = cdr.size();
-                   Value_P Z(len, LOC);
-                   loop(l, len)
-                       new (Z->next_ravel()) CharCell((Unicode)(0xFF & cdr[l]));
-                   Z->set_default_Spc();
-                   Z->check_value(LOC);
-                   return Z;
-                 }
-
-        case -11:
-        case 12: // CDR → Value conversion
-                 //
-                 {
-                   if (B.get_rank() > 1)   RANK_ERROR;
-
-                   CDR_string cdr;
-                   loop(b, B.element_count())
-                       cdr.append(B.get_ravel(b).get_char_value());
-                   Value_P Z = CDR::from_CDR(cdr, LOC);
-                   return Z;
-                 }
-
-        case -5:
-        case -6:
-        case 13: // hex → Value conversion. 2 characters per byte, therefore
-                 // last axis of B must have even length.
-                 //
-                 {
-                   if (B.get_cols() & 1)   LENGTH_ERROR;
-
-                   Shape shape_Z(B.get_shape());
-                   shape_Z.set_shape_item(B.get_rank() - 1,
-                                         (B.get_cols() + 1)/ 2);
-                   Value_P Z(shape_Z, LOC);
-                   const Cell * cB = &B.get_ravel(0);
-                   loop(z, Z->element_count())
-                      {
-                        const int n1 = nibble(cB++->get_char_value());
-                        const int n2 = nibble(cB++->get_char_value());
-                        if (n1 < 0 || n2 < 0)   DOMAIN_ERROR;
-                        new (Z->next_ravel()) CharCell(Unicode(16*n1 + n2));
-                      }
-
-                   Z->set_default_Zero();
-                   Z->check_value(LOC);
-                   return Z;
-                 }
-
-        case -15:
-        case 14: // Value → CDR → hex conversion
-                 //
-                 {
-                   const char * hex = "0123456789abcdef";
-                   CDR_string cdr;
-                   CDR::to_CDR(cdr, B);
-                   const ShapeItem len = cdr.size();
-                   Value_P Z(2*len, LOC);
-                   loop(l, len)
-                       {
-                         const Unicode uh = Unicode(hex[0x0F & cdr[l] >> 4]);
-                         const Unicode ul = Unicode(hex[0x0F & cdr[l]]);
-                         new (Z->next_ravel()) CharCell(uh);
-                         new (Z->next_ravel()) CharCell(ul);
-                       }
-                   Z->set_default_Spc();
-                   Z->check_value(LOC);
-                   return Z;
-                 }
-
-        case -14:
-        case 15: // hex → CDR → Value conversion
-                 //
-                 {
-                   if (B.get_rank() > 1)   RANK_ERROR;
-
-                   CDR_string cdr;
-                   const ShapeItem len = B.element_count()/2;
-                   const Cell * cB = &B.get_ravel(0);
-                   loop(b, len)
-                      {
-                        const int n1 = nibble(cB++->get_char_value());
-                        const int n2 = nibble(cB++->get_char_value());
-                        if (n1 < 0 || n2 < 0)   DOMAIN_ERROR;
-                        cdr.append(16*n1 + n2);
-                      }
-
-                   Value_P Z = CDR::from_CDR(cdr, LOC);
-                   return Z;
-                 }
-
-        case -17:
-        case 16: // byte vector → base64 (RFC 4648)
-             {
-               if (B.get_rank() > 1)   RANK_ERROR;
-               const ShapeItem full_quantums = B.element_count() / 3;
-               const ShapeItem len_Z = 4 * ((B.element_count() + 2) / 3);
-               Value_P Z(len_Z, LOC);
-               alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                       "abcdefghijklmnopqrstuvwxyz"
-                       "0123456789+/";
-               const Cell * cB = &B.get_ravel(0);
-               loop(b, full_quantums)   // encode full quantums
-                   {
-                     /*      -- b1 -- -- b2 -- -- b3 --
-                          z: 11111122 22223333 33444444
-                      */
-                     const int b1 = cB++->get_char_value() & 0x00FF;
-                     const int b2 = cB++->get_char_value() & 0x00FF;
-                     const int b3 = cB++->get_char_value() & 0x00FF;
-
-                     const int z1 = b1 >> 2;
-                     const int z2 = (b1 & 0x03) << 4 | (b2 & 0xF0) >> 4;
-                     const int z3 = (b2 & 0x0F) << 2 | (b3 & 0xC0) >> 6;
-                     const int z4 =  b3 & 0x3F;
-
-                     new (Z->next_ravel()) CharCell((Unicode)alpha[z1]);
-                     new (Z->next_ravel()) CharCell((Unicode)alpha[z2]);
-                     new (Z->next_ravel()) CharCell((Unicode)alpha[z3]);
-                     new (Z->next_ravel()) CharCell((Unicode)alpha[z4]);
-                   }
-
-               switch(B.element_count() - 3*full_quantums)
-                  {
-                     case 0: break;   // length of B is 3 * N
-
-                     case 1:          //  length of B is 3 * N + 1
-                          {
-                            const int b1 = cB++->get_char_value() & 0x00FF;
-                            const int b2 = 0;
-
-                            const int z1 = b1 >> 2;
-                            const int z2 = (b1 & 0x03) << 4 | (b2 & 0xF0) >> 4;
-
-                            new (Z->next_ravel()) CharCell((Unicode)alpha[z1]);
-                            new (Z->next_ravel()) CharCell((Unicode)alpha[z2]);
-                            new (Z->next_ravel()) CharCell((Unicode)'=');
-                            new (Z->next_ravel()) CharCell((Unicode)'=');
-                          }
-                          break;
-
-                     case 2:          // two bytes remaining
-                          {
-                            const int b1 = cB++->get_char_value() & 0x00FF;
-                            const int b2 = cB++->get_char_value() & 0x00FF;
-                            const int b3 = 0;
-
-                            const int z1 = b1 >> 2;
-                            const int z2 = (b1 & 0x03) << 4 | (b2 & 0xF0) >> 4;
-                            const int z3 = (b2 & 0x0F) << 2 | (b3 & 0xC0) >> 6;
-
-                            new (Z->next_ravel()) CharCell((Unicode)alpha[z1]);
-                            new (Z->next_ravel()) CharCell((Unicode)alpha[z2]);
-                            new (Z->next_ravel()) CharCell((Unicode)alpha[z3]);
-                            new (Z->next_ravel()) CharCell((Unicode)'=');
-                          }
-                          break;
-                  }
-
-               Z->set_default_Spc();
-               Z->check_value(LOC);
-               return Z;
-             }
-
-        case -16:
-        case 17: // base64 → byte vector (RFC 4648)
-             {
-               if (B.get_rank() != 1)   RANK_ERROR;
-               if (B.get_cols() & 3)    LENGTH_ERROR;          // length not 4*n
-               if (B.get_cols() == 0)   return Str0(LOC);  // empty value
-
-               // figure number of missing chars in final quantum
-               //
-               int missing;
-               if (B.get_ravel(B.get_cols() - 2).get_char_value() == '=')
-                  missing = 2;
-               else if (B.get_ravel(B.get_cols() - 1).get_char_value() == '=')
-                  missing = 1;
-               else
-                  missing = 0;
-
-               const ShapeItem len_Z = 3 * (B.element_count() / 4) - missing;
-               const ShapeItem quantums = B.element_count() / 4;
-
-               Value_P Z(len_Z, LOC);
-               const Cell * cB = &B.get_ravel(0);
-               loop(q, quantums)
-                   {
-                     const int b1 = sixbit(cB++->get_char_value());
-                     const int b2 = sixbit(cB++->get_char_value());
-                     const int q3 = sixbit(cB++->get_char_value());
-                     const int q4 = sixbit(cB++->get_char_value());
-                     const int b3 = q3 & 0x3F;
-                     const int b4 = q4 & 0x3F;
-
-                     //    b1       b2       b3       b4
-                     // --zzzzzz --zzzzzz --zzzzzz --zzzzzz
-                     //   111111   112222   223333   333333
-                     //
-                     const int z1 =  b1 << 2         | (b2 & 0x30) >> 4;
-                     const int z2 = (b2 & 0x0F) << 4 | b3 >> 2;
-                     const int z3 = (b3 & 0x03) << 6 | b4;
-
-                     if (b1 < 0 || b2 < 0 || q3  == -1 || q4 == -1)
-                        DOMAIN_ERROR;
-
-                     if (q < (quantums - 1) || missing == 0)
-                        {
-                          new (Z->next_ravel())   CharCell((Unicode)z1);
-                          new (Z->next_ravel())   CharCell((Unicode)z2);
-                          new (Z->next_ravel())   CharCell((Unicode)z3);
-                        }
-                     else if (missing == 1)   // k6 k2l4 l20000 =
-                        {
-                          new (Z->next_ravel())   CharCell((Unicode)z1);
-                          new (Z->next_ravel())   CharCell((Unicode)z2);
-                        }
-                     else                     // k6 k20000 = =
-                        {
-                          new (Z->next_ravel())   CharCell((Unicode)z1);
-                        }
-                   }
-
-               Z->set_default_Spc();
-               Z->check_value(LOC);
-               return Z;
-             }
-
-        case -19:
-        case 18: // UCS → UTF8 byte vector
-             {
-               UCS_string ucs(B);
-               UTF8_string utf(ucs);
-               Value_P Z(utf, LOC);
-               return Z;
-             }
-
-        case -18:
-        case 19: // UTF8 byte vector → UCS string
-             {
-               UTF8_string utf(B);
-               for (ShapeItem l = 0; l < utf.size();)
-                   {
-                     int len = 0;
-                     const Unicode uni = UTF8_string::toUni(&utf[l], len,
-                                                            false);
-                     if (uni == Invalid_Unicode)   DOMAIN_ERROR;
-
-                     l += len;
-                   }
-               UCS_string ucs(utf);
-               Value_P Z(ucs, LOC);
-               return Z;
-             }
-
-        case 26:   // Cell types
-             {
-               const ShapeItem len = B.element_count();
-               Value_P Z(len, LOC);
-               loop(l, len)
-                   {
-                     const Cell & cB = B.get_ravel(l);
-                     Cell * cZ = Z->next_ravel_nz();
-                     if (cB.is_pointer_cell())
-                        {
-                          Value_P B_sub = cB.get_pointer_value();
-                          Value_P Z_sub = do_CR(a, *B_sub.get(), pctx);
-                          new (cZ) PointerCell(Z_sub, Z.getref());
-                        }
-                     else
-                        {
-                          new (cZ)   IntCell(cB.get_cell_type());
-                        }
-                   }
-               return Z;
-             }
-          
-        case 27:   // value as int
-        case 28:   // value2 as int
-             {
-               const ShapeItem len = B.element_count();
-               Value_P Z(len, LOC);
-               loop(l, len)
-                   {
-                     const Cell & cB = B.get_ravel(l);
-                     Cell * cZ = Z->next_ravel_nz();
-                     if (cB.is_pointer_cell())
-                        {
-                          Value_P B_sub = cB.get_pointer_value();
-                          Value_P Z_sub = do_CR(a, *B_sub.get(), pctx);
-                          new (cZ) PointerCell(Z_sub, Z.getref());
-                        }
-                     else
-                        {
-                          APL_Integer data = 0;
-                          if (a == 27)   // primary value
-                             {
-                               if (cB.get_cell_type() == CT_CHAR)
-                                  data = cB.get_char_value();
-                               else if (cB.get_cell_type() == CT_CELLREF)
-                                  data = (APL_Integer)cB.get_lval_value();
-                               else
-                                  memcpy(&data, cB.get_u0(), sizeof(data));
-                             }
-                          else   // additional value
-                             {
-                               if (cB.get_cell_type() == CT_COMPLEX)
-                                  memcpy(&data, cB.get_u1(), sizeof(data));
-                               else if (cB.get_cell_type() == CT_CELLREF)
-                                  data = (APL_Integer)
-                                         (*(LvalCell *)&cB).get_cell_owner();
-                             }
-                          new (cZ)   IntCell(data);
-                        }
-                   }
-               return Z;
-             }
-        default: DOMAIN_ERROR;
+        default: Workspace::more_error() = "A ⎕CR B with invalid A";
+                 DOMAIN_ERROR;
       }
 
-   // common code for ⎕CR variants that only differs by print style...
+   // common code for ⎕CR variants that only differ by print style...
    //
-PrintBuffer pb(B, pctx, 0);
-   Assert(pb.is_rectangular());
+   if (extra_frame)
+      {
+         // enclose B so that the entire B is boxed
+         //
+         Value_P B1(LOC);
+         new (&B1->get_ravel(0)) PointerCell(B->clone(LOC), B1.getref());
+         B1->check_value(LOC);
+         PrintBuffer pb(*B1, pctx, 0);
+         return Value_P(pb, LOC);
+      }
+   else   // no frame
+      {
+         PrintBuffer pb(*B, pctx, 0);
+         return Value_P(pb, LOC);
+      }
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR5_6(const char * alpha, const Value & B)
+{
+Shape shape_Z(B.get_shape());
+   if (shape_Z.get_rank() == 0)   // scalar B
+      {
+        shape_Z.add_shape_item(2);
+      }
+   else
+      {
+        shape_Z.set_shape_item(B.get_rank() - 1, B.get_cols()*2);
+      }
 
-const ShapeItem height = pb.get_height();
-const ShapeItem width = pb.get_width(0);
+Value_P Z(shape_Z, LOC);
 
-const Shape sh(height, width);
-Value_P Z(sh, LOC);
+const Cell * cB = &B.get_ravel(0);
+   loop(b, B.element_count())
+       {
+         const int val = cB++->get_char_value() & 0x00FF;
+         const int h = alpha[val >> 4];
+         const int l = alpha[val & 0x0F];
+         new (Z->next_ravel())   CharCell((Unicode)h);
+         new (Z->next_ravel())   CharCell((Unicode)l);
+       }
 
-   // prototype
+   Z->set_default_Spc();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR10(const Value & B)
+{
+   // cannot use PrintBuffer because the lines in ucs_vec
+   // have different lengths
    //
-   Z->get_ravel(0).init(CharCell(UNI_ASCII_SPACE), Z.getref(), LOC);
+vector<UCS_string> ucs_vec;
+   do_CR10(ucs_vec, B);
 
-   loop(y, height)
-   loop(x, width)
-       Z->get_ravel(x + y*width).init(CharCell(pb.get_char(x, y)),
-                                      Z.getref(), LOC);
+Value_P Z(ucs_vec.size(), LOC);
+   loop(line, ucs_vec.size())
+      {
+         Value_P Z_line(ucs_vec[line], LOC);
+         new (Z->next_ravel())   PointerCell(Z_line, Z.getref());
+      }
 
+   Z->set_default_Spc();
    Z->check_value(LOC);
    return Z;
 }
@@ -957,6 +669,334 @@ Quad_CR::do_CR10_item(UCS_string & item, const Cell & cell, V_mode mode,
 
    DOMAIN_ERROR;
    return mode;   // not reached
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR11(const Value & B)
+{
+CDR_string cdr;
+   CDR::to_CDR(cdr, B);
+
+const ShapeItem len = cdr.size();
+Value_P Z(len, LOC);
+   loop(l, len)   new (Z->next_ravel()) CharCell((Unicode)(0xFF & cdr[l]));
+
+   Z->set_default_Spc();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR12(const Value & B)
+{
+   if (B.get_rank() > 1)   RANK_ERROR;
+
+CDR_string cdr;
+   loop(b, B.element_count())   cdr.append(B.get_ravel(b).get_char_value());
+Value_P Z = CDR::from_CDR(cdr, LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR13(const Value & B)
+{
+   // hex → Value conversion. 2 characters per byte in B, therefore
+   // last axis of B must have even length.
+   //
+   if (B.get_cols() & 1)   LENGTH_ERROR;
+
+Shape shape_Z(B.get_shape());
+   shape_Z.set_shape_item(B.get_rank() - 1, (B.get_cols() + 1)/ 2);
+
+Value_P Z(shape_Z, LOC);
+const Cell * cB = &B.get_ravel(0);
+   loop(z, Z->element_count())
+       {
+         const int n1 = nibble(cB++->get_char_value());
+         const int n2 = nibble(cB++->get_char_value());
+         if (n1 < 0 || n2 < 0)   DOMAIN_ERROR;
+         new (Z->next_ravel()) CharCell(Unicode(16*n1 + n2));
+       }
+
+   Z->set_default_Zero();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR14(const Value & B)
+{
+const char * hex = "0123456789abcdef";
+CDR_string cdr;
+   CDR::to_CDR(cdr, B);
+
+const ShapeItem len = cdr.size();
+Value_P Z(2*len, LOC);
+   loop(l, len)
+       {
+         const Unicode uh = Unicode(hex[0x0F & cdr[l] >> 4]);
+         const Unicode ul = Unicode(hex[0x0F & cdr[l]]);
+         new (Z->next_ravel()) CharCell(uh);
+         new (Z->next_ravel()) CharCell(ul);
+       }
+   Z->set_default_Spc();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR15(const Value & B)
+{
+   if (B.get_rank() > 1)   RANK_ERROR;
+
+CDR_string cdr;
+const ShapeItem len = B.element_count()/2;
+const Cell * cB = &B.get_ravel(0);
+   loop(b, len)
+       {
+         const int n1 = nibble(cB++->get_char_value());
+         const int n2 = nibble(cB++->get_char_value());
+         if (n1 < 0 || n2 < 0)   DOMAIN_ERROR;
+         cdr.append(16*n1 + n2);
+       }
+
+   Value_P Z = CDR::from_CDR(cdr, LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR16(const Value & B)
+{
+   if (B.get_rank() > 1)   RANK_ERROR;
+
+const ShapeItem full_quantums = B.element_count() / 3;
+const ShapeItem len_Z = 4 * ((B.element_count() + 2) / 3);
+Value_P Z(len_Z, LOC);
+
+const char *alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    "abcdefghijklmnopqrstuvwxyz"
+                    "0123456789+/";
+
+const Cell * cB = &B.get_ravel(0);
+   loop(b, full_quantums)   // encode full quantums
+      {
+        /*      -- b1 -- -- b2 -- -- b3 --
+             z: 11111122 22223333 33444444
+         */
+        const int b1 = cB++->get_char_value() & 0x00FF;
+        const int b2 = cB++->get_char_value() & 0x00FF;
+        const int b3 = cB++->get_char_value() & 0x00FF;
+
+        const int z1 = b1 >> 2;
+        const int z2 = (b1 & 0x03) << 4 | (b2 & 0xF0) >> 4;
+        const int z3 = (b2 & 0x0F) << 2 | (b3 & 0xC0) >> 6;
+        const int z4 =  b3 & 0x3F;
+
+        new (Z->next_ravel()) CharCell((Unicode)alpha[z1]);
+        new (Z->next_ravel()) CharCell((Unicode)alpha[z2]);
+        new (Z->next_ravel()) CharCell((Unicode)alpha[z3]);
+        new (Z->next_ravel()) CharCell((Unicode)alpha[z4]);
+      }
+
+   // process final bytes
+   //
+   switch(B.element_count() - 3*full_quantums)
+      {
+        case 0: break;   // length of B is 3 * N
+
+        case 1:          //  length of B is 3 * N + 1
+                {
+                  const int b1 = cB++->get_char_value() & 0x00FF;
+                  const int b2 = 0;
+
+                  const int z1 = b1 >> 2;
+                  const int z2 = (b1 & 0x03) << 4 | (b2 & 0xF0) >> 4;
+
+                  new (Z->next_ravel()) CharCell((Unicode)alpha[z1]);
+                  new (Z->next_ravel()) CharCell((Unicode)alpha[z2]);
+                  new (Z->next_ravel()) CharCell((Unicode)'=');
+                  new (Z->next_ravel()) CharCell((Unicode)'=');
+                }
+                break;
+
+        case 2:          // two bytes remaining
+                {
+                  const int b1 = cB++->get_char_value() & 0x00FF;
+                  const int b2 = cB++->get_char_value() & 0x00FF;
+                  const int b3 = 0;
+
+                  const int z1 = b1 >> 2;
+                  const int z2 = (b1 & 0x03) << 4 | (b2 & 0xF0) >> 4;
+                  const int z3 = (b2 & 0x0F) << 2 | (b3 & 0xC0) >> 6;
+
+                  new (Z->next_ravel()) CharCell((Unicode)alpha[z1]);
+                  new (Z->next_ravel()) CharCell((Unicode)alpha[z2]);
+                  new (Z->next_ravel()) CharCell((Unicode)alpha[z3]);
+                  new (Z->next_ravel()) CharCell((Unicode)'=');
+                }
+                break;
+      }
+
+   Z->set_default_Spc();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR17(const Value & B)
+{
+   if (B.get_rank() != 1)   RANK_ERROR;
+
+const int cols = B.get_cols();
+   if (cols == 0)   return Str0(LOC);  // empty value
+   if (cols & 3)    LENGTH_ERROR;      // length not 4*n
+
+   // figure number of missing chars in final quantum
+   //
+int missing = 0;
+   if      (B.get_ravel(cols - 2).get_char_value() == '=')   missing = 2;
+   else if (B.get_ravel(cols - 1).get_char_value() == '=')   missing = 1;
+
+const ShapeItem len_Z = 3 * (B.element_count() / 4) - missing;
+const ShapeItem quantums = B.element_count() / 4;
+
+Value_P Z(len_Z, LOC);
+const Cell * cB = &B.get_ravel(0);
+   loop(q, quantums)
+       {
+         const int b1 = sixbit(cB++->get_char_value());
+         const int b2 = sixbit(cB++->get_char_value());
+         const int q3 = sixbit(cB++->get_char_value());
+         const int q4 = sixbit(cB++->get_char_value());
+         const int b3 = q3 & 0x3F;
+         const int b4 = q4 & 0x3F;
+
+         /*    b1       b2       b3       b4
+            --zzzzzz --zzzzzz --zzzzzz --zzzzzz
+              111111   112222   223333   333333
+          */
+         const int z1 =  b1 << 2         | (b2 & 0x30) >> 4;
+         const int z2 = (b2 & 0x0F) << 4 | b3 >> 2;
+         const int z3 = (b3 & 0x03) << 6 | b4;
+
+         if (b1 < 0 || b2 < 0 || q3  == -1 || q4 == -1)   DOMAIN_ERROR;
+
+         if (q < (quantums - 1) || missing == 0)
+            {
+              new (Z->next_ravel())   CharCell((Unicode)z1);
+              new (Z->next_ravel())   CharCell((Unicode)z2);
+              new (Z->next_ravel())   CharCell((Unicode)z3);
+            }
+         else if (missing == 1)   // k6 k2l4 l20000 =
+            {
+              new (Z->next_ravel())   CharCell((Unicode)z1);
+              new (Z->next_ravel())   CharCell((Unicode)z2);
+            }
+         else                     // k6 k20000 = =
+            {
+              new (Z->next_ravel())   CharCell((Unicode)z1);
+            }
+       }
+
+   Z->set_default_Spc();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR18(const Value & B)
+{
+UCS_string ucs(B);
+UTF8_string utf(ucs);
+Value_P Z(utf, LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR19(const Value & B)
+{
+UTF8_string utf(B);
+   for (ShapeItem l = 0; l < utf.size();)
+       {
+         int len = 0;
+         const Unicode uni = UTF8_string::toUni(&utf[l], len, false);
+         if (uni == Invalid_Unicode)   DOMAIN_ERROR;
+
+         l += len;
+       }
+
+UCS_string ucs(utf);
+Value_P Z(ucs, LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR26(const Value & B)
+{
+const ShapeItem len = B.element_count();
+Value_P Z(len, LOC);
+   loop(l, len)
+      {
+        const Cell & cB = B.get_ravel(l);
+        if (cB.is_pointer_cell())
+           {
+             Value_P B_sub = cB.get_pointer_value();
+             Value_P Z_sub = do_CR26(B_sub.getref());
+             new (Z->next_ravel()) PointerCell(Z_sub, Z.getref());
+           }
+        else
+           {
+             new (Z->next_ravel())   IntCell(cB.get_cell_type());
+           }
+      }
+
+   Z->set_default_Zero();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR27_28(bool primary, const Value & B)
+{
+const ShapeItem len = B.element_count();
+Value_P Z(len, LOC);
+   loop(l, len)
+       {
+         const Cell & cB = B.get_ravel(l);
+         Cell * cZ = Z->next_ravel();
+         if (cB.is_pointer_cell())
+            {
+              Value_P B_sub = cB.get_pointer_value();
+              Value_P Z_sub = do_CR27_28(primary, B_sub.getref());
+              new (cZ) PointerCell(Z_sub, Z.getref());
+            }
+         else
+            {
+              APL_Integer data = 0;
+              if (primary)   // primary value
+                 {
+                   if (cB.get_cell_type() == CT_CHAR)
+                      data = cB.get_char_value();
+                   else if (cB.get_cell_type() == CT_CELLREF)
+                      data = (APL_Integer)cB.get_lval_value();
+                   else
+                      memcpy(&data, cB.get_u0(), sizeof(data));
+                 }
+              else   // additional value
+                 {
+                   if (cB.get_cell_type() == CT_COMPLEX)
+                      memcpy(&data, cB.get_u1(), sizeof(data));
+                   else if (cB.get_cell_type() == CT_CELLREF)
+                      data = (APL_Integer)(*(LvalCell *)&cB).get_cell_owner();
+                 }
+
+              new (cZ)   IntCell(data);
+            }
+       }
+
+   Z->set_default_Zero();
+   Z->check_value(LOC);
+   return Z;
 }
 //-----------------------------------------------------------------------------
 bool

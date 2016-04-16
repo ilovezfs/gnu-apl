@@ -25,12 +25,13 @@
 # error This file shall NOT be #included directly, but by #including Comon.hh
 #endif
 
+class CDR_string;
 class Cell;
 class Value;
 class Shape;
-class CDR_string;
-class UCS_string;
 class UTF8_string;
+class UCS_string;
+class PrintBuffer;
 
 #define ptr_clear(p, l) p.reset()
 
@@ -63,6 +64,9 @@ public:
 
    /// a new vector value from a CDR record
    inline Value_P(const CDR_string & cdr, const char * loc);
+
+   /// a new vector value from a CDR record
+   inline Value_P(const PrintBuffer & pb, const char * loc);
 
    /// Constructor: from Value *
    inline Value_P(Value * val, const char * loc);

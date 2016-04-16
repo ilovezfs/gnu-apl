@@ -40,6 +40,7 @@ using namespace std;
 
 class CDR_string;
 class IndexExpr;
+class PrintBuffer;
 class Value_P;
 class Thread_context;
 
@@ -57,30 +58,102 @@ protected:
    // constructors. Values should not be constructed directly but via their
    // counterparts in class Value_P.
    //
-   /// construct a scalar value (i.e. a values with rank 0).
+   /// constructor: scalar value (i.e. a value with rank 0).
    Value(const char * loc);
 
-   /// construct a scalar value (i.e. a value with rank 0) from a cell
+   /// constructor: a scalar value (i.e. a value with rank 0) from a cell
    Value(const Cell & cell, const char * loc);
 
-   /// construct a true vector (i.e. a value with rank 1) with shape \b sh
+   /// constructor: a true vector (i.e. a value with rank 1) with shape \b sh
    Value(ShapeItem sh, const char * loc);
 
-   /// construct a general array with shape \b sh
+   /// constructor: a general array with shape \b sh
    Value(const Shape & sh, const char * loc);
 
-   /// construct a simple character vector from a UCS string
+   /// constructor: a simple character vector from a UCS string
    Value(const UCS_string & ucs, const char * loc);
 
-   /// construct a simple character vector from a UTF8 string
+   /// constructor: a simple character vector from a UTF8 string
    Value(const UTF8_string & utf, const char * loc);
 
-   /// construct a simple character vector from a CDR string
+   /// constructor: a simple character vector from a CDR string
    Value(const CDR_string & cdr, const char * loc);
+
+   /// constructor: a character matrix from a PrintBuffer
+   Value(const PrintBuffer & pb, const char * loc);
 
 public:
    /// destructor
    virtual ~Value();
+
+   /// return \b true iff \b this value is a scalar.
+   bool is_scalar() const
+      { return shape.get_rank() == 0; }
+
+   /// return \b true iff \b this value is a simple (i.e. depth 0) scalar.
+   bool is_simple_scalar() const
+      { return is_scalar() &&
+              !(get_ravel(0).is_pointer_cell() || get_lval_cellowner()); }
+
+   /// return \b true iff \b this value is empty (some dimension is 0).
+   bool is_empty() const
+      { return shape.is_empty(); }
+
+   /// return \b true iff \b this value is a numeric scalar.
+   bool is_numeric_scalar() const
+      { return  is_scalar() && get_ravel(0).is_numeric(); }
+
+   /// return \b true iff \b this value is a character scalar
+   bool is_character_scalar() const
+      { return  is_scalar() && get_ravel(0).is_character_cell(); }
+
+   /// return \b true iff \b this value is a scalar or vector
+   bool is_scalar_or_vector() const
+      { return  get_rank() < 2; }
+
+   /// return \b true iff \b this value is a vector.
+   bool is_vector() const
+      { return  get_rank() == 1; }
+
+   /// return \b true iff \b this value is a scalar or vector of length 1.
+   bool is_scalar_or_len1_vector() const
+      { return is_scalar() || (is_vector() && (get_shape_item(0) == 1)); }
+
+   /// return \b true iff \b this value is a simple character scalar or vector.
+   bool is_char_string() const
+      { return get_rank() <= 1 && is_char_array(); }
+
+   /// return \b true iff \b this value is a simple character vector.
+   bool is_char_vector() const
+      { return get_rank() == 1 && is_char_array(); }
+
+   /// return \b true iff \b this value is a simple character vector
+   /// containing only APL characters (from ⎕AV)
+   bool is_apl_char_vector() const;
+
+   /// return \b true iff \b all ravel elements of this value are characters
+   bool is_char_array() const;
+
+   /// return \b true iff \b this value is a simple character scalar.
+   bool is_char_scalar() const
+      { return get_rank() == 0 && get_ravel(0).is_character_cell(); }
+
+   /// return \b true iff \b this value is simple (i.e. not nested).
+   bool is_simple() const;
+
+   /// return \b true iff \b this value and its ravel items have rank < 2
+   bool is_one_dimensional() const;
+
+   /// return \b true iff \b this value is a simple integer vector.
+   bool is_int_vector() const;
+
+   /// return \b true iff \b this value is a simple integer scalar.
+   bool is_int_scalar() const
+      { return get_rank() == 0 && get_ravel(0).is_near_int(); }
+
+   /// return true, if this value has complex cells, false iff it has only
+   /// real cells. Throw domain error for other cells (char, nested etc.)
+   bool is_complex() const;
 
    /// return a value containing pointers to all ravel cells of this value.
    Value_P get_cellrefs(const char * loc);
@@ -172,12 +245,6 @@ public:
    /// Return the number of scalars in this value (enlist).
    ShapeItem get_enlist_count() const;
 
-   /// return \b true iff \b this value is simple (i.e. not nested).
-   bool is_simple() const;
-
-   /// return \b true iff \b this value and its ravel items have rank < 2
-   bool is_one_dimensional() const;
-
    /// compute the depth of this value.
    Depth compute_depth() const;
 
@@ -244,57 +311,13 @@ public:
    static void glue_closed_closed(Token & result, Value_P A, Value_P B,
                                   const char * loc);
 
-   /// return \b true iff \b this value is a scalar.
-   bool is_scalar() const
-      { return shape.get_rank() == 0; }
-
    /// return the number of Value_P pointing to \b this value
    int get_owner_count() const
       { return owner_count; }
 
-   /// return \b true iff \b this value is a simple (i.e. depth 0) scalar.
-   bool is_simple_scalar() const
-      { return is_scalar() &&
-              !(get_ravel(0).is_pointer_cell() || get_lval_cellowner()); }
-
    /// return \b true iff this value is an lval (selective assignment)
    /// i.e. return true if at least one leaf value is an lval.
    Value * get_lval_cellowner() const;
-
-   /// return \b true iff \b this value is empty (some dimension is 0).
-   bool is_empty() const
-      { return shape.is_empty(); }
-
-   /// return \b true iff \b this value is a numeric scalar.
-   bool is_numeric_scalar() const
-      { return  is_scalar() && get_ravel(0).is_numeric(); }
-
-   /// return \b true iff \b this value is a character scalar
-   bool is_character_scalar() const
-      { return  is_scalar() && get_ravel(0).is_character_cell(); }
-
-   /// return \b true iff \b this value is a scalar or vector
-   bool is_scalar_or_vector() const
-      { return  get_rank() < 2; }
-
-   /// return \b true iff \b this value is a vector.
-   bool is_vector() const
-      { return  get_rank() == 1; }
-
-   /// return \b true iff \b this value is a scalar or vector of length 1.
-   bool is_scalar_or_len1_vector() const
-      { return is_scalar() || (is_vector() && (get_shape_item(0) == 1)); }
-
-   /// return \b true iff \b this value is a simple character vector.
-   bool is_char_vector() const;
-
-   /// return \b true iff \b this value is a simple character vector
-   /// containing only APL characters (from ⎕AV)
-   bool is_apl_char_vector() const;
-
-   /// return \b true iff \b this value is a simple character scalar or vector.
-   bool is_char_string() const
-      { return is_char_scalar() || is_char_vector(); }
 
    /// return true iff more ravel items (as per shape) need to be initialized.
    /// (the prototype of empty values may still be missing)
@@ -305,15 +328,6 @@ public:
    Cell * next_ravel()
       { return more() ? &ravel[valid_ravel_items++] : 0; }
 
-   /// return the next ravel cell to be initialized (including prototype)
-   Cell * next_ravel_nz()
-      { if (more())   return &ravel[valid_ravel_items++];
-        if (element_count() || valid_ravel_items)   return 0;
-        return &ravel[valid_ravel_items++]; }
-
-   /// return \b true iff \b this value is a simple character scalar.
-   bool is_char_scalar() const;
-
    /// return the NOTCHAR property of the value. NOTCHAR is false for simple
    /// char arrays and true if any element is numeric or nested. The NOTCHAR
    /// property of empty arrays is the NOTCHAR property of its prototype.
@@ -323,16 +337,6 @@ public:
    /// convert chars to ints and ints to chars (recursively).
    /// return the number of cells that are neither char nor int.
    int toggle_UCS();
-
-   /// return \b true iff \b this value is a simple integer vector.
-   bool is_int_vector() const;
-
-   /// return \b true iff \b this value is a simple integer scalar.
-   bool is_int_scalar() const;
-
-   /// return true, if this value has complex cells, false iff it has only
-   /// real cells. Throw domain error for other cells (char, nested etc.)
-   bool is_complex() const;
 
    /// return \b true iff \b this value has the same rank as \b other.
    bool same_rank(const Value & other) const

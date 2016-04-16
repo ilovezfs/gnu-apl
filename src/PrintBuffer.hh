@@ -171,6 +171,11 @@ public:
    /// return the ColInfo of \b this PrintBuffer
    const ColInfo & get_info() const   { return col_info; }
 
+   /// update col_info after a change of buffer
+   void update_info()/// append UCS_string \b ucs to \b this PrintBuffer
+      { if (buffer.size())   col_info.int_len =
+                             col_info.real_len = buffer[0].size(); }
+
    /// return the ColInfo of \b this PrintBuffer
    ColInfo & get_info() { return col_info; }
 

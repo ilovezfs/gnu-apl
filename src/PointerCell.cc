@@ -143,6 +143,11 @@ PointerCell::character_representation(const PrintContext & pctx) const
 Value_P val = get_pointer_value();
    Assert(val);
 
+   if (pctx.get_style() & PST_QUOTE_CHARS)
+      {
+        if (val->is_char_vector())   return PrintBuffer(val.getref(), pctx, 0);
+      }
+
    if (pctx.get_style() == PR_APL_FUN)   // APL function display
       {
         const ShapeItem ec = val->element_count();
@@ -175,7 +180,10 @@ Value_P val = get_pointer_value();
            }
 
         ColInfo ci;
-        return PrintBuffer(ucs, ci);
+        PrintBuffer ret(ucs, ci);
+        ret.get_info().int_len  = ret.get_width(0);
+        ret.get_info().real_len = ret.get_width(0);
+        return ret;
       }
 
 PrintBuffer ret(*val, pctx, 0);
@@ -236,6 +244,7 @@ PrintBuffer ret(*val, pctx, 0);
            }
        else
            {
+   if (!(pctx.get_style() & PST_QUOTE_CHARS && val->is_char_array()))
              ret.add_frame(pctx.get_style(), val->get_shape(),
                            val->compute_depth());
            }

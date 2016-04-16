@@ -84,6 +84,13 @@ inline Value_P::Value_P(const CDR_string & cdr, const char * loc)
    ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
 }
 //-----------------------------------------------------------------------------
+inline Value_P::Value_P(const PrintBuffer & pb, const char * loc)
+   : value_p(new Value(pb, loc))
+{
+   increment_owner_count(value_p, loc);
+   ADD_EVENT(value_p, VHE_PtrNew, value_p->owner_count, loc);
+}
+//-----------------------------------------------------------------------------
 inline Value_P::Value_P(const UTF8_string & utf, const char * loc)
    : value_p(new Value(utf, loc))
 {
