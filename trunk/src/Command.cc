@@ -60,11 +60,8 @@ UCS_string line;
 bool eof = false;
    InputMux::get_line(LIM_ImmediateExecution, Workspace::get_prompt(),
                       line, eof, LineInput::get_history());
-   if (eof)
-      {
-        CERR << "EOF at " << LOC << endl;
-        return;
-      }
+
+   if (eof) CERR << "EOF at " << LOC << endl;
 
    process_line(line);
 }
