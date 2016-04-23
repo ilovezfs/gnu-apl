@@ -1247,7 +1247,7 @@ print_db(ostream & out)
 {
   // print active processors
    //
-   out << "╔══════════════════════┬════════┬══════════════════─═══╗" << endl
+   out << "╔══════════════════════╤════════╤══════════════════════╗" << endl
        << "║ Processor            │ fd fd2 │ Program              ║" << endl
        << "╠══════════════════════╪════════╪══════════════════════╣" << endl;
    for (size_t p = 0; p < connected_procs.size(); ++p)
