@@ -407,7 +407,7 @@ int
 UTF8_to_Unicode(const char * utf, int * length)
 {
 int len = 0;
-const Unicode uni = UTF8_string::toUni((const UTF8 *)utf, len);
+const Unicode uni = UTF8_string::toUni((const UTF8 *)utf, len, false);
    if (length)   *length = len;
    return uni;
 }
