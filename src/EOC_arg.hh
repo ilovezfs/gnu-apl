@@ -81,6 +81,7 @@ struct RANK
   ShapeItem rk_chunk_B;      ///< rank of lower dimensions of B
   ShapeItem a;               ///< current A cell
   ShapeItem b;               ///< current B cell
+  int       Z_nested;        ///< Z is nested
 
   char axes[MAX_RANK + 1];   ///< axes for ⍤[X]
 };

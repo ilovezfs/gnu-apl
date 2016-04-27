@@ -72,6 +72,7 @@ RANK & _arg = arg.u.u_RANK;
 
    _arg.rk_chunk_B = rank_chunk_B;
    _arg.b = 0;
+   _arg.Z_nested = false;
    _arg.axes[0] = -1;
    if (axes)
       {
@@ -116,9 +117,14 @@ RANK & _arg = arg.u.u_RANK;
              Cell * cZ = arg.Z->next_ravel();
              if (cZ == 0)   cZ = &arg.Z->get_ravel(0);   // empty Z
              if (ZZ->is_scalar())
-                cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
+                {
+                  cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
+                }
              else
-                new (cZ)   PointerCell(ZZ, arg.Z.getref());
+                {
+                  new (cZ)   PointerCell(ZZ, arg.Z.getref());
+                  _arg.Z_nested = true;
+                }
              continue;
            }
 
@@ -127,7 +133,8 @@ RANK & _arg = arg.u.u_RANK;
 
    arg.Z->check_value(LOC);
 
-   if (_arg.axes[0] == -1)   return Bif_F12_PICK::disclose(arg.Z, true);
+   if (!_arg.Z_nested)     return Token(TOK_APL_VALUE1, arg.Z);
+   if (_arg.axes[0] == -1) return Bif_F12_PICK::disclose(arg.Z, true);
 
 Shape sh_X;
    loop(r, _arg.axes[0])   sh_X.add_shape_item(_arg.axes[r + 1]);
@@ -208,6 +215,7 @@ RANK & _arg = arg.u.u_RANK;
 
    _arg.rk_chunk_A = rank_chunk_A;
    _arg.rk_chunk_B = rank_chunk_B;
+   _arg.Z_nested = false;
 Shape sh_frame = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 
    if (repeat_A)   // "conform" A to B
@@ -278,9 +286,14 @@ RANK & _arg = arg.u.u_RANK;
              Cell * cZ = arg.Z->is_empty() ? &arg.Z->get_ravel(0)
                                            : arg.Z->next_ravel();
              if (ZZ->is_scalar())
-                cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
+                {
+                  cZ->init(ZZ->get_ravel(0), arg.Z.getref(), LOC);
+                }
              else
-                new (cZ) PointerCell(ZZ, arg.Z.getref());
+                {
+                  new (cZ) PointerCell(ZZ, arg.Z.getref());
+                  _arg.Z_nested = true;
+                }
 
              continue;
           }
@@ -290,7 +303,8 @@ RANK & _arg = arg.u.u_RANK;
 
    arg.Z->check_value(LOC);
 
-   if (_arg.axes[0] == -1)   return Bif_F12_PICK::disclose(arg.Z, true);
+   if (!_arg.Z_nested)     return Token(TOK_APL_VALUE1, arg.Z);
+   if (_arg.axes[0] == -1) return Bif_F12_PICK::disclose(arg.Z, true);
 
 Shape sh_X;
    loop(r, _arg.axes[0])   sh_X.add_shape_item(_arg.axes[r + 1]);
@@ -309,9 +323,14 @@ EOC_arg * next = arg->next;
    //
 Value_P ZZ = token.get_apl_val();
    if (ZZ->is_scalar())
-      arg->Z->next_ravel()->init(ZZ->get_ravel(0), arg->Z.getref(), LOC);
+      {
+        arg->Z->next_ravel()->init(ZZ->get_ravel(0), arg->Z.getref(), LOC);
+      }
    else
-      new (arg->Z->next_ravel())   PointerCell(ZZ, arg->Z.getref());
+      {
+        new (arg->Z->next_ravel())   PointerCell(ZZ, arg->Z.getref());
+        arg->u.u_RANK.Z_nested = true;
+      }
 
    if (arg->z < (arg->Z->nz_element_count() - 1))   Workspace::pop_SI(LOC);
 
