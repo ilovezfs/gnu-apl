@@ -66,6 +66,15 @@ Bif_OPER2_RANK::do_LyXB(Function * LO, const Shape * axes,
    // split shape of B into high (=frame) and low (= chunk) shapes.
    //
 const Shape shape_Z = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
+   if (shape_Z.is_empty())
+      {
+        Value_P Fill_B = Bif_F12_TAKE::first(B);
+        Token tZ = LO->eval_fill_B(Fill_B);
+        Value_P Z = tZ.get_apl_val();
+        Z->set_shape(B->get_shape());
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
 Value_P Z(shape_Z, LOC);
 EOC_arg arg(Z, Value_P(), LO, 0, B);
 RANK & _arg = arg.u.u_RANK;
@@ -192,6 +201,26 @@ bool repeat_B = 0;
 Shape sh_A_frame = A->get_shape().high_shape(A->get_rank() - rank_chunk_A);
 const Shape sh_B_frame = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
 Shape shape_Z;
+   if (shape_Z.is_empty())
+      {
+        Value_P Fill_A = Bif_F12_TAKE::first(A);
+        Value_P Fill_B = Bif_F12_TAKE::first(B);
+        Shape shape_Z;
+
+        if (A->is_empty())          shape_Z = A->get_shape();
+        else if (!A->is_scalar())   DOMAIN_ERROR;
+
+        if (B->is_empty())          shape_Z = B->get_shape();
+        else if (!B->is_scalar())   DOMAIN_ERROR;
+
+        Value_P Z1 = LO->eval_fill_AB(Fill_A, Fill_B).get_apl_val();
+
+        Value_P Z(shape_Z, LOC);
+        new (&Z->get_ravel(0)) PointerCell(Z1, Z.getref());
+        Z->check_value(LOC);
+        return Token(TOK_APL_VALUE1, Z);
+      }
+
    if (rk_A_frame == 0)   // "conform" A to B
       {
         shape_Z = sh_B_frame;
