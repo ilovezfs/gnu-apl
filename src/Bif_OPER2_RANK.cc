@@ -72,6 +72,7 @@ const Shape shape_Z = B->get_shape().high_shape(B->get_rank() - rank_chunk_B);
         Token tZ = LO->eval_fill_B(Fill_B);
         Value_P Z = tZ.get_apl_val();
         Z->set_shape(B->get_shape());
+        Z->check_value(LOC);
         return Token(TOK_APL_VALUE1, Z);
       }
 
@@ -101,10 +102,10 @@ RANK & _arg = arg.u.u_RANK;
       {
         const Shape shape_BB = arg.B->get_shape().low_shape(_arg.rk_chunk_B);
         Value_P BB(shape_BB, LOC);
-        loop(l, BB->element_count())
+        loop(l, BB->nz_element_count())
             {
               const Cell & cB = arg.B->get_ravel(_arg.b++);
-              BB->next_ravel()->init(cB, BB.getref(), LOC);
+              BB->get_ravel(l).init(cB, BB.getref(), LOC);
             }
         BB->check_value(LOC);
 
@@ -279,20 +280,20 @@ RANK & _arg = arg.u.u_RANK;
       {
         const Shape shape_AA = arg.A->get_shape().low_shape(_arg.rk_chunk_A);
         Value_P AA(shape_AA, LOC);
-        loop(l, AA->element_count())
+        loop(l, AA->nz_element_count())
             {
               const Cell & cA = arg.A->get_ravel(_arg.a++);
-              AA->next_ravel()->init(cA, AA.getref(), LOC);
+              AA->get_ravel(l).init(cA, AA.getref(), LOC);
             }
         if (arg.A->get_rank() == _arg.rk_chunk_A)   _arg.a = 0;
         AA->check_value(LOC);
 
         const Shape shape_BB = arg.B->get_shape().low_shape(_arg.rk_chunk_B);
         Value_P BB(shape_BB, LOC);
-        loop(l, BB->element_count())
+        loop(l, BB->nz_element_count())
             {
               const Cell & cB = arg.B->get_ravel(_arg.b++);
-              BB->next_ravel()->init(cB, BB. getref(), LOC);
+              BB->get_ravel(l).init(cB, BB. getref(), LOC);
             }
         if (arg.B->get_rank() == _arg.rk_chunk_B)   _arg.b = 0;
         BB->check_value(LOC);
@@ -412,7 +413,7 @@ const Rank rk_B = rank_B;
                          y123->get_ravel(1).get_near_int();
                          y123->get_ravel(2).get_near_int();   break;
 
-             default: LENGTH_ERROR;
+        default: LENGTH_ERROR;
       }
 
    // 3. adjust rank_B if they exceed its initial value or
@@ -534,7 +535,8 @@ const ShapeItem length = y123_B->element_count();
             {
               B = Value_P(length - 1, LOC);
               loop(l, length - 1)
-                  B->next_ravel()->init(y123_B->get_ravel(l + 1), B.getref(), LOC);
+                  B->next_ravel()->init(y123_B->get_ravel(l + 1),
+                                                          B.getref(), LOC);
             }
          return;
       }
