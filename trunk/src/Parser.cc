@@ -512,7 +512,7 @@ Parser::degrade_scan_reduce(Token_string & tos)
 bool
 Parser::check_if_value(const Token_string & tos, int pos)
 {
-   // figure if tos[pos] (the token left og /. ⌿. \. or ⍀ is the end of a
+   // figure if tos[pos] (the token left of /. ⌿. \. or ⍀) is the end of a
    // function (and then return false) or the end of a value (and then
    // return true).
    //
@@ -525,6 +525,7 @@ Parser::check_if_value(const Token_string & tos, int pos)
         case TC_L_PARENT:   // e.g. (/       (actually syntax error)
         case TC_VALUE:      // e.g. 5/
         case TC_RETURN:     // e.g.  /       (actually syntax error)
+        case TC_OPER2:      // e.g. ./
              return true;   // tos[pos] is at the end of a value
 
         case TC_R_BRACK:    // e.g. +[1]/2 or 2/[1]2
