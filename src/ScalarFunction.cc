@@ -1006,7 +1006,7 @@ uint8_t * used = new uint8_t[(set_size + 7)/8];
 
    loop(z, zlen)
        {
-         const uint64_t rnd = Workspace::get_RL(set_size) % set_size;
+         const uint64_t rnd = Workspace::get_RL(set_size);
 
          if (used[rnd >> 3] & 1 << (rnd & 7))   // already drawn
             {
