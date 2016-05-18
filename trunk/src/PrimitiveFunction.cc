@@ -1389,20 +1389,20 @@ const Cell * cA = &A->get_ravel(0);
                     }
 
                const Cell * cB = &B->get_ravel(l);
+               Cell * cZ = Z->next_ravel();
                if (integer_A && integer_B)
                   {
-                    const bool overflow = decode_int(Z->next_ravel(), l_len_A,
-                                                 cA, h_len_B, cB, l_len_B);
+                    const bool overflow = decode_int(cZ, l_len_A, cA,
+                                                     h_len_B, cB, l_len_B);
                      if (!overflow)   continue;
+
                      // otherwise: compute as float
                   }
 
                if (complex_A || complex_B)
-                  decode_complex(Z->next_ravel(), l_len_A, cA,
-                                 h_len_B, cB, l_len_B, qct);
+                  decode_complex(cZ, l_len_A, cA, h_len_B, cB, l_len_B, qct);
                else
-                  decode_real(Z->next_ravel(), l_len_A, cA,
-                                 h_len_B, cB, l_len_B, qct);
+                  decode_real(cZ, l_len_A, cA, h_len_B, cB, l_len_B, qct);
              }
          cA += l_len_A;
        }
@@ -1431,12 +1431,13 @@ const ShapeItem len = (len_A == 1) ? len_B : len_A;
         if (weight_f < SMALL_INT)   return true;
 
         const APL_Integer vB = cB[0].get_near_int();
-        value += weight*vB;
+        value   += weight*vB;
         value_f += weight_f*vB;
         if (value_f > LARGE_INT)   return true;
         if (value_f < SMALL_INT)   return true;
 
-        weight *= cA[0].get_near_int();
+        weight   *= cA[0].get_near_int();
+        weight_f *= cA[0].get_near_int();
         if (len_A != 1)   --cA;
         if (len_B != 1)   cB -= dB;
       }
@@ -1465,7 +1466,7 @@ const ShapeItem len = (len_A == 1) ? len_B : len_A;
         if (len_B != 1)   cB -= dB;
       }
 
-   if (Cell::is_near_int(value))
+   if (value < LARGE_INT && value > SMALL_INT && Cell::is_near_int(value))
       new (cZ)   IntCell(value);
    else
       new (cZ)   FloatCell(value);
@@ -1494,7 +1495,8 @@ const ShapeItem len = (len_A == 1) ? len_B : len_A;
       new (cZ)   ComplexCell(value);
    else if (value.imag() < -qct)
       new (cZ)   ComplexCell(value);
-   else if (Cell::is_near_int(value.real()))
+   else if (value.real() < LARGE_INT && value.real() > SMALL_INT
+                              && Cell::is_near_int(value.real()))
       new (cZ)   IntCell(value.real());
    else
       new (cZ)   FloatCell(value.real());
