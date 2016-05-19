@@ -750,7 +750,7 @@ const ShapeItem from = axes.get_shape_item(0);
    if (from < 0)   AXIS_ERROR;
 
 const ShapeItem to   = axes.get_last_shape_item();
-   if (to > B->get_rank())   AXIS_ERROR;
+   if (to >= B->get_rank())   AXIS_ERROR;
 
    // check that the axes are contiguous and compute the number of elements
    // in the combined axes
