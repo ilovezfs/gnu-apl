@@ -36,7 +36,7 @@
 class UserFunction_header
 {
 public:
-   /// constructor from first line in \b txt
+   /// constructor from first line in \b txt (for normal defined functions)
    UserFunction_header(const UCS_string txt);
 
    /// constructor from signature (for lambdas)
@@ -335,6 +335,9 @@ public:
 
    /// recompile the body
    void parse_body(int & error_line, const char * loc, bool tolerant);
+
+   /// clone a named lambda with a new name (for NEW←LAMBDA)
+   Function * clone_lambda(Symbol * new_name) const;
 
    /// return stop lines (from S∆fun ← lines)
    const vector<Function_Line> & get_stop_lines() const
