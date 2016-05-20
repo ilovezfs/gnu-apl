@@ -1076,6 +1076,27 @@ UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
    else              body.append(Token(TOK_RETURN_VOID), LOC);
 }
 //-----------------------------------------------------------------------------
+Function *
+UserFunction::clone_lambda(Symbol * new_name) const
+{
+int sig = SIG_FUN;
+   if (header.Z())    sig |= SIG_Z;
+   if (header.A())    sig |= SIG_A;
+   if (header.LO())   sig |= SIG_LO;
+   if (header.RO())   sig |= SIG_RO;
+   if (header.X())    sig |= SIG_X;
+   if (header.B())    sig |= SIG_B;
+
+Token_string lbody = get_body();
+   if (lbody.size() > 1 && lbody.last().get_tag() == TOK_ENDL)   lbody.pop();
+   Executable::reverse_all_token(lbody);
+
+UserFunction * ret = new UserFunction((Fun_signature)sig, new_name->get_name(),
+                                      get_text(1), lbody);
+
+   return ret;
+}
+//-----------------------------------------------------------------------------
 UserFunction *
 UserFunction::load(const char * workspace, const char * function)
 {

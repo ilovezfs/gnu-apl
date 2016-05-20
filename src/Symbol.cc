@@ -298,18 +298,25 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
 }
 //-----------------------------------------------------------------------------
 void
-Symbol::assign_named_lambda(Function * lambda, const char * loc)
+Symbol::assign_named_lambda(const Function * lambda, const char * loc)
 {
 ValueStackItem & vs = value_stack.back();
+const UserFunction * ufun = lambda->get_ufun1();
+   Assert(ufun);
 
    switch(vs.name_class)
       {
-        case NC_UNUSED_USER_NAME:
         case NC_FUNCTION:
         case NC_OPERATOR:
+             if (!vs.sym_val.function->is_lambda())   SYNTAX_ERROR;
+             Assert(vs.sym_val.function->get_ufun1());
+             delete vs.sym_val.function->get_ufun1();
+
+        case NC_UNUSED_USER_NAME:
              if (lambda->is_operator())   vs.name_class = NC_OPERATOR;
              else                         vs.name_class = NC_FUNCTION;
-             vs.sym_val.function = lambda;
+
+             vs.sym_val.function = ufun->clone_lambda(this);
              if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;
 
