@@ -405,6 +405,12 @@ ValueStackItem & tos = symbol->value_stack[0];
                   return false;
                 }
 
+             if (tos.sym_val.function->is_lambda())
+                {
+                  symbol->expunge();
+                  return false;
+                }
+
              {
                const UserFunction * ufun = tos.sym_val.function->get_ufun1();
                Assert(ufun);

@@ -29,8 +29,10 @@
 
 //-----------------------------------------------------------------------------
 Executable::Executable(const UCS_string & ucs,  bool multi_line,
-                       const char * loc)
-   : alloc_loc(loc)
+                       ParseMode pm, const char * loc)
+   : alloc_loc(loc),
+     pmode(pm),
+     refcount(0)
 {
 // { cerr << "Executable " << (void *)this << " created at " << loc << endl; }
 
@@ -62,7 +64,9 @@ Executable::Executable(const UCS_string & ucs,  bool multi_line,
 //-----------------------------------------------------------------------------
 Executable::Executable(Fun_signature sig, const UCS_string & fname,
            const UCS_string & lambda_text, const char * loc)
-   : alloc_loc(loc)
+   : alloc_loc(loc),
+     pmode(PM_FUNCTION),
+     refcount(0)
 {
    text.push_back(UserFunction_header::lambda_header(sig, fname));
    text.push_back(lambda_text);
@@ -85,54 +89,16 @@ Executable::clear_body()
    loop(b, body.size())
       {
         body[b].extract_apl_val(LOC);
-      }
 
-   clear_lambdas();
-   body.clear();
-}
-//-----------------------------------------------------------------------------
-void
-Executable::clear_lambdas()
-{
-   while (named_lambdas.size())
-      {
-        // remove named lambda, unless it is bound to a symbol
-        const UserFunction * ufun = named_lambdas.back();
-        if (ufun == 0)   continue;
-
-        const Function * fun = ufun;
-
-        const UCS_string & ufun_name = ufun->get_name();
-        const Symbol * ufun_sym = Workspace::lookup_existing_symbol(ufun_name);
-
-        bool used = false;
-        if (ufun_sym)
+        if (body[b].is_function())
            {
-              loop(v, ufun_sym->value_stack_size())
-                 {
-                   const ValueStackItem vs = (*ufun_sym)[v];
-                   if ((vs.name_class == NC_FUNCTION ||
-                        vs.name_class == NC_OPERATOR) &&
-                        vs.sym_val.function == fun)
-                      {
-                        // the named lambda was assigned to ufun_name so we
-                        // should not delete it.
-                        //
-                        used = true;
-                        break;
-                      }
-                 }
+              Function * fun = body[b].get_function();
+              UserFunction * ufun = fun->get_ufun1();
+              if (ufun && ufun->is_lambda())   ufun->decrement_refcount(LOC);
            }
-
-        if (!used)   delete named_lambdas.back();
-        named_lambdas.pop_back();
       }
 
-   while (unnamed_lambdas.size())
-      {
-        delete unnamed_lambdas.back();
-        unnamed_lambdas.pop_back();
-      }
+   body.clear();   // resize to 0
 }
 //-----------------------------------------------------------------------------
 ErrorCode
@@ -462,20 +428,21 @@ Executable::unmark_all_values() const
    loop (b, body.size())
       {
         const Token & tok = body[b];
-        if (tok.get_ValueType() != TV_VAL)      continue;
+        if (tok.get_ValueType() == TV_VAL)
+           {
+             Value_P value = tok.get_apl_val();
+             if (!!value)   value->unmark();
+           }
 
-        Value_P value = tok.get_apl_val();
-        if (!!value)   value->unmark();
-      }
-
-   loop (n, named_lambdas.size())
-      {
-        named_lambdas[n]->unmark_all_values();
-      }
-
-   loop (u, unnamed_lambdas.size())
-      {
-        unnamed_lambdas[u]->unmark_all_values();
+        if (tok.get_ValueType() == TV_FUN)
+           {
+             Function * fun = tok.get_function();
+             UserFunction * ufun = fun->get_ufun1();
+             if (ufun && ufun->is_lambda())
+                {
+                  ufun->unmark_all_values();
+                }
+           }
       }
 }
 //-----------------------------------------------------------------------------
@@ -518,58 +485,36 @@ bool have_curly = false;
 
    if (!have_curly)   return;   // no { ... } in this body
 
-   // setup_lambdas() may be called multiple times for the same executable.
-   // remove old lambdas...
-   //
-   clear_lambdas();
-
    // undo the token reversion of the body so that the body token and the
    // text run in the same direction.
    //
    reverse_statement_token(body);
 
+int lambda_num = 0;
    loop(b, body.size())
        {
          if (body[b].get_tag() != TOK_L_CURLY)   continue;   // not {
 
-         b = setup_one_lambda(b) - 1;   // -1 due to ++b in loop(b) above
+         b = setup_one_lambda(b, ++lambda_num) - 1;   // -1 to compensate ++b in loop(b) above
        }
+
+   Parser::remove_void_token(body);
 
    // redo the token reversion of the body so that the body token and the
    // text run in the same direction.
    //
    reverse_statement_token(body);
 
-   adjust_line_starts();
-   Parser::remove_void_token(body);
    Parser::match_par_bra(body, true);
+   adjust_line_starts();
 }
 //-----------------------------------------------------------------------------
 ShapeItem
-Executable::setup_one_lambda(ShapeItem b)
+Executable::setup_one_lambda(ShapeItem b, int lambda_num)
 {
 const ShapeItem bend = b + body[b].get_int_val2();   // the corresponding }
    Assert(bend < body.size());
    Assert(body[bend].get_tag() == TOK_R_CURLY);
-
-   // a named lambda has the form Q←{ ... }
-   //
-   // however, eg. Q←{ ... } / ... is NOT a named lambda but an unnamed
-   // lambda for / whose result is assigned to Q. We need to distinguish
-   // the two cases and remember if the token after } is the start of
-   // the next statement or not.
-   //
-const bool right_curly_at_end = (bend >= body.size() - 1)
-                             ||  body[bend + 1].get_tag() == TOK_DIAMOND
-                             ||  body[bend + 1].get_tag() == TOK_END
-                             ||  body[bend + 1].get_tag() == TOK_ENDL;
-
-const bool is_named = right_curly_at_end                  && 
-                      b >=   2                            &&
-                      body[b - 1].get_tag() == TOK_ASSIGN &&
-                      body[b - 2].get_tag() == TOK_LSYMB;
-
-Symbol * lambda_sym = is_named ? body[b - 2].get_sym_ptr() : 0;
 
    body[b++].clear(LOC);    // invalidate {
    body[bend].clear(LOC);   // invalidate }
@@ -577,64 +522,73 @@ Symbol * lambda_sym = is_named ? body[b - 2].get_sym_ptr() : 0;
 Token_string lambda_body;
 
 const Fun_signature signature =
-      compute_lambda_body(lambda_body, b, bend, is_named);
+      compute_lambda_body(lambda_body, b, bend);
 
    // at this point { ... } was copied from body to lambda_body and
    // bend is at the (now invalidated) { token.
    // check if lambda is named, i.e. Name ← { ... }
    //
 UCS_string lambda_name;
-   if (is_named)   // named lambda
-      {
-        lambda_name = lambda_sym->get_name();
-      }
-   else            // unnamed lambda
-      {
-        lambda_name.append(UNI_LAMBDA);
-        lambda_name.append_number(unnamed_lambdas.size() + 1);
-      }
+   lambda_name.append(UNI_LAMBDA);
+   lambda_name.append_number(lambda_num);
 
-const UCS_string lambda_text = extract_lambda_text(signature);
+const UCS_string lambda_text = extract_lambda_text(signature, lambda_num - 1);
 
    reverse_statement_token(lambda_body);
    reverse_all_token(lambda_body);
+
+#if 0  // not yet working
+
+UCS_string ufun_text;
+   ufun_text.append_utf8("λ←");
+   enum { SIG_LORO = SIG_LO | SIG_RO };
+   if (signature & SIG_A)      ufun_text.append_utf8("⍺ ");
+   if (signature & SIG_LORO)   ufun_text.append_utf8("(");
+   if (signature & SIG_LO)     ufun_text.append_utf8("⍶ ");
+                               ufun_text.append(lambda_name);
+   if (signature & SIG_RO)     ufun_text.append_utf8(" ⍹");
+   if (signature & SIG_LORO)   ufun_text.append_utf8(")");
+   if (signature & SIG_B)      ufun_text.append_utf8(" ⍵");
+   ufun_text.append(UNI_ASCII_LF);
+   ufun_text.append(lambda_text);
+   ufun_text.append(UNI_ASCII_LF);
+
+Q(ufun_text)
+
+int error_line = -1;
+const char * error_loc = 0;
+const UTF8_string creator("Executable::setup_one_lambda()");
+
+UserFunction * ufun = new UserFunction(ufun_text, error_line, error_loc,
+                                       false, LOC, creator, false, true);
+
+Q(error_line)
+
+   ufun->increment_refcount(LOC);
+
+#else
+
 UserFunction * ufun = new UserFunction(signature, lambda_name,
                                        lambda_text, lambda_body);
+   ufun->increment_refcount(LOC);
 
-   if (signature & SIG_FUN)   // named lambda
-      {
-        named_lambdas.push_back(ufun);
-
-        // put a token for the lambda at thr place where the { was.
-        // That means we replace (in forward notation) e.g.:
-        //
-        // A←{ ... }   by:
-        // A←UFUN      UFUN being a user-defined function with body { ... }
-        //
-        // This is to bind UFUN to A when A←UFUN is executed
-        //
-        move_2(body[bend], ufun->get_token(), LOC);
-
-        // UserFunction::UserFunction has bound the lambda body to
-        // the lambda name. However, we want that to happen when
-        // V←{ ...} is executed, not now. We therefore unbind it here
-        //
-        lambda_sym->set_nc(NC_UNUSED_USER_NAME, 0);
-      }
-   else                       // unnamed lambda
-      {
-        unnamed_lambdas.push_back(ufun);
-        move_2(body[bend], ufun->get_token(), LOC);
-      }
+#endif
+   // put a token for the lambda at the place where the { was.
+   // That replaces, for example, (in forward notation):
+   //
+   // A←{ ... }   by:
+   // A←UFUN      UFUN being a user-defined function with body { ... }
+   //
+   move_2(body[bend], ufun->get_token(), LOC);
 
    return bend + 1;
 }
 //-----------------------------------------------------------------------------
 Fun_signature
 Executable::compute_lambda_body(Token_string & lambda_body,
-                                ShapeItem b, ShapeItem bend, bool is_named)
+                                ShapeItem b, ShapeItem bend)
 {
-int signature = is_named ? SIG_FUN : SIG_NONE;
+int signature = SIG_FUN;
 int level = 0;
 
    for (; b < bend; ++b)
@@ -697,9 +651,8 @@ int level = 0;
 }
 //-----------------------------------------------------------------------------
 UCS_string
-Executable::extract_lambda_text(Fun_signature signature) const
+Executable::extract_lambda_text(Fun_signature signature, int skip) const
 {
-int skip = unnamed_lambdas.size() + named_lambdas.size();
 UCS_string lambda_text;
    if (signature & SIG_Z)   lambda_text.append_utf8("λ←");
 
@@ -784,6 +737,45 @@ Token * t2 = &tos[tos.size() - 1];
          memcpy(t1, t2,   sizeof(Token));
          memcpy(t2, tt, sizeof(Token));
        }
+}
+//-----------------------------------------------------------------------------
+void
+Executable::increment_refcount(const char * loc)
+{
+   Assert1(get_ufun());
+   Assert(get_ufun()->is_lambda());
+
+   ++refcount;
+
+// CERR << "*** increment_refcount() of " << get_name()
+//      << " to " << refcount << " at " << loc << endl;A
+}
+//-----------------------------------------------------------------------------
+void
+Executable::decrement_refcount(const char * loc)
+{
+   Assert1(get_ufun());
+   Assert(get_ufun()->is_lambda());
+
+   if (refcount <= 0)
+      {
+        CERR << "*** Warning: refcount of " << get_name() << " is " << refcount
+             << ":" << endl;
+        print_text(CERR);
+//     FIXME;
+      }
+
+   --refcount;
+
+// CERR << "*** decrement_refcount() of " << get_name()
+//      << " to " << refcount << " at " << loc << endl;
+
+
+   if (refcount <= 0)
+      {
+//      CERR << "*** lambda died" << endl;
+        clear_body();
+      }
 }
 //=============================================================================
 ExecuteList *

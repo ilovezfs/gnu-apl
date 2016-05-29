@@ -205,21 +205,23 @@ operator << (ostream & out, const Token & token)
              else
                 FIXME;
 
-        case TC_SYMBOL:   if (token.get_tag() == TOK_LSYMB)
-                             {
-                               token.get_sym_ptr()->print(out << "'");
-                               out << UNI_LEFT_ARROW;
-                             }
-                          else if (token.get_tag() == TOK_LSYMB2)
-                             {
-                               token.get_sym_ptr()->print(out << "'(... ");
-                               out << ")←";
-                             }
-                          else
-                             {
-                               token.get_sym_ptr()->print(out << "'");
-                             }
-                          return out;
+        case TC_SYMBOL:
+             if (token.get_tag() == TOK_LSYMB)
+                {
+                  token.get_sym_ptr()->print(out << "'");
+                  out << UNI_LEFT_ARROW;
+                }
+             else if (token.get_tag() == TOK_LSYMB2)
+                {
+                  token.get_sym_ptr()->print(out << "'(... ");
+                  out << ")←";
+                }
+             else
+                {
+                  token.get_sym_ptr()->print(out << "'");
+                }
+             return out;
+
         case TC_FUN0:
         case TC_FUN12:
         case TC_OPER1:
@@ -342,14 +344,22 @@ Token::print_function(ostream & out) const
         case TOK_OPER1_SCAN:
         case TOK_OPER1_SCAN1:
         case TOK_OPER2_OUTER:
-        case TOK_OPER2_INNER: return out << get_Id();
+        case TOK_OPER2_INNER:   return out << get_Id();
 
-        case TOK_FUN0:      return get_function()->print(out << "USER-F0 ");
-        case TOK_FUN2:      return get_function()->print(out << "USER-F2 ");
-        case TOK_OPER1:     return get_function()->print(out << "USER-OP1 ");
-        case TOK_OPER2:     return get_function()->print(out << "USER-OP2 ");
+        case TOK_FUN0:          out << "USER-F0 ";
+                                get_function()->print(out);
+                                return out;
+        case TOK_FUN2:          out << "USER-F2 ";
+                                get_function()->print(out);
+                                return out;
+        case TOK_OPER1:         out << "USER-OP1 ";
+                                get_function()->print(out);
+                                return out;
+        case TOK_OPER2:         out << "USER-OP2 ";
+                                get_function()->print(out);
+                                return out;
 
-        default: break;
+        default:                break;
       }
 
    // unknown tag.

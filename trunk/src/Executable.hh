@@ -38,7 +38,8 @@ class Executable
 {
 public:
    /// constructor
-   Executable(const UCS_string & ucs, bool multi_line, const char * loc);
+   Executable(const UCS_string & ucs, bool multi_line,
+              ParseMode pm, const char * loc);
 
    /// constructor for lambdas
    Executable(Fun_signature sig, const UCS_string & fname,
@@ -47,14 +48,12 @@ public:
    /// destructor: release values held by the body
    virtual ~Executable();
 
-   /// delete values in body and remove lambdas
+   /// the parse mode of \b this Executable
+   ParseMode get_parse_mode() const
+      { return pmode; }
+
+   /// delete values in body and (maybe) remove lambdas
    void clear_body();
-
-   /// remove lambdas
-   void clear_lambdas();
-
-   /// the parse mode for \b this Executable
-   virtual ParseMode get_parse_mode() const = 0;
 
    /// return the name of this function, or ◊ or ⍎
    virtual UCS_string get_name() const = 0;
@@ -82,7 +81,7 @@ public:
 
    /// print this user defined executable to \b out
    virtual ostream & print(ostream & out) const
-      { print_token(out);   return out; }
+      { Q(LOC) print_token(out);   return out; }
 
    /// print this user defined executable to \b out
    void print_token(ostream & out) const;
@@ -132,6 +131,12 @@ public:
    const char * get_loc() const
       { return alloc_loc; }
 
+   /// increment the reference counter
+   void increment_refcount(const char * loc);
+
+   /// decrement the reference counter
+   void decrement_refcount(const char * loc);
+
 protected:
    /// extract all lambda expressions from body and store them in lambdas
    void setup_lambdas();
@@ -143,16 +148,15 @@ protected:
   static void reverse_all_token(Token_string & tos);
 
    /// extract one lambda expressions from body and store it in lambdas
-   ShapeItem setup_one_lambda(ShapeItem b);
+   ShapeItem setup_one_lambda(ShapeItem b, int lambda_num);
 
    /// body[b ... bend] is a lambda. Move these token from this body to the body
    /// of the lambda and clear them in \b this body.
    Fun_signature compute_lambda_body(Token_string & rev_lambda_body,
-                                     ShapeItem b, ShapeItem bend,
-                                     bool is_named);
+                                     ShapeItem b, ShapeItem bend);
 
    /// extract the skip'th { ... } from the function text
-   UCS_string extract_lambda_text(Fun_signature signature) const;
+   UCS_string extract_lambda_text(Fun_signature signature, int skip) const;
 
    /// where this SI entry was allocated
    const char * alloc_loc;
@@ -165,6 +169,9 @@ protected:
    ErrorCode parse_body_line(Function_Line line, const Token_string & tos,
                              bool trace, bool tolerant, const char * loc);
 
+   /// the mode \b this Executable
+   const ParseMode pmode;
+
    /// the program text from which \b body was created
    vector<UCS_string> text;
 
@@ -173,11 +180,8 @@ protected:
    /// due to the right-to-left execution of APL.
    Token_string body;
 
-   /// named lambdas ( V←{ ... } ) in the body
-   vector<UserFunction *> named_lambdas;
-
-   /// unnamed lambdas ( { ... } ) in the body
-   vector<UserFunction *> unnamed_lambdas;
+   /// reference counter (for lambdas)
+   int refcount;
 };
 //-----------------------------------------------------------------------------
 /**
@@ -191,13 +195,9 @@ public:
    /// compute body token from text \b data
    static ExecuteList * fix(const UCS_string & data, const char * loc);
 
-   /// overloaded Executable::get_parse_mode()
-   virtual ParseMode get_parse_mode() const
-      { return PM_EXECUTE; }
-
    /// constructor
    ExecuteList(const UCS_string & txt, const char * loc)
-   : Executable(txt, false, loc)
+   : Executable(txt, false, PM_EXECUTE, loc)
    {}
 
 protected:
@@ -217,14 +217,10 @@ public:
    /// compute body token from text \b data
    static StatementList * fix(const UCS_string & data, const char * loc);
 
-   /// overloaded Executable::get_parse_mode()
-   virtual ParseMode get_parse_mode() const
-      { return PM_STATEMENT_LIST; }
-
 protected:
    /// constructor
    StatementList(const UCS_string txt, const char * loc)
-   : Executable(txt, false, loc)
+   : Executable(txt, false, PM_STATEMENT_LIST, loc)
    {}
 
    /// overloaded Executable::get_name()

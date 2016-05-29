@@ -148,8 +148,7 @@ enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
 
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(const UCS_string text)
-  : from_lambda(false),
-    error(E_SYNTAX_ERROR),
+  : error(E_SYNTAX_ERROR),
     error_cause(0),
     sym_Z(0),
     sym_A(0),
@@ -178,7 +177,7 @@ UCS_string header_line;
       }
 
    // add a semicolon as a guaranteed end marker.
-   // This to avoids checks of the header token count
+   // This avoids checks of the header token count
    // 
    header_line.append(Unicode(';'));
 
@@ -284,8 +283,7 @@ Fun_signature signature = SIG_NONE;
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(Fun_signature sig,
                                          const UCS_string fname)
-  : from_lambda(true),
-    error(E_SYNTAX_ERROR),
+  : error(E_SYNTAX_ERROR),
     function_name(fname),
     sym_Z(0),
     sym_A(0),
@@ -295,6 +293,8 @@ UserFunction_header::UserFunction_header(Fun_signature sig,
     sym_X(0),
     sym_B(0)
 {
+   Assert(function_name[0] == UNI_LAMBDA);
+
    // make sure that sig is valid
    //
 Fun_signature sig1 = (Fun_signature)(sig | SIG_FUN);
@@ -320,11 +320,6 @@ bool valid_signature = false;
    if (sig & SIG_RO)   sym_RO = &Workspace::get_v_OMEGA_U();
    if (sig & SIG_B)    sym_B  = &Workspace::get_v_OMEGA();
    if (sig & SIG_X)    sym_X  = &Workspace::get_v_CHI();
-
-   if (sig & SIG_FUN)   // named lambda
-      {
-         sym_FUN = Workspace::lookup_symbol(fname);
-      }
 
    error = E_NO_ERROR;
 }
@@ -473,7 +468,7 @@ UserFunction::UserFunction(const UCS_string txt,
                            bool keep_existing, const char * loc,
                            const UTF8_string & _creator, bool tolerant)
   : Function(ID::USER_SYMBOL, TOK_FUN2),
-    Executable(txt, true, loc),
+    Executable(txt, true, PM_FUNCTION, loc),
     header(txt),
     creator(_creator)
 {
@@ -563,12 +558,6 @@ UserFunction::UserFunction(Fun_signature sig, const UCS_string & fname,
    parse_body_line(Function_Line_0, bdy, false, false, LOC);
    setup_lambdas();
    line_starts.push_back(Function_PC(bdy.size() - 1));
-
-   if (header.FUN())   // named lambda
-      {
-        if (header.LO() || header.RO()) header.FUN()->set_nc(NC_OPERATOR, this);
-        else                            header.FUN()->set_nc(NC_FUNCTION, this);
-      }
 }
 //-----------------------------------------------------------------------------
 UserFunction::~UserFunction()
@@ -984,7 +973,7 @@ DynArray(bool, ts_lines, line_starts.size());
    loop(ll, line_count)
       {
         Function_Line line = lines[ll];
-        if (line >= 1 && line < (int)line_starts.size())   ts_lines[line] = true;
+        if (line >= 1 && line < (int)line_starts.size())  ts_lines[line] = true;
       }
 
    if (stop)
@@ -1074,27 +1063,6 @@ UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
 
    if (header.Z())   body.append(Token(TOK_RETURN_SYMBOL, header.Z()), LOC);
    else              body.append(Token(TOK_RETURN_VOID), LOC);
-}
-//-----------------------------------------------------------------------------
-Function *
-UserFunction::clone_lambda(Symbol * new_name) const
-{
-int sig = SIG_FUN;
-   if (header.Z())    sig |= SIG_Z;
-   if (header.A())    sig |= SIG_A;
-   if (header.LO())   sig |= SIG_LO;
-   if (header.RO())   sig |= SIG_RO;
-   if (header.X())    sig |= SIG_X;
-   if (header.B())    sig |= SIG_B;
-
-Token_string lbody = get_body();
-   if (lbody.size() > 1 && lbody.last().get_tag() == TOK_ENDL)   lbody.pop();
-   Executable::reverse_all_token(lbody);
-
-UserFunction * ret = new UserFunction((Fun_signature)sig, new_name->get_name(),
-                                      get_text(1), lbody);
-
-   return ret;
 }
 //-----------------------------------------------------------------------------
 UserFunction *
@@ -1270,13 +1238,16 @@ void
 UserFunction::destroy()
 {
    // delete will call ~Executable(), which releases the values owned by body.
-   delete this;
+   if (is_lambda())   decrement_refcount(LOC);
+   else               delete this;
 }
 //-----------------------------------------------------------------------------
 ostream &
 UserFunction::print(ostream & out) const
 {
-   return out << header.get_name();
+   out << header.get_name();
+   return out;
+
 /*
    out << "Function header:" << endl;
    if (header.Z())     out << "Result:         " << *header.Z()   << endl;

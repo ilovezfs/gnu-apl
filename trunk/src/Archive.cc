@@ -1729,6 +1729,7 @@ UCS_string text;
 
         UserFunction * ufun = UserFunction::fix(text, err, false,
                                                LOC, creator_utf8, false);
+        if (ufun->is_lambda())   ufun->increment_refcount(LOC);
 
         if (d == 0)   symbol.pop();
         if (ufun)

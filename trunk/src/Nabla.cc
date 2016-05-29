@@ -595,6 +595,9 @@ Function * function = fun_symbol->get_function();
    if (function->is_native())
       return "function is native";
 
+   if (function->is_lambda())
+      return "function is a lambda";
+
    if (Workspace::is_called(fun_symbol->get_name()))
       return "function is pendent or suspended";
 

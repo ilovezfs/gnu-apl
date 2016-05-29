@@ -298,10 +298,10 @@ const int incr_B = (ec_B == 1) ? 0 : 1;
 }
 //-----------------------------------------------------------------------------
 void
-Symbol::assign_named_lambda(const Function * lambda, const char * loc)
+Symbol::assign_named_lambda(Function * lambda, const char * loc)
 {
 ValueStackItem & vs = value_stack.back();
-const UserFunction * ufun = lambda->get_ufun1();
+UserFunction * ufun = lambda->get_ufun1();
    Assert(ufun);
 
    switch(vs.name_class)
@@ -310,13 +310,16 @@ const UserFunction * ufun = lambda->get_ufun1();
         case NC_OPERATOR:
              if (!vs.sym_val.function->is_lambda())   SYNTAX_ERROR;
              Assert(vs.sym_val.function->get_ufun1());
-             delete vs.sym_val.function->get_ufun1();
+             vs.sym_val.function->get_ufun1()->decrement_refcount(LOC);
+
+             /* fall through */
 
         case NC_UNUSED_USER_NAME:
              if (lambda->is_operator())   vs.name_class = NC_OPERATOR;
              else                         vs.name_class = NC_FUNCTION;
 
-             vs.sym_val.function = ufun->clone_lambda(this);
+             vs.sym_val.function = ufun;
+             ufun->increment_refcount(LOC);
              if (monitor_callback)   monitor_callback(*this, SEV_ASSIGNED);
              return;
 
@@ -640,7 +643,8 @@ Symbol::resolve(Token & tok, bool left_sym)
 
    Assert1(value_stack.size());
 
-   switch(value_stack.back().name_class)
+const ValueStackItem & vs = value_stack.back();
+   switch(vs.name_class)
       {
         case NC_UNUSED_USER_NAME:
              if (!left_sym)   throw_symbol_error(get_name(), LOC);
@@ -650,7 +654,7 @@ Symbol::resolve(Token & tok, bool left_sym)
              if (left_sym)   SYNTAX_ERROR;   // assignment to (read-only) label
 
              {
-               IntCell lab(value_stack.back().sym_val.label);
+               IntCell lab(vs.sym_val.label);
                Value_P value(lab, LOC);
                Token t(TOK_APL_VALUE1, value);
                move_1(tok, t, LOC);
@@ -669,8 +673,13 @@ Symbol::resolve(Token & tok, bool left_sym)
 
         case NC_FUNCTION:
         case NC_OPERATOR:
-             move_2(tok, value_stack.back().sym_val.function
-                                                    ->get_token(), LOC);
+             if (left_sym && vs.sym_val.function->is_lambda())
+                {
+                  // lambda re-assign, e.g. SYM←{ ... }
+                  //
+                  return;
+                }
+             move_2(tok, vs.sym_val.function->get_token(), LOC);
              return;
 
         case NC_SHARED_VAR:
@@ -751,7 +760,17 @@ ValueStackItem & vs = value_stack.back();
       }
    else if (vs.name_class == NC_FUNCTION || vs.name_class == NC_OPERATOR)
       {
-        if (!vs.sym_val.function->is_native())
+        if (vs.sym_val.function->is_native())
+           {
+             // do not delete native functions
+           }
+        else if (vs.sym_val.function->is_lambda())
+           {
+             UserFunction * ufun = vs.sym_val.function->get_ufun1();
+             Assert(ufun);
+             ufun->decrement_refcount(LOC);
+           }
+        else
            {
              const UserFunction * ufun = vs.sym_val.function->get_ufun1();
              const Executable * exec = ufun;
@@ -770,6 +789,7 @@ ValueStackItem & vs = value_stack.back();
                   delete ufun;
                 }
            }
+        vs.name_class = NC_UNUSED_USER_NAME;
       }
 
    vs.clear();
@@ -1107,7 +1127,8 @@ ValueStackItem & tos = value_stack[0];
    switch(tos.name_class)
       {
         case NC_LABEL:
-             Assert(0 && "should not happen since stack height == 1");
+             // should not happen since stack height == 1"
+             FIXME;
              break;
 
         case NC_VARIABLE:

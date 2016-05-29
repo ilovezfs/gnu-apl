@@ -156,9 +156,19 @@ Source<Unicode> src(input);
                       }
                    else if (uni == UNI_LAMBDA)
                       {
-                        ++src;
-                        tos.append(Token(TOK_LAMBDA,
-                                   &Workspace::get_v_LAMBDA()), LOC);
+                        // this could be λ like in λ← ...
+                        // or λ1 or λ2 or ... as in ... ⍺ λ1 ⍵
+                        //
+                        if (src.rest() && Avec::is_digit(src[1]))   // λn
+                           {
+                             tokenize_symbol(src, tos);
+                           }
+                        else   // λ
+                           {
+                             ++src;
+                             tos.append(Token(TOK_LAMBDA,
+                                        &Workspace::get_v_LAMBDA()), LOC);
+                           }
                       }
                    else if (uni == UNI_OMEGA)
                       {
@@ -961,6 +971,7 @@ UCS_string symbol;
       }
 
 Symbol * sym = Workspace::lookup_symbol(symbol);
+   Assert(sym);
    tos.append(Token(TOK_SYMBOL, sym));
 }
 //-----------------------------------------------------------------------------
