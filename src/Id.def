@@ -131,6 +131,7 @@ qf( NL            , "⎕NL"     ,          )
 pp( NO_VALUE      , ---       , = 0x4E06 )
 sf( F2_NOR        , "⍱"       ,          )
 sf( F12_NEQUIV    , "≢"       ,          )
+
 pp( OFF           , ---       , = 0x4F01 )
 sf( F2_OR         , "∨"       ,          )
 st( OMEGA         , "⍵"       ,          )

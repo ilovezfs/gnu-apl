@@ -128,9 +128,6 @@ public:
    /// push Z (if defined), local variables, and labels.
    void eval_common();
 
-   /// true if this user defined function was created from a lambda body
-   const bool from_lambda;
-
 protected:
    /// remove \b sym from local_vars if it occurs at pos or above
    void remove_duplicate_local_var(const Symbol * sym, unsigned int pos);
@@ -201,7 +198,7 @@ public:
    ~UserFunction();
 
    virtual bool is_lambda() const
-      { return header.from_lambda; }
+      { return header.get_name()[0] == UNI_LAMBDA; }
 
    /// overloaded Executable::get_ufun()
    virtual const UserFunction * get_ufun() const
@@ -307,9 +304,6 @@ public:
    /// overloaded Executable::get_sym_Z()
    virtual Symbol * get_sym_Z() const   { return header.Z(); }
 
-   /// return the parse context for this function
-   virtual ParseMode get_parse_mode() const   { return PM_FUNCTION; }
-
    /// overloaded Executable::get_line()
    Function_Line get_line(Function_PC pc) const;
 
@@ -335,9 +329,6 @@ public:
 
    /// recompile the body
    void parse_body(int & error_line, const char * loc, bool tolerant);
-
-   /// clone a named lambda with a new name (for NEW←LAMBDA)
-   Function * clone_lambda(Symbol * new_name) const;
 
    /// return stop lines (from S∆fun ← lines)
    const vector<Function_Line> & get_stop_lines() const
