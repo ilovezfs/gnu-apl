@@ -312,6 +312,7 @@ public:
                                     const UCS_string ** names, int name_count,
                                     int tab_size, int quad_PW);
 protected:
+   /// return true if n1 < n2
    static bool compare_names(const UCS_string * n1, const UCS_string * n2,
                              const void *)
       { return n2->compare(*n1) == COMP_LT; }

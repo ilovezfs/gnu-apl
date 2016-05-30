@@ -321,26 +321,6 @@ Avec::is_first_symbol_char(Unicode av)
 }
 //-----------------------------------------------------------------------------
 bool
-Avec::is_digit(Unicode av)
-{
-   return (av <= UNI_ASCII_9 && av >= UNI_ASCII_0);
-}
-//-----------------------------------------------------------------------------
-bool
-Avec::is_digit_or_space(Unicode av)
-{
-   return (is_white(av) || (av <= UNI_ASCII_9 && av >= UNI_ASCII_0));
-}
-//-----------------------------------------------------------------------------
-bool
-Avec::is_number(Unicode av)
-{
-const int32_t idx = find_char(av);
-   if (idx == -1)   return false;
-   return (character_table[idx].flags & FLG_NUMERIC) != 0;
-}
-//-----------------------------------------------------------------------------
-bool
 Avec::no_space_after(Unicode av)
 {
 const int32_t idx = find_char(av);

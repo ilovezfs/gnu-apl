@@ -513,15 +513,13 @@ Unicode default_char = UNI_ASCII_SPACE;
 APL_Integer default_int  = 0;
 const bool default_is_int = figure_default(value, default_char, default_int);
 
-   {
-     prolog.append(left);
-     prolog.append_utf8("←");
-     if (pick_level > 1)   prolog.append_utf8("⊂");
-     prolog.append_shape(value.get_shape());
-     if (default_is_int)   prolog.append_utf8("⍴0 ⍝ prolog ≡");
-     else                  prolog.append_utf8("⍴' ' ⍝ prolog ≡");
-     prolog.append_number(pick_level);
-   }
+   prolog.append(left);
+   prolog.append_utf8("←");
+   if (pick_level > 1)   prolog.append_utf8("⊂");
+   prolog.append_shape(value.get_shape());
+   if (default_is_int)   prolog.append_utf8("⍴0 ⍝ prolog ≡");
+   else                  prolog.append_utf8("⍴' ' ⍝ prolog ≡");
+   prolog.append_number(pick_level);
 
    return prolog;
 }

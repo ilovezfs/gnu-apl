@@ -42,7 +42,7 @@ public:
               ParseMode pm, const char * loc);
 
    /// constructor for lambdas
-   Executable(Fun_signature sig, const UCS_string & fname,
+   Executable(Fun_signature sig, int lambda_num, 
               const UCS_string & lambda_text, const char * loc);
 
    /// destructor: release values held by the body

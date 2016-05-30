@@ -62,13 +62,13 @@ Executable::Executable(const UCS_string & ucs,  bool multi_line,
       }
 }
 //-----------------------------------------------------------------------------
-Executable::Executable(Fun_signature sig, const UCS_string & fname,
-           const UCS_string & lambda_text, const char * loc)
+Executable::Executable(Fun_signature sig, int lambda_num,
+                       const UCS_string & lambda_text, const char * loc)
    : alloc_loc(loc),
      pmode(PM_FUNCTION),
      refcount(0)
 {
-   text.push_back(UserFunction_header::lambda_header(sig, fname));
+   text.push_back(UserFunction_header::lambda_header(sig, lambda_num));
    text.push_back(lambda_text);
 }
 //-----------------------------------------------------------------------------
@@ -526,12 +526,7 @@ const Fun_signature signature =
 
    // at this point { ... } was copied from body to lambda_body and
    // bend is at the (now invalidated) { token.
-   // check if lambda is named, i.e. Name ← { ... }
    //
-UCS_string lambda_name;
-   lambda_name.append(UNI_LAMBDA);
-   lambda_name.append_number(lambda_num);
-
 const UCS_string lambda_text = extract_lambda_text(signature, lambda_num - 1);
 
    reverse_statement_token(lambda_body);
@@ -539,16 +534,7 @@ const UCS_string lambda_text = extract_lambda_text(signature, lambda_num - 1);
 
 #if 0  // not yet working
 
-UCS_string ufun_text;
-   ufun_text.append_utf8("λ←");
-   enum { SIG_LORO = SIG_LO | SIG_RO };
-   if (signature & SIG_A)      ufun_text.append_utf8("⍺ ");
-   if (signature & SIG_LORO)   ufun_text.append_utf8("(");
-   if (signature & SIG_LO)     ufun_text.append_utf8("⍶ ");
-                               ufun_text.append(lambda_name);
-   if (signature & SIG_RO)     ufun_text.append_utf8(" ⍹");
-   if (signature & SIG_LORO)   ufun_text.append_utf8(")");
-   if (signature & SIG_B)      ufun_text.append_utf8(" ⍵");
+UCS_string ufun_text = UserFunction_header::lambda_header(signature,lambda_num);
    ufun_text.append(UNI_ASCII_LF);
    ufun_text.append(lambda_text);
    ufun_text.append(UNI_ASCII_LF);
@@ -560,7 +546,7 @@ const char * error_loc = 0;
 const UTF8_string creator("Executable::setup_one_lambda()");
 
 UserFunction * ufun = new UserFunction(ufun_text, error_line, error_loc,
-                                       false, LOC, creator, false, true);
+                                       false, LOC, creator, false);
 
 Q(error_line)
 
@@ -568,7 +554,7 @@ Q(error_line)
 
 #else
 
-UserFunction * ufun = new UserFunction(signature, lambda_name,
+UserFunction * ufun = new UserFunction(signature, lambda_num,
                                        lambda_text, lambda_body);
    ufun->increment_refcount(LOC);
 

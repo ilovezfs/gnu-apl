@@ -54,9 +54,12 @@ public:
 
    /// close all open files
    void clear();
+
 protected:
+   /// one file (openend with open() or with fopen()
    struct file_entry
       {
+        /// constructor
         file_entry(FILE * fp, int fd)
         : fe_FILE(fp),
           fe_fd(fd),
@@ -73,22 +76,29 @@ protected:
         bool   fe_may_write;   ///< file open for writing
       };
 
-   file_entry & get_file(const Value & value);
+   /// return the open file for (APL integer) \b handle
+   file_entry & get_file(const Value & handle);
 
+   /// return the open FILE * (APL integer) \b handle
    FILE * get_FILE(const Value & value);
 
+   /// return the open file descriptor for (APL integer) \b handle
    int get_fd(const Value & value)
        {
          file_entry & fe = get_file(value);   // may throw DOMAIN ERROR
          return fe.fe_fd;
        }
 
+   /// list all ⎕IO functions to \b out
    Token list_functions(ostream & out);
 
+   /// convert bits set in \b fds to an APL integer vector
    Value_P fds_to_val(const fd_set * fds, int max_fd);
 
+   /// print A to \b out
    Token do_printf(FILE * out, Value_P A);
 
+   /// the open files
    vector<file_entry> open_files;
 };
 //-----------------------------------------------------------------------------

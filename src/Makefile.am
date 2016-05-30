@@ -103,6 +103,7 @@ Tokenizer.cc					Tokenizer.hh		\
 UCS_string.cc					UCS_string.hh		\
 						Unicode.hh		\
 UserFunction.cc					UserFunction.hh		\
+UserFunction_header.cc				UserFunction_header.hh	\
 UserPreferences.cc				UserPreferences.hh	\
 UTF8_string.cc					UTF8_string.hh		\
 Value.cc		Value.icc		Value.hh		\

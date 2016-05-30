@@ -264,7 +264,6 @@ Bif_OPER2_POWER::get_condition_value(const Value & RO)
    return RO.get_ravel(0).get_checked_near_int();
 }
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 // the xxx_form_1() functions are for LO ⍣ N B and A LO ⍣ N B variants
 // (with numeric RO and worker function LO)
 Token

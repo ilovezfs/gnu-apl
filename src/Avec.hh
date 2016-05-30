@@ -83,13 +83,16 @@ public:
    static bool is_first_symbol_char(Unicode uni);
 
    /// Return \b true iff \b av is a digit (.i.e. 0...9)
-   static bool is_digit(Unicode uni);
+   static bool is_digit(Unicode uni)
+      { return (uni <= UNI_ASCII_9 && uni >= UNI_ASCII_0); }
 
    /// Return \b true iff \b av is a digit or a space
-   static bool is_digit_or_space(Unicode uni);
+   static bool is_digit_or_space(Unicode uni)
+      { return is_digit(uni) || is_white(uni); }
 
    /// return \b true iff \b av is a number char (digit, .)
-   static bool is_number(Unicode uni);
+   static bool is_number(Unicode uni)
+      { return is_digit(uni) || (uni == UNI_OVERBAR); }
 
    /// return true if unicode \b is defined by a char_def() or char_df1() macro
    static bool is_known_char(Unicode uni);

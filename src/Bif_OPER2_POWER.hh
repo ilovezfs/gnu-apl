@@ -60,6 +60,7 @@ protected:
    /// helper for eval_ALRB
    static Token finish_ALRB(EOC_arg & arg, bool first);
 
+   /// common code for eval_form_1() and eoc_form_1()
    static Token finish_form_1(EOC_arg & arg, bool first);
 
    /// return boolean value of 1-element value \b COND

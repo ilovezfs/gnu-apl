@@ -160,6 +160,7 @@ protected:
 class QuadFunction;
 class SystemVariable;
 
+/// a distinguished name (i.e. ⎕xx)
 class SystemName
 {
 public:
@@ -189,12 +190,15 @@ public:
    bool equal(const UCS_string & ucs) const
       { return (name.compare(ucs) == COMP_EQ); }
 
+   /// return the variable (if any) that this name represents
    SystemVariable * get_variable() const
       { return sysvar; }
 
+   /// return the function (if any) that this name represents
    QuadFunction * get_function() const
       { return function; }
 
+   /// return the ID of this name
    ID::Id get_id() const
       { return id; }
 
@@ -226,10 +230,12 @@ public:
    : max_name_len(0)
    {}
 
+   /// add \b function to the symbol table
    void add_function(const UCS_string & name, ID::Id id,
                      QuadFunction * function)
       { add_fun_or_var(name, id, function, 0); }
 
+   /// add \b variable to the symbol table
    void add_variable(const UCS_string & name, ID::Id id,
                      SystemVariable * variable)
       { add_fun_or_var(name, id, 0, variable); }
@@ -239,10 +245,11 @@ public:
       { }
 
 protected:
+   /// add a function or variable
    void add_fun_or_var(const UCS_string & name, ID::Id id,
                        QuadFunction * function, SystemVariable * variable);
 
-   // the length of the longest name
+   /// the length of the longest name
    int max_name_len;
 };
 //-----------------------------------------------------------------------------
