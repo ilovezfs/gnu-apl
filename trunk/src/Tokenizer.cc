@@ -567,7 +567,7 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
         throw_parse_error(E_BAD_NUMBER, LOC, loc);
       }
 
-   if (src.rest() && *src == UNI_ASCII_J)
+   if (src.rest() && (*src == UNI_ASCII_J || *src == UNI_ASCII_j))
       {
         ++src;   // skip 'J'
 
@@ -599,7 +599,7 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
         Log(LOG_tokenize)   CERR << "  tokenize_number: complex "
                                  << real_flt << "J" << imag_flt << endl;
       }
-   else if (src.rest() && *src == UNI_ASCII_D)
+   else if (src.rest() && (*src == UNI_ASCII_D || *src == UNI_ASCII_d))
       {
         ++src;   // skip 'D'
 
@@ -635,7 +635,7 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
         Log(LOG_tokenize)   CERR << "  tokenize_number: complex " << real
                                  << "J" << imag << endl;
       }
-   else if (src.rest() && *src == UNI_ASCII_R)
+   else if (src.rest() && (*src == UNI_ASCII_R || *src == UNI_ASCII_r))
       {
         ++src;   // skip 'R'
 
@@ -672,19 +672,19 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
                                  << "J" << imag << endl;
       }
    else 
-     {
-       if (need_float)
-          {
-            tos.append(Token(TOK_REAL,    real_flt));
-            Log(LOG_tokenize)
-               CERR << "  tokenize_number: real " << real_flt << endl;
-          }
-       else
-          {
-            tos.append(Token(TOK_INTEGER, real_int));
-            Log(LOG_tokenize)
-               CERR << "  tokenize_number: integer " << real_int << endl;
-          }
+      {
+        if (need_float)
+           {
+             tos.append(Token(TOK_REAL,    real_flt));
+             Log(LOG_tokenize)
+                CERR << "  tokenize_number: real " << real_flt << endl;
+           }
+        else
+           {
+             tos.append(Token(TOK_INTEGER, real_int));
+             Log(LOG_tokenize)
+                CERR << "  tokenize_number: integer " << real_int << endl;
+           }
       }
 
 done:
@@ -736,18 +736,15 @@ bool dot_seen = false;
 
    // integer part
    //
-   while (src.rest() && *src >= '0' && *src <= '9')
-      {
-        digits.append(src.get());
-      }
+   while (src.rest() && Avec::is_digit(*src))   digits.append(src.get());
 
    // fractional part
    //
    if (src.rest() &&  *src == UNI_ASCII_FULLSTOP)   // fract part present
       {
-        ++src;
+        ++src;   // skip '.'
         dot_seen = true;
-        while (src.rest() && *src >= '0' && *src <= '9')
+        while (src.rest() && Avec::is_digit(*src))
            {
              fract_part.append(src.get());
            }
@@ -761,22 +758,18 @@ bool dot_seen = false;
 
    // exponent part
    //
-   if (src.rest() > 1 &&
+   if (src.rest() >= 2 &&   // at least E and a digit or ¯
        (*src == UNI_ASCII_E || *src == UNI_ASCII_e))   // maybe exponent
       {
-        if ((src[1] == UNI_OVERBAR &&
-             src.rest() > 2 && src[2] >= '0' && src[2] <= '9')  ||
-            (src[1] >= '0' && src[1] <= '9'))
+        expo_negative = src[1] == UNI_OVERBAR;
+        if (Avec::is_digit(src[1]) ||
+            (expo_negative && src.rest() > 2 && Avec::is_digit(src[2])))
            {
              need_float = true;
-             ++src;   // skip e/E
-             if (src.rest() && *src == UNI_OVERBAR)
-           {
-                  ++src;   // skip ¯
-                  expo_negative = true;
-                }
+             ++src;                        // skip e/E
+             if (expo_negative)   ++src;   // skip ¯
 
-             while (src.rest() && *src >= '0' && *src <= '9')
+             while (src.rest() && Avec::is_digit(*src))
                 {
                   expo_part.append(src.get());
                 }

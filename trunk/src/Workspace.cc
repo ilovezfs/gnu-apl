@@ -740,13 +740,16 @@ InputFile fam(filename, file, false, false, true, with_LX);
    InputFile::files_todo.insert(InputFile::files_todo.begin(), fam);
 }
 //-----------------------------------------------------------------------------
+/// a streambuf that escapes certain HTML characters
 class HTML_streambuf : public streambuf
 {
 public:
+   /// constructor
    HTML_streambuf(ofstream & outf)
    : out_file(outf)
    {}
 
+   /// overloaded streambuf::overflow()
    virtual int overflow(int c)
       {
         switch(c & 0xFF)
@@ -762,17 +765,20 @@ public:
       }
 
 protected:
+   /// the output file
    ofstream & out_file;
 };
 
+/// a stream that escapes certain HTML characters
 class HTML_stream : public ostream
 {
 public:
+   /// constructor
    HTML_stream(HTML_streambuf * html_out)
    : ostream(html_out)
    {}
 };
-
+//-----------------------------------------------------------------------------
 void
 Workspace::dump_WS(ostream & out, vector<UCS_string> & lib_ws, bool html,
                    bool silent)

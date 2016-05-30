@@ -250,6 +250,7 @@ public:
         uint8_t u_data[u_DATA_LEN];   ///< for serialization in Archive.cc
       } u; ///< a union big enough for all EOC args
 
+   /// the total number of constructed EOC_arg (to detect stale ones)
    static ShapeItem EOC_arg_count;
 };
 //-----------------------------------------------------------------------------

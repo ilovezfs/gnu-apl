@@ -47,6 +47,7 @@ public:
    static bool figure_default(const Value & value, Unicode & default_char,
                               APL_Integer & default_int);
 
+   /// compute the prolog (e,g, ((⎕IO+2)⊃X)←)  for the pick of \b left
    static UCS_string compute_prolog(int pick_level, const UCS_string & left,
                                     const Value & value);
 

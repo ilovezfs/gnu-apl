@@ -174,6 +174,7 @@ am__libapl_la_SOURCES_DIST = buildtag buildtag.hh ../config.h \
 	IO_Files.cc IO_Files.hh Token.cc Token.def Token.hh \
 	TokenEnums.hh Tokenizer.cc Tokenizer.hh UCS_string.cc \
 	UCS_string.hh Unicode.hh UserFunction.cc UserFunction.hh \
+	UserFunction_header.cc UserFunction_header.hh \
 	UserPreferences.cc UserPreferences.hh UTF8_string.cc \
 	UTF8_string.hh Value.cc Value.icc Value.hh ValueHistory.cc \
 	ValueHistory.hh Workspace.cc Workspace.hh libapl.h libapl.cc
@@ -213,9 +214,9 @@ am__objects_1 = libapl_la-Archive.lo libapl_la-ArrayIterator.lo \
 	libapl_la-SystemVariable.lo libapl_la-IO_Files.lo \
 	libapl_la-Token.lo libapl_la-Tokenizer.lo \
 	libapl_la-UCS_string.lo libapl_la-UserFunction.lo \
-	libapl_la-UserPreferences.lo libapl_la-UTF8_string.lo \
-	libapl_la-Value.lo libapl_la-ValueHistory.lo \
-	libapl_la-Workspace.lo
+	libapl_la-UserFunction_header.lo libapl_la-UserPreferences.lo \
+	libapl_la-UTF8_string.lo libapl_la-Value.lo \
+	libapl_la-ValueHistory.lo libapl_la-Workspace.lo
 @WANT_LIBAPL_TRUE@am_libapl_la_OBJECTS = $(am__objects_1) \
 @WANT_LIBAPL_TRUE@	libapl_la-libapl.lo
 libapl_la_OBJECTS = $(am_libapl_la_OBJECTS)
@@ -272,6 +273,7 @@ am__apl_SOURCES_DIST = main.cc buildtag buildtag.hh ../config.h \
 	IO_Files.cc IO_Files.hh Token.cc Token.def Token.hh \
 	TokenEnums.hh Tokenizer.cc Tokenizer.hh UCS_string.cc \
 	UCS_string.hh Unicode.hh UserFunction.cc UserFunction.hh \
+	UserFunction_header.cc UserFunction_header.hh \
 	UserPreferences.cc UserPreferences.hh UTF8_string.cc \
 	UTF8_string.hh Value.cc Value.icc Value.hh ValueHistory.cc \
 	ValueHistory.hh Workspace.cc Workspace.hh
@@ -313,6 +315,7 @@ am__objects_2 = apl-Archive.$(OBJEXT) apl-ArrayIterator.$(OBJEXT) \
 	apl-SystemVariable.$(OBJEXT) apl-IO_Files.$(OBJEXT) \
 	apl-Token.$(OBJEXT) apl-Tokenizer.$(OBJEXT) \
 	apl-UCS_string.$(OBJEXT) apl-UserFunction.$(OBJEXT) \
+	apl-UserFunction_header.$(OBJEXT) \
 	apl-UserPreferences.$(OBJEXT) apl-UTF8_string.$(OBJEXT) \
 	apl-Value.$(OBJEXT) apl-ValueHistory.$(OBJEXT) \
 	apl-Workspace.$(OBJEXT)
@@ -686,6 +689,7 @@ Tokenizer.cc					Tokenizer.hh		\
 UCS_string.cc					UCS_string.hh		\
 						Unicode.hh		\
 UserFunction.cc					UserFunction.hh		\
+UserFunction_header.cc				UserFunction_header.hh	\
 UserPreferences.cc				UserPreferences.hh	\
 UTF8_string.cc					UTF8_string.hh		\
 Value.cc		Value.icc		Value.hh		\
@@ -910,6 +914,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UCS_string.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UTF8_string.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserFunction_header.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-UserPreferences.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-Value.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/apl-ValueHistory.Po@am__quote@
@@ -992,6 +997,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-UCS_string.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-UTF8_string.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-UserFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-UserFunction_header.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-UserPreferences.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-Value.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libapl_la-ValueHistory.Plo@am__quote@
@@ -1554,6 +1560,13 @@ libapl_la-UserFunction.lo: UserFunction.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserFunction.cc' object='libapl_la-UserFunction.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-UserFunction.lo `test -f 'UserFunction.cc' || echo '$(srcdir)/'`UserFunction.cc
+
+libapl_la-UserFunction_header.lo: UserFunction_header.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-UserFunction_header.lo -MD -MP -MF $(DEPDIR)/libapl_la-UserFunction_header.Tpo -c -o libapl_la-UserFunction_header.lo `test -f 'UserFunction_header.cc' || echo '$(srcdir)/'`UserFunction_header.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libapl_la-UserFunction_header.Tpo $(DEPDIR)/libapl_la-UserFunction_header.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserFunction_header.cc' object='libapl_la-UserFunction_header.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -c -o libapl_la-UserFunction_header.lo `test -f 'UserFunction_header.cc' || echo '$(srcdir)/'`UserFunction_header.cc
 
 libapl_la-UserPreferences.lo: UserPreferences.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libapl_la_CXXFLAGS) $(CXXFLAGS) -MT libapl_la-UserPreferences.lo -MD -MP -MF $(DEPDIR)/libapl_la-UserPreferences.Tpo -c -o libapl_la-UserPreferences.lo `test -f 'UserPreferences.cc' || echo '$(srcdir)/'`UserPreferences.cc
@@ -2674,6 +2687,20 @@ apl-UserFunction.obj: UserFunction.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserFunction.cc' object='apl-UserFunction.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserFunction.obj `if test -f 'UserFunction.cc'; then $(CYGPATH_W) 'UserFunction.cc'; else $(CYGPATH_W) '$(srcdir)/UserFunction.cc'; fi`
+
+apl-UserFunction_header.o: UserFunction_header.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserFunction_header.o -MD -MP -MF $(DEPDIR)/apl-UserFunction_header.Tpo -c -o apl-UserFunction_header.o `test -f 'UserFunction_header.cc' || echo '$(srcdir)/'`UserFunction_header.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-UserFunction_header.Tpo $(DEPDIR)/apl-UserFunction_header.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserFunction_header.cc' object='apl-UserFunction_header.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserFunction_header.o `test -f 'UserFunction_header.cc' || echo '$(srcdir)/'`UserFunction_header.cc
+
+apl-UserFunction_header.obj: UserFunction_header.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserFunction_header.obj -MD -MP -MF $(DEPDIR)/apl-UserFunction_header.Tpo -c -o apl-UserFunction_header.obj `if test -f 'UserFunction_header.cc'; then $(CYGPATH_W) 'UserFunction_header.cc'; else $(CYGPATH_W) '$(srcdir)/UserFunction_header.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/apl-UserFunction_header.Tpo $(DEPDIR)/apl-UserFunction_header.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserFunction_header.cc' object='apl-UserFunction_header.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -c -o apl-UserFunction_header.obj `if test -f 'UserFunction_header.cc'; then $(CYGPATH_W) 'UserFunction_header.cc'; else $(CYGPATH_W) '$(srcdir)/UserFunction_header.cc'; fi`
 
 apl-UserPreferences.o: UserPreferences.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apl_CXXFLAGS) $(CXXFLAGS) -MT apl-UserPreferences.o -MD -MP -MF $(DEPDIR)/apl-UserPreferences.Tpo -c -o apl-UserPreferences.o `test -f 'UserPreferences.cc' || echo '$(srcdir)/'`UserPreferences.cc

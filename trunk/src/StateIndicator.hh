@@ -96,6 +96,7 @@ public:
    void set_PC(Function_PC new_pc)
       { current_stack.set_PC(new_pc); }
 
+   /// return the mode of this entry
    ParseMode get_parse_mode() const
       { return executable->get_parse_mode(); }
 

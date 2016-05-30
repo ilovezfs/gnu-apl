@@ -307,6 +307,7 @@ enum Fun_signature
    SIG_OP1             = SIG_LO  | SIG_FUN,   ///< monadic operator
    SIG_OP1_X           = SIG_OP1 | SIG_X,     ///< monadic operator with axis
    SIG_OP2             = SIG_OP1 | SIG_RO,    ///< dyadic operator
+   SIG_LORO            = SIG_LO  | SIG_RO,    ///< monadic or dyadic operator
 
    // argument variants
    //
@@ -496,31 +497,39 @@ struct Function_PC2
    Function_PC high;   ///< high PC (including)
 };
 //-----------------------------------------------------------------------------
-// dynamic arrays. Due to several segfaults when the array is too big
-// we removed the usage of (compiler-supported) dynamic arrays completely.
-//
-   template<typename Type>
-   class __DynArray
-      {
-        public:
-           __DynArray(ShapeItem len)
+/// dynamic arrays. Due to several segfaults when the array is too big
+/// we removed the usage of (compiler-supported) dynamic arrays completely.
+///
+template<typename Type>
+class __DynArray
+{
+public:
+   /// constructor: allocate space
+   __DynArray(ShapeItem len)
               { data = new Type[len]; }
 
-           const Type & operator[](ShapeItem idx) const
-               { return data[idx]; }
-
-           Type & operator[](ShapeItem idx)
-               { return data[idx]; }
-
-           ~__DynArray()
+   /// destructor: free space
+   ~__DynArray()
               { delete[] data; }
 
-           const Type * get_data() const   { return data; }
-           Type * get_data() { return data; }
+   /// return the idx'th element
+   const Type & operator[](ShapeItem idx) const
+               { return data[idx]; }
 
-        protected:
-           Type * data;
-      };
+   /// return the idx'th element
+   Type & operator[](ShapeItem idx)
+               { return data[idx]; }
+
+   /// return the entire array
+   const Type * get_data() const   { return data; }
+
+   /// return the entire array
+   Type * get_data() { return data; }
+
+protected:
+   /// the array
+   Type * data;
+};
 
 #define DynArray(Type, Name, Size) __DynArray<Type> Name(Size);
 

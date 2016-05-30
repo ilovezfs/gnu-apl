@@ -96,19 +96,19 @@ const APL_Integer handle = value.get_ravel(0).get_near_int();
 }
 //-----------------------------------------------------------------------------
 FILE *
-Quad_FIO::get_FILE(const Value & value)
+Quad_FIO::get_FILE(const Value & handle)
 {
-file_entry & fe = get_file(value);
+file_entry & fe = get_file(handle);
    if (fe.fe_FILE == 0)
       {
         if (fe.fe_may_read && fe.fe_may_write)
-         fe.fe_FILE = fdopen(fe.fe_fd, "a+");
+           fe.fe_FILE = fdopen(fe.fe_fd, "a+");
         else if (fe.fe_may_read)
-         fe.fe_FILE = fdopen(fe.fe_fd, "r");
+           fe.fe_FILE = fdopen(fe.fe_fd, "r");
         else if (fe.fe_may_write)
-         fe.fe_FILE = fdopen(fe.fe_fd, "a");
+           fe.fe_FILE = fdopen(fe.fe_fd, "a");
         else
-         DOMAIN_ERROR;   // internal error
+           DOMAIN_ERROR;   // internal error
       }
 
    return fe.fe_FILE;
