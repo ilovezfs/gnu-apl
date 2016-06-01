@@ -261,27 +261,53 @@ const Symbol * symbol = Workspace::lookup_existing_symbol(symbol_name);
              {
                const Function & ufun = *symbol->get_function();
                const UCS_string text = ufun.canonical(false);
-               UCS_string res("∇");
-               
-               loop(u, text.size())
+               if (ufun.is_lambda())
                   {
-                     if (text[u] == '\n')
+                    UCS_string res = symbol->get_name();
+                    res.append(UNI_LEFT_ARROW);
+                    res.append(UNI_ASCII_L_CURLY);
+                    int t = 0;
+                    while (t < text.size())   // skip λ header
+                       {
+                         const Unicode uni = text[t++];
+                         if (uni == UNI_ASCII_LF)   break;
+                       }
+
+
+                    while (t < text.size())   // copy body
                         {
-                          result.push_back(res);
-                          res.clear();
-                          UCS_string next(text, u + 1, text.size() - u - 1);
-                          if (!next.is_comment_or_label() &&
-                              u < (text.size() - 1))
-                             res.append(UNI_ASCII_SPACE);
+                          const Unicode uni = text[t++];
+                          if (uni == UNI_ASCII_LF)   break;
+                           res.append(uni);
                         }
-                     else
-                        {
-                          res.append(text[u]);
-                        }
+                    res.append(UNI_ASCII_R_CURLY);
+
+                    result.push_back(res);
                   }
-               if (ufun.get_exec_properties()[0])   res.append(UNI_DEL_TILDE);
-               else                                 res.append(UNI_NABLA);
-               result.push_back(res);
+               else
+                  {
+                    UCS_string res("∇");
+               
+                    loop(u, text.size())
+                       {
+                         if (text[u] == '\n')
+                             {
+                               result.push_back(res);
+                               res.clear();
+                               UCS_string next(text, u+1, text.size()-(u+1));
+                               if (!next.is_comment_or_label() &&
+                                   u < (text.size() - 1))
+                                  res.append(UNI_ASCII_SPACE);
+                             }
+                         else
+                             {
+                               res.append(text[u]);
+                             }
+                       }
+                    res.append(ufun.get_exec_properties()[0]
+                               ? UNI_DEL_TILDE : UNI_NABLA);
+                    result.push_back(res);
+                  }
                return;
              }
 

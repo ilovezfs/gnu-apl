@@ -1691,7 +1691,9 @@ const UTF8 * ep = find_attr("exec-properties", true);
                eprops, eprops + 1, eprops + 2, eprops+ 3);
       }
 
-   Log(LOG_archive)   CERR << "      read_Function() native=" << native << endl;
+   Log(LOG_archive)
+      CERR << "      read_Function(" << symbol.get_name()
+           << ") native=" << native << endl;
 
    next_tag(LOC);
    expect_tag("UCS", LOC);
@@ -1722,14 +1724,21 @@ UCS_string text;
    else
       {
         int err = 0;
-        UCS_string creator(filename);
-        creator.append(UNI_ASCII_COLON);
-        creator.append_number(line_no);
-        UTF8_string creator_utf8(creator);
+        UCS_string creator_UCS(filename);
+        creator_UCS.append(UNI_ASCII_COLON);
+        creator_UCS.append_number(line_no);
+        UTF8_string creator(creator_UCS);
 
-        UserFunction * ufun = UserFunction::fix(text, err, false,
-                                               LOC, creator_utf8, false);
-        if (ufun->is_lambda())   ufun->increment_refcount(LOC);
+        UserFunction * ufun = 0;
+        if (text[0] == UNI_LAMBDA)
+           {
+             ufun = UserFunction::fix_lambda(symbol, text);
+             ufun->increment_refcount(LOC);   // since we posh it below
+           }
+        else
+           {
+             ufun = UserFunction::fix(text, err, false, LOC, creator, false);
+           }
 
         if (d == 0)   symbol.pop();
         if (ufun)
@@ -1971,9 +1980,9 @@ const int levels = find_int_attr("levels", false, 10);
 void
 XML_Loading_Archive::read_SI_entry(int lev)
 {
-const int level = find_int_attr("level",     false, 10);
+const int level = find_int_attr("level", false, 10);
 
-   Log(LOG_archive)   CERR << "read_SI_entry() level=" << level << endl;
+   Log(LOG_archive)   CERR << "    read_SI_entry() level=" << level << endl;
 
    next_tag(LOC);
 Executable * exec = 0;

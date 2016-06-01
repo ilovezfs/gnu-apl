@@ -36,14 +36,15 @@
 #include "Workspace.hh"
 
 //-----------------------------------------------------------------------------
-UserFunction::UserFunction(const UCS_string txt,
-                           int & error_line, const char * & error_cause,
-                           bool keep_existing, const char * loc,
-                           const UTF8_string & _creator, bool tolerant)
+UserFunction::UserFunction(const UCS_string txt, bool keep_existing,
+                           const char * loc, const UTF8_string & _creator,
+                           bool tolerant)
   : Function(ID::USER_SYMBOL, TOK_FUN2),
     Executable(txt, true, PM_FUNCTION, loc),
     header(txt),
-    creator(_creator)
+    creator(_creator),
+    error_line(0),   // assume header is wrong
+    error_info("Unspecified")
 {
    set_creation_time(now());
 
@@ -56,10 +57,11 @@ UserFunction::UserFunction(const UCS_string txt,
 
    if (header.get_error() != E_NO_ERROR)   // bad header
       {
-        error_line = 0;
-        error_cause = header.get_error_cause();
-        DEFN_ERROR;
+        error_info = header.get_error_info();
+        return;
       }
+
+   header.remove_duplicate_local_variables();
 
    // set Function::tag
    //
@@ -71,24 +73,22 @@ UserFunction::UserFunction(const UCS_string txt,
 
    // check that the function can be defined.
    //
-const char * why_not = header.FUN()->cant_be_defined();
-   if (why_not)
-      {
-         error_cause = why_not;
-         DEFN_ERROR;
-      }
+   error_info = header.FUN()->cant_be_defined();
+   if (error_info)   return;
      
 Function * old_function = header.FUN()->get_function();
    if (old_function && keep_existing)
       {
-        error_cause = "function exists";
-        DEFN_ERROR;
+        error_info = "function exists";
+        return;
       }
 
-   parse_body(error_line, loc, tolerant);
-
-   header.remove_duplicate_local_variables();
-   if (error_line > 0)   error_cause = "Error in function body";
+   parse_body(loc, tolerant);
+   if (error_line > 0)
+      {
+        error_info = "Error in function body";
+        return;
+      }
 
    if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
    else               header.FUN()->set_nc(NC_FUNCTION, this);
@@ -100,7 +100,8 @@ Function * old_function = header.FUN()->get_function();
         delete old_ufun;
       }
 
-   error_line = -1;   // assume no error
+   error_line = -1;   // no error
+   error_info = 0;
 }
 //-----------------------------------------------------------------------------
 UserFunction::UserFunction(Fun_signature sig, int lambda_num,
@@ -108,7 +109,9 @@ UserFunction::UserFunction(Fun_signature sig, int lambda_num,
   : Function(ID::USER_SYMBOL, TOK_FUN0),
     Executable(sig, lambda_num, text, LOC),
     header(sig, lambda_num),
-    creator(UNI_LAMBDA)
+    creator(UNI_LAMBDA),
+    error_line(0),
+    error_info("Unspecified")
 {
    set_creation_time(now());
 
@@ -119,7 +122,8 @@ UserFunction::UserFunction(Fun_signature sig, int lambda_num,
 
    if (header.get_error() != E_NO_ERROR)   // bad header
       {
-        DEFN_ERROR;
+        error_info = header.get_error_info();
+        return;
       }
 
    if      (header.RO())   tag = TOK_OPER2;
@@ -131,6 +135,8 @@ UserFunction::UserFunction(Fun_signature sig, int lambda_num,
    parse_body_line(Function_Line_0, bdy, false, false, LOC);
    setup_lambdas();
    line_starts.push_back(Function_PC(bdy.size() - 1));
+   error_line = -1;   // no error
+   error_info = 0;
 }
 //-----------------------------------------------------------------------------
 UserFunction::~UserFunction()
@@ -566,12 +572,11 @@ DynArray(bool, ts_lines, line_starts.size());
            }
       }
 
-int error_line = -1;
-   parse_body(error_line, LOC, false);
+   parse_body(LOC, false);
 }
 //-----------------------------------------------------------------------------
 void
-UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
+UserFunction::parse_body(const char * loc, bool tolerant)
 {
    line_starts.clear();
    line_starts.push_back(Function_PC_0);   // will be set later.
@@ -600,7 +605,7 @@ UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
                 }
            }
 
-        error_line = l;
+        error_line = l;   // assume error
         line_starts.push_back(Function_PC(body.size()));
 
         if (stop_line)
@@ -611,19 +616,28 @@ UserFunction::parse_body(int & error_line, const char * loc, bool tolerant)
            }
 
         const UCS_string & line = get_text(l);
-        ErrorCode ec = parse_body_line(Function_Line(l), line, trace_line,
-                                       tolerant, loc);
+        ErrorCode ec = E_SYNTAX_ERROR;
+        try {
+              ec = parse_body_line(Function_Line(l), line, trace_line,
+                                   tolerant, loc);
 
-        if (tolerant && ec != E_NO_ERROR)
-           {
-             UCS_string new_line = "## ";
-             new_line.append(line);
-             text[l] = new_line;
-             CERR << "WARNING: SYNTAX ERROR in function "
-                  << header.FUN()->get_name() << endl;
-           }
+              if (tolerant && ec != E_NO_ERROR)
+                 {
+                   UCS_string new_line = "## ";
+                   new_line.append(line);
+                   text[l] = new_line;
+                   CERR << "WARNING: SYNTAX ERROR in function "
+                        << header.FUN()->get_name() << endl;
+                 }
+            }
+        catch(Error err)
+            {
+              return;
+            }
       }
-      setup_lambdas();
+
+   error_line = -1;   // OK
+   setup_lambdas();
 
    Log(LOG_UserFunction__fix)
       {
@@ -729,7 +743,7 @@ UserFunction::pc_for_line(Function_Line line) const
 }
 //-----------------------------------------------------------------------------
 UserFunction *
-UserFunction::fix(const UCS_string & text, int & error_line,
+UserFunction::fix(const UCS_string & text, int & err_line,
                   bool keep_existing, const char * loc,
                   const UTF8_string & creator, bool tolerant)
 {
@@ -741,45 +755,38 @@ UserFunction::fix(const UCS_string & text, int & error_line,
 
    if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(true);
 
-UserFunction * fun = 0;
-const char * error_cause = 0;
-   try
-      {
-        fun = new UserFunction(text, error_line, error_cause,
-                               keep_existing, loc, creator, tolerant);
-      }
-   catch (Error err)
-      {
-        err.print(CERR);
-        if (Workspace::SI_top())
-           Workspace::SI_top()->set_safe_execution(false);
+UserFunction * fun = new UserFunction(text, keep_existing, loc,
+                                      creator, tolerant);
+   if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(false);
 
-        if (error_cause)
+const char * info = fun->get_error_info();
+   err_line = fun->get_error_line();
+
+   if (info || err_line != -1)   // something went wrong
+      {
+        if (info)
            {
-             Log(LOG_UserFunction__fix)
-                CERR << "Error: " << error_cause << endl;
-             Workspace::more_error() = UCS_string(error_cause);
+             Log(LOG_UserFunction__fix)   CERR << "Error: " << info << endl;
+             Workspace::more_error() = UCS_string(info);
            }
 
-         if (error_line == 0)
+         if (err_line == 0)
            {
              Workspace::more_error().append_utf8(" (function header)");
+             Log(LOG_UserFunction__fix) CERR << "Bad header line" <<  endl;
            }
-         else if (error_line > 0)
+         else if (err_line > 0)
            {
              Workspace::more_error().append_utf8(" (function line [");
-             Workspace::more_error().append_number(error_line);
+             Workspace::more_error().append_number(err_line);
              Workspace::more_error().append_utf8("] of:\n");
              Workspace::more_error().append(text);
+
+             Log(LOG_UserFunction__fix)
+                CERR << "Bad function line: " << err_line << endl;
            }
-                
-        return 0;
-      }
-   catch (...)
-      {
-        CERR << __FUNCTION__ << "caught something unexpected at " LOC << endl;
-        if (Workspace::SI_top())
-           Workspace::SI_top()->set_safe_execution(false);
+
+        delete fun;
         return 0;
       }
 
@@ -789,22 +796,56 @@ const char * error_cause = 0;
         fun->print(CERR);
       }
 
-   if (Workspace::SI_top())
-      Workspace::SI_top()->set_safe_execution(false);
+   return fun;
+}
+//-----------------------------------------------------------------------------
+UserFunction *
+UserFunction::fix_lambda(Symbol & var, const UCS_string & text)
+{
+int signature = SIG_FUN | SIG_Z;
+int t = 0;
 
-   // UserFunction::UserFunction() sets error line to -1 if successful.
-   // We may have created a UserFunction but with an error. In this case
-   // we delete it here.
-   //
-   if (error_line != -1)
+   while (t < text.size())
+       {
+         switch(text[t++])
+            {
+              case UNI_CHI:            signature |= SIG_X;    continue;
+              case UNI_OMEGA:          signature |= SIG_B;    continue;
+              case UNI_ALPHA_UNDERBAR: signature |= SIG_LO;   continue;
+              case UNI_OMEGA_UNDERBAR: signature |= SIG_RO;   continue;
+              case UNI_ALPHA:          signature |= SIG_A;    continue;
+              case UNI_ASCII_LF:       break;   // header done
+              default:                 continue;
+            }
+
+         break;   // header done
+       }
+
+UCS_string body_text;
+   for (; t < text.size(); ++t)   body_text.append(text[t]);
+
+   while (body_text.last() == UNI_ASCII_LF)  body_text.pop();
+
+Token_string body;
+   {
+     Token ret_lambda(TOK_RETURN_SYMBOL, &Workspace::get_v_LAMBDA());
+     body.append(ret_lambda);
+     const int64_t trace = 0;
+     Token tok_endl(TOK_ENDL, trace);
+     body.append(tok_endl);
+   }
+
+const Parser parser(PM_FUNCTION, LOC);
+const ErrorCode ec = parser.parse(body_text, body);
+   if (ec)
       {
-        Log(LOG_UserFunction__fix)
-           CERR << "Line: " << error_line << endl;
-        delete fun;
+        CERR << "Parsing '" << body_text << "' failed" << endl;
         return 0;
       }
 
-   return fun;
+UserFunction * ufun = new UserFunction((Fun_signature)signature, 0,
+                                       body_text, body);
+   return ufun;
 }
 //-----------------------------------------------------------------------------
 void

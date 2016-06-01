@@ -1101,16 +1101,46 @@ const ValueStackItem & vs = (*this)[0];
              return;
            }
 
-        out << "∇";
         const UCS_string text = ufun->canonical(false);
-        loop(u, text.size())
+        if (ufun->is_lambda())
            {
-              out << text[u];
-              if (text[u] == '\n' && u < text.size() - 1)   out << " ";
+             out << get_name();
+             out << "←{";
+             int t = 0;
+             while (t < text.size())   // skip λ header
+                {
+                  const Unicode uni = text[t++];
+                  if (uni == UNI_ASCII_LF)   break;
+                }
+
+             // skip λ← and spaces
+             while (t < text.size() && text[t] <= ' ')   ++t;
+             if    (t < text.size() && text[t] == UNI_LAMBDA)   ++t;
+             while (t < text.size() && text[t] <= ' ')   ++t;
+             if    (t < text.size() && text[t] == UNI_LEFT_ARROW)   ++t;
+             while (t < text.size() && text[t] <= ' ')   ++t;
+
+
+             while (t < text.size())   // copy body
+                {
+                   const Unicode uni = text[t++];
+                   if (uni == UNI_ASCII_LF)   break;
+                   out << uni;
+                }
+             out << UNI_ASCII_R_CURLY << endl;
            }
-        if (ufun->get_exec_properties()[0])   out << "⍫";
-        else                                  out << "∇";
-        out << endl << endl;
+        else
+           {
+             out << "∇";
+             loop(u, text.size())
+                {
+                   out << text[u];
+                   if (text[u] == '\n' && u < text.size() - 1)   out << " ";
+                }
+             if (ufun->get_exec_properties()[0])   out << "⍫";
+             else                                  out << "∇";
+             out << endl << endl;
+           }
       }
 }
 //-----------------------------------------------------------------------------
