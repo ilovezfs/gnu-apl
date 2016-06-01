@@ -548,8 +548,6 @@ const UTF8_string creator("Executable::setup_one_lambda()");
 UserFunction * ufun = new UserFunction(ufun_text, error_line, error_loc,
                                        false, LOC, creator, false);
 
-Q(error_line)
-
    ufun->increment_refcount(LOC);
 
 #else

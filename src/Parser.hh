@@ -29,7 +29,7 @@
 class Parser
 {
 public:
-   /// Constructor
+   /// constructor
    Parser(ParseMode pm, const char * loc)
    : pmode(pm),
      create_loc(loc)

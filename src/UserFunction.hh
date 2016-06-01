@@ -37,13 +37,7 @@
 class UserFunction : public Function, public Executable
 {
 public:
-   /// Construct a user defined function
-   UserFunction(const UCS_string txt,
-                int & error_line, const char * & error_cause,
-                bool keep_existing, const char * loc,
-                const UTF8_string &  _creator, bool tolerant);
-
-   /// Construct a lambda
+   /// constructor for a lambda
    UserFunction(Fun_signature sig, int lambda_num,
                 const UCS_string & text, const Token_string & body);
 
@@ -143,9 +137,12 @@ public:
 
    /// create a user defined function according to \b data of length \b len
    /// in workspace \b w.
-   static UserFunction * fix(const UCS_string & data, int & error_line,
+   static UserFunction * fix(const UCS_string & text, int & err_line,
                              bool keep_existing, const char * loc,
                              const UTF8_string &  creator, bool tolerant);
+
+   /// (re-)create a lambda
+   static UserFunction * fix_lambda(Symbol & var, const UCS_string & text);
 
    /// return the pc of the first token in line l (valid line), or
    /// the pc of the last token in the function (invalid line)
@@ -181,7 +178,7 @@ public:
    void set_trace_stop(Function_Line * lines, int line_count, bool stop);
 
    /// recompile the body
-   void parse_body(int & error_line, const char * loc, bool tolerant);
+   void parse_body(const char * loc, bool tolerant);
 
    /// return stop lines (from S∆fun ← lines)
    const vector<Function_Line> & get_stop_lines() const
@@ -192,6 +189,11 @@ public:
       { return trace_lines; }
 
 protected:
+   /// constructor for a normal (i.e. non-lambda) user defined function
+   UserFunction(const UCS_string txt,
+                bool keep_existing, const char * loc,
+                const UTF8_string &  _creator, bool tolerant);
+
    /// overladed Function::may_push_SI()
    virtual bool may_push_SI() const   { return true; }
 
@@ -241,6 +243,14 @@ protected:
    /// Overloaded Function::eval_fill_AB()
    virtual Token eval_fill_AB(Value_P A, Value_P B);
 
+   /// return the line number where an error has occurred (-1 if none)
+   int get_error_line() const
+      { return error_line; }
+
+   /// return information about an error (if any)
+   const char * get_error_info() const
+      { return error_info; }
+
    /// helper function to print token with Function or Value content
    static ostream & print_val_or_fun(ostream & out, Token & tok);
 
@@ -284,6 +294,12 @@ protected:
 
    /// the entity (∇ editor, ⎕FX, or filename) that has created this function
    const UTF8_string creator;
+
+   /// the line number where an error has occurred (-1 if none)
+   int error_line;
+
+   /// information about an error (if any)
+   const char * error_info;
 };
 //-----------------------------------------------------------------------------
 

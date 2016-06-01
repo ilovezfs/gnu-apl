@@ -59,7 +59,7 @@ public:
       }
 
    /// return source location where error was detected
-   const char * get_error_cause() const   { return error_cause; }
+   const char * get_error_info() const   { return error_info; }
 
    /// return true if the header indicates a result (Z←)
    bool has_result() const   { return sym_Z != 0; }
@@ -100,7 +100,7 @@ public:
    /// return the Symbol for the right argument
    Symbol * B()   const   { return sym_B; }
 
-   /// return true if header was parsed successfully
+   /// return error if header was not parsed successfully
    ErrorCode get_error() const   { return error; }
 
    /// print local vars etc.
@@ -136,7 +136,7 @@ protected:
    ErrorCode error;
 
    /// source location where error was detected
-   const char * error_cause;
+   const char * error_info;
 
    /// the name of this function
    UCS_string function_name;

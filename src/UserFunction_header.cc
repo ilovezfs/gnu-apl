@@ -149,7 +149,7 @@ enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(const UCS_string & text)
   : error(E_SYNTAX_ERROR),
-    error_cause(0),
+    error_info("Unspecified"),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
@@ -168,7 +168,11 @@ UCS_string header_line;
          else                            header_line.append(uni);
        }
 
-   if (header_line.size() == 0)   { error_cause = LOC;   return; }
+   if (header_line.size() == 0)
+      {
+        error_info = "empty header line";
+        return;
+      }
 
    Log(LOG_UserFunction__set_line)
       {
@@ -184,9 +188,13 @@ UCS_string header_line;
 Token_string tos;
    {
      const Parser parser(PM_FUNCTION, LOC);
-     const ErrorCode err = parser.parse(header_line, tos);
+     error = parser.parse(header_line, tos);
 
-     if (err != E_NO_ERROR)   { error = err;   error_cause = LOC;  return; }
+     if (error)
+        {
+          error_info = "parse error in header";
+          return;
+        }
    }
 
    // count symbols before first semicolon, allow one symbol too much.
@@ -227,7 +235,11 @@ Fun_signature signature = SIG_NONE;
            }
       }
 
-   if (signature == SIG_NONE)   { error_cause = LOC;   return; }
+   if (signature == SIG_NONE)
+      {
+        error_info = "bad header signature";
+        return;
+      }
 
    // note: constructor has set all symbol pointers to 0!
    // store symbol pointers according to signature.
@@ -251,14 +263,14 @@ Fun_signature signature = SIG_NONE;
       {
         if (tos[tos_idx++].get_tag() != TOK_SEMICOL)
            {
-             error_cause = LOC;
+             error_info = "semicolon expected in function header";
              return;
            }
 
 
         if (tos_idx == tos.size())
            {
-             error_cause = "trailing ; in function header";
+             error_info = "trailing semicolon in function header";
              return;
            }
 
@@ -272,17 +284,20 @@ Fun_signature signature = SIG_NONE;
                               && tag != TOK_Quad_RL)
            {
              CERR << "Offending token at " LOC " is: " << tos[tos_idx] << endl;
+             error_info = "Bad token in function header";
              return;
            }
 
         local_vars.push_back(tos[tos_idx++].get_sym_ptr());
       }
 
+   error_info = 0;
    error = E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(Fun_signature sig, int lambda_num)
   : error(E_SYNTAX_ERROR),
+    error_info("Unspecified"),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
@@ -310,6 +325,7 @@ bool valid_signature = false;
    if (!valid_signature)   
       {
          error = E_SYNTAX_ERROR;
+         error_info = "Invalid signature";
          return;
       }
 
