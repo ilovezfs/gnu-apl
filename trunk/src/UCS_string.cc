@@ -473,6 +473,14 @@ UCS_string::copy_black_list(vector<UCS_string> & dest) const
       }
 }
 //-----------------------------------------------------------------------------
+ShapeItem
+UCS_string::LF_count() const
+{
+ShapeItem count = 0;
+   loop(u, size())   if ((*this)[u] == UNI_ASCII_LF)   ++count;
+   return count;
+}
+//-----------------------------------------------------------------------------
 bool
 UCS_string::contained_in(const vector<UCS_string> & list) const
 {
@@ -484,10 +492,10 @@ UCS_string::contained_in(const vector<UCS_string> & list) const
    return false;
 }
 //-----------------------------------------------------------------------------
-int
+ShapeItem
 UCS_string::substr_pos(const UCS_string & sub) const
 {
-const int start_positions = 1 + size() - sub.size();
+const ShapeItem start_positions = 1 + size() - sub.size();
    loop(start, start_positions)
       {
         bool mismatch = false;

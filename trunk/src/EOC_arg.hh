@@ -25,10 +25,9 @@
 #include "Shape.hh"
 #include "Value.icc"
 
-/// arguments of the EOC handler for ⎕INP
+/// ⎕INP has no arguments anymore
 struct QUAD_INP
 {
-  ShapeItem prefix_len;       ///< length before eg. <apl ... />
 };
 
 /// arguments of the EOC handler for A ∘.f B

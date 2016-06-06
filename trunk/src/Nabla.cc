@@ -260,7 +260,8 @@ UCS_string::iterator c(first_command.begin());
 
 UserFunction_header hdr(fun_header);
    if (hdr.get_error())   return "Bad function header";
-   fun_symbol = hdr.FUN();
+
+   fun_symbol = Workspace::lookup_symbol(hdr.get_name());
    Assert(fun_symbol);
 
    if (fun_header.size() == 0)   return "no function name";
@@ -787,9 +788,8 @@ UserFunction_header header(current_text);
    // check if the function name has changed
    //
    Assert(fun_symbol);
-   Assert(header.FUN());
 const UCS_string & old_name = fun_symbol->get_name();
-const UCS_string & new_name = header.FUN()->get_name();
+const UCS_string & new_name = header.get_name();
    if (old_name != new_name)
       {
         // the name has changed. This is OK if the new name can be edited.
@@ -797,11 +797,11 @@ const UCS_string & new_name = header.FUN()->get_name();
         // the old symbol shall not be ⎕FXed when closing the editor, so we
         // can simply forget it and continue with the new function
         //
-        // UserFunction_header::UserFunction_header() should have triggered
-        // the creation of header.FUN() so we can assume that it exists. We
-        // need to check that it is not a variable or an existing function.
+        // We need to check that it is not a variable or an existing function.
         //
-        if (header.FUN()->get_nc() != NC_UNUSED_USER_NAME)
+        Symbol * sym = Workspace::lookup_symbol(new_name);   // create if needed
+        Assert(sym);
+        if (sym->get_nc() != NC_UNUSED_USER_NAME)
            {
              CERR << "BAD FUNCTION HEADER";
              COUT << endl;

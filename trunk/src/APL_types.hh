@@ -565,6 +565,13 @@ copy_1(Token_string * & dst, Token_string * src, const char * loc)
   dst = src;
 }
 //-----------------------------------------------------------------------------
+class Macro;
+inline void
+copy_1(Macro * & dst, Macro * src, const char * loc)
+{
+  dst = src;
+}
+//-----------------------------------------------------------------------------
 
 class Token;
 void copy_1(Token & dst, const Token & src, const char * loc);

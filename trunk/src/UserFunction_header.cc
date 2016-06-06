@@ -291,6 +291,8 @@ Fun_signature signature = SIG_NONE;
         local_vars.push_back(tos[tos_idx++].get_sym_ptr());
       }
 
+   remove_duplicate_local_variables();
+
    error_info = 0;
    error = E_NO_ERROR;
 }
@@ -392,7 +394,7 @@ UserFunction_header::remove_duplicate_local_var(const Symbol * sym,
                                                 unsigned int pos)
 {
    // remove sym from the vector of local variables. Only the local vars
-   // at pos or higher are ebing removed
+   // at pos or higher are being removed
    //
    if (sym == 0)   return;   // unused symbol
 

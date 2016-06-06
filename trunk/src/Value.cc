@@ -36,6 +36,7 @@
 #include "PrintOperator.hh"
 #include "SystemVariable.hh"
 #include "UCS_string.hh"
+#include "UserFunction.hh"
 #include "Value.icc"
 #include "ValueHistory.hh"
 #include "Workspace.hh"
@@ -1808,6 +1809,7 @@ int count = 0;
    //
    mark_all_dynamic_values();
    Workspace::unmark_all_values();
+   loop(m, Macro::all_macros.size())  Macro::all_macros[m]->unmark_all_values();
 
    // print all values that are still marked
    //

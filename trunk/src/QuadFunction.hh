@@ -213,8 +213,11 @@ protected:
 class Quad_INP : public QuadFunction
 {
 public:
-   /// Constructor.
-   Quad_INP() : QuadFunction(TOK_Quad_INP) {}
+   /// constructor.
+   Quad_INP()
+   : QuadFunction(TOK_Quad_INP),
+     Quad_INP_running(false)
+   {}
 
    static Quad_INP * fun;          ///< Built-in function.
    static Quad_INP  _fun;          ///< Built-in function.
@@ -232,12 +235,44 @@ protected:
    /// overloaded Function::eval_XB().
    virtual Token eval_XB(Value_P X, Value_P B);
 
-   /// extract the esc1 and esc2 strings from arg->A and end_marker from arg->B
-   static void get_esc(EOC_arg * arg, UCS_string & esc1, UCS_string & esc2,
-                        UCS_string & end_marker);
+   /// common code for eval_AB and eval_B
+   Token do_INP();
 
-   /// maybe expand Z so that \n new_lines can be added safely
-   static void expand_Z(EOC_arg * arg, ShapeItem new_lines);
+   /// extract the esc1 and esc2 strings from \b A
+   void get_esc(Value_P A, UCS_string & esc1, UCS_string & esc2);
+
+   /// read \b raw_lines from stdin or file, stop at end_marker
+   void read_strings();
+
+   /// split \b raw_lines into \b prefixes, \b escapes, and \b suffixes
+   void split_strings();
+
+   /// perform APL escapes
+   Token do_escapes();
+
+   /// construct final result
+   Token finish();
+
+   /// the end merker for APL escapes (dyadic ⎕INP only)
+   /// the start merker for APL escapes (dyadic ⎕INP only)
+   UCS_string esc1;
+
+   /// the end merker for APL escapes (dyadic ⎕INP only)
+   UCS_string esc2;
+
+   /// the end merker for the entire ⎕INP input
+   UCS_string end_marker;
+
+   vector<UCS_string> raw_lines;
+   vector<UCS_string> prefixes;
+   vector<UCS_string> escapes;
+   vector<UCS_string> suffixes;
+
+   /// bool to prevent recursive ⎕INP calls
+   bool Quad_INP_running;
+
+   ShapeItem idx_e;
+   ShapeItem last_e;
 };
 //-----------------------------------------------------------------------------
 /**
