@@ -35,8 +35,10 @@
 #include "Value.icc"
 #include "Workspace.hh"
 
+Simple_string<Macro *> Macro::all_macros;
+
 //-----------------------------------------------------------------------------
-UserFunction::UserFunction(const UCS_string txt, bool keep_existing,
+UserFunction::UserFunction(const UCS_string txt,
                            const char * loc, const UTF8_string & _creator,
                            bool tolerant)
   : Function(ID::USER_SYMBOL, TOK_FUN2),
@@ -61,8 +63,6 @@ UserFunction::UserFunction(const UCS_string txt, bool keep_existing,
         return;
       }
 
-   header.remove_duplicate_local_variables();
-
    // set Function::tag
    //
    if      (header.RO())   tag = TOK_OPER2;
@@ -71,33 +71,11 @@ UserFunction::UserFunction(const UCS_string txt, bool keep_existing,
    else if (header.B())    tag = TOK_FUN1;
    else                    tag = TOK_FUN0;
 
-   // check that the function can be defined.
-   //
-   error_info = header.FUN()->cant_be_defined();
-   if (error_info)   return;
-     
-Function * old_function = header.FUN()->get_function();
-   if (old_function && keep_existing)
-      {
-        error_info = "function exists";
-        return;
-      }
-
    parse_body(loc, tolerant);
    if (error_line > 0)
       {
         error_info = "Error in function body";
         return;
-      }
-
-   if (header.LO())   header.FUN()->set_nc(NC_OPERATOR, this);
-   else               header.FUN()->set_nc(NC_FUNCTION, this);
-
-   if (old_function)
-      {
-        const UserFunction * old_ufun = old_function->get_ufun1();
-        Assert(old_ufun);
-        delete old_ufun;
       }
 
    error_line = -1;   // no error
@@ -627,7 +605,7 @@ UserFunction::parse_body(const char * loc, bool tolerant)
                    new_line.append(line);
                    text[l] = new_line;
                    CERR << "WARNING: SYNTAX ERROR in function "
-                        << header.FUN()->get_name() << endl;
+                        << header.get_name() << endl;
                  }
             }
         catch(Error err)
@@ -755,12 +733,11 @@ UserFunction::fix(const UCS_string & text, int & err_line,
 
    if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(true);
 
-UserFunction * fun = new UserFunction(text, keep_existing, loc,
-                                      creator, tolerant);
+UserFunction * ufun = new UserFunction(text, loc, creator, tolerant);
    if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(false);
 
-const char * info = fun->get_error_info();
-   err_line = fun->get_error_line();
+const char * info = ufun->get_error_info();
+   err_line = ufun->get_error_line();
 
    if (info || err_line != -1)   // something went wrong
       {
@@ -786,17 +763,47 @@ const char * info = fun->get_error_info();
                 CERR << "Bad function line: " << err_line << endl;
            }
 
-        delete fun;
+        delete ufun;
         return 0;
       }
 
-   Log(LOG_UserFunction__fix)
+Symbol * symbol = Workspace::lookup_symbol(ufun->header.get_name());
+Function * old_function = symbol->get_function();
+   if (old_function && keep_existing)
       {
-        CERR << " addr " << (const void *)fun << endl;
-        fun->print(CERR);
+        err_line = 0;
+        delete ufun;
+        return 0;
       }
 
-   return fun;
+   // check that the function can be defined (e.g. is not on the )SI stack)
+   //
+   if (old_function && symbol->cant_be_defined())
+      {
+        err_line = 0;
+        delete ufun;
+        return 0;
+      }
+     
+   if (old_function)
+      {
+        const UserFunction * old_ufun = old_function->get_ufun1();
+        Assert(old_ufun);
+        delete old_ufun;
+      }
+
+   // bind function to symbol
+   //
+   if (ufun->header.LO())   ufun->header.FUN()->set_nc(NC_OPERATOR, ufun);
+   else                     ufun->header.FUN()->set_nc(NC_FUNCTION, ufun);
+
+   Log(LOG_UserFunction__fix)
+      {
+        CERR << " addr " << (const void *)ufun << endl;
+        ufun->print(CERR);
+      }
+
+   return ufun;
 }
 //-----------------------------------------------------------------------------
 UserFunction *
@@ -852,6 +859,7 @@ void
 UserFunction::destroy()
 {
    // delete will call ~Executable(), which releases the values owned by body.
+   //
    if (is_lambda())   decrement_refcount(LOC);
    else               delete this;
 }
@@ -987,5 +995,16 @@ char cc[40];
    ucs.append(UNI_ASCII_R_BRACK);
    ucs.append(UNI_ASCII_SPACE);
    return ucs;
+}
+//-----------------------------------------------------------------------------
+Macro::Macro(const char * text)
+   : UserFunction(UCS_string(UTF8_string(text)), LOC, "Macro::Macro()", false)
+{
+// CERR << "MACRO: " << endl << text;
+
+   if (error_info)         CERR << "error_info: " << error_info << endl;
+   if (error_line != -1)   CERR << "error_line: " << error_line << endl;
+
+   all_macros.append(this);
 }
 //-----------------------------------------------------------------------------

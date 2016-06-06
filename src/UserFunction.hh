@@ -157,46 +157,6 @@ public:
    /// overloaded Executable::get_line()
    Function_Line get_line(Function_PC pc) const;
 
-   /// Quad_CR of this function
-   virtual UCS_string canonical(bool with_lines) const;
-
-   /// overloaded Executable::line_start()
-   virtual Function_PC line_start(Function_Line line) const
-      { return line_starts[line]; }
-
-   /// overloaded Executable::adjust_line_starts
-   virtual void adjust_line_starts();
-
-   /// compute lines 2 and 3 in \b error
-   void set_locked_error_info(Error & error) const;
-
-   /// return the entity that has created the function
-   const UTF8_string get_creator() const
-      { return creator; }
-
-   /// set trace or stop vector
-   void set_trace_stop(Function_Line * lines, int line_count, bool stop);
-
-   /// recompile the body
-   void parse_body(const char * loc, bool tolerant);
-
-   /// return stop lines (from S∆fun ← lines)
-   const vector<Function_Line> & get_stop_lines() const
-      { return stop_lines; }
-
-   /// return trace lines (from S∆fun ← lines)
-   const vector<Function_Line> & get_trace_lines() const
-      { return trace_lines; }
-
-protected:
-   /// constructor for a normal (i.e. non-lambda) user defined function
-   UserFunction(const UCS_string txt,
-                bool keep_existing, const char * loc,
-                const UTF8_string &  _creator, bool tolerant);
-
-   /// overladed Function::may_push_SI()
-   virtual bool may_push_SI() const   { return true; }
-
    /// Overloaded Function::eval_()
    virtual Token eval_();
 
@@ -236,6 +196,45 @@ protected:
    /// Overloaded Function::eval_ALRXB()
    virtual Token eval_ALRXB(Value_P A, Token & LO, Token & RO,
                             Value_P X, Value_P B);
+
+   /// Quad_CR of this function
+   virtual UCS_string canonical(bool with_lines) const;
+
+   /// overloaded Executable::line_start()
+   virtual Function_PC line_start(Function_Line line) const
+      { return line_starts[line]; }
+
+   /// overloaded Executable::adjust_line_starts
+   virtual void adjust_line_starts();
+
+   /// compute lines 2 and 3 in \b error
+   void set_locked_error_info(Error & error) const;
+
+   /// return the entity that has created the function
+   const UTF8_string get_creator() const
+      { return creator; }
+
+   /// set trace or stop vector
+   void set_trace_stop(Function_Line * lines, int line_count, bool stop);
+
+   /// recompile the body
+   void parse_body(const char * loc, bool tolerant);
+
+   /// return stop lines (from S∆fun ← lines)
+   const vector<Function_Line> & get_stop_lines() const
+      { return stop_lines; }
+
+   /// return trace lines (from S∆fun ← lines)
+   const vector<Function_Line> & get_trace_lines() const
+      { return trace_lines; }
+
+protected:
+   /// constructor for a normal (i.e. non-lambda) user defined function
+   UserFunction(const UCS_string txt, const char * loc,
+                const UTF8_string &  _creator, bool tolerant);
+
+   /// overladed Function::may_push_SI()
+   virtual bool may_push_SI() const   { return true; }
 
    /// Overloaded Function::eval_fill_B()
    virtual Token eval_fill_B(Value_P B);
@@ -300,6 +299,14 @@ protected:
 
    /// information about an error (if any)
    const char * error_info;
+};
+//-----------------------------------------------------------------------------
+class Macro : public UserFunction
+{
+public:
+   Macro(const char * text);
+
+   static Simple_string<Macro *> all_macros;
 };
 //-----------------------------------------------------------------------------
 

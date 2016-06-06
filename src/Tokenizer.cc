@@ -159,7 +159,7 @@ Source<Unicode> src(input);
                         // this could be λ like in λ← ...
                         // or λ1 or λ2 or ... as in ... ⍺ λ1 ⍵
                         //
-                        if (src.rest() && Avec::is_digit(src[1]))   // λn
+                        if (src.rest() > 1 && Avec::is_digit(src[1]))   // λn
                            {
                              tokenize_symbol(src, tos);
                            }

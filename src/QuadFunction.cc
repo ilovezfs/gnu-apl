@@ -499,9 +499,7 @@ ExecuteList * fun = 0;
    // The handler will create the result after executing B.
    //
    {
-     EOC_arg arg(Value_P(), Value_P(), 0, 0, Value_P());
-     arg.loc = LOC;
-
+     EOC_arg arg(Value_P(), Value_P(), 0, 0, Value_P(), LOC);
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
    }
 
@@ -827,309 +825,53 @@ Symbol * symbol = Workspace::lookup_existing_symbol(name);
 Token
 Quad_INP::eval_AB(Value_P A, Value_P B)
 {
-Value_P Z(1000, LOC);
-   loop(z, Z->element_count())   new (Z->next_ravel())   IntCell(0);
-   Z->check_value(LOC);
+   if (Quad_INP_running)
+      {
+        Workspace::more_error() = UCS_string("⎕INP called recursively");
+        SYNTAX_ERROR;
+      }
 
-EOC_arg arg(Z, A, 0, 0, B);
-
-   // B is the end of document marker for a 'HERE document', similar
-   // to ENDCAT in cat << ENDCAT.
-   //
-   // make sure that B is a non-empty string and extract it.
+   // make sure that B is a non-empty string
    //
    if (B->get_rank() > 1)         RANK_ERROR;
    if (B->element_count() == 0)   LENGTH_ERROR;
 
-Token tok(TOK_FIRST_TIME);
-   Workspace::SI_top()->add_eoc_handler(eoc_INP, arg, LOC);
-   eoc_INP(tok);
-   return tok;
+   // temporary strings if get_esc() should fail
+   //
+UCS_string e1;
+UCS_string e2;
+   get_esc(A, e1, e2);
+
+   Quad_INP_running = true;
+
+   end_marker = B->get_UCS_ravel();
+   esc1 = e1;
+   esc2 = e2;
+
+   return do_INP();
 }
 //-----------------------------------------------------------------------------
 Token
 Quad_INP::eval_B(Value_P B)
 {
-Value_P Z(1000, LOC);
-   loop(z, Z->element_count())   new (Z->next_ravel())   IntCell(0);
-   Z->check_value(LOC);
+   if (Quad_INP_running)
+      {
+        Workspace::more_error() = UCS_string("⎕INP called recursively");
+        SYNTAX_ERROR;
+      }
 
-EOC_arg arg(Z, Value_P(), 0, 0, B);
-
-   // B is the end of document marker for a 'HERE document', similar
-   // to ENDCAT in cat << ENDCAT.
-   //
-   // make sure that B is a non-empty string and extract it.
+   // make sure that B is a non-empty string
    //
    if (B->get_rank() > 1)         RANK_ERROR;
    if (B->element_count() == 0)   LENGTH_ERROR;
 
-Token tok(TOK_FIRST_TIME);
-   Workspace::SI_top()->add_eoc_handler(eoc_INP, arg, LOC);
-   eoc_INP(tok);
-   return tok;
-}
-//-----------------------------------------------------------------------------
-void
-Quad_INP::get_esc(EOC_arg * arg, UCS_string & esc1, UCS_string & esc2,
-                  UCS_string & end_marker)
-{
-   end_marker = arg->B->get_UCS_ravel();
-   if (!arg->A)   return;
+   Quad_INP_running = true;
 
-   // A is either one string (esc1 == esc2) or two (nested) strings
-   // for esc1 and esc2 respectively.
-   //
-   if (arg->A->compute_depth() == 2)   // two (nested) strings
-      {
-        if (arg->A->get_rank() != 1)        RANK_ERROR;
-        if (arg->A->element_count() != 2)   LENGTH_ERROR;
+   end_marker = B->get_UCS_ravel();
+   esc1.clear();
+   esc2.clear();
 
-        loop(e, 2)
-           {
-             const Cell & cell = arg->A->get_ravel(e);
-             if (cell.is_pointer_cell())   // char vector
-                {
-                  if (e)   esc2 = cell.get_pointer_value()->get_UCS_ravel();
-                  else     esc1 = cell.get_pointer_value()->get_UCS_ravel();
-                }
-             else                          // char scalar
-                {
-                  if (e)   esc2 = cell.get_pointer_value()->get_UCS_ravel();
-                  else     esc1 = cell.get_pointer_value()->get_UCS_ravel();
-                }
-           }
-
-        if (esc1.size() == 0)   LENGTH_ERROR;
-      }
-   else                       // one string 
-      {
-        esc1 = arg->A->get_UCS_ravel();
-        esc2 = esc1;
-      }
-}
-//-----------------------------------------------------------------------------
-bool
-Quad_INP::eoc_INP(Token & token)
-{
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
-QUAD_INP & _arg = arg->u.u_Quad_INP;
-EOC_arg * next = arg->next;
-
-const bool first = token.get_tag() == TOK_FIRST_TIME;
-
-UCS_string line;
-
-   if (token.get_tag() == TOK_ERROR)
-      {
-         CERR << "Error in ⎕INP" << endl;
-         UCS_string err("*** ");
-         err.append(Error::error_name((ErrorCode)(token.get_int_val())));
-         err.append_utf8(" in ⎕INP ***");
-         Value_P val(err, LOC);
-         move_2(token, Token(TOK_APL_VALUE1, val), LOC);
-      }
-
-   if (!first)
-      {
-        // token is the result of ⍎ exec and Z has at least 1 line. Split
-        // he last line of Z into prefix and suffix and insert result:
-        //
-        //                       char-string            char-matrix
-        //
-        //   ...                 ...                    ...
-        //   prefix,suffix   →   prefix,result,suffix   prefix,result
-        //                                                     ...
-        //                                                     result,suffix
-        //
-        {
-          Cell * last_cell = &arg->Z->get_ravel(arg->z);
-          line = last_cell->get_pointer_value()->get_UCS_ravel();
-          last_cell->release(LOC);
-          new (last_cell) IntCell(1);
-          --arg->z;
-        }
-
-        const ShapeItem diff = line.size() - _arg.prefix_len;   // split point
-        UCS_string suffix;
-        if (diff > 0)
-           {
-             suffix = UCS_string(line, _arg.prefix_len, diff);
-             line.shrink(_arg.prefix_len);
-           }
-
-        Value_P result = token.get_apl_val();
-        if (result->is_char_string())
-           {
-             line.append(result->get_UCS_ravel());
-             if (diff > 0)   line.append(suffix);
-           }
-        else
-           {
-             // char matrix: insert indented
-             //
-             Value_P matrix = Bif_F12_FORMAT::monadic_format(result);
-             if (matrix->is_char_string())
-                {
-                  line.append(matrix->get_UCS_ravel());
-                  if (diff > 0)   line.append(suffix);
-                }
-             else
-                {
-                  const Cell * cm = &matrix->get_ravel(0);
-
-                  expand_Z(arg, matrix->get_rows());
-                  loop(r, matrix->get_rows() - 1)
-                     {
-                       if (r)   // store previous line
-                          {
-                            Value_P ZZ(line, LOC);
-                            Cell * last_cell = &arg->Z->get_ravel(arg->z);
-                            new (last_cell)   PointerCell(ZZ, arg->Z.getref());
-                            ++arg->z;
-
-                            line = UCS_string(_arg.prefix_len, UNI_ASCII_SPACE);
-                          }
-
-                       loop(r, matrix->get_cols())
-                           line.append(cm++->get_char_value());
-                     }
-                }
-           }
-      }
-
-UCS_string esc1;
-UCS_string esc2;
-UCS_string end_marker;
-   get_esc(arg, esc1, esc2, end_marker);
-
-   for (;;)   // read lines until end reached.
-       {
-         if (line.size() == 0)
-            {
-              bool eof = false;
-              UCS_string prompt;
-              InputMux::get_line(LIM_Quad_INP, prompt, line, eof,
-                                 LineHistory::quad_INP_history);
-            }
-         const bool done = (line.substr_pos(end_marker) != -1);
-
-         if (esc1.size())   // start marker defined (dyadic ⎕INP)
-            {
-              UCS_string exec;     // line esc1 ... esc2 (excluding)
-
-              const int e1_pos = line.substr_pos(esc1);
-              if (e1_pos != -1)   // and the start marker is present.
-                 {
-                   _arg.prefix_len = e1_pos;
-
-                   UCS_string new_last_line(line, 0, e1_pos);
-
-                   exec = line.drop(e1_pos + esc1.size());
-                   exec.remove_lt_spaces();   // no leading and trailing spaces
-                   line.clear();
-
-                   if (esc2.size() == 0)
-                      {
-                        // empty esc2 means exec is the rest of the line.
-                        // nothing to do.
-                      }
-                   else
-                      {
-                        // non-empty esc2: search for it
-                        //
-                        const int e2_pos = exec.substr_pos(esc2);
-                        if (e2_pos == -1)   // esc2 not found: exec rest of line
-                           {
-                             // esc2 not in exec: take rest of line
-                             // i.e. nothing to do.
-                           }
-                        else
-                           {
-                             const int rest = e2_pos + esc2.size();
-                             line = UCS_string(exec, rest, exec.size() - rest);
-                             new_last_line.append(line);   // append the rest
-                             exec.shrink(e2_pos);
-                           }
-                      }
-
-                   Value_P ZZ(new_last_line, LOC);
-                   expand_Z(arg, 1);
-                   new (&arg->Z->get_ravel(++arg->z))
-                       PointerCell(ZZ, arg->Z.getref());
-                 }
-
-              if (exec.size())
-                 {
-                   // if SI is already pushed (i.e. this is a subsequent
-                   // call to eoc_INP() then pop it.
-                   //
-                   if (token.get_tag() != TOK_FIRST_TIME)
-                      Workspace::pop_SI(LOC);
-
-                   move_2(token, Bif_F1_EXECUTE::execute_statement(exec), LOC);
-                   Assert(token.get_tag() == TOK_SI_PUSHED);
-
-                   Workspace::SI_top()->add_eoc_handler(eoc_INP, *arg, LOC);
-                   delete arg;
-                   return true;   // continue
-                 }
-            }
-
-         if (done || interrupt_raised)   break;
-
-         Value_P ZZ(line, LOC);
-         expand_Z(arg, 1);
-         new (&arg->Z->get_ravel(++arg->z))   PointerCell(ZZ, arg->Z.getref());
-         line.clear();
-       }
-
-   // discard unused 0-cells
-   //
-const Shape shape_Z(arg->z + 1);
-   arg->Z->set_shape(shape_Z);
-
-   if (arg->z == 0)   // then Z←⊂''
-      {
-        Shape sh(0);   // length 0 vector
-        Value_P ZZ(sh, LOC);
-        ZZ->set_default_Spc();
-        new (&arg->Z->get_ravel(0)) PointerCell(ZZ, arg->Z.getref());
-      }
-
-   arg->Z->check_value(LOC);
-   move_2(token, Token(TOK_APL_VALUE1, arg->Z), LOC);
-
-   delete arg;
-   Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return next->handler(token);
-
-   return false;   // continue
-}
-//-----------------------------------------------------------------------------
-void
-Quad_INP::expand_Z(EOC_arg * arg, ShapeItem new_lines)
-{
-const ShapeItem len_Z = arg->Z->element_count();
-   if ((arg->z + new_lines + 5) < len_Z)   return;
-
-Value_P Z1(2*len_Z, LOC);
-   loop(z1, len_Z)
-      {
-        if (arg->Z->get_ravel(z1).is_pointer_cell())
-           {
-             Value_P sub = arg->Z->get_ravel(z1).get_pointer_value();
-             new (Z1->next_ravel())   PointerCell(sub, Z1.getref());
-           }
-         else
-           {
-             new (Z1->next_ravel())   IntCell(0);
-           }
-      }
-
-   loop(z1, len_Z)   new (Z1->next_ravel())   IntCell(0);
-
-   arg->Z = Z1;
+   return do_INP();
 }
 //-----------------------------------------------------------------------------
 Token
@@ -1222,6 +964,258 @@ Value_P Z(lines.size(), LOC);
 
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+void
+Quad_INP::get_esc(Value_P A, UCS_string & esc1, UCS_string & esc2)
+{
+
+   // A is either one string (esc1 == esc2) or two (nested) strings
+   // for esc1 and esc2 respectively.
+   //
+   if (A->compute_depth() == 2)   // two (nested) strings
+      {
+        if (A->get_rank() != 1)        RANK_ERROR;
+        if (A->element_count() != 2)   LENGTH_ERROR;
+
+        loop(e, 2)
+           {
+             const Cell & cell = A->get_ravel(e);
+             if (cell.is_pointer_cell())   // char vector
+                {
+                  if (e)   esc2 = cell.get_pointer_value()->get_UCS_ravel();
+                  else     esc1 = cell.get_pointer_value()->get_UCS_ravel();
+                }
+             else                          // char scalar
+                {
+                  if (e)   esc2 = cell.get_pointer_value()->get_UCS_ravel();
+                  else     esc1 = cell.get_pointer_value()->get_UCS_ravel();
+                }
+           }
+
+        if (esc1.size() == 0)   LENGTH_ERROR;
+      }
+   else                       // one string 
+      {
+        esc1 = A->get_UCS_ravel();
+        if (esc1.size() == 0)   LENGTH_ERROR;
+        esc2 = esc1;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Quad_INP::read_strings()
+{
+   // read lines until an end-maker is detected
+   //
+   for (;;)
+      {
+        bool eof = false;
+        UCS_string prompt;
+        UCS_string line;
+        InputMux::get_line(LIM_Quad_INP, prompt, line, eof,
+                                 LineHistory::quad_INP_history);
+
+        const int end = line.substr_pos(end_marker);
+        if (end != -1)   // end marker found
+           {
+             line.shrink(end);
+             if (line.size())   raw_lines.push_back(line);
+             break;
+           }
+
+        if (eof && !line.size())   break;
+        raw_lines.push_back(line);
+        if (eof)   break;
+      }
+}
+//-----------------------------------------------------------------------------
+void
+Quad_INP::split_strings()
+{
+   last_e = -1;
+
+UCS_string empty;
+   loop(r, raw_lines.size())
+      {
+        UCS_string & line = raw_lines[r];
+        const ShapeItem epos = line.substr_pos(esc1);
+        if (esc1.size() == 0 || epos == -1)   // no escape in this line
+           {
+             prefixes.push_back(empty);
+             escapes.push_back(empty);
+             suffixes.push_back(line);
+             continue;
+           }
+
+        // at this point line did contain an exec string
+        //
+        last_e = prefixes.size();
+
+        UCS_string pref = line;
+        pref.shrink(epos);
+        prefixes.push_back(pref);
+
+        line = line.drop(epos + esc1.size());   // skip prefix and esc1
+        if (esc2.size())   // end defined
+           {
+             const ShapeItem eend = line.substr_pos(esc2);
+             if (eend == -1)   // no exec end in this line
+                {
+                  escapes.push_back(line);
+                  suffixes.push_back(empty);
+                  continue;
+                }
+             else              // found an exec end in this line
+                {
+                  UCS_string exec = line;
+                  exec.shrink(eend);
+                  escapes.push_back(exec);
+                  line = line.drop(eend + esc2.size());   // skip exec and esc2
+                  suffixes.push_back(line);
+                  continue;
+                }
+           }
+        else               // no end defined
+           {
+             escapes.push_back(line);
+             suffixes.push_back(empty);
+           }
+      }
+
+   Assert(prefixes.size() >= raw_lines.size());
+   Assert(prefixes.size() == escapes.size());
+   Assert(prefixes.size() == suffixes.size());
+}
+//-----------------------------------------------------------------------------
+Token
+Quad_INP::do_escapes()
+{
+   Assert(prefixes.size() >= raw_lines.size());
+   Assert(prefixes.size() == escapes.size());
+   Assert(prefixes.size() == suffixes.size());
+
+   while (idx_e <= last_e)
+      {
+        if (escapes[idx_e].size() == 0)
+           {
+             ++idx_e;
+             continue;
+           }
+
+        Token result = Bif_F1_EXECUTE::execute_statement(escapes[idx_e]);
+        if (result.get_tag() == TOK_SI_PUSHED)
+           {
+             EOC_arg arg(Value_P(), Value_P(), 0, 0, Value_P(), LOC);
+             Workspace::SI_top()->add_eoc_handler(eoc_INP, arg, LOC);
+             return result;
+           }
+FIXME;
+      }
+
+   return finish();
+}
+//-----------------------------------------------------------------------------
+Token
+Quad_INP::finish()
+{
+   Quad_INP_running = false;
+
+ShapeItem exec_LFs = 0;
+   loop(p, escapes.size())   exec_LFs += escapes[p].LF_count();
+
+Value_P Z(prefixes.size() + exec_LFs, LOC);
+   loop(p, prefixes.size())
+      {
+        UCS_string line = prefixes[p];
+        const ShapeItem LFs = escapes[p].LF_count();
+        if (LFs == 0)   // single line escape result
+           {
+             line.append(escapes[p]);
+             line.append(suffixes[p]);
+             Value_P Zp(line, LOC);
+             new (Z->next_ravel())   PointerCell(Zp, Z.getref());
+             continue;
+           }
+
+        // multi-line escape result
+        //
+        const UCS_string LF("\n");
+        loop(l, (LFs + 1))   // for every line in escapes[p]
+            {
+              const ShapeItem NL_pos = escapes[p].substr_pos(LF);
+              if (NL_pos == -1)   // last line
+                 {
+                   line.append(escapes[p]);
+                   line.append(suffixes[p]);
+                 }
+              else
+                 {
+                   line.append(UCS_string(escapes[p], 0, NL_pos));
+                   escapes[p] = escapes[p].drop(NL_pos + 1);
+                 }
+
+              Value_P Zp(line, LOC);
+              new (Z->next_ravel())   PointerCell(Zp, Z.getref());
+              line = UCS_string (prefixes[p].size(), UNI_ASCII_SPACE);
+            }
+      }
+
+   Z->set_default_Spc();
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
+}
+//-----------------------------------------------------------------------------
+Token
+Quad_INP::do_INP()
+{
+   raw_lines.clear();
+   prefixes.clear();
+   escapes.clear();
+   suffixes.clear();
+
+   read_strings();    // read lines from file or stdin
+   split_strings();   // split lines into prefixes, escapes, and suffixes
+
+   idx_e = 0;
+   return do_escapes();
+}
+//-----------------------------------------------------------------------------
+bool
+Quad_INP::eoc_INP(Token & token)
+{
+   delete Workspace::SI_top()->remove_eoc_handlers();
+
+   if (token.get_tag() == TOK_ERROR)
+      {
+         CERR << "Error in ⎕INP" << endl;
+         UCS_string err("*** ");
+         err.append(Error::error_name((ErrorCode)(token.get_int_val())));
+         err.append_utf8(" in ⎕INP ***");
+         Value_P val(err, LOC);
+         move_2(token, Token(TOK_APL_VALUE1, val), LOC);
+         return false;   // stop it
+      }
+
+   // token is the result of ⍎ exec
+   //
+   {
+     Value_P exec_result = token.get_apl_val();
+token.extract_apl_val(LOC);
+
+     PrintContext pctx = Workspace::get_PrintContext(PST_NONE);
+     PrintBuffer pb(*exec_result, pctx, 0);
+     UCS_string ucs;
+     loop(p, pb.get_height())
+         {
+           ucs.append(pb.get_line(p));
+           if (p < (pb.get_height() - 1))   ucs.append(UNI_ASCII_LF);
+         }
+     fun->escapes[fun->idx_e++] = ucs;
+   }
+
+   move_2(token, fun->finish(), LOC);
+   return false;
 }
 //=============================================================================
 Token

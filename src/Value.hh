@@ -460,7 +460,7 @@ public:
    /// list all values
    static ostream & list_all(ostream & out, bool show_owners);
 
-   /// return the ravel of this values as UCS string, or throw DOMAIN error
+   /// return the ravel of \b this value as UCS string, or throw DOMAIN error
    /// if the ravel contains non-char or nested cells.
    UCS_string get_UCS_ravel() const;
 

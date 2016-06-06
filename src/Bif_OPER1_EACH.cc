@@ -20,6 +20,7 @@
 
 #include "Bif_OPER1_EACH.hh"
 #include "PointerCell.hh"
+#include "UserFunction.hh"
 #include "Workspace.hh"
 
 Bif_OPER1_EACH Bif_OPER1_EACH::_fun;
@@ -199,6 +200,22 @@ Function * LO = _LO.get_function();
         Value_P Z = tZ.get_apl_val();
         Z->set_shape(B->get_shape());
         return Token(TOK_APL_VALUE1, Z);
+      }
+
+   if (LO->may_push_SI())   // user defined LO
+      {
+        if (LO->has_result())
+           {
+             static Macro * Z__EACH_B = 0;
+             if (Z__EACH_B == 0)   Z__EACH_B = new Macro(
+                "λ←(⍶ EACH) ⍵;⎕IO;rho_Z;N;N_max\n"
+                "⎕IO←1 ◊ rho_Z←⍴⍵ ◊ N←0 ◊ N_max←⍴⍵←,⍵ ◊ λ←N_max⍴0\n"
+                "LOOP: 2 λ[N]←⊂⍶ ⊃⍵[N←N+1] ◊ →(N<N_max)⍴LOOP\n"
+                "λ←rho_Z⍴λ\n");
+//           return Z__EACH_B->eval_LB(_LO, B);
+//           return Token(TOK_OPER1_MACRO, Z__EACH_B);
+
+           }
       }
 
 EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), LO, 0, B);

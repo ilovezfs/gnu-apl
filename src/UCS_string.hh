@@ -115,14 +115,17 @@ public:
    /// whitespaces, append args to rest, and remove args from this.
    void split_ws(UCS_string & rest);
 
+   /// return the number of LF characters in \b this string
+   ShapeItem LF_count() const;
+
    /// return \b true iff \b this string is contained in \b list
    bool contained_in(const vector<UCS_string> & list) const;
 
    /// return the start position of \b sub in \b this string or -1 if \b sub
    /// is not contained in \b this string
-   int substr_pos(const UCS_string & sub) const;
+   ShapeItem substr_pos(const UCS_string & sub) const;
 
-   /// remove the first \b drop_count characters from this string
+   /// return this string with the first \b drop_count characters removed
    UCS_string drop(int drop_count) const
       {
         if (drop_count <= 0)        return UCS_string(*this, 0, size());

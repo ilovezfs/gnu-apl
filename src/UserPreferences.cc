@@ -223,6 +223,20 @@ UserPreferences::parse_argv_2(bool logit)
    //
    // /usr/bin/apl -apl-options... -- -script-options ./scriptname
    //
+
+   // if GNU APL is started as aplscript, then --script is implied
+   //
+   {
+      const char * prog = expanded_argv[0];
+      if (strlen(prog) >= 6 && !strcmp("script", (prog + strlen(prog) - 6)))
+         {
+            do_CONT = false;               // --noCONT
+            do_not_echo = true;            // -noCIN
+            do_Color = false;              // --noColor
+            silent = true;                 // --silent
+         }
+   }
+
    for (size_t a = 1; a < expanded_argv.size(); )
        {
          if ((int)a == script_argc)   { ++a;   continue; }   // skip scriptname

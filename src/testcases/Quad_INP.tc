@@ -46,5 +46,38 @@ END-OF-⎕INP
 ┃┗━━━━━━━━━━┛ ┗━━━━━━━━━━━━━━━┛┃
 ┗∊━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+      ]NEXTFILE
+
+      ⍝ regression
+      ⍝
+      0 0⍴⍎')COPY 5 HTML.apl'
+
+yFEATURES←           ⊂ 'nested arrays and related functions'
+yFEATURES←yFEATURES, ⊂ 'complex numbers, and'
+yFEATURES←yFEATURES, ⊂ 'a shared variable interface'
+yFEATURES←HTML∆Ul yFEATURES
+
+      yBODY← '<?apl' '?>' ⎕INP 'END-OF-⎕INP'   ⍝ php style
+The APL interpreter has implemented:
+<?apl ⊃ yFEATURES ?>
+
+END-OF-⎕INP
+
+      ⊣{⎕←⊃⍵}¨yBODY
+The APL interpreter has implemented:
+<UL>                                      
+  <LI> nested arrays and related functions
+  <LI> complex numbers, and               
+  <LI> a shared variable interface        
+</UL>                                     
+
+      )CHECK
+OK      - no stale functions
+OK      - no stale values
+OK      - no stale indices
+OK      - no stale EOC_args
+
+      )SI
+
 ⍝ ==================================
 
