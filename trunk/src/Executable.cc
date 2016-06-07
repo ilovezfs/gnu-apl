@@ -495,10 +495,8 @@ int lambda_num = 0;
        {
          if (body[b].get_tag() != TOK_L_CURLY)   continue;   // not {
 
-         b = setup_one_lambda(b, ++lambda_num) - 1;   // -1 to compensate ++b in loop(b) above
+         b = setup_one_lambda(b, ++lambda_num) - 1;   // -1 due to ++b in loop(b) above
        }
-
-   Parser::remove_void_token(body);
 
    // redo the token reversion of the body so that the body token and the
    // text run in the same direction.
@@ -507,6 +505,7 @@ int lambda_num = 0;
 
    Parser::match_par_bra(body, true);
    adjust_line_starts();
+   Parser::remove_void_token(body);   // do this AFTER adjust_line_starts() !!!
 }
 //-----------------------------------------------------------------------------
 ShapeItem

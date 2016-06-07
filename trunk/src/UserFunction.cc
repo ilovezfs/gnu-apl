@@ -48,6 +48,12 @@ UserFunction::UserFunction(const UCS_string txt,
     error_line(0),   // assume header is wrong
     error_info("Unspecified")
 {
+   if (header.get_error())
+      {
+        error_info = header.get_error_info();
+        return;
+      }
+
    set_creation_time(now());
 
    exec_properties[0] = 0;
@@ -997,14 +1003,35 @@ char cc[40];
    return ucs;
 }
 //-----------------------------------------------------------------------------
-Macro::Macro(const char * text)
-   : UserFunction(UCS_string(UTF8_string(text)), LOC, "Macro::Macro()", false)
+Macro::Macro(Macro * & _owner, const char * text)
+   : UserFunction(UCS_string(UTF8_string(text)), LOC, "Macro::Macro()", false),
+     owner(_owner)
 {
-// CERR << "MACRO: " << endl << text;
+   CERR << "MACRO: " << endl << text;
 
-   if (error_info)         CERR << "error_info: " << error_info << endl;
-   if (error_line != -1)   CERR << "error_line: " << error_line << endl;
+   if (error_info || (error_line != -1))   // something went wrong
+      {
+        if (error_info)         CERR << "error_info: " << error_info << endl;
+        if (error_line != -1)   CERR << "error_line: " << error_line << endl;
+        return;
+      }
 
    all_macros.append(this);
+}
+//-----------------------------------------------------------------------------
+Macro::~Macro()
+{
+   CERR << "DELETED MACRO" << endl;
+   owner = 0;
+}
+//-----------------------------------------------------------------------------
+void
+Macro::clear_all()
+{
+   while (all_macros.size())
+      {
+        delete all_macros.last();
+        all_macros.pop();
+      }
 }
 //-----------------------------------------------------------------------------

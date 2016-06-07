@@ -40,8 +40,7 @@
 const struct _header_pattern
 {
    Fun_signature signature;      ///< a bitmap for header items
-   int           symbol_count;   ///< number of header items (excl local vars)
-   int           token_count;    ///< number of header token (excl local vars)
+   int           sc100_tc;       ///< symbols * 100 + tokens (excl local vars)
    TokenTag      tags[11];       ///< tags of the header token (excl local vars)
 } header_patterns[] =            ///< all valid function headers
 {
@@ -98,49 +97,49 @@ const struct _header_pattern
 
    // niladic
    //
- { SIG_F0             , 1,  1, {           __F0,            } },
+ { SIG_F0             , 101, {           __F0,            } },
 
- { SIG_Z_F0           , 2,  3, { __Z,      __F0,            } },
+ { SIG_Z_F0           , 203, { __Z,      __F0,            } },
 
    // monadic
    //
- { SIG_F1_B           , 2,  2, {           __F1,       __B, } },
- { SIG_F1_X_B         , 3,  5, {           __F1,  __X, __B, } },
- { SIG_LO_OP1_B       , 3,  5, {           __OP1,      __B, } },
- { SIG_LO_OP1_X_B     , 4,  8, {           __OP1, __X, __B, } },
- { SIG_LO_OP2_RO_B    , 4,  6, {           __OP2,      __B, } },
+ { SIG_F1_B           , 202, {           __F1,       __B, } },
+ { SIG_F1_X_B         , 305, {           __F1,  __X, __B, } },
+ { SIG_LO_OP1_B       , 305, {           __OP1,      __B, } },
+ { SIG_LO_OP1_X_B     , 408, {           __OP1, __X, __B, } },
+ { SIG_LO_OP2_RO_B    , 406, {           __OP2,      __B, } },
 
- { SIG_Z_F1_B         , 3,  4, { __Z,      __F1,       __B, } },
- { SIG_Z_F1_X_B       , 4,  7, { __Z,      __F1,  __X, __B, } },
- { SIG_Z_LO_OP1_B     , 4,  7, { __Z,      __OP1,      __B, } },
- { SIG_Z_LO_OP1_X_B   , 5, 10, { __Z,      __OP1, __X, __B, } },
- { SIG_Z_LO_OP2_RO_B  , 5,  8, { __Z,      __OP2,      __B, } },
+ { SIG_Z_F1_B         , 304, { __Z,      __F1,       __B, } },
+ { SIG_Z_F1_X_B       , 407, { __Z,      __F1,  __X, __B, } },
+ { SIG_Z_LO_OP1_B     , 407, { __Z,      __OP1,      __B, } },
+ { SIG_Z_LO_OP1_X_B   , 510, { __Z,      __OP1, __X, __B, } },
+ { SIG_Z_LO_OP2_RO_B  , 508, { __Z,      __OP2,      __B, } },
 
- { SIG_Z_F1_B         , 3,  4, { __z,      __F1,       __b, } },
- { SIG_Z_F1_X_B       , 4,  7, { __z,      __F1,  __x, __b, } },
- { SIG_Z_LO_OP1_B     , 4,  7, { __z,      __op1,      __b, } },
- { SIG_Z_LO_OP1_X_B   , 5, 10, { __z,      __op1, __x, __b, } },
- { SIG_Z_LO_OP2_RO_B  , 5,  8, { __z,      __op2,      __b, } },
+ { SIG_Z_F1_B         , 304, { __z,      __F1,       __b, } },
+ { SIG_Z_F1_X_B       , 407, { __z,      __F1,  __x, __b, } },
+ { SIG_Z_LO_OP1_B     , 407, { __z,      __op1,      __b, } },
+ { SIG_Z_LO_OP1_X_B   , 510, { __z,      __op1, __x, __b, } },
+ { SIG_Z_LO_OP2_RO_B  , 508, { __z,      __op2,      __b, } },
 
    // dyadic
    //
- { SIG_A_F2_B         , 3,  3, {      __A, __F2,       __B } },
- { SIG_A_F2_X_B       , 4,  6, {      __A, __F2,  __X, __B } },
- { SIG_A_LO_OP1_B     , 4,  6, {      __A, __OP1,      __B } },
- { SIG_A_LO_OP1_X_B   , 5,  9, {      __A, __OP1, __X, __B } },
- { SIG_A_LO_OP2_RO_B  , 5,  7, {      __A, __OP2,      __B } },
+ { SIG_A_F2_B         , 303, {      __A, __F2,       __B } },
+ { SIG_A_F2_X_B       , 406, {      __A, __F2,  __X, __B } },
+ { SIG_A_LO_OP1_B     , 406, {      __A, __OP1,      __B } },
+ { SIG_A_LO_OP1_X_B   , 509, {      __A, __OP1, __X, __B } },
+ { SIG_A_LO_OP2_RO_B  , 507, {      __A, __OP2,      __B } },
 
- { SIG_Z_A_F2_B       , 4,  5, { __Z, __A, __F2,       __B } },
- { SIG_Z_A_F2_X_B     , 5,  8, { __Z, __A, __F2,  __X, __B } },
- { SIG_Z_A_LO_OP1_B   , 5,  8, { __Z, __A, __OP1,      __B } },
- { SIG_Z_A_LO_OP1_X_B , 6, 11, { __Z, __A, __OP1, __X, __B } },
- { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __Z, __A, __OP2,      __B } },
+ { SIG_Z_A_F2_B       , 405, { __Z, __A, __F2,       __B } },
+ { SIG_Z_A_F2_X_B     , 508, { __Z, __A, __F2,  __X, __B } },
+ { SIG_Z_A_LO_OP1_B   , 508, { __Z, __A, __OP1,      __B } },
+ { SIG_Z_A_LO_OP1_X_B , 611, { __Z, __A, __OP1, __X, __B } },
+ { SIG_Z_A_LO_OP2_RO_B, 609, { __Z, __A, __OP2,      __B } },
 
- { SIG_Z_A_F2_B       , 4,  5, { __z, __a, __F2,       __b } },
- { SIG_Z_A_F2_X_B     , 5,  8, { __z, __a, __F2,  __x, __b } },
- { SIG_Z_A_LO_OP1_B   , 5,  8, { __z, __a, __op1,      __b } },
- { SIG_Z_A_LO_OP1_X_B , 6, 11, { __z, __a, __op1, __x, __b } },
- { SIG_Z_A_LO_OP2_RO_B, 6,  9, { __z, __a, __op2,      __b } },
+ { SIG_Z_A_F2_B       , 405, { __z, __a, __F2,       __b } },
+ { SIG_Z_A_F2_X_B     , 508, { __z, __a, __F2,  __x, __b } },
+ { SIG_Z_A_LO_OP1_B   , 508, { __z, __a, __op1,      __b } },
+ { SIG_Z_A_LO_OP1_X_B , 611, { __z, __a, __op1, __x, __b } },
+ { SIG_Z_A_LO_OP2_RO_B, 609, { __z, __a, __op2,      __b } },
 };
 
 /// the number of signatures
@@ -148,8 +147,8 @@ enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
 
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(const UCS_string & text)
-  : error(E_SYNTAX_ERROR),
-    error_info("Unspecified"),
+  : error(E_DEFN_ERROR),   // assume bad headr
+    error_info("Bad header"),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
@@ -170,7 +169,7 @@ UCS_string header_line;
 
    if (header_line.size() == 0)
       {
-        error_info = "empty header line";
+        error_info = "Empty header line";
         return;
       }
 
@@ -188,11 +187,12 @@ UCS_string header_line;
 Token_string tos;
    {
      const Parser parser(PM_FUNCTION, LOC);
-     error = parser.parse(header_line, tos);
+     const ErrorCode err = parser.parse(header_line, tos);
 
-     if (error)
+     if (err)
         {
-          error_info = "parse error in header";
+          error = err;
+          error_info = "Parse error in header";
           return;
         }
    }
@@ -214,10 +214,10 @@ Symbol * symbols[12];
    // then we will not find them in header_patterns and signal syntax error.
    //
 Fun_signature signature = SIG_NONE;
+const int sc100_tc = sym_count * 100 + tos_idx;
    loop(s, PATTERN_COUNT)
       {
-        if (header_patterns[s].symbol_count != sym_count)   continue;
-        if (header_patterns[s].token_count != tos_idx)      continue;
+        if (header_patterns[s].sc100_tc != sc100_tc)   continue;
         bool match = true;
         loop(t, tos_idx)
            {
@@ -237,7 +237,7 @@ Fun_signature signature = SIG_NONE;
 
    if (signature == SIG_NONE)
       {
-        error_info = "bad header signature";
+        error_info = "Bad header signature";
         return;
       }
 
@@ -263,14 +263,14 @@ Fun_signature signature = SIG_NONE;
       {
         if (tos[tos_idx++].get_tag() != TOK_SEMICOL)
            {
-             error_info = "semicolon expected in function header";
+             error_info = "Semicolon expected in function header";
              return;
            }
 
 
         if (tos_idx == tos.size())
            {
-             error_info = "trailing semicolon in function header";
+             error_info = "Trailing semicolon in function header";
              return;
            }
 
@@ -298,8 +298,8 @@ Fun_signature signature = SIG_NONE;
 }
 //-----------------------------------------------------------------------------
 UserFunction_header::UserFunction_header(Fun_signature sig, int lambda_num)
-  : error(E_SYNTAX_ERROR),
-    error_info("Unspecified"),
+  : error(E_DEFN_ERROR),
+    error_info("Bad header"),
     sym_Z(0),
     sym_A(0),
     sym_LO(0),
@@ -326,7 +326,6 @@ bool valid_signature = false;
 
    if (!valid_signature)   
       {
-         error = E_SYNTAX_ERROR;
          error_info = "Invalid signature";
          return;
       }
@@ -338,6 +337,7 @@ bool valid_signature = false;
    if (sig & SIG_B)    sym_B  = &Workspace::get_v_OMEGA();
    if (sig & SIG_X)    sym_X  = &Workspace::get_v_CHI();
 
+   error_info = 0;
    error = E_NO_ERROR;
 }
 //-----------------------------------------------------------------------------
