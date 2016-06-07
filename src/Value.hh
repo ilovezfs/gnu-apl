@@ -119,6 +119,10 @@ public:
    bool is_scalar_or_len1_vector() const
       { return is_scalar() || (is_vector() && (get_shape_item(0) == 1)); }
 
+   /// return \b true iff \b this value can be scalar-extended
+   bool is_scalar_extensible() const
+      { return element_count() == 1; }
+
    /// return \b true iff \b this value is a simple character scalar or vector.
    bool is_char_string() const
       { return get_rank() <= 1 && is_char_array(); }
