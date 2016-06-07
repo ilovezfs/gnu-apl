@@ -399,8 +399,8 @@ ScalarFunction::eval_scalar_AB(Value_P A, Value_P B, prim_f2 fun)
 {
 PERFORMANCE_START(start_1)
 
-const int inc_A = A->is_scalar_or_len1_vector() ? 0 : 1;
-const int inc_B = B->is_scalar_or_len1_vector() ? 0 : 1;
+const int inc_A = A->is_scalar_extensible() ? 0 : 1;
+const int inc_B = B->is_scalar_extensible() ? 0 : 1;
 const Shape * shape_Z = 0;
    if      (A->is_scalar())      shape_Z = &B->get_shape();
    else if (B->is_scalar())      shape_Z = &A->get_shape();
@@ -467,9 +467,9 @@ Value_P Z(*shape_Z, LOC);
                           Value_P A1 = cell_A.get_pointer_value();
                           Value_P B1 = cell_B.get_pointer_value();
                           const int inc_A1 =
-                                    A1->is_scalar_or_len1_vector() ? 0 : 1;
+                                    A1->is_scalar_extensible() ? 0 : 1;
                           const int inc_B1 =
-                                    B1->is_scalar_or_len1_vector() ? 0 : 1;
+                                    B1->is_scalar_extensible() ? 0 : 1;
                           const Shape * sh_Z1 = &B1->get_shape();
                           if      (A1->is_scalar())   sh_Z1 = &B1->get_shape();
                           else if (B1->is_scalar())   sh_Z1 = &A1->get_shape();
@@ -504,7 +504,7 @@ Value_P Z(*shape_Z, LOC);
                           //
                           Value_P A1 = cell_A.get_pointer_value();
                           const int inc_A1 =
-                                    A1->is_scalar_or_len1_vector() ? 0 : 1;
+                                    A1->is_scalar_extensible() ? 0 : 1;
 
                           const ShapeItem len_Z1 = A1->get_shape().get_volume();
                           if (len_Z1 == 0)
@@ -534,7 +534,7 @@ Value_P Z(*shape_Z, LOC);
                           //
                           Value_P B1 = cell_B.get_pointer_value();
                           const int inc_B1 =
-                                    B1->is_scalar_or_len1_vector() ? 0 : 1;
+                                    B1->is_scalar_extensible() ? 0 : 1;
 
                           const ShapeItem len_Z1 = B1->get_shape().get_volume();
                           if (len_Z1 == 0)
@@ -609,8 +609,8 @@ ShapeItem end_z = z + slice_len;
                      //
                      Value_P A1 = cell_A.get_pointer_value();
                      Value_P B1 = cell_B.get_pointer_value();
-                     const int inc_A1 = A1->is_scalar_or_len1_vector() ? 0 : 1;
-                     const int inc_B1 = B1->is_scalar_or_len1_vector() ? 0 : 1;
+                     const int inc_A1 = A1->is_scalar_extensible() ? 0 : 1;
+                     const int inc_B1 = B1->is_scalar_extensible() ? 0 : 1;
                      const Shape * sh_Z1 = &B1->get_shape();
                      if      (A1->is_scalar())   sh_Z1 = &B1->get_shape();
                      else if (B1->is_scalar())   sh_Z1 = &A1->get_shape();
@@ -649,7 +649,7 @@ ShapeItem end_z = z + slice_len;
                      // A is nested, B is not
                      //
                      Value_P A1 = cell_A.get_pointer_value();
-                     const int inc_A1 = A1->is_scalar_or_len1_vector() ? 0 : 1;
+                     const int inc_A1 = A1->is_scalar_extensible() ? 0 : 1;
 
                      const ShapeItem len_Z1 = A1->get_shape().get_volume();
                      if (len_Z1 == 0)
@@ -678,7 +678,7 @@ ShapeItem end_z = z + slice_len;
                      // A is not nested, B is nested
                      //
                      Value_P B1 = cell_B.get_pointer_value();
-                     const int inc_B1 = B1->is_scalar_or_len1_vector() ? 0 : 1;
+                     const int inc_B1 = B1->is_scalar_extensible() ? 0 : 1;
 
                      const ShapeItem len_Z1 = B1->get_shape().get_volume();
                      if (len_Z1 == 0)
@@ -720,7 +720,7 @@ ScalarFunction::eval_fill_AB(Value_P A, Value_P B)
 {
    // eval_fill_AB() is called when A or B or both are empty
    //
-   if (A->is_scalar_or_len1_vector())   // then B is empty
+   if (A->is_scalar_extensible())   // then B is empty
       {
         Value_P Z = B->clone(LOC);
         Z->to_proto();
@@ -728,7 +728,7 @@ ScalarFunction::eval_fill_AB(Value_P A, Value_P B)
         return Token(TOK_APL_VALUE1, Z);
       }
 
-   if (B->is_scalar_or_len1_vector())   // then A is empty
+   if (B->is_scalar_extensible())   // then A is empty
       {
         Value_P Z = A->clone(LOC);
         Z->to_proto();
@@ -811,7 +811,7 @@ ScalarFunction::eval_scalar_AXB(Value_P A, Value_P X, Value_P B, prim_f2 fun)
 {
 PERFORMANCE_START(start_1)
 
-   if (A->is_scalar_or_len1_vector() || B->is_scalar_or_len1_vector() || !X)
+   if (!X || A->is_scalar_extensible() || B->is_scalar_extensible())
       return eval_scalar_AB(A, B, fun);
 
    if (X->get_rank() > 1)   AXIS_ERROR;
@@ -823,6 +823,7 @@ bool axis_in_X[MAX_RANK];
    loop(r, MAX_RANK)   axis_in_X[r] = false;
 
 const ShapeItem len_X = X->element_count();
+
    loop(iX, len_X)
        {
          APL_Integer i = X->get_ravel(iX).get_near_int() - qio;
@@ -832,12 +833,29 @@ const ShapeItem len_X = X->element_count();
          axis_in_X[i] = true;
        }
 
-Value_P Z = (rank_A < rank_B) ? eval_scalar_AXB(A, axis_in_X, B, fun, false)
-                              : eval_scalar_AXB(B, axis_in_X, A, fun, true);
+   if (rank_A == rank_B)
+      {
+        if (rank_A != len_X)   AXIS_ERROR;
+        return eval_scalar_AB(A, B, fun);
+      }
 
+Value_P Z;
+   if (rank_A < rank_B)
+      {
+        if (rank_A != len_X)   AXIS_ERROR;
+
+        Value_P Z = eval_scalar_AXB(A, axis_in_X, B, fun, false);
 PERFORMANCE_END(fs_SCALAR_AB, start_1, Z->nz_element_count())
+        return Token(TOK_APL_VALUE1, Z);
+      }
+    else
+      {
+        if (rank_B != len_X)   AXIS_ERROR;
 
-   return Token(TOK_APL_VALUE1, Z);
+        Value_P Z = eval_scalar_AXB(B, axis_in_X, A, fun, true);
+PERFORMANCE_END(fs_SCALAR_AB, start_1, Z->nz_element_count())
+        return Token(TOK_APL_VALUE1, Z);
+      }
 }
 //-----------------------------------------------------------------------------
 Value_P
@@ -987,8 +1005,8 @@ Bif_F12_ROLL::eval_AB(Value_P A, Value_P B)
 {
    // draw A items  from the set [quad-IO ... B]
    //
-   if (!A->is_scalar_or_len1_vector())   RANK_ERROR;
-   if (!B->is_scalar_or_len1_vector())   RANK_ERROR;
+   if (!A->is_scalar_extensible())   RANK_ERROR;
+   if (!B->is_scalar_extensible())   RANK_ERROR;
 
 const ShapeItem zlen = A->get_ravel(0).get_near_int();
 APL_Integer set_size = B->get_ravel(0).get_near_int();
