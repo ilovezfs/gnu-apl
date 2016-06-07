@@ -202,21 +202,31 @@ Function * LO = _LO.get_function();
         return Token(TOK_APL_VALUE1, Z);
       }
 
+#if 0 // ongoing work
    if (LO->may_push_SI())   // user defined LO
       {
         if (LO->has_result())
            {
              static Macro * Z__EACH_B = 0;
-             if (Z__EACH_B == 0)   Z__EACH_B = new Macro(
-                "λ←(⍶ EACH) ⍵;⎕IO;rho_Z;N;N_max\n"
-                "⎕IO←1 ◊ rho_Z←⍴⍵ ◊ N←0 ◊ N_max←⍴⍵←,⍵ ◊ λ←N_max⍴0\n"
-                "LOOP: 2 λ[N]←⊂⍶ ⊃⍵[N←N+1] ◊ →(N<N_max)⍴LOOP\n"
-                "λ←rho_Z⍴λ\n");
-//           return Z__EACH_B->eval_LB(_LO, B);
-//           return Token(TOK_OPER1_MACRO, Z__EACH_B);
-
+             if (Z__EACH_B == 0)   Z__EACH_B = new Macro(Z__EACH_B,
+                "Z←(F EACH) B;⎕IO;rho_Z;N;N_max\n"
+                "rho_Z←⍴B ◊ N←0 ◊ N_max←⍴B←,B ◊ Z←N_max⍴0\n"
+                "LOOP: Z[⎕IO+N]←⊂F ⊃B[⎕IO+N] ◊ →(N_max>N←N+1)⍴LOOP\n"
+                "Z←rho_Z⍴Z\n");
+             return Z__EACH_B->eval_LB(_LO, B);
+           }
+        else   // LO has no result
+           {
+             static Macro * EACH_B = 0;
+             if (EACH_B == 0)   EACH_B = new Macro(EACH_B,
+                "(F EACH) B;N;N_max\n"
+                "N←0 ◊ N_max←⍴B←,B\n"
+                "LOOP: F ⊃B[⎕IO+N] ◊ →(N_max>N←N+1)⍴LOOP\n"
+                );
+             return EACH_B->eval_LB(_LO, B);
            }
       }
+#endif
 
 EOC_arg * arg = new EOC_arg(Value_P(), Value_P(), LO, 0, B);
    arg->loc = LOC;

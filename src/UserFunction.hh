@@ -304,9 +304,16 @@ protected:
 class Macro : public UserFunction
 {
 public:
-   Macro(const char * text);
+   Macro(Macro * & _owner, const char * text);
+
+   ~Macro();
+
+   static void clear_all();
 
    static Simple_string<Macro *> all_macros;
+
+protected:
+   Macro * & owner;
 };
 //-----------------------------------------------------------------------------
 
