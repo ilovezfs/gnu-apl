@@ -40,7 +40,7 @@ Simple_string<Macro *> Macro::all_macros;
 //-----------------------------------------------------------------------------
 UserFunction::UserFunction(const UCS_string txt,
                            const char * loc, const UTF8_string & _creator,
-                           bool tolerant)
+                           bool tolerant, bool macro)
   : Function(ID::USER_SYMBOL, TOK_FUN2),
     Executable(txt, true, PM_FUNCTION, loc),
     header(txt),
@@ -739,7 +739,7 @@ UserFunction::fix(const UCS_string & text, int & err_line,
 
    if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(true);
 
-UserFunction * ufun = new UserFunction(text, loc, creator, tolerant);
+UserFunction * ufun = new UserFunction(text, loc, creator, tolerant, false);
    if (Workspace::SI_top())   Workspace::SI_top()->set_safe_execution(false);
 
 const char * info = ufun->get_error_info();
@@ -1004,7 +1004,8 @@ char cc[40];
 }
 //-----------------------------------------------------------------------------
 Macro::Macro(Macro * & _owner, const char * text)
-   : UserFunction(UCS_string(UTF8_string(text)), LOC, "Macro::Macro()", false),
+   : UserFunction(UCS_string(UTF8_string(text)), LOC, "Macro::Macro()",
+                  false, true),
      owner(_owner)
 {
    CERR << "MACRO: " << endl << text;

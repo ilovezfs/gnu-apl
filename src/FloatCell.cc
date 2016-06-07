@@ -604,6 +604,7 @@ static const APL_Float big[MAX_Quad_PP + 1] =
     100000000000000ULL,
    1000000000000000ULL,
   10000000000000000ULL,
+ 1000000000000000000ULL,
 };
 
    return val >= big[quad_pp] || val <= -big[quad_pp];
