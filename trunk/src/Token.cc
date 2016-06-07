@@ -568,7 +568,7 @@ UCS_string ucs;
 
         case TC_VALUE:
              {
-               PrintContext pctx(style, 16, 80);
+               PrintContext pctx(style, DEFAULT_Quad_PP, DEFAULT_Quad_PW);
                PrintBuffer pbuf(*get_apl_val(), pctx, 0);
                if (pbuf.get_height() == 0)   return ucs;
                return pbuf.l1();

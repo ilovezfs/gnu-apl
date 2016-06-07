@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -231,7 +231,7 @@ public:
 protected:
    /// constructor for a normal (i.e. non-lambda) user defined function
    UserFunction(const UCS_string txt, const char * loc,
-                const UTF8_string &  _creator, bool tolerant);
+                const UTF8_string &  _creator, bool tolerant, bool macro);
 
    /// overladed Function::may_push_SI()
    virtual bool may_push_SI() const   { return true; }

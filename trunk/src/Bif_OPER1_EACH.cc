@@ -207,23 +207,23 @@ Function * LO = _LO.get_function();
       {
         if (LO->has_result())
            {
-             static Macro * Z__EACH_B = 0;
-             if (Z__EACH_B == 0)   Z__EACH_B = new Macro(Z__EACH_B,
-                "Z←(F EACH) B;⎕IO;rho_Z;N;N_max\n"
-                "rho_Z←⍴B ◊ N←0 ◊ N_max←⍴B←,B ◊ Z←N_max⍴0\n"
-                "LOOP: Z[⎕IO+N]←⊂F ⊃B[⎕IO+N] ◊ →(N_max>N←N+1)⍴LOOP\n"
+             static Macro * Z__LO_EACH_B = 0;
+             if (Z__LO_EACH_B == 0)   Z__LO_EACH_B = new Macro(Z__LO_EACH_B,
+                "Z←(LO Z__LO_EACH_B) B;⎕IO;rho_Z;N;N_max\n"
+                "rho_Z←⍴B ◊ N←⎕IO ◊ N_max←N+⍴B←,B ◊ Z←N_max⍴0\n"
+                "LOOP: Z[N]←⊂LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n"
                 "Z←rho_Z⍴Z\n");
-             return Z__EACH_B->eval_LB(_LO, B);
+             return Z__LO_EACH_B->eval_LB(_LO, B);
            }
         else   // LO has no result
            {
-             static Macro * EACH_B = 0;
-             if (EACH_B == 0)   EACH_B = new Macro(EACH_B,
-                "(F EACH) B;N;N_max\n"
-                "N←0 ◊ N_max←⍴B←,B\n"
-                "LOOP: F ⊃B[⎕IO+N] ◊ →(N_max>N←N+1)⍴LOOP\n"
+             static Macro * LO_EACH_B = 0;
+             if (LO_EACH_B == 0)   LO_EACH_B = new Macro(LO_EACH_B,
+                "(LO LO_EACH_B) B;N;N_max\n"
+                "N←⎕IO ◊ N_max←N+⍴B←,B\n"
+                "LOOP: LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n"
                 );
-             return EACH_B->eval_LB(_LO, B);
+             return LO_EACH_B->eval_LB(_LO, B);
            }
       }
 #endif
