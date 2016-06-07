@@ -213,13 +213,13 @@ char cc[80];
 
             case CT_FLOAT:   // uses UNI_PAD_U4
                  space -= leave_char_mode();
-                 snprintf(cc, sizeof(cc), "%g", cell.get_real_value());
+                 snprintf(cc, sizeof(cc), "%.16g", cell.get_real_value());
                  NEED(1 + strlen(cc)) << UNI_PAD_U4 << decr(--space, cc);
                  break;
 
             case CT_COMPLEX:   // uses UNI_PAD_U5
                  space -= leave_char_mode();
-                 snprintf(cc, sizeof(cc), "%gJ%g",
+                 snprintf(cc, sizeof(cc), "%16gJ%16g",
                           cell.get_real_value(), cell.get_imag_value());
                  NEED(1 + strlen(cc)) << UNI_PAD_U5 << decr(--space, cc);
                  break;

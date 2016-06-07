@@ -839,7 +839,6 @@ const ShapeItem len_X = X->element_count();
         return eval_scalar_AB(A, B, fun);
       }
 
-Value_P Z;
    if (rank_A < rank_B)
       {
         if (rank_A != len_X)   AXIS_ERROR;
