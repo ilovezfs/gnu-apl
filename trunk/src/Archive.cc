@@ -37,6 +37,7 @@
 #include "IndexExpr.hh"
 #include "IntCell.hh"
 #include "LvalCell.hh"
+#include "Macro.hh"
 #include "NativeFunction.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
@@ -408,8 +409,12 @@ const Executable & exec = *si.get_executable();
                Assert(ufun);
                const int sym_depth = sym->get_ufun_depth(ufun);
 
-               out << "<UserFunction ufun-name=\"" << sym->get_name()
-                 << "\" symbol-level=\"" << sym_depth << "\"/>" << endl;
+               if (ufun->is_macro())
+                  out << "<UserFunction macro-num=\"" << ufun->get_macnum()
+                      << "\"/>" << endl;
+               else
+                  out << "<UserFunction ufun-name=\"" << sym->get_name()
+                      << "\" symbol-level=\"" << sym_depth << "\"/>" << endl;
              }
              break;
 
@@ -2047,8 +2052,11 @@ Executable * exec = new StatementList(text, LOC);
 Executable *
 XML_Loading_Archive::read_UserFunction()
 {
-const int level = find_int_attr("symbol-level", false, 10);
-const UTF8 * name = find_attr("ufun-name", false);
+const int macro_num = find_int_attr("macro-num", true, 10);
+   if (macro_num != -1)   return Macro::get_macro((Macro::Macro_num)macro_num);
+
+const int level     = find_int_attr("symbol-level", false, 10);
+const UTF8 * name   = find_attr("ufun-name", false);
 const UTF8 * n  = name;
    while (*n != '"')   ++n;
 UTF8_string name_utf(name, n - name);

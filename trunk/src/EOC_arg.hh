@@ -25,29 +25,6 @@
 #include "Shape.hh"
 #include "Value.icc"
 
-/// ⎕INP has no arguments anymore
-struct QUAD_INP
-{
-};
-
-/// arguments of the EOC handler for A ∘.f B
-struct OUTER_PROD
-{
-  ShapeItem len_B;   ///< number of cells in right arg
-  ShapeItem len_Z;   ///< number of cells in result
-};
-
-/// arguments of the EOC handler for A g.f B
-struct INNER_PROD
-{
-  ShapeItem items_A;     ///< number of cells in A1
-  ShapeItem items_B;     ///< number of cells in B1
-  ShapeItem how;         ///< how to continue in finish_inner_product()
-  bool      last_ufun;   ///< true for the last user defined function call
-  bool      A_enclosed;   ///< true if A was enclosed
-  bool      B_enclosed;   ///< true if B was enclosed
-};
-
 /// arguments of the EOC handler for one f/B result cell
 struct REDUCTION
 {
@@ -63,16 +40,6 @@ struct REDUCTION
   ShapeItem b;              ///< current b
 };
 
-/// arguments of the EOC handler for (A) f¨ B
-struct EACH_ALB
-{
-  ShapeItem dA;          ///< cA increment (0 or 1)
-  ShapeItem dB;          ///< cB increment (0 or 1)
-  ShapeItem len_Z;       ///< number of iterations
-  ShapeItem sub;         ///< create a PointerCell
-  ShapeItem SI_pushed;   ///< user-defined LO
-};
-
 /// arguments of the EOC handler for (A) f⍤[X] B
 struct RANK
 {
@@ -83,14 +50,6 @@ struct RANK
   int       Z_nested;        ///< Z is nested
 
   char axes[MAX_RANK + 1];   ///< axes for ⍤[X]
-};
-
-/// arguments of the EOC handler for A f⋆g B
-struct POWER_ALRB
-{
-  ShapeItem how;                   ///< how to finish_eval_ALRB()
-  ShapeItem repeat_count;          ///< repeat count N for  form  A f ⍣ N B
-  ShapeItem user_RO;               ///< true if RO is user-defined
 };
 
 /// the type of a function to be called at the end of a context.
@@ -229,13 +188,8 @@ public:
 
    /// the structs defined above...
 #define EOC_structs                                                   \
-   QUAD_INP    u_Quad_INP;        /**< space for ⎕INP context      */ \
-   OUTER_PROD  u_OUTER_PROD;      /**< space for ∘.g context       */ \
-   INNER_PROD  u_INNER_PROD;      /**< space for f.g context       */ \
    REDUCTION   u_REDUCTION;       /**< space for f/ context        */ \
-   EACH_ALB    u_EACH_ALB;        /**< space for A¨B context       */ \
    RANK        u_RANK;            /**< space for A f⍤[X] B context */ \
-   POWER_ALRB  u_POWER_ALRB;      /**< space for A f⍣g B context   */
 
    /// a helper union for computing the size of the largest struct
    union EOC_arg_u1 { EOC_structs };

@@ -30,6 +30,7 @@
 #include "IntCell.hh"
 #include "IO_Files.hh"
 #include "LvalCell.hh"
+#include "Macro.hh"
 #include "Output.hh"
 #include "PointerCell.hh"
 #include "Parallel.hh"
@@ -1809,7 +1810,7 @@ int count = 0;
    //
    mark_all_dynamic_values();
    Workspace::unmark_all_values();
-   loop(m, Macro::all_macros.size())  Macro::all_macros[m]->unmark_all_values();
+   Macro::unmark_all_macros();
 
    // print all values that are still marked
    //

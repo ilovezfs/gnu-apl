@@ -127,6 +127,7 @@ SystemVariable::get_attributes(int mode, Cell * dest) const
 Quad_AV::Quad_AV()
    : RO_SystemVariable(ID::Quad_AV)
 {
+   Assert1(MAX_AV == 256);
 Value_P AV(MAX_AV, LOC);
    loop(cti, MAX_AV)
        {

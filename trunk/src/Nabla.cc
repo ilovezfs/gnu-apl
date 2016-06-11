@@ -258,7 +258,7 @@ UCS_string::iterator c(first_command.begin());
             }
       }
 
-UserFunction_header hdr(fun_header);
+UserFunction_header hdr(fun_header, false);
    if (hdr.get_error())   return "Bad function header";
 
    fun_symbol = Workspace::lookup_symbol(hdr.get_name());
@@ -777,7 +777,7 @@ Nabla::edit_header_line()
 {
    // parse the header and check that it is valid
    //
-UserFunction_header header(current_text);
+UserFunction_header header(current_text, false);
    if (header.get_error() != E_NO_ERROR)
       {
         CERR << "BAD FUNCTION HEADER";
@@ -819,7 +819,7 @@ const UCS_string & new_name = header.get_name();
 const char *
 Nabla::edit_body_line()
 {
-const Parser parser(PM_FUNCTION, LOC);
+const Parser parser(PM_FUNCTION, LOC, false);
 Token_string in;
 ErrorCode ec = parser.parse(current_text, in);
    if (ec)

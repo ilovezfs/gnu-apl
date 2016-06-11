@@ -37,7 +37,7 @@ class UserFunction_header
 {
 public:
    /// constructor from first line in \b txt (for normal defined functions)
-   UserFunction_header(const UCS_string & txt);
+   UserFunction_header(const UCS_string & txt, bool macro);
 
    /// constructor from signature (for lambdas)
    UserFunction_header(Fun_signature sig, int lambda_num);

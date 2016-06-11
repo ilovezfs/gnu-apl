@@ -502,8 +502,6 @@ Workspace::clear_WS(ostream & out, bool silent)
 #define ro_sv_def(x, _str, _txt)
 #include "SystemVariable.def"
 
-   Macro::clear_all();
-
    // at this point all values should have been gone.
    // complain about those that still exist, and remove them.
    //

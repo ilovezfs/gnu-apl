@@ -295,7 +295,7 @@ const size_t data_chars = len - idx;
         if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
 
         UCS_string data(ravel, idx, len - idx);
-        Tokenizer tokenizer(PM_EXECUTE, LOC);
+        Tokenizer tokenizer(PM_EXECUTE, LOC, false);
         Token_string tos;
         if (tokenizer.tokenize(data, tos) != E_NO_ERROR)   return Value_P();
         if (tos.size() != shape.get_volume())           return Value_P();
@@ -398,7 +398,7 @@ Token_string tos;
    try
       {
         UCS_string ucs1 = no_UCS(ravel);
-        const Parser parser(PM_EXECUTE, LOC);
+        const Parser parser(PM_EXECUTE, LOC, false);
         parser.parse(ucs1, tos);
       }
    catch(...)

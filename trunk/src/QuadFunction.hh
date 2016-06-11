@@ -108,6 +108,9 @@ public:
    /// Constructor.
    Quad_EA() : QuadFunction(TOK_Quad_EA) {}
 
+   /// overladed Function::may_push_SI()
+   virtual bool may_push_SI() const   { return true; }
+
    static Quad_EA * fun;          ///< Built-in function.
    static Quad_EA  _fun;          ///< Built-in function.
 
@@ -129,6 +132,9 @@ class Quad_EC : public QuadFunction
 public:
    /// Constructor.
    Quad_EC() : QuadFunction(TOK_Quad_EC) {}
+
+   /// overladed Function::may_push_SI()
+   virtual bool may_push_SI() const   { return true; }
 
    static Quad_EC * fun;          ///< Built-in function.
    static Quad_EC  _fun;          ///< Built-in function.

@@ -47,6 +47,9 @@ public:
    virtual bool is_lambda() const
       { return header.get_name()[0] == UNI_LAMBDA; }
 
+   virtual int get_macnum() const
+      { return -1; }
+
    /// overloaded Executable::get_ufun()
    virtual const UserFunction * get_ufun() const
    { return this; }
@@ -218,7 +221,7 @@ public:
    void set_trace_stop(Function_Line * lines, int line_count, bool stop);
 
    /// recompile the body
-   void parse_body(const char * loc, bool tolerant);
+   void parse_body(const char * loc, bool tolerant, bool macro);
 
    /// return stop lines (from S∆fun ← lines)
    const vector<Function_Line> & get_stop_lines() const
@@ -299,21 +302,6 @@ protected:
 
    /// information about an error (if any)
    const char * error_info;
-};
-//-----------------------------------------------------------------------------
-class Macro : public UserFunction
-{
-public:
-   Macro(Macro * & _owner, const char * text);
-
-   ~Macro();
-
-   static void clear_all();
-
-   static Simple_string<Macro *> all_macros;
-
-protected:
-   Macro * & owner;
 };
 //-----------------------------------------------------------------------------
 

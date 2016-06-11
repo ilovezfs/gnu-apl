@@ -55,13 +55,7 @@ public:
    static Bif_OPER2_OUTER * fun;   ///< Built-in function.
    static Bif_OPER2_OUTER  _fun;   ///< Built-in function.
 
-   /// EOC handler for outer_product with user defined RO
-   static bool eoc_OUTER(Token & token);
-
 protected:
-   /// Compute the outer product of A and B with function RO.
-   Token outer_product(Value_P A, Token & RO, Value_P B);
-
    /// the context for an outer product
    struct PJob_product
       {
@@ -85,10 +79,6 @@ protected:
 
    /// the main loop for an outer product with scalar functions
    static void PF_scalar_outer_product(Thread_context & tctx);
-
-   /// helper for RO. returns true if the final token was computed, and false
-   /// if finish_outer_product shall be called again
-   static Token finish_outer_product(EOC_arg & arg);
 };
 //-----------------------------------------------------------------------------
 

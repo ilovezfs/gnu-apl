@@ -1559,7 +1559,7 @@ Symbol * sym = 0;
 Token_string tos;
    {
      UCS_string data1(data, idx, data.size() - idx);
-     Tokenizer tokenizer(PM_EXECUTE, LOC);
+     Tokenizer tokenizer(PM_EXECUTE, LOC, false);
      if (tokenizer.tokenize(data1, tos) != E_NO_ERROR)   return;
    }
  

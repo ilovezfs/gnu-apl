@@ -163,7 +163,8 @@ protected:
 
    /// parse the body line number \b line of \b this function
    ErrorCode parse_body_line(Function_Line line, const UCS_string & ucs,
-                             bool trace, bool tolerant, const char * loc);
+                             bool trace, bool tolerant, const char * loc,
+                             bool macro);
 
    /// parse the body line number \b line of \b this function
    ErrorCode parse_body_line(Function_Line line, const Token_string & tos,

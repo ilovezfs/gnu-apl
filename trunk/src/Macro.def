@@ -1,0 +1,122 @@
+/*
+    This file is part of GNU APL, a free implementation of the
+    ISO/IEC Standard 13751, "Programming Language APL, Extended"
+
+    Copyright (C) 2016  Dr. Jürgen Sauermann
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// monadic EACH without result
+//
+mac_def(LO_EACH_B,
+      "(LO LO_EACH_B) B;N;N_max\n"
+      "N←⎕IO ◊ N_max←N+⍴B←,B\n"
+      "LOOP: LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n")
+
+// dyadic EACH varieties without result...
+//
+mac_def(sA_LO_EACH_vB,
+ "A (LO sa_LO_EACH_vB) B;N;N_max\n"
+ "N←⎕IO ◊ N_max←N+⍴B←,B\n"
+ "LOOP: A LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n")
+
+mac_def(vA_LO_EACH_sB,
+ "A (LO vA_LO_EACH_sB) B;N;N_max\n"
+ "N←⎕IO ◊ N_max←N+⍴A←,A\n"
+ "LOOP: (⊃A[N]) LO B ◊ →(N_max>N←N+1)⍴LOOP\n")
+
+mac_def(vA_LO_EACH_vB,
+ "A (LO vA_LO_EACH_vB) B;N;N_max\n"
+ "N←⎕IO ◊ A←,A ◊ N_max←N+⍴B←,B\n"
+ "LOOP: (⊃A[N]) LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n")
+
+// monadic EACH with result
+//
+mac_def(Z__LO_EACH_B, 
+ "Z←(LO Z__LO_EACH_B) B;rho_Z;N;N_max\n"
+ "rho_Z←⍴B ◊ N←⎕IO ◊ N_max←N+⍴B←,B ◊ Z←N_max⍴0\n"
+ "LOOP: Z[N]←⊂LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n"
+ "Z←rho_Z⍴Z\n")
+
+// dyadic EACH varieties with result...
+//
+mac_def(Z__sA_LO_EACH_sB,
+ "Z←A (LO Z__sA_LO_EACH_sB) B\n"
+ "Z←⊂A LO B\n")
+
+mac_def(  Z__sA_LO_EACH_vB, 
+ "Z←A (LO Z__sA_LO_EACH_vB) B;rho_Z;N;N_max\n"
+ "rho_Z←⍴B ◊ N←⎕IO ◊ N_max←N+⍴B←,B ◊ Z←N_max⍴0\n"
+ "LOOP: Z[N]←⊂A LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n"
+ "Z←rho_Z⍴Z\n")
+
+mac_def(  Z__vA_LO_EACH_sB, 
+ "Z←A (LO Z__vA_LO_EACH_sB) B;rho_Z;N;N_max\n"
+ "rho_Z←⍴A ◊ N←⎕IO ◊ N_max←N+⍴A←,A ◊ Z←N_max⍴0\n"
+ "LOOP: Z[N]←⊂(⊃A[N]) LO B ◊ →(N_max>N←N+1)⍴LOOP\n"
+ "Z←rho_Z⍴Z\n")
+
+mac_def(  Z__vA_LO_EACH_vB, 
+ "Z←A (LO Z__vA_LO_EACH_vB) B;rho_Z;N;N_max\n"
+ "rho_Z←⍴B ◊ N←⎕IO ◊ A←,A ◊ N_max←N+⍴B←,B ◊ Z←N_max⍴0\n"
+ "LOOP: Z[N]←⊂(⊃A[N]) LO ⊃B[N] ◊ →(N_max>N←N+1)⍴LOOP\n"
+ "Z←rho_Z⍴Z\n")
+
+// outer product
+//
+mac_def(  Z__A_LO_OUTER_B,
+ "Z←A (LO Z__A_LO_OUTER_B) B;rho_Z;N;N_max;I;IA;IB\n"
+ "rho_Z←(⍴A),⍴B ◊ N←⎕IO ◊ A←,A ◊ B←,B ◊ I←,⍳(⍴A),⍴B ◊ N_max←N+⍴I ◊ Z←N_max⍴0\n"
+ "LOOP: (IA IB)←⊃I[N] ◊ Z[N]←⊂(⊃A[IA]) LO ⊃B[IB] ◊ →(N_max>N←N+1)⍴LOOP\n"
+ "Z←rho_Z⍴Z\n")
+
+// inner product
+//
+mac_def(  Z__A_LO_INNER_RO_B,
+ "Z←A (LO Z__A_LO_INNER_RO_B RO) B;rho_Z;rho_A;rho_B;N;N_max;I;IA;IB\n"
+ "rho_A←¯1↓⍴A ◊ A←((×/rho_A),  ¯1↑1,⍴A)⍴A   ⍝ hence 2 = ⍴⍴A\n"
+ "rho_B← 1↓⍴B ◊ B←((1↑(⍴B),1), ×/rho_B)⍴B   ⍝ hence 2 = ⍴⍴B\n"
+ "I←,⍳rho_Z←rho_A, rho_B ◊ N←⎕IO ◊ N_max←N+⍴I ◊ Z←N_max⍴0\n"
+ "LOOP: (IA IB)←⊃I[N] ◊ Z[N]←LO/A[IA;] RO B[;IB] ◊ →(N_max>N←N+1)⍴LOOP\n"
+ "Z←rho_Z⍴Z\n")
+
+// power varieties
+//
+mac_def(  LO_POWER_N_B,
+  " A (LO LO_POWER_N_B N) Z\n"
+"LOOP: LO Z ◊ →(0<N←N-1)⍴LOOP\n")
+
+mac_def(  A_LO_POWER_N_B,
+  " A (LO A_LO_POWER_N_B N) Z\n"
+"LOOP: A LO Z ◊ →(0<N←N-1)⍴LOOP\n")
+
+mac_def(  Z__LO_POWER_N_B,
+" Z←A (LO Z__LO_POWER_N_B N) Z\n"
+"LOOP: Z←LO Z ◊ →(0<N←N-1)⍴LOOP\n")
+
+mac_def(  Z__A_LO_POWER_N_B,
+" Z←A (LO Z__A_LO_POWER_N_B N) Z\n"
+"LOOP: Z←A LO Z ◊ →(0<N←N-1)⍴LOOP\n")
+
+mac_def(  Z__LO_POWER_RO_B,
+  " Z←(LO Z__LO_POWER_RO_B RO) B;T\n"
+"LOOP: Z←LO B ◊ T←Z RO B ◊ B←Z ◊ →(T≢1)⍴LOOP\n")
+
+mac_def(  Z__A_LO_POWER_RO_B,
+" Z←A (LO Z__A_LO_POWER_RO_B RO) B;T\n"
+"LOOP: Z←A LO B ◊ T←Z RO B ◊ B←Z ◊ →(T≢1)⍴LOOP\n")
+
+#undef mac_def
+

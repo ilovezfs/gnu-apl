@@ -898,7 +898,7 @@ APL_Integer x = X->get_ravel(0).get_near_int();
 UCS_string end_marker(B->get_UCS_ravel());
 
 vector<UCS_string> lines;
-Parser parser(PM_EXECUTE, LOC);
+Parser parser(PM_EXECUTE, LOC, false);
 
    for (;;)
       {

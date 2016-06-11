@@ -75,6 +75,12 @@ public:
    static bool is_white(Unicode av)
       { return av >= 0 && av <= ' '; }
 
+   /// return \b true iff \b av is one of the single quote characters ' ‘ or ’
+   static bool is_single_quote(Unicode av)
+      { return av == UNI_SINGLE_QUOTE  ||
+               av == UNI_SINGLE_QUOTE1 ||
+               av == UNI_SINGLE_QUOTE2; } 
+
    /// return \b true iff \b av is a control char (ASCII 0..32 (excluding))
    static bool is_control(Unicode av)
       { return av >= 0 && av < ' '; }

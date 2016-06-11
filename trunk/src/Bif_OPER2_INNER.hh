@@ -38,16 +38,7 @@ public:
    static Bif_OPER2_INNER * fun;   ///< Built-in function.
    static Bif_OPER2_INNER  _fun;   ///< Built-in function.
 
-   /// EOC handler for inner_product with user defined LO
-   static bool eoc_LO(Token & token);
-
-   /// EOC handler for inner_product with user defined RO
-   static bool eoc_RO(Token & token);
-
 protected:
-   /// Compute the inner product of A and B with functions LO and RO.
-   Token inner_product(Value_P A, Token & LO, Token & RO, Value_P B);
-
    /// the context for an inner product
    struct PJob_product
       {
@@ -73,10 +64,6 @@ protected:
 
    /// the main loop for an inner product with scalar functions
    static void PF_scalar_inner_product(Thread_context & tctx);
-
-   /// helper for RO. returns true if the final token was computed, and false
-   /// if finish_inner_product shall be called again
-   static Token finish_inner_product(EOC_arg & arg);
 };
 //-----------------------------------------------------------------------------
 

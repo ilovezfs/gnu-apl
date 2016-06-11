@@ -18,11 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Bif_OPER1_EACH.hh"
 #include "Bif_OPER1_REDUCE.hh"
-#include "Bif_OPER2_INNER.hh"
-#include "Bif_OPER2_OUTER.hh"
-#include "Bif_OPER2_POWER.hh"
 #include "Bif_OPER2_RANK.hh"
 #include "EOC_arg.hh"
 #include "QuadFunction.hh"
@@ -37,16 +33,8 @@ EOC_arg::get_EOC_type(EOC_HANDLER handler)
    if (handler == Quad_EA::eoc_B_done)          return EOC_Quad_EA_B;
    if (handler == Quad_EC::eoc)                 return EOC_Quad_EC;
    if (handler == Quad_INP::eoc_INP)            return EOC_Quad_INP;
-   if (handler == Bif_OPER2_OUTER::eoc_OUTER)   return EOC_Outer_Prod;
-   if (handler == Bif_OPER2_INNER::eoc_LO)      return EOC_Inner_LO;
-   if (handler == Bif_OPER2_INNER::eoc_RO)      return EOC_Inner_RO;
    if (handler == Bif_REDUCE::eoc_REDUCE)       return EOC_Reduce;
-   if (handler == Bif_OPER1_EACH::eoc_ALB)      return EOC_Each_AB;
-   if (handler == Bif_OPER1_EACH::eoc_LB)       return EOC_Each_B;
    if (handler == Bif_OPER2_RANK::eoc_RANK)     return EOC_Rank;
-   if (handler == Bif_OPER2_POWER::eoc_form_1)  return EOC_Power_0;
-   if (handler == Bif_OPER2_POWER::eoc_LO)      return EOC_Power_LO;
-   if (handler == Bif_OPER2_POWER::eoc_RO)      return EOC_Power_RO;
 
    Assert(0 && "Bad EOC_handler");
    return EOC_None;
@@ -61,16 +49,8 @@ EOC_arg::get_EOC_handler(EOC_type type)
         case EOC_Quad_EA_B:  return Quad_EA::eoc_B_done;
         case EOC_Quad_EC:    return Quad_EC::eoc;
         case EOC_Quad_INP:   return Quad_INP::eoc_INP;
-        case EOC_Outer_Prod: return Bif_OPER2_OUTER::eoc_OUTER;
-        case EOC_Inner_LO:   return Bif_OPER2_INNER::eoc_LO;
-        case EOC_Inner_RO:   return Bif_OPER2_INNER::eoc_LO;
         case EOC_Reduce:     return Bif_REDUCE::eoc_REDUCE;
-        case EOC_Each_AB:    return Bif_OPER1_EACH::eoc_ALB;
-        case EOC_Each_B:     return Bif_OPER1_EACH::eoc_LB;
         case EOC_Rank:       return Bif_OPER2_RANK::eoc_RANK;
-        case EOC_Power_0:    return Bif_OPER2_POWER::eoc_form_1;
-        case EOC_Power_LO:   return Bif_OPER2_POWER::eoc_LO;
-        case EOC_Power_RO:   return Bif_OPER2_POWER::eoc_RO;
         default:  Assert(0 && "Bad EOC_type");
       }
 

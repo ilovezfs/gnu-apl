@@ -30,8 +30,9 @@ class Tokenizer
 {
 public:
    /// Constructor
-   Tokenizer(ParseMode pm, const char * _loc)
+   Tokenizer(ParseMode pm, const char * _loc, bool mac)
    : pmode(pm),
+     macro(mac),
      loc(_loc),
      rest_1(0),
      rest_2(0)
@@ -75,6 +76,9 @@ protected:
 
    /// the parsing mode of this parser
    const ParseMode pmode;
+
+   /// tokenize macro code
+   const bool macro;
 
    /// caller of this Tokenizer
    const char * loc;

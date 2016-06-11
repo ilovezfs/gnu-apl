@@ -30,8 +30,9 @@ class Parser
 {
 public:
    /// constructor
-   Parser(ParseMode pm, const char * loc)
+   Parser(ParseMode pm, const char * loc, bool mac)
    : pmode(pm),
+     macro(mac),
      create_loc(loc)
    {}
 
@@ -92,6 +93,9 @@ protected:
 
    /// the parsing mode of this parser
    const ParseMode pmode;
+
+   /// tokenize macro code
+   const bool macro;
 
    /// where this parser was constructed
    const char * create_loc;

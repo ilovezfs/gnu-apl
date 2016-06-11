@@ -59,6 +59,7 @@ LvalCell.cc					LvalCell.hh		\
 						makefile.h		\
 Malloc_hooks.cc								\
 Nabla.cc					Nabla.hh		\
+Macro.cc		Macro.def		Macro.hh		\
 NamedObject.cc					NamedObject.hh		\
 NativeFunction.cc				NativeFunction.hh	\
 						Native_interface.hh	\

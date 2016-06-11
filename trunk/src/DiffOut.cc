@@ -175,10 +175,10 @@ DiffOut::different(const UTF8 * apl, const UTF8 * ref)
               // ⁿ shall match an optional  unit multiplier, ie.
               // m, n, u, or μ
               //
-              if (a == 'm')   continue;
-              if (a == 'n')   continue;
-              if (a == 'u')   continue;
-              if (a == UNI_mue)   continue;
+              if (a == 'm')       continue;
+              if (a == 'n')       continue;
+              if (a == 'u')       continue;
+              if (a == UNI_MUE)   continue;
 
               // no unit matches as well
               apl -= len_apl;

@@ -89,7 +89,7 @@ SymbolTable::list_symbol(ostream & out, const UCS_string & buf) const
 {
 Token_string tos;
       {
-        Tokenizer tokenizer(PM_STATEMENT_LIST, LOC);
+        Tokenizer tokenizer(PM_STATEMENT_LIST, LOC, false);
         if (tokenizer.tokenize(buf, tos) != E_NO_ERROR)
            {
              CERR << "invalid token" << endl;
@@ -136,6 +136,7 @@ int symbol_count = 0;
        {
          for (Symbol * sym = symbol_table[s]; sym; sym = sym->next)
              {
+               if (sym->get_name()[0] == UNI_MUE)   continue;   // macro
                ++symbol_count;
 
                // check range
@@ -314,23 +315,23 @@ Symbol * sym = symbol_table[hash];
 
    symbol_table[hash] = 0;
 
-Symbol * next;
+Symbol * next;   // the symbol after sym
    for (; sym; sym = next)
        {
          next = sym->next;
 
-         sym->call_monitor_callback(SEV_ERASED);
-
-         // keep not user-defined symbols ??? ARE THERE ANY ???
+         // keep system-defined symbols
          //
-         if (!sym->is_user_defined())
+         if (sym->is_user_defined() && sym->get_name()[0] != UNI_MUE)
+            {
+              sym->call_monitor_callback(SEV_ERASED);
+              delete sym;
+            }
+         else
             {
               sym->next = symbol_table[hash];
               symbol_table[hash] = sym;
-              continue;
             }
-
-         delete sym;
        }
 }
 //-----------------------------------------------------------------------------
