@@ -32,6 +32,7 @@
 #include "Common.hh"
 #include "IO_Files.hh"
 #include "LibPaths.hh"
+#include "Macro.hh"
 #include "makefile.h"
 #include "Output.hh"
 #include "NativeFunction.hh"
@@ -230,6 +231,8 @@ const bool log_startup = uprefs.parse_argv_1();
 #endif
 
    uprefs.parse_argv_2(log_startup);
+
+   Macro::init_macros();
 
    if (uprefs.emacs_mode)
       {

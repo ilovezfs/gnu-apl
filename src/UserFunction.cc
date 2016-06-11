@@ -35,15 +35,13 @@
 #include "Value.icc"
 #include "Workspace.hh"
 
-Simple_string<Macro *> Macro::all_macros;
-
 //-----------------------------------------------------------------------------
-UserFunction::UserFunction(const UCS_string txt,
-                           const char * loc, const UTF8_string & _creator,
-                           bool tolerant, bool macro)
+UserFunction::UserFunction(const UCS_string txt, const char * loc,
+                           const UTF8_string & _creator, bool tolerant,
+                           bool macro)
   : Function(ID::USER_SYMBOL, TOK_FUN2),
     Executable(txt, true, PM_FUNCTION, loc),
-    header(txt),
+    header(txt, macro),
     creator(_creator),
     error_line(0),   // assume header is wrong
     error_info("Unspecified")
@@ -77,7 +75,7 @@ UserFunction::UserFunction(const UCS_string txt,
    else if (header.B())    tag = TOK_FUN1;
    else                    tag = TOK_FUN0;
 
-   parse_body(loc, tolerant);
+   parse_body(loc, tolerant, macro);
    if (error_line > 0)
       {
         error_info = "Error in function body";
@@ -556,11 +554,11 @@ DynArray(bool, ts_lines, line_starts.size());
            }
       }
 
-   parse_body(LOC, false);
+   parse_body(LOC, false, false);
 }
 //-----------------------------------------------------------------------------
 void
-UserFunction::parse_body(const char * loc, bool tolerant)
+UserFunction::parse_body(const char * loc, bool tolerant, bool macro)
 {
    line_starts.clear();
    line_starts.push_back(Function_PC_0);   // will be set later.
@@ -603,7 +601,7 @@ UserFunction::parse_body(const char * loc, bool tolerant)
         ErrorCode ec = E_SYNTAX_ERROR;
         try {
               ec = parse_body_line(Function_Line(l), line, trace_line,
-                                   tolerant, loc);
+                                   tolerant, loc, macro);
 
               if (tolerant && ec != E_NO_ERROR)
                  {
@@ -848,7 +846,7 @@ Token_string body;
      body.append(tok_endl);
    }
 
-const Parser parser(PM_FUNCTION, LOC);
+const Parser parser(PM_FUNCTION, LOC, false);
 const ErrorCode ec = parser.parse(body_text, body);
    if (ec)
       {
@@ -1001,38 +999,5 @@ char cc[40];
    ucs.append(UNI_ASCII_R_BRACK);
    ucs.append(UNI_ASCII_SPACE);
    return ucs;
-}
-//-----------------------------------------------------------------------------
-Macro::Macro(Macro * & _owner, const char * text)
-   : UserFunction(UCS_string(UTF8_string(text)), LOC, "Macro::Macro()",
-                  false, true),
-     owner(_owner)
-{
-   CERR << "MACRO: " << endl << text;
-
-   if (error_info || (error_line != -1))   // something went wrong
-      {
-        if (error_info)         CERR << "error_info: " << error_info << endl;
-        if (error_line != -1)   CERR << "error_line: " << error_line << endl;
-        return;
-      }
-
-   all_macros.append(this);
-}
-//-----------------------------------------------------------------------------
-Macro::~Macro()
-{
-   CERR << "DELETED MACRO" << endl;
-   owner = 0;
-}
-//-----------------------------------------------------------------------------
-void
-Macro::clear_all()
-{
-   while (all_macros.size())
-      {
-        delete all_macros.last();
-        all_macros.pop();
-      }
 }
 //-----------------------------------------------------------------------------

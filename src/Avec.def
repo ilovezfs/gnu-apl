@@ -168,10 +168,12 @@ char_df1(INVERTED_QUESTION  , 0x00BF , END          , NO_SPACE ,  A8) /* ¿ */
 char_def(MULTIPLY           , 0x00D7 , F12_TIMES    , NO_SPACE ,  F5) /* × */
 char_def(DIVIDE             , 0x00F7 , F12_DIVIDE   , NO_SPACE ,  F6) /* ÷ */
 char_def(LAMBDA             , 0x03BB , SYMBOL       , SYMBOL   ,  99) /* λ */
-char_df1(mue                , 0x03BC , END          , NO_SPACE ,  --) /* μ */
+char_def(MUE                , 0x03BC , END          , SYMBOL   ,  8B) /* μ */
 char_def(CHI                , 0x03C7 , SYMBOL       , SYMBOL   ,  A2) /* χ */
 char_df1(AV_MAX             , 0x0461 , END          , NO_SPACE ,  --) /* ѡ */
-char_df1(PAD_U0             , 0x2070 , END          , NO_SPACE ,  --) /* ⁰ */
+char_df1(SINGLE_QUOTE1      , 0x2018 , QUOTE1       , NONE     ,  --) /* ⁰ */
+char_df1(SINGLE_QUOTE2      , 0x2019 , QUOTE1       , NONE     ,  --) /* ‘ */
+char_df1(PAD_U0             , 0x2070 , END          , NO_SPACE ,  --) /* ’ */
 char_df1(PAD_U4             , 0x2074 , END          , NO_SPACE ,  --) /* ⁴ */
 char_df1(PAD_U5             , 0x2075 , END          , NO_SPACE ,  --) /* ⁵ */
 char_df1(PAD_U6             , 0x2076 , END          , NO_SPACE ,  --) /* ⁶ */
@@ -234,7 +236,7 @@ char_def(Quad_DIAMOND       , 0x233A , END          , NO_SPACE , 089) /* ⌺ */
 char_def(Quad_JOT           , 0x233B , END          , NO_SPACE ,  D5) /* ⌻ */
 char_def(Quad_CIRCLE        , 0x233C , END          , NO_SPACE , 08A) /* ⌼ */
 char_def(CIRCLE_STILE       , 0x233D , F12_ROTATE   , NO_SPACE ,  E8) /* ⌽ */
-char_def(CIRCLE_JOT         , 0x233E , END          , NO_SPACE , 08B) /* ⌾ */
+char_df1(CIRCLE_JOT         , 0x233E , END          , NO_SPACE ,  --) /* ⌾ */
 char_def(SLASH_BAR          , 0x233F , OPER1_REDUCE1, NO_SPACE ,  F0) /* ⌿ */
 char_def(BACKSLASH_BAR      , 0x2340 , OPER1_SCAN1  , NO_SPACE ,  F1) /* ⍀ */
 char_def(Quad_SLASH         , 0x2341 , END          , NO_SPACE , 08C) /* ⍁ */

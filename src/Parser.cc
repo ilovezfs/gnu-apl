@@ -45,7 +45,7 @@ Parser::parse(const UCS_string & input, Token_string & tos) const
 Token_string tos1;
 
    {
-     Tokenizer tokenizer(pmode, LOC);
+     Tokenizer tokenizer(pmode, LOC, macro);
      ErrorCode ec = tokenizer.tokenize(input, tos1);
      if (ec != E_NO_ERROR)   return ec;
    }

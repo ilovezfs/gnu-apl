@@ -76,6 +76,9 @@ public:
    /// return \b true iff \b this function is a lambda
    virtual bool is_lambda() const   { return false; }
 
+   /// return \b true iff \b this function is a macro
+   virtual bool is_macro() const   { return false; }
+
    /// return \b true iff \b this function is a derived function
    virtual bool is_derived() const
       { return false; }

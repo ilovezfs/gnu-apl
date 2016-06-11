@@ -123,7 +123,7 @@ UTF8_string::UTF8_string(const UCS_string & ucs)
              loop(ii, ucs.size()) CERR << " " << HEX(ucs[ii]);
              CERR << endl;
 
-             Backtrace::show(__FILE__, __LINE__);
+             BACKTRACE
              Assert(0 && "Error in UTF8_string::UTF8_string(ucs)");
            }
       }
@@ -177,7 +177,7 @@ uint32_t bx = b0;   // the "significant" bits in b0
 
         CERR <<  " at " LOC << endl;
 
-        Backtrace::show(__FILE__, __LINE__);
+        BACKTRACE
         Assert(0 && "Internal error in UTF8_string::toUni()");
       }
    else
@@ -220,7 +220,7 @@ int len;
    else
       {
         CERR << "Bad UTF8 sequence: " << HEX(b0) << "... at " LOC << endl;
-        Backtrace::show(__FILE__, __LINE__);
+        BACKTRACE
         return Invalid_Unicode;
       }
 

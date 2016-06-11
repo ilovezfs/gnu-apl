@@ -146,7 +146,7 @@ const struct _header_pattern
 enum { PATTERN_COUNT = sizeof(header_patterns) / sizeof(*header_patterns) };
 
 //-----------------------------------------------------------------------------
-UserFunction_header::UserFunction_header(const UCS_string & text)
+UserFunction_header::UserFunction_header(const UCS_string & text, bool macro)
   : error(E_DEFN_ERROR),   // assume bad headr
     error_info("Bad header"),
     sym_Z(0),
@@ -186,7 +186,7 @@ UCS_string header_line;
 
 Token_string tos;
    {
-     const Parser parser(PM_FUNCTION, LOC);
+     const Parser parser(PM_FUNCTION, LOC, macro);
      const ErrorCode err = parser.parse(header_line, tos);
 
      if (err)

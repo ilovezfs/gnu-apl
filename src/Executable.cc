@@ -103,13 +103,14 @@ Executable::clear_body()
 //-----------------------------------------------------------------------------
 ErrorCode
 Executable::parse_body_line(Function_Line line, const UCS_string & ucs_line,
-                            bool trace, bool tolerant, const char * loc)
+                            bool trace, bool tolerant, const char * loc,
+                            bool macro)
 {
    Log(LOG_UserFunction__set_line)
       CERR << "[" << line << "]" << ucs_line << endl;
 
 Token_string in;
-const Parser parser(get_parse_mode(), loc);
+const Parser parser(get_parse_mode(), loc, macro);
 ErrorCode ec = parser.parse(ucs_line, in);
    if (ec)
       {
@@ -613,8 +614,8 @@ int level = 0;
          lambda_body.append(t, LOC);
        }
 
-   // if the lambda has at least one token, then it returns λ.
-   // Otherwise the lambda is result-less
+   // if the lambda has at least one token, then it (is supposed to) return λ.
+   // Otherwise the lambda is empty (and result-less)
    //
    if (signature & SIG_Z)
       {
@@ -797,7 +798,7 @@ ExecuteList * fun = new ExecuteList(data, loc);
 
    try
       {
-        fun->parse_body_line(Function_Line_0, data, false, false, loc);
+        fun->parse_body_line(Function_Line_0, data, false, false, loc, false);
       }
    catch (Error err)
       {
@@ -838,7 +839,7 @@ StatementList * fun = new StatementList(data, loc);
      if (err)   err->parser_loc = 0;
    }
 
-   fun->parse_body_line(Function_Line_0, data, false, false, loc);
+   fun->parse_body_line(Function_Line_0, data, false, false, loc, false);
    fun->setup_lambdas();
 
    Log(LOG_UserFunction__fix)

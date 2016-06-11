@@ -158,7 +158,7 @@ UCS_string ucs_line(line);
         in_variable = false;
         in_matched  = false;
         ucs_line = ucs_line.drop(1);
-        UserFunction_header uh(ucs_line);
+        UserFunction_header uh(ucs_line, false);
         const UCS_string fun_name = uh.get_name();
         loop(n, object_filter.size())
            {

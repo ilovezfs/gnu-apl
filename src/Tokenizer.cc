@@ -426,7 +426,7 @@ Tokenizer::tokenize_string1(Source<Unicode> & src, Token_string & tos)
    Log(LOG_tokenize)   CERR << "tokenize_string1(" << src << ")" << endl;
 
 const Unicode uni = src.get();
-   Assert(uni == UNI_SINGLE_QUOTE);
+   Assert(Avec::is_single_quote(uni));
 
 UCS_string string_value;
 bool got_end = false;
@@ -435,12 +435,12 @@ bool got_end = false;
        {
          const Unicode uni = src.get();
 
-         if (uni == UNI_SINGLE_QUOTE)
+         if (Avec::is_single_quote(uni))
             {
               // a single ' is the end of the string, while a double '
               // (i.e. '') is a single '. 
               //
-              if ((src.rest() == 0) || (*src != UNI_SINGLE_QUOTE))
+              if ((src.rest() == 0) || !Avec::is_single_quote(*src))
                  {
                    got_end = true;
                    break;
@@ -710,7 +710,6 @@ bool
 Tokenizer::tokenize_real(Source<Unicode> & src, bool & need_float,
                          APL_Float & flt_val, APL_Integer & int_val)
 {
-   flt_val = 0.0;
    int_val = 0;
    need_float = false;
    
@@ -877,32 +876,35 @@ int expo = 0;
             --expo;
           }
 
-        flt_val = v;
+        // perfom the scaling in higher precision to avoid rounding errors
+        //
+        long double dval = v;
         if (expo > 0)
            {
-             if (expo >= 256)   { expo -= 256;   flt_val *= 1E256; }
-             if (expo >= 128)   { expo -= 128;   flt_val *= 1E128; }
-             if (expo >=  64)   { expo -=  64;   flt_val *= 1E64;  }
-             if (expo >=  32)   { expo -=  32;   flt_val *= 1E32;  }
-             if (expo >=  16)   { expo -=  16;   flt_val *= 1E16;  }
-             if (expo >=   8)   { expo -=   8;   flt_val *= 1E8;   }
-             if (expo >=   4)   { expo -=   4;   flt_val *= 1E4;   }
-             if (expo >=   2)   { expo -=   2;   flt_val *= 1E2;   }
-             if (expo >=   1)   { expo -=   1;   flt_val *= 1E1;   }
+             if (expo >= 256)   { expo -= 256;   dval *= 1E256; }
+             if (expo >= 128)   { expo -= 128;   dval *= 1E128; }
+             if (expo >=  64)   { expo -=  64;   dval *= 1E64;  }
+             if (expo >=  32)   { expo -=  32;   dval *= 1E32;  }
+             if (expo >=  16)   { expo -=  16;   dval *= 1E16;  }
+             if (expo >=   8)   { expo -=   8;   dval *= 1E8;   }
+             if (expo >=   4)   { expo -=   4;   dval *= 1E4;   }
+             if (expo >=   2)   { expo -=   2;   dval *= 1E2;   }
+             if (expo >=   1)   { expo -=   1;   dval *= 1E1;   }
            }
         else if (expo < 0)
            {
-             if (expo <= -256)   { expo += 256;   flt_val /= 1E256; }
-             if (expo <= -128)   { expo += 128;   flt_val /= 1E128; }
-             if (expo <=  -64)   { expo +=  64;   flt_val /= 1E64;  }
-             if (expo <=  -32)   { expo +=  32;   flt_val /= 1E32;  }
-             if (expo <=  -16)   { expo +=  16;   flt_val /= 1E16;  }
-             if (expo <=   -8)   { expo +=   8;   flt_val /= 1E8;   }
-             if (expo <=   -4)   { expo +=   4;   flt_val /= 1E4;   }
-             if (expo <=   -2)   { expo +=   2;   flt_val /= 1E2;   }
-             if (expo <=   -1)   { expo +=   1;   flt_val /= 1E1;   }
+             if (expo <= -256)   { expo += 256;   dval /= 1E256; }
+             if (expo <= -128)   { expo += 128;   dval /= 1E128; }
+             if (expo <=  -64)   { expo +=  64;   dval /= 1E64;  }
+             if (expo <=  -32)   { expo +=  32;   dval /= 1E32;  }
+             if (expo <=  -16)   { expo +=  16;   dval /= 1E16;  }
+             if (expo <=   -8)   { expo +=   8;   dval /= 1E8;   }
+             if (expo <=   -4)   { expo +=   4;   dval /= 1E4;   }
+             if (expo <=   -2)   { expo +=   2;   dval /= 1E2;   }
+             if (expo <=   -1)   { expo +=   1;   dval /= 1E1;   }
            }
-        if (negative)   flt_val = - flt_val;
+        if (negative)   dval = - dval;
+        flt_val = dval;
       }
    else
       {
@@ -921,6 +923,11 @@ Tokenizer::tokenize_symbol(Source<Unicode> & src, Token_string & tos)
    Log(LOG_tokenize)   CERR << "tokenize_symbol() : " << src.rest() << endl;
 
 UCS_string symbol;
+   if (macro)
+      {
+        symbol.append(UNI_MUE);
+        symbol.append(UNI_ASCII_MINUS);
+      }
    symbol.append(src.get());
 
    while (src.rest())
