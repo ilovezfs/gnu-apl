@@ -45,6 +45,8 @@ Bif_OPER2_POWER::eval_LRB(Token & LO, Token & RO, Value_P B)
       return eval_form_2(Value_P(), LO, RO, B);
 }
 //-----------------------------------------------------------------------------
+// the eval_form_2() function is for LO ⍣ N B and A LO ⍣ N B variants
+// (with condition function RO and worker function LO)
 Token
 Bif_OPER2_POWER::eval_form_2(Value_P A, Token & _LO, Token & _RO, Value_P B)
 {
@@ -75,29 +77,17 @@ Function * RO = _RO.get_function();   Assert(RO);
 
          Assert(result_RO.get_Class() == TC_VALUE);
          Value_P condition = result_RO.get_apl_val();
-         const bool stop = get_condition_value(*condition);
-         if (stop)   return Token(TOK_APL_VALUE1, LO_Z);
+         if (condition->is_scalar() &&
+             condition->get_ravel(0).is_near_bool() &&
+             condition->get_ravel(0).get_near_int() == 1)
+            return Token(TOK_APL_VALUE1, LO_Z);
 
         B = LO_Z;
         LO_Z.clear(LOC);
       }
 }
 //-----------------------------------------------------------------------------
-bool
-Bif_OPER2_POWER::get_condition_value(const Value & RO)
-{
-   if (RO.element_count() != 1)
-      {
-        if (RO.get_rank() > 1)   RANK_ERROR;
-        else                     LENGTH_ERROR;
-      }
-
-   if (!RO.get_ravel(0).is_near_bool())   DOMAIN_ERROR;
-
-   return RO.get_ravel(0).get_checked_near_int();
-}
-//-----------------------------------------------------------------------------
-// the xxx_form_1() functions are for LO ⍣ N B and A LO ⍣ N B variants
+// the eval_form_1() function is for LO ⍣ N B and A LO ⍣ N B variants
 // (with numeric RO and worker function LO)
 Token
 Bif_OPER2_POWER::eval_form_1(Value_P A, Token & _LO, Value_P N, Value_P B)

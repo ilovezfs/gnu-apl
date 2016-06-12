@@ -33,16 +33,20 @@ Bif_OPER2_INNER::PJob_product Bif_OPER2_INNER::job;
 Token
 Bif_OPER2_INNER::eval_ALRB(Value_P A, Token & _LO, Token & _RO, Value_P B)
 {
-   if (!_LO.is_function())    SYNTAX_ERROR;
-   if (!_RO.is_function())    SYNTAX_ERROR;
+   if (!_LO.is_function() || !_RO.is_function())   SYNTAX_ERROR;
 
 Function * LO = _LO.get_function();
 Function * RO = _RO.get_function();
    Assert1(LO);
    Assert1(RO);
 
-   if (!RO->has_result())   DOMAIN_ERROR;
-   if (!LO->has_result())   DOMAIN_ERROR;
+   if (LO->get_fun_valence() != 2 || RO->get_fun_valence() != 2)   SYNTAX_ERROR;
+   if (!LO->has_result() || !RO->has_result())   DOMAIN_ERROR;
+
+   if (!A->is_scalar_extensible() && !B->is_scalar_extensible() &&
+       A->get_rank() > 1          && B->get_rank() > 1 && 
+       A->get_shape().get_last_shape_item() !=
+       B->get_shape().get_shape_item(0))   LENGTH_ERROR;
 
 Shape shape_A1;
 ShapeItem len_A = 1;
