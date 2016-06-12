@@ -182,8 +182,7 @@ bool log_startup = false;
    for (size_t a = 1; a < expanded_argv.size(); )
        {
          const char * opt = expanded_argv[a++];
-         const char * val = (a < expanded_argv.size() - 1)
-                          ? expanded_argv[a] : 0;
+         const char * val = (a < expanded_argv.size()) ? expanded_argv[a] : 0;
 
          if (!strcmp(opt, "-l"))
             {

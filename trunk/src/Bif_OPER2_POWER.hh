@@ -48,8 +48,6 @@ public:
    static Bif_OPER2_POWER  _fun;      ///< Built-in function
 
 protected:
-   /// return boolean value of 1-element value \b COND
-   static bool get_condition_value(const Value & COND);
 };
 //-----------------------------------------------------------------------------
 

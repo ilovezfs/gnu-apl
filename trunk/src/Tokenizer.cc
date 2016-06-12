@@ -557,10 +557,11 @@ Tokenizer::tokenize_number(Source<Unicode> & src, Token_string & tos)
    // real 'D' real   // magnitude + angle in degrees
    // real 'R' real   // magnitude + angle in radian
 
-APL_Float real_flt   = 0.0;   // always valid
+APL_Float   real_flt = 0.0;   // always valid
 APL_Integer real_int = 0;     // valid if need_float is false
-bool need_float = false;
-const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
+bool        real_need_float = false;
+const bool real_valid = tokenize_real(src, real_need_float, real_flt, real_int);
+   if (!real_need_float)   real_flt = real_int;
    if (!real_valid)
       {
         rest_2 = src.rest();
@@ -572,15 +573,16 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
         ++src;   // skip 'J'
 
         APL_Float   imag_flt = 0.0;   // always valid
-        APL_Integer imag_int = 0;     // valid if need_float is false
-        bool need_float = false;
-        const bool imag_valid = tokenize_real(src, need_float,
+        APL_Integer imag_int = 0;     // valid if imag_need_float is false
+        bool imag_need_float = false;
+        const bool imag_valid = tokenize_real(src, imag_need_float,
                                               imag_flt, imag_int);
+        if (!imag_need_float)   imag_flt = imag_flt;
 
         if (!imag_valid)
            {
              --src;   // undo skip 'J'
-             if (need_float)
+             if (real_need_float)
                 {
                   tos.append(Token(TOK_REAL,    real_flt));
                   Log(LOG_tokenize)
@@ -605,14 +607,15 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
 
         APL_Float   degrees_flt = 0;  // always valid
         APL_Integer degrees_int = 0;  // valid if imag_floating is true
-        bool need_float = false;
-        const bool imag_valid = tokenize_real(src, need_float,
+        bool imag_need_float = false;
+        const bool imag_valid = tokenize_real(src, imag_need_float,
                                               degrees_flt, degrees_int);
+        if (!imag_need_float)   degrees_flt = degrees_flt;
 
         if (!imag_valid)
            {
              --src;   // undo skip 'D'
-             if (need_float)
+             if (real_need_float)
                 {
                   tos.append(Token(TOK_REAL,    real_flt));
                   Log(LOG_tokenize)
@@ -641,14 +644,15 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
 
         APL_Float radian_flt;     // always valid
         APL_Integer radian_int;   // valid if imag_floating is true
-        bool need_float = false;
-        const bool imag_valid = tokenize_real(src, need_float,
+        bool radian_need_float = false;
+        const bool imag_valid = tokenize_real(src, radian_need_float,
                                               radian_flt, radian_int);
+        if (!radian_need_float)   radian_flt = radian_int;
 
         if (!imag_valid)
            {
              --src;   // undo skip 'R'
-             if (need_float)
+             if (real_need_float)
                 {
                   tos.append(Token(TOK_REAL,    real_flt));
                   Log(LOG_tokenize)
@@ -673,7 +677,7 @@ const bool real_valid = tokenize_real(src, need_float, real_flt, real_int);
       }
    else 
       {
-        if (need_float)
+        if (real_need_float)
            {
              tos.append(Token(TOK_REAL,    real_flt));
              Log(LOG_tokenize)
