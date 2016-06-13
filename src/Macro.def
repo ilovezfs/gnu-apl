@@ -82,7 +82,7 @@ mac_def(  Z__A_LO_OUTER_B,
  "LOOP: (IA IB)←⊃I[N] ◊ Z[N]←⊂(⊃A[IA]) LO ⊃B[IB] ◊ →(N_max>N←N+1)⍴LOOP\n"
  "Z←rho_Z⍴Z\n")
 
-// inner product. caller has checked that A and B fit
+// inner product. caller has checked that the shapes of A and B fit
 //
 mac_def(  Z__A_LO_INNER_RO_B,
  "Z←A (LO Z__A_LO_INNER_RO_B RO) B;rho_Z;r_Ah;r_Bl;z;M;M_max;N;N_max;I;IA;IB\n"
@@ -115,11 +115,56 @@ mac_def(  Z__A_LO_POWER_N_B,
 
 mac_def(  Z__LO_POWER_RO_B,
   " Z←(LO Z__LO_POWER_RO_B RO) B;T\n"
-"LOOP: Z←LO B ◊ T←Z RO B ◊ B←Z ◊ →(T≢1)⍴LOOP\n")
+"LOOP: Z←LO B ◊ T←Z RO B ◊ B←Z ◊ →((,T)≢,1)⍴LOOP\n")
 
 mac_def(  Z__A_LO_POWER_RO_B,
 " Z←A (LO Z__A_LO_POWER_RO_B RO) B;T\n"
-"LOOP: Z←A LO B ◊ T←Z RO B ◊ B←Z ◊ →(T≢1)⍴LOOP\n")
+"LOOP: Z←A LO B ◊ T←Z RO B ◊ B←Z ◊ →((,T)≢,1)⍴LOOP\n")
+
+// reduce: Z←LO/[X] B
+//
+mac_def(Z__LO_REDUCE_X_B,
+" Z←(LO Z__LO_REDUCE_X_B) [X] B;B1;rho_B1;T;H;M;M_max;L;N;I;I_max\n"
+" B1←(rho_B1←×/¨(2+×-X+1-⍳⍴rho_B1)⊂rho_B1←1,(⍴B),1)⍴B\n"
+" (H M_max L)←rho_B1 ◊ I_max←⎕IO+⍴I←,⍳⍴Z←(H, L)⍴0 ◊ N←⎕IO\n"
+"LOOPN: (H L)←⊃I[N] ◊ M←M_max-2 ◊ T←B1[H;⎕IO+M_max-1;L]\n"
+"LOOPM: T← ⊂(⊃B1[H;⎕IO+M;L]) LO ⊃T ◊ →(0≤M←M-1)⍴LOOPM\n"
+" Z[H;L]←T ◊               →(I_max>N←N+1)⍴LOOPN\n"
+" Z←((X≠⍳⍴⍴B)/⍴B)⍴Z\n")
+
+// reduce N-wise: Z←A LO/[X] B
+//
+mac_def(  Z__pA_LO_REDUCE_X_B,
+" Z←A (LO Z__pA_LO_REDUCE_X_B) [X] B;B1;rho_Z;rho_B1;T;H;M;L;a;N;I;I_max\n"
+" A←1-A ◊ rho_Z←⍴B ◊ rho_Z[X]←rho_Z[X]+A\n"
+" B1←(rho_B1←×/¨(2+×-X+1-⍳⍴rho_B1)⊂rho_B1←1,(⍴B),1)⍴B\n"
+" I_max←⎕IO+⍴I←,⍳⍴Z←((0 A 0)+⍴B1)⍴0 ◊ N←⎕IO\n"
+"LOOPN: (H a L)←⊃I[N] ◊ M←A+1 ◊ T←B1[H;a-A;L]\n"
+"LOOPM: T← ⊂(⊃B1[H;a-M;L]) LO ⊃T ◊ →(0≥M←M+1)⍴LOOPM\n"
+"       Z[H;a;L]←T               ◊ →(I_max>N←N+1)⍴LOOPN\n"
+" Z←rho_Z⍴Z\n")
+
+mac_def(  Z__nA_LO_REDUCE_X_B,
+" Z←A (LO Z__nA_LO_REDUCE_X_B) [X] B;B1;rho_Z;rho_B1;T;H;M;L;a;N;I;I_max\n"
+" A←A+1 ◊ rho_Z←⍴B ◊ rho_Z[X]←rho_Z[X]+A\n"
+" B1←(rho_B1←×/¨(2+×-X+1-⍳⍴rho_B1)⊂rho_B1←1,(⍴B),1)⍴B\n"
+" I_max←⎕IO+⍴I←,⍳⍴Z←((0 A 0)+⍴B1)⍴0 ◊ N←⎕IO\n"
+"LOOPN: (H a L)←⊃I[N] ◊ M←¯1 ◊ T←B1[H;a;L]\n"
+"LOOPM: T← ⊂((⊃T) LO ⊃B1[H;a-M;L]) ◊ →(A≤M←M-1)⍴LOOPM\n"
+"       Z[H;a;L]←T                 ◊ →(I_max>N←N+1)⍴LOOPN\n"
+" Z←rho_Z⍴Z\n")
+
+// scan: Z←LO/[X] B
+//
+mac_def(  Z__LO_SCAN_X_B,
+  " Z←(LO Z__LO_SCAN_X_B) [X] B;B1;rho_Z;rho_B1;T;H;M;L;a;N;I;I_max\n"
+" Z←B1←(rho_B1←×/¨(2+×-X+1-⍳⍴rho_B1)⊂rho_B1←1,(⍴B),1)⍴B\n"
+" rho_Z←⍴B ◊ I_max←⎕IO+⍴I←,⍳⍴Z ◊ N←⎕IO - 1\n"
+"LOOPN: (H a L)←⊃I[N←N+1] ◊ →(a=⎕IO)⍴LOOPN ◊ M←1 ◊ T←B1[H;a;L]\n"
+"LOOPM: T← ⊂((⊃B1[H;a-M;L]) LO ⊃T) ◊ →(a>M←M+1)⍴LOOPM\n"
+"       Z[H;a;L]←T                 ◊ →(I_max>N+1)⍴LOOPN\n"
+" Z←rho_Z⍴Z\n")
+
 
 #undef mac_def
 

@@ -44,10 +44,10 @@ protected:
    Token replicate(Value_P A, Value_P B, Axis axis);
 
    /// LO-reduce B along axis.
-   Token reduce(Function * LO, Value_P B, Axis axis);
+   Token reduce(Token & _LO, Value_P B, Axis axis);
 
    /// LO-reduce B n-wise along axis.
-   Token reduce_n_wise(Value_P A, Function * LO, Value_P B, Axis axis);
+   Token reduce_n_wise(Value_P A, Token & _LO, Value_P B, Axis axis);
 
    /// finish one iteration
    static Token finish_REDUCE(EOC_arg & arg, bool first);
@@ -70,11 +70,11 @@ public:
 
    /// Overloaded Function::eval_LB().
    virtual Token eval_LB(Token & LO, Value_P B)
-      { return reduce(LO.get_function(), B, B->get_rank() - 1); }
+      { return reduce(LO, B, B->get_rank() - 1); }
 
    /// Overloaded Function::eval_ALB().
    virtual Token eval_ALB(Value_P A, Token & LO, Value_P B)
-      { return reduce_n_wise(A, LO.get_function(), B, B->get_rank() - 1); }
+      { return reduce_n_wise(A, LO, B, B->get_rank() - 1); }
 
    /// Overloaded Function::eval_LXB().
    virtual Token eval_LXB(Token & LO, Value_P X, Value_P B);
@@ -105,15 +105,15 @@ public:
 
    /// Overloaded Function::eval_LB().
    virtual Token eval_LB(Token & LO, Value_P B)
-      { return reduce(LO.get_function(), B, 0); }
+      { return reduce(LO, B, 0); }
 
    /// Overloaded Function::eval_ALB().
    virtual Token eval_ALB(Token & LO, Value_P B)
-      { return reduce(LO.get_function(), B, 0); }
+      { return reduce(LO, B, 0); }
 
    /// Overloaded Function::eval_ALB().
    virtual Token eval_ALB(Value_P A, Token & LO, Value_P B)
-      { return reduce_n_wise(A, LO.get_function(), B, 0); }
+      { return reduce_n_wise(A, LO, B, 0); }
 
    /// Overloaded Function::eval_LXB().
    virtual Token eval_LXB(Token & LO, Value_P X, Value_P B);

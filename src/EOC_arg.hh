@@ -25,21 +25,6 @@
 #include "Shape.hh"
 #include "Value.icc"
 
-/// arguments of the EOC handler for one f/B result cell
-struct REDUCTION
-{
-  // parameters that are constant for the entire reduction
-  //
-  ShapeItem nwise;          ///< left argument (possibly negative)
-  ShapeItem len_L;          ///< length of dimensions below (excluding) axis
-  ShapeItem len_BML;        ///< length of dimensions below (including) axis
-  ShapeItem len_ZM;         ///< length of reduce axis in Z
-
-  // parameters that are changing during the reduction of a beam
-  ShapeItem todo_B;         ///< # of reductions left in this beam, -1: new beam
-  ShapeItem b;              ///< current b
-};
-
 /// arguments of the EOC handler for (A) f⍤[X] B
 struct RANK
 {
@@ -188,7 +173,6 @@ public:
 
    /// the structs defined above...
 #define EOC_structs                                                   \
-   REDUCTION   u_REDUCTION;       /**< space for f/ context        */ \
    RANK        u_RANK;            /**< space for A f⍤[X] B context */ \
 
    /// a helper union for computing the size of the largest struct

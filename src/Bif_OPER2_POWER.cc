@@ -77,7 +77,7 @@ Function * RO = _RO.get_function();   Assert(RO);
 
          Assert(result_RO.get_Class() == TC_VALUE);
          Value_P condition = result_RO.get_apl_val();
-         if (condition->is_scalar() &&
+         if (condition->is_scalar_extensible() &&
              condition->get_ravel(0).is_near_bool() &&
              condition->get_ravel(0).get_near_int() == 1)
             return Token(TOK_APL_VALUE1, LO_Z);

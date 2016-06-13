@@ -2,7 +2,7 @@
     This file is part of GNU APL, a free implementation of the
     ISO/IEC Standard 13751, "Programming Language APL, Extended"
 
-    Copyright (C) 2008-2015  Dr. Jürgen Sauermann
+    Copyright (C) 2008-2016  Dr. Jürgen Sauermann
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "Bif_OPER1_REDUCE.hh"
 #include "Bif_OPER1_SCAN.hh"
 #include "LvalCell.hh"
+#include "Macro.hh"
 #include "Workspace.hh"
 
 Bif_OPER1_SCAN    Bif_OPER1_SCAN ::_fun;
@@ -124,9 +125,11 @@ ShapeItem inc_2 = 0;              // increment after result m*l items
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_SCAN::scan(Function * LO, Value_P B, Axis axis)
+Bif_SCAN::scan(Token & _LO, Value_P B, Axis axis)
 {
+Function * LO = _LO.get_function();
    Assert(LO);
+
    if (!LO->has_result())   DOMAIN_ERROR;
 
    if (B->get_rank() == 0)      return Token(TOK_APL_VALUE1, B->clone(LOC));
@@ -185,6 +188,14 @@ ErrorCode (Cell::*assoc_f2)(Cell *, const Cell *) const = LO->get_assoc();
         return Token(TOK_APL_VALUE1, Z);
       }
 
+   // non-trivial reduce (len > 1)
+   //
+   if (LO->may_push_SI())   // user defined LO
+      {
+        Value_P X = IntScalar(axis + Workspace::get_IO(), LOC);
+        return Macro::Z__LO_SCAN_X_B->eval_LXB(_LO, X, B);
+      }
+
 const Shape3 Z3(B->get_shape(), axis);
 
    return Bif_REDUCE::do_reduce(B->get_shape(), Z3, -1, LO, axis, B, m_len);
@@ -202,12 +213,11 @@ Token
 Bif_OPER1_SCAN::eval_LXB(Token & LO, Value_P X, Value_P B)
 {
 const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
-   return scan(LO.get_function(), B, axis);
+   return scan(LO, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_OPER1_SCAN1::eval_AXB(Value_P A,
-                             Value_P X, Value_P B)
+Bif_OPER1_SCAN1::eval_AXB(Value_P A, Value_P X, Value_P B)
 {
 const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
    return expand(A, B, axis);
@@ -217,6 +227,6 @@ Token
 Bif_OPER1_SCAN1::eval_LXB(Token & LO, Value_P X, Value_P B)
 {
 const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
-   return scan(LO.get_function(), B, axis);
+   return scan(LO, B, axis);
 }
 //-----------------------------------------------------------------------------

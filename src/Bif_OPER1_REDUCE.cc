@@ -19,6 +19,7 @@
 */
 
 #include "Bif_OPER1_REDUCE.hh"
+#include "Macro.hh"
 #include "Workspace.hh"
 
 Bif_OPER1_REDUCE    Bif_OPER1_REDUCE ::_fun;
@@ -91,7 +92,7 @@ const Shape3 shape_B3(shape_B, axis);
                   loop(l, shape_B3.l())
                      {
                        const ShapeItem src = shape_B3.hml(h, bm, l);
-                       Z->next_ravel()->init(B->get_ravel(src), Z.getref(), LOC);
+                       Z->next_ravel()->init(B->get_ravel(src), Z.getref(),LOC);
                      }
                   if (shape_B3.m() > 1)   ++bm;
                 }
@@ -116,10 +117,12 @@ const Shape3 shape_B3(shape_B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_REDUCE::reduce(Function * LO, Value_P B, Axis axis)
+Bif_REDUCE::reduce(Token & _LO, Value_P B, Axis axis)
 {
+Function * LO = _LO.get_function();
    Assert1(LO);
-   if (!LO->has_result())   DOMAIN_ERROR;
+   if (!LO->has_result())            DOMAIN_ERROR;
+   if (LO->get_fun_valence() != 2)   SYNTAX_ERROR;
 
    // if B is a scalar, then Z is B.
    //
@@ -138,19 +141,29 @@ const Shape shape_Z = B->get_shape().without_axis(axis);
 
    if (m_len == 1)   return Bif_F12_RHO::do_reshape(shape_Z, *B);
 
+   // non-trivial reduce (len > 1)
+   //
+   if (LO->may_push_SI())   // user defined LO
+      {
+        Value_P X = IntScalar(axis + Workspace::get_IO(), LOC);
+        return Macro::Z__LO_REDUCE_X_B->eval_LXB(_LO, X, B);
+      }
+
 const Shape3 B3(B->get_shape(), axis);
 const Shape3 Z3(B3.h(), 1, B3.l());
    return do_reduce(shape_Z, Z3, B3.m(), LO, axis, B, B->get_shape_item(axis));
 }
 //-----------------------------------------------------------------------------
 Token
-Bif_REDUCE::reduce_n_wise(Value_P A, Function * LO, Value_P B, Axis axis)
+Bif_REDUCE::reduce_n_wise(Value_P A, Token & _LO, Value_P B, Axis axis)
 {
+Function * LO = _LO.get_function();
+   Assert(LO);
    if (!LO->has_result())   DOMAIN_ERROR;
 
    if (A->element_count() != 1)   LENGTH_ERROR;
 const APL_Integer A0 = A->get_ravel(0).get_int_value();
-const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items (M1 is iso)
+const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items (= M1 in iso)
 
    if (B->is_scalar())
       {
@@ -209,6 +222,13 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items (M1 is iso)
         return Token(TOK_APL_VALUE1, Z);
       }
 
+   if (LO->may_push_SI())   // user defined LO
+      {
+        Value_P X = IntScalar(axis + Workspace::get_IO(), LOC);
+        if (A0 < 0)  return Macro::Z__nA_LO_REDUCE_X_B->eval_ALXB(A, _LO, X, B);
+        else         return Macro::Z__pA_LO_REDUCE_X_B->eval_ALXB(A, _LO, X, B);
+      }
+
 Shape shape_Z(B->get_shape());
    shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) - n_wise + 1);
 
@@ -225,142 +245,89 @@ Bif_REDUCE::do_reduce(const Shape & shape_Z, const Shape3 & Z3, ShapeItem nwise,
    if (shape_Z.is_empty())   return LO->eval_identity_fun(B, axis);
 
 Value_P Z(shape_Z, LOC);
-EOC_arg arg(Z, Value_P(), LO, 0, B);
-REDUCTION & _arg = arg.u.u_REDUCTION;
 
-   _arg.nwise        = nwise;
-   _arg.len_L        = Z3.get_last_shape_item();
-   _arg.len_BML      = bm * _arg.len_L;
-   _arg.len_ZM       = Z3.m();
+const ShapeItem len_L   = Z3.get_last_shape_item();
+const ShapeItem len_BML = bm * len_L;
+const ShapeItem len_ZM  = Z3.m();
 
-   _arg.todo_B = 0;   // new beam
+ShapeItem todo_B = 0;   // new beam
 
-   return finish_REDUCE(arg, true);
-}
-//-----------------------------------------------------------------------------
-Token
-Bif_REDUCE::finish_REDUCE(EOC_arg & arg, bool first)
-{
-REDUCTION & _arg = arg.u.u_REDUCTION;
+prim_f2 scalar_LO = LO->get_scalar_f2();
 
-prim_f2 scalar_LO = arg.LO->get_scalar_f2();
-
-   while (_arg.todo_B || arg.z < (arg.Z->element_count() - 1))
+ShapeItem b = 0;
+   for (ShapeItem z = -1; todo_B || z < (Z->element_count() - 1);)
       {
-        if (_arg.todo_B == 0)   // new beam
+        if (todo_B == 0)   // new beam
            {
-             ++arg.z;
+             ++z;
              
-             const ShapeItem z_L =  arg.z % _arg.len_L;
-             const ShapeItem z_M = (arg.z / _arg.len_L) % _arg.len_ZM;
-             const ShapeItem z_H =  arg.z / (_arg.len_L * _arg.len_ZM);
+             const ShapeItem z_L =  z % len_L;
+             const ShapeItem z_M = (z / len_L) % len_ZM;
+             const ShapeItem z_H =  z / (len_L * len_ZM);
 
-             if      (_arg.nwise == -1)   _arg.todo_B = 1 + z_M;        // scan
-             else if (_arg.nwise < -1)    _arg.todo_B = - _arg.nwise;
-             else                        _arg.todo_B =   _arg.nwise;
+             if      (nwise == -1)   todo_B = 1 + z_M;        // scan
+             else if (nwise < -1)    todo_B = - nwise;
+             else                    todo_B =   nwise;
 
-             _arg.b = z_L + z_H * _arg.len_BML          // start of row in B
-                    + (_arg.todo_B - 1) * _arg.len_L;   // end of beam in B
+             b = z_L + z_H * len_BML          // start of row in B
+                    + (todo_B - 1) * len_L;   // end of beam in B
 
              // for reverse (i,e. nwise < -1) reduction direction go to the
              // start of the beam instead of the end of the beam.
              //
-             if (_arg.nwise < -1)   _arg.b += (_arg.nwise + 1) * _arg.len_L;
+             if (nwise < -1)   b += (nwise + 1) * len_L;
 
-            if (_arg.nwise != -1)   _arg.b += z_M * _arg.len_L; // start of beam
+            if (nwise != -1)   b += z_M * len_L; // start of beam
 
              // Z[z] ? B[b]
              //
-             arg.Z->next_ravel()->init(arg.B->get_ravel(_arg.b),
-                                       arg.Z.getref(), LOC);
+             Z->next_ravel()->init(B->get_ravel(b), Z.getref(), LOC);
            }
 
         // update position and check for end of beam
         //
-        Assert(_arg.todo_B > 0);
-        if (_arg.nwise < -1)   _arg.b += _arg.len_L;   // move  forward
-        else                   _arg.b -= _arg.len_L;   // move backward
-        --_arg.todo_B;
-        if (_arg.todo_B > 0)
+        Assert(todo_B > 0);
+        if (nwise < -1)   b += len_L;   // move  forward
+        else              b -= len_L;   // move backward
+        --todo_B;
+        if (todo_B > 0)
            {
            // one reduction step (one call of LO)
            //
-           if (scalar_LO                                &&
-               arg.Z->get_ravel(arg.z).is_simple_cell() &&
-               arg.B->get_ravel(_arg.b).is_simple_cell())
+           if (scalar_LO                        &&
+               Z->get_ravel(z).is_simple_cell() &&
+               B->get_ravel(b).is_simple_cell())
               {
-                Cell * cZ = &arg.Z->get_ravel(arg.z);
-                ErrorCode ec = (cZ->*scalar_LO)(cZ, &arg.B->get_ravel(_arg.b));
+                Cell * cZ = &Z->get_ravel(z);
+                ErrorCode ec = (cZ->*scalar_LO)(cZ, &B->get_ravel(b));
                 if (ec == E_NO_ERROR)   continue;
                 throw_apl_error(ec, LOC);
               }
            else
               {
-                Value_P LO_A = arg.B->get_ravel(_arg.b).to_value(LOC);
-                Value_P LO_B = arg.Z->get_ravel(arg.z).to_value(LOC);
-                Token result = arg.LO->eval_AB(LO_A, LO_B);
-                arg.Z->get_ravel(arg.z).release(LOC);
+                Value_P LO_A = B->get_ravel(b).to_value(LOC);
+                Value_P LO_B = Z->get_ravel(z).to_value(LOC);
+                Token result = LO->eval_AB(LO_A, LO_B);
+                Z->get_ravel(z).release(LOC);
 
                 if (result.get_Class() == TC_VALUE)
                    {
                      Value_P ZZ = result.get_apl_val();
-                     arg.Z->get_ravel(arg.z)
-                           .init_from_value(ZZ, arg.Z.getref(), LOC);
+                     Z->get_ravel(z).init_from_value(ZZ, Z.getref(), LOC);
                      continue;
                    }
 
                 if (result.get_tag() == TOK_ERROR)   return result;
-
-                if (result.get_tag() == TOK_SI_PUSHED)
-                   {
-                     // LO was a user defined function
-                     //
-                     Workspace::SI_top()->add_eoc_handler(eoc_REDUCE, arg, LOC);
-                     if (!first)   delete &arg;   // subsequent call
-                     return result;   // continue in user defined function...
-                   }
 
                 Q1(result);   FIXME;
               }
            }
       }
 
-   arg.Z->set_default(*arg.B.get());
+   Z->set_default(*B.get());
 
-   arg.Z->check_value(LOC);
-   return Token(TOK_APL_VALUE1, arg.Z);
-}
-//-----------------------------------------------------------------------------
-bool
-Bif_REDUCE::eoc_REDUCE(Token & token)
-{
-   if (token.get_Class() != TC_VALUE)  return false;   // stop it
-
-EOC_arg * arg = Workspace::SI_top()->remove_eoc_handlers();
-EOC_arg * next = arg->next;
-REDUCTION & _arg = arg->u.u_REDUCTION;
-
-   // the user defined function has returned a value. Store it.
-   //
-   {
-     Value_P ZZ = token.get_apl_val();
-     arg->Z->get_ravel(arg->z).init_from_value(ZZ, arg->Z.getref(), LOC);
-   }
-
-   // pop the SI unless this is the last reduction of the last 
-   // ravel element of Z to be computed
-   //
-   if (arg->z < (arg->Z->element_count() - 1) || _arg.todo_B > 1 )
-      Workspace::pop_SI(LOC);
-
-   copy_1(token, finish_REDUCE(*arg, false), LOC);
-   if (token.get_tag() == TOK_SI_PUSHED)   return true;   // continue
-
-   delete arg;
-   Workspace::SI_top()->set_eoc_handlers(next);
-   if (next)   return next->handler(token);
-
-   return false;   // stop it
+   Z->check_value(LOC);
+   return Token(TOK_APL_VALUE1, Z);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -373,19 +340,15 @@ const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
 Token
 Bif_OPER1_REDUCE::eval_LXB(Token & _LO, Value_P X, Value_P B)
 {
-Function * LO = _LO.get_function();
-
 const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
-   return reduce(LO, B, axis);
+   return reduce(_LO, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER1_REDUCE::eval_ALXB(Value_P A, Token & _LO, Value_P X, Value_P B)
 {
-Function * LO = _LO.get_function();
-
 const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
-   return reduce_n_wise(A, LO, B, axis);
+   return reduce_n_wise(A, _LO, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
@@ -401,13 +364,13 @@ Token
 Bif_OPER1_REDUCE1::eval_LXB(Token & LO, Value_P X, Value_P B)
 {
 const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
-   return reduce(LO.get_function(), B, axis);
+   return reduce(LO, B, axis);
 }
 //-----------------------------------------------------------------------------
 Token
 Bif_OPER1_REDUCE1::eval_ALXB(Value_P A, Token & LO, Value_P X, Value_P B)
 {
 const Rank axis = Value::get_single_axis(X.get(), B->get_rank());
-   return reduce_n_wise(A, LO.get_function(), B, axis);
+   return reduce_n_wise(A, LO, B, axis);
 }
 //-----------------------------------------------------------------------------
