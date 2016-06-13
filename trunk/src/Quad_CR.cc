@@ -19,6 +19,7 @@
 */
 
 #include "CDR.hh"
+#include "Macro.hh"
 #include "PointerCell.hh"
 #include "Quad_CR.hh"
 #include "Symbol.hh"
@@ -44,15 +45,33 @@ UCS_string symbol_name(*B.get());
     *  3) symbol_name is a function,         or
     *  4) symbol_name is not displayable
     */
-NamedObject * obj = Workspace::lookup_existing_name(symbol_name);
-   if (obj == 0)                  return Token(TOK_APL_VALUE1, Str0_0(LOC));
-   if (!obj->is_user_defined())   return Token(TOK_APL_VALUE1, Str0_0(LOC));
 
-const Function * function = obj->get_function();
+   if (symbol_name.size() == 0)   return Token(TOK_APL_VALUE1, Str0_0(LOC));
+
+const Function * function = 0;
+   if (symbol_name[0] == UNI_MUE)   // macro
+      {
+        loop(m, Macro::MAC_COUNT)
+            {
+              Macro * macro = Macro::get_macro((Macro::Macro_num)m);
+              if (symbol_name == macro->get_name())
+                 {
+                   function = macro;
+                   break;
+                 }
+            }
+
+      }
+   else   // maybe user defined function
+      {
+        NamedObject * obj = Workspace::lookup_existing_name(symbol_name);
+        if (obj && obj->is_user_defined())
+           {
+             function = obj->get_function();
+             if (function && function->get_exec_properties()[0])   function = 0;
+           }
+      }
    if (function == 0)   return Token(TOK_APL_VALUE1, Str0_0(LOC));
-
-   if (function->get_exec_properties()[0] != 0)
-      return Token(TOK_APL_VALUE1, Str0_0(LOC));
 
    // show the function...
    //

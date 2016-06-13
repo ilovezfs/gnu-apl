@@ -37,7 +37,7 @@ protected:
    Token expand(Value_P A, Value_P B, Axis axis);
 
    /// Compute the LO-scan of B.
-   Token scan(Function * LO, Value_P B, Axis axis);
+   Token scan(Token & _LO, Value_P B, Axis axis);
 
    /// Compute one scan item and store result in Z.
    static void scan_item(Cell * Z, Function * LO, const Cell * B,
@@ -61,7 +61,7 @@ public:
 
    /// Overloaded Function::eval_LB().
    virtual Token eval_LB(Token & LO, Value_P B)
-      { return scan(LO.get_function(), B, B->get_rank() - 1); }
+      { return scan(LO, B, B->get_rank() - 1); }
 
    /// Overloaded Function::eval_LXB().
    virtual Token eval_LXB(Token & LO, Value_P X, Value_P B);
@@ -89,7 +89,7 @@ public:
 
    /// Overloaded Function::eval_ALB().
    virtual Token eval_LB(Token & LO, Value_P B)
-      { return scan(LO.get_function(), B, 0); }
+      { return scan(LO, B, 0); }
 
    /// Overloaded Function::eval_ALXB().
    virtual Token eval_LXB(Token & LO, Value_P X, Value_P B);
