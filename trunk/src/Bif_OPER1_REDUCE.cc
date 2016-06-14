@@ -222,17 +222,17 @@ const int n_wise = A0 < 0 ? -A0 : A0;   // the number of items (= M1 in iso)
         return Token(TOK_APL_VALUE1, Z);
       }
 
+Shape shape_Z(B->get_shape());
+   shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) - n_wise + 1);
+
+   if (n_wise == 1)   return Bif_F12_RHO::do_reshape(shape_Z, *B);
+
    if (LO->may_push_SI())   // user defined LO
       {
         Value_P X = IntScalar(axis + Workspace::get_IO(), LOC);
         if (A0 < 0)  return Macro::Z__nA_LO_REDUCE_X_B->eval_ALXB(A, _LO, X, B);
         else         return Macro::Z__pA_LO_REDUCE_X_B->eval_ALXB(A, _LO, X, B);
       }
-
-Shape shape_Z(B->get_shape());
-   shape_Z.set_shape_item(axis, shape_Z.get_shape_item(axis) - n_wise + 1);
-
-   if (n_wise == 1)   return Bif_F12_RHO::do_reshape(shape_Z, *B);
 
 const Shape3 Z3(shape_Z, axis);
    return do_reduce(shape_Z, Z3, A0, LO, axis, B, B->get_shape_item(axis));

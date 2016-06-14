@@ -67,29 +67,34 @@ Function * LO = _LO.get_function();
 
    if (LO->may_push_SI())   // user defined LO
       {
+         // remember scalarity of A and B BEFORE disclosing them
+         //
+         const bool scalar_A = A->is_scalar();
+         const bool scalar_B = B->is_scalar();
+
         // we will call a macro, so disclose nested scalars (if any) here...
         //
-        if (A->is_scalar() && A->get_ravel(0).is_pointer_cell())
+        if (scalar_A && A->get_ravel(0).is_pointer_cell())
            A = A->get_ravel(0).get_pointer_value();
 
-        if (B->is_scalar() && B->get_ravel(0).is_pointer_cell())
+        if (scalar_B && B->get_ravel(0).is_pointer_cell())
            B = B->get_ravel(0).get_pointer_value();
 
         Macro * macro = 0; 
         if (LO->has_result())
-           if (A->is_scalar())
-              if (B->is_scalar())   macro = Macro::Z__sA_LO_EACH_sB;
-              else                  macro = Macro::Z__sA_LO_EACH_vB;
+           if (scalar_A)
+              if (scalar_B)   macro = Macro::Z__sA_LO_EACH_sB;
+              else            macro = Macro::Z__sA_LO_EACH_vB;
            else
-              if (B->is_scalar())   macro = Macro::Z__vA_LO_EACH_sB;
-              else                  macro = Macro::Z__vA_LO_EACH_vB;
+              if (scalar_B)   macro = Macro::Z__vA_LO_EACH_sB;
+              else            macro = Macro::Z__vA_LO_EACH_vB;
         else
-           if (A->is_scalar())
-              if (B->is_scalar())   return LO->eval_ALB(A, _LO, B);
+           if (scalar_A)
+              if (scalar_B)   LO->eval_ALB(A, _LO, B);
               else                  macro = Macro::sA_LO_EACH_vB;
            else
-              if (B->is_scalar())   macro = Macro::vA_LO_EACH_sB;
-              else                  macro = Macro::vA_LO_EACH_vB;
+              if (scalar_B)   macro = Macro::vA_LO_EACH_sB;
+              else            macro = Macro::vA_LO_EACH_vB;
 
         return macro->eval_ALB(A, _LO, B);
       }
