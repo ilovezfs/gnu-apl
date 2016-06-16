@@ -18,8 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Bif_OPER1_REDUCE.hh"
-#include "Bif_OPER2_RANK.hh"
 #include "EOC_arg.hh"
 #include "QuadFunction.hh"
 
@@ -33,7 +31,6 @@ EOC_arg::get_EOC_type(EOC_HANDLER handler)
    if (handler == Quad_EA::eoc_B_done)          return EOC_Quad_EA_B;
    if (handler == Quad_EC::eoc)                 return EOC_Quad_EC;
    if (handler == Quad_INP::eoc_INP)            return EOC_Quad_INP;
-   if (handler == Bif_OPER2_RANK::eoc_RANK)     return EOC_Rank;
 
    Assert(0 && "Bad EOC_handler");
    return EOC_None;
@@ -48,7 +45,6 @@ EOC_arg::get_EOC_handler(EOC_type type)
         case EOC_Quad_EA_B:  return Quad_EA::eoc_B_done;
         case EOC_Quad_EC:    return Quad_EC::eoc;
         case EOC_Quad_INP:   return Quad_INP::eoc_INP;
-        case EOC_Rank:       return Bif_OPER2_RANK::eoc_RANK;
         default:  Assert(0 && "Bad EOC_type");
       }
 

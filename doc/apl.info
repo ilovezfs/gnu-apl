@@ -1093,6 +1093,9 @@ part of a complex number) of the ravel elements of B[I].
    A=28: Z[I] is the additional data representation (for example the
 imaginary part of a complex number) of the ravel elements of B[I].
 
+   A=30: Z is B with all top-level elements conformed to a common rank
+and shape (as required by the ⍤ operator)
+
    Conversions 14 to 17 can be used, for example, to store APL values as
 printable ASCII texts in databases.
 
@@ -2861,14 +2864,14 @@ Node: Top383
 Node: Chapter 11404
 Node: Chapter 216943
 Node: Chapter 321212
-Node: Chapter 454645
-Node: Chapter 556393
-Node: Chapter 657522
-Node: Section 6.157941
-Node: Section 6.258628
-Node: Chapter 759459
-Node: Section 7.159962
-Node: Section 7.285271
+Node: Chapter 454761
+Node: Chapter 556509
+Node: Chapter 657638
+Node: Section 6.158057
+Node: Section 6.258744
+Node: Chapter 759575
+Node: Section 7.160078
+Node: Section 7.285387
 
 End Tag Table
 

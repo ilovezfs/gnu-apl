@@ -430,9 +430,8 @@ StateIndicator::unmark_all_values() const
    //
    for (EOC_arg * eoc = get_eoc_handlers(); eoc; eoc = eoc->next)
        {
-         if (!!eoc->Z)      eoc->Z   ->unmark();
-         if (!!eoc->A)      eoc->A   ->unmark();
-         if (!!eoc->B)      eoc->B   ->unmark();
+         if (!!eoc->A)      eoc->A->unmark();
+         if (!!eoc->B)      eoc->B->unmark();
        }
 }
 //-----------------------------------------------------------------------------

@@ -466,30 +466,9 @@ const int type = EOC_arg::get_EOC_type(eoc.handler);
    do_indent();
    out << "<EOC level=\"" << level << "\" type=\"" << type << "\"";
 
-   // integer items. Only dump non-0 ones
-   //
-   {
-     if (eoc.z)   out << "z=\"" << eoc.z << "\"";
-     int len = EOC_arg::u_DATA_LEN;
-     while (len && eoc.u.u_data[len - 1] == 0)   --len;
-     if (len)
-        {
-          out << " data=\"";
-          loop(l, len)
-              {
-                if (l)   out << " ";
-                 out << eoc.u.u_data[l];
-              }
-          out << "\"";
-        }
-   }
-
    ++indent;
 int count = 99;   // force new line
-   save_EOC_value("vid-Z",    eoc.Z.get(),    count);
    save_EOC_value("vid-A",    eoc.A.get(),    count);
-   save_EOC_function("LO",    eoc.LO,         count);
-   save_EOC_function("RO",    eoc.RO,         count);
    save_EOC_value("vid-B",    eoc.B.get(),    count);
    --indent;
 
@@ -513,26 +492,6 @@ XML_Saving_Archive::save_EOC_value(const char * name, const Value * val,
 
 const int vid = find_vid(*val);
    out << " " << name << "=\"" << vid << "\"";
-}
-//-----------------------------------------------------------------------------
-void
-XML_Saving_Archive::save_EOC_function(const char * name, const Function * fun,
-                                      int & count)
-{
-   if (fun == 0)   return;
-
-const UserFunction * ufun = fun->get_ufun1();
-const int max_count = ufun ? 4 : 5;
-   if (count > max_count)
-      {
-
-        out << endl;
-        do_indent();
-        out << "  ";
-        count = 0;
-      }
-
-   count += save_Function_name(name, name, name, *fun);
 }
 //-----------------------------------------------------------------------------
 void
@@ -2110,39 +2069,12 @@ XML_Loading_Archive::read_EOC(StateIndicator & si)
 // const int level = find_int_attr("level", false, 10);
 const int type = find_int_attr("type",   false, 10);
 
-EOC_arg * eoc = new EOC_arg(Value_P(), Value_P(), 0, 0, Value_P());
+EOC_arg * eoc = new EOC_arg(Value_P(), Value_P(), LOC);
    Assert(eoc);
 
    eoc->handler = EOC_arg::get_EOC_handler((EOC_arg::EOC_type)type);
 
-   // optional z. The default value for z is -1 and the value for a
-   // not-found find_int_attr() is -1 as well. Therefore we can assign
-   // the find_int_attr()) result without checking it.
-   //
-   {
-     const int z = find_int_attr("z", true, 10);
-     eoc->z = z;
-   }
-
-   // optional data
-   //
-const char * data = (const char * )find_attr("data", true);
-   if (data)
-      {
-        loop(j, EOC_arg::u_DATA_LEN)
-           {
-             long long d = 0;
-             const int count = sscanf(data, "%lld", &d);
-             if (count != 1)   break;   // no nmore data
-
-             eoc->u.u_data[j] = (ShapeItem)d;
-           }
-      }
-
-   read_EOC_value("vid-Z",    eoc->Z);
    read_EOC_value("vid-A",    eoc->A);
-   read_EOC_function(true,    eoc->LO);
-   read_EOC_function(false,   eoc->RO);
    read_EOC_value("vid-B",    eoc->B);
 
    return eoc;
@@ -2157,15 +2089,6 @@ const int vid = find_int_attr(attr_name, true, 10);
    Assert(vid < (int)values.size());
    Assert(!!values[vid]);
    valp = values[vid];
-}
-//-----------------------------------------------------------------------------
-void
-XML_Loading_Archive::read_EOC_function(bool is_LO, Function * &funp)
-{
-Function * fun;
-   if (is_LO) fun = read_Function_name("LO-name", "LO-level", "LO-id");
-   else       fun = read_Function_name("RO-name", "RO-level", "RO-id");
-   if (fun)   funp = fun;
 }
 //-----------------------------------------------------------------------------
 bool

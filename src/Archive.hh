@@ -83,9 +83,6 @@ public:
    /// write EOC Value_P \b val with name \b name
    void save_EOC_value(const char * name, const Value * val, int & count);
 
-   /// write EOC Function \b fun with name \b name
-   void save_EOC_function(const char * name, const Function * fun, int & count);
-
    /// write Token_loc \b tloc
    void save_token_loc(const Token_loc & tloc);
 
@@ -260,9 +257,6 @@ protected:
 
    /// construct one Value_P
    void read_EOC_value(const char * attr_name, Value_P & valp);
-
-   /// construct one Function
-   void read_EOC_function(bool is_LO, Function * & funp);
 
    /// read ⍎ Executable
    Executable * read_Execute();

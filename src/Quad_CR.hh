@@ -98,6 +98,9 @@ protected:
    /// compute \b 27 ⎕CR \b B or \b 28 ⎕CR \b B
    static Value_P do_CR27_28(bool primary, const Value & B);
 
+   /// compute \b 30 ⎕CR \b B
+   static Value_P do_CR30(const Value & B);
+
    /// the left argument of Pick (⊃) which selects a sub-item of a variable
    /// being constructed
    class Picker

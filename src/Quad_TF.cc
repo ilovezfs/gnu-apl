@@ -70,6 +70,8 @@ Value_P Z;
         DOMAIN_ERROR;
       }
 
+   if (!Z)   DOMAIN_ERROR;
+
    Z->check_value(LOC);
    return Token(TOK_APL_VALUE1, Z);
 }
@@ -162,15 +164,34 @@ const ShapeItem ec = val->element_count();
              const Cell & cell = val->get_ravel(e);
              if (cell.is_integer_cell())
                 {
+                  const int sign = ucs.size();
                   ucs.append_number(cell.get_int_value());
+                  if (ucs[sign] == '-')   ucs[sign] = UNI_OVERBAR;
                 }
-             else // if (cell.is_near_real())
+             else if (cell.is_near_real())
                 {
                   PrintContext pctx(PR_APL_MIN, Quad_PP_TF, MAX_Quad_PW);
-                  const APL_Float value = cell.get_real_value();
                   bool scaled = true;
-                  UCS_string ucs1(value, scaled, pctx);
+                  UCS_string ucs1(cell.get_real_value(), scaled, pctx);
                   ucs.append(ucs1);
+                }
+             else if (cell.is_numeric())
+                {
+                  PrintContext pctx(PR_APL_MIN, Quad_PP_TF, MAX_Quad_PW);
+                  bool scaled = true;
+                  UCS_string ucs1(cell.get_real_value(), scaled, pctx);
+                  ucs.append(ucs1);
+
+                  ucs.append(UNI_ASCII_J);
+
+                  ucs1 = UCS_string(cell.get_imag_value(), scaled, pctx);
+                  ucs.append(ucs1);
+                }
+             else
+                {
+                  Workspace::more_error() =
+                             UCS_string("Non-number in 1 ⎕TF N record");
+                  return Value_P();
                 }
            }
       }
@@ -208,31 +229,68 @@ UCS_string ucs;
 Value_P
 Quad_TF::tf1_inv(const UCS_string & ravel)
 {
+UCS_string & more = Workspace::more_error();
 const size_t len = ravel.size();
-   if (len < 2)   return Value_P();
+
+   if (len < 2)
+      {
+        more = UCS_string("1 ⎕TF record too short");
+        return Value_P();
+      }
 
    // mode should be 'F', 'N', or 'C'.
 const Unicode mode = ravel[0];
-   if (mode != 'C' && mode != 'F' && mode != 'N')   return Value_P();
+   if (mode != 'C' && mode != 'F' && mode != 'N')
+      {
+        more = UCS_string("1 ⎕TF record type not F, N, or C");
+        return Value_P();
+      }
 
 UCS_string name(ravel[1]);
    if (!Avec::is_quad(name[0]) && !Avec::is_first_symbol_char(name[0]))
-      return Value_P();
+      {
+        more = UCS_string("Bad variable name in 1 ⎕TF record");
+        return Value_P();
+      }
 
 ShapeItem idx = 2;
-   while (idx < len && Avec::is_symbol_char(ravel[idx]))   name.append(ravel[idx++]);
+   while (idx < len && Avec::is_symbol_char(ravel[idx]))
+         name.append(ravel[idx++]);
 
-   if (Avec::is_quad(name[0]) && name.size() == 1)   return Value_P();
-   if (ravel[idx++] != UNI_ASCII_SPACE)   return Value_P();
+   if (Avec::is_quad(name[0]) && name.size() == 1)
+      {
+        more = UCS_string("Bad variable name in 1 ⎕TF record");
+        return Value_P();
+      }
+
+   if (ravel[idx++] != UNI_ASCII_SPACE)
+      {
+        more = UCS_string("missing space (before rank) in 1 ⎕TF record");
+        return Value_P();
+      }
 
 ShapeItem idx0 = idx;
 Rank rank = 0;
    while (idx < len && Avec::is_digit(ravel[idx]))
       rank = 10 * rank + ravel[idx++] - UNI_ASCII_0;
 
-   if (rank == 0 && idx0 == idx)   return Value_P();   // no rank
-   if (ravel[idx++] != UNI_ASCII_SPACE)   return Value_P();
-   if (rank > MAX_RANK)    return Value_P();
+   if (rank == 0 && idx0 == idx)
+      {
+        more = UCS_string("missing rank in 1 ⎕TF record");
+        return Value_P();
+      }
+
+   if (ravel[idx++] != UNI_ASCII_SPACE)
+      {
+        more = UCS_string("missing space (after rank) in 1 ⎕TF record");
+        return Value_P();
+      }
+
+   if (rank > MAX_RANK)
+      {
+        more = UCS_string("max. rank exceeded in 1 ⎕TF record");
+        return Value_P();
+      }
 
 Shape shape;
    loop(r, rank)
@@ -241,8 +299,17 @@ Shape shape;
         ShapeItem sh = 0;
         while (idx < len && Avec::is_digit(ravel[idx]))
            sh = 10 * sh + ravel[idx++] - UNI_ASCII_0;
-        if (sh == 0 && idx0 == idx)   return Value_P();   // shape
-        if (ravel[idx++]!= UNI_ASCII_SPACE)  return Value_P();
+        if (sh == 0 && idx0 == idx)   // no shape
+           {
+             more = UCS_string("too few shape items in 1 ⎕TF record");
+             return Value_P();
+           }
+
+        if (ravel[idx++] != UNI_ASCII_SPACE)
+           {
+             more = UCS_string("missing space (in shape) in 1 ⎕TF record");
+             return Value_P();
+           }
         shape.add_shape_item(sh);
       }
 
@@ -253,19 +320,35 @@ NamedObject * sym_or_fun = Workspace::lookup_existing_name(name);
       {
         symbol = sym_or_fun->get_symbol();
         nc = sym_or_fun->get_nc();
-        if (symbol && symbol->is_readonly())   return Value_P();
+        if (symbol && symbol->is_readonly())
+           {
+             more = UCS_string("symbol cannot be modified in 1 ⎕TF record");
+             return Value_P();
+           }
      }
 
 const size_t data_chars = len - idx;
 
    if (mode == UNI_ASCII_F)   // function
       {
-        if (rank != 2)   return Value_P();
+        if (rank != 2)
+           {
+             more = UCS_string("function text is not a matrix in 1 ⎕TF record");
+             return Value_P();
+           }
 
         if (nc != NC_UNUSED_USER_NAME && nc != NC_FUNCTION && nc != NC_OPERATOR)
-           return Value_P();
+           {
+             more = UCS_string(
+                    "symbol is an existing variable in 1 ⎕TF F record");
+             return Value_P();
+           }
 
-        if (data_chars != shape.get_volume())   return Value_P();
+        if (data_chars != shape.get_volume())
+           {
+             more = UCS_string("item count mismatch in 1 ⎕TF N record");
+             return Value_P();
+           }
 
         Value_P new_val(shape, LOC);
         loop(d, data_chars)
@@ -276,8 +359,17 @@ const size_t data_chars = len - idx;
       }
    else if (mode == UNI_ASCII_C)   // char array
       {
-        if (data_chars != shape.get_volume())   return Value_P();
-        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
+        if (data_chars != shape.get_volume())
+           {
+             more = UCS_string("item count mismatch in 1 ⎕TF C record");
+             return Value_P();
+           }
+        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)
+           {
+             more = UCS_string(
+                    "symbol is existing and not a variable in 1 ⎕TF C record");
+             return Value_P();
+           }
 
         Value_P new_val(shape, LOC);
         loop(d, data_chars)
@@ -285,20 +377,30 @@ const size_t data_chars = len - idx;
 
         new_val->check_value(LOC);
 
-        if (symbol == 0)
-           symbol = Workspace::lookup_symbol(name);
-
+        if (symbol == 0)   symbol = Workspace::lookup_symbol(name);
         symbol->assign(new_val, LOC);
       }
    else if (mode == UNI_ASCII_N)   // numeric array
       {
-        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)   return Value_P();
+        if (nc != NC_UNUSED_USER_NAME && nc != NC_VARIABLE)
+           {
+             more = UCS_string("symbol cannot be assigned in 1 ⎕TF N record");
+             return Value_P();
+           }
 
         UCS_string data(ravel, idx, len - idx);
         Tokenizer tokenizer(PM_EXECUTE, LOC, false);
         Token_string tos;
-        if (tokenizer.tokenize(data, tos) != E_NO_ERROR)   return Value_P();
-        if (tos.size() != shape.get_volume())           return Value_P();
+        if (tokenizer.tokenize(data, tos) != E_NO_ERROR)
+           {
+             more = UCS_string("tokenization failed in 1 ⎕TF N record");
+             return Value_P();
+           }
+        if (tos.size() != shape.get_volume())
+           {
+             more = UCS_string("item count mismatch in 1 ⎕TF N record");
+             return Value_P();
+           }
 
         // check that all token are numeric...
         //
@@ -308,6 +410,7 @@ const size_t data_chars = len - idx;
              if (tag == TOK_INTEGER)   continue;
              if (tag == TOK_REAL)      continue;
              if (tag == TOK_COMPLEX)   continue;
+             more = UCS_string( "Non-number in 1 ⎕TF N record");
              return Value_P();
            }
 

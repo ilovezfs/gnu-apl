@@ -50,49 +50,21 @@ public:
    /// enumeration of all EOC handlers for serializing them in Archive.cc
    enum EOC_type
       {
-         EOC_None,         ///<
+         EOC_None,         ///< no type
          EOC_Quad_EA_AB,   ///<  ⎕EA
          EOC_Quad_EA_B,    ///<  ⎕EA
          EOC_Quad_EC,      ///<  ⎕EC
          EOC_Quad_INP,     ///<  ⎕INP
-         EOC_Outer_Prod,   ///<  ∘.f
-         EOC_Inner_LO,     ///<  f of f.g
-         EOC_Inner_RO,     ///<  g of f.g
-         EOC_Reduce,       ///<  f/
-         EOC_Each_AB,      ///<  A f¨ B
-         EOC_Each_B,       ///<  f¨ B
-         EOC_Rank,         ///<  f⍤
-         EOC_Power_0,      ///<  f⍣N  user-defined f
-         EOC_Power_LO,     ///<  f⍣g  user-defined f
-         EOC_Power_RO,     ///<  f⍣g  user-defined g
       };
 
    /// constructor
-   EOC_arg(Value_P vpZ, Value_P vpA, Function * lo, Function * ro, Value_P vpB)
+   EOC_arg(Value_P vpA, Value_P vpB, const char * _loc)
    : handler(0),
      loc(0),
      next(0),
-     Z(vpZ),
-     A(vpA),
-     LO(lo),
-     RO(ro),
-     B(vpB),
-     z(-1)
-   { memset(&u, 0, sizeof(u));   ++EOC_arg_count; }
-
-   /// constructor
-   EOC_arg(Value_P vpZ, Value_P vpA, Function * lo, Function * ro, Value_P vpB,
-           const char * loc)
-   : handler(0),
-     loc(0),
-     next(0),
-     Z(vpZ, loc),
-     A(vpA, loc),
-     LO(lo),
-     RO(ro),
-     B(vpB, loc),
-     z(-1)
-   { memset(&u, 0, sizeof(u));   ++EOC_arg_count; }
+     A(vpA, _loc),
+     B(vpB, _loc)
+   { ++EOC_arg_count; }
 
    /// activation constructor
    EOC_arg(EOC_HANDLER h, const EOC_arg & other, const char * l)
@@ -103,39 +75,30 @@ public:
       }
 
    /// copy constructor
-   EOC_arg(const EOC_arg & other, const char * loc)
+   EOC_arg(const EOC_arg & other, const char * _loc)
    : handler(other.handler),
-     loc(loc),
+     loc(_loc),
      next(other.next),
-     Z(other.Z, loc),
-     A(other.A, loc),
-     LO(other.LO),
-     RO(other.RO),
-     B(other.B, loc),
-     z(other.z)
-   { u = other.u;   ++EOC_arg_count; }
+     A(other.A, _loc),
+     B(other.B, _loc)
+   { ++EOC_arg_count; }
 
    /// copy constructor
    EOC_arg(const EOC_arg & other)
    : handler(other.handler),
      loc(other.loc),
      next(other.next),
-     Z(other.Z, LOC),
      A(other.A, LOC),
-     LO(other.LO),
-     RO(other.RO),
-     B(other.B, LOC),
-     z(other.z)
-   { u = other.u; Backtrace::show(__FILE__, __LINE__);   ++EOC_arg_count; }
+     B(other.B, LOC)
+   { Backtrace::show(__FILE__, __LINE__);   ++EOC_arg_count; }
 
    ~EOC_arg()   { --EOC_arg_count; }
 
    /// clear the Value_P in this EOC_arg
-   void clear(const char * loc)
+   void clear(const char * _loc)
       {
-        Z.clear(loc);
-        A.clear(loc);
-        B.clear(loc);
+        A.clear(_loc);
+        B.clear(_loc);
       }
 
    /// the handler
@@ -147,45 +110,17 @@ public:
    /// the next handler (after this one has finished)
    EOC_arg * next;
 
-   /// result
-   Value_P Z;
-
    /// left value argument
    Value_P A;
 
-   /// left function argument
-   Function * LO;
-
-   /// right function argument
-   Function * RO;
-
    /// right value argument
    Value_P B;
-
-   /// current Z index
-   ShapeItem z;
 
    /// return the EOC_type for handler
    static EOC_type get_EOC_type(EOC_HANDLER handler);
 
    /// return the EOC_handler for type
    static EOC_HANDLER get_EOC_handler(EOC_type type);
-
-   /// the structs defined above...
-#define EOC_structs                                                   \
-   RANK        u_RANK;            /**< space for A f⍤[X] B context */ \
-
-   /// a helper union for computing the size of the largest struct
-   union EOC_arg_u1 { EOC_structs };
-
-   enum { u_DATA_LEN = (sizeof(EOC_arg_u1)
-                     +  sizeof(ShapeItem) - 1) / sizeof(ShapeItem) };
-
-   /// additional EOC handler specific arguments
-   union EOC_arg_u
-      { EOC_structs 
-        uint8_t u_data[u_DATA_LEN];   ///< for serialization in Archive.cc
-      } u; ///< a union big enough for all EOC args
 
    /// the total number of constructed EOC_arg (to detect stale ones)
    static ShapeItem EOC_arg_count;
