@@ -40,8 +40,8 @@ public:
                             Value_P X, Value_P B);
 
    /// the 'normalized' implementation of all eval_ALxxx*( functions
-   static Token do_ALyXB(Value_P A, Rank rk_chunk_A, Function * LO,
-                         const Shape * axes, Value_P B, Rank rk_chunk_B);
+   static Token do_ALyXB(Value_P A, Rank rk_chunk_A, Token & LO,
+                         Value_P X, Value_P B, Rank rk_chunk_B);
 
    /// overloaded Function::eval_LRB()
    virtual Token eval_LRB(Token & LO, Token & RO_y, Value_P B);
@@ -50,7 +50,7 @@ public:
    virtual Token eval_LRXB(Token & LO, Token & RO_y, Value_P X, Value_P B);
 
    /// the 'normalized' implementation of all eval_Lxxx*( functions
-   Token do_LyXB(Function * LO, const Shape * axes, Value_P B, Rank rk_chunkB);
+   Token do_LyXB(Token & LO, Value_P X, Value_P B, Rank rk_chunkB);
 
    /// split j B into j and B
    static void split_y123_B(Value_P y123_B, Value_P & y123, Value_P & B);
@@ -58,21 +58,12 @@ public:
    static Bif_OPER2_RANK * fun;      ///< Built-in function
    static Bif_OPER2_RANK  _fun;      ///< Built-in function
 
-   /// function called when a sub-SI for a dyadic user defined LO returns
-   static bool eoc_RANK(Token & token);
-
 protected:
    /// convert 1- 2- or 3-element vector y123 to chunk-rank of B
    static void y123_to_B(Value_P y123, Rank & rk_B);
 
    /// convert 1- 2- or 3-element vector y123 to chunk-ranks of A and B
    static void y123_to_AB(Value_P y123, Rank & rk_A, Rank & rk_B);
-
-   /// helper for eval_LXB
-   static Token finish_LyXB(EOC_arg & arg, bool first);
-
-   /// helper for eval_ALyB
-   static Token finish_ALyXB(EOC_arg & arg, bool first);
 };
 //-----------------------------------------------------------------------------
 

@@ -180,10 +180,11 @@ bool extra_frame = false;
         case 23: pctx.set_style(PR_NARS);              break;
         case 24: pctx.set_style(PR_NARS1);             break;
         case 25: pctx.set_style(PR_NARS2);             break;
-        case 26:   return do_CR26(*B);  // Cell types
+        case 26: return do_CR26(*B);             // Cell types
         case 27: return do_CR27_28(true,  *B);   // value as int
         case 28: return do_CR27_28(false, *B);   // value2 as int
         case 29: pctx.set_style(PR_BOXED_GRAPHIC3);    break;
+        case 30: return do_CR30(*B);             // conform B (for ⍤ macro)
 
         default: Workspace::more_error() = "A ⎕CR B with invalid A";
                  DOMAIN_ERROR;
@@ -1038,6 +1039,72 @@ Value_P Z(len, LOC);
        }
 
    Z->set_default_Zero();
+   Z->check_value(LOC);
+   return Z;
+}
+//-----------------------------------------------------------------------------
+Value_P
+Quad_CR::do_CR30(const Value & B)
+{
+   // Z is B with all items conformed to the same rank and shape
+   //
+const ShapeItem len = B.element_count();
+   if (len == 0)   return B.clone(LOC);
+   if (len == 1)
+      {
+        if (!B.get_ravel(0).is_pointer_cell())   return B.clone(LOC);
+        return B.get_ravel(0).get_pointer_value()->clone(LOC);
+      }
+
+ShapeItem max_shape[MAX_RANK];   // in reverse order
+   loop(r, MAX_RANK)   max_shape[r] = 1;
+Rank max_rank = 0;
+
+   loop(b, len)
+      {
+        const Cell & cB = B.get_ravel(b);
+        if (cB.is_lval_cell())   DOMAIN_ERROR;
+        if (!cB.is_pointer_cell())   continue;   // simple scalar
+
+        const Shape sh = cB.get_pointer_value()->get_shape();
+        const Rank rk = sh.get_rank();
+        if (max_rank < rk)   max_rank = rk;
+        loop(s, rk)
+           {
+             const ShapeItem sh_s = sh.get_shape_item(rk - s - 1);
+             if (max_shape[s] < sh_s) max_shape[s] = sh_s;
+           }
+      }
+
+Shape conformed;
+   loop(r, max_rank)   conformed.add_shape_item(max_shape[max_rank - r - 1]);
+const ShapeItem conformed_len = conformed.get_volume();
+
+Shape shape_Z(B.get_shape() + conformed);
+Value_P Z(shape_Z, LOC);
+
+   loop(b, len)
+      {
+        const Cell & cB = B.get_ravel(b);
+        if (cB.is_pointer_cell())
+           {
+             Value_P B_sub = cB.get_pointer_value()->clone(LOC);
+             Shape sh_sub = B_sub->get_shape();
+             sh_sub.expand_rank(conformed.get_rank());
+             B_sub->set_shape(sh_sub);
+                
+             Token T = Bif_F12_TAKE::do_take(conformed, B_sub);
+             Value_P ZZ = T.get_apl_val();
+             loop(zz, conformed_len)
+                 Z->next_ravel()->init(ZZ->get_ravel(zz), Z.getref(), LOC);
+           }
+        else   // simple scalar
+           {
+             Z->next_ravel()->init(cB, Z.getref(), LOC);
+             loop(zz, (conformed_len - 1))   new (Z->next_ravel()) IntCell(0);
+           }
+      }
+
    Z->check_value(LOC);
    return Z;
 }

@@ -289,6 +289,24 @@ A ┌2─┐ 1 ┌2──┐ ┌3────────┐
 ┃     ╚════╝┃
 ┗∊━━━━━━━━━━┛
 
+
+   30 ⎕CR 1 (2 3) (2 3⍴10+⍳6) (3 2⍴20+⍳6)
+ 1  0  0
+ 0  0  0
+ 0  0  0
+
+ 2  3  0
+ 0  0  0
+ 0  0  0
+
+11 12 13
+14 15 16
+ 0  0  0
+
+21 22  0
+23 24  0
+25 26  0
+
       ⍝ invalid negative argument
       ⍝
       ¯1 ⎕CR A
@@ -303,9 +321,9 @@ A ⎕CR B with invalid A < 0
       ⍝ trigger a domain error if new left arguments are implemented
       ⍝ without adding a testcase
       ⍝
-      30 ⎕CR A
+      31 ⎕CR A
 DOMAIN ERROR+
-      30 ⎕CR A
+      31 ⎕CR A
       ^      ^
 
       )MORE
@@ -316,6 +334,12 @@ A ⎕CR B with invalid A
       ⍝ regression
       5 ⎕CR '1'
 31
+
+      )CHECK
+OK      - no stale functions
+OK      - no stale values
+OK      - no stale indices
+OK      - no stale EOC_args
 
 ⍝ ==================================
 

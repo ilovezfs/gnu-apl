@@ -279,7 +279,7 @@ const UCS_string statement_B(*B.get());
         // install end of context handler. The handler will do nothing when
         // B succeeds, but will execute A if not.
         //
-        EOC_arg arg(Value_P(), A, 0, 0, B);
+        EOC_arg arg(A, B, LOC);
         Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg, LOC);
 
         return Token(TOK_SI_PUSHED);
@@ -296,8 +296,7 @@ const UCS_string statement_B(*B.get());
    // B succeeds, but will execute A if not.
    //
    {
-     EOC_arg arg(Value_P(), A, 0, 0, B);
-
+     EOC_arg arg(A, B, LOC);
      Workspace::SI_top()->add_eoc_handler(eoc_B_done, arg, LOC);
    }
 
@@ -373,7 +372,7 @@ ExecuteList * fun = 0;
    // install end of context handler for the result of ⍎A. 
    //
    {
-     EOC_arg arg1(Value_P(), arg->A, 0, 0, arg->B);
+     EOC_arg arg1(arg->A, arg->B, LOC);
      Workspace::SI_top()->add_eoc_handler(eoc_A_and_B_done, arg1, LOC);
    }
 
@@ -499,7 +498,7 @@ ExecuteList * fun = 0;
    // The handler will create the result after executing B.
    //
    {
-     EOC_arg arg(Value_P(), Value_P(), 0, 0, Value_P(), LOC);
+     EOC_arg arg(Value_P(), Value_P(), LOC);
      Workspace::SI_top()->add_eoc_handler(eoc, arg, LOC);
    }
 
@@ -1106,7 +1105,7 @@ Quad_INP::do_escapes()
         Token result = Bif_F1_EXECUTE::execute_statement(escapes[idx_e]);
         if (result.get_tag() == TOK_SI_PUSHED)
            {
-             EOC_arg arg(Value_P(), Value_P(), 0, 0, Value_P(), LOC);
+             EOC_arg arg(Value_P(), Value_P(), LOC);
              Workspace::SI_top()->add_eoc_handler(eoc_INP, arg, LOC);
              return result;
            }

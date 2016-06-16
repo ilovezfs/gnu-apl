@@ -165,6 +165,23 @@ mac_def(  Z__LO_SCAN_X_B,
 "       Z[H;a;L]←T                 ◊ →(I_max>N+1)⍴LOOPN\n"
 " Z←rho_Z⍴Z\n")
 
+// rank: Z←  (LO⍤j) B and Z←  (LO⍤[X]j) 
+//       Z←A (LO⍤j) B and Z←(A LO⍤[X]j) 
+//
+mac_def(Z__LO_RANK_X5_B,
+ "Z←(LO Z__LO_RANK_X5_B) [X5] B;LB;rho_B;N_max;N;LZ;rho_Z\n"
+" (X5 LB rho_B LZ rho_Z)←X5 ◊ B←(LZ,LB)⍴B ◊ N_max←LZ+N←⎕IO ◊ Z←LZ⍴0\n"
+"LOOP: Z[N]←⊂LO rho_B⍴B[N;] ◊ →(N_max>N←N+1)⍴LOOP\n"
+"→(X5≢¯1)⍴WITH_AXES ◊ Z←30 ⎕CR rho_Z⍴Z ◊ →0\n"
+"WITH_AXES:           Z←⊃[X5]rho_Z⍴Z\n")
+
+mac_def(  Z__A_LO_RANK_X7_B,
+ "Z←A (LO Z__A_LO_RANK_X7_B)[X7] B;LA;rho_A;LB;rho_B;N_max;N;LZ;rho_Z\n"
+" (X7 LA rho_A LB rho_B LZ rho_Z)←X7 ◊ A←(LZ,LA)⍴A ◊ B←(LZ,LB)⍴B\n"
+"  N_max←LZ+N←⎕IO ◊ Z←LZ⍴0\n"
+"LOOP:Z[N]←⊂(rho_A⍴A[N;]) LO rho_B⍴B[N;] ◊ →(N_max>N←N+1)⍴LOOP\n"
+"→(X7≢¯1)⍴WITH_AXES ◊ Z←30 ⎕CR rho_Z⍴Z ◊ →0\n"
+"WITH_AXES:           Z←⊃[X7]rho_Z⍴Z\n")
 
 #undef mac_def
 
